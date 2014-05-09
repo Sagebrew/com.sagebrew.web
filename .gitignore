@@ -1,0 +1,14 @@
+.vagrant
+*.log
+*.pot
+*.pyc
+sagebrew/static/
+gunicorn_start_dev
+newrelic.ini
+gunicorn_start.bash
+gunicorn_start
+certs/key.pem
+.DS_Store
+sagebrew/celerybeat.pid
+sagebrew/media/
+

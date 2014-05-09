@@ -101,6 +101,18 @@ ROOT_URLCONF = 'sagebrew.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'sagebrew.wsgi.application'
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.core.context_processors.request",
+    'django.contrib.auth.context_processors.auth',
+    "allauth.account.context_processors.account",
+    "allauth.socialaccount.context_processors.socialaccount",
+)
+
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of `allauth`
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates"
@@ -125,6 +137,7 @@ INSTALLED_APPS = (
     'django_admin_bootstrapped',
     'django.contrib.admin',
     'south',
+    'haystack',
     'djcelery',
     'rest_framework',
     'admin_honeypot',
@@ -132,16 +145,33 @@ INSTALLED_APPS = (
     'provider.oauth2',
     'storages',
     'localflavor',
+    'crispy_forms',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'photologue',
+    'sortedm2m',
+    'guardian',
+    'address',
+    'friends',
+    'notifications',
+    'user_profiles',
 )
 
-REST_FRAMEWORK = {
-    # Use hyperlinked styles by default.
-    # Only used if the `serializer_class` attribute is not set on a view.
-    'DEFAULT_MODEL_SERIALIZER_CLASS':
-        'rest_framework.serializers.HyperlinkedModelSerializer',
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
+AUTH_PROFILE_MODULE = 'user_profiles.Profile'
+ACCOUNT_AUTHENTICATION_METHOD = ("username_email")
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
+LOGIN_URL = '/user_profiles/login/'
+LOGOUT_URL = '/user_profiles/logout/'
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
+        'URL': 'http://127.0.0.1:8983/solr'
+    },
 }
+HAYSTACK_DEFAULT_OPERATOR = "OR"
+ANONYMOUS_USER_ID = -1
 
 LOGIN_REDIRECT_URL = '/'
 EMAIL_USE_TLS = True
@@ -158,39 +188,16 @@ OAUTH_SINGLE_ACCESS_TOKEN = False
 OAUTH_EXPIRE_DELTA = timedelta(days=30, minutes=0, seconds=0)
 OAUTH_EXPIRE_DELTA_PUBLIC = timedelta(days=30, minutes=0, seconds=0)
 OAUTH_DELETE_EXPIRED = True
+IRONMQ_HOST = ""
 
-CELERY_DEFAULT_QUEUE = "sagebrew-default"
-#BROKER_URL = 'redis://localhost:6379/0'
-BROKER_URL = 'amqp://sagebrew:this_is_the_sagebrew_password@localhost:5672//'
-#BROKER_URL = 'ironmq://52dd5790f5137e0005000040:jXvMZvprwPw_dZPV1eYkbARcM64@'
-#CELERY_RESULT_BACKEND = 'cache+memcached://127.0.0.1:11211/'
-#CELERY_CACHE_BACKEND_OPTIONS = {'binary': True,
-#                                'behaviors': {'tcp_nodelay': True}}
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
-LOCAL_IP = "172.20.10.9"
-BLUETOOTH_IP = '172.20.10.11'
-#CELERY_RESULT_BACKEND = 'ironcache://52dd5790f5137e0005000040:jXvMZvprwPw_dZPV1eYkbARcM64@/automated_test_client'
-#BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 600, 'fanout_prefix': True}
-#CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-CELERY_DISABLE_RATE_LIMITS=True
+CELERY_DISABLE_RATE_LIMITS = True
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 CELERY_IMPORTS = ()
 CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
 CELERY_IGNORE_RESULT = False
-CELERY_ACKS_LATE = True
-CELERYD_PREFETCH_MULTIPLIER = 1
 # celery -A automated_test_client worker -l info
 # celery -A automated_test_client beat -l info
 
-# need to set usb device filter (http://forum.xda-developers.com/showthread.php?t=570452)
-# Make sure no left over scheduled tests in periodic test portion of DB
-# Make sure USB is hooked up to vm via ./adb devices
-# sudo apt-get install winbind
-# sudo pico /etc/nsswitch.conf
-#    Append wins to the end of the line with `hosts:` in it 
-#	     hosts:          files dns wins
-#        Save the file 
-# sudo apt-get install samba
 CELERYBEAT_SCHEDULE = {}
 CELERY_TIMEZONE = 'UTC'
 

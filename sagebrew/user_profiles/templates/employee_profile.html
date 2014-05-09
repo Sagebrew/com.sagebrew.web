@@ -1,0 +1,124 @@
+<!-- Owner specific info -->
+{% if owner %}
+    <div id="friend_requests">
+        <h4>Recieved Requests Pending Acceptance</h4>
+        <table id="friend_requests">
+            {% for friend_request in friend_requests %}
+                <tr>
+                    <td>
+                        <form action="/user_profiles/{{ username }}/" method="post">{% csrf_token %}
+                            {% if friend_request.first_name %}
+                                {{ friend_request.first_name }} {{ friend_request.last_name }}
+                            {% else %}
+                                {{ friend_request.username }}
+                            {% endif %}
+                            <input type="submit" value="Accept" name="{{ friend_request.username }}" id="id_accept_friend_request"/>
+                            <input type="submit" value="Decline" name="{{ friend_request.username }}" id="id_accept_friend_request"/>
+                        </form>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td>Currently No Received Friends Requests</td>
+                <tr>
+            {% endfor %}
+        </table>
+        <h4>Sent Requests Pending Acceptance</h4>
+        <table id="sent_requests">
+            {% for friend_request in sent_friend_requests %}
+                <tr>
+                    <td>
+                            {% if friend_request.first_name %}
+                                {{ friend_request.first_name }} {{ friend_request.last_name }}
+                            {% else %}
+                                {{ friend_request.username }}
+                            {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td>Currently No Sent Friends Requests</td>
+                <tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div id="friends">
+        <h4>Friends</h4>
+        <table id="friends">
+            {% for friend in friends %}
+                <tr>
+                    <td>{{ friend.username }}</td>
+                    <td>{{ friend.first_name }} {{ friend.last_name }}</td>
+                    <td>
+                        <form action="/user_profiles/{{ username }}/" method="post">{% csrf_token %}
+                                {{ friend_request.first_name }} {{ friend_request.last_name }}
+                                <input type="submit" value="Remove" name="{{ friend.username }}" id="id_accept_friend_request"/>
+                        </form>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td>Currently No Friends </td>
+                <tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div id="notifications">
+        <h4>Notifications</h4>
+        <table id="notifications">
+            {% for note in notifications %}
+                <tr>
+                    <td>{{ note.message }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td>No New notifications</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endif %}
+
+<!-- Friend specific info -->
+{% if friend %}
+    <h1>This is your friend {{username}}</h1>
+{% endif %}
+<!-- End Friend specific info -->
+
+<!-- Non Friend and Non Owner specific info -->
+{% if not owner and not friend %}
+    {% if is_friend %}
+        <p></p>
+    {% elif pending_received_request %}
+        <p> {{ full_name }} has already sent you a friend request.</p>
+    {% elif pending_sent_request %}
+        <p>Friend Request Pending</p>
+    {% else %}
+        <div id="request_friend">
+            <form action="/user_profiles/{{ username }}/" method="post">{% csrf_token %}
+                <p>Friend Request</p>
+                <input type="submit" value="Submit" name="friend_request"/>
+            </form>
+        </div>
+    {% endif %}
+{% endif %}
+
+
+
+<!-- Common info -->
+<div id="personal_info">
+    <h1>My Username: {{username}}</h1>
+    <p>Work Phone: {{work_phone}}</p>
+    <p>Speciality: {{speciality}}</p>
+</div>
+<div id="corporate_info">
+    <p>{{company}}</p>
+    <p>{{store_number}}</p>
+</div>
+<div id="customers">
+    <ul>
+        {% for item in customers %}
+            <li> {{ item.username }} </li>
+        {% endfor %}
+    </ul>
+</div>

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}{{site_title}}{% endblock %}
+{% block navigation %}
+    {% include "navigation.html" %}
+{% endblock %}
+{% block content %}
+    </div>
+        <h1>{{ site_title }}</h1>
+    </div> <!-- #header-wrapper, #header -->
+    <div id="content-wrapper">
+        <div id="content">
+            <div id="profile_picture">
+            </div>
+            <div id="info">
+                {% if user_type == "EM" %}
+                    {% include "employee_profile.html" %}
+                {% elif user_type == "CU" %}
+                    {% include "customer_profile.html" %}
+                {% elif user_type == "CO" %}
+                    {% include "company_profile.html" %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div id="clientele_album">
+    </div>
+{% endblock %}
+

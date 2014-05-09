@@ -27,11 +27,27 @@ CACHES = {
 AWS_UPLOAD_BUCKET_NAME = "sagebrew"
 AWS_UPLOAD_CLIENT_KEY = ""
 AWS_UPLOAD_CLIENT_SECRET_KEY = "lHu/"
+CELERY_DEFAULT_QUEUE = "sagebrew-development"
 
+BROKER_URL = 'amqp://sagebrew-dev:this_is_the_sagebrew_password@localhost:5672//'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+IRON_MQ_TOKEN = ""
+IRON_MQ_PROJECT = ""
 
 SECRET_KEY = "5fd&2wkqx8r!h2y1)j!izqi!982$p87)sred(5#x0mtqa^cbx)"
 
 INTERNAL_IPS = ('127.0.0.1', 'localhost', '0.0.0.0')
+
+
+REST_FRAMEWORK = {
+    # Use hyperlinked styles by default.
+    # Only used if the `serializer_class` attribute is not set on a view.
+    'DEFAULT_MODEL_SERIALIZER_CLASS':
+        'rest_framework.serializers.HyperlinkedModelSerializer',
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+}
+
 
 DEBUG_TOOLBAR_PANELS = (
     'debug_toolbar.panels.version.VersionDebugPanel',

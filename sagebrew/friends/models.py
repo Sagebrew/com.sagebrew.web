@@ -24,7 +24,7 @@ class FriendList(models.Model):
         return "%s's Friend's List" % self.owner.username
 
     def accept_friend_request(self, friend):
-        friends = friend.get_profile().friends
+        friends = friend.profile.friends
 
         self.pending_received_list.remove(friend)
         self.user_list.add(friend)
@@ -39,7 +39,7 @@ class FriendList(models.Model):
 
     def decline_friend_request(self, friend):
         self.pending_received_list.remove(friend)
-        friend.get_profile().friends.pending_sent_list.remove(self.owner)
+        friend.profile.friends.pending_sent_list.remove(self.owner)
         self.save()
         friend.save()
 
@@ -47,7 +47,7 @@ class FriendList(models.Model):
         if((friend not in self.pending_sent_list.all()) and
                                (not self.is_friend(friend))):
             self.pending_sent_list.add(friend)
-            friend.get_profile().friends.pending_received_list.add(self.owner)
+            friend.profile.friends.pending_received_list.add(self.owner)
             self.save()
             friend.save()
             friend_request_sent.send_robust(
@@ -57,7 +57,7 @@ class FriendList(models.Model):
 
     def remove_friend(self, friend):
         self.user_list.remove(friend)
-        friend.get_profile().friends.user_list.remove(self.owner)
+        friend.profile.friends.user_list.remove(self.owner)
         self.save()
         friend.save()
         friend_removed.send_robust(sender=self.__class__,
@@ -87,7 +87,7 @@ class FriendList(models.Model):
     def get_friends_subset(self, friend_type):
         friend_subset = []
         for friend in self.user_list.all():
-            if(friend.get_profile().user_type == friend_type):
+            if(friend.profile.user_type == friend_type):
                 friend_subset.append(friend)
         return friend_subset
 
@@ -107,16 +107,5 @@ def friend_request_notification(sender, **kw):
                                 message=message,
                                 notification_type=notification_type)
     notification.save()
-    friend.get_profile().notifications.add(notification)
+    friend.profile.notifications.add(notification)
     friend.save()
-
-
-@receiver(friend_removed)
-@receiver(friend_request_accepted)
-def assign_friend_perms(sender, **kw):
-    user = kw['user']
-    friend = kw['friend']
-    permission = kw['permission']
-
-    permission('view_friend_profile', user, friend.profile)
-    permission('view_friend_profile', friend, user.profile)

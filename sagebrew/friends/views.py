@@ -13,7 +13,7 @@ COMMAND_LIST = (SUBMIT_COMMAND, ACCEPT_COMMAND,
 
 
 def friend_button_press(req_post, user, friend):
-    user_profile = user.get_profile()
+    user_profile = user.profile
     if('friend_request' in req_post):
         if(req_post['friend_request'] == SUBMIT_COMMAND):
             user_profile.friends.send_friend_request(friend)
@@ -22,7 +22,6 @@ def friend_button_press(req_post, user, friend):
         if(req_post.get(item, False) in COMMAND_LIST):
             try:
                 command = req_post.get(item, False)
-                friend = User.objects.get(username=item)
                 if(command == ACCEPT_COMMAND):
                     user_profile.friends.accept_friend_request(friend)
                 elif(command == DECLINE_COMMAND):

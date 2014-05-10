@@ -1,3 +1,0 @@
-{{ object.user.username }}
-{{ object.address.city }}
-{{ object.address.state }}

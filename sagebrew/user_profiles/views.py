@@ -16,10 +16,11 @@ from .utils import ProfileUtils
 
 
 def unknown_user(request):
-    return render_to_response('index.html', {}, request)
+    return render_to_response('index.html', {},
+                                context_instance=RequestContext(request))
 
 @login_required
-def user_profile(request, user_name):
+def user_profile(request, username):
     '''
     user_profile(Context, String) provides a template with the information
     associated with the user who's page it is with regard to if the user
@@ -31,16 +32,11 @@ def user_profile(request, user_name):
         
         return profile_util
 
-    user = None
-    page_user = None
+    user = request.user
     try:
-        user = User.objects.get(username=request.user)
+        page_user = User.objects.get(username=username)
     except(User.DoesNotExist):
-        return HttpResponseRedirect('/accounts/register/')
-    try:
-        page_user = User.objects.get(username=user_name)
-    except(User.DoesNotExist):
-        redirect(unknown_user)
+        return redirect(unknown_user)
 
     if(user != None and page_user != None):
         profile_util = set_profile_util(user, page_user)
@@ -48,11 +44,11 @@ def user_profile(request, user_name):
         raise Http404
 
     if(request.method == 'POST'):
+        print "post method"
         if(friend_button_press(request.POST, user, page_user)):
-            redirect(home_profile)
+            return redirect(home_profile)
 
     data = profile_util.page_data()
-        
     return render_to_response(data['template'], data['return_dict'],
                RequestContext(request))
 
@@ -64,7 +60,7 @@ def home_profile(request):
     because it was causing issues with the urls since it takes on all urls.
     If someone figures out a way to move it back please feel free to.
     '''
-    response = user_profile(request, request.user)
+    response = user_profile(request, request.user.username)
     return response
 
 @login_required

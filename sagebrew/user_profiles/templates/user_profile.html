@@ -1,28 +1,148 @@
 {% extends "base.html" %}
+{% load i18n %}
+{% load staticfiles %}
 {% block title %}{{site_title}}{% endblock %}
 {% block navigation %}
     {% include "navigation.html" %}
 {% endblock %}
 {% block content %}
-    </div>
-        <h1>{{ site_title }}</h1>
-    </div> <!-- #header-wrapper, #header -->
-    <div id="content-wrapper">
-        <div id="content">
-            <div id="profile_picture">
-            </div>
-            <div id="info">
-                {% if user_type == "EM" %}
-                    {% include "employee_profile.html" %}
-                {% elif user_type == "CU" %}
-                    {% include "customer_profile.html" %}
-                {% elif user_type == "CO" %}
-                    {% include "company_profile.html" %}
-                {% endif %}
-            </div>
+<div id="content_left">
+    <div id="profile_picture">
+        <div class='image-preview'>
+            {% if profile.profile_pic %}
+                <img src="{{profile.profile_pic}}" alt="Profile Picture" width="100" height="100">
+            {% else %}
+                <img id="profile_pic" src="{% static "default.jpg" %}">
+            {% endif %}
         </div>
     </div>
-    <div id="clientele_album">
+</div>
+<div id="content_center">
+    <div id="info">
+        <div id="personal_info">
+            <h1>{{ user.username }}</h1>
+            <p>{{ user.first_name }} {{user.last_name}} </p>
+            <p>{{ profile.work_phone}}</p>
+            <p>Speciality: {{ profile.speciality }}</p>
+            <p>Employer: {{ profile.employer }} </p>
+        </div>
+        <div id="corporate_info">
+            <p>{{ profile.company}}</p>
+            <p>{{ profile.store_number}}</p>
+        </div>
+        <div id="customers">
+            <ul>
+                {% for item in profile.customers %}
+                    <li> {{ item.username }} </li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <!-- Owner specific info -->
+        {% if owner %}
+            <div id="friend_requests">
+                <h4>Recieved Requests Pending Acceptance</h4>
+                <table id="friend_requests">
+                    {% for friend_request in friends.pending_received_list %}
+                        <tr>
+                            <td>
+                                <form action="/user_profiles/{{ user.username }}/" method="post">{% csrf_token %}
+                                    {% if friend_request.first_name %}
+                                        {{ friend_request.first_name }} {{ friend_request.last_name }}
+                                    {% else %}
+                                        {{ friend_request.username }}
+                                    {% endif %}
+                                    <input type="submit" value="Accept" name="{{ friend_request.username }}" id="id_accept_friend_request"/>
+                                    <input type="submit" value="Decline" name="{{ friend_request.username }}" id="id_accept_friend_request"/>
+                                </form>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td>Currently No Received Friends Requests</td>
+                        <tr>
+                    {% endfor %}
+                </table>
+                <h4>Sent Requests Pending Acceptance</h4>
+                <table id="sent_requests">
+                    {% for friend_request in friends.pending_sent_list %}
+                        <tr>
+                            <td>
+                                    {% if friend_request.first_name %}
+                                        {{ friend_request.first_name }} {{ friend_request.last_name }}
+                                    {% else %}
+                                        {{ friend_request.username }}
+                                    {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td>Currently No Sent Friends Requests</td>
+                        <tr>
+                    {% endfor %}
+                </table>
+            </div>
+            <div id="friends">
+                <h4>Friends</h4>
+                <table id="friends">
+                    {% for friend in friends.user_list %}
+                        <tr>
+                            <td>{{ friend.username }}</td>
+                            <td>{{ friend.first_name }} {{ friend.last_name }}</td>
+                            <td>
+                                <form action="/user_profiles/{{ user.username }}/" method="post">{% csrf_token %}
+                                        {{ friend_request.first_name }} {{ friend_request.last_name }}
+                                        <input type="submit" value="Remove" name="{{ friend.username }}" id="id_accept_friend_request"/>
+                                </form>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td>Currently No Friends </td>
+                        <tr>
+                    {% endfor %}
+                </table>
+            </div>
+            <div id="notifications">
+                <h4>Notifications</h4>
+                <table id="notifications">
+                    {% for note in notifications %}
+                        <tr>
+                            <td>{{ note.message }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td>No New notifications</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% endif %}
+        
+        <!-- Friend specific info -->
+        {% if friend %}
+            <h1>This is your friend {{username}}</h1>
+        {% endif %}
+        <!-- End Friend specific info -->
+        
+        <!-- Non Friend and Non Owner specific info -->
+        {% if not owner and not friend %}
+            {% if is_friend %}
+                <p></p>
+            {% elif pending_received_request %}
+                <p> {{ full_name }} has already sent you a friend request.</p>
+            {% elif pending_sent_request %}
+                <p>Friend Request Pending</p>
+            {% else %}
+                <div id="request_friend">
+                    <form action="/user_profiles/{{ user.username }}/" method="post">{% csrf_token %}
+                        <p>Friend Request</p>
+                        <input type="submit" value="Submit Friend Request" name="friend_request"/>
+                    </form>
+                </div>
+            {% endif %}
+        {% endif %}
     </div>
+</div>
 {% endblock %}
 

@@ -1,0 +1,591 @@
+html { 
+    min-height: 700px;
+    min-width: 960px;
+}
+
+body {
+  margin:0px;
+  padding:0px;
+  font-family:Arial, Helvetica, sans-serif;
+}
+
+img {
+  border:0px;
+}
+
+#site-title {
+  font-family:"Lucida Sans", "Trebuchet","Verdana","Helvetica";
+  margin:0px;
+  font-size:700%;
+  font-weight:500;
+  text-align:center;
+}
+
+#error {
+    color:red;
+}
+
+#page-wrapper {
+  width:100%;
+}
+
+#headerContent, #topContent, #mainContent, #footerContent {
+    width: 960px;
+}
+
+#headerWrapper {
+    height: 4em;    
+    font-size: 9pt;
+    background-color: #0066cc;
+    overflow:auto;
+}
+
+#headerContent {
+    line-height: 4em;
+    position:relative;
+    left: 50%;
+    margin-left:-480px;
+}
+
+#navigation {
+    font-size: 100%;
+}
+
+#navigation a {    
+    margin: 0 1em 0 1em;
+    color: #95e2ef;
+    text-decoration: none;
+}
+
+.navigationLink {
+    float: left;
+    height: 50px;
+}
+
+#navigation a:hover {    
+    color: white;
+}
+
+#navigation a:active {    
+    color: white;
+}
+
+#navigation a.activeLink {    
+    color: white;
+}
+
+#navigationMarker {
+    margin-top: -0.7em;
+}
+
+#logoAnchor {
+    margin: 0;
+    float: right;
+    clear: none;
+    padding-right: 10px;
+}
+
+#logoAnchor a {
+    display: block;
+    font-size: 1.4em;
+    text-decoration: none;
+}
+
+#logoAnchor a img {
+    border: none;
+}
+
+#logoNavLogo {
+    width: 90px;
+    height: 40px;
+    padding-top: 0.3em;    
+    padding-right: 0.4em;
+}
+
+#logoNavLogoProfile
+{    
+    width: 150px;
+    height: 50px;
+    padding-top: 0.3em;    
+    padding-right: 0.4em;
+}
+
+#navImage {
+    width: 25px;
+    height: 25px;
+    padding-top: 0.3em;
+    padding-right:0.4em;
+}
+
+#statusinput {
+    font-size: 12px;
+}
+
+#signIn {
+    color:white;
+    display:block;
+    float:right;
+    padding:0;
+    margin-top:-14px;
+}
+
+#content-wrapper {
+  width:960px;
+  margin:auto;
+}
+
+#content {
+  position:relative;
+  margin-top:20px;
+  width:960px;
+}
+
+#content_center{
+	width:70%;
+	padding-bottom:25px;
+	float:left;
+}
+
+#content_left {
+    width:15%;
+    float:left;
+}
+
+#rooms {
+    margin-top:30px;
+}
+
+#map_canvas { 
+    height: 500px; 
+    width: 700px;
+}
+
+#profile_pic {
+    width: 120px;
+    height: 120px;
+    border-radius: 15px;
+}
+
+#list_profile_pic {
+    width: 80px;
+    height: 80px;
+    border-radius: 15px;
+}
+
+#info {
+  font-family:Arial, Helvetica, sans-serif;
+  font-size:12px;
+  color: black;
+  padding:10px;
+}
+
+#paragraphs {
+   color:black;
+}
+
+#follow {
+  position:absolute;
+  top:-5px;
+  left:147px;
+}
+
+#site-title {
+  font-family:"Lucida Sans", "Trebuchet","Verdana","Helvetica";
+  margin:0px;
+  font-size:700%;
+  font-weight:500;
+  text-align:center;
+}
+
+#mc_embed_signup {
+  position:absolute;
+  right:206px;
+}
+
+.mc-field-group {
+  display:inline-block;
+}
+
+.mc-field-group input {
+  width:220px;
+  padding:2px;
+  border:2px solid #373839;
+  font-size:146%;
+  font-weight:normal;
+  
+}
+
+.mc-field-group input:focus {
+  background:#ececec;
+}
+
+#mc-embedded-subscribe {
+  margin-left:-5px;
+  padding:7px 2px 4px 5px;
+  font-size:120%;
+  font-weight:normal;
+  border:0;
+  background:#373839;
+  color:#ffffff;
+  
+}
+
+h1 {
+    margin:0px;
+    margin-bottom:5px;
+    color: #666666;
+}
+
+h2 {
+    margin-top:3px;
+    margin-bottom:2px;
+    color: #2b2b2b;
+}
+
+h3 {
+    color: #666666;
+    margin-bottom:0px;
+}
+
+h4 {
+    margin-bottom:3px;
+}
+
+p {
+    margin:0px;
+    margin-bottom:6px;
+}
+
+
+input.contact, textarea#contactInfo{ 
+    -webkit-border-radius: 5px; 
+    -moz-border-radius: 5px; 
+    border-radius: 4px;
+    height: 19px;
+    width: 250px;
+}
+
+input#submit {
+    width: 100px;
+    height: 30px;
+    background:#1C1C1C;
+    margin-top:2px;
+    color: white;
+    margin-bottom:30px;
+}
+
+input#search {
+    -webkit-border-radius: 5px; 
+    -moz-border-radius: 5px; 
+    border-radius: 4px;
+    height: 19px;
+    width: 200px;
+    margin-right: 10px;
+}
+
+
+textarea{
+    height: 100px;
+    width: 350px;
+}
+
+select {
+    font-weight: bold; 
+    background: black;
+    color:white;
+    width: 120px;
+    height: 25px;
+    margin:5px;
+    margin-left:0px;
+ }
+
+ 
+#footer-wrapper {
+	color:#404040;
+	margin-left:auto;
+	margin-right:auto;
+	width:100%;
+	font-size:11px;
+	text-align:center;
+	padding-bottom:48px;
+    clear: both;
+    padding-top:25px;
+}
+
+#copyright {
+    bottom: 5px;
+}
+
+#footer-wrapper .section {
+  padding:5px 0px;
+}
+
+#employee_item {
+    height: 125px;
+}
+
+#employee_info {
+    width: 85%;
+
+    float: right;
+}
+
+#employee_info h3 {
+    margin-top: 0px;
+}
+
+/*-------LOGIN STARTS HERE -------*/
+
+/* Login Container (default to float:right) */
+#loginContainer {
+    position:relative;
+    float:right;
+    font-size:12px;
+}
+
+/* Login Button */
+#loginButton { 
+    display:inline-block;
+    margin-top:10px;
+    float:right;
+    position:relative;
+    z-index:30;
+    cursor:pointer;
+}
+
+/* Login Button Text */
+#loginButton span {
+    margin-top: 15px;
+    color:#95e2ef; 
+    font-size:14px; 
+    font-weight:bold; 
+    padding:7px 29px 9px 10px;
+    background:url('../media/loginArrow.png') no-repeat 53px 7px;
+    display:block
+}
+
+/* Login Box */
+#loginBox {
+    position:absolute;
+    top:20px;
+    right:0;
+    display:none;
+    z-index:29;
+}
+
+/* If the Login Button has been clicked */    
+#loginButton.active {
+    border-radius:3px 3px 0 0;
+}
+
+#loginButton.active span {
+    background-position:53px -65px;
+}
+
+/* A Line added to overlap the border */
+#loginButton.active em {
+    position:absolute;
+    width:100%;
+    height:1px;
+    bottom:-1px;
+}
+
+/* Login Form */
+#loginForm {
+    width:248px; 
+    border:1px solid #899caa;
+    border-radius:3px 0 3px 3px;
+    -moz-border-radius:3px 0 3px 3px;
+    margin-top:-1px;
+    background:#d2e0ea;
+    padding:6px;
+}
+
+#loginForm fieldset {
+    margin:0 0 0px 0;
+    display:block;
+    border:0;
+    padding:0;
+}
+
+fieldset#body {
+    background:#fff;
+    border-radius:3px;
+    -moz-border-radius:3px;
+    padding:10px 13px;
+    margin:0;
+}
+
+#loginForm #checkbox {
+    width:15px;
+    margin-top:9px;
+}
+
+
+#body label {
+    color:#3a454d;
+    height:20px;
+    width:80px;
+}
+
+#loginForm #body fieldset label {
+    display:block;
+    float:none;
+    margin:0 0 6px 0;
+}
+
+/* Default Input */
+#loginForm input {
+    width:92%;
+    border:1px solid #899caa;
+    border-radius:3px;
+    -moz-border-radius:3px;
+    color:#3a454d;
+    font-weight:bold;
+    padding:8px 8px;
+    box-shadow:inset 0px 1px 3px #bbb;
+    -webkit-box-shadow:inset 0px 1px 3px #bbb;
+    -moz-box-shadow:inset 0px 1px 3px #bbb;
+    font-size:12px;
+}
+
+/* Sign In Button */
+#loginForm #login {
+    height:40px;
+    width: auto;
+    float:left;
+    background:#339cdf url('../media/loginbuttonbg.png') repeat-x;
+    color:#fff;
+    padding:7px 10px 8px 10px;
+    text-shadow:0px -1px #278db8;
+    border:1px solid #339cdf;
+    box-shadow:none;
+    margin-top:10px;
+    margin-right:12px;
+    -moz-box-shadow:none;
+    -webkit-box-shadow:none;
+    cursor:pointer;
+    *padding:7px 2px 8px 2px; /* IE7 Fix */
+}
+
+/* Forgot your password */
+#loginForm span {
+    text-align:center;
+    display:block;
+    height:45px;    
+}
+
+#loginForm span a {
+    color:#3a454d;
+    text-shadow:1px 1px #fff;
+    font-size:12px;
+}
+
+input:focus {
+    outline:none;
+}
+
+button#invite, #admins {
+    width: 100px;
+    height: 30px;
+    background:#1C1C1C;
+    margin-top:2px;
+    color: white;
+    margin-bottom:30px;
+}
+
+
+#backgroundPopup, #backgroundAdminPopup {
+    display:none;
+    position:fixed;
+    _position:absolute; /* hack for internet explorer 6*/
+    height:100%;
+    width:100%;
+    top:0;
+    left:0;
+    background:#000000;
+    border:1px solid #cecece;
+    z-index:1;
+}
+
+
+#popupContact, #popupAdmin {
+    display:none;
+    position:fixed;
+    _position:absolute; /* hack for internet explorer 6*/
+    height:384px;
+    width:610px;
+    background:#FFFFFF;
+    border:2px solid #cecece;
+    z-index:2;
+    padding:12px;
+    font-size:13px;
+    overflow: scroll;
+}
+
+
+#popupContact h1, #popupAdmin h1 {
+    text-align:left;
+    color:#6FA5FD;
+    font-size:22px;
+    font-weight:700;
+    border-bottom:1px dotted #D3D3D3;
+    padding-bottom:2px;
+    margin-bottom:20px;
+}
+
+
+#popupContactClose, #popupAdminClose {
+    font-size:14px;
+    line-height:14px;
+    right:6px;
+    top:4px;
+    position:absolute;
+    color:#6fa5fd;
+    font-weight:700;
+    display:block;
+}
+
+#invite_friends {
+    padding-right:5px;
+}
+
+
+/*******Main Rooms Content Slider CSS ******/
+#slider {
+    width: 600px;
+    margin: 0 auto;
+    position: relative;
+}
+
+ul.navigation-rooms {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    padding-bottom: 9px;
+}
+
+ul.consoles {
+    margin-top: -2px;
+    margin-bottom: 2px;
+    list-style: none;
+}
+
+ul.navigation-rooms li {
+    display: inline;
+    margin-right: 5px;
+    font-size: 8pt;
+}
+
+
+ul.navigation-rooms a {
+    padding: 10px;
+    padding-bottom: 12px;
+    color: #000;
+    text-decoration: none;
+}
+
+ul.navigation-rooms a:hover {
+    background-color: #f6f6f6;
+}
+/*****End Slider CSS******/

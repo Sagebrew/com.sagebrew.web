@@ -162,8 +162,8 @@ INSTALLED_APPS = (
 ACCOUNT_AUTHENTICATION_METHOD = ("username_email")
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
-LOGIN_URL = '/user_profiles/login/'
-LOGOUT_URL = '/user_profiles/logout/'
+LOGIN_URL = '/accounts/login/'
+LOGOUT_URL = '/accounts/logout/'
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.solr_backend.SolrEngine',

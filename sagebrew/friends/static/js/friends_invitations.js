@@ -12,7 +12,7 @@ $( document ).ready(function() {
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
 			type: "POST",
-			url: "/user_profiles/api/friend_request/",
+			url: "/api/friend_request/",
 			data: JSON.stringify({
 			   'action':$(this).data('action'),
 			   'friend_uid': $(this).data('friendid')
@@ -20,7 +20,7 @@ $( document ).ready(function() {
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
 			success: function(data) {
-			   alert(data);
+			   alert(data['here']);
 			}
 		});
 	});

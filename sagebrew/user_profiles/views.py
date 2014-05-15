@@ -31,7 +31,6 @@ def user_profile(request, username):
         profile_util = ProfileUtils(user, page_user)
         
         return profile_util
-
     user = request.user
     try:
         page_user = User.objects.get(username=username)
@@ -44,7 +43,6 @@ def user_profile(request, username):
         raise Http404
 
     if(request.method == 'POST'):
-        print "post method"
         if(friend_button_press(request.POST, user, page_user)):
             return redirect(home_profile)
 
@@ -55,11 +53,6 @@ def user_profile(request, username):
 
 @login_required
 def home_profile(request):
-    '''
-    Had to move this out of the standard user profile views and into ziggzi
-    because it was causing issues with the urls since it takes on all urls.
-    If someone figures out a way to move it back please feel free to.
-    '''
     response = user_profile(request, request.user.username)
     return response
 

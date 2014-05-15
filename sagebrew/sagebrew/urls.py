@@ -19,6 +19,7 @@ urlpatterns = patterns('',
     (r'^contact_us/$', TemplateView.as_view(template_name="contact_us.html")),
     (r'^accounts/', include('allauth.urls')),
     (r'^oauth2/', include('provider.oauth2.urls', namespace='oauth2')),
+    (r'^api/', include('friends.api_urls')),
     (r'^user_profiles/', include('user_profiles.urls')),
 )
 

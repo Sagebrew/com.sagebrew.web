@@ -3,6 +3,13 @@ from django.http import Http404
 from django.db import DatabaseError
 from django.contrib.auth.models import User
 
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import (SessionAuthentication,
+                                                BasicAuthentication)
+from rest_framework.decorators import (api_view, permission_classes,
+                                            authentication_classes)
+from rest_framework.response import Response
+
 
 SUBMIT_COMMAND = 'Submit Friend Request'
 ACCEPT_COMMAND = 'Accept'
@@ -32,3 +39,14 @@ def friend_button_press(req_post, user, friend):
             except(User.DoesNotExist, DatabaseError):
                 raise Http404
     return False
+
+
+@api_view(['POST'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes([IsAuthenticated, ])
+def friend_request_answer(request):
+    feedback = request.DATA
+    print feedback["action"]
+    print feedback["friend_uid"]
+    return_json = {"here": "there"}
+    return Response(return_json, status=200)

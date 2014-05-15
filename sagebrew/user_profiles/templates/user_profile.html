@@ -46,15 +46,13 @@
                     {% for friend_request in friends.pending_received_list %}
                         <tr>
                             <td>
-                                <form action="/user_profiles/{{ user.username }}/" method="post">{% csrf_token %}
                                     {% if friend_request.first_name %}
                                         {{ friend_request.first_name }} {{ friend_request.last_name }}
                                     {% else %}
                                         {{ friend_request.username }}
                                     {% endif %}
-                                    <input type="submit" value="Accept" name="{{ friend_request.username }}" id="id_accept_friend_request"/>
-                                    <input type="submit" value="Decline" name="{{ friend_request.username }}" id="id_accept_friend_request"/>
-                                </form>
+									<a class='btn btn-primary friend-action' data-action='accept' data-friendid={{friend_request.username}}>Accept Friend</a>
+                                    <a class='btn btn-primary friend-action' data-action='deny' data-friendid={{friend_request.username}}>Deny Friend</a>
                             </td>
                         </tr>
                     {% empty %}
@@ -146,3 +144,7 @@
 </div>
 {% endblock %}
 
+{% block scripts %}
+	{{ block.super }}
+	<script src="{% static 'js/friends_invitations.js' %}"></script>
+{% endblock scripts %}

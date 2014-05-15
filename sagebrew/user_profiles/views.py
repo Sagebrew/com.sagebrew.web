@@ -168,6 +168,7 @@ def picture_settings(request):
                               return_dict,
                               RequestContext(request))
 
+
 def search(request):
     if request.method == 'POST':
         print request.method

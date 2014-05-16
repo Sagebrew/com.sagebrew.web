@@ -6,15 +6,7 @@ file are Company Profiles, Employee Profiles, and Customer Profiles which
 can all be found in the Models.py file.
 '''
 from django import forms
-from django.forms import ModelForm
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import User
-
-from crispy_forms.helper import FormHelper
-
-from localflavor.us.forms import USPhoneNumberField
-
-from .models import Profile
 
 
 attrs_dict = {'class': 'required'}
@@ -37,69 +29,6 @@ PASSWORD_MISMATCH_ERROR = _("The two password fields didn't match.")
 USER_TYPE_ATTRS = {'onchange': "Dajaxice.registration.pagination(\
                                 Dajax.process, {'option': this.value})",
                    'size': '1'}
-
-
-class StandardUserForm(forms.Form):
-    '''
-    User registration form containing the attributes found in all user profiles
-    '''
-    email = forms.EmailField()
-    password1 = forms.CharField(widget=forms.PasswordInput(attrs=attrs_dict,
-                    render_value=False),
-                    error_messages={'required': REQUIRED_ERRORS['password']})
-    password2 = forms.CharField(widget=forms.PasswordInput(attrs=attrs_dict,
-                    render_value=False),
-                    error_messages={'required': REQUIRED_ERRORS['password']})
-    primary_phone = USPhoneNumberField(
-                        error_messages={'required': REQUIRED_ERRORS['phone']})
-
-    def clean_username(self):
-        'Validate that the username is alphanumeric and is not already in use.'
-        username = self.cleaned_data['username']
-        try:
-            User.objects.get(username__iexact=username)
-            Profile.objects.get(lower_username__iexact=username.lower())
-        except User.DoesNotExist:
-            return username
-        except Profile.DoesNotExist:
-            return username
-        raise forms.ValidationError(USER_EXISTS_ERROR)
-
-    def clean_email(self):
-        'Validate that the supplied email address is unique for the site.'
-        email = self.cleaned_data['email']
-        if User.objects.filter(email__iexact=email):
-            raise forms.ValidationError(EMAIL_DUPLICATE_ERROR)
-        return email
-
-    def clean(self):
-        """
-        Verifiy that the values entered into the two password fields
-        match. Note that an error here will end up in
-        ``non_field_errors()`` because it doesn't apply to a single
-        field.
-        """
-        pass1, pass2 = ('password1', 'password2')
-
-        if(pass1 in self.cleaned_data and pass2 in self.cleaned_data):
-            if(self.cleaned_data[pass1] != self.cleaned_data[pass2]):
-                raise forms.ValidationError(PASSWORD_MISMATCH_ERROR)
-        return self.cleaned_data
-
-
-class ProfileForm(forms.Form):
-    '''
-    Registration form for the customer profile containing customer
-    specific attributes.
-    '''
-    username = forms.CharField(max_length=30,
-                   widget=forms.TextInput(attrs=attrs_dict),
-                   error_messages={'invalid': USERNAME_INVALID_ERROR})
-    first_name = forms.CharField(max_length=30,
-                    error_messages={'required': REQUIRED_ERRORS['first_name']})
-    last_name = forms.CharField(max_length=30,
-                    error_messages={'required': REQUIRED_ERRORS['last_name']})
-
 
 class AccountSettingsForm(forms.Form):
     '''

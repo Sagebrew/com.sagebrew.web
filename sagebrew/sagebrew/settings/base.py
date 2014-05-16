@@ -65,7 +65,7 @@ STATICFILES_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     '%s/sagebrew/static/' % PROJECT_DIR,
-    '%s/friends/static/' % PROJECT_DIR,
+    '%s/plebs/static/' % PROJECT_DIR,
 )
 
 # List of finder classes that know how to find static files in
@@ -154,22 +154,19 @@ INSTALLED_APPS = (
     'sortedm2m',
     'guardian',
     'address',
-    'friends',
+    'plebs',
     'notifications',
     'user_profiles',
 )
+
+DATABASE_ROUTERS = ['neo4django.utils.Neo4djangoIntegrationRouter']
 
 ACCOUNT_AUTHENTICATION_METHOD = ("username_email")
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 LOGIN_URL = '/accounts/login/'
 LOGOUT_URL = '/accounts/logout/'
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
-        'URL': 'http://127.0.0.1:8983/solr'
-    },
-}
+
 HAYSTACK_DEFAULT_OPERATOR = "OR"
 ANONYMOUS_USER_ID = -1
 

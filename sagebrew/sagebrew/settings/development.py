@@ -17,11 +17,26 @@ DATABASES = {
     }
 }
 
+NEO4J_DATABASES = {
+    'default' : {
+        'HOST':'localhost',
+        'PORT':7474,
+        'ENDPOINT':'/db/data'
+    }
+}
+
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
         'LOCATION': '127.0.0.1:11211',
     }
+}
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
+        'URL': 'http://127.0.0.1:8983/solr'
+    },
 }
 
 AWS_UPLOAD_BUCKET_NAME = "sagebrew"

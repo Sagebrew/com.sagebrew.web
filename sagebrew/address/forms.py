@@ -6,14 +6,13 @@ from django.utils.translation import ugettext_lazy as _
 from localflavor.us.forms import (USStateField,)
 from localflavor.us.us_states import STATE_CHOICES
 
-from .models import COUNTRY_CHOICES
 
 # Max lengths of attributes based on database models
 CITY_MAX = 150
 POSTAL_CODE_MAX = 10
 ST_MAX = 100
 ST_ADD_MAX = 100
-
+COUNTRY_CHOICES = ("US", "United States of America")
 
 def module_exists(module_name):
     """

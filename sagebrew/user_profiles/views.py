@@ -9,8 +9,6 @@ from haystack.views import SearchView
 
 from address.forms import AddressSettingsForm
 
-from friends.views import friend_button_press
-
 from .forms import AccountSettingsForm
 from .utils import ProfileUtils
 
@@ -41,10 +39,6 @@ def user_profile(request, username):
         profile_util = set_profile_util(user, page_user)
     else:
         raise Http404
-
-    if(request.method == 'POST'):
-        if(friend_button_press(request.POST, user, page_user)):
-            return redirect(home_profile)
 
     data = profile_util.page_data()
     return render_to_response(data['template'], data['return_dict'],

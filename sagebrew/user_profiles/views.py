@@ -26,9 +26,8 @@ def user_profile(request, username):
     stranger.
     '''
     def set_profile_util(user, page_user):
-        profile_util = ProfileUtils(user, page_user)
-        
-        return profile_util
+        return ProfileUtils(user, page_user)
+
     user = request.user
     try:
         page_user = User.objects.get(username=username)

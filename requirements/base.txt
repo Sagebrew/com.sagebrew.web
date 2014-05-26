@@ -1,3 +1,4 @@
+Django
 beautifulsoup4
 subprocess32
 redis
@@ -8,4 +9,4 @@ django-allauth
 django-photologue
 django-guardian
 django-haystack
-neo4django
+py2neo

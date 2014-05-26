@@ -90,17 +90,5 @@
             "password": ["pbkdf2_sha256$10000$64miRABmVXN4$bzRyrj",
                         "VkH3pUbks6Sbvs5dS53DiG2u6H7scNouusjn8="]
         }
-    },
-    {
-        "model": "address.Address",
-        "pk": 1,
-        "fields":
-        {
-            "street": "3187 Bennington Dr.",
-            "city": "Wixom",
-            "state": "MI",
-            "postal_code": "48393",
-            "country": "US"
-        }
     }
 ]

@@ -1,7 +1,10 @@
 from django.contrib.auth.models import User
 from django.forms.models import model_to_dict
-from django.contrib.auth.models import User
 
+from plebs.models import Pleb
+
+from .models import Profile
+from .forms import ProfileForm
 
 class ProfileUtils(object):
     def __init__(self, user, page_user):
@@ -50,11 +53,17 @@ class ProfileUtils(object):
     def get_user_types(self):
         return {'profile': 'PR'}
 
+    def get_settings_form_post(self, post_info):
+        return ProfileForm(post_info)
+
+    def get_settings_form(self):
+        return ProfileForm()
+
     def get_user_profile(self, user):
         '''
         Returns a user's profile based on what type of user they are.
         '''
-        return User.objects.get(username=user.username)
+        return Profile.objects.get(user__username=user.username)
 
     def page_data(self):
         '''

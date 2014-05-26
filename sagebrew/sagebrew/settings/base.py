@@ -159,7 +159,6 @@ INSTALLED_APPS = (
     'user_profiles',
 )
 
-DATABASE_ROUTERS = ['neo4django.utils.Neo4djangoIntegrationRouter']
 
 ACCOUNT_AUTHENTICATION_METHOD = ("username_email")
 CRISPY_TEMPLATE_PACK = 'bootstrap3'

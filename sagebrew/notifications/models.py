@@ -1,3 +1,4 @@
+'''
 from neo4django.db import models
 
 from plebs.models import Pleb
@@ -7,3 +8,4 @@ class Notification(models.NodeModel):
     notify = models.Relationship(Pleb, rel_type='notifying')
     notifier = models.Relationship(Pleb, rel_type='notifier')
     message = models.StringProperty()
+'''

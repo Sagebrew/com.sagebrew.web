@@ -1,9 +1,10 @@
+'''
 from neo4django.db import models
 
 class Pleb(models.NodeModel):
     username = models.StringProperty()
     name = models.StringProperty()
-    age = models.IntegerProperty()
+    age = models.DateTimeProperty()
     primary_phone = models.StringProperty()
     secondary_phone = models.StringProperty()
     user_quote = models.StringProperty()
@@ -16,3 +17,4 @@ class Pleb(models.NodeModel):
     friends = models.Relationship('self',rel_type='friends_with')
     representatives = models.Relationship('self', rel_type='represented_by')
     address = models.Relationship('Address', rel_type='lives_at')
+'''

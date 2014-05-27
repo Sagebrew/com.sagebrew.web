@@ -157,6 +157,8 @@ INSTALLED_APPS = (
     'plebs',
     'notifications',
     'user_profiles',
+    'api',
+    'govtrack',
 )
 
 
@@ -184,15 +186,14 @@ OAUTH_SINGLE_ACCESS_TOKEN = False
 OAUTH_EXPIRE_DELTA = timedelta(days=30, minutes=0, seconds=0)
 OAUTH_EXPIRE_DELTA_PUBLIC = timedelta(days=30, minutes=0, seconds=0)
 OAUTH_DELETE_EXPIRED = True
-IRONMQ_HOST = ""
 
 CELERY_DISABLE_RATE_LIMITS = True
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
-CELERY_IMPORTS = ()
+CELERY_IMPORTS = ('api.tasks', 'govtrack.tasks')
+BROKER_URL = 'amqp://sagebrew:this_is_the_sagebrew_password@localhost:5672//'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
 CELERY_IGNORE_RESULT = False
-# celery -A automated_test_client worker -l info
-# celery -A automated_test_client beat -l info
 
 CELERYBEAT_SCHEDULE = {}
 CELERY_TIMEZONE = 'UTC'

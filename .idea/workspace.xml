@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8fd345aa-cda8-4eab-9ca5-c129da4db225" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kepric_core" afterPath="$PROJECT_DIR$/kepric_core" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kepric_core/requirements/base.txt" afterPath="$PROJECT_DIR$/kepric_core/requirements/base.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kepric_core/fabfile.py" afterPath="$PROJECT_DIR$/kepric_core/fabfile.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="sagebrew.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -97,7 +93,7 @@
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="162" />
-    <option name="y" value="38" />
+    <option name="y" value="22" />
     <option name="width" value="1400" />
     <option name="height" value="945" />
   </component>
@@ -453,8 +449,8 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="162" y="38" width="1400" height="945" extended-state="0" />
-    <editor active="true" />
+    <frame x="162" y="22" width="1400" height="945" extended-state="0" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />

@@ -42,10 +42,7 @@ HAYSTACK_CONNECTIONS = {
 AWS_UPLOAD_BUCKET_NAME = "sagebrew"
 AWS_UPLOAD_CLIENT_KEY = ""
 AWS_UPLOAD_CLIENT_SECRET_KEY = "lHu/"
-CELERY_DEFAULT_QUEUE = "sagebrew-development"
 
-BROKER_URL = 'amqp://sagebrew-dev:this_is_the_sagebrew_password@localhost:5672//'
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 IRON_MQ_TOKEN = ""
 IRON_MQ_PROJECT = ""
 

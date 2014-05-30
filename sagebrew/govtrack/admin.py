@@ -1,3 +1,4 @@
 from django.contrib import admin
+from govtrack.models import Congressman
 
-# Register your models here.
+admin.site.register(Congressman)

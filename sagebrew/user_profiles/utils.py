@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.forms.models import model_to_dict
 
-from plebs.models import Pleb
+#from plebs.models import Pleb
 
 from .models import Profile
 from .forms import ProfileForm

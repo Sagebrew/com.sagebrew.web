@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8fd345aa-cda8-4eab-9ca5-c129da4db225" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/sagebrew/address/admin.py" afterPath="$PROJECT_DIR$/sagebrew/address/admin.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/sagebrew/govtrack/tasks.py" afterPath="$PROJECT_DIR$/sagebrew/govtrack/tasks.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/sagebrew/user_profiles/utils.py" afterPath="$PROJECT_DIR$/sagebrew/user_profiles/utils.py" />
     </list>
     <ignored path="sagebrew.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -29,17 +31,33 @@
         <entry file="file://$PROJECT_DIR$/sagebrew/user_profiles/views.py">
           <provider selected="true" editor-type-id="text-editor">
             <state line="25" column="13" selection-start="905" selection-end="905" vertical-scroll-proportion="0.0" vertical-offset="48" max-vertical-offset="3040">
-              <folding>
-                <element signature="e#0#59#0" expanded="true" />
-              </folding>
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="models.py" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="models.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/sagebrew/plebs/models.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="19" column="3" selection-start="812" selection-end="812" vertical-scroll-proportion="0.35849056" vertical-offset="0" max-vertical-offset="848">
+            <state line="19" column="3" selection-start="812" selection-end="812" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="400">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="admin.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/sagebrew/address/admin.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="12" column="3" selection-start="301" selection-end="301" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="288">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="utils.py" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/sagebrew/user_profiles/utils.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="1" column="36" selection-start="80" selection-end="80" vertical-scroll-proportion="0.018867925" vertical-offset="0" max-vertical-offset="3136">
               <folding />
             </state>
           </provider>
@@ -48,7 +66,7 @@
       <file leaf-file-name="views.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/sagebrew/plebs/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="11" column="0" selection-start="511" selection-end="511" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="784">
+            <state line="11" column="0" selection-start="511" selection-end="511" vertical-scroll-proportion="0.0" vertical-offset="176" max-vertical-offset="928">
               <folding />
             </state>
           </provider>
@@ -57,7 +75,7 @@
       <file leaf-file-name="models.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/sagebrew/user_profiles/models.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="19" column="0" selection-start="894" selection-end="894" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1072">
+            <state line="19" column="0" selection-start="894" selection-end="894" vertical-scroll-proportion="0.0" vertical-offset="304" max-vertical-offset="1072">
               <folding />
             </state>
           </provider>
@@ -66,7 +84,7 @@
       <file leaf-file-name="base.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/sagebrew/sagebrew/settings/base.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="158" column="20" selection-start="4966" selection-end="4966" vertical-scroll-proportion="0.0" vertical-offset="1600" max-vertical-offset="3712">
+            <state line="159" column="10" selection-start="4977" selection-end="4977" vertical-scroll-proportion="0.0" vertical-offset="2544" max-vertical-offset="3792">
               <folding />
             </state>
           </provider>
@@ -88,6 +106,8 @@
         <option value="$PROJECT_DIR$/sagebrew/user_profiles/views.py" />
         <option value="$PROJECT_DIR$/sagebrew/sagebrew/settings/base.py" />
         <option value="$PROJECT_DIR$/sagebrew/user_profiles/models.py" />
+        <option value="$PROJECT_DIR$/sagebrew/address/admin.py" />
+        <option value="$PROJECT_DIR$/sagebrew/user_profiles/utils.py" />
       </list>
     </option>
   </component>
@@ -123,6 +143,7 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -269,7 +290,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -371,6 +391,9 @@
       <option name="PARAMETERS" value="" />
       <method />
     </configuration>
+    <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug" singleton="true">
+      <method />
+    </configuration>
     <configuration default="true" type="tests" factoryName="Unittests">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -392,9 +415,6 @@
       <option name="PUREUNITTEST" value="true" />
       <option name="PARAMS" value="" />
       <option name="USE_PARAM" value="false" />
-      <method />
-    </configuration>
-    <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug" singleton="true">
       <method />
     </configuration>
     <configuration default="true" type="tests" factoryName="Doctests">
@@ -450,7 +470,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="162" y="22" width="1400" height="945" extended-state="0" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -465,11 +485,11 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -493,10 +513,43 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/sagebrew/user_profiles/views.py">
       <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="13" selection-start="905" selection-end="905" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3040">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sagebrew/plebs/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="19" column="3" selection-start="812" selection-end="812" vertical-scroll-proportion="0.0" vertical-offset="304" max-vertical-offset="400">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sagebrew/plebs/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="11" column="0" selection-start="511" selection-end="511" vertical-scroll-proportion="0.0" vertical-offset="176" max-vertical-offset="928">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sagebrew/user_profiles/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="19" column="0" selection-start="894" selection-end="894" vertical-scroll-proportion="0.0" vertical-offset="304" max-vertical-offset="1072">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sagebrew/sagebrew/settings/base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="158" column="20" selection-start="4966" selection-end="4966" vertical-scroll-proportion="0.0" vertical-offset="2528" max-vertical-offset="3776">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sagebrew/user_profiles/views.py">
+      <provider selected="true" editor-type-id="text-editor">
         <state line="8" column="0" selection-start="336" selection-end="336" vertical-scroll-proportion="0.0" vertical-offset="16" max-vertical-offset="3040">
-          <folding>
-            <element signature="e#0#59#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -568,28 +621,41 @@
           <settings layout="Hierarchic Group" zoom="1.0" x="286.0" y="95.0" />
           <SelectedNodes />
           <Categories />
+          <SCOPE>All</SCOPE>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/sagebrew/user_profiles/views.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="25" column="13" selection-start="905" selection-end="905" vertical-scroll-proportion="0.0" vertical-offset="48" max-vertical-offset="3040">
-          <folding>
-            <element signature="e#0#59#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/sagebrew/sagebrew/settings/base.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="158" column="20" selection-start="4966" selection-end="4966" vertical-scroll-proportion="0.0" vertical-offset="1792" max-vertical-offset="3712">
+        <state line="159" column="10" selection-start="4977" selection-end="4977" vertical-scroll-proportion="0.0" vertical-offset="2544" max-vertical-offset="3792">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/sagebrew/plebs/models.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="3" selection-start="812" selection-end="812" vertical-scroll-proportion="0.35849056" vertical-offset="0" max-vertical-offset="848">
+        <state line="19" column="3" selection-start="812" selection-end="812" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="400">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sagebrew/address/admin.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="12" column="3" selection-start="301" selection-end="301" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="288">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sagebrew/user_profiles/utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1" column="36" selection-start="80" selection-end="80" vertical-scroll-proportion="0.018867925" vertical-offset="0" max-vertical-offset="3136">
           <folding />
         </state>
       </provider>

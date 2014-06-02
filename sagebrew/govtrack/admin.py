@@ -1,4 +1,5 @@
 from django.contrib import admin
-from govtrack.models import Congressman
+from govtrack.models import Role , Person
 
-admin.site.register(Congressman)
+admin.site.register(Role)
+admin.site.register(Person)

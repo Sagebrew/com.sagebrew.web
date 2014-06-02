@@ -1,15 +1,12 @@
 from celery import shared_task
 from requests import get
-from govtrack.models import Congressman
-
-
-@shared_task()
-def add(x,y):
-    return x+y
+from govtrack.models import Role , Person
 
 @shared_task()
-def populateCongressman(x):
-    congressman_request=get(x)
-    congressman_data=congressman_request.json()
-    Congressman.objects.create()
+def populaterole(requesturl):
+    role_request = get(requesturl)
+    role_data_dict = role_request.json()
+    for representative in role_data_dict['objects']:
+        new_rep = Role.objects.create(**representative)
+        new_rep.save()
 

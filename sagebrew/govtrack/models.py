@@ -46,8 +46,39 @@ class SRole(TimeStampedModel):
     title_long = models.CharField(max_length=30)
     website = models.URLField()
 
-class Bill(models.Model):
-    asd = models.CharField(max_length=100)
+class GTBill(TimeStampedModel):
+    bill_resolution_type = models.CharField(max_length=1000)
+    bill_type = models.CharField(max_length=1000)
+    bill_type_label = models.CharField(max_length=1000)
+    congress = models.IntegerField()
+    current_status = models.CharField(max_length=1000)
+    current_status_date = models.DateField()
+    current_status_description = models.CharField(max_length=1000)
+    current_status_label = models.CharField(max_length=1000)
+    display_number = models.CharField(max_length=1000)
+    docs_house_gov_postdate = models.DateField(null=True)
+    id = models.IntegerField(primary_key=True, unique = False)
+    introduced_date = models.DateField()
+    is_alive = models.BooleanField()
+    is_current = models.BooleanField()
+    link = models.URLField()
+    major_actions = models.CharField(max_length=1000,null=True)
+    noun = models.CharField(max_length=1000)
+    number = models.IntegerField()
+    senate_floor_schedule_postdate = models.DateField(null=True)
+    sliplawnum = models.IntegerField(null=True)
+    sliplawpubpriv = models.IntegerField(null=True)
+    source = models.CharField(max_length=300)
+    source_link = models.URLField(null=True)
+    sponsor = models.IntegerField()
+    sponsor_role = models.IntegerField()
+    thomas_link = models.URLField()
+    title = models.CharField(max_length=1000)
+    title_without_number = models.CharField(max_length=1000)
+    titles = models.CharField(max_length=1000)
+
+
+
 
 
 

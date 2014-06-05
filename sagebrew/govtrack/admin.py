@@ -1,3 +1,6 @@
 from django.contrib import admin
+from govtrack.models import SRole , Person , GTBill
 
-# Register your models here.
+admin.site.register(SRole)
+admin.site.register(Person)
+admin.site.register(GTBill)

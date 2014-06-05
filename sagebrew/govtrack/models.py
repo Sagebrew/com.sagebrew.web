@@ -77,8 +77,8 @@ class GTBill(TimeStampedModel):
     title_without_number = models.CharField(max_length=1000)
     titles = models.CharField(max_length=1000)
 
-class VoteOptions(TimeStampedModel):
-    id = models.IntegerField(primary_key=True)
+class GTVoteOptions(TimeStampedModel):
+    vote_options_id = models.IntegerField(primary_key=True)
     key = models.CharField(max_length=1)
     value = models.CharField(max_length=20)
     vote = models.IntegerField()
@@ -90,11 +90,11 @@ class GTVotes(TimeStampedModel):
     chamber_label = models.CharField(max_length = 30)
     congress = models.IntegerField()
     datecreated = models.DateTimeField()
-    id = models.IntegerField(primary_key = True)
+    vote_id = models.IntegerField(primary_key = True)
     link = models.URLField()
     missing_data = models.BooleanField()
     number = models.IntegerField()
-    options = models.ForeignKey(VoteOptions)
+    options = models.ForeignKey(GTVoteOptions)
     question = models.CharField(max_length = 10000)
     question_details = models.CharField(max_length = 10000,null = True)
     related_amendment = models.CharField(max_length = 10000,null = True)
@@ -108,20 +108,3 @@ class GTVotes(TimeStampedModel):
     total_other = models.IntegerField()
     total_plus = models.IntegerField()
     vote_type = models.CharField(max_length=40)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

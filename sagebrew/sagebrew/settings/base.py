@@ -5,6 +5,7 @@ from os import environ
 from unipath import Path
 from datetime import timedelta
 
+
 PROJECT_DIR = Path(__file__).ancestor(3)
 MEDIA_ROOT = PROJECT_DIR.child("media")
 STATIC_ROOT = PROJECT_DIR.child("static")
@@ -159,6 +160,7 @@ INSTALLED_APPS = (
     'user_profiles',
     'api',
     'govtrack',
+    'neomodel',
 )
 
 

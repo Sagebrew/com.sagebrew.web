@@ -1,6 +1,8 @@
 from celery import shared_task
 from requests import get
+from django.conf import settings
 from govtrack.models import SRole , Person , GTBill , GTVotes , GTVoteOptions
+
 
 @shared_task()
 def populate_role(requesturl):
@@ -31,6 +33,7 @@ def populate_gt_bills(requesturl):
 def populate_gt_votes(requesturl):
     vote_request = get(requesturl)
     vote_data_dict = vote_request.json()
+    options = []
     for vote in vote_data_dict['objects']:
         try:
             my_vote = GTVotes.objects.get(vote_id=vote["id"])
@@ -43,8 +46,15 @@ def populate_gt_votes(requesturl):
                     vote_option.pop("id", None)
                     my_vote_option = GTVoteOptions(**vote_option)
                     my_vote_option.save()
+                    options.append(my_vote_option)
+            vote.pop("options",None)
+            vote["vote_id"] = vote["id"]
+            vote.pop("id", None)
+            #vote["datecreated"] = vote["created"]
             my_vote = GTVotes(**vote)
             my_vote.save()
+            for option in options:
+                my_vote.options.add(option)
 
 
 

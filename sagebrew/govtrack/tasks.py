@@ -1,7 +1,7 @@
 from celery import shared_task
 from requests import get
-from django.conf import settings
 from govtrack.models import SRole , Person , GTBill , GTVotes , GTVoteOptions
+from govtrack.neo_models import GTPerson, GTRole
 
 
 @shared_task()
@@ -14,6 +14,22 @@ def populate_role(requesturl):
         representative["person"] = my_person
         new_rep = SRole.objects.create(**representative)
         new_rep.save()
+
+
+@shared_task()
+def populate_gt_role(requesturl):
+    role_request = get(requesturl)
+    role_data_dict = role_request.json()
+    for rep in role_data_dict['objects']:
+        try:
+            my_role = GTRole.index.get(id=rep["id"])
+        except GTRole.DoesNotExist:
+            my_person = GTPerson(**rep['person'])
+            my_person.save()
+            rep["person"] = my_person
+            my_role = GTRole(**rep)
+            my_role.save()
+
 
 @shared_task()
 def populate_gt_bills(requesturl):

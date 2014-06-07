@@ -4,7 +4,7 @@ from fnmatch import fnmatch
 DEBUG = True
 
 TEMPLATE_DEBUG = DEBUG
-ALLOWED_HOSTS = ['sagebrew.com']
+ALLOWED_HOSTS = ['*']
 
 DATABASES = {
     'default': {
@@ -96,4 +96,4 @@ DEBUG_TOOLBAR_CONFIG = {
 }
 
 INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar', )
-MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + ('debug_toolbar.middleware.DebugToolbarMiddleware',)
+#MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + ('debug_toolbar.middleware.DebugToolbarMiddleware',)

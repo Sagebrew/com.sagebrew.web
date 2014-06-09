@@ -82,25 +82,11 @@ def populate_gt_person(requesturl):
         try:
             my_person = GTPerson.index.get(gt_id=person["id"])
         except GTPerson.DoesNotExist:
-            birthday_date = datetime.strptime(person["birthday"], '%Y-%m-%d')
-            my_person = GTPerson(bioguide=person["bioguideid"],
-                                 birthday=birthday_date,
-                                 cspanid =person["cspanid"],
-                                 firstname=person["firstname"],
-                                 gender=person["gender"],
-                                 gender_label=person["gender_label"],
-                                 gt_id=person["id"],
-                                 lastname=person["lastname"],
-                                 link=person["link"],
-                                 middlename=person["middlename"],
-                                 name=person["name"],
-                                 namemod=person["namemod"],
-                                 nickname=person["nickname"],
-                                 osid=person["osid"],
-                                 pvsid=person["pvsid"],
-                                 sortname=person["sortname"],
-                                 twitterid=["twitterid"],
-                                 youtubeid=person["youtubeid"])
+            person["birthday"] = datetime.strptime(person["birthday"],
+                                                   '%Y-%m-%d')
+            person["gt_id"] = person["id"]
+            person.pop("id", None)
+            my_person = GTPerson(**person)
 
             my_person.save()
 

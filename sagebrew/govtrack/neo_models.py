@@ -1,4 +1,8 @@
-from neomodel import StructuredNode,StringProperty, IntegerProperty, FloatProperty, BooleanProperty, DateProperty, DateTimeProperty, JSONProperty, AliasProperty, RelationshipTo, RelationshipFrom, Relationship
+from neomodel import (StructuredNode, StringProperty, IntegerProperty,
+    FloatProperty, BooleanProperty, DateProperty, DateTimeProperty,
+    JSONProperty, AliasProperty, RelationshipTo, RelationshipFrom,
+    Relationship)
+from uuid import uuid1
 
 class GTRole(StructuredNode):
     congress_numbers = IntegerProperty()
@@ -34,12 +38,12 @@ class GTCommittee(StructuredNode):
 
 class GTPerson(StructuredNode):
     bioguideid = StringProperty(default="")
-    birthday = DateProperty()
-    cspanid = IntegerProperty()
+    #birthday = DateProperty()
+    #cspanid = IntegerProperty()
     firstname = StringProperty(default="")
     gender = StringProperty(default="")
     gender_label = StringProperty(default="")
-    id = IntegerProperty(unique_index=True)
+    gt_id = IntegerProperty(unique_index=True)
     lastname = StringProperty(default="")
     link = StringProperty(default="")
     middlename = StringProperty(default="")
@@ -47,7 +51,7 @@ class GTPerson(StructuredNode):
     namemod = StringProperty(default="")
     nickname = StringProperty(default="")
     osid = StringProperty(default="")
-    pvsid = IntegerProperty()
+    #pvsid = IntegerProperty()
     sortname = StringProperty(default="")
     twitterid = StringProperty(default="")
     youtubeid = StringProperty(default="")

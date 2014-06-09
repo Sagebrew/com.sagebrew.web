@@ -1,8 +1,8 @@
 from celery import shared_task
 from requests import get
+from datetime import datetime
 from govtrack.models import SRole, Person, GTBill, GTVotes, GTVoteOptions
 from govtrack.neo_models import GTPerson, GTRole
-
 
 @shared_task()
 def populate_role(requesturl):
@@ -82,7 +82,10 @@ def populate_gt_person(requesturl):
         try:
             my_person = GTPerson.index.get(gt_id=person["id"])
         except GTPerson.DoesNotExist:
+            birthday_date = datetime.strptime(person["birthday"], '%Y-%m-%d')
             my_person = GTPerson(bioguide=person["bioguideid"],
+                                 birthday=birthday_date,
+                                 cspanid =person["cspanid"],
                                  firstname=person["firstname"],
                                  gender=person["gender"],
                                  gender_label=person["gender_label"],
@@ -94,6 +97,7 @@ def populate_gt_person(requesturl):
                                  namemod=person["namemod"],
                                  nickname=person["nickname"],
                                  osid=person["osid"],
+                                 pvsid=person["pvsid"],
                                  sortname=person["sortname"],
                                  twitterid=["twitterid"],
                                  youtubeid=person["youtubeid"])

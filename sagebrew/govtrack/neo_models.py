@@ -1,8 +1,10 @@
+import pytz
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
     FloatProperty, BooleanProperty, DateProperty, DateTimeProperty,
     JSONProperty, AliasProperty, RelationshipTo, RelationshipFrom,
     Relationship)
 from uuid import uuid1
+from datetime import datetime
 
 class GTRole(StructuredNode):
     congress_numbers = IntegerProperty()
@@ -38,8 +40,8 @@ class GTCommittee(StructuredNode):
 
 class GTPerson(StructuredNode):
     bioguideid = StringProperty(default="")
-    #birthday = DateProperty()
-    #cspanid = IntegerProperty()
+    birthday = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    cspanid = IntegerProperty()
     firstname = StringProperty(default="")
     gender = StringProperty(default="")
     gender_label = StringProperty(default="")
@@ -51,13 +53,13 @@ class GTPerson(StructuredNode):
     namemod = StringProperty(default="")
     nickname = StringProperty(default="")
     osid = StringProperty(default="")
-    #pvsid = IntegerProperty()
+    pvsid = IntegerProperty()
     sortname = StringProperty(default="")
     twitterid = StringProperty(default="")
     youtubeid = StringProperty(default="")
-    #role = RelationshipTo('GTRole','HAS_A')
-    #votes = RelationshipTo('GTVotes','HAS_A')
-    #committee = RelationshipTo('GTCommittee','IS_ON_A')
+    role = RelationshipTo('GTRole','HAS_A')
+    votes = RelationshipTo('GTVotes','HAS_A')
+    committee = RelationshipTo('GTCommittee','IS_ON_A')
 
 
 

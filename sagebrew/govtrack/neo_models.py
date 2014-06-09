@@ -6,10 +6,9 @@ class GTRole(StructuredNode):
     description = StringProperty()
     district = StringProperty()
     enddate = DateProperty()
-    gt_id = IntegerProperty(unique_index=True)
+    id = IntegerProperty(unique_index=True)
     leadership_title = StringProperty()
     party = StringProperty()
-    person = Relationship('PoliticianPerson','HAS_A')
     phone = StringProperty()
     role_type = StringProperty()
     role_type_label = StringProperty()
@@ -27,7 +26,11 @@ class GTVotes(StructuredNode):
     aasdf = StringProperty()
 
 class GTCommittee(StructuredNode):
-    asfdas = StringProperty()
+    committee = IntegerProperty()
+    id = IntegerProperty()
+    person = IntegerProperty()
+    role = StringProperty()
+    role_label = StringProperty()
 
 class GTPerson(StructuredNode):
     bioguideid = StringProperty()
@@ -36,7 +39,7 @@ class GTPerson(StructuredNode):
     firstname = StringProperty()
     gender = StringProperty()
     gender_label = StringProperty()
-    gt_id = IntegerProperty(unique_index=True)
+    id = IntegerProperty(unique_index=True)
     lastname = StringProperty()
     link = StringProperty()
     middlename = StringProperty()

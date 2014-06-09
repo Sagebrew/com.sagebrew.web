@@ -16,20 +16,6 @@ def populate_role(requesturl):
         new_rep.save()
 
 
-@shared_task()
-def populate_gt_role(requesturl):
-    role_request = get(requesturl)
-    role_data_dict = role_request.json()
-    for rep in role_data_dict['objects']:
-        try:
-            my_role = GTRole.index.get(id=rep["id"])
-        except GTRole.DoesNotExist:
-            my_person = GTPerson(**rep['person'])
-            my_person.save()
-            rep["person"] = my_person
-            my_role = GTRole(**rep)
-            my_role.save()
-
 
 @shared_task()
 def populate_gt_bills(requesturl):
@@ -71,6 +57,55 @@ def populate_gt_votes(requesturl):
             my_vote.save()
             for option in options:
                 my_vote.options.add(option)
+
+
+
+@shared_task()
+def populate_gt_role(requesturl):
+    role_request = get(requesturl)
+    role_data_dict = role_request.json()
+    for rep in role_data_dict['objects']:
+        try:
+            my_role = GTRole.index.get(id=rep["id"])
+        except GTRole.DoesNotExist:
+            my_person = GTPerson(**rep['person'])
+            my_person.save()
+            rep["person"] = my_person
+            my_role = GTRole(**rep)
+            my_role.save()
+
+
+
+@shared_task()
+def populate_gt_person(requesturl):
+    person_request = get(requesturl)
+    person_data_dict = person_request.json()
+    for person in person_data_dict['objects']:
+        try:
+            my_person = GTPerson.index.get(id=person["id"])
+        except GTPerson.DoesNotExist:
+            my_person = GTPerson()
+            my_person.bioguideid = person["bioguideid"]
+            my_person.birthday = person["birthday"]
+            my_person.cspanid = person["cspanid"]
+            my_person.firstname = person["firstname"]
+            my_person.gender = person["gender"]
+            my_person.gender_label = person["gender_label"]
+            my_person.id = person["id"]
+            my_person.lastname = person["lastname"]
+            my_person.link = person["link"]
+            my_person.middlename = person["middlename"]
+            my_person.name = person["name"]
+            my_person.namemod = person["namemod"]
+            my_person.nickname = person["nickname"]
+            my_person.osid = person["osid"]
+            my_person.pvsid = person["pvsid"]
+            my_person.sortname = person["sortname"]
+            my_person.twitterid = person["twitterid"]
+            my_person.youtubeid = person["youtubeid"]
+            my_person.save()
+
+
 
 
 

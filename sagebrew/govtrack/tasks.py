@@ -84,28 +84,34 @@ def populate_gt_person(requesturl):
         try:
             my_person = GTPerson.index.get(id=person["id"])
         except GTPerson.DoesNotExist:
-            my_person = GTPerson()
-            my_person.bioguideid = person["bioguideid"]
-            my_person.birthday = person["birthday"]
-            my_person.cspanid = person["cspanid"]
-            my_person.firstname = person["firstname"]
-            my_person.gender = person["gender"]
-            my_person.gender_label = person["gender_label"]
-            my_person.id = person["id"]
-            my_person.lastname = person["lastname"]
-            my_person.link = person["link"]
-            my_person.middlename = person["middlename"]
-            my_person.name = person["name"]
-            my_person.namemod = person["namemod"]
-            my_person.nickname = person["nickname"]
-            my_person.osid = person["osid"]
-            my_person.pvsid = person["pvsid"]
-            my_person.sortname = person["sortname"]
-            my_person.twitterid = person["twitterid"]
-            my_person.youtubeid = person["youtubeid"]
+            my_person = GTPerson(bioguide=person["bioguideid"],birthday=person["birthday"],
+                                 cspanid=person["cspanid"],firstname=person["firstname"],
+                                 gender=person["gender"],gender_label=person["gender_label"],
+                                 id=person["id"],lastname=person["lastname"],link=person["link"],
+                                 middlename=person["middlename"],name=person["name"],
+                                 namemod=person["namemod"],nickname=person["nickname"],
+                                 osid=person["osid"],pvsid=person["pvsid"],
+                                 sortname=person["sortname"],
+                                 twitterid=["twitterid"],youtubeid=person["youtubeid"])
+            #my_person.bioguideid = person["bioguideid"]
+            #my_person.birthday = person["birthday"]
+            #my_person.cspanid = person["cspanid"]
+            #my_person.firstname = person["firstname"]
+            #my_person.gender = person["gender"]
+            #my_person.gender_label = person["gender_label"]
+            #my_person.id = person["id"]
+            #my_person.lastname = person["lastname"]
+            #my_person.link = person["link"]
+            #my_person.middlename = person["middlename"]
+            #my_person.name = person["name"]
+            #my_person.namemod = person["namemod"]
+            #my_person.nickname = person["nickname"]
+            #my_person.osid = person["osid"]
+            #my_person.pvsid = person["pvsid"]
+            #my_person.sortname = person["sortname"]
+            #my_person.twitterid = person["twitterid"]
+            #my_person.youtubeid = person["youtubeid"]
             my_person.save()
-
-
 
 
 

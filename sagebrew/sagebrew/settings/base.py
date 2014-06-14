@@ -163,7 +163,6 @@ INSTALLED_APPS = (
     'api',
     'govtrack',
     'neomodel',
-    'sendgrid',
 )
 
 

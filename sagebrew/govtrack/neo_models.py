@@ -1,10 +1,10 @@
-import pytz
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
     FloatProperty, BooleanProperty, DateProperty, DateTimeProperty,
     JSONProperty, AliasProperty, RelationshipTo, RelationshipFrom,
     Relationship)
 from uuid import uuid1
 from datetime import datetime
+import pytz
 
 class GTRole(StructuredNode):
     congress_numbers = IntegerProperty()
@@ -12,7 +12,7 @@ class GTRole(StructuredNode):
     description = StringProperty()
     district = StringProperty()
     enddate = DateProperty()
-    id = IntegerProperty(unique_index=True)
+    role_id = IntegerProperty(unique_index=True)
     leadership_title = StringProperty()
     party = StringProperty()
     phone = StringProperty()
@@ -28,15 +28,53 @@ class GTRole(StructuredNode):
     title_long = StringProperty()
     website = StringProperty()
 
-class GTVotes(StructuredNode):
-    aasdf = StringProperty()
+
+class GTVoteOption(StructuredNode):
+    option_id = IntegerProperty(unique_index=True)
+    key = StringProperty(default="")
+    value = StringProperty(index=True, default="")
+    vote = IntegerProperty()
+
+
+class GT_RCVotes(StructuredNode):
+    category_one = StringProperty(default="")
+    category_label = StringProperty(default="")
+    chamber = StringProperty(default="")
+    chamber_label = StringProperty(default="")
+    congress = IntegerProperty()
+    created = StringProperty(default="")
+    vote_id = IntegerProperty(unique_index=True)
+    link = StringProperty(default="")
+    missing_data = BooleanProperty()
+    number = IntegerProperty()
+    question = StringProperty(default="")
+    question_details = StringProperty(default="")
+    related_amendment = IntegerProperty()
+    related_bill = JSONProperty()
+    required = StringProperty()
+    result = StringProperty(default="")
+    session = StringProperty(default="")
+    source = StringProperty(default="")
+    source_label = StringProperty(default="")
+    total_minus = IntegerProperty()
+    total_other = IntegerProperty()
+    total_plus = IntegerProperty()
+    vote_type = StringProperty(default="")
+
+    #relationships
+    option = Relationship('GTVoteOption','HAS_A')
+
 
 class GTCommittee(StructuredNode):
-    committee = IntegerProperty()
-    id = IntegerProperty()
+    abbrev = StringProperty()
+    code = StringProperty()
+    committee_id = IntegerProperty(unique_index=True)
     person = IntegerProperty()
     role = StringProperty()
     role_label = StringProperty()
+
+    #relationships
+    committee = Relationship('GTCommittee','HAS_A_SUB')
 
 class GTPerson(StructuredNode):
     bioguideid = StringProperty(default="")
@@ -57,8 +95,10 @@ class GTPerson(StructuredNode):
     sortname = StringProperty(default="")
     twitterid = StringProperty(default="")
     youtubeid = StringProperty(default="")
+
+    #relationships
     role = RelationshipTo('GTRole','HAS_A')
-    votes = RelationshipTo('GTVotes','HAS_A')
+    votes = RelationshipTo('GT_RCVotes','HAS_A')
     committee = RelationshipTo('GTCommittee','IS_ON_A')
 
 

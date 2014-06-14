@@ -1,8 +1,8 @@
 from celery import shared_task
 from requests import get
 from datetime import datetime
-from govtrack.models import SRole, Person, GTBill, GTVotes, GTVoteOptions
-from govtrack.neo_models import GTPerson, GTRole
+from govtrack.models import SRole, Person, GTBill, GTVotes
+from govtrack.neo_models import GTPerson, GTRole, GTCommittee, GT_RCVotes, GTVoteOption
 
 @shared_task()
 def populate_role(requesturl):
@@ -30,8 +30,9 @@ def populate_gt_bills(requesturl):
             my_bill.save()
 
 
+'''
 @shared_task()
-def populate_gt_votes(requesturl):
+def populate_gt_votes1(requesturl):
     vote_request = get(requesturl)
     vote_data_dict = vote_request.json()
     options = []
@@ -57,6 +58,7 @@ def populate_gt_votes(requesturl):
             my_vote.save()
             for option in options:
                 my_vote.options.add(option)
+'''
 
 
 @shared_task()
@@ -87,9 +89,51 @@ def populate_gt_person(requesturl):
             person["gt_id"] = person["id"]
             person.pop("id", None)
             my_person = GTPerson(**person)
-
             my_person.save()
 
 
+@shared_task()
+def populate_gt_committee(requesturl):
+    committee_request = get(requesturl)
+    committee_data_dict = committee_request.json()
+    for committee in committee_data_dict['objects']:
+        try:
+            my_committee = GTCommittee.index.get(committee_id = committee["id"])
+        except GTCommittee.DoesNotExist:
+            committee["committee_id"] = committee["id"]
+            committee.pop("id", None)
+            committee.pop("committee", None)
+            my_committee = GTCommittee(**committee)
+            my_committee.save()
+
+
+@shared_task()
+def populate_gt_votes(requesturl):
+    vote_request = get(requesturl)
+    vote_data_dict = vote_request.json()
+    my_votes = []
+    for vote in vote_data_dict['objects']:
+        try:
+            my_vote = GT_RCVotes.index.get(vote_id = vote["id"])
+        except GT_RCVotes.DoesNotExist:
+            for voteoption in vote['options']:
+                try:
+                    my_vote_option = GTVoteOption.index.get(option_id = voteoption["id"])
+                except GTVoteOption.DoesNotExist:
+                    vote["option_id"] = vote["id"]
+                    vote.pop("id", None)
+                    my_vote_option = GTVoteOption(**voteoption)
+                    my_vote_option.save()
+                    my_votes.append(my_vote_option)
+            vote.pop("options", None)
+            vote["vote_id"] =vote["id"]
+            vote.pop("id", None)
+            vote["category_one"] = vote["category"]
+            vote.pop("category", None)
+            my_vote = GT_RCVotes(**vote)
+            my_vote.save()
+            for item in my_votes:
+                my_vote.option.connect(item)
+            my_votes = []
 
 

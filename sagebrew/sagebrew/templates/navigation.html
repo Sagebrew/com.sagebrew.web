@@ -4,7 +4,7 @@
 <div id="headerContent">
     <div id="navigation">
         <div id="logoAnchor">
-                <a href="/"><img id="logoNavLogo" src="{% static "media/ziggzi.png" %}" alt=" " /></a>
+                <a href="/"><img id="logoNavLogo" src="{{ request.user.profile.profile_image_url }}" alt=" " /></a>
         </div>
         <div id="navigationContainer" >
             <div id="signIn">
@@ -14,7 +14,7 @@
                     <a href="/user_profiles/settings/" id="loginButton">Settings</a>
                     <a href="/user_profiles/" id="loginButton">Profile</a>
                     <div style="clear:both"></div>
-                    <div id="loginBox">                
+                    <div id="loginBox">
                         <form id="loginForm">
                             <fieldset id="body">
                                 <fieldset>
@@ -26,7 +26,7 @@
                                     <input type="password" name="password" id="password" />
                                 </fieldset>
                                 <input type="submit" id="login" value="Sign in" />
-                                <label for="checkbox"> 
+                                <label for="checkbox">
                                     <input type="checkbox" id="checkbox" />
                                     Remember me
                                 </label>
@@ -41,12 +41,12 @@
                     </div>
                 </div>
             </div>
-            
+
             {% block standard_page %}
                 <div class="navigationLink">
                     <a href="/">Home</a>
                 </div>
-                <!-- 
+                <!--
                 <div class="navigationLink">
                     <form method="POST" action="/search/">
                         <input id="search" type="text" name="search" value="{{search_value}}"/>
@@ -55,19 +55,19 @@
                             <option name="people">People</option>
                         </select>
                     </form>
-                </div> 
+                </div>
                 -->
                 <div class="navigationLink">
                     <a href="/locations/">Locations</a>
                 </div>
-                            
+
                 <div class="navigationLink">
                     <a href="/products">Products</a>
                 </div>
-                            
+
                 <div class="navigationLink">
                     <a href="/contact_us/">Contact Us</a>
-                </div> 
+                </div>
                 <form method="POST" action="/search/">
                     {% csrf_token %}
                         <input type="text" name='q' placeholder="Search …">

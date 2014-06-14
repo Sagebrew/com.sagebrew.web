@@ -135,6 +135,8 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.google',
     'djangosecure',
     'django_admin_bootstrapped',
     'django.contrib.admin',
@@ -161,10 +163,22 @@ INSTALLED_APPS = (
     'api',
     'govtrack',
     'neomodel',
+    'sendgrid',
 )
 
 
-ACCOUNT_AUTHENTICATION_METHOD = ("username_email")
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "optional"
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_SIGNUP_PASSWORD_VERIFICATION = False
+
+SENDGRID_EMAIL_HOST = "smtp.sendgrid.net"
+SENDGRID_EMAIL_PORT = 587
+SENDGRID_EMAIL_USERNAME = "bleib1dj"
+SENDGRID_EMAIL_PASSWORD = "wp*D8S@kRnc:6pA"
+
+
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 LOGIN_URL = '/accounts/login/'
@@ -173,7 +187,7 @@ LOGOUT_URL = '/accounts/logout/'
 HAYSTACK_DEFAULT_OPERATOR = "OR"
 ANONYMOUS_USER_ID = -1
 
-LOGIN_REDIRECT_URL = '/user_profiles/'
+LOGIN_REDIRECT_URL = '/'
 EMAIL_USE_TLS = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True

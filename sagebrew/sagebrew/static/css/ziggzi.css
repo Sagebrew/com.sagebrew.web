@@ -1,4 +1,4 @@
-html { 
+html {
     min-height: 700px;
     min-width: 960px;
 }
@@ -34,7 +34,7 @@ img {
 }
 
 #headerWrapper {
-    height: 4em;    
+    height: 4em;
     font-size: 9pt;
     background-color: #0066cc;
     overflow:auto;
@@ -51,7 +51,7 @@ img {
     font-size: 100%;
 }
 
-#navigation a {    
+#navigation a {
     margin: 0 1em 0 1em;
     color: #95e2ef;
     text-decoration: none;
@@ -62,15 +62,15 @@ img {
     height: 50px;
 }
 
-#navigation a:hover {    
+#navigation a:hover {
     color: white;
 }
 
-#navigation a:active {    
+#navigation a:active {
     color: white;
 }
 
-#navigation a.activeLink {    
+#navigation a.activeLink {
     color: white;
 }
 
@@ -96,17 +96,13 @@ img {
 }
 
 #logoNavLogo {
-    width: 90px;
-    height: 40px;
-    padding-top: 0.3em;    
+    padding-top: 0.3em;
     padding-right: 0.4em;
 }
 
 #logoNavLogoProfile
-{    
-    width: 150px;
-    height: 50px;
-    padding-top: 0.3em;    
+{
+    padding-top: 0.3em;
     padding-right: 0.4em;
 }
 
@@ -155,8 +151,8 @@ img {
     margin-top:30px;
 }
 
-#map_canvas { 
-    height: 500px; 
+#map_canvas {
+    height: 500px;
     width: 700px;
 }
 
@@ -212,7 +208,7 @@ img {
   border:2px solid #373839;
   font-size:146%;
   font-weight:normal;
-  
+
 }
 
 .mc-field-group input:focus {
@@ -227,7 +223,7 @@ img {
   border:0;
   background:#373839;
   color:#ffffff;
-  
+
 }
 
 h1 {
@@ -257,9 +253,9 @@ p {
 }
 
 
-input.contact, textarea#contactInfo{ 
-    -webkit-border-radius: 5px; 
-    -moz-border-radius: 5px; 
+input.contact, textarea#contactInfo{
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
     border-radius: 4px;
     height: 19px;
     width: 250px;
@@ -275,8 +271,8 @@ input#submit {
 }
 
 input#search {
-    -webkit-border-radius: 5px; 
-    -moz-border-radius: 5px; 
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
     border-radius: 4px;
     height: 19px;
     width: 200px;
@@ -290,7 +286,7 @@ textarea{
 }
 
 select {
-    font-weight: bold; 
+    font-weight: bold;
     background: black;
     color:white;
     width: 120px;
@@ -299,7 +295,7 @@ select {
     margin-left:0px;
  }
 
- 
+
 #footer-wrapper {
 	color:#404040;
 	margin-left:auto;
@@ -344,7 +340,7 @@ select {
 }
 
 /* Login Button */
-#loginButton { 
+#loginButton {
     display:inline-block;
     margin-top:10px;
     float:right;
@@ -356,9 +352,9 @@ select {
 /* Login Button Text */
 #loginButton span {
     margin-top: 15px;
-    color:#95e2ef; 
-    font-size:14px; 
-    font-weight:bold; 
+    color:#95e2ef;
+    font-size:14px;
+    font-weight:bold;
     padding:7px 29px 9px 10px;
     background:url('../media/loginArrow.png') no-repeat 53px 7px;
     display:block
@@ -373,7 +369,7 @@ select {
     z-index:29;
 }
 
-/* If the Login Button has been clicked */    
+/* If the Login Button has been clicked */
 #loginButton.active {
     border-radius:3px 3px 0 0;
 }
@@ -392,7 +388,7 @@ select {
 
 /* Login Form */
 #loginForm {
-    width:248px; 
+    width:248px;
     border:1px solid #899caa;
     border-radius:3px 0 3px 3px;
     -moz-border-radius:3px 0 3px 3px;
@@ -472,7 +468,7 @@ fieldset#body {
 #loginForm span {
     text-align:center;
     display:block;
-    height:45px;    
+    height:45px;
 }
 
 #loginForm span a {

@@ -48,7 +48,7 @@ IRON_MQ_PROJECT = ""
 
 SECRET_KEY = "5fd&2wkqx8r!h2y1)j!izqi!982$p87)sred(5#x0mtqa^cbx)"
 
-INTERNAL_IPS = ('127.0.0.1', 'localhost', '0.0.0.0')
+INTERNAL_IPS = ('127.0.0.1', 'localhost', '0.0.0.0','192.168.56.101')
 
 
 REST_FRAMEWORK = {

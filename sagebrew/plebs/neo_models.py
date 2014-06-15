@@ -46,7 +46,8 @@ class Pleb(StructuredNode):
     profile_pic = StringProperty()
 
     # Relationships
-    home_town = RelationshipTo("Address", "GREW_UP_AT")
+    home_town = StringProperty()
+    home_town_address = RelationshipTo("Address", "GREW_UP_AT")
     high_school = RelationshipTo("HighSchool", "ATTENDED", model=ReceivedEducationRel)
     university = RelationshipTo("University", "ATTENDED", model=ReceivedEducationRel)
     employer = RelationshipTo("Company", "WORKS_AT")

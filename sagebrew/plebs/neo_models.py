@@ -7,6 +7,7 @@ from datetime import datetime
 import pytz
 
 class School(StructuredNode):
+    name = StringProperty()
     address = RelationshipTo("Address", "LOCATED_AT")
     established = DateTimeProperty()
     population = IntegerProperty()

@@ -14,15 +14,12 @@ def interests(request):
 
     cat_instance = TopicCategory.category()
     categories = cat_instance.instance.all()
-    topic_selection = {}
     specific_interest_choices = []
     for category in categories:
-        topic_selection[category.title] = category.sb_topics.all()
-        for item in topic_selection[category.title]:
+        for item in category.sb_topics.all():
             specific_interest_choices.append((item.title, item.title))
 
     interest_form.fields["specific_interests"].choices = specific_interest_choices
-    print request.POST
     if interest_form.is_valid():
         for item in interest_form.cleaned_data:
             print interest_form.cleaned_data[item]
@@ -41,5 +38,4 @@ def interests(request):
     else:
         print interest_form.errors
 
-    return render(request, 'interests.html', {'interest_form': interest_form,
-                                              "topics": topic_selection})
+    return render(request, 'interests.html', {'interest_form': interest_form})

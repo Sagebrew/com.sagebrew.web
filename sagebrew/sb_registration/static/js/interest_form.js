@@ -6,5 +6,8 @@ $( document ).ready(function() {
         });
     });
 
-    
+    $("#id_specific_interests").width("350px").select2({
+        placeholder: "Select what you care about",
+        allowClear: true
+    });
 });

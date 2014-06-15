@@ -1,9 +1,9 @@
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render
 from django.http import HttpResponseServerError
 
 from plebs.neo_models import Pleb, TopicCategory, SBTopic
 
-from .forms import InterestForm, ProfileInfoForm, AddressInfo
+from .forms import InterestForm
 
 def profile_information(request):
     profile_information_form = ProfileInfoForm(request.POST or None)
@@ -19,10 +19,7 @@ def profile_information(request):
                     #profile_object ='''
 
     return render(request, 'profile_info.html',
-                    {'profile_information_form': profile_information_form,
-                     'address_information_form': address_information_form})
-                    #{'address_information_form': address_information_form})
-
+                    {'profile_information_form':None})
 
 def interests(request):
     interest_form = InterestForm(request.POST or None)
@@ -32,8 +29,7 @@ def interests(request):
     topic_selection = {}
     specific_interest_choices = []
     for category in categories:
-        topic_selection[category.title] = category.sb_topics.all()
-        for item in topic_selection[category.title]:
+        for item in category.sb_topics.all():
             specific_interest_choices.append((item.title, item.title))
 
     interest_form.fields["specific_interests"].choices = specific_interest_choices

@@ -122,6 +122,7 @@ TEMPLATE_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     '%s/sagebrew/templates/'  % PROJECT_DIR,
+    '%s/sb_registration/templates/' % PROJECT_DIR,
 )
 
 FIXTURE_DIRS = (
@@ -162,6 +163,7 @@ INSTALLED_APPS = (
     'api',
     'govtrack',
     'neomodel',
+    'sb_registration',
 )
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True

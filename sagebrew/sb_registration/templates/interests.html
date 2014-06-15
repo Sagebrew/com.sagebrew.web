@@ -1,8 +1,24 @@
 {% extends "base.html" %}
+{% load staticfiles %}
 {% block navigation %}
     {% include "navigation.html" %}
 {% endblock %}
 {% block content %}
-
-
+    <form action="/registration/interests/" method="post">{% csrf_token %}
+    <table>
+        <tr>
+        {% for field in interest_form %}
+            <td valign="middle" style="padding-right: 15px">{{ field.label_tag }}</td><td valign="top" style="padding-right: 15px; "> {{ field }}</td>
+            {% if forloop.counter0|divisibleby:3 %}
+                </tr><tr>
+            {% endif %}
+        {% endfor %}
+        </tr>
+    </table>
+    <input type="submit" value="Submit" />
+    </form>
 {% endblock %}
+{% block scripts %}
+	{{ block.super }}
+	<script src="{% static 'js/interest_form.js' %}"></script>
+{% endblock scripts %}

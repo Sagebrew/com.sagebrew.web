@@ -7,7 +7,6 @@ class InterestForm(forms.Form):
     select_all = forms.BooleanField(
         label = "I like a bit of everything",
         required = False,
-        help_text='I really like to talk a lot'
     )
 
     fiscal = forms.BooleanField(

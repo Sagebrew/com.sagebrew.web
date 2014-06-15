@@ -22,10 +22,11 @@ urlpatterns = patterns('',
     (r'^oauth2/', include('provider.oauth2.urls', namespace='oauth2')),
     (r'^api/', include('plebs.api_urls')),
     (r'^user_profiles/', include('user_profiles.urls')),
+    (r'^registration/', include('sb_registration.urls')),
 )
 
 if settings.DEBUG :
     urlpatterns += patterns('',
-        (r'^media/(?P<path>.*)$', 'django.views.static.serve', 
+        (r'^media/(?P<path>.*)$', 'django.views.static.serve',
                 {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
     )

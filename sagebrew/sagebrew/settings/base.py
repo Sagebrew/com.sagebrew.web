@@ -163,21 +163,19 @@ INSTALLED_APPS = (
     'api',
     'govtrack',
     'neomodel',
-    'sendgrid',
 )
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_VERIFICATION = "optional"
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_SIGNUP_PASSWORD_VERIFICATION = False
 
 SERVER_EMAIL = "service@sagebrew.com"
 DEFAULT_FROM_EMAIL = "service@sagebrew.com"
-EMAIL_HOST = "localhost"
-SENDGRID_EMAIL_HOST = "smtp.sendgrid.net"
-SENDGRID_EMAIL_PORT = 587
-SENDGRID_EMAIL_USERNAME = "bleib1dj"
-SENDGRID_EMAIL_PASSWORD = "wp*D8S@kRnc:6pA"
+
+EMAIL_BACKEND = "sgbackend.SendGridBackend"
+SENDGRID_USER = "bleib1dj"
+SENDGRID_PASSWORD = "wp*D8S@kRnc:6pA"
 
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'

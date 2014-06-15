@@ -70,13 +70,13 @@ class Address(StructuredNode):
 
 
 class TopicCategory(StructuredNode):
-    title = StringProperty()
+    title = StringProperty(unique_index=True)
     description = StringProperty()
     sb_topics = RelationshipTo("SBTopic", "CONTAINS")
 
 
 class SBTopic(StructuredNode):
-    title = StringProperty
+    title = StringProperty(unique_index=True)
     description = StringProperty()
 
 

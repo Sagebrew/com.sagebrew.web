@@ -5,4 +5,6 @@ $( document ).ready(function() {
             this.checked = $that.is(':checked');
         });
     });
+
+    
 });

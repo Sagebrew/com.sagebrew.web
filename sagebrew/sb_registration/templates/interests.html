@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% block css %}
+    {{ block.super }}
+    <link href="{% static 'select2/select2.css' %}" rel="stylesheet"/>
+{% endblock css %}
+
 {% block navigation %}
     {% include "navigation.html" %}
 {% endblock %}
@@ -8,17 +13,51 @@
     <table>
         <tr>
         {% for field in interest_form %}
-            <td valign="middle" style="padding-right: 15px">{{ field.label_tag }}</td><td valign="top" style="padding-right: 15px; "> {{ field }}</td>
+            {% if not forloop.last %}
+                <td valign="middle" style="padding-right: 15px">{{ field.label_tag }}</td><td valign="top" style="padding-right: 15px; "> {{ field }}</td>
+            {% endif %}
             {% if forloop.counter0|divisibleby:3 %}
                 </tr><tr>
             {% endif %}
         {% endfor %}
         </tr>
     </table>
+
+    <div id="selection">
+        <!--
+        After much learning found out that the info commented out below performs the same
+        operation as the for loop below it. In your view you would need:
+
+        cat_instance = TopicCategory.category()
+        categories = cat_instance.instance.all()
+        topic_selection = {}
+        specific_interest_choices = []
+        for category in categories:
+            topic_selection[category.title] = category.sb_topics.all()
+            for item in topic_selection[category.title]:
+                specific_interest_choices.append((item.title, item.title))
+
+        <select id="id_specific_interests" name="specific_interests" multiple="on">
+            {% for category, topic_list in topics.iteritems %}
+                <optgroup label={{ category }}>
+                {% for item in topic_list %}
+                    <option value={{ item.title }}>{{ item.title }}</option>
+                {% endfor %}
+                </optgroup>
+            {% endfor %}
+         -->
+        {% for field in interest_form %}
+            {% if forloop.last %}
+                {{ field }}
+            {% endif %}
+        {%  endfor %}
+        </select>
+    </div>
     <input class="btn btn-primary" type="submit" value="Submit" />
     </form>
 {% endblock %}
 {% block scripts %}
 	{{ block.super }}
 	<script src="{% static 'js/interest_form.js' %}"></script>
+    <script src="{% static 'select2/select2.js' %}"></script>
 {% endblock scripts %}

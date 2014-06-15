@@ -69,6 +69,12 @@ class InterestForm(forms.Form):
         required = False,
     )
 
+    specific_interests = forms.MultipleChoiceField(
+        label = "I only care about:",
+        choices = [("HI", "Hawaii"), ("Bye", "Goodbye")],
+        required = False,
+    )
+
 
     def __init__(self, *args, **kwargs):
         super(InterestForm, self).__init__(*args, **kwargs)

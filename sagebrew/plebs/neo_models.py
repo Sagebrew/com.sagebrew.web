@@ -44,6 +44,7 @@ class Pleb(StructuredNode):
     primary_phone = StringProperty()
     secondary_phone = StringProperty()
     profile_pic = StringProperty()
+    completed_profile_info = BooleanProperty(default=False)
 
     # Relationships
     home_town = StringProperty()

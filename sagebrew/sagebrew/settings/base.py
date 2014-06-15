@@ -135,8 +135,6 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'allauth.socialaccount.providers.facebook',
-    'allauth.socialaccount.providers.google',
     'djangosecure',
     'django_admin_bootstrapped',
     'django.contrib.admin',
@@ -153,6 +151,8 @@ INSTALLED_APPS = (
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.google',
     'photologue',
     'sortedm2m',
     'guardian',
@@ -165,7 +165,7 @@ INSTALLED_APPS = (
     'neomodel',
     'sendgrid',
 )
-
+SOCIALACCOUNT_QUERY_EMAIL = True
 
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True

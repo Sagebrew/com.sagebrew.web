@@ -12,6 +12,7 @@ class School(StructuredNode):
     population = IntegerProperty()
 
 class Company(StructuredNode):
+    name = StringProperty()
     address = RelationshipTo("Address", "LOCATED_AT")
     company_size = IntegerProperty()
     established = DateTimeProperty()

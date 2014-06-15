@@ -3,7 +3,7 @@ from django.shortcuts import render
 
 
 def profile_information(request):
-    return render(request, 'profile_information.html',
+    return render(request, 'profile_info.html',
                     {'profile_information_form':None})
 
 def interests(request):

@@ -10,3 +10,4 @@ django-photologue
 django-guardian
 django-haystack
 neomodel
+sendgrid-django

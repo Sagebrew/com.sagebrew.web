@@ -85,3 +85,110 @@ class InterestForm(forms.Form):
         self.helper.form_action = 'submit_survey'
 
         self.helper.add_input(Submit('submit', 'Submit'))
+
+class ProfileInfoForm(forms.Form):
+    '''first_name = forms.CharField(
+        label = "First Name*",
+        max_length = 40,
+        required = True,
+    )
+
+    last_name = forms.CharField(
+        label = "Last Name*",
+        max_length = 40,
+        required = True,
+    )
+
+    age = forms.IntegerField(
+        label = "Age*",
+        required = True,
+    )'''
+
+    '''email = forms.EmailField(
+        label = "email*",
+        required = True,
+    )'''
+
+    date_of_birth = forms.DateTimeField(
+        label = "Birthday*",
+        required = True,
+    )
+
+    '''primary_phone = forms.CharField(
+        label = "Primary Phone",
+        max_length = 11,
+        required = False,
+    )
+
+    secondary_phone = forms.CharField(
+        label = "Secondary Phone",
+        max_length = 11,
+        required = False,
+    )
+
+    profile_pic = forms.URLField(
+        label = "Profile Picture",
+        required = False,
+    )'''
+
+    home_town = forms.CharField(
+        label = "Hometown",
+        max_length = 40,
+        required = False,
+    )
+
+    high_school = forms.CharField(
+        label = "High School",
+        max_length= 50,
+        required = False,
+    )
+
+    college = forms.CharField(
+        label = "College/University",
+        max_length = 50,
+        required = False,
+    )
+
+    employer = forms.CharField(
+        label = "Employer",
+        max_length = 50,
+        required = False,
+    )
+class AddressInfo(forms.Form):
+    primary_address = forms.CharField(
+        label = "Primary Address*",
+        max_length = 200,
+        required = True,
+    )
+
+    address_additional = forms.CharField(
+        label = "Apt,Building,Etc*",
+        max_length = 200,
+        required = True,
+    )
+
+    city = forms.CharField(
+        label = "City*",
+        max_length = 100,
+        required = True,
+    )
+
+    state = forms.CharField(
+        label = "State*",
+        max_length = 25,
+        required = True,
+    )
+
+    postal_code = forms.CharField(
+        label = "Postal Code*",
+        max_length = 10,
+        required = True,
+    )
+
+    country = forms.CharField(
+        label = "Country*",
+        max_length = 40,
+        required = True,
+    )
+
+

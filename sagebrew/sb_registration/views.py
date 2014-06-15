@@ -1,13 +1,28 @@
-from django.shortcuts import render
+from django.shortcuts import render, render_to_response
 from django.http import HttpResponseServerError
 
 from plebs.neo_models import Pleb, TopicCategory, SBTopic
 
-from .forms import InterestForm
+from .forms import InterestForm, ProfileInfoForm, AddressInfo
 
 def profile_information(request):
+    profile_information_form = ProfileInfoForm(request.POST or None)
+    address_information_form = AddressInfo(request.POST or None)
+    '''if profile_information_form.is_valid():
+        for item in profile_information_form.cleaned_data:
+            if(profile_information_form.cleaned_data[item]):
+                try:
+                    citizen = Pleb.index.get(sb_email=request.user.email)
+                except Pleb.DoesNotExist:
+                    raise HttpResponseServerError
+                #try:
+                    #profile_object ='''
+
     return render(request, 'profile_info.html',
-                    {'profile_information_form':None})
+                    {'profile_information_form': profile_information_form,
+                     'address_information_form': address_information_form})
+                    #{'address_information_form': address_information_form})
+
 
 def interests(request):
     interest_form = InterestForm(request.POST or None)

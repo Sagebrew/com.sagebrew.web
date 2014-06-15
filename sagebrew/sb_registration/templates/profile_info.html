@@ -2,7 +2,28 @@
 {% block navigation %}
     {% include "navigation.html" %}
 {% endblock %}
+
+{% block title %} Profile Information {% endblock %}
 {% block content %}
-
-
+    <form action="/registration/profile_information" mehtod = "post">
+        <h1>Profile Information</h1>
+        <table>
+            <tr>
+            {%  for field in profile_information_form %}
+                <td align="right" style="padding-right:5px;">{{ field.label_tag }}</td><td align="left">{{ field }}</td>
+                </tr><tr>
+            {% endfor %}
+            </tr>
+        </table>
+        <h2>Address</h2>
+        <table>
+            <tr>
+            {%  for field in profile_information_form %}
+                <td align="right" >{{ field.label_tag }}</td> <td align="left">{{ field }}</td>
+                </tr><tr>
+            {% endfor %}
+            </tr>
+        </table>
+    <input class="btn btn-primary" type="submit" value="Continue"/>
+    </form>
 {% endblock %}

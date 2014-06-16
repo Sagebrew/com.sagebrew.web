@@ -18,8 +18,8 @@ def profile_information(request):
         except Pleb.DoesNotExist:
             print "Pleb does not exist."
         print profile_information_form.cleaned_data
-        my_pleb = Pleb(**profile_information_form.cleaned_data)
-        my_pleb.save()
+        #my_pleb = Pleb(**profile_information_form.cleaned_data)
+        #my_pleb.save()
     else:
         print profile_information_form.errors
 
@@ -29,9 +29,11 @@ def profile_information(request):
         except Pleb.DoesNotExist:
             print "Pleb does not exist"
         print address_information_form.cleaned_data
-
-        my_address = Address(**address_information_form.cleaned_data)
-        my_address.save()
+        if validate_address(address_information_form.cleaned_data):
+            my_address = Address(**address_information_form.cleaned_data)
+            my_address.save()
+        else:
+            print "Invalid Address"
     else:
         print address_information_form.errors
 

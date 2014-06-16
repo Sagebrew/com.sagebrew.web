@@ -28,19 +28,17 @@ def validate_address(addressrequest):
     auth_token = 'p3GbchbjA3q13MUdT7gM'
     addressrequest['auth-id']=auth_id
     addressrequest['auth-token']=auth_token
-    addressrequest['street']=addressrequest['Primary Address*']
-    addressrequest.pop('Primary Address',None)
-    addressrequest['city']=addressrequest['City*']
-    addressrequest.pop('City*',None)
-    addressrequest['state']=addressrequest['State*']
-    addressrequest.pop('State*',None)
-    addressrequest['zipCode']=addressrequest['Postal Code*']
-    addressrequest.pop('Postal Code*',None)
+    addressrequest['street']=addressrequest['primary_address']
+    addressrequest.pop('primary_address',None)
+    addressrequest['zipCode']=addressrequest['postal_code']
+    addressrequest.pop('postal_code',None)
     QUERY_STRING = urllib.urlencode(addressrequest)
 
     URL = LOCATION + '?' + QUERY_STRING
 
     response = urllib.urlopen(URL).read()
     structure = json.loads(response)
-    pprint.pprint(structure)
+    if structure:
+        return 1
+
 

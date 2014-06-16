@@ -8,6 +8,7 @@ from .utils import generate_interests_tuple, validate_address
 
 
 def profile_information(request):
+    print request.POST
     profile_information_form = ProfileInfoForm(request.POST or None)
     address_information_form = AddressInfo(request.POST or None)
     print "here"
@@ -34,6 +35,7 @@ def profile_information(request):
             my_address.save()
         else:
             print "Invalid Address"
+        return redirect('interests')
     else:
         print address_information_form.errors
 

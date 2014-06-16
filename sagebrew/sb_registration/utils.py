@@ -1,5 +1,6 @@
 from plebs.neo_models import TopicCategory
 
+
 def generate_interests_tuple():
     cat_instance = TopicCategory.category()
     categories = cat_instance.instance.all()

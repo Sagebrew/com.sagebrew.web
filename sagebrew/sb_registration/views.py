@@ -6,6 +6,7 @@ from plebs.neo_models import Pleb, TopicCategory, SBTopic
 from .forms import InterestForm
 from .utils import generate_interests_tuple
 
+
 def profile_information(request):
     return render(request, 'profile_info.html',
                     {'profile_information_form':None})

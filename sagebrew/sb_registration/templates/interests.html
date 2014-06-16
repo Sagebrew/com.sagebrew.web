@@ -24,37 +24,6 @@
     </table>
 
     <div id="selection">
-        <!--
-        After much learning found out that the info commented out below performs the same
-        operation as the for loop below it. In your view you would need:
-
-        cat_instance = TopicCategory.category()
-        categories = cat_instance.instance.all()
-        topic_selection = {}
-        specific_interest_choices = []
-        for category in categories:
-            topic_selection[category.title] = category.sb_topics.all()
-            for item in topic_selection[category.title]:
-                specific_interest_choices.append((item.title, item.title))
-
-        <select id="id_specific_interests" name="specific_interests" multiple="on">
-            {% for category, topic_list in topics.iteritems %}
-                <optgroup label={{ category }}>
-                {% for item in topic_list %}
-                    <option value='{{ item.title }}'>{{ item.title }}</option>
-                {% endfor %}
-                </optgroup>
-            {% endfor %}
-        </select>
-
-
-        Without categories listed:
-        {% for field in interest_form %}
-            {% if forloop.last %}
-                {{ field }}
-            {% endif %}
-        {%  endfor %}
-         -->
         {% for field in interest_form %}
             {% if forloop.last %}
                 {{ field }}

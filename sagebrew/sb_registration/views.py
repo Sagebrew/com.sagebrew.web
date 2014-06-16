@@ -13,6 +13,15 @@ def profile_information(request):
 
 
 def interests(request):
+    '''
+    The interests view creates an InterestForm populates the topics that
+    a user can choose from and if a POST request is passed then the function
+    checks the validity of the arguments POSTed. If the form is valid then
+    the given topics and categories are associated with the logged in user.
+
+    :param request:
+    :return: HttpResponse
+    '''
     interest_form = InterestForm(request.POST or None)
 
     choices_tuple = generate_interests_tuple()
@@ -21,11 +30,11 @@ def interests(request):
     if interest_form.is_valid():
         for item in interest_form.cleaned_data:
             if(interest_form.cleaned_data[item] and
-                       item != "specific_interests"):
+                    item != "specific_interests"):
                 try:
                     citizen = Pleb.index.get(email=request.user.email)
                 except Pleb.DoesNotExist:
-                    # return HttpResponseServerError('<h1>Server Error (500)</h1>')
+                    # return HttpResponseServerError('')
                     print "Pleb does not exist"
                 try:
                     print item
@@ -36,7 +45,7 @@ def interests(request):
                         pass
                     # citizen.topic_category.connect(category_object)
                 except TopicCategory.DoesNotExist:
-                    # return HttpResponseServerError('<h1>Server Error (500)</h1>')
+                    # return HttpResponseServerError('')
                     print "Topic cat does not exist"
 
         for topic in interest_form.cleaned_data["specific_interests"]:
@@ -44,7 +53,7 @@ def interests(request):
                 interest_object = SBTopic.index.get(title=topic)
                 print interest_object.title
             except SBTopic.DoesNotExist:
-                # return HttpResponseServerError('<h1>Server Error (500)</h1>')
+                # return HttpResponseServerError('')
                 print "Topic cat does not exist"
             # citizen.sb_topics.connect(interest_object)
         return redirect('invite_friends')
@@ -55,4 +64,5 @@ def interests(request):
 
 
 def invite_friends(request):
+
     return render(request, 'invite_friends.html', {"here": None})

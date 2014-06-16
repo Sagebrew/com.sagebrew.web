@@ -1,27 +1,43 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponseServerError
 
-from plebs.neo_models import Pleb, TopicCategory, SBTopic
+from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
 
-from .forms import InterestForm
-from .utils import generate_interests_tuple
+from .forms import InterestForm, ProfileInfoForm, AddressInfo
+from .utils import generate_interests_tuple, validate_address
 
 
 def profile_information(request):
     profile_information_form = ProfileInfoForm(request.POST or None)
     address_information_form = AddressInfo(request.POST or None)
-    '''if profile_information_form.is_valid():
-        for item in profile_information_form.cleaned_data:
-            if(profile_information_form.cleaned_data[item]):
-                try:
-                    citizen = Pleb.index.get(sb_email=request.user.email)
-                except Pleb.DoesNotExist:
-                    raise HttpResponseServerError
-                #try:
-                    #profile_object ='''
+    print "here"
+    if profile_information_form.is_valid():
+        print "valid"
+        try:
+            citizen = Pleb.index.get(email=request.user.email)
+        except Pleb.DoesNotExist:
+            print "Pleb does not exist."
+        print profile_information_form.cleaned_data
+        my_pleb = Pleb(**profile_information_form.cleaned_data)
+        my_pleb.save()
+    else:
+        print profile_information_form.errors
+
+    if address_information_form.is_valid():
+        try:
+            citizen = Pleb.index.get(email=request.user.email)
+        except Pleb.DoesNotExist:
+            print "Pleb does not exist"
+        print address_information_form.cleaned_data
+
+        my_address = Address(**address_information_form.cleaned_data)
+        my_address.save()
+    else:
+        print address_information_form.errors
 
     return render(request, 'profile_info.html',
-                    {'profile_information_form':None})
+                    {'profile_information_form':profile_information_form,
+                    'address_information_form':address_information_form})
 
 
 def interests(request):

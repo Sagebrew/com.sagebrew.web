@@ -137,7 +137,6 @@ class InterestForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(InterestForm, self).__init__(*args, **kwargs)
 
-        self.helper.add_input(Submit('submit', 'Submit'))
 
 class ProfileInfoForm(forms.Form):
     '''first_name = forms.CharField(
@@ -207,6 +206,7 @@ class ProfileInfoForm(forms.Form):
         max_length = 50,
         required = False,
     )
+
 class AddressInfo(forms.Form):
     primary_address = forms.CharField(
         label = "Primary Address*",
@@ -215,9 +215,9 @@ class AddressInfo(forms.Form):
     )
 
     address_additional = forms.CharField(
-        label = "Apt,Building,Etc*",
+        label = "Apt,Building,Etc",
         max_length = 200,
-        required = True,
+        required = False,
     )
 
     city = forms.CharField(

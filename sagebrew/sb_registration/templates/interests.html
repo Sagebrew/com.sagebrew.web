@@ -41,10 +41,19 @@
             {% for category, topic_list in topics.iteritems %}
                 <optgroup label={{ category }}>
                 {% for item in topic_list %}
-                    <option value={{ item.title }}>{{ item.title }}</option>
+                    <option value='{{ item.title }}'>{{ item.title }}</option>
                 {% endfor %}
                 </optgroup>
             {% endfor %}
+        </select>
+
+
+        Without categories listed:
+        {% for field in interest_form %}
+            {% if forloop.last %}
+                {{ field }}
+            {% endif %}
+        {%  endfor %}
          -->
         {% for field in interest_form %}
             {% if forloop.last %}

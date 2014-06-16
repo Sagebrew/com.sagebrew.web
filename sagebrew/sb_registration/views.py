@@ -1,9 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponseServerError
 
 from plebs.neo_models import Pleb, TopicCategory, SBTopic
 
 from .forms import InterestForm
+from .utils import generate_interests_tuple
+
 
 def profile_information(request):
     profile_information_form = ProfileInfoForm(request.POST or None)
@@ -21,36 +23,48 @@ def profile_information(request):
     return render(request, 'profile_info.html',
                     {'profile_information_form':None})
 
+
 def interests(request):
     interest_form = InterestForm(request.POST or None)
 
-    cat_instance = TopicCategory.category()
-    categories = cat_instance.instance.all()
-    topic_selection = {}
-    specific_interest_choices = []
-    for category in categories:
-        for item in category.sb_topics.all():
-            specific_interest_choices.append((item.title, item.title))
+    choices_tuple = generate_interests_tuple()
+    interest_form.fields["specific_interests"].choices = choices_tuple
 
-    interest_form.fields["specific_interests"].choices = specific_interest_choices
-    print request.POST
     if interest_form.is_valid():
         for item in interest_form.cleaned_data:
-            print interest_form.cleaned_data[item]
-            if(interest_form.cleaned_data[item]):
+            if(interest_form.cleaned_data[item] and
+                       item != "specific_interests"):
                 try:
                     citizen = Pleb.index.get(email=request.user.email)
                 except Pleb.DoesNotExist:
                     # return HttpResponseServerError('<h1>Server Error (500)</h1>')
                     print "Pleb does not exist"
                 try:
-                    interest_object = TopicCategory.index.get(title=item)
+                    print item
+                    category_object = TopicCategory.index.get(
+                        title=item.capitalize())
+                    for topic in category_object.sb_topics.all():
+                        #citizen.sb_topics.connect(topic)
+                        pass
+                    # citizen.topic_category.connect(category_object)
                 except TopicCategory.DoesNotExist:
                     # return HttpResponseServerError('<h1>Server Error (500)</h1>')
                     print "Topic cat does not exist"
-                # citizen.interest.connect(interest_object)
+
+        for topic in interest_form.cleaned_data["specific_interests"]:
+            try:
+                interest_object = SBTopic.index.get(title=topic)
+                print interest_object.title
+            except SBTopic.DoesNotExist:
+                # return HttpResponseServerError('<h1>Server Error (500)</h1>')
+                print "Topic cat does not exist"
+            # citizen.sb_topics.connect(interest_object)
+        return redirect('invite_friends')
     else:
         print interest_form.errors
 
-    return render(request, 'interests.html', {'interest_form': interest_form,
-                                              "topics": topic_selection})
+    return render(request, 'interests.html', {'interest_form': interest_form})
+
+
+def invite_friends(request):
+    return render(request, 'invite_friends.html', {"here": None})

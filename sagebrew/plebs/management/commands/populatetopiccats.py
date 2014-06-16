@@ -11,8 +11,11 @@ class Command(BaseCommand):
     help = 'Test the conductor api endpoints.'
     sb_categories = [
             {
-                "title": "Fiscal",
-                "description": "",
+                "title": "Fiscal/Economy",
+                "description": '''Issues involving the Economy,
+                        matters of taxation, government spending,
+                        importing/exporting, the private sector,
+                        wall street etc''',
                 "sb_topics": [
                     {
                         "title": "Trade Deficit",
@@ -41,7 +44,9 @@ class Command(BaseCommand):
             },
             {
                 "title": "Foreign Policy",
-                "description": "",
+                "description": '''Issues involving the interaction between
+                                    the Federal Government and Governments of
+                                    other states and nations.''',
                 "sb_topics": []
             },
             {

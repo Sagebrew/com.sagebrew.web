@@ -14,7 +14,7 @@
         <tr>
         {% for field in interest_form %}
             {% if not forloop.last %}
-                <td valign="middle" style="padding-right: 15px">{{ field.label_tag }}</td><td valign="top" style="padding-right: 15px; "> {{ field }}</td>
+                <td class="has-popover" data-content="{{ field.help_text }}" data-placement="right" data-container="body" valign="middle" style="padding-right: 15px">{{ field.label_tag }}</td><td valign="top" style="padding-right: 15px; "> {{ field }}</td>
             {% endif %}
             {% if forloop.counter0|divisibleby:3 %}
                 </tr><tr>

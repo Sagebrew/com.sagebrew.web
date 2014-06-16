@@ -22,19 +22,29 @@ def interests(request):
     interest_form.fields["specific_interests"].choices = specific_interest_choices
     if interest_form.is_valid():
         for item in interest_form.cleaned_data:
-            print interest_form.cleaned_data[item]
-            if(interest_form.cleaned_data[item]):
+            if(interest_form.cleaned_data[item] and
+                       item != "specific_interests"):
                 try:
                     citizen = Pleb.index.get(email=request.user.email)
                 except Pleb.DoesNotExist:
                     # return HttpResponseServerError('<h1>Server Error (500)</h1>')
                     print "Pleb does not exist"
                 try:
-                    interest_object = TopicCategory.index.get(title=item)
+                    print item
+                    category_object = TopicCategory.index.get(
+                        title=item.capitalize())
                 except TopicCategory.DoesNotExist:
                     # return HttpResponseServerError('<h1>Server Error (500)</h1>')
                     print "Topic cat does not exist"
-                # citizen.interest.connect(interest_object)
+                # citizen.topic_category.connect(category_object)
+        for topic in interest_form.cleaned_data["specific_interests"]:
+            try:
+                interest_object = SBTopic.index.get(title=topic)
+                print interest_object.title
+            except SBTopic.DoesNotExist:
+                # return HttpResponseServerError('<h1>Server Error (500)</h1>')
+                print "Topic cat does not exist"
+            # citizen.sb_topics.connect(interest_object)
     else:
         print interest_form.errors
 

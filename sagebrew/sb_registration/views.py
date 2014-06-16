@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponseServerError
 
 from plebs.neo_models import Pleb, TopicCategory, SBTopic
@@ -47,7 +47,12 @@ def interests(request):
                 # return HttpResponseServerError('<h1>Server Error (500)</h1>')
                 print "Topic cat does not exist"
             # citizen.sb_topics.connect(interest_object)
+        return redirect('invite_friends')
     else:
         print interest_form.errors
 
     return render(request, 'interests.html', {'interest_form': interest_form})
+
+
+def invite_friends(request):
+    return render(request, 'invite_friends.html', {"here": None})

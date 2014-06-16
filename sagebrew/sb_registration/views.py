@@ -31,10 +31,14 @@ def interests(request):
                     print item
                     category_object = TopicCategory.index.get(
                         title=item.capitalize())
+                    for topic in category_object.sb_topics.all():
+                        #citizen.sb_topics.connect(topic)
+                        pass
+                    # citizen.topic_category.connect(category_object)
                 except TopicCategory.DoesNotExist:
                     # return HttpResponseServerError('<h1>Server Error (500)</h1>')
                     print "Topic cat does not exist"
-                # citizen.topic_category.connect(category_object)
+
         for topic in interest_form.cleaned_data["specific_interests"]:
             try:
                 interest_object = SBTopic.index.get(title=topic)

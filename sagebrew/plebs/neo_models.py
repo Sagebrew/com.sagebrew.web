@@ -45,9 +45,9 @@ class Pleb(StructuredNode):
     secondary_phone = StringProperty()
     profile_pic = StringProperty()
     completed_profile_info = BooleanProperty(default=False)
+    home_town = StringProperty()
 
     # Relationships
-    home_town = StringProperty()
     home_town_address = RelationshipTo("Address", "GREW_UP_AT")
     high_school = RelationshipTo("HighSchool", "ATTENDED", model=ReceivedEducationRel)
     university = RelationshipTo("University", "ATTENDED", model=ReceivedEducationRel)

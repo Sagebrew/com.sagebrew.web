@@ -9,26 +9,22 @@ from .utils import generate_interests_tuple, validate_address
 
 def profile_information(request):
     print request.POST
+    profile_errors = None
+    address_errors = None
     profile_information_form = ProfileInfoForm(request.POST or None)
     address_information_form = AddressInfo(request.POST or None)
-    print "here"
+    try:
+        citizen = Pleb.index.get(email=request.user.email)
+    except Pleb.DoesNotExist:
+        redirect("404_Error")
     if profile_information_form.is_valid():
-        print "valid"
-        try:
-            citizen = Pleb.index.get(email=request.user.email)
-        except Pleb.DoesNotExist:
-            print "Pleb does not exist."
         print profile_information_form.cleaned_data
         #my_pleb = Pleb(**profile_information_form.cleaned_data)
         #my_pleb.save()
     else:
-        print profile_information_form.errors
+        profile_errors = profile_information_form.errors
 
     if address_information_form.is_valid():
-        try:
-            citizen = Pleb.index.get(email=request.user.email)
-        except Pleb.DoesNotExist:
-            print "Pleb does not exist"
         print address_information_form.cleaned_data
         if validate_address(address_information_form.cleaned_data):
             my_address = Address(**address_information_form.cleaned_data)
@@ -37,11 +33,13 @@ def profile_information(request):
             print "Invalid Address"
         return redirect('interests')
     else:
-        print address_information_form.errors
+        address_errors = address_information_form.errors
 
     return render(request, 'profile_info.html',
                     {'profile_information_form':profile_information_form,
-                    'address_information_form':address_information_form})
+                     'profile_info_errors': profile_errors,
+                    'address_information_form':address_information_form,
+                    'address_info_errors': address_errors})
 
 
 def interests(request):

@@ -9,6 +9,11 @@
     {% include "navigation.html" %}
 {% endblock %}
 {% block content %}
+    <ul>
+    {% for error in interest_form.errors %}
+        <li>error</li>
+    {% endfor %}
+    </ul>
     <form action="/registration/interests/" method="post">{% csrf_token %}
     <table>
         <tr>

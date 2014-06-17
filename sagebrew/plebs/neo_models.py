@@ -1,10 +1,13 @@
+from uuid import uuid1
+import pytz
+
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty)
 
-from uuid import uuid1
-from datetime import datetime
-import pytz
 
 class School(StructuredNode):
     name = StringProperty()
@@ -81,3 +84,20 @@ class SBTopic(StructuredNode):
     description = StringProperty()
 
 
+
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        citizen = Pleb(email=instance.email, first_name=instance.first_name,
+                       last_name=instance.last_name)
+        citizen.save()
+    else:
+        pass
+        # citizen = Pleb.index.get(instance.email)
+        # TODO may not be necessary but if we update an email or something
+        # we need to remember to update it in the pleb instance and the
+        # default django instance.
+        #citizen.first_name = instance.firstname
+        #citizen.last_name = instance.lastname
+
+
+post_save.connect(create_user_profile, sender=User)

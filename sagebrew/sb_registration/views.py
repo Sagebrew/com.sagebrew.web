@@ -53,7 +53,6 @@ def interests(request):
     :return: HttpResponse
     '''
     interest_form = InterestForm(request.POST or None)
-
     choices_tuple = generate_interests_tuple()
     interest_form.fields["specific_interests"].choices = choices_tuple
 
@@ -64,10 +63,8 @@ def interests(request):
                 try:
                     citizen = Pleb.index.get(email=request.user.email)
                 except Pleb.DoesNotExist:
-                    # return HttpResponseServerError('')
-                    print "Pleb does not exist"
+                    redirect("404_Error")
                 try:
-                    print item
                     category_object = TopicCategory.index.get(
                         title=item.capitalize())
                     for topic in category_object.sb_topics.all():
@@ -75,20 +72,15 @@ def interests(request):
                         pass
                     # citizen.topic_category.connect(category_object)
                 except TopicCategory.DoesNotExist:
-                    # return HttpResponseServerError('')
-                    print "Topic cat does not exist"
+                    redirect("404_Error")
 
         for topic in interest_form.cleaned_data["specific_interests"]:
             try:
                 interest_object = SBTopic.index.get(title=topic)
-                print interest_object.title
             except SBTopic.DoesNotExist:
-                # return HttpResponseServerError('')
-                print "Topic cat does not exist"
+                redirect("404_Error")
             # citizen.sb_topics.connect(interest_object)
         return redirect('invite_friends')
-    else:
-        print interest_form.errors
 
     return render(request, 'interests.html', {'interest_form': interest_form})
 

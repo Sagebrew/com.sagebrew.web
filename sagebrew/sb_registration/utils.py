@@ -65,8 +65,8 @@ def get_google_contact_emails():
     http = httplib2.Http()
     http = credentials.authorize(http)
     service = build('contacts', 'v3', http=http)
-    '''ontacts_service = gdata.contacts.service.ContactsService()
-    contacts_service.auth_token = authsub_token
+    contacts_service = gdata.contacts.service.ContactsService()
+    contacts_service.auth_token = code
     contacts_service.UpgradeToSessionToken()
     emails = []
     feed = contacts_service.GetContactsFeed()
@@ -75,5 +75,5 @@ def get_google_contact_emails():
     while next_link:
         feed = contacts_service.GetContactsFeed(uri=next_link.href)
         emails.extend(sum([[email.address for email in entry.email] for entry in feed.entry], []))
-        next_link = feed.GetNextLink()'''
+        next_link = feed.GetNextLink()
 

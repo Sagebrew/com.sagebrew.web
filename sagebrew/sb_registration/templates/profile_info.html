@@ -8,11 +8,11 @@
     <form action="/registration/profile_information/" method = "post">{% csrf_token %}
         <h1>Profile Information</h1>
             {%  for field in profile_information_form %}
-                <div>{{ field.label_tag }}</div><div>{{ field }}</div>
+                <div>{{ field.label_tag }}</div><div>{{ field }}</div><div>{{ field.errors }}</div>
             {% endfor %}
         <h2>Address</h2>
             {%  for field in address_information_form %}
-                <div>{{ field.label_tag }}</div> <div>{{ field }}</div>
+                <div>{{ field.label_tag }}</div> <div>{{ field }}</div><div>{{ field.errors }}</div>
             {% endfor %}
     <input class="btn btn-primary" type="submit" value="Submit"/>
     </form>

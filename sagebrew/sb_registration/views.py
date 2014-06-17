@@ -1,16 +1,20 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponseServerError
+from django.contrib.auth.decorators import login_required
 
 from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
 
-from .forms import InterestForm, ProfileInfoForm, AddressInfo
-from .utils import generate_interests_tuple, validate_address
+from .forms import (InterestForm, ProfileInfoForm, AddressInfo,
+                    FriendInviteGmail, FriendInviteOutlook,
+                    FriendInviteTwitter, FriendInviteYahoo)
+
+from .utils import (generate_interests_tuple, validate_address,
+                    get_google_contact_emails,)
 
 
+@login_required
 def profile_information(request):
     print request.POST
-    profile_errors = None
-    address_errors = None
     profile_information_form = ProfileInfoForm(request.POST or None)
     address_information_form = AddressInfo(request.POST or None)
     try:
@@ -21,25 +25,20 @@ def profile_information(request):
         print profile_information_form.cleaned_data
         #my_pleb = Pleb(**profile_information_form.cleaned_data)
         #my_pleb.save()
-    else:
-        profile_errors = profile_information_form.errors
 
     if address_information_form.is_valid():
         print address_information_form.cleaned_data
         if validate_address(address_information_form.cleaned_data):
             my_address = Address(**address_information_form.cleaned_data)
             my_address.save()
+            return redirect('interests')
         else:
             print "Invalid Address"
-        return redirect('interests')
-    else:
-        address_errors = address_information_form.errors
+
 
     return render(request, 'profile_info.html',
                     {'profile_information_form':profile_information_form,
-                     'profile_info_errors': profile_errors,
-                    'address_information_form':address_information_form,
-                    'address_info_errors': address_errors})
+                    'address_information_form':address_information_form})
 
 
 def interests(request):
@@ -86,5 +85,16 @@ def interests(request):
 
 
 def invite_friends(request):
+    google_friends_form = FriendInviteGmail(request.POST or None)
+    outlook_friends_form = FriendInviteOutlook(request.POST or None)
+    yahoo_friends_form = FriendInviteYahoo(request.POST or None)
+    twitter_friends_form = FriendInviteTwitter(request.POST or None)
 
-    return render(request, 'invite_friends.html', {"here": None})
+    #get_google_contact_emails()
+    #if google_friends_form.email:
+        #get_google_contact_emails
+
+    return render(request, 'invite_friends.html', {'google_friends_form': google_friends_form,
+                                                   'outlook_friends_form': outlook_friends_form,
+                                                   'yahoo_friends_form': yahoo_friends_form,
+                                                   'twitter_friends_form': twitter_friends_form})

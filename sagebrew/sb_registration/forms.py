@@ -139,49 +139,11 @@ class InterestForm(forms.Form):
 
 
 class ProfileInfoForm(forms.Form):
-    '''first_name = forms.CharField(
-        label = "First Name*",
-        max_length = 40,
-        required = True,
-    )
-
-    last_name = forms.CharField(
-        label = "Last Name*",
-        max_length = 40,
-        required = True,
-    )
-
-    age = forms.IntegerField(
-        label = "Age*",
-        required = True,
-    )'''
-
-    '''email = forms.EmailField(
-        label = "email*",
-        required = True,
-    )'''
 
     date_of_birth = forms.DateTimeField(
         label = "Birthday*",
         required = True,
     )
-
-    '''primary_phone = forms.CharField(
-        label = "Primary Phone",
-        max_length = 11,
-        required = False,
-    )
-
-    secondary_phone = forms.CharField(
-        label = "Secondary Phone",
-        max_length = 11,
-        required = False,
-    )
-
-    profile_pic = forms.URLField(
-        label = "Profile Picture",
-        required = False,
-    )'''
 
     home_town = forms.CharField(
         label = "Hometown",
@@ -242,6 +204,30 @@ class AddressInfo(forms.Form):
         label = "Country*",
         max_length = 40,
         required = True,
+    )
+
+class FriendInviteGmail(forms.Form):
+    email = forms.EmailField(
+        label = "gmail",
+        required = False,
+    )
+
+class FriendInviteOutlook(forms.Form):
+    email = forms.EmailField(
+        label = "Outlook",
+        required = False,
+    )
+
+class FriendInviteYahoo(forms.Form):
+    email = forms.EmailField(
+        label = "Yahoo!",
+        required = False,
+    )
+
+class FriendInviteTwitter(forms.Form):
+    email = forms.EmailField(
+        label = "Twitter",
+        required = False,
     )
 
 

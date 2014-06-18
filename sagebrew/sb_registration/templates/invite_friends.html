@@ -5,7 +5,7 @@
 {% block content %}
 <form action="/registration/invite_friends/" method = "post">{% csrf_token %}
 <h1> Invite Your Friends! </h1>
-    <div><input class="btn btn-primary" type="submit" value="Invite Gmail Contacts!"/></div>
+    <div>{{ google_friends_form }}<input class="btn btn-primary" type="submit" value="Invite Gmail Contacts!"/></div>
     <div>{{ outlook_friends_form }}</div>
     <div>{{ yahoo_friends_form }}</div>
     <div>{{ twitter_friends_form }}</div>

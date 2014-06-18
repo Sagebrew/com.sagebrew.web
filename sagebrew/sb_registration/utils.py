@@ -1,4 +1,5 @@
 from plebs.neo_models import TopicCategory
+import gflags
 import json
 import urllib
 import httplib2
@@ -11,8 +12,10 @@ import gdata.contacts.service
 from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.file import Storage
 from apiclient.discovery import build
+from oauth2client.tools import run_flow, argparser
 
-GOOGLE_CONTACTS_URI = 'http://www.google.com/m8/feeds/'
+GOOGLE_CONTACTS_URI = 'http://www.google.com/m8/feeds/contacts/default/full'
+FLAGS = gflags.FLAGS
 
 def generate_interests_tuple():
     cat_instance = TopicCategory.category()
@@ -53,19 +56,40 @@ def validate_address(addressrequest):
 
 
 def get_google_contact_emails():
-    flow = OAuth2WebServerFlow(client_id='993581225427-32f6in1htts4sdmcduaq6oeg29c7iib3.apps.googleusercontent.com',
-                               client_secret='9cLhnm0PhNNlRQivNUqnHo0J',
+    # The flow object is sued to authenticate if needed
+    print 'before'
+    flow = OAuth2WebServerFlow(client_id='993581225427-kqtb2i5t7dakvb2o1g034p4e0lnlcpc1.apps.googleusercontent.com',
+                               client_secret='ianErOM2-GhxC5bHg_PIZUrT',
                                scope=GOOGLE_CONTACTS_URI,
-                               redirect_uri='http://192.168.56.101/auth_return/')
-    auth_uri = flow.step1_get_authorize_url()
-    redirect(auth_uri)
-    code = auth_uri.replace('http://example.com/auth_return/?code=','')
-    credentials = flow.step2_exchange(code)
-    storage = Storage(credentials)
+                               redirect_uri='https://192.168.56.101/oauth_verified/',
+                               user_agent='Sagebrew')#http://192.168.56.101/auth_return/')
+    print 'after'
+    parser = argparser.ArgumentParser(description=__doc__,
+      formatter_class=argparser.RawDescriptionHelpFormatter,
+      parents=[tools.run_parser])
+    flags = parser.parse_args(argv)
+    # If the credentials aren't valid or don't exist run through the client flow,
+    # Storage object ensures that if valid authentication the good credentials are
+    # written to a file
+    storage = Storage('contacts.json')
+    #print storage
+    credentials = storage.get()
+    print 'before cred loop'
+    if credentials is None or credentials.invalid == True:
+        credentials = run_flow(flow, storage, flags=None)
+    print 'after cred loop'
+
+    # Creates an httplib2.Http object, it handles HTTP requests and authorizes
+    # with good credentials
     http = httplib2.Http()
     http = credentials.authorize(http)
-    service = build('contacts', 'v3', http=http)
-    contacts_service = gdata.contacts.service.ContactsService()
+
+    # Builds a service object to interact with API
+    print 'before build'
+    service = build(serviceName='contacts', version='v3', http=http,
+                    developerKey='AIzaSyAep76o26VQN01tubM6DcUQhvTmjL133GA')
+    print 'after build'
+    '''contacts_service = gdata.contacts.service.ContactsService()
     contacts_service.auth_token = code
     contacts_service.UpgradeToSessionToken()
     emails = []
@@ -75,5 +99,5 @@ def get_google_contact_emails():
     while next_link:
         feed = contacts_service.GetContactsFeed(uri=next_link.href)
         emails.extend(sum([[email.address for email in entry.email] for entry in feed.entry], []))
-        next_link = feed.GetNextLink()
+        next_link = feed.GetNextLink()'''
 

@@ -90,7 +90,7 @@ def invite_friends(request):
     yahoo_friends_form = FriendInviteYahoo(request.POST or None)
     twitter_friends_form = FriendInviteTwitter(request.POST or None)
 
-    #get_google_contact_emails()
+    get_google_contact_emails()
     #if google_friends_form.email:
         #get_google_contact_emails
 

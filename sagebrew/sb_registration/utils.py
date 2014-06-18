@@ -3,6 +3,7 @@ import gflags
 import json
 import urllib
 import httplib2
+import argparse
 
 from django.shortcuts import redirect
 from django.contrib.auth.models import User
@@ -12,7 +13,8 @@ import gdata.contacts.service
 from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.file import Storage
 from apiclient.discovery import build
-from oauth2client.tools import run_flow, argparser
+from oauth2client import tools
+
 
 GOOGLE_CONTACTS_URI = 'http://www.google.com/m8/feeds/contacts/default/full'
 FLAGS = gflags.FLAGS
@@ -64,10 +66,6 @@ def get_google_contact_emails():
                                redirect_uri='https://192.168.56.101/oauth_verified/',
                                user_agent='Sagebrew')#http://192.168.56.101/auth_return/')
     print 'after'
-    parser = argparser.ArgumentParser(description=__doc__,
-      formatter_class=argparser.RawDescriptionHelpFormatter,
-      parents=[tools.run_parser])
-    flags = parser.parse_args(argv)
     # If the credentials aren't valid or don't exist run through the client flow,
     # Storage object ensures that if valid authentication the good credentials are
     # written to a file
@@ -76,7 +74,7 @@ def get_google_contact_emails():
     credentials = storage.get()
     print 'before cred loop'
     if credentials is None or credentials.invalid == True:
-        credentials = run_flow(flow, storage, flags=None)
+        credentials = tools.run(flow, storage)
     print 'after cred loop'
 
     # Creates an httplib2.Http object, it handles HTTP requests and authorizes

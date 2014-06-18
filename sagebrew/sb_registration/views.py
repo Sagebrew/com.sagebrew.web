@@ -1,6 +1,16 @@
+import httplib2
+import os
+import logging
+
+
+from sagebrew.settings import base
 from django.shortcuts import render, redirect
 from django.http import HttpResponseServerError
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+from django.http import HttpResponseBadRequest
+from django.http import HttpResponseRedirect
+from django.shortcuts import render_to_response
 
 from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
 
@@ -8,9 +18,20 @@ from .forms import (InterestForm, ProfileInfoForm, AddressInfo,
                     FriendInviteGmail, FriendInviteOutlook,
                     FriendInviteTwitter, FriendInviteYahoo)
 
+from sb_registration.models import CredentialsModel
 from .utils import (generate_interests_tuple, validate_address,
                     get_google_contact_emails,)
+from oauth2client import xsrfutil
+from oauth2client.client import flow_from_clientsecrets
+from oauth2client.django_orm import Storage
+from apiclient.discovery import build
 
+CLIENT_SECRETS = os.path.join(os.path.dirname(__file__), '..', 'client_secrets.json')
+
+FLOW = flow_from_clientsecrets(
+    CLIENT_SECRETS,
+    scope='http://www.google.com/m8/feeds/contacts/default/full',
+    redirect_uri='http://192.168.56.101/registration/oauth2callback/')
 
 @login_required
 def profile_information(request):
@@ -90,11 +111,57 @@ def invite_friends(request):
     yahoo_friends_form = FriendInviteYahoo(request.POST or None)
     twitter_friends_form = FriendInviteTwitter(request.POST or None)
 
-    get_google_contact_emails()
-    #if google_friends_form.email:
-        #get_google_contact_emails
+    storage = Storage(CredentialsModel, 'id', request.user, 'credential')
+    credential = storage.get()
+    if credential is None or credential.invalid == True:
+        FLOW.params['state'] = xsrfutil.generate_token(base.SECRET_KEY,
+                                                   request.user)
+        authorize_url = FLOW.step1_get_authorize_url()
+        return HttpResponseRedirect(authorize_url)
+    else:
+        http = httplib2.Http()
+        http = credential.authorize(http)
+        service = build("plus", "v1", http=http)
+        activities = service.activities()
+        activitylist = activities.list(collection='public',
+                                   userId='me').execute()
+    logging.info(activitylist)
+
 
     return render(request, 'invite_friends.html', {'google_friends_form': google_friends_form,
                                                    'outlook_friends_form': outlook_friends_form,
                                                    'yahoo_friends_form': yahoo_friends_form,
-                                                   'twitter_friends_form': twitter_friends_form})
+                                                   'twitter_friends_form': twitter_friends_form,
+                                                   'activitylist': activitylist})
+
+@login_required
+def index(request):
+  storage = Storage(CredentialsModel, 'id', request.user, 'credential')
+  credential = storage.get()
+  if credential is None or credential.invalid == True:
+    FLOW.params['state'] = xsrfutil.generate_token(base.SECRET_KEY,
+                                                   request.user)
+    authorize_url = FLOW.step1_get_authorize_url()
+    return HttpResponseRedirect(authorize_url)
+  else:
+    http = httplib2.Http()
+    http = credential.authorize(http)
+    service = build("plus", "v1", http=http)
+    activities = service.activities()
+    activitylist = activities.list(collection='public',
+                                   userId='me').execute()
+    logging.info(activitylist)
+
+    return render_to_response('invite_friends.html', {
+                'activitylist': activitylist,
+                })
+
+@login_required
+def auth_return(request):
+  if not xsrfutil.validate_token(base.SECRET_KEY, request.REQUEST['state'],
+                                 request.user):
+    return  HttpResponseBadRequest()
+  credential = FLOW.step2_exchange(request.REQUEST)
+  storage = Storage(CredentialsModel, 'id', request.user, 'credential')
+  storage.put(credential)
+  return HttpResponseRedirect("/")

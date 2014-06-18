@@ -9,6 +9,7 @@ from django.shortcuts import redirect
 from django.contrib.auth.models import User
 from django.shortcuts import render_to_response as render
 from django.utils.html import escape
+from django.conf import settings
 import gdata.contacts.service
 from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.file import Storage
@@ -61,7 +62,7 @@ def get_google_contact_emails():
     # The flow object is sued to authenticate if needed
     print 'before'
     flow = OAuth2WebServerFlow(client_id='993581225427-kqtb2i5t7dakvb2o1g034p4e0lnlcpc1.apps.googleusercontent.com',
-                               client_secret='ianErOM2-GhxC5bHg_PIZUrT',
+                               client_secret=settings.GOOGLE_CLIENT_SECRET,
                                scope=GOOGLE_CONTACTS_URI,
                                redirect_uri='https://192.168.56.101/oauth_verified/',
                                user_agent='Sagebrew')#http://192.168.56.101/auth_return/')

@@ -169,7 +169,7 @@ class ProfileInfoForm(forms.Form):
         required = False,
     )
 
-class AddressInfo(forms.Form):
+class AddressInfoForm(forms.Form):
     primary_address = forms.CharField(
         label = "Primary Address*",
         max_length = 200,

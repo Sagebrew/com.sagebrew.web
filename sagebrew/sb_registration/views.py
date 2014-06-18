@@ -14,7 +14,7 @@ from django.shortcuts import render_to_response
 
 from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
 
-from .forms import (InterestForm, ProfileInfoForm, AddressInfo,
+from .forms import (InterestForm, ProfileInfoForm, AddressInfoForm,
                     FriendInviteGmail, FriendInviteOutlook,
                     FriendInviteTwitter, FriendInviteYahoo)
 
@@ -35,9 +35,13 @@ FLOW = flow_from_clientsecrets(
 
 @login_required
 def profile_information(request):
+    '''
+    Creates both a ProfileInfoForm and AddressInfoForm which is then populated
+
+    '''
     print request.POST
     profile_information_form = ProfileInfoForm(request.POST or None)
-    address_information_form = AddressInfo(request.POST or None)
+    address_information_form = AddressInfoForm(request.POST or None)
     try:
         citizen = Pleb.index.get(email=request.user.email)
     except Pleb.DoesNotExist:
@@ -121,10 +125,9 @@ def invite_friends(request):
     else:
         http = httplib2.Http()
         http = credential.authorize(http)
-        service = build("plus", "v1", http=http)
+        service = build("contacts", "v3", http=http)
         activities = service.activities()
-        activitylist = activities.list(collection='public',
-                                   userId='me').execute()
+        activitylist = activities.list(collection='public',userId='me').execute()
     logging.info(activitylist)
 
 

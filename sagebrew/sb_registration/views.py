@@ -1,9 +1,10 @@
 import httplib2
 import os
 import logging
-
+import oauth2
 
 from sagebrew.settings import base
+from django.conf import settings
 from django.shortcuts import render, redirect
 from django.http import HttpResponseServerError
 from django.contrib.auth.decorators import login_required
@@ -16,11 +17,12 @@ from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
 
 from .forms import (InterestForm, ProfileInfoForm, AddressInfoForm,
                     FriendInviteGmail, FriendInviteOutlook,
-                    FriendInviteTwitter, FriendInviteYahoo)
+                    FriendInviteTwitter, FriendInviteYahoo,
+                    ProfilePictureForm)
 
-from sb_registration.models import CredentialsModel
+from sb_registration.models import CredentialsModel, Client_Twitter
 from .utils import (generate_interests_tuple, validate_address,
-                    get_google_contact_emails,)
+                    get_google_contact_emails)
 from oauth2client import xsrfutil
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.django_orm import Storage
@@ -30,14 +32,16 @@ CLIENT_SECRETS = os.path.join(os.path.dirname(__file__), '..', 'client_secrets.j
 
 FLOW = flow_from_clientsecrets(
     CLIENT_SECRETS,
-    scope='http://www.google.com/m8/feeds/contacts/default/full',
+    scope='https://www.googleapis.com/auth/contacts.readonly',
     redirect_uri='http://192.168.56.101/registration/oauth2callback/')
 
 @login_required
 def profile_information(request):
     '''
-    Creates both a ProfileInfoForm and AddressInfoForm which is then populated
-
+    Creates both a ProfileInfoForm and AddressInfoForm which populates the
+    fields with what the user enters. If this function gets a valid POST request it
+    will update the pleb. It then validates the address, through smartystreets api,
+    if the address is valid a Address neo_model is created and populated.
     '''
     print request.POST
     profile_information_form = ProfileInfoForm(request.POST or None)
@@ -115,41 +119,56 @@ def invite_friends(request):
     yahoo_friends_form = FriendInviteYahoo(request.POST or None)
     twitter_friends_form = FriendInviteTwitter(request.POST or None)
 
-    storage = Storage(CredentialsModel, 'id', request.user, 'credential')
+    twitter_consumer_key = base.TWITTER_CONSUMER_KEY
+    twitter_consumer_secret = base.TWITTER_CONSUMER_SECRET
+
+    request_token_url = 'http://twitter.com/oauth/request_token'
+    access_token_url = 'http://twitter.com/oauth/access_token'
+    authorize_url = 'http://twitter.com/oauth/authorize'
+    #get_google_contact_emails()
+
+    '''storage = Storage(CredentialsModel, 'id', request.user, 'credential')
     credential = storage.get()
     if credential is None or credential.invalid == True:
-        FLOW.params['state'] = xsrfutil.generate_token(base.SECRET_KEY,
+        FLOW.params['state'] = xsrfutil.generate_token(settings.SECRET_KEY,
                                                    request.user)
         authorize_url = FLOW.step1_get_authorize_url()
         return HttpResponseRedirect(authorize_url)
     else:
         http = httplib2.Http()
         http = credential.authorize(http)
-        service = build("contacts", "v3", http=http)
+        service = build('contacts', 'v3', http=http)
         activities = service.activities()
         activitylist = activities.list(collection='public',userId='me').execute()
-    logging.info(activitylist)
+    logging.info(activitylist)'''
 
 
     return render(request, 'invite_friends.html', {'google_friends_form': google_friends_form,
                                                    'outlook_friends_form': outlook_friends_form,
                                                    'yahoo_friends_form': yahoo_friends_form,
-                                                   'twitter_friends_form': twitter_friends_form,
-                                                   'activitylist': activitylist})
+                                                   'twitter_friends_form': twitter_friends_form})
+                                                   #'activitylist': activitylist})
+
+def profile_picture(request):
+    profile_picture_form = ProfilePictureForm(request.POST or None)
+
+    return render(request, 'profile_picture.html', {'profile_picture_form': profile_picture_form})
+
+
 
 @login_required
 def index(request):
   storage = Storage(CredentialsModel, 'id', request.user, 'credential')
   credential = storage.get()
   if credential is None or credential.invalid == True:
-    FLOW.params['state'] = xsrfutil.generate_token(base.SECRET_KEY,
+    FLOW.params['state'] = xsrfutil.generate_token(settings.SECRET_KEY,
                                                    request.user)
     authorize_url = FLOW.step1_get_authorize_url()
     return HttpResponseRedirect(authorize_url)
   else:
     http = httplib2.Http()
     http = credential.authorize(http)
-    service = build("plus", "v1", http=http)
+    service = build('contacts', 'v3', http=http)
     activities = service.activities()
     activitylist = activities.list(collection='public',
                                    userId='me').execute()
@@ -161,7 +180,7 @@ def index(request):
 
 @login_required
 def auth_return(request):
-  if not xsrfutil.validate_token(base.SECRET_KEY, request.REQUEST['state'],
+  if not xsrfutil.validate_token(settings.SECRET_KEY, request.REQUEST['state'],
                                  request.user):
     return  HttpResponseBadRequest()
   credential = FLOW.step2_exchange(request.REQUEST)

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block navigation %}
+    {% include "navigation.html" %}
+{% endblock %}
+
+{% block content %}
+<form action="/registration/profile_picture/" method = "post">{% csrf_token %}
+<h1>Add your profile picture!</h1>
+<div> {{ profile_picture_form }} </div>
+<img src="{{ MEDIA_URL }}{{ UserProfile.avatar.url }}" alt="" />
+<input class="btn btn-primary" type="submit" value="Done!"/>
+</form>
+
+{% endblock %}

@@ -1,7 +1,10 @@
 from django import forms
+from django.core.files.images import get_image_dimensions
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
+from plebs.neo_models import Pleb
+
+from .models import UserProfile
+
 
 class InterestForm(forms.Form):
     select_all = forms.BooleanField(
@@ -229,6 +232,15 @@ class FriendInviteTwitter(forms.Form):
         label = "Twitter",
         required = False,
     )
+
+class ProfilePictureForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+
+    def clean_avatar(self):
+        avatar = self.cleaned_data['avatar']
+        return avatar
+
 
 
 '''

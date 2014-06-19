@@ -17,7 +17,7 @@ from apiclient.discovery import build
 from oauth2client import tools
 
 
-GOOGLE_CONTACTS_URI = 'http://www.google.com/m8/feeds/contacts/default/full'
+GOOGLE_CONTACTS_URI = 'https://www.google.com/m8/feeds'
 FLAGS = gflags.FLAGS
 
 def generate_interests_tuple():
@@ -38,6 +38,11 @@ def generate_interests_tuple():
 
     return choices_tuple
 
+'''
+This function validates the address given to it in the form of a dict. The dict
+contains fields which smartystreets requires to validate an address. If the address
+is valid it returns 1 and if not it fails.
+'''
 def validate_address(addressrequest):
     LOCATION = 'https://api.smartystreets.com/street-address/'#move to settings
     auth_id = '84a98057-05ed-4109-8758-19acd5336c38'
@@ -61,11 +66,11 @@ def validate_address(addressrequest):
 def get_google_contact_emails():
     # The flow object is sued to authenticate if needed
     print 'before'
-    flow = OAuth2WebServerFlow(client_id='993581225427-kqtb2i5t7dakvb2o1g034p4e0lnlcpc1.apps.googleusercontent.com',
+    flow = OAuth2WebServerFlow(client_id=settings.GOOGLE_CLIENT_ID,
                                client_secret=settings.GOOGLE_CLIENT_SECRET,
                                scope=GOOGLE_CONTACTS_URI,
-                               redirect_uri='https://192.168.56.101/oauth_verified/',
-                               user_agent='Sagebrew')#http://192.168.56.101/auth_return/')
+                               redirect_uri='https://192.168.56.101/registration/oauth2callback/')
+                               #user_agent='wired-cogency-611')#http://192.168.56.101/auth_return/')
     print 'after'
     # If the credentials aren't valid or don't exist run through the client flow,
     # Storage object ensures that if valid authentication the good credentials are
@@ -74,6 +79,7 @@ def get_google_contact_emails():
     #print storage
     credentials = storage.get()
     print 'before cred loop'
+    redirect(flow.redirect_uri)
     if credentials is None or credentials.invalid == True:
         credentials = tools.run(flow, storage)
     print 'after cred loop'
@@ -88,7 +94,8 @@ def get_google_contact_emails():
     service = build(serviceName='contacts', version='v3', http=http,
                     developerKey='AIzaSyAep76o26VQN01tubM6DcUQhvTmjL133GA')
     print 'after build'
-    '''contacts_service = gdata.contacts.service.ContactsService()
+    '''
+    contacts_service = gdata.contacts.service.ContactsService()
     contacts_service.auth_token = code
     contacts_service.UpgradeToSessionToken()
     emails = []
@@ -98,5 +105,6 @@ def get_google_contact_emails():
     while next_link:
         feed = contacts_service.GetContactsFeed(uri=next_link.href)
         emails.extend(sum([[email.address for email in entry.email] for entry in feed.entry], []))
-        next_link = feed.GetNextLink()'''
+        next_link = feed.GetNextLink()
+    '''
 

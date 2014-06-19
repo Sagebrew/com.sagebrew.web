@@ -1,12 +1,13 @@
 import os
 
+from uuid import uuid1
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 
 from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
 
-from .forms import ProfileInfoForm, ProfilePictureForm, AddressInfoForm, InterestForm
-from .utils import validate_address, generate_interests_tuple
+from .forms import ProfileInfoForm, AddressInfoForm, InterestForm, ProfilePictureForm
+from .utils import validate_address, generate_interests_tuple, upload_image
 
 @login_required
 def profile_information(request):
@@ -81,14 +82,25 @@ def interests(request):
             except SBTopic.DoesNotExist:
                 redirect("404_Error")
             # citizen.sb_topics.connect(interest_object)
-        return redirect('invite_friends')
+        return redirect('profile_picture')
 
     return render(request, 'interests.html', {'interest_form': interest_form})
 
 
 
 def profile_picture(request):
-    profile_picture_form = ProfilePictureForm(request.POST or None)
-
+    if request.method == 'POST':
+        print 'here'
+        profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
+        print profile_picture_form
+        if profile_picture_form.is_valid():
+            try:
+                citizen = Pleb.index.get(email=request.user.email)
+            except Pleb.DoesNotExist:
+                print("How the hell did you even get here!?")
+            image_uuid = uuid1()
+            print upload_image('/profile_pictures',image_uuid)
+    else:
+        profile_picture_form = ProfilePictureForm()
     return render(request, 'profile_picture.html', {'profile_picture_form': profile_picture_form})
 

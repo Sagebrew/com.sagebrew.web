@@ -3,8 +3,6 @@ from django.core.files.images import get_image_dimensions
 
 from plebs.neo_models import Pleb
 
-from .models import UserProfile
-
 
 class InterestForm(forms.Form):
     select_all = forms.BooleanField(
@@ -209,15 +207,11 @@ class AddressInfoForm(forms.Form):
         required = True,
     )
 
+class ProfilePictureForm(forms.Form):
+    picture = forms.ImageField(
+        label = "Profile Picture"
 
-class ProfilePictureForm(forms.ModelForm):
-    class Meta:
-        model = UserProfile
-
-    def clean_avatar(self):
-        avatar = self.cleaned_data['avatar']
-        return avatar
-
+    )
 
 
 '''

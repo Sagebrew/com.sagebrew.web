@@ -215,6 +215,8 @@ CELERY_IGNORE_RESULT = False
 CELERYBEAT_SCHEDULE = {}
 CELERY_TIMEZONE = 'UTC'
 
+TEMP_FILES = '%s/temp_files/' % PROJECT_DIR
+
 import djcelery
 import iron_celery
 

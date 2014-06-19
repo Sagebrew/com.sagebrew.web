@@ -1,6 +1,11 @@
+import os
 from plebs.neo_models import TopicCategory
 import json
 import urllib
+from django.conf import settings
+from boto import connect_s3
+from boto.s3.key import Key
+from uuid import uuid1
 
 
 
@@ -47,3 +52,16 @@ def validate_address(addressrequest):
         return 1
 
 
+def upload_image(folder_name,file_uuid):
+    file_path = '%s%s.%s' % (settings.TEMP_FILES, file_uuid, 'jpeg')
+    print file_path
+    bucket = settings.AWS_UPLOAD_BUCKET_NAME
+    conn = connect_s3(settings.AWS_UPLOAD_CLIENT_KEY,
+                      settings.AWS_UPLOAD_CLIENT_SECRET_KEY)
+    k = Key(conn.get_bucket(bucket))
+    k.key = "%s/%s.%s" % (folder_name, file_uuid, "jpeg")
+    k.set_contents_from_filename(file_path)
+    k.make_public()
+    image_uri = k.generate_url(expires_in=100000)
+    os.remove(file_path)
+    return image_uri

@@ -209,29 +209,6 @@ class AddressInfoForm(forms.Form):
         required = True,
     )
 
-class FriendInviteGmail(forms.Form):
-    email = forms.EmailField(
-        label = "gmail",
-        required = False,
-    )
-
-class FriendInviteOutlook(forms.Form):
-    email = forms.EmailField(
-        label = "Outlook",
-        required = False,
-    )
-
-class FriendInviteYahoo(forms.Form):
-    email = forms.EmailField(
-        label = "Yahoo!",
-        required = False,
-    )
-
-class FriendInviteTwitter(forms.Form):
-    email = forms.EmailField(
-        label = "Twitter",
-        required = False,
-    )
 
 class ProfilePictureForm(forms.ModelForm):
     class Meta:

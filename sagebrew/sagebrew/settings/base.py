@@ -165,7 +165,6 @@ INSTALLED_APPS = (
     'govtrack',
     'neomodel',
     'sb_registration',
-    'oauth2'
 )
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
@@ -215,12 +214,6 @@ CELERY_IGNORE_RESULT = False
 
 CELERYBEAT_SCHEDULE = {}
 CELERY_TIMEZONE = 'UTC'
-
-GOOGLE_CLIENT_SECRET = 'ianErOM2-GhxC5bHg_PIZUrT'
-GOOGLE_CLIENT_ID = '993581225427-kqtb2i5t7dakvb2o1g034p4e0lnlcpc1.apps.googleusercontent.com'
-
-TWITTER_CONSUMER_KEY = 'OSs6DCNVSxoJfKiW11ftiW5dN'
-TWITTER_CONSUMER_SECRET = 'K7s2avfq4j4UBOaZjMJLgPuEhakstLxOzCMZIkG53u1hArDWzP'
 
 import djcelery
 import iron_celery

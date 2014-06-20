@@ -30,6 +30,23 @@ def generate_interests_tuple():
 
 def generate_address_tuple(address_info):
     address_tuple = ()
+
+    # TODO
+    # Need to use a hash to verify the same address string is being
+    # used instead of an int. That way if smarty streets passes back
+    # the addresses in a different order we can use the same address
+    # we provided the user previously based on the previous
+    # smarty streets ordering.
+    # We should hash the entire string and use that as the choice field
+    # since choices only allows strings with no white space.
+
+    # The integer process currently being used leaves room for a bug to appear
+    # if smarty streets returns the addresses in a different order after the
+    # user has picked an address from the initial list smarty streets provided.
+    # This can happen because we rely on smarty streets to reprovide a list
+    # of the same addresses to enable us to validate the POST data provided
+    # by the user after receiving the address_selection_form due to
+    # invalidated addresses.
     choice = 0
     for address_choice in address_info:
         if("address2" in address_choice):
@@ -47,6 +64,7 @@ def generate_address_tuple(address_info):
         choice += 1
 
     return address_tuple
+
 
 def validate_address(address_request):
     '''
@@ -69,9 +87,12 @@ def validate_address(address_request):
 
     response = urllib.urlopen(URL).read()
     structure = json.loads(response)
-    array_of_addresses = []
 
-    # TODO Tyler check this for loop
+    return create_address_array(structure)
+
+
+def create_address_array(structure):
+    array_of_addresses = []
     for address in structure:
         address_dict = {"street": address["delivery_line_1"],
                         "city": address["components"]["city_name"],
@@ -103,14 +124,8 @@ def compare_address(smarty_address, address_clean):
     temp_address["postal_code"] = temp_address.pop("zipCode", None)
     temp_address.pop("auth-token", None)
     temp_address.pop("auth-id", None)
-    print temp_smarty
-    print temp_address
-    print smarty_address
-    print address_clean
-    print temp_smarty == temp_address
+
     return temp_smarty == temp_address
-
-
 
 
 def upload_image(folder_name, file_uuid):

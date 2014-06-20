@@ -22,8 +22,6 @@ def profile_information(request):
     will update the pleb. It then validates the address, through smartystreets api,
     if the address is valid a Address neo_model is created and populated.
     '''
-    addresses_returned = 0
-
     profile_information_form = ProfileInfoForm(request.POST or None)
     address_information_form = AddressInfoForm(request.POST or None)
     address_selection_form = AddressChoiceForm(request.POST or None)
@@ -36,7 +34,7 @@ def profile_information(request):
     if profile_information_form.is_valid():
         citizen.date_of_birth = profile_information_form.cleaned_data[
             "date_of_birth"]
-        citizen.home_twon = profile_information_form.cleaned_data["home_town"]
+        citizen.home_town = profile_information_form.cleaned_data["home_town"]
         citizen.high_school = profile_information_form.cleaned_data[
             "high_school"]
         citizen.college = profile_information_form.cleaned_data["college"]
@@ -79,6 +77,13 @@ def profile_information(request):
             if(address_selection_form.is_valid()):
                 # address_selection_form.cleaned_data["address_options"] returns
                 # as a string so have to convert it to an int
+
+                # TODO
+                # Need to use a hash to verify the same address string is being
+                # used instead of an int. That way if smarty streets passes back
+                # the addresses in a different order we can use the same address
+                # we provided the user previously based on the previous
+                # smarty streets ordering.
                 address = Address(**address_info[int(
                         address_selection_form.cleaned_data["address_options"])])
                 address.save()

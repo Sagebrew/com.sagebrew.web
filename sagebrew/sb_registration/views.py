@@ -11,7 +11,8 @@ from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
 
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm, ProfilePictureForm,
                     ProfilePageForm, AddressChoiceForm)
-from .utils import validate_address, generate_interests_tuple, upload_image, compare_address
+from .utils import (validate_address, generate_interests_tuple, upload_image,\
+                    compare_address, generate_address_tuple)
 
 @login_required
 def profile_information(request):
@@ -21,40 +22,72 @@ def profile_information(request):
     will update the pleb. It then validates the address, through smartystreets api,
     if the address is valid a Address neo_model is created and populated.
     '''
-    address_selection = False
-    print request.POST
+    addresses_returned = 0
+
     profile_information_form = ProfileInfoForm(request.POST or None)
     address_information_form = AddressInfoForm(request.POST or None)
     address_selection_form = AddressChoiceForm(request.POST or None)
+    address_selection = "no_selection"
+
     try:
         citizen = Pleb.index.get(email=request.user.email)
     except Pleb.DoesNotExist:
         return redirect("404_Error")
     if profile_information_form.is_valid():
-        print profile_information_form.cleaned_data
-        #my_pleb = Pleb(**profile_information_form.cleaned_data)
-        #my_pleb.save()
+        citizen.date_of_birth = profile_information_form.cleaned_data[
+            "date_of_birth"]
+        citizen.home_twon = profile_information_form.cleaned_data["home_town"]
+        citizen.high_school = profile_information_form.cleaned_data[
+            "high_school"]
+        citizen.college = profile_information_form.cleaned_data["college"]
+        citizen.employer = profile_information_form.cleaned_data["employer"]
+        citizen.save()
 
     if address_information_form.is_valid():
-        print address_information_form.cleaned_data
-        address_info = validate_address(address_information_form.cleaned_data)
+        address_clean = address_information_form.cleaned_data
+        address_info = validate_address(address_clean)
+        addresses_returned = len(address_info)
+        address_tuple = generate_address_tuple(address_info)
 
-        if address_info['length'] == 1:
-            if compare_address():
-                my_address = Address(**address_information_form.cleaned_data)
-                my_address.save()
+        # Not doing 0 cause already done with address_information_form
+        if(addresses_returned == 1):
+            if compare_address(address_info[0], address_clean):
+                address = Address(**address_info[0])
+                address.save()
+                address.address.connect(citizen)
                 citizen.completed_profile_info = True
+                citizen.address.connect(address)
+                citizen.save()
+                return redirect('interests')
+            else:
+                address_selection_form.fields['address_options'].choices = address_tuple
+                address_selection_form.fields['address_options'].required = True
+                address_selection = "selection"
+        elif(addresses_returned > 1):
+            # Choices need to be populated prior to is_valid call to ensure
+            # that the form validates against the correct values
+            # We also are able ot keep this in the same location because
+            # we hid the other address form but it keeps the same values as
+            # previously entered. This enables us to get the same results
+            # back from smarty streets and validate those choices again then
+            # select the one that the user selected.
+            address_selection_form.fields['address_options'].choices = address_tuple
+            address_selection_form.fields['address_options'].required = True
+            address_selection = "selection"
+
+        if(address_selection == "selection"):
+            if(address_selection_form.is_valid()):
+                # address_selection_form.cleaned_data["address_options"] returns
+                # as a string so have to convert it to an int
+                address = Address(**address_info[int(
+                        address_selection_form.cleaned_data["address_options"])])
+                address.save()
+                address.address.connect(citizen)
+                citizen.completed_profile_info = True
+                citizen.address.connect(address)
                 citizen.save()
                 return redirect('interests')
 
-        elif address_info['length'] > 1:
-            address_selection = 'choices'
-            address_selection_form.fields['address_options'].choices = ('',)
-            address_selection_form.fields['address_options'].required = True
-
-        else:
-            address_selection = 'no_choices'
-            print "Please enter a valid address"
 
 
     return render(request, 'profile_info.html',

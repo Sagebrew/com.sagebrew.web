@@ -177,7 +177,7 @@ class AddressInfoForm(forms.Form):
         required = True,
     )
 
-    address_additional = forms.CharField(
+    street_additional = forms.CharField(
         label = "Apt,Building,Etc",
         max_length = 200,
         required = False,
@@ -210,7 +210,7 @@ class AddressInfoForm(forms.Form):
 class AddressChoiceForm(forms.Form):
     address_options = forms.ChoiceField(
         label = "Do you live at",
-        choices = [],
+        choices = (),
         required = False,
     )
 

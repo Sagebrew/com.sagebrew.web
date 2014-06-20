@@ -11,10 +11,8 @@ from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
 
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm, ProfilePictureForm,
                     ProfilePageForm, AddressChoiceForm)
-from .utils import (validate_address, generate_interests_tuple, upload_image,\
-                    compare_address, generate_address_tuple)
 from .utils import (validate_address, generate_interests_tuple, upload_image,
-                    compare_address, determine_congressmen)
+                    compare_address, generate_address_tuple, determine_congressmen)
 
 @login_required
 def profile_information(request):

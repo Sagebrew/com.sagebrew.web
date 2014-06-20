@@ -3,6 +3,10 @@
     {% include "navigation.html" %}
 {% endblock %}
 {% block content %}
-<h1>Your Profile</h1>
+<h1>{{ pleb_info.first_name }} {{ pleb_info.last_name }}</h1>
+    <img src="{{ pleb_info.profile_pic }}" />
+    <div align="left">Senators:</div>
 
+
+    <div align="left">House Representatives:</div>
 {% endblock %}

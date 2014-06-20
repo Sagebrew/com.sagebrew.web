@@ -68,6 +68,7 @@ class Address(StructuredNode):
     state = StringProperty()
     postal_code = StringProperty()
     country = StringProperty()
+    district = StringProperty()
 
     # Relationships
     address = RelationshipTo("Pleb", 'LIVES_IN')

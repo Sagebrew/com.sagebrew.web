@@ -48,10 +48,11 @@ def validate_address(addressrequest):
 
     response = urllib.urlopen(URL).read()
     structure = json.loads(response)
+    print structure
     if structure:
-        return {"length":len(structure), "addresses":structure,}
+        return structure#{"length":len(structure), "addresses":structure,}
     else:
-        return {"length": 0, "addresses":None,}
+        return 0#{"length": 0, "addresses":None,}
 
 def compare_address():
     return True
@@ -73,4 +74,9 @@ def upload_image(folder_name, file_uuid):
     image_uri = k.generate_url(expires_in=100000)
     os.remove(file_path)
     print "finished upload"
+    print image_uri
     return image_uri
+
+def determine_congressmen(pleb_address):
+
+    pass

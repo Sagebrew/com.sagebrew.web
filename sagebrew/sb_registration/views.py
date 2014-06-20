@@ -11,7 +11,8 @@ from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
 
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm, ProfilePictureForm,
                     ProfilePageForm, AddressChoiceForm)
-from .utils import validate_address, generate_interests_tuple, upload_image, compare_address
+from .utils import (validate_address, generate_interests_tuple, upload_image,
+                    compare_address, determine_congressmen)
 
 @login_required
 def profile_information(request):
@@ -31,14 +32,24 @@ def profile_information(request):
     except Pleb.DoesNotExist:
         return redirect("404_Error")
     if profile_information_form.is_valid():
+        citizen.date_of_birth = profile_information_form.cleaned_data['date_of_birth']
+        citizen.save()
         print profile_information_form.cleaned_data
         #my_pleb = Pleb(**profile_information_form.cleaned_data)
         #my_pleb.save()
 
     if address_information_form.is_valid():
-        print address_information_form.cleaned_data
-        address_info = validate_address(address_information_form.cleaned_data)
-
+        input_address_dict = address_information_form.cleaned_data
+        valid_address_dict = validate_address(address_information_form.cleaned_data)
+        if valid_address_dict:
+            input_address_dict['district'] = valid_address_dict[0]["metadata"]["congressional_district"]
+            my_address = Address(**address_information_form.cleaned_data)
+            my_address.save()
+            citizen.completed_profile_info = True
+            citizen.save()
+            citizen.address.connect(my_address)
+            return redirect('interests')
+    '''
         if address_info['length'] == 1:
             if compare_address():
                 my_address = Address(**address_information_form.cleaned_data)
@@ -55,7 +66,7 @@ def profile_information(request):
         else:
             address_selection = 'no_choices'
             print "Please enter a valid address"
-
+    '''
 
     return render(request, 'profile_info.html',
                     {'profile_information_form': profile_information_form,
@@ -116,9 +127,9 @@ def profile_picture(request):
         if profile_picture_form.is_valid():
             try:
                 citizen = Pleb.index.get(email=request.user.email)
-                if citizen.completed_profile_info:
-                    return redirect('profile_page')
-                print citizen.profile_pic
+                #if citizen.completed_profile_info:
+                #    return redirect('profile_page')
+                #print citizen.profile_pic
             except Pleb.DoesNotExist:
                 print("How did you even get here!?")
                 return render(request, 'profile_picture.html', {'profile_picture_form': profile_picture_form})
@@ -137,7 +148,10 @@ def profile_picture(request):
 
 @login_required()
 def profile_page(request):#who is your sen
-    profile_page_form = ProfilePageForm(request.POST or None)
+    profile_page_form = ProfilePageForm(request.GET or None)
+    citizen = Pleb.index.get(email=request.user.email)
+    determine_congressmen(citizen.address)
 
-    return render(request, 'profile_page.html', {'profile_page_form': profile_page_form})
+    return render(request, 'profile_page.html', {'profile_page_form': profile_page_form,
+                                                 'pleb_info': citizen})
 

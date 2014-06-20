@@ -142,4 +142,8 @@ def upload_image(folder_name, file_uuid):
     image_uri = k.generate_url(expires_in=100000)
     os.remove(file_path)
     print "finished upload"
+    print image_uri
     return image_uri
+
+def determine_congressmen(pleb_address):
+    pass

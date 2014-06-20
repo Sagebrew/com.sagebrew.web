@@ -13,6 +13,8 @@ from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm, ProfilePictu
                     ProfilePageForm, AddressChoiceForm)
 from .utils import (validate_address, generate_interests_tuple, upload_image,\
                     compare_address, generate_address_tuple)
+from .utils import (validate_address, generate_interests_tuple, upload_image,
+                    compare_address, determine_congressmen)
 
 @login_required
 def profile_information(request):
@@ -154,9 +156,9 @@ def profile_picture(request):
         if profile_picture_form.is_valid():
             try:
                 citizen = Pleb.index.get(email=request.user.email)
-                if citizen.completed_profile_info:
-                    return redirect('profile_page')
-                print citizen.profile_pic
+                #if citizen.completed_profile_info:
+                #    return redirect('profile_page')
+                #print citizen.profile_pic
             except Pleb.DoesNotExist:
                 print("How did you even get here!?")
                 return render(request, 'profile_picture.html', {'profile_picture_form': profile_picture_form})
@@ -175,7 +177,10 @@ def profile_picture(request):
 
 @login_required()
 def profile_page(request):#who is your sen
-    profile_page_form = ProfilePageForm(request.POST or None)
+    profile_page_form = ProfilePageForm(request.GET or None)
+    citizen = Pleb.index.get(email=request.user.email)
+    determine_congressmen(citizen.address)
 
-    return render(request, 'profile_page.html', {'profile_page_form': profile_page_form})
+    return render(request, 'profile_page.html', {'profile_page_form': profile_page_form,
+                                                 'pleb_info': citizen})
 

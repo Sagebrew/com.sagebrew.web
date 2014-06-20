@@ -220,7 +220,10 @@ class ProfilePictureForm(forms.Form):
     )
 
 class ProfilePageForm(forms.Form):
-    pass
+    picture = forms.URLField(
+        label = 'Profile Picture',
+
+    )
 
 
 '''

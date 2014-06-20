@@ -78,5 +78,4 @@ def upload_image(folder_name, file_uuid):
     return image_uri
 
 def determine_congressmen(pleb_address):
-
     pass

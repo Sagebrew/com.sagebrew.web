@@ -6,7 +6,7 @@ from django.db.models.signals import post_save
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty)
+                      BooleanProperty, FloatProperty)
 
 
 class School(StructuredNode):
@@ -68,8 +68,8 @@ class Address(StructuredNode):
     state = StringProperty()
     postal_code = StringProperty()
     country = StringProperty()
-    latitude = IntegerProperty()
-    longitude = IntegerProperty()
+    latitude = FloatProperty()
+    longitude = FloatProperty()
     congressional_district = StringProperty()
 
     # Relationships

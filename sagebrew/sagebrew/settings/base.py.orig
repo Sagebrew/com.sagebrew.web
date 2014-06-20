@@ -1,7 +1,7 @@
 ' Django default settings for automated_test_client project.'
 from __future__ import absolute_import
 
-from os import environ, path, makedirs
+from os import environ
 from unipath import Path
 from datetime import timedelta
 
@@ -115,6 +115,7 @@ AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
+    'social_auth.backends.google.GoogleOAuth2Backend',
 )
 
 TEMPLATE_DIRS = (
@@ -154,6 +155,7 @@ INSTALLED_APPS = (
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.facebook',
+    'social_auth'
     'photologue',
     'sortedm2m',
     'guardian',
@@ -188,6 +190,12 @@ LOGOUT_URL = '/accounts/logout/'
 HAYSTACK_DEFAULT_OPERATOR = "OR"
 ANONYMOUS_USER_ID = -1
 
+# Redirect to page saying please activate your account prior to
+# allowing them to fill out registration
+# Then we can do something like if account_activated then redirect to registration
+# and if not then redirect to the accept email activation page. And also still
+# do the if registration complete then redirect to profile page and if not
+# redirect to registration page.
 LOGIN_REDIRECT_URL = '/registration/profile_information/'
 EMAIL_USE_TLS = True
 SESSION_COOKIE_SECURE = True
@@ -215,10 +223,14 @@ CELERY_IGNORE_RESULT = False
 CELERYBEAT_SCHEDULE = {}
 CELERY_TIMEZONE = 'UTC'
 
+<<<<<<< HEAD
+GOOGLE_CLIENT_SECRET = 'ianErOM2-GhxC5bHg_PIZUrT'
+GOOGLE_OAUTH2_CLIENT_ID      = '993581225427-kqtb2i5t7dakvb2o1g034p4e0lnlcpc1.apps.googleusercontent.com'
+GOOGLE_OAUTH2_CLIENT_SECRET  = 'ianErOM2-GhxC5bHg_PIZUrT'
+=======
 TEMP_FILES = '%s/temp_files/' % PROJECT_DIR
-if not path.exists(TEMP_FILES):
-    makedirs(TEMP_FILES)
 
+>>>>>>> fe315a231e0d30729ec78b462db22c6940e10daf
 import djcelery
 import iron_celery
 

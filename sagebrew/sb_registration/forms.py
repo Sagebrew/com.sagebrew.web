@@ -207,11 +207,20 @@ class AddressInfoForm(forms.Form):
         required = True,
     )
 
+class AddressChoiceForm(forms.Form):
+    address_options = forms.ChoiceField(
+        label = "Do you live at",
+        choices = [],
+        required = False,
+    )
+
 class ProfilePictureForm(forms.Form):
     picture = forms.ImageField(
         label = "Profile Picture"
-
     )
+
+class ProfilePageForm(forms.Form):
+    pass
 
 
 '''

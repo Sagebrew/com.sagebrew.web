@@ -27,12 +27,12 @@ def generate_interests_tuple():
 
     return choices_tuple
 
-'''
-This function validates the address given to it in the form of a dict. The dict
-contains fields which smartystreets requires to validate an address. If the address
-is valid it returns 1 and if not it fails.
-'''
 def validate_address(addressrequest):
+    '''
+    This function validates the address given to it in the form of a dict. The dict
+    contains fields which smartystreets requires to validate an address. If the address
+    is valid it returns 1 and if not it fails.
+    '''
     LOCATION = 'https://api.smartystreets.com/street-address/'#move to settings
     auth_id = '84a98057-05ed-4109-8758-19acd5336c38'
     auth_token = 'p3GbchbjA3q13MUdT7gM'
@@ -49,12 +49,20 @@ def validate_address(addressrequest):
     response = urllib.urlopen(URL).read()
     structure = json.loads(response)
     if structure:
-        return 1
+        return {"length":len(structure), "addresses":structure,}
+    else:
+        return {"length": 0, "addresses":None,}
+
+def compare_address():
+    return True
 
 
-def upload_image(folder_name,file_uuid):
+
+
+def upload_image(folder_name, file_uuid):
     file_path = '%s%s.%s' % (settings.TEMP_FILES, file_uuid, 'jpeg')
     print file_path
+
     bucket = settings.AWS_UPLOAD_BUCKET_NAME
     conn = connect_s3(settings.AWS_UPLOAD_CLIENT_KEY,
                       settings.AWS_UPLOAD_CLIENT_SECRET_KEY)
@@ -64,4 +72,5 @@ def upload_image(folder_name,file_uuid):
     k.make_public()
     image_uri = k.generate_url(expires_in=100000)
     os.remove(file_path)
+    print "finished upload"
     return image_uri

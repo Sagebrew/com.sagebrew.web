@@ -1,13 +1,17 @@
 import os
 
+from django.conf import settings
 from uuid import uuid1
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 
 from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
 
-from .forms import ProfileInfoForm, AddressInfoForm, InterestForm, ProfilePictureForm
-from .utils import validate_address, generate_interests_tuple, upload_image
+from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm, ProfilePictureForm,
+                    ProfilePageForm, AddressChoiceForm)
+from .utils import validate_address, generate_interests_tuple, upload_image, compare_address
 
 @login_required
 def profile_information(request):
@@ -17,13 +21,15 @@ def profile_information(request):
     will update the pleb. It then validates the address, through smartystreets api,
     if the address is valid a Address neo_model is created and populated.
     '''
+    address_selection = False
     print request.POST
     profile_information_form = ProfileInfoForm(request.POST or None)
     address_information_form = AddressInfoForm(request.POST or None)
+    address_selection_form = AddressChoiceForm(request.POST or None)
     try:
         citizen = Pleb.index.get(email=request.user.email)
     except Pleb.DoesNotExist:
-        redirect("404_Error")
+        return redirect("404_Error")
     if profile_information_form.is_valid():
         print profile_information_form.cleaned_data
         #my_pleb = Pleb(**profile_information_form.cleaned_data)
@@ -31,19 +37,33 @@ def profile_information(request):
 
     if address_information_form.is_valid():
         print address_information_form.cleaned_data
-        if validate_address(address_information_form.cleaned_data):
-            my_address = Address(**address_information_form.cleaned_data)
-            my_address.save()
-            return redirect('interests')
+        address_info = validate_address(address_information_form.cleaned_data)
+
+        if address_info['length'] == 1:
+            if compare_address():
+                my_address = Address(**address_information_form.cleaned_data)
+                my_address.save()
+                citizen.completed_profile_info = True
+                citizen.save()
+                return redirect('interests')
+
+        elif address_info['length'] > 1:
+            address_selection = 'choices'
+            address_selection_form.fields['address_options'].choices = ('',)
+            address_selection_form.fields['address_options'].required = True
+
         else:
-            print "Invalid Address"
+            address_selection = 'no_choices'
+            print "Please enter a valid address"
 
 
     return render(request, 'profile_info.html',
-                    {'profile_information_form':profile_information_form,
-                    'address_information_form':address_information_form})
+                    {'profile_information_form': profile_information_form,
+                    'address_information_form': address_information_form,
+                    'address_selection': address_selection,
+                    'address_choice_form': address_selection_form})
 
-
+@login_required()
 def interests(request):
     '''
     The interests view creates an InterestForm populates the topics that
@@ -64,6 +84,8 @@ def interests(request):
                     item != "specific_interests"):
                 try:
                     citizen = Pleb.index.get(email=request.user.email)
+                    if citizen.completed_profile_info:
+                        return redirect('profile_page')
                 except Pleb.DoesNotExist:
                     redirect("404_Error")
                 try:
@@ -87,20 +109,35 @@ def interests(request):
     return render(request, 'interests.html', {'interest_form': interest_form})
 
 
-
+@login_required()
 def profile_picture(request):
     if request.method == 'POST':
-        print 'here'
         profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
-        print profile_picture_form
         if profile_picture_form.is_valid():
             try:
                 citizen = Pleb.index.get(email=request.user.email)
+                if citizen.completed_profile_info:
+                    return redirect('profile_page')
+                print citizen.profile_pic
             except Pleb.DoesNotExist:
-                print("How the hell did you even get here!?")
+                print("How did you even get here!?")
+                return render(request, 'profile_picture.html', {'profile_picture_form': profile_picture_form})
             image_uuid = uuid1()
-            print upload_image('/profile_pictures',image_uuid)
+            data = request.FILES['picture']
+            temp_file = '%s%s.jpeg' % (settings.TEMP_FILES, image_uuid)
+            with open(temp_file, 'wb+') as destination:
+                for chunk in data.chunks():
+                    destination.write(chunk)
+            citizen.profile_pic = upload_image('profile_pictures', image_uuid)
+            citizen.save()
+            return redirect('profile_page')
     else:
         profile_picture_form = ProfilePictureForm()
     return render(request, 'profile_picture.html', {'profile_picture_form': profile_picture_form})
+
+@login_required()
+def profile_page(request):#who is your sen
+    profile_page_form = ProfilePageForm(request.POST or None)
+
+    return render(request, 'profile_page.html', {'profile_page_form': profile_page_form})
 

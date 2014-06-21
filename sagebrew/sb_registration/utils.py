@@ -29,18 +29,43 @@ def generate_interests_tuple():
     return choices_tuple
 
 
-def create_address_string(address_choice):
-    if("address2" in address_choice):
-        address_string = "%s, %s, %s, %s %s" % (address_choice["street"],
-                                            address_choice["street_additional"],
-                                            address_choice["city"],
-                                            address_choice["state"],
-                                            address_choice["postal_code"])
+def create_address_long_hash(address):
+    if("address2" in address):
+        address_string = "%s%s%s%s%s%s%f%f%s" % (address["street"],
+                                            address["street_additional"],
+                                            address["city"],
+                                            address["state"],
+                                            address["postal_code"],
+                                            address["country"],
+                                            address["latitude"],
+                                            address["longitude"],
+                                            address["congressional_district"])
     else:
-        address_string = "%s, %s, %s %s" % (address_choice["street"],
-                                            address_choice["city"],
-                                            address_choice["state"],
-                                            address_choice["postal_code"])
+        address_string = "%s%s%s%s%s%f%f%s" % (address["street"],
+                                            address["city"],
+                                            address["state"],
+                                            address["postal_code"],
+                                            address["country"],
+                                            address["latitude"],
+                                            address["longitude"],
+                                            address["congressional_district"])
+    address_hash = hashlib.sha224(address_string).hexdigest()
+
+    return address_hash
+
+
+
+def create_address_string(address):
+    if("address2" in address):
+        address_string = "%s, %s, %s, %s %s" % (address["street"],
+                                            address["street_additional"],
+                                            address["city"],
+                                            address["state"],
+                                            address["postal_code"])
+    else:
+        address_string = "%s, %s, %s %s" % (address["street"], address["city"],
+                                            address["state"],
+                                            address["postal_code"])
 
     return address_string
 

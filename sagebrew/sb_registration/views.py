@@ -13,7 +13,8 @@ from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm, ProfilePictu
                     ProfilePageForm, AddressChoiceForm)
 from .utils import (validate_address, generate_interests_tuple, upload_image,
                     compare_address, generate_address_tuple,
-                    determine_congressmen, create_address_string)
+                    determine_congressmen, create_address_string,
+                    create_address_long_hash)
 
 @login_required
 def profile_information(request):
@@ -59,8 +60,13 @@ def profile_information(request):
         # Not doing 0 cause already done with address_information_form
         if(addresses_returned == 1):
             if compare_address(address_info[0], address_clean):
-                address = Address(**address_info[0])
-                address.save()
+                try:
+                    address_long_hash = create_address_long_hash(
+                        address_info[0])
+                    address = Address.index.get(address_hash=address_long_hash)
+                except Address.DoesNotExist:
+                    address = Address(**address_info[0])
+                    address.save()
                 address.address.connect(citizen)
                 citizen.completed_profile_info = True
                 citizen.address.connect(address)
@@ -94,8 +100,13 @@ def profile_information(request):
                         store_address = optional_address
                         break
                 if(store_address is not None):
-                    address = Address(**store_address)
-                    address.save()
+                    try:
+                        address_long_hash = create_address_long_hash(
+                            store_address)
+                        address = Address.index.get(address_hash=address_long_hash)
+                    except Address.DoesNotExist:
+                        address = Address(**store_address)
+                        address.save()
                     address.address.connect(citizen)
                     citizen.completed_profile_info = True
                     citizen.address.connect(address)

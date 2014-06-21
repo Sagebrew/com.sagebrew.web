@@ -1,5 +1,5 @@
 import os
-
+import hashlib
 from django.conf import settings
 from uuid import uuid1
 from django.shortcuts import render, redirect
@@ -12,7 +12,8 @@ from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm, ProfilePictureForm,
                     ProfilePageForm, AddressChoiceForm)
 from .utils import (validate_address, generate_interests_tuple, upload_image,
-                    compare_address, generate_address_tuple, determine_congressmen)
+                    compare_address, generate_address_tuple,
+                    determine_congressmen, create_address_string)
 
 @login_required
 def profile_information(request):
@@ -21,6 +22,14 @@ def profile_information(request):
     fields with what the user enters. If this function gets a valid POST request it
     will update the pleb. It then validates the address, through smartystreets api,
     if the address is valid a Address neo_model is created and populated.
+
+
+    COMPLETED THIS TASK BUT STILL NEED TO PUT SOME COMMENTS AROUND IT
+    Need to use a hash to verify the same address string is being
+    used instead of an int. That way if smarty streets passes back
+    the addresses in a different order we can use the same address
+    we provided the user previously based on the previous
+    smarty streets ordering.
     '''
     profile_information_form = ProfileInfoForm(request.POST or None)
     address_information_form = AddressInfoForm(request.POST or None)
@@ -75,25 +84,23 @@ def profile_information(request):
 
         if(address_selection == "selection"):
             if(address_selection_form.is_valid()):
-                # address_selection_form.cleaned_data["address_options"] returns
-                # as a string so have to convert it to an int
-
-                # TODO
-                # Need to use a hash to verify the same address string is being
-                # used instead of an int. That way if smarty streets passes back
-                # the addresses in a different order we can use the same address
-                # we provided the user previously based on the previous
-                # smarty streets ordering.
-                address = Address(**address_info[int(
-                        address_selection_form.cleaned_data["address_options"])])
-                address.save()
-                address.address.connect(citizen)
-                citizen.completed_profile_info = True
-                citizen.address.connect(address)
-                citizen.save()
-                return redirect('interests')
-
-
+                store_address = None
+                address_hash = address_selection_form.cleaned_data[
+                    "address_options"]
+                for optional_address in address_info:
+                    address_string = create_address_string(optional_address)
+                    optional_hash = hashlib.sha224(address_string).hexdigest()
+                    if(address_hash == optional_hash):
+                        store_address = optional_address
+                        break
+                if(store_address is not None):
+                    address = Address(**store_address)
+                    address.save()
+                    address.address.connect(citizen)
+                    citizen.completed_profile_info = True
+                    citizen.address.connect(address)
+                    citizen.save()
+                    return redirect('interests')
 
     return render(request, 'profile_info.html',
                     {'profile_information_form': profile_information_form,

@@ -60,6 +60,7 @@ def profile_information(request):
         # Not doing 0 cause already done with address_information_form
         if(addresses_returned == 1):
             if compare_address(address_info[0], address_clean):
+                address_info[0]["country"] = "USA"
                 try:
                     address_long_hash = create_address_long_hash(
                         address_info[0])
@@ -94,6 +95,7 @@ def profile_information(request):
                 address_hash = address_selection_form.cleaned_data[
                     "address_options"]
                 for optional_address in address_info:
+                    optional_address["country"] = "USA"
                     address_string = create_address_string(optional_address)
                     optional_hash = hashlib.sha224(address_string).hexdigest()
                     if(address_hash == optional_hash):

@@ -201,11 +201,6 @@ class AddressInfoForm(forms.Form):
         required = True,
     )
 
-    country = forms.CharField(
-        label = "Country*",
-        max_length = 40,
-        required = True,
-    )
 
 class AddressChoiceForm(forms.Form):
     address_options = forms.ChoiceField(

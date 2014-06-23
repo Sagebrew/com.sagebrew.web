@@ -12,7 +12,8 @@ from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm, ProfilePictureForm,
                     ProfilePageForm, AddressChoiceForm)
 from .utils import (validate_address, generate_interests_tuple, upload_image,
-                    compare_address, generate_address_tuple, determine_congressmen)
+                    compare_address, generate_address_tuple, determine_senators,
+                    determine_reps)
 
 @login_required
 def profile_information(request):
@@ -178,7 +179,9 @@ def profile_picture(request):
 def profile_page(request):#who is your sen
     profile_page_form = ProfilePageForm(request.GET or None)
     citizen = Pleb.index.get(email=request.user.email)
-    determine_congressmen(citizen.address)
+    print citizen.address.congressional_district
+    determine_senators(citizen.address)
+    determine_reps(citizen.address)
 
     return render(request, 'profile_page.html', {'profile_page_form': profile_page_form,
                                                  'pleb_info': citizen})

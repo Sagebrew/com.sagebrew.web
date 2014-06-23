@@ -8,6 +8,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty)
 
+from govtrack.neo_models import GTRole
 
 class School(StructuredNode):
     name = StringProperty()
@@ -59,6 +60,9 @@ class Pleb(StructuredNode):
     topic_category = RelationshipTo("TopicCategory", "INTERESTED_IN")
     sb_topics = RelationshipTo("SBTopic", "INTERESTED_IN")
     friends = RelationshipTo("Pleb", "FRIENDS_WITH")
+    senator = RelationshipTo("GTRole", "HAS_SENATOR")
+    house_rep = RelationshipTo("GTRole", "HAS_REPRESENTATIVE")
+
 
 
 class Address(StructuredNode):

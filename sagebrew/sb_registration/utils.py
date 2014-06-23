@@ -1,11 +1,13 @@
 import os
-from plebs.neo_models import TopicCategory
 import json
 import urllib
+
 from django.conf import settings
 from boto import connect_s3
 from boto.s3.key import Key
-from uuid import uuid1
+
+from plebs.neo_models import TopicCategory
+from govtrack.neo_models import GTRole
 
 
 
@@ -145,5 +147,20 @@ def upload_image(folder_name, file_uuid):
     print image_uri
     return image_uri
 
-def determine_congressmen(pleb_address):
+def determine_senators(pleb_address):
+    '''
+    Search for senators who match the state of the pleb.
+    :param pleb_address:
+    :return:
+    '''
+    print GTRole.index.search(district=int(pleb_address.congressional_district))
+    pass
+
+def determine_reps(pleb_address):
+    '''
+    Search for House Representatives who match the state and district of the
+    pleb
+    :param pleb_address:
+    :return:
+    '''
     pass

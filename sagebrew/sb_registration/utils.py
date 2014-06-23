@@ -1,4 +1,6 @@
 import os
+import hashlib
+from plebs.neo_models import TopicCategory
 import json
 import urllib
 
@@ -30,40 +32,73 @@ def generate_interests_tuple():
     return choices_tuple
 
 
+def create_address_long_hash(address):
+    if("address2" in address):
+        address_string = "%s%s%s%s%s%s%f%f%s" % (address["street"],
+                                            address["street_additional"],
+                                            address["city"],
+                                            address["state"],
+                                            address["postal_code"],
+                                            address["country"],
+                                            address["latitude"],
+                                            address["longitude"],
+                                            address["congressional_district"])
+    else:
+        address_string = "%s%s%s%s%s%f%f%s" % (address["street"],
+                                            address["city"],
+                                            address["state"],
+                                            address["postal_code"],
+                                            address["country"],
+                                            address["latitude"],
+                                            address["longitude"],
+                                            address["congressional_district"])
+    address_hash = hashlib.sha224(address_string).hexdigest()
+
+    return address_hash
+
+
+
+def create_address_string(address):
+    if("address2" in address):
+        address_string = "%s, %s, %s, %s %s" % (address["street"],
+                                            address["street_additional"],
+                                            address["city"],
+                                            address["state"],
+                                            address["postal_code"])
+    else:
+        address_string = "%s, %s, %s %s" % (address["street"], address["city"],
+                                            address["state"],
+                                            address["postal_code"])
+
+    return address_string
+
+
 def generate_address_tuple(address_info):
+    '''
+    COMPLETED THIS TASK BUT STILL NEED TO PUT SOME COMMENTS AROUND IT
+    Need to use a hash to verify the same address string is being
+    used instead of an int. That way if smarty streets passes back
+    the addresses in a different order we can use the same address
+    we provided the user previously based on the previous
+    smarty streets ordering.
+    We should hash the entire string and use that as the choice field
+    since choices only allows strings with no white space.
+
+    The integer process currently being used leaves room for a bug to appear
+    if smarty streets returns the addresses in a different order after the
+    user has picked an address from the initial list smarty streets provided.
+    This can happen because we rely on smarty streets to reprovide a list
+    of the same addresses to enable us to validate the POST data provided
+    by the user after receiving the address_selection_form due to
+    invalidated addresses.
+    :param address_info:
+    :return:
+    '''
     address_tuple = ()
-
-    # TODO
-    # Need to use a hash to verify the same address string is being
-    # used instead of an int. That way if smarty streets passes back
-    # the addresses in a different order we can use the same address
-    # we provided the user previously based on the previous
-    # smarty streets ordering.
-    # We should hash the entire string and use that as the choice field
-    # since choices only allows strings with no white space.
-
-    # The integer process currently being used leaves room for a bug to appear
-    # if smarty streets returns the addresses in a different order after the
-    # user has picked an address from the initial list smarty streets provided.
-    # This can happen because we rely on smarty streets to reprovide a list
-    # of the same addresses to enable us to validate the POST data provided
-    # by the user after receiving the address_selection_form due to
-    # invalidated addresses.
-    choice = 0
     for address_choice in address_info:
-        if("address2" in address_choice):
-            address_string = "%s, %s, %s, %s %s" % (address_choice["street"],
-                                                address_choice["street_additional"],
-                                                address_choice["city"],
-                                                address_choice["state"],
-                                                address_choice["postal_code"])
-        else:
-            address_string = "%s, %s, %s %s" % (address_choice["street"],
-                                                address_choice["city"],
-                                                address_choice["state"],
-                                                address_choice["postal_code"])
-        address_tuple = address_tuple + ((choice, address_string),)
-        choice += 1
+        address_string = create_address_string(address_choice)
+        address_hash = hashlib.sha224(address_string).hexdigest()
+        address_tuple = address_tuple + ((address_hash, address_string),)
 
     return address_tuple
 

@@ -188,8 +188,16 @@ def determine_senators(pleb_address):
     :param pleb_address:
     :return:
     '''
-    print GTRole.index.search(district=int(pleb_address.congressional_district))
-    pass
+    determined_sen = []
+    senator_names = []
+    senator_array = GTRole.index.search(state=pleb_address.state, title='Sen.')
+    for senator in senator_array:
+        determined_sen.append(senator.traverse('person').run())
+    for item in determined_sen:
+        for name in item:
+            senator_names.append(name.name)
+    return senator_names
+
 
 def determine_reps(pleb_address):
     '''
@@ -198,4 +206,12 @@ def determine_reps(pleb_address):
     :param pleb_address:
     :return:
     '''
-    pass
+    determined_reps = []
+    rep_array = GTRole.index.search(state=pleb_address.state, title='Rep.',
+                                    district=int(pleb_address.congressional_district))
+    for rep in rep_array:
+        determined_reps.append(rep.traverse('person').run())
+    for item in determined_reps:
+        for name in item:
+            rep_name = name.name
+    return rep_name

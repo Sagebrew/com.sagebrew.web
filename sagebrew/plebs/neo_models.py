@@ -6,7 +6,7 @@ from django.db.models.signals import post_save
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty)
+                      BooleanProperty, FloatProperty, ZeroOrOne)
 
 from govtrack.neo_models import GTRole
 
@@ -56,7 +56,7 @@ class Pleb(StructuredNode):
     high_school = RelationshipTo("HighSchool", "ATTENDED", model=ReceivedEducationRel)
     university = RelationshipTo("University", "ATTENDED", model=ReceivedEducationRel)
     employer = RelationshipTo("Company", "WORKS_AT")
-    address = RelationshipTo("Address", "LIVES_AT")
+    address = RelationshipTo("Address", "LIVES_AT", cardinality=ZeroOrOne)
     topic_category = RelationshipTo("TopicCategory", "INTERESTED_IN")
     sb_topics = RelationshipTo("SBTopic", "INTERESTED_IN")
     friends = RelationshipTo("Pleb", "FRIENDS_WITH")
@@ -69,7 +69,7 @@ class Address(StructuredNode):
     street = StringProperty()
     street_additional = StringProperty()
     city = StringProperty()
-    state = StringProperty()
+    state = StringProperty(index=True)
     postal_code = StringProperty()
     country = StringProperty()
     latitude = FloatProperty()

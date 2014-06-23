@@ -7,5 +7,9 @@
     <img src="{{ pleb_info.profile_pic }}" />
     <div align="left"><b>Representatives:</b></div>
     <div align="left">Senators:</div>
+    {% for senator in senator_names %}
+        <li>{{ senator }}</li>
+    {% endfor %}
     <div align="left">House Representative:</div>
+    <li>{{ rep_name }}</li>
 {% endblock %}

@@ -1,4 +1,5 @@
 import os
+import hashlib
 
 from django.conf import settings
 from uuid import uuid1
@@ -13,7 +14,7 @@ from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm, ProfilePictu
                     ProfilePageForm, AddressChoiceForm)
 from .utils import (validate_address, generate_interests_tuple, upload_image,
                     compare_address, generate_address_tuple,
-                    determine_congressmen, create_address_string,
+                    determine_senators, determine_reps, create_address_string,
                     create_address_long_hash)
 
 @login_required
@@ -61,11 +62,12 @@ def profile_information(request):
         if(addresses_returned == 1):
             if compare_address(address_info[0], address_clean):
                 address_info[0]["country"] = "USA"
-                try:
-                    address_long_hash = create_address_long_hash(
+                address_long_hash = create_address_long_hash(
                         address_info[0])
+                try:
                     address = Address.index.get(address_hash=address_long_hash)
                 except Address.DoesNotExist:
+                    address_info[0]["address_hash"] = address_long_hash
                     address = Address(**address_info[0])
                     address.save()
                 address.address.connect(citizen)
@@ -102,11 +104,11 @@ def profile_information(request):
                         store_address = optional_address
                         break
                 if(store_address is not None):
+                    address_long_hash = create_address_long_hash(store_address)
                     try:
-                        address_long_hash = create_address_long_hash(
-                            store_address)
                         address = Address.index.get(address_hash=address_long_hash)
                     except Address.DoesNotExist:
+                        store_address["address_hash"] = address_long_hash
                         address = Address(**store_address)
                         address.save()
                     address.address.connect(citizen)
@@ -198,10 +200,13 @@ def profile_picture(request):
 def profile_page(request):#who is your sen
     profile_page_form = ProfilePageForm(request.GET or None)
     citizen = Pleb.index.get(email=request.user.email)
-    print citizen.address.congressional_district
-    determine_senators(citizen.address)
-    determine_reps(citizen.address)
+    # TODO check for index error
+    address = citizen.traverse('address').run()[0]
+    sen_array = determine_senators(address)
+    rep_array = determine_reps(address)
 
     return render(request, 'profile_page.html', {'profile_page_form': profile_page_form,
-                                                 'pleb_info': citizen})
+                                                 'pleb_info': citizen,
+                                                 'senator_names': sen_array,
+                                                 'rep_name': rep_array})
 

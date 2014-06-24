@@ -25,11 +25,33 @@ class Company(StructuredNode):
 
 
 class HighSchool(School):
-    pass
+    district_name = StringProperty()
+    school_name = StringProperty()
+    phone_number = IntegerProperty()
+    state = StringProperty()
+    street = StringProperty()
+    city = StringProperty()
+    latitude = FloatProperty()
+    longitude = FloatProperty()
+    county = StringProperty()
 
 
 class University(School):
-    pass
+    institution_name = StringProperty()
+    univ_address = StringProperty()
+    city = StringProperty()
+    state = StringProperty()
+    zipcode = StringProperty()
+    chief_name = StringProperty()
+    chief_title = StringProperty()
+    website_url = StringProperty()
+    admin_url = StringProperty()
+    financial_url = StringProperty()
+    app_url = StringProperty()
+    county = StringProperty()
+    longitude = FloatProperty()
+    latitude = FloatProperty()
+
 
 
 class ReceivedEducationRel(StructuredRel):

@@ -5,18 +5,14 @@ from .utils import create_gt_role
 from govtrack.neo_models import (GTPerson, GTRole, GTCommittee,
                                 GT_RCVotes, GTVoteOption, GTCongressNumbers)
 
-'''
-This function takes a url which can be converted into a .json file. It then converts
-the json into a dict and creates and populates a GTRole object then saves it
-to the neo4j server.
-
-This function needs to be updated because populating the person object is no longer
-necissary because we have another function for that, but we still need to populate the
-GTRole objects and create the relationship.
-'''
 
 @shared_task()
 def populate_gt_role(requesturl):
+    '''
+    This function takes a url which can be converted into a .json file. It then converts
+    the json into a dict and creates and populates a GTRole object then saves it
+    to the neo4j server.
+    '''
     role_request = get(requesturl)
     role_data_dict = role_request.json()
     congress_number_object = []
@@ -60,15 +56,16 @@ def populate_gt_person(requesturl):
             my_person = GTPerson(**person)
             my_person.save()
 
-'''
-This function takes a url which can be converted into a .json file. It then converts
-the json into a dict and creates and populates a GTCommittee object then saves
-to the neo4j server.
 
-Will eventually create relationships between sub committees.
-'''
 @shared_task()
 def populate_gt_committee(requesturl):
+    '''
+    This function takes a url which can be converted into a .json file. It then converts
+    the json into a dict and creates and populates a GTCommittee object then saves
+    to the neo4j server.
+
+    Will eventually create relationships between sub committees.
+    '''
     committee_request = get(requesturl)
     committee_data_dict = committee_request.json()
     for committee in committee_data_dict['objects']:
@@ -81,14 +78,15 @@ def populate_gt_committee(requesturl):
             my_committee = GTCommittee(**committee)
             my_committee.save()
 
-'''
-his function takes a url which can be converted into a .json file. It then converts
-the json into a dict and creates and populates a GT_RCVotes object. It then also creates
-multiple GTVoteOption objects which are related to the GT_RCVotes object that was created.
-It also creates the relationship between the GT_RCVotes and GTVoteOption.
-'''
+
 @shared_task()
 def populate_gt_votes(requesturl):
+    '''
+    This function takes a url which can be converted into a .json file. It then converts
+    the json into a dict and creates and populates a GT_RCVotes object. It then also creates
+    multiple GTVoteOption objects which are related to the GT_RCVotes object that was created.
+    It also creates the relationship between the GT_RCVotes and GTVoteOption.
+    '''
     vote_request = get(requesturl)
     vote_data_dict = vote_request.json()
     my_votes = []

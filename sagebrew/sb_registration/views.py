@@ -172,6 +172,16 @@ def interests(request):
 
 @login_required()
 def profile_picture(request):
+    '''
+    The profile picture view accepts an image from the user, which is stored in
+    the TEMP_FILES directory until it is uploaded to s3 after which the locally
+    stored tempfile is deleted. After the url of the image is returned from
+    the upload_image util the url is stored as the profile_picture field in the Pleb
+    model.
+`
+    :param request:
+    :return:
+    '''
     if request.method == 'POST':
         profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
         if profile_picture_form.is_valid():
@@ -181,7 +191,6 @@ def profile_picture(request):
                 #    return redirect('profile_page')
                 #print citizen.profile_pic
             except Pleb.DoesNotExist:
-                print("How did you even get here!?")
                 return render(request, 'profile_picture.html', {'profile_picture_form': profile_picture_form})
             image_uuid = uuid1()
             data = request.FILES['picture']
@@ -197,7 +206,15 @@ def profile_picture(request):
     return render(request, 'profile_picture.html', {'profile_picture_form': profile_picture_form})
 
 @login_required()
-def profile_page(request):#who is your sen
+def profile_page(request):
+    '''
+    Displays the users profile_page. This is where we call the functions to determine
+    who the senators are for the plebs state and which representative for the plebs
+    district
+
+    :param request:
+    :return:
+    '''
     profile_page_form = ProfilePageForm(request.GET or None)
     citizen = Pleb.index.get(email=request.user.email)
     # TODO check for index error

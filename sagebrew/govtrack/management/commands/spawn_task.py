@@ -1,13 +1,15 @@
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-# Still need to import your task
+from govtrack.tasks import (populate_gt_committee, populate_gt_person, populate_gt_role,
+                            populate_gt_votes)
 
 class Command(BaseCommand):
     args = 'None.'
     help = 'Test the conductor api endpoints.'
-
+    #TODO set up functions to use the govtrack bulk data to get complete sets of data
     def handle(self, *args, **options):
-        # add the call to your task here and the 'pass' below can be removed
-        # it's just a placeholder
-        pass
+        ROLE_URL='https://www.govtrack.us/api/v2/role?limit=600&offset=10000&current=True'
+        populate_gt_role(ROLE_URL)
+        print "Role and Person objects populated for current senators"
+

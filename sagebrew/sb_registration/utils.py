@@ -127,6 +127,8 @@ def validate_address(address_request):
 
     return create_address_array(structure)
 
+def validate_school(school_name):
+    pass
 
 def create_address_array(structure):
     array_of_addresses = []
@@ -166,6 +168,14 @@ def compare_address(smarty_address, address_clean):
 
 
 def upload_image(folder_name, file_uuid):
+    '''
+    Creates a connection to the s3 service then uploads the file which was passed
+    to this function an uses the uuid as the filename.
+
+    :param folder_name:
+    :param file_uuid:
+    :return:
+    '''
     file_path = '%s%s.%s' % (settings.TEMP_FILES, file_uuid, 'jpeg')
     print file_path
 
@@ -184,7 +194,8 @@ def upload_image(folder_name, file_uuid):
 
 def determine_senators(pleb_address):
     '''
-    Search for senators who match the state of the pleb.
+    Search for senators who match the state of the pleb. Then return an array of them
+
     :param pleb_address:
     :return:
     '''
@@ -215,3 +226,4 @@ def determine_reps(pleb_address):
         for name in item:
             rep_name = name.name
     return rep_name
+

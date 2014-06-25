@@ -1,0 +1,3 @@
+[submodule "kepric_core"]
+    path = kepric_core
+    url = git@github.com:Kepric/kepric_core.git

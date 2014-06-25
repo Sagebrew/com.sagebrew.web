@@ -126,9 +126,6 @@ class ProfileInfoTest(TestCase):
         response = profile_information(request)
         self.assertEqual(response.status_code, 302)
 
-    def test_profile_picture_upload(self):
-        request = self.factory.post('/registration/profile_picture')
-
     def test_profile_page(self):
         request = self.factory.post('/registration/profile_page')
         request.user = self.user

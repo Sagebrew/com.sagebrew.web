@@ -10,6 +10,19 @@ import pytz
 class GTCongressNumbers(StructuredNode):
     congress_number = IntegerProperty(unique_index=True)
 
+class GTPersonHistorical(StructuredNode):
+    lastname = StringProperty()
+    firstname = StringProperty()
+    gender = StringProperty()
+    legis_type = StringProperty()
+    state = StringProperty()
+    party = StringProperty()
+    bioguideid = StringProperty()
+    cspandid = IntegerProperty()
+    gt_id = IntegerProperty(index=True)
+    sb_id = StringProperty(unique_index=True, default=lambda: uuid1())
+
+
 class GTPerson(StructuredNode):
     bioguideid = StringProperty(default="")
     birthday = DateTimeProperty(default=lambda: datetime.now(pytz.utc))

@@ -1,7 +1,7 @@
 ' Django default settings for automated_test_client project.'
 from __future__ import absolute_import
 
-from os import environ
+from os import environ, path, makedirs
 from unipath import Path
 from datetime import timedelta
 
@@ -214,6 +214,10 @@ CELERY_IGNORE_RESULT = False
 
 CELERYBEAT_SCHEDULE = {}
 CELERY_TIMEZONE = 'UTC'
+
+TEMP_FILES = '%s/temp_files/' % PROJECT_DIR
+if not path.exists(TEMP_FILES):
+    makedirs(TEMP_FILES)
 
 import djcelery
 import iron_celery

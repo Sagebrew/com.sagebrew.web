@@ -6,12 +6,15 @@ from uuid import uuid1
 from datetime import datetime
 import pytz
 
+
+class GTCongressNumbers(StructuredNode):
+    congress_number = IntegerProperty(unique_index=True)
+
 class GTRole(StructuredNode):
-    congress_numbers = IntegerProperty()
     current = BooleanProperty()
     description = StringProperty()
     district = StringProperty()
-    enddate = DateProperty()
+    enddate = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     role_id = IntegerProperty(unique_index=True)
     leadership_title = StringProperty()
     party = StringProperty()
@@ -22,11 +25,14 @@ class GTRole(StructuredNode):
     senator_class_label = StringProperty()
     senator_rank = StringProperty()
     senator_rank_label = StringProperty()
-    startdate = DateProperty()
+    startdate = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     state = StringProperty()
     title = StringProperty()
     title_long = StringProperty()
     website = StringProperty()
+
+    congress_numbers = Relationship(GTCongressNumbers, "PART_OF")
+
 
 
 class GTVoteOption(StructuredNode):

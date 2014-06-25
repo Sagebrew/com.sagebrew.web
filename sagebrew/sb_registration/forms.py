@@ -1,7 +1,8 @@
 from django import forms
+from django.core.files.images import get_image_dimensions
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
+from plebs.neo_models import Pleb
+
 
 class InterestForm(forms.Form):
     select_all = forms.BooleanField(
@@ -136,6 +137,89 @@ class InterestForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(InterestForm, self).__init__(*args, **kwargs)
+
+
+class ProfileInfoForm(forms.Form):
+
+    date_of_birth = forms.DateTimeField(
+        label = "Birthday*",
+        required = True,
+    )
+
+    home_town = forms.CharField(
+        label = "Hometown",
+        max_length = 40,
+        required = False,
+    )
+
+    high_school = forms.CharField(
+        label = "High School",
+        max_length= 50,
+        required = False,
+    )
+
+    college = forms.CharField(
+        label = "College/University",
+        max_length = 50,
+        required = False,
+    )
+
+    employer = forms.CharField(
+        label = "Employer",
+        max_length = 50,
+        required = False,
+    )
+
+class AddressInfoForm(forms.Form):
+    primary_address = forms.CharField(
+        label = "Primary Address*",
+        max_length = 200,
+        required = True,
+    )
+
+    street_additional = forms.CharField(
+        label = "Apt,Building,Etc",
+        max_length = 200,
+        required = False,
+    )
+
+    city = forms.CharField(
+        label = "City*",
+        max_length = 100,
+        required = True,
+    )
+
+    state = forms.CharField(
+        label = "State*",
+        max_length = 25,
+        required = True,
+    )
+
+    postal_code = forms.CharField(
+        label = "Postal Code*",
+        max_length = 10,
+        required = True,
+    )
+
+
+class AddressChoiceForm(forms.Form):
+    address_options = forms.ChoiceField(
+        label = "Do you live at",
+        choices = (),
+        required = False,
+    )
+
+class ProfilePictureForm(forms.Form):
+    picture = forms.ImageField(
+        label = "Profile Picture"
+    )
+
+class ProfilePageForm(forms.Form):
+    picture = forms.URLField(
+        label = 'Profile Picture',
+
+    )
+
 
 '''
 If you want to adjust field attributes programatically without overwritting

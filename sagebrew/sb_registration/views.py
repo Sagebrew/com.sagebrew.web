@@ -1,17 +1,127 @@
+import os
+import hashlib
+from django.conf import settings
+from uuid import uuid1
 from django.shortcuts import render, redirect
-from django.http import HttpResponseServerError
+from django.contrib.auth.decorators import login_required
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 
-from plebs.neo_models import Pleb, TopicCategory, SBTopic
+from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
 
-from .forms import InterestForm
-from .utils import generate_interests_tuple
+from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm, ProfilePictureForm,
+                    ProfilePageForm, AddressChoiceForm)
+from .utils import (validate_address, generate_interests_tuple, upload_image,
+                    compare_address, generate_address_tuple,
+                    determine_congressmen, create_address_string,
+                    create_address_long_hash)
 
-
+@login_required
 def profile_information(request):
+    '''
+    Creates both a ProfileInfoForm and AddressInfoForm which populates the
+    fields with what the user enters. If this function gets a valid POST request it
+    will update the pleb. It then validates the address, through smartystreets api,
+    if the address is valid a Address neo_model is created and populated.
+
+
+    COMPLETED THIS TASK BUT STILL NEED TO PUT SOME COMMENTS AROUND IT
+    Need to use a hash to verify the same address string is being
+    used instead of an int. That way if smarty streets passes back
+    the addresses in a different order we can use the same address
+    we provided the user previously based on the previous
+    smarty streets ordering.
+    '''
+    profile_information_form = ProfileInfoForm(request.POST or None)
+    address_information_form = AddressInfoForm(request.POST or None)
+    address_selection_form = AddressChoiceForm(request.POST or None)
+    address_selection = "no_selection"
+
+    try:
+        citizen = Pleb.index.get(email=request.user.email)
+    except Pleb.DoesNotExist:
+        return redirect("404_Error")
+    if profile_information_form.is_valid():
+        citizen.date_of_birth = profile_information_form.cleaned_data[
+            "date_of_birth"]
+        citizen.home_town = profile_information_form.cleaned_data["home_town"]
+        citizen.high_school = profile_information_form.cleaned_data[
+            "high_school"]
+        citizen.college = profile_information_form.cleaned_data["college"]
+        citizen.employer = profile_information_form.cleaned_data["employer"]
+        citizen.save()
+
+    if address_information_form.is_valid():
+        address_clean = address_information_form.cleaned_data
+        address_info = validate_address(address_clean)
+        addresses_returned = len(address_info)
+        address_tuple = generate_address_tuple(address_info)
+
+        # Not doing 0 cause already done with address_information_form
+        if(addresses_returned == 1):
+            if compare_address(address_info[0], address_clean):
+                address_info[0]["country"] = "USA"
+                try:
+                    address_long_hash = create_address_long_hash(
+                        address_info[0])
+                    address = Address.index.get(address_hash=address_long_hash)
+                except Address.DoesNotExist:
+                    address = Address(**address_info[0])
+                    address.save()
+                address.address.connect(citizen)
+                citizen.completed_profile_info = True
+                citizen.address.connect(address)
+                citizen.save()
+                return redirect('interests')
+            else:
+                address_selection_form.fields['address_options'].choices = address_tuple
+                address_selection_form.fields['address_options'].required = True
+                address_selection = "selection"
+        elif(addresses_returned > 1):
+            # Choices need to be populated prior to is_valid call to ensure
+            # that the form validates against the correct values
+            # We also are able ot keep this in the same location because
+            # we hid the other address form but it keeps the same values as
+            # previously entered. This enables us to get the same results
+            # back from smarty streets and validate those choices again then
+            # select the one that the user selected.
+            address_selection_form.fields['address_options'].choices = address_tuple
+            address_selection_form.fields['address_options'].required = True
+            address_selection = "selection"
+
+        if(address_selection == "selection"):
+            if(address_selection_form.is_valid()):
+                store_address = None
+                address_hash = address_selection_form.cleaned_data[
+                    "address_options"]
+                for optional_address in address_info:
+                    optional_address["country"] = "USA"
+                    address_string = create_address_string(optional_address)
+                    optional_hash = hashlib.sha224(address_string).hexdigest()
+                    if(address_hash == optional_hash):
+                        store_address = optional_address
+                        break
+                if(store_address is not None):
+                    try:
+                        address_long_hash = create_address_long_hash(
+                            store_address)
+                        address = Address.index.get(address_hash=address_long_hash)
+                    except Address.DoesNotExist:
+                        address = Address(**store_address)
+                        address.save()
+                    address.address.connect(citizen)
+                    citizen.completed_profile_info = True
+                    citizen.address.connect(address)
+                    citizen.save()
+                    return redirect('interests')
+
     return render(request, 'profile_info.html',
-                    {'profile_information_form':None})
+                    {'profile_information_form': profile_information_form,
+                    'address_information_form': address_information_form,
+                    'address_selection': address_selection,
+                    'address_choice_form': address_selection_form})
 
-
+@login_required()
 def interests(request):
     '''
     The interests view creates an InterestForm populates the topics that
@@ -23,7 +133,6 @@ def interests(request):
     :return: HttpResponse
     '''
     interest_form = InterestForm(request.POST or None)
-
     choices_tuple = generate_interests_tuple()
     interest_form.fields["specific_interests"].choices = choices_tuple
 
@@ -33,11 +142,12 @@ def interests(request):
                     item != "specific_interests"):
                 try:
                     citizen = Pleb.index.get(email=request.user.email)
+                    # TODO profile page profile picture
+                    if citizen.completed_profile_info:
+                        return redirect('profile_picture')
                 except Pleb.DoesNotExist:
-                    # return HttpResponseServerError('')
-                    print "Pleb does not exist"
+                    redirect("404_Error")
                 try:
-                    print item
                     category_object = TopicCategory.index.get(
                         title=item.capitalize())
                     for topic in category_object.sb_topics.all():
@@ -45,24 +155,51 @@ def interests(request):
                         pass
                     # citizen.topic_category.connect(category_object)
                 except TopicCategory.DoesNotExist:
-                    # return HttpResponseServerError('')
-                    print "Topic cat does not exist"
+                    redirect("404_Error")
 
         for topic in interest_form.cleaned_data["specific_interests"]:
             try:
                 interest_object = SBTopic.index.get(title=topic)
-                print interest_object.title
             except SBTopic.DoesNotExist:
-                # return HttpResponseServerError('')
-                print "Topic cat does not exist"
+                redirect("404_Error")
             # citizen.sb_topics.connect(interest_object)
-        return redirect('invite_friends')
-    else:
-        print interest_form.errors
+        return redirect('profile_picture')
 
     return render(request, 'interests.html', {'interest_form': interest_form})
 
 
-def invite_friends(request):
+@login_required()
+def profile_picture(request):
+    if request.method == 'POST':
+        profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
+        if profile_picture_form.is_valid():
+            try:
+                citizen = Pleb.index.get(email=request.user.email)
+                #if citizen.completed_profile_info:
+                #    return redirect('profile_page')
+                #print citizen.profile_pic
+            except Pleb.DoesNotExist:
+                print("How did you even get here!?")
+                return render(request, 'profile_picture.html', {'profile_picture_form': profile_picture_form})
+            image_uuid = uuid1()
+            data = request.FILES['picture']
+            temp_file = '%s%s.jpeg' % (settings.TEMP_FILES, image_uuid)
+            with open(temp_file, 'wb+') as destination:
+                for chunk in data.chunks():
+                    destination.write(chunk)
+            citizen.profile_pic = upload_image('profile_pictures', image_uuid)
+            citizen.save()
+            return redirect('profile_page')
+    else:
+        profile_picture_form = ProfilePictureForm()
+    return render(request, 'profile_picture.html', {'profile_picture_form': profile_picture_form})
 
-    return render(request, 'invite_friends.html', {"here": None})
+@login_required()
+def profile_page(request):#who is your sen
+    profile_page_form = ProfilePageForm(request.GET or None)
+    citizen = Pleb.index.get(email=request.user.email)
+    determine_congressmen(citizen.address)
+
+    return render(request, 'profile_page.html', {'profile_page_form': profile_page_form,
+                                                 'pleb_info': citizen})
+

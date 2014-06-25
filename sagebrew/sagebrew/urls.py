@@ -3,7 +3,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.contrib import admin
 from django.views.generic.base import RedirectView, TemplateView
-
+from django.conf.urls import patterns, url
 
 admin.autodiscover()
 
@@ -17,6 +17,8 @@ urlpatterns = patterns('',
     (r'^$', TemplateView.as_view(template_name="index.html")),
     (r'^accounts/', include('allauth.urls')),
     (r'^locations/$', TemplateView.as_view(template_name="location.html")),
+    url(r'^404/$', TemplateView.as_view(template_name="404.html"),
+        name="404_Error"),
     (r'^contact_us/$', TemplateView.as_view(template_name="contact_us.html")),
     (r'^accounts/', include('allauth.urls')),
     (r'^oauth2/', include('provider.oauth2.urls', namespace='oauth2')),

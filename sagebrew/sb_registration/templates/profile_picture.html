@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block navigation %}
+    {% include "navigation.html" %}
+{% endblock %}
+
+{% block content %}
+<form enctype="multipart/form-data" action="/registration/profile_picture/" method="post">{% csrf_token %}
+<h1>Add your profile picture!</h1>
+<div> {{ profile_picture_form }}
+    <input class="btn btn-primary" type="submit" value="Upload!"/>
+</div>
+</form>
+
+{% endblock %}

@@ -6,8 +6,10 @@
         <title>{% block title %}{% endblock title %}</title>
 
     {% block css %}
-        <link rel="stylesheet" href="{% static 'css/ziggzi.css' %}" media="screen" type="text/css" />
+        <link rel="stylesheet" href="{% static 'css/sagebrew.css' %}" media="screen" type="text/css" />
+        <link rel="stylesheet" href="{% static 'flat_ui/css/flat-ui.css' %}" media="screen" type="text/css" />
     {% endblock css %}
+
     <!-- js -->
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
 	{% block page-javascript %}
@@ -30,7 +32,6 @@
                 </div>
             </div><!-- #header-wrapper, #header -->
 
-
             <div id="content-wrapper">
                 <div id="content">
                     {% block content %}
@@ -38,12 +39,60 @@
                 </div>
             </div><!-- #content-wrapper, #content -->
 
-
-            <div id="footer-wrapper">
-                <div id="footer">
-                        <p>Copyright of Sagebrew LLC 2014</p>
-                </div>
             </div><!-- #footer-wrapper, #footer -->
+<div class="bottom-menu bottom-menu-large mbl">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-2 navbar-brand">
+            <a href="#link">Sagebrew</a>
+          </div>
+
+          <div class="col-md-2">
+            <h5 class="title"></h5>
+            <ul class="bottom-links">
+              <li><a href="#fakelink">About</a></li>
+              <li><a href="#fakelink">Help</a></li>
+              <li><a href="#fakelink">Representatives</a></li>
+              <li><a href="#fakelink">Discussion Etiquette</a></li>
+            </ul>
+          </div>
+
+          <div class="col-md-2">
+            <h5 class="title"></h5>
+            <ul class="bottom-links">
+              <li><a href="#fakelink">Find Friends</a></li>
+              <li><a href="#fakelink">Reputation</a></li>
+              <li><a href="#fakelink">Developers</a></li>
+              <li><a href="#fakelink">Donate</a></li>
+            </ul>
+          </div>
+
+          <div class="col-md-2">
+            <h5 class="title"></h5>
+            <ul class="bottom-links">
+              <li><a href="#fakelink">FAQ</a></li>
+              <li><a href="#fakelink">Register</a></li>
+              <li><a href="#fakelink">Login</a></li>
+            </ul>
+          </div>
+
+          <div class="col-md-2">
+            <h5 class="title"></h5>
+            <ul class="bottom-links">
+              <li><a href="#fakelink">Terms</a></li>
+              <li><a href="#fakelink">Conditions</a></li>
+              <li><a href="#fakelink"></a></li>
+            </ul>
+          </div>
+
+          <div class="col-md-2">
+            <h5 class="title"></h5>
+            <ul class="bottom-links">
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
         </div>
     </div><!-- #page-wrapper, #page -->
 {% block scripts %}

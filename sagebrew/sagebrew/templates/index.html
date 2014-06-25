@@ -1,10 +1,60 @@
+<div id="inputcontainer"
+
 {% extends "base.html" %}
 {% block title %}{{site_title}}{% endblock %}
-
 {% block content %}
-    <div id="info">
-        <h1>Under Construction</h1>
-        <p>Sorry we're building the site but please come back later!</p>
-	</div>
-{% endblock %}
 
+            <div id="input">
+                <h1>Sign Up</h1>
+                    <table id="signup">
+                        <tr>
+                            <td>
+                                <div class="input-group-lg">
+                                <input type="text" value="" placeholder="First Name" class="span3">
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="input-group-lg">
+                                <input type="text" value="" placeholder="Last Name" class="span3">
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="input-group">
+                                <input type="text" value="" placeholder="Email" class="span3">
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="input-group">
+                                <input type="text" value="" placeholder="Re-enter Email" class="span3">
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                 <div>
+                                <a href="#fakelink" class="btn btn-small btn-social-facebook">
+                                <i class="fui-facebook"></i>
+                                Sign Up With Facebook
+                                </a>
+                                </div>
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                               <a href="#fakelink" class="btn btn-primary">
+                                Sign Up
+                                </a>
+                            </td>
+                        </tr>
+                    </table>
+
+            </div>
+</div>
+{% endblock %}

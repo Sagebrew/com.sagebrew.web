@@ -1,5 +1,29 @@
 {% block zig_navigation %}
 {% load staticfiles %}
+
+ {% block css %}
+        <link rel="stylesheet" href="{% static 'css/sagebrew.css' %}" media="screen" type="text/css" />
+ {% endblock css %}
+
+
+ <div id="navcontainer"
+    <div class="dialog">
+      <h1 id="logo">Sagebrew</h1>
+        <div id="nav">
+            <form class="control-group">
+                 <input type="text" placeholder="E-mail" class="flat">
+                 <input type="password" placeholder="Password" class="flat">
+                 <button class="btn btn-primary btn-wide">Login</button>
+            </form>
+                <label class="checkbox primary">
+                      <p id="checkbox">Keep me logged in</p>
+                      <span class="icons"><span class="first-icon fui-checkbox-unchecked"></span>
+                      <span class="second-icon fui-checkbox-checked"></span>
+                </label>
+        </div>
+    </div>
+ </div>
+    <!--
 <div id="headerWrapper">
 <div id="headerContent">
     <div id="navigation">
@@ -57,6 +81,7 @@
                     </form>
                 </div>
                 -->
+        <!--
                 <div class="navigationLink">
                     <a href="/locations/">Locations</a>
                 </div>
@@ -77,4 +102,5 @@
     </div>
 </div>
 </div>
+    -->
 {% endblock %}

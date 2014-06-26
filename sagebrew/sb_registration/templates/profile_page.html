@@ -1,4 +1,6 @@
 {% extends "base.html"%}
+{% load i18n %}
+{% load staticfiles %}
 {% block navigation %}
     {% include "navigation.html" %}
 {% endblock %}
@@ -12,4 +14,15 @@
     {% endfor %}
     <div align="left">House Representative:</div>
     <li>{{ rep_name }}</li>
+    <a class='btn btn-primary post-action' data-action='this is a test post' data-pleb={{ pleb_info.email }}>Send Post</a>
+    {% for post in user_posts %}
+        <li>{{ post.content }}</li>
+        <a class='btn btn-primary comment-action' data-action='this is a test comment attached to a post' data-pleb={{ pleb_info.email }} data-post_uuid={{ post.post_id }}>Attach Comment</a>
+    {% endfor %}
 {% endblock %}
+
+{% block scripts %}
+	{{ block.super }}
+	<script src="{% static 'js/save_comment.js' %}"></script>
+    <script src="{% static 'js/save_post.js' %}"></script>
+{% endblock scripts %}

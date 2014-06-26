@@ -69,8 +69,8 @@ class GTRole(StructuredNode):
     title_long = StringProperty()
     website = StringProperty()
 
-    person = Relationship(GTPerson, "IS")
-    congress_numbers = Relationship(GTCongressNumbers, "PART_OF")
+    person = Relationship('GTPerson', "IS")
+    congress_numbers = Relationship('GTCongressNumbers', "PART_OF")
 
 
 

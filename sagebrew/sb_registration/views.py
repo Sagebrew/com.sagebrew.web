@@ -1,8 +1,10 @@
 import os
 import hashlib
+from json import dumps
 
 from django.conf import settings
 from uuid import uuid1
+from requests import post as request_post
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
@@ -16,6 +18,7 @@ from .utils import (validate_address, generate_interests_tuple, upload_image,
                     compare_address, generate_address_tuple,
                     determine_senators, determine_reps, create_address_string,
                     create_address_long_hash)
+
 
 @login_required
 def profile_information(request):
@@ -221,9 +224,15 @@ def profile_page(request):
     address = citizen.traverse('address').run()[0]
     sen_array = determine_senators(address)
     rep_array = determine_reps(address)
+    post_data = {'email': citizen.email}
+    headers = {'content-type': 'application/json'}
+    post_req = request_post('https://192.168.56.101/posts/query_posts/',
+                            data=dumps(post_data), verify=False, headers=headers)
+    user_posts = post_req.json()
 
     return render(request, 'profile_page.html', {'profile_page_form': profile_page_form,
                                                  'pleb_info': citizen,
                                                  'senator_names': sen_array,
-                                                 'rep_name': rep_array})
+                                                 'rep_name': rep_array,
+                                                 'user_posts': user_posts})
 

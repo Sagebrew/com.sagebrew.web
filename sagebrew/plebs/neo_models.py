@@ -1,4 +1,5 @@
 from uuid import uuid1
+from datetime import datetime
 import pytz
 
 from django.contrib.auth.models import User
@@ -9,6 +10,9 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       BooleanProperty, FloatProperty, ZeroOrOne)
 
 from govtrack.neo_models import GTRole
+
+class PostObjectCreated(StructuredRel):
+    shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
 class School(StructuredNode):
     name = StringProperty()
@@ -84,6 +88,8 @@ class Pleb(StructuredNode):
     friends = RelationshipTo("Pleb", "FRIENDS_WITH")
     senator = RelationshipTo("GTRole", "HAS_SENATOR")
     house_rep = RelationshipTo("GTRole", "HAS_REPRESENTATIVE")
+    posts = RelationshipTo('sb_posts.neo_models.SBPost', 'OWNS', model=PostObjectCreated)
+    comments = RelationshipTo('sb_comments.neo_models.SBComment', 'OWNS', model=PostObjectCreated)
 
 
 

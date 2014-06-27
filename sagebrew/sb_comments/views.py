@@ -11,8 +11,6 @@ from django.shortcuts import render
 from .tasks import save_comment
 from api.utils import get_post_data
 
-#do bomberman here or in javascript
-
 #TODO swap decorators and uncomment permissions
 #@permission_classes([IsAuthenticated, ])
 @api_view(['POST'])
@@ -33,7 +31,7 @@ def save_comment_view(request):
                             status=408)
 
 @api_view(['POST'])
-def edit_comment(request):
+def edit_comment(request): #task
     '''
     Allow plebs to edit their comment
 
@@ -46,7 +44,7 @@ def edit_comment(request):
     # do stuff with post_info
 
 @api_view(['POST'])
-def delete_comment(request):
+def delete_comment(request): #task
     '''
     Allow plebs to delete their comment
 
@@ -59,7 +57,7 @@ def delete_comment(request):
     # do stuff with post_info
 
 @api_view(['POST'])
-def flag_comment(request):
+def flag_comment(request): #task
     '''
     Allow plebs to flag comments
 
@@ -72,7 +70,7 @@ def flag_comment(request):
     # do stuff with post_info
 
 @api_view(['POST'])
-def vote_comment(request):
+def vote_comment(request): #task
     '''
     Allow plebs to up/down vote comments
 
@@ -85,7 +83,7 @@ def vote_comment(request):
     # do stuff with post_info
 
 @api_view(['POST'])
-def share_comment(request):
+def share_comment(request): #task
     '''
     Allow plebs to share comments with other plebs
 
@@ -98,7 +96,7 @@ def share_comment(request):
     # do stuff with post_info
 
 @api_view(['POST'])
-def reference_comment(request):
+def reference_comment(request): #task
     '''
     Allow users to reference comments in other comments/posts/questions/answers
 

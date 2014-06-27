@@ -5,19 +5,30 @@ from plebs.neo_models import Pleb
 
 from celery import shared_task
 
+#TODO separate functions to delete posts and comments and votes
 @shared_task()
-def save_post(post_info):
-    my_citizen = Pleb.index.get(email = post_info['pleb'])
-    print post_info
-    post_info.pop('pleb', None)
-    post_id = uuid1()
-    post_info['post_id'] = str(post_id)
-    print post_info
-    my_post = SBPost(**post_info)
+def delete_post_and_comments(post_info):
+    my_post = SBPost.index.get(post_id = post_info['post_uuid'])
+    post_comments = my_post.traverse('comments')
+    for comment in post_comments:
+        comment.delete()
+    my_post.delete()
+
+#TODO only allow plebs to create 1 vote but can then change vote
+@shared_task()
+def create_upvote_post(post_info):
+    my_post = SBPost.index.get(post_id = post_info['post_uuid'])
+    my_pleb = Pleb.index.get(email = post_info['pleb'])
+    my_post.up_vote_number += 1
+    my_post.up_voted_by.connect(my_pleb)
     my_post.save()
-    rel = my_post.owned_by.connect(my_citizen)
-    rel.save()
-    rel_from_pleb = my_citizen.posts.connect(my_post)
-    rel_from_pleb.save()
-    #determine who posted/shared/...
+
+#TODO only allow plebs to create 1 vote but can then change vote
+@shared_task()
+def create_downvote_post(post_info):
+    my_post = SBPost.index.get(post_id = post_info['post_uuid'])
+    my_pleb = Pleb.index.get(email = post_info['pleb'])
+    my_post.down_vote_number += 1
+    my_post.down_voted_by.connect(my_pleb)
+    my_post.save()
 

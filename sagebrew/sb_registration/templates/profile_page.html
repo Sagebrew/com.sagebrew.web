@@ -14,10 +14,14 @@
     {% endfor %}
     <div align="left">House Representative:</div>
     <li>{{ rep_name }}</li>
-    <a class='btn btn-primary post-action' data-action='this is a test post' data-pleb={{ pleb_info.email }}>Send Post</a>
+    <a class='btn btn-primary post-action' data-action='this is a test post' data-pleb={{ pleb_info.email }}>Create Post</a>
     {% for post in user_posts %}
-        <li>{{ post.content }}</li>
+        <li>{{ post.content }} | Upvotes={{ post.up_vote_number }} | Downvotes={{ post.down_vote_number }} | Last Edited: {{ post.last_edited_on }}</li>
         <a class='btn btn-primary comment-action' data-action='this is a test comment attached to a post' data-pleb={{ pleb_info.email }} data-post_uuid={{ post.post_id }}>Attach Comment</a>
+        <a class='btn btn-primary edit_post-action' data-action='this post has been edited' data-pleb={{ pleb_info.email }} data-post_uuid={{ post.post_id }}>Edit this Post</a>
+        <a class='btn btn-primary delete_post-action' data-pleb={{ pleb_info.email }} data-post_uuid={{ post.post_id }}>Delete this Post and Comments</a>
+        <a class='btn btn-primary vote-action' data-vote_type='up' data-pleb={{ pleb_info.email }} data-post_uuid={{ post.post_id }}>Upvote Post</a>
+        <a class='btn btn-primary vote-action' data-vote_type='down' data-pleb={{ pleb_info.email }} data-post_uuid={{ post.post_id }}>Downvote Post</a>
     {% endfor %}
 {% endblock %}
 
@@ -25,4 +29,7 @@
 	{{ block.super }}
 	<script src="{% static 'js/save_comment.js' %}"></script>
     <script src="{% static 'js/save_post.js' %}"></script>
+    <script src="{% static 'js/edit_post.js' %}"></script>
+    <script src="{% static 'js/delete_post.js' %}"></script>
+    <script src="{% static 'js/vote_post.js' %}"></script>
 {% endblock scripts %}

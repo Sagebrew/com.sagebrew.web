@@ -218,7 +218,7 @@ def determine_reps(pleb_address):
     :return:
     '''
     determined_reps = []
-    rep_name = ''
+    rep_name = 'No reps in DB'
     rep_array = GTRole.index.search(state=pleb_address.state, title='Rep.',
                                     district=int(pleb_address.congressional_district))
     for rep in rep_array:

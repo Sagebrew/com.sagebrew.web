@@ -11,16 +11,15 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
 class CommentedOnRel(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
-class CommentVote(StructuredRel):
-    up_or_down = BooleanProperty(default=None)
-
-
 class SBComment(StructuredNode):
     content = StringProperty()
     comment_id = StringProperty(unique_index=True)
+    up_vote_number = IntegerProperty(default=0)
+    down_vote_number = IntegerProperty(default=0)
 
     #relationships
-    vote = RelationshipTo('plebs.neo_models.Pleb', 'VOTE_AS', model=CommentVote)
+    up_voted_by = RelationshipTo('plebs.neo_models.Pleb', 'UP_VOTED_BY')
+    down_voted_by = RelationshipTo('plebs.neo_models.Pleb', 'DOWN_VOTED_BY')
     commented_on_post = RelationshipTo('sb_posts.neo_models.SBPost', 'COMMENTED_ON', model=CommentedOnRel)
     #commented_on_question = RelationshipTo('Question', 'COMMENTED_ON', model=CommentedOnRel)
     #commented_on_answer = RelationshipTo('Answer', 'COMMENTED_ON', model=CommentedOnRel)

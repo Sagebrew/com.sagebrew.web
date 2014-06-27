@@ -10,11 +10,9 @@ from celery import shared_task
 def save_comment(comment_info):
     my_citizen = Pleb.index.get(email = comment_info['pleb'])
     parent_object = SBPost.index.get(post_id = comment_info['post_uuid'])
-    print parent_object.content
     comment_info.pop('post_uuid', None)
     comment_info.pop('pleb', None)
     comment_info['comment_id'] = uuid1()
-    print comment_info
     my_comment = SBComment(**comment_info)
     my_comment.save()
     rel_to_pleb = my_comment.is_owned_by.connect(my_citizen)

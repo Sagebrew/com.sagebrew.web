@@ -23,7 +23,6 @@ def save_post(post_info):
     my_post = SBPost(**post_info)
     my_post.save()
     wall = my_citizen.traverse('wall').run()[0]
-    print wall.wall_id
     my_post.posted_on_wall.connect(wall)
     wall.post.connect(my_post)
     rel = my_post.owned_by.connect(my_citizen)

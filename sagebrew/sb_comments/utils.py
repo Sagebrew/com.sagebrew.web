@@ -9,7 +9,6 @@ def get_post_comments(post_info):
     comment_array = []
     post_array = []
     for post in post_info:
-        print post.post_id
         post_comments = post.traverse('comments').run()
         #TODO Get which user posted the comment
         for comment in post_comments:

@@ -9,10 +9,10 @@ from rest_framework.response import Response
 from django.shortcuts import render
 
 from sb_posts.neo_models import SBPost
-from .tasks import (save_comment, edit_comment_task, delete_comment_task, create_downvote_comment,
-                    create_upvote_comment)
+#from .tasks import ()
 from api.utils import get_post_data
-from .utils import get_post_comments, create_comment_vote
+from .utils import (get_post_comments, create_comment_vote, save_comment, edit_comment_util,
+                    delete_comment_util)
 
 #TODO swap decorators and uncomment permissions
 #@permission_classes([IsAuthenticated, ])
@@ -27,7 +27,7 @@ def save_comment_view(request):
     '''
     try:
         post_info = get_post_data(request)
-        save_comment.apply_async([post_info,])
+        save_comment(post_info)
         return Response({"here": "Comment succesfully created"}, status=200)
     except(HTTPError, ConnectionError):
         return Response({"detail": "Failed to create comment task"},
@@ -43,7 +43,7 @@ def edit_comment(request): #task
     '''
     try:
         post_info = get_post_data(request)
-        edit_comment_task.apply_async([post_info,])
+        edit_comment_util(post_info)
         return Response({"detail": "Comment succesfully edited"})
     except(HTTPError, ConnectionError):
         return Response({'detail': 'Failed to edit comment'},
@@ -60,7 +60,7 @@ def delete_comment(request): #task
     '''
     try:
         comment_info = get_post_data(request)
-        delete_comment_task.apply_async([comment_info,])
+        delete_comment_util(comment_info)
         return Response({"detail": "Comment deleted"})
     except(HTTPError, ConnectionError):
         return Response({"detail": "Failed to delete comment"})
@@ -76,6 +76,7 @@ def vote_comment(request): #task
     '''
     try:
         post_info = get_post_data(request)
+        print post_info
         create_comment_vote(post_info)
         return Response({"detail": "Vote created"})
     except:

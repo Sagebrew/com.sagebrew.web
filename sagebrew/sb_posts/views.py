@@ -52,6 +52,7 @@ def edit_post(request):
     :return:
     '''
     try:
+        print 'here'
         post_data = get_post_data(request)
         edit_post_info(post_data)
         return Response({"detail": "Post edited!"})

@@ -15,7 +15,8 @@
     {% endfor %}
     <div align="left">House Representative:</div>
     <li>{{ rep_name }}</li>
-    <a class='btn btn-primary post-action' data-action='this is a test post' data-pleb={{ pleb_info.email }}>Create Post</a>
+    <textarea class="form-control" id= "post_input_id" name="post_input" cols ='40' rows="3" placeholder="Create a post"></textarea>
+    <a class='btn btn-lg btn-block btn-primary post-action' data-action=post_input data-pleb={{ pleb_info.email }}>Create Post</a>
     <ul>
     {% block wall %}
         {% include "wall.html" %}

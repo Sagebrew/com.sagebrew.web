@@ -230,6 +230,7 @@ def profile_page(request):
     post_req = request_post('https://192.168.56.101/posts/query_posts/',
                             data=dumps(post_data), verify=False, headers=headers)
     user_posts = post_req.json()
+
     return render(request, 'profile_page.html', {'profile_page_form': profile_page_form,
                                                  'pleb_info': citizen,
                                                  'senator_names': sen_array,

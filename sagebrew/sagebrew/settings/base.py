@@ -126,6 +126,7 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
     '%s/sagebrew/templates/'  % PROJECT_DIR,
     '%s/sb_registration/templates/' % PROJECT_DIR,
+    '%s/sb_wall/templates/' % PROJECT_DIR,
 )
 
 FIXTURE_DIRS = (

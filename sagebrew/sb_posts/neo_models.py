@@ -27,6 +27,7 @@ class SBPost(StructuredNode):
     flagged_by = RelationshipTo('plebs.neo_models.Pleb', 'FLAGGED_BY')
     received_by = RelationshipTo('plebs.neo_models.Pleb', 'RECEIVED', model=PostReceivedRel)
     comments = RelationshipTo('sb_comments.neo_models.SBComment', 'HAS_A', model=PostedOnRel)
+    posted_on_wall = RelationshipTo('sb_wall.neo_models.SBWall', 'POSTED_ON')
     #TODO Implement referenced_by_... relationships
     #TODO Implement ..._referenced relationships
 

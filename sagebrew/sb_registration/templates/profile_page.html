@@ -15,14 +15,11 @@
     <div align="left">House Representative:</div>
     <li>{{ rep_name }}</li>
     <a class='btn btn-primary post-action' data-action='this is a test post' data-pleb={{ pleb_info.email }}>Create Post</a>
-    {% for post in user_posts %}
-        <li>{{ post.content }} | Upvotes={{ post.up_vote_number }} | Downvotes={{ post.down_vote_number }} | Last Edited: {{ post.last_edited_on }}</li>
-        <a class='btn btn-primary comment-action' data-action='this is a test comment attached to a post' data-pleb={{ pleb_info.email }} data-post_uuid={{ post.post_id }}>Attach Comment</a>
-        <a class='btn btn-primary edit_post-action' data-action='this post has been edited' data-pleb={{ pleb_info.email }} data-post_uuid={{ post.post_id }}>Edit this Post</a>
-        <a class='btn btn-primary delete_post-action' data-pleb={{ pleb_info.email }} data-post_uuid={{ post.post_id }}>Delete this Post and Comments</a>
-        <a class='btn btn-primary vote-action' data-vote_type='up' data-pleb={{ pleb_info.email }} data-post_uuid={{ post.post_id }}>Upvote Post</a>
-        <a class='btn btn-primary vote-action' data-vote_type='down' data-pleb={{ pleb_info.email }} data-post_uuid={{ post.post_id }}>Downvote Post</a>
-    {% endfor %}
+    <ul>
+    {% block wall %}
+        {% include "wall.html" %}
+    {% endblock %}
+    </ul>
 {% endblock %}
 
 {% block scripts %}
@@ -32,4 +29,7 @@
     <script src="{% static 'js/edit_post.js' %}"></script>
     <script src="{% static 'js/delete_post.js' %}"></script>
     <script src="{% static 'js/vote_post.js' %}"></script>
+    <script src="{% static 'js/vote_comment.js' %}"></script>
+    <script src="{% static 'js/delete_comment.js' %}"></script>
+    <script src="{% static 'js/edit_comment.js' %}"></script>
 {% endblock scripts %}

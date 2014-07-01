@@ -1,4 +1,7 @@
+import pytz
 from uuid import uuid1
+
+from datetime import datetime
 
 from sb_comments.neo_models import SBComment
 from sb_posts.neo_models import SBPost
@@ -24,6 +27,34 @@ def save_comment(comment_info):
     rel_from_post = parent_object.comments.connect(my_comment)
     rel_from_post.save()
     #determine who posted/shared/...
+
+@shared_task()
+def edit_comment_task(comment_info):
+    my_comment = SBComment.index.get(comment_id = comment_info['comment_uuid'])
+    my_comment.content = comment_info['content']
+    my_comment.last_edited_on = datetime.now(pytz.utc)
+    my_comment.save()
+
+@shared_task()
+def delete_comment_task(comment_info):
+    my_comment = SBComment.index.get(comment_id = comment_info['comment_uuid'])
+    my_comment.delete()
+
+@shared_task()
+def create_upvote_comment(comment_info):
+    my_comment = SBComment.index.get(comment_id = comment_info['comment_uuid'])
+    my_pleb = Pleb.index.get(email = comment_info['pleb'])
+    my_comment.up_vote_number += 1
+    my_comment.up_voted_by.connect(my_pleb)
+    my_comment.save()
+
+@shared_task()
+def create_downvote_comment(comment_info):
+    my_comment = SBComment.index.get(comment_id = comment_info['comment_uuid'])
+    my_pleb = Pleb.index.get(email = comment_info['pleb'])
+    my_comment.down_vote_number += 1
+    my_comment.down_voted_by.connect(my_pleb)
+    my_comment.save()
 
 @shared_task()
 def submit_comment_on_post(comment_info):

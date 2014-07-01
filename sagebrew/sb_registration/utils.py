@@ -183,13 +183,13 @@ def upload_image(folder_name, file_uuid):
     conn = connect_s3(settings.AWS_UPLOAD_CLIENT_KEY,
                       settings.AWS_UPLOAD_CLIENT_SECRET_KEY)
     k = Key(conn.get_bucket(bucket))
-    k.key = "%s/%s.%s" % (folder_name, file_uuid, "jpeg")
+    key_string = "%s/%s.%s" % (folder_name, file_uuid, "jpeg")
+    k.key = key_string
     k.set_contents_from_filename(file_path)
     k.make_public()
     image_uri = k.generate_url(expires_in=100000)
     os.remove(file_path)
     print "finished upload"
-    print image_uri
     return image_uri
 
 def determine_senators(pleb_address):
@@ -201,6 +201,7 @@ def determine_senators(pleb_address):
     '''
     determined_sen = []
     senator_names = []
+    senator_names = ['There are no senators in the DB']
     senator_array = GTRole.index.search(state=pleb_address.state, title='Sen.')
     for senator in senator_array:
         determined_sen.append(senator.traverse('person').run())
@@ -218,7 +219,7 @@ def determine_reps(pleb_address):
     :return:
     '''
     determined_reps = []
-    rep_name = 'No reps in DB'
+    rep_name = 'There are no representatives in the DB'
     rep_array = GTRole.index.search(state=pleb_address.state, title='Rep.',
                                     district=int(pleb_address.congressional_district))
     for rep in rep_array:

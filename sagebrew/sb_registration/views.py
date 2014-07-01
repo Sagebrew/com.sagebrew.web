@@ -221,18 +221,18 @@ def profile_page(request):
     profile_page_form = ProfilePageForm(request.GET or None)
     citizen = Pleb.index.get(email=request.user.email)
     # TODO check for index error
-    address = citizen.traverse('address').run()[0]
-    sen_array = determine_senators(address)
-    rep_array = determine_reps(address)
+    #address = citizen.traverse('address').run()[0]
+    #sen_array = determine_senators(address)
+    #rep_array = determine_reps(address)
     post_data = {'email': citizen.email}
     headers = {'content-type': 'application/json'}
     post_req = request_post('https://192.168.56.101/posts/query_posts/',
                             data=dumps(post_data), verify=False, headers=headers)
     user_posts = post_req.json()
-
     return render(request, 'profile_page.html', {'profile_page_form': profile_page_form,
                                                  'pleb_info': citizen,
-                                                 'senator_names': sen_array,
-                                                 'rep_name': rep_array,
-                                                 'user_posts': user_posts})
+                                                 #'senator_names': sen_array,
+                                                 #'rep_name': rep_array,
+                                                 'user_posts': user_posts,})
+                                                 #'post_comments': post_comments})
 

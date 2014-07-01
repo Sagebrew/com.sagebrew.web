@@ -16,6 +16,7 @@ class SBComment(StructuredNode):
     comment_id = StringProperty(unique_index=True)
     up_vote_number = IntegerProperty(default=0)
     down_vote_number = IntegerProperty(default=0)
+    last_edited_on = DateTimeProperty(default=None)
 
     #relationships
     up_voted_by = RelationshipTo('plebs.neo_models.Pleb', 'UP_VOTED_BY')

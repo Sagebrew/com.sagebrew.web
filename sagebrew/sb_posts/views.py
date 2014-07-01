@@ -73,6 +73,7 @@ def delete_post(request):
 def vote_post(request):
     try:
         post_data = get_post_data(request)
+        print post_data
         create_post_vote(post_data)
         return Response({"detail": "Vote Created!"})
     except:

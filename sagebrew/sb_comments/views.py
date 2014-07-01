@@ -8,8 +8,11 @@ from rest_framework.reverse import reverse
 from rest_framework.response import Response
 from django.shortcuts import render
 
-from .tasks import save_comment
+from sb_posts.neo_models import SBPost
+from .tasks import (save_comment, edit_comment_task, delete_comment_task, create_downvote_comment,
+                    create_upvote_comment)
 from api.utils import get_post_data
+from .utils import get_post_comments, create_comment_vote
 
 #TODO swap decorators and uncomment permissions
 #@permission_classes([IsAuthenticated, ])
@@ -25,7 +28,7 @@ def save_comment_view(request):
     try:
         post_info = get_post_data(request)
         save_comment.apply_async([post_info,])
-        return Response({"here": "hello world"}, status=200)
+        return Response({"here": "Comment succesfully created"}, status=200)
     except(HTTPError, ConnectionError):
         return Response({"detail": "Failed to create comment task"},
                             status=408)
@@ -38,9 +41,13 @@ def edit_comment(request): #task
     :param request:
     :return:
     '''
-    post_info = get_post_data(request)
-    if(post_info["giraffe_contents"] == 3):
-        return Response({"comment": "hello"}, status=200)
+    try:
+        post_info = get_post_data(request)
+        edit_comment_task.apply_async([post_info,])
+        return Response({"detail": "Comment succesfully edited"})
+    except(HTTPError, ConnectionError):
+        return Response({'detail': 'Failed to edit comment'},
+                        status=408)
     # do stuff with post_info
 
 @api_view(['POST'])
@@ -51,10 +58,28 @@ def delete_comment(request): #task
     :param request:
     :return:
     '''
-    post_info = get_post_data(request)
-    if(post_info["giraffe_contents"] == 3):
-        return Response({"comment": "hello"}, status=200)
+    try:
+        comment_info = get_post_data(request)
+        delete_comment_task.apply_async([comment_info,])
+        return Response({"detail": "Comment deleted"})
+    except(HTTPError, ConnectionError):
+        return Response({"detail": "Failed to delete comment"})
     # do stuff with post_info
+
+@api_view(['POST'])
+def vote_comment(request): #task
+    '''
+    Allow plebs to up/down vote comments
+
+    :param request:
+    :return:
+    '''
+    try:
+        post_info = get_post_data(request)
+        create_comment_vote(post_info)
+        return Response({"detail": "Vote created"})
+    except:
+        return Response({"detail": "Vote could not be created"})
 
 @api_view(['POST'])
 def flag_comment(request): #task
@@ -69,18 +94,6 @@ def flag_comment(request): #task
         return Response({"comment": "hello"}, status=200)
     # do stuff with post_info
 
-@api_view(['POST'])
-def vote_comment(request): #task
-    '''
-    Allow plebs to up/down vote comments
-
-    :param request:
-    :return:
-    '''
-    post_info = get_post_data(request)
-    if(post_info["giraffe_contents"] == 3):
-        return Response({"comment": "hello"}, status=200)
-    # do stuff with post_info
 
 @api_view(['POST'])
 def share_comment(request): #task
@@ -118,7 +131,6 @@ def get_comments(request):
     :param request:
     :return:
     '''
-    post_info = get_post_data(request)
-    if(post_info["giraffe_contents"] == 3):
-        return Response({"comment": "hello"}, status=200)
-    # do stuff with post_info
+    my_post = SBPost.index.get(post_id=request.DATA['post_id'])
+    comments = get_post_comments(my_post)
+    return Response(comments, status=200)

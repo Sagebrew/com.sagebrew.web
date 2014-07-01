@@ -9,6 +9,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, ZeroOrOne)
 
+from sb_wall.neo_models import SBWall
 from govtrack.neo_models import GTRole
 
 class PostObjectCreated(StructuredRel):
@@ -82,7 +83,7 @@ class Pleb(StructuredNode):
     high_school = RelationshipTo("HighSchool", "ATTENDED", model=ReceivedEducationRel)
     university = RelationshipTo("University", "ATTENDED", model=ReceivedEducationRel)
     employer = RelationshipTo("Company", "WORKS_AT")
-    address = RelationshipTo("Address", "LIVES_AT", cardinality=ZeroOrOne)
+    address = RelationshipTo("Address", "LIVES_AT")
     topic_category = RelationshipTo("TopicCategory", "INTERESTED_IN")
     sb_topics = RelationshipTo("SBTopic", "INTERESTED_IN")
     friends = RelationshipTo("Pleb", "FRIENDS_WITH")
@@ -90,6 +91,7 @@ class Pleb(StructuredNode):
     house_rep = RelationshipTo("GTRole", "HAS_REPRESENTATIVE")
     posts = RelationshipTo('sb_posts.neo_models.SBPost', 'OWNS', model=PostObjectCreated)
     comments = RelationshipTo('sb_comments.neo_models.SBComment', 'OWNS', model=PostObjectCreated)
+    wall = RelationshipTo('sb_wall.neo_models.SBWall', 'OWNS')
 
 
 
@@ -125,6 +127,12 @@ def create_user_profile(sender, instance, created, **kwargs):
     if created:
         citizen = Pleb(email=instance.email, first_name=instance.first_name,
                        last_name=instance.last_name)
+        citizen.save()
+        wall = SBWall(wall_id=uuid1())
+        wall.save()
+        wall.owner.connect(citizen)
+        citizen.wall.connect(wall)
+        wall.save()
         citizen.save()
     else:
         pass

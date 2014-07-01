@@ -221,6 +221,7 @@ def profile_page(request):
     profile_page_form = ProfilePageForm(request.GET or None)
     citizen = Pleb.index.get(email=request.user.email)
     # TODO check for index error
+    # TODO check why address does not always work
     #address = citizen.traverse('address').run()[0]
     #sen_array = determine_senators(address)
     #rep_array = determine_reps(address)

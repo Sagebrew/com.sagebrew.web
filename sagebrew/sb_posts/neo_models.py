@@ -13,9 +13,9 @@ class PostedOnRel(StructuredRel):
 class PostReceivedRel(StructuredRel):
     received = BooleanProperty()
 
-class SBPost(StructuredNode):
+class SBBase(StructuredNode):
     content = StringProperty()
-    post_id = StringProperty(unique_index=True)
+    date_created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     up_vote_number = IntegerProperty(default=0)
     down_vote_number = IntegerProperty(default=0)
     last_edited_on = DateTimeProperty(default=None)
@@ -27,12 +27,17 @@ class SBPost(StructuredNode):
     flagged_by = RelationshipTo('plebs.neo_models.Pleb', 'FLAGGED_BY')
     received_by = RelationshipTo('plebs.neo_models.Pleb', 'RECEIVED', model=PostReceivedRel)
     comments = RelationshipTo('sb_comments.neo_models.SBComment', 'HAS_A', model=PostedOnRel)
+
+class SBPost(SBBase):
+    post_id = StringProperty(unique_index=True)
+
+    #relationships
     posted_on_wall = RelationshipTo('sb_wall.neo_models.SBWall', 'POSTED_ON')
     #TODO Implement referenced_by_... relationships
     #TODO Implement ..._referenced relationships
 
-class SBQuestion(SBPost):
-    date_created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+class SBQuestion(SBBase):
+    question_id = StringProperty()
     has_selected_answer = BooleanProperty(default=False)
 
     #relationships
@@ -40,8 +45,8 @@ class SBQuestion(SBPost):
     answer = RelationshipTo('SBAnswer', 'POSSIBLE_ANSWER')
 
 
-class SBAnswer(SBPost):
-    date_created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+class SBAnswer(SBBase):
+    answer_id = StringProperty()
     selected_answer = BooleanProperty(default=False)
 
     #relationships

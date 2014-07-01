@@ -1,106 +1,13 @@
-{% block zig_navigation %}
-{% load staticfiles %}
+<div id="sb_navbar">
+    <nav class="navbar navbar-lg" role="navigation">
+        <div class="navbar-header">
+            <h1 id="logo">Sagebrew</h1>
+        </div>
+            <form class="navbar-form form-inline navbar-right">
+                    <input type="email" class="form-control flat" placeholder="E-mail">
 
- {% block css %}
-        <link rel="stylesheet" href="{% static 'css/sagebrew.css' %}" media="screen" type="text/css" />
- {% endblock css %}
-
-
- <div id="navcontainer"
-    <div class="dialog">
-      <h1 id="logo">Sagebrew</h1>
-        <div id="nav">
-            <form class="control-group">
-                 <input type="text" placeholder="E-mail" class="flat">
-                 <input type="password" placeholder="Password" class="flat">
-                 <button class="btn btn-primary btn-wide">Login</button>
+                    <input type="password" class="form-control flat" placeholder="Password">
+                <button class="btn btn-primary btn-wide">Login</button>
             </form>
-                <label class="checkbox primary">
-                      <p id="checkbox">Keep me logged in</p>
-                      <span class="icons"><span class="first-icon fui-checkbox-unchecked"></span>
-                      <span class="second-icon fui-checkbox-checked"></span>
-                </label>
-        </div>
-    </div>
- </div>
-    <!--
-<div id="headerWrapper">
-<div id="headerContent">
-    <div id="navigation">
-        <div id="logoAnchor">
-                <a href="/"><img id="logoNavLogo" src="{{ request.user.profile.profile_image_url }}" alt=" " /></a>
-        </div>
-        <div id="navigationContainer" >
-            <div id="signIn">
-                <div id="loginContainer">
-                    <a href="#" id="loginButton"><span>Login</span><em></em></a>
-                    <a href="/accounts/logout/" id="loginButton">Logout</a>
-                    <a href="/user_profiles/settings/" id="loginButton">Settings</a>
-                    <a href="/user_profiles/" id="loginButton">Profile</a>
-                    <div style="clear:both"></div>
-                    <div id="loginBox">
-                        <form id="loginForm">
-                            <fieldset id="body">
-                                <fieldset>
-                                    <label for="email">Email Address</label>
-                                    <input type="text" name="email" id="email" />
-                                </fieldset>
-                                <fieldset>
-                                    <label for="password">Password</label>
-                                    <input type="password" name="password" id="password" />
-                                </fieldset>
-                                <input type="submit" id="login" value="Sign in" />
-                                <label for="checkbox">
-                                    <input type="checkbox" id="checkbox" />
-                                    Remember me
-                                </label>
-                            </fieldset>
-                            <span>
-                                <a href="#">Register</a>
-                            </span>
-                            <span>
-                                <a href="#">Forgot your password?</a>
-                            </span>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            {% block standard_page %}
-                <div class="navigationLink">
-                    <a href="/">Home</a>
-                </div>
-                <!--
-                <div class="navigationLink">
-                    <form method="POST" action="/search/">
-                        <input id="search" type="text" name="search" value="{{search_value}}"/>
-                        <select name="searchCategory">
-                            <option name="all">All</option>
-                            <option name="people">People</option>
-                        </select>
-                    </form>
-                </div>
-                -->
-        <!--
-                <div class="navigationLink">
-                    <a href="/locations/">Locations</a>
-                </div>
-
-                <div class="navigationLink">
-                    <a href="/products">Products</a>
-                </div>
-
-                <div class="navigationLink">
-                    <a href="/contact_us/">Contact Us</a>
-                </div>
-                <form method="POST" action="/search/">
-                    {% csrf_token %}
-                        <input type="text" name='q' placeholder="Search …">
-                </form>
-            {% endblock %}
-        </div>
-    </div>
+    </nav>
 </div>
-</div>
-    -->
-{% endblock %}

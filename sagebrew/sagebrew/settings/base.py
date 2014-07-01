@@ -68,6 +68,8 @@ STATICFILES_DIRS = (
     '%s/sagebrew/static/' % PROJECT_DIR,
     '%s/plebs/static/' % PROJECT_DIR,
     '%s/sb_registration/static/' % PROJECT_DIR,
+    '%s/sb_comments/static/' % PROJECT_DIR,
+    '%s/sb_posts/static/' % PROJECT_DIR
 )
 
 # List of finder classes that know how to find static files in
@@ -124,6 +126,7 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
     '%s/sagebrew/templates/'  % PROJECT_DIR,
     '%s/sb_registration/templates/' % PROJECT_DIR,
+    '%s/sb_wall/templates/' % PROJECT_DIR,
 )
 
 FIXTURE_DIRS = (
@@ -165,6 +168,8 @@ INSTALLED_APPS = (
     'govtrack',
     'neomodel',
     'sb_registration',
+    'sb_comments',
+    'sb_posts',
 )
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
@@ -206,7 +211,7 @@ OAUTH_DELETE_EXPIRED = True
 
 CELERY_DISABLE_RATE_LIMITS = True
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
-CELERY_IMPORTS = ('api.tasks', 'govtrack.tasks')
+CELERY_IMPORTS = ('api.tasks', 'govtrack.tasks', 'sb_comments.tasks')
 BROKER_URL = 'amqp://sagebrew:this_is_the_sagebrew_password@localhost:5672//'
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
@@ -214,6 +219,10 @@ CELERY_IGNORE_RESULT = False
 
 CELERYBEAT_SCHEDULE = {}
 CELERY_TIMEZONE = 'UTC'
+
+BOMBERMAN_API_KEY = '6a224aea0ecb3601ae9197c5762aef56'
+
+CSV_FILES = '%s/csv_content/' % PROJECT_DIR
 
 TEMP_FILES = '%s/temp_files/' % PROJECT_DIR
 if not path.exists(TEMP_FILES):

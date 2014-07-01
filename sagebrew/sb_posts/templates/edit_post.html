@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load staticfiles %}
+{% block navigation %}
+    {% include "navigation.html" %}
+{% endblock %}
+{% block content %}
+
+<a class='btn btn-primary edit_post-action' data-action='this post has been edited' data-pleb={{ pleb_info.email }} data-post_uuid={{ post.post_id }}>Edit this Post</a>
+
+{% endblock %}
+
+{% block scripts %}
+	{{ block.super }}
+	<script src="{% static 'js/edit_post.js' %}"></script>
+{% endblock scripts %}

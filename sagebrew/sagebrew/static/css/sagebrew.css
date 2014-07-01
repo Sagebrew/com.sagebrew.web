@@ -20,7 +20,7 @@
 #sb_navbar {
     background-color: #1ba39c;
 }
-.navbar-nav + .navbar-form.navbar-left, .navbar-form.navbar-right:last-child {
+.navbar-nav .navbar-form.navbar-left, .navbar-form.navbar-right:last-child {
     width:auto;
     background-color: #1ba39c;
     border-color: #1ba39c;
@@ -29,50 +29,58 @@
 .navbar-form .form-control {
     display:inline;
 }
-.btn-primary {
-  color: #1ba39c;
-  background-color: #e4eee5;
-  font-weight: bolder;
+.sb-btn-login{
+    color: #1ba39c;
+    background-color: #e4eee5;
+    font-weight: bolder;
+
 }
 
 /*end nav css */
 
 /* start template/index css */
-h1, .title {
+h2, .title {
     color: #1ba39c;
     font-weight: bold;
     text-align: left;
-
+    margin-bottom: 15px;
 }
 #sb-signup {
     background-color: #1ba39c;
     color: #ffffff;
-    text-align: left;
 }
 /*sign up input */
-td {
-    padding: .3em;
-}
+
 
 #sb_input {
 
     margin-left: 30%;
     margin-right: 30%;
+    padding-top: 2px;
+    padding-bottom: 2px;
 }
+.btn-primary {
+  color: #ffffff;
+  background-color: #1ba39c;
+  font-weight: bolder;
+  margin-top: 15px;
+}
+
 /*facebook sign in */
 .btn-social-facebook {
   color: #ffffff;
-  background-color: #1ba39c;
-  margin-top: 2%;
-  margin-bottom:2%;
+  background-color: #2f4b93;;
+  margin-top: 8px;
+  margin-left: 10px;
 }
 .btn-social-facebook:hover,
 .btn-social-facebook:focus {
-    color: #ffffff;
-    background-color: #3a539b;
+    color: #3a539b;
+    background-color: #ffffff;
+    border-color: #bdc3c7;
 }
 .btn-social-facebook.active {
-    background-color: #3a539b;
+    background-color: #1ba39c;
 }
 /* end template/index css */
 

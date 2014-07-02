@@ -1,3 +1,4 @@
+from uuid import uuid1
 from json import loads
 from urllib2 import HTTPError
 from requests import ConnectionError
@@ -10,7 +11,8 @@ from django.shortcuts import render
 
 from api.utils import get_post_data, language_filter
 from plebs.neo_models import Pleb
-from .utils import (get_pleb_posts, save_post, edit_post_info, delete_post_and_comments,
+from .tasks import save_post_task, edit_post_info_task, delete_post_and_comments
+from .utils import (get_pleb_posts, save_post, edit_post_info,
                     create_post_vote)
 
 @api_view(['POST'])
@@ -24,7 +26,8 @@ def save_post_view(request):
     try:
         post_data = get_post_data(request)
         post_data['content'] = language_filter(post_data['content'])
-        save_post(post_data)
+        post_data['post_id'] = str(uuid1())
+        save_post_task.apply_async([post_data,])
         return Response({"action": "filtered", "filtered_content": post_data}, status=200)
     except(HTTPError, ConnectionError):
         return Response({"detail": "Failed to create post"},
@@ -52,9 +55,8 @@ def edit_post(request):
     :return:
     '''
     try:
-        print 'here'
         post_data = get_post_data(request)
-        edit_post_info(post_data)
+        edit_post_info_task(post_data)
         return Response({"detail": "Post edited!"})
     except:
         return Response({"detail": "Post editing failed!"})

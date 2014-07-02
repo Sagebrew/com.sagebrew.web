@@ -14,6 +14,8 @@ from api.utils import get_post_data
 from .utils import (get_post_comments, create_comment_vote, save_comment, edit_comment_util,
                     delete_comment_util)
 
+
+
 #TODO swap decorators and uncomment permissions
 #@permission_classes([IsAuthenticated, ])
 @api_view(['POST'])
@@ -21,6 +23,12 @@ def save_comment_view(request):
     '''
     Creates the comment, connects it to whatever parent it was posted on(posts,
     questions, answers)
+
+    Transition from spawning tasks to calling utils to prevent race conditions.
+
+        ex. User creates comment then deletes before the comment creation task is
+        handled by a worker. This is more likely in a distributed worker queue
+        when we have multiple celery workers on multiple servers.
 
     :param request:
     :return:

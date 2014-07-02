@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.test import TestCase, RequestFactory
 
-from sb_posts.views import save_post_view, get_user_posts
+from sb_posts.views import save_post_view, edit_post_info
 class SubmitPostTest(TestCase):
 
     def setUp(self):
@@ -28,3 +28,7 @@ class SubmitPostTest(TestCase):
 
     def test_get_user_posts(self):
         pass
+
+    def test_race_condition_create_post_edit_post(self):
+        my_dict = {"content":"Testing race condition pre edit",
+                   "pleb": "tyler.wiersing@gmail.com",}

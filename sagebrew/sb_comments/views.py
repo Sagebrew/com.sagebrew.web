@@ -1,5 +1,7 @@
+import pytz
 from json import loads
 from urllib2 import HTTPError
+from datetime import datetime
 from requests import ConnectionError
 
 from rest_framework.permissions import IsAuthenticated
@@ -51,7 +53,8 @@ def edit_comment(request): #task
     '''
     try:
         post_info = get_post_data(request)
-        edit_comment_util(post_info)
+        edited_on =datetime.now(pytz.utc)
+        edit_comment_util(post_info, edited_on)
         return Response({"detail": "Comment succesfully edited"})
     except(HTTPError, ConnectionError):
         return Response({'detail': 'Failed to edit comment'},

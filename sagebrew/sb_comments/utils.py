@@ -19,11 +19,12 @@ def get_post_comments(post_info):
     post_array = []
     for post in post_info:
         post_comments = post.traverse('comments').run()
-        #TODO Get which user posted the comment
+        post_owner = post.traverse('owned_by').run()[0]
         for comment in post_comments:
-            comment_dict = {'comment_content': comment.content, 'comment_id': comment.comment_id, 'comment_up_vote_number': comment.up_vote_number, 'comment_down_vote_number': comment.down_vote_number,'comment_last_edited_on': comment.last_edited_on}#, 'comment_posted_by': comment.is_owned_by}
+            comment_owner = comment.traverse('is_owned_by').run()[0]
+            comment_dict = {'comment_content': comment.content, 'comment_id': comment.comment_id, 'comment_up_vote_number': comment.up_vote_number, 'comment_down_vote_number': comment.down_vote_number,'comment_last_edited_on': comment.last_edited_on, 'comment_owner': comment_owner.first_name+' '+comment_owner.last_name}
             comment_array.append(comment_dict)
-        post_dict = {'content': post.content, 'post_id': post.post_id, 'up_vote_number': post.up_vote_number, 'down_vote_number': post.down_vote_number, 'last_edited_on': post.last_edited_on, 'comments': comment_array}
+        post_dict = {'content': post.content, 'post_id': post.post_id, 'up_vote_number': post.up_vote_number, 'down_vote_number': post.down_vote_number, 'last_edited_on': post.last_edited_on, 'post_owner': post_owner.first_name + ' ' + post_owner.last_name, 'comments': comment_array}
         post_array.append(post_dict)
         comment_array = []
     return post_array
@@ -75,11 +76,14 @@ def save_comment(comment_info):
     rel_from_post.save()
     #determine who referenced/shared/...
 
-def edit_comment_util(comment_info):
+def edit_comment_util(comment_info, edited_on):
     my_comment = SBComment.index.get(comment_id = comment_info['comment_uuid'])
+    if my_comment.last_edited_on > edited_on:
+        return False
     my_comment.content = comment_info['content']
-    my_comment.last_edited_on = datetime.now(pytz.utc)
+    my_comment.last_edited_on = edited_on
     my_comment.save()
+    return True
 
 def delete_comment_util(comment_info):
     my_comment = SBComment.index.get(comment_id = comment_info['comment_uuid'])

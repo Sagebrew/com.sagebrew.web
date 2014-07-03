@@ -1,5 +1,5 @@
 from json import dumps
-from rest_framework.test import APIRequestFactory
+from rest_framework.test import APIRequestFactory, APIClient
 from django.contrib.auth.models import User
 from django.test import TestCase, RequestFactory
 
@@ -9,6 +9,12 @@ from sb_posts.views import save_post_view, edit_post
 class SubmitPostTest(TestCase):
 
     def setUp(self):
+        try:
+            pleb = Pleb.index.get(email='tyler.wiersing@gmail.com')
+            pleb.delete()
+        except Pleb.DoesNotExist:
+            pass
+
         self.factory = APIRequestFactory()
         self.user = User.objects.create_user(
             username='Tyler', email='tyler.wiersing@gmail.com')

@@ -9,6 +9,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
+from django.contrib.auth.models import User
 
 from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
 
@@ -203,13 +204,13 @@ def profile_picture(request):
                     destination.write(chunk)
             citizen.profile_pic = upload_image('profile_pictures', image_uuid)
             citizen.save()
-            return redirect('profile_page')
+            return redirect('profile_page/' + citizen.email)#citizen.first_name+'_'+citizen.last_name)
     else:
         profile_picture_form = ProfilePictureForm()
     return render(request, 'profile_picture.html', {'profile_picture_form': profile_picture_form})
 
 @login_required()
-def profile_page(request):
+def profile_page(request, pleb_email):
     '''
     Displays the users profile_page. This is where we call the functions to determine
     who the senators are for the plebs state and which representative for the plebs
@@ -218,6 +219,16 @@ def profile_page(request):
     :param request:
     :return:
     '''
+    current_user = request.user
+    page_user = User.objects.get(email = pleb_email)
+    is_owner = False
+    is_friend = False
+    if current_user.email == page_user.email:
+        is_owner = True
+    #TODO traversal to see if current_user is a friend of page_user
+    elif current_user:
+        pass
+
     profile_page_form = ProfilePageForm(request.GET or None)
     citizen = Pleb.index.get(email=request.user.email)
     # TODO check for index error

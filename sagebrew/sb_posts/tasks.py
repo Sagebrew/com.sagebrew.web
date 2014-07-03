@@ -47,4 +47,4 @@ def edit_post_info_task(post_info):
         return True
     else:
         edit_post_info_task.apply_async([post_info,], countdown=1)
-
+        return False

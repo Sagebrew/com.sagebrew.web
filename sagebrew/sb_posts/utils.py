@@ -60,7 +60,6 @@ def create_post_vote(post_info):
     my_post = SBPost.index.get(post_id = post_info['post_uuid'])
     if my_post.up_voted_by.is_connected(my_pleb) or my_post.down_voted_by.is_connected(my_pleb):
         print "You have voted already!"
-        return
     else:
         if post_info['vote_type'] == 'up':
             sb_posts.tasks.create_upvote_post.apply_async([post_info,])

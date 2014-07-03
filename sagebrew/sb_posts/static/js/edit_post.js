@@ -1,4 +1,8 @@
 $( document ).ready(function() {
+    $("a.show_edit_post_class").click(function(event){
+        var post_id = $(this).data('uuid');
+        $('#divid_'+post_id).fadeToggle();
+    });
 	$("a.edit_post-action").click(function(event){
 		event.preventDefault();
 		$.ajaxSetup({
@@ -12,9 +16,9 @@ $( document ).ready(function() {
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
 			type: "POST",
-			url: "/posts/submit_post/",
+			url: "/posts/edit_post/",
 			data: JSON.stringify({
-			   'content':$(this).data('action'),
+			   'content':$('textarea#'+$(this).data('post_id')).val(),
 			   'pleb': $(this).data('pleb'),
                'post_id': $(this).data('post_id')
 			}),

@@ -20,7 +20,7 @@
         <a class="btn btn-primary show_edit_comment_class" data-comment_uuid ="{{ comment.comment_id }}" type="submit">Edit Comment</a>
         <div id="comment_divid_{{ comment.comment_id }}" style="display:none">
             <textarea class="form-control" id= "{{ comment.comment_id }}" name="edit_comment_input" rows="1" placeholder="Edit your comment..."></textarea>
-            <a class='btn btn-primary edit_comment-action' id="edit_comment_button" data-action='this comment has been edited' data-pleb={{ pleb_info.email }} data-comment_uuid={{ comment.comment_id }}>Submit</a>
+            <a class='btn btn-primary edit_comment-action' id="edit_comment_button" data-pleb={{ pleb_info.email }} data-comment_uuid={{ comment.comment_id }}>Submit</a>
         </div>
         <a class='btn btn-primary delete_comment-action' data-pleb={{ pleb_info.email }} data-comment_uuid={{ comment.comment_id }}>Delete this Comment</a>
         <a class='btn btn-primary vote_comment-action' data-vote_type='up' data-pleb={{ pleb_info.email }} data-comment_uuid={{ comment.comment_id }}>Upvote Comment</a>

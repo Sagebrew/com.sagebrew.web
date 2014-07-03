@@ -1,4 +1,9 @@
 $( document ).ready(function() {
+    $("a.show_edit_comment_class").click(function(event){
+            var comment_id = $(this).data('comment_uuid');
+            $("#comment_divid_" + comment_id).fadeToggle();
+        });
+
 	$("a.edit_comment-action").click(function(event){
 		event.preventDefault();
 		$.ajaxSetup({
@@ -14,7 +19,7 @@ $( document ).ready(function() {
 			type: "POST",
 			url: "/comments/edit_comment/",
 			data: JSON.stringify({
-			   'content':$(this).data('action'),
+			   'content':$('textarea#'+$(this).data('comment_uuid')).val(),
 			   'pleb': $(this).data('pleb'),
                'comment_uuid': $(this).data('comment_uuid')
 			}),

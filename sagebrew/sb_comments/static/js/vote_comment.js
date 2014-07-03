@@ -14,9 +14,9 @@ $( document ).ready(function() {
 			type: "POST",
 			url: "/comments/vote_comment/",
 			data: JSON.stringify({
-			   'content':$(this).data('action'),
+			   'vote_type':$(this).data('vote_type'),
 			   'pleb': $(this).data('pleb'),
-               'comment_id': $(this).data('comment_id')
+               'comment_uuid': $(this).data('comment_uuid')
 			}),
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",

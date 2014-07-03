@@ -18,7 +18,6 @@ def get_pleb_posts(pleb_object):
 def save_post(post_info):
     try:
         test_post = SBPost.index.get(post_id = post_info['post_id'])
-        return False
     except SBPost.DoesNotExist:
         my_citizen = Pleb.index.get(email = post_info['pleb'])
         post_info.pop('pleb', None)

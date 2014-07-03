@@ -16,7 +16,7 @@
     <div align="left">House Representative:</div>
     <li>{{ rep_name }}</li>
     <textarea class="form-control" id= "post_input_id" name="post_input" cols ='40' rows="3" placeholder="Create a post"></textarea>
-    <a class='btn btn-lg btn-block btn-primary post-action' data-action=post_input data-pleb={{ pleb_info.email }}>Create Post</a>
+    <a class='btn btn-lg btn-block btn-primary post-action' data-pleb={{ pleb_info.email }}>Create Post</a>
     <ul>
     {% block wall %}
         {% include "wall.html" %}

@@ -32,6 +32,7 @@ def create_upvote_comment_util(comment_info):
     my_comment = SBComment.index.get(comment_id = comment_info['comment_uuid'])
     my_pleb = Pleb.index.get(email = comment_info['pleb'])
     my_comment.up_vote_number += 1
+    print my_comment.up_vote_number
     my_comment.up_voted_by.connect(my_pleb)
     my_comment.save()
 
@@ -45,9 +46,9 @@ def create_downvote_comment_util(comment_info):
 def create_comment_vote(comment_info):
     my_pleb = Pleb.index.get(email = comment_info['pleb'])
     my_comment = SBComment.index.get(comment_id = comment_info['comment_uuid'])
+    print comment_info['vote_type']
     if my_comment.up_voted_by.is_connected(my_pleb) or my_comment.down_voted_by.is_connected(my_pleb):
         print "You have voted already!"
-        return
     else:
         if comment_info['vote_type'] == 'up':
             create_upvote_comment_util(comment_info)

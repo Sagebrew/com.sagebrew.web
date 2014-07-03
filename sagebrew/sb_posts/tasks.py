@@ -40,6 +40,7 @@ def save_post_task(post_info):
     else:
         return False
 
+
 @shared_task()
 def edit_post_info_task(post_info):
     if edit_post_info(post_info):

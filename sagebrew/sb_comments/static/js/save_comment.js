@@ -10,12 +10,14 @@ $( document ).ready(function() {
 		    }
 		});
 	   	$.ajax({
+            var: post_id = $(this).data('post_uuid'),
 			xhrFields: {withCredentials: true},
 			type: "POST",
-			url: "/comments/save_comment/",
+			url: "/comments/submit_comment/",
 			data: JSON.stringify({
-			   'content':$(this).data('action'),
-			   'friend_uid': $(this).data('friendid')
+			   'content': $('textarea#post_comment_on_'+post_id).val(),
+			   'post_uuid': $(this).data('post_uuid'),
+               'pleb': $(this).data('pleb')
 			}),
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",

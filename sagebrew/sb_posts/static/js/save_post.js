@@ -1,5 +1,5 @@
 $( document ).ready(function() {
-	$("a.friend-action").click(function(event){
+	$("a.post-action").click(function(event){
 		event.preventDefault();
 		$.ajaxSetup({
 		    beforeSend: function(xhr, settings) {
@@ -14,8 +14,8 @@ $( document ).ready(function() {
 			type: "POST",
 			url: "/posts/submit_post/",
 			data: JSON.stringify({
-			   'action':$(this).data('action'),
-			   'friend_uid': $(this).data('friendid')
+			   'content': $('textarea#post_input_id').val(),
+               'pleb':$(this).data('pleb')
 			}),
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",

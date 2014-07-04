@@ -8,7 +8,6 @@ redis-stable/
 *.log
 *.pot
 *.pyc
-sagebrew/static/
 gunicorn_start_dev
 newrelic.ini
 gunicorn_start.bash

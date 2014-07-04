@@ -170,6 +170,7 @@ INSTALLED_APPS = (
     'sb_registration',
     'sb_comments',
     'sb_posts',
+    'sb_wall',
 )
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True

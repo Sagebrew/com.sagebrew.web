@@ -3,8 +3,11 @@ from json import loads
 from urllib2 import HTTPError
 from requests import ConnectionError
 
+from rest_framework.authentication import (SessionAuthentication,
+                                           BasicAuthentication)
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import (api_view, permission_classes,
+                                       authentication_classes)
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
 from django.shortcuts import render
@@ -15,7 +18,10 @@ from .tasks import save_post_task, edit_post_info_task, delete_post_and_comments
 from .utils import (get_pleb_posts, save_post, edit_post_info,
                     create_post_vote)
 
+
 @api_view(['POST'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes([IsAuthenticated, ])
 def save_post_view(request):
     '''
     Creates the post, connects it to the Pleb which posted it
@@ -34,6 +40,8 @@ def save_post_view(request):
                             status=408)
 
 @api_view(['POST'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes([IsAuthenticated, ])
 def get_user_posts(request):
     '''
     If the user wants to create a post this calls the util to create the post
@@ -47,6 +55,8 @@ def get_user_posts(request):
 
 #TODO Only allow users to edit their comment, unless they have admin status
 @api_view(['POST'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes([IsAuthenticated, ])
 def edit_post(request):
     '''
     If the user edits a comment this calls the util to edit the comment
@@ -63,6 +73,8 @@ def edit_post(request):
 
 #TODO Only allow users to delete their comment, get flagging system working
 @api_view(['POST'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes([IsAuthenticated, ])
 def delete_post(request):
     try:
         post_data = get_post_data(request)
@@ -73,6 +85,8 @@ def delete_post(request):
 
 
 @api_view(['POST'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes([IsAuthenticated, ])
 def vote_post(request):
     try:
         post_data = get_post_data(request)

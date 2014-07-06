@@ -1,9 +1,8 @@
 #logo {
         color: #e4eee5;
         text-align: left;
-        margin-left: .5em;
         margin-top: 0;
-
+        margin-left: .30em
 }
 
 .form-control.flat {
@@ -78,7 +77,7 @@ h2, .sb-title {
   color: #ffffff;
   background-color: #2f4b93;;
   margin-top: 8px;;
-  margin-bottom: 10em;
+  margin-bottom: 2em;
 }
 
 .btn-social-facebook:hover,
@@ -96,11 +95,10 @@ h2, .sb-title {
 .bottom-menu {
 
     position: relative;
-    height: auto;
+    height: 150px;
     margin-top: auto;
     margin-bottom: auto;
     padding-top: 2em;
-    opacity: .8;
 }
 .sb-bottom-links {
     color: #7c7e80;
@@ -108,8 +106,10 @@ h2, .sb-title {
 .sb-background {
     position: absolute;
     width: auto;
-    background-size: auto;
+    background-size: cover ;
     min-width: 100%;
+    max-height: 100%;
+
 }
 /*
 .jumbotron {

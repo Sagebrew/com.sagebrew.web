@@ -204,7 +204,7 @@ def profile_picture(request):
                     destination.write(chunk)
             citizen.profile_pic = upload_image('profile_pictures', image_uuid)
             citizen.save()
-            return redirect('profile_page/' + citizen.email)#citizen.first_name+'_'+citizen.last_name)
+            return redirect('/profile_page/' + citizen.email)#citizen.first_name+'_'+citizen.last_name)
     else:
         profile_picture_form = ProfilePictureForm()
     return render(request, 'profile_picture.html', {'profile_picture_form': profile_picture_form})
@@ -230,7 +230,7 @@ def profile_page(request, pleb_email):
         pass
 
     profile_page_form = ProfilePageForm(request.GET or None)
-    citizen = Pleb.index.get(email=request.user.email)
+    citizen = Pleb.index.get(email=pleb_email)
     # TODO check for index error
     # TODO check why address does not always work
     # TODO deal with address and senator/rep in a util + task

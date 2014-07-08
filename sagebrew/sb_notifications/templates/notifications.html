@@ -1,0 +1,9 @@
+{% load i18n %}
+{% load staticfiles %}
+{% for notification in user_notifications %}
+
+{% endfor %}
+{% block notifications %}
+    {% include "notifications.html" %}
+    {% include "friend_requests.html" %}
+{% endblock %}

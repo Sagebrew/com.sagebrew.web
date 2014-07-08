@@ -65,6 +65,10 @@ class ReceivedEducationRel(StructuredRel):
     currently_attending = BooleanProperty()
     awarded = StringProperty()
 
+class FriendRelationship(StructuredRel):
+    since = DateTimeProperty()
+    type = StringProperty(default="friends")
+
 
 class Pleb(StructuredNode):
     first_name = StringProperty()
@@ -87,12 +91,15 @@ class Pleb(StructuredNode):
     address = RelationshipTo("Address", "LIVES_AT")
     topic_category = RelationshipTo("TopicCategory", "INTERESTED_IN")
     sb_topics = RelationshipTo("SBTopic", "INTERESTED_IN")
-    friends = RelationshipTo("Pleb", "FRIENDS_WITH")
+    friends = RelationshipTo("Pleb", "FRIENDS_WITH", model=FriendRelationship)
     senator = RelationshipTo("GTRole", "HAS_SENATOR")
     house_rep = RelationshipTo("GTRole", "HAS_REPRESENTATIVE")
     posts = RelationshipTo('sb_posts.neo_models.SBPost', 'OWNS', model=PostObjectCreated)
     comments = RelationshipTo('sb_comments.neo_models.SBComment', 'OWNS', model=PostObjectCreated)
     wall = RelationshipTo('sb_wall.neo_models.SBWall', 'OWNS')
+    notifications = RelationshipTo('sb_notifications.neo_models.NotificationBase', 'RECIEVED_A')
+    friend_requests_sent = RelationshipTo('sb_notifications.neo_models.FriendRequest', 'SENT_A_REQUEST')
+    friend_requests_recieved = RelationshipTo('sb_notifications.neo_models.FriendRequest', 'RECIEVED_A_REQUEST')
 
 
 

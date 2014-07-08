@@ -1,0 +1,51 @@
+.sb_registration_title {
+    color: #156d66;
+    font-size: 2em;
+}
+.sb_registration {
+    color: #156d66;
+    font-size: 1.25em;
+}
+.sb_steps {
+    color: #156d66;
+    font-size: 1.25em;
+    margin-top: -70%;
+    margin-left: 4
+}em;
+.row_main {
+    margin-top: -20em;
+    margin-left: 2em;
+    margin-right: 20em;
+    border-radius: 10px;
+    background-color: #e4eee5;
+    position: static;
+}
+#profile_information {
+
+}
+.info_square {
+    background-color: #1ba39c;
+    color: #e4eee5;
+    font-weight: bolder;
+    border-radius: 10px;
+    padding-top: 2em;
+    padding-bottom: 2em;
+    position: inherit;
+    float: right;
+    margin-top: 5%;
+    margin-right: 10%;
+    margin-left: 6%;
+    margin-bottom: 5%;
+}
+.info_square_2{
+    background-color: #1ba39c;
+    color: #e4eee5;
+    font-weight: bolder;
+    border-radius: 10px;
+    padding-top: 2em;
+    padding-bottom: 2em;
+    position: inherit;
+    float: right;
+    margin-right: 10%;
+
+}

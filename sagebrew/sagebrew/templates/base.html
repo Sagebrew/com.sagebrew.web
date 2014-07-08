@@ -16,23 +16,27 @@
 	{% block page-javascript %}
     {% endblock page-javascript %}
 </head>
-<body>
-    <div id="page-wrapper">
-        <div id="page">
-            {% block navigation %}
-                {% include "navigation.html" %}
-            {% endblock navigation %}
-            <div id="search-wrapper">
-                <div id="search">
-                </div>
+<body id="sb-body">
+        <div id="page-wrapper">
+            <div id="page">
+                {% block navigation %}
+                    {% include "navigation.html" %}
+                {% endblock navigation %}
+                    <div id="search-wrapper">
+                        <div id="search">
+                        </div>
+                    </div>
+                <div id="header-wrapper">
+                    <div id="header">
+                        {% block header %}
+                        {% endblock %}
+                    </div>
+                </div><!-- #header-wrapper, #header -->
             </div>
-            <div id="header-wrapper">
-                <div id="header">
-                    {% block header %}
-                    {% endblock %}
-                </div>
-            </div><!-- #header-wrapper, #header -->
-
+        </div>
+    </div>
+    </div>
+<div class="row">
             <div id="content-wrapper">
                 <div id="content">
                     {% block content %}
@@ -41,11 +45,13 @@
                 {% endblock jordans_block %}
                 </div>
             </div><!-- #content-wrapper, #content -->
+</div>
+    <div class="row">
+        {% block footer %}
+            {% include "footer.html"%}
+        {% endblock footer %}<!-- #page-wrapper, #page -->
+    </div>
 
-            </div><!-- #footer-wrapper, #footer -->
-{% block footer %}
-    {% include "footer.html"%}
-{% endblock footer %}<!-- #page-wrapper, #page -->
 {% block scripts %}
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 	<script src="{% static 'js/jquery-cookie/jquery.cookie.js' %}"></script>

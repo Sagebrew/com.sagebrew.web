@@ -69,7 +69,7 @@ STATICFILES_DIRS = (
     '%s/plebs/static/' % PROJECT_DIR,
     '%s/sb_registration/static/' % PROJECT_DIR,
     '%s/sb_comments/static/' % PROJECT_DIR,
-    '%s/sb_posts/static/' % PROJECT_DIR
+    '%s/sb_posts/static/' % PROJECT_DIR,
 )
 
 # List of finder classes that know how to find static files in
@@ -171,6 +171,7 @@ INSTALLED_APPS = (
     'sb_comments',
     'sb_posts',
     'sb_wall',
+    'sb_notifications',
 )
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
@@ -205,7 +206,7 @@ SECURE_BROWSER_XSS_FILTER = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 APPEND_SLASH = True
 OAUTH_SINGLE_ACCESS_TOKEN = False
-#OAUTH_ENFORCE_SECURE = True
+OAUTH_ENFORCE_SECURE = True
 OAUTH_EXPIRE_DELTA = timedelta(days=30, minutes=0, seconds=0)
 OAUTH_EXPIRE_DELTA_PUBLIC = timedelta(days=30, minutes=0, seconds=0)
 OAUTH_DELETE_EXPIRED = True

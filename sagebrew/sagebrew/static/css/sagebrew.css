@@ -1,26 +1,33 @@
-
 #logo {
         color: #e4eee5;
-        position: absolute;
         text-align: left;
-        margin-left: 1em;
         margin-top: 0;
-    }
+        margin-left: .30em
+}
 
 .form-control.flat {
   border-color: transparent;
   text-align: left;
 }
+
 .form-control.flat:hover {
   border-color: #bdc3c7;
 }
+
 .form-control.flat:focus {
   border-color: #1abc9c;
 }
+
 #sb_navbar {
     background-color: #1ba39c;
+    min-height: 0;
+    height: 80px;
 }
 .navbar-nav .navbar-form.navbar-left, .navbar-form.navbar-right:last-child {
+    width:auto;
+    background-color: #1ba39c;
+    border-color: #1ba39c;
+}.navbar-nav .navbar-form.navbar-left, .navbar-form.navbar-right:last-child {
     width:auto;
     background-color: #1ba39c;
     border-color: #1ba39c;
@@ -29,50 +36,54 @@
 .navbar-form .form-control {
     display:inline;
 }
+
 .sb-btn-login{
     color: #1ba39c;
     background-color: #e4eee5;
     font-weight: bolder;
-
+}
+.sb-btn-primary {
+    margin-top: 1em;
 }
 
 /*end nav css */
 
 /* start template/index css */
-h2, .title {
-    color: #1ba39c;
-    font-weight: bold;
-    text-align: left;
-    margin-bottom: 15px;
+h2, .sb-title {
+    color: #e4eee5;
+    position: relative;
 }
-#sb-signup {
-    background-color: #1ba39c;
-    color: #ffffff;
-}
+
 /*sign up input */
 
 
 #sb_input {
-
-    margin-left: 30%;
-    margin-right: 30%;
-    padding-top: 2px;
-    padding-bottom: 2px;
+    margin: auto;
+    width: 400px;
+    display:block;
+    position: relative;
+    margin-left: -20%;
 }
+
 .btn-primary {
   color: #ffffff;
   background-color: #1ba39c;
   font-weight: bolder;
   margin-top: 15px;
 }
+.btn-primary:hover {
+    color: #1ba39c;
+    background-color: #ffffff;
+}
 
 /*facebook sign in */
 .btn-social-facebook {
   color: #ffffff;
   background-color: #2f4b93;;
-  margin-top: 8px;
-  margin-left: 10px;
+  margin-top: 8px;;
+  margin-bottom: 2em;
 }
+
 .btn-social-facebook:hover,
 .btn-social-facebook:focus {
     color: #3a539b;
@@ -82,5 +93,43 @@ h2, .title {
 .btn-social-facebook.active {
     background-color: #1ba39c;
 }
+
 /* end template/index css */
 
+.bottom-menu {
+
+    position: relative;
+    height: 150px;
+    margin-top: auto;
+    margin-bottom: auto;
+    padding-top: 2em;
+}
+.sb-bottom-links {
+    color: #7c7e80;
+}
+.sb-background {
+    position: absolute;
+    width: auto;
+    background-size: cover ;
+    min-width: 100%;
+    max-height: 100%;
+
+}
+/*
+.jumbotron {
+  position: absolute;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  min-width: 100%;
+}
+*/
+.container-fluid {
+    right: -30px;
+}
+
+.form-group {
+    margin-left: auto;
+    margin-right: 2.5em;
+}

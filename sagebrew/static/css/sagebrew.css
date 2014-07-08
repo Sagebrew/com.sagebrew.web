@@ -27,6 +27,10 @@
     width:auto;
     background-color: #1ba39c;
     border-color: #1ba39c;
+}.navbar-nav .navbar-form.navbar-left, .navbar-form.navbar-right:last-child {
+    width:auto;
+    background-color: #1ba39c;
+    border-color: #1ba39c;
 }
 
 .navbar-form .form-control {

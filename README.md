@@ -116,7 +116,8 @@ with:
 ```
 location ~* ^/static/(.+)$ {
         root /home/apps/sagebrew;
-        try_files /sagebrew/static/$1 /sb_registration/static/$1 /plebs/static/$1 /sb_registration/static/$1 /sb_comments/static/$1 /sb_posts/static/$1 @missing;
+        try_files /sagebrew/static/$1 /sb_registration/static/$1 /plebs/static/$1
+                 /sb_comments/static/$1 /sb_posts/static/$1 /sb_notifications/static/$1 @missing;
     }
 ```
 

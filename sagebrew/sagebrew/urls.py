@@ -27,6 +27,7 @@ urlpatterns = patterns('',
     (r'^registration/', include('sb_registration.urls')),
     (r'^comments/', include('sb_comments.urls')),
     (r'^posts/', include('sb_posts.urls')),
+    (r'^notifications/', include('sb_notifications.urls'))
 )
 
 if settings.DEBUG :

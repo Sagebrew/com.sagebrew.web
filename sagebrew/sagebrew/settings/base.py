@@ -69,7 +69,7 @@ STATICFILES_DIRS = (
     '%s/plebs/static/' % PROJECT_DIR,
     '%s/sb_registration/static/' % PROJECT_DIR,
     '%s/sb_comments/static/' % PROJECT_DIR,
-    '%s/sb_posts/static/' % PROJECT_DIR
+    '%s/sb_posts/static/' % PROJECT_DIR,
 )
 
 # List of finder classes that know how to find static files in

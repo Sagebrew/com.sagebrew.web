@@ -9,6 +9,11 @@
     {% block notifications %}
         {% if is_owner == True %}
             <a class="btn btn-small btn-block btn-primary show_friend_requests-action">Friend Requests</a>
+            <div id="friend_request_div" style="display:none">
+                {% block friend_requests %}
+                    {% include 'friend_requests.html' %}
+                {% endblock %}
+            </div>
             <a class="btn btn-small btn-block btn-primary show_notifications-action">Notifications</a>
         {% endif %}
     {% endblock %}

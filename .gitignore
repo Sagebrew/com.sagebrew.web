@@ -1,5 +1,6 @@
 .idea/dataSources.ids
 .idea/dataSources.xml
+.idea/*
 redis-stable.tar.gz
 redis-stable/
 static/*

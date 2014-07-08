@@ -44,6 +44,10 @@ AWS_UPLOAD_CLIENT_KEY = "AKIAJESDLWC4WEMWMQSA"
 AWS_UPLOAD_CLIENT_SECRET_KEY = "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"
 
 
+
+
+# TODO Don't forget to remove these and test for production environment
+
 IRON_MQ_TOKEN = ""
 IRON_MQ_PROJECT = ""
 

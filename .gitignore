@@ -2,7 +2,7 @@
 .idea/dataSources.xml
 redis-stable.tar.gz
 redis-stable/
-
+static/*
 .idea/workspace.xml
 .vagrant
 *.log

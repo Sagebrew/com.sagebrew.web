@@ -10,28 +10,67 @@ import pytz
 class GTCongressNumbers(StructuredNode):
     congress_number = IntegerProperty(unique_index=True)
 
+class GTPersonHistorical(StructuredNode):
+    lastname = StringProperty()
+    firstname = StringProperty()
+    gender = StringProperty()
+    legis_type = StringProperty()
+    state = StringProperty()
+    party = StringProperty()
+    bioguideid = StringProperty()
+    cspandid = IntegerProperty()
+    gt_id = IntegerProperty(index=True)
+    sb_id = StringProperty(unique_index=True, default=lambda: uuid1())
+
+
+class GTPerson(StructuredNode):
+    bioguideid = StringProperty(default="")
+    birthday = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    cspanid = IntegerProperty()
+    firstname = StringProperty(default="")
+    gender = StringProperty(default="")
+    gender_label = StringProperty(default="")
+    gt_id = IntegerProperty(unique_index=True)
+    lastname = StringProperty(default="")
+    link = StringProperty(default="")
+    middlename = StringProperty(default="")
+    name = StringProperty(default="")
+    namemod = StringProperty(default="")
+    nickname = StringProperty(default="")
+    osid = StringProperty(default="")
+    pvsid = IntegerProperty()
+    sortname = StringProperty(default="")
+    twitterid = StringProperty(default="")
+    youtubeid = StringProperty(default="")
+
+    #relationships
+    role = RelationshipTo('GTRole','HAS_A')
+    votes = RelationshipTo('GT_RCVotes','HAS_A')
+    committee = RelationshipTo('GTCommittee','IS_ON_A')
+
 class GTRole(StructuredNode):
-    current = BooleanProperty()
+    current = BooleanProperty(index=True)
     description = StringProperty()
-    district = StringProperty()
+    district = IntegerProperty(index=True)
     enddate = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     role_id = IntegerProperty(unique_index=True)
     leadership_title = StringProperty()
-    party = StringProperty()
-    phone = StringProperty()
-    role_type = StringProperty()
+    party = StringProperty(index=True)
+    phone = StringProperty(index=True)
+    role_type = StringProperty(index=True)
     role_type_label = StringProperty()
     senator_class = StringProperty()
     senator_class_label = StringProperty()
     senator_rank = StringProperty()
     senator_rank_label = StringProperty()
     startdate = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
-    state = StringProperty()
-    title = StringProperty()
+    state = StringProperty(index=True)
+    title = StringProperty(index=True)
     title_long = StringProperty()
     website = StringProperty()
 
-    congress_numbers = Relationship(GTCongressNumbers, "PART_OF")
+    person = Relationship('GTPerson', "IS")
+    congress_numbers = Relationship('GTCongressNumbers', "PART_OF")
 
 
 
@@ -82,30 +121,7 @@ class GTCommittee(StructuredNode):
     #relationships
     committee = Relationship('GTCommittee','HAS_A_SUB')
 
-class GTPerson(StructuredNode):
-    bioguideid = StringProperty(default="")
-    birthday = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
-    cspanid = IntegerProperty()
-    firstname = StringProperty(default="")
-    gender = StringProperty(default="")
-    gender_label = StringProperty(default="")
-    gt_id = IntegerProperty(unique_index=True)
-    lastname = StringProperty(default="")
-    link = StringProperty(default="")
-    middlename = StringProperty(default="")
-    name = StringProperty(default="")
-    namemod = StringProperty(default="")
-    nickname = StringProperty(default="")
-    osid = StringProperty(default="")
-    pvsid = IntegerProperty()
-    sortname = StringProperty(default="")
-    twitterid = StringProperty(default="")
-    youtubeid = StringProperty(default="")
 
-    #relationships
-    role = RelationshipTo('GTRole','HAS_A')
-    votes = RelationshipTo('GT_RCVotes','HAS_A')
-    committee = RelationshipTo('GTCommittee','IS_ON_A')
 
 
 

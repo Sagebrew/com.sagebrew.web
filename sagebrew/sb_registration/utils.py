@@ -3,10 +3,13 @@ import hashlib
 from plebs.neo_models import TopicCategory
 import json
 import urllib
+
 from django.conf import settings
 from boto import connect_s3
 from boto.s3.key import Key
-from uuid import uuid1
+
+from plebs.neo_models import TopicCategory
+from govtrack.neo_models import GTRole
 
 
 
@@ -124,6 +127,8 @@ def validate_address(address_request):
 
     return create_address_array(structure)
 
+def validate_school(school_name):
+    pass
 
 def create_address_array(structure):
     array_of_addresses = []
@@ -163,6 +168,14 @@ def compare_address(smarty_address, address_clean):
 
 
 def upload_image(folder_name, file_uuid):
+    '''
+    Creates a connection to the s3 service then uploads the file which was passed
+    to this function an uses the uuid as the filename.
+
+    :param folder_name:
+    :param file_uuid:
+    :return:
+    '''
     file_path = '%s%s.%s' % (settings.TEMP_FILES, file_uuid, 'jpeg')
     print file_path
 
@@ -170,14 +183,49 @@ def upload_image(folder_name, file_uuid):
     conn = connect_s3(settings.AWS_UPLOAD_CLIENT_KEY,
                       settings.AWS_UPLOAD_CLIENT_SECRET_KEY)
     k = Key(conn.get_bucket(bucket))
-    k.key = "%s/%s.%s" % (folder_name, file_uuid, "jpeg")
+    key_string = "%s/%s.%s" % (folder_name, file_uuid, "jpeg")
+    k.key = key_string
     k.set_contents_from_filename(file_path)
     k.make_public()
     image_uri = k.generate_url(expires_in=100000)
     os.remove(file_path)
     print "finished upload"
-    print image_uri
     return image_uri
 
-def determine_congressmen(pleb_address):
-    pass
+def determine_senators(pleb_address):
+    '''
+    Search for senators who match the state of the pleb. Then return an array of them
+
+    :param pleb_address:
+    :return:
+    '''
+    determined_sen = []
+    senator_names = []
+    senator_names = ['There are no senators in the DB']
+    senator_array = GTRole.index.search(state=pleb_address.state, title='Sen.')
+    for senator in senator_array:
+        determined_sen.append(senator.traverse('person').run())
+    for item in determined_sen:
+        for name in item:
+            senator_names.append(name.name)
+    return senator_names
+
+
+def determine_reps(pleb_address):
+    '''
+    Search for House Representatives who match the state and district of the
+    pleb
+    :param pleb_address:
+    :return:
+    '''
+    determined_reps = []
+    rep_name = 'There are no representatives in the DB'
+    rep_array = GTRole.index.search(state=pleb_address.state, title='Rep.',
+                                    district=int(pleb_address.congressional_district))
+    for rep in rep_array:
+        determined_reps.append(rep.traverse('person').run())
+    for item in determined_reps:
+        for name in item:
+            rep_name = name.name
+    return rep_name
+

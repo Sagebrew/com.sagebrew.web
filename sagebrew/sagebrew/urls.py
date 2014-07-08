@@ -25,6 +25,8 @@ urlpatterns = patterns('',
     (r'^api/', include('plebs.api_urls')),
     (r'^user_profiles/', include('user_profiles.urls')),
     (r'^registration/', include('sb_registration.urls')),
+    (r'^comments/', include('sb_comments.urls')),
+    (r'^posts/', include('sb_posts.urls')),
 )
 
 if settings.DEBUG :

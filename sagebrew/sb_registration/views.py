@@ -1,11 +1,15 @@
 import os
 import hashlib
+from json import dumps
+
 from django.conf import settings
 from uuid import uuid1
+from requests import post as request_post
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
+from django.contrib.auth.models import User
 
 from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
 
@@ -13,8 +17,9 @@ from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm, ProfilePictu
                     ProfilePageForm, AddressChoiceForm)
 from .utils import (validate_address, generate_interests_tuple, upload_image,
                     compare_address, generate_address_tuple,
-                    determine_congressmen, create_address_string,
+                    determine_senators, determine_reps, create_address_string,
                     create_address_long_hash)
+
 
 @login_required
 def profile_information(request):
@@ -61,11 +66,12 @@ def profile_information(request):
         if(addresses_returned == 1):
             if compare_address(address_info[0], address_clean):
                 address_info[0]["country"] = "USA"
-                try:
-                    address_long_hash = create_address_long_hash(
+                address_long_hash = create_address_long_hash(
                         address_info[0])
+                try:
                     address = Address.index.get(address_hash=address_long_hash)
                 except Address.DoesNotExist:
+                    address_info[0]["address_hash"] = address_long_hash
                     address = Address(**address_info[0])
                     address.save()
                 address.address.connect(citizen)
@@ -102,11 +108,11 @@ def profile_information(request):
                         store_address = optional_address
                         break
                 if(store_address is not None):
+                    address_long_hash = create_address_long_hash(store_address)
                     try:
-                        address_long_hash = create_address_long_hash(
-                            store_address)
                         address = Address.index.get(address_hash=address_long_hash)
                     except Address.DoesNotExist:
+                        store_address["address_hash"] = address_long_hash
                         address = Address(**store_address)
                         address.save()
                     address.address.connect(citizen)
@@ -170,6 +176,16 @@ def interests(request):
 
 @login_required()
 def profile_picture(request):
+    '''
+    The profile picture view accepts an image from the user, which is stored in
+    the TEMP_FILES directory until it is uploaded to s3 after which the locally
+    stored tempfile is deleted. After the url of the image is returned from
+    the upload_image util the url is stored as the profile_picture field in the Pleb
+    model.
+`
+    :param request:
+    :return:
+    '''
     if request.method == 'POST':
         profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
         if profile_picture_form.is_valid():
@@ -179,7 +195,6 @@ def profile_picture(request):
                 #    return redirect('profile_page')
                 #print citizen.profile_pic
             except Pleb.DoesNotExist:
-                print("How did you even get here!?")
                 return render(request, 'profile_picture.html', {'profile_picture_form': profile_picture_form})
             image_uuid = uuid1()
             data = request.FILES['picture']
@@ -189,17 +204,49 @@ def profile_picture(request):
                     destination.write(chunk)
             citizen.profile_pic = upload_image('profile_pictures', image_uuid)
             citizen.save()
-            return redirect('profile_page')
+            return redirect('/profile_page/' + citizen.email)#citizen.first_name+'_'+citizen.last_name)
     else:
         profile_picture_form = ProfilePictureForm()
     return render(request, 'profile_picture.html', {'profile_picture_form': profile_picture_form})
 
 @login_required()
-def profile_page(request):#who is your sen
+def profile_page(request, pleb_email):
+    '''
+    Displays the users profile_page. This is where we call the functions to determine
+    who the senators are for the plebs state and which representative for the plebs
+    district
+
+    :param request:
+    :return:
+    '''
+    current_user = request.user
+    page_user = User.objects.get(email = pleb_email)
+    is_owner = False
+    is_friend = False
+    if current_user.email == page_user.email:
+        is_owner = True
+    #TODO traversal to see if current_user is a friend of page_user
+    elif current_user:
+        pass
+
     profile_page_form = ProfilePageForm(request.GET or None)
-    citizen = Pleb.index.get(email=request.user.email)
-    determine_congressmen(citizen.address)
+    citizen = Pleb.index.get(email=pleb_email)
+    # TODO check for index error
+    # TODO check why address does not always work
+    # TODO deal with address and senator/rep in a util + task
+    address = citizen.traverse('address').run()[0]
+    sen_array = determine_senators(address)
+    rep_array = determine_reps(address)
+    post_data = {'email': citizen.email}
+    headers = {'content-type': 'application/json'}
+    post_req = request_post('https://192.168.56.101/posts/query_posts/',
+                            data=dumps(post_data), verify=False, headers=headers)
+    user_posts = post_req.json()
 
     return render(request, 'profile_page.html', {'profile_page_form': profile_page_form,
-                                                 'pleb_info': citizen})
+                                                 'pleb_info': citizen,
+                                                 'senator_names': sen_array,
+                                                 'rep_name': rep_array,
+                                                 'user_posts': user_posts,})
+                                                 #'post_comments': post_comments})
 

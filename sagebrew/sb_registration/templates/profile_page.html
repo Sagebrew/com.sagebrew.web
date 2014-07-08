@@ -1,11 +1,37 @@
 {% extends "base.html"%}
+{% load i18n %}
+{% load staticfiles %}
 {% block navigation %}
     {% include "navigation.html" %}
 {% endblock %}
 {% block content %}
 <h1>{{ pleb_info.first_name }} {{ pleb_info.last_name }}</h1>
     <img src="{{ pleb_info.profile_pic }}" />
+    <div align="left"><b>Reputation: </b>{{ pleb_info.reputation }}</div>
     <div align="left"><b>Representatives:</b></div>
     <div align="left">Senators:</div>
+    {% for senator in senator_names %}
+        <li>{{ senator }}</li>
+    {% endfor %}
     <div align="left">House Representative:</div>
+    <li>{{ rep_name }}</li>
+    <textarea class="form-control" id= "post_input_id" name="post_input" cols ='40' rows="3" placeholder="Create a post"></textarea>
+    <a class='btn btn-lg btn-block btn-primary post-action' data-pleb={{ pleb_info.email }}>Create Post</a>
+    <ul>
+    {% block wall %}
+        {% include "wall.html" %}
+    {% endblock %}
+    </ul>
 {% endblock %}
+
+{% block scripts %}
+	{{ block.super }}
+	<script src="{% static 'js/save_comment.js' %}"></script>
+    <script src="{% static 'js/save_post.js' %}"></script>
+    <script src="{% static 'js/edit_post.js' %}"></script>
+    <script src="{% static 'js/delete_post.js' %}"></script>
+    <script src="{% static 'js/vote_post.js' %}"></script>
+    <script src="{% static 'js/vote_comment.js' %}"></script>
+    <script src="{% static 'js/delete_comment.js' %}"></script>
+    <script src="{% static 'js/edit_comment.js' %}"></script>
+{% endblock scripts %}

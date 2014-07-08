@@ -20,6 +20,7 @@ def create_gt_role(rep):
         my_role.save()
         rep['congress_numbers'] = something
         my_person.role.connect(my_role)
+        my_role.person.connect(my_person)
         print "Rep Created"
 
     return my_role

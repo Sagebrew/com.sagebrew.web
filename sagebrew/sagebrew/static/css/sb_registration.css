@@ -2,6 +2,7 @@
     background-color: #26424a;
     background-size: cover;
     position: inherit;
+    margin-top: -20px;
 
 }
 
@@ -9,6 +10,18 @@
     color: #26424a;
     font-size: 2em;
      margin-left: 30px;
+}
+.sb_registration_title_2 {
+    color: #26424a;
+    font-size: 2em;
+     margin-left: 30px;
+    margin-bottom: 30px;
+}
+.sb_registration_title_3 {
+    color: #26424a;
+    font-size: 2em;
+     margin-left: 0px;
+    margin-bottom: 30px;
 }
 .sb_registration {
     color: #26424a;
@@ -57,6 +70,10 @@
     margin-right: -215px;
     margin-top: 510px
 }
+.info_square_3 {
+     margin-left: 530px;
+    margin-top: 110px;
+}
 .paragraph {
     margin-top: 30px;
     width: 190px;
@@ -80,4 +97,17 @@
     margin-left: 650px;
     margin-bottom: 30px;
     margin-right: 50px;
+}
+.sb_continue_2 {
+    margin-left: 635px;
+    margin-bottom: 30px;
+    margin-right: 0px;
+    margin-top: -50px;
+
+}
+
+.interests_form {
+    width: 70%;
+    margin-left: 2%;
+    margin-right: 15%;
 }

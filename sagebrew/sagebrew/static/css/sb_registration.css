@@ -1,51 +1,83 @@
+.background {
+    background-color: #26424a;
+    background-size: cover;
+    position: inherit;
+
+}
+
 .sb_registration_title {
-    color: #156d66;
+    color: #26424a;
     font-size: 2em;
+     margin-left: 30px;
 }
 .sb_registration {
-    color: #156d66;
+    color: #26424a;
     font-size: 1.25em;
 }
 .sb_steps {
-    color: #156d66;
-    font-size: 1.25em;
-    margin-top: -70%;
-    margin-left: 4
-}em;
+    color: #26424a;
+    font-size: 1em;
+    margin-left: 4em;
+    margin-top: 45px;
+}
 .row_main {
-    margin-top: -20em;
-    margin-left: 2em;
-    margin-right: 20em;
+    width: 60%;
+    margin-top: 2em;
+    margin-bottom: 2em;
+    margin-left: 20%;
+    margin-right: 20%;
     border-radius: 10px;
     background-color: #e4eee5;
-    position: static;
+    position: inherit;
+    float: left;
+    margin-right: 0px;
 }
+
 #profile_information {
 
 }
-.info_square {
-    background-color: #1ba39c;
-    color: #e4eee5;
-    font-weight: bolder;
-    border-radius: 10px;
-    padding-top: 2em;
-    padding-bottom: 2em;
-    position: inherit;
-    float: right;
-    margin-top: 5%;
-    margin-right: 10%;
-    margin-left: 6%;
-    margin-bottom: 5%;
-}
-.info_square_2{
-    background-color: #1ba39c;
-    color: #e4eee5;
-    font-weight: bolder;
-    border-radius: 10px;
-    padding-top: 2em;
-    padding-bottom: 2em;
-    position: inherit;
-    float: right;
-    margin-right: 10%;
 
+.info_square {
+    background-color: #26424a;
+    color: #e4eee5;
+    font-weight: bolder;
+    border-radius: 10px;
+    position: absolute;
+    float: right;
+    width: 200px;
+    height: 200px;
+    padding-left: 0px;
+    padding-right: 0px;
+    margin-left: 450px;
+    margin-right: 90px;
+    margin-top: 40px;
+    margin-bottom: 80px;
+}
+.info_square_2 {
+    margin-right: -215px;
+    margin-top: 510px
+}
+.paragraph {
+    margin-top: 30px;
+    width: 190px;
+    height: 190px;
+    padding-top: 30px;
+    padding-bottom: 20px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-left-width: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+.registration_footer {
+    position: absolute;
+    margin-top: 0%;
+    width: 100%;
+    clear: both;
+}
+
+.sb_continue {
+    margin-left: 650px;
+    margin-bottom: 30px;
+    margin-right: 50px;
 }

@@ -18,6 +18,12 @@ def delete_post_and_comments(post_info):
 #TODO only allow plebs to change vote
 @shared_task()
 def create_upvote_post(post_info):
+    '''
+    creates an upvote attached to a post
+
+    :param post_info: 
+    :return:
+    '''
     my_post = SBPost.index.get(post_id = post_info['post_uuid'])
     my_pleb = Pleb.index.get(email = post_info['pleb'])
     my_post.up_vote_number += 1
@@ -27,6 +33,12 @@ def create_upvote_post(post_info):
 #TODO only allow plebs to change vote
 @shared_task()
 def create_downvote_post(post_info):
+    '''
+    creates a downvote attached to a post
+
+    :param post_info:
+    :return:
+    '''
     my_post = SBPost.index.get(post_id = post_info['post_uuid'])
     my_pleb = Pleb.index.get(email = post_info['pleb'])
     my_post.down_vote_number += 1

@@ -15,6 +15,13 @@ from api.utils import get_post_data
 
 @api_view(['POST'])
 def create_friend_request(request):
+    '''
+    calls the task which creates a friend request, it also creates the id for the
+    request here
+
+    :param request:
+    :return:
+    '''
     try:
         friend_request_data = get_post_data(request)
         friend_request_data['friend_request_uuid'] = str(uuid1())
@@ -35,6 +42,12 @@ def get_notifications(request):
 
 @api_view(['POST'])
 def get_friend_requests(request):
+    '''
+    gets all friend requests attached to the user and returns
+    a list of dictionaries of requests
+    :param request:
+    :return:
+    '''
     requests = []
     citizen = Pleb.index.get(email = request.DATA['email'])
     print citizen.email
@@ -50,6 +63,16 @@ def get_friend_requests(request):
 
 @api_view(['POST'])
 def respond_friend_request(request):
+    '''
+    finds the friend request which is attached to both the from and to user
+    then, depending on the response type, either attaches the friend relationship
+    in each pleb and deletes the request, deletes the request, or lets the friend
+    request exist to stop the user from sending more but does not notify the user
+    which blocked them that they have a friend request from them.
+
+    :param request:
+    :return:
+    '''
     request = request.DATA
     print request
     try:
@@ -61,8 +84,10 @@ def respond_friend_request(request):
         return Response(status=408)
 
     if request['response']=='accept':
-        to_pleb.friends.connect(from_pleb)
-        from_pleb.friends.connect(to_pleb)
+        rel1 = to_pleb.friends.connect(from_pleb)
+        rel2 = from_pleb.friends.connect(to_pleb)
+        rel1.save()
+        rel2.save()
         friend_request.delete()
         to_pleb.save()
         from_pleb.save()

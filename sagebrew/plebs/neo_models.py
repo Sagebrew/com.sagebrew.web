@@ -58,7 +58,6 @@ class University(School):
     latitude = FloatProperty()
 
 
-
 class ReceivedEducationRel(StructuredRel):
     started = DateTimeProperty()
     ended = DateTimeProperty()
@@ -68,6 +67,10 @@ class ReceivedEducationRel(StructuredRel):
 class FriendRelationship(StructuredRel):
     since = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     type = StringProperty(default="friends")
+    currently_friends = BooleanProperty(default=True)
+    time_unfriended = DateTimeProperty(default=None)
+    who_unfriended = StringProperty()
+    #who_unfriended = RelationshipTo("Pleb", "")
 
 class Pleb(StructuredNode):
     first_name = StringProperty()

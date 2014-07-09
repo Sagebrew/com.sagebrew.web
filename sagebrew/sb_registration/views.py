@@ -18,7 +18,7 @@ from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm, ProfilePictu
 from .utils import (validate_address, generate_interests_tuple, upload_image,
                     compare_address, generate_address_tuple,
                     determine_senators, determine_reps, create_address_string,
-                    create_address_long_hash)
+                    create_address_long_hash, get_friends)
 
 
 @login_required
@@ -214,7 +214,12 @@ def profile_page(request, pleb_email):
     '''
     Displays the users profile_page. This is where we call the functions to determine
     who the senators are for the plebs state and which representative for the plebs
-    district
+    district. Checks to see if the user currently accessing the page is the same user
+    as the one who owns the page. if so it loads the page fully, if the user is a firend
+    of the owner of the page then it allows them to see posts and comments on posts on the
+    owners wall. If the user is neither the owner nor a friend then it only shows the users
+    name, congressmen, reputation and profile pictures along with a button that allows
+    them to send a friend request.
 
     :param request:
     :return:
@@ -224,18 +229,16 @@ def profile_page(request, pleb_email):
     page_user = User.objects.get(email = pleb_email)
     is_owner = False
     is_friend = False
-    friends_list = citizen.traverse('friends').run()
+    friends_list = get_friends(citizen.email)
     print friends_list
     if current_user.email == page_user.email:
         is_owner = True
-    #TODO traversal to see if current_user is a friend of page_user
     elif citizen.traverse('friends').where('email','=',current_user.email).run():
         is_friend = True
 
     print "is owner", is_owner
     print "is friend", is_friend
     profile_page_form = ProfilePageForm(request.GET or None)
-    print citizen.traverse('friends').where('email','=',current_user.email).run()
     # TODO check for index error
     # TODO check why address does not always work
     # TODO deal with address and senator/rep in a util + task
@@ -264,5 +267,6 @@ def profile_page(request, pleb_email):
                                                  'user_notifications': user_notifications,
                                                  'user_friend_requests': user_friend_requests,
                                                  'is_owner': is_owner,
-                                                 'is_friend': is_friend,})
-                                                 #'post_comments': post_comments})
+                                                 'is_friend': is_friend,
+                                                 'friends_list': friends_list,
+                                                 })

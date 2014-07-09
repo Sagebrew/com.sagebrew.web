@@ -8,6 +8,11 @@ from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
 
 def create_friend_request_util(data):
+    '''
+    If the function cant find either the to or from pleb it ends, if
+    it does find them then it will create a friend request and
+    create the relationships from the users to the friend requests
+    '''
     try:
         from_citizen = Pleb.index.get(email = data['from_pleb'])
         to_citizen = Pleb.index.get(email = data['to_pleb'])

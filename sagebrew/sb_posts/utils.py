@@ -5,8 +5,6 @@ from plebs.neo_models import Pleb
 from sb_comments.utils import get_post_comments
 from .neo_models import SBPost
 import sb_posts.tasks
-#from .tasks import (delete_post_and_comments,create_downvote_post,
-#                    create_upvote_post,edit_post_info_task)
 
 def get_pleb_posts(pleb_object):
     try:

@@ -1,5 +1,4 @@
 from json import loads
-
 from django.conf import settings
 
 from bomberman.client import Client

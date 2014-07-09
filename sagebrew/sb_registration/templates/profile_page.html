@@ -8,13 +8,13 @@
 {% block content %}
     {% block notifications %}
         {% if is_owner == True %}
-            <a class="btn btn-small btn-block btn-primary show_friend_requests-action">Friend Requests</a>
+            <a class="btn btn-sm btn-primary show_friend_request-action" data-email="{{ pleb_info.email }}">Friend Requests</a>
             <div id="friend_request_div" style="display:none">
                 {% block friend_requests %}
-                    {% include 'friend_requests.html' %}
+                    {% include "friend_requests.html"  %}
                 {% endblock %}
             </div>
-            <a class="btn btn-small btn-block btn-primary show_notifications-action">Notifications</a>
+            <a class="btn btn-sm btn-primary show_notifications-action">Notifications</a>
         {% endif %}
     {% endblock %}
 <h1>{{ pleb_info.first_name }} {{ pleb_info.last_name }}</h1>
@@ -54,4 +54,6 @@
     <script src="{% static 'js/edit_comment.js' %}"></script>
     <script src="{% static 'js/send_friend_request.js' %}"></script>
     <script src="{% static 'js/send_notification.js' %}"></script>
+    <script src="{% static 'js/show_friend_request.js'%}"></script>
+    <script src="{% static 'js/respond_friend_request.js' %}"></script>
 {% endblock scripts %}

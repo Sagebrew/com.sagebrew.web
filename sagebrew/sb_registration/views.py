@@ -225,6 +225,7 @@ def profile_page(request, pleb_email):
     is_owner = False
     is_friend = False
     friends_list = citizen.traverse('friends').run()
+    print friends_list
     if current_user.email == page_user.email:
         is_owner = True
     #TODO traversal to see if current_user is a friend of page_user
@@ -261,7 +262,7 @@ def profile_page(request, pleb_email):
                                                  #'rep_name': rep_array,
                                                  'user_posts': user_posts,
                                                  'user_notifications': user_notifications,
-                                                 #'user_friend_requests': user_friend_requests,
+                                                 'user_friend_requests': user_friend_requests,
                                                  'is_owner': is_owner,
                                                  'is_friend': is_friend,})
                                                  #'post_comments': post_comments})

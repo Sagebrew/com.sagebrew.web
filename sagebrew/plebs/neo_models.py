@@ -66,9 +66,8 @@ class ReceivedEducationRel(StructuredRel):
     awarded = StringProperty()
 
 class FriendRelationship(StructuredRel):
-    since = DateTimeProperty()
+    since = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     type = StringProperty(default="friends")
-
 
 class Pleb(StructuredNode):
     first_name = StringProperty()

@@ -28,9 +28,9 @@ def get_post_comments(post_info):
         post_owner = post.traverse('owned_by').run()[0]
         for comment in post_comments:
             comment_owner = comment.traverse('is_owned_by').run()[0]
-            comment_dict = {'comment_content': comment.content, 'comment_id': comment.comment_id, 'comment_up_vote_number': comment.up_vote_number, 'comment_down_vote_number': comment.down_vote_number,'comment_last_edited_on': comment.last_edited_on, 'comment_owner': comment_owner.first_name+' '+comment_owner.last_name}
+            comment_dict = {'comment_content': comment.content, 'comment_id': comment.comment_id, 'comment_up_vote_number': comment.up_vote_number, 'comment_down_vote_number': comment.down_vote_number,'comment_last_edited_on': comment.last_edited_on, 'comment_owner': comment_owner.first_name+' '+comment_owner.last_name, 'comment_owner_email': comment_owner.email}
             comment_array.append(comment_dict)
-        post_dict = {'content': post.content, 'post_id': post.post_id, 'up_vote_number': post.up_vote_number, 'down_vote_number': post.down_vote_number, 'last_edited_on': post.last_edited_on, 'post_owner': post_owner.first_name + ' ' + post_owner.last_name, 'comments': comment_array}
+        post_dict = {'content': post.content, 'post_id': post.post_id, 'up_vote_number': post.up_vote_number, 'down_vote_number': post.down_vote_number, 'last_edited_on': post.last_edited_on, 'post_owner': post_owner.first_name + ' ' + post_owner.last_name, 'post_owner_email': post_owner.email, 'comments': comment_array}
         post_array.append(post_dict)
         comment_array = []
     return post_array
@@ -93,7 +93,7 @@ def save_comment(comment_info):
     parent_object = SBPost.index.get(post_id = comment_info['post_uuid'])
     comment_info.pop('post_uuid', None)
     comment_info.pop('pleb', None)
-    comment_info['comment_id'] = uuid1()
+    comment_info['comment_id'] = str(uuid1())
     my_comment = SBComment(**comment_info)
     my_comment.save()
     rel_to_pleb = my_comment.is_owned_by.connect(my_citizen)

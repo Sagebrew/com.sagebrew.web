@@ -8,9 +8,11 @@ import sb_posts.tasks
 
 def get_pleb_posts(pleb_object):
     try:
-        pleb_posts = pleb_object.traverse('posts').run()
+        pleb_wall = pleb_object.traverse('wall').run()[0]
+        pleb_posts = pleb_wall.traverse('post').run()
         return get_post_comments(pleb_posts)
     except:
+        print "failed to retrieve posts"
         return {"details": "You have no posts!"}
 
 def save_post(post_info):

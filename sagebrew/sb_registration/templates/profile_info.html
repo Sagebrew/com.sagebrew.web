@@ -36,7 +36,28 @@
                 <div class="col-lg-10 col-md-10 col-sm-11 col-xs-12 col-lg-offset-2 col-md-offset-2 col-sm-offset-1 ">
                         <div id="profile_information">
                              {%  for field in profile_information_form %}
-                                 <div>{{ field.label_tag }}</div><div>{{ field }}</div><div>{{ field.errors }}</div>
+                             {% if field.id_for_label == "id_date_of_birth" %}
+                            <div class="row">
+                                <div class="col-lg-2">
+                                    <p>Birthday*</p>
+                                </div>
+                                <div class="col-lg-4">
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <span class="input-group-btn">
+                                                    <button class="btn" type="button"><span class="fui-calendar"></span></button>
+                                                </span>
+                                                <input type="text" class="form-control hasDatepicker" value="" id="datepicker-01">
+                                            </div>
+                                        </div>
+                                </div>
+                            </div>
+                            </div>
+                                {% else %}
+                                    <div>{{ field.label_tag }}</div><div>{{ field }}</div><div>{{ field.errors }}</div>
+                                {% endif %}
+
+
                              {% endfor %}
                         </div>
                 </div>
@@ -86,4 +107,5 @@
             }
         });
     </script>
+
 {% endblock scripts %}

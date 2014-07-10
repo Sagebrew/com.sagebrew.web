@@ -5,6 +5,7 @@ $( document ).ready(function() {
             this.checked = $that.is(':checked');
         });
     });
+    $("[data-toggle='tooltip']").tooltip('hide');
 
     $("#id_specific_interests").width("350px").select2({
         placeholder: "Select what you care about",

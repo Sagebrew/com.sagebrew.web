@@ -13,7 +13,7 @@ $( document ).ready(function() {
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
 			type: "POST",
-			url: "/notifications/query_friend_requests/",
+			url: "/relationships/query_friend_requests/",
 			data: JSON.stringify({
 			   'email': $(this).data('email')
 			}),
@@ -43,7 +43,7 @@ $( document ).ready(function() {
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
 			type: "POST",
-			url: "/notifications/respond_friend_request/",
+			url: "/relationships/respond_friend_request/",
 			data: JSON.stringify({
 			   'response': $(this).data('response'),
                'request_id': $(this).data('request_id')

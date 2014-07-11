@@ -12,7 +12,7 @@ $( document ).ready(function() {
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
 			type: "POST",
-			url: "/notifications/create_friend_request/",
+			url: "/relationships/create_friend_request/",
 			data: JSON.stringify({
 			   'from_pleb': $(this).data('from_pleb'),
                'to_pleb': $(this).data('to_pleb')

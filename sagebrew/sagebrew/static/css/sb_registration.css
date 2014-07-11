@@ -2,14 +2,14 @@
     background-color: #26424a;
     background-size: cover;
     position: inherit;
-    margin-top: -20px;
+    margin-top:0px;
 
 }
 
 .sb_registration_title {
     color: #26424a;
     font-size: 2em;
-     margin-left: 30px;
+     margin-left: 60px;
 }
 .sb_registration_title_2 {
     color: #26424a;
@@ -23,6 +23,11 @@
      margin-left: 0px;
     margin-bottom: 30px;
 }
+.sb_profile_info {
+    color: #26424a;
+    font-size: 2em;
+     margin-left: 30px;
+}
 .sb_registration {
     color: #26424a;
     font-size: 1.25em;
@@ -30,7 +35,7 @@
 .sb_steps {
     color: #26424a;
     font-size: 1em;
-    margin-left: 4em;
+    margin-right 80%;
     margin-top: 45px;
 }
 .row_main {
@@ -94,13 +99,13 @@
 }
 
 .sb_continue {
-    margin-left: 650px;
+    margin-left: 80%;
     margin-bottom: 30px;
     margin-right: 50px;
     background-color: #1ba39c;
 }
 .sb_continue_2 {
-    margin-left: 635px;
+    margin-left: 80%;
     margin-bottom: 30px;
     margin-right: 0px;
     margin-top: -50px;

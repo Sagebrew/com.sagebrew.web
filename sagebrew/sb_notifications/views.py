@@ -74,7 +74,6 @@ def respond_friend_request(request):
     :return:
     '''
     request = request.DATA
-    print request
     try:
         friend_request = FriendRequest.index.get(friend_request_uuid = request['request_id'])
         to_pleb = friend_request.traverse('request_to').run()[0]

@@ -25,6 +25,7 @@ def save_post(post_info):
     '''
     try:
         test_post = SBPost.index.get(post_id = post_info['post_id'])
+        return None
     except SBPost.DoesNotExist:
         poster = Pleb.index.get(email = post_info['current_pleb'])
         my_citizen = Pleb.index.get(email = post_info['wall_pleb'])
@@ -39,7 +40,7 @@ def save_post(post_info):
         rel.save()
         rel_from_pleb = poster.posts.connect(my_post)
         rel_from_pleb.save()
-        return True
+        return my_post
     #determine who posted/shared/...
 
 def edit_post_info(post_info):

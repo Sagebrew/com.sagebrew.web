@@ -58,7 +58,9 @@ class SBAnswer(SBBase):
     possible_answer_to = RelationshipTo('SBQuestion', 'ANSWER')
     selected_answer_to = RelationshipTo('SBQuestion', 'SELECTED_ANSWER_TO')
 
+'''
 @receiver(post_save, sender=SBPost)
 def create_notification_post(sender, instance, **kwargs):
     from sb_notifications.tasks import prepare_post_notification_data
-    prepare_post_notification_data.apply_async([instance,])
+'''
+

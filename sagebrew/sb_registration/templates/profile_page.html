@@ -31,19 +31,17 @@
     {% endfor %}
     <div align="left">House Representative:</div>
     <li>{{ rep_name }}</li>
-    {% if is_friend == True or is_owner == True %}
-        <textarea class="form-control" id= "post_input_id" name="post_input" cols ='40' rows="3" placeholder="Create a post"></textarea>
-        <a class='btn btn-lg btn-block btn-primary post-action' data-current_pleb="{{ current_user }}" data-wall_pleb="{{ page_user }}">Create Post</a>
-        <ul>
-        {% block wall %}
-            {% include "wall.html" %}
-        {% endblock %}
-        </ul>
+    <textarea class="form-control" id= "post_input_id" name="post_input" cols ='40' rows="3" placeholder="Create a post"></textarea>
+    <a class='btn btn-lg btn-block btn-primary post-action' data-current_pleb="{{ current_user }}" data-wall_pleb="{{ page_user }}">Create Post</a>
+    <ul>
+    {% block wall %}
+        {% include "wall.html" %}
+    {% endblock %}
+    </ul>
     {% elif is_friend == False and is_owner == False %}
         <a class="btn btn-sm btn-primary send_friend_request-action" data-from_pleb="{{ current_user }}"
                 data-to_pleb="{{ page_user }}">Friend Request</a>
     {% endif %}
-{% endif %}
 {% endblock %}
 
 {% block scripts %}

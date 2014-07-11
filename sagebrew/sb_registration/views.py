@@ -250,12 +250,16 @@ def profile_page(request, pleb_email):
     post_req = request_post('https://192.168.56.101/posts/query_posts/',
                             data=dumps(post_data), verify=False, headers=headers)
     user_posts = post_req.json()
+    '''
     notification_req = request_post('https://192.168.56.101/notifications/query_notifications/',
                                     data=dumps(post_data), verify=False, headers=headers)
     user_notifications = notification_req.json()
+    '''
+    '''
     friend_requests_req = request_post('https://192.168.56.101/notifications/query_friend_requests/',
                                        data=dumps(post_data), verify=False, headers=headers)
     user_friend_requests = friend_requests_req.json()
+    '''
 
     return render(request, 'profile_page.html', {'profile_page_form': profile_page_form,
                                                  'pleb_info': citizen,
@@ -264,8 +268,8 @@ def profile_page(request, pleb_email):
                                                  #'senator_names': sen_array,
                                                  #'rep_name': rep_array,
                                                  'user_posts': user_posts,
-                                                 'user_notifications': user_notifications,
-                                                 'user_friend_requests': user_friend_requests,
+                                                 #'user_notifications': user_notifications,
+                                                 #'user_friend_requests': user_friend_requests,
                                                  'is_owner': is_owner,
                                                  'is_friend': is_friend,
                                                  'friends_list': friends_list,

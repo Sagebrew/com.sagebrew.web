@@ -4,6 +4,7 @@ from celery import shared_task
 
 from .neo_models import SBPost
 from plebs.neo_models import Pleb
+from sb_notifications.tasks import prepare_post_notification_data
 from .utils import (save_post, edit_post_info, delete_post_info)
 
 
@@ -47,10 +48,11 @@ def create_downvote_post(post_info):
 
 @shared_task()
 def save_post_task(post_info):
-    if save_post(post_info):
+    my_post = save_post(post_info)
+    if my_post is not None:
+        prepare_post_notification_data.apply_async([my_post,])
         return True
-    else:
-        return False
+    return False
 
 
 @shared_task()

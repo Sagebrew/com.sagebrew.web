@@ -87,5 +87,4 @@ def create_notification_comment_util(data):
         to_citizen.save()
         print "Notification created from comment"
     except SBComment.DoesNotExist:
-        print "Notification not created"
         return

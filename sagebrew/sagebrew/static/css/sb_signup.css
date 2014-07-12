@@ -2,7 +2,7 @@
         color: #e4eee5;
         text-align: left;
         margin-top: 0;
-        margin-left: .30em
+        margin-left: .75em
 }
 
 .form-control.flat {
@@ -113,7 +113,8 @@ h2, .sb-title {
     background-size: cover ;
     min-width: 100%;
     max-height: 100%;
-
+    padding-left: 0px;
+    padding-right: 0px;
 }
 /*
 .jumbotron {

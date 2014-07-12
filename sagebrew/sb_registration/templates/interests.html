@@ -6,7 +6,7 @@
 {% endblock css %}
 
 {% block navigation %}
-    {% include "navigation.html" %}
+    {% include "logged_in_nav.html" %}
 {% endblock %}
 {% block content %}
     <ul>
@@ -14,32 +14,65 @@
         <li>error</li>
     {% endfor %}
     </ul>
-    <form action="/registration/interests/" method="post">{% csrf_token %}
-    <table>
-        <tr>
-        {% for field in interest_form %}
-            {% if not forloop.last %}
-                <td class="has-popover" data-content="{{ field.help_text }}" data-placement="right" data-container="body" valign="middle" style="padding-right: 15px">{{ field.label_tag }}</td><td valign="top" style="padding-right: 15px; "> {{ field }}</td>
-   0         {% endif %}
-            {% if forloop.counter0|divisibleby:3 %}
-                </tr><tr>
-            {% endif %}
-        {% endfor %}
-        </tr>
-    </table>
-
-    <div id="selection">
-        {% for field in interest_form %}
-            {% if forloop.last %}
-                {{ field }}
-            {% endif %}
-        {%  endfor %}
+    <div class="content_wrapper  container-fluid background">
+        <div class="row row_main">
+                    <div class="row info_square info_square_3  hidden-sm hidden-xs">
+            <div class="paragraph">
+                <p>Why do you need my personal information?</p>
+            </div>
+        </div>
+             <div class="row">
+                  <div class="col-lg-8 col-md-6 col-sm-4 col-xs-12 cold-xs-4 ">
+                       <div>
+                            <h2 class="sb_registration_title_2">Conversational Topics</h2>
+                       </div>
+                  </div>
+                  <div class="col-lg-3 col-md-4 col-sm-5 col-xs-4 col-lg-offset-1 col-md-offset-2 col-sm-offset-3 col-xs-offset-2">
+                       <div>
+                            <h4 class="sb_steps hidden-xs">Step 2 of 3</h4>
+                       </div>
+                  </div>
+             </div>
+            <div class="interests_form col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <form action="/registration/interests/" method="post">{% csrf_token %}
+                <table>
+                    <tr>
+                    {% for field in interest_form %}
+                        {% if not forloop.last %}
+                            <td class="has-popover" data-toggle="tooltip" data-original-title="{{ field.help_text }}" data-placement="right" data-container="body" valign="middle" style="padding-right: 15px">{{ field.label_tag }}</td><td valign="top" style="padding-right: 15px; "> {{ field }}</td>
+                        {% endif %}
+                        {% if forloop.counter0|divisibleby:3 %}
+                            </tr><tr>
+                        {% endif %}
+                    {% endfor %}
+                    </tr>
+                </table>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h2 class="sb_registration_title_3">Search:</h2>
+                    </div>
+                </div>
+                <div id="selection">
+                    {% for field in interest_form %}
+                        {% if forloop.last %}
+                            {{ field }}
+                        {% endif %}
+                    {%  endfor %}
+                </div>
+                <input class="btn btn-primary sb_continue_2" type="submit" value="Continue" />
+                </form>
+            </div>
+        </div>
     </div>
-    <input class="btn btn-primary" type="submit" value="Submit" />
-    </form>
+
+{% block footer %}
+{% include "registration_footer.html"%}
+{% endblock footer %}
+
 {% endblock %}
 {% block scripts %}
 	{{ block.super }}
 	<script src="{% static 'js/interest_form.js' %}"></script>
     <script src="{% static 'select2/select2.js' %}"></script>
 {% endblock scripts %}
+

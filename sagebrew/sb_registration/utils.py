@@ -1,16 +1,13 @@
 import os
 import hashlib
-from plebs.neo_models import TopicCategory
 import json
 import urllib
-
 from django.conf import settings
 from boto import connect_s3
 from boto.s3.key import Key
 
-from plebs.neo_models import TopicCategory
+from plebs.neo_models import TopicCategory, Pleb
 from govtrack.neo_models import GTRole
-
 
 
 def generate_interests_tuple():
@@ -109,6 +106,8 @@ def validate_address(address_request):
     contains fields which smartystreets requires to validate an address. If the address
     is valid it returns 1 and if not it fails.
     '''
+    #TODO figure out alternative with buggy addresses
+    #127 glenwood dr walled lake mi 48390
     LOCATION = 'https://api.smartystreets.com/street-address/'#move to settings
     auth_id = '84a98057-05ed-4109-8758-19acd5336c38'
     auth_token = 'p3GbchbjA3q13MUdT7gM'
@@ -229,3 +228,21 @@ def determine_reps(pleb_address):
             rep_name = name.name
     return rep_name
 
+def get_friends(email):
+    '''
+    Creates a list of dictionaries which hold data about the friends of the user
+
+    :param email:
+    :return:
+    '''
+    try:
+        citizen = Pleb.index.get(email=email)
+    except Pleb.DoesNotExist:
+        return []
+    friends = []
+    friends_list = citizen.traverse('friends').run()
+    for friend in friends_list:
+        friend_dict={'name': friend.first_name+' '+friend.last_name,'email': friend.email, 'picture': friend.profile_pic}
+        friends.append(friend_dict)
+
+    return friends

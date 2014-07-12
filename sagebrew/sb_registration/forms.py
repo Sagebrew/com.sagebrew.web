@@ -1,7 +1,4 @@
 from django import forms
-from django.core.files.images import get_image_dimensions
-
-from plebs.neo_models import Pleb
 
 
 class InterestForm(forms.Form):

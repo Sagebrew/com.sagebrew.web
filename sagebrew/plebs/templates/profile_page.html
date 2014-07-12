@@ -6,18 +6,22 @@
 {% endblock %}
 
 {% block content %}
+    {% if is_owner == True %}
     {% block notifications %}
-        {% if is_owner == True %}
-            <a class="btn btn-small btn-block btn-primary show_friend_requests-action">Friend Requests</a>
-            <div id="friend_request_div" style="display:none">
-                {% block friend_requests %}
-                    {% include 'friend_requests.html' %}
-                {% endblock %}
-            </div>
-            <a class="btn btn-small btn-block btn-primary show_notifications-action">Notifications</a>
-        {% endif %}
+        <a class="btn btn-sm btn-primary show_friend_request-action" data-email="{{ pleb_info.email }}">Friend Requests</a>
+        <div id="friend_request_div" style="display:none">
+            {% block friend_requests %}
+                {% include "friend_requests.html"  %}
+            {% endblock %}
+        </div>
+        <a class="btn btn-sm btn-primary show_notifications-action">Notifications</a>
     {% endblock %}
-<h1>{{ pleb_info.first_name }} {{ pleb_info.last_name }}</h1>
+    {% block friends %}
+        {% include "friends_list.html" %}
+    {% endblock %}
+    {% endif %}
+    {% if is_owner == True or is_friend == True %}
+    <h1>{{ pleb_info.first_name }} {{ pleb_info.last_name }}</h1>
     <img src="{{ pleb_info.profile_pic }}" />
     <div align="left"><b>Reputation: </b>{{ pleb_info.reputation }}</div>
     <div align="left"><b>Representatives:</b></div>
@@ -27,19 +31,17 @@
     {% endfor %}
     <div align="left">House Representative:</div>
     <li>{{ rep_name }}</li>
-    {% if is_friend or is_owner %}
-        <textarea class="form-control" id= "post_input_id" name="post_input" cols ='40' rows="3" placeholder="Create a post"></textarea>
-        <a class='btn btn-lg btn-block btn-primary post-action' data-pleb={{ pleb_info.email }}>Create Post</a>
-        <ul>
-        {% block wall %}
-            {% include "wall.html" %}
-        {% endblock %}
-        </ul>
+    <textarea class="form-control" id= "post_input_id" name="post_input" cols ='40' rows="3" placeholder="Create a post"></textarea>
+    <a class='btn btn-lg btn-block btn-primary post-action' data-current_pleb="{{ current_user }}" data-wall_pleb="{{ page_user }}">Create Post</a>
+    <ul>
+    {% block wall %}
+        {% include "wall.html" %}
+    {% endblock %}
+    </ul>
     {% elif is_friend == False and is_owner == False %}
         <a class="btn btn-sm btn-primary send_friend_request-action" data-from_pleb="{{ current_user }}"
                 data-to_pleb="{{ page_user }}">Friend Request</a>
     {% endif %}
-
 {% endblock %}
 
 {% block scripts %}
@@ -54,4 +56,6 @@
     <script src="{% static 'js/edit_comment.js' %}"></script>
     <script src="{% static 'js/send_friend_request.js' %}"></script>
     <script src="{% static 'js/send_notification.js' %}"></script>
+    <script src="{% static 'js/show_friend_request.js'%}"></script>
+    <script src="{% static 'js/respond_friend_request.js' %}"></script>
 {% endblock scripts %}

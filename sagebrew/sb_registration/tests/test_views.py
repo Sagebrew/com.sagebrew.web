@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.test import TestCase, RequestFactory
 
-from sb_registration.views import profile_information, profile_picture, profile_page
+from sb_registration.views import profile_information, profile_page
 
 
 class InterestsTest(TestCase):

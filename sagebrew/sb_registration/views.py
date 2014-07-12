@@ -1,23 +1,15 @@
-import os
 import hashlib
-from json import dumps
-
 from django.conf import settings
 from uuid import uuid1
-from requests import post as request_post
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
-from django.contrib.auth.models import User
 
 from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
-
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm, ProfilePictureForm,
-                    ProfilePageForm, AddressChoiceForm)
+                    AddressChoiceForm)
 from .utils import (validate_address, generate_interests_tuple, upload_image,
                     compare_address, generate_address_tuple,
-                    determine_senators, determine_reps, create_address_string,
+                    create_address_string,
                     create_address_long_hash)
 
 
@@ -204,64 +196,8 @@ def profile_picture(request):
                     destination.write(chunk)
             citizen.profile_pic = upload_image('profile_pictures', image_uuid)
             citizen.save()
-            return redirect('/registration/profile_page/' + citizen.email)#citizen.first_name+'_'+citizen.last_name)
+            return redirect('profile_page', pleb_email = citizen.email)#citizen.first_name+'_'+citizen.last_name)
     else:
         profile_picture_form = ProfilePictureForm()
     return render(request, 'profile_picture.html', {'profile_picture_form': profile_picture_form})
 
-@login_required()
-def profile_page(request, pleb_email):
-    '''
-    Displays the users profile_page. This is where we call the functions to determine
-    who the senators are for the plebs state and which representative for the plebs
-    district
-
-    :param request:
-    :return:
-    '''
-    citizen = Pleb.index.get(email=pleb_email)
-    current_user = request.user
-    page_user = User.objects.get(email = pleb_email)
-    is_owner = False
-    is_friend = False
-    friends_list = citizen.traverse('friends').run()
-    if current_user.email == page_user.email:
-        is_owner = True
-    #TODO traversal to see if current_user is a friend of page_user
-    elif citizen.traverse('friends').where('email','=',current_user.email).run():
-        is_friend = True
-
-    print "is owner", is_owner
-    print "is friend", is_friend
-    profile_page_form = ProfilePageForm(request.GET or None)
-    print citizen.traverse('friends').where('email','=',current_user.email).run()
-    # TODO check for index error
-    # TODO check why address does not always work
-    # TODO deal with address and senator/rep in a util + task
-    #address = citizen.traverse('address').run()[0]
-    #sen_array = determine_senators(address)
-    #rep_array = determine_reps(address)
-    post_data = {'email': citizen.email}
-    headers = {'content-type': 'application/json'}
-    post_req = request_post('https://192.168.56.101/posts/query_posts/',
-                            data=dumps(post_data), verify=False, headers=headers)
-    user_posts = post_req.json()
-    notification_req = request_post('https://192.168.56.101/notifications/query_notifications/',
-                                    data=dumps(post_data), verify=False, headers=headers)
-    user_notifications = notification_req.json()
-    friend_requests_req = request_post('https://192.168.56.101/notifications/query_friend_requests/',
-                                       data=dumps(post_data), verify=False, headers=headers)
-    user_friend_requests = friend_requests_req.json()
-
-    return render(request, 'profile_page.html', {'profile_page_form': profile_page_form,
-                                                 'pleb_info': citizen,
-                                                 'current_user': current_user.email,
-                                                 'page_user': page_user.email,
-                                                 #'senator_names': sen_array,
-                                                 #'rep_name': rep_array,
-                                                 'user_posts': user_posts,
-                                                 'user_notifications': user_notifications,
-                                                 #'user_friend_requests': user_friend_requests,
-                                                 'is_owner': is_owner,
-                                                 'is_friend': is_friend,})
-                                                 #'post_comments': post_comments})

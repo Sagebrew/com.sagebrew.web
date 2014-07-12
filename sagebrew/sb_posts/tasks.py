@@ -4,6 +4,7 @@ from celery import shared_task
 
 from .neo_models import SBPost
 from plebs.neo_models import Pleb
+from sb_notifications.tasks import prepare_post_notification_data
 from .utils import (save_post, edit_post_info, delete_post_info)
 
 
@@ -18,6 +19,12 @@ def delete_post_and_comments(post_info):
 #TODO only allow plebs to change vote
 @shared_task()
 def create_upvote_post(post_info):
+    '''
+    creates an upvote attached to a post
+
+    :param post_info: 
+    :return:
+    '''
     my_post = SBPost.index.get(post_id = post_info['post_uuid'])
     my_pleb = Pleb.index.get(email = post_info['pleb'])
     my_post.up_vote_number += 1
@@ -27,6 +34,12 @@ def create_upvote_post(post_info):
 #TODO only allow plebs to change vote
 @shared_task()
 def create_downvote_post(post_info):
+    '''
+    creates a downvote attached to a post
+
+    :param post_info:
+    :return:
+    '''
     my_post = SBPost.index.get(post_id = post_info['post_uuid'])
     my_pleb = Pleb.index.get(email = post_info['pleb'])
     my_post.down_vote_number += 1
@@ -35,10 +48,11 @@ def create_downvote_post(post_info):
 
 @shared_task()
 def save_post_task(post_info):
-    if save_post(post_info):
+    my_post = save_post(post_info)
+    if my_post is not None:
+        prepare_post_notification_data.apply_async([my_post,])
         return True
-    else:
-        return False
+    return False
 
 
 @shared_task()

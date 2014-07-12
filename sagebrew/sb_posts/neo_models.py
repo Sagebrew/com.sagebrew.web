@@ -1,11 +1,16 @@
 import pytz
 
+from uuid import uuid1
 from datetime import datetime
+
+from random import random
+from django.dispatch import receiver
+from django.db.models.signals import post_save
+
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, ZeroOrOne)
-
 
 class PostedOnRel(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
@@ -52,3 +57,10 @@ class SBAnswer(SBBase):
     #relationships
     possible_answer_to = RelationshipTo('SBQuestion', 'ANSWER')
     selected_answer_to = RelationshipTo('SBQuestion', 'SELECTED_ANSWER_TO')
+
+'''
+@receiver(post_save, sender=SBPost)
+def create_notification_post(sender, instance, **kwargs):
+    from sb_notifications.tasks import prepare_post_notification_data
+'''
+

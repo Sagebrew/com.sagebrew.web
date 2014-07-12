@@ -15,13 +15,11 @@ $( document ).ready(function() {
 			url: "/posts/submit_post/",
 			data: JSON.stringify({
 			   'content': $('textarea#post_input_id').val(),
-               'pleb':$(this).data('pleb')
+               'current_pleb':$(this).data('current_pleb'),
+               'wall_pleb':$(this).data('wall_pleb')
 			}),
 			contentType: "application/json; charset=utf-8",
-			dataType: "json",
-			success: function(data) {
-			   alert(data['here']);
-			}
+			dataType: "json"
 		});
 	});
 });

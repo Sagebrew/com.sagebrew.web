@@ -1,5 +1,12 @@
 {% load i18n %}
 {% load staticfiles %}
-{% for request in user_friend_requests %}
+<div>You have friend requests from:</div>
 
+{% for request in user_friend_requests %}
+    <li>
+        {{ request.from_name }}
+        <a class="btn btn-sm btn-primary respond_friend_request-action" data-response="accept" data-request_id="{{request.request_id}}">Accept</a>
+        <a class="btn btn-sm btn-primary respond_friend_request-action" data-response="deny" data-request_id="{{request.request_id}}">Deny</a>
+        <a class="btn btn-sm btn-primary respond_friend_request-action" data-response="block" data-request_id="{{request.request_id}}">Block</a>
+    </li>
 {% endfor %}

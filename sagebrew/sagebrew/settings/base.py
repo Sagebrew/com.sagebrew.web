@@ -70,6 +70,7 @@ STATICFILES_DIRS = (
     '%s/sb_registration/static/' % PROJECT_DIR,
     '%s/sb_comments/static/' % PROJECT_DIR,
     '%s/sb_posts/static/' % PROJECT_DIR,
+    '%s/sb_relationships/static/' % PROJECT_DIR,
 )
 
 # List of finder classes that know how to find static files in
@@ -127,6 +128,7 @@ TEMPLATE_DIRS = (
     '%s/sagebrew/templates/'  % PROJECT_DIR,
     '%s/sb_registration/templates/' % PROJECT_DIR,
     '%s/sb_wall/templates/' % PROJECT_DIR,
+    '%s/plebs/templates/' % PROJECT_DIR,
 )
 
 FIXTURE_DIRS = (
@@ -172,6 +174,7 @@ INSTALLED_APPS = (
     'sb_posts',
     'sb_wall',
     'sb_notifications',
+    'sb_relationships',
 )
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True

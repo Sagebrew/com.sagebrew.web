@@ -1,6 +1,5 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <head>
     {% load staticfiles %}
         <title>{% block title %}Sagebrew{% endblock title %}</title>
@@ -18,28 +17,26 @@
     {% endblock page-javascript %}
 </head>
 <body id="sb-body">
-        <div id="page-wrapper">
-            <div id="page">
-                {% block navigation %}
-                    {% include "navigation.html" %}
-                {% endblock navigation %}
-                    <div id="search-wrapper">
-                        <div id="search">
-                        </div>
+    <div id="page-wrapper">
+        <div id="page">
+            {% block navigation %}
+                {% include "navigation.html" %}
+            {% endblock navigation %}
+                <div id="search-wrapper">
+                    <div id="search">
                     </div>
-                <div id="header-wrapper">
-                    <div id="header">
-                        {% block header %}
-                        {% endblock %}
-                    </div>
-                </div><!-- #header-wrapper, #header -->
-            </div>
+                </div>
+            <div id="header-wrapper">
+                <div id="header">
+                    {% block header %}
+                    {% endblock %}
+                </div>
+            </div><!-- #header-wrapper, #header -->
         </div>
-    </div>
     </div>
 <div class="row">
             <div id="content-wrapper">
-                <div id="content">
+                <div>
                     {% block content %}
                     {% endblock %}
                 {% block jordans_block %}
@@ -55,7 +52,6 @@
 
 {% block scripts %}
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-	<script src="{% static 'js/jquery-cookie/jquery.cookie.js' %}"></script>
     <script src="{% static 'flat_ui/js/jquery-ui-1.10.3.custom.min.js' %}"></script>
     <script src="{% static 'flat_ui/js/jquery.ui.touch-punch.min.js' %}"></script>
     <script src="{% static 'flat_ui/js/bootstrap.min.js' %}"></script>
@@ -68,7 +64,6 @@
     <script src="{% static 'flat_ui/js/jquery.tagsinput.js' %}"></script>
     <script src="{% static 'flat_ui/js/jquery.placeholder.js' %}"></script>
     <script src="{% static 'flat_ui/js/typeahead.js' %}"></script>
-    <script src="{% static 'flat_ui/js/application.js' %}"></script>
 {% endblock scripts %}
 </body>
 </html>

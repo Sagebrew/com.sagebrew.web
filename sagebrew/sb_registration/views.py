@@ -41,7 +41,6 @@ def profile_information(request):
     address_information_form = AddressInfoForm(request.POST or None)
     address_selection_form = AddressChoiceForm(request.POST or None)
     address_selection = "no_selection"
-
     try:
         citizen = Pleb.index.get(email=request.user.email)
     except Pleb.DoesNotExist:

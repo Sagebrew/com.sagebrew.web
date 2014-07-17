@@ -142,14 +142,14 @@ class InterestForm(forms.Form):
 class ProfileInfoForm(forms.Form):
 
     date_of_birth = forms.DateTimeField(
-        label = "Birthday*",
+        label = "Birthday",
         required = True,
     )
 
     home_town = forms.CharField(
         label = "Hometown",
         max_length = 40,
-        required = False,
+        required = True,
     )
 
     high_school = forms.CharField(
@@ -172,7 +172,7 @@ class ProfileInfoForm(forms.Form):
 
 class AddressInfoForm(forms.Form):
     primary_address = forms.CharField(
-        label = "Primary Address*",
+        label = "Address Line 1",
         max_length = 200,
         required = True,
     )
@@ -184,19 +184,19 @@ class AddressInfoForm(forms.Form):
     )
 
     city = forms.CharField(
-        label = "City*",
+        label = "City",
         max_length = 100,
         required = True,
     )
 
     state = forms.CharField(
-        label = "State*",
+        label = "State",
         max_length = 25,
         required = True,
     )
 
     postal_code = forms.CharField(
-        label = "Postal Code*",
+        label = "Zip Code",
         max_length = 10,
         required = True,
     )
@@ -204,6 +204,7 @@ class AddressInfoForm(forms.Form):
 
 class AddressChoiceForm(forms.Form):
     address_options = forms.ChoiceField(
+        widget=forms.RadioSelect,
         label = "Do you live at",
         choices = (),
         required = False,

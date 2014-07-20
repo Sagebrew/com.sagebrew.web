@@ -4,6 +4,7 @@
 redis-stable.tar.gz
 redis-stable/
 static/*
+sagebrew/static/*
 .idea/workspace.xml
 .vagrant
 *.log

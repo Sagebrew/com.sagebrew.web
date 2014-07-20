@@ -16,4 +16,8 @@ $( document ).ready(function() {
     // Now let's align datepicker with the prepend button
     $(datepickerSelector).datepicker('widget').css({'margin-left': -$(datepickerSelector).prev('.input-group-btn').find('.btn').outerWidth()});
 
+    // Commented out because switching back to a Text field for input. Believe it flows better and improves the look
+    // and feel of the site. This is here as a reminder that we can use JQuery from Flat UI's application.js
+    // file to implement selectors and other UI elements.
+    // $("#id_state").selectpicker({style: 'btn-hg btn-primary', menuStyle: 'dropdown-inverse'});
 });

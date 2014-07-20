@@ -17,53 +17,43 @@
     {% endblock page-javascript %}
 </head>
 <body id="sb-body">
-    <div id="page-wrapper">
-        <div id="page">
-            {% block navigation %}
-                {% include "navigation.html" %}
-            {% endblock navigation %}
-                <div id="search-wrapper">
-                    <div id="search">
+    <div class="container-fluid background">
+        <div class="row sb_navbar">
+            <nav class="navbar navbar-lg" role="navigation">
+                <div class="col-lg-6 col-md-5 col-xs-6">
+                    <div class="navbar-header">
+                        <h1 id="logo">Sagebrew</h1>
                     </div>
                 </div>
-            <div id="header-wrapper">
-                <div id="header">
-                    {% block header %}
-                    {% endblock %}
-                </div>
-            </div><!-- #header-wrapper, #header -->
+                {% block navigation %}
+                    {% include "navigation.html" %}
+                {% endblock navigation %}
+            </nav>
+        </div>
+        <div class="row" id="content_block">
+            {% block content %}
+            {% endblock %}
+        </div>
+        <div class="row">
+            {% block footer %}
+                {% include "footer.html"%}
+            {% endblock footer %}
         </div>
     </div>
-<div class="row">
-            <div id="content-wrapper">
-                <div>
-                    {% block content %}
-                    {% endblock %}
-                {% block jordans_block %}
-                {% endblock jordans_block %}
-                </div>
-            </div><!-- #content-wrapper, #content -->
-</div>
-    <div class="row">
-        {% block footer %}
-            {% include "footer.html"%}
-        {% endblock footer %}<!-- #page-wrapper, #page -->
-    </div>
-
-{% block scripts %}
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-    <script src="{% static 'flat_ui/js/jquery-ui-1.10.3.custom.min.js' %}"></script>
-    <script src="{% static 'flat_ui/js/jquery.ui.touch-punch.min.js' %}"></script>
-    <script src="{% static 'flat_ui/js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'flat_ui/js/bootstrap-select.js' %}"></script>
-    <script src="{% static 'flat_ui/js/bootstrap-switch.js' %}"></script>
-    <script src="{% static 'flat_ui/js/flatui-checkbox.js' %}"></script>
-    <script src="{% static 'flat_ui/js/flatui-radio.js' %}"></script>
-    <script src="{% static 'flat_ui/js/holder.js' %}"></script>
-    <script src="{% static 'flat_ui/js/flatui-fileinput.js' %}"></script>
-    <script src="{% static 'flat_ui/js/jquery.tagsinput.js' %}"></script>
-    <script src="{% static 'flat_ui/js/jquery.placeholder.js' %}"></script>
-    <script src="{% static 'flat_ui/js/typeahead.js' %}"></script>
-{% endblock scripts %}
+    {% block scripts %}
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <script src="{% static 'flat_ui/js/jquery-ui-1.10.3.custom.min.js' %}"></script>
+        <script src="{% static 'flat_ui/js/jquery.ui.touch-punch.min.js' %}"></script>
+        <script src="{% static 'flat_ui/js/bootstrap.min.js' %}"></script>
+        <script src="{% static 'flat_ui/js/bootstrap-select.js' %}"></script>
+        <script src="{% static 'flat_ui/js/bootstrap-switch.js' %}"></script>
+        <script src="{% static 'flat_ui/js/flatui-checkbox.js' %}"></script>
+        <script src="{% static 'flat_ui/js/flatui-radio.js' %}"></script>
+        <script src="{% static 'flat_ui/js/holder.js' %}"></script>
+        <script src="{% static 'flat_ui/js/flatui-fileinput.js' %}"></script>
+        <script src="{% static 'flat_ui/js/jquery.tagsinput.js' %}"></script>
+        <script src="{% static 'flat_ui/js/jquery.placeholder.js' %}"></script>
+        <script src="{% static 'flat_ui/js/typeahead.js' %}"></script>
+    {% endblock scripts %}
 </body>
 </html>

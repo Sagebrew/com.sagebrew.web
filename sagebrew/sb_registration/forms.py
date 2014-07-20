@@ -1,6 +1,9 @@
 from django import forms
 from django.core.files.images import get_image_dimensions
 
+from localflavor.us.forms import USStateSelect, USZipCodeField, USStateField
+from localflavor.us.us_states import US_STATES
+
 from plebs.neo_models import Pleb
 
 
@@ -189,13 +192,11 @@ class AddressInfoForm(forms.Form):
         required = True,
     )
 
-    state = forms.CharField(
-        label = "State",
-        max_length = 25,
-        required = True,
+    state = USStateField(
+        required = True
     )
 
-    postal_code = forms.CharField(
+    postal_code = USZipCodeField(
         label = "Zip Code",
         max_length = 10,
         required = True,
@@ -218,7 +219,6 @@ class ProfilePictureForm(forms.Form):
 class ProfilePageForm(forms.Form):
     picture = forms.URLField(
         label = 'Profile Picture',
-
     )
 
 

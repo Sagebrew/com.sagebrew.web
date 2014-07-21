@@ -18,37 +18,41 @@ def delete_post_and_comments(post_info):
 
 #TODO only allow plebs to change vote
 @shared_task()
-def create_upvote_post(post_info):
+def create_upvote_post(post_uuid=str(uuid1()), pleb=""):
     '''
     creates an upvote attached to a post
 
-    :param post_info: 
+    :param post_info:
+                    post_uuid = str(uuid)
+                    pleb = "" email
     :return:
     '''
-    my_post = SBPost.index.get(post_id = post_info['post_uuid'])
-    my_pleb = Pleb.index.get(email = post_info['pleb'])
+    my_post = SBPost.index.get(post_id = post_uuid)
+    my_pleb = Pleb.index.get(email = pleb)
     my_post.up_vote_number += 1
     my_post.up_voted_by.connect(my_pleb)
     my_post.save()
 
 #TODO only allow plebs to change vote
 @shared_task()
-def create_downvote_post(post_info):
+def create_downvote_post(post_uuid=str(uuid1()), pleb=""):
     '''
     creates a downvote attached to a post
 
     :param post_info:
+                    post_uuid = str(uuid)
+                    pleb = "" email
     :return:
     '''
-    my_post = SBPost.index.get(post_id = post_info['post_uuid'])
-    my_pleb = Pleb.index.get(email = post_info['pleb'])
+    my_post = SBPost.index.get(post_id = post_uuid)
+    my_pleb = Pleb.index.get(email = pleb)
     my_post.down_vote_number += 1
     my_post.down_voted_by.connect(my_pleb)
     my_post.save()
 
 @shared_task()
 def save_post_task(post_info):
-    my_post = save_post(post_info)
+    my_post = save_post(post_id=post_info['post_id'], content=post_info['content'], current_pleb=post_info['pleb'], wall_pleb=post_info['pleb'],)
     if my_post is not None:
         prepare_post_notification_data.apply_async([my_post,])
         return True

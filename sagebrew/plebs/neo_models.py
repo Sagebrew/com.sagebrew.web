@@ -130,6 +130,10 @@ class SBTopic(StructuredNode):
 
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
+        #fixes test fails due to ghost plebs
+        if instance.email == "":
+            return None
+
         citizen = Pleb(email=instance.email, first_name=instance.first_name,
                        last_name=instance.last_name)
         citizen.save()

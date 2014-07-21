@@ -25,6 +25,7 @@ def save_post_view(request):
     '''
     try:
         post_data = get_post_data(request)
+        print post_data
         #post_data['content'] = language_filter(post_data['content'])
         post_data['post_id'] = str(uuid1())
         save_post_task.apply_async([post_data,])

@@ -38,14 +38,10 @@ def profile_page(request, pleb_email):
     is_owner = False
     is_friend = False
     friends_list = get_friends(citizen.email)
-    print friends_list
     if current_user.email == page_user.email:
         is_owner = True
     elif citizen.traverse('friends').where('email','=',current_user.email).run():
         is_friend = True
-
-    print "is owner", is_owner
-    print "is friend", is_friend
     # TODO check for index error
     # TODO check why address does not always work
     # TODO deal with address and senator/rep in a util + task
@@ -57,16 +53,6 @@ def profile_page(request, pleb_email):
     post_req = request_post('https://192.168.56.101/posts/query_posts/',
                             data=dumps(post_data), verify=False, headers=headers)
     user_posts = post_req.json()
-    '''
-    notification_req = request_post('https://192.168.56.101/notifications/query_notifications/',
-                                    data=dumps(post_data), verify=False, headers=headers)
-    user_notifications = notification_req.json()
-    '''
-    '''
-    friend_requests_req = request_post('https://192.168.56.101/notifications/query_friend_requests/',
-                                       data=dumps(post_data), verify=False, headers=headers)
-    user_friend_requests = friend_requests_req.json()
-    '''
 
     return render(request, 'profile_page.html', {
                                                  'pleb_info': citizen,

@@ -20,7 +20,10 @@ $( document ).ready(function() {
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
 			success: function(data) {
-			   alert(data['here']);
+			   if (data['action'] == true) {
+                   $("a.send_friend_request-action").hide();
+                   $("a.delete_friend_request-action").show();
+               }
 			}
 		});
 	});

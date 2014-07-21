@@ -29,11 +29,12 @@ def profile_information(request):
     we provided the user previously based on the previous
     smarty streets ordering.
     '''
+    # TODO Add custom logic after State is submitted that checks if the entered value is within the 50 states
+    # if not return error indicating sorry we currently only support 50
     profile_information_form = ProfileInfoForm(request.POST or None)
     address_information_form = AddressInfoForm(request.POST or None)
     address_selection_form = AddressChoiceForm(request.POST or None)
     address_selection = "no_selection"
-
     try:
         citizen = Pleb.index.get(email=request.user.email)
     except Pleb.DoesNotExist:

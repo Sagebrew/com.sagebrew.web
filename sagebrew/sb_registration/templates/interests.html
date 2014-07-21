@@ -1,45 +1,106 @@
-{% extends "base.html" %}
+{% extends "registration_base.html" %}
 {% load staticfiles %}
 {% block css %}
     {{ block.super }}
     <link href="{% static 'select2/select2.css' %}" rel="stylesheet"/>
 {% endblock css %}
-
-{% block navigation %}
-    {% include "navigation.html" %}
-{% endblock %}
 {% block content %}
     <ul>
     {% for error in interest_form.errors %}
         <li>error</li>
     {% endfor %}
     </ul>
-    <form action="/registration/interests/" method="post">{% csrf_token %}
-    <table>
-        <tr>
-        {% for field in interest_form %}
-            {% if not forloop.last %}
-                <td class="has-popover" data-content="{{ field.help_text }}" data-placement="right" data-container="body" valign="middle" style="padding-right: 15px">{{ field.label_tag }}</td><td valign="top" style="padding-right: 15px; "> {{ field }}</td>
-   0         {% endif %}
-            {% if forloop.counter0|divisibleby:3 %}
-                </tr><tr>
-            {% endif %}
-        {% endfor %}
-        </tr>
-    </table>
-
-    <div id="selection">
-        {% for field in interest_form %}
-            {% if forloop.last %}
-                {{ field }}
-            {% endif %}
-        {%  endfor %}
+    <div class="content_wrapper  container-fluid background background_interests">
+        <div class="row row_main_interests">
+                    <div class="row info_square info_square_3 hidden-lg hidden-md hidden-sm hidden-xs">
+            <div class="paragraph">
+                <p>Why do you need my personal information?</p>
+            </div>
+        </div>
+             <div class="row">
+                  <div class="col-lg-8 col-md-6 col-sm-4 col-xs-12 cold-xs-4 ">
+                       <div>
+                            <h2 class="sb_registration_title_2">Conversational Topics</h2>
+                       </div>
+                  </div>
+                  <div class="col-lg-3 col-md-4 col-sm-5 col-xs-4 col-lg-offset-1 col-md-offset-2 col-sm-offset-3 col-xs-offset-2">
+                       <div>
+                            <h4 class="sb_steps hidden-xs">Step 2 of 3</h4>
+                       </div>
+                  </div>
+             </div>
+             <div class="interests_form">
+                 <form action="/registration/interests/" method="post">{% csrf_token %}
+                 <div class="row sb_interests">
+                    {% for field in interest_form %}
+                        {% if field.id_for_label == "id_select_all" %}
+                            <div class="row sb_all_check">
+                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-10 col-md-offset-1">
+                                    <div class="has-popover" data-toggle="tooltip" data-original-title="{{ field.help_text }}">
+                                        {{ field.label_tag }}
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-1">
+                                    <label class="checkbox toggle-all" for="{{ field.id_for_label }}">
+                                        <input type="checkbox" value="" name={{ field.html_name }} id="{{ field.id_for_label }}" data-toggle="checkbox">
+                                    </label>
+                                </div>
+                            </div>
+                        {% elif not forloop.last and not field.id_for_label == "id_select_all" %}
+                            <div class="col-lg-3 col-md-3 col-sm-4 col-xs-10 col-md-offset-1">
+                                <div class="tooltips" id="InterestForm"data-toggle="tooltip" data-original-title="{{ field.help_text }}">
+                                    {{ field.label_tag }}
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-md-2 col-sm-2 col-xs-1">
+                                <label class="checkbox" for="{{ field.id_for_label }}">
+                                    <input type="checkbox" value="" name={{ field.html_name }} id="{{ field.id_for_label }}" data-toggle="checkbox">
+                                </label>
+                                {% comment %}
+                                    <label class="checkbox primary" for="{{ field.id_for_label }}">
+                                        <span class="icons">
+                                            <span class="first_icon fui-checkbox-unchecked"></span>
+                                            <span class="second-icon fui-checkbox-checked"></span>
+                                        </span>
+                                        <input id="{{ field.id_for_label }}" name="{{ field.html_name }}" type="checkbox" value="{{ field.value }}" data-toggle="checkbox">
+                                    </label>
+                                {% endcomment %}
+                            </div>
+                        {% endif %}
+                   {% endfor %}
+                </div>
+            <div class="row">
+                <div class="col-lg-12 col-xs-10">
+                    <h2 class="sb_registration_title_2">Search:</h2>
+                </div>
+            </div>
+            <div class="row sb_search">
+                    <div class="row" id="sb_interest_search">
+                        <div class="specific_interests">
+                            <div class="col-lg-10 col-md-10 col-sm-10 col-lg-offset-1 col-md-offset-1 col-sm-offset-1">
+                                {% for field in interest_form %}
+                                    {% if forloop.last %}
+                                        {{ field }}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                <div class="row">
+                    <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12 col-lg-offset-8 col-md-offset-8 col-sm-offset-7">
+                        <input class="btn btn-primary sb_continue" type="submit" value="Continue"/>
+                    </div>
+                </div>
+            </div>
+            </form>
+        </div>
     </div>
-    <input class="btn btn-primary" type="submit" value="Submit" />
-    </form>
+</div>
+
 {% endblock %}
 {% block scripts %}
 	{{ block.super }}
 	<script src="{% static 'js/interest_form.js' %}"></script>
     <script src="{% static 'select2/select2.js' %}"></script>
 {% endblock scripts %}
+

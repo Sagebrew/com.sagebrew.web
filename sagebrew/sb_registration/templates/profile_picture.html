@@ -1,7 +1,9 @@
-{% extends "base.html" %}
-{% block navigation %}
-    {% include "logged_in_nav.html" %}
-{% endblock %}
+{% extends "registration_base.html" %}
+{% load staticfiles %}
+{% block css %}
+    {{ block.super }}
+    <link href="{% static 'jcrop/css/jquery.Jcrop.css' %}" rel="stylesheet"/>
+{% endblock css %}
 {% block content %}
     <div class="row row_main_picture">
         <div class="row">
@@ -56,14 +58,12 @@
                         {% endfor %}
                     </div>
                 </form>
-
             </div>
         </div>
     </div>
 {% endblock %}
-{% block footer %}
-    {% include "registration_footer.html"%}
-{% endblock footer %}
 {% block scripts %}
     {{ block.super }}
+    <script src="{% static 'jcrop/js/jquery.Jcrop.min.js' %}"></script>
+    <script src="{% static 'js/profile_picture_form.js' %}"></script>
 {% endblock scripts %}

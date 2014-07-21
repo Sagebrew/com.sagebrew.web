@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block css %}
+    {{ block.super }}
+    <link href="{% static 'css/sb_registration.css' %}" rel="stylesheet"/>
+{% endblock css %}
+{% block navigation %}
+    {% include "logged_in_nav.html" %}
+{% endblock %}
+{% block footer %}
+    {% include "registration_footer.html"%}
+{% endblock footer %}

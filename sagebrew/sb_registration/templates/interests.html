@@ -1,13 +1,9 @@
-{% extends "base.html" %}
+{% extends "registration_base.html" %}
 {% load staticfiles %}
 {% block css %}
     {{ block.super }}
     <link href="{% static 'select2/select2.css' %}" rel="stylesheet"/>
 {% endblock css %}
-
-{% block navigation %}
-    {% include "logged_in_nav.html" %}
-{% endblock %}
 {% block content %}
     <ul>
     {% for error in interest_form.errors %}
@@ -45,12 +41,8 @@
                                     </div>
                                 </div>
                                 <div class="col-lg-2 col-md-2 col-sm-2 col-xs-1">
-                                    <label class="checkbox primary" for="{{ field.id_for_label }}">
-                                        <span class="icons">
-                                            <span class="first_icon fui-checkbox-unchecked"></span>
-                                            <span class="second-icon fui-checkbox-checked"></span>
-                                        </span>
-                                        {{ field }}
+                                    <label class="checkbox toggle-all" for="{{ field.id_for_label }}">
+                                        <input type="checkbox" value="" name={{ field.html_name }} id="{{ field.id_for_label }}" data-toggle="checkbox">
                                     </label>
                                 </div>
                             </div>
@@ -61,13 +53,18 @@
                                 </div>
                             </div>
                             <div class="col-lg-2 col-md-2 col-sm-2 col-xs-1">
-                                <label class="checkbox primary" for="{{ field.id_for_label }}">
-                                    <span class="icons">
-                                        <span class="first_icon fui-checkbox-unchecked"></span>
-                                        <span class="second-icon fui-checkbox-checked"></span>
-                                    </span>
-                                    <input id="{{ field.id_for_label }}" name="{{ field.html_name }}" type="checkbox" value="{{ field.value }}" data-toggle="checkbox">
+                                <label class="checkbox" for="{{ field.id_for_label }}">
+                                    <input type="checkbox" value="" name={{ field.html_name }} id="{{ field.id_for_label }}" data-toggle="checkbox">
                                 </label>
+                                {% comment %}
+                                    <label class="checkbox primary" for="{{ field.id_for_label }}">
+                                        <span class="icons">
+                                            <span class="first_icon fui-checkbox-unchecked"></span>
+                                            <span class="second-icon fui-checkbox-checked"></span>
+                                        </span>
+                                        <input id="{{ field.id_for_label }}" name="{{ field.html_name }}" type="checkbox" value="{{ field.value }}" data-toggle="checkbox">
+                                    </label>
+                                {% endcomment %}
                             </div>
                         {% endif %}
                    {% endfor %}
@@ -101,10 +98,6 @@
 </div>
 
 {% endblock %}
-{% block footer %}
-{% include "registration_footer.html"%}
-{% endblock footer %}
-
 {% block scripts %}
 	{{ block.super }}
 	<script src="{% static 'js/interest_form.js' %}"></script>

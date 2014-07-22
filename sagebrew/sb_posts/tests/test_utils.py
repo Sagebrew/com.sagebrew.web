@@ -1,9 +1,9 @@
+import time
 from uuid import uuid1
 
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from sb_posts.tasks import save_post_task, edit_post_info_task
 from sb_posts.utils import save_post, edit_post_info, delete_post_info, create_post_vote
 from sb_comments.neo_models import SBComment
 from sb_posts.neo_models import SBPost
@@ -87,6 +87,70 @@ class TestPostVotes(TestCase):
     def test_upvote_post(self):
         uuid = str(uuid1())
         post = save_post(post_id=uuid, content="test post", current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
-        create_post_vote(pleb=self.pleb.email,post_uuid=post.post_id,vote_type='up')
+        create_post_vote(pleb=self.pleb.email,post_uuid=post.post_id,vote_type="up")
+        time.sleep(1) #wait for task to finish
+        post.refresh()
 
         self.assertEqual(post.up_vote_number, 1)
+
+    def test_downvote_post(self):
+        uuid = str(uuid1())
+        post = save_post(post_id=uuid, content="test post", current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
+        create_post_vote(pleb=self.pleb.email,post_uuid=post.post_id,vote_type="down")
+        time.sleep(1) #wait for task to finish
+        post.refresh()
+
+        self.assertEqual(post.down_vote_number, 1)
+
+    def test_downvote_twice(self):
+        uuid = str(uuid1())
+        post = save_post(post_id=uuid, content="test post", current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
+        create_post_vote(pleb=self.pleb.email,post_uuid=post.post_id,vote_type="down")
+        time.sleep(1) #wait for task to finish
+        post.refresh() #refresh instance of post after changes
+        create_post_vote(pleb=self.pleb.email,post_uuid=post.post_id,vote_type="down")
+        time.sleep(1) #wait for task to finish
+        post.refresh() #refresh instance of post after changes
+
+        self.assertEqual(post.down_vote_number, 1)
+
+    def test_upvote_twice(self):
+        uuid = str(uuid1())
+        post = save_post(post_id=uuid, content="test post", current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
+        create_post_vote(pleb=self.pleb.email,post_uuid=post.post_id,vote_type="up")
+        time.sleep(1) #wait for task to finish
+        post.refresh() #refresh instance of post after changes
+        create_post_vote(pleb=self.pleb.email,post_uuid=post.post_id,vote_type="up")
+        time.sleep(1) #wait for task to finish
+        post.refresh() #refresh instance of post after changes
+
+        self.assertEqual(post.up_vote_number, 1)
+
+    def test_upvote_then_downvote(self):
+        uuid = str(uuid1())
+        post = save_post(post_id=uuid, content="test post", current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
+        create_post_vote(pleb=self.pleb.email,post_uuid=post.post_id,vote_type="up")
+        time.sleep(1) #wait for task to finish
+        post.refresh() #refresh instance of post after changes
+        create_post_vote(pleb=self.pleb.email,post_uuid=post.post_id,vote_type="down")
+        time.sleep(1) #wait for task to finish
+        post.refresh() #refresh instance of post after changes
+
+        self.assertEqual(post.up_vote_number, 1)
+        self.assertEqual(post.down_vote_number, 0)
+
+    def test_down_then_upvote(self):
+        uuid = str(uuid1())
+        post = save_post(post_id=uuid, content="test post", current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
+        create_post_vote(pleb=self.pleb.email,post_uuid=post.post_id,vote_type="down")
+        time.sleep(1) #wait for task to finish
+        post.refresh() #refresh instance of post after changes
+        create_post_vote(pleb=self.pleb.email,post_uuid=post.post_id,vote_type="up")
+        time.sleep(1) #wait for task to finish
+        post.refresh() #refresh instance of post after changes
+
+        self.assertEqual(post.down_vote_number, 1)
+        self.assertEqual(post.up_vote_number, 0)
+
+
+    #TODO votes from different users

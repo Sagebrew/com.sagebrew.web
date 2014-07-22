@@ -15,7 +15,6 @@ def delete_post_and_comments(post_info):
     else:
         delete_post_and_comments.apply_async([post_info,], countdown=1)
 
-
 #TODO only allow plebs to change vote
 @shared_task()
 def create_upvote_post(post_uuid=str(uuid1()), pleb=""):
@@ -52,17 +51,15 @@ def create_downvote_post(post_uuid=str(uuid1()), pleb=""):
 
 @shared_task()
 def save_post_task(post_info):
-    my_post = save_post(post_id=post_info['post_id'], content=post_info['content'], current_pleb=post_info['pleb'], wall_pleb=post_info['pleb'],)
+    my_post = save_post(**post_info)
     if my_post is not None:
-        prepare_post_notification_data.apply_async([my_post,])
+        #prepare_post_notification_data.apply_async([my_post,])
         return True
     return False
 
-
 @shared_task()
 def edit_post_info_task(post_info):
-    if edit_post_info(post_info):
+    if edit_post_info(**post_info):
         return True
     else:
         edit_post_info_task.apply_async([post_info,], countdown=1)
-        return False

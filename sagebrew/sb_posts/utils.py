@@ -52,10 +52,11 @@ def save_post(post_id=str(uuid1()),content="",current_pleb="",wall_pleb=""):
         rel.save()
         rel_from_pleb = poster.posts.connect(my_post)
         rel_from_pleb.save()
+        print "post created"
         return my_post
     #determine who posted/shared/...
 
-def edit_post_info(content="", post_uuid=str(uuid1())):
+def edit_post_info(content="", post_id=str(uuid1())):
     '''
     changes the content of the post linked to the id passed to the function
     to the content which was passed
@@ -66,15 +67,16 @@ def edit_post_info(content="", post_uuid=str(uuid1())):
     :return:
     '''
     try:
-        my_post = SBPost.index.get(post_id = post_uuid)
+        my_post = SBPost.index.get(post_id = post_id)
         my_post.content = content
         my_post.last_edited_on = datetime.now(pytz.utc)
         my_post.save()
+        print 'post edited:', my_post.content
         return my_post
     except SBPost.DoesNotExist:
         return False
 
-def delete_post_info(post_uuid=str(uuid1())):
+def delete_post_info(post_id=str(uuid1())):
     '''
     deletes the post and all comments attached to it
 
@@ -83,11 +85,12 @@ def delete_post_info(post_uuid=str(uuid1())):
     :return:
     '''
     try:
-        my_post = SBPost.index.get(post_id = post_uuid)
+        my_post = SBPost.index.get(post_id = post_id)
         post_comments = my_post.traverse('comments')
         for comment in post_comments:
             comment.delete()
         my_post.delete()
+        print 'post and comments deleted'
         return True
     except SBPost.DoesNotExist:
         return False
@@ -112,9 +115,9 @@ def create_post_vote(pleb="", post_uuid=str(uuid1()), vote_type=""):
         print "You have voted already!"
     else:
         if vote_type == 'up':
-            create_upvote_post.apply_async([post_uuid,pleb,])
+            create_upvote_post.apply_async(args=[post_uuid,pleb])
             print "Thanks for voting!"
         elif vote_type =='down':
-            create_downvote_post.apply_async([post_uuid,pleb,])
+            create_downvote_post.apply_async(args=[post_uuid,pleb])
             print "Thanks for voting!"
 

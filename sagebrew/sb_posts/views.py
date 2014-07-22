@@ -25,7 +25,6 @@ def save_post_view(request):
     '''
     try:
         post_data = get_post_data(request)
-        print post_data
         #post_data['content'] = language_filter(post_data['content'])
         post_data['post_id'] = str(uuid1())
         save_post_task.apply_async([post_data,])
@@ -57,7 +56,8 @@ def edit_post(request):
     '''
     try:
         post_data = get_post_data(request)
-        edit_post_info_task(post_data)
+        post_data = post_data.dict()
+        edit_post_info_task.apply_async([post_data,])
         return Response({"detail": "Post edited!"})
     except:
         return Response({"detail": "Post editing failed!"})
@@ -67,6 +67,7 @@ def edit_post(request):
 def delete_post(request):
     try:
         post_data = get_post_data(request)
+        post_data = post_data.dict()
         delete_post_and_comments.apply_async([post_data,])
         return Response({"detail": "Post deleted!"})
     except:

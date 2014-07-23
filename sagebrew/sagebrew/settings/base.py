@@ -5,6 +5,8 @@ from os import environ, path, makedirs
 from unipath import Path
 from datetime import timedelta
 
+from celery.schedules import crontab
+
 
 PROJECT_DIR = Path(__file__).ancestor(3)
 MEDIA_ROOT = PROJECT_DIR.child("media")
@@ -174,6 +176,7 @@ INSTALLED_APPS = (
     'sb_posts',
     'sb_notifications',
     'sb_relationships',
+    'sb_garbage',
 )
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
@@ -221,7 +224,13 @@ CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
 CELERY_IGNORE_RESULT = False
 
-CELERYBEAT_SCHEDULE = {}
+CELERYBEAT_SCHEDULE = {
+    'empty-garbage-can-minute':{
+        'task': 'sb_garbage.tasks.empty_garbage_can',
+        'schedule': crontab(),
+        'args': (),
+    }
+}
 CELERY_TIMEZONE = 'UTC'
 
 BOMBERMAN_API_KEY = '6a224aea0ecb3601ae9197c5762aef56'

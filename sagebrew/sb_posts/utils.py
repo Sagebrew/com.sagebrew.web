@@ -17,9 +17,9 @@ def get_pleb_posts(pleb_object):
     '''
     try:
         pleb_wall = pleb_object.traverse('wall').run()[0]
-        pleb_posts = pleb_wall.traverse('post').run()
+        pleb_posts = pleb_wall.traverse('post').where('to_be_deleted', '=', False).run()
         return get_post_comments(pleb_posts)
-    except:
+    except :
         print "failed to retrieve posts"
         return {"details": "You have no posts!"}
 
@@ -54,6 +54,8 @@ def save_post(post_id=str(uuid1()),content="",current_pleb="",wall_pleb=""):
         rel_from_pleb.save()
         print "post created"
         return my_post
+    except SBPost.ValueError:
+        return None
     #determine who posted/shared/...
 
 def edit_post_info(content="", post_id=str(uuid1())):

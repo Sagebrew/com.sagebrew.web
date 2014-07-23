@@ -156,5 +156,6 @@ def delete_comment_util(comment_uuid=str(uuid1())):
     '''
     my_comment = SBComment.index.get(comment_id = comment_uuid)
     my_comment.delete()
+    print "comment deleted"
     return True
 

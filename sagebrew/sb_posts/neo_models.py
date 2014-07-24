@@ -24,6 +24,7 @@ class SBBase(StructuredNode):
     up_vote_number = IntegerProperty(default=0)
     down_vote_number = IntegerProperty(default=0)
     last_edited_on = DateTimeProperty(default=None)
+    to_be_deleted = BooleanProperty(default=False)
 
     #relationships
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'OWNED_BY', model=PostedOnRel)

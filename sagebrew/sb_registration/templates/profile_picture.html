@@ -1,45 +1,125 @@
-{% extends "base.html" %}
-{% block navigation %}
-    {% include "navigation.html" %}
-{% endblock %}
-
+{% extends "registration_base.html" %}
+{% load staticfiles %}
+{% block css %}
+    {{ block.super }}
+    <link href="{% static 'jcrop/css/jquery.Jcrop.css' %}" rel="stylesheet" type="text/css"/>
+{% endblock css %}
 {% block content %}
-<div class="content_wrapper  container-fluid background">
-    <div class="row row_main">
-        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-
+    <div class="row row_main_picture">
+        <div class="row">
+            <div class="col-lg-8 col-md-6 col-sm-12 col-xs-12 cold-xs-4 ">
+                <h2 class="sb_registration_title_2">Profile Picture</h2>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3 col-lg-offset-1 col-md-offset-2 col-sm-offset-3 ">
+               <div>
+                    <h4 class="sb_steps hidden-sm hidden-xs">Step 3 of 3</h4>
+               </div>
+            </div>
+        </div>
+        <div class="row" id="image_upload_div">
             <form enctype="multipart/form-data" action="/registration/profile_picture/" method="post">{% csrf_token %}
-                <h1 class="sb_registration_title_3">Add your profile picture!</h1>
+                {% comment %}
+                <div class="fileinput fileinput-new" data-provides="fileinput">
 
-                   <div>
-                       <h4 class="sb_steps hidden-xs">Step 3 of 3</h4>
-                   </div>
+							  <div class="fileinput-new thumbnail" style="width: 120px; height: 120px;">
+							    <img data-src="{% static 'media/ziggzi.png' %}" alt="Put our default image">
+							  </div>
+							  <div class="fileinput-preview fileinput-exists thumbnail" id="sample_image" style="max-width: 500px; max-height: 500px;">
+							  </div>
 
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="form-group">
-                        <div class="fileinput fileinput-new" data-provides="fileinput"><input type="hidden">
-                            <div class="fileinput-new thumbnail" style="width: 200px; height: 150px;">
-                                <img data-src="holder.js/100%x100%" alt="100%x100%" style="height: 100%; width: 100%; display: block;" src="data:image/png;base64,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">
-                            </div>
-                        <div class="fileinput-preview fileinput-exists thumbnail" style="max-width: 200px; max-height: 150px; line-height: 12px;"></div>
-                            <div>
-                                <span class="btn btn-primary btn-embossed btn-file">
-                                    <span class="fileinput-new"><span class="fui-image"></span>&nbsp;&nbsp;Select image</span>
-                                    <span class="fileinput-exists"><span class="fui-gear"></span>&nbsp;&nbsp;Change</span>
-                                    <input type="file" name="...">
-                                </span>
-                                    <a href="#" class="btn btn-primary btn-embossed fileinput-exists" data-dismiss="fileinput"><span class="fui-trash"></span>&nbsp;&nbsp;Remove</a>
-                            </div>
-                        </div>
+                              <div>
+							    <span class="btn btn-primary btn-embossed btn-file">
+								    <span class="fileinput-new"><span class="fui-image"></span>&nbsp;&nbsp;Select image</span>
+								    <span class="fileinput-exists"><span class="fui-gear"></span>&nbsp;&nbsp;Change</span>
+								    <input type="file" id="profile_pic_upload" name="...">
+							    </span>
+							    <a href="#" class="btn btn-primary btn-embossed fileinput-exists" data-dismiss="fileinput"><span class="fui-trash"></span>&nbsp;&nbsp;Remove</a>
+							  </div>
+							</div>
+					{% endcomment %}
+                <div class="row" align="center">
+                    <div>
+                        <span class="btn btn-primary btn-embossed btn-file">
+                            <span class="fileinput-new"><span class="fui-image"></span>Upload Image</span>
+                            <input id="profile_pic_upload" type="file" name="">
+                        </span>
+                </div>
+                <div class="row" align="center">
+                    <input class="btn btn-primary sb_complete" type="submit" value="Complete" />
+                </div>
+                <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+                    <div class="modal-header">
+                        <a class="fui-cross-inverted close" data-dismiss="modal"></a>
+                        <h3 id="profile_picture_header">Upload Profile Picture</h3>
+                    </div>
+                    <div class="modal-body">
+
+                            {% for field in profile_picture_form %}
+                                    {% if field.id_for_label == "id_picture" %}
+                                        <div class="fileinput fileinput-new" data-provides="fileinput">
+                                            <div class="fileinput-new thumbnail" style="width: 300px; height: 300px;">
+                                                <img data-src="{% static 'media/ziggzi.png' %}" alt="Put our default image">
+                                            </div>
+                                            <div class="row" align="center">
+                                                <div class="fileinput-preview fileinput-exists thumbnail" id="image_uploaded" style="max-width: 500px; max-height: 500px;">
+
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="row" align="center">
+                                                    <span class="btn btn-primary btn-embossed btn-file sb_select">
+                                                        <span class="fileinput-exists"><span class="fui-gear"></span>&nbsp;&nbsp;Change</span>
+                                                        <input type="file" name="...">
+                                                    </span>
+                                                </div>
+                                                <div class="row" align="center">
+                                                    <a href="" class="btn btn-primary btn-embossed fileinput-exists sb_remove" data-dismiss="fileinput"><span class="fui-trash"></span>&nbsp;&nbsp;Remove</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+
+                    </div>
+                    <div class="modal-footer">
+                        <a href="" class="btn btn-primary">Save changes</a>
+                        <a href="" class="btn btn-primary">Close</a>
                     </div>
                 </div>
-	        </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
- </div>
-        {% block footer %}
-            {% include "registration_footer.html"%}
-        {% endblock footer %}
+{% comment %}
+
+{% endcomment %}
 {% endblock %}
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/profile_picture_form.js' %}"></script>
+    <script src="{% static 'jcrop/js/jquery.Jcrop.js' %}"></script>
+{% endblock scripts %}
+
+                        {% comment %}
+                            {% for field in profile_picture_form %}
+                                {% if field.id_for_label == "id_picture" %}
+                                    <div class="sb_fileinput fileinput fileinput-new row sb_picture jcrop-holder" data-provides="fileinput"><input type="hidden">
+                                        <div class="row" align="center">
+                                            <div id="target" class="fileinput-preview" data-trigger="fileinput" style="width: 265px; height: 265px; line-height: 160px;">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="row" align="center">
+                                                <span class="btn btn-primary btn-embossed btn-file sb_select">
+                                                    <span class="fileinput-new "><span class="fui-image"></span>&nbsp;&nbsp;Select image</span>
+                                                    <span class="fileinput-exists"><span class="fui-gear"></span>&nbsp;&nbsp;Change</span>
+                                                    <input type="file" name="...">
+                                                </span>
+                                            </div>
+                                            <div class="row" align="center">
+                                                <a href="" class="btn btn-primary btn-embossed fileinput-exists sb_remove" data-dismiss="fileinput"><span class="fui-trash"></span>&nbsp;&nbsp;Remove</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endcomment %}

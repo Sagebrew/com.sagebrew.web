@@ -1,113 +1,238 @@
-{% extends "base.html" %}
-
-{% block navigation %}
-    {% include "logged_in_nav.html" %}
-{% endblock %}
-
+{% extends "registration_base.html" %}
+{% load staticfiles %}
 {% block title %} Profile Information {% endblock %}
 {% block content %}
-    <div class="content_wrapper  container-fluid background">
-        <div class="row row_main">
-            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <form action="/registration/profile_information/" method = "post">{% csrf_token %}
+    <div class="row row_main_information">
+        <form action="/registration/profile_information/" method = "POST">{% csrf_token %}
+            <div class="row">
                 <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-4 col-xs-12 cold-xs-4 ">
+                    <div class="col-lg-6 col-md-6 col-sm-7 col-xs-11 ">
                         <div>
-                            <h2 class="sb_profile_info">Profile Information</h2>
+                            <h2 class="sb_profile_info hidden-xs">Profile Information</h2>
+                        </div>
+                        <div>
+                            <h2 class="sb_profile_info hidden-lg hidden-md hidden-sm">Profile Info</h2>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-4 col-sm-5 col-xs-4 col-lg-offset-3 col-md-offset-2 ">
+                    <div class="col-lg-3 col-md-3 col-sm-5 col-xs-4 col-lg-offset-3 col-md-offset-3 ">
                         <div>
-                            <h4 class="sb_steps hidden-sm hidden-xs">Step 1 of 3</h4>
+                            <h4 class="sb_steps hidden-xs">Step 1 of 3</h4>
                         </div>
                     </div>
                 </div>
-        <div class="row info_square  hidden-sm hidden-xs">
-            <div class="paragraph">
-                <p>Why do you need my personal information?</p>
+                <div class="info_square  hidden-md hidden-sm hidden-xs">
+                    <div class="paragraph">
+                        <p>Why do you need my personal information?</p>
+                    </div>
+                </div>
+                <div class="info_square info_square_2 hidden-md hidden-sm hidden-xs">
+                    <div class="paragraph">
+                        <p>Why do you need to know where I live?</p>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="row  info_square info_square_2 hidden-sm hidden-xs">
-            <div class="paragraph">
-                <p>Why do you need to know where I live?</p>
-            </div>
-        </div>
             <div class="row">
-                <div class="col-lg-10 col-md-10 col-sm-11 col-xs-12 col-lg-offset-2 col-md-offset-2 col-sm-offset-1 ">
-                        <div id="profile_information">
-                             {%  for field in profile_information_form %}
-                             {% if field.id_for_label == "id_date_of_birth" %}
-                            <div class="row">
-                                <div class="col-lg-2">
-                                    <p>Birthday*</p>
-                                </div>
-                                <div class="col-lg-4">
-                                        <div class="form-group">
+            <!--personal info block -->
+                {% for field in profile_information_form %}
+                    {% for error in field.errors %}
+                        <p class="sb_error">{{field.label}} : {{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
+                <div id="profile_information">
+                    {% for field in profile_information_form %}
+                        <div class="row">
+                            <div class="col-lg-3 col-md-4 col-sm-4  hidden-xs">
+                                <p class="sb_label">{{ field.label }}</p>
+                            </div>
+                            <div class="col-lg-4 col-md-5 col-sm-5 col-xs-10 col-xs-offset-1">
+                                {% if field.id_for_label != "id_date_of_birth" %}
+                                    <div class="form-group">
+                                        {% if field.errors %}
+                                            <div class="has-error">
+                                        {% else %}
+                                            <div class="form-group">
+                                        {% endif %}
+                                {% endif %}
+                                {% if field.id_for_label == "id_date_of_birth" %}
+                                    <div class="form-group">
+                                        {% if field.errors %}
+                                            <div class="input-group has-error">
+                                        {% else %}
                                             <div class="input-group">
+                                        {% endif %}
                                                 <span class="input-group-btn">
                                                     <button class="btn" type="button"><span class="fui-calendar"></span></button>
                                                 </span>
-                                                <input type="text" class="form-control hasDatepicker" value="" id="datepicker-01">
+                                                {% if field.value == None %}
+                                                    <input type="text" class="form-control sb_date" name="{{ field.html_name }}" value="" placeholder="When were you born?" id="datepicker-01">
+                                                {% else %}
+                                                    <input type="text" class="form-control sb_date" name="{{ field.html_name }}" value="{{ field.value }}" placeholder="When were you born?" id="datepicker-01">
+                                                {% endif %}
                                             </div>
+                                    </div>
+                                {% elif field.id_for_label == "id_home_town" %}
+                                    {% if field.value == None %}
+                                        <input type="text" value="" name="{{ field.html_name }}" placeholder="Where did you grow up?" class="form-control input-lg">
+                                    {% else %}
+                                        <input type="text" value="{{ field.value }}" name="{{ field.html_name }}" placeholder="Where did you grow up?" class="form-control input-lg">
+                                    {% endif %}
+                                {% elif field.id_for_label == "id_high_school" %}
+                                    {% if field.value == None %}
+                                        <input type="text" value="" name="{{ field.html_name }}" placeholder="Where did you go to school?" class="form-control input-lg">
+                                    {% else %}
+                                        <input type="text" value="{{ field.value }}" name="{{ field.html_name }}"  placeholder="Where did you go to school?" class="form-control input-lg">
+                                    {% endif %}
+                                {% elif field.id_for_label == "id_college" %}
+                                    {% if field.value == None %}
+                                        <input type="text" value="" name="" placeholder="Where did you go to college?" class="form-control input-lg">
+                                    {% else %}
+                                        <input type="text" value="{{ field.value }}" name="{{ field.html_name }}" class="form-control input-lg">
+                                    {% endif %}
+                                {% elif field.id_for_label == "id_employer" %}
+                                    {% if field.value == None %}
+                                        <input type="text" value="" name="" placeholder="Who do you work for?" class="form-control input-lg">
+                                    {% else %}
+                                        <input type="text" value="{{ field.value }}" name="{{ field.html_name }}" class="form-control input-lg">
+                                    {% endif %}
+                                {% endif %}
+                                {% if field.id_for_label != "id_date_of_birth" %}
                                         </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <p class="sb_label_2 hidden-xs">Primary Address</p>
+                    <h2 class="sb_profile_info hidden-lg hidden-md hidden-sm">Primary Address</h2>
+                </div>
+            </div>
+            <div class="row">
+            <!-- Beginning of address info-->
+                {% for field in address_information_form %}
+                    {% for error in field.errors %}
+                        <p class="sb_error">{{field.label}} : {{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
+                <div class="address_information">
+                    {% for field in address_information_form %}
+                        {% if field.id_for_label == "id_primary_address" or field.id_for_label == "id_street_additional" %}
+                            <div class="row row_address">
+                                <div class="col-lg-6 col-md-9 col-sm-9 col-xs-12 col-lg-offset-2 col-md-offset-1 col-sm-offset-1">
+                                    <div class="form-group">
+                                        {% if field.errors %}
+                                            <div class="has-error">
+                                        {% else %}
+                                            <div class="form-group">
+                                        {% endif %}
+                                        {% if field.id_for_label == "id_primary_address" %}
+                                            {% if field.value == None %}
+                                                <input type="text" name="primary_address" value="" placeholder="Address Line 1" class="form-control input-lg">
+                                            {% else %}
+                                                <input type="text" name="primary_address" value="{{ field.value }}" placeholder="Address Line 1" class="form-control input-lg">
+                                            {% endif %}
+                                        {% elif field.id_for_label == "id_street_additional" %}
+                                            {% if field.value == None %}
+                                                <input type="text" name="street_additional" value="" placeholder="Apt, Building, etc" class="form-control input-lg">
+                                            {% else %}
+                                                <input type="text" name="street_additional" value="{{ field.value }}" placeholder="Apt, Building, etc" class="form-control input-lg">
+                                            {% endif %}
+                                        {% endif %}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                        {% endif %}
+                    {% endfor %}
+                <div class="row">
+                    <div class="row row_address">
+                        <div class="col-lg-12">
+                            <div class="col-lg-2 col-md-1 col-sm-1">
                             </div>
-                                {% else %}
-                                    <div>{{ field.label_tag }}</div><div>{{ field }}</div><div>{{ field.errors }}</div>
+                            {% for field in address_information_form %}
+                                {% if field.id_for_label != "id_primary_address" and field.id_for_label != "id_street_additional" %}
+                                    <div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
+                                        <div class="form-group">
+                                            {% if field.errors %}
+                                                <div class="has-error">
+                                            {% else %}
+                                                <div class="form-group">
+                                            {% endif %}
+                                                    {% if field.id_for_label == "id_city" %}
+                                                        {% if field.value == None %}
+                                                            <input type="text" name="city" value="" placeholder="City*" class="form-control input-lg">
+                                                        {% else %}
+                                                            <input type="text" name="city" value="{{ field.value }}" placeholder="City*" class="form-control input-lg sb-city">
+                                                        {% endif %}
+                                                    {% elif field.id_for_label == "id_state" %}
+                                                        {% if field.value == None %}
+                                                            <input type="text" name="state" value="" placeholder="State*" class="form-control input-lg">
+                                                        {% else %}
+                                                            <input type="text" name="state" value="{{ field.value }}" placeholder="State*" class="form-control input-lg sb-city">
+                                                        {% endif %}
+
+
+
+                                                        {% comment "Long way to use flat ui selector. REMEMBER JUST USE ID AND ASSOCIATE WITH JQUERY CALL" %}
+                                                            <!-- You should be able to look in sagebrew/static/flat_ui/js/application.js for exampls of how
+                                                            to use the Javascript/JQuery calls to check for the ID and replace the html with the Flat UI
+                                                            version. Doing so should enable you to just use the {{ field }} variable and grab the ID -->
+                                                            <select id="id_state" class="select-block mbl" name="state">
+                                                                <optgroup label="States">
+                                                                    {% for x, y in address_information_form.fields.state.choices %}
+                                                                        <option value="{{x}}">{{ y }}</option>
+                                                                    {% endfor %}
+                                                                </optgroup>
+                                                            </select>
+                                                        {% endcomment %}
+                                                        {% comment "How you loop through options in a selection field" %}
+                                                            <select id="id_state" name="state">
+                                                                {% for x, y in address_information_form.fields.state.choices %}
+                                                                    <option value="{{x}}">{{ y }}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        {% endcomment %}
+
+                                                    {% elif field.id_for_label == "id_postal_code" %}
+                                                        {% if field.value == None %}
+                                                            <input type="text" name="postal_code" value="" placeholder="Zip Code*" class="form-control input-lg sb_zip">
+                                                        {% else %}
+                                                            <input type="text" name="postal_code" value="{{ field.value }}" placeholder="Zip Code*" class="form-control input-lg">
+                                                        {% endif %}
+                                                    {% endif %}
+                                                </div>
+                                        </div>
+                                    </div>
                                 {% endif %}
-
-
-
-                             {% endfor %}
+                            {% endfor %}
                         </div>
-                </div>
-            </div>
-                <div class="row">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <h2 class="sb_registration_title">Primary Address</h2>
+                    </div>
+                    <div class="row row_button">
+                        <div class="col-lg-2 col-sm-3 col-lg-offset-6 col-sm-offset-7 col-xs-12">
+                            <input class="btn btn-primary sb_continue" type="submit" value="Continue"/>
+                        </div>
                     </div>
                 </div>
-        <div class="row">
-            <div class="col-lg-10 col-md-10 col-sm-11 col-xs-12 col-lg-offset-2 col-md-offset-2 col-sm-offset-1 ">
-                <div id="address_information">
-                    {%  for field in address_information_form %}
-                         <div>{{ field.label_tag }}</div>
-                         <div>{{ field }}</div>
-                         <div>{{ field.errors }}</div>
-                    {% endfor %}
-                </div>
             </div>
-        </div>
-                <div id="address_option">
-                    {% for address_choice in address_choice_form %}
-                        {{ address_choice.label_tag }} {{ address_choice }}
-                    {% endfor %}
-                </div>
-            <input class="btn btn-primary sb_continue" type="submit" value="Continue"/>
-            </form>
-                    </div>
+            <div id="address_option">
+                {% for address_choice in address_choice_form %}
+                    {% if field.id_for_label == "id_address_options" %}
+                        <label class="radio">
+                            <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" data-toggle="radio">
+                        </label>
+                    {% endif %}
+                {{ address_choice }}
+                {% endfor %}
+            </div>
 
+            </div>
+        </form>
     </div>
-
-        </div>
-
-        {% block footer %}
-            {% include "registration_footer.html"%}
-        {% endblock footer %}
 {% endblock %}
 {% block scripts %}
     {{ block.super }}
-    <script>
-        $( document ).ready(function() {
-            if("{{ address_selection }}" === "selection") {
-                console.log("hide it");
-                $("#address_information").hide();
-            } else {
-                $("#address_option").hide()
-            }
-        });
-    </script>
-
+        <script src="{% static 'js/profile_information_form.js' %}"></script>
 {% endblock scripts %}

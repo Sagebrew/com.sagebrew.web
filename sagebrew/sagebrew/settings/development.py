@@ -17,14 +17,6 @@ DATABASES = {
     }
 }
 
-NEO4J_DATABASES = {
-    'default' : {
-        'HOST':'localhost',
-        'PORT':7474,
-        'ENDPOINT':'/db/data'
-    }
-}
-
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',

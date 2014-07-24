@@ -18,11 +18,16 @@
   border-color: #1abc9c;
 }
 
-#sb_navbar {
+.sb_navbar {
     background-color: #1ba39c;
     min-height: 0;
     height: 80px;
 }
+
+#sb_nav_wrapper{
+    background-color: #1ba39c;
+}
+
 .navbar-nav .navbar-form.navbar-left, .navbar-form.navbar-right:last-child {
     width:auto;
     background-color: #1ba39c;

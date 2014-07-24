@@ -12,8 +12,10 @@ from rest_framework.reverse import reverse
 from rest_framework.response import Response
 from django.shortcuts import render
 
-from api.utils import get_post_data, language_filter
+from api.utils import get_post_data, language_filter, post_to_garbage
 from plebs.neo_models import Pleb
+from sb_garbage.neo_models import SBGarbageCan
+from .neo_models import SBPost
 from .tasks import save_post_task, edit_post_info_task, delete_post_and_comments
 from .utils import (get_pleb_posts, save_post, edit_post_info,
                     create_post_vote)
@@ -66,10 +68,15 @@ def edit_post(request):
     '''
     try:
         post_data = get_post_data(request)
-        edit_post_info_task(post_data)
+        post_data = post_data.dict()
+        edit_post_info_task.apply_async([post_data,])
+        return Response({"detail": "Post edited!"})
+    except AssertionError:
+        post_data = get_post_data(request)
+        edit_post_info_task.apply_async([post_data,])
         return Response({"detail": "Post edited!"})
     except:
-        return Response({"detail": "Post editing failed!"})
+        return Response({"detail": "Failed Editing"})
 
 #TODO Only allow users to delete their comment, get flagging system working
 @api_view(['POST'])
@@ -78,10 +85,15 @@ def edit_post(request):
 def delete_post(request):
     try:
         post_data = get_post_data(request)
-        delete_post_and_comments.apply_async([post_data,])
-        return Response({"detail": "Post deleted!"})
-    except:
-        return Response({"detail": "Post could not be deleted!"})
+        post_data = post_data.dict()
+        post_to_garbage(post_data['post_id'])
+        return Response({"detail": "Post scheduled to be deleted!"}, status=200)
+    except SBPost.DoesNotExist:
+        return Response({"detail": "Post could not be deleted!"}, status=400)
+    except AttributeError:
+        post_data = get_post_data(request)
+        post_to_garbage(post_data['post_uuid'])
+        return Response({"detail": "Post Scheduled to be deleted!"}, status=200)
 
 
 @api_view(['POST'])

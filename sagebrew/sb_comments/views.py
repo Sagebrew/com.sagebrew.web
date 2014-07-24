@@ -12,7 +12,7 @@ from django.shortcuts import render
 
 from sb_posts.neo_models import SBPost
 #from .tasks import ()
-from api.utils import get_post_data
+from api.utils import get_post_data, comment_to_garbage
 from .utils import (get_post_comments, create_comment_vote, save_comment, edit_comment_util,
                     delete_comment_util)
 
@@ -37,7 +37,7 @@ def save_comment_view(request):
     '''
     try:
         post_info = get_post_data(request)
-        save_comment(post_info)
+        save_comment(**post_info)
         return Response({"here": "Comment succesfully created"}, status=200)
     except(HTTPError, ConnectionError):
         return Response({"detail": "Failed to create comment task"},
@@ -71,7 +71,7 @@ def delete_comment(request): #task
     '''
     try:
         comment_info = get_post_data(request)
-        delete_comment_util(comment_info)
+        comment_to_garbage(comment_info['comment_uuid'])
         return Response({"detail": "Comment deleted"})
     except(HTTPError, ConnectionError):
         return Response({"detail": "Failed to delete comment"})

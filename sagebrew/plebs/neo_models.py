@@ -9,6 +9,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, ZeroOrOne)
 
+from sb_relationships.neo_models import FriendRelationship
 from sb_wall.neo_models import SBWall
 from govtrack.neo_models import GTRole
 
@@ -58,16 +59,12 @@ class University(School):
     latitude = FloatProperty()
 
 
-
 class ReceivedEducationRel(StructuredRel):
     started = DateTimeProperty()
     ended = DateTimeProperty()
     currently_attending = BooleanProperty()
     awarded = StringProperty()
 
-class FriendRelationship(StructuredRel):
-    since = DateTimeProperty()
-    type = StringProperty(default="friends")
 
 
 class Pleb(StructuredNode):
@@ -98,8 +95,8 @@ class Pleb(StructuredNode):
     comments = RelationshipTo('sb_comments.neo_models.SBComment', 'OWNS', model=PostObjectCreated)
     wall = RelationshipTo('sb_wall.neo_models.SBWall', 'OWNS')
     notifications = RelationshipTo('sb_notifications.neo_models.NotificationBase', 'RECIEVED_A')
-    friend_requests_sent = RelationshipTo('sb_notifications.neo_models.FriendRequest', 'SENT_A_REQUEST')
-    friend_requests_recieved = RelationshipTo('sb_notifications.neo_models.FriendRequest', 'RECIEVED_A_REQUEST')
+    friend_requests_sent = RelationshipTo('sb_relationships.neo_models.FriendRequest', 'SENT_A_REQUEST')
+    friend_requests_recieved = RelationshipTo('sb_relationships.neo_models.FriendRequest', 'RECIEVED_A_REQUEST')
 
 
 
@@ -133,6 +130,10 @@ class SBTopic(StructuredNode):
 
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
+        #fixes test fails due to ghost plebs
+        if instance.email == "":
+            return None
+
         citizen = Pleb(email=instance.email, first_name=instance.first_name,
                        last_name=instance.last_name)
         citizen.save()

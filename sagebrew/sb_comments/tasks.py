@@ -9,6 +9,7 @@ from plebs.neo_models import Pleb
 
 from celery import shared_task
 
+
 @shared_task()
 def save_comment_task(comment_info):
     pass

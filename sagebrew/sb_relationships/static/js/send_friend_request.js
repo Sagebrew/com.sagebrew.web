@@ -12,7 +12,7 @@ $( document ).ready(function() {
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
 			type: "POST",
-			url: "/notifications/create_friend_request/",
+			url: "/relationships/create_friend_request/",
 			data: JSON.stringify({
 			   'from_pleb': $(this).data('from_pleb'),
                'to_pleb': $(this).data('to_pleb')
@@ -20,7 +20,10 @@ $( document ).ready(function() {
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
 			success: function(data) {
-			   alert(data['here']);
+			   if (data['action'] == true) {
+                   $("a.send_friend_request-action").hide();
+                   $("a.delete_friend_request-action").show();
+               }
 			}
 		});
 	});

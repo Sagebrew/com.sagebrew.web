@@ -22,12 +22,13 @@ urlpatterns = patterns('',
     (r'^contact_us/$', TemplateView.as_view(template_name="contact_us.html")),
     (r'^accounts/', include('allauth.urls')),
     (r'^oauth2/', include('provider.oauth2.urls', namespace='oauth2')),
-    (r'^api/', include('plebs.api_urls')),
     (r'^user_profiles/', include('user_profiles.urls')),
     (r'^registration/', include('sb_registration.urls')),
     (r'^comments/', include('sb_comments.urls')),
     (r'^posts/', include('sb_posts.urls')),
-    (r'^notifications/', include('sb_notifications.urls'))
+    (r'^notifications/', include('sb_notifications.urls')),
+    (r'^relationships/', include('sb_relationships.urls')),
+    (r'^user/', include('plebs.urls'))
 )
 
 if settings.DEBUG :

@@ -5,6 +5,23 @@ Must run `sudo apt-get install postfix` for email stuff to work correctly.
 
 
 ### Neo4j ###
+set neo4j db create file
+`/etc/profile.d/neo.sh`
+insert `export NEO4J_REST_URL=http://username:password@graphenedburl.com:port/db/data/`
+then run `vagrant halt`
+then `fab start_dev`
+
+How to delete all nodes and relationships:
+`
+start n=node(*)
+match n-[r?]-()
+delete r,n
+`
+How to return all nodes:
+`
+START n=node(*)
+return n;
+`
 ```
 sudo -s
 wget -O - http://debian.neo4j.org/neotechnology.gpg.key | apt-key add -

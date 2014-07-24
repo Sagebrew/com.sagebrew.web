@@ -16,14 +16,13 @@
                </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row" id="image_upload_div">
             <form enctype="multipart/form-data" action="/registration/profile_picture/" method="post">{% csrf_token %}
                 <div class="fileinput fileinput-new" data-provides="fileinput">
 							  <div class="fileinput-new thumbnail" style="width: 120px; height: 120px;">
 							    <img data-src="{% static 'media/ziggzi.png' %}" alt="Put our default image">
 							  </div>
 							  <div class="fileinput-preview fileinput-exists thumbnail" id="sample_image" style="max-width: 500px; max-height: 500px;">
-                                  <img id="place_holder" data-src="" alt="" type="hidden">
 							  </div>
 
                               <div>

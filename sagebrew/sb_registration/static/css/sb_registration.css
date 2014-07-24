@@ -238,7 +238,6 @@
 }
 .modal-body {
     background-color: #e4eee5 ;
-    width: auto;
 }
 .modal-header {
     background-color: #1ba39c;
@@ -249,6 +248,7 @@
 .sb_picture {
     margin-left: 0px;
     margin-right: 0px;
+    margin-top: 30px;
 }
 .sb_complete {
     background-color: #1ba39c;
@@ -284,3 +284,10 @@
     margin-left: 98%;
     padding-right: 15px;
 }
+#target {
+    background-color: #ccc;
+    width: 500px;
+    height: 330px;
+    font-size: 24px;
+    display: block;
+  }

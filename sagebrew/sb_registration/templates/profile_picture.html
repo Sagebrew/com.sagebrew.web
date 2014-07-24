@@ -18,7 +18,9 @@
         </div>
         <div class="row" id="image_upload_div">
             <form enctype="multipart/form-data" action="/registration/profile_picture/" method="post">{% csrf_token %}
+                {% comment %}
                 <div class="fileinput fileinput-new" data-provides="fileinput">
+
 							  <div class="fileinput-new thumbnail" style="width: 120px; height: 120px;">
 							    <img data-src="{% static 'media/ziggzi.png' %}" alt="Put our default image">
 							  </div>
@@ -34,7 +36,7 @@
 							    <a href="#" class="btn btn-primary btn-embossed fileinput-exists" data-dismiss="fileinput"><span class="fui-trash"></span>&nbsp;&nbsp;Remove</a>
 							  </div>
 							</div>
-            {% comment %}
+					{% endcomment %}
                 <div class="row" align="center">
                     <div>
                         <span class="btn btn-primary btn-embossed btn-file">
@@ -54,9 +56,13 @@
 
                             {% for field in profile_picture_form %}
                                     {% if field.id_for_label == "id_picture" %}
-                                        <div class="sb_fileinput fileinput fileinput-new row sb_picture jcrop-holder" data-provides="fileinput"><input type="hidden">
+                                        <div class="fileinput fileinput-new" data-provides="fileinput">
+                                            <div class="fileinput-new thumbnail" style="width: 300px; height: 300px;">
+                                                <img data-src="{% static 'media/ziggzi.png' %}" alt="Put our default image">
+                                            </div>
                                             <div class="row" align="center">
-                                                <div id="target" class="fileinput-preview" data-trigger="fileinput" style="width: 265px; height: 265px; line-height: 160px;">
+                                                <div class="fileinput-preview fileinput-exists thumbnail" id="image_uploaded" style="max-width: 500px; max-height: 500px;">
+
                                                 </div>
                                             </div>
                                             <div class="row">
@@ -81,7 +87,6 @@
                     </div>
                 </div>
             </div>
-            {% endcomment %}
         </form>
     </div>
 {% comment %}

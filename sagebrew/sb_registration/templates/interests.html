@@ -42,32 +42,37 @@
                                 </div>
                                 <div class="col-lg-2 col-md-2 col-sm-2 col-xs-1">
                                     <label class="checkbox toggle-all" for="{{ field.id_for_label }}">
-                                        <input type="checkbox" value="" name={{ field.html_name }} id="{{ field.id_for_label }}" data-toggle="checkbox">
+                                        <input type="checkbox" value="" name="{{ field.html_name }}" id="{{ field.id_for_label }}" data-toggle="checkbox">
                                     </label>
                                 </div>
-                            </div>
-                        {% elif not forloop.last and not field.id_for_label == "id_select_all" %}
-                            <div class="col-lg-3 col-md-3 col-sm-4 col-xs-10 col-md-offset-1">
-                                <div class="tooltips" id="InterestForm"data-toggle="tooltip" data-original-title="{{ field.help_text }}">
-                                    {{ field.label_tag }}
-                                </div>
-                            </div>
-                            <div class="col-lg-2 col-md-2 col-sm-2 col-xs-1">
-                                <label class="checkbox" for="{{ field.id_for_label }}">
-                                    <input type="checkbox" value="" name={{ field.html_name }} id="{{ field.id_for_label }}" data-toggle="checkbox">
-                                </label>
-                                {% comment %}
-                                    <label class="checkbox primary" for="{{ field.id_for_label }}">
-                                        <span class="icons">
-                                            <span class="first_icon fui-checkbox-unchecked"></span>
-                                            <span class="second-icon fui-checkbox-checked"></span>
-                                        </span>
-                                        <input id="{{ field.id_for_label }}" name="{{ field.html_name }}" type="checkbox" value="{{ field.value }}" data-toggle="checkbox">
-                                    </label>
-                                {% endcomment %}
                             </div>
                         {% endif %}
                    {% endfor %}
+                   <div id="select_all_checkboxes">
+                       {% for field in interest_form %}
+                            {% if field.id_for_label != "id_select_all" and not forloop.last %}
+                                <div class="col-lg-3 col-md-3 col-sm-4 col-xs-10 col-md-offset-1">
+                                    <div class="tooltips" id="InterestForm"data-toggle="tooltip" data-original-title="{{ field.help_text }}">
+                                        {{ field.label_tag }}
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-1">
+                                    <label class="checkbox" for="{{ field.id_for_label }}">
+                                        <input type="checkbox" value="" name="{{ field.html_name }}" id="{{ field.id_for_label }}" data-toggle="checkbox">
+                                    </label>
+                                    {% comment %}
+                                        <label class="checkbox primary" for="{{ field.id_for_label }}">
+                                            <span class="icons">
+                                                <span class="first_icon fui-checkbox-unchecked"></span>
+                                                <span class="second-icon fui-checkbox-checked"></span>
+                                            </span>
+                                            <input id="{{ field.id_for_label }}" name="{{ field.html_name }}" type="checkbox" value="{{ field.value }}" data-toggle="checkbox">
+                                        </label>
+                                    {% endcomment %}
+                                </div>
+                            {% endif %}
+                       {% endfor %}
+                   </div>
                 </div>
             <div class="row">
                 <div class="col-lg-12 col-xs-10">

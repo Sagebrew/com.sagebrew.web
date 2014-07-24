@@ -15,7 +15,7 @@ How to delete all nodes and relationships:
 `
 start n=node(*)
 match n-[r?]-()
-delete r,n
+delete r,n;
 `
 How to return all nodes:
 `

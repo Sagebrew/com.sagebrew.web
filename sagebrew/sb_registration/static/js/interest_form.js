@@ -1,10 +1,13 @@
 $( document ).ready(function() {
-    $('#id_select_all').click(function(event) {
-        var $that = $(this);
-        $(':checkbox').each(function() {
-            this.checked = $that.is(':checked');
+
+    $('.toggle-all').click(function() {
+        console.log("here")
+        $('#select_all_checkboxes input').each(function(inde, item) {
+            var label = $("label[for='"+$(item).attr('id')+"']");
+            $(label).toggleClass("checkbox  checkbox checked");
         });
     });
+
     $("[data-toggle='tooltip']").tooltip('hide');
 
     $("#id_specific_interests").select2({

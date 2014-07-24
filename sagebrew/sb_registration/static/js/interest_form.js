@@ -9,14 +9,34 @@ $( document ).ready(function() {
             var label_last = label_class.substr( label_class.lastIndexOf(' ') + 1);
             if(lastClass !== "checked") {
                 if (label_last !== 'checked') {
-                    $(label).addClass('checked')
+                    $(item).val(true);
+                    $(label).addClass('checked');
                 }
             } else {
                 if (label_last === 'checked'){
-                    $(label).removeClass('checked')
+                    $(item).val(false);
+                    $(label).removeClass('checked');
                 }
             }
         });
+    });
+
+    $('#select_all_checkboxes input').each(function(ind, item) {
+        console.log($(item));
+       $(item).change(function(){
+           var label = $("label[for='"+$(item).attr('id')+"']")[1];
+           var label_class = $(label).attr('class');
+           var label_last = label_class.substr( label_class.lastIndexOf(' ') + 1);
+           var state = $(item).val();
+           console.log("here");
+           console.log(state);
+           if(label_last === "checked"){
+               $(item).val(true);
+           } else {
+               $(item).val(false);
+               $(label).removeClass('checked');
+           }
+       });
     });
 
     $("[data-toggle='tooltip']").tooltip('hide');

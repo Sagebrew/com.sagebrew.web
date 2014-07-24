@@ -1,10 +1,21 @@
 $( document ).ready(function() {
 
     $('.toggle-all').click(function() {
-        console.log("here")
+        var toggle_class = $('.toggle-all').attr('class');
+        var lastClass = toggle_class.substr( toggle_class.lastIndexOf(' ') + 1);
         $('#select_all_checkboxes input').each(function(inde, item) {
-            var label = $("label[for='"+$(item).attr('id')+"']");
-            $(label).toggleClass("checkbox  checkbox checked");
+            var label = $("label[for='"+$(item).attr('id')+"']")[1];
+            var label_class = $(label).attr('class');
+            var label_last = label_class.substr( label_class.lastIndexOf(' ') + 1);
+            if(lastClass !== "checked") {
+                if (label_last !== 'checked') {
+                    $(label).addClass('checked')
+                }
+            } else {
+                if (label_last === 'checked'){
+                    $(label).removeClass('checked')
+                }
+            }
         });
     });
 

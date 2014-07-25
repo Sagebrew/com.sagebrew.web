@@ -57,7 +57,7 @@
                                     </div>
                                 </div>
                                 <div class="col-lg-2 col-md-2 col-sm-2 col-xs-1">
-                                    <label class="checkbox" for="{{ field.id_for_label }}">
+                                    <label class="checkbox checkbox-toggle" for="{{ field.id_for_label }}">
                                         <input type="checkbox" value="{{ field.value|default_if_none:"false" }}" name="{{ field.html_name }}" id="{{ field.id_for_label }}" data-toggle="checkbox">
                                     </label>
                                     {% comment %}

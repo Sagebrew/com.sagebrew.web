@@ -58,7 +58,8 @@ class TestPostTasks(TestCase):
 
     def test_edit_post_task(self):
         edit_post_dict = {'content': 'Post edited',
-                          'post_id': self.post_info_dict['post_id']}
+                          'post_uuid': self.post_info_dict['post_id'],
+                          'current_pleb': self.pleb.email}
         save_response = save_post_task.apply_async([self.post_info_dict,])
         edit_response = edit_post_info_task.apply_async([edit_post_dict,])
 
@@ -79,7 +80,9 @@ class TestPostTasks(TestCase):
 
     def test_edit_delete_post_tasks(self):
         edit_post_dict = {'content': 'Post edited',
-                          'post_id': self.post_info_dict['post_id']}
+                          'post_uuid': self.post_info_dict['post_id'],
+                          'current_pleb': self.pleb.email,
+                          'last_edited_on': datetime.now(pytz.utc)}
         response = save_post_task.apply_async([self.post_info_dict,])
         edit_response = edit_post_info_task.apply_async([edit_post_dict,])
         delete_response = delete_post_and_comments.apply_async([self.post_info_dict['post_id'],])
@@ -114,8 +117,12 @@ class TestTaskRaceConditions(TestCase):
         response = save_post_task.apply_async([self.post_info_dict,])
         time.sleep(1)
         edit_dict = {'content': "post edited",
-                     'post_id': self.post_info_dict['post_id']}
+                     'post_uuid': self.post_info_dict['post_id'],
+                     'current_pleb': self.pleb.email,
+                     'last_edited_on': datetime.now(pytz.utc)}
         for num in range(1,10):
+            edit_dict['content'] = "post edited"+str(num)
+            edit_dict['last_edited_on'] = datetime.now(pytz.utc)
             edit_response = edit_post_info_task.apply_async([edit_dict,])
             edit_array.append(edit_response)
 
@@ -123,17 +130,7 @@ class TestTaskRaceConditions(TestCase):
         for response in edit_array:
             self.assertTrue(response.get())
 
-    def test_race_condition_create_same_post_twice(self):
-        post_info_dict = {'current_pleb': self.pleb.email,
-                          'wall_pleb': self.pleb.email,
-                          'content': 'test post',
-                          'post_id': 'create_two_posts_same_id'}
-        response1 = save_post_task.apply_async([post_info_dict,])
-        time.sleep(1)
-        response2 = save_post_task.apply_async([post_info_dict,])
 
-        self.assertTrue(response1.get())
-        self.assertFalse(response2.get())
 
 class TestMultipleTasks(TestCase):
 
@@ -167,4 +164,36 @@ class TestMultipleTasks(TestCase):
             time.sleep(1)
 
         for item in response_array:
-            self.assertEqual(item.get(), True)
+            self.assertTrue(item.get())
+
+    def test_create_many_votes(self):
+        vote_array = []
+        vote_info_dict = {"post_id": self.post_info_dict['post_id'],
+                          "pleb": self.pleb.email}
+        response = save_post_task.apply_async([self.post_info_dict,])
+        while not response.ready():
+            time.sleep(1)
+
+        for num in range(1,10):
+            uvote_response = create_upvote_post.apply_async([vote_info_dict['post_id'],vote_info_dict['pleb'],])
+            dvote_response = create_downvote_post.apply_async([vote_info_dict['post_id'],vote_info_dict['pleb'],])
+            vote_array.append(uvote_response)
+            vote_array.append(dvote_response)
+
+        time.sleep(1)
+
+        for item in vote_array:
+            self.assertTrue(item.get())
+
+    def test_create_same_post_twice(self):
+        post_info_dict = {'current_pleb': self.pleb.email,
+                          'wall_pleb': self.pleb.email,
+                          'content': 'test post',
+                          'post_id': 'create_two_posts_same_id'}
+        response1 = save_post_task.apply_async([post_info_dict,])
+        while not response1.ready():
+            time.sleep(1)
+        response2 = save_post_task.apply_async([post_info_dict,])
+
+        self.assertTrue(response1.result)
+        self.assertFalse(response2.get())

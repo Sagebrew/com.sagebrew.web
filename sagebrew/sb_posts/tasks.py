@@ -20,7 +20,7 @@ def delete_post_and_comments(post_info):
 
 #TODO only allow plebs to change vote
 @shared_task()
-def create_upvote_post(post_uuid=str(uuid1()), pleb=""):
+def create_upvote_post(post_id=str(uuid1()), pleb=""):
     '''
     creates an upvote attached to a post
 
@@ -29,15 +29,20 @@ def create_upvote_post(post_uuid=str(uuid1()), pleb=""):
                     pleb = "" email
     :return:
     '''
-    my_post = SBPost.index.get(post_id = post_uuid)
-    my_pleb = Pleb.index.get(email = pleb)
-    my_post.up_vote_number += 1
-    my_post.up_voted_by.connect(my_pleb)
-    my_post.save()
+    try:
+        my_post = SBPost.index.get(post_id = post_id)
+        my_pleb = Pleb.index.get(email = pleb)
+        my_post.up_vote_number += 1
+        my_post.up_voted_by.connect(my_pleb)
+        my_post.save()
+        return True
+    except:
+        return False
+
 
 #TODO only allow plebs to change vote
 @shared_task()
-def create_downvote_post(post_uuid=str(uuid1()), pleb=""):
+def create_downvote_post(post_id=str(uuid1()), pleb=""):
     '''
     creates a downvote attached to a post
 
@@ -46,11 +51,15 @@ def create_downvote_post(post_uuid=str(uuid1()), pleb=""):
                     pleb = "" email
     :return:
     '''
-    my_post = SBPost.index.get(post_id = post_uuid)
-    my_pleb = Pleb.index.get(email = pleb)
-    my_post.down_vote_number += 1
-    my_post.down_voted_by.connect(my_pleb)
-    my_post.save()
+    try:
+        my_post = SBPost.index.get(post_id = post_id)
+        my_pleb = Pleb.index.get(email = pleb)
+        my_post.down_vote_number += 1
+        my_post.down_voted_by.connect(my_pleb)
+        my_post.save()
+        return True
+    except:
+        return False
 
 @shared_task()
 def save_post_task(post_info):

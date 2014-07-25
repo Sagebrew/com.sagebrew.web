@@ -3,6 +3,7 @@ from sb_comments.utils import delete_comment_util
 
 #TODO add logging for not deleted items
 
+
 def delete_posts_util(garbage_can):
     posts = garbage_can.traverse('posts').run()
     for post in posts:

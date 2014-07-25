@@ -25,7 +25,7 @@ def get_post_comments(post_info):
     comment_array = []
     post_array = []
     for post in post_info:
-        post_comments = post.traverse('comments').run()
+        post_comments = post.traverse('comments').where('to_be_deleted','=',False).run()
         post_owner = post.traverse('owned_by').run()[0]
         for comment in post_comments:
             comment_owner = comment.traverse('is_owned_by').run()[0]
@@ -82,14 +82,12 @@ def create_comment_vote(pleb="",comment_uuid=str(uuid1()),vote_type=""):
     my_pleb = Pleb.index.get(email = pleb)
     my_comment = SBComment.index.get(comment_id = comment_uuid)
     if my_comment.up_voted_by.is_connected(my_pleb) or my_comment.down_voted_by.is_connected(my_pleb):
-        print "You have voted already!"
+        return
     else:
         if vote_type == 'up':
             create_upvote_comment_util(pleb=pleb,comment_uuid=comment_uuid)
-            print "Thanks for voting"
         elif vote_type == 'down':
             create_downvote_comment_util(pleb=pleb,comment_uuid=comment_uuid)
-            print "Thanks for voting"
 
 def save_comment(content="",pleb="", post_uuid=str(uuid1()),):
     '''
@@ -117,7 +115,7 @@ def save_comment(content="",pleb="", post_uuid=str(uuid1()),):
     return my_comment
     #determine who referenced/shared/...
 
-def edit_comment_util(edited_on,comment_uuid=str(uuid1()),content=""):
+def edit_comment_util(comment_uuid=str(uuid1()),content="", last_edited_on=None, pleb=""):
     '''
     finds the comment with the given comment id then changes the content to the
     content which was passed. also changes the edited on date and time to the
@@ -134,14 +132,14 @@ def edit_comment_util(edited_on,comment_uuid=str(uuid1()),content=""):
     my_comment = SBComment.index.get(comment_id = comment_uuid)
     if my_comment.last_edited_on is None:
         my_comment.content = content
-        my_comment.last_edited_on = edited_on
+        my_comment.last_edited_on = last_edited_on
         my_comment.save()
         return True
-    elif my_comment.last_edited_on > edited_on:
+    elif my_comment.last_edited_on > last_edited_on:
         return False
     else:
         my_comment.content = content
-        my_comment.last_edited_on = edited_on
+        my_comment.last_edited_on = last_edited_on
         my_comment.save()
         return True
 
@@ -154,8 +152,10 @@ def delete_comment_util(comment_uuid=str(uuid1())):
                         id of the comment which will be deleted
     :return:
     '''
-    my_comment = SBComment.index.get(comment_id = comment_uuid)
-    my_comment.delete()
-    print "comment deleted"
-    return True
+    try:
+        my_comment = SBComment.index.get(comment_id = comment_uuid)
+        my_comment.delete()
+        return True
+    except SBComment.DoesNotExist:
+        return False
 

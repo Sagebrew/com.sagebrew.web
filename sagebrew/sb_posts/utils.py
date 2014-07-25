@@ -52,13 +52,12 @@ def save_post(post_id=str(uuid1()),content="",current_pleb="",wall_pleb=""):
         rel.save()
         rel_from_pleb = poster.posts.connect(my_post)
         rel_from_pleb.save()
-        print "post created"
         return my_post
     except SBPost.ValueError:
         return None
     #determine who posted/shared/...
 
-def edit_post_info(content="", post_id=str(uuid1())):
+def edit_post_info(content="", post_uuid=str(uuid1()), last_edited_on=None, current_pleb=None):
     '''
     changes the content of the post linked to the id passed to the function
     to the content which was passed
@@ -69,13 +68,35 @@ def edit_post_info(content="", post_id=str(uuid1())):
     :return:
     '''
     try:
-        my_post = SBPost.index.get(post_id = post_id)
+        my_post = SBPost.index.get(post_id=post_uuid)
+        if my_post.to_be_deleted:
+            print '1'
+            return {'post': my_post, 'detail': 'to be deleted'}
+
+        if my_post.content == content:
+            print '2'
+            return {'post': my_post, 'detail': 'content is the same'}
+
+        if my_post.last_edited_on == last_edited_on:
+            print '3'
+            return {
+                'post': my_post,
+                'detail': 'time stamp is the same'
+            }
+        try:
+            if my_post.last_edited_on > last_edited_on:
+                print '4'
+                return {'post': my_post, 'detail': 'keeping previous edit'}
+        except TypeError:
+            pass
+
+
         my_post.content = content
-        my_post.last_edited_on = datetime.now(pytz.utc)
+        my_post.last_edited_on = last_edited_on
         my_post.save()
-        print 'post edited:', my_post.content
-        return my_post
+        return {'post': my_post, 'detail': 'post edited'}
     except SBPost.DoesNotExist:
+        print 'fail retry'
         return False
 
 def delete_post_info(post_id=str(uuid1())):
@@ -92,7 +113,6 @@ def delete_post_info(post_id=str(uuid1())):
         for comment in post_comments:
             comment.delete()
         my_post.delete()
-        print 'post and comments deleted'
         return True
     except SBPost.DoesNotExist:
         return False
@@ -114,12 +134,10 @@ def create_post_vote(pleb="", post_uuid=str(uuid1()), vote_type=""):
     my_pleb = Pleb.index.get(email = pleb)
     my_post = SBPost.index.get(post_id = post_uuid)
     if my_post.up_voted_by.is_connected(my_pleb) or my_post.down_voted_by.is_connected(my_pleb):
-        print "You have voted already!"
+        return
     else:
         if vote_type == 'up':
             create_upvote_post.apply_async(args=[post_uuid,pleb])
-            print "Thanks for voting!"
         elif vote_type =='down':
             create_downvote_post.apply_async(args=[post_uuid,pleb])
-            print "Thanks for voting!"
 

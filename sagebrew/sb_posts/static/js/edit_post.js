@@ -18,9 +18,9 @@ $( document ).ready(function() {
 			type: "POST",
 			url: "/posts/edit_post/",
 			data: JSON.stringify({
-			   'content':$('textarea#'+$(this).data('post_id')).val(),
-			   'pleb': $(this).data('pleb'),
-               'post_id': $(this).data('post_id')
+			   'content':$('textarea#'+$(this).data('post_uuid')).val(),
+			   'current_pleb': $(this).data('pleb'),
+               'post_uuid': $(this).data('post_uuid')
 			}),
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",

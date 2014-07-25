@@ -51,6 +51,16 @@ class TestSaveComments(TestCase):
 
         self.assertEqual(comment_deleted, True)
 
+    def test_comment_from_diff_user(self):
+        uuid = str(uuid1())
+        post = save_post(post_id=uuid, content="test post", current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
+        user2 = User.objects.create_user(
+            username='Test'+str(uuid1())[:25], email=str(uuid1())[:10]+"@gmail.com")
+        pleb2 = Pleb.index.get(email=user2.email)
+        my_comment = save_comment(content="test comment from diff user",pleb=pleb2.email,post_uuid=post.post_id)
+
+        self.assertEqual(my_comment.traverse('is_owned_by').run()[0].email, pleb2.email)
+
 class TestVoteComments(TestCase):
     def setUp(self):
         self.email = 'devon@sagebrew.com'
@@ -131,5 +141,30 @@ class TestVoteComments(TestCase):
         self.assertEqual(my_comment.up_vote_number, 1)
         self.assertEqual(my_comment.down_vote_number, 0)
 
-    #TODO votes from different users
-    #TODO comments from different users
+    def test_upvote_from_diff_user(self):
+        uuid = str(uuid1())
+        post = save_post(post_id=uuid, content="test post", current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
+        my_comment = save_comment(content="test comment",pleb=self.pleb.email,post_uuid=post.post_id)
+        user2 = User.objects.create_user(
+            username='Test'+str(uuid1())[:25], email=str(uuid1())[:10]+"@gmail.com")
+        pleb2 = Pleb.index.get(email=user2.email)
+        create_comment_vote(pleb=self.pleb.email,comment_uuid=my_comment.comment_id,vote_type="up")
+        my_comment.refresh()
+        create_comment_vote(pleb=pleb2.email,comment_uuid=my_comment.comment_id,vote_type="up")
+        my_comment.refresh()
+
+        self.assertEqual(my_comment.up_vote_number, 2)
+
+    def test_downvote_from_diff_user(self):
+        uuid = str(uuid1())
+        post = save_post(post_id=uuid, content="test post", current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
+        my_comment = save_comment(content="test comment",pleb=self.pleb.email,post_uuid=post.post_id)
+        user2 = User.objects.create_user(
+            username='Test'+str(uuid1())[:25], email=str(uuid1())[:10]+"@gmail.com")
+        pleb2 = Pleb.index.get(email=user2.email)
+        create_comment_vote(pleb=self.pleb.email,comment_uuid=my_comment.comment_id,vote_type="down")
+        my_comment.refresh()
+        create_comment_vote(pleb=pleb2.email,comment_uuid=my_comment.comment_id,vote_type="down")
+        my_comment.refresh()
+
+        self.assertEqual(my_comment.down_vote_number, 2)

@@ -59,7 +59,7 @@ def comment_to_garbage(comment_id):
     try:
         comment = SBComment.index.get(comment_id=comment_id)
         garbage_can = SBGarbageCan.index.get(garbage_can='garbage')
-        comment.to_be_deleted = False
+        comment.to_be_deleted = True
         garbage_can.comments.connect(comment)
         garbage_can.save()
         comment.save()
@@ -67,7 +67,7 @@ def comment_to_garbage(comment_id):
         comment = SBComment.index.get(comment_id=comment_id)
         garbage_can = SBGarbageCan(garbage_can='garbage')
         garbage_can.save()
-        comment.to_be_deleted = False
+        comment.to_be_deleted = True
         garbage_can.comments.connect(comment)
         garbage_can.save()
         comment.save()

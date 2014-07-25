@@ -26,7 +26,7 @@ MANAGERS = ADMINS
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
 # In a Windows environment this must be set to your system time zone.
-TIME_ZONE = 'America/New_York'
+TIME_ZONE = 'UTC'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -218,7 +218,10 @@ OAUTH_DELETE_EXPIRED = True
 
 CELERY_DISABLE_RATE_LIMITS = True
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
-CELERY_IMPORTS = ('api.tasks', 'govtrack.tasks', 'sb_comments.tasks')
+CELERY_IMPORTS = ('api.tasks', 'govtrack.tasks', 'sb_comments.tasks',
+                  'sb_garbage.tasks', 'sb_posts.tasks', 'sb_notifications.tasks',
+                  'sb_relationships.tasks'
+)
 BROKER_URL = 'amqp://sagebrew:this_is_the_sagebrew_password@localhost:5672//'
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
@@ -227,8 +230,7 @@ CELERY_IGNORE_RESULT = False
 CELERYBEAT_SCHEDULE = {
     'empty-garbage-can-minute':{
         'task': 'sb_garbage.tasks.empty_garbage_can',
-        'schedule': crontab(),
-        'args': (),
+        'schedule': timedelta(seconds=1),
     }
 }
 CELERY_TIMEZONE = 'UTC'

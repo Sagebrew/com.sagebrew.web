@@ -22,6 +22,7 @@ from .forms import SaveCommentForm, EditCommentForm
 #TODO swap decorators and uncomment permissions
 #@permission_classes([IsAuthenticated, ])
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def save_comment_view(request):
     '''
     Creates the comment, connects it to whatever parent it was posted on(posts,
@@ -49,6 +50,7 @@ def save_comment_view(request):
                             status=408)
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def edit_comment(request): #task
     '''
     Allow plebs to edit their comment
@@ -73,6 +75,7 @@ def edit_comment(request): #task
     # do stuff with post_info
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def delete_comment(request): #task
     '''
     Allow plebs to delete their comment
@@ -89,6 +92,7 @@ def delete_comment(request): #task
     # do stuff with post_info
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def vote_comment(request): #task
     '''
     Allow plebs to up/down vote comments
@@ -105,6 +109,7 @@ def vote_comment(request): #task
         return Response({"detail": "Vote could not be created"})
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def flag_comment(request): #task
     '''
     Allow plebs to flag comments
@@ -119,6 +124,7 @@ def flag_comment(request): #task
 
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def share_comment(request): #task
     '''
     Allow plebs to share comments with other plebs
@@ -132,6 +138,7 @@ def share_comment(request): #task
     # do stuff with post_info
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def reference_comment(request): #task
     '''
     Allow users to reference comments in other comments/posts/questions/answers
@@ -146,6 +153,7 @@ def reference_comment(request): #task
 
 #@permission_classes([IsAuthenticated, ])
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def get_comments(request):
     '''
     Use to return the most recent/top comments, used as a filter

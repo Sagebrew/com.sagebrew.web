@@ -1,7 +1,8 @@
 from uuid import uuid1
 from urllib2 import HTTPError
 from requests import ConnectionError
-from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from .neo_models import FriendRequest
@@ -11,6 +12,7 @@ from api.utils import get_post_data
 
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def create_friend_request(request):
     '''
     calls the task which creates a friend request, it also creates the id for the
@@ -30,6 +32,7 @@ def create_friend_request(request):
         return Response({"action": False}, status=408)
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def get_friend_requests(request):
     '''
     gets all friend requests attached to the user and returns
@@ -51,6 +54,7 @@ def get_friend_requests(request):
     return Response(requests, status=200)
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def respond_friend_request(request):
     '''
     finds the friend request which is attached to both the from and to user

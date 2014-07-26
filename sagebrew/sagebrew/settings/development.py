@@ -6,6 +6,12 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['*']
 
+WEB_ADDRESS = "https://192.168.56.101"
+
+API_PASSWORD = "admin"
+
+VERIFY_SECURE = False
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -31,12 +37,9 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 
-AWS_UPLOAD_BUCKET_NAME = "sagebrew"
-AWS_UPLOAD_CLIENT_KEY = "AKIAJESDLWC4WEMWMQSA"
-AWS_UPLOAD_CLIENT_SECRET_KEY = "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"
-
-IRON_MQ_TOKEN = ""
-IRON_MQ_PROJECT = ""
+AWS_BUCKET_NAME = "sagebrew"
+AWS_ACCESS_KEY_ID = "AKIAJIWX3E2JPTBS6CRA"
+AWS_SECRET_ACCESS_KEY = "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"
 
 SECRET_KEY = "5fd&2wkqx8r!h2y1)j!izqi!982$p87)sred(5#x0mtqa^cbx)"
 
@@ -48,6 +51,10 @@ REST_FRAMEWORK = {
     # Only used if the `serializer_class` attribute is not set on a view.
     'DEFAULT_MODEL_SERIALIZER_CLASS':
         'rest_framework.serializers.HyperlinkedModelSerializer',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.OAuth2Authentication',
+        'rest_framework.authentication.SessionAuthentication',
+    )
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
 }

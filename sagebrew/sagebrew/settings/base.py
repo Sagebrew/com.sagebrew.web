@@ -122,6 +122,8 @@ AUTHENTICATION_BACKENDS = (
     "allauth.account.auth_backends.AuthenticationBackend",
 )
 
+
+
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates"
     # or "C:/www/django/templates".
@@ -240,6 +242,8 @@ IRON_TOKEN = "L9pMXh1l07Tk9KBDWE4JA_KI_oI"
 
 BOMBERMAN_API_KEY = '6a224aea0ecb3601ae9197c5762aef56'
 
+LOGGLY_TOKEN = "4befe913-b753-4823-a844-193a41779000"
+
 CSV_FILES = '%s/csv_content/' % PROJECT_DIR
 
 TEMP_FILES = '%s/temp_files/' % PROJECT_DIR
@@ -247,7 +251,6 @@ if not path.exists(TEMP_FILES):
     makedirs(TEMP_FILES)
 
 import djcelery
-import iron_celery
 
 
 djcelery.setup_loader()
@@ -257,6 +260,35 @@ djcelery.setup_loader()
 # the site admins on every HTTP 500 error when DEBUG=False.
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'loggly': {
+            'format':'loggly: %(message)s',
+        },
+    },
+    'handlers': {
+        'logging.handlers.SysLogHandler': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.SysLogHandler',
+            'facility': 'local5',
+            'formatter': 'loggly',
+        },
+    },
+    'loggers': {
+        'loggly_logs':{
+            'handlers': ['logging.handlers.SysLogHandler'],
+            'propagate': True,
+            'format':'loggly: %(message)s',
+            'level': 'DEBUG',
+            'token': LOGGLY_TOKEN
+        },
+    }
+}
+
+'''
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -278,3 +310,4 @@ LOGGING = {
         },
     }
 }
+'''

@@ -22,6 +22,7 @@ from .utils import (get_pleb_posts, save_post, edit_post_info,
 from .forms import SavePostForm, EditPostForm
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def save_post_view(request):
     '''
     Creates the post, connects it to the Pleb which posted it
@@ -45,6 +46,7 @@ def save_post_view(request):
                             status=408)
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def get_user_posts(request):
     '''
     If the user wants to create a post this calls the util to create the post
@@ -58,6 +60,7 @@ def get_user_posts(request):
 
 #TODO Only allow users to edit their comment, unless they have admin status
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def edit_post(request):
     '''
     If the user edits a post this calls the util to edit the post
@@ -92,6 +95,7 @@ def edit_post(request):
 #TODO Only allow users to delete their comment, get flagging system working
 #TODO look into POST to DELETE
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def delete_post(request):
     '''
     calls the util which attaches the post and all the comments attached to said
@@ -114,6 +118,7 @@ def delete_post(request):
 
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def vote_post(request):
     try:
         post_data = get_post_data(request)

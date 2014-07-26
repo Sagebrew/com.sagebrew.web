@@ -32,6 +32,7 @@ $( document ).ready(function() {
            }
        });
     });
+
     $("[data-toggle='tooltip']").tooltip('hide');
 
     $("#id_specific_interests").select2({

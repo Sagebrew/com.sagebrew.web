@@ -39,8 +39,8 @@
 					{% endcomment %}
                 <div class="row" align="center">
                     <div>
-                        <span class="btn btn-primary btn-embossed btn-file">
-                            <span class="fileinput-new"><span class="fui-image"></span>Upload Image</span>
+                        <span class="btn btn-primary btn-embossed btn-file sb_upload">
+                            <span class="fileinput-new"><span class="fui-image"></span>&nbsp;&nbsp;Upload Image</span>
                             <input id="profile_pic_upload" type="file" name="">
                         </span>
                 </div>
@@ -56,12 +56,12 @@
 
                             {% for field in profile_picture_form %}
                                     {% if field.id_for_label == "id_picture" %}
-                                        <div class="fileinput fileinput-new" data-provides="fileinput">
+                                        <div class="sb_modal_content fileinput fileinput-new" data-provides="fileinput">
                                             <div class="fileinput-new thumbnail" style="width: 300px; height: 300px;">
                                                 <img data-src="{% static 'media/ziggzi.png' %}" alt="Put our default image">
                                             </div>
                                             <div class="row" align="center">
-                                                <div class="fileinput-preview fileinput-exists thumbnail" id="image_uploaded" style="max-width: 500px; max-height: 500px;">
+                                                <div class="fileinput-preview fileinput-exists thumbnail jcrop-light" id="image_uploaded" style="max-width: 500px; max-height: 500px;">
 
                                                 </div>
                                             </div>

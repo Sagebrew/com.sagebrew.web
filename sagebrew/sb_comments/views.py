@@ -17,7 +17,7 @@ from .utils import (get_post_comments, create_comment_vote, save_comment, edit_c
                     delete_comment_util)
 from .forms import SaveCommentForm, EditCommentForm
 
-
+#TODO document all possible dictionary returns from api views
 
 #TODO swap decorators and uncomment permissions
 #@permission_classes([IsAuthenticated, ])

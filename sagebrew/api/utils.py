@@ -1,11 +1,27 @@
-from json import loads
+from socket import error as socket_error
+from json import loads, dumps
 from django.conf import settings
+
+from iron_mq import IronMQ
+from rest_framework.response import Response
 
 from bomberman.client import Client
 
+import sb_posts.tasks
+import sb_comments.tasks
 from sb_comments.neo_models import SBComment
 from sb_posts.neo_models import SBPost, SBAnswer, SBQuestion
 from sb_garbage.neo_models import SBGarbageCan
+
+def assign_data(info, attempt_task, countdown, task_id):
+    try:
+        attempt_task.apply_async([info,], countdown=countdown, task_id=task_id)
+    except socket_error:
+        iron_mq = IronMQ(project_id=settings.IRON_PROJECT_ID,
+                         token=settings.IRON_TOKEN)
+        queue = iron_mq.queue('sb_failures')
+        info['action'] = attempt_task.__name__
+        queue.post(dumps(info))
 
 def get_post_data(request):
     '''
@@ -39,6 +55,10 @@ def language_filter(content):
 def post_to_garbage(post_id):
     try:
         post = SBPost.index.get(post_id=post_id)
+        comments = post.traverse('comments').run()
+        for comment in comments:
+            comment.to_be_deleted = True
+            comment.save()
         garbage_can = SBGarbageCan.index.get(garbage_can='garbage')
         post.to_be_deleted = True
         garbage_can.posts.connect(post)

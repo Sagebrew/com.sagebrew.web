@@ -5,13 +5,14 @@ from datetime import datetime
 from urllib2 import HTTPError
 from requests import ConnectionError
 
+from celery.result import AsyncResult
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
 from django.shortcuts import render
 
-from api.utils import get_post_data, language_filter, post_to_garbage
+from api.utils import (get_post_data, language_filter, post_to_garbage)
 from plebs.neo_models import Pleb
 from sb_garbage.neo_models import SBGarbageCan
 from .neo_models import SBPost
@@ -33,7 +34,7 @@ def save_post_view(request):
         post_form = SavePostForm(post_data)
         if post_form.is_valid():
             #post_data['content'] = language_filter(post_data['content'])
-            post_form.cleaned_data['post_id'] = str(uuid1())
+            post_form.cleaned_data['post_uuid'] = str(uuid1())
             save_post_task.apply_async([post_form.cleaned_data,])
             return Response({"action": "filtered", "filtered_content": post_data}, status=200)
         else:
@@ -59,34 +60,46 @@ def get_user_posts(request):
 @api_view(['POST'])
 def edit_post(request):
     '''
-    If the user edits a comment this calls the util to edit the comment
+    If the user edits a post this calls the util to edit the post
+
+    :param request:
+    :return:
+        Return Possibilities:
+            {'detail': 'edit task spawned'}, status=200
+                This will return most of the time, it means that the task has
+                been spawned
+
+            {'detail': 'form contains errors', 'errors': form.errors}
+                This returns if .is_valid() fails, review django docs
+                on form.is_valid() and the variables passed to this function
+    '''
+    try:
+        post_data = get_post_data(request)
+        post_data['last_edited_on'] = datetime.now(pytz.utc)
+        post_form = EditPostForm(post_data)
+        if post_form.is_valid():
+            edit_post_info_task.apply_async([post_form.cleaned_data,])
+            return Response({'detail': 'edit task spawned'}, status=200)
+        else:
+            return Response({'detail': 'form contains errors', 'errors': post_form.errors}, status=400)
+
+    except Exception, e:
+        #TODO log exception
+        #TODO post failed request.data to ironmq or db
+        print "edit post view errors: ", e
+        return Response({"detail": "Failed Editing"})
+
+#TODO Only allow users to delete their comment, get flagging system working
+#TODO look into POST to DELETE
+@api_view(['POST'])
+def delete_post(request):
+    '''
+    calls the util which attaches the post and all the comments attached to said
+    post to the garbage can to be deleted when the garbage can task is run
 
     :param request:
     :return:
     '''
-    try:
-        last_edited_on = datetime.now(pytz.utc)
-        post_data = get_post_data(request)
-        post_data['last_edited_on'] = last_edited_on
-        post_form = EditPostForm(post_data)
-        if post_form.is_valid():
-            edit_post_info_task.apply_async([post_form.cleaned_data,])
-            return Response({"detail": "Post edited!"}, status=200)
-        else:
-            print post_form.errors
-            return Response(post_form.errors, status=400)
-    except AssertionError:
-        post_data = get_post_data(request)
-        last_edited_on = datetime.now(pytz.utc)
-        post_data['last_edited_on'] = last_edited_on
-        edit_post_info_task.apply_async([post_data,])
-        return Response({"detail": "Post edited!"})
-    except:
-        return Response({"detail": "Failed Editing"})
-
-#TODO Only allow users to delete their comment, get flagging system working
-@api_view(['POST'])
-def delete_post(request):
     try:
         post_data = get_post_data(request)
         post_data = post_data.dict()

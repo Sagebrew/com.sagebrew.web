@@ -230,10 +230,13 @@ CELERY_IGNORE_RESULT = False
 CELERYBEAT_SCHEDULE = {
     'empty-garbage-can-minute':{
         'task': 'sb_garbage.tasks.empty_garbage_can',
-        'schedule': timedelta(seconds=1),
+        'schedule': timedelta(minutes=1),
     }
 }
 CELERY_TIMEZONE = 'UTC'
+
+IRON_PROJECT_ID = "53d304c0549c4f000500004b"
+IRON_TOKEN = "L9pMXh1l07Tk9KBDWE4JA_KI_oI"
 
 BOMBERMAN_API_KEY = '6a224aea0ecb3601ae9197c5762aef56'
 
@@ -245,6 +248,7 @@ if not path.exists(TEMP_FILES):
 
 import djcelery
 import iron_celery
+
 
 djcelery.setup_loader()
 

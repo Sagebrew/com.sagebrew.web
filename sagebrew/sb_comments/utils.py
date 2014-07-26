@@ -129,6 +129,7 @@ def edit_comment_util(comment_uuid=str(uuid1()),content="", last_edited_on=None,
                     DateTime which the util was called
     :return:
     '''
+
     my_comment = SBComment.index.get(comment_id = comment_uuid)
     if my_comment.last_edited_on is None:
         my_comment.content = content

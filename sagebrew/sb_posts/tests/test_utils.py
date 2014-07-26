@@ -103,7 +103,7 @@ class TestSavePost(TestCase):
 
     def test_edit_post_same_timestamp(self):
         uuid = str(uuid1())
-        edit_time = datetime(year=2014,month=2,day=24,tzinfo=pytz.utc)
+        edit_time = datetime.now(pytz.UTC)
         test_post = SBPost(content='test', post_id=uuid,
                            current_pleb=self.pleb.email, wall_pleb=self.pleb.email,
                            last_edited_on=edit_time)

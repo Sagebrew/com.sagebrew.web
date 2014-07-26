@@ -1,9 +1,7 @@
 from django import forms
 
 class PostForm(forms.Form):
-    content = forms.CharField(
-        required=False
-    )
+    content = forms.CharField()
     current_pleb = forms.EmailField()
 
 class SavePostForm(PostForm):

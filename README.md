@@ -3,6 +3,13 @@ com.sagebrew.web
 Must run `sudo apt-get install postfix` for email stuff to work correctly.
 
 
+### RabbitMQ ###
+```
+sudo rabbitmqctl delete_user guest
+sudo rabbitmqctl add_user sagebrew this_is_the_sagebrew_password
+sudo rabbitmqctl set_user_tags sagebrew administrator
+sudo rabbitmqctl set_permissions sagebrew ".*" ".*" ".*"
+```
 
 ### Neo4j ###
 set neo4j db create file

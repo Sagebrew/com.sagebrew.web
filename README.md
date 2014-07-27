@@ -3,6 +3,12 @@ com.sagebrew.web
 Must run `sudo apt-get install postfix` for email stuff to work correctly.
 
 
+Don't need to do it right now but if we move over to having some views available
+publicly might need to use something like:
+`@authentication_classes((SessionAuthentication, BasicAuthentication))`
+Rather than setting it globally in the settings for authentication.
+
+
 ### RabbitMQ ###
 ```
 sudo rabbitmqctl delete_user guest

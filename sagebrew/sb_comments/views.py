@@ -15,12 +15,14 @@ from sb_posts.neo_models import SBPost
 from api.utils import get_post_data, comment_to_garbage
 from .utils import (get_post_comments, create_comment_vote, save_comment, edit_comment_util,
                     delete_comment_util)
+from .forms import SaveCommentForm, EditCommentForm
 
-
+#TODO document all possible dictionary returns from api views
 
 #TODO swap decorators and uncomment permissions
 #@permission_classes([IsAuthenticated, ])
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def save_comment_view(request):
     '''
     Creates the comment, connects it to whatever parent it was posted on(posts,
@@ -37,13 +39,18 @@ def save_comment_view(request):
     '''
     try:
         post_info = get_post_data(request)
-        save_comment(**post_info)
-        return Response({"here": "Comment succesfully created"}, status=200)
+        comment_form = SaveCommentForm(post_info)
+        if comment_form.is_valid():
+            save_comment(**comment_form.cleaned_data)
+            return Response({"here": "Comment succesfully created"}, status=200)
+        else:
+            return Response({'detail': comment_form.errors}, status=400)
     except(HTTPError, ConnectionError):
         return Response({"detail": "Failed to create comment task"},
                             status=408)
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def edit_comment(request): #task
     '''
     Allow plebs to edit their comment
@@ -53,15 +60,22 @@ def edit_comment(request): #task
     '''
     try:
         post_info = get_post_data(request)
-        edited_on =datetime.now(pytz.utc)
-        edit_comment_util(post_info, edited_on)
-        return Response({"detail": "Comment succesfully edited"})
+        last_edited_on =datetime.now(pytz.utc)
+        post_info['last_edited_on'] = last_edited_on
+        comment_form = EditCommentForm(post_info)
+        if comment_form.is_valid():
+            edit_comment_util(**comment_form.cleaned_data)
+            return Response({"detail": "Comment succesfully edited"}, status=200)
+        else:
+            print comment_form.errors
+            return Response({'detail': comment_form.errors}, status=400)
     except(HTTPError, ConnectionError):
         return Response({'detail': 'Failed to edit comment'},
                         status=408)
     # do stuff with post_info
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def delete_comment(request): #task
     '''
     Allow plebs to delete their comment
@@ -78,6 +92,7 @@ def delete_comment(request): #task
     # do stuff with post_info
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def vote_comment(request): #task
     '''
     Allow plebs to up/down vote comments
@@ -94,6 +109,7 @@ def vote_comment(request): #task
         return Response({"detail": "Vote could not be created"})
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def flag_comment(request): #task
     '''
     Allow plebs to flag comments
@@ -108,6 +124,7 @@ def flag_comment(request): #task
 
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def share_comment(request): #task
     '''
     Allow plebs to share comments with other plebs
@@ -121,6 +138,7 @@ def share_comment(request): #task
     # do stuff with post_info
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def reference_comment(request): #task
     '''
     Allow users to reference comments in other comments/posts/questions/answers
@@ -135,6 +153,7 @@ def reference_comment(request): #task
 
 #@permission_classes([IsAuthenticated, ])
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def get_comments(request):
     '''
     Use to return the most recent/top comments, used as a filter

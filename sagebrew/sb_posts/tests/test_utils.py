@@ -1,4 +1,6 @@
 import time
+import pytz
+from datetime import datetime, timedelta
 from uuid import uuid1
 
 from django.test import TestCase
@@ -29,7 +31,8 @@ class TestSavePost(TestCase):
     def test_save_post(self):
         poster = Pleb.index.get(email=self.pleb.email)
         uuid = str(uuid1())
-        post = save_post(post_id=uuid, content="test post", current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
+        post = save_post(post_id=uuid, content="test post", current_pleb=self.pleb.email,
+                         wall_pleb=self.pleb.email)
         wall = post.traverse('posted_on_wall').run()[0]
 
         self.assertEqual(poster.email, post.traverse('owned_by').run()[0].email)
@@ -46,20 +49,26 @@ class TestSavePost(TestCase):
 
         prev_post = SBPost(content='test', post_id=post_info_dict['post_id'])
         prev_post.save()
-        post = save_post(post_id=post_info_dict['post_id'], content='test post', current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
+        post = save_post(post_id=post_info_dict['post_id'], content='test post',
+                         current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
         self.assertEqual(post, None)
 
     def test_edit_post(self):
         uuid = str(uuid1())
-        test_post = SBPost(content='test', post_id=uuid, current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
+        test_post = SBPost(content='test', post_id=uuid,
+                           last_edited_on=datetime.now(pytz.utc),
+                           current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
         test_post.save()
-        edited_post = edit_post_info(content='post edited',post_uuid=uuid)
+        edited_post = edit_post_info(content='post edited', post_uuid=uuid,
+                                     current_pleb=self.pleb.email)
 
-        self.assertEqual(edited_post.content, 'post edited')
+        self.assertEqual(edited_post['post'].content, 'post edited')
+        self.assertEqual(edited_post['detail'], 'post edited')
 
     def test_delete_post(self):
         uuid = str(uuid1())
-        test_post = SBPost(content='test', post_id=uuid, current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
+        test_post = SBPost(content='test', post_id=uuid,
+                           current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
         test_post.save()
         if delete_post_info(uuid):
             try:
@@ -67,6 +76,60 @@ class TestSavePost(TestCase):
             except SBPost.DoesNotExist:
                 print "Post deleted"
                 return
+
+    def test_edit_post_to_be_deleted(self):
+        uuid = str(uuid1())
+        test_post = SBPost(content='test', post_id=uuid,
+                           current_pleb=self.pleb.email,
+                           wall_pleb=self.pleb.email,
+                           to_be_deleted=True)
+        test_post.save()
+
+        edited_post = edit_post_info(content='post edited',
+                                     post_uuid=uuid, current_pleb=self.pleb.email)
+
+        self.assertEqual(edited_post['detail'], 'to be deleted')
+
+    def test_edit_post_same_content(self):
+        uuid = str(uuid1())
+        test_post = SBPost(content='test', post_id=uuid,
+                           current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
+        test_post.save()
+
+        edited_post = edit_post_info(content='test', post_uuid=uuid,
+                                     current_pleb=self.pleb.email)
+
+        self.assertEqual(edited_post['detail'], 'content is the same')
+
+    def test_edit_post_same_timestamp(self):
+        uuid = str(uuid1())
+        edit_time = datetime.now(pytz.UTC)
+        test_post = SBPost(content='test', post_id=uuid,
+                           current_pleb=self.pleb.email, wall_pleb=self.pleb.email,
+                           last_edited_on=edit_time)
+        test_post.save()
+        edited_post = edit_post_info(content='post edited', post_uuid=uuid,
+                                     last_edited_on=edit_time,
+                                     current_pleb=self.pleb.email)
+
+        self.assertEqual(edited_post['detail'], 'time stamp is the same')
+
+    def test_edit_post_with_earlier_time(self):
+        uuid = str(uuid1())
+        now = datetime.now(pytz.utc)
+        future_edit = now + timedelta(minutes = 10)
+        test_post = SBPost(content='test', post_id=uuid,
+                           current_pleb=self.pleb.email,
+                           wall_pleb=self.pleb.email,
+                           last_edited_on=future_edit)
+        test_post.save()
+
+        edited_post = edit_post_info(content='post edited',
+                                     post_uuid=uuid,
+                                     last_edited_on=datetime.now(pytz.utc),
+                                     current_pleb=self.pleb.email)
+
+        self.assertEqual(edited_post['detail'], 'keeping previous edit')
 
 class TestPostVotes(TestCase):
     def setUp(self):
@@ -86,7 +149,9 @@ class TestPostVotes(TestCase):
 
     def test_upvote_post(self):
         uuid = str(uuid1())
-        post = save_post(post_id=uuid, content="test post", current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
+        post = save_post(post_id=uuid, content="test post",
+                         current_pleb=self.pleb.email,
+                         wall_pleb=self.pleb.email)
         create_post_vote(pleb=self.pleb.email,post_uuid=post.post_id,vote_type="up")
         time.sleep(1) #wait for task to finish
         post.refresh()
@@ -95,7 +160,8 @@ class TestPostVotes(TestCase):
 
     def test_downvote_post(self):
         uuid = str(uuid1())
-        post = save_post(post_id=uuid, content="test post", current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
+        post = save_post(post_id=uuid, content="test post",
+                         current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
         create_post_vote(pleb=self.pleb.email,post_uuid=post.post_id,vote_type="down")
         time.sleep(1) #wait for task to finish
         post.refresh()
@@ -104,7 +170,8 @@ class TestPostVotes(TestCase):
 
     def test_downvote_twice(self):
         uuid = str(uuid1())
-        post = save_post(post_id=uuid, content="test post", current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
+        post = save_post(post_id=uuid, content="test post",
+                         current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
         create_post_vote(pleb=self.pleb.email,post_uuid=post.post_id,vote_type="down")
         time.sleep(1) #wait for task to finish
         post.refresh() #refresh instance of post after changes
@@ -116,7 +183,8 @@ class TestPostVotes(TestCase):
 
     def test_upvote_twice(self):
         uuid = str(uuid1())
-        post = save_post(post_id=uuid, content="test post", current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
+        post = save_post(post_id=uuid, content="test post",
+                         current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
         create_post_vote(pleb=self.pleb.email,post_uuid=post.post_id,vote_type="up")
         time.sleep(1) #wait for task to finish
         post.refresh() #refresh instance of post after changes
@@ -128,7 +196,8 @@ class TestPostVotes(TestCase):
 
     def test_upvote_then_downvote(self):
         uuid = str(uuid1())
-        post = save_post(post_id=uuid, content="test post", current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
+        post = save_post(post_id=uuid, content="test post",
+                         current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
         create_post_vote(pleb=self.pleb.email,post_uuid=post.post_id,vote_type="up")
         time.sleep(1) #wait for task to finish
         post.refresh() #refresh instance of post after changes
@@ -141,7 +210,8 @@ class TestPostVotes(TestCase):
 
     def test_down_then_upvote(self):
         uuid = str(uuid1())
-        post = save_post(post_id=uuid, content="test post", current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
+        post = save_post(post_id=uuid, content="test post",
+                         current_pleb=self.pleb.email, wall_pleb=self.pleb.email)
         create_post_vote(pleb=self.pleb.email,post_uuid=post.post_id,vote_type="down")
         time.sleep(1) #wait for task to finish
         post.refresh() #refresh instance of post after changes
@@ -151,6 +221,3 @@ class TestPostVotes(TestCase):
 
         self.assertEqual(post.down_vote_number, 1)
         self.assertEqual(post.up_vote_number, 0)
-
-
-    #TODO votes from different users

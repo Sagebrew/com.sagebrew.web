@@ -1,4 +1,7 @@
 import time
+import pytz
+from datetime import datetime
+from uuid import uuid1
 from json import dumps, loads
 from rest_framework.test import APIRequestFactory, APIClient
 from django.contrib.auth.models import User
@@ -6,7 +9,10 @@ from django.test import TestCase, RequestFactory
 
 
 from plebs.neo_models import Pleb
+from sb_posts.neo_models import SBPost
+from sb_posts.utils import save_post
 from sb_posts.views import save_post_view, edit_post, delete_post
+
 class SubmitPostTest(TestCase):
 
     def setUp(self):
@@ -46,7 +52,8 @@ class SubmitPostTest(TestCase):
         self.assertEqual(response.status_code, 200)
         time.sleep(1)
 
-class PostRaceConditionTests(TestCase):
+class EditPostTests(TestCase):
+
     def setUp(self):
         try:
             pleb = Pleb.index.get(email='tyler.wiersing@gmail.com')
@@ -61,96 +68,90 @@ class PostRaceConditionTests(TestCase):
             self.user = User.objects.create_user(
             username='Tyler', email='tyler.wiersing@gmail.com')
 
-    def test_race_condition_create_post_edit_post(self):
-        my_dict = {"content":"Testing race condition pre edit",
-                    "current_pleb": self.user.email,
-                    "wall_pleb": self.user.email}
-        request1 = self.factory.post('/posts/submit_post/', data=my_dict, format='json')
-        request1.user = self.user
-        response1 = save_post_view(request1)
-        response_data = response1.data
-        print response_data
-        response_data['filtered_content'].pop('content', None)
-        response_data['filtered_content'].pop('current_pleb',None)
-        response_data['filtered_content'].pop('wall_pleb',None)
-        response_data['filtered_content']['content'] = 'Post Edit'
-        response_data_dict = response_data['filtered_content'].dict()
-        request2 = self.factory.post('/posts/edit_post/', data=response_data_dict, format='json')
-        request2.user = self.user
-        response2 = edit_post(request2)
+    def test_same_content(self):
+        my_dict = {
+            "post_uuid": str(uuid1()),
+            "content": "test edit post same content",
+            "current_pleb": "tyler.wiersing@gmail.com",
+            "wall_pleb": "tyler.wiersing@gmail.com"
+        }
+        my_post = save_post(**my_dict)
+        my_edit_dict = {
+            'content': 'test edit post same content',
+            'post_uuid': my_post.post_id,
+            'current_pleb': self.user.email,
+        }
+        request = self.factory.post('/posts/edit_post/', data=my_edit_dict,format='json')
+        request.user = self.user
+        response = edit_post(request)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['detail'], 'Cannot edit: content is the same')
 
-        self.assertEqual(response1.status_code, 200)
-        self.assertEqual(response2.status_code, 200)
-        time.sleep(1)
+    def test_to_be_deleted(self):
+        my_dict = {
+            "post_uuid": str(uuid1()),
+            "content": "test edit post same content",
+            "current_pleb": "tyler.wiersing@gmail.com",
+            "wall_pleb": "tyler.wiersing@gmail.com"
+        }
+        my_post = save_post(**my_dict)
+        my_post.to_be_deleted = True
+        my_post.save()
+        my_edit_dict = {
+            'content': 'test edit post',
+            'post_uuid': my_post.post_id,
+            'current_pleb': self.user.email,
+        }
+        request = self.factory.post('/posts/edit_post/', data=my_edit_dict,format='json')
+        request.user = self.user
+        response = edit_post(request)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['detail'], 'Cannot edit: to be deleted')
 
-    def test_race_condition_create_delete(self):
-        my_dict = {"content":"Testing race condition delete",
-                   "current_pleb": self.user.email,
-                   "wall_pleb": self.user.email}
-        request1 = self.factory.post('/posts/submit_post/', data=my_dict)
-        request1.user = self.user
-        response1 = save_post_view(request1)
-        response_data = response1.data
-        response_data_dict = response_data['filtered_content'].dict()
-        response_data_dict.pop('content', None)
-        response_data_dict.pop('wall_pleb', None)
-        response_data_dict.pop('current_pleb', None)
-        request2 = self.factory.post('/posts/delete_post/', data=response_data_dict)
-        request2.user = self.user
-        response2 = delete_post(request2)
+    def test_same_timestamp(self):
+        edit_time = datetime.now()
+        my_dict = {
+            "post_uuid": str(uuid1()),
+            "content": "test edit post same content",
+            "current_pleb": "tyler.wiersing@gmail.com",
+            "wall_pleb": "tyler.wiersing@gmail.com"
+        }
+        my_post = save_post(**my_dict)
+        my_post.last_edited_on = edit_time
+        my_post.save()
+        my_edit_dict = {
+            'content': 'test edit post',
+            'post_uuid': my_post.post_id,
+            'current_pleb': self.user.email,
+            'last_edited_on': edit_time
+        }
+        print 'same timestamp'
+        request = self.factory.post('/posts/edit_post/', data=my_edit_dict,format='json')
+        request.user = self.user
+        response = edit_post(request)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['detail'], 'Cannot edit: time stamp is the same')
 
-        self.assertEqual(response1.status_code, 200)
-        self.assertEqual(response2.status_code, 200)
-        time.sleep(1)
-
-    def test_race_condition_edit_twice(self):
-        my_dict = {"content":"Testing race condition pre edit",
-                    "current_pleb": self.user.email,
-                    "wall_pleb": self.user.email}
-        request1 = self.factory.post('/posts/submit_post/', data=my_dict)
-        request1.user = self.user
-        response1 = save_post_view(request1)
-        response_data = response1.data
-        response_data['filtered_content'].pop('content', None)
-        response_data['filtered_content'].pop('current_pleb',None)
-        response_data['filtered_content'].pop('wall_pleb',None)
-        response_data['filtered_content']['content'] = 'Post Edit 1'
-        response_data_dict = response_data['filtered_content'].dict()
-        request2 = self.factory.post('/posts/edit_post/', data=response_data_dict)
-        request2.user = self.user
-        response2 = edit_post(request2)
-        response_data_dict['content'] = 'Post Edit 2'
-        request3 = self.factory.post('/posts/edit_post/', data=response_data_dict)
-        request3.user = self.user
-        response3 = edit_post(request3)
-
-        self.assertEqual(response1.status_code, 200)
-        self.assertEqual(response2.status_code, 200)
-        self.assertEqual(response3.status_code, 200)
-        time.sleep(1)
-
-    def test_race_condition_delete_twice(self):
-        my_dict = {"content":"Testing race condition delete",
-                   "current_pleb": self.user.email,
-                   "wall_pleb": self.user.email}
-        request1 = self.factory.post('/posts/submit_post/', data=my_dict)
-        request1.user = self.user
-        response1 = save_post_view(request1)
-        response_data = response1.data
-        response_data_dict = response_data['filtered_content'].dict()
-        response_data_dict.pop('content', None)
-        response_data_dict.pop('wall_pleb', None)
-        response_data_dict.pop('current_pleb', None)
-        request2 = self.factory.post('/posts/delete_post/', data=response_data_dict)
-        request2.user = self.user
-        response2 = delete_post(request2)
-        request3 = self.factory.post('/posts/delete_post/', data=response_data_dict)
-        request3.user = self.user
-        response3 = delete_post(request3)
-
-        self.assertEqual(response1.status_code, 200)
-        self.assertEqual(response2.status_code, 200)
-        self.assertEqual(response3.status_code, 200)
-        time.sleep(1)
-
-
+    def test_keep_recent_post(self):
+        edit_time = datetime.now()
+        my_dict = {
+            "post_uuid": str(uuid1()),
+            "content": "test edit post same content",
+            "current_pleb": "tyler.wiersing@gmail.com",
+            "wall_pleb": "tyler.wiersing@gmail.com"
+        }
+        my_post = save_post(**my_dict)
+        my_post.last_edited_on = datetime.now()
+        my_post.save()
+        my_edit_dict = {
+            'content': 'test edit post',
+            'post_uuid': my_post.post_id,
+            'current_pleb': self.user.email,
+            'last_edited_on': edit_time
+        }
+        print 'recent time stamp'
+        request = self.factory.post('/posts/edit_post/', data=my_edit_dict, format='json')
+        request.user = self.user
+        response = edit_post(request)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['detail'], 'Cannot edit: last edit more recent')

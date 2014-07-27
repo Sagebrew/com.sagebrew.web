@@ -133,16 +133,18 @@ def create_user_profile(sender, instance, created, **kwargs):
         #fixes test fails due to ghost plebs
         if instance.email == "":
             return None
-
-        citizen = Pleb(email=instance.email, first_name=instance.first_name,
-                       last_name=instance.last_name)
-        citizen.save()
-        wall = SBWall(wall_id=uuid1())
-        wall.save()
-        wall.owner.connect(citizen)
-        citizen.wall.connect(wall)
-        wall.save()
-        citizen.save()
+        try:
+            citizen = Pleb.index.get(email = instance.email)
+        except Pleb.DoesNotExist:
+            citizen = Pleb(email=instance.email, first_name=instance.first_name,
+                           last_name=instance.last_name)
+            citizen.save()
+            wall = SBWall(wall_id=uuid1())
+            wall.save()
+            wall.owner.connect(citizen)
+            citizen.wall.connect(wall)
+            wall.save()
+            citizen.save()
     else:
         pass
         # citizen = Pleb.index.get(instance.email)

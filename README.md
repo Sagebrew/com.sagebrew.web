@@ -181,6 +181,8 @@ $template LogglyFormat,"<%pri%>%protocol-version% %timestamp:::date-rfc3339% %HO
 Where ACCOUNT is the Loggly account and TOKEN is your Loggly token
 change Example1\ to djangoapp
 
+Then run `sudo service rsyslog restart` to restart rsyslog.
+
 To setup Loggly with celery logging:
 ```
 LOGGLY_INPUT_KEY = "your key here"

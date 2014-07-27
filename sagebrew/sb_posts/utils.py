@@ -55,9 +55,7 @@ def save_post(post_uuid=str(uuid1()),content="",current_pleb="",wall_pleb=""):
         rel_from_pleb = poster.posts.connect(my_post)
         rel_from_pleb.save()
         return my_post
-    except SBPost.ValueError:
-        return None
-    except SBPost.DoesNotExist:
+    except ValueError:
         return None
 
 def edit_post_info(content="", post_uuid=str(uuid1()), last_edited_on=None, current_pleb=None):

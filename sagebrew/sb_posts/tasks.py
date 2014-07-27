@@ -1,5 +1,6 @@
 from uuid import uuid1
 from django.conf import settings
+import traceback
 
 from celery import shared_task
 
@@ -102,7 +103,7 @@ def save_post_task(post_info):
         else:
             return {'detail': 'post save failed', 'response': 'logging'}
     except Exception, e:
-        return {'detail': 'post save failed', 'exception': e, 'response': 'logging'}
+        return {'detail': 'post save failed', 'exception': str(e), 'response': 'logging'}
 
 @shared_task()
 def edit_post_info_task(post_info):

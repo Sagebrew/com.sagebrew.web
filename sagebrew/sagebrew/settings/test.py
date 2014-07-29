@@ -16,6 +16,20 @@ DATABASES={
     },
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
+        'URL': 'http://127.0.0.1:8983/solr'
+    },
+}
+
 
 SECRET_KEY = 'ka)zzd@k7csfj+r#jm#gyu*q#xciu0hq=)@z#8^!ul5q3(j@#d'
 INTERNAL_IPS = ('127.0.0.1', 'localhost', '0.0.0.0')

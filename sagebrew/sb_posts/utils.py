@@ -2,6 +2,7 @@ import pytz
 from uuid import uuid1
 from datetime import datetime
 
+from api.utils import spawn_task
 from plebs.neo_models import Pleb
 from sb_comments.utils import get_post_comments
 from .neo_models import SBPost
@@ -138,7 +139,11 @@ def create_post_vote(pleb="", post_uuid=str(uuid1()), vote_type=""):
         return
     else:
         if vote_type == 'up':
-            create_upvote_post.apply_async(args=[post_uuid,pleb])
+            task_param= {'post_uuid': post_uuid,
+                         'pleb': pleb}
+            spawn_task(task_func=create_upvote_post, task_param=task_param)
         elif vote_type =='down':
-            create_downvote_post.apply_async(args=[post_uuid,pleb])
+            task_param= {'post_uuid': post_uuid,
+                         'pleb': pleb}
+            spawn_task(task_func=create_downvote_post, task_param=task_param)
 

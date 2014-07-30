@@ -121,9 +121,16 @@ def delete_post(request):
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def vote_post(request):
+    '''
+    Calls the util which determines what sort of vote will be created also
+    determines if the user is allowed to vote
+
+    :param request:
+    :return:
+    '''
     try:
         post_data = get_post_data(request)
-        create_post_vote(post_data)
+        create_post_vote(**post_data)
         return Response({"detail": "Vote Created!"})
     except:
         return Response({"detail": "Vote could not be created!"})

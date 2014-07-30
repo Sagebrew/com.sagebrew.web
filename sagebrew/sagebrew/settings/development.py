@@ -115,7 +115,7 @@ LOGGING = {
     },
     'loggers': {
         'django.db': {
-            'handlers': ['default'],
+            'handlers': ['logging.handlers.SysLogHandler'],
             'level': 'ERROR',
             'propagate': False,
         },
@@ -127,7 +127,7 @@ LOGGING = {
             'token': LOGGLY_TOKEN
         },
                 'django.request': {
-            'handlers': ['default'],
+            'handlers': ['logging.handlers.SysLogHandler'],
             'level': 'ERROR',
             'propagate': False,
         },

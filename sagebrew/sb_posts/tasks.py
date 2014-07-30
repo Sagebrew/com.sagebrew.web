@@ -51,7 +51,9 @@ def create_upvote_post(post_uuid=str(uuid1()), pleb=""):
         return {'detail': 'upvote created'}
     except SBPost.DoesNotExist:
         task_id = uuid1()
-        create_upvote_post.apply_async(args=[post_uuid,pleb], task_id=task_id)
+        task_param={'post_uuid': post_uuid,
+                    'pleb': pleb}
+        spawn_task(task_func=create_upvote_post, task_param=task_param, countdown=2, task_id=task_id)
         return {'detail': 'unknown exception', 'response': 'logging'}
 
 
@@ -75,7 +77,9 @@ def create_downvote_post(post_uuid=str(uuid1()), pleb=""):
         return {'detail': 'downvote created'}
     except SBPost.DoesNotExist:
         task_id = uuid1()
-        create_downvote_post.apply_async(args=[post_uuid,pleb], task_id=task_id)
+        task_param={'post_uuid': post_uuid,
+                    'pleb': pleb}
+        spawn_task(task_func=create_downvote_post, task_param=task_param, countdown=2, task_id=task_id)
         return {'detail': 'unknown exception', 'response': 'logging'}
 
 @shared_task()

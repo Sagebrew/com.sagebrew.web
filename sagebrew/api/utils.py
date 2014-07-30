@@ -1,5 +1,6 @@
 import logging
 import requests
+from uuid import uuid1
 from socket import error as socket_error
 from json import loads, dumps
 from django.conf import settings
@@ -13,6 +14,7 @@ from boto.sqs.message import Message
 
 from bomberman.client import Client
 
+from .decorators import task_exception_handler
 from sb_comments.neo_models import SBComment
 from sb_posts.neo_models import SBPost, SBAnswer, SBQuestion
 from sb_garbage.neo_models import SBGarbageCan
@@ -64,7 +66,16 @@ def get_oauth_access_token():
         return refresh_oauth_access_token(oauth_client)['access_token']
     return oauth_client['access_token']
 
-def assign_data(info, attempt_task, countdown, task_id):
+
+'''
+iron_mq = IronMQ(project_id=settings.IRON_PROJECT_ID,
+                         token=settings.IRON_TOKEN)
+        queue = iron_mq.queue('sb_failures')
+        info['action'] = attempt_task.__name__
+        queue.post(dumps(info))
+'''
+
+def add_failure_to_queue(message_info):
     '''
     try:
         attempt_task.apply_async([info,], countdown=countdown, task_id=task_id)
@@ -77,17 +88,35 @@ def assign_data(info, attempt_task, countdown, task_id):
     )
     my_queue = conn.get_queue('sb_failures')
     m = Message()
-    m.set_body('test message')
+    m.set_body(dumps(message_info))
     my_queue.write(m)
-    logger.info('test logs')
 
-'''
-iron_mq = IronMQ(project_id=settings.IRON_PROJECT_ID,
-                         token=settings.IRON_TOKEN)
-        queue = iron_mq.queue('sb_failures')
-        info['action'] = attempt_task.__name__
-        queue.post(dumps(info))
-'''
+def spawn_task(task_func, task_param, countdown=0, task_id=str(uuid1())):
+    try:
+        task_func.apply_async(kwargs=task_param, countdown=countdown, task_id=task_id)
+    except socket_error:
+        failure_uuid = str(uuid1())
+        failure_dict ={
+            'action': 'failed_task',
+            'attempted_task': task_func.__name__,
+            'task_info_kwargs': task_param,
+            'failure_uuid': failure_uuid
+            }
+        logger.error(dumps({'failure_uuid': failure_uuid, 'function': task_func.__name__, 'exception': 'socket_error'}))
+        logger.exception('Trace back from error: ')
+        add_failure_to_queue(failure_dict)
+    except Exception:
+        failure_uuid = str(uuid1())
+        failure_dict ={
+            'action': 'failed_task',
+            'attempted_task': task_func.__name__,
+            'task_info_kwargs': task_param,
+            'failure_uuid': failure_uuid
+            }
+        logger.error(dumps({'failure_uuid': failure_uuid, 'function': task_func.__name__, 'exception': 'unknown_error'}))
+        logger.exception('Trace back from error: ')
+        add_failure_to_queue(failure_dict)
+
 def get_post_data(request):
     '''
     used when dealing with data from an ajax call or from a regular post.
@@ -100,6 +129,13 @@ def get_post_data(request):
     if not post_info:
         post_info = loads(request.body)
     return post_info
+
+def handle_failures(task):
+    '''
+    If a task fails add to the SQS queue
+    :param task:
+    :return:
+    '''
 
 
 def language_filter(content):

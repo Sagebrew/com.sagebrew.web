@@ -1,4 +1,5 @@
 import pytz
+import logging
 from uuid import uuid1
 from json import loads
 from datetime import datetime
@@ -12,7 +13,7 @@ from rest_framework.reverse import reverse
 from rest_framework.response import Response
 from django.shortcuts import render
 
-from api.utils import (get_post_data, language_filter, post_to_garbage)
+from api.utils import (get_post_data, language_filter, post_to_garbage, spawn_task)
 from plebs.neo_models import Pleb
 from sb_garbage.neo_models import SBGarbageCan
 from .neo_models import SBPost
@@ -20,6 +21,8 @@ from .tasks import save_post_task, edit_post_info_task, delete_post_and_comments
 from .utils import (get_pleb_posts, save_post, edit_post_info,
                     create_post_vote)
 from .forms import SavePostForm, EditPostForm
+
+logger = logging.getLogger('loggly_logs')
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
@@ -36,7 +39,7 @@ def save_post_view(request):
         if post_form.is_valid():
             #post_data['content'] = language_filter(post_data['content'])
             post_form.cleaned_data['post_uuid'] = str(uuid1())
-            save_post_task.apply_async([post_form.cleaned_data,])
+            spawn_task(task_func=save_post_task, task_param=post_form.cleaned_data)
             return Response({"action": "filtered", "filtered_content": post_data}, status=200)
         else:
             print post_form.errors
@@ -81,7 +84,7 @@ def edit_post(request):
         post_data['last_edited_on'] = datetime.now(pytz.utc)
         post_form = EditPostForm(post_data)
         if post_form.is_valid():
-            edit_post_info_task.apply_async([post_form.cleaned_data,])
+            spawn_task(task_func=edit_post_info_task, task_param=post_form.cleaned_data)
             return Response({'detail': 'edit task spawned'}, status=200)
         else:
             return Response({'detail': 'form contains errors', 'errors': post_form.errors}, status=400)

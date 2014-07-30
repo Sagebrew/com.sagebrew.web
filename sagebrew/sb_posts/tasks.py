@@ -1,14 +1,16 @@
+import logging
 from uuid import uuid1
 from django.conf import settings
 import traceback
 
 from celery import shared_task
 
+from api.utils import spawn_task
 from .neo_models import SBPost
-from api.utils import assign_data
 from plebs.neo_models import Pleb
 from sb_notifications.tasks import prepare_post_notification_data
 from .utils import (save_post, edit_post_info, delete_post_info)
+
 
 
 @shared_task()
@@ -24,9 +26,8 @@ def delete_post_and_comments(post_info):
         return {'detail': 'post and comments deleted'}
     else:
         task_id = str(uuid1())
-        assign_data(post_info, delete_post_and_comments, 2, task_id)
         delete_post_and_comments.apply_async([post_info,], countdown=2, task_id=task_id)
-        return {'detail': 'failed to delete', 'response': 'retrying'}
+        return {'detail': 'could not delete post', 'response': 'retrying'}
 
 
 
@@ -49,10 +50,9 @@ def create_upvote_post(post_uuid=str(uuid1()), pleb=""):
         my_post.save()
         return {'detail': 'upvote created'}
     except SBPost.DoesNotExist:
-        create_upvote_post.apply_async(args=[post_uuid,pleb])
-        return {'detail': 'post not found', 'response': 'retrying'}
-    except Exception, e:
-        return {'detail': 'unknown exception', 'exception': e, 'response': 'logging'}
+        task_id = uuid1()
+        create_upvote_post.apply_async(args=[post_uuid,pleb], task_id=task_id)
+        return {'detail': 'unknown exception', 'response': 'logging'}
 
 
 #TODO only allow plebs to change vote
@@ -74,16 +74,16 @@ def create_downvote_post(post_uuid=str(uuid1()), pleb=""):
         my_post.save()
         return {'detail': 'downvote created'}
     except SBPost.DoesNotExist:
-        create_downvote_post.apply_async(args=[post_uuid,pleb])
-        return {'detail': 'post not found', 'response': 'retrying'}
-    except Exception, e:
-        return {'detail': 'unknown exception', 'exception': e, 'response': 'logging'}
+        task_id = uuid1()
+        create_downvote_post.apply_async(args=[post_uuid,pleb], task_id=task_id)
+        return {'detail': 'unknown exception', 'response': 'logging'}
 
 @shared_task()
-def save_post_task(post_info):
+def save_post_task(content="", current_pleb="", wall_pleb="", post_uuid=str(uuid1())):
     '''
     Saves the post with the content sent to the task
 
+    If the task fails the failure_dict gets sent to the queue
     :param post_info:
                 post_info = {
                     'content': "this is a post",
@@ -95,18 +95,16 @@ def save_post_task(post_info):
         Returns True if the prepare_post_notification task is spawned and
         the post is successfully created
     '''
-    try:
-        my_post = save_post(**post_info)
-        if my_post is not None:
-            #prepare_post_notification_data.apply_async([my_post,])
-            return {'detail': 'post saved', 'response': 'spawning notification task'}
-        else:
-            return {'detail': 'post save failed', 'response': 'logging'}
-    except Exception, e:
-        return {'detail': 'post save failed', 'exception': str(e), 'response': 'logging'}
+
+    my_post = save_post(post_uuid, content, current_pleb, wall_pleb)
+    if my_post is not None:
+        #prepare_post_notification_data.apply_async([my_post,])
+        return {'detail': 'post saved', 'response': 'spawning notification task'}
+    else:
+        return {'detail': 'post save failed', 'response': 'logging'}
 
 @shared_task()
-def edit_post_info_task(post_info):
+def edit_post_info_task(content="", post_uuid=str(uuid1()), last_edited_on=None, current_pleb=""):
     '''
     Edits the content of the post also updates the last_edited_on value
     if the task returns that it cannot find the post it retries
@@ -147,12 +145,16 @@ def edit_post_info_task(post_info):
                 Returns if the last_edited_on property of the post is more recent than the
                 edit attempt timestamp
     '''
-    edit_post_return = edit_post_info(**post_info)
+    edit_post_return = edit_post_info(content, post_uuid, last_edited_on, current_pleb)
     if edit_post_return['detail'] == 'post edited':
         return True
     if edit_post_return['detail'] == 'post does not exist yet':
         task_id = str(uuid1())
-        edit_post_info_task.apply_async([post_info,], countdown=1, task_id=task_id)
+        task_param ={'content': content,
+                     'post_uuid': post_uuid,
+                     'last_edited_on': last_edited_on,
+                     'current_pleb': current_pleb}
+        spawn_task(task_func=edit_post_info_task, task_param = task_param, countdown=1, task_id=task_id)
         return {'detail': 'waiting for next task', 'task_id': task_id}
     if edit_post_return['detail'] == 'content is the same':
         return {'detail': edit_post_return['detail']}

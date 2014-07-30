@@ -176,6 +176,7 @@ INSTALLED_APPS = (
     'sb_registration',
     'sb_comments',
     'sb_posts',
+    'sb_wall',
     'sb_notifications',
     'sb_relationships',
     'sb_garbage',
@@ -252,59 +253,7 @@ import djcelery
 
 djcelery.setup_loader()
 
-# A sample logging configuration. The only tangible logging
-# performed by this configuration is to send an email to
-# the site admins on every HTTP 500 error when DEBUG=False.
-# See http://docs.djangoproject.com/en/dev/topics/logging for
-# more details on how to customize your logging configuration.
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'loggly': {
-            'format':'loggly: %(message)s',
-        },
-    },
-    'handlers': {
-        'logging.handlers.SysLogHandler': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.SysLogHandler',
-            'facility': 'local5',
-            'formatter': 'loggly',
-        },
-    },
-    'loggers': {
-        'loggly_logs':{
-            'handlers': ['logging.handlers.SysLogHandler'],
-            'propagate': True,
-            'format':'loggly: %(message)s',
-            'level': 'DEBUG',
-            'token': LOGGLY_TOKEN
-        },
-    }
-}
-
-'''
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {'()': 'django.utils.log.RequireDebugFalse'},
-    },
-    'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        }
-    },
-    'loggers': {
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-    }
-}
-'''
+# TODO When doing load testing and beta testing ensure that LOGGING of DB is on
+# and at w/e level we need to check response times. We might be able to
+# determine it from new relic but we should check into that prior to moving
+# forward

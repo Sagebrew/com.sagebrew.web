@@ -134,7 +134,7 @@ def interests(request):
     interest_form = InterestForm(request.POST or None)
     choices_tuple = generate_interests_tuple()
     interest_form.fields["specific_interests"].choices = choices_tuple
-
+    print request.POST
     if interest_form.is_valid():
         for item in interest_form.cleaned_data:
             if(interest_form.cleaned_data[item] and

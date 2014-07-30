@@ -127,7 +127,10 @@ def get_post_data(request):
     '''
     post_info = request.DATA
     if not post_info:
-        post_info = loads(request.body)
+        try:
+            post_info = loads(request.body)
+        except ValueError:
+            return {}
     return post_info
 
 def handle_failures(task):

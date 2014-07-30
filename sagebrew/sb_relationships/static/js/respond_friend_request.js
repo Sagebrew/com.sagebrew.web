@@ -1,4 +1,4 @@
-$( "#friend_request_div" ).delegate("a","mouseenter", function() {
+$( "#friend_request_div" ).on("mouseenter", "a", function() {
 	$("a.respond_friend_request-action").click(function(event){
 		event.preventDefault();
 		$.ajaxSetup({

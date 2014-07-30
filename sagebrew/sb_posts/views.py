@@ -5,13 +5,10 @@ from json import loads
 from datetime import datetime
 from urllib2 import HTTPError
 from requests import ConnectionError
-
-from celery.result import AsyncResult
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
-from django.shortcuts import render
 
 from api.utils import (get_post_data, language_filter, post_to_garbage, spawn_task)
 from plebs.neo_models import Pleb
@@ -21,6 +18,7 @@ from .tasks import save_post_task, edit_post_info_task, delete_post_and_comments
 from .utils import (get_pleb_posts, save_post, edit_post_info,
                     create_post_vote)
 from .forms import SavePostForm, EditPostForm
+
 
 logger = logging.getLogger('loggly_logs')
 

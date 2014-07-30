@@ -34,8 +34,9 @@
 }
 .row_main_picture {
     width: 80%;
+    height: 100%;
     margin-top: 2em;
-    margin-bottom: 2em;
+    margin-bottom: 15%;
     margin-left: 10%;
     margin-right: 10%;
     border-radius: 10px;
@@ -144,32 +145,7 @@
     margin-top: 15px;
     margin-bottom: 15px;
 }
-/* profile picture selection */
-.sb_picture {
-    margin-left: 0px;
-}
-.sb_complete {
-    background-color: #1ba39c;
-    width: 265px;
-    height: 100%;
-    margin-bottom: 30px;
 
-}
-.sb_select_image {
-    margin-bottom: 15px;
-    margin-left: 15px;
-    margin-right: 15px;
-}
-.sb_select {
-    width: 265px;
-
-}
-.sb_remove {
-    width: 265px;
-}
-.sb_change {
-    width:265px;
-}
 
 .row_button {
     margin-left: 30px;
@@ -230,7 +206,6 @@
     margin-righ: 15px;
 }
 #datepicker-01 {
-    background-color: ;
 }
 #id_select_all {
     width: 100%;
@@ -243,4 +218,95 @@
     background-color: #26424a;
 }
 #profile_information {
+}
+
+.modal {
+    margin-top: 2%;
+    margin-left: 17%;
+    margin-right: 17%;
+    margin-bottom: 2%;
+    border-radius:7px 7px 7px 7px ;
+}
+#profile_picture_header {
+    color: #e4eee5;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 0;f
+}
+.modal-footer {
+    background-color: #e4eee5;
+}
+.modal-body {
+    background-color: #e4eee5 ;
+}
+.modal-header {
+    background-color: #1ba39c;
+    border-bottom-width: 2pt;
+    border-bottom-color: #26424a;
+}
+/* profile picture selection */
+.sb_picture {
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-top: 30px;
+}
+.sb_complete {
+    background-color: #1ba39c;
+    width: 265px;
+    height: 100%;
+    margin-bottom: 75px;
+}
+.sb_select_image {
+    margin-bottom: 15px;
+    margin-left: 15px;
+    margin-right: 15px;
+}
+.sb_select {
+    width: 150px;
+
+}
+.sb_remove {
+    width: 150px;
+
+}
+.sb_change {
+    width: 150px;
+
+}
+.sb_upload {
+    margin-top: 20px;
+    background-color: #1ba39c;
+    width: 265px;
+    height: 100%;
+    margin-bottom: 15px;
+}
+
+.fui-cross-inverted .close {
+    text-emphasis-color:#e4eee5;
+    margin-left: 98%;
+    padding-right: 15px;
+}
+#target {
+    background-color: #ccc;
+    width: 500px;
+    height: 330px;
+    font-size: 24px;
+    display: block;
+  }
+.jcrop-light .jcrop-vline,
+.jcrop-light .jcrop-hline {
+  background: #ffffff;
+  filter: alpha(opacity=70);
+  opacity: .40;
+}
+#preview-pane .preview-container {
+  width: 250px;
+  height: 170px;
+  overflow: hidden;
+}
+.thumbnail {
+    border-color: #ffffff;
+    background-color: #ffffff;
+    padding: 0;
+    border-radius: 6px;
 }

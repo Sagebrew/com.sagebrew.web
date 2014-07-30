@@ -3,6 +3,19 @@ com.sagebrew.web
 Must run `sudo apt-get install postfix` for email stuff to work correctly.
 
 
+Don't need to do it right now but if we move over to having some views available
+publicly might need to use something like:
+`@authentication_classes((SessionAuthentication, BasicAuthentication))`
+Rather than setting it globally in the settings for authentication.
+
+
+### RabbitMQ ###
+```
+sudo rabbitmqctl delete_user guest
+sudo rabbitmqctl add_user sagebrew this_is_the_sagebrew_password
+sudo rabbitmqctl set_user_tags sagebrew administrator
+sudo rabbitmqctl set_permissions sagebrew ".*" ".*" ".*"
+```
 
 ### Neo4j ###
 set neo4j db create file
@@ -15,7 +28,7 @@ How to delete all nodes and relationships:
 `
 start n=node(*)
 match n-[r?]-()
-delete r,n
+delete r,n;
 `
 How to return all nodes:
 `
@@ -167,6 +180,8 @@ $template LogglyFormat,"<%pri%>%protocol-version% %timestamp:::date-rfc3339% %HO
 ```
 Where ACCOUNT is the Loggly account and TOKEN is your Loggly token
 change Example1\ to djangoapp
+
+Then run `sudo service rsyslog restart` to restart rsyslog.
 
 To setup Loggly with celery logging:
 ```

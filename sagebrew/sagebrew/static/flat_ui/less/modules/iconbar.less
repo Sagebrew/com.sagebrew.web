@@ -41,7 +41,7 @@
         padding: 8px 30px 32px;
         position: relative;
         text-decoration: none;
-        
+
         &:hover,
         &:focus {
           color: @brand-secondary;
@@ -63,12 +63,14 @@
         }
       }
     }
+
     & {
       .iconbar-unread {
         right: 15px;
         top: 13px;
       }
     }
+
     &.iconbar-horizontal {
       height: 70px;
       overflow: auto;
@@ -94,7 +96,9 @@
   position: fixed;
   z-index: 1001;
 
-  > ul { margin: 0; }
+  > ul {
+    margin: 0;
+  }
 }
 
 .iconbar-stick-left {
@@ -123,10 +127,21 @@
 
 // Alternate Colors
 // --------------------------------------------------
-.iconbar-success { .swap-iconbar-color(@brand-success); }
-.iconbar-danger  { .swap-iconbar-color(@brand-danger); }
-.iconbar-warning { .swap-iconbar-color(@brand-warning); }
-.iconbar-info    { .swap-iconbar-color(@brand-info); }
+.iconbar-success {
+  .swap-iconbar-color(@brand-success);
+}
+
+.iconbar-danger {
+  .swap-iconbar-color(@brand-danger);
+}
+
+.iconbar-warning {
+  .swap-iconbar-color(@brand-warning);
+}
+
+.iconbar-info {
+  .swap-iconbar-color(@brand-info);
+}
 
 // Horizontal layout
 // --------------------------------------------------

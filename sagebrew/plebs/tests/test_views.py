@@ -1,14 +1,13 @@
 from uuid import uuid1
-from json import dumps
-from rest_framework.test import APIRequestFactory, APIClient
+from rest_framework.test import APIRequestFactory
 from django.contrib.auth.models import User, AnonymousUser
-from django.test import TestCase, RequestFactory
+from django.test import TestCase
 
 from sb_comments.neo_models import SBComment
 from sb_posts.neo_models import SBPost
-from sb_posts.views import save_post_view
 from plebs.neo_models import Pleb
 from plebs.views import profile_page
+
 
 class ProfilePageTest(TestCase):
     def setUp(self):
@@ -23,7 +22,7 @@ class ProfilePageTest(TestCase):
 
         self.factory = APIRequestFactory()
         self.user = User.objects.create_user(
-            username='Tyler'+str(uuid1())[:25], email=self.email)
+            username='Tyler' + str(uuid1())[:25], email=self.email)
         self.pleb = Pleb.index.get(email=self.email)
 
     def test_unauthenticated(self):
@@ -118,7 +117,7 @@ class ProfilePageTest(TestCase):
     def test_multiple_posts(self):
         post_array = []
         wall = self.pleb.traverse('wall').run()[0]
-        for item in range(0,50):
+        for item in range(0, 50):
             test_post = SBPost(content='test', post_id=str(uuid1()))
             test_post.save()
             test_post.posted_on_wall.connect(wall)
@@ -139,11 +138,11 @@ class ProfilePageTest(TestCase):
         wall = self.pleb.traverse('wall').run()[0]
         pleb_array = []
         post_array = []
-        for item in range(0,2):
+        for item in range(0, 2):
             test_pleb = Pleb(email=str(uuid1())[:32])
             test_pleb.save()
             pleb_array.append(test_pleb)
-            for number in range(0,10):
+            for number in range(0, 10):
                 test_post = SBPost(content='test', post_id=str(uuid1()))
                 test_post.save()
                 test_post.posted_on_wall.connect(wall)
@@ -176,11 +175,11 @@ class ProfilePageTest(TestCase):
         pleb_array = []
         post_array = []
         comment_array = []
-        for item in range(0,2):
+        for item in range(0, 2):
             test_pleb = Pleb(email=str(uuid1())[:32])
             test_pleb.save()
             pleb_array.append(test_pleb)
-            for number in range(0,10):
+            for number in range(0, 10):
                 test_post = SBPost(content='test', post_id=str(uuid1()))
                 test_post.save()
                 test_post.posted_on_wall.connect(wall)
@@ -190,25 +189,29 @@ class ProfilePageTest(TestCase):
                 rel_from_pleb = test_pleb.posts.connect(test_post)
                 rel_from_pleb.save()
                 post_array.append(test_post)
-                for num in range(0,1):
-                    my_comment = SBComment(content='test comment', comment_id=str(uuid1()))
+                for num in range(0, 1):
+                    my_comment = SBComment(content='test comment',
+                                           comment_id=str(uuid1()))
                     my_comment.save()
                     rel_to_pleb = my_comment.is_owned_by.connect(test_pleb)
                     rel_to_pleb.save()
                     rel_from_pleb = test_pleb.comments.connect(my_comment)
                     rel_from_pleb.save()
-                    rel_to_post = my_comment.commented_on_post.connect(test_post)
+                    rel_to_post = my_comment.commented_on_post.connect(
+                        test_post)
                     rel_to_post.save()
                     rel_from_post = test_post.comments.connect(my_comment)
                     rel_from_post.save()
                     comment_array.append(my_comment)
-                    my_comment = SBComment(content='test comment', comment_id=str(uuid1()))
+                    my_comment = SBComment(content='test comment',
+                                           comment_id=str(uuid1()))
                     my_comment.save()
                     rel_to_pleb = my_comment.is_owned_by.connect(self.pleb)
                     rel_to_pleb.save()
                     rel_from_pleb = self.pleb.comments.connect(my_comment)
                     rel_from_pleb.save()
-                    rel_to_post = my_comment.commented_on_post.connect(test_post)
+                    rel_to_post = my_comment.commented_on_post.connect(
+                        test_post)
                     rel_to_post.save()
                     rel_from_post = test_post.comments.connect(my_comment)
                     rel_from_post.save()
@@ -233,7 +236,7 @@ class ProfilePageTest(TestCase):
             comment.delete()
         test_post.delete()
 
-#TODO test friend user, registered non-friend user getting the correct page
+# TODO test friend user, registered non-friend user getting the correct page
 
 
 

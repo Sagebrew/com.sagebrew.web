@@ -15,21 +15,27 @@ from api.utils import get_post_data
 @permission_classes((IsAuthenticated,))
 def create_friend_request(request):
     '''
-    calls the task which creates a friend request, it also creates the id for the
+    calls the task which creates a friend request, it also creates the id
+    for the
     request here
 
     :param request:
     :return:
     '''
-    #TODO return uuid of friend request and add to javascript hide button when uuid recieved
-    #if action is True hide friend request button and show a delete friend request button
+    # TODO return uuid of friend request and add to javascript hide button
+    # when uuid recieved
+    #if action is True hide friend request button and show a delete friend
+    # request button
     try:
         friend_request_data = get_post_data(request)
         friend_request_data['friend_request_uuid'] = str(uuid1())
-        create_friend_request_task.apply_async([friend_request_data,])
-        return Response({"action": True,"friend_request_id":friend_request_data['friend_request_uuid']}, status=200)
+        create_friend_request_task.apply_async([friend_request_data, ])
+        return Response({"action": True,
+                         "friend_request_id": friend_request_data[
+                             'friend_request_uuid']}, status=200)
     except(HTTPError, ConnectionError):
         return Response({"action": False}, status=408)
+
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
@@ -41,26 +47,34 @@ def get_friend_requests(request):
     :return:
     '''
     requests = []
-    citizen = Pleb.index.get(email = request.DATA['email'])
+    citizen = Pleb.index.get(email=request.DATA['email'])
     print citizen.email
-    friend_requests = citizen.traverse('friend_requests_recieved').where('seen','=', False).run()
+    friend_requests = citizen.traverse('friend_requests_recieved').where(
+        'seen', '=', False).run()
     for request in friend_requests:
         request_id = request.friend_request_uuid
         print request_id
         request_sender = request.traverse('request_from').run()[0]
-        request_dict = {'from_name':request_sender.first_name+' '+request_sender.last_name, 'from_email': request_sender.email,'request_id': request_id}
+        request_dict = {
+        'from_name': request_sender.first_name + ' ' +
+                     request_sender.last_name,
+        'from_email': request_sender.email, 'request_id': request_id}
         requests.append(request_dict)
     print requests
     return Response(requests, status=200)
+
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def respond_friend_request(request):
     '''
     finds the friend request which is attached to both the from and to user
-    then, depending on the response type, either attaches the friend relationship
-    in each pleb and deletes the request, deletes the request, or lets the friend
-    request exist to stop the user from sending more but does not notify the user
+    then, depending on the response type, either attaches the friend
+    relationship
+    in each pleb and deletes the request, deletes the request, or lets the
+    friend
+    request exist to stop the user from sending more but does not notify the
+    user
     which blocked them that they have a friend request from them.
 
     :param request:
@@ -68,14 +82,15 @@ def respond_friend_request(request):
     '''
     request = request.DATA
     try:
-        friend_request = FriendRequest.index.get(friend_request_uuid = request['request_id'])
+        friend_request = FriendRequest.index.get(
+            friend_request_uuid=request['request_id'])
         to_pleb = friend_request.traverse('request_to').run()[0]
         from_pleb = friend_request.traverse('request_from').run()[0]
     except (FriendRequest.DoesNotExist, Pleb.DoesNotExist):
         print 'Either the pleb no longer exists or the request does not exist'
         return Response(status=408)
 
-    if request['response']=='accept':
+    if request['response'] == 'accept':
         rel1 = to_pleb.friends.connect(from_pleb)
         rel2 = from_pleb.friends.connect(to_pleb)
         rel1.save()
@@ -84,10 +99,10 @@ def respond_friend_request(request):
         to_pleb.save()
         from_pleb.save()
         return Response(status=200)
-    elif request['response']=='deny':
+    elif request['response'] == 'deny':
         friend_request.delete()
         return Response(status=200)
-    elif request['response']=='block':
+    elif request['response'] == 'block':
         friend_request.seen = True
         friend_request.response = 'block'
         friend_request.save()

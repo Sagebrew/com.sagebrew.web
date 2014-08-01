@@ -8,7 +8,6 @@ can all be found in the Models.py file.
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
-
 from localflavor.us.forms import USPhoneNumberField
 
 from .models import Profile
@@ -22,7 +21,7 @@ REQUIRED_ERRORS = {'password': _('Password must be entered'),
                    'company': _('Company Name is required'),
                    'employer': _("You must enter an employer"),
                    'user_type': _("User Type is required"),
-                  }
+}
 
 USER_EXISTS_ERROR = _("We are sorry a User with that username already exists, \
                      please choose another one")
@@ -42,13 +41,15 @@ class StandardUserForm(forms.Form):
     '''
     email = forms.EmailField()
     password1 = forms.CharField(widget=forms.PasswordInput(attrs=attrs_dict,
-                    render_value=False),
-                    error_messages={'required': REQUIRED_ERRORS['password']})
+                                                           render_value=False),
+                                error_messages={
+                                'required': REQUIRED_ERRORS['password']})
     password2 = forms.CharField(widget=forms.PasswordInput(attrs=attrs_dict,
-                    render_value=False),
-                    error_messages={'required': REQUIRED_ERRORS['password']})
+                                                           render_value=False),
+                                error_messages={
+                                'required': REQUIRED_ERRORS['password']})
     primary_phone = USPhoneNumberField(
-                        error_messages={'required': REQUIRED_ERRORS['phone']})
+        error_messages={'required': REQUIRED_ERRORS['phone']})
 
     def clean_username(self):
         'Validate that the username is alphanumeric and is not already in use.'
@@ -78,8 +79,8 @@ class StandardUserForm(forms.Form):
         """
         pass1, pass2 = ('password1', 'password2')
 
-        if(pass1 in self.cleaned_data and pass2 in self.cleaned_data):
-            if(self.cleaned_data[pass1] != self.cleaned_data[pass2]):
+        if (pass1 in self.cleaned_data and pass2 in self.cleaned_data):
+            if (self.cleaned_data[pass1] != self.cleaned_data[pass2]):
                 raise forms.ValidationError(PASSWORD_MISMATCH_ERROR)
         return self.cleaned_data
 
@@ -90,12 +91,15 @@ class ProfileForm(forms.Form):
     specific attributes.
     '''
     username = forms.CharField(max_length=30,
-                   widget=forms.TextInput(attrs=attrs_dict),
-                   error_messages={'invalid': USERNAME_INVALID_ERROR})
+                               widget=forms.TextInput(attrs=attrs_dict),
+                               error_messages={
+                               'invalid': USERNAME_INVALID_ERROR})
     first_name = forms.CharField(max_length=30,
-                    error_messages={'required': REQUIRED_ERRORS['first_name']})
+                                 error_messages={
+                                 'required': REQUIRED_ERRORS['first_name']})
     last_name = forms.CharField(max_length=30,
-                    error_messages={'required': REQUIRED_ERRORS['last_name']})
+                                error_messages={
+                                'required': REQUIRED_ERRORS['last_name']})
 
 
 class AccountSettingsForm(forms.Form):
@@ -107,9 +111,11 @@ class AccountSettingsForm(forms.Form):
     last_name = forms.CharField(max_length=30, required=False)
     email = forms.EmailField(required=False)
     password1 = forms.CharField(widget=forms.PasswordInput(attrs=attrs_dict,
-                    render_value=False), required=False)
+                                                           render_value=False),
+                                required=False)
     password2 = forms.CharField(widget=forms.PasswordInput(attrs=attrs_dict,
-                    render_value=False), required=False)
+                                                           render_value=False),
+                                required=False)
 
 
 class SettingsWorkandEducation(forms.Form):

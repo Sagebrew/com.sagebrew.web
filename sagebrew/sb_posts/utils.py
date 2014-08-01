@@ -1,11 +1,10 @@
-import pytz
 from uuid import uuid1
-from datetime import datetime
 
 from api.utils import spawn_task
 from plebs.neo_models import Pleb
 from sb_comments.utils import get_post_comments
 from .neo_models import SBPost
+
 
 def get_pleb_posts(pleb_object):
     '''
@@ -18,13 +17,16 @@ def get_pleb_posts(pleb_object):
     '''
     try:
         pleb_wall = pleb_object.traverse('wall').run()[0]
-        pleb_posts = pleb_wall.traverse('post').where('to_be_deleted', '=', False).run()
+        pleb_posts = pleb_wall.traverse('post').where('to_be_deleted', '=',
+                                                      False).run()
         return get_post_comments(pleb_posts)
-    except :
+    except:
         print "failed to retrieve posts"
         return {"details": "You have no posts!"}
 
-def save_post(post_uuid=str(uuid1()),content="",current_pleb="",wall_pleb=""):
+
+def save_post(post_uuid=str(uuid1()), content="", current_pleb="",
+              wall_pleb=""):
     '''
     saves a post and creates the relationships between the wall
     and the poster of the comment
@@ -42,11 +44,11 @@ def save_post(post_uuid=str(uuid1()),content="",current_pleb="",wall_pleb=""):
             else returns SBPost object
     '''
     try:
-        test_post = SBPost.index.get(post_id = post_uuid)
+        test_post = SBPost.index.get(post_id=post_uuid)
     except SBPost.DoesNotExist:
-        poster = Pleb.index.get(email = current_pleb)
-        my_citizen = Pleb.index.get(email = wall_pleb)
-        my_post = SBPost(content=content,post_id=post_uuid)
+        poster = Pleb.index.get(email=current_pleb)
+        my_citizen = Pleb.index.get(email=wall_pleb)
+        my_post = SBPost(content=content, post_id=post_uuid)
         my_post.save()
         wall = my_citizen.traverse('wall').run()[0]
         my_post.posted_on_wall.connect(wall)
@@ -58,8 +60,12 @@ def save_post(post_uuid=str(uuid1()),content="",current_pleb="",wall_pleb=""):
         return my_post
     except ValueError:
         return None
+    except:
+        return None
 
-def edit_post_info(content="", post_uuid=str(uuid1()), last_edited_on=None, current_pleb=None):
+
+def edit_post_info(content="", post_uuid=str(uuid1()), last_edited_on=None,
+                   current_pleb=None):
     '''
     changes the content of the post linked to the id passed to the function
     to the content which was passed
@@ -72,8 +78,18 @@ def edit_post_info(content="", post_uuid=str(uuid1()), last_edited_on=None, curr
                     current_pleb: 'fake_email@gmail.com',
                 }
     :return:
+            if the post's value to_be_deleted is True it returns the detail
+            to be deleted
+
+            if the content of the edit is the same as the content already in
+            the post it returns the detail content is the same
+
+            if the timestamp of the edit is the same it returns the
+            detail last edit more recent
+
+            if it is successful in editing it returns True
     '''
-    #TODO create a function to determine if the object will be edited
+    # TODO create a function to determine if the object will be edited
     try:
         my_post = SBPost.index.get(post_id=post_uuid)
         if my_post.to_be_deleted:
@@ -93,13 +109,13 @@ def edit_post_info(content="", post_uuid=str(uuid1()), last_edited_on=None, curr
         except TypeError:
             pass
 
-
         my_post.content = content
         my_post.last_edited_on = last_edited_on
         my_post.save()
-        return {'post': my_post.post_id, 'detail': 'post edited'}
+        return True
     except SBPost.DoesNotExist:
         return {'detail': 'post does not exist yet'}
+
 
 def delete_post_info(post_id=str(uuid1())):
     '''
@@ -108,9 +124,12 @@ def delete_post_info(post_id=str(uuid1())):
     :param post_info:
                     post_uuid = str(uuid1)
     :return:
+            if the post and comments are successfully deleted it returns True
+
+            if it cant find the post it returns False
     '''
     try:
-        my_post = SBPost.index.get(post_id = post_id)
+        my_post = SBPost.index.get(post_id=post_id)
         post_comments = my_post.traverse('comments')
         for comment in post_comments:
             comment.delete()
@@ -130,20 +149,25 @@ def create_post_vote(pleb="", post_uuid=str(uuid1()), vote_type=""):
                     post_uuid = str(uuid1())
                     vote_type = "" up/down
     :return:
+
     '''
-    #TODO This needs to allow to changing of vote
+    # TODO This needs to allow to changing of vote
     from sb_posts.tasks import create_downvote_post, create_upvote_post
-    my_pleb = Pleb.index.get(email = pleb)
-    my_post = SBPost.index.get(post_id = post_uuid)
-    if my_post.up_voted_by.is_connected(my_pleb) or my_post.down_voted_by.is_connected(my_pleb):
-        return
+
+    my_pleb = Pleb.index.get(email=pleb)
+    my_post = SBPost.index.get(post_id=post_uuid)
+    if my_post.up_voted_by.is_connected(
+            my_pleb) or my_post.down_voted_by.is_connected(my_pleb):
+        return False
     else:
         if vote_type == 'up':
-            task_param= {'post_uuid': post_uuid,
-                         'pleb': pleb}
+            task_param = {'post_uuid': post_uuid,
+                          'pleb': pleb}
             spawn_task(task_func=create_upvote_post, task_param=task_param)
-        elif vote_type =='down':
-            task_param= {'post_uuid': post_uuid,
-                         'pleb': pleb}
+            return True
+        elif vote_type == 'down':
+            task_param = {'post_uuid': post_uuid,
+                          'pleb': pleb}
             spawn_task(task_func=create_downvote_post, task_param=task_param)
+            return True
 

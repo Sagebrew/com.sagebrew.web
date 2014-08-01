@@ -1,5 +1,4 @@
-function getCookie(c_name)
-{
+function getCookie(c_name) {
     // From http://www.w3schools.com/js/js_cookies.asp
     var c_value = document.cookie;
     var c_start = c_value.indexOf(" " + c_name + "=");
@@ -14,7 +13,7 @@ function getCookie(c_name)
         if (c_end == -1) {
             c_end = c_value.length;
         }
-        c_value = unescape(c_value.substring(c_start,c_end));
+        c_value = unescape(c_value.substring(c_start, c_end));
     }
     return c_value;
 }
@@ -35,8 +34,8 @@ $('a[data-toggle="tab"]:not(:first)').on('shown', function (e) {
     $(e.target).parents('.tabbable').removeClass('first-tab-active');
 });
 
-$('a[data-toggle="tab"]').click(function(){
-    document.cookie="tabstyle=" + this.name + "; path=/";
+$('a[data-toggle="tab"]').click(function () {
+    document.cookie = "tabstyle=" + this.name + "; path=/";
 });
 
 // Store tab preference in cookies & display appropriate tab on load.

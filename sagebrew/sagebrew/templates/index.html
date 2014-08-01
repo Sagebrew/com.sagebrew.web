@@ -5,65 +5,73 @@
 
 {% endblock css %}
 {% block content %}
-    <img src="{% static 'images/Capitol_reflection.jpg' %}" class="sb-background container-fluid" alt="">
-        <div class="sb-index">
-            <article class="demo-col" id="sb_input">
-                <div class="row">
-                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-offset-1">
-                        <div class="sb-title"><h2 class="demo-panel-title">Sign Up</h2></div>
+    <img src="{% static 'images/Capitol_reflection.jpg' %}"
+         class="sb-background container-fluid" alt="">
+    <div class="sb-index">
+        <article class="demo-col" id="sb_input">
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-offset-1">
+                    <div class="sb-title"><h2 class="demo-panel-title">Sign
+                        Up</h2></div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-11 col-xs-offset-1">
+                    <div class="form-group">
+                        <input type="text" value="" placeholder="First Name"
+                               class="form-control input-hg">
                     </div>
                 </div>
+            </div>
 
-                    <div class="row">
-                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-11 col-xs-offset-1">
-                            <div class="form-group">
-                                <input type="text" value="" placeholder="First Name" class="form-control input-hg">
-                            </div>
-                        </div>
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-11 col-xs-offset-1">
+                    <div class="form-group">
+                        <input type="text" value="" placeholder="Last Name"
+                               class="form-control input-hg">
                     </div>
+                </div>
+            </div>
 
-                    <div class="row">
-                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-11 col-xs-offset-1">
-                             <div class="form-group">
-                                <input type="text" value="" placeholder="Last Name" class="form-control input-hg">
-                             </div>
-                        </div>
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-11 col-xs-offset-1">
+                    <div class="form-group">
+                        <input type="text" value="" placeholder="Email"
+                               class="form-control input-hg">
                     </div>
+                </div>
+            </div>
 
-                    <div class="row">
-                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-11 col-xs-offset-1">
-                            <div class="form-group">
-                                <input type="text" value="" placeholder="Email" class="form-control input-hg">
-                            </div>
-                        </div>
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-11 col-xs-offset-1">
+                    <div class="form-group">
+                        <input type="text" value=""
+                               placeholder="Re-enter Email"
+                               class="form-control input-hg">
                     </div>
+                </div>
+            </div>
 
-                    <div class="row">
-                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-11 col-xs-offset-1">
-                            <div class="form-group">
-                                <input type="text" value="" placeholder="Re-enter Email" class="form-control input-hg">
-                            </div>
-                        </div>
-                     </div>
-
-                    <div class="row">
-                        <div class="col-lg-6 col-md-6 col-sm-6  col-xs-12 col-xs-offset-1">
-                            <a href="#fakelink" class="btn btn-primary sb-btn-primary" id="sb-signup">
-                                Sign Up
-                            </a>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 col-xs-offset-1">
-                            <a href="#fakelink" class="btn btn-lg btn-social-facebook">
-                                <i class="fui-facebook"></i>
-                                Sign Up With Facebook
-                            </a>
-                        </div>
-                    </div>
-            </article>
-        </div>
+            <div class="row">
+                <div class="col-lg-6 col-md-6 col-sm-6  col-xs-12 col-xs-offset-1">
+                    <a href="#fakelink" class="btn btn-primary sb-btn-primary"
+                       id="sb-signup">
+                        Sign Up
+                    </a>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 col-xs-offset-1">
+                    <a href="#fakelink" class="btn btn-lg btn-social-facebook">
+                        <i class="fui-facebook"></i>
+                        Sign Up With Facebook
+                    </a>
+                </div>
+            </div>
+        </article>
+    </div>
     </div>
 
-{{ block.super }}
-{% endblock content%}
-                {% block jordans_block %}
-                {% endblock jordans_block %}
+    {{ block.super }}
+{% endblock content %}
+{% block jordans_block %}
+{% endblock jordans_block %}

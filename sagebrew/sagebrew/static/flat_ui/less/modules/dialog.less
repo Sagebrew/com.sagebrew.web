@@ -36,9 +36,15 @@
     border-top-color: #e2edeb;
   }
 
-  &.dialog-danger  { .swap-dialog-color(@brand-danger); }
-  &.dialog-warning { .swap-dialog-color(@brand-warning); }
-  &.dialog-info    { .swap-dialog-color(@brand-info); }
+  &.dialog-danger {
+    .swap-dialog-color(@brand-danger);
+  }
+  &.dialog-warning {
+    .swap-dialog-color(@brand-warning);
+  }
+  &.dialog-info {
+    .swap-dialog-color(@brand-info);
+  }
   &.dialog-inverse {
     background-color: @brand-primary;
     border-top-color: mix(@brand-primary, black, 80%);

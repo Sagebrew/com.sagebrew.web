@@ -1,371 +1,352 @@
 <!DOCTYPE html>
 <html>
 <head>
-    
-        <title> Profile Information </title>
 
-    
-        <link href="/static/flat_ui/bootstrap/css/bootstrap.css" rel="stylesheet">
-        <link href="/static/flat_ui/css/flat-ui.css" rel="stylesheet"/>
-        <link href="/static/flat_ui/css/demo.css" rel="stylesheet"/>
-        <link href="/static/css/sb_signup.css" rel="stylesheet"/>
-        <link href="/static/css/sb_registration.css" rel="stylesheet"/>
-       <!-- <link href="/static/css/navigation.css" rel="stylesheet"/> -->
+    <title> Profile Information </title>
 
-    
-	
-    
+
+    <link href="/static/flat_ui/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="/static/flat_ui/css/flat-ui.css" rel="stylesheet"/>
+    <link href="/static/flat_ui/css/demo.css" rel="stylesheet"/>
+    <link href="/static/css/sb_signup.css" rel="stylesheet"/>
+    <link href="/static/css/sb_registration.css" rel="stylesheet"/>
+    <!-- <link href="/static/css/navigation.css" rel="stylesheet"/> -->
+
+
 </head>
 <body id="sb-body">
-    <div class="container-fluid background">
-        <div class="row">
-            <div class="row" id="sb_navbar">
-                <nav class="navbar navbar-lg" role="navigation">
-                    <div class="col-lg-6 col-md-5 col-xs-6">
-                        <div class="navbar-header">
-                            <h1 id="logo">Sagebrew</h1>
-                        </div>
-                    </div>
-                    
-    
+<div class="container-fluid background">
+<div class="row">
+    <div class="row" id="sb_navbar">
+        <nav class="navbar navbar-lg" role="navigation">
+            <div class="col-lg-6 col-md-5 col-xs-6">
+                <div class="navbar-header">
+                    <h1 id="logo">Sagebrew</h1>
+                </div>
+            </div>
 
-                </nav>
+
+        </nav>
+    </div>
+</div>
+
+<div class="row row_main">
+<form action="/registration/profile_information/" method="POST"><input
+        type='hidden' name='csrfmiddlewaretoken'
+        value='6IW9EZMgNtpDVHm2irpYWGiJUDibwkcP'/>
+
+<div class="row">
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-7 col-xs-12 cold-xs-4 ">
+            <div>
+                <h2 class="sb_profile_info">Profile Information</h2>
             </div>
         </div>
-        
-    <div class="row row_main">
-        <form action="/registration/profile_information/" method = "POST"><input type='hidden' name='csrfmiddlewaretoken' value='6IW9EZMgNtpDVHm2irpYWGiJUDibwkcP' />
-            <div class="row">
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-7 col-xs-12 cold-xs-4 ">
-                        <div>
-                            <h2 class="sb_profile_info">Profile Information</h2>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-3 col-sm-5 col-xs-4 col-lg-offset-3 col-md-offset-3 ">
-                        <div>
-                            <h4 class="sb_steps hidden-xs">Step 1 of 3</h4>
-                        </div>
-                    </div>
-                </div>
-                <div class="info_square  hidden-sm hidden-xs">
-                    <div class="paragraph">
-                        <p>Why do you need my personal information?</p>
-                    </div>
-                </div>
-                <div class="info_square info_square_2 hidden-sm hidden-xs">
-                    <div class="paragraph">
-                        <p>Why do you need to know where I live?</p>
-                    </div>
-                </div>
+        <div class="col-lg-3 col-md-3 col-sm-5 col-xs-4 col-lg-offset-3 col-md-offset-3 ">
+            <div>
+                <h4 class="sb_steps hidden-xs">Step 1 of 3</h4>
             </div>
-            <div class="row">
-            <!--personal info block -->
-                
-                    
-                        <p class="sb_error">Birthday : This field is required.</p>
-                    
-                
-                    
-                        <p class="sb_error">Hometown : This field is required.</p>
-                    
-                
-                    
-                
-                    
-                
-                    
-                
-                <div id="profile_information">
-                    
-                        <div class="row">
-                            <div class="col-lg-2 col-md-2 col-sm-3 sb_label hidden-xs">
-                                <p>Birthday</p>
-                            </div>
-                            <div class="col-lg-5 col-md-5 col-sm-5 col-xs-10 col-xs-offset-1">
-                                
-                                
-                                    <div class="form-group">
-                                        
-                                            <div class="input-group has-error">
+        </div>
+    </div>
+    <div class="info_square  hidden-sm hidden-xs">
+        <div class="paragraph">
+            <p>Why do you need my personal information?</p>
+        </div>
+    </div>
+    <div class="info_square info_square_2 hidden-sm hidden-xs">
+        <div class="paragraph">
+            <p>Why do you need to know where I live?</p>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <!--personal info block -->
+
+
+    <p class="sb_error">Birthday : This field is required.</p>
+
+
+    <p class="sb_error">Hometown : This field is required.</p>
+
+
+    <div id="profile_information">
+
+        <div class="row">
+            <div class="col-lg-2 col-md-2 col-sm-3 sb_label hidden-xs">
+                <p>Birthday</p>
+            </div>
+            <div class="col-lg-5 col-md-5 col-sm-5 col-xs-10 col-xs-offset-1">
+
+
+                <div class="form-group">
+
+                    <div class="input-group has-error">
                                         
                                                 <span class="input-group-btn">
-                                                    <button class="btn" type="button"><span class="fui-calendar"></span></button>
+                                                    <button class="btn"
+                                                            type="button"><span
+                                                            class="fui-calendar"></span>
+                                                    </button>
                                                 </span>
-                                                
-                                                    <input type="text" class="form-control sb_date" name="date_of_birth" value="" placeholder="When were you born?" id="datepicker-01">
-                                                
-                                            </div>
-                                    </div>
-                                
-                                
-                            </div>
-                        </div>
-                    
-                        <div class="row">
-                            <div class="col-lg-2 col-md-2 col-sm-3 sb_label hidden-xs">
-                                <p>Hometown</p>
-                            </div>
-                            <div class="col-lg-5 col-md-5 col-sm-5 col-xs-10 col-xs-offset-1">
-                                
-                                    <div class="form-group">
-                                        
-                                            <div class="has-error">
-                                        
-                                
-                                
-                                    
-                                        <input type="text" value="" name="home_town" placeholder="Where did you grow up?" class="form-control input-lg">
-                                    
-                                
-                                
-                                        </div>
-                                    </div>
-                                
-                            </div>
-                        </div>
-                    
-                        <div class="row">
-                            <div class="col-lg-2 col-md-2 col-sm-3 sb_label hidden-xs">
-                                <p>High School</p>
-                            </div>
-                            <div class="col-lg-5 col-md-5 col-sm-5 col-xs-10 col-xs-offset-1">
-                                
-                                    <div class="form-group">
-                                        
-                                            <div class="form-group">
-                                        
-                                
-                                
-                                    
-                                        <input type="text" value="" name="high_school"  placeholder="Where did you go to school?" class="form-control input-lg">
-                                    
-                                
-                                
-                                        </div>
-                                    </div>
-                                
-                            </div>
-                        </div>
-                    
-                        <div class="row">
-                            <div class="col-lg-2 col-md-2 col-sm-3 sb_label hidden-xs">
-                                <p>College/University</p>
-                            </div>
-                            <div class="col-lg-5 col-md-5 col-sm-5 col-xs-10 col-xs-offset-1">
-                                
-                                    <div class="form-group">
-                                        
-                                            <div class="form-group">
-                                        
-                                
-                                
-                                    
-                                        <input type="text" value="" name="" placeholder="Where did you go to college?" class="form-control input-lg">
-                                    
-                                
-                                
-                                        </div>
-                                    </div>
-                                
-                            </div>
-                        </div>
-                    
-                        <div class="row">
-                            <div class="col-lg-2 col-md-2 col-sm-3 sb_label hidden-xs">
-                                <p>Employer</p>
-                            </div>
-                            <div class="col-lg-5 col-md-5 col-sm-5 col-xs-10 col-xs-offset-1">
-                                
-                                    <div class="form-group">
-                                        
-                                            <div class="form-group">
-                                        
-                                
-                                
-                                    
-                                        <input type="text" value="" name="" placeholder="Who do you work for?" class="form-control input-lg">
-                                    
-                                
-                                
-                                        </div>
-                                    </div>
-                                
-                            </div>
-                        </div>
-                    
+
+                        <input type="text" class="form-control sb_date"
+                               name="date_of_birth" value=""
+                               placeholder="When were you born?"
+                               id="datepicker-01">
+
+                    </div>
                 </div>
+
+
             </div>
-            <div class="row">
-                <div class="col-lg-12">
-                    <p class="sb_label hidden-xs">Primary Address</p>
-                </div>
-            </div>
-            <div class="row">
-            <!-- Beginning of address info-->
-                
-                    
-                
-                    
-                
-                    
-                        <p class="sb_error">City : This field is required.</p>
-                    
-                
-                    
-                        <p class="sb_error">State : This field is required.</p>
-                    
-                
-                    
-                        <p class="sb_error">Zip Code : This field is required.</p>
-                    
-                
-                <div class="address_information">
-                    
-                        
-                            <div class="row">
-                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                                    <div class="form-group">
-                                        
-                                            <div class="form-group">
-                                        
-                                        
-                                            
-                                                <input type="text" name="primary_address" value="fdghszfd" placeholder="Address Line 1" class="form-control input-lg">
-                                            
-                                        
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        
-                    
-                        
-                            <div class="row">
-                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                                    <div class="form-group">
-                                        
-                                            <div class="form-group">
-                                        
-                                        
-                                            
-                                                <input type="text" name="street_additional" value="" placeholder="Apt, Building, etc" class="form-control input-lg">
-                                            
-                                        
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        
-                    
-                        
-                    
-                        
-                    
-                        
-                    
-                <div class="row">
-                    
-                        
-                    
-                        
-                    
-                        
-                            <div class="col-lg-2">
-                                <div class="form-group">
-                                    
-                                        <div class="has-error">
-                                    
-                                            
-                                                
-                                                    <input type="text" name="city" value="" placeholder="City*" class="form-control input-lg sb-city">
-                                                
-                                            
-                                        </div>
-                                </div>
-                            </div>
-                        
-                    
-                        
-                            <div class="col-lg-2">
-                                <div class="form-group">
-                                    
-                                        <div class="has-error">
-                                    
-                                            
-                                                
-                                                    <input type="text" name="state" value="" placeholder="State*" class="form-control input-lg sb_state">
-                                                
-                                            
-                                        </div>
-                                </div>
-                            </div>
-                        
-                    
-                        
-                            <div class="col-lg-2">
-                                <div class="form-group">
-                                    
-                                        <div class="has-error">
-                                    
-                                            
-                                                
-                                                    <input type="text" name="postal_code" value="" placeholder="Zip Code*" class="form-control input-lg">
-                                                
-                                            
-                                        </div>
-                                </div>
-                            </div>
-                        
-                    
-                </div>
-            </div>
-            <div id="address_option">
-                
-                     <ul id="id_address_options">
-</ul>
-                
-            </div>
-            <input class="btn btn-primary sb_continue" type="submit" value="Continue"/>
-            </div>
-        </form>
-    </div>
+        </div>
 
         <div class="row">
-            
+            <div class="col-lg-2 col-md-2 col-sm-3 sb_label hidden-xs">
+                <p>Hometown</p>
+            </div>
+            <div class="col-lg-5 col-md-5 col-sm-5 col-xs-10 col-xs-offset-1">
+
+                <div class="form-group">
+
+                    <div class="has-error">
+
+
+                        <input type="text" value="" name="home_town"
+                               placeholder="Where did you grow up?"
+                               class="form-control input-lg">
+
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-2 col-md-2 col-sm-3 sb_label hidden-xs">
+                <p>High School</p>
+            </div>
+            <div class="col-lg-5 col-md-5 col-sm-5 col-xs-10 col-xs-offset-1">
+
+                <div class="form-group">
+
+                    <div class="form-group">
+
+
+                        <input type="text" value="" name="high_school"
+                               placeholder="Where did you go to school?"
+                               class="form-control input-lg">
+
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-2 col-md-2 col-sm-3 sb_label hidden-xs">
+                <p>College/University</p>
+            </div>
+            <div class="col-lg-5 col-md-5 col-sm-5 col-xs-10 col-xs-offset-1">
+
+                <div class="form-group">
+
+                    <div class="form-group">
+
+
+                        <input type="text" value="" name=""
+                               placeholder="Where did you go to college?"
+                               class="form-control input-lg">
+
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-2 col-md-2 col-sm-3 sb_label hidden-xs">
+                <p>Employer</p>
+            </div>
+            <div class="col-lg-5 col-md-5 col-sm-5 col-xs-10 col-xs-offset-1">
+
+                <div class="form-group">
+
+                    <div class="form-group">
+
+
+                        <input type="text" value="" name=""
+                               placeholder="Who do you work for?"
+                               class="form-control input-lg">
+
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <p class="sb_label hidden-xs">Primary Address</p>
+    </div>
+</div>
+<div class="row">
+    <!-- Beginning of address info-->
+
+
+    <p class="sb_error">City : This field is required.</p>
+
+
+    <p class="sb_error">State : This field is required.</p>
+
+
+    <p class="sb_error">Zip Code : This field is required.</p>
+
+
+    <div class="address_information">
+
+
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                <div class="form-group">
+
+                    <div class="form-group">
+
+
+                        <input type="text" name="primary_address"
+                               value="fdghszfd" placeholder="Address Line 1"
+                               class="form-control input-lg">
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                <div class="form-group">
+
+                    <div class="form-group">
+
+
+                        <input type="text" name="street_additional" value=""
+                               placeholder="Apt, Building, etc"
+                               class="form-control input-lg">
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+
+
+            <div class="col-lg-2">
+                <div class="form-group">
+
+                    <div class="has-error">
+
+
+                        <input type="text" name="city" value=""
+                               placeholder="City*"
+                               class="form-control input-lg sb-city">
+
+
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-lg-2">
+                <div class="form-group">
+
+                    <div class="has-error">
+
+
+                        <input type="text" name="state" value=""
+                               placeholder="State*"
+                               class="form-control input-lg sb_state">
+
+
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-lg-2">
+                <div class="form-group">
+
+                    <div class="has-error">
+
+
+                        <input type="text" name="postal_code" value=""
+                               placeholder="Zip Code*"
+                               class="form-control input-lg">
+
+
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+    <div id="address_option">
+
+        <ul id="id_address_options">
+        </ul>
+
+    </div>
+    <input class="btn btn-primary sb_continue" type="submit" value="Continue"/>
+</div>
+</form>
+</div>
+
+<div class="row">
+
     <div class="bottom-menu registration_footer">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-2 navbar-brand">
-            <a href="#fakelink" class="&#169;Sagebrew"></a>
-          </div>
-          <div class="col-md-8">
-          </div>
-          <div class="col-md-2">
-          </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-2 navbar-brand">
+                    <a href="#fakelink" class="&#169;Sagebrew"></a>
+                </div>
+                <div class="col-md-8">
+                </div>
+                <div class="col-md-2">
+                </div>
+            </div>
         </div>
-      </div>
     </div>
 
-        </div>
-    </div>
-    
-    
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-        <script src="/static/flat_ui/js/jquery-ui-1.10.3.custom.min.js"></script>
-        <script src="/static/flat_ui/js/jquery.ui.touch-punch.min.js"></script>
-        <script src="/static/flat_ui/js/bootstrap.min.js"></script>
-        <script src="/static/flat_ui/js/bootstrap-select.js"></script>
-        <script src="/static/flat_ui/js/bootstrap-switch.js"></script>
-        <script src="/static/flat_ui/js/flatui-checkbox.js"></script>
-        <script src="/static/flat_ui/js/flatui-radio.js"></script>
-        <script src="/static/flat_ui/js/holder.js"></script>
-        <script src="/static/flat_ui/js/flatui-fileinput.js"></script>
-        <script src="/static/flat_ui/js/jquery.tagsinput.js"></script>
-        <script src="/static/flat_ui/js/jquery.placeholder.js"></script>
-        <script src="/static/flat_ui/js/typeahead.js"></script>
-    
-        <script src="/static/js/profile_information_form.js"></script>
+</div>
+</div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="/static/flat_ui/js/jquery-ui-1.10.3.custom.min.js"></script>
+<script src="/static/flat_ui/js/jquery.ui.touch-punch.min.js"></script>
+<script src="/static/flat_ui/js/bootstrap.min.js"></script>
+<script src="/static/flat_ui/js/bootstrap-select.js"></script>
+<script src="/static/flat_ui/js/bootstrap-switch.js"></script>
+<script src="/static/flat_ui/js/flatui-checkbox.js"></script>
+<script src="/static/flat_ui/js/flatui-radio.js"></script>
+<script src="/static/flat_ui/js/holder.js"></script>
+<script src="/static/flat_ui/js/flatui-fileinput.js"></script>
+<script src="/static/flat_ui/js/jquery.tagsinput.js"></script>
+<script src="/static/flat_ui/js/jquery.placeholder.js"></script>
+<script src="/static/flat_ui/js/typeahead.js"></script>
+
+<script src="/static/js/profile_information_form.js"></script>
 
 </body>
 </html>

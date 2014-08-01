@@ -5,7 +5,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 
 from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
-from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm, ProfilePictureForm,
+from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
+                    ProfilePictureForm,
                     AddressChoiceForm)
 from .utils import (validate_address, generate_interests_tuple, upload_image,
                     compare_address, generate_address_tuple,
@@ -17,8 +18,10 @@ from .utils import (validate_address, generate_interests_tuple, upload_image,
 def profile_information(request):
     '''
     Creates both a ProfileInfoForm and AddressInfoForm which populates the
-    fields with what the user enters. If this function gets a valid POST request it
-    will update the pleb. It then validates the address, through smartystreets api,
+    fields with what the user enters. If this function gets a valid POST
+    request it
+    will update the pleb. It then validates the address, through
+    smartystreets api,
     if the address is valid a Address neo_model is created and populated.
 
 
@@ -29,7 +32,8 @@ def profile_information(request):
     we provided the user previously based on the previous
     smarty streets ordering.
     '''
-    # TODO Add custom logic after State is submitted that checks if the entered value is within the 50 states
+    # TODO Add custom logic after State is submitted that checks if the
+    # entered value is within the 50 states
     # if not return error indicating sorry we currently only support 50
     profile_information_form = ProfileInfoForm(request.POST or None)
     address_information_form = AddressInfoForm(request.POST or None)
@@ -56,11 +60,11 @@ def profile_information(request):
         address_tuple = generate_address_tuple(address_info)
 
         # Not doing 0 cause already done with address_information_form
-        if(addresses_returned == 1):
+        if (addresses_returned == 1):
             if compare_address(address_info[0], address_clean):
                 address_info[0]["country"] = "USA"
                 address_long_hash = create_address_long_hash(
-                        address_info[0])
+                    address_info[0])
                 try:
                     address = Address.index.get(address_hash=address_long_hash)
                 except Address.DoesNotExist:
@@ -73,10 +77,12 @@ def profile_information(request):
                 citizen.save()
                 return redirect('interests')
             else:
-                address_selection_form.fields['address_options'].choices = address_tuple
-                address_selection_form.fields['address_options'].required = True
+                address_selection_form.fields[
+                    'address_options'].choices = address_tuple
+                address_selection_form.fields[
+                    'address_options'].required = True
                 address_selection = "selection"
-        elif(addresses_returned > 1):
+        elif (addresses_returned > 1):
             # Choices need to be populated prior to is_valid call to ensure
             # that the form validates against the correct values
             # We also are able ot keep this in the same location because
@@ -84,12 +90,13 @@ def profile_information(request):
             # previously entered. This enables us to get the same results
             # back from smarty streets and validate those choices again then
             # select the one that the user selected.
-            address_selection_form.fields['address_options'].choices = address_tuple
+            address_selection_form.fields[
+                'address_options'].choices = address_tuple
             address_selection_form.fields['address_options'].required = True
             address_selection = "selection"
 
-        if(address_selection == "selection"):
-            if(address_selection_form.is_valid()):
+        if (address_selection == "selection"):
+            if (address_selection_form.is_valid()):
                 store_address = None
                 address_hash = address_selection_form.cleaned_data[
                     "address_options"]
@@ -97,13 +104,14 @@ def profile_information(request):
                     optional_address["country"] = "USA"
                     address_string = create_address_string(optional_address)
                     optional_hash = hashlib.sha224(address_string).hexdigest()
-                    if(address_hash == optional_hash):
+                    if (address_hash == optional_hash):
                         store_address = optional_address
                         break
-                if(store_address is not None):
+                if (store_address is not None):
                     address_long_hash = create_address_long_hash(store_address)
                     try:
-                        address = Address.index.get(address_hash=address_long_hash)
+                        address = Address.index.get(
+                            address_hash=address_long_hash)
                     except Address.DoesNotExist:
                         store_address["address_hash"] = address_long_hash
                         address = Address(**store_address)
@@ -115,10 +123,11 @@ def profile_information(request):
                     return redirect('interests')
 
     return render(request, 'profile_info.html',
-                    {'profile_information_form': profile_information_form,
-                    'address_information_form': address_information_form,
-                    'address_selection': address_selection,
-                    'address_choice_form': address_selection_form})
+                  {'profile_information_form': profile_information_form,
+                   'address_information_form': address_information_form,
+                   'address_selection': address_selection,
+                   'address_choice_form': address_selection_form})
+
 
 @login_required()
 def interests(request):
@@ -137,8 +146,8 @@ def interests(request):
     print request.POST
     if interest_form.is_valid():
         for item in interest_form.cleaned_data:
-            if(interest_form.cleaned_data[item] and
-                    item != "specific_interests"):
+            if (interest_form.cleaned_data[item] and
+                        item != "specific_interests"):
                 try:
                     citizen = Pleb.index.get(email=request.user.email)
                     # TODO profile page profile picture
@@ -150,9 +159,9 @@ def interests(request):
                     category_object = TopicCategory.index.get(
                         title=item.capitalize())
                     for topic in category_object.sb_topics.all():
-                        #citizen.sb_topics.connect(topic)
+                        # citizen.sb_topics.connect(topic)
                         pass
-                    # citizen.topic_category.connect(category_object)
+                        # citizen.topic_category.connect(category_object)
                 except TopicCategory.DoesNotExist:
                     redirect("404_Error")
 
@@ -161,7 +170,7 @@ def interests(request):
                 interest_object = SBTopic.index.get(title=topic)
             except SBTopic.DoesNotExist:
                 redirect("404_Error")
-            # citizen.sb_topics.connect(interest_object)
+                # citizen.sb_topics.connect(interest_object)
         return redirect('profile_picture')
 
     return render(request, 'interests.html', {'interest_form': interest_form})
@@ -173,7 +182,8 @@ def profile_picture(request):
     The profile picture view accepts an image from the user, which is stored in
     the TEMP_FILES directory until it is uploaded to s3 after which the locally
     stored tempfile is deleted. After the url of the image is returned from
-    the upload_image util the url is stored as the profile_picture field in the Pleb
+    the upload_image util the url is stored as the profile_picture field in
+    the Pleb
     model.
 `
     :param request:
@@ -184,11 +194,12 @@ def profile_picture(request):
         if profile_picture_form.is_valid():
             try:
                 citizen = Pleb.index.get(email=request.user.email)
-                #if citizen.completed_profile_info:
+                # if citizen.completed_profile_info:
                 #    return redirect('profile_page')
                 #print citizen.profile_pic
             except Pleb.DoesNotExist:
-                return render(request, 'profile_picture.html', {'profile_picture_form': profile_picture_form})
+                return render(request, 'profile_picture.html',
+                              {'profile_picture_form': profile_picture_form})
             image_uuid = uuid1()
             data = request.FILES['picture']
             temp_file = '%s%s.jpeg' % (settings.TEMP_FILES, image_uuid)
@@ -197,8 +208,10 @@ def profile_picture(request):
                     destination.write(chunk)
             citizen.profile_pic = upload_image('profile_pictures', image_uuid)
             citizen.save()
-            return redirect('profile_page', pleb_email = citizen.email)#citizen.first_name+'_'+citizen.last_name)
+            return redirect('profile_page', pleb_email=citizen.email)  #
+            # citizen.first_name+'_'+citizen.last_name)
     else:
         profile_picture_form = ProfilePictureForm()
-    return render(request, 'profile_picture.html', {'profile_picture_form': profile_picture_form})
+    return render(request, 'profile_picture.html',
+                  {'profile_picture_form': profile_picture_form})
 

@@ -1,5 +1,6 @@
 # Django settings for pscore project.
 from base import *
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 DATABASES = {
@@ -12,7 +13,6 @@ DATABASES = {
         'PORT': '',
     }
 }
-
 
 CACHES = {
     'default': {
@@ -28,15 +28,12 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 
-
-
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'loggly': {
-            'format':'loggly: %(message)s',
+            'format': 'loggly: %(message)s',
         },
     },
     'handlers': {
@@ -53,14 +50,14 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False,
         },
-        'loggly_logs':{
+        'loggly_logs': {
             'handlers': ['logging.handlers.SysLogHandler'],
             'propagate': True,
-            'format':'loggly: %(message)s',
+            'format': 'loggly: %(message)s',
             'level': 'DEBUG',
             'token': LOGGLY_TOKEN
         },
-                'django.request': {
+        'django.request': {
             'handlers': ['default'],
             'level': 'ERROR',
             'propagate': False,

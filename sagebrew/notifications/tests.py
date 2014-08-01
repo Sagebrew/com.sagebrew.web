@@ -7,6 +7,7 @@ coverage for each of the model's modules.
 from django.test import TestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
+
 from flying_frogs.notifications.models import (NOTIFICATIONS,
                                                Notification,
                                                NOTIFICATION_MESSAGE)
@@ -43,12 +44,12 @@ class NotificationTestCase(TestCase):
         '''
         for key in NOTIFICATIONS:
             self.assertEqual(NOTIFICATION_MESSAGE('Devon Bleibtrey',
-                            NOTIFICATIONS[key][1]),
-                            'Devon Bleibtrey ' + NOTIFICATIONS[key][1])
-            if(key == 'send_friend_request'):
+                                                  NOTIFICATIONS[key][1]),
+                             'Devon Bleibtrey ' + NOTIFICATIONS[key][1])
+            if (key == 'send_friend_request'):
                 self.assertEqual(NOTIFICATION_MESSAGE('Devon Bleibtrey',
-                            NOTIFICATIONS[key][1]),
-                            self.notification_message_hard_check)
+                                                      NOTIFICATIONS[key][1]),
+                                 self.notification_message_hard_check)
 
     def test_notification_viewed(self):
         '''
@@ -60,8 +61,9 @@ class NotificationTestCase(TestCase):
         '''
         profile = self.user_two.get_profile()
         notification = Notification(owner=self.user,
-                                message=NOTIFICATIONS[self.notification_type],
-                                notification_type=self.notification_type)
+                                    message=NOTIFICATIONS[
+                                        self.notification_type],
+                                    notification_type=self.notification_type)
         notification.save()
         profile.notifications.add(notification)
         profile.save()

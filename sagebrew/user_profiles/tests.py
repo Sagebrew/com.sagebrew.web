@@ -4,12 +4,10 @@
 from django.test import TestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
+from guardian.shortcuts import ObjectPermissionChecker
 
 from flying_frogs.notifications.models import Notification
-from flying_frogs.friends.models import FriendList
-from guardian.shortcuts import ObjectPermissionChecker
 from flying_frogs.address.models import Address
-
 from flying_frogs.user_profiles.utils import (ProfileUtils, DebugProfileUtils)
 
 
@@ -28,22 +26,22 @@ class ProfileTestCase(TestCase):
         self.full_name = 'test user'
         self.work_phone = '248-345-0781'
         self.query_set_items = {
-                                    'friend_requests': User,
-                                    'friends': User,
-                                    'notifications': Notification,
-                                    'sent_friend_requests': User,
-                                }
+            'friend_requests': User,
+            'friends': User,
+            'notifications': Notification,
+            'sent_friend_requests': User,
+        }
         self.owner_context_items = {
-                            'company_friends': [],
-                            'customer_friends': [],
-                            'employee_friends': [],
-                            'friend': False,
-                            'full_name': self.full_name,
-                            'owner': True,
-                            'user_type': self.user_type,
-                            'username': self.username,
-                            'work_phone': self.work_phone,
-                        }
+            'company_friends': [],
+            'customer_friends': [],
+            'employee_friends': [],
+            'friend': False,
+            'full_name': self.full_name,
+            'owner': True,
+            'user_type': self.user_type,
+            'username': self.username,
+            'work_phone': self.work_phone,
+        }
         self.user = User.objects.get(username=self.username)
         self.utils = ProfileUtils(self.user, self.user)
         self.user_profile = self.utils.current_user_profile
@@ -51,8 +49,7 @@ class ProfileTestCase(TestCase):
 
     def test_assign_standard_perm(self):
         self.assertTrue(self.checker.has_perm('user_profiles.view_own_profile',
-                                                self.user_profile))
-
+                                              self.user_profile))
 
 
 class ModelTestCase(TestCase):

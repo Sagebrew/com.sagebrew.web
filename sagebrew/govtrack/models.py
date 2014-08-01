@@ -23,6 +23,7 @@ class Person(TimeStampedModel):
     twitterid = models.CharField(max_length=15, null=True)
     youtubeid = models.CharField(max_length=20, null=True)
 
+
 class SRole(TimeStampedModel):
     congress_numbers = models.CommaSeparatedIntegerField(max_length=100)
     current = models.BooleanField(default=False)
@@ -32,7 +33,7 @@ class SRole(TimeStampedModel):
     id = models.IntegerField(primary_key=True)
     leadership_title = models.CharField(max_length=100, null=True)
     party = models.CharField(max_length=100)
-    person = models.ForeignKey(Person,blank=True, null=True)
+    person = models.ForeignKey(Person, blank=True, null=True)
     phone = models.CharField(max_length=12)
     role_type = models.CharField(max_length=30)
     role_type_label = models.CharField(max_length=30)
@@ -46,6 +47,7 @@ class SRole(TimeStampedModel):
     title_long = models.CharField(max_length=30)
     website = models.URLField()
 
+
 class GTBill(TimeStampedModel):
     bill_resolution_type = models.CharField(max_length=1000)
     bill_type = models.CharField(max_length=1000)
@@ -57,12 +59,12 @@ class GTBill(TimeStampedModel):
     current_status_label = models.CharField(max_length=1000)
     display_number = models.CharField(max_length=1000)
     docs_house_gov_postdate = models.DateField(null=True)
-    id = models.IntegerField(primary_key=True, unique = False)
+    id = models.IntegerField(primary_key=True, unique=False)
     introduced_date = models.DateField()
     is_alive = models.BooleanField()
     is_current = models.BooleanField()
     link = models.URLField()
-    major_actions = models.CharField(max_length=1000,null=True)
+    major_actions = models.CharField(max_length=1000, null=True)
     noun = models.CharField(max_length=1000)
     number = models.IntegerField()
     senate_floor_schedule_postdate = models.DateField(null=True)
@@ -77,30 +79,32 @@ class GTBill(TimeStampedModel):
     title_without_number = models.CharField(max_length=1000)
     titles = models.CharField(max_length=1000)
 
+
 class GTVoteOptions(TimeStampedModel):
     vote_options_id = models.IntegerField(primary_key=True)
     key = models.CharField(max_length=1)
     value = models.CharField(max_length=20)
     vote = models.IntegerField()
 
+
 class GTVotes(TimeStampedModel):
-    category = models.CharField(max_length = 300)
-    category_label = models.CharField(max_length = 100)
-    chamber = models.CharField(max_length = 30)
-    chamber_label = models.CharField(max_length = 30)
+    category = models.CharField(max_length=300)
+    category_label = models.CharField(max_length=100)
+    chamber = models.CharField(max_length=30)
+    chamber_label = models.CharField(max_length=30)
     congress = models.IntegerField()
     datecreated = models.DateTimeField(null=True)
-    vote_id = models.IntegerField(primary_key = True)
+    vote_id = models.IntegerField(primary_key=True)
     link = models.URLField()
     missing_data = models.BooleanField()
     number = models.IntegerField()
-    options = models.ManyToManyField(GTVoteOptions,blank=True,null=True)
-    question = models.CharField(max_length = 10000)
-    question_details = models.CharField(max_length = 10000,null = True)
-    related_amendment = models.CharField(max_length = 10000,null = True)
-    related_bill = models.CharField(max_length = 1000, null = True)
-    required = models.CharField(max_length = 1000)
-    result = models.CharField(max_length = 1000)
+    options = models.ManyToManyField(GTVoteOptions, blank=True, null=True)
+    question = models.CharField(max_length=10000)
+    question_details = models.CharField(max_length=10000, null=True)
+    related_amendment = models.CharField(max_length=10000, null=True)
+    related_bill = models.CharField(max_length=1000, null=True)
+    required = models.CharField(max_length=1000)
+    result = models.CharField(max_length=1000)
     session = models.IntegerField()
     source = models.CharField(max_length=40)
     source_label = models.CharField(max_length=100)

@@ -1,17 +1,14 @@
 //
 // Demo Flat UI Pro
 // --------------------------------------------------
-
-
 // Loading config with variables (changing them leads to changing a color scheme)
 @import "variables";
-
 // Utility mixins for greater good
 @import "mixins";
 
 .prettyprint {
   overflow: auto;
-  
+
   &.linenums {
     overflow: visible;
     white-space: pre;
@@ -62,8 +59,8 @@
       float: none;
       margin-left: 20px;
       padding-top: 0;
-      width: auto;    
-      clear: both; 
+      width: auto;
+      clear: both;
     }
     .demo-type-example {
       padding-left: 265px;
@@ -85,7 +82,9 @@
   width: 580px;
 
   &.demo-content-article {
-    p { margin-bottom: 20px; }
+    p {
+      margin-bottom: 20px;
+    }
 
     ul {
       list-style-type: none;
@@ -219,18 +218,17 @@
 
 .demo-labels {
   font-size: floor(@font-size-base * 1.056); // ~19px
-  
+
   .visible-lg {
     display: inline !important;
-    
+
     @media (max-width: 767px) {
       & {
         display: none !important;
       }
     }
-  } 
+  }
 }
-
 
 // Illustration Icons
 // --------------------------------------------------
@@ -262,11 +260,11 @@
 // Dialog with form inside
 .demo-dialog {
   padding: 13px 20px 15px;
-  
+
   .flat {
     width: 300px;
   }
-  @media (max-width: 767px) { 
+  @media (max-width: 767px) {
     .flat {
       width: 100%;
     }
@@ -279,7 +277,7 @@
   padding: 62px 14px;
   margin-bottom: 50px;
   width: 100%;
-  
+
   .modal {
     bottom: auto;
     display: block;
@@ -345,16 +343,16 @@
   }
 }
 
-
 // File Input
 .demo-col {
   .fileinput {
-    .input-group {          // Inline fileinput
+    .input-group {
+      // Inline fileinput
       .uneditable-input {
         max-width: 370px;
       }
     }
-  } 
+  }
 }
 
 //
@@ -368,6 +366,7 @@
     padding-right: 0;
     width: auto;
   }
+
   .demo-col,
   .demo-content,
   .demo-content-wide,
@@ -377,6 +376,7 @@
     padding: 0 !important;
     width: auto;
   }
+
   .demo-headline {
     font-size: ceil(@font-size-base * 3.611) !important;
     text-align: left;
@@ -384,7 +384,9 @@
     padding-right: 15px;
   }
 
-  .demo-inline { display: block; }
+  .demo-inline {
+    display: block;
+  }
 
   .demo-navigation {
     .btn-toolbar {
@@ -397,6 +399,7 @@
       margin-bottom: 20px;
     }
   }
+
   .typography-row {
     .demo-type-example {
       padding-left: 0 !important;
@@ -407,6 +410,7 @@
       margin: 0 0 10px;
     }
   }
+
   .demo-illustrations .demo-content-wide > div {
     margin-left: 67px;
   }
@@ -416,6 +420,7 @@
   .demo-illustrations .demo-content-wide > div {
     margin-left: 23px;
   }
+
   .demo-navigation {
     .mll.pvl {
       padding: 0;

@@ -5,7 +5,7 @@
 .btn-file {
   overflow: hidden;
   position: relative;
-  
+
   > input[type="file"] {
     position: absolute;
     top: 0;
@@ -24,17 +24,17 @@
 .fileinput {
   margin-bottom: 9px;
   display: block;
-  
+
   .fileinput-filename {
-    font-size: @component-font-size-base;   
+    font-size: @component-font-size-base;
   }
   .uneditable-input {
     display: inline-block;
     margin-bottom: 0px;
     vertical-align: middle;
-    cursor: text;  
-    .text-overflow();  
-    
+    cursor: text;
+    .text-overflow();
+
     [class^="fui-"] {
       margin-right: .3em;
     }
@@ -47,10 +47,12 @@
     display: inline-block;
   }
 }
+
 .fileinput-exists .fileinput-new,
 .fileinput-new .fileinput-exists {
   display: none;
 }
+
 .fileinput-inline .fileinput-controls {
   display: inline;
 }
@@ -59,10 +61,12 @@
 .fileinput-new .input-group .btn-file {
   border-radius: 0 @border-radius-base @border-radius-base 0;
 }
+
 .fileinput-new .input-group .btn-file.btn-xs,
 .fileinput-new .input-group .btn-file.btn-sm {
   border-radius: 0 @border-radius-small @border-radius-small 0;
 }
+
 .fileinput-new .input-group .btn-file.btn-lg {
   border-radius: 0 @border-radius-large @border-radius-large 0;
 }
@@ -79,6 +83,7 @@
     border-color: @state-warning-border;
   }
 }
+
 .form-group.has-error .fileinput {
   .uneditable-input {
     color: @state-danger-text;
@@ -91,6 +96,7 @@
     border-color: @state-danger-border;
   }
 }
+
 .form-group.has-success .fileinput {
   .uneditable-input {
     color: @state-success-text;
@@ -103,7 +109,6 @@
     border-color: @state-success-border;
   }
 }
-
 
 // Input group fixes
 

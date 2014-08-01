@@ -1,7 +1,7 @@
-from requests import get
 from datetime import datetime
-from govtrack.neo_models import (GTPerson, GTRole, GTCommittee,
-                                GT_RCVotes, GTVoteOption, GTCongressNumbers)
+
+from govtrack.neo_models import (GTPerson, GTRole)
+
 
 def create_gt_role(rep):
     try:
@@ -12,9 +12,9 @@ def create_gt_role(rep):
         rep["role_id"] = rep["id"]
         rep.pop("id", None)
         rep["enddate"] = datetime.strptime(rep["enddate"],
-                                                '%Y-%m-%d')
+                                           '%Y-%m-%d')
         rep["startdate"] = datetime.strptime(rep["startdate"],
-                                                '%Y-%m-%d')
+                                             '%Y-%m-%d')
         something = rep.pop("congress_numbers", None)
         my_role = GTRole(**rep)
         my_role.save()
@@ -25,12 +25,13 @@ def create_gt_role(rep):
 
     return my_role
 
+
 def create_gt_person(gt_person):
     try:
         my_person = GTPerson.index.get(gt_id=gt_person["id"])
     except GTPerson.DoesNotExist:
         gt_person["birthday"] = datetime.strptime(gt_person["birthday"],
-                                                       '%Y-%m-%d')
+                                                  '%Y-%m-%d')
         gt_person["gt_id"] = gt_person["id"]
         gt_person.pop("id", None)
         my_person = GTPerson(**gt_person)

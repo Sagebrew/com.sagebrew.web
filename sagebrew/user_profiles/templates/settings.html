@@ -12,7 +12,7 @@
     {% endif %}
     <p>{{ username }}</p>
     <form action="" method="post">
-    {% csrf_token %}
+        {% csrf_token %}
 
         <table>
             {{ standard_settings.as_table }}

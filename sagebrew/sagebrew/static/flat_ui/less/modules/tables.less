@@ -4,7 +4,7 @@
 
 .table {
   font-size: floor(@component-font-size-base * 1.067); // 16px
-  
+
   // Cells
   > thead,
   > tbody,
@@ -42,14 +42,16 @@
       background-color: mix(@brand-secondary, white, 5.5%);
     }
   }
-  img { vertical-align: top; }
+  img {
+    vertical-align: top;
+  }
 }
 
 // Bordered table
 .table-bordered {
   border: 2px solid @table-border-color;
   font-size: ceil(@component-font-size-base * 0.933); // ~14px
-  
+
   > thead,
   > tbody,
   > tfoot {
@@ -62,7 +64,7 @@
         vertical-align: middle;
       }
     }
-  }  
+  }
 }
 
 // Stripped

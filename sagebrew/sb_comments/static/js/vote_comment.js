@@ -1,30 +1,27 @@
-$( document ).ready(function() {
-	$("a.vote_comment-action").click(function(event){
-		event.preventDefault();
-		$.ajaxSetup({
-		    beforeSend: function(xhr, settings) {
-				var csrftoken = $.cookie('csrftoken');
-		        if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
-		            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-		        }
-		    }
-		});
-	   	$.ajax({
-			xhrFields: {withCredentials: true},
-			type: "POST",
-			url: "/comments/vote_comment/",
-			data: JSON.stringify({
-			   'vote_type':$(this).data('vote_type'),
-			   'pleb': $(this).data('pleb'),
-               'comment_uuid': $(this).data('comment_uuid')
-			}),
-			contentType: "application/json; charset=utf-8",
-			dataType: "json",
-			success: function(data) {
-			   alert(data['here']);
-			}
-		});
-	});
+$(document).ready(function () {
+    $("a.vote_comment-action").click(function (event) {
+        event.preventDefault();
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                var csrftoken = $.cookie('csrftoken');
+                if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "POST",
+            url: "/comments/vote_comment/",
+            data: JSON.stringify({
+                'vote_type': $(this).data('vote_type'),
+                'pleb': $(this).data('pleb'),
+                'comment_uuid': $(this).data('comment_uuid')
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json"
+        });
+    });
 });
 
 

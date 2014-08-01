@@ -9,14 +9,15 @@ def create_friend_request_util(data):
     create the relationships from the users to the friend requests
     '''
     try:
-        from_citizen = Pleb.index.get(email = data['from_pleb'])
-        to_citizen = Pleb.index.get(email = data['to_pleb'])
+        from_citizen = Pleb.index.get(email=data['from_pleb'])
+        to_citizen = Pleb.index.get(email=data['to_pleb'])
     except Pleb.DoesNotExist:
         return False
 
     requests = from_citizen.traverse('friend_requests_sent').run()
     for request in requests:
-        if request.traverse('request_to').where('email','=',to_citizen.email).run():
+        if request.traverse('request_to').where('email', '=',
+                                                to_citizen.email).run():
             print 'found matching request'
             return True
 

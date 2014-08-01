@@ -48,7 +48,7 @@
   font-size: @spinner-input-font-size;
   line-height: @spinner-input-line-height;
   .placeholder(@spinner-input-placeholder);
-  
+
   @media (max-width: @grid-float-breakpoint) {
     width: 100%;
   }
@@ -103,7 +103,7 @@
   // Icon
   .ui-icon {
     font-size: 0;
-    
+
     &:before {
       content: "\e001";
       font-family: "Flat-UI-Icons";
@@ -112,16 +112,18 @@
     }
   }
 }
+
 .ui-spinner-up {
   border-bottom: 2px solid @spinner-up-btn-border;
   top: 0;
   border-radius: 0 @border-radius-large 0 0;
 }
+
 .ui-spinner-down {
   bottom: 0;
   height: 20px;
   border-radius: 0 0 @border-radius-large 0;
-  
+
   .ui-icon:before {
     content: "\e005";
   }

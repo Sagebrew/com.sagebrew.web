@@ -7,30 +7,30 @@ from django.conf import settings
 from requests import post as request_post
 from django.contrib.auth.models import User
 from provider.oauth2.models import Client as OauthClient
-from django.core.urlresolvers import reverse
-from django.shortcuts import redirect
 import boto.sqs
 from boto.sqs.message import Message
-
 from bomberman.client import Client
 
-from .decorators import task_exception_handler
 from sb_comments.neo_models import SBComment
-from sb_posts.neo_models import SBPost, SBAnswer, SBQuestion
+from sb_posts.neo_models import SBPost
 from sb_garbage.neo_models import SBGarbageCan
 
+
 logger = logging.getLogger('loggly_logs')
+
 
 def post_to_api(api_url, data, headers=None):
     if headers is None:
         headers = {}
-    headers['Authorization'] = "Bearer %s" %(get_oauth_access_token())
-    url = "%s%s" %(settings.WEB_ADDRESS, api_url)
-    response = request_post(url,data=dumps(data), verify=settings.VERIFY_SECURE, headers=headers)
+    headers['Authorization'] = "Bearer %s" % (get_oauth_access_token())
+    url = "%s%s" % (settings.WEB_ADDRESS, api_url)
+    response = request_post(url, data=dumps(data),
+                            verify=settings.VERIFY_SECURE, headers=headers)
     return response.json()
 
+
 def get_oauth_client():
-    url = settings.WEB_ADDRESS+'/oauth2/access_token'
+    url = settings.WEB_ADDRESS + '/oauth2/access_token'
     user = User.objects.get(username="admin")
     client = OauthClient.objects.get(user=1)
     response = requests.post(url, data={
@@ -38,11 +38,12 @@ def get_oauth_client():
         'client_secret': client.client_secret,
         'username': user.username,
         'password': settings.API_PASSWORD,
-        'grant_type': 'password'},verify=settings.VERIFY_SECURE)
+        'grant_type': 'password'}, verify=settings.VERIFY_SECURE)
     return response.json()
 
+
 def refresh_oauth_access_token(oauth_client):
-    url = settings.WEB_ADDRESS+'/oauth2/access_token'
+    url = settings.WEB_ADDRESS + '/oauth2/access_token'
     data = {
         'client_id': oauth_client['client_id'],
         'client_secret': oauth_client['client_secret'],
@@ -54,10 +55,12 @@ def refresh_oauth_access_token(oauth_client):
                              verify=settings.VERIFY_SECURE)
     return response
 
+
 def check_oauth_expires_in(oauth_client):
-    if oauth_client['expires_in']<100:
+    if oauth_client['expires_in'] < 100:
         return True
     return False
+
 
 def get_oauth_access_token():
     oauth_client = get_oauth_client()
@@ -75,6 +78,8 @@ iron_mq = IronMQ(project_id=settings.IRON_PROJECT_ID,
         queue.post(dumps(info))
 '''
 
+#TODO if add_failure_to_queue fails store in postgress database in a meta field
+#allow for backup if Amazon goes down
 def add_failure_to_queue(message_info):
     '''
     try:
@@ -91,31 +96,38 @@ def add_failure_to_queue(message_info):
     m.set_body(dumps(message_info))
     my_queue.write(m)
 
+
 def spawn_task(task_func, task_param, countdown=0, task_id=str(uuid1())):
     try:
-        task_func.apply_async(kwargs=task_param, countdown=countdown, task_id=task_id)
+        task_func.apply_async(kwargs=task_param, countdown=countdown,
+                              task_id=task_id)
     except socket_error:
         failure_uuid = str(uuid1())
-        failure_dict ={
+        failure_dict = {
             'action': 'failed_task',
             'attempted_task': task_func.__name__,
             'task_info_kwargs': task_param,
             'failure_uuid': failure_uuid
-            }
-        logger.error(dumps({'failure_uuid': failure_uuid, 'function': task_func.__name__, 'exception': 'socket_error'}))
+        }
+        logger.error(dumps(
+            {'failure_uuid': failure_uuid, 'function': task_func.__name__,
+             'exception': 'socket_error'}))
         logger.exception('Trace back from error: ')
         add_failure_to_queue(failure_dict)
     except Exception:
         failure_uuid = str(uuid1())
-        failure_dict ={
+        failure_dict = {
             'action': 'failed_task',
             'attempted_task': task_func.__name__,
             'task_info_kwargs': task_param,
             'failure_uuid': failure_uuid
-            }
-        logger.error(dumps({'failure_uuid': failure_uuid, 'function': task_func.__name__, 'exception': 'unknown_error'}))
+        }
+        logger.error(dumps(
+            {'failure_uuid': failure_uuid, 'function': task_func.__name__,
+             'exception': 'unknown_error'}))
         logger.exception('Trace back from error: ')
         add_failure_to_queue(failure_dict)
+
 
 def get_post_data(request):
     '''
@@ -133,6 +145,7 @@ def get_post_data(request):
             return {}
     return post_info
 
+
 def handle_failures(task):
     '''
     If a task fails add to the SQS queue
@@ -143,18 +156,20 @@ def handle_failures(task):
 
 def language_filter(content):
     '''
-    Filters harsh language from posts and commments using the bomberman client which
+    Filters harsh language from posts and commments using the bomberman
+    client which
     is initialized each time the function is called.
 
     :param content:
     :return:
     '''
     bomberman = Client()
-    if bomberman.is_profane(content) ==True:
+    if bomberman.is_profane(content):
         corrected_content = bomberman.censor(content)
         return corrected_content
     else:
         return content
+
 
 def post_to_garbage(post_id):
     try:
@@ -178,6 +193,7 @@ def post_to_garbage(post_id):
         post.save()
     except SBPost.DoesNotExist:
         pass
+
 
 def comment_to_garbage(comment_id):
     try:

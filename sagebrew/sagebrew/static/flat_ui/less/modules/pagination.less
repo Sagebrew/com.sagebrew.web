@@ -4,7 +4,7 @@
 
 .pagination {
   position: relative;
-  
+
   @media (max-width: @screen-xs-max) {
     display: block;
   }
@@ -102,6 +102,7 @@
           z-index: 10;
           border-radius: 0 @border-radius-large @border-radius-large 0;
         }
+
         &.previous {
           left: 0;
           right: auto;
@@ -147,7 +148,7 @@
       line-height: 1.429; // ~20px
       padding-left: 23px;
       padding-right: 23px;
-      
+
       [class*="fui-"] {
         font-size: @icon-normal;
         margin-left: -2px;
@@ -158,7 +159,7 @@
     &.next {
       margin-left: 8px;
       margin-right: 0;
-      
+
       [class*="fui-"] {
         margin-right: -2px;
         margin-left: 4px;
@@ -174,18 +175,32 @@
         display: block;
         margin: 0;
         width: 50%;
-        
+
         &:first-child {
           border-bottom: 2px solid mix(@pagination-color, white, 80%);
           border-radius: @border-radius-large 0 0;
-          
-          &.btn-primary { border-bottom-color: mix(@brand-secondary, white, 80%); }
-          &.btn-danger  { border-bottom-color: mix(@brand-danger, white, 80%); }
-          &.btn-warning { border-bottom-color: mix(@brand-warning, white, 80%); }
-          &.btn-success { border-bottom-color: mix(@brand-success, white, 80%); }
-          &.btn-info    { border-bottom-color: mix(@brand-info, white, 80%); }
-          &.btn-inverse { border-bottom-color: mix(@brand-primary, white, 80%); }
-          > [class*="fui"] { margin-left: -20px; }
+
+          &.btn-primary {
+            border-bottom-color: mix(@brand-secondary, white, 80%);
+          }
+          &.btn-danger {
+            border-bottom-color: mix(@brand-danger, white, 80%);
+          }
+          &.btn-warning {
+            border-bottom-color: mix(@brand-warning, white, 80%);
+          }
+          &.btn-success {
+            border-bottom-color: mix(@brand-success, white, 80%);
+          }
+          &.btn-info {
+            border-bottom-color: mix(@brand-info, white, 80%);
+          }
+          &.btn-inverse {
+            border-bottom-color: mix(@brand-primary, white, 80%);
+          }
+          > [class*="fui"] {
+            margin-left: -20px;
+          }
         }
         & + ul {
           padding: 0;
@@ -198,20 +213,34 @@
           right: 0;
           top: 0;
           border-radius: 0 @border-radius-large 0 0;
-          
-          &.btn-primary { border-bottom-color: mix(@brand-secondary, white, 80%); }
-          &.btn-danger  { border-bottom-color: mix(@brand-danger, white, 80%); }
-          &.btn-warning { border-bottom-color: mix(@brand-warning, white, 80%); }
-          &.btn-success { border-bottom-color: mix(@brand-success, white, 80%); }
-          &.btn-info    { border-bottom-color: mix(@brand-info, white, 80%); }
-          &.btn-inverse { border-bottom-color: mix(@brand-primary, white, 80%); }
-          > [class*="fui"] { margin-right: -20px; }
+
+          &.btn-primary {
+            border-bottom-color: mix(@brand-secondary, white, 80%);
+          }
+          &.btn-danger {
+            border-bottom-color: mix(@brand-danger, white, 80%);
+          }
+          &.btn-warning {
+            border-bottom-color: mix(@brand-warning, white, 80%);
+          }
+          &.btn-success {
+            border-bottom-color: mix(@brand-success, white, 80%);
+          }
+          &.btn-info {
+            border-bottom-color: mix(@brand-info, white, 80%);
+          }
+          &.btn-inverse {
+            border-bottom-color: mix(@brand-primary, white, 80%);
+          }
+          > [class*="fui"] {
+            margin-right: -20px;
+          }
         }
       }
 
       ul {
         display: block;
-        
+
         > li {
           > a {
             border-radius: 0;
@@ -224,11 +253,25 @@
 
 // Alternate Colors
 // --------------------------------------------------
-.pagination-danger  { .swap-pagination-color(@brand-danger, @btn-danger-hover-bg, @btn-danger-active-bg); }
-.pagination-success { .swap-pagination-color(@brand-success, @btn-success-hover-bg, @btn-success-active-bg); }
-.pagination-warning { .swap-pagination-color(@brand-warning, @btn-warning-hover-bg, @btn-warning-active-bg); }
-.pagination-info    { .swap-pagination-color(@brand-info, @btn-info-hover-bg, @btn-info-active-bg); }
-.pagination-inverse { .swap-pagination-color(@brand-primary, @btn-inverse-hover-bg, @btn-inverse-active-bg); }
+.pagination-danger {
+  .swap-pagination-color(@brand-danger, @btn-danger-hover-bg, @btn-danger-active-bg);
+}
+
+.pagination-success {
+  .swap-pagination-color(@brand-success, @btn-success-hover-bg, @btn-success-active-bg);
+}
+
+.pagination-warning {
+  .swap-pagination-color(@brand-warning, @btn-warning-hover-bg, @btn-warning-active-bg);
+}
+
+.pagination-info {
+  .swap-pagination-color(@brand-info, @btn-info-hover-bg, @btn-info-active-bg);
+}
+
+.pagination-inverse {
+  .swap-pagination-color(@brand-primary, @btn-inverse-hover-bg, @btn-inverse-active-bg);
+}
 
 // Ultra minimal pagination
 // --------------------------------------------------
@@ -237,7 +280,7 @@
     > li {
       &:first-child {
         border-radius: @border-radius-large 0 0 @border-radius-large;
-        
+
         &.previous + li {
           > a,
           > span {
@@ -364,11 +407,11 @@
     }
   }
 
-  @media (max-width: @screen-xs-max) {  
+  @media (max-width: @screen-xs-max) {
     height: 50px;
     overflow: hidden;
     text-align: center;
-    
+
     > li {
       &.previous {
         display: block;
@@ -388,7 +431,7 @@
 
 // Pagination dropdown
 // --------------------------------------------------
-.pagination-dropdown {    
+.pagination-dropdown {
   ul {
     min-width: 67px;
     width: auto;
@@ -425,7 +468,7 @@
 
   &.dropup {
     position: relative;
-    
+
     .dropdown-arrow {
       border-top-color: @pagination-color;
     }

@@ -34,14 +34,18 @@
         background-color: @btn-primary-active-bg;
       }
     }
-    
 
     @media (max-width: @screen-xs-max) {
       float: none;
       display: block;
-      
-      &:first-child > a { border-radius: @nav-border-radius @nav-border-radius 0 0; }
-      &:last-child > a  { border-radius: 0 0 @nav-border-radius @nav-border-radius; }
+
+      &:first-child > a {
+        border-radius: @nav-border-radius @nav-border-radius 0 0;
+      }
+
+      &:last-child > a {
+        border-radius: 0 0 @nav-border-radius @nav-border-radius;
+      }
     }
 
     > a {
@@ -55,7 +59,7 @@
       outline: none;
       padding: 12px 21px 13px;
       border-radius: 0;
-      
+
       &:hover,
       &:focus {
         background-color: @btn-primary-hover-bg;
@@ -86,7 +90,7 @@
   &.nav-append-content {
     border-bottom: none;
     margin-bottom: 0;
-    
+
     > li {
       &.active {
         &:first-child {
@@ -114,7 +118,7 @@
     // Active link
     &.active {
       z-index: 2;
-      
+
       > a,
       > a:hover,
       > a:focus {
@@ -127,7 +131,7 @@
       .dropdown-toggle:hover,
       .dropdown-toggle:focus {
         color: @nav-tabs-active-color;
-        
+
         .caret {
           border-bottom-color: @nav-tabs-active-color;
           border-top-color: @nav-tabs-active-color;
@@ -164,8 +168,8 @@
       border-width: @nav-tabs-border-width;
       font-size: ceil(@component-font-size-base * 0.933); // ~14px
       font-weight: 700;
-      padding: 7px 21px 8px;      
-      color: @nav-tabs-color;      
+      padding: 7px 21px 8px;
+      color: @nav-tabs-color;
       border-radius: @nav-border-radius @nav-border-radius 0 0;
       .transition(none);
 
@@ -183,7 +187,7 @@
     .dropdown-toggle {
       position: relative;
       z-index: @nav-open-zindex + 1;
-      
+
       &:hover,
       &:focus {
         .caret {
@@ -196,7 +200,7 @@
       border: @nav-tabs-border-width solid @nav-tabs-border-color;
       margin-top: -10px;
       border-radius: 0 @nav-border-radius @nav-border-radius @nav-border-radius;
-      
+
       li {
         &:first-child > a {
           border-radius: 0 @nav-item-border-radius 0 0;
@@ -228,9 +232,13 @@
           background-color: @brand-secondary;
           border: 2px solid @brand-secondary;
           color: @inverse;
-          &:before { display: none; }
+          &:before {
+            display: none;
+          }
         }
-        &:before { display: none; }
+        &:before {
+          display: none;
+        }
       }
 
       &.dropdown {
@@ -239,7 +247,7 @@
           > a.dropdown-toggle,
           > a:hover {
             color: @inverse;
-            
+
             .caret {
               border-bottom-color: @inverse;
               border-top-color: @inverse;
@@ -251,7 +259,7 @@
             > a:hover {
               color: @nav-tabs-active-color;
               border-radius: @nav-item-border-radius @nav-item-border-radius 0 0;
-              
+
               .caret {
                 border-bottom-color: @nav-tabs-active-color;
                 border-top-color: @nav-tabs-active-color;
@@ -347,7 +355,7 @@
 
   > li {
     margin-bottom: 2px;
-    
+
     &.divider {
       background-color: transparent;
       margin: 3px 0 0;
@@ -364,7 +372,7 @@
       border-radius: 0;
       color: mix(@brand-primary, white, 85%);
       font-size: ceil(@component-font-size-base * .933); // ~14px
-      
+
       &:hover,
       &:focus {
         color: mix(@brand-secondary, black, 85%);

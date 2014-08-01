@@ -1,7 +1,9 @@
 import pytz
 from datetime import datetime
-from neomodel import (StructuredNode, StringProperty, DateTimeProperty, RelationshipTo, StructuredRel,
+from neomodel import (StructuredNode, StringProperty, DateTimeProperty,
+                      RelationshipTo, StructuredRel,
                       BooleanProperty)
+
 
 class FriendRelationship(StructuredRel):
     since = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
@@ -9,7 +11,8 @@ class FriendRelationship(StructuredRel):
     currently_friends = BooleanProperty(default=True)
     time_unfriended = DateTimeProperty(default=None)
     who_unfriended = StringProperty()
-    #who_unfriended = RelationshipTo("Pleb", "")
+    # who_unfriended = RelationshipTo("Pleb", "")
+
 
 class FriendRequest(StructuredNode):
     friend_request_uuid = StringProperty(unique_index=True)
@@ -19,6 +22,6 @@ class FriendRequest(StructuredNode):
     response = StringProperty(default=None)
 
 
-    #relationships
+    # relationships
     request_from = RelationshipTo('plebs.neo_models.Pleb', 'REQUEST_FROM')
     request_to = RelationshipTo('plebs.neo_models.Pleb', 'REQUEST_TO')

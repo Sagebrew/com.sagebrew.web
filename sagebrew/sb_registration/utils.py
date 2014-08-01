@@ -14,7 +14,8 @@ def generate_interests_tuple():
     cat_instance = TopicCategory.category()
     categories = cat_instance.instance.all()
     # For reasoning behind tuples here look at
-    # http://stackoverflow.com/questions/15210511/solved-django-modelchoicefield-optgroup-tag/17854288#17854288
+    # http://stackoverflow.com/questions/15210511/solved-django
+    # -modelchoicefield-optgroup-tag/17854288#17854288
     # We are basically able to draw on django's built in categorization of
     # choices rather then implementing a bunch of custom logic
     sb_topic_choices = ()
@@ -30,38 +31,39 @@ def generate_interests_tuple():
 
 
 def create_address_long_hash(address):
-    if("address2" in address):
+    if ("address2" in address):
         address_string = "%s%s%s%s%s%s%f%f%s" % (address["street"],
-                                            address["street_additional"],
-                                            address["city"],
-                                            address["state"],
-                                            address["postal_code"],
-                                            address["country"],
-                                            address["latitude"],
-                                            address["longitude"],
-                                            address["congressional_district"])
+                                                 address["street_additional"],
+                                                 address["city"],
+                                                 address["state"],
+                                                 address["postal_code"],
+                                                 address["country"],
+                                                 address["latitude"],
+                                                 address["longitude"],
+                                                 address[
+                                                     "congressional_district"])
     else:
         address_string = "%s%s%s%s%s%f%f%s" % (address["street"],
-                                            address["city"],
-                                            address["state"],
-                                            address["postal_code"],
-                                            address["country"],
-                                            address["latitude"],
-                                            address["longitude"],
-                                            address["congressional_district"])
+                                               address["city"],
+                                               address["state"],
+                                               address["postal_code"],
+                                               address["country"],
+                                               address["latitude"],
+                                               address["longitude"],
+                                               address[
+                                                   "congressional_district"])
     address_hash = hashlib.sha224(address_string).hexdigest()
 
     return address_hash
 
 
-
 def create_address_string(address):
-    if("address2" in address):
+    if ("address2" in address):
         address_string = "%s, %s, %s, %s %s" % (address["street"],
-                                            address["street_additional"],
-                                            address["city"],
-                                            address["state"],
-                                            address["postal_code"])
+                                                address["street_additional"],
+                                                address["city"],
+                                                address["state"],
+                                                address["postal_code"])
     else:
         address_string = "%s, %s, %s %s" % (address["street"], address["city"],
                                             address["state"],
@@ -102,13 +104,16 @@ def generate_address_tuple(address_info):
 
 def validate_address(address_request):
     '''
-    This function validates the address given to it in the form of a dict. The dict
-    contains fields which smartystreets requires to validate an address. If the address
+    This function validates the address given to it in the form of a dict.
+    The dict
+    contains fields which smartystreets requires to validate an address. If
+    the address
     is valid it returns 1 and if not it fails.
     '''
-    #TODO figure out alternative with buggy addresses
+    # TODO figure out alternative with buggy addresses
     #127 glenwood dr walled lake mi 48390
-    LOCATION = 'https://api.smartystreets.com/street-address/'#move to settings
+    LOCATION = 'https://api.smartystreets.com/street-address/'  #move to
+    # settings
     auth_id = '84a98057-05ed-4109-8758-19acd5336c38'
     auth_token = 'p3GbchbjA3q13MUdT7gM'
     address_request['auth-id'] = auth_id
@@ -126,8 +131,10 @@ def validate_address(address_request):
 
     return create_address_array(structure)
 
+
 def validate_school(school_name):
     pass
+
 
 def create_address_array(structure):
     array_of_addresses = []
@@ -140,7 +147,7 @@ def create_address_array(structure):
                             address["metadata"]["congressional_district"],
                         "latitude": address["metadata"]["latitude"],
                         "longitude": address["metadata"]["longitude"]}
-        if("delivery_line_2" in address):
+        if ("delivery_line_2" in address):
             address_dict["street_additional"] = address["delivery_line_2"]
         else:
             address_dict["street_additional"] = None
@@ -155,7 +162,7 @@ def compare_address(smarty_address, address_clean):
     temp_smarty.pop("longitude", None)
     temp_smarty.pop("congressional_district", None)
     temp_smarty.pop("latitude", None)
-    if(temp_address["street_additional"] == ""):
+    if (temp_address["street_additional"] == ""):
         temp_address["street_additional"] = None
 
     temp_address.pop("country", None)
@@ -168,7 +175,8 @@ def compare_address(smarty_address, address_clean):
 
 def upload_image(folder_name, file_uuid):
     '''
-    Creates a connection to the s3 service then uploads the file which was passed
+    Creates a connection to the s3 service then uploads the file which was
+    passed
     to this function an uses the uuid as the filename.
 
     :param folder_name:
@@ -191,9 +199,11 @@ def upload_image(folder_name, file_uuid):
     print "finished upload"
     return image_uri
 
+
 def determine_senators(pleb_address):
     '''
-    Search for senators who match the state of the pleb. Then return an array of them
+    Search for senators who match the state of the pleb. Then return an
+    array of them
 
     :param pleb_address:
     :return:
@@ -220,7 +230,8 @@ def determine_reps(pleb_address):
     determined_reps = []
     rep_name = 'There are no representatives in the DB'
     rep_array = GTRole.index.search(state=pleb_address.state, title='Rep.',
-                                    district=int(pleb_address.congressional_district))
+                                    district=int(
+                                        pleb_address.congressional_district))
     for rep in rep_array:
         determined_reps.append(rep.traverse('person').run())
     for item in determined_reps:
@@ -228,9 +239,11 @@ def determine_reps(pleb_address):
             rep_name = name.name
     return rep_name
 
+
 def get_friends(email):
     '''
-    Creates a list of dictionaries which hold data about the friends of the user
+    Creates a list of dictionaries which hold data about the friends of the
+    user
 
     :param email:
     :return:
@@ -242,7 +255,8 @@ def get_friends(email):
     friends = []
     friends_list = citizen.traverse('friends').run()
     for friend in friends_list:
-        friend_dict={'name': friend.first_name+' '+friend.last_name,'email': friend.email, 'picture': friend.profile_pic}
+        friend_dict = {'name': friend.first_name + ' ' + friend.last_name,
+                       'email': friend.email, 'picture': friend.profile_pic}
         friends.append(friend_dict)
 
     return friends

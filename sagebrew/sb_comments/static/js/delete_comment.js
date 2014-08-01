@@ -1,26 +1,26 @@
-$( document ).ready(function() {
-	$("a.delete_comment-action").click(function(event){
-		event.preventDefault();
-		$.ajaxSetup({
-		    beforeSend: function(xhr, settings) {
-				var csrftoken = $.cookie('csrftoken');
-		        if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
-		            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-		        }
-		    }
-		});
-	   	$.ajax({
-			xhrFields: {withCredentials: true},
-			type: "POST",
-			url: "/comments/delete_comment/",
-			data: JSON.stringify({
-			   'pleb': $(this).data('pleb'),
-               'comment_uuid': $(this).data('comment_uuid')
-			}),
-			contentType: "application/json; charset=utf-8",
-			dataType: "json"
-		});
-	});
+$(document).ready(function () {
+    $("a.delete_comment-action").click(function (event) {
+        event.preventDefault();
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                var csrftoken = $.cookie('csrftoken');
+                if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "POST",
+            url: "/comments/delete_comment/",
+            data: JSON.stringify({
+                'pleb': $(this).data('pleb'),
+                'comment_uuid': $(this).data('comment_uuid')
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json"
+        });
+    });
 });
 
 

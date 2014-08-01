@@ -1,29 +1,29 @@
-$( document ).ready(function() {
-	$("a.friend-action").click(function(event){
-		event.preventDefault();
-		$.ajaxSetup({
-		    beforeSend: function(xhr, settings) {
-				var csrftoken = $.cookie('csrftoken');
-		        if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
-		            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-		        }
-		    }
-		});
-	   	$.ajax({
-			xhrFields: {withCredentials: true},
-			type: "POST",
-			url: "/api/friend_request/",
-			data: JSON.stringify({
-			   'action':$(this).data('action'),
-			   'friend_uid': $(this).data('friendid')
-			}),
-			contentType: "application/json; charset=utf-8",
-			dataType: "json",
-			success: function(data) {
-			   alert(data['here']);
-			}
-		});
-	});
+$(document).ready(function () {
+    $("a.friend-action").click(function (event) {
+        event.preventDefault();
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                var csrftoken = $.cookie('csrftoken');
+                if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "POST",
+            url: "/api/friend_request/",
+            data: JSON.stringify({
+                'action': $(this).data('action'),
+                'friend_uid': $(this).data('friendid')
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                alert(data['here']);
+            }
+        });
+    });
 });
 
 

@@ -6,11 +6,14 @@
 {% endblock %}
 {% block content %}
 
-<a class='btn btn-primary edit_post-action' data-action='this post has been edited' data-pleb={{ pleb_info.email }} data-post_uuid={{ post.post_id }}>Edit this Post</a>
+    <a class='btn btn-primary edit_post-action'
+       data-action='this post has been edited'
+       data-pleb={{ pleb_info.email }} data-post_uuid={{ post.post_id }}>Edit
+        this Post</a>
 
 {% endblock %}
 
 {% block scripts %}
-	{{ block.super }}
-	<script src="{% static 'js/edit_post.js' %}"></script>
+    {{ block.super }}
+    <script src="{% static 'js/edit_post.js' %}"></script>
 {% endblock scripts %}

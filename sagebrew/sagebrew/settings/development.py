@@ -1,6 +1,9 @@
 # Django settings for automated_test_client project.
-from base import *
 from fnmatch import fnmatch
+
+from base import *
+
+
 DEBUG = True
 
 TEMPLATE_DEBUG = DEBUG
@@ -43,8 +46,7 @@ AWS_SECRET_ACCESS_KEY = "UYn/JAQUc+pdxAtIgy0vhMb+UmPV5vCVElJnEoRB"
 
 SECRET_KEY = "5fd&2wkqx8r!h2y1)j!izqi!982$p87)sred(5#x0mtqa^cbx)"
 
-INTERNAL_IPS = ('127.0.0.1', 'localhost', '0.0.0.0','192.168.56.101')
-
+INTERNAL_IPS = ('127.0.0.1', 'localhost', '0.0.0.0', '192.168.56.101')
 
 REST_FRAMEWORK = {
     # Use hyperlinked styles by default.
@@ -59,30 +61,29 @@ REST_FRAMEWORK = {
     # or allow read-only access for unauthenticated users.
 }
 
-
 DEBUG_TOOLBAR_PANELS = (
     'debug_toolbar.panels.version.VersionDebugPanel',
     'debug_toolbar.panels.timer.TimerDebugPanel',
     'debug_toolbar.panels.settings_vars.SettingsVarsDebugPanel',
     'debug_toolbar.panels.headers.HeaderDebugPanel',
     # Commented out because it causes multiple saves/adds to occur
-    #'debug_toolbar.panels.profiling.ProfilingDebugPanel',
+    # 'debug_toolbar.panels.profiling.ProfilingDebugPanel',
     'debug_toolbar.panels.request_vars.RequestVarsDebugPanel',
     'debug_toolbar.panels.sql.SQLDebugPanel',
     'debug_toolbar.panels.template.TemplateDebugPanel',
     'debug_toolbar.panels.cache.CacheDebugPanel',
     'debug_toolbar.panels.signals.SignalDebugPanel',
     'debug_toolbar.panels.logger.LoggingPanel',
-    #'cache_panel.panel.CacheDebugPanel',
+    # 'cache_panel.panel.CacheDebugPanel',
 )
 
 
 def custom_show_toolbar(request):
-    if(fnmatch(request.path.strip(), '/admin*')):
+    if (fnmatch(request.path.strip(), '/admin*')):
         return False
-    elif(fnmatch(request.path.strip(), '/secret/*')):
+    elif (fnmatch(request.path.strip(), '/secret/*')):
         return False
-    return True # Always show toolbar, for example purposes only.
+    return True  # Always show toolbar, for example purposes only.
 
 
 DEBUG_TOOLBAR_CONFIG = {
@@ -95,14 +96,15 @@ DEBUG_TOOLBAR_CONFIG = {
 }
 
 INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar', )
-#MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + ('debug_toolbar.middleware.DebugToolbarMiddleware',)
+# MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + (
+# 'debug_toolbar.middleware.DebugToolbarMiddleware',)
 
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'loggly': {
-            'format':'loggly: %(message)s',
+            'format': 'loggly: %(message)s',
         },
     },
     'handlers': {
@@ -119,14 +121,14 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False,
         },
-        'loggly_logs':{
+        'loggly_logs': {
             'handlers': ['logging.handlers.SysLogHandler'],
             'propagate': True,
-            'format':'loggly: %(message)s',
+            'format': 'loggly: %(message)s',
             'level': 'DEBUG',
             'token': LOGGLY_TOKEN
         },
-                'django.request': {
+        'django.request': {
             'handlers': ['logging.handlers.SysLogHandler'],
             'level': 'ERROR',
             'propagate': False,

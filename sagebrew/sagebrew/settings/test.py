@@ -5,14 +5,14 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['*']
 
-DATABASES={
-    "default":{
-        "ENGINE":"django.db.backends.sqlite3",
-        "NAME":":memory:",
-        "USER":"",
-        "PASSWORD":"",
-        "HOST":"",
-        "PORT":"",
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": ":memory:",
+        "USER": "",
+        "PASSWORD": "",
+        "HOST": "",
+        "PORT": "",
     },
 }
 
@@ -30,7 +30,6 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 
-
 SECRET_KEY = 'ka)zzd@k7csfj+r#jm#gyu*q#xciu0hq=)@z#8^!ul5q3(j@#d'
 INTERNAL_IPS = ('127.0.0.1', 'localhost', '0.0.0.0')
 
@@ -44,4 +43,5 @@ JENKINS_TASKS = (
 )
 
 INSTALLED_APPS = INSTALLED_APPS + ( 'django_jenkins', )
-MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + ('debug_toolbar.middleware.DebugToolbarMiddleware',)
+MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + (
+'debug_toolbar.middleware.DebugToolbarMiddleware',)

@@ -5,8 +5,6 @@ from os import environ, path, makedirs
 from unipath import Path
 from datetime import timedelta
 
-from celery.schedules import crontab
-
 
 PROJECT_DIR = Path(__file__).ancestor(3)
 MEDIA_ROOT = PROJECT_DIR.child("media")
@@ -80,7 +78,7 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -90,7 +88,7 @@ STATICFILES_FINDERS = (
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    # 'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -122,14 +120,12 @@ AUTHENTICATION_BACKENDS = (
     "allauth.account.auth_backends.AuthenticationBackend",
 )
 
-
-
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates"
     # or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    '%s/sagebrew/templates/'  % PROJECT_DIR,
+    '%s/sagebrew/templates/' % PROJECT_DIR,
     '%s/sb_registration/templates/' % PROJECT_DIR,
     '%s/sb_wall/templates/' % PROJECT_DIR,
     '%s/plebs/templates/' % PROJECT_DIR,
@@ -194,7 +190,6 @@ EMAIL_BACKEND = "sgbackend.SendGridBackend"
 SENDGRID_USER = "bleib1dj"
 SENDGRID_PASSWORD = "wp*D8S@kRnc:6pA"
 
-
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 LOGIN_URL = '/accounts/login/'
@@ -222,7 +217,8 @@ OAUTH_DELETE_EXPIRED = True
 CELERY_DISABLE_RATE_LIMITS = True
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 CELERY_IMPORTS = ('api.tasks', 'govtrack.tasks', 'sb_comments.tasks',
-                  'sb_garbage.tasks', 'sb_posts.tasks', 'sb_notifications.tasks',
+                  'sb_garbage.tasks', 'sb_posts.tasks',
+                  'sb_notifications.tasks',
                   'sb_relationships.tasks'
 )
 BROKER_URL = 'amqp://sagebrew:this_is_the_sagebrew_password@localhost:5672//'
@@ -231,7 +227,7 @@ CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
 CELERY_IGNORE_RESULT = False
 
 CELERYBEAT_SCHEDULE = {
-    'empty-garbage-can-minute':{
+    'empty-garbage-can-minute': {
         'task': 'sb_garbage.tasks.empty_garbage_can',
         'schedule': timedelta(minutes=1),
     }

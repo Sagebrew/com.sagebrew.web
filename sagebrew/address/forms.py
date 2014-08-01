@@ -3,7 +3,7 @@ from django.template.loader import render_to_string
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from localflavor.us.forms import (USStateField,)
+from localflavor.us.forms import (USStateField, )
 from localflavor.us.us_states import STATE_CHOICES
 
 
@@ -13,6 +13,7 @@ POSTAL_CODE_MAX = 10
 ST_MAX = 100
 ST_ADD_MAX = 100
 COUNTRY_CHOICES = ("US", "United States of America")
+
 
 def module_exists(module_name):
     """
@@ -25,6 +26,7 @@ def module_exists(module_name):
     else:
         return True
 
+
 if module_exists("crispy_forms"):
     """
     Crispy forms address fields
@@ -36,14 +38,14 @@ if module_exists("crispy_forms"):
 
         def __init__(self, *fields, **kwargs):
             self.css_class = 'address-fields-wrapper ' + kwargs.pop(
-                                 'css_class', u'ctrlHolder')
+                'css_class', u'ctrlHolder')
             self.css_id = kwargs.pop('css_id', None)
             self.template = kwargs.pop('template', self.template)
             self.flat_attrs = flatatt(kwargs)
 
-            if(hasattr(self, 'css_class') and 'css_class' in kwargs):
+            if (hasattr(self, 'css_class') and 'css_class' in kwargs):
                 self.css_class += ' %s' % kwargs.pop('css_class')
-            if(not hasattr(self, 'css_class')):
+            if (not hasattr(self, 'css_class')):
                 self.css_class = kwargs.pop('css_class', None)
 
             self.css_id = kwargs.pop('css_id', '')
@@ -58,16 +60,16 @@ if module_exists("crispy_forms"):
             # match the values you want.
             COUNTRIES = (
                 ('usa', 'USA'),
-                )
+            )
 
             form.fields['street'] = forms.CharField(required=False)
             form.fields['street_additional'] = forms.CharField(required=False)
             form.fields['city'] = forms.CharField(required=False)
             form.fields['state'] = forms.ChoiceField(required=False,
-                                       choices=OPTION_STATE_CHOICES)
+                                                     choices=OPTION_STATE_CHOICES)
             form.fields['postal_code'] = forms.CharField(required=False)
             form.fields['country'] = forms.ChoiceField(required=False,
-                                         choices=COUNTRIES)
+                                                       choices=COUNTRIES)
 
             fields = ''
             fields += render_field('street', form, form_style, context)
@@ -82,22 +84,22 @@ if module_exists("crispy_forms"):
                                                             'fields': fields}))
 
 REQUIRED_ERRORS = {
-                    'st_address': _("Street Address is Required"),
-                    'st_name': _("Please enter a street name"),
-                    'st_number': _("Please enter a street number"),
-                    'city': _("Please enter a City"),
-                    'state': _("Please enter a State"),
-                    'country': _("Please enter the country you live in"),
-                    'postal_code': _("Please enter a postal code"),
-                   }
+    'st_address': _("Street Address is Required"),
+    'st_name': _("Please enter a street name"),
+    'st_number': _("Please enter a street number"),
+    'city': _("Please enter a City"),
+    'state': _("Please enter a State"),
+    'country': _("Please enter the country you live in"),
+    'postal_code': _("Please enter a postal code"),
+}
 LENGTH_ERRORS = {
-                    'st_num_max': _("Your Street Number is too long"),
-                    'st_name_max': _("Your Street Name is too long"),
-                    'st_num_min': _("Your Street Number must have at \
+    'st_num_max': _("Your Street Number is too long"),
+    'st_name_max': _("Your Street Name is too long"),
+    'st_num_min': _("Your Street Number must have at \
                                         least one number in it."),
-                    'st_name_min': _("Your Street Name must have more \
+    'st_name_min': _("Your Street Name must have more \
                                          than one letter in it"),
-                }
+}
 STREET_NOT_NUM_ERROR = _("Your Street Number is not a Number")
 STREET_NAME_NO_NUM_ERROR = _("Please Enter a Street Name Without Numbers")
 CITY_NO_NUM_ERROR = _("Please Enter a City With No Numbers")
@@ -116,17 +118,21 @@ class AddressForm(forms.Form):
     the database with.
     '''
     street = forms.CharField(max_length=ST_MAX,
-                    error_messages={'required': REQUIRED_ERRORS['st_address']})
+                             error_messages={
+                             'required': REQUIRED_ERRORS['st_address']})
     street_additional = forms.CharField(max_length=ST_ADD_MAX, required=False)
     city = forms.CharField(max_length=CITY_MAX,
-                error_messages={'required': REQUIRED_ERRORS['city']})
+                           error_messages={
+                           'required': REQUIRED_ERRORS['city']})
     state = USStateField(error_messages={'required': REQUIRED_ERRORS['state']})
     postal_code = forms.CharField(max_length=POSTAL_CODE_MAX,
-                  error_messages={'required': REQUIRED_ERRORS['postal_code']})
+                                  error_messages={
+                                  'required': REQUIRED_ERRORS['postal_code']})
     country = forms.ChoiceField(widget=forms.Select(attrs=COUNTRY_ATTRS),
-                  choices=COUNTRY_CHOICES,
-                  initial=u"US",
-                  error_messages={'required': REQUIRED_ERRORS['country']})
+                                choices=COUNTRY_CHOICES,
+                                initial=u"US",
+                                error_messages={
+                                'required': REQUIRED_ERRORS['country']})
 
     def clean_city(self):
         '''
@@ -135,7 +141,7 @@ class AddressForm(forms.Form):
         someone provides a city that has numbers in it.
         '''
         city_clean = self.cleaned_data['city']
-        if(not city_clean.isalpha()):
+        if (not city_clean.isalpha()):
             raise forms.ValidationError(CITY_NO_NUM_ERROR)
         return self.cleaned_data['city']
 
@@ -153,28 +159,29 @@ class AddressForm(forms.Form):
         street = self.cleaned_data['street'].strip()
         street = street.split(' ')
         street_clean = ''
-        if(len(street) > 0 and street[0] != u''):
+        if (len(street) > 0 and street[0] != u''):
             street_number = street[0]
             # This if is located after the initial if because if it was
             # before it it would require street info to be entered.
             # Want the requirement to lie completely on required=True/False
             # passed parameter of the form field declaration.
-            if(len(street) < 2):
+            if (len(street) < 2):
                 raise forms.ValidationError(REQUIRED_ERRORS['st_name'])
-            if(len(street_number) > ST_MAX):
+            if (len(street_number) > ST_MAX):
                 raise forms.ValidationError(LENGTH_ERRORS['st_num_max'])
-            if(not street_number.isdigit()):
+            if (not street_number.isdigit()):
                 raise forms.ValidationError(STREET_NOT_NUM_ERROR)
-            if(len(street) > 1):
+            if (len(street) > 1):
                 street_name = street[1:]
                 for item in street_name:
                     street_clean += item
-                if(street_clean.strip()[len(street_clean.strip()) - 1] == '.'):
+                if (street_clean.strip()[
+                            len(street_clean.strip()) - 1] == '.'):
                     street_clean = street_clean.strip()
                     street_clean = street_clean[:len(street_clean.strip()) - 1]
-                if(not street_clean.isalpha()):
+                if (not street_clean.isalpha()):
                     raise forms.ValidationError(STREET_NAME_NO_NUM_ERROR)
-                if(len(street_clean) > ST_MAX):
+                if (len(street_clean) > ST_MAX):
                     raise forms.ValidationError(LENGTH_ERRORS['st_name_max'])
 
         return self.cleaned_data['street']
@@ -189,7 +196,7 @@ class AddressSettingsForm(AddressForm):
     all of the cleaning functionality from it.
     '''
     street = forms.CharField(max_length=ST_MAX + ST_MAX,
-                      required=False)
+                             required=False)
     city = forms.CharField(max_length=CITY_MAX, required=False)
     state = USStateField(required=False)
     postal_code = forms.CharField(max_length=POSTAL_CODE_MAX, required=False)

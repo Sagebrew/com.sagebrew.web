@@ -2,7 +2,6 @@
 // Forms
 // --------------------------------------------------
 
-
 // Normalize non-controls
 //
 // Restyle and baseline non-control form elements.
@@ -31,7 +30,6 @@ textarea {
 input[type="search"] {
   -webkit-appearance: none !important; // removes rounded corners for searchfields on iOS
 }
-
 
 // Label
 label {
@@ -98,12 +96,12 @@ label {
     color: mix(@gray, white, 40%);
     cursor: default;
     .opacity(.7);
-  }  
-  
+  }
+
   // Flat (without border)
   &.flat {
     border-color: transparent;
-    
+
     &:hover {
       border-color: @gray-light;
     }
@@ -134,10 +132,12 @@ label {
 .has-warning {
   .form-control-validation(@brand-warning; @brand-warning);
 }
+
 // Error
 .has-error {
   .form-control-validation(@brand-danger; @brand-danger);
 }
+
 // Success
 .has-success {
   .form-control-validation(@brand-success; @brand-success);

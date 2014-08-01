@@ -1,26 +1,20 @@
 import pytz
-from json import loads
 from urllib2 import HTTPError
 from datetime import datetime
 from requests import ConnectionError
-
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.reverse import reverse
 from rest_framework.response import Response
-from django.shortcuts import render
 
 from sb_posts.neo_models import SBPost
-#from .tasks import ()
-from api.utils import get_post_data, comment_to_garbage
-from .utils import (get_post_comments, create_comment_vote, save_comment, edit_comment_util,
-                    delete_comment_util)
-from .forms import SaveCommentForm, EditCommentForm
+from api.utils import get_post_data, comment_to_garbage, spawn_task
+from .tasks import (create_vote_comment, submit_comment_on_post,
+                    edit_comment_task)
+from .utils import (get_post_comments)
+from .forms import (SaveCommentForm, EditCommentForm, DeleteCommentForm,
+                    VoteCommentForm)
 
-#TODO document all possible dictionary returns from api views
 
-#TODO swap decorators and uncomment permissions
-#@permission_classes([IsAuthenticated, ])
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def save_comment_view(request):
@@ -30,7 +24,8 @@ def save_comment_view(request):
 
     Transition from spawning tasks to calling utils to prevent race conditions.
 
-        ex. User creates comment then deletes before the comment creation task is
+        ex. User creates comment then deletes before the comment creation
+        task is
         handled by a worker. This is more likely in a distributed worker queue
         when we have multiple celery workers on multiple servers.
 
@@ -38,20 +33,26 @@ def save_comment_view(request):
     :return:
     '''
     try:
-        post_info = get_post_data(request)
-        comment_form = SaveCommentForm(post_info)
+        comment_info = get_post_data(request)
+        if (type(comment_info) != dict):
+            return Response({"details": "Please Provide a JSON Object"},
+                            status=400)
+        comment_form = SaveCommentForm(comment_info)
         if comment_form.is_valid():
-            save_comment(**comment_form.cleaned_data)
-            return Response({"here": "Comment succesfully created"}, status=200)
+            spawn_task(task_func=submit_comment_on_post,
+                       task_param=comment_form.cleaned_data)
+            return Response({"here": "Comment succesfully created"},
+                            status=200)
         else:
             return Response({'detail': comment_form.errors}, status=400)
     except(HTTPError, ConnectionError):
         return Response({"detail": "Failed to create comment task"},
-                            status=408)
+                        status=408)
+
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
-def edit_comment(request): #task
+def edit_comment(request):  # task
     '''
     Allow plebs to edit their comment
 
@@ -59,24 +60,32 @@ def edit_comment(request): #task
     :return:
     '''
     try:
-        post_info = get_post_data(request)
-        last_edited_on =datetime.now(pytz.utc)
-        post_info['last_edited_on'] = last_edited_on
-        comment_form = EditCommentForm(post_info)
+        comment_info = get_post_data(request)
+        try:
+            comment_info['last_edited_on'] = datetime.now(pytz.utc)
+        except TypeError:
+            comment_info = comment_info
+
+        if (type(comment_info) != dict):
+            return Response({"details": "Please Provide a JSON Object"},
+                            status=400)
+        comment_form = EditCommentForm(comment_info)
         if comment_form.is_valid():
-            edit_comment_util(**comment_form.cleaned_data)
-            return Response({"detail": "Comment succesfully edited"}, status=200)
+            spawn_task(task_func=edit_comment_task,
+                       task_param=comment_form.cleaned_data)
+            return Response({"detail": "Comment succesfully edited"},
+                            status=200)
         else:
-            print comment_form.errors
             return Response({'detail': comment_form.errors}, status=400)
     except(HTTPError, ConnectionError):
         return Response({'detail': 'Failed to edit comment'},
                         status=408)
-    # do stuff with post_info
+        # do stuff with post_info
+
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
-def delete_comment(request): #task
+def delete_comment(request):  # task
     '''
     Allow plebs to delete their comment
 
@@ -85,15 +94,23 @@ def delete_comment(request): #task
     '''
     try:
         comment_info = get_post_data(request)
-        comment_to_garbage(comment_info['comment_uuid'])
-        return Response({"detail": "Comment deleted"})
+        if (type(comment_info) != dict):
+            return Response({"details": "Please Provide a JSON Object"},
+                            status=400)
+        comment_form = DeleteCommentForm(comment_info)
+        if comment_form.is_valid():
+            comment_to_garbage(comment_form.cleaned_data['comment_uuid'])
+            return Response({"detail": "Comment deleted"}, status=200)
+        else:
+            return Response({"detail": comment_form.errors}, status=400)
     except(HTTPError, ConnectionError):
         return Response({"detail": "Failed to delete comment"})
-    # do stuff with post_info
+        # do stuff with post_info
+
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
-def vote_comment(request): #task
+def vote_comment(request):
     '''
     Allow plebs to up/down vote comments
 
@@ -101,16 +118,26 @@ def vote_comment(request): #task
     :return:
     '''
     try:
-        post_info = get_post_data(request)
-        print post_info
-        create_comment_vote(post_info)
-        return Response({"detail": "Vote created"})
-    except:
-        return Response({"detail": "Vote could not be created"})
+        comment_info = get_post_data(request)
+        if (type(comment_info) != dict):
+            return Response({"details": "Please Provide a JSON Object"},
+                            status=400)
+        comment_form = VoteCommentForm(comment_info)
+        if comment_form.is_valid():
+            spawn_task(task_func=create_vote_comment,
+                       task_param=comment_form.cleaned_data)
+            return Response({"detail": "Vote created"}, status=200)
+        else:
+            return Response({'detail': comment_form.errors}, status=400)
+    except Exception, e:
+        return Response(
+            {"detail": "Vote could not be created", 'exception': e},
+            status=408)
+
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
-def flag_comment(request): #task
+def flag_comment(request):  # task
     '''
     Allow plebs to flag comments
 
@@ -118,14 +145,14 @@ def flag_comment(request): #task
     :return:
     '''
     post_info = get_post_data(request)
-    if(post_info["giraffe_contents"] == 3):
+    if (post_info["giraffe_contents"] == 3):
         return Response({"comment": "hello"}, status=200)
-    # do stuff with post_info
+        # do stuff with post_info
 
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
-def share_comment(request): #task
+def share_comment(request):  # task
     '''
     Allow plebs to share comments with other plebs
 
@@ -133,13 +160,14 @@ def share_comment(request): #task
     :return:
     '''
     post_info = get_post_data(request)
-    if(post_info["giraffe_contents"] == 3):
+    if (post_info["giraffe_contents"] == 3):
         return Response({"comment": "hello"}, status=200)
-    # do stuff with post_info
+        # do stuff with post_info
+
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
-def reference_comment(request): #task
+def reference_comment(request):  # task
     '''
     Allow users to reference comments in other comments/posts/questions/answers
 
@@ -147,11 +175,12 @@ def reference_comment(request): #task
     :return:
     '''
     post_info = get_post_data(request)
-    if(post_info["giraffe_contents"] == 3):
+    if (post_info["giraffe_contents"] == 3):
         return Response({"comment": "hello"}, status=200)
-    # do stuff with post_info
+        # do stuff with post_info
 
-#@permission_classes([IsAuthenticated, ])
+
+# @permission_classes([IsAuthenticated, ])
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def get_comments(request):

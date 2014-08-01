@@ -1,5 +1,4 @@
 from json import dumps
-
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
@@ -10,81 +9,81 @@ class Command(BaseCommand):
     args = 'None.'
     help = 'Test the conductor api endpoints.'
     sb_categories = [
-            {
-                "title": "Fiscal/Economy",
-                "description": '''Issues involving the Economy,
+        {
+            "title": "Fiscal/Economy",
+            "description": '''Issues involving the Economy,
                         matters of taxation, government spending,
                         importing/exporting, the private sector,
                         wall street etc''',
-                "sb_topics": [
-                    {
-                        "title": "Trade Deficit",
-                        "description": "",
-                    },
-                    {
-                        "title": "Deficit Reduction",
-                        "description": "",
-                    }
-                ]
-            },
-            {
-                "title": "Education",
-                "description": "",
-                "sb_topics": []
-            },
-            {
-                "title": "Drugs",
-                "description": "",
-                "sb_topics": []
-            },
-            {
-                "title": "Energy",
-                "description": "",
-                "sb_topics": []
-            },
-            {
-                "title": "Foreign Policy",
-                "description": '''Issues involving the interaction between
+            "sb_topics": [
+                {
+                    "title": "Trade Deficit",
+                    "description": "",
+                },
+                {
+                    "title": "Deficit Reduction",
+                    "description": "",
+                }
+            ]
+        },
+        {
+            "title": "Education",
+            "description": "",
+            "sb_topics": []
+        },
+        {
+            "title": "Drugs",
+            "description": "",
+            "sb_topics": []
+        },
+        {
+            "title": "Energy",
+            "description": "",
+            "sb_topics": []
+        },
+        {
+            "title": "Foreign Policy",
+            "description": '''Issues involving the interaction between
                                     the Federal Government and Governments of
                                     other states and nations.''',
-                "sb_topics": []
-            },
-            {
-                "title": "Science",
-                "description": "",
-                "sb_topics": []
-            },
-            {
-                "title": "Agriculture",
-                "description": "",
-                "sb_topics": []
-            },
-            {
-                "title": "Health",
-                "description": "",
-                "sb_topics": []
-            },
-            {
-                "title": "Social",
-                "description": "",
-                "sb_topics": []
-            },
-            {
-                "title": "Environment",
-                "description": "",
-                "sb_topics": []
-            },
-            {
-                "title": "Defense",
-                "description": "",
-                "sb_topics": []
-            },
-            {
-                "title": "Space",
-                "description": "",
-                "sb_topics": []
-            }
-        ]
+            "sb_topics": []
+        },
+        {
+            "title": "Science",
+            "description": "",
+            "sb_topics": []
+        },
+        {
+            "title": "Agriculture",
+            "description": "",
+            "sb_topics": []
+        },
+        {
+            "title": "Health",
+            "description": "",
+            "sb_topics": []
+        },
+        {
+            "title": "Social",
+            "description": "",
+            "sb_topics": []
+        },
+        {
+            "title": "Environment",
+            "description": "",
+            "sb_topics": []
+        },
+        {
+            "title": "Defense",
+            "description": "",
+            "sb_topics": []
+        },
+        {
+            "title": "Space",
+            "description": "",
+            "sb_topics": []
+        }
+    ]
 
     def populate_topic_categories(self):
         for item in self.sb_categories:

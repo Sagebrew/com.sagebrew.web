@@ -1,26 +1,26 @@
 from uuid import uuid1
 from datetime import datetime
 import pytz
-
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
-
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty, ZeroOrOne)
+                      BooleanProperty, FloatProperty)
 
 from sb_relationships.neo_models import FriendRelationship
 from sb_wall.neo_models import SBWall
-from govtrack.neo_models import GTRole
+
 
 class PostObjectCreated(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+
 
 class School(StructuredNode):
     name = StringProperty()
     address = RelationshipTo("Address", "LOCATED_AT")
     established = DateTimeProperty()
     population = IntegerProperty()
+
 
 class Company(StructuredNode):
     name = StringProperty()
@@ -66,7 +66,6 @@ class ReceivedEducationRel(StructuredRel):
     awarded = StringProperty()
 
 
-
 class Pleb(StructuredNode):
     first_name = StringProperty()
     last_name = StringProperty()
@@ -82,22 +81,28 @@ class Pleb(StructuredNode):
 
     # Relationships
     home_town_address = RelationshipTo("Address", "GREW_UP_AT")
-    high_school = RelationshipTo("HighSchool", "ATTENDED", model=ReceivedEducationRel)
-    university = RelationshipTo("University", "ATTENDED", model=ReceivedEducationRel)
+    high_school = RelationshipTo("HighSchool", "ATTENDED",
+                                 model=ReceivedEducationRel)
+    university = RelationshipTo("University", "ATTENDED",
+                                model=ReceivedEducationRel)
     employer = RelationshipTo("Company", "WORKS_AT")
     address = RelationshipTo("Address", "LIVES_AT")
     topic_category = RelationshipTo("TopicCategory", "INTERESTED_IN")
     sb_topics = RelationshipTo("SBTopic", "INTERESTED_IN")
     friends = RelationshipTo("Pleb", "FRIENDS_WITH", model=FriendRelationship)
-    senator = RelationshipTo("GTRole", "HAS_SENATOR")
-    house_rep = RelationshipTo("GTRole", "HAS_REPRESENTATIVE")
-    posts = RelationshipTo('sb_posts.neo_models.SBPost', 'OWNS', model=PostObjectCreated)
-    comments = RelationshipTo('sb_comments.neo_models.SBComment', 'OWNS', model=PostObjectCreated)
+    senator = RelationshipTo("govtrack.neo_models.GTRole", "HAS_SENATOR")
+    house_rep = RelationshipTo("govtrack.neo_models.GTRole", "HAS_REPRESENTATIVE")
+    posts = RelationshipTo('sb_posts.neo_models.SBPost', 'OWNS',
+                           model=PostObjectCreated)
+    comments = RelationshipTo('sb_comments.neo_models.SBComment', 'OWNS',
+                              model=PostObjectCreated)
     wall = RelationshipTo('sb_wall.neo_models.SBWall', 'OWNS')
-    notifications = RelationshipTo('sb_notifications.neo_models.NotificationBase', 'RECIEVED_A')
-    friend_requests_sent = RelationshipTo('sb_relationships.neo_models.FriendRequest', 'SENT_A_REQUEST')
-    friend_requests_recieved = RelationshipTo('sb_relationships.neo_models.FriendRequest', 'RECIEVED_A_REQUEST')
-
+    notifications = RelationshipTo(
+        'sb_notifications.neo_models.NotificationBase', 'RECIEVED_A')
+    friend_requests_sent = RelationshipTo(
+        'sb_relationships.neo_models.FriendRequest', 'SENT_A_REQUEST')
+    friend_requests_recieved = RelationshipTo(
+        'sb_relationships.neo_models.FriendRequest', 'RECIEVED_A_REQUEST')
 
 
 class Address(StructuredNode):
@@ -127,16 +132,16 @@ class SBTopic(StructuredNode):
     description = StringProperty()
 
 
-
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        #fixes test fails due to ghost plebs
+        # fixes test fails due to ghost plebs
         if instance.email == "":
             return None
         try:
-            citizen = Pleb.index.get(email = instance.email)
+            citizen = Pleb.index.get(email=instance.email)
         except Pleb.DoesNotExist:
-            citizen = Pleb(email=instance.email, first_name=instance.first_name,
+            citizen = Pleb(email=instance.email,
+                           first_name=instance.first_name,
                            last_name=instance.last_name)
             citizen.save()
             wall = SBWall(wall_id=uuid1())
@@ -151,7 +156,7 @@ def create_user_profile(sender, instance, created, **kwargs):
         # TODO may not be necessary but if we update an email or something
         # we need to remember to update it in the pleb instance and the
         # default django instance.
-        #citizen.first_name = instance.firstname
+        # citizen.first_name = instance.firstname
         #citizen.last_name = instance.lastname
 
 

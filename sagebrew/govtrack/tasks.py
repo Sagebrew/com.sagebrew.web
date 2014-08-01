@@ -1,16 +1,19 @@
 from celery import shared_task
 from requests import get
 from datetime import datetime
+
 from .utils import create_gt_role
-from govtrack.neo_models import (GTPerson, GTRole, GTCommittee,
-                                GT_RCVotes, GTVoteOption, GTCongressNumbers)
+from govtrack.neo_models import (GTPerson, GTCommittee,
+                                 GT_RCVotes, GTVoteOption, GTCongressNumbers)
 
 
 @shared_task()
 def populate_gt_role(requesturl):
     '''
-    This function takes a url which can be converted into a .json file. It then converts
-    the json into a dict and creates and populates a GTRole object then saves it
+    This function takes a url which can be converted into a .json file. It
+    then converts
+    the json into a dict and creates and populates a GTRole object then
+    saves it
     to the neo4j server.
     '''
     role_request = get(requesturl)
@@ -21,7 +24,8 @@ def populate_gt_role(requesturl):
         print rep
         for number in rep['congress_numbers']:
             try:
-                my_congress_number = GTCongressNumbers.index.get(congress_number=number)
+                my_congress_number = GTCongressNumbers.index.get(
+                    congress_number=number)
             except GTCongressNumbers.DoesNotExist:
                 print number
                 my_congress_number = GTCongressNumbers()
@@ -37,8 +41,10 @@ def populate_gt_role(requesturl):
 @shared_task()
 def populate_gt_person(requesturl):
     '''
-    This function takes a url which can be converted into a .json file. It then converts
-    the json into a dict and creates and populates a GTPerson object then saves it to the
+    This function takes a url which can be converted into a .json file. It
+    then converts
+    the json into a dict and creates and populates a GTPerson object then
+    saves it to the
     neo4j server.
 
     Will eventually create relationships between GTPerson and GTRole.
@@ -60,8 +66,10 @@ def populate_gt_person(requesturl):
 @shared_task()
 def populate_gt_committee(requesturl):
     '''
-    This function takes a url which can be converted into a .json file. It then converts
-    the json into a dict and creates and populates a GTCommittee object then saves
+    This function takes a url which can be converted into a .json file. It
+    then converts
+    the json into a dict and creates and populates a GTCommittee object then
+    saves
     to the neo4j server.
 
     Will eventually create relationships between sub committees.
@@ -70,7 +78,7 @@ def populate_gt_committee(requesturl):
     committee_data_dict = committee_request.json()
     for committee in committee_data_dict['objects']:
         try:
-            my_committee = GTCommittee.index.get(committee_id = committee["id"])
+            my_committee = GTCommittee.index.get(committee_id=committee["id"])
         except GTCommittee.DoesNotExist:
             committee["committee_id"] = committee["id"]
             committee.pop("id", None)
@@ -82,9 +90,12 @@ def populate_gt_committee(requesturl):
 @shared_task()
 def populate_gt_votes(requesturl):
     '''
-    This function takes a url which can be converted into a .json file. It then converts
-    the json into a dict and creates and populates a GT_RCVotes object. It then also creates
-    multiple GTVoteOption objects which are related to the GT_RCVotes object that was created.
+    This function takes a url which can be converted into a .json file. It
+    then converts
+    the json into a dict and creates and populates a GT_RCVotes object. It
+    then also creates
+    multiple GTVoteOption objects which are related to the GT_RCVotes object
+    that was created.
     It also creates the relationship between the GT_RCVotes and GTVoteOption.
     '''
     vote_request = get(requesturl)
@@ -92,11 +103,12 @@ def populate_gt_votes(requesturl):
     my_votes = []
     for vote in vote_data_dict['objects']:
         try:
-            my_vote = GT_RCVotes.index.get(vote_id = vote["id"])
+            my_vote = GT_RCVotes.index.get(vote_id=vote["id"])
         except GT_RCVotes.DoesNotExist:
             for voteoption in vote['options']:
                 try:
-                    my_vote_option = GTVoteOption.index.get(option_id = voteoption["id"])
+                    my_vote_option = GTVoteOption.index.get(
+                        option_id=voteoption["id"])
                 except GTVoteOption.DoesNotExist:
                     vote["option_id"] = vote["id"]
                     vote.pop("id", None)
@@ -104,7 +116,7 @@ def populate_gt_votes(requesturl):
                     my_vote_option.save()
                     my_votes.append(my_vote_option)
             vote.pop("options", None)
-            vote["vote_id"] =vote["id"]
+            vote["vote_id"] = vote["id"]
             vote.pop("id", None)
             vote["category_one"] = vote["category"]
             vote.pop("category", None)

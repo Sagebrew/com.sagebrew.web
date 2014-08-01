@@ -1,35 +1,35 @@
-$( document ).ready(function() {
-    $("a.show_edit_comment_class").click(function(event){
-            var comment_id = $(this).data('comment_uuid');
-            $("#comment_divid_" + comment_id).fadeToggle();
-        });
+$(document).ready(function () {
+    $("a.show_edit_comment_class").click(function (event) {
+        var comment_id = $(this).data('comment_uuid');
+        $("#comment_divid_" + comment_id).fadeToggle();
+    });
 
-	$("a.edit_comment-action").click(function(event){
-		event.preventDefault();
-		$.ajaxSetup({
-		    beforeSend: function(xhr, settings) {
-				var csrftoken = $.cookie('csrftoken');
-		        if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
-		            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-		        }
-		    }
-		});
-	   	$.ajax({
-			xhrFields: {withCredentials: true},
-			type: "POST",
-			url: "/comments/edit_comment/",
-			data: JSON.stringify({
-			   'content':$('textarea#'+$(this).data('comment_uuid')).val(),
-			   'pleb': $(this).data('pleb'),
-               'comment_uuid': $(this).data('comment_uuid')
-			}),
-			contentType: "application/json; charset=utf-8",
-			dataType: "json",
-			success: function(data) {
-			   alert(data['here']);
-			}
-		});
-	});
+    $("a.edit_comment-action").click(function (event) {
+        event.preventDefault();
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                var csrftoken = $.cookie('csrftoken');
+                if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "POST",
+            url: "/comments/edit_comment/",
+            data: JSON.stringify({
+                'content': $('textarea#' + $(this).data('comment_uuid')).val(),
+                'pleb': $(this).data('pleb'),
+                'comment_uuid': $(this).data('comment_uuid')
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                alert(data['here']);
+            }
+        });
+    });
 });
 
 

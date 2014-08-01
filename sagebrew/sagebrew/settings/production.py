@@ -1,6 +1,5 @@
 # Django settings for automated_test_client project.
 from base import *
-from os import environ
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -35,16 +34,14 @@ AWS_UPLOAD_BUCKET_NAME = "sagebrew"
 AWS_UPLOAD_CLIENT_KEY = ""
 AWS_UPLOAD_CLIENT_SECRET_KEY = ""
 
-
 SECRET_KEY = "5fd&2wkqx8r!h2y1)j!izqi!982$p87)sred(5#x0mtqa^cbx)"
-
 
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'loggly': {
-            'format':'loggly: %(message)s',
+            'format': 'loggly: %(message)s',
         },
     },
     'handlers': {
@@ -61,14 +58,14 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False,
         },
-        'loggly_logs':{
+        'loggly_logs': {
             'handlers': ['logging.handlers.SysLogHandler'],
             'propagate': True,
-            'format':'loggly: %(message)s',
+            'format': 'loggly: %(message)s',
             'level': 'ERROR',
             'token': LOGGLY_TOKEN
         },
-                'django.request': {
+        'django.request': {
             'handlers': ['logging.handlers.SysLogHandler'],
             'level': 'ERROR',
             'propagate': False,

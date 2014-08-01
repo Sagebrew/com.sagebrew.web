@@ -1,6 +1,4 @@
-import pytz
 from uuid import uuid1
-from datetime import datetime
 
 from .neo_models import NotificationBase
 from sb_posts.neo_models import SBPost
@@ -10,12 +8,12 @@ from plebs.neo_models import Pleb
 
 def create_notification_post_util(data):
     try:
-        from_citizen = Pleb.index.get(email = data['from_pleb'])
-        to_citizen = Pleb.index.get(email = data['to_pleb'])
+        from_citizen = Pleb.index.get(email=data['from_pleb'])
+        to_citizen = Pleb.index.get(email=data['to_pleb'])
     except Pleb.DoesNotExist:
         return False
     try:
-        post = SBPost.index.get(post_id = data['post_id'])
+        post = SBPost.index.get(post_id=data['post_id'])
         data.pop('from_pleb', None)
         data.pop('to_pleb', None)
         data['notification_uuid'] = str(uuid1())
@@ -35,14 +33,15 @@ def create_notification_post_util(data):
         print "Notification not created!"
         return False
 
+
 def create_notification_comment_util(data):
     try:
-        from_citizen = Pleb.index.get(email = data['from_pleb'])
-        to_citizen = Pleb.index.get(email = data['to_pleb'])
+        from_citizen = Pleb.index.get(email=data['from_pleb'])
+        to_citizen = Pleb.index.get(email=data['to_pleb'])
     except Pleb.DoesNotExist:
         return False
     try:
-        comment = SBComment.index.get(comment_id = data['comment_id'])
+        comment = SBComment.index.get(comment_id=data['comment_id'])
         data.pop('from_pleb', None)
         data.pop('to_pleb', None)
         data['notification_uuid'] = str(uuid1())

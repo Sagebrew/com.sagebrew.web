@@ -1,7 +1,7 @@
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
-    FloatProperty, BooleanProperty, DateProperty, DateTimeProperty,
-    JSONProperty, AliasProperty, RelationshipTo, RelationshipFrom,
-    Relationship)
+                      BooleanProperty, DateTimeProperty,
+                      JSONProperty, RelationshipTo,
+                      Relationship)
 from uuid import uuid1
 from datetime import datetime
 import pytz
@@ -9,6 +9,7 @@ import pytz
 
 class GTCongressNumbers(StructuredNode):
     congress_number = IntegerProperty(unique_index=True)
+
 
 class GTPersonHistorical(StructuredNode):
     lastname = StringProperty()
@@ -43,10 +44,11 @@ class GTPerson(StructuredNode):
     twitterid = StringProperty(default="")
     youtubeid = StringProperty(default="")
 
-    #relationships
-    role = RelationshipTo('GTRole','HAS_A')
-    votes = RelationshipTo('GT_RCVotes','HAS_A')
-    committee = RelationshipTo('GTCommittee','IS_ON_A')
+    # relationships
+    role = RelationshipTo('GTRole', 'HAS_A')
+    votes = RelationshipTo('GT_RCVotes', 'HAS_A')
+    committee = RelationshipTo('GTCommittee', 'IS_ON_A')
+
 
 class GTRole(StructuredNode):
     current = BooleanProperty(index=True)
@@ -71,7 +73,6 @@ class GTRole(StructuredNode):
 
     person = Relationship('GTPerson', "IS")
     congress_numbers = Relationship('GTCongressNumbers', "PART_OF")
-
 
 
 class GTVoteOption(StructuredNode):
@@ -106,8 +107,8 @@ class GT_RCVotes(StructuredNode):
     total_plus = IntegerProperty()
     vote_type = StringProperty(default="")
 
-    #relationships
-    option = Relationship('GTVoteOption','HAS_A')
+    # relationships
+    option = Relationship('GTVoteOption', 'HAS_A')
 
 
 class GTCommittee(StructuredNode):
@@ -118,8 +119,8 @@ class GTCommittee(StructuredNode):
     role = StringProperty()
     role_label = StringProperty()
 
-    #relationships
-    committee = Relationship('GTCommittee','HAS_A_SUB')
+    # relationships
+    committee = Relationship('GTCommittee', 'HAS_A_SUB')
 
 
 

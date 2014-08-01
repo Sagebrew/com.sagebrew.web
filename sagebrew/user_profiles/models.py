@@ -19,19 +19,19 @@ from django.contrib.auth.models import User
 
 from model_utils.models import TimeStampedModel
 
-from localflavor.us.models import (PhoneNumberField)
 from allauth.socialaccount.models import SocialAccount
 
-#from plebs.models import Pleb
+# from plebs.models import Pleb
 
 def user_unicode_patch(self):
     name = self.get_full_name()
     username = self.username
     return name or username
 
+
 class Profile(TimeStampedModel):
     uuid = models.CharField(max_length=36, unique=True, blank=True, null=True,
-                             verbose_name="UUID")
+                            verbose_name="UUID")
     User.__unicode__ = user_unicode_patch
     user = models.OneToOneField(User, verbose_name="Profile")
 
@@ -42,7 +42,7 @@ class Profile(TimeStampedModel):
         ordering = ['user__last_name', 'user__first_name']
 
     def save(self, *args, **kwargs):
-        if(self.uuid == ""):
+        if (self.uuid == ""):
             self.uuid = str(uuid1())
         '''
         pleb = Pleb.objects.create(username=self.user.username,
@@ -64,12 +64,16 @@ class Profile(TimeStampedModel):
         return False
 
     def profile_image_url(self):
-        fb_uid = SocialAccount.objects.filter(user_id=self.user.id, provider='facebook')
+        fb_uid = SocialAccount.objects.filter(user_id=self.user.id,
+                                              provider='facebook')
 
         if len(fb_uid):
-            return "http://graph.facebook.com/{}/picture?width=40&height=40".format(fb_uid[0].uid)
+            return "http://graph.facebook.com/{" \
+                   "}/picture?width=40&height=40".format(
+                fb_uid[0].uid)
 
-        return "http://www.gravatar.com/avatar/{}?s=40".format(hashlib.md5(self.user.email).hexdigest())
+        return "http://www.gravatar.com/avatar/{}?s=40".format(
+            hashlib.md5(self.user.email).hexdigest())
 
 
 User.profile = property(lambda u: Profile.objects.get_or_create(user=u)[0])

@@ -16,6 +16,11 @@
                 {% endblock %}
             </div>
             <a class="btn btn-sm btn-primary show_notifications-action">Notifications</a>
+            <div id="notification_div" style="display:none">
+                {% block notification_divs %}
+                    {% include "notifications.html" %}
+                {% endblock %}
+            </div>
         {% endblock %}
 
         {% block friends %}
@@ -69,6 +74,7 @@
     <script src="{% static 'js/edit_comment.js' %}"></script>
     <script src="{% static 'js/send_friend_request.js' %}"></script>
     <script src="{% static 'js/send_notification.js' %}"></script>
+    <script src="{% static 'js/show_notifications.js' %}"></script>
     <script src="{% static 'js/show_friend_request.js' %}"></script>
     <script src="{% static 'js/respond_friend_request.js' %}"></script>
 {% endblock scripts %}

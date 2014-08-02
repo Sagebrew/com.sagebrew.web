@@ -1,6 +1,7 @@
 from uuid import uuid1
 from celery import shared_task
 
+from sb_notifications.tasks import create_notification_comment_task
 from api.utils import spawn_task
 from .utils import (create_upvote_comment_util, create_downvote_comment_util,
                     save_comment_post, edit_comment_util)
@@ -88,8 +89,14 @@ def submit_comment_on_post(content="", pleb="", post_uuid=str(uuid1())):
     '''
     my_comment = save_comment_post(content, pleb, post_uuid)
     if my_comment is not None:
-        # spawn_task(task_name=prepare_notification_data,
-        # task_param=my_comment)
+        from_pleb_email = my_comment.traverse('is_owned_by').run()[0].email
+        post = my_comment.traverse('commented_on_post').run()[0]
+        to_pleb_email = post.traverse('owned_by').run()[0].email
+        data = {'from_pleb': from_pleb_email, 'to_pleb': to_pleb_email,
+                'comment_on': 'post', 'comment_on_id': post.post_id,
+                'comment_uuid': my_comment.comment_id}
+        spawn_task(task_func=create_notification_comment_task,
+        task_param=data)
         return True
     else:
         return False

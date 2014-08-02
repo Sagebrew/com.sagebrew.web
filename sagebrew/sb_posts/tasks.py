@@ -1,6 +1,7 @@
 from uuid import uuid1
 from celery import shared_task
 
+from sb_notifications.tasks import create_notification_post_task
 from api.utils import spawn_task
 from .neo_models import SBPost
 from plebs.neo_models import Pleb
@@ -106,7 +107,10 @@ def save_post_task(content="", current_pleb="", wall_pleb="",
     my_post = save_post(post_uuid=post_uuid, content=content,
                         current_pleb=current_pleb, wall_pleb=wall_pleb)
     if my_post is not None:
-        #prepare_post_notification_data.apply_async([my_post,])
+        notification_data={'post_uuid': my_post.post_id,
+                           'from_pleb':current_pleb, 'to_pleb': wall_pleb}
+        spawn_task(task_func=create_notification_post_task,
+                   task_param=notification_data)
         return True
     else:
         return False

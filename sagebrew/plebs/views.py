@@ -47,10 +47,14 @@ def profile_page(request, pleb_email):
     # address = citizen.traverse('address').run()[0]
     #sen_array = determine_senators(address)
     #rep_array = determine_reps(address)
-    post_data = {'email': citizen.email}
+    post_data = {'email': citizen.email, 'range_end': 5,
+                 'range_start': 0}
     headers = {'content-type': 'application/json'}
     user_posts = post_to_api(reverse('get_user_posts'), post_data, headers)
-
+    notification_data = {'email': citizen.email, 'range_end': 5,
+                         'range_start': 0}
+    notifications = post_to_api(reverse('get_notifications'),
+                                notification_data, headers=headers)
     return render(request, 'profile_page.html', {
         'pleb_info': citizen,
         'current_user': current_user.email,
@@ -58,8 +62,7 @@ def profile_page(request, pleb_email):
         #'senator_names': sen_array,
         #'rep_name': rep_array,
         'user_posts': user_posts,
-        #'user_notifications': user_notifications,
-        #'user_friend_requests': user_friend_requests,
+        'notifications': notifications,
         'is_owner': is_owner,
         'is_friend': is_friend,
         'friends_list': friends_list,

@@ -1,9 +1,14 @@
 {% load i18n %}
 {% load staticfiles %}
-{% for notification in user_notifications %}
+<div>Notifications:</div>
 
+{% for notification in notifications %}
+    {% if notification.notification_about == "post" %}
+        <a class="btn btn-sm btn-primary">{{ notification.from_user }} posted on your wall!</a>
+    {% endif %}
+    {% if notification.notification_about == "comment" %}
+        <a class="btn btn-sm btn-primary">{{ notification.from_user }} commented on a post!</a>
+    {% endif %}
 {% endfor %}
-{% block notifications %}
-    {% include "notifications.html" %}
-    {% include "friend_requests.html" %}
-{% endblock %}
+
+<a class="btn btn-sm btn-primary">See all notifications</a>

@@ -18,7 +18,7 @@ def get_post_comments(post_info):
     post_array = []
     for post in post_info:
         post_comments = post.traverse('comments').where('to_be_deleted', '=',
-                                                        False).run()
+            False).order_by('created_on').run()
         post_owner = post.traverse('owned_by').run()[0]
         for comment in post_comments:
             comment_owner = comment.traverse('is_owned_by').run()[0]

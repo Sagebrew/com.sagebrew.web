@@ -1,37 +1,40 @@
+from uuid import uuid1
 from celery import shared_task
 
+from sb_posts.neo_models import SBPost
+from api.utils import spawn_task
 from .utils import (create_notification_post_util,
                     create_notification_comment_util)
 
 
 @shared_task()
-def prepare_post_notification_data(instance):
-    try:
-        from_pleb = instance.traverse('owned_by').run()[0]
-        from_pleb_email = from_pleb.email
-        to_wall = instance.traverse('posted_on_wall').run()[0]
-        to_pleb = to_wall.traverse('owner').run()[0]
-        to_pleb_email = to_pleb.email
-        data = {'post_id': instance.post_id, 'from_pleb': from_pleb_email,
-                'to_pleb': to_pleb_email}
-        create_notification_post_task.apply_async([data, ])
-    except:
-        print "post not ready yet, retrying"
-        prepare_post_notification_data.apply_async([instance, ], countdown=3)
+def create_notification_post_task(post_uuid=str(uuid1()), from_pleb="",
+                                  to_pleb=""):
+    '''
+    This task attempts to create a notification, if it fails it returns True
 
-
-@shared_task()
-def create_notification_post_task(data):
-    if create_notification_post_util(data):
-        print "Notification created"
+    if it fails it spawns another one of itself and tries again
+    :param data:
+    :return:
+    '''
+    if create_notification_post_util(post_uuid, from_pleb, to_pleb):
         return True
     else:
+        data={'post_uuid': post_uuid, 'from_pleb': from_pleb,
+              'to_pleb': to_pleb}
+        spawn_task(task_func=create_notification_post_task, task_param=data)
         return False
 
 
 @shared_task()
-def create_notification_comment_task(data):
-    if create_notification_comment_util(data):
+def create_notification_comment_task(from_pleb="", to_pleb="", comment_on="",
+                                     comment_on_id="", comment_uuid=str(uuid1())):
+    if create_notification_comment_util(from_pleb, to_pleb, comment_uuid,
+                                        comment_on, comment_on_id):
         return True
     else:
+        data = {'from_pleb': from_pleb, 'to_pleb': to_pleb,
+                'comment_on': comment_on, 'comment_on_id': comment_on_id,
+                'comment_uuid': comment_uuid}
+        spawn_task(task_func=create_notification_comment_task, task_param=data)
         return False

@@ -14,6 +14,7 @@ class CommentedOnRel(StructuredRel):
 class SBComment(StructuredNode):
     content = StringProperty()
     comment_id = StringProperty(unique_index=True)
+    created_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     up_vote_number = IntegerProperty(default=0)
     down_vote_number = IntegerProperty(default=0)
     last_edited_on = DateTimeProperty(default=None)

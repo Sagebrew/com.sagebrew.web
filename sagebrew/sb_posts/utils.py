@@ -6,7 +6,7 @@ from sb_comments.utils import get_post_comments
 from .neo_models import SBPost
 
 
-def get_pleb_posts(pleb_object):
+def get_pleb_posts(pleb_object, range_end, range_start):
     '''
     Gets all the posts which are attached to the page users wall aswell as the
     comments associated with the posts
@@ -18,7 +18,8 @@ def get_pleb_posts(pleb_object):
     try:
         pleb_wall = pleb_object.traverse('wall').run()[0]
         pleb_posts = pleb_wall.traverse('post').where('to_be_deleted', '=',
-                                                      False).run()
+            False).order_by_desc('date_created').skip(range_start).limit(
+            range_end).run()
         return get_post_comments(pleb_posts)
     except:
         print "failed to retrieve posts"

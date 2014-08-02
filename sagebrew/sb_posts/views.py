@@ -14,7 +14,9 @@ from plebs.neo_models import Pleb
 from .neo_models import SBPost
 from .tasks import save_post_task, edit_post_info_task
 from .utils import (get_pleb_posts, create_post_vote)
-from .forms import SavePostForm, EditPostForm, DeletePostForm, VotePostForm
+from .forms import (SavePostForm, EditPostForm, DeletePostForm, VotePostForm,
+                    GetPostForm)
+
 
 
 logger = logging.getLogger('loggly_logs')
@@ -59,9 +61,15 @@ def get_user_posts(request):
     :param request:
     :return:
     '''
-    citizen = Pleb.index.get(email=request.DATA['email'])
-    posts = get_pleb_posts(citizen)
-    return Response(posts, status=200)
+    post_data = get_post_data(request)
+    post_form = GetPostForm(post_data)
+    if post_form.is_valid():
+        citizen = Pleb.index.get(email=post_form.cleaned_data['email'])
+        posts = get_pleb_posts(citizen, post_form.cleaned_data['range_end'],
+                           post_form.cleaned_data['range_start'])
+        return Response(posts, status=200)
+    else:
+        return Response(status=400)
 
 
 # TODO Only allow users to edit their comment, unless they have admin status

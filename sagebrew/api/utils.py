@@ -64,7 +64,6 @@ def check_oauth_expires_in(oauth_client):
 
 def get_oauth_access_token():
     oauth_client = get_oauth_client()
-    print oauth_client
     if check_oauth_expires_in(oauth_client):
         return refresh_oauth_access_token(oauth_client)['access_token']
     return oauth_client['access_token']

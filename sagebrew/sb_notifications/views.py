@@ -14,10 +14,12 @@ from api.utils import get_post_data
 
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def create_notification(request):
     pass
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def get_notifications(request):
     citizen = Pleb.index.get(email = request.DATA['email'])
     notifications = citizen.traverse('notifications').where('seen', '=', False).run()

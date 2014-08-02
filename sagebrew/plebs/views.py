@@ -1,16 +1,9 @@
-import os
-import hashlib
-from json import dumps
-
-from django.conf import settings
-from uuid import uuid1
-from requests import post as request_post
+from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
 from django.contrib.auth.models import User
 
+from api.utils import post_to_api
 from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
 
 from sb_registration.utils import (determine_senators, determine_reps, get_friends)
@@ -50,9 +43,7 @@ def profile_page(request, pleb_email):
     #rep_array = determine_reps(address)
     post_data = {'email': citizen.email}
     headers = {'content-type': 'application/json'}
-    post_req = request_post('https://192.168.56.101/posts/query_posts/',
-                            data=dumps(post_data), verify=False, headers=headers)
-    user_posts = post_req.json()
+    user_posts = post_to_api(reverse('get_user_posts'), post_data, headers)
 
     return render(request, 'profile_page.html', {
                                                  'pleb_info': citizen,

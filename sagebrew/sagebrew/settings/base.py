@@ -26,7 +26,7 @@ MANAGERS = ADMINS
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
 # In a Windows environment this must be set to your system time zone.
-TIME_ZONE = 'America/New_York'
+TIME_ZONE = 'UTC'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -122,6 +122,8 @@ AUTHENTICATION_BACKENDS = (
     "allauth.account.auth_backends.AuthenticationBackend",
 )
 
+
+
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates"
     # or "C:/www/django/templates".
@@ -174,6 +176,7 @@ INSTALLED_APPS = (
     'sb_registration',
     'sb_comments',
     'sb_posts',
+    'sb_wall',
     'sb_notifications',
     'sb_relationships',
     'sb_garbage',
@@ -218,7 +221,10 @@ OAUTH_DELETE_EXPIRED = True
 
 CELERY_DISABLE_RATE_LIMITS = True
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
-CELERY_IMPORTS = ('api.tasks', 'govtrack.tasks', 'sb_comments.tasks')
+CELERY_IMPORTS = ('api.tasks', 'govtrack.tasks', 'sb_comments.tasks',
+                  'sb_garbage.tasks', 'sb_posts.tasks', 'sb_notifications.tasks',
+                  'sb_relationships.tasks'
+)
 BROKER_URL = 'amqp://sagebrew:this_is_the_sagebrew_password@localhost:5672//'
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
@@ -227,13 +233,14 @@ CELERY_IGNORE_RESULT = False
 CELERYBEAT_SCHEDULE = {
     'empty-garbage-can-minute':{
         'task': 'sb_garbage.tasks.empty_garbage_can',
-        'schedule': crontab(),
-        'args': (),
+        'schedule': timedelta(minutes=1),
     }
 }
 CELERY_TIMEZONE = 'UTC'
 
 BOMBERMAN_API_KEY = '6a224aea0ecb3601ae9197c5762aef56'
+
+LOGGLY_TOKEN = "4befe913-b753-4823-a844-193a41779000"
 
 CSV_FILES = '%s/csv_content/' % PROJECT_DIR
 
@@ -242,33 +249,11 @@ if not path.exists(TEMP_FILES):
     makedirs(TEMP_FILES)
 
 import djcelery
-import iron_celery
+
 
 djcelery.setup_loader()
 
-# A sample logging configuration. The only tangible logging
-# performed by this configuration is to send an email to
-# the site admins on every HTTP 500 error when DEBUG=False.
-# See http://docs.djangoproject.com/en/dev/topics/logging for
-# more details on how to customize your logging configuration.
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {'()': 'django.utils.log.RequireDebugFalse'},
-    },
-    'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        }
-    },
-    'loggers': {
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-    }
-}
+# TODO When doing load testing and beta testing ensure that LOGGING of DB is on
+# and at w/e level we need to check response times. We might be able to
+# determine it from new relic but we should check into that prior to moving
+# forward

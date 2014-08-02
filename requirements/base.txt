@@ -11,3 +11,4 @@ django-guardian
 django-haystack
 neomodel
 sendgrid-django
+bomberman-python

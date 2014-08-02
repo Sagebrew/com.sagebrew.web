@@ -1,5 +1,5 @@
 $( document ).ready(function() {
-    $("a.show_edit_comment_class").click(function(event){
+    $("a.show_edit_comment_class").click(function(){
             var comment_id = $(this).data('comment_uuid');
             $("#comment_divid_" + comment_id).fadeToggle();
         });
@@ -24,10 +24,7 @@ $( document ).ready(function() {
                'comment_uuid': $(this).data('comment_uuid')
 			}),
 			contentType: "application/json; charset=utf-8",
-			dataType: "json",
-			success: function(data) {
-			   alert(data['here']);
-			}
+			dataType: "json"
 		});
 	});
 });

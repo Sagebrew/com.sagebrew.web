@@ -23,27 +23,29 @@ def get_pleb_posts(pleb_object):
         print "failed to retrieve posts"
         return {"details": "You have no posts!"}
 
-def save_post(post_id=str(uuid1()),content="",current_pleb="",wall_pleb=""):
+def save_post(post_uuid=str(uuid1()),content="",current_pleb="",wall_pleb=""):
     '''
     saves a post and creates the relationships between the wall
     and the poster of the comment
 
 
     :param post_info:
-                    post_id: str(uuid)
-                    content: ""
-                    current_pleb: email  (string)
-                    wall_pleb: email  (string)
-    :return: if post exists returns None
-    else returns SBPost object
+                    post_info = {
+                        'content': "this is a post",
+                        'current_pleb': "tyler.wiersing@gmail.com",
+                        'wall_pleb': "devon@sagebrew.com",
+                        'post_uuid': str(uuid1())
+                    }
+    :return:
+            if post exists returns None
+            else returns SBPost object
     '''
     try:
-        test_post = SBPost.index.get(post_id = post_id)
-        return None
+        test_post = SBPost.index.get(post_id = post_uuid)
     except SBPost.DoesNotExist:
         poster = Pleb.index.get(email = current_pleb)
         my_citizen = Pleb.index.get(email = wall_pleb)
-        my_post = SBPost(content=content,post_id=post_id)
+        my_post = SBPost(content=content,post_id=post_uuid)
         my_post.save()
         wall = my_citizen.traverse('wall').run()[0]
         my_post.posted_on_wall.connect(wall)
@@ -52,31 +54,51 @@ def save_post(post_id=str(uuid1()),content="",current_pleb="",wall_pleb=""):
         rel.save()
         rel_from_pleb = poster.posts.connect(my_post)
         rel_from_pleb.save()
-        print "post created"
         return my_post
-    except SBPost.ValueError:
+    except ValueError:
         return None
-    #determine who posted/shared/...
 
-def edit_post_info(content="", post_id=str(uuid1())):
+def edit_post_info(content="", post_uuid=str(uuid1()), last_edited_on=None, current_pleb=None):
     '''
     changes the content of the post linked to the id passed to the function
     to the content which was passed
 
     :param post_info:
-                    content: ""
-                    post_uuid = str(uuid)
+                post_info{
+                    content: "test post",
+                    post_uuid: str(uuid)[:36],
+                    last_edited_on: datetime.now(pytz.utc),
+                    current_pleb: 'fake_email@gmail.com',
+                }
     :return:
     '''
+    #TODO create a function to determine if the object will be edited
     try:
-        my_post = SBPost.index.get(post_id = post_id)
+        my_post = SBPost.index.get(post_id=post_uuid)
+        if my_post.to_be_deleted:
+            return {'post': my_post, 'detail': 'to be deleted'}
+
+        if my_post.content == content:
+            return {'post': my_post, 'detail': 'content is the same'}
+
+        if my_post.last_edited_on == last_edited_on:
+            return {
+                'post': my_post,
+                'detail': 'time stamp is the same'
+            }
+        try:
+            if my_post.last_edited_on > last_edited_on:
+                return {'post': my_post, 'detail': 'last edit more recent'}
+        except TypeError:
+            pass
+
+
         my_post.content = content
-        my_post.last_edited_on = datetime.now(pytz.utc)
+        my_post.last_edited_on = last_edited_on
         my_post.save()
-        print 'post edited:', my_post.content
-        return my_post
+        return {'post': my_post.post_id, 'detail': 'post edited'}
     except SBPost.DoesNotExist:
-        return False
+        return {'detail': 'post does not exist yet'}
 
 def delete_post_info(post_id=str(uuid1())):
     '''
@@ -92,7 +114,6 @@ def delete_post_info(post_id=str(uuid1())):
         for comment in post_comments:
             comment.delete()
         my_post.delete()
-        print 'post and comments deleted'
         return True
     except SBPost.DoesNotExist:
         return False
@@ -104,8 +125,8 @@ def create_post_vote(pleb="", post_uuid=str(uuid1()), vote_type=""):
     the vote and creates it, if not it does not allow.
 
     :param post_info:
-                    pleb = "" email
-                    post_uuid = str(uuid)
+                    pleb = "tyler.wiersing@gmail.com"
+                    post_uuid = str(uuid1())
                     vote_type = "" up/down
     :return:
     '''
@@ -114,12 +135,10 @@ def create_post_vote(pleb="", post_uuid=str(uuid1()), vote_type=""):
     my_pleb = Pleb.index.get(email = pleb)
     my_post = SBPost.index.get(post_id = post_uuid)
     if my_post.up_voted_by.is_connected(my_pleb) or my_post.down_voted_by.is_connected(my_pleb):
-        print "You have voted already!"
+        return
     else:
         if vote_type == 'up':
             create_upvote_post.apply_async(args=[post_uuid,pleb])
-            print "Thanks for voting!"
         elif vote_type =='down':
             create_downvote_post.apply_async(args=[post_uuid,pleb])
-            print "Thanks for voting!"
 

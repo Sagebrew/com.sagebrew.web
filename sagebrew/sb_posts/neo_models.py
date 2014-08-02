@@ -22,6 +22,7 @@ class SBBase(StructuredNode):
     down_vote_number = IntegerProperty(default=0)
     last_edited_on = DateTimeProperty(default=None)
     to_be_deleted = BooleanProperty(default=False)
+    delete_time = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
     # relationships
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'OWNED_BY',

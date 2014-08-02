@@ -206,7 +206,9 @@ def profile_picture(request):
             with open(temp_file, 'wb+') as destination:
                 for chunk in data.chunks():
                     destination.write(chunk)
-            citizen.profile_pic = upload_image('profile_pictures', image_uuid)
+            citizen.profile_pic = upload_image(settings.AWS_PROFILE_PICTURE_FOLDER_NAME,
+                                               image_uuid)
+            citizen.profile_pic_uuid = image_uuid
             citizen.save()
             return redirect('profile_page', pleb_email=citizen.email)  #
             # citizen.first_name+'_'+citizen.last_name)

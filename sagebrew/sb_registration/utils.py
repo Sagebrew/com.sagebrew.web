@@ -184,19 +184,27 @@ def upload_image(folder_name, file_uuid):
     :return:
     '''
     file_path = '%s%s.%s' % (settings.TEMP_FILES, file_uuid, 'jpeg')
-    print file_path
 
-    bucket = settings.AWS_UPLOAD_BUCKET_NAME
-    conn = connect_s3(settings.AWS_UPLOAD_CLIENT_KEY,
-                      settings.AWS_UPLOAD_CLIENT_SECRET_KEY)
+    bucket = settings.AWS_BUCKET_NAME
+    conn = connect_s3(settings.AWS_ACCESS_KEY_ID,
+                      settings.AWS_SECRET_ACCESS_KEY)
     k = Key(conn.get_bucket(bucket))
     key_string = "%s/%s.%s" % (folder_name, file_uuid, "jpeg")
     k.key = key_string
     k.set_contents_from_filename(file_path)
-    k.make_public()
-    image_uri = k.generate_url(expires_in=100000)
+    image_uri = k.generate_url(expires_in=259200)
     os.remove(file_path)
-    print "finished upload"
+    return image_uri
+
+def generate_profile_pic_url(image_uuid):
+    bucket = settings.AWS_BUCKET_NAME
+    conn = connect_s3(settings.AWS_ACCESS_KEY_ID,
+                      settings.AWS_SECRET_ACCESS_KEY)
+    k = Key(conn.get_bucket(bucket))
+    key_string = "%s/%s.%s" % (settings.AWS_PROFILE_PICTURE_FOLDER_NAME,
+                               image_uuid, "jpeg")
+    k.key = key_string
+    image_uri = k.generate_url(expires_in=259200)
     return image_uri
 
 

@@ -1,4 +1,6 @@
+import pytz
 from uuid import uuid1
+from datetime import datetime
 
 from api.utils import spawn_task
 from plebs.neo_models import Pleb
@@ -131,11 +133,14 @@ def delete_post_info(post_id=str(uuid1())):
     '''
     try:
         my_post = SBPost.index.get(post_id=post_id)
-        post_comments = my_post.traverse('comments')
-        for comment in post_comments:
-            comment.delete()
-        my_post.delete()
-        return True
+        if datetime.now(pytz.utc).day - my_post.delete_time.day >=1:
+            post_comments = my_post.traverse('comments')
+            for comment in post_comments:
+                comment.delete()
+            my_post.delete()
+            return True
+        else:
+            return True
     except SBPost.DoesNotExist:
         return False
 

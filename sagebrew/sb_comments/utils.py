@@ -1,4 +1,6 @@
+import pytz
 from uuid import uuid1
+from datetime import datetime
 
 from .neo_models import SBComment
 from sb_posts.neo_models import SBPost
@@ -168,8 +170,10 @@ def delete_comment_util(comment_uuid=str(uuid1())):
     '''
     try:
         my_comment = SBComment.index.get(comment_id=comment_uuid)
-        my_comment.delete()
-        return True
+        if datetime.now(pytz.utc).day - my_comment.delete_time.day >= 1:
+            my_comment.delete()
+            return True
+        else:
+            return True
     except SBComment.DoesNotExist:
         return False
-

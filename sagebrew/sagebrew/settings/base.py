@@ -164,7 +164,6 @@ INSTALLED_APPS = (
     'guardian',
     'address',
     'plebs',
-    'notifications',
     'user_profiles',
     'api',
     'govtrack',
@@ -200,6 +199,8 @@ ANONYMOUS_USER_ID = -1
 
 LOGIN_REDIRECT_URL = '/registration/profile_information/'
 EMAIL_USE_TLS = True
+CSRF_COOKIE_HTTPONLY = True
+SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 ADMIN_HONEYPOT_EMAIL_ADMINS = False

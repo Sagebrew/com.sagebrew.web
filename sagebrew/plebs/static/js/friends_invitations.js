@@ -18,10 +18,7 @@ $(document).ready(function () {
                 'friend_uid': $(this).data('friendid')
             }),
             contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data) {
-                alert(data['here']);
-            }
+            dataType: "json"
         });
     });
 });

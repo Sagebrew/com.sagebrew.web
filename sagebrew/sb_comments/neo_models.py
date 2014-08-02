@@ -1,6 +1,6 @@
 import pytz
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
@@ -19,6 +19,7 @@ class SBComment(StructuredNode):
     down_vote_number = IntegerProperty(default=0)
     last_edited_on = DateTimeProperty(default=None)
     to_be_deleted = BooleanProperty(default=False)
+    delete_time = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
     # relationships
     up_voted_by = RelationshipTo('plebs.neo_models.Pleb', 'UP_VOTED_BY')

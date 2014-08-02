@@ -229,7 +229,7 @@ CELERY_IGNORE_RESULT = False
 CELERYBEAT_SCHEDULE = {
     'empty-garbage-can-minute': {
         'task': 'sb_garbage.tasks.empty_garbage_can',
-        'schedule': timedelta(minutes=1),
+        'schedule': timedelta(minutes=30),
     }
 }
 CELERY_TIMEZONE = 'UTC'

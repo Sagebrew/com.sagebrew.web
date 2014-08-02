@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 from api.utils import post_to_api
 from plebs.neo_models import Pleb
-from sb_registration.utils import (get_friends)
+from sb_registration.utils import (get_friends, generate_profile_pic_url)
 
 
 @login_required()
@@ -55,6 +55,8 @@ def profile_page(request, pleb_email):
                          'range_start': 0}
     notifications = post_to_api(reverse('get_notifications'),
                                 notification_data, headers=headers)
+    citizen.profile_pic = generate_profile_pic_url(citizen.profile_pic_uuid)
+    citizen.save()
     return render(request, 'profile_page.html', {
         'pleb_info': citizen,
         'current_user': current_user.email,

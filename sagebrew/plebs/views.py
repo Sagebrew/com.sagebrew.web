@@ -55,6 +55,8 @@ def profile_page(request, pleb_email):
                          'range_start': 0}
     notifications = post_to_api(reverse('get_notifications'),
                                 notification_data, headers=headers)
+    #citizen.profile_pic = generate_profile_pic_url(citizen.profile_pic_uuid)
+    #citizen.save()
     return render(request, 'profile_page.html', {
         'pleb_info': citizen,
         'current_user': current_user.email,
@@ -67,4 +69,3 @@ def profile_page(request, pleb_email):
         'is_friend': is_friend,
         'friends_list': friends_list,
     })
-

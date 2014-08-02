@@ -239,4 +239,3 @@ class ProfilePageTest(TestCase):
 # TODO test friend user, registered non-friend user getting the correct page
 
 
-

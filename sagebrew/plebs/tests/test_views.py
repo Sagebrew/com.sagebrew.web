@@ -10,6 +10,7 @@ from plebs.views import profile_page
 
 
 class ProfilePageTest(TestCase):
+    fixtures = ["sagebrew/fixtures/initial_data.json"]
     def setUp(self):
         self.email = 'devon@sagebrew.com'
         try:

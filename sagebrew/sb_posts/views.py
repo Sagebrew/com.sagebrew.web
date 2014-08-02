@@ -33,7 +33,7 @@ def save_post_view(request):
     '''
     try:
         post_data = get_post_data(request)
-        if (type(post_data) != dict):
+        if type(post_data) != dict:
             return Response({"details": "Please Provide a JSON Object"},
                             status=400)
         post_form = SavePostForm(post_data)

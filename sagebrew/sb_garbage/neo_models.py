@@ -13,4 +13,3 @@ class SBGarbageCan(StructuredNode):
     answers = RelationshipTo('sb_posts.neo_models.SBPost', 'delete_answer')
     notifications = RelationshipTo(
         'sb_notifications.neo_models.NotificationBase', 'delete_notification')
-

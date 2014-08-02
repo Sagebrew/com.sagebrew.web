@@ -1,55 +1,43 @@
 #logo {
-    color: #e4eee5;
-    text-align: left;
-    margin-top: 0;
-    margin-left: .75em
+        color: #e4eee5;
+        text-align: left;
+        margin-top: 0;
+        margin-left: .30em
 }
 
 .form-control.flat {
-    border-color: transparent;
-    text-align: left;
+  border-color: transparent;
+  text-align: left;
 }
 
 .form-control.flat:hover {
-    border-color: #bdc3c7;
+  border-color: #bdc3c7;
 }
 
 .form-control.flat:focus {
-    border-color: #1abc9c;
+  border-color: #1abc9c;
 }
 
-.sb_navbar {
+#sb_navbar {
     background-color: #1ba39c;
     min-height: 0;
     height: 80px;
 }
-
-#sb_nav_wrapper {
-    background-color: #1ba39c;
-}
-
 .navbar-nav .navbar-form.navbar-left, .navbar-form.navbar-right:last-child {
-    width: auto;
-    background-color: #1ba39c;
-    border-color: #1ba39c;
-}
-
-.navbar-nav .navbar-form.navbar-left, .navbar-form.navbar-right:last-child {
-    width: auto;
+    width:auto;
     background-color: #1ba39c;
     border-color: #1ba39c;
 }
 
 .navbar-form .form-control {
-    display: inline;
+    display:inline;
 }
 
-.sb-btn-login {
+.sb-btn-login{
     color: #1ba39c;
     background-color: #e4eee5;
     font-weight: bolder;
 }
-
 .sb-btn-primary {
     margin-top: 1em;
 }
@@ -64,21 +52,21 @@ h2, .sb-title {
 
 /*sign up input */
 
+
 #sb_input {
     margin: auto;
     width: 400px;
-    display: block;
+    display:block;
     position: relative;
     margin-left: -20%;
 }
 
 .btn-primary {
-    color: #ffffff;
-    background-color: #1ba39c;
-    font-weight: bolder;
-    margin-top: 15px;
+  color: #ffffff;
+  background-color: #1ba39c;
+  font-weight: bolder;
+  margin-top: 15px;
 }
-
 .btn-primary:hover {
     color: #1ba39c;
     background-color: #ffffff;
@@ -86,10 +74,10 @@ h2, .sb-title {
 
 /*facebook sign in */
 .btn-social-facebook {
-    color: #ffffff;
-    background-color: #2f4b93;;
-    margin-top: 8px;;
-    margin-bottom: 2em;
+  color: #ffffff;
+  background-color: #2f4b93;;
+  margin-top: 8px;;
+  margin-bottom: 2em;
 }
 
 .btn-social-facebook:hover,
@@ -98,7 +86,6 @@ h2, .sb-title {
     background-color: #ffffff;
     border-color: #bdc3c7;
 }
-
 .btn-social-facebook.active {
     background-color: #1ba39c;
 }
@@ -113,31 +100,18 @@ h2, .sb-title {
     margin-bottom: auto;
     padding-top: 2em;
 }
-
 .sb-bottom-links {
     color: #7c7e80;
 }
-
 .sb-background {
     position: absolute;
     width: auto;
-    background-size: cover;
+    background-size: cover ;
     min-width: 100%;
     max-height: 100%;
-    padding-left: 0px;
-    padding-right: 0px;
+
 }
 
-/*
-.jumbotron {
-  position: absolute;
-  padding-top: 0px;
-  padding-right: 0px;
-  padding-bottom: 0px;
-  padding-left: 0px;
-  min-width: 100%;
-}
-*/
 .container-fluid {
     right: -30px;
 }

@@ -38,7 +38,7 @@ def save_post_view(request):
                             status=400)
         post_form = SavePostForm(post_data)
         if post_form.is_valid():
-            # post_data['content'] = language_filter(post_data['content'])
+            #post_data['content'] = language_filter(post_data['content'])
             post_form.cleaned_data['post_uuid'] = str(uuid1())
             spawn_task(task_func=save_post_task,
                        task_param=post_form.cleaned_data)

@@ -79,7 +79,7 @@ class TestNotificationViews(TestCase):
         response = get_notifications(request)
 
         self.assertEqual(response.status_code, 400)
-        
+
     def test_get_notification_view_image_data(self):
         with open("/home/apps/sagebrew/sb_posts/"
                   "tests/images/test_image.jpg", "rb") as image_file:

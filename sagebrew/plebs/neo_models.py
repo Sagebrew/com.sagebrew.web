@@ -79,6 +79,9 @@ class Pleb(StructuredNode):
     completed_profile_info = BooleanProperty(default=False)
     home_town = StringProperty()
     reputation = IntegerProperty(default=0)
+    is_rep = BooleanProperty(default=False)
+    is_admin = BooleanProperty(default=False)
+    is_sage = BooleanProperty(default=False)
 
     # Relationships
     home_town_address = RelationshipTo("Address", "GREW_UP_AT")

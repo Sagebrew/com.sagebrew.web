@@ -92,7 +92,7 @@ def edit_post(request):
     '''
     try:
         post_data = get_post_data(request)
-        if (type(post_data) != dict):
+        if type(post_data) != dict:
             return Response({"details": "Please Provide a JSON Object"},
                             status=400)
         try:
@@ -129,7 +129,7 @@ def delete_post(request):
     '''
     try:
         post_data = get_post_data(request)
-        if (type(post_data) != dict):
+        if type(post_data) != dict:
             return Response({"details": "Please Provide a JSON Object"},
                             status=400)
         post_form = DeletePostForm(post_data)
@@ -155,7 +155,7 @@ def vote_post(request):
     '''
     try:
         post_data = get_post_data(request)
-        if (type(post_data) != dict):
+        if type(post_data) != dict:
             return Response({"details": "Please Provide a JSON Object"},
                             status=400)
         post_form = VotePostForm(post_data)

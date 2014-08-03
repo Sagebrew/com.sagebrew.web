@@ -162,9 +162,7 @@ INSTALLED_APPS = (
     'photologue',
     'sortedm2m',
     'guardian',
-    'address',
     'plebs',
-    'user_profiles',
     'api',
     'govtrack',
     'neomodel',
@@ -176,6 +174,7 @@ INSTALLED_APPS = (
     'sb_relationships',
     'sb_garbage',
 )
+
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "optional"
@@ -199,6 +198,8 @@ ANONYMOUS_USER_ID = -1
 
 LOGIN_REDIRECT_URL = '/registration/profile_information/'
 EMAIL_USE_TLS = True
+#CSRF_COOKIE_HTTPONLY = True
+SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 ADMIN_HONEYPOT_EMAIL_ADMINS = False
@@ -212,6 +213,8 @@ OAUTH_ENFORCE_SECURE = True
 OAUTH_EXPIRE_DELTA = timedelta(days=30, minutes=0, seconds=0)
 OAUTH_EXPIRE_DELTA_PUBLIC = timedelta(days=30, minutes=0, seconds=0)
 OAUTH_DELETE_EXPIRED = True
+
+#SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 CELERY_DISABLE_RATE_LIMITS = True
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']

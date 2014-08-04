@@ -7,7 +7,7 @@ from sb_posts.neo_models import SBBase
 class SBQuestion(SBBase):
     answer_number = IntegerProperty(default=0)
     question_title = StringProperty()
-    question_id = StringProperty()
+    question_id = StringProperty(unique_index=True)
     is_closed = BooleanProperty(default=False)
     closed_reason = StringProperty()
 

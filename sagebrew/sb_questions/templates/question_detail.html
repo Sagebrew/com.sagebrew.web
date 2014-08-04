@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load staticfiles %}
+{% block navigation %}
+    {% include "navigation.html" %}
+{% endblock %}
+
+{% block content %}
+
+    <h1>{{ question.question_title }}</h1>
+    <p>{{ question.question_content }}</p>
+    <div style="font-weight: bold">Upvotes: {{ question.up_vote_number }} | Downvotes: {{ question.down_vote_number }} | Asked by: <a href="{{ question.owner_profile_url }}">{{ question.owner }}</a> | Posted: {{ question.time_created }} | Last edited: {{ question.last_edited_on }}</div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/query_questions.js' %}"></script>
+{% endblock scripts %}

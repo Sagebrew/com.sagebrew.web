@@ -68,7 +68,7 @@ def prepare_get_question_dictionary(questions, sort_by):
                              'owner': owner,
                              'time_created': question.date_created,
                              'question_url': settings.WEB_ADDRESS +
-                                             '/questions/uuid/' +
+                                             '/questions/' +
                                              question.question_id
                         }
             question_array.append(question_dict)

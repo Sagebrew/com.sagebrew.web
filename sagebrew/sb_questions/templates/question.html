@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load staticfiles %}
+{% block navigation %}
+    {% include "navigation.html" %}
+{% endblock %}
+
+{% block content %}
+    <h1>Quesitons:</h1>
+    {% for question in questions %}
+        <h2>Question:</h2>
+        <div>Title: {{ question.question_title }}</div>
+        <div>Content: {{ question.question_content }}</div>
+        <div>Answers: {{ question.answer_number }}</div>
+        <div>Upvotes: {{ question.up_vote_number }}</div>
+        <div>Downvotes: {{ question.down_vote_number }}</div>
+        <div>Asked by: {{ question.owner }}</div>
+        <div>Posted: {{ question.time_created }}</div>
+        <a class="btn btn-sm btn-primary" href="{{ question.question_url }}">Post</a>
+    {% endfor %}
+{% endblock %}

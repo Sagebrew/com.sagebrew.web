@@ -146,17 +146,9 @@ def get_post_data(request):
     return post_info
 
 
-def handle_failures(task):
-    '''
-    If a task fails add to the SQS queue
-    :param task:
-    :return:
-    '''
-
-
 def language_filter(content):
     '''
-    Filters harsh language from posts and commments using the bomberman
+    Filters harsh language from posts and comments using the bomberman
     client which
     is initialized each time the function is called.
 

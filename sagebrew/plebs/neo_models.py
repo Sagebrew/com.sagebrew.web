@@ -79,6 +79,9 @@ class Pleb(StructuredNode):
     completed_profile_info = BooleanProperty(default=False)
     home_town = StringProperty()
     reputation = IntegerProperty(default=0)
+    is_rep = BooleanProperty(default=False)
+    is_admin = BooleanProperty(default=False)
+    is_sage = BooleanProperty(default=False)
 
     # Relationships
     home_town_address = RelationshipTo("Address", "GREW_UP_AT")
@@ -95,6 +98,8 @@ class Pleb(StructuredNode):
     house_rep = RelationshipTo("govtrack.neo_models.GTRole", "HAS_REPRESENTATIVE")
     posts = RelationshipTo('sb_posts.neo_models.SBPost', 'OWNS',
                            model=PostObjectCreated)
+    questions = RelationshipTo('sb_questions.neo_models.SBQuestion', 'OWNS',
+                               model=PostObjectCreated)
     comments = RelationshipTo('sb_comments.neo_models.SBComment', 'OWNS',
                               model=PostObjectCreated)
     wall = RelationshipTo('sb_wall.neo_models.SBWall', 'OWNS')

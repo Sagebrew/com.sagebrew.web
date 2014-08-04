@@ -33,7 +33,8 @@ urlpatterns = patterns('',
                        (r'^posts/', include('sb_posts.urls')),
                        (r'^notifications/', include('sb_notifications.urls')),
                        (r'^relationships/', include('sb_relationships.urls')),
-                       (r'^user/', include('plebs.urls'))
+                       (r'^user/', include('plebs.urls')),
+                       (r'^questions/', include('sb_questions.urls')),
 )
 
 if settings.DEBUG:

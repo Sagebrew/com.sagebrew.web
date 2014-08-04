@@ -13,28 +13,6 @@
         }
     },
     {
-        "pk": 1,
-        "model": "api.bombermankeys",
-        "fields": {
-            "count": 0,
-            "count_limit": 10,
-            "modified": "2014-08-02T20:51:08.196Z",
-            "bomberman_key": "'6a224aea0ecb3601ae9197c5762aef56'",
-            "created": "2014-08-02T20:51:08.194Z"
-        }
-    },
-    {
-        "pk": 2,
-        "model": "api.bombermankeys",
-        "fields": {
-            "count": 0,
-            "count_limit": 10,
-            "modified": "2014-08-02T20:51:31.088Z",
-            "bomberman_key": "'73ee65610e735bac2e308ac439450a4f'",
-            "created": "2014-08-02T20:51:31.086Z"
-        }
-    },
-    {
         "pk": -1,
         "model": "auth.user",
         "fields": {

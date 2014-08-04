@@ -233,7 +233,6 @@ def get_question_view(request):
     :return:
     '''
     question_data = get_post_data(request)
-    print question_data
     if question_data['sort_by'] == 'most_recent':
         response = get_question_by_most_recent()
     elif question_data['sort_by'] == 'uuid':

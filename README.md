@@ -173,6 +173,7 @@ $UDPServerRun 514
 ```
 At the end of rsyslog.conf append:
 ```
+$MaxMessageSize 64k
 # forward to loggly: https://ACCOUNT.loggly.com
 $template LogglyFormat,"<%pri%>%protocol-version% %timestamp:::date-rfc3339% %HOSTNAME% %app-name% %procid% %msgid% [TOKEN@41058 tag=\"Example1\"] %msg%\n"
 

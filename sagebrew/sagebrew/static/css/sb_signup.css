@@ -2,7 +2,7 @@
         color: #e4eee5;
         text-align: left;
         margin-top: 0;
-        margin-left: .30em
+        margin-left: .75em
 }
 
 .form-control.flat {
@@ -18,12 +18,21 @@
   border-color: #1abc9c;
 }
 
-#sb_navbar {
+.sb_navbar {
     background-color: #1ba39c;
     min-height: 0;
     height: 80px;
 }
+
+#sb_nav_wrapper{
+    background-color: #1ba39c;
+}
+
 .navbar-nav .navbar-form.navbar-left, .navbar-form.navbar-right:last-child {
+    width:auto;
+    background-color: #1ba39c;
+    border-color: #1ba39c;
+}.navbar-nav .navbar-form.navbar-left, .navbar-form.navbar-right:last-child {
     width:auto;
     background-color: #1ba39c;
     border-color: #1ba39c;
@@ -109,9 +118,19 @@ h2, .sb-title {
     background-size: cover ;
     min-width: 100%;
     max-height: 100%;
-
+    padding-left: 0px;
+    padding-right: 0px;
 }
-
+/*
+.jumbotron {
+  position: absolute;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  min-width: 100%;
+}
+*/
 .container-fluid {
     right: -30px;
 }

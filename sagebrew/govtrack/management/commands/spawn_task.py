@@ -13,4 +13,3 @@ class Command(BaseCommand):
                    '=10000&current=True'
         populate_gt_role(ROLE_URL)
         print "Role and Person objects populated for current senators"
-

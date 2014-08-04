@@ -126,4 +126,3 @@ def populate_gt_votes(requesturl):
                 my_vote.option.connect(item)
             my_votes = []
 
-

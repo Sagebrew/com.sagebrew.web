@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.test import TestCase, RequestFactory
 
-from sb_registration.views import profile_information, profile_page
+from sb_registration.views import profile_information
 
 
 class InterestsTest(TestCase):
@@ -142,10 +142,5 @@ class ProfileInfoTest(TestCase):
         response = profile_information(request)
         self.assertEqual(response.status_code, 302)
 
-    def test_profile_page(self):
-        request = self.factory.post('/registration/profile_page')
-        request.user = self.user
-        response = profile_page(request)
-        self.assertEqual(response.status_code, 302)
 
 

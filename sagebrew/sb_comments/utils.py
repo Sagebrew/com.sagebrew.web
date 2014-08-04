@@ -177,4 +177,3 @@ def delete_comment_util(comment_uuid=str(uuid1())):
             return True
     except SBComment.DoesNotExist:
         return False
-

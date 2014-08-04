@@ -71,6 +71,8 @@ STATICFILES_DIRS = (
     '%s/sb_comments/static/' % PROJECT_DIR,
     '%s/sb_posts/static/' % PROJECT_DIR,
     '%s/sb_relationships/static/' % PROJECT_DIR,
+    '%s/sb_questions/static/' % PROJECT_DIR,
+    '%s/sb_answers/static/' % PROJECT_DIR,
 )
 
 # List of finder classes that know how to find static files in
@@ -129,6 +131,8 @@ TEMPLATE_DIRS = (
     '%s/sb_registration/templates/' % PROJECT_DIR,
     '%s/sb_wall/templates/' % PROJECT_DIR,
     '%s/plebs/templates/' % PROJECT_DIR,
+    '%s/sb_questions/templates/' % PROJECT_DIR,
+    '%s/sb_answers/templates/' % PROJECT_DIR,
 )
 
 FIXTURE_DIRS = (
@@ -162,10 +166,7 @@ INSTALLED_APPS = (
     'photologue',
     'sortedm2m',
     'guardian',
-    'address',
     'plebs',
-    'notifications',
-    'user_profiles',
     'api',
     'govtrack',
     'neomodel',
@@ -176,7 +177,11 @@ INSTALLED_APPS = (
     'sb_notifications',
     'sb_relationships',
     'sb_garbage',
+    'sb_questions',
+    'sb_answers',
+    'sb_tags'
 )
+
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "optional"
@@ -200,7 +205,7 @@ ANONYMOUS_USER_ID = -1
 
 LOGIN_REDIRECT_URL = '/registration/profile_information/'
 EMAIL_USE_TLS = True
-CSRF_COOKIE_HTTPONLY = True
+#CSRF_COOKIE_HTTPONLY = True
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
@@ -216,12 +221,14 @@ OAUTH_EXPIRE_DELTA = timedelta(days=30, minutes=0, seconds=0)
 OAUTH_EXPIRE_DELTA_PUBLIC = timedelta(days=30, minutes=0, seconds=0)
 OAUTH_DELETE_EXPIRED = True
 
+#SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+
 CELERY_DISABLE_RATE_LIMITS = True
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 CELERY_IMPORTS = ('api.tasks', 'govtrack.tasks', 'sb_comments.tasks',
                   'sb_garbage.tasks', 'sb_posts.tasks',
                   'sb_notifications.tasks',
-                  'sb_relationships.tasks'
+                  'sb_relationships.tasks', 'sb_questions.tasks'
 )
 BROKER_URL = 'amqp://sagebrew:this_is_the_sagebrew_password@localhost:5672//'
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'

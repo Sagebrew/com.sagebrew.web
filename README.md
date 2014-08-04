@@ -93,7 +93,9 @@ server {
 
     location ~* ^/static/(.+)$ {
         root /home/apps/sagebrew;
-        try_files /sagebrew/static/$1 /sb_registration/static/$1 /plebs/static/$1 /sb_registration/static/$1 /sb_comments/static/$1 /sb_posts/static/$1 @missing;
+        try_files /sagebrew/static/$1 /sb_registration/static/$1 /plebs/static/$1
+                 /sb_comments/static/$1 /sb_posts/static/$1 /sb_relationships/static/$1 /sb_notifications/static/$1 /sb_questions/static/$1
+                /sb_answers/static/$1 @missing;
     }
 
     location /media {
@@ -173,6 +175,7 @@ $UDPServerRun 514
 ```
 At the end of rsyslog.conf append:
 ```
+$MaxMessageSize 64k
 # forward to loggly: https://ACCOUNT.loggly.com
 $template LogglyFormat,"<%pri%>%protocol-version% %timestamp:::date-rfc3339% %HOSTNAME% %app-name% %procid% %msgid% [TOKEN@41058 tag=\"Example1\"] %msg%\n"
 
@@ -200,3 +203,9 @@ def initialize_loggly(loglevel=logging.WARN, **kwargs):
 from celery.signals import setup_logging
 setup_logging.connect(initialize_loggly)
 ```
+
+
+
+###design conventions###
+
+

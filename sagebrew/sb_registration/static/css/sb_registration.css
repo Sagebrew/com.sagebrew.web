@@ -1,9 +1,14 @@
-.background {
+.sb_background {
     background-size: cover;
     position: inherit;
     margin-top:0px;
     width: 100%;
     padding-right: 0px;
+}
+.sb_deco_line{
+    border-bottom: solid 5px;
+    border-color: #26424a;
+    margin-bottom: 35px;
 }
 .background_interests{
     background-color: #26424a;
@@ -21,7 +26,7 @@
     position: inherit;
     float: left;
 }
-.row_main_interests {
+.sb_row_main {
     width: 80%;
     margin-top: 2em;
     margin-bottom: 2em;
@@ -52,8 +57,6 @@
 .sb_registration_title_2 {
     color: #26424a;
     font-size: 2em;
-    margin-left: 30px;
-    margin-bottom: 30px;
 }
 .sb_registration_title_3 {
     color: #26424a;
@@ -61,43 +64,47 @@
     padding-left: 15px;
     margin-bottom: 30px;
 }
-.sb_label {
-    margin-left: 4em;
+.sb_registration_label {
+    margin-left: 5em;
     margin-right: -15px;
+    font-weight: bold;
 }
-.sb_label_2 {
-    margin-left: 3.2em;
+.sb_registration_label_2 {
+    margin-left: 4em;
+    font-weight: bold;
 }
-.sb_label_xs {
+.sb_registration_label_xs {
     margin-left: 1em;
     margin-top: 10px;
 }
-.sb_profile_info {
+.sb_profile_info_1 {
     color: #26424a;
     font-size: 2em;
     margin-left: 8%;
+    margin-bottom: 30px;
+}
+.sb_profile_info_2 {
+    color: #26424a;
+    font-size: 2em;
     margin-bottom: 30px;
 }
 .sb_registration {
     color: #26424a;
     font-size: 1.25em;
 }
-.sb_steps {
+.sb_registration_steps {
     color: #26424a;
     font-size: 1em;
     margin-right: 0%;
     margin-top: 45px;
-    width: 120px;
-    margin-left: 80px;
+    margin-left: 1%;
+    padding-right: 30px;
 }
 .sb_picture_select {
     margin-left: 0px;
 }
-.row_address {
-    margin-right: 15px;
-    margin-left: 15px
-}
-.row_complete {
+#sb_address_line_3{
+
 }
 .address_information{
     margin-top: 10px;
@@ -111,13 +118,20 @@
     float: right;
     width: 200px;
     height: 200px;
-    padding-left: 0px;
-    padding-right: 0px;
     margin-left: 775px;
-    margin-right: 0px;
     margin-bottom: 80px;
 }
 .info_square_2 {
+    background-color: #26424a;
+    color: #e4eee5;
+    font-weight: bolder;
+    border-radius: 10px;
+    position: absolute;
+    float: right;
+    width: 200px;
+    height: 200px;
+    margin-left: 775px;
+    margin-bottom: 80px;
     margin-right: -215px;
     margin-top: 365px;
 }
@@ -153,16 +167,15 @@
     margin-left: 5px;
     margin-right: 5px;
 }
-.sb_continue {
+.sb_btn_continue {
     background-color: #1ba39c;
     width: 100%;
     height: 100%;
-    margin-top: 15px;
-    margin-bottom: 15px;
 }
-.row_button {
-    margin-left: 30px;
-    margin-right: 30px;
+.sb_row_continue {
+    margin-left: 15px;
+    margin-right: 15px;
+    margin-bottom: 30px;
 }
 .interests_form {
     margin-right: 10%;
@@ -218,8 +231,7 @@
     margin-left: 15px;
     margin-righ: 15px;
 }
-#datepicker-01 {
-}
+
 #id_select_all {
     width: 100%;
     margin-bottom: 30px;
@@ -249,7 +261,7 @@
 }
 .modal-header {
     background-color: #1ba39c;
-    border-bottom-width: 2pt;
+    border-bottom-width: 5pt;
     border-bottom-color: #26424a;
 }
 /* profile picture selection */
@@ -302,14 +314,14 @@
 }
 .jcrop-light .jcrop-vline,
 .jcrop-light .jcrop-hline {
-  background: #ffffff;
-  filter: alpha(opacity=70);
-  opacity: .40;
+    background: #ffffff;
+    filter: alpha(opacity=70);
+    opacity: .40;
 }
 #preview-pane .preview-container {
-  width: 250px;
-  height: 170px;
-  overflow: hidden;
+    width: 250px;
+    height: 170px;
+    overflow: hidden;
 }
 .thumbnail {
     border-color: #ffffff;

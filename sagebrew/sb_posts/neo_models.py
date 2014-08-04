@@ -45,22 +45,7 @@ class SBPost(SBBase):
     #TODO Implement ..._referenced relationships
 
 
-class SBQuestion(SBBase):
-    question_id = StringProperty()
-    has_selected_answer = BooleanProperty(default=False)
 
-    # relationships
-    selected_answer = RelationshipTo('SBAnswer', 'SELECTED_ANSWER')
-    answer = RelationshipTo('SBAnswer', 'POSSIBLE_ANSWER')
-
-
-class SBAnswer(SBBase):
-    answer_id = StringProperty()
-    selected_answer = BooleanProperty(default=False)
-
-    # relationships
-    possible_answer_to = RelationshipTo('SBQuestion', 'ANSWER')
-    selected_answer_to = RelationshipTo('SBQuestion', 'SELECTED_ANSWER_TO')
 
 
 '''

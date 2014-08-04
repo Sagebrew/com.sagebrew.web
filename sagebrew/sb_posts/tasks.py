@@ -26,8 +26,6 @@ def delete_post_and_comments(post_info):
                    countdown=2, task_id=task_id)
         return False
 
-
-# TODO only allow plebs to change vote
 @shared_task()
 def create_upvote_post(post_uuid=str(uuid1()), pleb=""):
     '''
@@ -55,8 +53,6 @@ def create_upvote_post(post_uuid=str(uuid1()), pleb=""):
                    countdown=2, task_id=task_id)
         return False
 
-
-#TODO only allow plebs to change vote
 @shared_task()
 def create_downvote_post(post_uuid=str(uuid1()), pleb=""):
     '''

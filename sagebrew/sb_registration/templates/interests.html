@@ -5,7 +5,7 @@
     <link href="{% static 'select2/select2.css' %}" rel="stylesheet"/>
 {% endblock css %}
 {% block content %}
-<div class="row row_main">
+<div class="row sb_row_main">
     <div class="row info_square info_square_3 hidden-lg hidden-md hidden-sm hidden-xs">
         <div class="paragraph">
             <p>Why do you need my personal information?</p>
@@ -24,7 +24,7 @@
             </div>
         </div>
     </div>
-    <div class="sb_line"></div>
+    <div class="sb_deco_line"></div>
     <div class="interests_form">
         <form action="/registration/interests/" method="post">{% csrf_token %}
             <div class="row sb_interests">

@@ -4,11 +4,12 @@ from .views import (save_question_view, edit_question_view,
                     delete_question_view, close_question_view,
                     get_question_view, vote_question_view,
                     submit_question_view_page, question_page,
-                    question_detail_page)
+                    question_detail_page, render_question_html)
 
 urlpatterns = patterns(
     'sb_questions.views',
     url(r'^$', question_page, name='question_page'),
+    url(r'^render_questions/$', render_question_html, name='render_question_html'),
     url(r'^submit_question/$', submit_question_view_page, name='save_question_page'),
     url(r'^submit_question_api/$', save_question_view, name='save_question'),
     url(r'^query_questions_api/$', get_question_view, name='get_questions'),

@@ -12,10 +12,11 @@
         <a class="btn btn-sm btn-primary query_questions-action" data-sort_by="least_recent">Least Recent</a>
     {% endblock %}
     <h1>Quesitons:</h1>
-    {% for question in questions %}
-        <h2><a href="{{ question.question_url }}">{{ question.question_title }}</a></h2>
-        <div>Content: {{ question.question_content }} | Answers: {{ question.answer_number }} | Upvotes: {{ question.up_vote_number }} | Downvotes: {{ question.down_vote_number }} | Asked by: {{ question.owner }} | Posted: {{ question.time_created }}</div>
-    {% endfor %}
+    {% block questions %}
+        <div id="question_wrapper">
+            {% include "questions.html" %}
+        </div>
+    {% endblock %}
 {% endblock %}
 
 {% block scripts %}

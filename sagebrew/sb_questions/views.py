@@ -7,10 +7,12 @@ from requests import ConnectionError
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.decorators import login_required
-from rest_framework.decorators import (api_view, permission_classes)
+from rest_framework.decorators import (api_view, permission_classes,
+                                       renderer_classes)
 
 from api.utils import (get_post_data, spawn_task, post_to_api)
 from plebs.neo_models import Pleb
@@ -21,6 +23,9 @@ from .tasks import create_question_task
 from .forms import SaveQuestionForm, EditQuestionForm
 
 logger = logging.getLogger('loggly_logs')
+
+def render_question_html(request):
+    pass
 
 @login_required()
 def submit_question_view_page(request):
@@ -60,7 +65,7 @@ def question_page(request, sort_by="most_recent"):
     headers = {'content-type': 'application/json'}
     questions = post_to_api(reverse('get_questions'), data=post_data,
                             headers=headers)
-    return render(request, 'question.html', {'questions': questions})
+    return render(request, 'question_sort_page.html', {'questions': questions})
 
 @login_required()
 def question_detail_page(request, question_uuid=str(uuid1())):

@@ -71,6 +71,8 @@ STATICFILES_DIRS = (
     '%s/sb_comments/static/' % PROJECT_DIR,
     '%s/sb_posts/static/' % PROJECT_DIR,
     '%s/sb_relationships/static/' % PROJECT_DIR,
+    '%s/sb_questions/static/' % PROJECT_DIR,
+    '%s/sb_answers/static/' % PROJECT_DIR,
 )
 
 # List of finder classes that know how to find static files in
@@ -129,6 +131,8 @@ TEMPLATE_DIRS = (
     '%s/sb_registration/templates/' % PROJECT_DIR,
     '%s/sb_wall/templates/' % PROJECT_DIR,
     '%s/plebs/templates/' % PROJECT_DIR,
+    '%s/sb_questions/templates/' % PROJECT_DIR,
+    '%s/sb_answers/templates/' % PROJECT_DIR,
 )
 
 FIXTURE_DIRS = (
@@ -173,6 +177,9 @@ INSTALLED_APPS = (
     'sb_notifications',
     'sb_relationships',
     'sb_garbage',
+    'sb_questions',
+    'sb_answers',
+    'sb_tags'
 )
 
 ACCOUNT_AUTHENTICATION_METHOD = "email"
@@ -221,7 +228,7 @@ CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 CELERY_IMPORTS = ('api.tasks', 'govtrack.tasks', 'sb_comments.tasks',
                   'sb_garbage.tasks', 'sb_posts.tasks',
                   'sb_notifications.tasks',
-                  'sb_relationships.tasks'
+                  'sb_relationships.tasks', 'sb_questions.tasks'
 )
 BROKER_URL = 'amqp://sagebrew:this_is_the_sagebrew_password@localhost:5672//'
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'

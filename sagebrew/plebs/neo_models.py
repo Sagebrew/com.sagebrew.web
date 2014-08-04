@@ -98,6 +98,8 @@ class Pleb(StructuredNode):
     house_rep = RelationshipTo("govtrack.neo_models.GTRole", "HAS_REPRESENTATIVE")
     posts = RelationshipTo('sb_posts.neo_models.SBPost', 'OWNS',
                            model=PostObjectCreated)
+    questions = RelationshipTo('sb_questions.neo_models.SBQuestion', 'OWNS',
+                               model=PostObjectCreated)
     comments = RelationshipTo('sb_comments.neo_models.SBComment', 'OWNS',
                               model=PostObjectCreated)
     wall = RelationshipTo('sb_wall.neo_models.SBWall', 'OWNS')

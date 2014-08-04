@@ -201,3 +201,9 @@ def initialize_loggly(loglevel=logging.WARN, **kwargs):
 from celery.signals import setup_logging
 setup_logging.connect(initialize_loggly)
 ```
+
+
+
+###design conventions###
+
+

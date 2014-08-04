@@ -2,112 +2,100 @@
 {% load staticfiles %}
 {% block css %}
     {{ block.super }}
-    <link href="{% static 'jcrop/css/jquery.Jcrop.css' %}" rel="stylesheet"
-          type="text/css"/>
+    <link href="{% static 'jcrop/css/jquery.Jcrop.css' %}" rel="stylesheet" type="text/css"/>
 {% endblock css %}
 {% block content %}
-    <div class="row row_main_picture">
+    <div class="row sb_row_main">
         <div class="row">
             <div class="col-lg-8 col-md-6 col-sm-12 col-xs-12 cold-xs-4 ">
-                <h2 class="sb_registration_title_2">Profile Picture</h2>
+                <h2 class="sb_registration_title">Profile Picture</h2>
             </div>
-            <div class="col-lg-3 col-md-3 col-sm-3 col-lg-offset-1 col-md-offset-2 col-sm-offset-3 ">
-                <div>
-                    <h4 class="sb_steps hidden-sm hidden-xs">Step 3 of 3</h4>
-                </div>
+            <div class="col-lg-3 col-md-3 col-sm-3 col-lg-offset-1 col-md-offset-3 col-sm-offset-3 ">
+               <div>
+                    <h4 class="sb_registration_steps hidden-sm hidden-xs">Step 3 of 3</h4>
+               </div>
             </div>
         </div>
-        <div class="row" id="image_upload_div">
+        <div class="sb_deco_line"></div>
+        <div class="row"
+             id="image_upload_div">
             <form enctype="multipart/form-data"
-                  action="/registration/profile_picture/"
-                  method="post">{% csrf_token %}
-                {% comment %}
-                <div class="fileinput fileinput-new" data-provides="fileinput">
-
-							  <div class="fileinput-new thumbnail" style="width: 120px; height: 120px;">
-							    <img data-src="{% static 'media/ziggzi.png' %}" alt="Put our default image">
-							  </div>
-							  <div class="fileinput-preview fileinput-exists thumbnail" id="sample_image" style="max-width: 500px; max-height: 500px;">
-							  </div>
-
-                              <div>
-							    <span class="btn btn-primary btn-embossed btn-file">
-								    <span class="fileinput-new"><span class="fui-image"></span>&nbsp;&nbsp;Select image</span>
-								    <span class="fileinput-exists"><span class="fui-gear"></span>&nbsp;&nbsp;Change</span>
-								    <input type="file" id="profile_pic_upload" name="...">
-							    </span>
-							    <a href="#" class="btn btn-primary btn-embossed fileinput-exists" data-dismiss="fileinput"><span class="fui-trash"></span>&nbsp;&nbsp;Remove</a>
-							  </div>
-							</div>
-					{% endcomment %}
-                <div class="row" align="center">
+                  action="/registration/profile_picture/" method="post">{% csrf_token %}
+                <div id="sb_photo_parent"
+                     class="row"
+                     align="center">
+                    <div id="sb_profile_photo">
+                        <div class=" fileinput fileinput-new"
+                             data-provides="fileinput">
+                            <div class="row"
+                                 align="center">
+                                <div class="fileinput-preview fileinput-exists thumbnail jcrop-light"
+                                     id="image_uploaded"
+                                     style="max-width: 500px;
+                                            max-height: 350px;">
+                                </div>
+                            </div>
+                            <div id="sb_photo_menu"
+                                 class="row">
+                                <span id="sb_menu"
+                                      class="btn btn-primary btn-embossed btn-file sb_select">
+                                    <span id="sb_change"class="fileinput-exists"><span class="fui-gear"></span>&nbsp;&nbsp;Change</span>
+                                    <span id="sb_upload" class="fileinput-new "><span class=""></span>&nbsp;&nbsp;Upload Image</span>
+                                    <input id="profile_pic_upload"
+                                           type="file"
+                                           name="">
+                                </span>
+                                <a id="sb_remove"
+                                   href=""
+                                   class="btn btn-primary btn-embossed fileinput-exists sb_remove"
+                                   data-dismiss="modal"><span class="fui-trash"></span>&nbsp;&nbsp;Remove</a>
+                                <a id="sb_save"
+                                   href=""
+                                   class="btn btn-primary btn-embossed sb_crop"
+                                   style="display:none">Save Image</a>
+                            </div>
+                        </div>
+                    </div>
                     <div>
-                        <span class="btn btn-primary btn-embossed btn-file sb_upload">
-                            <span class="fileinput-new"><span
-                                    class="fui-image"></span>&nbsp;&nbsp;Upload Image</span>
-                            <input id="profile_pic_upload" type="file" name="">
-                        </span>
+
+                    <div class="row"
+                         align="center">
+                        <div id="#sb_photo_intro">
+
+                        </div>
                     </div>
-                    <div class="row" align="center">
-                        <input class="btn btn-primary sb_complete"
-                               type="submit" value="Complete"/>
                     </div>
-                    <div class="modal fade" id="myModal" tabindex="-1"
-                         role="dialog" aria-labelledby="myLargeModalLabel"
+                    <div class="modal fade"
+                         id="myModal"
+                         tabindex="-1"
+                         role="dialog"
+                         aria-labelledby="myLargeModalLabel"
                          aria-hidden="true">
                         <div class="modal-header">
-                            <a class="fui-cross-inverted close"
+                            <a id="sb_close"
+                               class="fui-cross-inverted close"
                                data-dismiss="modal"></a>
-
-                            <h3 id="profile_picture_header">Upload Profile
-                                Picture</h3>
+                            <h3 id="profile_picture_header">Upload Profile Picture</h3>
                         </div>
                         <div class="modal-body">
                             {% for field in profile_picture_form %}
                                 {% if field.id_for_label == "id_picture" %}
-                                    <div class=" fileinput fileinput-new"
-                                         data-provides="fileinput">
-                                        <div class="fileinput-new thumbnail"
-                                             style="width: 300px; height: 300px;">
-                                            <img data-src="{% static 'media/ziggzi.png' %}"
-                                                 alt="Put our default image">
-                                        </div>
-                                        <div class="row" align="center">
-                                            <div class="fileinput-preview fileinput-exists thumbnail jcrop-light"
-                                                 id="image_uploaded"
-                                                 style="max-width: 500px; max-height: 350px;">
-
-                                            </div>
-                                        </div>
-                                        <div class="row">
-
-                                                <span class="btn btn-primary btn-embossed btn-file sb_select">
-                                                    <span class="fileinput-exists"><span
-                                                            class="fui-gear"></span>&nbsp;&nbsp;Change</span>
-                                                    <input type="file"
-                                                           name="...">
-                                                </span>
-
-                                            <a href=""
-                                               class="btn btn-primary btn-embossed fileinput-exists sb_remove"
-                                               data-dismiss="fileinput"><span
-                                                    class="fui-trash"></span>&nbsp;&nbsp;Remove</a>
-                                        </div>
+                                    <div id="sb_modal_content">
                                     </div>
                                 {% endif %}
                             {% endfor %}
                         </div>
-                        <div class="modal-footer">
-                            <a href="" class="btn btn-primary">Save changes</a>
-                            <a href="" class="btn btn-primary"
-                               data-dismiss="modal">Close</a>
-                        </div>
                     </div>
+                </div>
+                <div class="row"
+                     align="center">
+                    <input class="btn btn-primary btn-embossed sb_complete"
+                           value="Skip Step" />
                 </div>
             </form>
         </div>
     </div>
-    {% comment %}
+{% comment %}
 
 {% endcomment %}
 {% endblock %}
@@ -117,7 +105,7 @@
     <script src="{% static 'jcrop/js/jquery.Jcrop.js' %}"></script>
 {% endblock scripts %}
 
-{% comment %}
+                        {% comment %}
                             {% for field in profile_picture_form %}
                                 {% if field.id_for_label == "id_picture" %}
                                     <div class="sb_fileinput fileinput fileinput-new row sb_picture jcrop-holder" data-provides="fileinput"><input type="hidden">

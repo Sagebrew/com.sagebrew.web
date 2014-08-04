@@ -50,14 +50,12 @@ def refresh_oauth_access_token(oauth_client):
         'grant_type': 'refresh_token',
         'refresh_token': oauth_client['refresh_token']
     }
-
     response = requests.post(url, data=data,
                              verify=settings.VERIFY_SECURE)
     return response
 
 
 def check_oauth_expires_in(oauth_client):
-    print oauth_client['expires_in']
     if oauth_client['expires_in'] < 100:
         return True
     return False

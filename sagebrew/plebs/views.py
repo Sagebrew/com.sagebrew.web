@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 from api.utils import post_to_api
 from plebs.neo_models import Pleb
-from sb_registration.utils import (get_friends)
+from sb_registration.utils import (get_friends, generate_profile_pic_url)
 
 
 @login_required()

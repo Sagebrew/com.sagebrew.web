@@ -1,33 +1,27 @@
-#logo {
+#sb_sagebrew {
         color: #e4eee5;
         text-align: left;
-        margin-top: 0;
+        margin-top: 5px;
         margin-left: .75em
 }
-
 .form-control.flat {
   border-color: transparent;
   text-align: left;
 }
-
 .form-control.flat:hover {
   border-color: #bdc3c7;
 }
-
 .form-control.flat:focus {
   border-color: #1abc9c;
 }
-
 .sb_navbar {
     background-color: #1ba39c;
     min-height: 0;
     height: 80px;
 }
-
 #sb_nav_wrapper{
     background-color: #1ba39c;
 }
-
 .navbar-nav .navbar-form.navbar-left, .navbar-form.navbar-right:last-child {
     width:auto;
     background-color: #1ba39c;
@@ -37,11 +31,9 @@
     background-color: #1ba39c;
     border-color: #1ba39c;
 }
-
 .navbar-form .form-control {
     display:inline;
 }
-
 .sb-btn-login{
     color: #1ba39c;
     background-color: #e4eee5;
@@ -50,7 +42,6 @@
 .sb-btn-primary {
     margin-top: 1em;
 }
-
 /*end nav css */
 
 /* start template/index css */
@@ -58,9 +49,7 @@ h2, .sb-title {
     color: #e4eee5;
     position: relative;
 }
-
 /*sign up input */
-
 
 #sb_input {
     margin: auto;
@@ -69,7 +58,6 @@ h2, .sb-title {
     position: relative;
     margin-left: -20%;
 }
-
 .btn-primary {
   color: #ffffff;
   background-color: #1ba39c;
@@ -80,7 +68,6 @@ h2, .sb-title {
     color: #1ba39c;
     background-color: #ffffff;
 }
-
 /*facebook sign in */
 .btn-social-facebook {
   color: #ffffff;
@@ -88,7 +75,6 @@ h2, .sb-title {
   margin-top: 8px;;
   margin-bottom: 2em;
 }
-
 .btn-social-facebook:hover,
 .btn-social-facebook:focus {
     color: #3a539b;
@@ -98,11 +84,8 @@ h2, .sb-title {
 .btn-social-facebook.active {
     background-color: #1ba39c;
 }
-
 /* end template/index css */
-
 .bottom-menu {
-
     position: relative;
     height: 150px;
     margin-top: auto;
@@ -121,20 +104,9 @@ h2, .sb-title {
     padding-left: 0px;
     padding-right: 0px;
 }
-/*
-.jumbotron {
-  position: absolute;
-  padding-top: 0px;
-  padding-right: 0px;
-  padding-bottom: 0px;
-  padding-left: 0px;
-  min-width: 100%;
-}
-*/
 .container-fluid {
     right: -30px;
 }
-
 .form-group {
     margin-left: auto;
     margin-right: 2.5em;

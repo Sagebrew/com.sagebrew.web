@@ -20,13 +20,13 @@
                     </div>
                 </div>
                 <div class="sb_deco_line"></div>
-                <div class="info_square  hidden-md hidden-sm hidden-xs">
-                    <div class="paragraph">
+                <div class="sb_content_box  hidden-md hidden-sm hidden-xs">
+                    <div class="sb_content">
                         <p>Why do you need my personal information?</p>
                     </div>
                 </div>
-                <div class="info_square_2 hidden-md hidden-sm hidden-xs">
-                    <div class="paragraph">
+                <div class="sb_content_box_2 hidden-md hidden-sm hidden-xs">
+                    <div class="sb_content">
                         <p>Why do you need to know where I live?</p>
                     </div>
                 </div>
@@ -162,7 +162,7 @@
                         <p class="sb_error">{{ field.label }} : {{ error }}</p>
                     {% endfor %}
                 {% endfor %}
-                <div class="address_information">
+                <div class="sb_address_info">
                     {% for field in address_information_form %}
                         {% if field.id_for_label == "id_primary_address" or field.id_for_label == "id_street_additional" %}
                             <div class="row row_address">
@@ -272,6 +272,16 @@
                                     {% endfor %}
                                     </div>
                                 </div>
+                                <div class="row">
+                                    <div class="col-lg-6 col-lg-offset-4">
+                                        {% for address_choice in address_choice_form %}
+                                            {% if field.id_for_label == "id_address_options" %}
+
+                                            {% endif %}
+                                            {{ address_choice }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
                                 <div class="row sb_row_continue">
                                     <div class="col-lg-2 col-sm-3 col-lg-offset-6 col-sm-offset-7 col-xs-10 col-xs-offset-1">
                                         <input class="btn btn-primary btn-embossed sb_btn_continue"
@@ -282,36 +292,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="modal fade"
-                         id="myModal"
-                         tabindex="-1"
-                         role="dialog"
-                         aria-labelledby="myLargeModalLabel"
-                         aria-hidden="true">
-                        <div class="modal-header">
-                            <a id="sb_close"
-                               class="fui-cross-inverted close"
-                               data-dismiss="modal"></a>
-                            <h3 id="profile_picture_header">Select Address</h3>
-                        </div>
-                        <div class="modal-body">
-                            <div id="address_option">
-                                {% for address_choice in address_choice_form %}
-                                    {% if field.id_for_label == "id_address_options" %}
-                                        <label class="radio">
-                                            <input type="radio"
-                                                   name="optionsRadios"
-                                                   id="optionsRadios1"
-                                                   value="option1"
-                                                   data-toggle="radio">
-                                        </label>
-                                    {% endif %}
-                                    {{ address_choice }}
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
         </form>
     </div>
 {% endblock %}

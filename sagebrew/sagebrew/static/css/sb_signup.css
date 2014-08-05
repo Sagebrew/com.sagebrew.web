@@ -3,47 +3,15 @@
     margin: 0;
     padding: 0;
 }
-.form-control.flat {
-  border-color: transparent;
-  text-align: left;
-}
-.form-control.flat:hover {
-  border-color: #bdc3c7;
-}
-.form-control.flat:focus {
-  border-color: #1abc9c;
-}
-.sb_navbar {
-    background-color: #1ba39c;
-    min-height: 0;
-    height: 80px;
-}
-#sb_nav_wrapper{
-    background-color: #1ba39c;
-}
-.navbar-nav .navbar-form.navbar-left, .navbar-form.navbar-right:last-child {
-    width:auto;
-    background-color: #1ba39c;
-    border-color: #1ba39c;
-}.navbar-nav .navbar-form.navbar-left, .navbar-form.navbar-right:last-child {
-    width:auto;
-    background-color: #1ba39c;
-    border-color: #1ba39c;
-}
-.navbar-form .form-control {
-    display:inline;
-}
 .sb-btn-login{
     color: #1ba39c;
     background-color: #e4eee5;
     font-weight: bolder;
 }
-.sb-btn-primary {
-    margin-top: 1em;
-}
-h2, .sb-title {
-    color: #e4eee5;
-    position: relative;
+.sb_navbar {
+    background-color: #1ba39c;
+    min-height: 0;
+    height: 80px;
 }
 #sb_input {
     margin: auto;
@@ -51,12 +19,12 @@ h2, .sb-title {
     display:block;
     position: relative;
 }
-.bottom-menu {
+.sb_bottom_menu {
     height: 100%;
     margin-top: auto;
     padding-top: 2em;
 }
-.sb-bottom-links {
+.sb_bottom_links {
     color: #7c7e80;
 }
 .sb_btn_signup{
@@ -65,4 +33,18 @@ h2, .sb-title {
 .sb_signup_input{
     width: 100%;
     margin-bottom: 15px;
+}
+.sb_title_signup {
+    color: #e4eee5;
+    font-size: 1.75em;
+    margin-top: 20px;
+}
+/* will add sb style class later on */
+.navbar-form.navbar-right:last-child {
+    width:auto;
+    background-color: #1ba39c;
+    border-color: #1ba39c;
+}
+.navbar-form .form-control {
+    display:inline;
 }

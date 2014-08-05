@@ -108,10 +108,6 @@
     width: 100%;
     clear: both;
 }
-.sb_error {
-    color: #e74c3c;
-    margin-left: 2em;
-}
 .sb_all_check {
     padding-left: 15px;
     padding-right: 15px;
@@ -130,27 +126,12 @@
 #sb_content_block {
     background-color: #26424a;
 }
-.sb_modal {
-    margin-top: 2%;
-    margin-left: 17%;
-    margin-right: 17%;
-    margin-bottom: 2%;
-    border-radius:7px 7px 7px 7px ;
-}
+
 #sb_picture_header {
     color: #e4eee5;
     text-align: center;
     margin-top: 0;
     margin-bottom: 0;
-}
-.sb_modal_body {
-    background-color: #e4eee5 ;
-    border-radius:0 0 7px 7px ;
-}
-.sb_modal_header {
-    background-color: #1ba39c;
-    border-bottom-width: 5pt;
-    border-bottom-color: #26424a;
 }
 /* profile picture selection */
 .sb_picture {
@@ -158,36 +139,10 @@
     margin-right: 0px;
     margin-top: 30px;
 }
-.sb_btn_skip {
-    background-color: #1ba39c;
-    width: 150px;
-    height: 100%;
-    margin-bottom: 160px;
-}
 .sb_select_image {
     margin-bottom: 15px;
     margin-left: 15px;
     margin-right: 15px;
-}
-.sb_btn_select {
-    width: 150px;
-    background-color: #1ba39c;
-}
-.sb_btn_remove {
-    width: 150px;
-}
-.sb_btn_change {
-    width: 150px;
-}
-.sb_btn_save {
-    width: 150px;
-}
-.sb_btn_upload {
-    margin-top: 20px;
-    background-color: #1ba39c;
-    width: 265px;
-    height: 100%;
-    margin-bottom: 15px;
 }
 .sb_photo_thumbnail {
     border-color: #ffffff;

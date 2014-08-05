@@ -1,17 +1,7 @@
-#sb_sagebrew {
-        color: #e4eee5;
-        text-align: left;
-        margin-top: 5px;
-        margin-left: .75em
-}
 .sb_image_background {
-    position: absolute;
-    width: 100%;
-    height: 70%;
+    position: fixed;
     margin: 0;
-    margin-left: -425px;
     padding: 0;
-    background-size: cover;
 }
 .form-control.flat {
   border-color: transparent;
@@ -51,72 +41,28 @@
 .sb-btn-primary {
     margin-top: 1em;
 }
-/*end nav css */
-
-/* start template/index css */
 h2, .sb-title {
     color: #e4eee5;
     position: relative;
 }
-/*sign up input */
-
 #sb_input {
     margin: auto;
     width: 400px;
     display:block;
     position: relative;
-    margin-left: -20%;
 }
-.btn-primary {
-  color: #ffffff;
-  background-color: #1ba39c;
-  font-weight: bolder;
-  margin-top: 15px;
-}
-.btn-primary:hover {
-    color: #1ba39c;
-    background-color: #ffffff;
-}
-/*facebook sign in */
-.btn-social-facebook {
-  color: #ffffff;
-  background-color: #2f4b93;;
-  margin-top: 8px;;
-  margin-bottom: 2em;
-}
-.btn-social-facebook:hover,
-.btn-social-facebook:focus {
-    color: #3a539b;
-    background-color: #ffffff;
-    border-color: #bdc3c7;
-}
-.btn-social-facebook.active {
-    background-color: #1ba39c;
-}
-/* end template/index css */
 .bottom-menu {
-    position: relative;
-    height: 150px;
+    height: 100%;
     margin-top: auto;
-    margin-bottom: auto;
     padding-top: 2em;
 }
 .sb-bottom-links {
     color: #7c7e80;
 }
-.sb-background {
-    position: absolute;
-    width: auto;
-    background-size: cover ;
-    min-width: 100%;
-    max-height: 100%;
-    padding-left: 0px;
-    padding-right: 0px;
+.sb_btn_signup{
+    margin-bottom: 85px;
 }
-.container-fluid {
-    right: -30px;
-}
-.form-group {
-    margin-left: auto;
-    margin-right: 2.5em;
+.sb_signup_input{
+    width: 100%;
+    margin-bottom: 15px;
 }

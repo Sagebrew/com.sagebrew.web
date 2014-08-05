@@ -2,8 +2,6 @@
     background-size: cover;
     position: inherit;
     margin-top:0px;
-    width: 100%;
-    padding-right: 0px;
 }
 .sb_deco_line{
     border-bottom: solid 5px;
@@ -210,7 +208,7 @@
     background-color: #1ba39c;
     width: 150px;
     height: 100%;
-    margin-bottom: 105px;
+    margin-bottom: 120px;
 }
 .sb_select_image {
     margin-bottom: 15px;

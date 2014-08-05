@@ -4,6 +4,15 @@
         margin-top: 5px;
         margin-left: .75em
 }
+.sb_image_background {
+    position: absolute;
+    width: 100%;
+    height: 70%;
+    margin: 0;
+    margin-left: -425px;
+    padding: 0;
+    background-size: cover;
+}
 .form-control.flat {
   border-color: transparent;
   text-align: left;

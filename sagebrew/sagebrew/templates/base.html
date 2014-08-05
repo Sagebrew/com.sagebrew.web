@@ -10,17 +10,19 @@
         <link href="{% static 'flat_ui/css/flat-ui.css' %}" rel="stylesheet"/>
         <link href="{% static 'flat_ui/css/demo.css' %}" rel="stylesheet"/>
         <link href="{% static 'css/sb_signup.css' %}" rel="stylesheet"/>
+        <link href="{% static 'css/sb_base.css' %}" rel="stylesheet"/>
         <!-- <link href="{% static 'css/navigation.css' %}" rel="stylesheet"/> -->
 
     {% endblock css %}
     {% block page-javascript %}
     {% endblock page-javascript %}
 </head>
-<body id="sb-body">
-<div class="container-fluid sb_background">
+<body class="container-fluid " id="sb-body">
+
+<div class="sb_background">
     <div class="row sb_navbar">
         <nav class="navbar navbar-lg" role="navigation">
-            <div class="col-lg-6 col-md-5 col-xs-6">
+            <div class="col-lg-4 col-md-4 col-xs-6">
                 <div class="navbar-header">
                     <h1 id="sb_sagebrew">Sagebrew</h1>
                 </div>
@@ -31,6 +33,7 @@
         </nav>
     </div>
     <div class="row" id="sb_content_block">
+
         {% block content %}
         {% endblock %}
     </div>

@@ -46,4 +46,9 @@ function getCoords (c){
         $("#sb_close").click(function(){
         $("#sb_menu").appendTo("#sb_photo_parent");
     })
-*/
+
+    $("input#profile_pic_upload").on("mouseenter",function(){
+        event.preventDefault();
+        $("#sb_modal_content").empty();
+        });
+        */

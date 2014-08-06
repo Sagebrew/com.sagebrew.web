@@ -100,6 +100,8 @@ class Pleb(StructuredNode):
                            model=PostObjectCreated)
     questions = RelationshipTo('sb_questions.neo_models.SBQuestion', 'OWNS',
                                model=PostObjectCreated)
+    answers = RelationshipTo('sb_answers.neo_models.SBAnswer', 'OWNS',
+                             model=PostObjectCreated)
     comments = RelationshipTo('sb_comments.neo_models.SBComment', 'OWNS',
                               model=PostObjectCreated)
     wall = RelationshipTo('sb_wall.neo_models.SBWall', 'OWNS')

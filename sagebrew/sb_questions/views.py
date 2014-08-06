@@ -19,13 +19,10 @@ from plebs.neo_models import Pleb
 from .utils import (get_question_by_most_recent, get_question_by_tag,
                     get_question_by_user, get_question_by_uuid,
                     get_question_by_least_recent)
-from .tasks import create_question_task
-from .forms import SaveQuestionForm, EditQuestionForm
+from .tasks import create_question_task, vote_question_task, edit_question_task
+from .forms import SaveQuestionForm, EditQuestionForm, VoteQuestionForm
 
 logger = logging.getLogger('loggly_logs')
-
-def render_question_html(request):
-    pass
 
 @login_required()
 def submit_question_view_page(request):
@@ -72,6 +69,7 @@ def question_detail_page(request, question_uuid=str(uuid1())):
     '''
     This is the view that displays a single question with all answers, comments,
     references and tags.
+
     :param request:
     :return:
     '''
@@ -88,7 +86,7 @@ def question_detail_page(request, question_uuid=str(uuid1())):
 @permission_classes((IsAuthenticated,))
 def save_question_view(request):
     '''
-    Allows the user to create a question
+    This is the API view to create a question
 
     :param request:
             request.DATA or request.body = {
@@ -98,28 +96,25 @@ def save_question_view(request):
             }
     :return:
     '''
-    try:
-        question_data = get_post_data(request)
-        if type(question_data) != dict:
-            return Response({"details": "Please provide a valid JSON object"},
-                            status=400)
-        #question_data['content'] = language_filter(question_data['content'])
-        question_form = SaveQuestionForm(question_data)
-        if question_form.is_valid():
-            spawn_task(task_func=create_question_task,
-                       task_param=question_form.cleaned_data)
-            return Response({"detail": "filtered",
-                             "filtered_content": question_data}, status=200)
-        else:
-            return Response(question_form.errors, status=400)
-    except(HTTPError, ConnectionError):
-        return Response({"detail": "Failed to create question"})
+    question_data = get_post_data(request)
+    if type(question_data) != dict:
+        return Response({"details": "Please provide a valid JSON object"},
+                        status=400)
+    #question_data['content'] = language_filter(question_data['content'])
+    question_form = SaveQuestionForm(question_data)
+    if question_form.is_valid():
+        spawn_task(task_func=create_question_task,
+                   task_param=question_form.cleaned_data)
+        return Response({"detail": "filtered",
+                         "filtered_content": question_data}, status=200)
+    else:
+        return Response(question_form.errors, status=400)
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def edit_question_view(request):
     '''
-    Allows the owner/admin to edit the question
+   The API view to allow a user to edit their question
 
     :param request:
             request.DATA/request.body = {
@@ -130,34 +125,32 @@ def edit_question_view(request):
             }
     :return:
     '''
+    question_data = get_post_data(request)
+    if type(question_data) != dict:
+        return Response({"details": "Please provide a valid JSON object"},
+                        status=400)
     try:
-        question_data = get_post_data(request)
-        if type(question_data) != dict:
-            return Response({"details": "Please provide a valid JSON object"},
-                            status=400)
-        try:
-            question_data['last_edited_on'] = datetime.now(pytz.utc)
-        except TypeError:
-            question_data = question_data
-
-        question_form = EditQuestionForm(question_data)
-        if question_form.is_valid():
-            #spawn_task(task_func=edit_question_task,
-            #            question_form.cleaned_data)
-            return Response({"detail": "edit question task spawned"},
-                            status=200)
-        else:
-             return Response(question_form.errors, status=400)
-
-    except (HTTPError, ConnectionError):
-        return Response({'detail': 'failed to edit'}, status=400)
+        question_data['last_edited_on'] = datetime.now(pytz.utc)
+    except TypeError:
+        question_data = question_data
+    print question_data
+    question_form = EditQuestionForm(question_data)
+    if question_form.is_valid():
+        print question_form.cleaned_data
+        spawn_task(task_func=edit_question_task,
+                   task_param=question_form.cleaned_data)
+        return Response({"detail": "edit question task spawned"},
+                        status=200)
+    else:
+        print question_form.errors
+        return Response(question_form.errors, status=400)
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def close_question_view(request):
     '''
-    Allows admins to close questions. If the question is irrelevant or redundant
-    or the question is no longer active
+    The API view to allow admins to close questions. If the question is
+    irrelevant or redundant or the question is no longer active
 
     :param request:
             request.DATA/request.body = {
@@ -184,7 +177,7 @@ def delete_question_view(request):
 @permission_classes((IsAuthenticated,))
 def vote_question_view(request):
     '''
-    Allows the user to upvote/downvote question
+    The API view to allow the user to upvote/downvote question
 
     :param request:
             request.DATA/request.body = {
@@ -193,7 +186,21 @@ def vote_question_view(request):
                 'current_pleb': 'example@email.com'
     :return:
     '''
-    pass
+    try:
+        post_data = get_post_data(request)
+        if type(post_data) != dict:
+            return Response({"details": "Please Provide a JSON Object"},
+                            status=400)
+        question_form = VoteQuestionForm(post_data)
+        if question_form.is_valid():
+            spawn_task(task_func=vote_question_task,
+                       task_param=question_form.cleaned_data)
+            return Response({"detail": "Vote Created!"}, status=200)
+        else:
+            return Response({'detail': question_form.errors}, status=400)
+    except Exception, e:
+        return Response({"detail": "Vote could not be created!",
+                         'exception': e})
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
@@ -238,12 +245,14 @@ def get_question_view(request):
     :return:
     '''
     question_data = get_post_data(request)
+    print question_data
     if question_data['sort_by'] == 'most_recent':
-        response = get_question_by_most_recent()
+        response = get_question_by_most_recent(current_pleb=question_data['current_pleb'])
     elif question_data['sort_by'] == 'uuid':
-        response = get_question_by_uuid(question_data['question_uuid'])
+        response = get_question_by_uuid(question_data['question_uuid'],
+                                        question_data['current_pleb'])
     elif question_data['sort_by'] == 'least_recent':
-        response = get_question_by_least_recent()
+        response = get_question_by_least_recent(current_pleb=question_data['current_pleb'])
     else:
         response = {"detail": "fail"}
     return Response(response)

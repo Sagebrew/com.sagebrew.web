@@ -9,4 +9,4 @@ class SBAnswer(SBBase):
 
 
     # relationships
-    possible_answer_to = RelationshipTo('sb_questions.neo_models.SBQuestion', 'POSSIBLE_ANSWER_TO')
+    answer_to = RelationshipTo('sb_questions.neo_models.SBQuestion', 'POSSIBLE_ANSWER_TO')

@@ -20,10 +20,7 @@ $( document ).ready(function() {
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
             success: function (data) {
-                console.log('hello');
                 alert(data);
-                console.log(data);
-                $("#question_wrapper").load("", data)
             }
 		});
 	});

@@ -1,5 +1,5 @@
 $( document ).ready(function() {
-	$("a.submit_answer-action").click(function(event){
+	$("a.vote_question-action").click(function(event){
 		event.preventDefault();
 		$.ajaxSetup({
 		    beforeSend: function(xhr, settings) {
@@ -12,12 +12,11 @@ $( document ).ready(function() {
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
 			type: "POST",
-			url: "/answers/submit_answer_api/",
+			url: "/questions/vote_question_api/",
 			data: JSON.stringify({
-			   'content': $('textarea#answer_content_id').val(),
-               'current_pleb': $(this).data('current_pleb'),
                'question_uuid': $(this).data('question_uuid'),
-               'to_pleb': $(this).data('to_pleb')
+			   'vote_type': $(this).data('vote_type'),
+               'current_pleb':$(this).data('current_pleb')
 			}),
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",

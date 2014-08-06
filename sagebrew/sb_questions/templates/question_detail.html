@@ -10,10 +10,31 @@
     <h1>{{ question.question_title }}</h1>
     <p>{{ question.question_content }}</p>
     <div style="font-weight: bold">Upvotes: {{ question.up_vote_number }} | Downvotes: {{ question.down_vote_number }} | Asked by: <a href="{{ question.owner_profile_url }}">{{ question.owner }}</a> | Posted: {{ question.time_created }} | Last edited: {{ question.last_edited_on }}</div>
+    <a class="btn btn-primary brt-sm vote_question-action" data-question_uuid="{{ question.question_uuid }}" data-vote_type="up" data-current_pleb="{{ question.current_pleb }}">Upvote</a>
+    <a class="btn btn-primary brt-sm vote_question-action" data-question_uuid="{{ question.question_uuid }}" data-vote_type="down" data-current_pleb="{{ question.current_pleb }}">Downvote</a>
+    {% if question.owner_email == question.current_pleb %}
+        <a class="btn btn-primary btn-sm show_edit_question-action" data-question_uuid="{{ question.question_uuid }}">Edit</a>
+        <div id="edit_question_{{ question.question_uuid }}" style="display:none">
+            <textarea class="form-control" id="{{ question.question_uuid }}" name="edit_question_input" rows="1" placeholder="Edit your question..."></textarea>
+            <a class="btn btn-primary btn-sm edit_question-action" data-question_uuid="{{ question.question_uuid }}" data-current_pleb="{{ question.current_pleb }}">Submit</a>
+        </div>
+    {% endif %}
 
+    <textarea class="form-control" id="answer_content_id" name="answer_content"
+              cols="40" rows="2" placeholder="Write your answer..."></textarea>
+    <a class="btn btn-primary btn-sm submit_answer-action" data-question_uuid="{{ question.question_uuid }}" data-current_pleb="{{ question.current_pleb }}" data-to_pleb="{{ question.owner_email }}">Answer</a>
+    <h2>Answers:</h2>
+    {% block answers %}
+        {% for answer in question.answers %}
+            {% include "answer_detail.html" %}
+        {% endfor %}
+    {% endblock %}
 {% endblock %}
 
 {% block scripts %}
     {{ block.super }}
+    <script src="{% static 'js/save_answer.js' %}"
+    <script src="{% static 'js/edit_question.js' %}"
     <script src="{% static 'js/query_questions.js' %}"></script>
+    <script src="{% static 'js/vote_questions.js' %}"></script>
 {% endblock scripts %}

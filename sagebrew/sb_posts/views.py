@@ -47,7 +47,7 @@ def save_post_view(request):
                 status=200)
         else:
             return Response(post_form.errors, status=400)
-    except(HTTPError, ConnectionError):
+    except (HTTPError, ConnectionError):
         return Response({"detail": "Failed to create post"},
                         status=408)
 

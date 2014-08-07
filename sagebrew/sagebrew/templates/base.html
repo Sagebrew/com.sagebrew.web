@@ -23,7 +23,7 @@
                 <div class="col-lg-4 col-md-4 col-xs-6">
                     <div class="navbar-header">
                         <h1 id="sb_logo" class="hidden-xs">Sagebrew</h1>
-                         <h1 id="sb_logo_xs" class="hidden-lg hidden-md hidden-sm">Sagebrew</h1>
+                        <h1 id="sb_logo_xs" class="hidden-lg hidden-md hidden-sm">Sagebrew</h1>
                     </div>
                 </div>
                 {% block navigation %}
@@ -31,14 +31,13 @@
                 {% endblock navigation %}
             </nav>
         </div>
+    </div>
         {% block content %}
         {% endblock %}
-    </div>
-    <div id="wrap">
+
         {% block footer %}
             {% include "footer.html" %}
         {% endblock footer %}
-    </div>
 {% block scripts %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script src="{% static 'flat_ui/js/jquery-ui-1.10.3.custom.min.js' %}"></script>

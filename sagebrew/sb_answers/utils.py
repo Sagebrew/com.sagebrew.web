@@ -6,7 +6,7 @@ from api.utils import spawn_task
 from plebs.neo_models import Pleb
 from .neo_models import SBAnswer
 from sb_questions.neo_models import SBQuestion
-from .tasks import vote_answer_task
+
 
 def save_answer_util(content="", current_pleb="", answer_uuid="",
                      question_uuid=""):
@@ -20,6 +20,8 @@ def save_answer_util(content="", current_pleb="", answer_uuid="",
     :param question_uuid:
     :return:
     '''
+    if content=='':
+        return False
     try:
         my_pleb = Pleb.index.get(email=current_pleb)
         question = SBQuestion.index.get(question_id=question_uuid)
@@ -34,11 +36,10 @@ def save_answer_util(content="", current_pleb="", answer_uuid="",
         rel_to_pleb = answer.owned_by.connect(my_pleb)
         rel_to_pleb.save()
         answer.save()
-        return True
+        return answer
     except Pleb.DoesNotExist, SBQuestion.DoesNotExist:
         return False
     except Exception, e:
-        print e
         return False
 
 def edit_answer_util(content="", current_pleb="", answer_uuid="", last_edited_on=""):
@@ -65,9 +66,11 @@ def edit_answer_util(content="", current_pleb="", answer_uuid="", last_edited_on
         return True
     except SBAnswer.DoesNotExist:
         return False
+    except:
+        return False
 
 def upvote_answer_util(answer_uuid="", current_pleb=""):
-    from sb_questions.tasks import vote_question_task
+    from .tasks import vote_answer_task
     try:
         pleb = Pleb.index.get(email=current_pleb)
         my_question = SBAnswer.index.get(answer_id=answer_uuid)
@@ -82,8 +85,26 @@ def upvote_answer_util(answer_uuid="", current_pleb=""):
         return False
     except Pleb.DoesNotExist:
         return False
+    except:
+        return False
 
 
 def downvote_answer_util(answer_uuid="", current_pleb=""):
-    pass
+    from .tasks import vote_answer_task
+    try:
+        pleb = Pleb.index.get(email=current_pleb)
+        my_question = SBAnswer.index.get(answer_id=answer_uuid)
+        my_question.down_vote_number += 1
+        my_question.down_voted_by.connect(pleb)
+        my_question.save()
+        return True
+    except SBQuestion.DoesNotExist:
+        data = {'question_uuid': answer_uuid, 'current_pleb': current_pleb,
+                'vote_type': 'down'}
+        spawn_task(task_func=vote_answer_task, task_param=data, countdown=1)
+        return False
+    except Pleb.DoesNotExist:
+        return False
+    except:
+        return False
 

@@ -5,7 +5,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
 from sb_posts.neo_models import SBBase
 
 class SBAnswer(SBBase):
-    answer_id = StringProperty()
+    answer_id = StringProperty(unique_index=True)
 
 
     # relationships

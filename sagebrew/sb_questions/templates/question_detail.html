@@ -33,8 +33,10 @@
 
 {% block scripts %}
     {{ block.super }}
-    <script src="{% static 'js/save_answer.js' %}"
-    <script src="{% static 'js/edit_question.js' %}"
+    <script src="{% static 'js/save_answer.js' %}"></script>
+    <script src="{% static 'js/edit_answer.js' %}"></script>
+    <script src="{% static 'js/edit_question.js' %}"></script>
     <script src="{% static 'js/query_questions.js' %}"></script>
     <script src="{% static 'js/vote_questions.js' %}"></script>
+    <script src="{% static 'js/vote_answer.js' %}"></script>
 {% endblock scripts %}

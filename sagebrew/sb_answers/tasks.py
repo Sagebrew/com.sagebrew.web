@@ -66,6 +66,9 @@ def edit_answer_task(content="", answer_uuid="", last_edited_on=None,
 
     except SBAnswer.DoesNotExist, Pleb.DoesNotExist:
         return False
+    except Exception, e:
+        print e
+        return False
 
 
 
@@ -81,15 +84,21 @@ def vote_answer_task(answer_uuid="", current_pleb="", vote_type=""):
     :param vote_type:
     :return:
     '''
-    my_pleb = Pleb.index.get(email=current_pleb)
-    my_answer = SBAnswer.index.get(answer_id = answer_uuid)
-    if my_answer.up_voted_by.is_connected(
-            my_pleb) or my_answer.down_voted_by.is_connected(my_pleb):
+    try:
+        my_pleb = Pleb.index.get(email=current_pleb)
+        my_answer = SBAnswer.index.get(answer_id = answer_uuid)
+        if my_answer.up_voted_by.is_connected(
+                my_pleb) or my_answer.down_voted_by.is_connected(my_pleb):
+            return False
+        else:
+            if vote_type == 'up':
+                upvote_answer_util(answer_uuid, current_pleb)
+                return True
+            elif vote_type == 'down':
+                downvote_answer_util(answer_uuid, current_pleb)
+                return True
+    except SBAnswer.DoesNotExist, Pleb.DoesNotExist:
         return False
-    else:
-        if vote_type == 'up':
-            upvote_answer_util(answer_uuid, current_pleb)
-            return True
-        elif vote_type == 'down':
-            downvote_answer_util(answer_uuid, current_pleb)
-            return True
+    except Exception, e:
+        print e
+        return False

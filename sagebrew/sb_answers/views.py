@@ -64,6 +64,7 @@ def edit_answer_view(request):
     if type(answer_data) != dict:
         return Response({"details": "Please provide a valid JSON object"},
                         status=400)
+    answer_data['last_edited_on'] = datetime.now(pytz.utc)
     try:
         answer_data['last_edited_on'] = datetime.now(pytz.utc)
     except TypeError:
@@ -80,4 +81,31 @@ def edit_answer_view(request):
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def vote_answer_view(request):
-    pass
+    '''
+    The api endpoint which takes a dictionary and allows users to upvote
+    or downvote an answer
+
+    :param request:
+
+                    dict = {'current_pleb': '', 'vote_type': '',
+                            'answer_uuid': ''}
+
+    :return:
+    '''
+    try:
+        post_data = get_post_data(request)
+        print post_data
+        if type(post_data) != dict:
+            return Response({"details": "Please Provide a JSON Object"},
+                            status=400)
+        answer_form = VoteAnswerForm(post_data)
+        if answer_form.is_valid():
+            spawn_task(task_func=vote_answer_task,
+                       task_param=answer_form.cleaned_data)
+            return Response({"detail": "Vote Created!"}, status=200)
+        else:
+            return Response({'detail': answer_form.errors}, status=400)
+    except Exception, e:
+        print e
+        return Response({"detail": "Vote could not be created!",
+                         'exception': e})

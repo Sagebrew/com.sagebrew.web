@@ -10,6 +10,7 @@ class EditAnswerForm(forms.Form):
     answer_uuid = forms.CharField()
     current_pleb = forms.EmailField()
     content = forms.CharField()
+    last_edited_on = forms.DateTimeField()
 
 class VoteAnswerForm(forms.Form):
     answer_uuid = forms.CharField()

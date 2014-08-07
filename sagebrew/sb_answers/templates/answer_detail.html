@@ -3,5 +3,9 @@
 <a class="btn btn-primary btn-sm vote_answer-action" data-answer_uuid="{{ answer.answer_uuid }}" data-current_pleb="{{ answer.current_pleb }}" data-vote_type="up">Upvote</a>
 <a class="btn btn-primary btn-sm vote_answer-action" data-answer_uuid="{{ answer.answer_uuid }}" data-current_pleb="{{ answer.current_pleb }}" data-vote_type="down">Downvote</a>
 {% if answer.current_pleb == answer.answer_owner_email %}
-    <a class="btn btn-primary btn-sm edit_answer-action" data-answer_uuid="{{ answer.answer_uuid }}" data-current_pleb="{{ answer.current_pleb }}">Edit</a>
+    <a class="btn btn-primary btn-sm show_edit_answer-action" data-answer_uuid="{{ answer.answer_uuid }}" data-current_pleb="{{ answer.current_pleb }}">Edit</a>
+    <div style="display:none" id="show_edit_answer_id_{{ answer.answer_uuid }}">
+        <textarea class="form-control" id="{{ answer.answer_uuid }}" placeholder="Edit your answer..."></textarea>
+        <a class="btn btn-primary btn-sm edit_answer-action" data-answer_uuid="{{ answer.answer_uuid }}" data-current_pleb="{{ answer.current_pleb }}">Submit Edit</a>
+    </div>
 {% endif %}

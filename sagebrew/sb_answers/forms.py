@@ -7,12 +7,12 @@ class SaveAnswerForm(forms.Form):
     to_pleb = forms.EmailField()
 
 class EditAnswerForm(forms.Form):
-    question_uuid = forms.CharField()
+    answer_uuid = forms.CharField()
     current_pleb = forms.EmailField()
     content = forms.CharField()
 
 class VoteAnswerForm(forms.Form):
-    question_uuid = forms.CharField()
+    answer_uuid = forms.CharField()
     current_pleb = forms.EmailField()
     vote_type = forms.CharField()
 

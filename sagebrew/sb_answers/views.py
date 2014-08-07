@@ -36,24 +36,46 @@ def save_answer_view(request):
     :return:
     '''
     answer_data = get_post_data(request)
-    print answer_data
     if type(answer_data) != dict:
-        return Response({'detail': 'Please provide a valid JSON object'})
+        return Response({'detail': 'Please provide a valid JSON object'}, status=400)
     #answer_data['content'] = language_filter(answer_data['content'])
 
     answer_form = SaveAnswerForm(answer_data)
     if answer_form.is_valid():
-        print answer_form.cleaned_data
         spawn_task(task_func=save_answer_task, task_param=answer_form.cleaned_data)
-        return Response({'detail': 'successfully posted an answer'})
+        return Response({'detail': 'successfully posted an answer'}, status=200)
     else:
-        print answer_form.errors
-        return Response({'detail': 'failed to post an answer'})
+        return Response({'detail': 'failed to post an answer'}, status=400)
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def edit_answer_view(request):
-    pass
+    '''
+    The api endpoint which takes a dictionary to edit an answer
+
+    :param request:
+
+                    dict = {'content': '', 'current_pleb': '',
+                            'answer_uuid': ''}
+
+    :return:
+    '''
+    answer_data = get_post_data(request)
+    if type(answer_data) != dict:
+        return Response({"details": "Please provide a valid JSON object"},
+                        status=400)
+    try:
+        answer_data['last_edited_on'] = datetime.now(pytz.utc)
+    except TypeError:
+        answer_data = answer_data
+    answer_form = EditAnswerForm(answer_data)
+    if answer_form.is_valid():
+        spawn_task(task_func=edit_answer_task,
+                   task_param=answer_form.cleaned_data)
+        return Response({"detail": "edit question task spawned"},
+                        status=200)
+    else:
+        return Response(answer_form.errors, status=400)
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))

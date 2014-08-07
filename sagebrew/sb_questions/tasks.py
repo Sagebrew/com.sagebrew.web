@@ -23,15 +23,13 @@ def create_question_task(content="", current_pleb="", question_title="",
             if fail retries creating the task
     '''
     if create_question_util(content=content, current_pleb=current_pleb,
-                            question_title=question_title, question_uuid=question_uuid) is not None:
+                            question_title=question_title) is not None:
         return True
     else:
-        '''
         data = {'content': content, 'current_pleb': current_pleb,
                 'question_title': question_title}
         spawn_task(task_func=create_question_task, task_param=data,
                    countdown=2)
-        '''
         return False
 
 @shared_task()

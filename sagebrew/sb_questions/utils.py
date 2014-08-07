@@ -10,7 +10,7 @@ from api.utils import spawn_task
 from plebs.neo_models import Pleb
 from .neo_models import SBQuestion
 
-def create_question_util(content="", current_pleb="", question_title="", question_uuid=str(uuid1())):
+def create_question_util(content="", current_pleb="", question_title=""):
     '''
     This util creates the question and attaches it to the user who asked it
 
@@ -24,7 +24,7 @@ def create_question_util(content="", current_pleb="", question_title="", questio
             return None
         poster = Pleb.index.get(email=current_pleb)
         my_question = SBQuestion(content=content, question_title=question_title,
-                                 question_id=question_uuid)
+                                 question_id=str(uuid1()))
         my_question.save()
         rel = my_question.owned_by.connect(poster)
         rel.save()
@@ -108,7 +108,7 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb):
                 question_array.append(question_dict)
             return question_array
     except Exception, e:
-        return False
+        return []
 
 def get_question_by_uuid(question_uuid=str(uuid1()), current_pleb=""):
     '''

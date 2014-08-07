@@ -1,0 +1,15 @@
+.sb_btn_dropdown, .sb_btn_dropdown:hover {
+    margin-top: 5px;
+    background-color: #1ba39c;
+}
+.sb_btn_dropdown:active, .sb_btn_dropdown:focus {
+    background-color: #1ba39c;
+}
+.open .dropdown-menu {
+    margin-top: 50px !important; */
+    opacity: 1;
+    visibility: visible;
+}
+.sb_icon_list {
+    color: #e4eee5;
+}

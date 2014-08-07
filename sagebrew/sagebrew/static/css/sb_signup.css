@@ -8,11 +8,7 @@
     background-color: #e4eee5;
     font-weight: bolder;
 }
-.sb_navbar {
-    background-color: #1ba39c;
-    min-height: 0;
-    height: 80px;
-}
+
 #sb_input {
     margin: auto;
     width: 400px;
@@ -20,12 +16,13 @@
     position: relative;
 }
 .sb_bottom_menu {
-    height: 100%;
+    height: 200px;
     margin-top: auto;
     padding-top: 2em;
 }
 .sb_bottom_links {
     color: #7c7e80;
+    text-align: left;
 }
 .sb_btn_signup{
     margin-bottom: 85px;
@@ -49,16 +46,5 @@
     font-size: 1.75em;
     margin-top: 20px;
 }
-/* will add sb style class later on */
-.navbar-form.navbar-right:last-child {
-    width:auto;
-    background-color: #1ba39c;
-    border-color: #1ba39c;
-}
-.navbar-form .form-control {
-    display:inline;
-}
-#sb_div_name{
-    margin-left: -15px;
-    margin-right: -15px;
+
 }

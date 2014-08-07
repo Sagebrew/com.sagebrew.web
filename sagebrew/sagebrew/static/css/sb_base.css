@@ -1,5 +1,6 @@
 .body {
     height: 100%;
+    padding-bottom: 80px;
 }
 #wrap{
   min-height: 100%;
@@ -10,9 +11,10 @@
 #sb_logo {
     color: #e4eee5;
     text-align: left;
-    margin-top: 20px;
     margin-left: .75em;
+    margin-top: 1px;
     font-size: 30pt;
+    height: auto;
 }
 #sb_logo_bottom {
     margin-left: 30px;
@@ -20,21 +22,11 @@
 #sb_logo_xs {
     color: #e4eee5;
     text-align: left;
-    margin-top: 10px;
-    margin-left: 35%;
-    font-size: 40pt;
+    margin-top: 1px;
+    margin-left: 50%;
+    font-size: 30pt;
 }
-.sb_bottom_menu{
-    margin-top:50%;
-    padding_left: 30px;
-    height: 190px;
-    position:fixed;
-    margin-bottom:0;
-    bottom:0px;
-    left:0px;
-    right:0px;
 
-}
 .sb_background {
     background-size: cover;
     position: inherit;
@@ -96,6 +88,9 @@
     height: 100%;
     margin-bottom: 15px;
 }
+.sb_dropdown_menu{
+    margin-top:60px;
+}
 .sb_error {
     color: #e74c3c;
     margin-left: 2em;
@@ -116,3 +111,26 @@
     border-bottom-width: 5pt;
     border-bottom-color: #26424a;
 }
+.sb_footer_blank {
+    position: inherit;
+    margin-top: 80%;
+    margin-bottom: 0;
+}
+.sb_bottom_menu{
+    margin-bottom: 0;
+}
+.sb_navbar {
+    background-color: #1ba39c;
+    min-height: 0;
+    height: 50px;
+}
+.sb_nav_form {
+    margin-top: 1px;
+}
+/* will add sb style class later on */
+.navbar-form.navbar-right:last-child {
+    width:auto;
+    padding-top: 6px;
+}
+.navbar-form .form-control {
+    display:inline;

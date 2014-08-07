@@ -26,6 +26,8 @@ def save_answer_util(content="", current_pleb="", answer_uuid="",
         answer.save()
         answer.answer_to.connect(question)
         question.answer.connect(answer)
+        question.answer_number += 1
+        question.save()
         rel_from_pleb = my_pleb.answers.connect(answer)
         rel_from_pleb.save()
         rel_to_pleb = answer.owned_by.connect(my_pleb)

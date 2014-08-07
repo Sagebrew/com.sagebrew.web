@@ -10,7 +10,7 @@ from api.utils import spawn_task
 from plebs.neo_models import Pleb
 from .neo_models import SBQuestion
 
-def create_question_util(content="", current_pleb="", question_title=""):
+def create_question_util(content="", current_pleb="", question_title="", question_uuid=str(uuid1())):
     '''
     This util creates the question and attaches it to the user who asked it
 
@@ -20,16 +20,19 @@ def create_question_util(content="", current_pleb="", question_title=""):
     :return:
     '''
     try:
+        if content == "" or question_title == "":
+            return None
         poster = Pleb.index.get(email=current_pleb)
         my_question = SBQuestion(content=content, question_title=question_title,
-                                 question_id=str(uuid1()))
+                                 question_id=question_uuid)
         my_question.save()
         rel = my_question.owned_by.connect(poster)
         rel.save()
         rel_from_pleb = poster.questions.connect(my_question)
         rel_from_pleb.save()
         return my_question
-    except:
+    except Exception, e:
+        print e
         return None
 
 def prepare_get_question_dictionary(questions, sort_by, current_pleb):
@@ -47,62 +50,65 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb):
     '''
     question_array = []
     answer_array = []
-    if sort_by == 'uuid':
-        owner = questions.traverse('owned_by').run()[0]
-        owner_name = owner.first_name + ' ' + owner.last_name
-        owner_profile_url = settings.WEB_ADDRESS + '/user/' + owner.email
-        answers = questions.traverse('answer').where('to_be_deleted', '=',
-                                                     False).run()
-        for answer in answers:
-            answer_owner = answer.traverse('owned_by').run()[0]
-            answer_owner_name = answer_owner.first_name +' '+answer_owner.last_name
-            answer_owner_url = settings.WEB_ADDRESS+'/user/'+owner.email
-            answer_dict = {'answer_content': answer.content,
-                           'current_pleb': current_pleb,
-                           'answer_uuid': answer.answer_id,
-                           'last_edited_on': answer.last_edited_on,
-                           'up_vote_number': answer.up_vote_number,
-                           'down_vote_number': answer.down_vote_number,
-                           'answer_owner_name': answer_owner_name,
-                           'answer_owner_url': answer_owner_url,
-                           'time_created': answer.date_created,
-                           'answer_owner_email': answer_owner.email}
-            answer_array.append(answer_dict)
-        question_dict = {'question_title': questions.question_title,
-                         'question_content': questions.content,
-                         'question_uuid': questions.question_id,
-                         'is_closed': questions.is_closed,
-                         'answer_number': questions.answer_number,
-                         'last_edited_on': questions.last_edited_on,
-                         'up_vote_number': questions.up_vote_number,
-                         'down_vote_number': questions.down_vote_number,
-                         'owner': owner_name,
-                         'owner_profile_url': owner_profile_url,
-                         'time_created': questions.date_created,
-                         'answers': answer_array,
-                         'current_pleb': current_pleb,
-                         'owner_email': owner.email}
-        return question_dict
-    else:
-        for question in questions:
-            owner = question.traverse('owned_by').run()[0]
-            owner = owner.first_name + ' ' + owner.last_name
-            question_dict = {'question_title': question.question_title,
-                             'question_content': question.content[:50]+'...',
-                             'is_closed': question.is_closed,
-                             'answer_number': question.answer_number,
-                             'last_edited_on': question.last_edited_on,
-                             'up_vote_number': question.up_vote_number,
-                             'down_vote_number': question.down_vote_number,
-                             'owner': owner,
-                             'time_created': question.date_created,
-                             'question_url': settings.WEB_ADDRESS +
-                                             '/questions/' +
-                                             question.question_id,
-                             'current_pleb': current_pleb
-                        }
-            question_array.append(question_dict)
-        return question_array
+    try:
+        if sort_by == 'uuid':
+            owner = questions.traverse('owned_by').run()[0]
+            owner_name = owner.first_name + ' ' + owner.last_name
+            owner_profile_url = settings.WEB_ADDRESS + '/user/' + owner.email
+            answers = questions.traverse('answer').where('to_be_deleted', '=',
+                                                         False).run()
+            for answer in answers:
+                answer_owner = answer.traverse('owned_by').run()[0]
+                answer_owner_name = answer_owner.first_name +' '+answer_owner.last_name
+                answer_owner_url = settings.WEB_ADDRESS+'/user/'+owner.email
+                answer_dict = {'answer_content': answer.content,
+                               'current_pleb': current_pleb,
+                               'answer_uuid': answer.answer_id,
+                               'last_edited_on': answer.last_edited_on,
+                               'up_vote_number': answer.up_vote_number,
+                               'down_vote_number': answer.down_vote_number,
+                               'answer_owner_name': answer_owner_name,
+                               'answer_owner_url': answer_owner_url,
+                               'time_created': answer.date_created,
+                               'answer_owner_email': answer_owner.email}
+                answer_array.append(answer_dict)
+            question_dict = {'question_title': questions.question_title,
+                             'question_content': questions.content,
+                             'question_uuid': questions.question_id,
+                             'is_closed': questions.is_closed,
+                             'answer_number': questions.answer_number,
+                             'last_edited_on': questions.last_edited_on,
+                             'up_vote_number': questions.up_vote_number,
+                             'down_vote_number': questions.down_vote_number,
+                             'owner': owner_name,
+                             'owner_profile_url': owner_profile_url,
+                             'time_created': questions.date_created,
+                             'answers': answer_array,
+                             'current_pleb': current_pleb,
+                             'owner_email': owner.email}
+            return question_dict
+        else:
+            for question in questions:
+                owner = question.traverse('owned_by').run()[0]
+                owner = owner.first_name + ' ' + owner.last_name
+                question_dict = {'question_title': question.question_title,
+                                 'question_content': question.content[:50]+'...',
+                                 'is_closed': question.is_closed,
+                                 'answer_number': question.answer_number,
+                                 'last_edited_on': question.last_edited_on,
+                                 'up_vote_number': question.up_vote_number,
+                                 'down_vote_number': question.down_vote_number,
+                                 'owner': owner,
+                                 'time_created': question.date_created,
+                                 'question_url': settings.WEB_ADDRESS +
+                                                 '/questions/' +
+                                                 question.question_id,
+                                 'current_pleb': current_pleb
+                            }
+                question_array.append(question_dict)
+            return question_array
+    except Exception, e:
+        return False
 
 def get_question_by_uuid(question_uuid=str(uuid1()), current_pleb=""):
     '''
@@ -122,12 +128,9 @@ def get_question_by_uuid(question_uuid=str(uuid1()), current_pleb=""):
                                                    current_pleb=current_pleb)
         return response
     except SBQuestion.DoesNotExist:
-        print 'fail'
         traceback.print_exc()
-        print question_uuid
         return {"detail": "There are no questions with that ID"}
     except Exception, e:
-        print e
         traceback.print_exc()
         return {"detail": "Failure"}
 
@@ -232,10 +235,12 @@ def upvote_question_util(quesiton_uuid="", current_pleb=""):
         my_question.up_vote_number += 1
         my_question.up_voted_by.connect(pleb)
         my_question.save()
+        return True
     except SBQuestion.DoesNotExist:
         data = {'question_uuid': quesiton_uuid, 'current_pleb': current_pleb,
                 'vote_type': 'up'}
         spawn_task(task_func=vote_question_task, task_param=data, countdown=1)
+        return False
     except Pleb.DoesNotExist:
         return False
 
@@ -255,10 +260,12 @@ def downvote_question_util(quesiton_uuid="", current_pleb=""):
         my_question.down_vote_number += 1
         my_question.down_voted_by.connect(pleb)
         my_question.save()
+        return True
     except SBQuestion.DoesNotExist:
         data = {'question_uuid': quesiton_uuid, 'current_pleb': current_pleb,
                 'vote_type': 'down'}
         spawn_task(task_func=vote_question_task, task_param=data, countdown=1)
+        return False
     except Pleb.DoesNotExist:
         return False
 

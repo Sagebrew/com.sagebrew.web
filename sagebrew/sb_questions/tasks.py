@@ -8,7 +8,8 @@ from .utils import (create_question_util, upvote_question_util,
                     downvote_question_util, edit_question_util)
 
 @shared_task()
-def create_question_task(content="", current_pleb="", question_title=""):
+def create_question_task(content="", current_pleb="", question_title="",
+                         question_uuid=str(uuid1())):
     '''
     This task calls the util to create a question, if the util fails the
     task respawns itself.
@@ -21,13 +22,17 @@ def create_question_task(content="", current_pleb="", question_title=""):
 
             if fail retries creating the task
     '''
-    if create_question_util(content, current_pleb, question_title) is not None:
+    if create_question_util(content=content, current_pleb=current_pleb,
+                            question_title=question_title, question_uuid=question_uuid) is not None:
         return True
     else:
+        '''
         data = {'content': content, 'current_pleb': current_pleb,
                 'question_title': question_title}
         spawn_task(task_func=create_question_task, task_param=data,
                    countdown=2)
+        '''
+        return False
 
 @shared_task()
 def edit_question_task(question_uuid="", content="", current_pleb="", last_edited_on=""):

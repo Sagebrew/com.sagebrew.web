@@ -49,11 +49,13 @@ def question_page(request, sort_by="most_recent"):
     question which is shown on your newsfeed or another page
 
     :param request:
+
                 request.DATA/request.body = {
                     'question_uuid': str(uuid1()),
                     'current_pleb': 'example@email.com'
                     'sort_by': ''
                 }
+
     :return:
     '''
     current_user = request.user
@@ -89,11 +91,13 @@ def save_question_view(request):
     This is the API view to create a question
 
     :param request:
+
             request.DATA or request.body = {
                 'content': '',
                 'current_pleb': 'example@email.com'
                 'question_title': ''
             }
+
     :return:
     '''
     question_data = get_post_data(request)
@@ -117,12 +121,14 @@ def edit_question_view(request):
    The API view to allow a user to edit their question
 
     :param request:
+
             request.DATA/request.body = {
                 'question_uuid': str(uuid1())
                 'content': '',
                 'current_pleb': 'example@email.com',
                 'last_edited_on': datetime
             }
+
     :return:
     '''
     question_data = get_post_data(request)
@@ -133,16 +139,13 @@ def edit_question_view(request):
         question_data['last_edited_on'] = datetime.now(pytz.utc)
     except TypeError:
         question_data = question_data
-    print question_data
     question_form = EditQuestionForm(question_data)
     if question_form.is_valid():
-        print question_form.cleaned_data
         spawn_task(task_func=edit_question_task,
                    task_param=question_form.cleaned_data)
         return Response({"detail": "edit question task spawned"},
                         status=200)
     else:
-        print question_form.errors
         return Response(question_form.errors, status=400)
 
 @api_view(['POST'])
@@ -153,22 +156,12 @@ def close_question_view(request):
     irrelevant or redundant or the question is no longer active
 
     :param request:
+
             request.DATA/request.body = {
                 'question_uuid': str(uuid1()),
                 'current_pleb': 'example@email.com'
             }
-    :return:
-    '''
-    pass
 
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def delete_question_view(request):
-    '''
-    Only to be used by admins once it has been voted that the question should
-    be deleted
-
-    :param request:
     :return:
     '''
     pass
@@ -180,10 +173,12 @@ def vote_question_view(request):
     The API view to allow the user to upvote/downvote question
 
     :param request:
+
             request.DATA/request.body = {
                 'question_uuid': str(uuid1()),
                 'vote_type': 'up' or 'down',
                 'current_pleb': 'example@email.com'
+
     :return:
     '''
     try:
@@ -209,6 +204,7 @@ def get_question_view(request):
     Gets the question/questions.
 
     Accepted 'sort_by' parameters:
+
                                   'uuid',
                                   'most_recent',
                                   'least_recent',
@@ -234,6 +230,7 @@ def get_question_view(request):
         interests
 
     :param request:
+
             request.DATA/request.body = {
                 'question_uuid': str(uuid1()),
                 'user': 'example2@email.com',
@@ -242,17 +239,21 @@ def get_question_view(request):
                 'range_start': 0,
                 'range_end': 5
             }
+
     :return:
     '''
-    question_data = get_post_data(request)
-    print question_data
-    if question_data['sort_by'] == 'most_recent':
-        response = get_question_by_most_recent(current_pleb=question_data['current_pleb'])
-    elif question_data['sort_by'] == 'uuid':
-        response = get_question_by_uuid(question_data['question_uuid'],
-                                        question_data['current_pleb'])
-    elif question_data['sort_by'] == 'least_recent':
-        response = get_question_by_least_recent(current_pleb=question_data['current_pleb'])
-    else:
-        response = {"detail": "fail"}
-    return Response(response)
+    try:
+        question_data = get_post_data(request)
+        if question_data['sort_by'] == 'most_recent':
+            response = get_question_by_most_recent(current_pleb=question_data['current_pleb'])
+        elif question_data['sort_by'] == 'uuid':
+            response = get_question_by_uuid(question_data['question_uuid'],
+                                            question_data['current_pleb'])
+        elif question_data['sort_by'] == 'least_recent':
+            response = get_question_by_least_recent(current_pleb=question_data['current_pleb'])
+        else:
+            response = {"detail": "fail"}
+            return Response(response, status=400)
+        return Response(response, status=200)
+    except Exception, e:
+        return Response({'detail': 'fail'}, status=400)

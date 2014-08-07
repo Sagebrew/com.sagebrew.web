@@ -1,0 +1,17 @@
+.sb_profile_container_left {
+    background-color: #eaf0e8;
+    max-width: 400px;
+    height: auto;
+    margin-left: 2.5%;
+    margin-right: .5%;
+    margin-top: -15px;
+    border-radius: 5px;
+}
+.sb_profile_container_top {
+    background-color: #eaf0e8;
+    width: 95%;
+    height: 250px;
+    margin-left: 2.5%;
+    margin-right: 2.5%;
+    border-radius: 0 0 5px 5px;
+}

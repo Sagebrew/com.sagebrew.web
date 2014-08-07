@@ -2,62 +2,46 @@
 {% load i18n %}
 {% load staticfiles %}
 {% block navigation %}
+    <div class="sb_navbar_2">
     {% include "logged_in_nav.html" %}
+    </div>
 {% endblock %}
 {% block content %}
-        <div class="sb_profile_container_left">
-
-        </div>
-        {% if is_owner == True %}
-            {% block notifications %}
-                <a class="btn btn-sm btn-primary show_friend_request-action"
-                   data-email="{{ pleb_info.email }}">Friend Requests</a>
-                <div id="friend_request_div"
-                     style="display:none">
-                    {% block friend_requests %}
-                        {% include "friend_requests.html" %}
-                    {% endblock %}
-                </div>
-                <a class="btn btn-sm btn-primary show_notifications-action">Notifications</a>
-                <div id="notification_div"
-                     style="display:none">
-                    {% block notification_divs %}
-                        {% include "notifications.html" %}
-                    {% endblock %}
-                </div>
-            {% endblock %}
-            {% block friends %}
-                {% include "friends_list.html" %}
-            {% endblock %}
-        {% endif %}
-        {% if is_owner == True or is_friend == True %}
-            <h1>{{ pleb_info.first_name }} {{ pleb_info.last_name }}</h1>
-            <img src="{{ pleb_info.profile_pic|default_if_none:'' }}"/>
-            <div align="left"><b>Reputation: </b>{{ pleb_info.reputation }}</div>
-            <div align="left"><b>Representatives:</b></div>
-            <div align="left">Senators:</div>
-            <ul>
-                {% for senator in senator_names %}
-                    <li>{{ senator }}</li>
-                {% endfor %}
-            </ul>
-            <div align="left">House Representative:</div>
-            <ul>
-                <li>{{ rep_name }}</li>
-            </ul>
-        <div class="row-fluid">
-            <textarea class="form-control"
+{% if is_owner == True or is_friend == True %}
+    <div class="row-fluid sb_profile_container_top">
+        <div class="col-lg-6 col-lg-offset-4">
+             <textarea class="sb_post form-control"
                       id="post_input_id"
                       name="post_input"
                       cols='40'
                       rows="3"
                       placeholder="Create a post">
             </textarea>
+        </div>
+        <div class="col-lg-2">
             <a class='btn btn-lg btn-block btn-primary post-action'
                data-current_pleb="{{ current_user }}"
                data-wall_pleb="{{ page_user }}">Create Post
             </a>
         </div>
+    </div>
+    <div class="sb_profile_container_left">
+        <h1>{{ pleb_info.first_name }} {{ pleb_info.last_name }}</h1>
+        <img src="{{ pleb_info.profile_pic|default_if_none:'' }}"/>
+        <div align="left"><b>Reputation: </b>{{ pleb_info.reputation }}</div>
+        <div align="left"><b>Representatives:</b></div>
+        <div align="left">Senators:</div>
+        <ul>
+            {% for senator in senator_names %}
+                <li>{{ senator }}</li>
+            {% endfor %}
+        </ul>
+        <div align="left">House Representative:</div>
+        <ul>
+            <li>{{ rep_name }}</li>
+        </ul>
+    </div>
+
         {% block wall %}
             {% include "wall.html" %}
         {% endblock %}

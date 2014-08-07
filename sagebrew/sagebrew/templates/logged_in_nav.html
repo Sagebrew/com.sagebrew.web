@@ -29,6 +29,27 @@
         </ul>
     </div>
 </div>
-<div class="col-lg-2 col-lg-offset-9">
-
+<div class="col-lg-4">
+  {% if is_owner == True %}
+        {% block notifications %}
+            <a class="btn btn-sm btn-primary show_friend_request-action"
+               data-email="{{ pleb_info.email }}">Friend Requests</a>
+            <div id="friend_request_div"
+                 style="display:none">
+                {% block friend_requests %}
+                    {% include "friend_requests.html" %}
+                {% endblock %}
+            </div>
+            <a class="btn btn-sm btn-primary show_notifications-action">Notifications</a>
+            <div id="notification_div"
+                 style="display:none">
+                {% block notification_divs %}
+                    {% include "notifications.html" %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+        {% block friends %}
+            {% include "friends_list.html" %}
+        {% endblock %}
+    {% endif %}
 </div>

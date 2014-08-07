@@ -9,7 +9,7 @@
   padding: 0 0 190px;
 }
 #sb_logo {
-    color: #e4eee5;
+    color: #eaf0e8;
     text-align: left;
     margin-left: .75em;
     margin-top: 1px;
@@ -20,7 +20,7 @@
     margin-left: 30px;
 }
 #sb_logo_xs {
-    color: #e4eee5;
+    color: #eaf0e8;
     text-align: left;
     margin-top: 1px;
     margin-left: 50%;
@@ -45,7 +45,7 @@
     margin-bottom: 100px;
 }
 .sb_title {
-    color: #e4eee5;
+    color: #eaf0e8;
     font-size: 1.75em;
 }
 .sb_btn_continue {
@@ -103,7 +103,7 @@
     border-radius:7px 7px 7px 7px ;
 }
 .sb_modal_body {
-    background-color: #e4eee5 ;
+    background-color: #eaf0e8;
     border-radius:0 0 7px 7px ;
 }
 .sb_modal_header {
@@ -122,7 +122,10 @@
 .sb_navbar {
     background-color: #1ba39c;
     min-height: 0;
-    height: 50px;
+    height: 53px;
+    border-bottom-style: solid;
+    border-color: #26424a;
+    border-radius: 0;
 }
 .sb_nav_form {
     margin-top: 1px;

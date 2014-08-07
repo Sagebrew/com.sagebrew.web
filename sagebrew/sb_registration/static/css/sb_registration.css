@@ -5,7 +5,7 @@
     margin-left: 10%;
     margin-right: 10%;
     border-radius: 10px;
-    background-color: #e4eee5;
+    background-color: #eaf0e8;
     position: inherit;
     float: left;
 }
@@ -61,7 +61,7 @@
 }
 .sb_content_box {
     background-color: #26424a;
-    color: #e4eee5;
+    color: #eaf0e8;
     font-weight: bolder;
     border-radius: 10px;
     position: absolute;
@@ -73,7 +73,7 @@
 }
 .sb_content_box_2 {
     background-color: #26424a;
-    color: #e4eee5;
+    color: #eaf0e8;
     font-weight: bolder;
     border-radius: 10px;
     position: absolute;
@@ -140,7 +140,7 @@
 }
 
 #sb_picture_header {
-    color: #e4eee5;
+    color: #eaf0e8;
     text-align: center;
     margin-top: 0;
     margin-bottom: 0;
@@ -166,7 +166,7 @@
     margin-right: 5%;
 }
 .fui-cross-inverted .sb_modal_close {
-    text-emphasis-color:#e4eee5;
+    text-emphasis-color: #eaf0e8;
     margin-left: 98%;
     padding-right: 15px;
 }

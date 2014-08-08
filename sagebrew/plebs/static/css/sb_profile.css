@@ -24,6 +24,20 @@
     margin-top: -15px;
     border-radius: 5px;
 }
+.sb_post_container {
+    background-color: #e0e7e1;
+    height:80px;
+    width:770px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border: solid;
+    border-color: #1ba39c;
+    border-width: 1px;
+    border-radius: 5px;
+}
 .sb_post {
-    height:45px;
+    max-height: 60px;
+    max-width: 550px;
 }

@@ -10,13 +10,13 @@
 {% if is_owner == True or is_friend == True %}
     <div class="row-fluid sb_profile_container_top">
         <div class="col-lg-6 col-lg-offset-4">
-             <textarea class="sb_post form-control"
-                      id="post_input_id"
-                      name="post_input"
-                      cols='40'
-                      rows="3"
-                      placeholder="Create a post">
-            </textarea>
+            <div class="sb_post_container">
+                 <textarea class="sb_post form-control"
+                          id="post_input_id"
+                          name="post_input"
+                          placeholder="Create a post">
+                </textarea>
+            </div>
         </div>
         <div class="col-lg-2">
             <a class='btn btn-lg btn-block btn-primary post-action'

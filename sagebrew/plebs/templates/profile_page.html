@@ -8,45 +8,56 @@
 {% endblock %}
 {% block content %}
 {% if is_owner == True or is_friend == True %}
+    <div class="row-fluid">
     <div class="row-fluid sb_profile_container_top">
-        <div class="col-lg-6 col-lg-offset-4">
-            <div class="sb_post_container">
-                 <textarea class="sb_post form-control"
-                          id="post_input_id"
-                          name="post_input"
-                          placeholder="Create a post">
-                </textarea>
+
+    </div>
+    <div class="col-lg-4">
+        <div class="sb_profile_container_left">
+            <h1>{{ pleb_info.first_name }} {{ pleb_info.last_name }}</h1>
+            <img src="{{ pleb_info.profile_pic|default_if_none:'' }}"/>
+            <div align="left"><b>Reputation: </b>{{ pleb_info.reputation }}</div>
+            <div align="left"><b>Representatives:</b></div>
+            <div align="left">Senators:</div>
+            <ul>
+                {% for senator in senator_names %}
+                    <li>{{ senator }}</li>
+                {% endfor %}
+            </ul>
+            <div align="left">House Representative:</div>
+            <ul>
+                <li>{{ rep_name }}</li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="row-fluid">
+            <div class="row-fluid">
+                <div class="col-lg-12">
+                    <div class="sb_post_container">
+                         <textarea class="sb_post form-control"
+                                  id="post_input_id"
+                                  name="post_input"
+                                  placeholder="Spark a conversation . . .">
+                        </textarea>
+
+                        <a class='sb_btn_post btn btn-lg btn-block btn-primary post-action'
+                           data-current_pleb="{{ current_user }}"
+                           data-wall_pleb="{{ page_user }}">Post
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="sb_profile_container_wall">
+                    {% block wall %}
+                        {% include "wall.html" %}
+                    {% endblock %}
+                </div>
             </div>
         </div>
-        <div class="col-lg-2">
-            <a class='btn btn-lg btn-block btn-primary post-action'
-               data-current_pleb="{{ current_user }}"
-               data-wall_pleb="{{ page_user }}">Create Post
-            </a>
-        </div>
     </div>
-    <div class="sb_profile_container_left">
-        <h1>{{ pleb_info.first_name }} {{ pleb_info.last_name }}</h1>
-        <img src="{{ pleb_info.profile_pic|default_if_none:'' }}"/>
-        <div align="left"><b>Reputation: </b>{{ pleb_info.reputation }}</div>
-        <div align="left"><b>Representatives:</b></div>
-        <div align="left">Senators:</div>
-        <ul>
-            {% for senator in senator_names %}
-                <li>{{ senator }}</li>
-            {% endfor %}
-        </ul>
-        <div align="left">House Representative:</div>
-        <ul>
-            <li>{{ rep_name }}</li>
-        </ul>
-    </div>
-    <div class="sb_profile_container_wall">
-
-        {% block wall %}
-            {% include "wall.html" %}
-        {% endblock %}
-    </div>
+</div>
         {% elif is_friend == False and is_owner == False %}
             <button class="btn btn-sm btn-primary send_friend_request-action"
                data-from_pleb="{{ current_user }}"

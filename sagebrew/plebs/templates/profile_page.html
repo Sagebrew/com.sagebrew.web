@@ -41,10 +41,12 @@
             <li>{{ rep_name }}</li>
         </ul>
     </div>
+    <div class="sb_profile_container_wall">
 
         {% block wall %}
             {% include "wall.html" %}
         {% endblock %}
+    </div>
         {% elif is_friend == False and is_owner == False %}
             <button class="btn btn-sm btn-primary send_friend_request-action"
                data-from_pleb="{{ current_user }}"

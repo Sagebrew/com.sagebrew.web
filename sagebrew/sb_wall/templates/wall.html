@@ -55,7 +55,6 @@
        data-pleb="{{ current_user }}"
        data-post_uuid="{{ post.post_id }}">Reference
         Post</a>
-
     {% for comment in post.comments %}
         <div>{{ comment.comment_content }} |
             Upvotes={{ comment.comment_up_vote_number }} |
@@ -82,7 +81,6 @@
                data-pleb="{{ current_user }}"
                data-comment_uuid="{{ comment.comment_id }}">Delete this
                 Comment</a>
-
         {% endif %}
         <a class='btn btn-primary vote_comment-action'
            data-vote_type='up'
@@ -105,6 +103,4 @@
            data-pleb="{{ current_user }}"
            data-comment_uuid="{{ comment.comment_id }}">Reference Comment</a>
     {% endfor %}
-
 {% endfor %}
-</div>

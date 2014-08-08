@@ -1,15 +1,27 @@
-.sb_btn_dropdown, .sb_btn_dropdown:hover {
-    margin-top: 5px;
+.sb_btn_dropdown,
+.sb_btn_dropdown:hover {
     background-color: #1ba39c;
+    color: #26424a;
 }
-.sb_btn_dropdown:active, .sb_btn_dropdown:focus {
+.sb_btn_dropdown:active,
+.sb_btn_dropdown:focus {
     background-color: #1ba39c;
 }
 .open .dropdown-menu {
-    margin-top: 50px !important; */
+    margin-top: 0px !important;
+    margin-right: 15px;
     opacity: 1;
     visibility: visible;
 }
 .sb_icon_list {
     color: #eaf0e8;
+}
+.sb_btn_2 {
+    background-color: #1ba39c;
+    width: 100%;
+    height: 100%;
+}
+
+.sb_btn_group {
+    margin-left: 70px;
 }

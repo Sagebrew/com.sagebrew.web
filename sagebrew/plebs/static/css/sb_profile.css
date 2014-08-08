@@ -15,3 +15,15 @@
     margin-right: 2.5%;
     border-radius: 0 0 5px 5px;
 }
+.sb_profile_container_wall {
+    background-color: #eaf0e8;
+    max-width: 400px;
+    height: 300;
+    margin-left: 2.5%;
+    margin-right: .5%;
+    margin-top: -15px;
+    border-radius: 5px;
+}
+.sb_post {
+    height:45px;
+}

@@ -6,11 +6,12 @@ from datetime import datetime
 from django.conf import settings
 from django.core.urlresolvers import reverse
 
+from api.tasks import add_object_to_search_index
 from api.utils import spawn_task
 from plebs.neo_models import Pleb
 from .neo_models import SBQuestion
 
-def create_question_util(content="", current_pleb="", question_title=""):
+def create_question_util(content="", current_pleb="", question_title="",tags=""):
     '''
     This util creates the question and attaches it to the user who asked it
 
@@ -25,6 +26,10 @@ def create_question_util(content="", current_pleb="", question_title=""):
         poster = Pleb.index.get(email=current_pleb)
         my_question = SBQuestion(content=content, question_title=question_title,
                                  question_id=str(uuid1()))
+        search_dict = {'question_content': content, 'asker': current_pleb,
+                       'question_title': question_title, 'tags': tags}
+        search_data = {'object_type': 'question', 'object_data': search_dict}
+        spawn_task(task_func=add_object_to_search_index, task_param=search_data)
         my_question.save()
         rel = my_question.owned_by.connect(poster)
         rel.save()

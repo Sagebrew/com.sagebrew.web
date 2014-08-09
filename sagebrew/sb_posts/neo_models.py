@@ -34,6 +34,7 @@ class SBBase(StructuredNode):
                                  model=PostReceivedRel)
     comments = RelationshipTo('sb_comments.neo_models.SBComment', 'HAS_A',
                               model=PostedOnRel)
+    tagged_as = RelationshipTo('sb_tags.neo_models.SBTag', 'TAGGED_AS')
 
 
 class SBPost(SBBase):

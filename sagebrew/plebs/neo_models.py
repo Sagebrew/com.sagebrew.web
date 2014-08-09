@@ -113,6 +113,7 @@ class Pleb(StructuredNode):
         'sb_relationships.neo_models.FriendRequest', 'RECIEVED_A_REQUEST')
 
 
+
 class Address(StructuredNode):
     street = StringProperty()
     street_additional = StringProperty()

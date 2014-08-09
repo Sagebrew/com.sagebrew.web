@@ -14,6 +14,7 @@ class FriendRelationship(StructuredRel):
     # who_unfriended = RelationshipTo("Pleb", "")
 
 
+
 class FriendRequest(StructuredNode):
     friend_request_uuid = StringProperty(unique_index=True)
     seen = BooleanProperty(default=False)

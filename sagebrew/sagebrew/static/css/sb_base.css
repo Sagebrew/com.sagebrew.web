@@ -28,7 +28,7 @@
 .sb_background {
     background-size: cover;
     position: inherit;
-    margin-top:0px;
+    margin-top:0;
     padding-bottom: -25px;
     background-color: #b7bfbb;
 }
@@ -62,7 +62,6 @@
     height: 100%;
     margin-bottom: 160px;
 }
-
 .sb_btn_select {
     width: 150px;
     background-color: #1ba39c;
@@ -86,7 +85,6 @@
     height: 100%;
     margin-bottom: 15px;
 }
-
 .sb_error {
     color: #e74c3c;
     margin-left: 2em;
@@ -115,5 +113,3 @@
 .sb_bottom_menu{
     margin-bottom: 0;
 }
-
-

@@ -1,3 +1,34 @@
+.sb_nav_container {
+    background-color: #1ba39c;
+    border-bottom-style: solid;
+    border-color: #838c92;
+    border-radius: 0;
+    margin-left: -15px;
+    margin-right: -15px;
+    height: 53px;
+}
+.sb_navbar_content {
+    margin-left: 25px;
+    margin-left: 25px;
+}
+.sb_nav_form {
+    margin-top: 1px;
+}
+/* will add sb style class later on */
+.navbar-form.navbar-right:last-child {
+    width:auto;
+    padding-top: 6px;
+}
+.navbar-form .form-control {
+    display: inline;
+}
+.sb_btn_icon{
+    background-color: transparent;
+    color: #eaf0e8;
+}
+.sb_btn_icon:hover{
+    color: #26424a;
+}
 .sb_btn_dropdown,
 .sb_btn_dropdown:hover {
     background-color: #1ba39c;
@@ -23,4 +54,34 @@
 .sb_btn_group {
     margin-left: 85px;
     margin-top: 5px;
+    width: 100px;
+}
+.sb_nav_search{
+    margin-top: -13px;
+
+}
+#sb_search_input{
+    width: 300px;
+}
+#sb_search_input:hover,
+#sb_search_input:active,
+#sb_search_input:focus{
+    border-color: #1ba39c;
+}
+#sb_nav_spy{
+    margin-left: -40px;
+    color: #1ba39c;
+}
+#sb_nav_spy:hover,
+#sb_nav_spy:focus,
+#sb_nav_spy:active{
+    color: #26424a;
+}
+.sb_nav_dropdown_menu {
+    margin-top:60px;
+    border-top: solid;
+    border-width: 3px;
+    border-radius: 0 0 5px 5px;
+    border-top-color: #26424a;
+
 }

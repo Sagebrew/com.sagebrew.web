@@ -8,39 +8,58 @@
 {% endblock %}
 {% block content %}
 {% if is_owner == True or is_friend == True %}
-    <div class="row-fluid">
-    <div class="row-fluid sb_profile_container_top">
+       <div class="row-fluid sb_profile_content">
+    <div class=" sb_profile_container_top">
+    </div>
 
-    </div>
-    <div class="col-lg-4">
-        <div class="sb_profile_container_left">
-            <h1>{{ pleb_info.first_name }} {{ pleb_info.last_name }}</h1>
-            <img src="{{ pleb_info.profile_pic|default_if_none:'' }}"/>
-            <div align="left"><b>Reputation: </b>{{ pleb_info.reputation }}</div>
-            <div align="left"><b>Representatives:</b></div>
-            <div align="left">Senators:</div>
-            <ul>
-                {% for senator in senator_names %}
-                    <li>{{ senator }}</li>
-                {% endfor %}
-            </ul>
-            <div align="left">House Representative:</div>
-            <ul>
-                <li>{{ rep_name }}</li>
-            </ul>
+        <div class="col-lg-4">
+            <div class="sb_profile_container_left">
+                <h1>{{ pleb_info.first_name }} {{ pleb_info.last_name }}</h1>
+                <img src="{{ pleb_info.profile_pic|default_if_none:'' }}"/>
+                <div align="left"><b>Reputation: </b>{{ pleb_info.reputation }}</div>
+                <div align="left"><b>Representatives:</b></div>
+                <div align="left">Senators:</div>
+                <ul>
+                    {% for senator in senator_names %}
+                        <li>{{ senator }}</li>
+                    {% endfor %}
+                </ul>
+                <div align="left">House Representative:</div>
+                <ul>
+                    <li>{{ rep_name }}</li>
+                </ul>
+                {% if is_owner == True %}
+                    {% block notifications %}
+                        <a class="btn btn-sm btn-primary show_friend_request-action"
+                           data-email="{{ pleb_info.email }}">Friend Requests</a>
+                        <div id="friend_request_div"
+                             style="display:none">
+                            {% block friend_requests %}
+                                {% include "friend_requests.html" %}
+                            {% endblock %}
+                        </div>
+                        <a class="btn btn-sm btn-primary show_notifications-action">Notifications</a>
+                        <div id="notification_div"
+                             style="display:none">
+                            {% block notification_divs %}
+                                {% include "notifications.html" %}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                    {% block friends %}
+                        {% include "friends_list.html" %}
+                    {% endblock %}
+                {% endif %}
+            </div>
         </div>
-    </div>
-    <div class="col-lg-8">
-        <div class="row-fluid">
+        <div class="col-lg-8">
             <div class="row-fluid">
-                <div class="col-lg-12">
+                <div class="row-fluid">
                     <div class="sb_post_container">
                          <textarea class="sb_post form-control"
                                   id="post_input_id"
                                   name="post_input"
-                                  placeholder="Spark a conversation . . .">
-                        </textarea>
-
+                                  placeholder="Spark a conversation . . ."></textarea>
                         <a class='sb_btn_post btn btn-lg btn-block btn-primary post-action'
                            data-current_pleb="{{ current_user }}"
                            data-wall_pleb="{{ page_user }}">Post
@@ -49,23 +68,26 @@
                 </div>
             </div>
             <div class="row-fluid">
-                <div class="sb_profile_container_wall">
-                    {% block wall %}
-                        {% include "wall.html" %}
-                    {% endblock %}
+                <div class="col-lg-12">
+                    <div class="sb_profile_container_wall">
+                        {% block wall %}
+                            {% include "wall.html" %}
+                        {% endblock %}
+
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-        {% elif is_friend == False and is_owner == False %}
-            <button class="btn btn-sm btn-primary send_friend_request-action"
-               data-from_pleb="{{ current_user }}"
-               data-to_pleb="{{ page_user }}">Friend Request
-            </button>
-            <button class="btn btn-sm btn-primary delete_friend_request-action"
-               style="display:none">Delete Request</button>
-        {% endif %}
+    {% elif is_friend == False and is_owner == False %}
+        <button class="btn btn-sm btn-primary send_friend_request-action"
+           data-from_pleb="{{ current_user }}"
+           data-to_pleb="{{ page_user }}">Friend Request
+        </button>
+        <button class="btn btn-sm btn-primary delete_friend_request-action"
+           style="display:none">Delete Request</button>
+    {% endif %}
+
 {% endblock %}
 {% block footer %}
 

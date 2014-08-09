@@ -11,7 +11,6 @@
 #sb_logo {
     color: #eaf0e8;
     text-align: left;
-    margin-left: .75em;
     margin-top: 1px;
     font-size: 30pt;
     height: auto;
@@ -26,13 +25,12 @@
     margin-left: 50%;
     font-size: 30pt;
 }
-
 .sb_background {
     background-size: cover;
     position: inherit;
     margin-top:0px;
     padding-bottom: -25px;
-    background-color: #26424a;
+    background-color: #b7bfbb;
 }
 .sb_deco_line{
     border-bottom: solid 5px;
@@ -88,9 +86,7 @@
     height: 100%;
     margin-bottom: 15px;
 }
-.sb_dropdown_menu{
-    margin-top:60px;
-}
+
 .sb_error {
     color: #e74c3c;
     margin-left: 2em;
@@ -119,21 +115,5 @@
 .sb_bottom_menu{
     margin-bottom: 0;
 }
-.sb_navbar {
-    background-color: #1ba39c;
-    min-height: 0;
-    height: 53px;
-    border-bottom-style: solid;
-    border-color: #26424a;
-    border-radius: 0;
-}
-.sb_nav_form {
-    margin-top: 1px;
-}
-/* will add sb style class later on */
-.navbar-form.navbar-right:last-child {
-    width:auto;
-    padding-top: 6px;
-}
-.navbar-form .form-control {
-    display:inline;
+
+

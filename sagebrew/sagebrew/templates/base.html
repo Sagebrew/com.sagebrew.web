@@ -20,20 +20,16 @@
 </head>
 <body class="container-fluid sb_background" id="sb-body">
     <div id="wrap">
-        <div class="row sb_navbar">
-            <nav class="sb_navbar navbar navbar-lg" role="navigation">
-                <div class="col-lg-4 col-md-4 col-xs-6">
-                    <div class="navbar-header">
-                        <h1 id="sb_logo" class="hidden-xs">Sagebrew</h1>
-                        <h1 id="sb_logo_xs" class="hidden-lg hidden-md hidden-sm">Sagebrew</h1>
+        <div class="sb_nav_container">
+            <div class="row sb_navbar_content">
+                <nav class="sb_navbar navbar navbar-lg" role="navigation">
+                    <div class="col-lg-12">
+                        {% block navigation %}
+                            {% include "sign_up_navigation.html" %}
+                        {% endblock navigation %}
                     </div>
-                </div>
-                <div class="col-lg-8">
-                    {% block navigation %}
-                        {% include "navigation.html" %}
-                    {% endblock navigation %}
-                </div>
-            </nav>
+                </nav>
+            </div>
         </div>
     </div>
     {% block content %}

@@ -7,7 +7,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty)
 
-from sb_relationships.neo_models import FriendRelationship
+from sb_relationships.neo_models import FriendRelationship, UserWeightRelationship
 from sb_wall.neo_models import SBWall
 
 
@@ -111,6 +111,7 @@ class Pleb(StructuredNode):
         'sb_relationships.neo_models.FriendRequest', 'SENT_A_REQUEST')
     friend_requests_recieved = RelationshipTo(
         'sb_relationships.neo_models.FriendRequest', 'RECIEVED_A_REQUEST')
+    user_weight = RelationshipTo('Pleb', 'WEIGHTED_USER', model=UserWeightRelationship)
 
 
 

@@ -36,6 +36,7 @@ urlpatterns = patterns('',
                        (r'^user/', include('plebs.urls')),
                        (r'^questions/', include('sb_questions.urls')),
                        (r'^answers/', include('sb_answers.urls')),
+                       (r'^search/', include('sb_search.urls')),
 )
 
 if settings.DEBUG:

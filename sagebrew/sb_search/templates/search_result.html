@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load staticfiles %}
+{% block navigation %}
+    {% include "navigation.html" %}
+{% endblock %}
+
+{% block content %}
+<h1>Results:</h1>
+    {% for result in results %}
+        <h2>Result</h2>
+    {% endfor %}
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+{% endblock scripts %}

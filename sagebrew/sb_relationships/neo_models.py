@@ -1,8 +1,10 @@
 import pytz
 from datetime import datetime
+from django.conf import settings
+
 from neomodel import (StructuredNode, StringProperty, DateTimeProperty,
                       RelationshipTo, StructuredRel,
-                      BooleanProperty)
+                      BooleanProperty, IntegerProperty)
 
 
 class FriendRelationship(StructuredRel):
@@ -11,9 +13,11 @@ class FriendRelationship(StructuredRel):
     currently_friends = BooleanProperty(default=True)
     time_unfriended = DateTimeProperty(default=None)
     who_unfriended = StringProperty()
-    # who_unfriended = RelationshipTo("Pleb", "")
+    #who_unfriended = RelationshipTo("Pleb", "")
 
-
+class UserWeightRelationship(StructuredRel):
+    interaction = StringProperty(default='seen')
+    weight = IntegerProperty(default=settings.USER_RELATIONSHIP_BASE['seen'])
 
 class FriendRequest(StructuredNode):
     friend_request_uuid = StringProperty(unique_index=True)

@@ -73,6 +73,7 @@ STATICFILES_DIRS = (
     '%s/sb_relationships/static/' % PROJECT_DIR,
     '%s/sb_questions/static/' % PROJECT_DIR,
     '%s/sb_answers/static/' % PROJECT_DIR,
+    '%s/sb_search/static/' %PROJECT_DIR,
 )
 
 # List of finder classes that know how to find static files in
@@ -133,6 +134,7 @@ TEMPLATE_DIRS = (
     '%s/plebs/templates/' % PROJECT_DIR,
     '%s/sb_questions/templates/' % PROJECT_DIR,
     '%s/sb_answers/templates/' % PROJECT_DIR,
+    '%s/sb_search/templates/' % PROJECT_DIR,
 )
 
 FIXTURE_DIRS = (
@@ -180,6 +182,7 @@ INSTALLED_APPS = (
     'sb_questions',
     'sb_answers',
     'sb_tags',
+    'sb_search',
     'elasticsearch',
 )
 
@@ -257,6 +260,26 @@ if not path.exists(TEMP_FILES):
     makedirs(TEMP_FILES)
 
 import djcelery
+
+USER_RELATIONSHIP_BASE = {
+    'seen': 150, 'blocked_user': 0, 'friend_of_friend': 100,
+    'friend_requested': 200, 'extended_family': 300,
+    'friends': 500, 'congressman': 750, 'admin': 750, 'senators': 850,
+    'sage': 850, 'tribune': 850, 'close_friends': 1000,
+    'significant_other': 1200, 'president': 1500
+}
+
+USER_RELATIONSHIP_MODIFIER = {
+    'each_seen': 25, 'friend_request_denied': -25, 'state': 10,
+    'county': 20, 'district': 50, 'city': 100, 'constituents': 50
+}
+
+OBJECT_SEARCH_MODIFIERS = {
+    'post': 10, 'comment_on_post': 5, 'upvote': 3, 'downvote': -3,
+    'time': -1, 'proximity_to_you': 10, 'proximity_to_interest': 10,
+    'share': 7, 'flag_as_inappropriate': -5, 'flag_as_spam': -100,
+    'flag_as_other': -10
+}
 
 
 djcelery.setup_loader()

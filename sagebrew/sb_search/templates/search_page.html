@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load staticfiles %}
+{% block navigation %}
+    {% include "navigation.html" %}
+{% endblock %}
+
+{% block content %}
+<h1>Search:</h1>
+    <textarea class="form-control" id="search_id" name="search_param"
+              cols="40" rows="1" placeholder="Search..."></textarea>
+    <a class="btn btn-primary btn-sm full_search-action" href="search_result.html">Search</a>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="js/submit_search.js"></script>
+{% endblock scripts %}

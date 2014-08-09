@@ -26,11 +26,14 @@ def create_question_util(content="", current_pleb="", question_title="",tags="")
         poster = Pleb.index.get(email=current_pleb)
         my_question = SBQuestion(content=content, question_title=question_title,
                                  question_id=str(uuid1()))
-        search_dict = {'question_content': content, 'asker': current_pleb,
-                       'question_title': question_title, 'tags': tags}
-        search_data = {'object_type': 'question', 'object_data': search_dict}
-        spawn_task(task_func=add_object_to_search_index, task_param=search_data)
         my_question.save()
+        search_dict = {'question_content': my_question.content, 'user': current_pleb,
+                       'question_title': my_question.question_title, 'tags': tags,
+                       'question_uuid': my_question.question_id,
+                       'post_date': my_question.date_created}
+        print search_dict
+        search_data = {'object_type': 'question', 'object_data': search_dict}
+        spawn_task(task_func=add_object_to_search_index, task_param=search_data, countdown=1)
         rel = my_question.owned_by.connect(poster)
         rel.save()
         rel_from_pleb = poster.questions.connect(my_question)

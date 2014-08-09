@@ -90,7 +90,7 @@ def edit_post(request):
             {'detail': 'form contains errors', 'errors': form.errors}
                 This returns if .is_valid() fails, review django docs
                 on form.is_valid() and the variables passed to this function
-                
+
     '''
     try:
         post_data = get_post_data(request)

@@ -2,6 +2,7 @@
     background-color: #1ba39c;
     border-bottom-style: solid;
     border-color: #838c92;
+    border-width: 2px;
     border-radius: 0;
     height: 53px;
     margin-left: -15px;
@@ -12,14 +13,6 @@
 }
 .sb_nav_form {
     margin-top: 1px;
-}
-/* will add sb style class later on */
-.navbar-form.navbar-right:last-child {
-    width:auto;
-    padding-top: 6px;
-}
-.navbar-form .form-control {
-    display: inline;
 }
 .sb_btn_icon{
     background-color: transparent;
@@ -43,10 +36,9 @@
     background-color: #1ba39c;
     width: 40px;
 }
-.sb_btn_group {
+.sb_nav_btn_group {
     margin-left: 85px;
     margin-top: 5px;
-    width: 100px;
 }
 .sb_nav_search{
     margin-top: -13px;
@@ -75,5 +67,11 @@
     border-width: 3px;
     border-radius: 0 0 5px 5px;
     border-top-color: #838c92;
-
+}
+.navbar-form.navbar-right:last-child {
+    width:auto;
+    padding-top: 6px;
+}
+.navbar-form .form-control {
+    display: inline;
 }

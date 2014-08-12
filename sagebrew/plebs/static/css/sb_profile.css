@@ -35,28 +35,10 @@
     border-radius: 0 0 5px 5px;
     margin-bottom: 30px;
 }
-.sb_post_container {
-    background-color: #e0e7e1;
-    height:70px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-left: 10px;
-    padding-right: 10px;
-    border-radius: 0 0 0 0;
-    margin-top: 3px;
-    margin-right: -15px;
-    margin-left: -15px;
-}
 .sb_post {
     max-height: 50px;
     max-width: 650px;
     padding-top: 12px;
-}
-.sb_btn_post{
-    width: 100px;
-    height: 50px;
-    margin-top: -50px;
-    margin-left: 650px;
 }
 .sb_profile_menu_btn{
     background-color: #f9fff7;

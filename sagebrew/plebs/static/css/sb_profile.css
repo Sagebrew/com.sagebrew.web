@@ -29,17 +29,18 @@
 .sb_profile_container_wall {
     background-color: #eaf0e8;
     height: auto;
+    margin-top: 0;
     min-height: 400px;
     margin-left: -30px;
     margin-right: -30px;
     border-radius: 0 0 5px 5px;
     margin-bottom: 30px;
+    border-left: solid;
+    border-left-width: 5px;
+    border-left-color: #b7bfbb ;
+
 }
-.sb_post {
-    max-height: 50px;
-    max-width: 650px;
-    padding-top: 12px;
-}
+
 .sb_profile_menu_btn{
     background-color: #f9fff7;
     border-radius: 0;

@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load i18n %}
 {% load staticfiles %}
 {% block navigation %}
     <div class="sb_navbar_2">
@@ -7,6 +6,28 @@
     </div>
 {% endblock %}
 {% block content %}
+    {% if is_owner == True %}
+        {% block notifications %}
+            <a class="btn btn-sm btn-primary show_friend_request-action"
+               data-email="{{ pleb_info.email }}">Friend Requests</a>
+            <div id="friend_request_div"
+                 style="display:none">
+                {% block friend_requests %}
+                    {% include "friend_requests.html" %}
+                {% endblock %}
+            </div>
+            <a class="btn btn-sm btn-primary show_notifications-action">Notifications</a>
+            <div id="notification_div"
+                 style="display:none">
+                {% block notification_divs %}
+                    {% include "notifications.html" %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+        {% block friends %}
+            {% include "friends_list.html" %}
+        {% endblock %}
+    {% endif %}
 {% if is_owner == True or is_friend == True %}
        <div class="row-fluid sb_profile_content">
     <div class=" sb_profile_container_top">
@@ -43,52 +64,13 @@
                 <ul>
                     <li>{{ rep_name }}</li>
                 </ul>
-                {% if is_owner == True %}
-                    {% block notifications %}
-                        <a class="btn btn-sm btn-primary show_friend_request-action"
-                           data-email="{{ pleb_info.email }}">Friend Requests</a>
-                        <div id="friend_request_div"
-                             style="display:none">
-                            {% block friend_requests %}
-                                {% include "friend_requests.html" %}
-                            {% endblock %}
-                        </div>
-                        <a class="btn btn-sm btn-primary show_notifications-action">Notifications</a>
-                        <div id="notification_div"
-                             style="display:none">
-                            {% block notification_divs %}
-                                {% include "notifications.html" %}
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-                    {% block friends %}
-                        {% include "friends_list.html" %}
-                    {% endblock %}
-                {% endif %}
+
             </div>
         </div>
         <div class="col-lg-8">
-            <div class="row-fluid">
-                <div class="row-fluid">
-                    <div class="sb_post_container">
-                         <textarea class="sb_post form-control"
-                                  id="post_input_id"
-                                  name="post_input"
-                                  placeholder="Spark a conversation . . ."></textarea>
-                        <a class='sb_btn_post btn btn-lg btn-block btn-primary post-action'
-                           data-current_pleb="{{ current_user }}"
-                           data-wall_pleb="{{ page_user }}">Post
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="row-fluid">
-                <div class="col-lg-12">
-                    {% block wall %}
-                        {% include "wall.html" %}
-                    {% endblock %}
-                </div>
-            </div>
+            {% block wall %}
+                {% include "wall.html" %}
+            {% endblock %}
         </div>
     </div>
     {% elif is_friend == False and is_owner == False %}
@@ -119,4 +101,5 @@
     <script src="{% static 'js/show_notifications.js' %}"></script>
     <script src="{% static 'js/show_friend_request.js' %}"></script>
     <script src="{% static 'js/respond_friend_request.js' %}"></script>
+    <script src="{% static 'js/sb_post_enter.js' %}"></script>
 {% endblock scripts %}

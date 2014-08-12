@@ -5,15 +5,16 @@
     <title>{% block title %}Sagebrew{% endblock title %}</title>
 
     {% block css %}
-        <link href="{% static 'flat_ui/bootstrap/css/bootstrap.css' %}"
-              rel="stylesheet">
+        <link href="{% static 'flat_ui/bootstrap/css/bootstrap.css' %}"rel="stylesheet">
         <link href="{% static 'flat_ui/css/flat-ui.css' %}" rel="stylesheet"/>
         <link href="{% static 'flat_ui/css/demo.css' %}" rel="stylesheet"/>
         <link href="{% static 'css/sb_signup.css' %}" rel="stylesheet"/>
         <link href="{% static 'css/sb_base.css' %}" rel="stylesheet"/>
         <link href="{% static 'css/sb_nav_elements.css' %}" rel="stylesheet"/>
         <link href="{% static 'css/sb_profile.css' %}" rel="stylesheet"/>
+        <link href="{% static 'css/sb_post_enter.css' %}" rel="stylesheet"/>
         <link href="{% static 'css/sb_post.css' %}" rel="stylesheet"/>
+        <link href="{% static 'css/sb_wall.css' %}" rel="stylesheet"/>
         <!-- <link href="{% static 'css/navigation.css' %}" rel="stylesheet"/> -->
     {% endblock css %}
     {% block page-javascript %}
@@ -26,7 +27,6 @@
                 <nav class="sb_navbar navbar navbar-lg" role="navigation">
                     <div class="col-lg-12">
                         {% block navigation %}
-                            {% include "sign_up_navigation.html" %}
                         {% endblock navigation %}
                     </div>
                 </nav>

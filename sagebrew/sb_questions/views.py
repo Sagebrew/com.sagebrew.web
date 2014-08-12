@@ -257,3 +257,23 @@ def get_question_view(request):
         return Response(response, status=200)
     except Exception, e:
         return Response({'detail': 'fail'}, status=400)
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def get_question_search_view(request, question_uuid=str(uuid1())):
+    '''
+    This view will get a question based upon the uuid, the request was from a
+    search it will return the html of the question for the search result
+    page, if it was called to display a single question detail it will return
+    the html the question_detail_page expects
+
+    :param request:
+    :return:
+    '''
+    try:
+        search_data = get_post_data(request)
+        print search_data
+        response = get_question_by_uuid(question_uuid)
+    except:
+        print 'fail'
+        return []

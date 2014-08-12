@@ -43,7 +43,7 @@ def create_question_util(content="", current_pleb="", question_title="",tags="")
         print e
         return None
 
-def prepare_get_question_dictionary(questions, sort_by, current_pleb):
+def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
     '''
     This util creates the dictionary responses which are returned to the html
     files. It is universal and will handle any sorting parameter

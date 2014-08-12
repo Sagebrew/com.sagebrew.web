@@ -1,4 +1,3 @@
-{% for question in questions %}
-    <h2><a href="{{ question.question_url }}">{{ question.question_title }}</a></h2>
-    <div style="font-weight: bold">Content: {{ question.question_content }} | Answers: {{ question.answer_number }} | Upvotes: {{ question.up_vote_number }} | Downvotes: {{ question.down_vote_number }} | Asked by: {{ question.owner }} | Posted: {{ question.time_created }}</div>
-{% endfor %}
+<h2><a href="{{ question.question_url }}">{{ question.question_title }}</a></h2>
+<div style="font-weight: bold">Content: {{ question.question_content }} | Answers: {{ question.answer_number }} | Upvotes: {{ question.up_vote_number }} | Downvotes: {{ question.down_vote_number }} | Asked by: {{ question.owner }} | Posted: {{ question.time_created }}</div>
+

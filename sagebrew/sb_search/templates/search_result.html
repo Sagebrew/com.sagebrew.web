@@ -7,11 +7,20 @@
 
 {% block content %}
 <h1>Results:</h1>
-    {% for result in results %}
-        <h2>Result</h2>
-    {% endfor %}
+    <div id="search_result_div">
+        {% for result in results %}
+            {% if result.type == 'question' %}
+                {% include "question_search.html" %}
+            {% else %}
+                <h2>{{ result.type }}</h2>
+            {% endif %}
+        {% endfor %}
+    </div>
 {% endblock %}
 
 {% block scripts %}
     {{ block.super }}
+    <script src="{% static 'js/update_search_page.js' %}"></script>
+    <script src="{% static 'js/submit_search.js' %}"></script>
+    <script src="{% static 'js/update_search_page.js' %}"></script>
 {% endblock scripts %}

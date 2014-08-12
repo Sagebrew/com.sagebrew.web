@@ -7,15 +7,11 @@
 
 {% block content %}
 <h1>Search:</h1>
-    <textarea class="form-control" id="search_id" name="search_param"
-              cols="40" rows="1" placeholder="Search..."></textarea>
-    <a class="btn btn-primary btn-sm full_search-action">Search</a>
+    {% include 'search_bar.html' %}
 {% endblock %}
 
 {% block scripts %}
     {{ block.super }}
-
     <script src="{% static 'js/submit_search.js' %}"></script>
-    <script src="{% static 'js/test.js' %}"></script>
     <script src="{% static 'js/update_search_page.js' %}"></script>
 {% endblock scripts %}

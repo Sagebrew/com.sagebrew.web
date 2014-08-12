@@ -55,6 +55,7 @@ def profile_page(request, pleb_email):
                          'range_start': 0}
     notifications = post_to_api(reverse('get_notifications'),
                                 notification_data, headers=headers)
+    #TODO Don't store the url in the model
     citizen.profile_pic = generate_profile_pic_url(citizen.profile_pic_uuid)
     citizen.save()
     return render(request, 'profile_page.html', {

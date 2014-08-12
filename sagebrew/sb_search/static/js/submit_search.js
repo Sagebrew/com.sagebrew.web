@@ -1,8 +1,7 @@
 $( document ).ready(function() {
 	$("a.full_search-action").click(function(event){
         var search_param = $('textarea#search_id').val();
-        console.log('Here');
-        window.location.href = "https://192.168.56.101/search/q=" + search_param;
+        window.location.href = "https://192.168.56.101/search/#q=" + search_param;
 
 		$.ajaxSetup({
 		    beforeSend: function(xhr, settings) {

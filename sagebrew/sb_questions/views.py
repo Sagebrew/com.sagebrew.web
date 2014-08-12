@@ -18,7 +18,7 @@ from api.utils import (get_post_data, spawn_task, post_to_api)
 from plebs.neo_models import Pleb
 from .utils import (get_question_by_most_recent, get_question_by_tag,
                     get_question_by_user, get_question_by_uuid,
-                    get_question_by_least_recent)
+                    get_question_by_least_recent, prepare_question_search_html)
 from .tasks import create_question_task, vote_question_task, edit_question_task
 from .forms import SaveQuestionForm, EditQuestionForm, VoteQuestionForm
 
@@ -272,8 +272,9 @@ def get_question_search_view(request, question_uuid=str(uuid1())):
     '''
     try:
         search_data = get_post_data(request)
-        print search_data
-        response = get_question_by_uuid(question_uuid)
+        response = prepare_question_search_html(question_uuid)
+        print response
+        return Response({'html': response}, status=200)
     except:
         print 'fail'
         return []

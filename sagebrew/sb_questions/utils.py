@@ -4,6 +4,7 @@ from uuid import uuid1
 from datetime import datetime
 
 from django.conf import settings
+from django.template.loader import render_to_string
 from django.core.urlresolvers import reverse
 
 from api.tasks import add_object_to_search_index
@@ -315,3 +316,23 @@ def edit_question_util(question_uuid="", content="", last_edited_on="",
         return True
     except SBQuestion.DoesNotExist:
         return False
+
+def prepare_question_search_html(question_uuid=str(uuid1())):
+    my_question = SBQuestion.index.get(question_id=question_uuid)
+    owner = my_question.traverse('owned_by').run()[0]
+    owner_name = owner.first_name + ' ' + owner.last_name
+    owner_profile_url = settings.WEB_ADDRESS + '/user/' + owner.email
+    question_dict = {"question_title": my_question.question_title,
+                     "question_content": my_question.content,
+                     "question_uuid": my_question.question_id,
+                     "is_closed": my_question.is_closed,
+                     "answer_number": my_question.answer_number,
+                     "last_edited_on": my_question.last_edited_on,
+                     "up_vote_number": my_question.up_vote_number,
+                     "down_vote_number": my_question.down_vote_number,
+                     "owner": owner_name,
+                     "owner_profile_url": owner_profile_url,
+                     "time_created": my_question.date_created,
+                     "owner_email": owner.email}
+    rendered = render_to_string('question_search.html', question_dict)
+    return rendered

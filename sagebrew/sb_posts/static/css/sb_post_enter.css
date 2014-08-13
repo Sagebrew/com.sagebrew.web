@@ -10,13 +10,14 @@
     margin-right: 0;
     margin-left: 0;
     border-bottom: solid;
-    border-bottom-width: 2px;
+    border-bottom-width: 3px;
     border-bottom-color: #b7bfbb ;
 }
 .sb_post {
     max-height: 50px;
     max-width: 650px;
     padding-top: 10px;
+    border-width: 1px;
 }
 .sb_btn_post{
     width: 80px;

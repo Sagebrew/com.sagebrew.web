@@ -273,7 +273,6 @@ def get_question_search_view(request, question_uuid=str(uuid1())):
     try:
         search_data = get_post_data(request)
         response = prepare_question_search_html(question_uuid)
-        print response
         return Response({'html': response}, status=200)
     except:
         print 'fail'

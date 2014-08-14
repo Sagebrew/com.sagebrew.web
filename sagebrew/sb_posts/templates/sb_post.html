@@ -1,21 +1,30 @@
 <div>
     <div class="sb_post_content">
         <div class="sb_post_header">
-            Posted By: {{ post.post_owner }}
+            {{ post.post_owner }}
             Last Edited: {{ post.last_edited_on }}
         </div>
         <div class="sb_post_body">
             {{ post.content }}
         </div>
-
     </div>
     <div class="sb_post_stats">
-        Upvotes={{ post.up_vote_number }}
-        Downvotes={{ post.down_vote_number }}
+        <a class='btn vote-action'
+           data-vote_type='up'
+           data-pleb="{{ current_user }}"
+           data-post_uuid="{{ post.post_id }}"><span class="sb_up_vote_icon fui-check"></span>
+        </a>
+        {{ post.up_vote_number }}
+         <a class='btn vote-action'
+           data-vote_type='down'
+           data-pleb="{{ current_user }}"
+           data-post_uuid="{{ post.post_id }}"><span class="sb_down_vote_icon fui-cross"></span>
+         </a>
+        {{ post.down_vote_number }}
     </div>
     <div class="sb_comment">
         <textarea class="sb_comment_input form-control"
-                  id="sb_text post_comment_on_{{ post.post_id }}"
+                  id="post_comment_on_{{ post.post_id }}"
                   rows="2"
                   placeholder="Write your comment..."></textarea>
     </div>
@@ -48,16 +57,6 @@
         <a class='btn btn-primary vote-action'
            data-vote_type='up'
            data-pleb="{{ current_user }}"
-           data-post_uuid="{{ post.post_id }}">Upvote
-            Post</a>
-        <a class='btn btn-primary vote-action'
-           data-vote_type='down'
-           data-pleb="{{ current_user }}"
-           data-post_uuid="{{ post.post_id }}">Downvote
-            Post</a>
-        <a class='btn btn-primary vote-action'
-           data-vote_type='up'
-           data-pleb="{{ current_user }}"
            data-post_uuid="{{ post.post_id }}">Flag
             Post</a>
         <a class='btn btn-primary vote-action'
@@ -65,5 +64,5 @@
            data-pleb="{{ current_user }}"
            data-post_uuid="{{ post.post_id }}">Reference
             Post</a>
-</div>
 {% include "sb_comments.html" %}
+</div>

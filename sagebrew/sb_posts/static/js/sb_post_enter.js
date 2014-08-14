@@ -6,7 +6,7 @@ $( document ).ready(function() {
         $("#post_input_id").css("height", "100px");
         $(".sb_post_menu").show();
     });
-    $(".sb_post_container").click(function(){
+    $(".sb_post_container").mouseleave(function(){
         $(".sb_post_menu").hide();
         $(".sb_post").css("height", "50px");
         $(".sb_post_container").css("padding-bottom","10px")

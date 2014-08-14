@@ -51,7 +51,7 @@
         <div class="col-lg-4">
             <div class="sb_profile_container_left">
                 <h1>{{ pleb_info.first_name }} {{ pleb_info.last_name }}</h1>
-                <img src="{{ pleb_info.profile_pic|default_if_none:'' }}"/>
+
                 <div align="left"><b>Reputation: </b>{{ pleb_info.reputation }}</div>
                 <div align="left"><b>Representatives:</b></div>
                 <div align="left">Senators:</div>
@@ -102,4 +102,5 @@
     <script src="{% static 'js/show_friend_request.js' %}"></script>
     <script src="{% static 'js/respond_friend_request.js' %}"></script>
     <script src="{% static 'js/sb_post_enter.js' %}"></script>
+    <script src="{% static 'js/sb_post.js' %}"></script>
 {% endblock scripts %}

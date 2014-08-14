@@ -1,8 +1,23 @@
 <div>
     <div class="sb_post_content">
         <div class="sb_post_header">
-            {{ post.post_owner }}
-            Last Edited: {{ post.last_edited_on }}
+            <div class="row">
+                <div class="col-lg-1 col-md-1 col-sm-2 col-xs-2">
+                    <div class="sb_thumbnail_xs thumbnail">
+                        <img src="{{ pleb_info.profile_pic|default_if_none:'' }}"/>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-2 col-xs-4">
+                   <div class="sb_post_header_info">
+                       <a class="btn sb_btn_profile_link">
+                           {{ post.post_owner }}
+                       </a>
+                       <div class="sb_post_data">
+                           {{ post.last_edited_on }}
+                      </div>
+                   </div>
+                </div>
+            </div>
         </div>
         <div class="sb_post_body">
             {{ post.content }}
@@ -12,27 +27,28 @@
         <a class='btn vote-action'
            data-vote_type='up'
            data-pleb="{{ current_user }}"
-           data-post_uuid="{{ post.post_id }}"><span class="sb_up_vote_icon fui-check"></span>
+           data-post_uuid="{{ post.post_id }}"><span class="sb_icon sb_icon_up_vote fui-check"></span>
         </a>
         {{ post.up_vote_number }}
          <a class='btn vote-action'
            data-vote_type='down'
            data-pleb="{{ current_user }}"
-           data-post_uuid="{{ post.post_id }}"><span class="sb_down_vote_icon fui-cross"></span>
+           data-post_uuid="{{ post.post_id }}"><span class="sb_icon sb_icon_down_vote fui-cross"></span>
          </a>
         {{ post.down_vote_number }}
+        <button class="btn sb_btn_comment">comment</button>
     </div>
     <div class="sb_comment">
         <textarea class="sb_comment_input form-control"
                   id="post_comment_on_{{ post.post_id }}"
                   rows="2"
                   placeholder="Write your comment..."></textarea>
-    </div>
-        <a class='btn btn-primary comment-action'
+        <a class='btn sb_btn_comment_icon comment-action'
            data-uuid="{{ post.post_id }}"
            data-pleb="{{ current_user }}"
-           data-post_uuid="{{ post.post_id }}">Attach
-            Comment</a>
+           data-post_uuid="{{ post.post_id }}"><span class="sb_icon fui-new"></span></a>
+    </div>
+
         {% if post.post_owner_email == current_user %}
             <a class="btn btn-primary show_edit_post_class"
                data-uuid="{{ post.post_id }}"

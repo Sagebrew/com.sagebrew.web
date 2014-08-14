@@ -124,3 +124,10 @@
 .sb_nav_bottom_blank {
 
 }
+.sb_thumbnail_xs {
+    height: 40px;
+    width: 40px;
+    border-width: 1px;
+    border-color: #b7bfbb;
+    margin-left: auto;
+}

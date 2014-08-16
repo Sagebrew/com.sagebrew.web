@@ -1,11 +1,11 @@
 <div class="row">
     <div class="col-lg-2 col-md-2 col-xs-6">
         <div class="sb_nav_head navbar-header">
-            <h1 id="sb_logo" class="hidden-xs">Sagebrew</h1>
+            <h1 id="sb_nav_logo" class="hidden-xs">Sagebrew</h1>
             <h1 id="sb_logo_xs" class="hidden-lg hidden-md hidden-sm">Sagebrew</h1>
         </div>
     </div>
-    <div class="col-lg-5 col-md-4 hidden-sm hidden-xs">
+    <div class="col-lg-4 col-md-4 hidden-sm hidden-xs">
         <form class="sb_nav_search navbar-form" role="search" align="left">
             <div class="form-group">
                 <input type="text" id="sb_search_input"class="form-control" placeholder="Search">
@@ -13,83 +13,84 @@
             <button type="submit" id="sb_nav_spy" class="sb_btn_icon btn"><span class="fui-search"</button>
         </form>
     </div>
-    <div class="col-lg-3 col-md-2" align="right">
-        <div class="sb_nav_user">{{ pleb_info.first_name }} {{ pleb_info.last_name }}</div>
-    </div>
+    <div class="col-lg-2 col-md-2">
 
-    <div class="col-lg-2 col-md-2 col-sm-4">
-        <div class="sb_btn_group btn-group">
-            <div class="btn-group">
-                <button class="sb_btn_dropdown btn dropdown-toggle pull-right"
-                        type="button"
-                        id="dropdownMenu1"
-                        data-toggle="dropdown">
-                <span class="sb_btn_icon fui-user"></span>
-                </button>
-                <ul class="sb_nav_dropdown_menu dropdown-menu dropdown-menu-right"
-                    role="menu" aria-labelledby="dropdownMenu1">
-                    <li role="presentation"><a role="menuitem"
-                                               tabindex="-1"
-                                               href="#"></a>
-                    </li>
-                    <li role="presentation"><a role="menuitem"
-                                               tabindex="-1"
-                                               href="#"></a>
-                    </li>
-                    <li role="presentation"><a role="menuitem"
-                                               tabindex="-1"
-                                               href="#"></a>
-                    </li>
-                    <li role="presentation" class="divider"></li>
-                    <li role="presentation"><a role="menuitem"
-                                               tabindex="-1"
-                                               href="#"></a>
-                    </li>
-                </ul>
-            </div>
-            <div class="btn-group"
-                 align="left">
-                <button class="sb_btn_dropdown btn dropdown-toggle pull-right"
-                        type="button"
-                        id="dropdownMenu1"
-                        data-toggle="dropdown">
-                <span class="sb_btn_icon fui-gear"></span>
-                </button>
-                <ul class="sb_nav_dropdown_menu dropdown-menu dropdown-menu-right"
-                    role="menu" aria-labelledby="dropdownMenu1">
-                    <li role="presentation"><a role="menuitem"
-                                               tabindex="-1"
-                                               href="#">Edit Profile</a>
-                    </li>
-                    <li role="presentation"><a role="menuitem"
-                                               tabindex="-1"
-                                               href="#">Settings</a>
-                    </li>
-                    <li role="presentation"><a role="menuitem"
-                                               tabindex="-1"
-                                               href="#">Help</a>
-                    </li>
-                    <li role="presentation" class="divider"></li>
-                    <li role="presentation"><a role="menuitem"
-                                               tabindex="-1"
-                                               href="#">Log Out</a>
-                    </li>
-                </ul>
+    </div>
+    <div class="sb_nav_user col-lg-2 col-md-2" align="right">
+        <a href="profile_page.html" id="sb_nav_user">{{ pleb_info.first_name }} {{ pleb_info.last_name }}</div>
+    </a>
+    {% if is_owner == True %}
+        {% block notifications %}
+        <div class="col-lg-2 col-md-2 col-sm-4" align="right">
+            <div class="sb_nav_btn_group btn-group">
+                <div class="btn-group">
+                    <button class="sb_btn_dropdown show_friend_request-action btn dropdown-toggle pull-right"
+                            type="button"
+                            id="dropdownMenu1"
+                            data-toggle="dropdown"
+                            data-email="{{ pleb_info.email }}">
+                    <span class="sb_btn_icon fui-user"></span>
+                    </button>
+                    <ul class="sb_nav_dropdown_menu dropdown-menu dropdown-menu-right"
+                        role="menu" aria-labelledby="dropdownMenu1">
+                        <li role="presentation">
+                            <div id="friend_request_div">
+                                {% block friend_requests %}
+                                    {% include "friend_requests.html" %}
+                                {% endblock %}
+                            </div>
+                        </li>
+                        <li role="presentation"><a role="menuitem"
+                                                   tabindex="-1"
+                                                   href="#"></a>
+                        </li>
+                        <li role="presentation"><a role="menuitem"
+                                                   tabindex="-1"
+                                                   href="#"></a>
+                        </li>
+                        <li role="presentation" class="divider"></li>
+                        <li role="presentation"><a role="menuitem"
+                                                   tabindex="-1"
+                                                   href="#"></a>
+                        </li>
+                    </ul>
+                </div>
+        {% endblock %}
+                <div class="btn-group"
+                     align="left">
+                    <button class="sb_btn_dropdown btn dropdown-toggle pull-right"
+                            type="button"
+                            id="dropdownMenu1"
+                            data-toggle="dropdown">
+                    <span class="sb_btn_icon fui-gear"></span>
+                    </button>
+                    <ul class="sb_nav_dropdown_menu dropdown-menu dropdown-menu-right"
+                        role="menu" aria-labelledby="dropdownMenu1">
+                        <li role="presentation"><a role="menuitem"
+                                                   tabindex="-1"
+                                                   href="#">Edit Profile</a>
+                        </li>
+                        <li role="presentation"><a role="menuitem"
+                                                   tabindex="-1"
+                                                   href="#">Settings</a>
+                        </li>
+                        <li role="presentation"><a role="menuitem"
+                                                   tabindex="-1"
+                                                   href="#">Help</a>
+                        </li>
+                        <li role="presentation" class="divider"></li>
+                        <li role="presentation"><a role="menuitem"
+                                                   tabindex="-1"
+                                                   href="#">Log Out</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
-    </div>
+    {% endif %}
 </div>
 
- {% if is_owner == True %}
-        {% block notifications %}
-            <a class="btn btn-sm btn-primary show_friend_request-action"
-               data-email="{{ pleb_info.email }}">Friend Requests</a>
-            <div id="friend_request_div"
-                 style="display:none">
-                {% block friend_requests %}
-                    {% include "friend_requests.html" %}
-                {% endblock %}
-            </div>
+
             <a class="btn btn-sm btn-primary show_notifications-action">Notifications</a>
             <div id="notification_div"
                  style="display:none">
@@ -97,8 +98,7 @@
                     {% include "notifications.html" %}
                 {% endblock %}
             </div>
-        {% endblock %}
+
         {% block friends %}
             {% include "friends_list.html" %}
         {% endblock %}
-    {% endif %}

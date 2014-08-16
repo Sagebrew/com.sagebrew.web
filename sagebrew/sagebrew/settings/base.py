@@ -275,10 +275,10 @@ USER_RELATIONSHIP_MODIFIER = {
 }
 
 OBJECT_SEARCH_MODIFIERS = {
-    'post': 10, 'comment_on_post': 5, 'upvote': 3, 'downvote': -3,
+    'post': 10, 'comment_on': 5, 'upvote': 3, 'downvote': -3,
     'time': -1, 'proximity_to_you': 10, 'proximity_to_interest': 10,
     'share': 7, 'flag_as_inappropriate': -5, 'flag_as_spam': -100,
-    'flag_as_other': -10
+    'flag_as_other': -10, 'answered': 50
 }
 
 

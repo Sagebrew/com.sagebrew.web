@@ -8,6 +8,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       BooleanProperty, FloatProperty)
 
 from sb_relationships.neo_models import FriendRelationship, UserWeightRelationship
+from sb_posts.neo_models import RelationshipWeight
 from sb_wall.neo_models import SBWall
 
 
@@ -112,6 +113,10 @@ class Pleb(StructuredNode):
     friend_requests_recieved = RelationshipTo(
         'sb_relationships.neo_models.FriendRequest', 'RECIEVED_A_REQUEST')
     user_weight = RelationshipTo('Pleb', 'WEIGHTED_USER', model=UserWeightRelationship)
+    object_weight = RelationshipTo(['sb_questions.neo_models.SBQuestion',
+                                    'sb_answers.neo_models.SBAnswer'],
+                                     'OBJECT_WEIGHT',
+                                     model=RelationshipWeight)
 
 
 

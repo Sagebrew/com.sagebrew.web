@@ -14,6 +14,10 @@ class PostedOnRel(StructuredRel):
 class PostReceivedRel(StructuredRel):
     received = BooleanProperty()
 
+class RelationshipWeight(StructuredRel):
+    weight = IntegerProperty(default=150)
+    status = StringProperty(default='seen')
+    seen = BooleanProperty(default=True)
 
 class SBBase(StructuredNode):
     content = StringProperty()
@@ -35,6 +39,7 @@ class SBBase(StructuredNode):
     comments = RelationshipTo('sb_comments.neo_models.SBComment', 'HAS_A',
                               model=PostedOnRel)
     tagged_as = RelationshipTo('sb_tags.neo_models.SBTag', 'TAGGED_AS')
+    rel_weight = RelationshipTo('plebs.neo_models.Pleb', 'HAS_WEIGHT', model=RelationshipWeight)
 
 
 class SBPost(SBBase):
@@ -44,9 +49,6 @@ class SBPost(SBBase):
     posted_on_wall = RelationshipTo('sb_wall.neo_models.SBWall', 'POSTED_ON')
     #TODO Implement referenced_by_... relationships
     #TODO Implement ..._referenced relationships
-
-
-
 
 
 '''

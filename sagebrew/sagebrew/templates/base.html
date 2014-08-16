@@ -5,41 +5,36 @@
     <title>{% block title %}Sagebrew{% endblock title %}</title>
 
     {% block css %}
-        <link href="{% static 'flat_ui/bootstrap/css/bootstrap.css' %}"
-              rel="stylesheet">
+        <link href="{% static 'flat_ui/bootstrap/css/bootstrap.css' %}"rel="stylesheet">
         <link href="{% static 'flat_ui/css/flat-ui.css' %}" rel="stylesheet"/>
         <link href="{% static 'flat_ui/css/demo.css' %}" rel="stylesheet"/>
         <link href="{% static 'css/sb_signup.css' %}" rel="stylesheet"/>
+        <link href="{% static 'css/sb_base.css' %}" rel="stylesheet"/>
+        <link href="{% static 'css/sb_nav_elements.css' %}" rel="stylesheet"/>
+        <link href="{% static 'css/sb_profile.css' %}" rel="stylesheet"/>
+        <link href="{% static 'css/sb_post_enter.css' %}" rel="stylesheet"/>
+        <link href="{% static 'css/sb_post.css' %}" rel="stylesheet"/>
+        <link href="{% static 'css/sb_wall.css' %}" rel="stylesheet"/>
+        <link href="{% static 'css/sb_profile_reps.css' %}" rel="stylesheet"/>
         <!-- <link href="{% static 'css/navigation.css' %}" rel="stylesheet"/> -->
-
     {% endblock css %}
     {% block page-javascript %}
     {% endblock page-javascript %}
 </head>
-<body id="sb-body">
-<div class="container-fluid sb_background">
-    <div class="row sb_navbar">
-        <nav class="navbar navbar-lg" role="navigation">
-            <div class="col-lg-6 col-md-5 col-xs-6">
-                <div class="navbar-header">
-                    <h1 id="logo">Sagebrew</h1>
-                </div>
-            </div>
-            {% block navigation %}
-                {% include "navigation.html" %}
-            {% endblock navigation %}
-        </nav>
-    </div>
-    <div class="row" id="content_block">
-        {% block content %}
-        {% endblock %}
-    </div>
-    <div class="row">
-        {% block footer %}
-            {% include "footer.html" %}
-        {% endblock footer %}
-    </div>
-</div>
+<body class="container-fluid sb_background" id="sb-body">
+        <div class="sb_nav_container">
+                <nav class="sb_navbar navbar navbar-lg" role="navigation">
+                    <div class="col-lg-12">
+                        {% block navigation %}
+                        {% endblock navigation %}
+                    </div>
+                </nav>
+        </div>
+    {% block content %}
+    {% endblock %}
+    {% block footer %}
+        {% include "footer.html" %}
+    {% endblock footer %}
 {% block scripts %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script src="{% static 'flat_ui/js/jquery-ui-1.10.3.custom.min.js' %}"></script>

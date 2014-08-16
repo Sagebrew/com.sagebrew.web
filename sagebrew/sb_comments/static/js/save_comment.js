@@ -20,7 +20,10 @@ $(document).ready(function () {
                 'pleb': $(this).data('pleb')
             }),
             contentType: "application/json; charset=utf-8",
-            dataType: "json"
+            dataType: "json",
+            success: function (data) {
+
+            }
         });
     });
 });

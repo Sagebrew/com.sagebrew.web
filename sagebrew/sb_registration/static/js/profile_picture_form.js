@@ -3,17 +3,17 @@ $( document ).ready(function() {
     $("input#profile_pic_upload").change(function() {
         $("#myModal").modal("show");
         $("#sb_modal_content").append(existingdiv1);
-        $("#sb_save").show();
+        $("#sb_btn_save").show();
     });
-    $("#sb_close").click(function(){
+    $("#sb_modal_close").click(function(){
         $("#sb_menu").appendTo("#sb_photo_parent");
-        $("#sb_upload").show();
-        $("#sb_change").hide();
+        $("#sb_btn_upload").show();
+        $("#sb_btn_change").hide();
     });
-    $("#sb_remove").on("click", function(){
+    $("#sb_btn_remove").click(function(){
         $("#sb_menu").appendTo("#sb_photo_parent");
-        $("#sb_upload").show();
-        $("#sb_change").hide();
+        $("#sb_btn_upload").show();
+        $("#sb_btn_change").hide();
         //$("#sb_modal_content").replaceWith('<div id="sb_modal_test"></div>');
         $(".fileinput .fileinput-exists").replaceWith('')
     });
@@ -46,4 +46,9 @@ function getCoords (c){
         $("#sb_close").click(function(){
         $("#sb_menu").appendTo("#sb_photo_parent");
     })
-*/
+
+    $("input#profile_pic_upload").on("mouseenter",function(){
+        event.preventDefault();
+        $("#sb_modal_content").empty();
+        });
+        */

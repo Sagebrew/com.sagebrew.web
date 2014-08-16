@@ -5,6 +5,6 @@ from .views import profile_page
 
 urlpatterns = patterns(
     'plebs.views',
-    url(r'^(?P<pleb_email>[A-Za-z0-9.@_%+-]{1,32})/',
+    url(r'^(?P<pleb_email>[A-Za-z0-9.@_%+-]{1,40})/',
        profile_page, name="profile_page")
 )

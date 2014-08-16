@@ -1,67 +1,54 @@
 {% extends "base.html" %}
-{% load i18n %}
 {% load staticfiles %}
 {% block navigation %}
-    {% include "navigation.html" %}
+    <div class="sb_navbar_2">
+        {% include "logged_in_nav.html" %}
+    </div>
 {% endblock %}
-
 {% block content %}
-    {% if is_owner == True %}
-        {% block notifications %}
-            <a class="btn btn-sm btn-primary show_friend_request-action"
-               data-email="{{ pleb_info.email }}">Friend Requests</a>
-            <div id="friend_request_div" style="display:none">
-                {% block friend_requests %}
-                    {% include "friend_requests.html" %}
-                {% endblock %}
+
+{% if is_owner == True or is_friend == True %}
+       <div class="row-fluid sb_profile_content">
+    <div class=" sb_profile_container_top">
+    </div>
+    <div class="sb_profile_btn_menu_container">
+        <div class="row-fluid">
+            <div class="col-lg-7">
+
             </div>
-            <a class="btn btn-sm btn-primary show_notifications-action">Notifications</a>
-            <div id="notification_div" style="display:none">
-                {% block notification_divs %}
-                    {% include "notifications.html" %}
-                {% endblock %}
+            <div class="col-lg-5">
+                <div class="sb_btn_group btn-group">
+                  <button type="button" class="btn sb_profile_menu_btn">Home</button>
+                  <button type="button" class="btn sb_profile_menu_btn">About</button>
+                  <button type="button" class="btn sb_profile_menu_btn">Reputation</button>
+                  <button type="button" class="btn sb_profile_menu_btn">Friends</button>
+                </div>
             </div>
-        {% endblock %}
+        </div>
+    </div>
 
-        {% block friends %}
-            {% include "friends_list.html" %}
-        {% endblock %}
-
-    {% endif %}
-    {% if is_owner == True or is_friend == True %}
-        <h1>{{ pleb_info.first_name }} {{ pleb_info.last_name }}</h1>
-        <img src="{{ pleb_info.profile_pic|default_if_none:'' }}"/>
-        <div align="left"><b>Reputation: </b>{{ pleb_info.reputation }}</div>
-        <div align="left"><b>Representatives:</b></div>
-        <div align="left">Senators:</div>
-        <ul>
-            {% for senator in senator_names %}
-                <li>{{ senator }}</li>
-            {% endfor %}
-        </ul>
-        <div align="left">House Representative:</div>
-        <ul>
-            <li>{{ rep_name }}</li>
-        </ul>
-        <textarea class="form-control" id="post_input_id" name="post_input"
-                  cols='40' rows="3" placeholder="Create a post"></textarea>
-        <a class='btn btn-lg btn-block btn-primary post-action'
-           data-current_pleb="{{ current_user }}"
-           data-wall_pleb="{{ page_user }}">Create Post</a>
-
-        {% block wall %}
-            {% include "wall.html" %}
-        {% endblock %}
-
+        <div class="col-lg-4">
+        {% include "sb_profile_rep_stats.html" %}
+        </div>
+        <div class="col-lg-8">
+            {% block wall %}
+                {% include "wall.html" %}
+            {% endblock %}
+        </div>
+    </div>
     {% elif is_friend == False and is_owner == False %}
-        <a class="btn btn-sm btn-primary send_friend_request-action"
-           data-from_pleb="{{ current_user }}" data-to_pleb="{{ page_user }}">Friend
-            Request</a>
-        <a class="btn btn-sm btn-primary delete_friend_request-action"
-           style="display:none">Delete Request</a>
+        <button class="btn btn-sm btn-primary send_friend_request-action"
+           data-from_pleb="{{ current_user }}"
+           data-to_pleb="{{ page_user }}">Friend Request
+        </button>
+        <button class="btn btn-sm btn-primary delete_friend_request-action"
+           style="display:none">Delete Request</button>
     {% endif %}
-{% endblock %}
 
+{% endblock %}
+{% block footer %}
+
+{% endblock %}
 {% block scripts %}
     {{ block.super }}
     <script src="{% static 'js/save_comment.js' %}"></script>
@@ -77,4 +64,6 @@
     <script src="{% static 'js/show_notifications.js' %}"></script>
     <script src="{% static 'js/show_friend_request.js' %}"></script>
     <script src="{% static 'js/respond_friend_request.js' %}"></script>
+    <script src="{% static 'js/sb_post_enter.js' %}"></script>
+    <script src="{% static 'js/sb_post.js' %}"></script>
 {% endblock scripts %}

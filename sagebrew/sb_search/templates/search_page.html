@@ -2,7 +2,9 @@
 {% load i18n %}
 {% load staticfiles %}
 {% block navigation %}
-    {% include "navigation.html" %}
+    <div class="sb_navbar_2">
+        {% include "logged_in_nav.html" %}
+    </div>
 {% endblock %}
 
 {% block content %}

@@ -1,10 +1,33 @@
 <div>
-    <div>{{ comment.comment_content }} |
-        Upvotes={{ comment.comment_up_vote_number }} |
-        Downvotes={{ comment.comment_down_vote_number }} | Last
+    <div>
+        {{ comment.comment_content }} |
         Edited: {{ comment.comment_last_edited_on }} | Posted
         By: {{ comment.comment_owner }}</div>
     {% if comment.comment_owner_email == current_user %}
+         <div class="sb_post_stats">
+            <div class="row">
+                <div class="col-lg-1">
+                    <a class='btn vote-action sb_btn_vote_icon'
+                       data-vote_type='up'
+                       data-pleb="{{ current_user }}"
+                       data-post_uuid="{{ comment.comment_id }}"><span class="sb_icon sb_icon_up_vote fui-check"></span>
+                    </a>
+                </div>
+                <div class="col-lg-1 sb_vote_div">
+                   <div class="sb_vote_count">{{ comment.comment_up_vote_number }}</div>
+                </div>
+                <div class="col-lg-1">
+                     <a class='btn vote-action sb_btn_vote_icon'
+                       data-vote_type='down'
+                       data-pleb="{{ current_user }}"
+                       data-post_uuid="{{ comment.comment_id }}"><span class="sb_icon sb_icon_down_vote fui-cross"></span>
+                     </a>
+                </div>
+                <div class="col-lg-1 sb_vote_div">
+                   <div class="sb_vote_count">{{ comment.comment_down_vote_number }}</div>
+                </div>
+            </div>
+        </div>
         <a class="btn btn-primary show_edit_comment_class"
            data-comment_uuid="{{ comment.comment_id }}"
            type="submit">Edit
@@ -25,14 +48,6 @@
            data-comment_uuid="{{ comment.comment_id }}">Delete this
             Comment</a>
     {% endif %}
-    <a class='btn btn-primary vote_comment-action'
-       data-vote_type='up'
-       data-pleb="{{ current_user }}"
-       data-comment_uuid="{{ comment.comment_id }}">Upvote Comment</a>
-    <a class='btn btn-primary vote_comment-action'
-       data-vote_type='down'
-       data-pleb="{{ current_user }}"
-       data-comment_uuid="{{ comment.comment_id }}">Downvote Comment</a>
     <a class='btn btn-primary vote-action'
        data-vote_type='up'
        data-pleb="{{ current_user }}"

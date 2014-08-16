@@ -6,28 +6,7 @@
     </div>
 {% endblock %}
 {% block content %}
-    {% if is_owner == True %}
-        {% block notifications %}
-            <a class="btn btn-sm btn-primary show_friend_request-action"
-               data-email="{{ pleb_info.email }}">Friend Requests</a>
-            <div id="friend_request_div"
-                 style="display:none">
-                {% block friend_requests %}
-                    {% include "friend_requests.html" %}
-                {% endblock %}
-            </div>
-            <a class="btn btn-sm btn-primary show_notifications-action">Notifications</a>
-            <div id="notification_div"
-                 style="display:none">
-                {% block notification_divs %}
-                    {% include "notifications.html" %}
-                {% endblock %}
-            </div>
-        {% endblock %}
-        {% block friends %}
-            {% include "friends_list.html" %}
-        {% endblock %}
-    {% endif %}
+
 {% if is_owner == True or is_friend == True %}
        <div class="row-fluid sb_profile_content">
     <div class=" sb_profile_container_top">
@@ -49,23 +28,7 @@
     </div>
 
         <div class="col-lg-4">
-            <div class="sb_profile_container_left">
-                <h1>{{ pleb_info.first_name }} {{ pleb_info.last_name }}</h1>
-
-                <div align="left"><b>Reputation: </b>{{ pleb_info.reputation }}</div>
-                <div align="left"><b>Representatives:</b></div>
-                <div align="left">Senators:</div>
-                <ul>
-                    {% for senator in senator_names %}
-                        <li>{{ senator }}</li>
-                    {% endfor %}
-                </ul>
-                <div align="left">House Representative:</div>
-                <ul>
-                    <li>{{ rep_name }}</li>
-                </ul>
-
-            </div>
+        {% include "sb_profile_rep_stats.html" %}
         </div>
         <div class="col-lg-8">
             {% block wall %}

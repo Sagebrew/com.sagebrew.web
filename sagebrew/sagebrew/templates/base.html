@@ -15,24 +15,21 @@
         <link href="{% static 'css/sb_post_enter.css' %}" rel="stylesheet"/>
         <link href="{% static 'css/sb_post.css' %}" rel="stylesheet"/>
         <link href="{% static 'css/sb_wall.css' %}" rel="stylesheet"/>
+        <link href="{% static 'css/sb_profile_reps.css' %}" rel="stylesheet"/>
         <!-- <link href="{% static 'css/navigation.css' %}" rel="stylesheet"/> -->
     {% endblock css %}
     {% block page-javascript %}
     {% endblock page-javascript %}
 </head>
 <body class="container-fluid sb_background" id="sb-body">
-    <div id="wrap">
         <div class="sb_nav_container">
-            <div class="sb_navbar_content">
                 <nav class="sb_navbar navbar navbar-lg" role="navigation">
                     <div class="col-lg-12">
                         {% block navigation %}
                         {% endblock navigation %}
                     </div>
                 </nav>
-            </div>
         </div>
-    </div>
     {% block content %}
     {% endblock %}
     {% block footer %}

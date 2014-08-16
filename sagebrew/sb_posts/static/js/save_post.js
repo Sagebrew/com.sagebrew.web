@@ -20,7 +20,10 @@ $( document ).ready(function() {
                'wall_pleb':$(this).data('wall_pleb')
 			}),
 			contentType: "application/json; charset=utf-8",
-			dataType: "json"
+			dataType: "json",
+            onSuccess: function() {
+
+            }
 		});
 	});
 });

@@ -18,6 +18,10 @@
     background-color: transparent;
     color: #b7bfbb;
 }
+.sb_btn_group{
+    margin-top: 5px;
+    background-color: transparent;
+}
 .sb_btn_icon:hover{
     color: #26424a;
 }
@@ -35,10 +39,6 @@
 .sb_btn_2 {
     background-color: #1ba39c;
     width: 40px;
-}
-.sb_nav_btn_group {
-    margin-left: 85px;
-    margin-top: 5px;
 }
 .sb_nav_search{
     margin-top: -13px;
@@ -62,7 +62,7 @@
     color: #838c92;
 }
 .sb_nav_dropdown_menu {
-    margin-top:60px;
+    width: 100px;
     border-top: solid;
     border-width: 3px;
     border-radius: 0 0 5px 5px;
@@ -77,4 +77,9 @@
 }
 .sb_nav_content{
     width: 100%;
+}
+.sb_nav_user{
+    margin-top: 10px;
+    font-size: 20px;
+    color: #eaf0e8;
 }

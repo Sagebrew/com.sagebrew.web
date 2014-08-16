@@ -15,9 +15,10 @@
 }
 .sb_post {
     max-height: 50px;
-    max-width: 650px;
+    max-width: 100%;
     padding-top: 10px;
     border-width: 1px;
+    resize: none;
 }
 .sb_btn_post{
     width: 80px;

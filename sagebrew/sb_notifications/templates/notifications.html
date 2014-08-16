@@ -1,6 +1,4 @@
-{% load i18n %}
-{% load staticfiles %}
-<div>Notifications:</div>
+<div class="sb_dropdown_label">Notifications</div>
 
 {% for notification in notifications %}
     {% if notification.notification_about == "post" %}
@@ -11,4 +9,4 @@
     {% endif %}
 {% endfor %}
 
-<a class="btn btn-sm btn-primary">See all notifications</a>
+<a class="sb_btn_word_link">See all notifications</a>

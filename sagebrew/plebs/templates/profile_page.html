@@ -37,6 +37,7 @@
         </div>
     </div>
     {% elif is_friend == False and is_owner == False %}
+    <p>{{ current_user }}{{ page_user }}</p>
         <button class="btn btn-sm btn-primary send_friend_request-action"
            data-from_pleb="{{ current_user }}"
            data-to_pleb="{{ page_user }}">Friend Request

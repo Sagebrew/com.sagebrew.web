@@ -1,5 +1,6 @@
 $(document).ready(function () {
-    $("a.send_friend_request-action").click(function (event) {
+    $("button.send_friend_request-action").click(function (event) {
+        console.log("here");
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -21,8 +22,8 @@ $(document).ready(function () {
             dataType: "json",
             success: function (data) {
                 if (data['action'] == true) {
-                    $("a.send_friend_request-action").hide();
-                    $("a.delete_friend_request-action").show();
+                    $("button.send_friend_request-action").hide();
+                    $("button.delete_friend_request-action").show();
                 }
             }
         });

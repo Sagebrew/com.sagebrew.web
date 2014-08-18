@@ -1,42 +1,49 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% block navigation %}
-    <div class="sb_navbar_2">
-        {% include "logged_in_nav.html" %}
-    </div>
+    {% include "navigation/logged_in_navigation.html" %}
 {% endblock %}
 {% block content %}
 
 {% if is_owner == True or is_friend == True %}
        <div class="row-fluid sb_profile_content">
-               <div class="thumbnail sb_profile_pic">
+           <div class="thumbnail sb_profile_pic">
 
-        </div>
+           </div>
+           <div class=" sb_profile_container_top">
 
-    <div class=" sb_profile_container_top">
-</div>
-    <div class="sb_profile_btn_menu_container ">
-            <div class="col-lg-5 col-lg-offset-4">
-                <div class="btn-group">
-                  <button type="button" class="btn sb_profile_menu_btn">Home</button>
-                  <button type="button" class="btn sb_profile_menu_btn">About</button>
-                  <button type="button" class="btn sb_profile_menu_btn">Reputation</button>
-                  <button type="button" class="btn sb_profile_menu_btn">Friends</button>
-                </div>
-            </div>
-    </div>
-
-        <div class="col-lg-4">
-        {% include "sb_profile_rep_stats.html" %}
+           </div>
+           <div class="sb_profile_btn_menu_container ">
+                {% include "sb_profile_user_menu.html" %}
+           </div>
+           <div class="col-lg-4">
+               {% include "sb_profile_rep_stats.html" %}
+               {% include "sb_profile_potential_reps_stats.html" %}
+           </div>
+           <div class="col-lg-8">
+               {% block wall %}
+                   {% include "wall.html" %}
+               {% endblock %}
+           </div>
         </div>
-        <div class="col-lg-8">
-            {% block wall %}
-                {% include "wall.html" %}
-            {% endblock %}
-        </div>
-    </div>
     {% elif is_friend == False and is_owner == False %}
-    <p>{{ current_user }}{{ page_user }}</p>
+           <div class="row-fluid sb_profile_content">
+           <div class="thumbnail sb_profile_pic">
+
+           </div>
+           <div class=" sb_profile_container_top">
+
+           </div>
+           <div class="sb_profile_btn_menu_container ">
+
+           </div>
+           <div class="col-lg-4">
+
+           </div>
+           <div class="col-lg-8">
+
+           </div>
+        </div>
         <button class="btn btn-sm btn-primary send_friend_request-action"
            data-from_pleb="{{ current_user }}"
            data-to_pleb="{{ page_user }}">Friend Request

@@ -1,0 +1,13 @@
+<div class="sb_profile_container_left">
+    <div><b>Potential Representatives</b></div>
+    <div>Senators:</div>
+    <ul>
+        {% for senator in senator_names %}
+            <li>{{ senator }}</li>
+        {% endfor %}
+    </ul>
+    <div align="left">House Representative:</div>
+    <ul>
+        <li>{{ rep_name }}</li>
+    </ul>
+</div>

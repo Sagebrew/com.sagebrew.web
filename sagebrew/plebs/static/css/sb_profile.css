@@ -32,7 +32,7 @@
     background-color: #e0e7e1;
     height: 45px;
     border-bottom: solid;
-    border-bottom-width: 2px;
+    border-width: 2px;
     border-bottom-color: #eaf0e8;
 }
 .sb_profile_menu_btn{
@@ -41,7 +41,7 @@
     color: #838c92;
     font-family: 'Lato', sans-serif;
     font-size: 14pt;
-    height: 45px;
+    height: 43px;
     padding-left: -1px;
     border-left: solid;
     border-left-width: 0;
@@ -55,9 +55,6 @@
 .sb_profile_menu_btn:active{
     background-color: #eaf0e8;
     color: #1ba39c;
-    border-bottom-color: #1ba39c;
-    border-bottom: solid;
-    border-bottom-width: 2px;
 }
 .sb_profile_btn_menu_group{
     margin-left: -15px;
@@ -70,6 +67,6 @@
     margin-top: 35px;
     width: 250px;
     height:250px;
-    border-color: #eaf0e8;
+    border-color: #b7bfbb;
     position: absolute;
 }

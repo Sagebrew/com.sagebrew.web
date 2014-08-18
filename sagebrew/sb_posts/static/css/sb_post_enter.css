@@ -1,6 +1,6 @@
 .sb_post_container {
     background-color: #e0e7e1;
-    height:70px;
+    height:80px;
     padding-top: 10px;
     padding-bottom: 0;
     padding-left: 10px;
@@ -10,7 +10,7 @@
     margin-right: -10px;
     margin-left: -10px;
     border-bottom: solid;
-    border-bottom-width: 3px;
+    border-bottom-width: 10px;
     border-bottom-color: #b7bfbb ;
 }
 .sb_post {

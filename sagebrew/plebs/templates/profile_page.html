@@ -35,23 +35,19 @@
 
            </div>
            <div class="sb_profile_btn_menu_container ">
-
+               <div class="col-lg-5 col-lg-offset-4">
+                    <button class="btn sb_profile_menu_btn send_friend_request-action"
+                            data-from_pleb="{{ current_user }}"
+                            data-to_pleb="{{ page_user }}">Friend Request
+                    </button>
+                    <button class="btn sb_profile_menu_btn delete_friend_request-action">Delete Request</button>
+               </div>
            </div>
            <div class="col-lg-4">
 
            </div>
-           <div class="col-lg-8">
-
-           </div>
         </div>
-        <button class="btn btn-sm btn-primary send_friend_request-action"
-           data-from_pleb="{{ current_user }}"
-           data-to_pleb="{{ page_user }}">Friend Request
-        </button>
-        <button class="btn btn-sm btn-primary delete_friend_request-action"
-           style="display:none">Delete Request</button>
     {% endif %}
-
 {% endblock %}
 {% block footer %}
 

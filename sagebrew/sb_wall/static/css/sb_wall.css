@@ -1,7 +1,7 @@
 .sb_profile_container_wall {
     background-color: #eaf0e8;
     height: auto;
-    margin-top: 0;
+    margin-top: 10px;
     min-height: 400px;
     margin-left: -30px;
     margin-right: -30px;
@@ -10,7 +10,4 @@
     padding-right:10px;
     padding-bottom: 30px;
     border-radius: 0 0 0 0;
-    border-left: solid;
-    border-left-width: 5px;
-    border-left-color: #b7bfbb;
 }

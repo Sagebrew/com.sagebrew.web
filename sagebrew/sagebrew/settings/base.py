@@ -274,11 +274,15 @@ USER_RELATIONSHIP_MODIFIER = {
     'county': 20, 'district': 50, 'city': 100, 'constituents': 50
 }
 
+OBJECT_RELATIONSHIP_BASE = {
+    'seen': 20
+}
+
 OBJECT_SEARCH_MODIFIERS = {
     'post': 10, 'comment_on': 5, 'upvote': 3, 'downvote': -3,
     'time': -1, 'proximity_to_you': 10, 'proximity_to_interest': 10,
     'share': 7, 'flag_as_inappropriate': -5, 'flag_as_spam': -100,
-    'flag_as_other': -10, 'answered': 50
+    'flag_as_other': -10, 'answered': 50, 'starred': 150,
 }
 
 

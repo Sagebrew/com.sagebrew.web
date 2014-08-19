@@ -62,6 +62,18 @@ def update_weight_relationship(object_type="", object_uuid=str(uuid1()),
 
         if object_type == 'pleb':
             pleb = Pleb.index.get(email=object_uuid)
+            c_pleb = Pleb.index.get(email=current_pleb)
+            if c_pleb.user_weight.is_connected(pleb):
+                rel = c_pleb.user_weight.relationship(pleb)
+                if rel.interaction and modifier_type == 'seen':
+                    rel.weight += settings.USER_RELATIONSHIP_MODIFIER['each_seen']
+                    rel.save()
+                    return True
+            else:
+                rel = c_pleb.user_weight.connect(pleb)
+                rel.save()
+                return True
+
         if object_type == 'post':
             post = SBPost.index.get(post_id=object_uuid)
         if object_type == 'answer':

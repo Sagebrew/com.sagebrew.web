@@ -1,6 +1,8 @@
 from uuid import uuid1
 from datetime import datetime
 import pytz
+from api.utils import spawn_task
+from api.tasks import add_object_to_search_index
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
@@ -165,6 +167,15 @@ def create_user_profile(sender, instance, created, **kwargs):
             citizen.wall.connect(wall)
             wall.save()
             citizen.save()
+            task_data = {'object_data': {
+                'first_name': citizen.first_name, 'last_name': citizen.last_name,
+                'full_name': str(citizen.first_name) + ' ' + str(citizen.last_name),
+                'pleb_email': citizen.email
+                },
+                         'object_type': 'pleb'
+            }
+            print task_data
+            spawn_task(task_func=add_object_to_search_index, task_param=task_data)
     else:
         pass
         # citizen = Pleb.index.get(instance.email)

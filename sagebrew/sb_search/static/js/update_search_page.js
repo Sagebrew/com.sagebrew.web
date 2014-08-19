@@ -19,31 +19,56 @@ $( document ).ready(function() {
             success: function (data) {
                 $('#search_param').remove();
                 $('#search_result_div').append(data["html"]);
-                $('.questions').each(function(i) {
-                var question_id = $(this).data('question_uuid');
-                $.ajaxSetup({
-                    beforeSend: function (xhr, settings) {
-                        var csrftoken = $.cookie('csrftoken');
-                        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                        }
+                $('.result').each(function(i) {
+                    if ($(this).data('type') == 'question') {
+                        var question_id = $(this).data('question_uuid');
+                        $.ajaxSetup({
+                            beforeSend: function (xhr, settings) {
+                                var csrftoken = $.cookie('csrftoken');
+                                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                                }
+                            }
+                        });
+                        $.ajax({
+                            xhrFields: {withCredentials: true},
+                            type: "GET",
+                            url: "/questions/search/" + question_id + '/',
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function (data) {
+                                console.log(data['html']);
+                                $('#search_result_div').append(data["html"]);
+                                $('.result').remove();
+                            }
+                        });
+                    }
+                    if ($(this).data('type') == 'pleb'){
+                        var pleb_email = $(this).data('pleb_email');
+                        $.ajaxSetup({
+                            beforeSend: function (xhr, settings) {
+                                var csrftoken = $.cookie('csrftoken');
+                                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                                }
+                            }
+                        });
+                        $.ajax({
+                            xhrFields: {withCredentials: true},
+                            type: "GET",
+                            url: "/user/search/" + pleb_email + '/',
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function (data) {
+                                console.log(data['html']);
+                                $('#search_result_div').append(data["html"]);
+                                $('.result').remove();
+                            }
+                        });
                     }
                 });
-                $.ajax({
-                    xhrFields: {withCredentials: true},
-                    type: "GET",
-                    url: "/questions/search/" + question_id + '/',
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    success: function (data) {
-                        console.log(data['html']);
-                        $('#search_result_div').append(data["html"]);
-                        $('.questions').remove();
-                    }
-                });
-            });
-        }
-    });
+            }
+        });
     $(window).scroll(function() {
         if(scrolled == false) {
             if ($(window).scrollTop() + $(window).height() > ($(document).height() - $(document).height()*.2)) {
@@ -61,28 +86,53 @@ $( document ).ready(function() {
                         $('#search_param').remove();
                         console.log(data["html"]);
                         $('#search_result_div').append(data["html"]);
-                        $('.questions').each(function (i) {
-                            var question_id = $(this).data('question_uuid');
-                            $.ajaxSetup({
-                                beforeSend: function (xhr, settings) {
-                                    var csrftoken = $.cookie('csrftoken');
-                                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                        $('.result').each(function (i) {
+                            if ($(this).data('type') == 'question') {
+                                var question_id = $(this).data('question_uuid');
+                                $.ajaxSetup({
+                                    beforeSend: function (xhr, settings) {
+                                        var csrftoken = $.cookie('csrftoken');
+                                        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                                        }
                                     }
-                                }
-                            });
-                            $.ajax({
-                                xhrFields: {withCredentials: true},
-                                type: "GET",
-                                url: "/questions/search/" + question_id + "/",
-                                contentType: "application/json; charset=utf-8",
-                                dataType: "json",
-                                success: function (data) {
-                                    $('#search_result_div').append(data["html"]);
-                                    $('.questions').remove();
-                                    scrolled = false;
-                                }
-                            });
+                                });
+                                $.ajax({
+                                    xhrFields: {withCredentials: true},
+                                    type: "GET",
+                                    url: "/questions/search/" + question_id + '/',
+                                    contentType: "application/json; charset=utf-8",
+                                    dataType: "json",
+                                    success: function (data) {
+                                        console.log(data['html']);
+                                        $('#search_result_div').append(data["html"]);
+                                        $('.result').remove();
+                                    }
+                                });
+                            }
+                            if ($(this).data('type') == 'pleb'){
+                                var pleb_email = $(this).data('pleb_email');
+                                $.ajaxSetup({
+                                    beforeSend: function (xhr, settings) {
+                                        var csrftoken = $.cookie('csrftoken');
+                                        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                                        }
+                                    }
+                                });
+                                $.ajax({
+                                    xhrFields: {withCredentials: true},
+                                    type: "GET",
+                                    url: "/user/search/" + pleb_email + '/',
+                                    contentType: "application/json; charset=utf-8",
+                                    dataType: "json",
+                                    success: function (data) {
+                                        console.log(data['html']);
+                                        $('#search_result_div').append(data["html"]);
+                                        $('.result').remove();
+                                    }
+                                });
+                            }
                         });
                     }
                 });

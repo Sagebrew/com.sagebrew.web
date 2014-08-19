@@ -271,7 +271,6 @@ def get_question_search_view(request, question_uuid=str(uuid1())):
     :return:
     '''
     try:
-        search_data = get_post_data(request)
         response = prepare_question_search_html(question_uuid)
         return Response({'html': response}, status=200)
     except:

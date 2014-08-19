@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
 
+from .utils import personalize_search_results
 from .forms import SearchForm
 from api.utils import (get_post_data, post_to_garbage,
                        spawn_task)
@@ -35,9 +36,21 @@ def search_result_view(request, query_param, display_num=5, page=1,
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
-def search_result_api(request, query_param="", display_num=5, page=1,
+def search_result_api(request, query_param="", display_num=10, page=1,
                       filter_type="", filter_param=""):
-    print
+    '''
+    This is the general search rest api endpoint. It takes the query parameter
+    how many results to return and the current page, as well as a filter type
+    and filter parameter if they are included.
+
+    :param request:
+    :param query_param:
+    :param display_num:
+    :param page:
+    :param filter_type:
+    :param filter_param:
+    :return:
+    '''
     html_array=[]
     try:
         html=""
@@ -70,7 +83,11 @@ def search_result_api(request, query_param="", display_num=5, page=1,
             page = paginator.page(1)
         except EmptyPage:
             page = paginator.page(paginator.num_pages)
-
+        try:
+            res = personalize_search_results(res[:(int(page.number)*display_num)], request.user.email)
+        except Exception:
+            traceback.print_exc()
+            pass
         for item in page.object_list:
             if item['type'] == 'question':
                 spawn_task(update_weight_relationship,
@@ -79,6 +96,13 @@ def search_result_api(request, query_param="", display_num=5, page=1,
                                        'current_pleb': request.user.email,
                                        'modifier_type': 'seen'})
                 html_array.append(render_to_string('question_search_hidden.html', item))
+            if item['type'] == 'pleb':
+                spawn_task(update_weight_relationship,
+                           task_param={'object_uuid': item['source']['pleb_email'],
+                                       'object_type': 'pleb',
+                                       'current_pleb': request.user.email,
+                                       'modifier_type': 'seen'})
+                html_array.append(render_to_string('pleb_search_hidden.html', item))
 
         try:
             html_array.append(render_to_string('next_page.html',

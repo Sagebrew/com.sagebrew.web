@@ -251,8 +251,6 @@ BOMBERMAN_API_KEY = '6a224aea0ecb3601ae9197c5762aef56'
 
 LOGGLY_TOKEN = "4befe913-b753-4823-a844-193a41779000"
 
-ELASTIC_URL = [{'host': 'dwalin-us-east-1.searchly.com', 'port':443, 'use_ssl': True, 'http_auth': ('site', '6495ff8387e86cb755da1f45da88b475')}]
-
 CSV_FILES = '%s/csv_content/' % PROJECT_DIR
 
 TEMP_FILES = '%s/temp_files/' % PROJECT_DIR

@@ -1,4 +1,6 @@
 import traceback
+import logging
+from multiprocessing import Pool
 from elasticsearch import Elasticsearch
 from django.conf import settings
 from django.shortcuts import render
@@ -9,12 +11,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
 
-from .utils import personalize_search_results
+from .utils import process_search_result
 from .forms import SearchForm
 from api.utils import (get_post_data, post_to_garbage,
                        spawn_task)
 from plebs.neo_models import Pleb
 from sb_search.tasks import update_weight_relationship
+
+logger = logging.getLogger('loggly_logs')
 
 @login_required()
 def search_view(request):
@@ -36,7 +40,7 @@ def search_result_view(request, query_param, display_num=5, page=1,
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
-def search_result_api(request, query_param="", display_num=10, page=1,
+def search_result_api(request, query_param="", display_num=1000, page=1,
                       filter_type="", filter_param=""):
     '''
     This is the general search rest api endpoint. It takes the query parameter
@@ -50,13 +54,17 @@ def search_result_api(request, query_param="", display_num=10, page=1,
     :param filter_type:
     :param filter_param:
     :return:
+
     '''
     html_array=[]
+    current_user_email = request.user.email
+    current_user_email, current_user_address = current_user_email.split('@')
     try:
-        html=""
-        es = Elasticsearch(settings.ELASTIC_URL)
-        pleb = Pleb.index.get(email=request.user.email)
-        res = es.search(index='full-search', from_=0, size=25, suggest_text=True, body={
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        #TODO benchmark getting the index from neo vs. getting from postgres
+        scanres = es.search(index='full-search-user-specific-1', size=500,
+                        search_type='scan', scroll='1m', body=
+            {
                 "query": {
                     "filtered": {
                         "query": {
@@ -65,18 +73,21 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                             }
                         },
                         "filter": {
+                            "term": { "related_user" : [current_user_email,
+                                                        '@',
+                                                        current_user_address]
+                            }
                         }
                     }
                 }
             })
+        scrollid = scanres['_scroll_id']
+
+        res = es.scroll(scroll_id=scrollid, scroll='1m')
         res = res['hits']['hits']
         if not res:
             html = render_to_string('search_result_empty.html')
             return Response({'html': html}, status=200)
-        for item in res:
-            item['score'] = item.pop('_score')
-            item['type'] = item.pop('_type')
-            item['source'] = item.pop('_source')
         paginator = Paginator(res, display_num)
         try:
             page = paginator.page(page)
@@ -84,33 +95,15 @@ def search_result_api(request, query_param="", display_num=10, page=1,
             page = paginator.page(1)
         except EmptyPage:
             page = paginator.page(paginator.num_pages)
-        try:
-            res = personalize_search_results(res[:(int(page.number)*display_num)], request.user.email)
-        except Exception:
-            traceback.print_exc()
-            pass
-        for item in page.object_list:
-            if item['type'] == 'question':
-                spawn_task(update_weight_relationship,
-                           task_param={'object_uuid': item['source']['question_uuid'],
-                                       'object_type': 'question',
-                                       'current_pleb': request.user.email,
-                                       'modifier_type': 'seen'})
-                html_array.append(render_to_string('question_search_hidden.html', item))
-            if item['type'] == 'pleb':
-                spawn_task(update_weight_relationship,
-                           task_param={'object_uuid': item['source']['pleb_email'],
-                                       'object_type': 'pleb',
-                                       'current_pleb': request.user.email,
-                                       'modifier_type': 'seen'})
-                html_array.append(render_to_string('pleb_search_hidden.html', item))
-
+        pool = Pool(3)
+        results = pool.map(process_search_result, page.object_list)
         try:
             html_array.append(render_to_string('next_page.html',
-                                               {'next_page': page.next_page_number()}))
+                                               {'next_page':
+                                                    page.next_page_number()}))
         except EmptyPage:
             pass
-        return Response({'html': html_array}, status=200)
+        return Response({'html': results}, status=200)
     except Exception, e:
         traceback.print_exc()
         print e

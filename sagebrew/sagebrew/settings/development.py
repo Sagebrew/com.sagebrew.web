@@ -79,6 +79,8 @@ DEBUG_TOOLBAR_PANELS = (
     # 'cache_panel.panel.CacheDebugPanel',
 )
 
+ELASTIC_SEARCH_HOST = [{'host': 'dwalin-us-east-1.searchly.com', 'port':443, 'use_ssl': True, 'http_auth': ('site', '6495ff8387e86cb755da1f45da88b475')}]
+
 
 def custom_show_toolbar(request):
     if (fnmatch(request.path.strip(), '/admin*')):

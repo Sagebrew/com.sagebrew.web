@@ -55,6 +55,7 @@ def search_result_api(request, query_param="", display_num=10, page=1,
     try:
         html=""
         es = Elasticsearch(settings.ELASTIC_URL)
+        pleb = Pleb.index.get(email=request.user.email)
         res = es.search(index='full-search', from_=0, size=25, suggest_text=True, body={
                 "query": {
                     "filtered": {

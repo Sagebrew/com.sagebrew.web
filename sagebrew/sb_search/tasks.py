@@ -3,6 +3,7 @@ from traceback import print_exc
 from django.conf import settings
 
 from celery import shared_task
+from elasticsearch import Elasticsearch
 
 from plebs.neo_models import Pleb
 from sb_posts.neo_models import SBPost
@@ -81,3 +82,21 @@ def update_weight_relationship(object_type="", object_uuid=str(uuid1()),
     except Exception, e:
         print_exc()
         return False
+
+@shared_task()
+def add_user_to_index(pleb="", index="full-search-user-specific-1"):
+    es = Elasticsearch([{'host': 'dwalin-us-east-1.searchly.com', 'port':443, 'use_ssl': True, 'http_auth': ('site', '6495ff8387e86cb755da1f45da88b475')}])
+    res = es.search(index='full-search-base', body={
+        "query": {
+            "match_all": {}
+        }
+    })
+    res = res['hits']['hits']
+    for item in res:
+        item['_source']['related_user'] = pleb
+        item['_source']['sb_score'] = 0
+        print item['_source']
+        if item['_type'] == 'question':
+            es.index(index=index, doc_type='question', body=item['_source'])
+
+    return True

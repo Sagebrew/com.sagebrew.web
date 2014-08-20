@@ -31,8 +31,8 @@ def create_question_util(content="", current_pleb="", question_title="",tags="")
         search_dict = {'question_content': my_question.content, 'user': current_pleb,
                        'question_title': my_question.question_title, 'tags': tags,
                        'question_uuid': my_question.question_id,
-                       'post_date': my_question.date_created}
-        print search_dict
+                       'post_date': my_question.date_created,
+                       'related_user': ''}
         search_data = {'object_type': 'question', 'object_data': search_dict}
         spawn_task(task_func=add_object_to_search_index, task_param=search_data, countdown=1)
         rel = my_question.owned_by.connect(poster)

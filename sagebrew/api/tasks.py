@@ -6,10 +6,10 @@ from elasticsearch import Elasticsearch
 
 
 @shared_task()
-def add_object_to_search_index(object_type="", object_data=""):
+def add_object_to_search_index(index="full-search-base", object_type="", object_data=""):
     print object_data
     es = Elasticsearch([{'host': 'dwalin-us-east-1.searchly.com', 'port':443, 'use_ssl': True, 'http_auth': ('site', '6495ff8387e86cb755da1f45da88b475')}])
-    res = es.index(index='full-search', doc_type=object_type, body=object_data)
+    res = es.index(index=index, doc_type=object_type, body=object_data)
     return True
 
 '''

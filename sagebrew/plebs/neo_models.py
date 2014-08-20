@@ -85,6 +85,7 @@ class Pleb(StructuredNode):
     is_rep = BooleanProperty(default=False)
     is_admin = BooleanProperty(default=False)
     is_sage = BooleanProperty(default=False)
+    search_sub_index = IntegerProperty()
 
     # Relationships
     home_town_address = RelationshipTo("Address", "GREW_UP_AT")
@@ -150,6 +151,7 @@ class SBTopic(StructuredNode):
 
 
 def create_user_profile(sender, instance, created, **kwargs):
+    from sb_search.tasks import add_user_to_index
     if created:
         # fixes test fails due to ghost plebs
         if instance.email == "":
@@ -174,8 +176,9 @@ def create_user_profile(sender, instance, created, **kwargs):
                 },
                          'object_type': 'pleb'
             }
-            print task_data
             spawn_task(task_func=add_object_to_search_index, task_param=task_data)
+            task_data = {'pleb': citizen.email}
+            spawn_task(task_func=add_user_to_index, task_param=task_data)
     else:
         pass
         # citizen = Pleb.index.get(instance.email)

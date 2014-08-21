@@ -62,8 +62,8 @@ def search_result_api(request, query_param="", display_num=1000, page=1,
     try:
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         #TODO benchmark getting the index from neo vs. getting from postgres
-        scanres = es.search(index='full-search-user-specific-1', size=500,
-                        search_type='scan', scroll='1m', body=
+        res = es.search(index='full-search-user-specific-1', size=10,
+                            scroll='1m', body=
             {
                 "query": {
                     "filtered": {
@@ -81,9 +81,7 @@ def search_result_api(request, query_param="", display_num=1000, page=1,
                     }
                 }
             })
-        scrollid = scanres['_scroll_id']
 
-        res = es.scroll(scroll_id=scrollid, scroll='1m')
         res = res['hits']['hits']
         if not res:
             html = render_to_string('search_result_empty.html')

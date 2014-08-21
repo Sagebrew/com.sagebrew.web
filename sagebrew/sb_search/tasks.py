@@ -152,3 +152,18 @@ def add_user_to_custom_index(pleb="", index="full-search-user-specific-1"):
         logger.exception("Unhandled Exception: ")
         traceback.print_exc()
     return True
+
+@shared_task()
+def update_user_index(doc_type, doc_id):
+    es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+    res = es.get(index='full-search-base', doc_type=doc_type, id=doc_id)
+    print res
+    plebs = Pleb.category()
+    for pleb in plebs.instance.all():
+        #TODO update this to get index name from the users assigned index
+        res['_source']['related_user'] = pleb.email
+        result = es.index(index='full-search-user-specific-1', doc_type=doc_type,
+                          body=res['_source'])
+        print result
+
+    return True

@@ -40,6 +40,13 @@ def update_search_index_doc(document_id, index, field, update_value,
     return True
 
 def process_search_result(item):
+    '''
+    This util is called to process the search results returned from
+    elasticsearch and render them to a hidden <div> element
+    
+    :param item:
+    :return:
+    '''
     from sb_search.tasks import update_weight_relationship
 
     item['score'] = item.pop('_score')

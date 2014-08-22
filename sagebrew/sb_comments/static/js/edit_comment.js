@@ -4,7 +4,7 @@ $(document).ready(function () {
         $("#comment_divid_" + comment_id).fadeToggle();
     });
 
-    $("a.edit_comment-action").click(function (event) {
+    $("button.edit_comment-action").click(function (event) {
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {

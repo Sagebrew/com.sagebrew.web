@@ -1,13 +1,31 @@
 <div class="sb_profile_container_left">
-    <div><b>Potential Representatives</b></div>
-    <div>Senators:</div>
-    <ul>
-        {% for senator in senator_names %}
-            <li>{{ senator }}</li>
-        {% endfor %}
-    </ul>
-    <div align="left">House Representative:</div>
-    <ul>
-        <li>{{ rep_name }}</li>
-    </ul>
+    <div class="sb_profile_rep_container">
+        <div class="sb_profile_rep_header">
+            <div>Potential Representatives</div>
+        </div>
+        <div class="sb_profile_rep_content">
+            <div>Senators</div>
+                <div class="row">
+                    <div class="col-lg-2">
+                        <div class="sb_thumbnail_xs thumbnail"></div>
+                    </div>
+                    <div class="col-lg-10">
+
+                    {% for senator in senator_names %}
+                         {{ senator }}
+                    {% endfor %}
+                    </div>
+                </div>
+
+            <div>Potential House Representatives</div>
+                <div class="row">
+                    <div class="col-lg-2">
+                        <div class="sb_thumbnail_xs thumbnail"></div>
+                    </div>
+                    <div class="col-lg-10">
+                        {{ rep_name }}
+                    </div>
+                </div>
+        </div>
+    </div>
 </div>

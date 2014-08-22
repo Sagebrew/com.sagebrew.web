@@ -1,5 +1,6 @@
 $(document).ready(function () {
     $("a.comment-action").click(function (event) {
+        console.log("hello");
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {

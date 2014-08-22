@@ -8,10 +8,10 @@
 {% if is_owner == True or is_friend == True %}
        <div class="row-fluid sb_profile_content">
            <div class="thumbnail sb_profile_pic">
-
+                <img src="{% static 'images/profile.jpg' %}">
            </div>
-           <div class=" sb_profile_container_top">
-
+           <div class="sb_profile_container_top_div">
+                <img class="sb_profile_container_top" src="{% static 'images/Capitol_reflection.jpg' %}">
            </div>
            <div class="sb_profile_btn_menu_container ">
                 {% include "sb_profile_user_menu.html" %}
@@ -19,11 +19,11 @@
            <div class="col-lg-4">
                {% include "sb_profile_rep_stats.html" %}
                {% include "sb_profile_potential_reps_stats.html" %}
+
+                        <div><b>Reputation: </b>{{ pleb_info.reputation }}</div>
            </div>
            <div class="col-lg-8">
-               {% block wall %}
                    {% include "wall.html" %}
-               {% endblock %}
            </div>
         </div>
     {% elif is_friend == False and is_owner == False %}

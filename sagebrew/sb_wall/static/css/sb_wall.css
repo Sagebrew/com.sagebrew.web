@@ -1,13 +1,14 @@
 .sb_profile_container_wall {
-    background-color: #eaf0e8;
+    background-color: #e0e7e1;
     height: auto;
-    margin-top: 10px;
+    margin-top: 15px;
     min-height: 400px;
     margin-left: -30px;
     margin-right: -30px;
     margin-bottom: 30px;
-    padding-left:10px;
-    padding-right:10px;
+    padding-top: 15px;
+    padding-left:15px;
+    padding-right:15px;
     padding-bottom: 30px;
-    border-radius: 0 0 0 0;
+    border-radius: 2px;
 }

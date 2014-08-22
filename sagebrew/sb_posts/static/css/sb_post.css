@@ -34,7 +34,12 @@
     border-width: 1px;
     border-color:#d8e7d6;
 }
-
+.sb_post_comments{
+    border-style: solid;
+    border-width: 1px 0 0 0;
+    border-color: #b7bfbb;
+    padding-bottom: 5px;
+}
 .sb_post_stats{
     padding-top: 3px;
     padding-bottom: 3px;
@@ -42,7 +47,7 @@
     padding-right: 15px;
     background-color: #ffffff;
     border-style: solid;
-    border-width: 1px 0px 1px 0px;
+    border-width: 1px 0 0 0;
     border-color: #b7bfbb;
     border-radius: 0 0 0 0;
 }
@@ -50,12 +55,12 @@
     padding: 10px 15px 10px 15px;
     background-color: #eaf0e8;
     border: solid;
-    border-width: 0 0px 1px 0px;
+    border-width: 1px 0 1px 0;
     border-radius: 0 0 5px 5px;
     border-color: #b7bfbb;
 }
 .sb_comment_input{
-    border-width: 1px 0px 1px 1px;
+    border-width: 1px 0 1px 1px;
     border-radius: 5px 5px 5px 5px ;
     border-color: #d0e9c6;
     padding: 10px 10px 10px 10px;
@@ -65,7 +70,6 @@
 textarea.sb_comment_input{
     height: 50px;
 }
-
 #sb_text{
     height: 30px;
 }
@@ -120,7 +124,6 @@ textarea.sb_comment_input{
 .sb_btn_comment_icon:active,
 .sb_btn_comment_icon:focus{
     color: #26424a;
-
 }
 .sb_icon{
     font-size: 20px;

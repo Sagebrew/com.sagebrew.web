@@ -72,3 +72,21 @@
     color: #838c92;
     font-size: 25px;
 }
+.sb_temp_rep_badge{
+    height: 50px;
+    margin-top: 3px;
+ }
+.sb_profile_reputation{
+    border-radius: 2px;
+    padding-left: 15px;
+    padding-top: 5px;
+    margin-top: 0;
+
+    height: 70px;
+    background-color: #eaf0e8;
+    color: #838c92;
+    font-size: 15pt;
+    border-bottom: solid;
+    border-bottom-color: #9DBBB9;
+    border-width: 2px;
+}

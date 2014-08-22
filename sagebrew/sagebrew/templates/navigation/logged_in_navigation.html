@@ -25,14 +25,14 @@
     <div class="col-lg-2 col-md-2 col-sm-3 col-xs-6" align="right">
         <div class="sb_nav_btn_group btn-group">
             <div class="btn-group">
-                <button class="sb_btn_dropdown show_friend_request-action btn dropdown-toggle pull-right"
+                <a class="sb_btn_dropdown show_friend_request-action btn dropdown-toggle pull-right"
                         type="button"
-                        id="dropdownMenu1"
+                        id="sb_friend"
                         data-toggle="dropdown"
                         data-email="{{ pleb_info.email }}">
                 <span class="sb_btn_icon fui-user"></span>
-                </button>
-                <ul class="sb_nav_dropdown_content dropdown-menu dropdown-menu-right"
+                </a>
+                <ul class="sb_nav_dropdown_container dropdown-menu dropdown-menu-right"
                     role="menu" aria-labelledby="dropdownMenu1">
                     <li role="presentation">
                         <div id="friend_request_div">
@@ -51,7 +51,7 @@
                         data-email="{{ pleb_info.email }}">
                 <span class="sb_btn_icon glyphicon glyphicon-leaf"></span>
                 </button>
-                <ul class="sb_nav_dropdown_content dropdown-menu dropdown-menu-right"
+                <ul class="sb_nav_dropdown_container dropdown-menu dropdown-menu-right"
                     role="menu" aria-labelledby="dropdownMenu1">
                     <li role="presentation">
                         <div id="notification_div">
@@ -71,7 +71,7 @@
                         data-toggle="dropdown">
                 <span class="sb_btn_icon fui-gear"></span>
                 </button>
-                <ul class="sb_nav_dropdown_content dropdown-menu dropdown-menu-right"
+                <ul class="sb_nav_dropdown_container dropdown-menu dropdown-menu-right"
                     role="menu" aria-labelledby="dropdownMenu1">
                     <li role="presentation"><a role="menuitem"
                                                tabindex="-1"

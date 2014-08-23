@@ -77,20 +77,16 @@ def search_result_api(request, query_param="", display_num=10, page=1,
         #the first search result is that user
         res = es.search(index='full-search-user-specific-1', size=50,
                         body=
-            {
-                "query": {
-                    "filtered": {
-                        "query": {
-                            "query_string": {
-                                "query": query_param
+                        {
+                            "query": {
+                                "query_string": {
+                                    "query": query_param
+                                }
+                            },
+                            "filter": {
+                                "term": { "related_user" : current_user_email}
                             }
-                        },
-                        "filter": {
-                            "term": { "related_user" : current_user_email}
-                        }
-                    }
-                }
-            })
+                        })
         res = res['hits']['hits']
         if not res:
             html = render_to_string('search_result_empty.html')

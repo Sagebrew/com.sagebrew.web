@@ -2,6 +2,7 @@ import pytz
 import traceback
 from uuid import uuid1
 from datetime import datetime
+from textblob import TextBlob
 
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -25,8 +26,14 @@ def create_question_util(content="", current_pleb="", question_title="",tags="")
         if content == "" or question_title == "":
             return None
         poster = Pleb.index.get(email=current_pleb)
+        content_blob = TextBlob(content)
+        title_blob = TextBlob(question_title)
         my_question = SBQuestion(content=content, question_title=question_title,
                                  question_id=str(uuid1()))
+        my_question.subjectivity = content_blob.subjectivity
+        my_question.positivity = content_blob.polarity
+        my_question.title_polarity = title_blob.polarity
+        my_question.title_subjectivity = title_blob.subjectivity
         my_question.save()
         search_dict = {'question_content': my_question.content, 'user': current_pleb,
                        'question_title': my_question.question_title, 'tags': tags,

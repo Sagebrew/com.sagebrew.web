@@ -12,3 +12,6 @@ django-haystack
 neomodel
 sendgrid-django
 bomberman-python
+elasticsearch
+textblob
+nltk

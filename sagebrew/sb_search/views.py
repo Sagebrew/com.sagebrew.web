@@ -1,5 +1,5 @@
-import traceback
 import logging
+import traceback
 from json import dumps, loads
 from textblob import TextBlob
 from operator import itemgetter
@@ -17,6 +17,7 @@ from rest_framework.response import Response
 
 from .utils import process_search_result
 from .forms import SearchForm
+from api.alchemyapi import AlchemyAPI
 from api.utils import (get_post_data, post_to_garbage,
                        spawn_task)
 from plebs.neo_models import Pleb
@@ -62,19 +63,20 @@ def search_result_api(request, query_param="", display_num=10, page=1,
     :return:
 
     '''
+    alchemyapi = AlchemyAPI()
+    response = alchemyapi.keywords("text", query_param)
     blob = TextBlob(query_param)
-    print blob.sentiment
     current_page = int(page)
     results=[]
     current_user_email = request.user.email
     current_user_email, current_user_address = current_user_email.split('@')
-
     try:
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         #TODO benchmark getting the index from neo vs. getting from postgres
         #TODO run query_param through natural language proccessor, determine
         #if what they have searched is an email address or a name so that
         #the first search result is that user
+        #TODO implement filtering on auto generated keywords from alchemyapi
         res = es.search(index='full-search-user-specific-1', size=50,
                         body=
                         {

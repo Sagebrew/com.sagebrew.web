@@ -1,6 +1,6 @@
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty)
+                      BooleanProperty, FloatProperty)
 
 from sb_posts.neo_models import SBBase
 
@@ -13,6 +13,8 @@ class SBQuestion(SBBase):
     is_private = BooleanProperty()
     is_protected = BooleanProperty(default=False)
     is_mature = BooleanProperty(default=False)
+    title_polarity = FloatProperty()
+    title_subjectivity = FloatProperty()
 
     # relationships
     closed_by = RelationshipTo('plebs.neo_models.Pleb', 'CLOSED_BY')

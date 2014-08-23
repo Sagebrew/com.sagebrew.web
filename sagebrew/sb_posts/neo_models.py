@@ -4,7 +4,7 @@ from datetime import datetime
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty)
+                      BooleanProperty, FloatProperty)
 
 
 class PostedOnRel(StructuredRel):
@@ -28,6 +28,8 @@ class SBBase(StructuredNode):
     to_be_deleted = BooleanProperty(default=False)
     delete_time = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     is_explicit = BooleanProperty(default=False)
+    polarity = FloatProperty()
+    subjectivity = FloatProperty()
 
     # relationships
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'OWNED_BY',
@@ -40,7 +42,10 @@ class SBBase(StructuredNode):
     comments = RelationshipTo('sb_comments.neo_models.SBComment', 'HAS_A',
                               model=PostedOnRel)
     tagged_as = RelationshipTo('sb_tags.neo_models.SBTag', 'TAGGED_AS')
-    rel_weight = RelationshipTo('plebs.neo_models.Pleb', 'HAS_WEIGHT', model=RelationshipWeight)
+    auto_tagged_as = RelationshipTo('sb_tags.neo_models.SBTag',
+                                    'AUTO_TAGGED_AS')
+    rel_weight = RelationshipTo('plebs.neo_models.Pleb', 'HAS_WEIGHT',
+                                model=RelationshipWeight)
 
 
 class SBPost(SBBase):

@@ -43,34 +43,37 @@ def process_search_result(item):
     '''
     This util is called to process the search results returned from
     elasticsearch and render them to a hidden <div> element
-    
+
     :param item:
     :return:
     '''
     from sb_search.tasks import update_weight_relationship
 
-    item['score'] = item.pop('_score')
-    item['type'] = item.pop('_type')
-    item['source'] = item.pop('_source')
-    if item['type'] == 'question':
+    if 'sb_score' not in item['_source']:
+            item['_source']['sb_score'] = 0
+    if item['_type'] == 'question':
         spawn_task(update_weight_relationship,
                    task_param=
                    {'index': item['_index'],
                     'document_id': item['_id'],
-                    'object_uuid': item['source']['question_uuid'],
+                    'object_uuid': item['_source']['question_uuid'],
                     'object_type': 'question',
-                    'current_pleb': item['source']['related_user'],
+                    'current_pleb': item['_source']['related_user'],
                     'modifier_type': 'seen'})
-        return render_to_string(
-            'question_search_hidden.html', item)
-    if item['type'] == 'pleb':
+        return {"question_uuid": item['_source']['question_uuid'],
+                       "type": "question",
+                       "temp_score": item['_score']*item['_source']['sb_score'],
+                       "score": item['_score']}
+    if item['_type'] == 'pleb':
         spawn_task(update_weight_relationship,
                    task_param={'index': item['_index'],
                                'document_id': item['_id'],
                                'object_uuid':
-                                   item['source']['pleb_email'],
+                                   item['_source']['pleb_email'],
                                'object_type': 'pleb',
-                               'current_pleb': item['source']['related_user'],
+                               'current_pleb': item['_source']['related_user'],
                                'modifier_type': 'seen'})
-        return render_to_string('pleb_search_hidden.html',
-                                           item)
+        return {"pleb_email": item['_source']['pleb_email'],
+                       "type": "pleb",
+                       "temp_score": item['_score']*item['_source']['sb_score'],
+                       "score": item['_score']}

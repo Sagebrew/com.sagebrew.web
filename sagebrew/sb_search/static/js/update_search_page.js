@@ -1,15 +1,15 @@
 $( document ).ready(function() {
-    var search_param = $('#search_param').data('search_param');
-    var search_page = $('#search_param').data('search_page');
+    var search_results = $('#search_result_div');
+    var search_id = $('#search_param');
+    var search_param = search_id.data('search_param');
+    var search_page = search_id.data('search_page');
     var scrolled = false;
     $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                var csrftoken = $.cookie('csrftoken');
-                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                }
+                ajax_security(xhr, settings)
             }
         });
+
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "GET",
@@ -17,17 +17,16 @@ $( document ).ready(function() {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-                $('#search_param').remove();
-                $('#search_result_div').append(data["html"]);
-                $('.result').each(function(i) {
-                    if ($(this).data('type') == 'question') {
-                        var question_id = $(this).data('question_uuid');
+                if (data['next'] != ""){
+                    search_results.append("<div class='load_next_page' style='display: none' data-next='"+data['next']+"'></div>")
+                }
+                var data_list = data['html'];
+                $.each(data_list, function(i, item) {
+                    if (data_list[i].type == 'question') {
+                        var question_id = data_list[i].question_uuid;
                         $.ajaxSetup({
                             beforeSend: function (xhr, settings) {
-                                var csrftoken = $.cookie('csrftoken');
-                                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                                }
+                                ajax_security(xhr, settings)
                             }
                         });
                         $.ajax({
@@ -37,20 +36,15 @@ $( document ).ready(function() {
                             contentType: "application/json; charset=utf-8",
                             dataType: "json",
                             success: function (data) {
-                                console.log(data['html']);
-                                $('#search_result_div').append(data["html"]);
-                                $('.result').remove();
+                                search_results.append(data["html"]);
                             }
                         });
                     }
-                    if ($(this).data('type') == 'pleb'){
-                        var pleb_email = $(this).data('pleb_email');
+                    if (data_list[i].type == 'pleb'){
+                        var pleb_email = data_list[i].pleb_email;
                         $.ajaxSetup({
                             beforeSend: function (xhr, settings) {
-                                var csrftoken = $.cookie('csrftoken');
-                                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                                }
+                                ajax_security(xhr, settings)
                             }
                         });
                         $.ajax({
@@ -60,9 +54,7 @@ $( document ).ready(function() {
                             contentType: "application/json; charset=utf-8",
                             dataType: "json",
                             success: function (data) {
-                                console.log(data['html']);
-                                $('#search_result_div').append(data["html"]);
-                                $('.result').remove();
+                                search_results.append(data["html"]);
                             }
                         });
                     }
@@ -71,11 +63,13 @@ $( document ).ready(function() {
         });
     $(window).scroll(function() {
         if(scrolled == false) {
-            if ($(window).scrollTop() + $(window).height() > ($(document).height() - $(document).height()*.2)) {
+            if ($(window).scrollTop() + $(window).height() > ($(document).height() - $(document).height()*.5)) {
                 scrolled = true;
                 var next_page = $('.load_next_page').data('next');
-                $('.load_next_page').remove();
-                console.log(next_page);
+                $.ajaxSetup({beforeSend: function (xhr, settings) {
+                        ajax_security(xhr, settings)
+                    }
+                });
                 $.ajax({
                     xhrFields: {withCredentials: true},
                     type: "GET",
@@ -83,57 +77,12 @@ $( document ).ready(function() {
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (data) {
-                        $('#search_param').remove();
-                        console.log(data["html"]);
-                        $('#search_result_div').append(data["html"]);
-                        $('.result').each(function (i) {
-                            if ($(this).data('type') == 'question') {
-                                var question_id = $(this).data('question_uuid');
-                                $.ajaxSetup({
-                                    beforeSend: function (xhr, settings) {
-                                        var csrftoken = $.cookie('csrftoken');
-                                        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                                        }
-                                    }
-                                });
-                                $.ajax({
-                                    xhrFields: {withCredentials: true},
-                                    type: "GET",
-                                    url: "/questions/search/" + question_id + '/',
-                                    contentType: "application/json; charset=utf-8",
-                                    dataType: "json",
-                                    success: function (data) {
-                                        console.log(data['html']);
-                                        $('#search_result_div').append(data["html"]);
-                                        $('.result').remove();
-                                    }
-                                });
-                            }
-                            if ($(this).data('type') == 'pleb'){
-                                var pleb_email = $(this).data('pleb_email');
-                                $.ajaxSetup({
-                                    beforeSend: function (xhr, settings) {
-                                        var csrftoken = $.cookie('csrftoken');
-                                        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                                        }
-                                    }
-                                });
-                                $.ajax({
-                                    xhrFields: {withCredentials: true},
-                                    type: "GET",
-                                    url: "/user/search/" + pleb_email + '/',
-                                    contentType: "application/json; charset=utf-8",
-                                    dataType: "json",
-                                    success: function (data) {
-                                        console.log(data['html']);
-                                        $('#search_result_div').append(data["html"]);
-                                        $('.result').remove();
-                                    }
-                                });
-                            }
-                        });
+                        scrolled = false;
+                        $(".load_next_page").remove();
+                        if (data['next'] != ""){
+                            search_results.append("<div class='load_next_page' style='display: none' data-next='"+data['next']+"'></div>")
+                        }
+                        search_results.append(data['html']);
                     }
                 });
             }
@@ -143,7 +92,3 @@ $( document ).ready(function() {
 
 
 
-function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}

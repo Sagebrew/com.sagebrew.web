@@ -10,6 +10,9 @@ class SBQuestion(SBBase):
     question_id = StringProperty(unique_index=True)
     is_closed = BooleanProperty(default=False)
     closed_reason = StringProperty()
+    is_private = BooleanProperty()
+    is_protected = BooleanProperty(default=False)
+    is_mature = BooleanProperty(default=False)
 
     # relationships
     closed_by = RelationshipTo('plebs.neo_models.Pleb', 'CLOSED_BY')

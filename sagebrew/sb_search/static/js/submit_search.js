@@ -1,8 +1,7 @@
 $( document ).ready(function() {
 	$("a.full_search-action").click(function(event){
-        var search_param = $('textarea#search_id').val();
+        var search_param = encodeURIComponent($('textarea#search_id').val());
         window.location.href = "https://192.168.56.101/search/q=" + search_param +"&page=1";
-        console.log('here');
 		$.ajaxSetup({
 		    beforeSend: function(xhr, settings) {
 				var csrftoken = $.cookie('csrftoken');
@@ -23,7 +22,7 @@ $( document ).ready(function() {
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
             success: function (data) {
-                alert(data['detail']);
+                //alert(data['detail']);
             }
 		});
 	});

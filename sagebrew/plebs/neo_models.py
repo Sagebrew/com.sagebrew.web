@@ -86,6 +86,7 @@ class Pleb(StructuredNode):
     is_admin = BooleanProperty(default=False)
     is_sage = BooleanProperty(default=False)
     search_index = StringProperty()
+    base_index_id = StringProperty()
 
     # Relationships
     home_town_address = RelationshipTo("Address", "GREW_UP_AT")

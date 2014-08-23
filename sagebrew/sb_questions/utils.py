@@ -317,7 +317,7 @@ def edit_question_util(question_uuid="", content="", last_edited_on="",
     except SBQuestion.DoesNotExist:
         return False
 
-def prepare_question_search_html(question_uuid=str(uuid1())):
+def prepare_question_search_html(question_uuid):
     my_question = SBQuestion.index.get(question_id=question_uuid)
     owner = my_question.traverse('owned_by').run()[0]
     owner_name = owner.first_name + ' ' + owner.last_name

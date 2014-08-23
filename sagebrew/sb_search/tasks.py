@@ -18,8 +18,7 @@ logger = logging.getLogger('loggly_logs')
 
 @shared_task()
 def update_weight_relationship(document_id, index, object_type="", object_uuid=str(uuid1()),
-                               current_pleb="", modifier_type="",
-                               ):
+                               current_pleb="", modifier_type=""):
     '''
     This task handles creating and updating the weight relationship between
     users and: other users, questions, answers and posts. These relationships
@@ -34,7 +33,7 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
     '''
     update_dict = {
         "document_id" : document_id, "index": index, "field": "sb_score",
-        "document_type" : object_type
+        "document_type" : object_type, "update_value": 0
     }
     try:
         if object_type == 'question':
@@ -43,9 +42,9 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
             if pleb.object_weight.is_connected(question):
                 rel = pleb.object_weight.relationship(question)
 
-                if rel.seen and modifier_type == 'seen':
-                    rel.weight += settings.USER_RELATIONSHIP_MODIFIER[
-                        'each_seen']
+                if rel.seen == 'seen' and modifier_type == 'search_seen':
+                    rel.weight += settings.OBJECT_SEARCH_MODIFIERS[
+                        'seen_search']
                     rel.save()
                     update_dict['update_value'] = rel.weight
 
@@ -82,7 +81,6 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
                     rel.save()
                     update_dict['update_value'] = rel.weight
 
-                print update_dict
                 update_search_index_doc(**update_dict)
 
             else:
@@ -98,9 +96,9 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
             c_pleb = Pleb.index.get(email=current_pleb)
             if c_pleb.user_weight.is_connected(pleb):
                 rel = c_pleb.user_weight.relationship(pleb)
-                if rel.interaction and modifier_type == 'seen':
+                if rel.interaction == 'seen' and modifier_type == 'search_seen':
                     rel.weight += settings.USER_RELATIONSHIP_MODIFIER[
-                        'each_seen']
+                        'search_seen']
                     rel.save()
                     update_dict['update_value'] = rel.weight
                 update_search_index_doc(**update_dict)
@@ -124,6 +122,15 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
 
 @shared_task()
 def add_user_to_custom_index(pleb="", index="full-search-user-specific-1"):
+    '''
+    This function is called when a user is created, it reindexes every document
+    from the full-search-base index to the users assigned index with the
+    related_user property as the new users email
+
+    :param pleb:
+    :param index:
+    :return:
+    '''
     res =[]
     es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
     scanres = es.search(index='full-search-base', search_type="scan",
@@ -154,10 +161,19 @@ def add_user_to_custom_index(pleb="", index="full-search-user-specific-1"):
     return True
 
 @shared_task()
-def update_user_index(doc_type, doc_id):
+def update_user_indices(doc_type, doc_id):
+    '''
+    This takes a documents type and its id in the full-search-base index,
+    then gets all plebs in neo4j and adds the document from the full-search-base
+    index to that users assigned index with the related_user property as
+    that users email
+
+    :param doc_type:
+    :param doc_id:
+    :return:
+    '''
     es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
     res = es.get(index='full-search-base', doc_type=doc_type, id=doc_id)
-    print res
     plebs = Pleb.category()
     for pleb in plebs.instance.all():
         #TODO update this to get index name from the users assigned index

@@ -99,8 +99,10 @@ class Pleb(StructuredNode):
     topic_category = RelationshipTo("TopicCategory", "INTERESTED_IN")
     sb_topics = RelationshipTo("SBTopic", "INTERESTED_IN")
     friends = RelationshipTo("Pleb", "FRIENDS_WITH", model=FriendRelationship)
-    senator = RelationshipTo("govtrack.neo_models.GTRole", "HAS_SENATOR")
-    house_rep = RelationshipTo("govtrack.neo_models.GTRole", "HAS_REPRESENTATIVE")
+    senator = RelationshipTo("govtrack.neo_models.GTRole",
+                             "HAS_SENATOR")
+    house_rep = RelationshipTo("govtrack.neo_models.GTRole",
+                               "HAS_REPRESENTATIVE")
     posts = RelationshipTo('sb_posts.neo_models.SBPost', 'OWNS',
                            model=PostObjectCreated)
     questions = RelationshipTo('sb_questions.neo_models.SBQuestion', 'OWNS',
@@ -116,11 +118,14 @@ class Pleb(StructuredNode):
         'sb_relationships.neo_models.FriendRequest', 'SENT_A_REQUEST')
     friend_requests_recieved = RelationshipTo(
         'sb_relationships.neo_models.FriendRequest', 'RECIEVED_A_REQUEST')
-    user_weight = RelationshipTo('Pleb', 'WEIGHTED_USER', model=UserWeightRelationship)
+    user_weight = RelationshipTo('Pleb', 'WEIGHTED_USER',
+                                 model=UserWeightRelationship)
     object_weight = RelationshipTo(['sb_questions.neo_models.SBQuestion',
                                     'sb_answers.neo_models.SBAnswer'],
                                      'OBJECT_WEIGHT',
                                      model=RelationshipWeight)
+    searches = RelationshipTo('sb_search.neo_models.SearchQuery', 'SEARCHED',
+                              model='sb_search.neo_models.SearchCount')
 
 
 
@@ -171,15 +176,20 @@ def create_user_profile(sender, instance, created, **kwargs):
             wall.save()
             citizen.save()
             task_data = {'object_data': {
-                'first_name': citizen.first_name, 'last_name': citizen.last_name,
-                'full_name': str(citizen.first_name) + ' ' + str(citizen.last_name),
+                'first_name': citizen.first_name,
+                'last_name': citizen.last_name,
+                'full_name': str(citizen.first_name) + ' '
+                             + str(citizen.last_name),
                 'pleb_email': citizen.email
                 },
                          'object_type': 'pleb'
             }
-            spawn_task(task_func=add_object_to_search_index, task_param=task_data)
-            task_data = {'pleb': citizen.email, 'index': "full-search-user-specific-1"}
-            spawn_task(task_func=add_user_to_custom_index, task_param=task_data)
+            spawn_task(task_func=add_object_to_search_index,
+                       task_param=task_data)
+            task_data = {'pleb': citizen.email,
+                         'index': "full-search-user-specific-1"}
+            spawn_task(task_func=add_user_to_custom_index,
+                       task_param=task_data)
     else:
         pass
         # citizen = Pleb.index.get(instance.email)

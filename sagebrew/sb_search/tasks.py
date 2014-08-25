@@ -1,13 +1,16 @@
+import pytz
 import traceback
 import logging
 from json import dumps
 from uuid import uuid1
+from datetime import datetime
 from traceback import print_exc
 from django.conf import settings
 
 from celery import shared_task
 from elasticsearch import Elasticsearch
 
+from .neo_models import SearchQuery
 from .utils import update_search_index_doc_script, update_search_index_doc
 from plebs.neo_models import Pleb
 from sb_posts.neo_models import SBPost
@@ -153,12 +156,14 @@ def add_user_to_custom_index(pleb="", index="full-search-user-specific-1"):
             if item['_type'] == 'pleb':
                 result = es.index(index=index, doc_type='pleb',
                                   body=item['_source'])
+        return True
     except Exception:
         logger.critical(dumps({"exception": "Unhandled Exception",
                                "function": add_user_to_custom_index.__name__}))
         logger.exception("Unhandled Exception: ")
         traceback.print_exc()
-    return True
+        return False
+
 
 @shared_task()
 def update_user_indices(doc_type, doc_id):
@@ -183,3 +188,21 @@ def update_user_indices(doc_type, doc_id):
         print result
 
     return True
+
+@shared_task()
+def update_search_query(pleb, query_param):
+    try:
+        pleb = Pleb.index.get(email=pleb)
+        search_query = SearchQuery.index.get(query=query_param)
+        rel = pleb.searches.relationship(search_query)
+        rel.times_searched += 1
+        rel.last_searched = datetime.now(pytz.utc)
+        rel.save()
+    except Pleb.DoesNotExist:
+        return False
+    except SearchQuery.DoesNotExist:
+        search_query = SearchQuery(query=query_param)
+        search_query.save()
+        search_query.searched_by.connect(pleb)
+        rel = pleb.searches.connect(search_query)
+        rel.save()

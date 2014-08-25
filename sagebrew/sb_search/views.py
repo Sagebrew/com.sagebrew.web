@@ -1,12 +1,11 @@
 import logging
 import traceback
-from json import dumps, loads
 from textblob import TextBlob
 from operator import itemgetter
-from multiprocessing import Pool
-from elasticsearch import Elasticsearch
 from django.conf import settings
+from multiprocessing import Pool
 from django.shortcuts import render
+from elasticsearch import Elasticsearch
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
@@ -70,6 +69,7 @@ def search_result_api(request, query_param="", display_num=10, page=1,
     results=[]
     current_user_email = request.user.email
     current_user_email, current_user_address = current_user_email.split('@')
+    spawn_task()
     try:
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         #TODO benchmark getting the index from neo vs. getting from postgres
@@ -103,7 +103,8 @@ def search_result_api(request, query_param="", display_num=10, page=1,
         if current_page == 1:
             pool = Pool(3)
             results = pool.map(process_search_result, page.object_list)
-            results = sorted(results, key=itemgetter('temp_score'), reverse=True)
+            results = sorted(results, key=itemgetter('temp_score'),
+                             reverse=True)
         elif current_page > 1:
             for item in page.object_list:
                 if item['_type'] == 'question':

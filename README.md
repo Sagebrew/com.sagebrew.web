@@ -207,5 +207,10 @@ setup_logging.connect(initialize_loggly)
 
 
 ###design conventions###
-
-
+All Sagebrew class and id tags start with "sb_"
+followed by element name,
+and if needed, where it's being placed.
+ex:
+.sb_btn_select
+.sb_registration_title
+#

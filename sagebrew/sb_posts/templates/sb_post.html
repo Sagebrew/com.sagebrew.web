@@ -1,0 +1,57 @@
+<div>
+    <div>{{ post.content }} | Upvotes={{ post.up_vote_number }} |
+            Downvotes={{ post.down_vote_number }} | Last
+            Edited: {{ post.last_edited_on }} | Posted
+            By: {{ post.post_owner }}</div>
+        <textarea class="form-control"
+                  id="post_comment_on_{{ post.post_id }}"
+                  rows="2"
+                  placeholder="Write your comment..."></textarea>
+        <a class='btn btn-primary comment-action'
+           data-uuid="{{ post.post_id }}"
+           data-pleb="{{ current_user }}"
+           data-post_uuid="{{ post.post_id }}">Attach
+            Comment</a>
+        {% if post.post_owner_email == current_user %}
+            <a class="btn btn-primary show_edit_post_class"
+               data-uuid="{{ post.post_id }}"
+               type="submit">Edit Post</a>
+            <div id="divid_{{ post.post_id }}"
+                 style="display:none">
+                <textarea class="form-control edit_post_input_class"
+                          id="{{ post.post_id }}"
+                          name="edit_post_input"
+                          rows="1"
+                          placeholder="Edit your post..."></textarea>
+                <a class='btn btn-primary edit_post-action'
+                   id="edit_post_button_id"
+                   data-pleb="{{ current_user }}"
+                   data-post_uuid="{{ post.post_id }}">Submit</a>
+            </div>
+            <a class='btn btn-primary delete_post-action'
+               data-pleb="{{ current_user }}"
+               data-post_uuid="{{ post.post_id }}">Delete
+                this Post and Comments</a>
+        {% endif %}
+        <a class='btn btn-primary vote-action'
+           data-vote_type='up'
+           data-pleb="{{ current_user }}"
+           data-post_uuid="{{ post.post_id }}">Upvote
+            Post</a>
+        <a class='btn btn-primary vote-action'
+           data-vote_type='down'
+           data-pleb="{{ current_user }}"
+           data-post_uuid="{{ post.post_id }}">Downvote
+            Post</a>
+        <a class='btn btn-primary vote-action'
+           data-vote_type='up'
+           data-pleb="{{ current_user }}"
+           data-post_uuid="{{ post.post_id }}">Flag
+            Post</a>
+        <a class='btn btn-primary vote-action'
+           data-vote_type='up'
+           data-pleb="{{ current_user }}"
+           data-post_uuid="{{ post.post_id }}">Reference
+            Post</a>
+</div>
+{% include "sb_comments.html" %}

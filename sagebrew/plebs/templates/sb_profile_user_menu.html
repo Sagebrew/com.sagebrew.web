@@ -1,7 +1,11 @@
-<div class="col-lg-4">
-          <div class="sb_profile_name">{{ pleb_info.first_name }} {{ pleb_info.last_name }}</div>
-</div>
-<div class="col-lg-5">
+{% load staticfiles %}
+    <div class="col-lg-4">
+        <div class="sb_profile_name">
+            {{ pleb_info.first_name }} {{ pleb_info.last_name }}
+            <img class="sb_temp_rep_badge" src="{% static 'images/shield.svg' %}">
+        </div>
+    </div>
+    <div class="col-lg-5">
     <div class="sb_profile_btn_menu_group btn-group">
         <button type="button" class="btn sb_profile_menu_btn">Home</button>
         <button type="button" class="btn sb_profile_menu_btn">About</button>

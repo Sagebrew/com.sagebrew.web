@@ -21,3 +21,32 @@
     padding-left: 15px;
     color: #838c92;
 }
+.sb_rep_header {
+    color: #838c92;
+    font-size: 15pt;
+    padding-bottom: 10px;
+}
+.sb_rep_info{
+    font-size: 12pt;
+    color: #838c92;
+    margin-top: -5px;
+}
+.sb_rep{
+    margin-top: -10px;
+}
+.sb_thumbnail_rep{
+    margin-left: 15px;
+}
+.sb_rep_name{
+    color: #1ba39c;
+    font-size: 13pt;
+    margin-left: -15px;
+    padding-bottom: 0;
+}
+.sb_rep_name:hover,
+.sb_rep_name:active,
+.sb_rep_name:focus{
+    color: #1ba39c;
+    text-decoration-line: underline;
+    text-decoration-color: #1ba39c;
+}

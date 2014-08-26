@@ -10,8 +10,9 @@ from django.conf import settings
 from celery import shared_task
 from elasticsearch import Elasticsearch
 
-from .neo_models import SearchQuery
+from .neo_models import SearchQuery, KeyWord
 from .utils import update_search_index_doc_script, update_search_index_doc
+from api.utils import spawn_task
 from plebs.neo_models import Pleb
 from sb_posts.neo_models import SBPost
 from sb_answers.neo_models import SBAnswer
@@ -190,10 +191,19 @@ def update_user_indices(doc_type, doc_id):
     return True
 
 @shared_task()
-def update_search_query(pleb, query_param):
+def update_search_query(pleb, query_param, keywords):
+    '''
+    This task creates a search query node then calls the task to create and
+    attach keyword nodes to the search query node
+
+    :param pleb:
+    :param query_param:
+    :param keywords:
+    :return:
+    '''
     try:
         pleb = Pleb.index.get(email=pleb)
-        search_query = SearchQuery.index.get(query=query_param)
+        search_query = SearchQuery.index.get(search_query=query_param)
         rel = pleb.searches.relationship(search_query)
         rel.times_searched += 1
         rel.last_searched = datetime.now(pytz.utc)
@@ -201,8 +211,35 @@ def update_search_query(pleb, query_param):
     except Pleb.DoesNotExist:
         return False
     except SearchQuery.DoesNotExist:
-        search_query = SearchQuery(query=query_param)
+        search_query = SearchQuery(search_query=query_param)
         search_query.save()
         search_query.searched_by.connect(pleb)
         rel = pleb.searches.connect(search_query)
         rel.save()
+        print keywords
+        for keyword in keywords:
+            keyword['query_param'] = query_param
+            spawn_task(task_func=create_keyword, task_param=keyword)
+
+@shared_task()
+def create_keyword(text, relevance, query_param):
+    '''
+
+    :param keyword:
+    :param relevance:
+    :param query_param:
+    :return:
+    '''
+    try:
+        search_query = SearchQuery.index.get(search_query=query_param)
+        keyword = KeyWord(keyword=text).save()
+        rel = search_query.keywords.connect(keyword)
+        rel.relevance = relevance
+        rel.save()
+        keyword.search_queries.connect(search_query)
+        search_query.save()
+        keyword.save()
+        return True
+    except SearchQuery.DoesNotExist:
+        return False
+

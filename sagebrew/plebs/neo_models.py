@@ -12,6 +12,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
 from sb_relationships.neo_models import FriendRelationship, UserWeightRelationship
 from sb_posts.neo_models import RelationshipWeight
 from sb_wall.neo_models import SBWall
+from sb_search.neo_models import SearchCount
 
 
 class PostObjectCreated(StructuredRel):
@@ -125,7 +126,7 @@ class Pleb(StructuredNode):
                                      'OBJECT_WEIGHT',
                                      model=RelationshipWeight)
     searches = RelationshipTo('sb_search.neo_models.SearchQuery', 'SEARCHED',
-                              model='sb_search.neo_models.SearchCount')
+                              model=SearchCount)
 
 
 

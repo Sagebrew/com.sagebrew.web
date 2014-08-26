@@ -13,7 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
 
-
+from .tasks import update_search_query
 from .utils import process_search_result
 from .forms import SearchForm
 from api.alchemyapi import AlchemyAPI
@@ -64,12 +64,11 @@ def search_result_api(request, query_param="", display_num=10, page=1,
     '''
     alchemyapi = AlchemyAPI()
     response = alchemyapi.keywords("text", query_param)
-    blob = TextBlob(query_param)
+    print response
     current_page = int(page)
     results=[]
     current_user_email = request.user.email
     current_user_email, current_user_address = current_user_email.split('@')
-    spawn_task()
     try:
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         #TODO benchmark getting the index from neo vs. getting from postgres
@@ -90,6 +89,10 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                             }
                         })
         res = res['hits']['hits']
+        task_param = {"pleb": request.user.email, "query_param": query_param,
+                      "keywords": response['keywords']}
+        print task_param
+        spawn_task(task_func=update_search_query, task_param=task_param)
         if not res:
             html = render_to_string('search_result_empty.html')
             return Response({'html': html}, status=200)

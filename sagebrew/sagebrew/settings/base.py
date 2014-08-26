@@ -182,6 +182,7 @@ INSTALLED_APPS = (
     'sb_questions',
     'sb_answers',
     'sb_tags',
+    'sb_trends',
     'sb_search',
     'elasticsearch',
     'textblob',
@@ -233,7 +234,8 @@ CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 CELERY_IMPORTS = ('api.tasks', 'govtrack.tasks', 'sb_comments.tasks',
                   'sb_garbage.tasks', 'sb_posts.tasks',
                   'sb_notifications.tasks',
-                  'sb_relationships.tasks', 'sb_questions.tasks'
+                  'sb_relationships.tasks', 'sb_questions.tasks',
+                  'sb_search.tasks'
 )
 BROKER_URL = 'amqp://sagebrew:this_is_the_sagebrew_password@localhost:5672//'
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'

@@ -64,7 +64,6 @@ def search_result_api(request, query_param="", display_num=10, page=1,
     '''
     alchemyapi = AlchemyAPI()
     response = alchemyapi.keywords("text", query_param)
-    print response
     current_page = int(page)
     results=[]
     current_user_email = request.user.email

@@ -32,6 +32,8 @@ class SBBase(StructuredNode):
     subjectivity = FloatProperty()
 
     # relationships
+    auto_tags = RelationshipTo('sb_tags.neo_models.SBAutoTag',
+                               'AUTO_TAGGED_AS')
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'OWNED_BY',
                               model=PostedOnRel)
     up_voted_by = RelationshipTo('plebs.neo_models.Pleb', 'UP_VOTED_BY')

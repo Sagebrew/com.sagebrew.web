@@ -17,5 +17,8 @@ class SBQuestion(SBBase):
     title_subjectivity = FloatProperty()
 
     # relationships
+    tags = RelationshipTo('sb_tags.neo_models.SBTag', 'TAGGED_AS')
+    auto_tags = RelationshipTo('sb_tags.neo_models.SBAutoTag',
+                               'AUTO_TAGGED_AS')
     closed_by = RelationshipTo('plebs.neo_models.Pleb', 'CLOSED_BY')
     answer = RelationshipTo('sb_answers.neo_models.SBAnswer', 'POSSIBLE_ANSWER')

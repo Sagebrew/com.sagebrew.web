@@ -9,9 +9,10 @@ from django.template.loader import render_to_string
 from django.core.urlresolvers import reverse
 
 from api.tasks import add_object_to_search_index
-from api.utils import spawn_task
+from api.utils import spawn_task, create_auto_tags
 from plebs.neo_models import Pleb
 from .neo_models import SBQuestion
+from sb_tags.tasks import add_auto_tags
 
 def create_question_util(content="", current_pleb="", question_title="",tags=""):
     '''
@@ -46,6 +47,13 @@ def create_question_util(content="", current_pleb="", question_title="",tags="")
         rel.save()
         rel_from_pleb = poster.questions.connect(my_question)
         rel_from_pleb.save()
+        auto_tags = create_auto_tags(content)
+        for tag in auto_tags['keywords']:
+            task_data = {
+                "tags": tag, "object_uuid": my_question.question_id,
+                "object_type": "question"
+            }
+            spawn_task(task_func=add_auto_tags, task_param=task_data)
         return my_question
     except Exception, e:
         print e

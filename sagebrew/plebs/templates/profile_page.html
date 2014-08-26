@@ -16,12 +16,14 @@
            <div class="sb_profile_btn_menu_container ">
                 {% include "sb_profile_user_menu.html" %}
            </div>
-           <div class="col-lg-4">
+           <div class="col-lg-4 sb_main_page">
                {% include "sb_profile_rep_stats.html" %}
                {% include "sb_profile_potential_reps_stats.html" %}
            </div>
-           <div class="col-lg-8">
+           <div class="col-lg-8 sb_main_page">
+               <div class="col-lg-12">
                    {% include "wall.html" %}
+               </div>
            </div>
         </div>
     {% elif is_friend == False and is_owner == False %}
@@ -67,4 +69,5 @@
     <script src="{% static 'js/respond_friend_request.js' %}"></script>
     <script src="{% static 'js/sb_post_enter.js' %}"></script>
     <script src="{% static 'js/sb_post.js' %}"></script>
+    <script src="{% static 'js/sb_about_functions.js' %}"></script>
 {% endblock scripts %}

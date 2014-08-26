@@ -4,6 +4,12 @@
     margin-left: auto;
     margin-right: auto;
 }
+.sb_profile_content_xs {
+    width: 90%;
+    height: auto;
+    margin-left: auto;
+    margin-right: auto;
+}
 .sb_profile_container_top {
     background-color: #eaf0e8;
     width: 100%;
@@ -18,9 +24,6 @@
     background-color: transparent;
     height: auto;
     border-radius: 0 0 0 0 ;
-    border-right: solid;
-    border-right-width: 20px;
-    border-right-color: #b7bfbb;
     margin-left: -15px;
     margin-right: -15px;
     margin-bottom: 3px;

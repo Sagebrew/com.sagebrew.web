@@ -1,2 +1,12 @@
+dependencies:
+  post:
+    - pip install -r requirements/base.txt
+
+checkout:
+post:
+  - git submodule sync
+  - git submodule update --init
+
 general:
   build_dir: sagebrew
+

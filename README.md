@@ -214,3 +214,26 @@ ex:
 .sb_btn_select
 .sb_registration_title
 #
+
+
+## Docker Specifics ##
+Ubuntu's default firewall (UFW: Uncomplicated Firewall) denies all forwarding traffic by default, which is needed by docker.
+
+Enable forwarding with UFW:
+
+Edit UFW configuration using the nano text editor.
+
+sudo nano /etc/default/ufw
+Scroll down and find the line beginning with DEFAULTFORWARDPOLICY.
+
+Replace:
+
+DEFAULT_FORWARD_POLICY="DROP"
+With:
+
+DEFAULT_FORWARD_POLICY="ACCEPT"
+Press CTRL+X and approve with Y to save and close.
+
+Finally, reload the UFW:
+
+sudo ufw reload

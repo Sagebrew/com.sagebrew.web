@@ -33,8 +33,6 @@ subprocess32
 redis
 Pillow
 pysolr
-django-crispy-forms
-django-allauth
 django-photologue
 django-guardian
 django-haystack

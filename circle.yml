@@ -1,6 +1,6 @@
 dependencies:
   post:
-    - pip install -r /requirements/web/base.txt
+    - pip install -r ../requirements/web/base.txt
 
 checkout:
   post:

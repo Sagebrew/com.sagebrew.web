@@ -1,4 +1,5 @@
 Django
+unipath
 psycopg2
 boto
 Markdown

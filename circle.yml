@@ -5,6 +5,7 @@ machine:
 dependencies:
   post:
     - pip install -r ../requirements/web/base.txt
+    - pip install https://github.com/robinedwards/neomodel.git@0.3.6
 
 checkout:
   post:

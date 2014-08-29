@@ -16,3 +16,4 @@ RUN apt-get update && apt-get install -y python-software-properties software-pro
 
 
 RUN pip install -r /home/apps/sagebrew/requirements/development.txt
+RUN pip install https://github.com/robinedwards/neomodel.git@0.3.6

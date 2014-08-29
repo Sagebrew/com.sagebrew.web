@@ -29,10 +29,8 @@ iron-mq
 iron_cache
 python-memcached
 beautifulsoup4
-subprocess32
 redis
 Pillow
-pysolr
 django-photologue
 django-guardian
 django-haystack

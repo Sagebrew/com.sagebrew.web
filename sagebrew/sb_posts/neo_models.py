@@ -32,7 +32,7 @@ class SBBase(StructuredNode):
     subjectivity = FloatProperty()
 
     # relationships
-    auto_tags = RelationshipTo('sb_tags.neo_models.SBAutoTag',
+    auto_tags = RelationshipTo('sb_tag.neo_models.SBAutoTag',
                                'AUTO_TAGGED_AS')
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'OWNED_BY',
                               model=PostedOnRel)
@@ -43,8 +43,8 @@ class SBBase(StructuredNode):
                                  model=PostReceivedRel)
     comments = RelationshipTo('sb_comments.neo_models.SBComment', 'HAS_A',
                               model=PostedOnRel)
-    tagged_as = RelationshipTo('sb_tags.neo_models.SBTag', 'TAGGED_AS')
-    auto_tagged_as = RelationshipTo('sb_tags.neo_models.SBTag',
+    tagged_as = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS')
+    auto_tagged_as = RelationshipTo('sb_tag.neo_models.SBTag',
                                     'AUTO_TAGGED_AS')
     rel_weight = RelationshipTo('plebs.neo_models.Pleb', 'HAS_WEIGHT',
                                 model=RelationshipWeight)

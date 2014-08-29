@@ -8,7 +8,7 @@ class SBAnswer(SBBase):
     answer_id = StringProperty(unique_index=True)
 
     # relationships
-    auto_tags = RelationshipTo('sb_tags.neo_models.SBAutoTag',
+    auto_tags = RelationshipTo('sb_tag.neo_models.SBAutoTag',
                                'AUTO_TAGGED_AS')
     answer_to = RelationshipTo('sb_questions.neo_models.SBQuestion',
                                'POSSIBLE_ANSWER_TO')

@@ -3,6 +3,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       BooleanProperty, FloatProperty)
 
 from sb_posts.neo_models import SBBase
+from sb_tag.neo_models import TagRelevanceModel
 
 class SBQuestion(SBBase):
     answer_number = IntegerProperty(default=0)
@@ -17,8 +18,9 @@ class SBQuestion(SBBase):
     title_subjectivity = FloatProperty()
 
     # relationships
-    tags = RelationshipTo('sb_tags.neo_models.SBTag', 'TAGGED_AS')
-    auto_tags = RelationshipTo('sb_tags.neo_models.SBAutoTag',
-                               'AUTO_TAGGED_AS')
+    tags = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS',
+                          model=TagRelevanceModel)
+    auto_tags = RelationshipTo('sb_tag.neo_models.SBAutoTag',
+                               'AUTO_TAGGED_AS', model=TagRelevanceModel)
     closed_by = RelationshipTo('plebs.neo_models.Pleb', 'CLOSED_BY')
     answer = RelationshipTo('sb_answers.neo_models.SBAnswer', 'POSSIBLE_ANSWER')

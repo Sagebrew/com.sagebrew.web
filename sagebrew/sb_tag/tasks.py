@@ -15,13 +15,12 @@ def add_auto_tags(tag_list):
     '''
     response_list = []
 
-    if len(tag_list) == 1:
+    if len(tag_list) <= 1:
         return True
 
-    for tag in tag_list:
-        response_list.append(add_auto_tags_util(tag))
+    response = (add_auto_tags_util(tag_list))
 
-    if False in response_list:
-        return False
+    if response:
+        return True
     else:
-        return True
+        return False

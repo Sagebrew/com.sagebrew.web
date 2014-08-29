@@ -1,12 +1,15 @@
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty)
+                      BooleanProperty, FloatProperty)
+
+class TagRelevanceModel(StructuredRel):
+    relevance = FloatProperty(default=0)
 
 class FrequentTagModel(StructuredRel):
-    count = IntegerProperty(default=0)
+    count = IntegerProperty(default=1)
 
 class SBTag(StructuredNode):
-    tag_name = StringProperty()
+    tag_name = StringProperty(unique_index=True)
     tag_used = IntegerProperty()
     
     #relationships
@@ -18,6 +21,6 @@ class SBAutoTag(SBTag):
 
     #
     answers = RelationshipTo('sb_answers.neo_models.SBAnswer', 'ANSWER_TAGGED')
-    frequently_auto_tagged_with = RelationshipTo('sb_tags.neo_models.SBAutoTag',
+    frequently_auto_tagged_with = RelationshipTo('sb_tag.neo_models.SBAutoTag',
                                                  'FREQUENTLY_AUTO_TAGGED_WITH',
                                                  model=FrequentTagModel)

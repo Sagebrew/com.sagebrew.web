@@ -22,7 +22,7 @@ DATABASES = {
         'USER': 'sagedev',
         'PASSWORD': 'thisisthesagebrewpassword',
         'HOST': 'sagebrewdb.clkvngd3diph.us-west-2.rds.amazonaws.com',
-        'PORT': '',
+        'PORT': '5432',
     }
 }
 

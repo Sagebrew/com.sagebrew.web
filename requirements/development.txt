@@ -1,2 +1,2 @@
--r base.txt
+-r web/base.txt
 django-debug-toolbar==0.9.4

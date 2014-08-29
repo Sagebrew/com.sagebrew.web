@@ -18,8 +18,8 @@ RUN apt-get update && apt-get install -y python-software-properties software-pro
 USER postgres
 
 RUN /etc/init.d/postgresql start &&\
-    psql --command "CREATE USER docker WITH SUPERUSER PASSWORD 'docker';" &&\
-    createdb -O docker docker
+    psql --command "CREATE USER admin WITH SUPERUSER PASSWORD 'admin';" &&\
+    createdb -O sagebrew_db sagebrew_db
 
 # Adjust PostgreSQL configuration so that remote connections to the
 # database are possible.

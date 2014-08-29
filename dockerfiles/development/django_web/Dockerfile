@@ -1,4 +1,4 @@
-FROM sagebrew/django.web.primary.base:v1
+FROM sagebrew/django.web.primary.base:v2
 MAINTAINER Devon Bleibtrey <devon@sagebrew.com>
 
 RUN apt-get update && apt-get install -y git

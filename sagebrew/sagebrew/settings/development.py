@@ -18,11 +18,11 @@ VERIFY_SECURE = False
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'sagebrew_db',
-        'USER': 'admin',
-        'PASSWORD': 'admin',
-        'HOST': 'localhost',
-        'PORT': '',
+        'NAME': 'sagebrewdb',
+        'USER': 'sagedev',
+        'PASSWORD': 'thisisthesagebrewpassword',
+        'HOST': 'sagebrewdb.clkvngd3diph.us-west-2.rds.amazonaws.com',
+        'PORT': '5432',
     }
 }
 

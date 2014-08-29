@@ -19,10 +19,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'sagebrewdb',
-        'USER': 'sagedev',
-        'PASSWORD': 'thisisthesagebrewpassword',
-        'HOST': 'sagebrewdb.clkvngd3diph.us-west-2.rds.amazonaws.com',
-        'PORT': '5432',
+        'USER': 'admin',
+        'PASSWORD': 'admin',
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
 

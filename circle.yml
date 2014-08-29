@@ -1,6 +1,7 @@
 machine:
   environment:
-    - NEO4J_REST_URL: http://sagebrew_dev:OElnbeUS6I4lyJazdhcc@sagebrewdev.sb02.stations.graphenedb.com:24789/db/data/
+    NEO4J_REST_URL: http://sagebrew_dev:OElnbeUS6I4lyJazdhcc@sagebrewdev.sb02.stations.graphenedb.com:24789/db/data/
+
 dependencies:
   post:
     - pip install -r ../requirements/web/base.txt

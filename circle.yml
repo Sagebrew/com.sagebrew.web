@@ -7,7 +7,8 @@ machine:
         background: true
     - celery -A sagebrew worker -l debug -n worker2:
         background: true
-    - python ~/com.sagebrew.web/sagebrew/manage.py runserver 127.0.0.1:8080
+    - python ~/com.sagebrew.web/sagebrew/manage.py runserver 127.0.0.1:8080:
+        background: true
 
 
 dependencies:

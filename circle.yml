@@ -9,7 +9,7 @@ machine:
         background: true
     - python ~/com.sagebrew.web/sagebrew/manage.py runserver 127.0.0.1:8080:
         background: true
-    - sudo ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py preprsysdir
+    - sudo ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py preprsysdir ubuntu
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py logglypopulation
 
 

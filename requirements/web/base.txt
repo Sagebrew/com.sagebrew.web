@@ -38,3 +38,5 @@ django-haystack
 sendgrid-django
 bomberman-python
 elasticsearch
+textblob
+nltk

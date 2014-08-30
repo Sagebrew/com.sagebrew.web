@@ -37,3 +37,4 @@ django-guardian
 django-haystack
 sendgrid-django
 bomberman-python
+elasticsearch

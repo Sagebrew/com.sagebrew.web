@@ -7,6 +7,7 @@ from datetime import timedelta
 
 
 PROJECT_DIR = Path(__file__).ancestor(3)
+REPO_DIR = Path(__file__).ancestor(4)
 MEDIA_ROOT = PROJECT_DIR.child("media")
 STATIC_ROOT = PROJECT_DIR.child("static")
 

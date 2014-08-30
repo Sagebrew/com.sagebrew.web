@@ -52,9 +52,11 @@ if __name__ == '__main__':
     if len(sys.argv) == 2 and sys.argv[1]:
         if len(sys.argv[1]) == 40:
             # write the key to the file
+            '''
             f = open('api_key.txt', 'w')
             f.write(sys.argv[1])
             f.close()
+            '''
             print('Key: ' + sys.argv[1] + ' was written to api_key.txt')
             print(
                 'You are now ready to start using AlchemyAPI. For an example, run: python example.py')
@@ -162,7 +164,7 @@ class AlchemyAPI:
                 self.apikey = key
 
             # Close file
-            f.close()
+            #f.close()
         except IOError:
             # The file doesn't exist, so show the message and create the file.
             print(

@@ -37,9 +37,10 @@ def get_tag_view(request, query_param):
         },
         "filter": {
             "type": {
-                "value": "tags"
+                "value": "tag"
             }
         }
     }
     res = es.search(index='full-search-base', size=50,
                     body=search_query)
+    print res

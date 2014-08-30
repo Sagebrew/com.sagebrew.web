@@ -1,6 +1,7 @@
 machine:
   services:
     - rabbitmq-server
+    - elasticsearch
 
 dependencies:
   post:

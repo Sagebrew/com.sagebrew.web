@@ -14,22 +14,11 @@ WEB_ADDRESS = "https://192.168.56.101"
 API_PASSWORD = "admin"
 
 VERIFY_SECURE = False
-
+'''
 # TODO this makes it so we cannot run tests concurrently (parallel processing in
 # circle. This is because the test db gets created on this server and then
 # if another one starts running it fails. Might want to look into making a
 # separate test config again that uses a local psql db based on circles docs.
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'circle_test',
-        'USER': 'ubuntu',
-        'PASSWORD': '',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-    }
-}
-'''
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -41,6 +30,17 @@ DATABASES = {
     }
 }
 '''
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'sagebrew_db',
+        'USER': 'admin',
+        'PASSWORD': 'admin',
+        'HOST': 'localhost',
+        'PORT': '',
+    }
+}
+
 
 CACHES = {
     'default': {
@@ -60,8 +60,7 @@ AWS_BUCKET_NAME = "sagebrew"
 AWS_ACCESS_KEY_ID = "AKIAJIWX3E2JPTBS6CRA"
 AWS_SECRET_ACCESS_KEY = "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"
 AWS_PROFILE_PICTURE_FOLDER_NAME = 'profile_pictures'
-# Added for Circle CI, will break current env for Tyler
-BROKER_URL = 'amqp://guest@localhost:5672//'
+
 SECRET_KEY = "5fd&2wkqx8r!h2y1)j!izqi!982$p87)sred(5#x0mtqa^cbx)"
 
 INTERNAL_IPS = ('127.0.0.1', 'localhost', '0.0.0.0', '192.168.56.101',
@@ -96,7 +95,11 @@ DEBUG_TOOLBAR_PANELS = (
     # 'cache_panel.panel.CacheDebugPanel',
 )
 
-ELASTIC_SEARCH_HOST = [{'host': 'dwalin-us-east-1.searchly.com', 'port':443, 'use_ssl': True, 'http_auth': ('site', '6495ff8387e86cb755da1f45da88b475')}]
+ELASTIC_SEARCH_HOST = [{'host': 'dwalin-us-east-1.searchly.com',
+                        'port':443, 'use_ssl': True,
+                        'http_auth': ('site',
+                                      '6495ff8387e86cb755da1f45da88b475')
+                       }]
 
 
 def custom_show_toolbar(request):

@@ -7,7 +7,7 @@ class Command(BaseCommand):
     args = 'None.'
 
     def populate_rsys_log(self):
-        with open ("%s/rsyslog_template.conf.txt" % settings.REPO_DIR,
+        with open ("%s/rsyslog_template.conf" % settings.REPO_DIR,
                    "r") as rsys_log:
             data = rsys_log.read().replace('{{ACCOUNT}}', os.environ.get(
                 "SB_LOGGLY_ACCOUNT", ""))

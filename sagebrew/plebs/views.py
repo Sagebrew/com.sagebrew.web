@@ -54,11 +54,13 @@ def profile_page(request, pleb_email):
     post_data = {'email': citizen.email, 'range_end': 5,
                  'range_start': 0}
     headers = {'content-type': 'application/json'}
-    user_posts = post_to_api(reverse('get_user_posts'), post_data, headers)
+    #TODO update this to do on page load through ajax
+
+    user_posts = [] #post_to_api(reverse('get_user_posts'), post_data, headers)
     notification_data = {'email': citizen.email, 'range_end': 5,
                          'range_start': 0}
-    notifications = post_to_api(reverse('get_notifications'),
-                                notification_data, headers=headers)
+    notifications = [] #post_to_api(reverse('get_notifications'),
+                                #notification_data, headers=headers)
     citizen.profile_pic = generate_profile_pic_url(citizen.profile_pic_uuid)
     citizen.save()
     return render(request, 'profile_page.html', {

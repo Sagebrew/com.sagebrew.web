@@ -49,7 +49,7 @@ AWS_ACCESS_KEY_ID = "AKIAJIWX3E2JPTBS6CRA"
 AWS_SECRET_ACCESS_KEY = "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"
 AWS_PROFILE_PICTURE_FOLDER_NAME = 'profile_pictures'
 # Added for Circle CI, will break current env for Tyler
-BROKER_URL = 'amqp://ubuntu@localhost:5672//'
+BROKER_URL = 'amqp://guest@localhost:5672//'
 SECRET_KEY = "5fd&2wkqx8r!h2y1)j!izqi!982$p87)sred(5#x0mtqa^cbx)"
 
 INTERNAL_IPS = ('127.0.0.1', 'localhost', '0.0.0.0', '192.168.56.101',

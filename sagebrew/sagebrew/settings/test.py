@@ -9,7 +9,7 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['*']
 
-WEB_ADDRESS = "https://127.0.0.1"
+WEB_ADDRESS = "https://127.0.0.1:8080"
 
 API_PASSWORD = "admin"
 

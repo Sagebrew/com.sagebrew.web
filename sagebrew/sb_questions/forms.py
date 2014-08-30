@@ -25,3 +25,8 @@ class GetQuestionForm(forms.Form):
     user = forms.EmailField()
     current_pleb = forms.EmailField()
     question_uuid = forms.CharField()
+
+class VoteQuestionForm(forms.Form):
+    question_uuid = forms.CharField()
+    current_pleb = forms.EmailField()
+    vote_type = forms.CharField()

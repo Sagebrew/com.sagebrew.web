@@ -11,6 +11,7 @@ import boto.sqs
 from boto.sqs.message import Message
 from bomberman.client import Client
 
+from api.alchemyapi import AlchemyAPI
 from sb_comments.neo_models import SBComment
 from sb_posts.neo_models import SBPost
 from sb_garbage.neo_models import SBGarbageCan
@@ -203,3 +204,8 @@ def comment_to_garbage(comment_id):
         comment.save()
     except SBComment.DoesNotExist:
         pass
+
+def create_auto_tags(content):
+    alchemyapi = AlchemyAPI()
+    keywords = alchemyapi.keywords("text", content)
+    return keywords

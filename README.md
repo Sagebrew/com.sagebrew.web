@@ -8,6 +8,17 @@ publicly might need to use something like:
 `@authentication_classes((SessionAuthentication, BasicAuthentication))`
 Rather than setting it globally in the settings for authentication.
 
+### TextBlob/NLTK ###
+'''
+pip install nltk
+'''
+'''
+python manage.py shell
+import nltk
+nltk.download()
+'''
+Then select download then hit enter until you see [ ]all come up and type in all
+Do not need to include it in the settings.INSTALLED_APPS
 
 ### RabbitMQ ###
 ```
@@ -95,7 +106,7 @@ server {
         root /home/apps/sagebrew;
         try_files /sagebrew/static/$1 /sb_registration/static/$1 /plebs/static/$1
                  /sb_comments/static/$1 /sb_posts/static/$1 /sb_relationships/static/$1 /sb_notifications/static/$1 /sb_questions/static/$1
-                /sb_answers/static/$1 @missing;
+                /sb_answers/static/$1 /sb_search/static/$1 @missing;
     }
 
     location /media {

@@ -3,28 +3,24 @@
     margin: 0;
     padding: 0;
 }
+.sb_title_signup {
+    color: #eaf0e8;
+    font-size: 1.75em;
+    margin-top: 20px;
+}
 .sb-btn-login{
     color: #1ba39c;
     background-color: #eaf0e8;
     font-weight: bolder;
+}
+.sb_btn_signup{
+    margin-bottom: 85px;
 }
 #sb_input {
     margin: auto;
     width: 400px;
     display:block;
     position: relative;
-}
-.sb_bottom_menu {
-    height: 200px;
-    margin-top: auto;
-    padding-top: 2em;
-}
-.sb_bottom_links {
-    color: #7c7e80;
-    text-align: left;
-}
-.sb_btn_signup{
-    margin-bottom: 85px;
 }
 .sb_signup_input{
     width: 100%;
@@ -34,14 +30,10 @@
     width: 80%;
     margin-left: 10%;
 }
-.sb_input_name{
+.sb_signup_input_name {
     width: 100%;
 }
-.sb_input_email{
+.sb_signup_input_email {
     width: 100%;
 }
-.sb_title_signup {
-    color: #eaf0e8;
-    font-size: 1.75em;
-    margin-top: 20px;
-}
+

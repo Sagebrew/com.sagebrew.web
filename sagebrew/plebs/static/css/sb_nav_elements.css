@@ -11,12 +11,30 @@
 .sb_navbar_content {
     margin-left: 25px;
 }
+#sb_nav_logo {
+    color: #eaf0e8;
+    text-align: left;
+    margin-top: 8px;
+    font-size: 25pt;
+    padding-left: 15px;
+}
+.sb_nav_user{
+    margin-top:15px;
+}
+#sb_nav_user{
+    font-size: 15px;
+    color: #eaf0e8;
+}
 .sb_nav_form {
     margin-top: 1px;
 }
 .sb_btn_icon{
     background-color: transparent;
     color: #b7bfbb;
+}
+.sb_nav_btn_group{
+    margin-top: 5px;
+    background-color: transparent;
 }
 .sb_btn_icon:hover{
     color: #26424a;
@@ -36,10 +54,6 @@
     background-color: #1ba39c;
     width: 40px;
 }
-.sb_nav_btn_group {
-    margin-left: 85px;
-    margin-top: 5px;
-}
 .sb_nav_search{
     margin-top: -13px;
 }
@@ -47,14 +61,17 @@
     width: 300px;
     border-color: #b7bfbb;
 }
+.sb_search_input_div{
+    display: inline;
+}
 #sb_search_input:hover,
 #sb_search_input:active,
 #sb_search_input:focus{
     border-color: #838c92;
 }
 #sb_nav_spy{
-    margin-left: -40px;
     color: #1ba39c;
+    position: relative;
 }
 #sb_nav_spy:hover,
 #sb_nav_spy:focus,
@@ -62,7 +79,7 @@
     color: #838c92;
 }
 .sb_nav_dropdown_menu {
-    margin-top:60px;
+    width: 100px;
     border-top: solid;
     border-width: 3px;
     border-radius: 0 0 5px 5px;
@@ -74,4 +91,7 @@
 }
 .navbar-form .form-control {
     display: inline;
+}
+.sb_nav_content{
+    width: 100%;
 }

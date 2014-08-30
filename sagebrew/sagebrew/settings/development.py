@@ -64,7 +64,8 @@ AWS_PROFILE_PICTURE_FOLDER_NAME = 'profile_pictures'
 BROKER_URL = 'amqp://guest@localhost:5672//'
 SECRET_KEY = "5fd&2wkqx8r!h2y1)j!izqi!982$p87)sred(5#x0mtqa^cbx)"
 
-INTERNAL_IPS = ('127.0.0.1', 'localhost', '0.0.0.0', '192.168.56.101')
+INTERNAL_IPS = ('127.0.0.1', 'localhost', '0.0.0.0', '192.168.56.101',
+                '192.168.56.102')
 
 REST_FRAMEWORK = {
     # Use hyperlinked styles by default.
@@ -94,6 +95,8 @@ DEBUG_TOOLBAR_PANELS = (
     'debug_toolbar.panels.logger.LoggingPanel',
     # 'cache_panel.panel.CacheDebugPanel',
 )
+
+ELASTIC_SEARCH_HOST = [{'host': 'dwalin-us-east-1.searchly.com', 'port':443, 'use_ssl': True, 'http_auth': ('site', '6495ff8387e86cb755da1f45da88b475')}]
 
 
 def custom_show_toolbar(request):

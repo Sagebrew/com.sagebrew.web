@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    $("a.show_friend_request-action").click(function (event) {
+    $("button.show_friend_request-action").click(function (event) {
         $("#friend_request_div").fadeToggle();
         event.preventDefault();
         $.ajaxSetup({

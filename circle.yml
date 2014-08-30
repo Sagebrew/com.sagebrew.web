@@ -2,13 +2,17 @@ machine:
   services:
     - rabbitmq-server
     - elasticsearch
+  post:
+    - celery -A sagebrew worker -l info -n worker1:
+        background: true
+    - celery -A sagebrew worker -l info -n worker2:
+        background: true
+
 
 dependencies:
   post:
     - pip install -r ../requirements/web/base.txt
     - pip install git+https://github.com/robinedwards/neomodel.git@0.3.6
-    - celery -A sagebrew worker -l info -n worker1 &
-    - celery -A sagebrew worker -l info -n worker2 &
 
 checkout:
   post:

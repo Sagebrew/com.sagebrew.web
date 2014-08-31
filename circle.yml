@@ -12,6 +12,7 @@ machine:
     - sudo chown ubuntu /etc/rsyslog.d/
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py logglypopulation
     - sudo chown root /etc/rsyslog.d/
+    - sudo service rsyslog restart
 
 
 dependencies:

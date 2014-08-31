@@ -9,8 +9,9 @@ machine:
         background: true
     - python ~/com.sagebrew.web/sagebrew/manage.py runserver 127.0.0.1:8080:
         background: true
-    - sudo ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py modrsyslog ubuntu
+    - sudo chown ubuntu /etc/rsyslog.d/
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py logglypopulation
+    - sudo chown root /etc/rsyslog.d/
 
 
 dependencies:

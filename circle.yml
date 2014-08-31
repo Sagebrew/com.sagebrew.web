@@ -2,13 +2,6 @@ machine:
   services:
     - rabbitmq-server
     - elasticsearch
-  post:
-    - cd ~/com.sagebrew.web/sagebrew && ~/virtualenvs/venv-system/bin/celery -A sagebrew worker -l info -n worker1:
-        background: true
-    - cd ~/com.sagebrew.web/sagebrew && ~/virtualenvs/venv-system/bin/celery -A sagebrew worker -l info -n worker1:
-        background: true
-    - python ~/com.sagebrew.web/sagebrew/manage.py runserver 127.0.0.1:8080:
-        background: true
 
 
 dependencies:
@@ -19,6 +12,12 @@ dependencies:
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py logglypopulation
     - sudo chown root /etc/rsyslog.d/
     - sudo service rsyslog restart
+    - cd ~/com.sagebrew.web/sagebrew && ~/virtualenvs/venv-system/bin/celery -A sagebrew worker -l info -n worker1:
+        background: true
+    - cd ~/com.sagebrew.web/sagebrew && ~/virtualenvs/venv-system/bin/celery -A sagebrew worker -l info -n worker1:
+        background: true
+    - python ~/com.sagebrew.web/sagebrew/manage.py runserver 127.0.0.1:8080:
+        background: true
 
 checkout:
   post:

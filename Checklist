@@ -1,6 +1,0 @@
-Before pushing to production or anything important:
-1. Make sure all neo4j nodes that need to be indexed have a value with unique_index=True
-
-
-
-

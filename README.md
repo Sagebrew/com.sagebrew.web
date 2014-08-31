@@ -35,17 +35,7 @@ insert `export NEO4J_REST_URL=http://username:password@graphenedburl.com:port/db
 then run `vagrant halt`
 then `fab start_dev`
 
-How to delete all nodes and relationships:
-`
-start n=node(*)
-match n-[r?]-()
-delete r,n;
-`
-How to return all nodes:
-`
-START n=node(*)
-return n;
-`
+
 ```
 sudo -s
 wget -O - http://debian.neo4j.org/neotechnology.gpg.key | apt-key add -
@@ -170,61 +160,6 @@ as updates are made. This will need to be changed back in production for speed i
 issue of having to run `python manage.py collectstatic` whenever an update is made to the static files. It also enables
 designers to still make modifications in an https environment meaning they get csrf and other django environment
 benefits while designing templates.
-
-###Logging###
-
-Using Loggly:
-
-```
-sudo pico /etc/rsyslog.conf
-```
-Uncomment these lines in rsyslog.conf.
-# provides UDP syslog reception
-```
-$ModLoad imudp
-$UDPServerRun 514
-```
-At the end of rsyslog.conf append:
-```
-$MaxMessageSize 64k
-# forward to loggly: https://ACCOUNT.loggly.com
-$template LogglyFormat,"<%pri%>%protocol-version% %timestamp:::date-rfc3339% %HOSTNAME% %app-name% %procid% %msgid% [TOKEN@41058 tag=\"Example1\"] %msg%\n"
-
-*.* @@logs-01.loggly.com:514; LogglyFormat
-```
-Where ACCOUNT is the Loggly account and TOKEN is your Loggly token
-change Example1\ to djangoapp
-
-Then run `sudo service rsyslog restart` to restart rsyslog.
-
-To setup Loggly with celery logging:
-```
-LOGGLY_INPUT_KEY = "your key here"
-
-import hoover
-import logging
-
-def initialize_loggly(loglevel=logging.WARN, **kwargs):
-    handler = hoover.LogglyHttpHandler(token=LOGGLY_INPUT_KEY)
-    log = logging.getLogger('celery')
-    log.addHandler(handler)
-    log.setLevel(loglevel)
-    return log
-
-from celery.signals import setup_logging
-setup_logging.connect(initialize_loggly)
-```
-
-
-
-###design conventions###
-All Sagebrew class and id tags start with "sb_"
-followed by element name,
-and if needed, where it's being placed.
-ex:
-.sb_btn_select
-.sb_registration_title
-#
 
 
 ## Docker Specifics ##

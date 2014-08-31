@@ -4,6 +4,7 @@ class SaveQuestionForm(forms.Form):
     question_title = forms.CharField()
     current_pleb = forms.EmailField()
     content = forms.CharField()
+    tags = forms.CharField()
 
 class EditQuestionForm(forms.Form):
     question_uuid = forms.CharField()

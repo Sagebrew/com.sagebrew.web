@@ -60,7 +60,6 @@ def search_result_api(request, query_param="", display_num=10, page=1,
     :param filter_type:
     :param filter_param:
     :return:
-
     '''
     alchemyapi = AlchemyAPI()
     response = alchemyapi.keywords("text", query_param)
@@ -90,7 +89,6 @@ def search_result_api(request, query_param="", display_num=10, page=1,
         res = res['hits']['hits']
         task_param = {"pleb": request.user.email, "query_param": query_param,
                       "keywords": response['keywords']}
-        print task_param
         spawn_task(task_func=update_search_query, task_param=task_param)
         if not res:
             html = render_to_string('search_result_empty.html')

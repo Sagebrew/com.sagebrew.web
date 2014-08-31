@@ -16,12 +16,12 @@ $( document ).ready(function() {
 			data: JSON.stringify({
                'question_title': $('textarea#question_title_id').val(),
 			   'content': $('textarea#question_content_id').val(),
-               'current_pleb':$(this).data('current_pleb')
+               'current_pleb':$(this).data('current_pleb'),
+               'tags': $('#sb_tag_box').val()
 			}),
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
             success: function (data) {
-
             }
 		});
 	});

@@ -101,12 +101,14 @@ def save_question_view(request):
     :return:
     '''
     question_data = get_post_data(request)
+    print question_data
     if type(question_data) != dict:
         return Response({"details": "Please provide a valid JSON object"},
                         status=400)
     #question_data['content'] = language_filter(question_data['content'])
     question_form = SaveQuestionForm(question_data)
     if question_form.is_valid():
+        print question_form.cleaned_data
         spawn_task(task_func=create_question_task,
                    task_param=question_form.cleaned_data)
         return Response({"detail": "filtered",

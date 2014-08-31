@@ -74,7 +74,8 @@ STATICFILES_DIRS = (
     '%s/sb_relationships/static/' % PROJECT_DIR,
     '%s/sb_questions/static/' % PROJECT_DIR,
     '%s/sb_answers/static/' % PROJECT_DIR,
-    '%s/sb_search/static/' %PROJECT_DIR,
+    '%s/sb_search/static/' % PROJECT_DIR,
+    '%s/sb_tag/static/' % PROJECT_DIR,
 )
 
 # List of finder classes that know how to find static files in

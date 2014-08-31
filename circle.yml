@@ -14,7 +14,7 @@ dependencies:
     - sudo service rsyslog restart
     - cd ~/com.sagebrew.web/sagebrew && ~/virtualenvs/venv-system/bin/celery -A sagebrew worker -l info -n worker1:
         background: true
-    - cd ~/com.sagebrew.web/sagebrew && ~/virtualenvs/venv-system/bin/celery -A sagebrew worker -l info -n worker1:
+    - cd ~/com.sagebrew.web/sagebrew && ~/virtualenvs/venv-system/bin/celery -A sagebrew worker -l info -n worker2:
         background: true
     - python ~/com.sagebrew.web/sagebrew/manage.py runserver 127.0.0.1:8080:
         background: true

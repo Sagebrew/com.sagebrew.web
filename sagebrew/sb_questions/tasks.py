@@ -9,7 +9,7 @@ from .utils import (create_question_util, upvote_question_util,
 
 @shared_task()
 def create_question_task(content="", current_pleb="", question_title="",
-                         question_uuid=str(uuid1())):
+                         question_uuid=str(uuid1()), tags=""):
     '''
     This task calls the util to create a question, if the util fails the
     task respawns itself.
@@ -22,8 +22,11 @@ def create_question_task(content="", current_pleb="", question_title="",
 
             if fail retries creating the task
     '''
+    tag_list = tags.split(',')
+
     if create_question_util(content=content, current_pleb=current_pleb,
-                            question_title=question_title) is not None:
+                            question_title=question_title, tags=tag_list) \
+            is not None:
         return True
     else:
         data = {'content': content, 'current_pleb': current_pleb,

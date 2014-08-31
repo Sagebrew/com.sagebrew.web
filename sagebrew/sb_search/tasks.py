@@ -216,7 +216,6 @@ def update_search_query(pleb, query_param, keywords):
         search_query.searched_by.connect(pleb)
         rel = pleb.searches.connect(search_query)
         rel.save()
-        print keywords
         for keyword in keywords:
             keyword['query_param'] = query_param
             spawn_task(task_func=create_keyword, task_param=keyword)

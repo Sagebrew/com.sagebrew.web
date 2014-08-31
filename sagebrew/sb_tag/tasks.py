@@ -1,6 +1,6 @@
 from celery import shared_task
 
-from .utils import add_auto_tags_util
+from .utils import add_auto_tags_util, add_tag_util
 
 @shared_task()
 def add_auto_tags(tag_list):
@@ -21,6 +21,13 @@ def add_auto_tags(tag_list):
     response = (add_auto_tags_util(tag_list))
 
     if response:
+        return True
+    else:
+        return False
+
+@shared_task()
+def add_tags(object_uuid, object_type, tags):
+    if add_tag_util(object_type, object_uuid, tags):
         return True
     else:
         return False

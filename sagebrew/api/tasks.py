@@ -5,6 +5,8 @@ from api.utils import spawn_task
 from celery import shared_task
 from elasticsearch import Elasticsearch
 
+from sb_questions.neo_models import SBQuestion
+
 
 
 
@@ -19,6 +21,12 @@ def add_object_to_search_index(index="full-search-base", object_type="", object_
         "doc_id": res['_id'],
         "doc_type": res['_type']
     }
+
+    if object_type=='question':
+        question = SBQuestion.index.get(question_id=object_data['question_uuid'])
+        question.search_id = res['_id']
+        question.save()
+
     spawn_task(task_func=update_user_indices, task_param=task_data)
     return True
 

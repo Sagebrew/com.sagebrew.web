@@ -9,7 +9,7 @@ from api.tasks import add_object_to_search_index
 from api.utils import spawn_task, create_auto_tags
 from plebs.neo_models import Pleb
 from .neo_models import SBQuestion
-from sb_tag.tasks import add_auto_tags
+from sb_tag.tasks import add_auto_tags, add_tags
 
 def create_question_util(content="", current_pleb="", question_title="",tags=""):
     '''
@@ -20,7 +20,7 @@ def create_question_util(content="", current_pleb="", question_title="",tags="")
     :param question_title:
     :return:
     '''
-
+    print tags
     task_data = []
     try:
         if content == "" or question_title == "":
@@ -52,6 +52,9 @@ def create_question_util(content="", current_pleb="", question_title="",tags="")
                 "tags": tag, "object_uuid": my_question.question_id,
                 "object_type": "question"
             })
+        tag_task_data = {'object_uuid': my_question.question_id,
+                         'object_type': 'question', 'tags': tags}
+        spawn_task(task_func=add_tags, task_param=tag_task_data)
         tag_list = {'tag_list': task_data}
         spawn_task(task_func=add_auto_tags, task_param=tag_list)
         return my_question

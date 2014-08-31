@@ -106,7 +106,7 @@ server {
         root /home/apps/sagebrew;
         try_files /sagebrew/static/$1 /sb_registration/static/$1 /plebs/static/$1
                  /sb_comments/static/$1 /sb_posts/static/$1 /sb_relationships/static/$1 /sb_notifications/static/$1 /sb_questions/static/$1
-                /sb_answers/static/$1 /sb_search/static/$1 @missing;
+                /sb_answers/static/$1 /sb_search/static/$1 /sb_tag/static/$1 @missing;
     }
 
     location /media {

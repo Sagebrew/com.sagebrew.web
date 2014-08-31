@@ -16,10 +16,10 @@ class SBQuestion(SBBase):
     is_mature = BooleanProperty(default=False)
     title_polarity = FloatProperty()
     title_subjectivity = FloatProperty()
+    search_id = StringProperty()
 
     # relationships
-    tags = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS',
-                          model=TagRelevanceModel)
+    tags = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS')
     auto_tags = RelationshipTo('sb_tag.neo_models.SBAutoTag',
                                'AUTO_TAGGED_AS', model=TagRelevanceModel)
     closed_by = RelationshipTo('plebs.neo_models.Pleb', 'CLOSED_BY')

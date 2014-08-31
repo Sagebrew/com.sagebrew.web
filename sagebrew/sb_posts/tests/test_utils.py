@@ -15,7 +15,7 @@ logger = logging.getLogger('loggly_logs')
 
 class TestSavePost(TestCase):
     def setUp(self):
-        logger.critical("Testing logs in circle")
+        logger.critical("Testing logs in circle Fo sho")
         self.email = 'devon@sagebrew.com'
         try:
             pleb = Pleb.index.get(email=self.email)

@@ -28,11 +28,30 @@ logger = logging.getLogger('loggly_logs')
 
 @login_required()
 def search_view(request):
+    '''
+    This view serves the main search page. This page may be removed later
+    because having the search results and search bar on the same page may be
+    beneficial and easier to lay out.
+
+    :param request:
+    :return:
+    '''
     return render(request, 'search_page.html', {})
 
 @login_required()
 def search_result_view(request, query_param, display_num=5, page=1,
                        range_start=0, range_end=10):
+    '''
+    This view serves the page that holds the search results.
+
+    :param request:
+    :param query_param:
+    :param display_num:
+    :param page:
+    :param range_start:
+    :param range_end:
+    :return:
+    '''
     search_data = {'query_param': query_param, 'page': page}
     search_form = SearchForm(search_data)
     if search_form.is_valid():

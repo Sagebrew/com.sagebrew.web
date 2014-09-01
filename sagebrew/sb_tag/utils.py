@@ -13,6 +13,9 @@ def create_tag_relations(tags):
     :param tags:
     :return:
     '''
+    if not tags:
+        return False
+
     try:
         for tag in tags:
             temp_list = tags
@@ -27,6 +30,13 @@ def create_tag_relations(tags):
                     rel.save()
             temp_list = []
         return True
+
+    except IndexError:
+        return False
+
+    except AttributeError:
+        return False
+
     except Exception:
         traceback.print_exc()
         return False
@@ -65,6 +75,12 @@ def add_auto_tags_util(tag_list):
                 tag_array.append(tag)
             except SBQuestion.DoesNotExist:
                 return False
+            except KeyError:
+                return False
+            except IndexError:
+                return False
+        else:
+            return False
 
     create_tag_relations(tag_array)
     return True
@@ -81,6 +97,9 @@ def add_tag_util(object_type, object_uuid, tags):
     '''
     tag_array = []
     es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+
+    if not tags:
+        return False
 
     for tag in tags:
         try:
@@ -103,4 +122,5 @@ def add_tag_util(object_type, object_uuid, tags):
             return True
         except SBQuestion.DoesNotExist:
             return False
-
+    else:
+        return False

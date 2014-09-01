@@ -1,35 +1,23 @@
 import pytz
 import logging
 import traceback
-from uuid import uuid1
-from datetime import datetime
-from urllib2 import HTTPError
-from requests import ConnectionError
 from django.conf import settings
-from django.shortcuts import render
-from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
-from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import (api_view, permission_classes,
-                                       renderer_classes)
+from rest_framework.decorators import (api_view, permission_classes)
+
 from elasticsearch import Elasticsearch, helpers
 
 from api.utils import (get_post_data, spawn_task, post_to_api)
 
 logger = logging.getLogger('loggly_logs')
 
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def create_tag_view(request):
-    pass
-
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def get_tag_view(request):
     '''
-    This view returns all of the tags currently in elasticsearch.
+    This view returns all of the tags currently in elasticsearch. This can be
+    used for pre populating tags for any time when an object can be tagged.
 
     :param request:
     :return:
@@ -43,7 +31,7 @@ def get_tag_view(request):
         for resp in scanResp:
             tag_list.append(resp['_source']['tag_name'])
         return Response({'tags': tag_list}, status=200)
-    except:
+    except Exception:
         traceback.print_exc()
         return Response({'tags': []}, status=400)
 

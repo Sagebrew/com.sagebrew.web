@@ -27,7 +27,8 @@ class SaveQuestionViewTests(TestCase):
     def test_save_question_view_correct_data(self):
         my_dict = {'content': 'aosdfhao',
                    'current_pleb': self.user.email,
-                   'question_title': 'How do we end the war in Iraq?'}
+                   'question_title': 'How do we end the war in Iraq?',
+                   'tags': 'these,are,test,tags'}
         request = self.factory.post('/questions/submit_question_api/', data=my_dict,
                                     format='json')
         request.user = self.user

@@ -11,7 +11,8 @@ from plebs.neo_models import Pleb
 from .neo_models import SBQuestion
 from sb_tag.tasks import add_auto_tags, add_tags
 
-def create_question_util(content="", current_pleb="", question_title="",tags=""):
+def create_question_util(content="", current_pleb="", question_title="",
+                         tags="", question_uuid=str(uuid1())):
     '''
     This util creates the question and attaches it to the user who asked it
 
@@ -20,7 +21,6 @@ def create_question_util(content="", current_pleb="", question_title="",tags="")
     :param question_title:
     :return:
     '''
-    print tags
     task_data = []
     try:
         if content == "" or question_title == "":
@@ -30,6 +30,7 @@ def create_question_util(content="", current_pleb="", question_title="",tags="")
         title_blob = TextBlob(question_title)
         my_question = SBQuestion(content=content, question_title=question_title,
                                  question_id=str(uuid1()))
+        my_question.save()
         my_question.subjectivity = content_blob.subjectivity
         my_question.positivity = content_blob.polarity
         my_question.title_polarity = title_blob.polarity
@@ -58,8 +59,11 @@ def create_question_util(content="", current_pleb="", question_title="",tags="")
         tag_list = {'tag_list': task_data}
         spawn_task(task_func=add_auto_tags, task_param=tag_list)
         return my_question
+
+    except SBQuestion.DoesNotExist:
+        return None
+
     except Exception:
-        traceback.print_exc()
         return None
 
 def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
@@ -134,7 +138,7 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
                             }
                 question_array.append(question_dict)
             return question_array
-    except Exception, e:
+    except Exception:
         return []
 
 def get_question_by_uuid(question_uuid=str(uuid1()), current_pleb=""):
@@ -157,8 +161,7 @@ def get_question_by_uuid(question_uuid=str(uuid1()), current_pleb=""):
     except SBQuestion.DoesNotExist:
         traceback.print_exc()
         return {"detail": "There are no questions with that ID"}
-    except Exception, e:
-        traceback.print_exc()
+    except Exception:
         return {"detail": "Failure"}
 
 def get_question_by_most_recent(range_start=0, range_end=5, current_pleb=""):
@@ -183,10 +186,8 @@ def get_question_by_most_recent(range_start=0, range_end=5, current_pleb=""):
                                                       sort_by='most recent',
                                                       current_pleb=current_pleb)
         return return_dict
-    except Exception, e:
-        traceback.print_exc()
-        print e
-        return {"detail": e}
+    except Exception:
+        return {"detail": "fail"}
 
 def get_question_by_least_recent(range_start=0, range_end=5, current_pleb=""):
     '''
@@ -210,43 +211,11 @@ def get_question_by_least_recent(range_start=0, range_end=5, current_pleb=""):
                                                       sort_by='most recent',
                                                       current_pleb=current_pleb)
         return return_dict
-    except Exception, e:
-        traceback.print_exc()
-        print e
+    except Exception:
         return {"detail": "fail"}
 
 
-def get_question_by_user():
-    '''
-    Sorting util
-
-    This function gets questions between the range_start and range_end parameters,
-    calls the util to create the dictionary of info the html to render then returns
-    all the question posted by the specified user
-
-    :param range_start:
-    :param range_end:
-    :param current_pleb:
-    :return:
-    '''
-    pass
-
-def get_question_by_tag():
-    '''
-    Sorting util
-
-    This function gets questions between the range_start and range_end parameters,
-    calls the util to create the dictionary of info the html to render then returns
-    all the question posted by the specified tag
-
-    :param range_start:
-    :param range_end:
-    :param current_pleb:
-    :return:
-    '''
-    pass
-
-def upvote_question_util(quesiton_uuid="", current_pleb=""):
+def upvote_question_util(question_uuid="", current_pleb=""):
     '''
     This util creates an upvote attached to the user who upvoted and
     the question that was upvoted
@@ -258,20 +227,20 @@ def upvote_question_util(quesiton_uuid="", current_pleb=""):
     from sb_questions.tasks import vote_question_task
     try:
         pleb = Pleb.index.get(email=current_pleb)
-        my_question = SBQuestion.index.get(question_id=quesiton_uuid)
+        my_question = SBQuestion.index.get(question_id=question_uuid)
         my_question.up_vote_number += 1
         my_question.up_voted_by.connect(pleb)
         my_question.save()
         return True
     except SBQuestion.DoesNotExist:
-        data = {'question_uuid': quesiton_uuid, 'current_pleb': current_pleb,
+        data = {'question_uuid': question_uuid, 'current_pleb': current_pleb,
                 'vote_type': 'up'}
         spawn_task(task_func=vote_question_task, task_param=data, countdown=1)
         return False
     except Pleb.DoesNotExist:
         return False
 
-def downvote_question_util(quesiton_uuid="", current_pleb=""):
+def downvote_question_util(question_uuid="", current_pleb=""):
     '''
     This util creates an downvote attached to the user who downvote and
     the question that was downvote
@@ -283,13 +252,13 @@ def downvote_question_util(quesiton_uuid="", current_pleb=""):
     from sb_questions.tasks import vote_question_task
     try:
         pleb = Pleb.index.get(email=current_pleb)
-        my_question = SBQuestion.index.get(question_id=quesiton_uuid)
+        my_question = SBQuestion.index.get(question_id=question_uuid)
         my_question.down_vote_number += 1
         my_question.down_voted_by.connect(pleb)
         my_question.save()
         return True
     except SBQuestion.DoesNotExist:
-        data = {'question_uuid': quesiton_uuid, 'current_pleb': current_pleb,
+        data = {'question_uuid': question_uuid, 'current_pleb': current_pleb,
                 'vote_type': 'down'}
         spawn_task(task_func=vote_question_task, task_param=data, countdown=1)
         return False

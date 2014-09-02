@@ -101,12 +101,12 @@ class TestVoteComment(TestCase):
                            'comment_uuid': my_comment.comment_id,
                            'vote_type': 'up'}
         response = create_vote_comment.apply_async(kwargs=vote_task_param)
-        time.sleep(1)
+        response = response.get()
 
         my_comment.refresh()
 
         self.assertEqual(my_comment.up_vote_number, 1)
-        self.assertTrue(response.get())
+        self.assertTrue(response)
 
     def test_downvote_comment(self):
         uuid = str(uuid1())
@@ -121,12 +121,12 @@ class TestVoteComment(TestCase):
                            'comment_uuid': my_comment.comment_id,
                            'vote_type': 'down'}
         response = create_vote_comment.apply_async(kwargs=vote_task_param)
-        time.sleep(1)
+        response = response.get()
 
         my_comment.refresh()
 
         self.assertEqual(my_comment.down_vote_number, 1)
-        self.assertTrue(response.get())
+        self.assertTrue(response)
 
     def test_upvote_comment_twice(self):
         uuid = str(uuid1())
@@ -141,16 +141,16 @@ class TestVoteComment(TestCase):
                            'comment_uuid': my_comment.comment_id,
                            'vote_type': 'up'}
         response = create_vote_comment.apply_async(kwargs=vote_task_param)
-        time.sleep(1)
+        response = response.get()
 
         response2 = create_vote_comment.apply_async(kwargs=vote_task_param)
-        time.sleep(1)
+        response2 = response2.get()
 
         my_comment.refresh()
 
         self.assertEqual(my_comment.up_vote_number, 1)
-        self.assertTrue(response.get())
-        self.assertFalse(response2.get())
+        self.assertTrue(response)
+        self.assertFalse(response2)
 
     def test_downvote_comment_twice(self):
         uuid = str(uuid1())
@@ -165,16 +165,16 @@ class TestVoteComment(TestCase):
                            'comment_uuid': my_comment.comment_id,
                            'vote_type': 'down'}
         response = create_vote_comment.apply_async(kwargs=vote_task_param)
-        time.sleep(1)
+        response = response.get()
 
         response2 = create_vote_comment.apply_async(kwargs=vote_task_param)
-        time.sleep(1)
+        response2 = response2.get()
 
         my_comment.refresh()
 
         self.assertEqual(my_comment.down_vote_number, 1)
-        self.assertTrue(response.get())
-        self.assertFalse(response2.get())
+        self.assertTrue(response)
+        self.assertFalse(response2)
 
     def test_upvote_then_downvote_comment(self):
         uuid = str(uuid1())
@@ -189,17 +189,17 @@ class TestVoteComment(TestCase):
                            'comment_uuid': my_comment.comment_id,
                            'vote_type': 'up'}
         response = create_vote_comment.apply_async(kwargs=vote_task_param)
-        time.sleep(1)
+        response = response.get()
         vote_task_param['vote_type'] = 'down'
         response2 = create_vote_comment.apply_async(kwargs=vote_task_param)
-        time.sleep(1)
+        response2 = response2.get()
 
         my_comment.refresh()
 
         self.assertEqual(my_comment.down_vote_number, 0)
         self.assertEqual(my_comment.up_vote_number, 1)
-        self.assertTrue(response.get())
-        self.assertFalse(response2.get())
+        self.assertTrue(response)
+        self.assertFalse(response2)
 
     def test_downvote_then_upvote_comment(self):
         uuid = str(uuid1())
@@ -214,17 +214,17 @@ class TestVoteComment(TestCase):
                            'comment_uuid': my_comment.comment_id,
                            'vote_type': 'down'}
         response = create_vote_comment.apply_async(kwargs=vote_task_param)
-        time.sleep(1)
+        response = response.get()
         vote_task_param['vote_type'] = 'up'
         response2 = create_vote_comment.apply_async(kwargs=vote_task_param)
-        time.sleep(1)
+        response2 = response2.get()
 
         my_comment.refresh()
 
         self.assertEqual(my_comment.down_vote_number, 1)
         self.assertEqual(my_comment.up_vote_number, 0)
-        self.assertTrue(response.get())
-        self.assertFalse(response2.get())
+        self.assertTrue(response)
+        self.assertFalse(response2)
 
     def test_upvote_from_other_user(self):
         uuid = str(uuid1())
@@ -239,7 +239,7 @@ class TestVoteComment(TestCase):
                            'comment_uuid': my_comment.comment_id,
                            'vote_type': 'up'}
         response = create_vote_comment.apply_async(kwargs=vote_task_param)
-        time.sleep(1)
+        response = response.get()
         user2 = User.objects.create_user(
             username='Test' + str(uuid1())[:25],
             email=str(uuid1())[:10] + "@gmail.com")
@@ -247,9 +247,9 @@ class TestVoteComment(TestCase):
         vote_task_param['pleb'] = pleb2.email
         vote_task_param['vote_type'] = 'up'
         response2 = create_vote_comment.apply_async(kwargs=vote_task_param)
-        time.sleep(1)
+        response2 = response2.get()
 
         my_comment.refresh()
         self.assertEqual(my_comment.up_vote_number, 2)
-        self.assertTrue(response.get())
-        self.assertTrue(response2.get())
+        self.assertTrue(response)
+        self.assertTrue(response2)

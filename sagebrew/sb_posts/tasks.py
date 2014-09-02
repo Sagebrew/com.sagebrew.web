@@ -164,7 +164,7 @@ def edit_post_info_task(content="", post_uuid=str(uuid1()),
     '''
     edit_post_return = edit_post_info(content, post_uuid, last_edited_on,
                                       current_pleb)
-    if edit_post_return['detail'] == 'post edited':
+    if edit_post_return == True:
         return True
     if edit_post_return['detail'] == 'post does not exist yet':
         task_id = str(uuid1())

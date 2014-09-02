@@ -176,4 +176,6 @@ def create_post_vote(pleb="", post_uuid=str(uuid1()), vote_type=""):
                           'pleb': pleb}
             spawn_task(task_func=create_downvote_post, task_param=task_param)
             return True
+        else:
+            return False
 

@@ -23,17 +23,20 @@ def create_question_task(content="", current_pleb="", question_title="",
             if fail retries creating the task
     '''
     tag_list = tags.split(',')
-
-    if create_question_util(content=content, current_pleb=current_pleb,
-                            question_title=question_title, tags=tag_list) \
-            is not None:
-        return True
-    else:
-        data = {'content': content, 'current_pleb': current_pleb,
-                'question_title': question_title}
-        spawn_task(task_func=create_question_task, task_param=data,
-                   countdown=2)
+    try:
+        question = SBQuestion.index.get(question_id=question_uuid)
         return False
+    except SBQuestion.DoesNotExist:
+        if create_question_util(content=content, current_pleb=current_pleb,
+                                question_title=question_title, tags=tag_list) \
+                is not None:
+            return True
+        else:
+            data = {'content': content, 'current_pleb': current_pleb,
+                    'question_title': question_title}
+            spawn_task(task_func=create_question_task, task_param=data,
+                       countdown=2)
+            return False
 
 @shared_task()
 def edit_question_task(question_uuid="", content="", current_pleb="", last_edited_on=""):
@@ -81,15 +84,20 @@ def vote_question_task(question_uuid="", current_pleb="", vote_type=""):
     :param vote_type:
     :return:
     '''
-    my_pleb = Pleb.index.get(email=current_pleb)
-    my_question = SBQuestion.index.get(question_id = question_uuid)
-    if my_question.up_voted_by.is_connected(
-            my_pleb) or my_question.down_voted_by.is_connected(my_pleb):
+    try:
+        my_pleb = Pleb.index.get(email=current_pleb)
+        my_question = SBQuestion.index.get(question_id=question_uuid)
+        if my_question.up_voted_by.is_connected(
+                my_pleb) or my_question.down_voted_by.is_connected(my_pleb):
+            return False
+        else:
+            if vote_type == 'up':
+                upvote_question_util(question_uuid, current_pleb)
+                return True
+            elif vote_type == 'down':
+                downvote_question_util(question_uuid, current_pleb)
+                return True
+    except SBQuestion.DoesNotExist:
         return False
-    else:
-        if vote_type == 'up':
-            upvote_question_util(question_uuid, current_pleb)
-            return True
-        elif vote_type == 'down':
-            downvote_question_util(question_uuid, current_pleb)
-            return True
+    except Pleb.DoesNotExist:
+        return False

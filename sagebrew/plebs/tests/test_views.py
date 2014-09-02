@@ -87,7 +87,7 @@ class ProfilePageTest(TestCase):
         my_comment.delete()
 
     def test_post_with_comments_from_friend(self):
-        test_user = Pleb(email='bleib1dj@gmail.com')
+        test_user = Pleb(email=str(uuid1())+'@gmail.com')
         test_user.save()
         test_post = SBPost(content='test', post_id=str(uuid1()))
         test_post.save()

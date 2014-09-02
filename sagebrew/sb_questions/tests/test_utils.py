@@ -7,11 +7,7 @@ from django.contrib.auth.models import User
 
 from sb_questions.utils import (create_question_util, upvote_question_util,
                                 downvote_question_util, edit_question_util,
-                                get_question_by_most_recent,
-                                get_question_by_least_recent,
-                                get_question_by_uuid, get_question_by_tag,
-                                prepare_get_question_dictionary,)
-from sb_questions.neo_models import SBQuestion
+                                prepare_get_question_dictionary)
 from plebs.neo_models import Pleb
 
 class TestCreateQuestion(TestCase):
@@ -211,16 +207,14 @@ class TestVoteQuestionUtil(TestCase):
 
     def test_upvote_question_util(self):
         response = create_question_util(**self.question_info_dict)
-
-        vote_response = upvote_question_util(self.question_info_dict['question_uuid'],
+        vote_response = upvote_question_util(response.question_id,
                                              self.question_info_dict['current_pleb'])
 
         self.assertTrue(vote_response)
 
     def test_downvote_question_util(self):
         response = create_question_util(**self.question_info_dict)
-
-        vote_response = downvote_question_util(self.question_info_dict['question_uuid'],
+        vote_response = downvote_question_util(response.question_id,
                                              self.question_info_dict['current_pleb'])
 
         self.assertTrue(vote_response)
@@ -228,15 +222,15 @@ class TestVoteQuestionUtil(TestCase):
     def test_downvote_question_util_question_dne(self):
         response = create_question_util(**self.question_info_dict)
 
-        vote_response = downvote_question_util(1,
+        vote_response = downvote_question_util(uuid1(),
                                              self.question_info_dict['current_pleb'])
 
         self.assertFalse(vote_response)
 
-    def test_upvote_question_util_quesiton_dne(self):
+    def test_upvote_question_util_question_dne(self):
         response = create_question_util(**self.question_info_dict)
 
-        vote_response = upvote_question_util(1,
+        vote_response = upvote_question_util(uuid1(),
                                              self.question_info_dict['current_pleb'])
 
         self.assertFalse(vote_response)

@@ -5,11 +5,10 @@ from datetime import datetime
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from sb_posts.utils import save_post, edit_post_info, delete_post_info
 from sb_questions.tasks import (create_question_task, edit_question_task,
                                 vote_question_task)
-from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
+from sb_questions.neo_models import SBQuestion
 
 
 class TestSaveQuestionTask(TestCase):
@@ -60,16 +59,18 @@ class TestEditQuestionTask(TestCase):
                                    'question_title': "Test question",
                                    'content': 'test post',
                                    'question_uuid': str(uuid1())}
-    def test_edit_post_task(self):
-        edit_post_dict = {'content': 'question edited',
-                          'question_uuid': self.question_info_dict['question_uuid'],
-                          'current_pleb': self.pleb.email,
-                          'last_edited_on': datetime.now(pytz.utc)}
-        save_response = create_question_task.apply_async(kwargs=self.question_info_dict)
-        time.sleep(1)
-        edit_response = edit_question_task.apply_async(kwargs=edit_post_dict)
+    def test_edit_question_task(self):
 
-        self.assertTrue(save_response.get())
+        question = SBQuestion(content="test question from edit task test",
+                              question_title="testquestiontitle from edit test",
+                              question_id=uuid1())
+        question.save()
+        edit_question_dict = {'content': 'question edited',
+                          'question_uuid': question.question_id,
+                          'current_pleb': self.email,
+                          'last_edited_on': datetime.now(pytz.utc)}
+        edit_response = edit_question_task.apply_async(kwargs=edit_question_dict)
+
         self.assertTrue(edit_response.get())
 
 
@@ -94,19 +95,6 @@ class TestQuestionTaskRaceConditions(TestCase):
                                    'content': 'test post',
                                    'question_uuid': str(uuid1())}
 
-    def test_race_condition_edit_delete_post_tasks(self):
-        edit_post_dict = {'content': 'Post edited',
-                          'question_uuid': self.question_info_dict['question_uuid'],
-                          'current_pleb': self.pleb.email,
-                          'last_edited_on': datetime.now(pytz.utc)}
-        save_response = create_question_task.apply_async(kwargs=self.question_info_dict)
-        time.sleep(1)
-        edit_response = edit_question_task.apply_async(kwargs=edit_post_dict)
-        time.sleep(1)
-
-        self.assertTrue(save_response.get())
-        self.assertTrue(edit_response.get())
-
     def test_race_condition_edit_multiple_times(self):
         edit_array = []
         save_response = create_question_task.apply_async(kwargs=self.question_info_dict)
@@ -127,7 +115,7 @@ class TestQuestionTaskRaceConditions(TestCase):
 
 class TestVoteTask(TestCase):
     def setUp(self):
-        self.email = 'devon@sagebrew.com'
+        self.email = str(uuid1()) + '@sagebrew.com'
         try:
             pleb = Pleb.index.get(email=self.email)
             wall = pleb.traverse('wall').run()[0]
@@ -146,13 +134,14 @@ class TestVoteTask(TestCase):
                                    'question_uuid': str(uuid1())}
 
     def test_question_vote_task(self):
-        vote_info_dict = {"question_uuid": self.question_info_dict['question_uuid'],
-                          "current_pleb": self.pleb.email, 'vote_type': 'up'}
-        response = create_question_task.apply_async(kwargs=self.question_info_dict)
-        response = response.get()
-
+        question = SBQuestion(content="test question from vote task test",
+                              question_title="testquestiontitle from vote test",
+                              question_id=uuid1())
+        question.save()
+        pleb = Pleb.index.get(email=self.pleb.email)
+        vote_info_dict = {"question_uuid": question.question_id,
+                          "current_pleb": pleb.email, 'vote_type': 'up'}
         vote_response = vote_question_task.apply_async(kwargs=vote_info_dict)
-        self.assertTrue(response)
         self.assertTrue(vote_response.get())
 
 class TestMultipleTasks(TestCase):
@@ -189,13 +178,13 @@ class TestMultipleTasks(TestCase):
 
 
     def test_create_same_post_twice(self):
+        question = SBQuestion(content="test question", question_title="title",
+                              question_id=str(uuid1()))
+        question.save()
         post_info_dict = {'current_pleb': self.pleb.email,
                           'question_title': 'Question Title',
                           'content': 'test question',
-                          'question_uuid': str(uuid1())}
-        response1 = create_question_task.apply_async(kwargs=post_info_dict)
-        time.sleep(1)
+                          'question_uuid': question.question_id}
         response2 = create_question_task.apply_async(kwargs=post_info_dict)
 
-        self.assertTrue(response1.get())
         self.assertFalse(response2.get())

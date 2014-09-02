@@ -35,7 +35,6 @@ insert `export NEO4J_REST_URL=http://username:password@graphenedburl.com:port/db
 then run `vagrant halt`
 then `fab start_dev`
 
-
 ```
 sudo -s
 wget -O - http://debian.neo4j.org/neotechnology.gpg.key | apt-key add -

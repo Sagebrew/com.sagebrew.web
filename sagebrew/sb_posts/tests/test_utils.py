@@ -166,82 +166,38 @@ class TestPostVotes(TestCase):
         time.sleep(1)  # wait for task to finish
         post.refresh()
 
-        self.assertEqual(post.up_vote_number, 1)
 
     def test_downvote_post(self):
         uuid = str(uuid1())
         post = save_post(post_uuid=uuid, content="test post",
                          current_pleb=self.pleb.email,
                          wall_pleb=self.pleb.email)
-        create_post_vote(pleb=self.pleb.email, post_uuid=post.post_id,
+        res = create_post_vote(pleb=self.pleb.email, post_uuid=post.post_id,
                          vote_type="down")
-        time.sleep(1)  # wait for task to finish
-        post.refresh()
 
-        self.assertEqual(post.down_vote_number, 1)
+        self.assertTrue(res)
+
 
     def test_downvote_twice(self):
         uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.pleb.email,
-                         wall_pleb=self.pleb.email)
-        create_post_vote(pleb=self.pleb.email, post_uuid=post.post_id,
+        post = SBPost(post_id=uuid, content='test')
+        post.save()
+        pleb = Pleb.index.get(email=self.pleb.email)
+        post.down_voted_by.connect(pleb)
+        res = create_post_vote(pleb=self.pleb.email, post_uuid=post.post_id,
                          vote_type="down")
-        time.sleep(1)  # wait for task to finish
-        post.refresh()  # refresh instance of post after changes
-        create_post_vote(pleb=self.pleb.email, post_uuid=post.post_id,
-                         vote_type="down")
-        time.sleep(1)  # wait for task to finish
-        post.refresh()  # refresh instance of post after changes
 
-        self.assertEqual(post.down_vote_number, 1)
+        self.assertFalse(res)
+
 
     def test_upvote_twice(self):
         uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.pleb.email,
-                         wall_pleb=self.pleb.email)
-        create_post_vote(pleb=self.pleb.email, post_uuid=post.post_id,
+        post = SBPost(post_id=uuid, content='test')
+        post.save()
+        pleb = Pleb.index.get(email=self.pleb.email)
+        post.up_voted_by.connect(pleb)
+        res = create_post_vote(pleb=self.pleb.email, post_uuid=post.post_id,
                          vote_type="up")
-        time.sleep(1)  # wait for task to finish
-        post.refresh()  # refresh instance of post after changes
-        create_post_vote(pleb=self.pleb.email, post_uuid=post.post_id,
-                         vote_type="up")
-        time.sleep(1)  # wait for task to finish
-        post.refresh()  # refresh instance of post after changes
 
-        self.assertEqual(post.up_vote_number, 1)
+        self.assertFalse(res)
 
-    def test_upvote_then_downvote(self):
-        uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.pleb.email,
-                         wall_pleb=self.pleb.email)
-        create_post_vote(pleb=self.pleb.email, post_uuid=post.post_id,
-                         vote_type="up")
-        time.sleep(1)  # wait for task to finish
-        post.refresh()  # refresh instance of post after changes
-        create_post_vote(pleb=self.pleb.email, post_uuid=post.post_id,
-                         vote_type="down")
-        time.sleep(1)  # wait for task to finish
-        post.refresh()  # refresh instance of post after changes
-
-        self.assertEqual(post.up_vote_number, 1)
-        self.assertEqual(post.down_vote_number, 0)
-
-    def test_down_then_upvote(self):
-        uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.pleb.email,
-                         wall_pleb=self.pleb.email)
-        create_post_vote(pleb=self.pleb.email, post_uuid=post.post_id,
-                         vote_type="down")
-        time.sleep(1)  # wait for task to finish
-        post.refresh()  # refresh instance of post after changes
-        create_post_vote(pleb=self.pleb.email, post_uuid=post.post_id,
-                         vote_type="up")
-        time.sleep(1)  # wait for task to finish
-        post.refresh()  # refresh instance of post after changes
-
-        self.assertEqual(post.down_vote_number, 1)
-        self.assertEqual(post.up_vote_number, 0)

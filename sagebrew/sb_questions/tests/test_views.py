@@ -5,6 +5,7 @@ from base64 import b64encode
 from rest_framework.test import APIRequestFactory
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.conf import settings
 
 from plebs.neo_models import Pleb
 from sb_questions.views import (save_question_view, edit_question_view,
@@ -27,7 +28,8 @@ class SaveQuestionViewTests(TestCase):
     def test_save_question_view_correct_data(self):
         my_dict = {'content': 'aosdfhao',
                    'current_pleb': self.user.email,
-                   'question_title': 'How do we end the war in Iraq?'}
+                   'question_title': 'How do we end the war in Iraq?',
+                   'tags': 'these,are,test,tags'}
         request = self.factory.post('/questions/submit_question_api/', data=my_dict,
                                     format='json')
         request.user = self.user
@@ -82,7 +84,7 @@ class SaveQuestionViewTests(TestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_save_question_view_image_data(self):
-        with open("/home/apps/sagebrew/sb_posts/"
+        with open(settings.PROJECT_DIR + "/sb_posts/" +
                   "tests/images/test_image.jpg", "rb") as image_file:
             image = b64encode(image_file.read())
 
@@ -164,7 +166,7 @@ class EditQuestionViewTests(TestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_edit_question_view_image_data(self):
-        with open("/home/apps/sagebrew/sb_posts/"
+        with open(settings.PROJECT_DIR + "/sb_posts/" +
                   "tests/images/test_image.jpg", "rb") as image_file:
             image = b64encode(image_file.read())
 
@@ -247,7 +249,7 @@ class VoteQuestionViewTests(TestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_vote_question_view_image_data(self):
-        with open("/home/apps/sagebrew/sb_posts/"
+        with open(settings.PROJECT_DIR + "/sb_posts/" +
                   "tests/images/test_image.jpg", "rb") as image_file:
             image = b64encode(image_file.read())
 
@@ -328,7 +330,7 @@ class TestGetQuestionView(TestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_get_question_view_image_data(self):
-        with open("/home/apps/sagebrew/sb_posts/"
+        with open(settings.PROJECT_DIR + "/sb_posts/" +
                   "tests/images/test_image.jpg", "rb") as image_file:
             image = b64encode(image_file.read())
 

@@ -2,19 +2,36 @@ machine:
   services:
     - rabbitmq-server
     - elasticsearch
-  post:
-    - cd ~/com.sagebrew.web/sagebrew && ~/virtualenvs/venv-system/bin/celery -A sagebrew worker -l info -n worker1:
-        background: true
-    - cd ~/com.sagebrew.web/sagebrew && ~/virtualenvs/venv-system/bin/celery -A sagebrew worker -l info -n worker2:
-        background: true
-    - python ~/com.sagebrew.web/sagebrew/manage.py runserver 127.0.0.1:8080:
-        background: true
 
 
 dependencies:
   post:
     - pip install -r ../requirements/web/base.txt
     - pip install git+https://github.com/robinedwards/neomodel.git@0.3.6
+    - sudo chown ubuntu /etc/rsyslog.d/
+    - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py logglypopulation
+    - sudo chown root /etc/rsyslog.d/
+    - sudo service rsyslog restart
+    - cd ~/com.sagebrew.web/sagebrew && ~/virtualenvs/venv-system/bin/celery -A sagebrew worker -l info -n worker1:
+        background: true
+    - cd ~/com.sagebrew.web/sagebrew && ~/virtualenvs/venv-system/bin/celery -A sagebrew worker -l info -n worker2:
+        background: true
+    - python ~/com.sagebrew.web/sagebrew/manage.py runserver 127.0.0.1:8080:
+        background: true
+#test:
+#  override:
+#    - Run tests using default setup
+#    - Compile docker build
+#    - Test docker build
+#    - Push docker build to staging beanstalk if master
+#         push to elastic beanstalk master
+#    - If staging Run tests against staging beanstalk from CI
+#    - If Staging merge with master (Let process reiterate)
+#  post:
+#    - docker run -d -p 3000:3000 -e "SECRET_KEY_BASE=abcd1234" \
+#          circleci/hello:$CIRCLE_SHA1; sleep 10
+#    - curl --retry 10 --retry-delay 5 -v http://localhost:3000
+#    - docker run myimage bundle exec rake test
 
 
 checkout:

@@ -1,5 +1,6 @@
 import time
 import pytz
+import logging
 from datetime import datetime, timedelta
 from uuid import uuid1
 from django.test import TestCase
@@ -10,9 +11,11 @@ from sb_posts.utils import save_post, edit_post_info, delete_post_info, \
 from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
 
+logger = logging.getLogger('loggly_logs')
 
 class TestSavePost(TestCase):
     def setUp(self):
+        logger.critical("Testing logs in circle Fo sho")
         self.email = 'devon@sagebrew.com'
         try:
             pleb = Pleb.index.get(email=self.email)

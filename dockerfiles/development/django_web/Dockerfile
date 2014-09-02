@@ -1,4 +1,4 @@
-FROM sagebrew/django.web.primary.base:v2
+FROM sagebrew/django.web.primary.base:v3
 MAINTAINER Devon Bleibtrey <devon@sagebrew.com>
 
 RUN apt-get update && apt-get install -y git python-dev
@@ -17,3 +17,7 @@ RUN apt-get update && apt-get install -y python-software-properties software-pro
 
 RUN pip install -r /home/apps/sagebrew/requirements/development.txt
 RUN pip pip install git+https://github.com/robinedwards/neomodel.git@0.3.6
+
+CMD sudo service supervisor start
+CMD sudo supervisorctl reload
+CMD sudo supervisorctl restart all

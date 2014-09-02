@@ -34,7 +34,6 @@ set neo4j db create file
 insert `export NEO4J_REST_URL=http://username:password@graphenedburl.com:port/db/data/`
 then run `vagrant halt`
 then `fab start_dev`
-
 How to delete all nodes and relationships:
 `
 start n=node(*)

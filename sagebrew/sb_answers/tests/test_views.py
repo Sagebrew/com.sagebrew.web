@@ -5,6 +5,7 @@ from base64 import b64encode
 from rest_framework.test import APIRequestFactory
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.conf import settings
 
 from plebs.neo_models import Pleb
 from sb_answers.views import (save_answer_view)
@@ -83,7 +84,7 @@ class TestSaveAnswerView(TestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_save_answer_view_image_data(self):
-        with open("/home/apps/sagebrew/sb_posts/"
+        with open(settings.PROJECT_DIR + "/sb_posts/" +
                   "tests/images/test_image.jpg", "rb") as image_file:
             image = b64encode(image_file.read())
 

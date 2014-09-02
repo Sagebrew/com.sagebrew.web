@@ -3,6 +3,7 @@ from base64 import b64encode
 from rest_framework.test import APIRequestFactory
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.conf import settings
 
 from plebs.neo_models import Pleb
 from sb_comments.views import (save_comment_view, edit_comment, delete_comment,
@@ -80,7 +81,7 @@ class TestSaveCommentView(TestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_save_comment_view_image_data(self):
-        with open("/home/apps/sagebrew/sb_posts/"
+        with open(settings.PROJECT_DIR + "/sb_posts/" +
                   "tests/images/test_image.jpg", "rb") as image_file:
             image = b64encode(image_file.read())
 
@@ -162,7 +163,7 @@ class TestEditCommentView(TestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_edit_comment_view_image_data(self):
-        with open("/home/apps/sagebrew/sb_posts/"
+        with open(settings.PROJECT_DIR + "/sb_posts/" +
                   "tests/images/test_image.jpg", "rb") as image_file:
             image = b64encode(image_file.read())
 
@@ -243,7 +244,7 @@ class TestDeleteCommentView(TestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_delete_comment_view_image_data(self):
-        with open("/home/apps/sagebrew/sb_posts/"
+        with open(settings.PROJECT_DIR + "/sb_posts/" +
                   "tests/images/test_image.jpg", "rb") as image_file:
             image = b64encode(image_file.read())
 
@@ -324,7 +325,7 @@ class TestVoteCommentView(TestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_vote_comment_view_image_data(self):
-        with open("/home/apps/sagebrew/sb_posts/"
+        with open(settings.PROJECT_DIR + "/sb_posts/" +
                   "tests/images/test_image.jpg", "rb") as image_file:
             image = b64encode(image_file.read())
 

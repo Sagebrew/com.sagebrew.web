@@ -60,9 +60,6 @@ def create_question_util(content="", current_pleb="", question_title="",
         spawn_task(task_func=add_auto_tags, task_param=tag_list)
         return my_question
 
-    except SBQuestion.DoesNotExist:
-        return None
-
     except Exception:
         return None
 
@@ -239,6 +236,8 @@ def upvote_question_util(question_uuid="", current_pleb=""):
         return False
     except Pleb.DoesNotExist:
         return False
+    except Exception:
+        return False
 
 def downvote_question_util(question_uuid="", current_pleb=""):
     '''
@@ -263,6 +262,8 @@ def downvote_question_util(question_uuid="", current_pleb=""):
         spawn_task(task_func=vote_question_task, task_param=data, countdown=1)
         return False
     except Pleb.DoesNotExist:
+        return False
+    except Exception:
         return False
 
 def edit_question_util(question_uuid="", content="", last_edited_on="",
@@ -302,6 +303,8 @@ def edit_question_util(question_uuid="", content="", last_edited_on="",
         my_question.save()
         return True
     except SBQuestion.DoesNotExist:
+        return False
+    except Exception:
         return False
 
 def prepare_question_search_html(question_uuid):

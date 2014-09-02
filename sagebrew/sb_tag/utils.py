@@ -79,6 +79,8 @@ def add_auto_tags_util(tag_list):
                 return False
             except IndexError:
                 return False
+            except Exception:
+                return False
         else:
             return False
 
@@ -121,6 +123,8 @@ def add_tag_util(object_type, object_uuid, tags):
                 tag.save()
             return True
         except SBQuestion.DoesNotExist:
+            return False
+        except Exception:
             return False
     else:
         return False

@@ -16,9 +16,6 @@ dependencies:
     - pip install -r ../requirements/web/base.txt
     - pip install git+https://github.com/robinedwards/neomodel.git@0.3.6
 
-test:
-  post:
-    -
 
 checkout:
   post:

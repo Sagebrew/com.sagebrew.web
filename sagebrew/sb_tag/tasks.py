@@ -15,7 +15,7 @@ def add_auto_tags(tag_list):
     '''
     response_list = []
 
-    if len(tag_list) <= 1:
+    if len(tag_list) < 1:
         return True
 
     response = (add_auto_tags_util(tag_list))

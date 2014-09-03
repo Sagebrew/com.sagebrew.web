@@ -1,3 +1,4 @@
+import traceback
 from uuid import uuid1
 from celery import shared_task
 
@@ -37,6 +38,9 @@ def create_question_task(content="", current_pleb="", question_title="",
             spawn_task(task_func=create_question_task, task_param=data,
                        countdown=2)
             return False
+    except Exception:
+        traceback.print_exc()
+        return False
 
 @shared_task()
 def edit_question_task(question_uuid="", content="", current_pleb="", last_edited_on=""):
@@ -70,6 +74,9 @@ def edit_question_task(question_uuid="", content="", current_pleb="", last_edite
 
     except SBQuestion.DoesNotExist, Pleb.DoesNotExist:
         return False
+    except Exception:
+        traceback.print_exc()
+        return False
 
 @shared_task()
 def vote_question_task(question_uuid="", current_pleb="", vote_type=""):
@@ -100,4 +107,7 @@ def vote_question_task(question_uuid="", current_pleb="", vote_type=""):
     except SBQuestion.DoesNotExist:
         return False
     except Pleb.DoesNotExist:
+        return False
+    except Exception:
+        traceback.print_exc()
         return False

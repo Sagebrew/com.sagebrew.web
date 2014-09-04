@@ -8,7 +8,11 @@
 {% block content %}
 
 {% if is_owner == True or is_friend == True %}
-       <div class="row-fluid sb_profile_content">
+    <div id="pleb_info"
+         style="display: none"
+         data-current_user_email="{{ current_user }}"
+         data-page_user_email="{{ pleb_info.email }}"></div>
+    <div class="row-fluid sb_profile_content">
     <div class=" sb_profile_container_top">
     </div>
     <div class="sb_profile_btn_menu_container">
@@ -50,9 +54,12 @@
 {% block footer %}
 
 {% endblock %}
+
 {% block scripts %}
     {{ block.super }}
-    <script src="{% static 'js/save_comment.js' %}"></script>
+    <script src="{% static 'js/sb_utils.js' %}"></script>
+    <script src="{% static 'js/get_notifications.js' %}"></script>
+    <script src="{% static 'js/get_posts.js' %}"></script>
     <script src="{% static 'js/save_post.js' %}"></script>
     <script src="{% static 'js/edit_post.js' %}"></script>
     <script src="{% static 'js/delete_post.js' %}"></script>

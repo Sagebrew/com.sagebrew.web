@@ -1,23 +1,23 @@
-{% if post.post_owner_email == current_user %}
+{% load staticfiles %}
+{% if post_owner_email == current_user %}
     <div>
         <div class="sb_post_content">
             <div class="sb_post_header">
                 <div class="row">
                     <div class="col-lg-1 col-md-1 col-sm-2 col-xs-2">
                         <div class="sb_thumbnail_xs thumbnail">
-                            <img src="{{ pleb_info.profile_pic|default_if_none:'' }}"/>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-3 col-sm-2 col-xs-4">
                        <div class="sb_post_header_info">
                            <a class="btn sb_btn_profile_link">
-                               {{ post.post_owner }}
+                               {{ post_owner }}
                            </a>
                            <div class="sb_post_data">
                                {% comment %}
                                date/time/location(or disctrict)
                                {%  endcomment %}
-                               {{ post.last_edited_on }}
+                               {{ last_edited_on }}
                           </div>
                        </div>
                     </div>
@@ -33,20 +33,20 @@
                             <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
                                 role="menu" aria-labelledby="dropdownMenu1">
                                  <li role="presentation"><a class="sb_post_dropdown_menu btn show_edit_post_class"
-                                                           data-uuid="{{ post.post_id }}"
+                                                           data-uuid="{{ post_id }}"
                                                            type="submit">Edit Post</a>
                                 </li>
                                 <li role="presentation" class="divider"></li>
                                 <li role="presentation"><a class='sb_post_dropdown_menu btn vote-action'
                                                            data-vote_type='up'
                                                            data-pleb="{{ current_user }}"
-                                                           data-post_uuid="{{ post.post_id }}">Flag
+                                                           data-post_uuid="{{ post_id }}">Flag
                                                             Post</a>
                                 </li>
                                 <li role="presentation" class="divider"></li>
                                 <li role="presentation"> <a class='sb_post_dropdown_menu btn delete_post-action'
                                                            data-pleb="{{ current_user }}"
-                                                           data-post_uuid="{{ post.post_id }}">Delete Post</a>
+                                                           data-post_uuid="{{ post_id }}">Delete Post</a>
                                 </li>
                                 <li role="presentation" class="divider"></li>
                             </ul>
@@ -55,7 +55,7 @@
                 </div>
             </div>
             <div class="sb_post_body">
-                 {{ post.content|linebreaksbr }}
+                 {{ content|linebreaksbr }}
             </div>
         </div>
         <div class="sb_post_stats">
@@ -64,49 +64,46 @@
                     <a class='btn vote-action sb_btn_vote_icon'
                        data-vote_type='up'
                        data-pleb="{{ current_user }}"
-                       data-post_uuid="{{ post.post_id }}"><span class="sb_icon sb_icon_up_vote fui-check"></span>
+                       data-post_uuid="{{ post_id }}"><span class="sb_icon sb_icon_up_vote fui-check"></span>
                     </a>
                 </div>
                 <div class="col-lg-1 sb_vote_div">
-                   <div class="sb_vote_count">{{ post.up_vote_number }}</div>
+                   <div class="sb_vote_count">{{ up_vote_number }}</div>
                 </div>
                 <div class="col-lg-1">
                      <a class='btn vote-action sb_btn_vote_icon'
                        data-vote_type='down'
                        data-pleb="{{ current_user }}"
-                       data-post_uuid="{{ post.post_id }}"><span class="sb_icon sb_icon_down_vote fui-cross"></span>
+                       data-post_uuid="{{ post_id }}"><span class="sb_icon sb_icon_down_vote fui-cross"></span>
                      </a>
                 </div>
                 <div class="col-lg-1 sb_vote_div">
-                   <div class="sb_vote_count">{{ post.down_vote_number }}</div>
+                   <div class="sb_vote_count">{{ down_vote_number }}</div>
                 </div>
             </div>
         </div>
-        <div class="sb_post_comments">
-            {% include "sb_comments.html" %}
-        </div>
         <div class="sb_comment">
             <textarea class="form-control sb_comment_input "
-                      id="post_comment_on_{{ post.post_id }}"
+                      id="post_comment_on_{{ post_id }}"
                       rows="2"
                       placeholder="Write your comment..."></textarea>
             <a class='btn sb_btn_comment_icon comment-action'
-               data-uuid="{{ post.post_id }}"
+               data-uuid="{{ post_id }}"
                data-pleb="{{ current_user }}"
-               data-post_uuid="{{ post.post_id }}"><span class="fui-new"></span></a>
+               data-post_uuid="{{ post_id }}"><span class="fui-new"></span></a>
         </div>
 
-                <div id="divid_{{ post.post_id }}"
+                <div id="divid_{{ post_id }}"
                      style="display:none">
                     <textarea class="form-control edit_post_input_class"
-                              id="{{ post.post_id }}"
+                              id="{{ post_id }}"
                               name="edit_post_input"
                               rows="1"
                               placeholder="Edit your post..."></textarea>
                     <a class='btn btn-primary edit_post-action'
                        id="edit_post_button_id"
                        data-pleb="{{ current_user }}"
-                       data-post_uuid="{{ post.post_id }}">Submit</a>
+                       data-post_uuid="{{ post_id }}">Submit</a>
                 </div>
 
     </div>
@@ -114,7 +111,7 @@
 {%  comment %}
     <a class='btn btn-primary vote-action'
        data-vote_type='up'
-       data-pleb="{{ current_user }}"
+       data-pleb="{{ post.current_user }}"
        data-post_uuid="{{ post.post_id }}">Reference
         Post</a>
 {% endcomment %}

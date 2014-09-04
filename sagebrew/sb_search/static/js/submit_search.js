@@ -3,12 +3,9 @@ $( document ).ready(function() {
         var search_param = encodeURIComponent($('textarea#search_id').val());
         window.location.href = "https://192.168.56.101/search/q=" + search_param +"&page=1";
 		$.ajaxSetup({
-		    beforeSend: function(xhr, settings) {
-				var csrftoken = $.cookie('csrftoken');
-		        if (!csrfSafeMethod(settings.type) && !this.crossDomain)  {
-		            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-		        }
-		    }
+		    beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
 		});
 	   	$.ajax({
 			xhrFields: {withCredentials: true},

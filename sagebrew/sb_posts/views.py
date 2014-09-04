@@ -4,6 +4,7 @@ from uuid import uuid1
 from datetime import datetime
 from urllib2 import HTTPError
 from requests import ConnectionError
+from django.template.loader import render_to_string
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
@@ -17,10 +18,7 @@ from .utils import (get_pleb_posts, create_post_vote)
 from .forms import (SavePostForm, EditPostForm, DeletePostForm, VotePostForm,
                     GetPostForm)
 
-
-
 logger = logging.getLogger('loggly_logs')
-
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
@@ -61,13 +59,18 @@ def get_user_posts(request):
     :param request:
     :return:
     '''
+    html_array = []
     post_data = get_post_data(request)
     post_form = GetPostForm(post_data)
     if post_form.is_valid():
         citizen = Pleb.index.get(email=post_form.cleaned_data['email'])
         posts = get_pleb_posts(citizen, post_form.cleaned_data['range_end'],
                            post_form.cleaned_data['range_start'])
-        return Response(posts, status=200)
+        for post in posts:
+            post['current_user'] = post_form.cleaned_data['current_user']
+            html_array.append(render_to_string('sb_post.html', post))
+
+        return Response({'html': html_array}, status=200)
     else:
         return Response(status=400)
 

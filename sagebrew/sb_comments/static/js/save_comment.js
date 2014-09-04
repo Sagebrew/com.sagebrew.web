@@ -1,7 +1,6 @@
 $(document).ready(function () {
     $("a.comment-action").click(function (event) {
         var post_id = $(this).data('post_uuid');
-        console.log(post_id);
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -9,7 +8,6 @@ $(document).ready(function () {
             }
         });
         $.ajax({
-
             xhrFields: {withCredentials: true},
             type: "POST",
             url: "/comments/submit_comment/",

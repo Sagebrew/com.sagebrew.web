@@ -10,7 +10,7 @@ function ajax_security(xhr, settings) {
     }
 }
 
-function enable_post_functionality() {
+function save_comment() {
     $("a.comment-action").click(function (event) {
         var post_id = $(this).data('post_uuid');
         console.log(post_id);

@@ -1,16 +1,16 @@
 .sb_post_content{
-    margin-top: 30px;
+    margin-bottom: 30px;
     background-color: #ffffff;
     border-style: solid;
     border-width: 1px 1px 0px 1px;
     border-color: #b7bfbb;
-    border-radius: 5px 5px 0 0;
+    border-radius: 5px 5px 5px 5px;
 }
 .sb_post_header{
     width: auto;
     background-color: #ffffff;
     border-radius: 5px 5px 0 0;
-    padding: 15px 15px 15px 15px;
+    padding: 15px 15px 5px 15px;
 }
 .sb_post_header_info{
     font-size: 15px;
@@ -18,11 +18,12 @@
     margin-left: 0;
     padding-left: 5px;
 }
-.sb_post_body {
+.sb_post_body{
     font-size: 12pt;
     padding: 15px 15px 15px 15px;
     margin-left: 15px;
     margin-right: 15px;
+    margin-bottom: 15px;
     hanging-punctuation: force-end;
     height-max: 600px;
     height: auto;
@@ -33,30 +34,33 @@
     border-width: 1px;
     border-color:#d8e7d6;
 }
+.sb_post_comments{
+    border-style: solid;
+    border-width: 1px 0 0 0;
+    border-color: #b7bfbb;
+    padding-bottom: 5px;
+}
 .sb_post_stats{
+    padding-top: 3px;
+    padding-bottom: 3px;
     padding-left: 15px;
     padding-right: 15px;
-    padding-bottom: 5px;
-    padding-top: 5px;
     background-color: #ffffff;
     border-style: solid;
-    border-width: 0 1px 1px 1px;
+    border-width: 1px 0 0 0;
     border-color: #b7bfbb;
     border-radius: 0 0 0 0;
 }
 .sb_comment{
-    margin-top: 0;
-    margin-bottom: 0;
-    padding: 10px 15px 5px 15px;
-    height: auto;
-    background-color: #ffffff;
+    padding: 10px 15px 10px 15px;
+    background-color: #eaf0e8;
     border: solid;
-    border-width: 0px 1px 1px 1px;
+    border-width: 1px 0 1px 0;
     border-radius: 0 0 5px 5px;
     border-color: #b7bfbb;
 }
 .sb_comment_input{
-    border-width: 1px 1px 1px 1px;
+    border-width: 1px 0 1px 1px;
     border-radius: 5px 5px 5px 5px ;
     border-color: #d0e9c6;
     padding: 10px 10px 10px 10px;
@@ -66,7 +70,6 @@
 textarea.sb_comment_input{
     height: 50px;
 }
-
 #sb_text{
     height: 30px;
 }
@@ -108,34 +111,38 @@ textarea.sb_comment_input{
 }
 .sb_btn_comment_icon{
     color: #1ba39c;
+    heigh: 50px;
+    border: solid;
+    border-width: 1px;
+    border-color: #d0e9c6;
+    border-radius: 0 5px 5px 0;
 }
 .sb_btn_comment_icon:hover{
     color: #1ba39c;
-    border: solid;
-    border-width: 1px;
-    border-color: #b7bfbb;
-    border-radius: 5px;
+    border-color: #1ba39c;
 }
 .sb_btn_comment_icon:active,
 .sb_btn_comment_icon:focus{
     color: #26424a;
-    border: solid;
-    border-width: 1px;
-    border-color: #26424a;
-    border-radius: 5px;
 }
 .sb_icon{
     font-size: 20px;
+}
+.sb_downdrop_icon{
+    color: #b7bfbb;
 }
 .sb_icon_down_vote,
 .sb_icon_up_vote{
    font-size: 15px;
 }
 .sb_vote_count{
+   color: #838c92;
    width:auto;
-   height: 30px;
-   padding: 3px 3px 3px 3px;
-   background-color: #ffffff;
+   height: 25px;
+   padding: 5px 15px 5px 0px;
+   font-size: 12pt;
+   background-color: transparent;
+
 }
 .sb_btn_vote_icon{
     color: #1ba39c;

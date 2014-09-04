@@ -1,62 +1,69 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% block navigation %}
-    <div class="sb_navbar_2">
-        {% include "logged_in_nav.html" %}
-    </div>
+    {% include "navigation/logged_in_navigation.html" %}
 {% endblock %}
 {% block content %}
 
 {% if is_owner == True or is_friend == True %}
-    <div id="pleb_info"
-         style="display: none"
-         data-current_user_email="{{ current_user }}"
-         data-page_user_email="{{ pleb_info.email }}"></div>
-    <div class="row-fluid sb_profile_content">
-    <div class=" sb_profile_container_top">
-    </div>
-    <div class="sb_profile_btn_menu_container">
-        <div class="row-fluid">
-            <div class="col-lg-7">
-
-            </div>
-            <div class="col-lg-5">
-                <div class="sb_btn_group btn-group">
-                  <button type="button" class="btn sb_profile_menu_btn">Home</button>
-                  <button type="button" class="btn sb_profile_menu_btn">About</button>
-                  <button type="button" class="btn sb_profile_menu_btn">Reputation</button>
-                  <button type="button" class="btn sb_profile_menu_btn">Friends</button>
-                </div>
-            </div>
+       <div id="pleb_info"
+            style="display: none"
+            data-current_user_email="{{ current_user }}"
+            data-page_user_email="{{ pleb_info.email }}"></div>
+       <div class="row-fluid ">
+       <div class="sb_profile_content">
+           <div class="thumbnail sb_profile_pic">
+                <img src="{% static 'images/profile.jpg' %}">
+           </div>
+           <div class="sb_profile_container_top_div">
+                <img class="sb_profile_container_top" src="{% static 'images/Capitol_reflection.jpg' %}">
+           </div>
+           <div class="sb_profile_btn_menu_container ">
+                {% include "sb_profile_user_menu.html" %}
+           </div>
+           <div class="sb_home" style="display:none">
+                {% include "sb_home.html" %}
+           </div>
+           <div class="col-12-lg sb_about" style="display:none">
+                {% include "sb_about.html" %}
+           </div>
+           <div class="col-12-lg sb_reputation" style="display:none">
+                {% include "sb_reputation.html" %}
+           </div>
+           <div class="col-12-lg sb_friends" style="display:none">
+                {% include "sb_friends.html" %}
+           </div>
         </div>
-    </div>
-
-        <div class="col-lg-4">
-        {% include "sb_profile_rep_stats.html" %}
-        </div>
-        <div class="col-lg-8">
-            {% block wall %}
-                {% include "wall.html" %}
-            {% endblock %}
-        </div>
-    </div>
     {% elif is_friend == False and is_owner == False %}
-    <p>{{ current_user }}{{ page_user }}</p>
-        <button class="btn btn-sm btn-primary send_friend_request-action"
-           data-from_pleb="{{ current_user }}"
-           data-to_pleb="{{ page_user }}">Friend Request
-        </button>
-        <button class="btn btn-sm btn-primary delete_friend_request-action"
-           style="display:none">Delete Request</button>
-    {% endif %}
+           <div class="row-fluid sb_profile_content">
+           <div class="thumbnail sb_profile_pic">
 
+           </div>
+           <div class=" sb_profile_container_top">
+
+           </div>
+           <div class="sb_profile_btn_menu_container ">
+               <div class="col-lg-5 col-lg-offset-4">
+                    <button class="btn sb_profile_menu_btn send_friend_request-action"
+                            data-from_pleb="{{ current_user }}"
+                            data-to_pleb="{{ page_user }}">Friend Request
+                    </button>
+                    <button class="btn sb_profile_menu_btn delete_friend_request-action">Delete Request</button>
+               </div>
+           </div>
+           <div class="col-lg-4">
+
+           </div>
+           </div>
+        </div>
+    {% endif %}
 {% endblock %}
 {% block footer %}
 
 {% endblock %}
-
 {% block scripts %}
     {{ block.super }}
+    <script src="{% static 'js/sb_profile.js' %}"></script>
     <script src="{% static 'js/sb_utils.js' %}"></script>
     <script src="{% static 'js/get_notifications.js' %}"></script>
     <script src="{% static 'js/get_posts.js' %}"></script>
@@ -74,4 +81,7 @@
     <script src="{% static 'js/respond_friend_request.js' %}"></script>
     <script src="{% static 'js/sb_post_enter.js' %}"></script>
     <script src="{% static 'js/sb_post.js' %}"></script>
+    <script src="{% static 'js/sb_about_show.js' %}"></script>
+    <script src="{% static 'js/sb_reputation_show.js' %}"></script>
+    <script src="{% static 'js/sb_friends_show.js' %}"></script>
 {% endblock scripts %}

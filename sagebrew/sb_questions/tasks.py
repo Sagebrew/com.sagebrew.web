@@ -1,3 +1,5 @@
+import traceback
+import logging
 from uuid import uuid1
 from celery import shared_task
 
@@ -6,6 +8,8 @@ from .neo_models import SBQuestion
 from api.utils import spawn_task
 from .utils import (create_question_util, upvote_question_util,
                     downvote_question_util, edit_question_util)
+
+logger = logging.getLogger('loggly_logs')
 
 @shared_task()
 def create_question_task(content="", current_pleb="", question_title="",
@@ -37,6 +41,9 @@ def create_question_task(content="", current_pleb="", question_title="",
             spawn_task(task_func=create_question_task, task_param=data,
                        countdown=2)
             return False
+    except Exception:
+        logger.exception("MultipleObjectsReturned: ")
+        return False
 
 @shared_task()
 def edit_question_task(question_uuid="", content="", current_pleb="", last_edited_on=""):
@@ -70,6 +77,9 @@ def edit_question_task(question_uuid="", content="", current_pleb="", last_edite
 
     except SBQuestion.DoesNotExist, Pleb.DoesNotExist:
         return False
+    except Exception:
+        logger.exception("MultipleObjectsReturned: ")
+        return False
 
 @shared_task()
 def vote_question_task(question_uuid="", current_pleb="", vote_type=""):
@@ -100,4 +110,7 @@ def vote_question_task(question_uuid="", current_pleb="", vote_type=""):
     except SBQuestion.DoesNotExist:
         return False
     except Pleb.DoesNotExist:
+        return False
+    except Exception:
+        logger.exception("MultipleObjectsReturned: ")
         return False

@@ -1,4 +1,5 @@
-from json import dumps, loads
+import logging
+from django.template.loader import render_to_string
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
@@ -8,6 +9,7 @@ from .forms import GetNotificationForm
 from api.utils import get_post_data
 from plebs.neo_models import Pleb
 
+logger = logging.getLogger('loggly_logs')
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
@@ -48,10 +50,12 @@ def get_notifications(request):
                         'notification_about_id': notification.notification_about_id}
                 notification_array.append(notification_dict)
                 notification_dict = {}
-            return Response(data=notification_array, status=200)
+            html  = render_to_string('notifications.html', notification_array)
+            return Response({'html': html}, status=200)
         else:
             return Response(status=400)
-    except Exception, e:
+    except Exception:
+        logger.exception("UnhandledException: ")
         return Response(status=400)
 
 

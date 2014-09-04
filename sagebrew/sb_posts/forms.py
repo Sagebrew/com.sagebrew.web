@@ -26,6 +26,7 @@ class VotePostForm(forms.Form):
     vote_type = forms.CharField()
 
 class GetPostForm(forms.Form):
+    current_user = forms.EmailField()
     email = forms.EmailField()
     range_end = forms.IntegerField()
     range_start = forms.IntegerField()

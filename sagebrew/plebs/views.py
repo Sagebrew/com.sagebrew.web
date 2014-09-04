@@ -1,3 +1,4 @@
+import logging
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
@@ -11,6 +12,7 @@ from api.utils import post_to_api
 from plebs.neo_models import Pleb
 from sb_registration.utils import (get_friends, generate_profile_pic_url)
 
+logger = logging.getLogger('loggly_logs')
 
 @login_required()
 def profile_page(request, pleb_email):
@@ -48,19 +50,10 @@ def profile_page(request, pleb_email):
     # TODO check for index error
     # TODO check why address does not always work
     # TODO deal with address and senator/rep in a util + task
-    # address = citizen.traverse('address').run()[0]
+    #address = citizen.traverse('address').run()[0]
     #sen_array = determine_senators(address)
     #rep_array = determine_reps(address)
-    post_data = {'email': citizen.email, 'range_end': 5,
-                 'range_start': 0}
-    headers = {'content-type': 'application/json'}
-    #TODO update this to do on page load through ajax
 
-    user_posts = [] #post_to_api(reverse('get_user_posts'), post_data, headers)
-    notification_data = {'email': citizen.email, 'range_end': 5,
-                         'range_start': 0}
-    notifications = [] #post_to_api(reverse('get_notifications'),
-                                #notification_data, headers=headers)
     citizen.profile_pic = generate_profile_pic_url(citizen.profile_pic_uuid)
     citizen.save()
     return render(request, 'profile_page.html', {
@@ -69,8 +62,6 @@ def profile_page(request, pleb_email):
         'page_user': page_user.email,
         #'senator_names': sen_array,
         #'rep_name': rep_array,
-        'user_posts': user_posts,
-        'notifications': notifications,
         'is_owner': is_owner,
         'is_friend': is_friend,
         'friends_list': friends_list,

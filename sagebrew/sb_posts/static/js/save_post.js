@@ -1,6 +1,6 @@
 $( document ).ready(function() {
 	$("a.post-action").click(function(event){
-        console.log("hello")
+        console.log("hello");
 		event.preventDefault();
 		$.ajaxSetup({
 		    beforeSend: function(xhr, settings) {

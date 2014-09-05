@@ -4,7 +4,7 @@ from datetime import datetime
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty)
+                      BooleanProperty, FloatProperty)
 
 
 class PostedOnRel(StructuredRel):
@@ -14,6 +14,10 @@ class PostedOnRel(StructuredRel):
 class PostReceivedRel(StructuredRel):
     received = BooleanProperty()
 
+class RelationshipWeight(StructuredRel):
+    weight = IntegerProperty(default=150)
+    status = StringProperty(default='seen')
+    seen = BooleanProperty(default=True)
 
 class SBBase(StructuredNode):
     content = StringProperty()
@@ -23,8 +27,13 @@ class SBBase(StructuredNode):
     last_edited_on = DateTimeProperty(default=None)
     to_be_deleted = BooleanProperty(default=False)
     delete_time = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    is_explicit = BooleanProperty(default=False)
+    polarity = FloatProperty()
+    subjectivity = FloatProperty()
 
     # relationships
+    auto_tags = RelationshipTo('sb_tag.neo_models.SBAutoTag',
+                               'AUTO_TAGGED_AS')
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'OWNED_BY',
                               model=PostedOnRel)
     up_voted_by = RelationshipTo('plebs.neo_models.Pleb', 'UP_VOTED_BY')
@@ -34,6 +43,11 @@ class SBBase(StructuredNode):
                                  model=PostReceivedRel)
     comments = RelationshipTo('sb_comments.neo_models.SBComment', 'HAS_A',
                               model=PostedOnRel)
+    tagged_as = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS')
+    auto_tagged_as = RelationshipTo('sb_tag.neo_models.SBTag',
+                                    'AUTO_TAGGED_AS')
+    rel_weight = RelationshipTo('plebs.neo_models.Pleb', 'HAS_WEIGHT',
+                                model=RelationshipWeight)
 
 
 class SBPost(SBBase):
@@ -43,9 +57,6 @@ class SBPost(SBBase):
     posted_on_wall = RelationshipTo('sb_wall.neo_models.SBWall', 'POSTED_ON')
     #TODO Implement referenced_by_... relationships
     #TODO Implement ..._referenced relationships
-
-
-
 
 
 '''

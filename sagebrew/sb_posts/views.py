@@ -47,7 +47,7 @@ def save_post_view(request):
                 status=200)
         else:
             return Response(post_form.errors, status=400)
-    except(HTTPError, ConnectionError):
+    except (HTTPError, ConnectionError):
         return Response({"detail": "Failed to create post"},
                         status=408)
 
@@ -81,6 +81,7 @@ def edit_post(request):
 
     :param request:
     :return:
+
         Return Possibilities:
             {'detail': 'edit task spawned'}, status=200
                 This will return most of the time, it means that the task has
@@ -89,6 +90,7 @@ def edit_post(request):
             {'detail': 'form contains errors', 'errors': form.errors}
                 This returns if .is_valid() fails, review django docs
                 on form.is_valid() and the variables passed to this function
+
     '''
     try:
         post_data = get_post_data(request)

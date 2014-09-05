@@ -48,19 +48,16 @@ def get_friend_requests(request):
     '''
     requests = []
     citizen = Pleb.index.get(email=request.DATA['email'])
-    print citizen.email
     friend_requests = citizen.traverse('friend_requests_recieved').where(
         'seen', '=', False).run()
-    for request in friend_requests:
-        request_id = request.friend_request_uuid
-        print request_id
-        request_sender = request.traverse('request_from').run()[0]
+    for friend_request in friend_requests:
+        request_id = friend_request.friend_request_uuid
+        request_sender = friend_request.traverse('request_from').run()[0]
         request_dict = {
         'from_name': request_sender.first_name + ' ' +
                      request_sender.last_name,
         'from_email': request_sender.email, 'request_id': request_id}
         requests.append(request_dict)
-    print requests
     return Response(requests, status=200)
 
 

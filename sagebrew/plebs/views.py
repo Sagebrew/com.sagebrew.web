@@ -2,7 +2,11 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
+from .utils import prepare_user_search_html
 from api.utils import post_to_api
 from plebs.neo_models import Pleb
 from sb_registration.utils import (get_friends, generate_profile_pic_url)
@@ -50,13 +54,14 @@ def profile_page(request, pleb_email):
     post_data = {'email': citizen.email, 'range_end': 5,
                  'range_start': 0}
     headers = {'content-type': 'application/json'}
-    user_posts = post_to_api(reverse('get_user_posts'), post_data, headers)
+    #TODO update this to do on page load through ajax
+
+    user_posts = [] #post_to_api(reverse('get_user_posts'), post_data, headers)
     notification_data = {'email': citizen.email, 'range_end': 5,
                          'range_start': 0}
-    notifications = post_to_api(reverse('get_notifications'),
-                                notification_data, headers=headers)
-    #citizen.profile_pic = generate_profile_pic_url(citizen.profile_pic_uuid)
-    citizen.profile_pic = None
+    notifications = [] #post_to_api(reverse('get_notifications'),
+                                #notification_data, headers=headers)
+    citizen.profile_pic = generate_profile_pic_url(citizen.profile_pic_uuid)
     citizen.save()
     return render(request, 'profile_page.html', {
         'pleb_info': citizen,
@@ -70,4 +75,22 @@ def profile_page(request, pleb_email):
         'is_friend': is_friend,
         'friends_list': friends_list,
     })
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def get_user_search_view(request, pleb_email=""):
+    '''
+    This view will take a plebs email, get the user and render to string
+    an html object which holds the data to be displayed when a user is returned
+    in a search.
+
+    :param request:
+    :param pleb:
+    :return:
+    '''
+    try:
+        response = prepare_user_search_html(pleb_email)
+        return Response({'html': response}, status=200)
+    except:
+        return Response({'html': []}, status=400)
 

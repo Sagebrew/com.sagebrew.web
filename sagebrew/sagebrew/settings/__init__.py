@@ -1,7 +1,8 @@
 import socket
 from unipath import Path as get_path
 
-if socket.gethostname() == 'sagebrew':
+hostname = socket.gethostname()
+if hostname == 'sagebrew':
     PROJECT_DIR = get_path(__file__).ancestor(4)
     repo_name = PROJECT_DIR[PROJECT_DIR.rfind('/') + 1:]
     if ('-production' in repo_name):
@@ -14,5 +15,7 @@ if socket.gethostname() == 'sagebrew':
         from uat import *
 
 else:
-
-    from development import *
+    if('box' in hostname):
+        from test import *
+    else:
+        from development import *

@@ -8,6 +8,17 @@ publicly might need to use something like:
 `@authentication_classes((SessionAuthentication, BasicAuthentication))`
 Rather than setting it globally in the settings for authentication.
 
+### TextBlob/NLTK ###
+'''
+pip install nltk
+'''
+'''
+python manage.py shell
+import nltk
+nltk.download()
+'''
+Then select download then hit enter until you see [ ]all come up and type in all
+Do not need to include it in the settings.INSTALLED_APPS
 
 ### RabbitMQ ###
 ```
@@ -24,17 +35,6 @@ insert `export NEO4J_REST_URL=http://username:password@graphenedburl.com:port/db
 then run `vagrant halt`
 then `fab start_dev`
 
-How to delete all nodes and relationships:
-`
-start n=node(*)
-match n-[r?]-()
-delete r,n;
-`
-How to return all nodes:
-`
-START n=node(*)
-return n;
-`
 ```
 sudo -s
 wget -O - http://debian.neo4j.org/neotechnology.gpg.key | apt-key add -
@@ -95,7 +95,7 @@ server {
         root /home/apps/sagebrew;
         try_files /sagebrew/static/$1 /sb_registration/static/$1 /plebs/static/$1
                  /sb_comments/static/$1 /sb_posts/static/$1 /sb_relationships/static/$1 /sb_notifications/static/$1 /sb_questions/static/$1
-                /sb_answers/static/$1 @missing;
+                /sb_answers/static/$1 /sb_search/static/$1 /sb_tag/static/$1 @missing;
     }
 
     location /media {
@@ -160,57 +160,25 @@ issue of having to run `python manage.py collectstatic` whenever an update is ma
 designers to still make modifications in an https environment meaning they get csrf and other django environment
 benefits while designing templates.
 
-###Logging###
 
-Using Loggly:
+## Docker Specifics ##
+Ubuntu's default firewall (UFW: Uncomplicated Firewall) denies all forwarding traffic by default, which is needed by docker.
 
-```
-sudo pico /etc/rsyslog.conf
-```
-Uncomment these lines in rsyslog.conf.
-# provides UDP syslog reception
-```
-$ModLoad imudp
-$UDPServerRun 514
-```
-At the end of rsyslog.conf append:
-```
-$MaxMessageSize 64k
-# forward to loggly: https://ACCOUNT.loggly.com
-$template LogglyFormat,"<%pri%>%protocol-version% %timestamp:::date-rfc3339% %HOSTNAME% %app-name% %procid% %msgid% [TOKEN@41058 tag=\"Example1\"] %msg%\n"
+Enable forwarding with UFW:
 
-*.* @@logs-01.loggly.com:514; LogglyFormat
-```
-Where ACCOUNT is the Loggly account and TOKEN is your Loggly token
-change Example1\ to djangoapp
+Edit UFW configuration using the nano text editor.
 
-Then run `sudo service rsyslog restart` to restart rsyslog.
+sudo nano /etc/default/ufw
+Scroll down and find the line beginning with DEFAULTFORWARDPOLICY.
 
-To setup Loggly with celery logging:
-```
-LOGGLY_INPUT_KEY = "your key here"
+Replace:
 
-import hoover
-import logging
+DEFAULT_FORWARD_POLICY="DROP"
+With:
 
-def initialize_loggly(loglevel=logging.WARN, **kwargs):
-    handler = hoover.LogglyHttpHandler(token=LOGGLY_INPUT_KEY)
-    log = logging.getLogger('celery')
-    log.addHandler(handler)
-    log.setLevel(loglevel)
-    return log
+DEFAULT_FORWARD_POLICY="ACCEPT"
+Press CTRL+X and approve with Y to save and close.
 
-from celery.signals import setup_logging
-setup_logging.connect(initialize_loggly)
-```
+Finally, reload the UFW:
 
-
-
-###design conventions###
-All Sagebrew class and id tags start with "sb_"
-followed by element name,
-and if needed, where it's being placed.
-ex:
-.sb_btn_select
-.sb_registration_title
-#
+sudo ufw reload

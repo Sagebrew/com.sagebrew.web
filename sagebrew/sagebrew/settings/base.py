@@ -4,9 +4,15 @@ from __future__ import absolute_import
 from os import environ, path, makedirs
 from unipath import Path
 from datetime import timedelta
+'''
+test:
+  post:
+    -
+'''
 
 
 PROJECT_DIR = Path(__file__).ancestor(3)
+REPO_DIR = Path(__file__).ancestor(4)
 MEDIA_ROOT = PROJECT_DIR.child("media")
 STATIC_ROOT = PROJECT_DIR.child("static")
 
@@ -73,6 +79,8 @@ STATICFILES_DIRS = (
     '%s/sb_relationships/static/' % PROJECT_DIR,
     '%s/sb_questions/static/' % PROJECT_DIR,
     '%s/sb_answers/static/' % PROJECT_DIR,
+    '%s/sb_search/static/' % PROJECT_DIR,
+    '%s/sb_tag/static/' % PROJECT_DIR,
 )
 
 # List of finder classes that know how to find static files in
@@ -133,6 +141,7 @@ TEMPLATE_DIRS = (
     '%s/plebs/templates/' % PROJECT_DIR,
     '%s/sb_questions/templates/' % PROJECT_DIR,
     '%s/sb_answers/templates/' % PROJECT_DIR,
+    '%s/sb_search/templates/' % PROJECT_DIR,
 )
 
 FIXTURE_DIRS = (
@@ -177,9 +186,13 @@ INSTALLED_APPS = (
     'sb_notifications',
     'sb_relationships',
     'sb_garbage',
+    'sb_tag',
     'sb_questions',
     'sb_answers',
-    'sb_tags'
+    'sb_trends',
+    'sb_search',
+    'elasticsearch',
+    'textblob',
 )
 
 ACCOUNT_AUTHENTICATION_METHOD = "email"
@@ -228,7 +241,8 @@ CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 CELERY_IMPORTS = ('api.tasks', 'govtrack.tasks', 'sb_comments.tasks',
                   'sb_garbage.tasks', 'sb_posts.tasks',
                   'sb_notifications.tasks',
-                  'sb_relationships.tasks', 'sb_questions.tasks'
+                  'sb_relationships.tasks', 'sb_questions.tasks',
+                  'sb_search.tasks'
 )
 BROKER_URL = 'amqp://sagebrew:this_is_the_sagebrew_password@localhost:5672//'
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
@@ -247,6 +261,8 @@ BOMBERMAN_API_KEY = '6a224aea0ecb3601ae9197c5762aef56'
 
 LOGGLY_TOKEN = "4befe913-b753-4823-a844-193a41779000"
 
+ALCHEMY_API_KEY = '9a65358c4596c05991a406c039281504a0d26bce'
+
 CSV_FILES = '%s/csv_content/' % PROJECT_DIR
 
 TEMP_FILES = '%s/temp_files/' % PROJECT_DIR
@@ -254,6 +270,32 @@ if not path.exists(TEMP_FILES):
     makedirs(TEMP_FILES)
 
 import djcelery
+
+USER_RELATIONSHIP_BASE = {
+    'seen': 150, 'blocked_user': 0, 'friend_of_friend': 100,
+    'friend_requested': 200, 'extended_family': 300,
+    'friends': 500, 'congressman': 750, 'admin': 750, 'senators': 850,
+    'sage': 850, 'tribune': 850, 'close_friends': 1000,
+    'significant_other': 1200, 'president': 1500
+}
+
+USER_RELATIONSHIP_MODIFIER = {
+    'page_seen': 25, 'friend_request_denied': -25, 'state': 10,
+    'county': 20, 'district': 50, 'city': 100, 'constituents': 50,
+    'search_seen': 10
+}
+
+OBJECT_RELATIONSHIP_BASE = {
+    'seen': 20
+}
+
+OBJECT_SEARCH_MODIFIERS = {
+    'post': 10, 'comment_on': 5, 'upvote': 3, 'downvote': -3,
+    'time': -1, 'proximity_to_you': 10, 'proximity_to_interest': 10,
+    'share': 7, 'flag_as_inappropriate': -5, 'flag_as_spam': -100,
+    'flag_as_other': -10, 'answered': 50, 'starred': 150, 'seen_search': 5,
+    'seen_page': 20
+}
 
 
 djcelery.setup_loader()

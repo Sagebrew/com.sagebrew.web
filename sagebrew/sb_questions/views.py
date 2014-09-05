@@ -7,18 +7,19 @@ from requests import ConnectionError
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.decorators import login_required
-from rest_framework.decorators import (api_view, permission_classes)
+from rest_framework.decorators import (api_view, permission_classes,
+                                       renderer_classes)
 
 from api.utils import (get_post_data, spawn_task, post_to_api)
 from plebs.neo_models import Pleb
-from .utils import (get_question_by_most_recent, get_question_by_tag,
-                    get_question_by_user, get_question_by_uuid,
-                    get_question_by_least_recent)
-from .tasks import create_question_task
-from .forms import SaveQuestionForm, EditQuestionForm
+from .utils import (get_question_by_most_recent, get_question_by_uuid,
+                    get_question_by_least_recent, prepare_question_search_html)
+from .tasks import create_question_task, vote_question_task, edit_question_task
+from .forms import SaveQuestionForm, EditQuestionForm, VoteQuestionForm
 
 logger = logging.getLogger('loggly_logs')
 
@@ -47,11 +48,13 @@ def question_page(request, sort_by="most_recent"):
     question which is shown on your newsfeed or another page
 
     :param request:
+
                 request.DATA/request.body = {
                     'question_uuid': str(uuid1()),
                     'current_pleb': 'example@email.com'
                     'sort_by': ''
                 }
+
     :return:
     '''
     current_user = request.user
@@ -60,13 +63,14 @@ def question_page(request, sort_by="most_recent"):
     headers = {'content-type': 'application/json'}
     questions = post_to_api(reverse('get_questions'), data=post_data,
                             headers=headers)
-    return render(request, 'question.html', {'questions': questions})
+    return render(request, 'question_sort_page.html', {'questions': questions})
 
 @login_required()
 def question_detail_page(request, question_uuid=str(uuid1())):
     '''
     This is the view that displays a single question with all answers, comments,
     references and tags.
+
     :param request:
     :return:
     '''
@@ -83,94 +87,80 @@ def question_detail_page(request, question_uuid=str(uuid1())):
 @permission_classes((IsAuthenticated,))
 def save_question_view(request):
     '''
-    Allows the user to create a question
+    This is the API view to create a question
 
     :param request:
+
             request.DATA or request.body = {
                 'content': '',
                 'current_pleb': 'example@email.com'
                 'question_title': ''
             }
+
     :return:
     '''
-    try:
-        question_data = get_post_data(request)
-        if type(question_data) != dict:
-            return Response({"details": "Please provide a valid JSON object"},
-                            status=400)
-        #question_data['content'] = language_filter(question_data['content'])
-        question_form = SaveQuestionForm(question_data)
-        if question_form.is_valid():
-            spawn_task(task_func=create_question_task,
-                       task_param=question_form.cleaned_data)
-            return Response({"detail": "filtered",
-                             "filtered_content": question_data}, status=200)
-        else:
-            return Response(question_form.errors, status=400)
-    except(HTTPError, ConnectionError):
-        return Response({"detail": "Failed to create question"})
+    question_data = get_post_data(request)
+    if type(question_data) != dict:
+        return Response({"details": "Please provide a valid JSON object"},
+                        status=400)
+    #question_data['content'] = language_filter(question_data['content'])
+    question_form = SaveQuestionForm(question_data)
+    if question_form.is_valid():
+        spawn_task(task_func=create_question_task,
+                   task_param=question_form.cleaned_data)
+        return Response({"detail": "filtered",
+                         "filtered_content": question_data}, status=200)
+    else:
+        return Response(question_form.errors, status=400)
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def edit_question_view(request):
     '''
-    Allows the owner/admin to edit the question
+   The API view to allow a user to edit their question
 
     :param request:
+
             request.DATA/request.body = {
                 'question_uuid': str(uuid1())
                 'content': '',
                 'current_pleb': 'example@email.com',
                 'last_edited_on': datetime
             }
+
     :return:
     '''
+    question_data = get_post_data(request)
+    if type(question_data) != dict:
+        return Response({"details": "Please provide a valid JSON object"},
+                        status=400)
     try:
-        question_data = get_post_data(request)
-        if type(question_data) != dict:
-            return Response({"details": "Please provide a valid JSON object"},
-                            status=400)
-        try:
-            question_data['last_edited_on'] = datetime.now(pytz.utc)
-        except TypeError:
-            question_data = question_data
-
-        question_form = EditQuestionForm(question_data)
-        if question_form.is_valid():
-            #spawn_task(task_func=edit_question_task,
-            #            question_form.cleaned_data)
-            return Response({"detail": "edit question task spawned"},
-                            status=200)
-        else:
-             return Response(question_form.errors, status=400)
-
-    except (HTTPError, ConnectionError):
-        return Response({'detail': 'failed to edit'}, status=400)
+        question_data['last_edited_on'] = datetime.now(pytz.utc)
+    except TypeError:
+        question_data = question_data
+    question_form = EditQuestionForm(question_data)
+    if question_form.is_valid():
+        spawn_task(task_func=edit_question_task,
+                   task_param=question_form.cleaned_data)
+        return Response({"detail": "edit question task spawned"},
+                        status=200)
+    else:
+        return Response(question_form.errors, status=400)
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def close_question_view(request):
     '''
-    Allows admins to close questions. If the question is irrelevant or redundant
-    or the question is no longer active
+    The API view to allow admins to close questions. If the question is
+    irrelevant or redundant or the question is no longer active
 
     :param request:
+
             request.DATA/request.body = {
                 'question_uuid': str(uuid1()),
                 'current_pleb': 'example@email.com'
             }
-    :return:
-    '''
-    pass
 
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def delete_question_view(request):
-    '''
-    Only to be used by admins once it has been voted that the question should
-    be deleted
-
-    :param request:
     :return:
     '''
     pass
@@ -179,16 +169,32 @@ def delete_question_view(request):
 @permission_classes((IsAuthenticated,))
 def vote_question_view(request):
     '''
-    Allows the user to upvote/downvote question
+    The API view to allow the user to upvote/downvote question
 
     :param request:
+
             request.DATA/request.body = {
                 'question_uuid': str(uuid1()),
                 'vote_type': 'up' or 'down',
                 'current_pleb': 'example@email.com'
+
     :return:
     '''
-    pass
+    try:
+        post_data = get_post_data(request)
+        if type(post_data) != dict:
+            return Response({"details": "Please Provide a JSON Object"},
+                            status=400)
+        question_form = VoteQuestionForm(post_data)
+        if question_form.is_valid():
+            spawn_task(task_func=vote_question_task,
+                       task_param=question_form.cleaned_data)
+            return Response({"detail": "Vote Created!"}, status=200)
+        else:
+            return Response({'detail': question_form.errors}, status=400)
+    except Exception, e:
+        return Response({"detail": "Vote could not be created!",
+                         'exception': e})
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
@@ -197,6 +203,7 @@ def get_question_view(request):
     Gets the question/questions.
 
     Accepted 'sort_by' parameters:
+
                                   'uuid',
                                   'most_recent',
                                   'least_recent',
@@ -222,6 +229,7 @@ def get_question_view(request):
         interests
 
     :param request:
+
             request.DATA/request.body = {
                 'question_uuid': str(uuid1()),
                 'user': 'example2@email.com',
@@ -230,15 +238,39 @@ def get_question_view(request):
                 'range_start': 0,
                 'range_end': 5
             }
+
     :return:
     '''
-    question_data = get_post_data(request)
-    if question_data['sort_by'] == 'most_recent':
-        response = get_question_by_most_recent()
-    elif question_data['sort_by'] == 'uuid':
-        response = get_question_by_uuid(question_data['question_uuid'])
-    elif question_data['sort_by'] == 'least_recent':
-        response = get_question_by_least_recent()
-    else:
-        response = {"detail": "fail"}
-    return Response(response)
+    try:
+        question_data = get_post_data(request)
+        if question_data['sort_by'] == 'most_recent':
+            response = get_question_by_most_recent(current_pleb=question_data['current_pleb'])
+        elif question_data['sort_by'] == 'uuid':
+            response = get_question_by_uuid(question_data['question_uuid'],
+                                            question_data['current_pleb'])
+        elif question_data['sort_by'] == 'least_recent':
+            response = get_question_by_least_recent(current_pleb=question_data['current_pleb'])
+        else:
+            response = {"detail": "fail"}
+            return Response(response, status=400)
+        return Response(response, status=200)
+    except Exception, e:
+        return Response({'detail': 'fail'}, status=400)
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def get_question_search_view(request, question_uuid=str(uuid1())):
+    '''
+    This view will get a question based upon the uuid, the request was from a
+    search it will return the html of the question for the search result
+    page, if it was called to display a single question detail it will return
+    the html the question_detail_page expects
+
+    :param request:
+    :return:
+    '''
+    try:
+        response = prepare_question_search_html(question_uuid)
+        return Response({'html': response}, status=200)
+    except:
+        return []

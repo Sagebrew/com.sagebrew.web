@@ -8,6 +8,7 @@ from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
 from plebs.views import profile_page
 
+#TODO checkout the 302 vs 200 response codes from circleci
 
 class ProfilePageTest(TestCase):
     fixtures = ["sagebrew/fixtures/initial_data.json"]
@@ -86,7 +87,7 @@ class ProfilePageTest(TestCase):
         my_comment.delete()
 
     def test_post_with_comments_from_friend(self):
-        test_user = Pleb(email='bleib1dj@gmail.com')
+        test_user = Pleb(email=str(uuid1())+'@gmail.com')
         test_user.save()
         test_post = SBPost(content='test', post_id=str(uuid1()))
         test_post.save()
@@ -237,6 +238,6 @@ class ProfilePageTest(TestCase):
             comment.delete()
         test_post.delete()
 
-# TODO test friend user, registered non-friend user getting the correct page
+#TODO test friend user, registered non-friend user getting the correct page
 
 

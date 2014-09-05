@@ -5,11 +5,10 @@ from datetime import datetime
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from sb_posts.utils import save_post, edit_post_info, delete_post_info
+from sb_posts.neo_models import SBPost
 from sb_posts.tasks import (delete_post_and_comments, save_post_task,
                             edit_post_info_task,
                             create_downvote_post, create_upvote_post)
-from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
 
 
@@ -88,14 +87,15 @@ class TestEditPostTask(TestCase):
                                'post_uuid': str(uuid1())}
 
     def test_edit_post_task(self):
+        post = SBPost(post_id=uuid1(), content="test post")
+        post.last_edited_on = datetime.now(pytz.utc)
+        post.save()
         edit_post_dict = {'content': 'Post edited',
-                          'post_uuid': self.post_info_dict['post_uuid'],
+                          'post_uuid': post.post_id,
                           'current_pleb': self.pleb.email}
-        save_response = save_post_task.apply_async(kwargs=self.post_info_dict)
         edit_response = edit_post_info_task.apply_async(kwargs=edit_post_dict)
-
-        self.assertTrue(save_response.get())
-        self.assertTrue(edit_response.get())
+        edit_response = edit_response.get()
+        self.assertTrue(edit_response)
 
 
 

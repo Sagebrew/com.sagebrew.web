@@ -3,10 +3,7 @@ $("#friend_request_div").on("mouseenter", "a", function () {
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                var csrftoken = $.cookie('csrftoken');
-                if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                }
+                ajax_security(xhr, settings)
             }
         });
         $.ajax({

@@ -54,7 +54,7 @@ def save_post_view(request):
 @permission_classes((IsAuthenticated,))
 def get_user_posts(request):
     '''
-    If the user wants to create a post this calls the util to create the post
+    This view gets all of the posts attached to a user's wall.
 
     :param request:
     :return:

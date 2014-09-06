@@ -1,3 +1,4 @@
+import logging
 from uuid import uuid1
 from celery import shared_task
 
@@ -7,6 +8,8 @@ from .neo_models import SBAnswer
 from plebs.neo_models import Pleb
 from .utils import (save_answer_util, edit_answer_util, upvote_answer_util,
                     downvote_answer_util)
+
+logger = logging.getLogger('loggly_logs')
 
 @shared_task()
 def save_answer_task(content="", current_pleb="", question_uuid="", to_pleb=""):
@@ -64,10 +67,10 @@ def edit_answer_task(content="", answer_uuid="", last_edited_on=None,
         elif edit_response['detail'] == 'last edit more recent':
             return False
 
-    except SBAnswer.DoesNotExist, Pleb.DoesNotExist:
+    except (SBAnswer.DoesNotExist, Pleb.DoesNotExist):
         return False
-    except Exception, e:
-        print e
+    except Exception:
+        logger.exception("UnhandledException: ")
         return False
 
 
@@ -97,8 +100,8 @@ def vote_answer_task(answer_uuid="", current_pleb="", vote_type=""):
             elif vote_type == 'down':
                 downvote_answer_util(answer_uuid, current_pleb)
                 return True
-    except SBAnswer.DoesNotExist, Pleb.DoesNotExist:
+    except (SBAnswer.DoesNotExist, Pleb.DoesNotExist):
         return False
-    except Exception, e:
-        print e
+    except Exception:
+        logger.exception("UnhandledException: ")
         return False

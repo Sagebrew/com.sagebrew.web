@@ -18,12 +18,13 @@ def create_friend_request_util(data):
     for request in requests:
         if request.traverse('request_to').where('email', '=',
                                                 to_citizen.email).run():
-            print 'found matching request'
             return True
 
     data.pop('from_pleb', None)
     data.pop('to_pleb', None)
-    friend_request = FriendRequest(**data)
+
+    friend_request = FriendRequest(friend_request_uuid=data[
+        'friend_request_uuid'])
     friend_request.save()
     friend_request.request_from.connect(from_citizen)
     friend_request.request_to.connect(to_citizen)
@@ -32,4 +33,3 @@ def create_friend_request_util(data):
     from_citizen.save()
     to_citizen.friend_requests_recieved.connect(friend_request)
     to_citizen.save()
-    print 'request successfully sent'

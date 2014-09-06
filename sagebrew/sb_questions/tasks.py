@@ -75,7 +75,7 @@ def edit_question_task(question_uuid="", content="", current_pleb="", last_edite
         elif edit_question_return['detail'] == 'last edit more recent':
             return False
 
-    except SBQuestion.DoesNotExist, Pleb.DoesNotExist:
+    except (SBQuestion.DoesNotExist, Pleb.DoesNotExist):
         return False
     except Exception:
         logger.exception("MultipleObjectsReturned: ")

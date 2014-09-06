@@ -119,10 +119,13 @@ def vote_comment(request):
     '''
     try:
         comment_info = get_post_data(request)
+
         if (type(comment_info) != dict):
             return Response({"details": "Please Provide a JSON Object"},
                             status=400)
+
         comment_form = VoteCommentForm(comment_info)
+
         if comment_form.is_valid():
             spawn_task(task_func=create_vote_comment,
                        task_param=comment_form.cleaned_data)

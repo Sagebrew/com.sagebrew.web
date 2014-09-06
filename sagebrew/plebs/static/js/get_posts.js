@@ -19,7 +19,7 @@ $( document ).ready(function() {
             success: function (data) {
                 var wall_container = $('.sb_profile_container_wall');
                 wall_container.append(data['html']);
-                save_comment()
+                enable_post_functionality()
         }
     });
 });

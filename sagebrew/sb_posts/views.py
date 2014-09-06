@@ -68,8 +68,9 @@ def get_user_posts(request):
                            post_form.cleaned_data['range_start'])
         for post in posts:
             post['current_user'] = post_form.cleaned_data['current_user']
+            for comment in post['comments']:
+                comment['current_user'] = post_form.cleaned_data['current_user']
             html_array.append(render_to_string('sb_post.html', post))
-        print html_array
         return Response({'html': html_array}, status=200)
     else:
         return Response(status=400)

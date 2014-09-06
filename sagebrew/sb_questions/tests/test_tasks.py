@@ -172,8 +172,7 @@ class TestMultipleTasks(TestCase):
             save_response = create_question_task.apply_async(kwargs=self.question_info_dict)
             response_array.append(save_response.get())
 
-        for item in response_array:
-            self.assertTrue(item)
+        self.assertNotIn(False, response_array)
 
 
 

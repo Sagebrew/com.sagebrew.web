@@ -13,7 +13,6 @@ function ajax_security(xhr, settings) {
 function save_comment() {
     $("a.comment-action").click(function (event) {
         var post_id = $(this).data('post_uuid');
-        console.log(post_id);
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -45,6 +44,7 @@ function show_edit_post() {
         $('#divid_' + post_id).fadeToggle();
     });
 }
+
 function edit_post() {
     $("a.edit_post-action").click(function (event) {
         event.preventDefault();
@@ -146,6 +146,7 @@ function show_edit_comment() {
         $("#comment_divid_" + comment_id).fadeToggle();
     });
 }
+
 function edit_comment() {
     $("a.edit_comment-action").click(function (event) {
         event.preventDefault();

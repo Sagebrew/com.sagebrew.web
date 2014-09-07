@@ -4,7 +4,7 @@ from celery import shared_task
 from sb_notifications.tasks import create_notification_comment_task
 from api.utils import spawn_task
 from .utils import (create_upvote_comment_util, create_downvote_comment_util,
-                    save_comment_post, edit_comment_util)
+                    save_comment_post, edit_comment_util, flag_comment_util)
 from sb_comments.neo_models import SBComment
 from plebs.neo_models import Pleb
 
@@ -110,3 +110,18 @@ def submit_comment_on_question(comment_info):
 @shared_task()
 def submit_comment_on_answer(comment_info):
     pass
+
+@shared_task()
+def flag_comment_task(comment_uuid, current_user, flag_reason):
+    '''
+    Calls the util to handle flagging the comment
+    :param comment_uuid:
+    :param current_user:
+    :param flag_reason:
+    :return:
+    '''
+    if flag_comment_util(comment_uuid=comment_uuid, current_user=current_user,
+                         flag_reason=flag_reason):
+        return True
+    else:
+        return False

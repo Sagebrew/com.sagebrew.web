@@ -189,3 +189,40 @@ def create_post_vote(pleb="", post_uuid=str(uuid1()), vote_type=""):
         else:
             return False
 
+def flag_post(post_uuid, current_user, flag_reason):
+    '''
+    This util increases the flag count on a post and connects it to the
+    user who flagged it.
+
+    :param post_uuid:
+    :param current_user:
+    :param flag_reason:
+    :return:
+    '''
+    try:
+        post = SBPost.index.get(post_id=post_uuid)
+        pleb = Pleb.index.get(email=current_user)
+
+        if post.flagged_by.is_connected(pleb):
+            return False
+
+        if flag_reason == 'spam':
+            post.flagged_by.connect(pleb)
+            post.flagged_as_spam_count += 1
+            post.save()
+        elif flag_reason == 'explicit':
+            post.flagged_by.connect(pleb)
+            post.flagged_as_explicit_count += 1
+            post.save()
+        else:
+            post.flagged_by.connect(pleb)
+            post.flagged_as_other_count += 1
+            post.save()
+        return True
+    except SBPost.DoesNotExist:
+        return False
+    except Pleb.DoesNotExist:
+        return False
+    except Exception:
+        logger.exception("UnhandledException: ")
+        return False

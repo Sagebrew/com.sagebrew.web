@@ -38,18 +38,33 @@
                             </li>
                             {% endif %}
                             <li role="presentation" class="sb_divider divider"></li>
-                            <li role="presentation"><a class='sb_post_dropdown_menu btn vote-action'
-                                                       data-vote_type='up'
-                                                       data-pleb="{{ current_user }}"
-                                                       data-post_uuid="{{ post_id }}">Flag
-                                                        Post</a>
+                            <li role="presentation"><a class='sb_post_dropdown_menu btn flag_post-action'
+                                                       data-flag_reason='spam'
+                                                       data-current_user="{{ current_user }}"
+                                                       data-post_uuid="{{ post_id }}">flag as spam
+                                                       </a>
                             </li>
+                            <li role="presentation" class="sb_divider divider"></li>
+                            <li role="presentation"><a class='sb_post_dropdown_menu btn flag_post-action'
+                                                       data-flag_reason='explicit'
+                                                       data-current_user="{{ current_user }}"
+                                                       data-post_uuid="{{ post_id }}">flag as explicit
+                                                       </a>
+                            </li>
+                            <li role="presentation" class="sb_divider divider"></li>
+                            <li role="presentation"><a class='sb_post_dropdown_menu btn flag_post-action'
+                                                       data-flag_reason='other'
+                                                       data-current_user="{{ current_user }}"
+                                                       data-post_uuid="{{ post_id }}">flag as other
+                                                       </a>
+                            </li>
+                            {% if post_owner_email == current_user %}
                             <li role="presentation" class="sb_divider divider"></li>
                             <li role="presentation"> <a class='sb_post_dropdown_menu btn delete_post-action'
                                                        data-pleb="{{ current_user }}"
                                                        data-post_uuid="{{ post_id }}">Delete Post</a>
                             </li>
-
+                            {% endif %}
                         </ul>
                     </div>
                 </div>

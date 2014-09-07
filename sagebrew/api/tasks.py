@@ -8,9 +8,6 @@ from elasticsearch import Elasticsearch
 from sb_questions.neo_models import SBQuestion
 
 
-
-
-
 @shared_task()
 def add_object_to_search_index(index="full-search-base", object_type="", object_data=""):
     from sb_search.tasks import update_user_indices

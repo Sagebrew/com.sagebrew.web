@@ -37,10 +37,25 @@
                             </li>
                             {% endif %}
                              <li role="presentation" class="sb_divider divider"></li>
-                            <li role="presentation"><a class='btn vote_comment-action'
-                                                       data-vote_type='up'
-                                                       data-pleb="{{ comment.current_user }}"
-                                                       data-comment_uuid="{{ comment.comment_id }}">Flag</a>
+                            <li role="presentation"><a class='btn flag_comment-action'
+                                                       data-flag_reason='spam'
+                                                       data-current_user="{{ comment.current_user }}"
+                                                       data-comment_uuid="{{ comment.comment_id }}">
+                                                       flag as spam</a>
+                            </li>
+                            <li role="presentation" class="sb_divider divider"></li>
+                            <li role="presentation"><a class='btn flag_comment-action'
+                                                       data-flag_reason='explicit'
+                                                       data-current_user="{{ comment.current_user }}"
+                                                       data-comment_uuid="{{ comment.comment_id }}">
+                                                       flag as explicit</a>
+                            </li>
+                            <li role="presentation" class="sb_divider divider"></li>
+                            <li role="presentation"><a class='btn flag_comment-action'
+                                                       data-flag_reason='other'
+                                                       data-current_user="{{ comment.current_user }}"
+                                                       data-comment_uuid="{{ comment.comment_id }}">
+                                                       flag as other</a>
                             </li>
                             {% if comment.comment_owner_email == comment.current_user %}
                              <li role="presentation" class="sb_divider divider"></li>

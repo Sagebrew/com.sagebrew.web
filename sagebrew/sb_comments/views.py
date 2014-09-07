@@ -1,4 +1,5 @@
 import pytz
+import logging
 from urllib2 import HTTPError
 from datetime import datetime
 from requests import ConnectionError
@@ -9,11 +10,12 @@ from rest_framework.response import Response
 from sb_posts.neo_models import SBPost
 from api.utils import get_post_data, comment_to_garbage, spawn_task
 from .tasks import (create_vote_comment, submit_comment_on_post,
-                    edit_comment_task)
+                    edit_comment_task, flag_comment_task)
 from .utils import (get_post_comments)
 from .forms import (SaveCommentForm, EditCommentForm, DeleteCommentForm,
-                    VoteCommentForm)
+                    VoteCommentForm, FlagCommentForm)
 
+logger = logging.getLogger('loggly_logs')
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
@@ -132,25 +134,36 @@ def vote_comment(request):
             return Response({"detail": "Vote created"}, status=200)
         else:
             return Response({'detail': comment_form.errors}, status=400)
-    except Exception, e:
-        return Response(
-            {"detail": "Vote could not be created", 'exception': e},
-            status=408)
+    except Exception:
+        logger.exception('UnhandledException: ')
+        return Response(status=400)
 
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def flag_comment(request):  # task
     '''
-    Allow plebs to flag comments
+    Spawns the task to handle creation of the flag on a comment
 
     :param request:
     :return:
     '''
-    post_info = get_post_data(request)
-    if (post_info["giraffe_contents"] == 3):
-        return Response({"comment": "hello"}, status=200)
-        # do stuff with post_info
+    comment_info = get_post_data(request)
+
+    if type(comment_info) != dict:
+        return Response({'detail': 'Please Provide a Valid JSON Object'},
+                        status=400)
+
+    try:
+        comment_form = FlagCommentForm(comment_info)
+        if comment_form.is_valid():
+            spawn_task(task_func=flag_comment_task, task_param=
+                       comment_form.cleaned_data)
+            return Response(status=200)
+        else:
+            return Response(status=400)
+    except Exception:
+        logger.exception("UnhandledException: ")
 
 
 @api_view(['POST'])

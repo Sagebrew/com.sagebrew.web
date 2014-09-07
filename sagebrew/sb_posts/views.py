@@ -13,10 +13,10 @@ from api.utils import (get_post_data, post_to_garbage,
                        spawn_task)
 from plebs.neo_models import Pleb
 from .neo_models import SBPost
-from .tasks import save_post_task, edit_post_info_task
+from .tasks import save_post_task, edit_post_info_task, flag_post_task
 from .utils import (get_pleb_posts, create_post_vote)
 from .forms import (SavePostForm, EditPostForm, DeletePostForm, VotePostForm,
-                    GetPostForm)
+                    GetPostForm, FlagPostForm)
 
 logger = logging.getLogger('loggly_logs')
 
@@ -120,8 +120,6 @@ def edit_post(request):
         return Response({"detail": "Failed Editing"}, status=408)
 
 
-#TODO Only allow users to delete their comment, get flagging system working
-#TODO look into POST to DELETE
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def delete_post(request):
@@ -170,6 +168,34 @@ def vote_post(request):
             return Response({"detail": "Vote Created!"}, status=200)
         else:
             return Response({'detail': post_form.errors}, status=400)
+    except Exception:
+        logger.exception("UnhandledException: ")
+        return Response({"detail": "Vote could not be created!"})
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def flag_post(request):
+    '''
+    Spawns the task which creates a flag on the post and increases its flag
+    count for the type of flag specified
+
+    :param request:
+    :return:
+    '''
+    try:
+        flag_data = get_post_data(request)
+        if type(flag_data) != dict:
+            return Response({'detail': 'Please Provide a valid JSON Object'},
+                            status=400)
+        post_form = FlagPostForm(flag_data)
+        if post_form.is_valid():
+            spawn_task(task_func=flag_post_task, task_param=post_form.cleaned_data)
+            return Response(status=200)
+        else:
+            return Response({'detail': post_form.erros},
+                            status=400)
+
     except Exception, e:
-        return Response({"detail": "Vote could not be created!",
-                         'exception': e})
+        print e
+        return Response(status=400)

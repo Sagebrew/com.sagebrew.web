@@ -193,7 +193,53 @@ function vote_comment() {
     });
 }
 
+function flag_post() {
+    $("a.flag_post-action").click(function (event) {
+        event.preventDefault();
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "POST",
+            url: "/posts/flag_post/",
+            data: JSON.stringify({
+                'flag_reason': $(this).data('flag_reason'),
+                'current_user': $(this).data('current_user'),
+                'post_uuid': $(this).data('post_uuid')
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json"
+        });
+    });
+}
+
+function flag_comment() {
+    $("a.flag_comment-action").click(function (event) {
+        event.preventDefault();
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "POST",
+            url: "/comments/flag_comment/",
+            data: JSON.stringify({
+                'flag_reason': $(this).data('flag_reason'),
+                'current_user': $(this).data('current_user'),
+                'comment_uuid': $(this).data('comment_uuid')
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json"
+        });
+    });
+}
 function enable_post_functionality() {
+    flag_post();
     vote_comment();
     vote_post();
     edit_comment();
@@ -202,4 +248,5 @@ function enable_post_functionality() {
     show_edit_post();
     edit_post();
     show_edit_comment();
+    flag_comment();
 }

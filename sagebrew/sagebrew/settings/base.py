@@ -4,11 +4,6 @@ from __future__ import absolute_import
 from os import environ, path, makedirs
 from unipath import Path
 from datetime import timedelta
-'''
-test:
-  post:
-    -
-'''
 
 
 PROJECT_DIR = Path(__file__).ancestor(3)

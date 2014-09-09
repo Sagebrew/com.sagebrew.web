@@ -214,10 +214,12 @@ def flag_post(post_uuid, current_user, flag_reason):
             post.flagged_by.connect(pleb)
             post.flagged_as_explicit_count += 1
             post.save()
-        else:
+        elif flag_reason == 'other':
             post.flagged_by.connect(pleb)
             post.flagged_as_other_count += 1
             post.save()
+        else:
+            return False
         return True
     except SBPost.DoesNotExist:
         return False

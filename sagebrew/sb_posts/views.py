@@ -193,9 +193,9 @@ def flag_post(request):
             spawn_task(task_func=flag_post_task, task_param=post_form.cleaned_data)
             return Response(status=200)
         else:
-            return Response({'detail': post_form.erros},
+            return Response({'detail': post_form.errors},
                             status=400)
 
-    except Exception, e:
-        print e
+    except Exception:
+        logger.exception("UnhandledException: ")
         return Response(status=400)

@@ -10,6 +10,13 @@ from sb_questions.neo_models import SBQuestion
 
 @shared_task()
 def add_object_to_search_index(index="full-search-base", object_type="", object_data=""):
+    '''
+    This adds the an object to the index specified.
+    :param index:
+    :param object_type:
+    :param object_data:
+    :return:
+    '''
     from sb_search.tasks import update_user_indices
 
     es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
@@ -26,5 +33,3 @@ def add_object_to_search_index(index="full-search-base", object_type="", object_
 
     spawn_task(task_func=update_user_indices, task_param=task_data)
     return True
-
-

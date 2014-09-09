@@ -6,7 +6,8 @@ from django.test import TestCase
 from django.conf import settings
 
 from plebs.neo_models import Pleb
-from sb_posts.views import save_post_view, edit_post, delete_post, vote_post
+from sb_posts.views import (save_post_view, edit_post, delete_post, vote_post,
+                            flag_post)
 
 
 class SavePostViewTests(TestCase):
@@ -308,7 +309,7 @@ class VotePostViewTests(TestCase):
 
     def test_vote_post_view_string_data(self):
         my_dict = 'sdfasdfasdf'
-        request = self.factory.post('/posts/submit_post/', data=my_dict,
+        request = self.factory.post('/posts/vote_post/', data=my_dict,
                                     format='json')
         request.user = self.user
         response = vote_post(request)
@@ -317,7 +318,7 @@ class VotePostViewTests(TestCase):
 
     def test_vote_post_view_list_data(self):
         my_dict = []
-        request = self.factory.post('/posts/submit_post/', data=my_dict,
+        request = self.factory.post('/posts/vote_post/', data=my_dict,
                                     format='json')
         request.user = self.user
         response = vote_post(request)
@@ -326,7 +327,7 @@ class VotePostViewTests(TestCase):
 
     def test_vote_post_view_float_data(self):
         my_dict = 1.010101010
-        request = self.factory.post('/posts/submit_post/', data=my_dict,
+        request = self.factory.post('/posts/vote_post/', data=my_dict,
                                     format='json')
         request.user = self.user
         response = vote_post(request)
@@ -338,9 +339,115 @@ class VotePostViewTests(TestCase):
                   "tests/images/test_image.jpg", "rb") as image_file:
             image = b64encode(image_file.read())
 
-        request = self.factory.post('/posts/submit_post/', data=image,
+        request = self.factory.post('/posts/vote_post/', data=image,
                                     format='json')
         request.user = self.user
         response = vote_post(request)
+
+        self.assertEqual(response.status_code, 400)
+
+class TestFlagPostView(TestCase):
+    def setUp(self):
+        try:
+            pleb = Pleb.index.get(email=str(uuid1()) + '@gmail.com')
+            wall = pleb.traverse('wall').run()[0]
+            wall.delete()
+            pleb.delete()
+            self.factory = APIRequestFactory()
+            self.user = User.objects.create_user(
+                username='Tyler', email='tyler.wiersing@gmail.com')
+        except Pleb.DoesNotExist:
+            self.factory = APIRequestFactory()
+            self.user = User.objects.create_user(
+                username='Tyler', email='tyler.wiersing@gmail.com')
+
+    def test_flag_post_view_correct_data_spam(self):
+        my_dict = {'current_user': self.user.email,
+                   'flag_reason': 'spam',
+                   'post_uuid': str(uuid1())}
+        request = self.factory.post('/posts/flag_post/', data=my_dict,
+                                    format='json')
+        request.user = self.user
+        response = flag_post(request)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_flag_post_view_correct_data_explicit(self):
+        my_dict = {'current_user': self.user.email,
+                   'flag_reason': 'explicit',
+                   'post_uuid': str(uuid1())}
+        request = self.factory.post('/posts/flag_post/', data=my_dict,
+                                    format='json')
+        request.user = self.user
+        response = flag_post(request)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_flag_post_view_correct_data_other(self):
+        my_dict = {'current_user': self.user.email,
+                   'flag_reason': 'other',
+                   'post_uuid': str(uuid1())}
+        request = self.factory.post('/posts/flag_post/', data=my_dict,
+                                    format='json')
+        request.user = self.user
+        response = flag_post(request)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_flag_post_view_missing_data(self):
+        my_dict = {'current_pleb': self.user.email,
+                   'wall_pleb': self.user.email}
+        request = self.factory.post('/posts/flag_post/', data=my_dict,
+                                    format='json')
+        request.user = self.user
+        response = flag_post(request)
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_flag_post_view_int_data(self):
+        my_dict = 98897965
+        request = self.factory.post('/posts/flag_post/', data=my_dict,
+                                    format='json')
+        request.user = self.user
+        response = flag_post(request)
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_flag_post_view_string_data(self):
+        my_dict = 'sdfasdfasdf'
+        request = self.factory.post('/posts/flag_post/', data=my_dict,
+                                    format='json')
+        request.user = self.user
+        response = flag_post(request)
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_flag_post_view_list_data(self):
+        my_dict = []
+        request = self.factory.post('/posts/flag_post/', data=my_dict,
+                                    format='json')
+        request.user = self.user
+        response = flag_post(request)
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_flag_post_view_float_data(self):
+        my_dict = 1.010101010
+        request = self.factory.post('/posts/flag_post/', data=my_dict,
+                                    format='json')
+        request.user = self.user
+        response = flag_post(request)
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_flag_post_view_image_data(self):
+        with open(settings.PROJECT_DIR + "/sb_posts/" +
+                  "tests/images/test_image.jpg", "rb") as image_file:
+            image = b64encode(image_file.read())
+
+        request = self.factory.post('/posts/flag_post/', data=image,
+                                    format='json')
+        request.user = self.user
+        response = flag_post(request)
 
         self.assertEqual(response.status_code, 400)

@@ -210,10 +210,12 @@ def flag_comment_util(comment_uuid, current_user, flag_reason):
             comment.flagged_by.connect(pleb)
             comment.flagged_as_explicit_count += 1
             comment.save()
-        else:
+        elif flag_reason == 'other':
             comment.flagged_by.connect(pleb)
             comment.flagged_as_other_count += 1
             comment.save()
+        else:
+            return False
         return True
     except SBComment.DoesNotExist:
         return False

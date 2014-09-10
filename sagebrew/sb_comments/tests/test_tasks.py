@@ -5,9 +5,10 @@ from datetime import datetime
 from django.test import TestCase
 from django.contrib.auth.models import User
 
+from sb_comments.neo_models import SBComment
 from sb_comments.utils import save_comment_post
 from sb_comments.tasks import (edit_comment_task, create_vote_comment,
-                               submit_comment_on_post)
+                               submit_comment_on_post, flag_comment_task)
 from sb_posts.utils import save_post
 from plebs.neo_models import Pleb
 
@@ -253,3 +254,88 @@ class TestVoteComment(TestCase):
         self.assertEqual(my_comment.up_vote_number, 2)
         self.assertTrue(response)
         self.assertTrue(response2)
+
+class TestFlagCommentTask(TestCase):
+    def setUp(self):
+        self.email = str(uuid1()) + '@sagebrew.com'
+        try:
+            pleb = Pleb.index.get(email=self.email)
+            wall = pleb.traverse('wall').run()[0]
+            wall.delete()
+            pleb.delete()
+        except Pleb.DoesNotExist:
+            pass
+
+        self.user = User.objects.create_user(
+            username='Tyler' + str(uuid1())[:25], email=self.email)
+        self.pleb = Pleb.index.get(email=self.email)
+
+    def test_flag_comment_success_spam(self):
+        comment = SBComment(comment_id=uuid1())
+        comment.save()
+        task_data = {
+            'comment_uuid': comment.comment_id,
+            'current_user': self.pleb.email,
+            'flag_reason': 'spam'
+        }
+        res = flag_comment_task.apply_async(kwargs=task_data)
+
+        self.assertTrue(res.get())
+
+    def test_flag_comment_success_explicit(self):
+        comment = SBComment(comment_id=uuid1())
+        comment.save()
+        task_data = {
+            'comment_uuid': comment.comment_id,
+            'current_user': self.pleb.email,
+            'flag_reason': 'explicit'
+        }
+        res = flag_comment_task.apply_async(kwargs=task_data)
+
+        self.assertTrue(res.get())
+
+    def test_flag_comment_success_other(self):
+        comment = SBComment(comment_id=uuid1())
+        comment.save()
+        task_data = {
+            'comment_uuid': comment.comment_id,
+            'current_user': self.pleb.email,
+            'flag_reason': 'other'
+        }
+        res = flag_comment_task.apply_async(kwargs=task_data)
+
+        self.assertTrue(res.get())
+
+    def test_flag_comment_failure_incorrect_reason(self):
+        comment = SBComment(comment_id=uuid1())
+        comment.save()
+        task_data = {
+            'comment_uuid': comment.comment_id,
+            'current_user': self.pleb.email,
+            'flag_reason': 'dumb'
+        }
+        res = flag_comment_task.apply_async(kwargs=task_data)
+
+        self.assertFalse(res.get())
+
+    def test_flag_comment_failure_comment_does_not_exist(self):
+        task_data = {
+            'comment_uuid': uuid1(),
+            'current_user': self.pleb.email,
+            'flag_reason': 'other'
+        }
+        res = flag_comment_task.apply_async(kwargs=task_data)
+
+        self.assertFalse(res.get())
+
+    def test_flag_comment_failure_user_does_not_exist(self):
+        comment = SBComment(comment_id=uuid1())
+        comment.save()
+        task_data = {
+            'comment_uuid': comment.comment_id,
+            'current_user': uuid1(),
+            'flag_reason': 'other'
+        }
+        res = flag_comment_task.apply_async(kwargs=task_data)
+
+        self.assertFalse(res.get())

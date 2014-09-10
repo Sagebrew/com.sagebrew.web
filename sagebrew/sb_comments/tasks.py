@@ -115,6 +115,7 @@ def submit_comment_on_answer(comment_info):
 def flag_comment_task(comment_uuid, current_user, flag_reason):
     '''
     Calls the util to handle flagging the comment
+
     :param comment_uuid:
     :param current_user:
     :param flag_reason:

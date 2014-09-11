@@ -174,8 +174,6 @@ class TestMultipleTasks(TestCase):
 
         self.assertNotIn(False, response_array)
 
-
-
     def test_create_same_post_twice(self):
         question = SBQuestion(content="test question", question_title="title",
                               question_id=str(uuid1()))

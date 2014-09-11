@@ -68,6 +68,28 @@ function edit_post() {
     });
 }
 
+function delete_post() {
+    $("a.delete_post-action").click(function (event) {
+        event.preventDefault();
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "POST",
+            url: "/posts/delete_post/",
+            data: JSON.stringify({
+                'pleb': $(this).data('pleb'),
+                'post_uuid': $(this).data('post_uuid')
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json"
+        });
+    });
+}
+
 function save_post() {
     $("a.post-action").click(function(event){
         console.log("hello");
@@ -249,4 +271,5 @@ function enable_post_functionality() {
     edit_post();
     show_edit_comment();
     flag_comment();
+    delete_post();
 }

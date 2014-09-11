@@ -26,7 +26,6 @@ class TestSearchResultAPI(TestCase):
             self.user = User.objects.create_user(
                 username='Tyler', email=str(uuid1()) + '@gmail.com')
 
-'''
     def test_search_result_api_success(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         res_array = []
@@ -40,6 +39,5 @@ class TestSearchResultAPI(TestCase):
         request.user = self.user
 
         response = search_result_api(request)
-        response = response.render()
+
         self.assertEqual(response.status_code, 200)
-'''

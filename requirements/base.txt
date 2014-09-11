@@ -4,6 +4,7 @@ psycopg2
 boto
 Markdown
 South
+supervisor
 WebOb
 django-admin-bootstrapped
 django-model-utils
@@ -23,9 +24,6 @@ django-secure
 django-admin-honeypot
 celery
 django-celery
-iron_celery
-iron-mq
-iron_cache
 python-memcached
 beautifulsoup4
 redis

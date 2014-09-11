@@ -1,5 +1,5 @@
-$("#friend_request_div").on("mouseenter", "a", function () {
-    $("a.respond_friend_request-action").click(function (event) {
+$(document).ready(function () {
+    $("a.flag_comment-action").click(function (event) {
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -9,10 +9,11 @@ $("#friend_request_div").on("mouseenter", "a", function () {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
-            url: "/relationships/respond_friend_request/",
+            url: "/comments/flag_comment/",
             data: JSON.stringify({
-                'response': $(this).data('response'),
-                'request_id': $(this).data('request_id')
+                'flag_reason': $('textarea#' + $(this).data('comment_uuid')).val(),
+                'current_user': $(this).data('pleb'),
+                'comment_uuid': $(this).data('comment_uuid')
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json"

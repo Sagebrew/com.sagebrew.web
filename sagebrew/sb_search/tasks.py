@@ -4,7 +4,6 @@ import logging
 from json import dumps
 from uuid import uuid1
 from datetime import datetime
-from traceback import print_exc
 from django.conf import settings
 
 from celery import shared_task
@@ -121,7 +120,6 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
                                "function":
                                    update_weight_relationship.__name__}))
         logger.exception("Unhandled Exception: ")
-        print_exc()
         return False
 
 @shared_task()
@@ -162,7 +160,6 @@ def add_user_to_custom_index(pleb="", index="full-search-user-specific-1"):
         logger.critical(dumps({"exception": "Unhandled Exception",
                                "function": add_user_to_custom_index.__name__}))
         logger.exception("Unhandled Exception: ")
-        traceback.print_exc()
         return False
 
 
@@ -186,7 +183,6 @@ def update_user_indices(doc_type, doc_id):
         res['_source']['related_user'] = pleb.email
         result = es.index(index='full-search-user-specific-1', doc_type=doc_type,
                           body=res['_source'])
-        print result
 
     return True
 
@@ -219,6 +215,9 @@ def update_search_query(pleb, query_param, keywords):
         for keyword in keywords:
             keyword['query_param'] = query_param
             spawn_task(task_func=create_keyword, task_param=keyword)
+    except Exception:
+        logger.exception("UnhandledException: ")
+        return False
 
 @shared_task()
 def create_keyword(text, relevance, query_param):
@@ -240,5 +239,8 @@ def create_keyword(text, relevance, query_param):
         keyword.save()
         return True
     except SearchQuery.DoesNotExist:
+        return False
+    except Exception:
+        logger.exception("UnhandledException: ")
         return False
 

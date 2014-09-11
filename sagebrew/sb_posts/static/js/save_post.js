@@ -3,12 +3,9 @@ $( document ).ready(function() {
         console.log("hello");
 		event.preventDefault();
 		$.ajaxSetup({
-		    beforeSend: function(xhr, settings) {
-				var csrftoken = $.cookie('csrftoken');
-		        if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
-		            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-		        }
-		    }
+		    beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
 		});
 	   	$.ajax({
 			xhrFields: {withCredentials: true},

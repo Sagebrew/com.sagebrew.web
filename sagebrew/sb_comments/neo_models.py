@@ -20,6 +20,10 @@ class SBComment(StructuredNode):
     last_edited_on = DateTimeProperty(default=None)
     to_be_deleted = BooleanProperty(default=False)
     delete_time = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    flagged_as_spam_count = IntegerProperty(default=0)
+    flagged_as_explicit_count = IntegerProperty(default=0)
+    flagged_as_other_count = IntegerProperty(default=0)
+    view_count = IntegerProperty(default=0)
 
     # relationships
     up_voted_by = RelationshipTo('plebs.neo_models.Pleb', 'UP_VOTED_BY')
@@ -37,7 +41,7 @@ class SBComment(StructuredNode):
                                model=CommentedOnRel)
     shared_with = RelationshipTo('plebs.neo_models.Pleb', 'SHARED_WITH',
                                  model=CommentedOnRel)
-    # TODO Implement the user_referenced, post_referenced, etc. relationships
+    #TODO Implement the user_referenced, post_referenced, etc. relationships
     flagged_by = RelationshipTo('plebs.neo_models.Pleb', 'FLAGGED_BY',
                                 model=CommentedOnRel)
     #TODO Implement referenced_by_users, referenced_by_post, etc. relationships

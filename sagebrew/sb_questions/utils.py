@@ -1,4 +1,4 @@
-import traceback
+import logging
 from uuid import uuid1
 from textblob import TextBlob
 
@@ -10,6 +10,8 @@ from api.utils import spawn_task, create_auto_tags
 from plebs.neo_models import Pleb
 from .neo_models import SBQuestion
 from sb_tag.tasks import add_auto_tags, add_tags
+
+logger = logging.getLogger('loggly_logs')
 
 def create_question_util(content="", current_pleb="", question_title="",
                          tags="", question_uuid=str(uuid1())):
@@ -61,6 +63,7 @@ def create_question_util(content="", current_pleb="", question_title="",
         return my_question
 
     except Exception:
+        logger.exception("UnhandledException: ")
         return None
 
 def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
@@ -136,6 +139,7 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
                 question_array.append(question_dict)
             return question_array
     except Exception:
+        logger.exception("UnhandledException: ")
         return []
 
 def get_question_by_uuid(question_uuid=str(uuid1()), current_pleb=""):
@@ -156,9 +160,9 @@ def get_question_by_uuid(question_uuid=str(uuid1()), current_pleb=""):
                                                    current_pleb=current_pleb)
         return response
     except SBQuestion.DoesNotExist:
-        traceback.print_exc()
         return {"detail": "There are no questions with that ID"}
     except Exception:
+        logger.exception("UnhandledException: ")
         return {"detail": "Failure"}
 
 def get_question_by_most_recent(range_start=0, range_end=5, current_pleb=""):
@@ -184,6 +188,7 @@ def get_question_by_most_recent(range_start=0, range_end=5, current_pleb=""):
                                                       current_pleb=current_pleb)
         return return_dict
     except Exception:
+        logger.exception("UnhandledException: ")
         return {"detail": "fail"}
 
 def get_question_by_least_recent(range_start=0, range_end=5, current_pleb=""):
@@ -209,6 +214,7 @@ def get_question_by_least_recent(range_start=0, range_end=5, current_pleb=""):
                                                       current_pleb=current_pleb)
         return return_dict
     except Exception:
+        logger.exception("UnhandledException: ")
         return {"detail": "fail"}
 
 
@@ -237,6 +243,7 @@ def upvote_question_util(question_uuid="", current_pleb=""):
     except Pleb.DoesNotExist:
         return False
     except Exception:
+        logger.exception("UnhandledException: ")
         return False
 
 def downvote_question_util(question_uuid="", current_pleb=""):
@@ -264,6 +271,7 @@ def downvote_question_util(question_uuid="", current_pleb=""):
     except Pleb.DoesNotExist:
         return False
     except Exception:
+        logger.exception("UnhandledException: ")
         return False
 
 def edit_question_util(question_uuid="", content="", last_edited_on="",
@@ -305,24 +313,31 @@ def edit_question_util(question_uuid="", content="", last_edited_on="",
     except SBQuestion.DoesNotExist:
         return False
     except Exception:
+        logger.exception("UnhandledException: ")
         return False
 
 def prepare_question_search_html(question_uuid):
-    my_question = SBQuestion.index.get(question_id=question_uuid)
-    owner = my_question.traverse('owned_by').run()[0]
-    owner_name = owner.first_name + ' ' + owner.last_name
-    owner_profile_url = settings.WEB_ADDRESS + '/user/' + owner.email
-    question_dict = {"question_title": my_question.question_title,
-                     "question_content": my_question.content,
-                     "question_uuid": my_question.question_id,
-                     "is_closed": my_question.is_closed,
-                     "answer_number": my_question.answer_number,
-                     "last_edited_on": my_question.last_edited_on,
-                     "up_vote_number": my_question.up_vote_number,
-                     "down_vote_number": my_question.down_vote_number,
-                     "owner": owner_name,
-                     "owner_profile_url": owner_profile_url,
-                     "time_created": my_question.date_created,
-                     "owner_email": owner.email}
-    rendered = render_to_string('question_search.html', question_dict)
-    return rendered
+    try:
+        my_question = SBQuestion.index.get(question_id=question_uuid)
+        owner = my_question.traverse('owned_by').run()[0]
+        owner_name = owner.first_name + ' ' + owner.last_name
+        owner_profile_url = settings.WEB_ADDRESS + '/user/' + owner.email
+        question_dict = {"question_title": my_question.question_title,
+                         "question_content": my_question.content,
+                         "question_uuid": my_question.question_id,
+                         "is_closed": my_question.is_closed,
+                         "answer_number": my_question.answer_number,
+                         "last_edited_on": my_question.last_edited_on,
+                         "up_vote_number": my_question.up_vote_number,
+                         "down_vote_number": my_question.down_vote_number,
+                         "owner": owner_name,
+                         "owner_profile_url": owner_profile_url,
+                         "time_created": my_question.date_created,
+                         "owner_email": owner.email}
+        rendered = render_to_string('question_search.html', question_dict)
+        return rendered
+    except SBQuestion.DoesNotExist:
+        return False
+    except Exception:
+        logger.exception("UnhandledException: ")
+        return False

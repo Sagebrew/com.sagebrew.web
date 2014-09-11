@@ -1,4 +1,5 @@
 import pytz
+import logging
 from uuid import uuid1
 from datetime import datetime
 
@@ -7,6 +8,7 @@ from plebs.neo_models import Pleb
 from sb_comments.utils import get_post_comments
 from .neo_models import SBPost
 
+logger = logging.getLogger('loggly_logs')
 
 def get_pleb_posts(pleb_object, range_end, range_start):
     '''
@@ -24,7 +26,7 @@ def get_pleb_posts(pleb_object, range_end, range_start):
             range_end).run()
         return get_post_comments(pleb_posts)
     except:
-        print "failed to retrieve posts"
+        logger.exception("UnhandledException: ")
         return {"details": "You have no posts!"}
 
 
@@ -61,9 +63,12 @@ def save_post(post_uuid=str(uuid1()), content="", current_pleb="",
         rel_from_pleb = poster.posts.connect(my_post)
         rel_from_pleb.save()
         return my_post
+    except Pleb.DoesNotExist:
+        return None
     except ValueError:
         return None
-    except:
+    except Exception:
+        logger.exception("UnhandledException: ")
         return None
 
 
@@ -118,6 +123,9 @@ def edit_post_info(content="", post_uuid=str(uuid1()), last_edited_on=None,
         return True
     except SBPost.DoesNotExist:
         return {'detail': 'post does not exist yet'}
+    except Exception:
+        logger.exception("UnhandledException: ")
+        return False
 
 
 def delete_post_info(post_id=str(uuid1())):
@@ -143,7 +151,9 @@ def delete_post_info(post_id=str(uuid1())):
             return True
     except SBPost.DoesNotExist:
         return False
-
+    except Exception:
+        logger.exception("UnhandledException: ")
+        return False
 
 def create_post_vote(pleb="", post_uuid=str(uuid1()), vote_type=""):
     '''
@@ -179,3 +189,42 @@ def create_post_vote(pleb="", post_uuid=str(uuid1()), vote_type=""):
         else:
             return False
 
+def flag_post(post_uuid, current_user, flag_reason):
+    '''
+    This util increases the flag count on a post and connects it to the
+    user who flagged it.
+
+    :param post_uuid:
+    :param current_user:
+    :param flag_reason:
+    :return:
+    '''
+    try:
+        post = SBPost.index.get(post_id=post_uuid)
+        pleb = Pleb.index.get(email=current_user)
+
+        if post.flagged_by.is_connected(pleb):
+            return False
+
+        if flag_reason == 'spam':
+            post.flagged_by.connect(pleb)
+            post.flagged_as_spam_count += 1
+            post.save()
+        elif flag_reason == 'explicit':
+            post.flagged_by.connect(pleb)
+            post.flagged_as_explicit_count += 1
+            post.save()
+        elif flag_reason == 'other':
+            post.flagged_by.connect(pleb)
+            post.flagged_as_other_count += 1
+            post.save()
+        else:
+            return False
+        return True
+    except SBPost.DoesNotExist:
+        return False
+    except Pleb.DoesNotExist:
+        return False
+    except Exception:
+        logger.exception("UnhandledException: ")
+        return False

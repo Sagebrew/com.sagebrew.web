@@ -1,9 +1,11 @@
-import traceback
+import logging
 from django.conf import settings
 from elasticsearch import Elasticsearch, helpers
 
 from .neo_models import SBAutoTag, SBTag
 from sb_questions.neo_models import SBQuestion
+
+logger = logging.getLogger('loggly_logs')
 
 def create_tag_relations(tags):
     '''
@@ -38,7 +40,7 @@ def create_tag_relations(tags):
         return False
 
     except Exception:
-        traceback.print_exc()
+        logger.exception("UnhandedException: ")
         return False
 
 
@@ -80,6 +82,7 @@ def add_auto_tags_util(tag_list):
             except IndexError:
                 return False
             except Exception:
+                logger.exception("UnhandledException: ")
                 return False
         else:
             return False
@@ -108,7 +111,7 @@ def add_tag_util(object_type, object_uuid, tags):
             tag_object = SBTag.index.get(tag_name=tag)
             tag_array.append(tag_object)
         except SBTag.DoesNotExist:
-            es.index(index='full-search-base', doc_type='tag',
+            es.index(index='tags', doc_type='tag',
                      body={'tag_name': tag})
             tag_object = SBTag(tag_name=tag).save()
             tag_array.append(tag_object)
@@ -125,6 +128,7 @@ def add_tag_util(object_type, object_uuid, tags):
         except SBQuestion.DoesNotExist:
             return False
         except Exception:
+            logger.exception("UnhandledException: ")
             return False
     else:
         return False

@@ -37,13 +37,6 @@ CACHES = {
     }
 }
 
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
-        'URL': 'http://127.0.0.1:8983/solr'
-    },
-}
-
 AWS_BUCKET_NAME = "sagebrew"
 AWS_ACCESS_KEY_ID = "AKIAJIWX3E2JPTBS6CRA"
 AWS_SECRET_ACCESS_KEY = "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"

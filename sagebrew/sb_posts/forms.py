@@ -30,3 +30,8 @@ class GetPostForm(forms.Form):
     email = forms.EmailField()
     range_end = forms.IntegerField()
     range_start = forms.IntegerField()
+
+class FlagPostForm(forms.Form):
+    current_user = forms.EmailField()
+    post_uuid = forms.CharField()
+    flag_reason = forms.CharField()

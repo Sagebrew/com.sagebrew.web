@@ -59,7 +59,6 @@ def search_result_view(request, query_param, display_num=5, page=1,
                       {'search_param': search_form.cleaned_data['query_param'],
                        'page': search_form.cleaned_data['page']})
     else:
-        print search_form.errors
         return render(request, 'search_result.html')
 
 
@@ -154,5 +153,5 @@ def search_result_api(request, query_param="", display_num=10, page=1,
             next_page_num = ""
         return Response({'html': results, 'next': next_page_num}, status=200)
     except Exception:
-        traceback.print_exc()
+        logger.exception("UnhandledException: ")
         return Response({'detail': 'fail'}, status=400)

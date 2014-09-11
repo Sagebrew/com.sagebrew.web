@@ -25,3 +25,8 @@ class DeleteCommentForm(CommentForm):
 class VoteCommentForm(CommentForm):
     vote_type = forms.CharField()
     comment_uuid = forms.CharField()
+
+class FlagCommentForm(forms.Form):
+    current_user = forms.CharField()
+    flag_reason = forms.CharField()
+    comment_uuid = forms.CharField()

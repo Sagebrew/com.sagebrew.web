@@ -1,6 +1,9 @@
+import logging
 from celery import shared_task
 
 from .utils import add_auto_tags_util, add_tag_util
+
+logger = logging.getLogger('loggly_logs')
 
 @shared_task()
 def add_auto_tags(tag_list):

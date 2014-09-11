@@ -4,11 +4,6 @@ from __future__ import absolute_import
 from os import environ, path, makedirs
 from unipath import Path
 from datetime import timedelta
-'''
-test:
-  post:
-    -
-'''
 
 
 PROJECT_DIR = Path(__file__).ancestor(3)
@@ -159,7 +154,6 @@ INSTALLED_APPS = (
     'django_admin_bootstrapped',
     'django.contrib.admin',
     'south',
-    'haystack',
     'djcelery',
     'rest_framework',
     'admin_honeypot',
@@ -167,14 +161,10 @@ INSTALLED_APPS = (
     'provider.oauth2',
     'storages',
     'localflavor',
-    'crispy_forms',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.facebook',
-    'photologue',
-    'sortedm2m',
-    'guardian',
     'plebs',
     'api',
     'govtrack',
@@ -208,12 +198,9 @@ EMAIL_BACKEND = "sgbackend.SendGridBackend"
 SENDGRID_USER = "bleib1dj"
 SENDGRID_PASSWORD = "wp*D8S@kRnc:6pA"
 
-CRISPY_TEMPLATE_PACK = 'bootstrap3'
-
 LOGIN_URL = '/accounts/login/'
 LOGOUT_URL = '/accounts/logout/'
 
-HAYSTACK_DEFAULT_OPERATOR = "OR"
 ANONYMOUS_USER_ID = -1
 
 LOGIN_REDIRECT_URL = '/registration/profile_information/'
@@ -238,12 +225,6 @@ OAUTH_DELETE_EXPIRED = True
 
 CELERY_DISABLE_RATE_LIMITS = True
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
-CELERY_IMPORTS = ('api.tasks', 'govtrack.tasks', 'sb_comments.tasks',
-                  'sb_garbage.tasks', 'sb_posts.tasks',
-                  'sb_notifications.tasks',
-                  'sb_relationships.tasks', 'sb_questions.tasks',
-                  'sb_search.tasks'
-)
 BROKER_URL = 'amqp://sagebrew:this_is_the_sagebrew_password@localhost:5672//'
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"

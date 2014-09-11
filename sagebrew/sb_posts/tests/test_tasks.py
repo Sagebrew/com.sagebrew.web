@@ -8,7 +8,8 @@ from django.contrib.auth.models import User
 from sb_posts.neo_models import SBPost
 from sb_posts.tasks import (delete_post_and_comments, save_post_task,
                             edit_post_info_task,
-                            create_downvote_post, create_upvote_post)
+                            create_downvote_post, create_upvote_post,
+                            flag_post_task)
 from plebs.neo_models import Pleb
 
 
@@ -215,3 +216,76 @@ class TestMultipleTasks(TestCase):
 
         self.assertTrue(response1)
         self.assertFalse(response2.get())
+
+class TestFlagPostTask(TestCase):
+    def setUp(self):
+        self.email = str(uuid1()) + '@sagebrew.com'
+        try:
+            pleb = Pleb.index.get(email=self.email)
+            wall = pleb.traverse('wall').run()[0]
+            wall.delete()
+            pleb.delete()
+        except Pleb.DoesNotExist:
+            pass
+
+        self.user = User.objects.create_user(
+            username='Tyler' + str(uuid1())[:25], email=self.email)
+        self.pleb = Pleb.index.get(email=self.email)
+
+    def test_flag_post_task_success_spam(self):
+        post = SBPost(post_id=uuid1())
+        post.save()
+        task_dict = {'post_uuid': post.post_id, 'current_user': self.pleb.email,
+                     'flag_reason': 'spam'}
+
+        res = flag_post_task.apply_async(kwargs=task_dict)
+
+        self.assertTrue(res.get())
+
+    def test_flag_post_task_success_explicit(self):
+        post = SBPost(post_id=uuid1())
+        post.save()
+        task_dict = {'post_uuid': post.post_id, 'current_user': self.pleb.email,
+                     'flag_reason': 'explicit'}
+
+        res = flag_post_task.apply_async(kwargs=task_dict)
+
+        self.assertTrue(res.get())
+
+    def test_flag_post_task_success_other(self):
+        post = SBPost(post_id=uuid1())
+        post.save()
+        task_dict = {'post_uuid': post.post_id, 'current_user': self.pleb.email,
+                     'flag_reason': 'other'}
+
+        res = flag_post_task.apply_async(kwargs=task_dict)
+
+        self.assertTrue(res.get())
+
+    def test_flag_post_task_failure_incorrect_reason(self):
+        post = SBPost(post_id=uuid1())
+        post.save()
+        task_dict = {'post_uuid': post.post_id, 'current_user': self.pleb.email,
+                     'flag_reason': 'dumb'}
+
+        res = flag_post_task.apply_async(kwargs=task_dict)
+
+        self.assertFalse(res.get())
+
+    def test_flag_post_task_post_does_not_exist(self):
+        task_dict = {'post_uuid': uuid1(), 'current_user': self.pleb.email,
+                     'flag_reason': 'other'}
+
+        res = flag_post_task.apply_async(kwargs=task_dict)
+
+        self.assertFalse(res.get())
+
+    def test_flag_post_task_user_does_not_exist(self):
+        post = SBPost(post_id=uuid1())
+        post.save()
+        task_dict = {'post_uuid': post.post_id, 'current_user': uuid1(),
+                     'flag_reason': 'other'}
+
+        res = flag_post_task.apply_async(kwargs=task_dict)
+
+        self.assertFalse(res.get())

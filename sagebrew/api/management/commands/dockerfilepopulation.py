@@ -40,6 +40,10 @@ class Command(BaseCommand):
             data = data.replace('{{BOMBERMAN_API_KEY}}', os.environ.get(
                 "BOMBERMAN_API_KEY", ""))
             data = data.replace("{{PROJECT_NAME}}", "sagebrew")
+            data = data.replace("{{LOG_ACCOUNT}}", os.environ.get(
+                "LOG_ACCOUNT", ""))
+            data = data.replace("{{LOG_TOKEN}}", os.environ.get(
+                "LOG_TOKEN", ""))
             web_docker = data.replace('{{SUPER_TEMPLATE}}', "web")
             worker_docker = data.replace('{{SUPER_TEMPLATE}}', "worker")
         f = open("%s/dockerfiles/web_app/Dockerfile" % settings.REPO_DIR, "w")

@@ -21,8 +21,7 @@ class Command(BaseCommand):
             f.close()
         elif(env == "worker"):
             with open ("%s/supervisor_confs/worker_template.conf" % (
-                    settings.REPO_DIR),
-                   "r") as dockerfile:
+                    settings.REPO_DIR), "r") as dockerfile:
                 data = dockerfile.read()
                 data = data.replace("{{NUMBER_OF_WORKERS}}", worker_count)
                 data = data.replace("{{APP_USER}}", user)

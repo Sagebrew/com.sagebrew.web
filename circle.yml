@@ -25,10 +25,10 @@ test:
   post:
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py clear_neo_db
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
-    - docker build -t sb_worker /home/apps/dockerfiles/worker/
-    - docker build -t sb_web /home/apps/dockerfiles/web_app/
-    - docker run -h box-worker -t -i -env-file /home/apps/env_lists/worker_env sb_worker
-    - docker run -h box-webapp -t -i -env-file /home/apps/env_lists/web_env sb_web
+    - docker build -t sb_worker ~/com.sagebrew.web/dockerfiles/worker/
+    - docker build -t sb_web ~/com.sagebrew.web/dockerfiles/web_app/
+    - docker run -h box-worker -env-file /home/apps/env_lists/worker_env sb_worker
+    - docker run -h box-webapp -env-file /home/apps/env_lists/web_env sb_web
 
 #test:
 #  override:

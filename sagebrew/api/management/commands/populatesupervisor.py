@@ -6,7 +6,7 @@ from django.conf import settings
 
 class Command(BaseCommand):
     def populate_supervisor(self, env):
-        worker_count = (multiprocessing.cpu_count() *2) + 1
+        worker_count = str((multiprocessing.cpu_count() *2) + 1)
         if(env == "web"):
             with open ("%s/supervisor_confs/web_template.conf" % settings.REPO_DIR,
                    "r") as dockerfile:

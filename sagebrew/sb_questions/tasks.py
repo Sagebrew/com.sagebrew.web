@@ -36,11 +36,10 @@ def create_question_task(content="", current_pleb="", question_title="",
                 is not None:
             return True
         else:
+            uuid = uuid1()
             data = {'content': content, 'current_pleb': current_pleb,
                     'question_title': question_title}
-            spawn_task(task_func=create_question_task, task_param=data,
-                       countdown=2)
-            return False
+            raise create_question_task.retry()
     except Exception:
         logger.exception({'function': create_question_task.__name__,
                           'exception': "MultipleObjectsReturned: "})

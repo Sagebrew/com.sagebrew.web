@@ -53,7 +53,5 @@ class Command(BaseCommand):
         f.write(worker_docker)
         f.close()
 
-
-
     def handle(self, *args, **options):
         self.populate_dockerfiles()

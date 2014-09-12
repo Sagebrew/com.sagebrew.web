@@ -8,6 +8,7 @@ logger = logging.getLogger('loggly_logs')
 
 class Command(BaseCommand):
     def populate_supervisor(self, env):
+        logger.critical(env)
         worker_count = str((multiprocessing.cpu_count() *2) + 1)
         if(env == "web"):
             with open ("%s/supervisor_confs/web_template.conf" % settings.REPO_DIR,

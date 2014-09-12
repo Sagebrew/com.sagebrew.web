@@ -184,6 +184,8 @@ Finally, reload the UFW:
 sudo ufw reload
 
 Removed from fixture to work with django 1.7 is this necessary?
+
+[
     {
         "pk": 1,
         "model": "oauth2.client",
@@ -197,3 +199,199 @@ Removed from fixture to work with django 1.7 is this necessary?
             "client_secret": "1d4b42f5005a0de7b1a50e24737fc84f9a4610a5"
         }
     },
+    {
+        "pk": -1,
+        "model": "auth.user",
+        "fields": {
+            "username": "AnonymousUser",
+            "first_name": "",
+            "last_name": "",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2014-06-14T21:57:23.583Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "",
+            "date_joined": "2014-06-14T21:57:23.583Z"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "auth.user",
+        "fields": {
+            "username": "admin",
+            "first_name": "",
+            "last_name": "",
+            "is_active": true,
+            "is_superuser": true,
+            "is_staff": true,
+            "last_login": "2014-06-14T22:04:37.928Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "pbkdf2_sha256$12000$EK21Rq6cn5fC$iOXlAIAbqDqnPt5SzHsR0MPHMmEtYiSVmj/on3u73B0=",
+            "email": "admin@example.com",
+            "date_joined": "2014-06-14T21:57:21.448Z"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "auth.user",
+        "fields": {
+            "username": "bleib1dj",
+            "first_name": "Devon",
+            "last_name": "Bleibtrey",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2014-06-14T21:57:25.445Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "[u'pbkdf2_sha256$10000$64miRABmVXN4$bzRyrj', u'VkH3pUbks6Sbvs5dS53DiG2u6H7scNouusjn8=']",
+            "email": "bleib1dj@gmail.com",
+            "date_joined": "2014-06-14T21:57:25.445Z"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "auth.user",
+        "fields": {
+            "username": "welto1ge",
+            "first_name": "Grace",
+            "last_name": "Welton",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2014-06-14T21:57:25.446Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "[u'pbkdf2_sha256$10000$64miRABmVXN4$bzRyrj', u'VkH3pUbks6Sbvs5dS53DiG2u6H7scNouusjn8=']",
+            "email": "welto1ge@gmail.com",
+            "date_joined": "2014-06-14T21:57:25.446Z"
+        }
+    },
+    {
+        "pk": 4,
+        "model": "auth.user",
+        "fields": {
+            "username": "Inseptus",
+            "first_name": "",
+            "last_name": "",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2014-06-14T21:57:25.448Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "[u'pbkdf2_sha256$10000$64miRABmVXN4$bzRyrj', u'VkH3pUbks6Sbvs5dS53DiG2u6H7scNouusjn8=']",
+            "email": "Inseptus@gmail.com",
+            "date_joined": "2014-06-14T21:57:25.448Z"
+        }
+    },
+    {
+        "pk": 5,
+        "model": "auth.user",
+        "fields": {
+            "username": "mwisner",
+            "first_name": "Matt",
+            "last_name": "Wisner",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2014-06-14T21:57:25.449Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "[u'pbkdf2_sha256$10000$64miRABmVXN4$bzRyrj', u'VkH3pUbks6Sbvs5dS53DiG2u6H7scNouusjn8=']",
+            "email": "mwisner@gmail.com",
+            "date_joined": "2014-06-14T21:57:25.449Z"
+        }
+    },
+    {
+        "pk": 6,
+        "model": "auth.user",
+        "fields": {
+            "username": "devonbleibtrey",
+            "first_name": "Devon",
+            "last_name": "Bleibtrey",
+            "is_active": true,
+            "is_superuser": true,
+            "is_staff": true,
+            "last_login": "2014-06-14T21:57:25.450Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "[u'pbkdf2_sha256$10000$64miRABmVXN4$bzRyrj', u'VkH3pUbks6Sbvs5dS53DiG2u6H7scNouusjn8=']",
+            "email": "bleib1dj@gmail.com",
+            "date_joined": "2014-06-14T21:57:25.450Z"
+        }
+    },
+    {
+        "pk": 7,
+        "model": "auth.user",
+        "fields": {
+            "username": "aeown@152",
+            "first_name": "Second",
+            "last_name": "Customer",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2014-06-14T21:57:25.450Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "[u'pbkdf2_sha256$10000$64miRABmVXN4$bzRyrj', u'VkH3pUbks6Sbvs5dS53DiG2u6H7scNouusjn8=']",
+            "email": "aeown@gmail.com",
+            "date_joined": "2014-06-14T21:57:25.450Z"
+        }
+    },
+    {
+        "pk": 8,
+        "model": "auth.user",
+        "fields": {
+            "username": "ziggzi",
+            "first_name": "Second",
+            "last_name": "Company",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2014-06-14T21:57:25.451Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "[u'pbkdf2_sha256$10000$64miRABmVXN4$bzRyrj', u'VkH3pUbks6Sbvs5dS53DiG2u6H7scNouusjn8=']",
+            "email": "ziggzi@gmail.com",
+            "date_joined": "2014-06-14T21:57:25.451Z"
+        }
+    },
+
+    {
+        "pk": 1,
+        "model": "sites.site",
+        "fields": {
+            "domain": "example.com",
+            "name": "example.com"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "sites.site",
+        "fields": {
+            "domain": "192.168.56.101",
+            "name": "Sagebrew-Dev"
+        }
+    },
+
+    {
+        "pk": 1,
+        "model": "socialaccount.socialapp",
+        "fields": {
+            "name": "Sagebrew-Dev",
+            "sites": [
+                2,
+                1
+            ],
+            "secret": "b41a9a023ab81a181ddb5fbba9fc730a",
+            "client_id": "1384849105103760",
+            "key": "",
+            "provider": "facebook"
+        }
+    }
+]

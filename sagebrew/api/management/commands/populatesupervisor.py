@@ -1,8 +1,10 @@
 import os
+import logging
 import multiprocessing
-import socket
 from django.core.management.base import BaseCommand
 from django.conf import settings
+
+logger = logging.getLogger('loggly_logs')
 
 class Command(BaseCommand):
     def populate_supervisor(self, env):
@@ -14,6 +16,8 @@ class Command(BaseCommand):
                 data = data.replace("{{WEB_WORKER_COUNT}}", worker_count)
                 data = data.replace(
                     "{{APP_USER}}", os.environ.get("APP_USER", ""))
+                logger.critical("APP_USER")
+                logger.critical(data)
 
             f = open("/etc/supervisor/conf.d/sagebrew.conf", "w")
             f.write(data)
@@ -26,6 +30,8 @@ class Command(BaseCommand):
                 data = data.replace("{{NUMBER_OF_WORKERS}}", worker_count)
                 data = data.replace(
                     "{{APP_USER}}", os.environ.get("APP_USER", ""))
+                logger.critical("APP_USER")
+                logger.critical(data)
             f = open("/etc/supervisor/conf.d/sagebrew.conf", "w")
             f.write(data)
             f.close()

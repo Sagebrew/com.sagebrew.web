@@ -48,7 +48,7 @@ LOGGING = {
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'DEBUG',
-            'token': LOGGLY_TOKEN
+            'token': LOG_TOKEN
         },
         'django.request': {
             'handlers': ['default'],

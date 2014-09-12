@@ -56,7 +56,7 @@ LOGGING = {
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'ERROR',
-            'token': LOGGLY_TOKEN
+            'token': LOG_TOKEN
         },
         'django.request': {
             'handlers': ['logging.handlers.SysLogHandler'],

@@ -12,6 +12,8 @@ class Command(BaseCommand):
                    "r") as dockerfile:
                 data = dockerfile.read()
                 data = data.replace("{{WEB_WORKER_COUNT}}", worker_count)
+                data = data.replace(
+                    "{{APP_USER}}", os.environ.get("APP_USER", ""))
 
             f = open("/etc/supervisor/conf.d/sagebrew.conf", "w")
             f.write(data)
@@ -22,6 +24,8 @@ class Command(BaseCommand):
                    "r") as dockerfile:
                 data = dockerfile.read()
                 data = data.replace("{{NUMBER_OF_WORKERS}}", worker_count)
+                data = data.replace(
+                    "{{APP_USER}}", os.environ.get("APP_USER", ""))
             f = open("/etc/supervisor/conf.d/sagebrew.conf", "w")
             f.write(data)
             f.close()

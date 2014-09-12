@@ -185,6 +185,8 @@ INSTALLED_APPS = (
     'textblob',
 )
 
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "optional"

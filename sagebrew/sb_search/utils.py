@@ -15,6 +15,18 @@ logger = logging.getLogger('loggly_logs')
 
 
 def update_search_index_doc_script(document_id, index, field, update_value, document_type):
+    '''
+    This can be used if you want to update a doc in an elasticsearch index
+    using a script instead of using the .update functionality provided by
+    the Elasticsearch package. This may be quicker and require future testing.
+
+    :param document_id:
+    :param index:
+    :param field:
+    :param update_value:
+    :param document_type:
+    :return:
+    '''
     es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
     body = {
         "script": {
@@ -29,6 +41,19 @@ def update_search_index_doc_script(document_id, index, field, update_value, docu
 
 def update_search_index_doc(document_id, index, field, update_value,
                             document_type):
+    '''
+    This function can be used to update an existing document in an elasticsearch
+    index. This function uses the .update functionality provided by the
+    Elasticsearch python package but is also doable by using the script
+    language for elasticsearch.
+
+    :param document_id:
+    :param index:
+    :param field:
+    :param update_value:
+    :param document_type:
+    :return:
+    '''
     es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
     body = {
         "doc" : {
@@ -42,7 +67,9 @@ def update_search_index_doc(document_id, index, field, update_value,
 def process_search_result(item):
     '''
     This util is called to process the search results returned from
-    elasticsearch and render them to a hidden <div> element
+    elasticsearch and render them to a hidden <div> element. The hidden
+    div element is then accessed by javascript which uses the data in the
+    element to create the div which will be displayed to users.
 
     :param item:
     :return:

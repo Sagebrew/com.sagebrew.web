@@ -25,7 +25,7 @@ RUN service rsyslog restart
 
 
 RUN chown {{APP_USER}} /etc/supervisor/conf.d/
-RUN python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py populatesupervisor {{SUPER_TEMPLATE}}
+RUN python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py populatesupervisor {{SUPER_TEMPLATE}} {{APP_USER}}
 RUN chown root /etc/supervisor/conf.d/
 
 CMD supervisord -c /etc/supervisor/supervisord.conf

@@ -30,8 +30,8 @@ test:
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py clear_neo_db
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
     - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg
-    - docker build -t sb_worker ~/com.sagebrew.web/dockerfiles/worker/
-    - docker build -t sb_web ~/com.sagebrew.web/dockerfiles/web_app/
+    - docker build --no-cache=$CLEAR_CACHE -t sb_worker ~/com.sagebrew.web/dockerfiles/worker/
+    - docker build --no-cache=$CLEAR_CACHE -t sb_web ~/com.sagebrew.web/dockerfiles/web_app/
     - docker run -h box-worker -e NEO4J_REST_URL=$NEO4J_REST_URL -e APP_USER=$APP_USER -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME -e LOG_ACCOUNT=$LOG_ACCOUNT -e LOG_TOKEN=$LOG_TOKEN sb_worker
     - docker run -h box-webapp -e NEO4J_REST_URL=$NEO4J_REST_URL -e APP_USER=$APP_USER -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME -e LOG_ACCOUNT=$LOG_ACCOUNT -e LOG_TOKEN=$LOG_TOKEN sb_web
 

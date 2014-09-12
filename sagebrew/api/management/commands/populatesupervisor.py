@@ -1,0 +1,28 @@
+import os
+
+import socket
+from django.core.management.base import BaseCommand
+from django.conf import settings
+
+class Command(BaseCommand):
+    def populate_supervisor(self, env):
+        if(env == "web"):
+            with open ("%s/supervisor_confs/web_template.conf" % settings.REPO_DIR,
+                   "r") as dockerfile:
+                data = dockerfile.read()
+            f = open("/etc/supervisor/conf.d/sagebrew.conf", "w")
+            f.write(data)
+            f.close()
+        elif(env == "worker"):
+            with open ("%s/supervisor_confs/worker_template.conf" % (
+                    settings.REPO_DIR),
+                   "r") as dockerfile:
+                data = dockerfile.read()
+            f = open("/etc/supervisor/conf.d/sagebrew.conf", "w")
+            f.write(data)
+            f.close()
+        else:
+            pass
+
+    def handle(self, *args, **options):
+        self.populate_supervisor(args[0])

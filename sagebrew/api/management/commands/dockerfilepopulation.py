@@ -16,6 +16,8 @@ class Command(BaseCommand):
                 "APP_USER", ""))
             data = data.replace('{{REQUIREMENTS_FILE}}', os.environ.get(
                 "REQUIREMENTS_FILE", ""))
+            data = data.replace('{{BOMBERMAN_API_KEY}}', os.environ.get(
+                "BOMBERMAN_API_KEY", ""))
             web_docker = data.replace('{{SUPER_TEMPLATE}}', "web")
             worker_docker = data.replace('{{SUPER_TEMPLATE}}', "worker")
         f = open("%s/dockerfiles/web_app/Dockerfile" % settings.REPO_DIR, "w")

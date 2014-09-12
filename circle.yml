@@ -24,7 +24,7 @@ dependencies:
 test:
   post:
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py clear_neo_db
-    - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/python manage.py dockerfilepopulation
+    - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
     - docker build -t sb_worker /home/apps/dockerfiles/worker/
     - docker build -t sb_web /home/apps/dockerfiles/web_app/
     - docker run -h box-worker -t -i -env-file /home/apps/env_lists/worker_env sb_worker

@@ -28,8 +28,8 @@ test:
     - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg
     - docker build -t sb_worker ~/com.sagebrew.web/dockerfiles/worker/
     - docker build -t sb_web ~/com.sagebrew.web/dockerfiles/web_app/
-    - docker run -h box-worker -env-file /home/apps/env_lists/worker_env sb_worker
-    - docker run -h box-webapp -env-file /home/apps/env_lists/web_env sb_web
+    - docker run -h box-worker --env-file /home/apps/env_lists/worker_env sb_worker
+    - docker run -h box-webapp --env-file /home/apps/env_lists/web_env sb_web
 
 #test:
 #  override:

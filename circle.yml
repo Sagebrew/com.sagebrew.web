@@ -25,6 +25,7 @@ test:
   post:
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py clear_neo_db
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
+    - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg
     - docker build -t sb_worker ~/com.sagebrew.web/dockerfiles/worker/
     - docker build -t sb_web ~/com.sagebrew.web/dockerfiles/web_app/
     - docker run -h box-worker -env-file /home/apps/env_lists/worker_env sb_worker

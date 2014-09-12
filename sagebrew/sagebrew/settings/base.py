@@ -155,6 +155,7 @@ INSTALLED_APPS = (
     'django_admin_bootstrapped',
     'django.contrib.admin',
     'rest_framework',
+    'djcelery',
     'admin_honeypot',
     'provider',
     'provider.oauth2',
@@ -228,7 +229,7 @@ CELERY_DISABLE_RATE_LIMITS = True
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 BROKER_URL = 'amqp://sagebrew:this_is_the_sagebrew_password@localhost:5672//'
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
-CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
+
 CELERY_IGNORE_RESULT = False
 
 CELERYBEAT_SCHEDULE = {
@@ -251,8 +252,6 @@ CSV_FILES = '%s/csv_content/' % PROJECT_DIR
 TEMP_FILES = '%s/temp_files/' % PROJECT_DIR
 if not path.exists(TEMP_FILES):
     makedirs(TEMP_FILES)
-
-import djcelery
 
 USER_RELATIONSHIP_BASE = {
     'seen': 150, 'blocked_user': 0, 'friend_of_friend': 100,
@@ -279,9 +278,6 @@ OBJECT_SEARCH_MODIFIERS = {
     'flag_as_other': -10, 'answered': 50, 'starred': 150, 'seen_search': 5,
     'seen_page': 20
 }
-
-
-djcelery.setup_loader()
 
 # TODO When doing load testing and beta testing ensure that LOGGING of DB is on
 # and at w/e level we need to check response times. We might be able to

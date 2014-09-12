@@ -169,7 +169,8 @@ class TestMultipleTasks(TestCase):
         for num in range(1, 10):
             uuid = str(uuid1())
             self.question_info_dict['question_uuid'] = uuid
-            save_response = create_question_task.apply_async(kwargs=self.question_info_dict)
+            save_response = create_question_task.apply_async(
+                kwargs=self.question_info_dict)
             response_array.append(save_response.get())
 
         self.assertNotIn(False, response_array)

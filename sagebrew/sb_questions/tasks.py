@@ -35,19 +35,17 @@ def create_question_task(content="", current_pleb="", question_title="",
                                 question_title=question_title, tags=tag_list) \
                 is not None:
             return True
-        else:
-            raise create_question_task.retry()
-    except TypeError:
+    except TypeError as exc:
         logger.exception({'function': create_question_task.__name__,
                           'exception': "TypeError: "})
-        raise create_question_task.retry()
+        raise create_question_task.retry(exc=exc, countdown=20)
     except Retry:
         logger.exception({'function': create_question_task.__name__,
                           'exception': "Retry: "})
-    except Exception:
+    except Exception as exc:
         logger.exception({'function': create_question_task.__name__,
                           'exception': "UnhandledException: "})
-        raise create_question_task.retry()
+        raise create_question_task.retry(exc=exc, countdown=20)
 
 @shared_task()
 def edit_question_task(question_uuid="", content="", current_pleb="", last_edited_on=""):

@@ -5,8 +5,6 @@ from django.contrib import admin
 from django.views.generic.base import RedirectView, TemplateView
 from django.conf.urls import patterns, url
 
-admin.autodiscover()
-
 urlpatterns = patterns('',
                        (r'^robots\.txt$',
                         lambda r: HttpResponse("User-agent: *\nDisallow: /",

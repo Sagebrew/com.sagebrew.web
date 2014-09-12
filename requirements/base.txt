@@ -3,7 +3,6 @@ unipath
 psycopg2
 boto
 Markdown
-South
 supervisor
 WebOb
 django-admin-bootstrapped

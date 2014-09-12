@@ -83,7 +83,8 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
     answer_array = []
     try:
         if sort_by == 'uuid':
-            owner = questions.traverse('owned_by').run()[0]
+            owner = questions.traverse('owned_by').run()
+            owner = owner[0]
             owner_name = owner.first_name + ' ' + owner.last_name
             owner_profile_url = settings.WEB_ADDRESS + '/user/' + owner.email
             answers = questions.traverse('answer').where('to_be_deleted', '=',
@@ -120,7 +121,8 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
             return question_dict
         else:
             for question in questions:
-                owner = question.traverse('owned_by').run()[0]
+                owner = question.traverse('owned_by').run()
+                owner = owner[0]
                 owner = owner.first_name + ' ' + owner.last_name
                 question_dict = {'question_title': question.question_title,
                                  'question_content': question.content[:50]+'...',
@@ -138,6 +140,10 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
                             }
                 question_array.append(question_dict)
             return question_array
+    except IndexError, e:
+        logger.exception({"function": prepare_get_question_dictionary.__name__,
+                          'exception': e})
+        return []
     except Exception:
         logger.exception("UnhandledException: ")
         return []
@@ -319,7 +325,8 @@ def edit_question_util(question_uuid="", content="", last_edited_on="",
 def prepare_question_search_html(question_uuid):
     try:
         my_question = SBQuestion.index.get(question_id=question_uuid)
-        owner = my_question.traverse('owned_by').run()[0]
+        owner = my_question.traverse('owned_by').run()
+        owner = owner[0]
         owner_name = owner.first_name + ' ' + owner.last_name
         owner_profile_url = settings.WEB_ADDRESS + '/user/' + owner.email
         question_dict = {"question_title": my_question.question_title,
@@ -336,6 +343,10 @@ def prepare_question_search_html(question_uuid):
                          "owner_email": owner.email}
         rendered = render_to_string('question_search.html', question_dict)
         return rendered
+    except IndexError:
+        logger.exception({"function": prepare_question_search_html.__name__,
+                          "exception": "IndexError"})
+        return False
     except SBQuestion.DoesNotExist:
         return False
     except Exception:

@@ -22,7 +22,6 @@ setproctitle
 django-secure
 django-admin-honeypot
 celery
-django-celery
 python-memcached
 beautifulsoup4
 redis

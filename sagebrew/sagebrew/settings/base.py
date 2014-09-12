@@ -153,7 +153,6 @@ INSTALLED_APPS = (
     'djangosecure',
     'django_admin_bootstrapped',
     'django.contrib.admin',
-    'djcelery',
     'rest_framework',
     'admin_honeypot',
     'provider',

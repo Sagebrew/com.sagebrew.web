@@ -182,3 +182,18 @@ Press CTRL+X and approve with Y to save and close.
 Finally, reload the UFW:
 
 sudo ufw reload
+
+Removed from fixture to work with django 1.7 is this necessary?
+    {
+        "pk": 1,
+        "model": "oauth2.client",
+        "fields": {
+            "name": "admin",
+            "url": "https://192.168.56.101/",
+            "client_type": 0,
+            "redirect_uri": "https://192.168.56.101/",
+            "user": 1,
+            "client_id": "da1c244bae0ff06b5481",
+            "client_secret": "1d4b42f5005a0de7b1a50e24737fc84f9a4610a5"
+        }
+    },

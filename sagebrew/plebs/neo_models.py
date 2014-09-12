@@ -127,6 +127,8 @@ class Pleb(StructuredNode):
                                      model=RelationshipWeight)
     searches = RelationshipTo('sb_search.neo_models.SearchQuery', 'SEARCHED',
                               model=SearchCount)
+    clicked_results = RelationshipTo('sb_search.neo_models.SearchResult',
+                                     'CLICKED_RESULT')
 
 
 

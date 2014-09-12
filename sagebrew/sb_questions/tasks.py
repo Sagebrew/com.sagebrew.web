@@ -42,7 +42,8 @@ def create_question_task(content="", current_pleb="", question_title="",
                        countdown=2)
             return False
     except Exception:
-        logger.exception("MultipleObjectsReturned: ")
+        logger.exception({'function': create_question_task.__name__,
+                          'exception': "MultipleObjectsReturned: "})
         return False
 
 @shared_task()

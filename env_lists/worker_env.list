@@ -1,4 +1,4 @@
-NUMBER_OF_WORKERS=$(echo "($(grep -c ^processor /proc/cpuinfo) + 1) * 2" | bc)
+WEB_WORKER_COUNT=$(d1=$(echo "($(grep -c ^processor /proc/cpuinfo) + 1) * 2" | bc); if [ $d1 -lt 10 ]; then d2="$d1"; else d2="10"; fi; echo $d2)
 NEO4J_REST_URL=$NEO4J_REST_URL
 APP_USER=$APP_USER
 

@@ -28,7 +28,7 @@ class TestSaveQuestionTask(TestCase):
 
         while not response.ready():
             time.sleep(3)
-
+        print type(response.result)
         self.assertTrue(response.result)
 
     def test_save_question_task_fail(self):

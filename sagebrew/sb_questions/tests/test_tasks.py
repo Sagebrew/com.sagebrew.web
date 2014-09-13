@@ -23,7 +23,6 @@ class TestSaveQuestionTask(TestCase):
     def tearDown(self):
         call_command('clear_neo_db')
 
-
     def test_save_question_task(self):
         response = create_question_task.apply_async(kwargs=self.question_info_dict)
 
@@ -50,7 +49,6 @@ class TestEditQuestionTask(TestCase):
 
 
     def test_edit_question_task(self):
-
         question = SBQuestion(content="test question from edit task test",
                               question_title="testquestiontitle from edit test",
                               question_id=uuid1())

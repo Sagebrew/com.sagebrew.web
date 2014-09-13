@@ -2,6 +2,7 @@ import logging
 from uuid import uuid1
 from celery import shared_task
 from celery.exceptions import Retry
+from django.conf import settings
 
 from plebs.neo_models import Pleb
 from .neo_models import SBQuestion
@@ -31,21 +32,25 @@ def create_question_task(content="", current_pleb="", question_title="",
         question = SBQuestion.index.get(question_id=question_uuid)
         return False
     except SBQuestion.DoesNotExist:
-        if create_question_util(content=content, current_pleb=current_pleb,
-                                question_title=question_title, tags=tag_list) \
-                is not None:
+        response = create_question_util(content=content, current_pleb=current_pleb,
+                                question_title=question_title, tags=tag_list)
+        if type(response) is Exception:
+            raise response
+        elif response is None:
+            return False
+        else:
             return True
     except TypeError as exc:
         logger.exception({'function': create_question_task.__name__,
                           'exception': "TypeError: "})
-        raise create_question_task.retry(exc=exc, countdown=20)
+        raise create_question_task.retry(exc=exc, countdown=5)
     except Retry:
         logger.exception({'function': create_question_task.__name__,
                           'exception': "Retry: "})
     except Exception as exc:
         logger.exception({'function': create_question_task.__name__,
                           'exception': "UnhandledException: "})
-        raise create_question_task.retry(exc=exc, countdown=20)
+        raise create_question_task.retry(exc=exc, countdown=5)
 
 @shared_task()
 def edit_question_task(question_uuid="", content="", current_pleb="",

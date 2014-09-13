@@ -222,6 +222,8 @@ OAUTH_EXPIRE_DELTA = timedelta(days=30, minutes=0, seconds=0)
 OAUTH_EXPIRE_DELTA_PUBLIC = timedelta(days=30, minutes=0, seconds=0)
 OAUTH_DELETE_EXPIRED = True
 
+COUNTER = 0
+
 #SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 CELERY_DISABLE_RATE_LIMITS = True

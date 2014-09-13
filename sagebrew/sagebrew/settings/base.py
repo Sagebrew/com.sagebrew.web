@@ -245,7 +245,10 @@ BOMBERMAN_API_KEY = environ.get("BOMBERMAN_API_KEY",
 LOG_TOKEN = environ.get("LOG_TOKEN", "4befe913-b753-4823-a844-193a41779000")
 
 ALCHEMY_API_KEY = '9a65358c4596c05991a406c039281504a0d26bce'
-
+ADDRESS_VALIDATION_ID = environ.get("ADDRESS_VALIDATION_ID",
+                                    '84a98057-05ed-4109-8758-19acd5336c38')
+ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN",
+                                       'p3GbchbjA3q13MUdT7gM')
 CSV_FILES = '%s/csv_content/' % PROJECT_DIR
 
 TEMP_FILES = '%s/temp_files/' % PROJECT_DIR

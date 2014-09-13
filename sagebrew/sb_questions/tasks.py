@@ -48,7 +48,8 @@ def create_question_task(content="", current_pleb="", question_title="",
         raise create_question_task.retry(exc=exc, countdown=20)
 
 @shared_task()
-def edit_question_task(question_uuid="", content="", current_pleb="", last_edited_on=""):
+def edit_question_task(question_uuid="", content="", current_pleb="",
+                       last_edited_on=""):
     '''
     This task calls the util which determines if a question can be edited or not
     returns True and False based on how the util responds

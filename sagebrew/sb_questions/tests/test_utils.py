@@ -44,7 +44,7 @@ class TestCreateQuestion(TestCase):
         self.question_info_dict['current_pleb'] = 'adsfasdfasdfasdf@gmail.com'
         response = create_question_util(**self.question_info_dict)
 
-        self.assertEqual(type(response), Exception)
+        self.assertTrue(type(response) is Exception)
 
 class TestPrepareQuestionDictUtil(TestCase):
     def setUp(self):

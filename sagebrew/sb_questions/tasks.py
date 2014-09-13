@@ -32,8 +32,13 @@ def create_question_task(content="", current_pleb="", question_title="",
         question = SBQuestion.index.get(question_id=question_uuid)
         return False
     except SBQuestion.DoesNotExist:
-        response = create_question_util(content=content, current_pleb=current_pleb,
+        try:
+            response = create_question_util(content=content, current_pleb=current_pleb,
                                 question_title=question_title, tags=tag_list)
+        except Exception:
+            logger.exception({'function': create_question_task.__name__,
+                          'exception': "UnhandledException Util: "})
+            raise create_question_task.retry(exc=Exception, countdown=5)
         if type(response) is Exception:
             raise response
         elif response is None:
@@ -44,13 +49,10 @@ def create_question_task(content="", current_pleb="", question_title="",
         logger.exception({'function': create_question_task.__name__,
                           'exception': "TypeError: "})
         raise create_question_task.retry(exc=exc, countdown=5)
-    except Retry:
-        logger.exception({'function': create_question_task.__name__,
-                          'exception': "Retry: "})
-    except Exception as exc:
+    except Exception:
         logger.exception({'function': create_question_task.__name__,
                           'exception': "UnhandledException: "})
-        raise create_question_task.retry(exc=exc, countdown=5)
+        raise create_question_task.retry(exc=Exception, countdown=5)
 
 @shared_task()
 def edit_question_task(question_uuid="", content="", current_pleb="",

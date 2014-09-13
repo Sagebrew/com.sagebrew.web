@@ -67,7 +67,7 @@ def create_question_util(content="", current_pleb="", question_title="",
         return None
     except Exception as exc:
         logger.exception("UnhandledException: ")
-        return exc
+        return False
 
 def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
     '''

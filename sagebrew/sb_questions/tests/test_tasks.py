@@ -18,7 +18,8 @@ class TestSaveQuestionTask(TestCase):
             username='Tyler', email=str(uuid1())+'@gmail.com')
         self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
-                                   'content': 'test post'}
+                                   'content': 'test post',
+                                   'tags': "this,is,a,test"}
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -33,7 +34,8 @@ class TestSaveQuestionTask(TestCase):
 
     def test_save_question_task_fail(self):
         question_info = {'current_pleb': self.user.email,
-                         'question_title': "Test question"}
+                         'question_title': "Test question",
+                         'tags': "this,is,a,test"}
         response = create_question_task.apply_async(kwargs=question_info)
 
         while not response.ready():

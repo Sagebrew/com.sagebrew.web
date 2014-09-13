@@ -125,8 +125,9 @@ def validate_address(address_request):
     QUERY_STRING = urllib.urlencode(address_request)
 
     URL = LOCATION + '?' + QUERY_STRING
-
     response = urllib.urlopen(URL).read()
+    #TODO if the smartystreets has no more available api calls it will return
+    #none and loads will fail, implement handling of this error
     structure = json.loads(response)
 
     return create_address_array(structure)

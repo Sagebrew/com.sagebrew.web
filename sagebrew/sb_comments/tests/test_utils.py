@@ -3,6 +3,7 @@ from uuid import uuid1
 from datetime import datetime
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.core.management import call_command
 
 from sb_posts.utils import save_post
 from sb_comments.utils import (save_comment_post, edit_comment_util,
@@ -15,26 +16,19 @@ from plebs.neo_models import Pleb
 
 class TestSaveComments(TestCase):
     def setUp(self):
-        self.email = str(uuid1) + '@sagebrew.com'
-        try:
-            pleb = Pleb.index.get(email=self.email)
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-        except Pleb.DoesNotExist:
-            pass
-
         self.user = User.objects.create_user(
-            username='Tyler' + str(uuid1())[:25], email=self.email)
-        self.pleb = Pleb.index.get(email=self.email)
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_save_comment(self):
         uuid = str(uuid1())
         post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.pleb.email,
-                         wall_pleb=self.pleb.email)
+                         current_pleb=self.user.email,
+                         wall_pleb=self.user.email)
         my_comment = save_comment_post(content="test comment",
-                                       pleb=self.pleb.email,
+                                       pleb=self.user.email,
                                        post_uuid=post.post_id)
 
         self.assertEqual(my_comment.content, "test comment")
@@ -42,10 +36,10 @@ class TestSaveComments(TestCase):
     def test_edit_comment(self):
         uuid = str(uuid1())
         post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.pleb.email,
-                         wall_pleb=self.pleb.email)
+                         current_pleb=self.user.email,
+                         wall_pleb=self.user.email)
         my_comment = save_comment_post(content="test comment",
-                                       pleb=self.pleb.email,
+                                       pleb=self.user.email,
                                        post_uuid=post.post_id)
         edited_time = datetime.now(pytz.utc)
         edited_comment = edit_comment_util(comment_uuid=my_comment.comment_id,
@@ -57,10 +51,10 @@ class TestSaveComments(TestCase):
     def test_delete_comment(self):
         uuid = str(uuid1())
         post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.pleb.email,
-                         wall_pleb=self.pleb.email)
+                         current_pleb=self.user.email,
+                         wall_pleb=self.user.email)
         my_comment = save_comment_post(content="test comment",
-                                       pleb=self.pleb.email,
+                                       pleb=self.user.email,
                                        post_uuid=post.post_id)
         comment_deleted = delete_comment_util(my_comment.comment_id)
 
@@ -69,8 +63,8 @@ class TestSaveComments(TestCase):
     def test_comment_from_diff_user(self):
         uuid = str(uuid1())
         post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.pleb.email,
-                         wall_pleb=self.pleb.email)
+                         current_pleb=self.user.email,
+                         wall_pleb=self.user.email)
         user2 = User.objects.create_user(
             username='Test' + str(uuid1())[:25],
             email=str(uuid1())[:10] + "@gmail.com")
@@ -85,28 +79,21 @@ class TestSaveComments(TestCase):
 
 class TestVoteComments(TestCase):
     def setUp(self):
-        self.email = str(uuid1) + '@sagebrew.com'
-        try:
-            pleb = Pleb.index.get(email=self.email)
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-        except Pleb.DoesNotExist:
-            pass
-
         self.user = User.objects.create_user(
-            username='Tyler' + str(uuid1())[:25], email=self.email)
-        self.pleb = Pleb.index.get(email=self.email)
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_upvote_comment(self):
         uuid = str(uuid1())
         post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.pleb.email,
-                         wall_pleb=self.pleb.email)
+                         current_pleb=self.user.email,
+                         wall_pleb=self.user.email)
         my_comment = save_comment_post(content="test comment",
-                                       pleb=self.pleb.email,
+                                       pleb=self.user.email,
                                        post_uuid=post.post_id)
-        create_upvote_comment_util(pleb=self.pleb.email,
+        create_upvote_comment_util(pleb=self.user.email,
                                    comment_uuid=my_comment.comment_id)
         my_comment.refresh()
 
@@ -115,12 +102,12 @@ class TestVoteComments(TestCase):
     def test_downvote_comment(self):
         uuid = str(uuid1())
         post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.pleb.email,
-                         wall_pleb=self.pleb.email)
+                         current_pleb=self.user.email,
+                         wall_pleb=self.user.email)
         my_comment = save_comment_post(content="test comment",
-                                       pleb=self.pleb.email,
+                                       pleb=self.user.email,
                                        post_uuid=post.post_id)
-        create_downvote_comment_util(pleb=self.pleb.email,
+        create_downvote_comment_util(pleb=self.user.email,
                                      comment_uuid=my_comment.comment_id)
         my_comment.refresh()
 
@@ -129,10 +116,10 @@ class TestVoteComments(TestCase):
     def test_upvote_from_diff_user(self):
         uuid = str(uuid1())
         post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.pleb.email,
-                         wall_pleb=self.pleb.email)
+                         current_pleb=self.user.email,
+                         wall_pleb=self.user.email)
         my_comment = save_comment_post(content="test comment",
-                                       pleb=self.pleb.email,
+                                       pleb=self.user.email,
                                        post_uuid=post.post_id)
 
         user2 = User.objects.create_user(
@@ -140,7 +127,7 @@ class TestVoteComments(TestCase):
             email=str(uuid1())[:10] + "@gmail.com")
         pleb2 = Pleb.index.get(email=user2.email)
 
-        create_upvote_comment_util(pleb=self.pleb.email,
+        create_upvote_comment_util(pleb=self.user.email,
                                    comment_uuid=my_comment.comment_id)
         my_comment.refresh()
         create_upvote_comment_util(pleb=pleb2.email,
@@ -152,16 +139,16 @@ class TestVoteComments(TestCase):
     def test_downvote_from_diff_user(self):
         uuid = str(uuid1())
         post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.pleb.email,
-                         wall_pleb=self.pleb.email)
+                         current_pleb=self.user.email,
+                         wall_pleb=self.user.email)
         my_comment = save_comment_post(content="test comment",
-                                       pleb=self.pleb.email,
+                                       pleb=self.user.email,
                                        post_uuid=post.post_id)
         user2 = User.objects.create_user(
             username='Test' + str(uuid1())[:25],
             email=str(uuid1())[:10] + "@gmail.com")
         pleb2 = Pleb.index.get(email=user2.email)
-        create_downvote_comment_util(pleb=self.pleb.email,
+        create_downvote_comment_util(pleb=self.user.email,
                                      comment_uuid=my_comment.comment_id)
         my_comment.refresh()
         create_downvote_comment_util(pleb=pleb2.email,
@@ -172,24 +159,17 @@ class TestVoteComments(TestCase):
 
 class TestFlagComment(TestCase):
     def setUp(self):
-        self.email = str(uuid1) + '@sagebrew.com'
-        try:
-            pleb = Pleb.index.get(email=self.email)
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-        except Pleb.DoesNotExist:
-            pass
-
         self.user = User.objects.create_user(
-            username='Tyler' + str(uuid1())[:25], email=self.email)
-        self.pleb = Pleb.index.get(email=self.email)
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_flag_comment_success_spam(self):
         comment = SBComment(comment_id=uuid1())
         comment.save()
         res = flag_comment_util(comment_uuid=comment.comment_id,
-                                current_user=self.pleb.email,
+                                current_user=self.user.email,
                                 flag_reason='spam')
 
         self.assertTrue(res)
@@ -198,7 +178,7 @@ class TestFlagComment(TestCase):
         comment = SBComment(comment_id=uuid1())
         comment.save()
         res = flag_comment_util(comment_uuid=comment.comment_id,
-                                current_user=self.pleb.email,
+                                current_user=self.user.email,
                                 flag_reason='explicit')
 
         self.assertTrue(res)
@@ -207,7 +187,7 @@ class TestFlagComment(TestCase):
         comment = SBComment(comment_id=uuid1())
         comment.save()
         res = flag_comment_util(comment_uuid=comment.comment_id,
-                                current_user=self.pleb.email,
+                                current_user=self.user.email,
                                 flag_reason='other')
 
         self.assertTrue(res)
@@ -216,14 +196,14 @@ class TestFlagComment(TestCase):
         comment = SBComment(comment_id=uuid1())
         comment.save()
         res = flag_comment_util(comment_uuid=comment.comment_id,
-                                current_user=self.pleb.email,
+                                current_user=self.user.email,
                                 flag_reason='dumb')
 
         self.assertFalse(res)
 
     def test_flag_comment_failure_comment_does_not_exist(self):
         res = flag_comment_util(comment_uuid=uuid1(),
-                                current_user=self.pleb.email,
+                                current_user=self.user.email,
                                 flag_reason='other')
 
         self.assertFalse(res)

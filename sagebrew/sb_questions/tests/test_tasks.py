@@ -26,14 +26,20 @@ class TestSaveQuestionTask(TestCase):
     def test_save_question_task(self):
         response = create_question_task.apply_async(kwargs=self.question_info_dict)
 
-        self.assertTrue(response.get())
+        while not response.ready():
+            time.sleep(3)
+
+        self.assertTrue(response.result)
 
     def test_save_question_task_fail(self):
         question_info = {'current_pleb': self.user.email,
                          'question_title': "Test question"}
         response = create_question_task.apply_async(kwargs=question_info)
 
-        self.assertFalse(response.get())
+        while not response.ready():
+            time.sleep(3)
+
+        self.assertFalse(response.result)
 
 class TestEditQuestionTask(TestCase):
     def setUp(self):
@@ -135,7 +141,9 @@ class TestMultipleTasks(TestCase):
             self.question_info_dict['question_uuid'] = uuid
             save_response = create_question_task.apply_async(
                 kwargs=self.question_info_dict)
-            response_array.append(save_response.get())
+            while not save_response.ready():
+                time.sleep(3)
+            response_array.append(save_response.result)
 
         self.assertNotIn(False, response_array)
 

@@ -19,6 +19,11 @@ def create_question_task(content="", current_pleb="", question_title="",
     This task calls the util to create a question, if the util fails the
     task respawns itself.
 
+    ERROR: For some reason when we expect the function to return False
+        while testing it will sometimes return:
+            TypeError("'DoesNotExist' object is not callable",)
+        We don't know why but we must handle it
+
     :param content:
     :param current_pleb:
     :param question_title:

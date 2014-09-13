@@ -45,10 +45,10 @@ def create_question_task(content="", current_pleb="", question_title="",
             return False
         else:
             return True
-    except TypeError as exc:
+    except TypeError:
         logger.exception({'function': create_question_task.__name__,
                           'exception': "TypeError: "})
-        raise create_question_task.retry(exc=exc, countdown=5, max_retries=None)
+        raise create_question_task.retry(exc=TypeError, countdown=5, max_retries=None)
     except Exception:
         logger.exception({'function': create_question_task.__name__,
                           'exception': "UnhandledException: "})

@@ -113,7 +113,7 @@ class TestVoteTask(TestCase):
 
     def test_question_vote_task(self):
         question = SBQuestion(content="test question from vote task test",
-                              question_title="testquestiontitle from vote test",
+                              question_title="testquestiontitle from votetest",
                               question_id=uuid1())
         question.save()
         pleb = Pleb.index.get(email=self.user.email)

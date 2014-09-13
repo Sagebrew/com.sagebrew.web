@@ -61,7 +61,8 @@ def create_question_util(content="", current_pleb="", question_title="",
         tag_list = {'tag_list': task_data}
         spawn_task(task_func=add_auto_tags, task_param=tag_list)
         return my_question
-
+    except SBQuestion.DoesNotExist:
+        return None
     except Pleb.DoesNotExist:
         return None
     except Exception as exc:

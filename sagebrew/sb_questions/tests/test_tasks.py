@@ -32,8 +32,11 @@ class TestSaveQuestionTask(TestCase):
         question_info = {'current_pleb': self.user.email,
                          'question_title': "Test question"}
         response = create_question_task.apply_async(kwargs=question_info)
-
-        self.assertFalse(response.get())
+        while not response.ready():
+            print response.status
+            time.sleep(3)
+        print response.status
+        self.assertFalse(response.result)
 
 class TestEditQuestionTask(TestCase):
     def setUp(self):

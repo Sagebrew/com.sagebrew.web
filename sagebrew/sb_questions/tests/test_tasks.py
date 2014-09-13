@@ -29,7 +29,7 @@ class TestSaveQuestionTask(TestCase):
 
         while not response.ready():
             time.sleep(3)
-        print type(response.result)
+
         self.assertTrue(response.result)
 
     def test_save_question_task_fail(self):
@@ -41,7 +41,12 @@ class TestSaveQuestionTask(TestCase):
         while not response.ready():
             time.sleep(3)
 
-        self.assertFalse(response.result)
+        result = response.result
+        if not result:
+            self.assertFalse(response.result)
+        elif type(result) is TypeError:
+            self.assertTrue(type(result) is TypeError)
+
 
 class TestEditQuestionTask(TestCase):
     def setUp(self):

@@ -13,7 +13,7 @@ $(document).ready(function () {
         $(datepickerSelector).focus();
     });
     $.extend($.datepicker, {_checkOffset: function (inst, offset, isFixed) {
-        return offset
+        return offset;
     });
 
     // Now let's align datepicker with the prepend button

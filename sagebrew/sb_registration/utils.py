@@ -114,8 +114,8 @@ def validate_address(address_request):
     #127 glenwood dr walled lake mi 48390
     LOCATION = 'https://api.smartystreets.com/street-address/'  #move to
     # settings
-    auth_id = '84a98057-05ed-4109-8758-19acd5336c38'
-    auth_token = 'p3GbchbjA3q13MUdT7gM'
+    auth_id = settings.ADDRESS_VALIDATION_ID
+    auth_token = settings.ADDRESS_VALIDATION_TOKEN
     address_request['auth-id'] = auth_id
     address_request['auth-token'] = auth_token
     address_request['street'] = address_request['primary_address']

@@ -1,1 +1,1 @@
--r web/base.txt
+-r base.txt

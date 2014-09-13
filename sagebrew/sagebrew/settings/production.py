@@ -23,13 +23,6 @@ CACHES = {
     }
 }
 
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
-        'URL': 'http://127.0.0.1:8983/solr'
-    },
-}
-
 AWS_UPLOAD_BUCKET_NAME = "sagebrew"
 AWS_UPLOAD_CLIENT_KEY = ""
 AWS_UPLOAD_CLIENT_SECRET_KEY = ""
@@ -63,7 +56,7 @@ LOGGING = {
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'ERROR',
-            'token': LOGGLY_TOKEN
+            'token': LOG_TOKEN
         },
         'django.request': {
             'handlers': ['logging.handlers.SysLogHandler'],

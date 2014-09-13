@@ -7,7 +7,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 
 from sb_posts.utils import save_post, edit_post_info, delete_post_info, \
-    create_post_vote
+    create_post_vote, flag_post
 from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
 
@@ -15,7 +15,6 @@ logger = logging.getLogger('loggly_logs')
 
 class TestSavePost(TestCase):
     def setUp(self):
-        logger.critical("Testing logs in circle Fo sho")
         self.email = 'devon@sagebrew.com'
         try:
             pleb = Pleb.index.get(email=self.email)
@@ -201,3 +200,64 @@ class TestPostVotes(TestCase):
 
         self.assertFalse(res)
 
+
+class TestFlagPost(TestCase):
+    def setUp(self):
+        self.email = str(uuid1()) + '@sagebrew.com'
+        try:
+            pleb = Pleb.index.get(email=self.email)
+            wall = pleb.traverse('wall').run()[0]
+            wall.delete()
+            pleb.delete()
+        except Pleb.DoesNotExist:
+            pass
+
+        self.user = User.objects.create_user(
+            username='Tyler' + str(uuid1())[:25], email=self.email)
+        self.pleb = Pleb.index.get(email=self.email)
+
+    def test_flag_success_spam(self):
+        post = SBPost(post_id=uuid1())
+        post.save()
+        res = flag_post(post_uuid=post.post_id, current_user=self.pleb.email,
+                        flag_reason='spam')
+
+        self.assertTrue(res)
+
+    def test_flag_success_explicit(self):
+        post = SBPost(post_id=uuid1())
+        post.save()
+        res = flag_post(post_uuid=post.post_id, current_user=self.pleb.email,
+                        flag_reason='explicit')
+
+        self.assertTrue(res)
+
+    def test_flag_success_other(self):
+        post = SBPost(post_id=uuid1())
+        post.save()
+        res = flag_post(post_uuid=post.post_id, current_user=self.pleb.email,
+                        flag_reason='other')
+
+        self.assertTrue(res)
+
+    def test_flag_failure_wrong_data_incorrect_reason(self):
+        post = SBPost(post_id=uuid1())
+        post.save()
+        res = flag_post(post_uuid=post.post_id, current_user=self.pleb.email,
+                        flag_reason='dumb')
+
+        self.assertFalse(res)
+
+    def test_flag_failure_post_does_not_exist(self):
+        res = flag_post(post_uuid=uuid1(), current_user=self.pleb.email,
+                        flag_reason='other')
+
+        self.assertFalse(res)
+
+    def test_flag_failure_user_does_not_exist(self):
+        post = SBPost(post_id=uuid1())
+        post.save()
+        res = flag_post(post_uuid=post.post_id, current_user=uuid1(),
+                        flag_reason='other')
+
+        self.assertFalse(res)

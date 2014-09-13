@@ -5,7 +5,7 @@ from sb_notifications.tasks import create_notification_post_task
 from api.utils import spawn_task
 from .neo_models import SBPost
 from plebs.neo_models import Pleb
-from .utils import (save_post, edit_post_info, delete_post_info)
+from .utils import (save_post, edit_post_info, delete_post_info, flag_post)
 
 
 @shared_task()
@@ -182,4 +182,20 @@ def edit_post_info_task(content="", post_uuid=str(uuid1()),
     if edit_post_return['detail'] == 'time stamp is the same':
         return False
     if edit_post_return['detail'] == 'last edit more recent':
+        return False
+
+@shared_task()
+def flag_post_task(post_uuid, current_user, flag_reason):
+    '''
+    This task calls the util to add a flag to a post
+
+    :param post_uuid:
+    :param current_user:
+    :param flag_reason:
+    :return:
+    '''
+    if flag_post(post_uuid=post_uuid, current_user=current_user,
+                 flag_reason=flag_reason):
+        return True
+    else:
         return False

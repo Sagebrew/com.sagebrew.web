@@ -1,3 +1,4 @@
+import logging
 import hashlib
 from django.conf import settings
 from uuid import uuid1
@@ -13,6 +14,7 @@ from .utils import (validate_address, generate_interests_tuple, upload_image,
                     create_address_string,
                     create_address_long_hash)
 
+logger = logging.getLogger('loggly_logs')
 
 @login_required
 def profile_information(request):
@@ -143,7 +145,6 @@ def interests(request):
     interest_form = InterestForm(request.POST or None)
     choices_tuple = generate_interests_tuple()
     interest_form.fields["specific_interests"].choices = choices_tuple
-    print request.POST
     if interest_form.is_valid():
         for item in interest_form.cleaned_data:
             if (interest_form.cleaned_data[item] and
@@ -196,7 +197,6 @@ def profile_picture(request):
                 citizen = Pleb.index.get(email=request.user.email)
                 # if citizen.completed_profile_info:
                 #    return redirect('profile_page')
-                #print citizen.profile_pic
             except Pleb.DoesNotExist:
                 return render(request, 'profile_picture.html',
                               {'profile_picture_form': profile_picture_form})

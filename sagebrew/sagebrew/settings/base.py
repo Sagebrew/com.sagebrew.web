@@ -4,11 +4,6 @@ from __future__ import absolute_import
 from os import environ, path, makedirs
 from unipath import Path
 from datetime import timedelta
-'''
-test:
-  post:
-    -
-'''
 
 
 PROJECT_DIR = Path(__file__).ancestor(3)
@@ -106,6 +101,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware'
     'djangosecure.middleware.SecurityMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
@@ -158,23 +154,16 @@ INSTALLED_APPS = (
     'djangosecure',
     'django_admin_bootstrapped',
     'django.contrib.admin',
-    'south',
-    'haystack',
-    'djcelery',
     'rest_framework',
     'admin_honeypot',
     'provider',
     'provider.oauth2',
     'storages',
     'localflavor',
-    'crispy_forms',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.facebook',
-    'photologue',
-    'sortedm2m',
-    'guardian',
     'plebs',
     'api',
     'govtrack',
@@ -195,6 +184,8 @@ INSTALLED_APPS = (
     'textblob',
 )
 
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "optional"
@@ -208,12 +199,9 @@ EMAIL_BACKEND = "sgbackend.SendGridBackend"
 SENDGRID_USER = "bleib1dj"
 SENDGRID_PASSWORD = "wp*D8S@kRnc:6pA"
 
-CRISPY_TEMPLATE_PACK = 'bootstrap3'
-
 LOGIN_URL = '/accounts/login/'
 LOGOUT_URL = '/accounts/logout/'
 
-HAYSTACK_DEFAULT_OPERATOR = "OR"
 ANONYMOUS_USER_ID = -1
 
 LOGIN_REDIRECT_URL = '/registration/profile_information/'
@@ -238,15 +226,9 @@ OAUTH_DELETE_EXPIRED = True
 
 CELERY_DISABLE_RATE_LIMITS = True
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
-CELERY_IMPORTS = ('api.tasks', 'govtrack.tasks', 'sb_comments.tasks',
-                  'sb_garbage.tasks', 'sb_posts.tasks',
-                  'sb_notifications.tasks',
-                  'sb_relationships.tasks', 'sb_questions.tasks',
-                  'sb_search.tasks'
-)
 BROKER_URL = 'amqp://sagebrew:this_is_the_sagebrew_password@localhost:5672//'
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
-CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
+
 CELERY_IGNORE_RESULT = False
 
 CELERYBEAT_SCHEDULE = {
@@ -257,19 +239,21 @@ CELERYBEAT_SCHEDULE = {
 }
 CELERY_TIMEZONE = 'UTC'
 
-BOMBERMAN_API_KEY = '6a224aea0ecb3601ae9197c5762aef56'
+BOMBERMAN_API_KEY = environ.get("BOMBERMAN_API_KEY",
+                                '6a224aea0ecb3601ae9197c5762aef56')
 
-LOGGLY_TOKEN = "4befe913-b753-4823-a844-193a41779000"
+LOG_TOKEN = environ.get("LOG_TOKEN", "4befe913-b753-4823-a844-193a41779000")
 
 ALCHEMY_API_KEY = '9a65358c4596c05991a406c039281504a0d26bce'
-
+ADDRESS_VALIDATION_ID = environ.get("ADDRESS_VALIDATION_ID",
+                                    '84a98057-05ed-4109-8758-19acd5336c38')
+ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN",
+                                       'p3GbchbjA3q13MUdT7gM')
 CSV_FILES = '%s/csv_content/' % PROJECT_DIR
 
 TEMP_FILES = '%s/temp_files/' % PROJECT_DIR
 if not path.exists(TEMP_FILES):
     makedirs(TEMP_FILES)
-
-import djcelery
 
 USER_RELATIONSHIP_BASE = {
     'seen': 150, 'blocked_user': 0, 'friend_of_friend': 100,
@@ -296,9 +280,6 @@ OBJECT_SEARCH_MODIFIERS = {
     'flag_as_other': -10, 'answered': 50, 'starred': 150, 'seen_search': 5,
     'seen_page': 20
 }
-
-
-djcelery.setup_loader()
 
 # TODO When doing load testing and beta testing ensure that LOGGING of DB is on
 # and at w/e level we need to check response times. We might be able to

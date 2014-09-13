@@ -1,7 +1,7 @@
-import traceback
 import logging
 from uuid import uuid1
 from celery import shared_task
+from celery.exceptions import Retry
 
 from plebs.neo_models import Pleb
 from .neo_models import SBQuestion
@@ -35,15 +35,17 @@ def create_question_task(content="", current_pleb="", question_title="",
                                 question_title=question_title, tags=tag_list) \
                 is not None:
             return True
-        else:
-            data = {'content': content, 'current_pleb': current_pleb,
-                    'question_title': question_title}
-            spawn_task(task_func=create_question_task, task_param=data,
-                       countdown=2)
-            return False
-    except Exception:
-        logger.exception("MultipleObjectsReturned: ")
-        return False
+    except TypeError as exc:
+        logger.exception({'function': create_question_task.__name__,
+                          'exception': "TypeError: "})
+        raise create_question_task.retry(exc=exc, countdown=20)
+    except Retry:
+        logger.exception({'function': create_question_task.__name__,
+                          'exception': "Retry: "})
+    except Exception as exc:
+        logger.exception({'function': create_question_task.__name__,
+                          'exception': "UnhandledException: "})
+        raise create_question_task.retry(exc=exc, countdown=20)
 
 @shared_task()
 def edit_question_task(question_uuid="", content="", current_pleb="", last_edited_on=""):
@@ -75,7 +77,7 @@ def edit_question_task(question_uuid="", content="", current_pleb="", last_edite
         elif edit_question_return['detail'] == 'last edit more recent':
             return False
 
-    except SBQuestion.DoesNotExist, Pleb.DoesNotExist:
+    except (SBQuestion.DoesNotExist, Pleb.DoesNotExist):
         return False
     except Exception:
         logger.exception("MultipleObjectsReturned: ")

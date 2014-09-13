@@ -1,0 +1,31 @@
+FROM {{PROJECT_NAME}}/django.web.primary.base:v10
+
+MAINTAINER Devon Bleibtrey <devon@sagebrew.com>
+
+RUN apt-get update && apt-get install -y git
+RUN mkdir /home/apps/
+RUN mkdir /home/apps/logs
+
+
+RUN git clone -b {{DOCKER_ENV}} git@github.com:{{PROJECT_USERNAME}}/{{PROJECT_REPONAME}}.git /home/apps/{{PROJECT_NAME}}/
+RUN chown -R {{APP_USER}}:{{APP_USER}} /home/apps/
+
+RUN rm -r /root/.ssh
+RUN apt-get remove --auto-remove -y openssh-client
+
+RUN pip install -r /home/apps/{{PROJECT_NAME}}/requirements/{{REQUIREMENTS_FILE}}.txt
+RUN pip install git+https://github.com/robinedwards/neomodel.git@0.3.6
+RUN apt-get remove --auto-remove -y git
+
+ENV BOMBERMAN_API_KEY {{BOMBERMAN_API_KEY}}
+RUN chown {{APP_USER}} /etc/rsyslog.d/
+RUN python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py logglypopulation {{LOG_ACCOUNT}} {{LOG_TOKEN}}
+RUN chown root /etc/rsyslog.d/
+RUN service rsyslog restart
+
+
+RUN chown {{APP_USER}} /etc/supervisor/conf.d/
+RUN python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py populatesupervisor {{SUPER_TEMPLATE}} {{APP_USER}}
+RUN chown root /etc/supervisor/conf.d/
+
+CMD supervisord -c /etc/supervisor/supervisord.conf

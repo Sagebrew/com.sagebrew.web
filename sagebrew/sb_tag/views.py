@@ -2,6 +2,8 @@ import pytz
 import logging
 import traceback
 from django.conf import settings
+from urllib2 import HTTPError
+from requests import ConnectionError
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
@@ -31,7 +33,9 @@ def get_tag_view(request):
         for resp in scanResp:
             tag_list.append(resp['_source']['tag_name'])
         return Response({'tags': tag_list}, status=200)
+    except (HTTPError, ConnectionError):
+        return Response({'detail': 'connection error'}, status=400)
     except Exception:
-        traceback.print_exc()
+        logger.exception('UnhandledException: ')
         return Response({'tags': []}, status=400)
 

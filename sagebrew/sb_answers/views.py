@@ -94,7 +94,6 @@ def vote_answer_view(request):
     '''
     try:
         post_data = get_post_data(request)
-        print post_data
         if type(post_data) != dict:
             return Response({"details": "Please Provide a JSON Object"},
                             status=400)
@@ -106,6 +105,6 @@ def vote_answer_view(request):
         else:
             return Response({'detail': answer_form.errors}, status=400)
     except Exception, e:
-        print e
+        logger.exception("UnhandledException: ")
         return Response({"detail": "Vote could not be created!",
                          'exception': e})

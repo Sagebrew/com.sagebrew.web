@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
+from .forms import SubmitFriendRequestForm
 from .neo_models import FriendRequest
 from .tasks import create_friend_request_task
 from plebs.neo_models import Pleb
@@ -24,14 +25,16 @@ def create_friend_request(request):
     '''
     # TODO return uuid of friend request and add to javascript hide button
     # when uuid recieved
-    #if action is True hide friend request button and show a delete friend
+    # if action is True hide friend request button and show a delete friend
     # request button
     try:
         friend_request_data = get_post_data(request)
-        friend_request_data['friend_request_uuid'] = str(uuid1())
-        create_friend_request_task.apply_async([friend_request_data, ])
-        return Response({"action": True,
-                         "friend_request_id": friend_request_data[
+        friend_request_data['friend_request_uuid'] = uuid1()
+        request_form = SubmitFriendRequestForm(friend_request_data)
+        if request_form.is_valid():
+            create_friend_request_task.apply_async([request_form.cleaned_data, ])
+            return Response({"action": True,
+                         "friend_request_id": request_form.cleaned_data[
                              'friend_request_uuid']}, status=200)
     except(HTTPError, ConnectionError):
         return Response({"action": False}, status=408)
@@ -77,17 +80,16 @@ def respond_friend_request(request):
     :param request:
     :return:
     '''
-    request = request.DATA
+    request_data = get_post_data(request)
     try:
         friend_request = FriendRequest.index.get(
-            friend_request_uuid=request['request_id'])
+            friend_request_uuid=request_data['request_id'])
         to_pleb = friend_request.traverse('request_to').run()[0]
         from_pleb = friend_request.traverse('request_from').run()[0]
     except (FriendRequest.DoesNotExist, Pleb.DoesNotExist):
-        print 'Either the pleb no longer exists or the request does not exist'
         return Response(status=408)
 
-    if request['response'] == 'accept':
+    if request_data['response'] == 'accept':
         rel1 = to_pleb.friends.connect(from_pleb)
         rel2 = from_pleb.friends.connect(to_pleb)
         rel1.save()
@@ -96,10 +98,10 @@ def respond_friend_request(request):
         to_pleb.save()
         from_pleb.save()
         return Response(status=200)
-    elif request['response'] == 'deny':
+    elif request_data['response'] == 'deny':
         friend_request.delete()
         return Response(status=200)
-    elif request['response'] == 'block':
+    elif request_data['response'] == 'block':
         friend_request.seen = True
         friend_request.response = 'block'
         friend_request.save()

@@ -2,12 +2,9 @@ $( document ).ready(function() {
 	$("a.vote_question-action").click(function(event){
 		event.preventDefault();
 		$.ajaxSetup({
-		    beforeSend: function(xhr, settings) {
-				var csrftoken = $.cookie('csrftoken');
-		        if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
-		            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-		        }
-		    }
+		    beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
 		});
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
@@ -21,7 +18,6 @@ $( document ).ready(function() {
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
             success: function (data) {
-                alert(data['detail']);
             }
 		});
 	});

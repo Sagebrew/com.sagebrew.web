@@ -1,4 +1,5 @@
 import pytz
+import logging
 from uuid import uuid1
 from datetime import datetime
 
@@ -6,6 +7,7 @@ from .neo_models import SBComment
 from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
 
+logger = logging.getLogger('loggly_logs')
 
 def get_post_comments(post_info):
     '''
@@ -22,6 +24,8 @@ def get_post_comments(post_info):
         post_comments = post.traverse('comments').where('to_be_deleted', '=',
             False).order_by('created_on').run()
         post_owner = post.traverse('owned_by').run()[0]
+        post.view_count += 1
+        post.save()
         for comment in post_comments:
             comment_owner = comment.traverse('is_owned_by').run()[0]
             comment_dict = {'comment_content': comment.content,
@@ -33,6 +37,8 @@ def get_post_comments(post_info):
                             'comment_owner': comment_owner.first_name + ' '
                                              + comment_owner.last_name,
                             'comment_owner_email': comment_owner.email}
+            comment.view_count += 1
+            comment.save()
             comment_array.append(comment_dict)
         post_dict = {'content': post.content, 'post_id': post.post_id,
                      'up_vote_number': post.up_vote_number,
@@ -177,3 +183,45 @@ def delete_comment_util(comment_uuid=str(uuid1())):
             return True
     except SBComment.DoesNotExist:
         return False
+
+def flag_comment_util(comment_uuid, current_user, flag_reason):
+    '''
+    Attempts to get the comment and user from the parameters then creates the
+    connection between them of having been flagged, also increases the number
+    of flags it has based on what reason was passed
+
+    :param comment_uuid:
+    :param current_user:
+    :param flag_reason:
+    :return:
+    '''
+    try:
+        comment = SBComment.index.get(comment_id=comment_uuid)
+        pleb = Pleb.index.get(email=current_user)
+
+        if comment.flagged_by.is_connected(pleb):
+            return False
+
+        if flag_reason=='spam':
+            comment.flagged_by.connect(pleb)
+            comment.flagged_as_spam_count += 1
+            comment.save()
+        elif flag_reason == 'explicit':
+            comment.flagged_by.connect(pleb)
+            comment.flagged_as_explicit_count += 1
+            comment.save()
+        elif flag_reason == 'other':
+            comment.flagged_by.connect(pleb)
+            comment.flagged_as_other_count += 1
+            comment.save()
+        else:
+            return False
+        return True
+    except SBComment.DoesNotExist:
+        return False
+    except Pleb.DoesNotExist:
+        return False
+    except Exception:
+        logger.exception('UnhandledException: ')
+        return False
+

@@ -169,15 +169,13 @@ class TestMultipleTasks(TestCase):
         for num in range(1, 10):
             uuid = str(uuid1())
             self.question_info_dict['question_uuid'] = uuid
-            save_response = create_question_task.apply_async(kwargs=self.question_info_dict)
+            save_response = create_question_task.apply_async(
+                kwargs=self.question_info_dict)
             response_array.append(save_response.get())
 
-        for item in response_array:
-            self.assertTrue(item)
+        self.assertNotIn(False, response_array)
 
-
-
-    def test_create_same_post_twice(self):
+    def test_create_same_question_twice(self):
         question = SBQuestion(content="test question", question_title="title",
                               question_id=str(uuid1()))
         question.save()

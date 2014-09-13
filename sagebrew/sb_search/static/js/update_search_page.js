@@ -9,7 +9,6 @@ $( document ).ready(function() {
                 ajax_security(xhr, settings)
             }
         });
-
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "GET",

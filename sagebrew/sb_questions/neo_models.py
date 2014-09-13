@@ -1,5 +1,5 @@
-from neomodel import (StructuredNode, StringProperty, IntegerProperty,
-                      DateTimeProperty, RelationshipTo, StructuredRel,
+from neomodel import (StringProperty, IntegerProperty,
+                      RelationshipTo,
                       BooleanProperty, FloatProperty)
 
 from sb_posts.neo_models import SBBase

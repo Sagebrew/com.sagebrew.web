@@ -8,13 +8,14 @@ from sb_posts.utils import save_post
 from sb_comments.utils import (save_comment_post, edit_comment_util,
                                delete_comment_util,
                                create_downvote_comment_util,
-                               create_upvote_comment_util)
+                               create_upvote_comment_util, flag_comment_util)
+from sb_comments.neo_models import SBComment
 from plebs.neo_models import Pleb
 
 
 class TestSaveComments(TestCase):
     def setUp(self):
-        self.email = 'devon@sagebrew.com'
+        self.email = str(uuid1) + '@sagebrew.com'
         try:
             pleb = Pleb.index.get(email=self.email)
             wall = pleb.traverse('wall').run()[0]
@@ -84,7 +85,7 @@ class TestSaveComments(TestCase):
 
 class TestVoteComments(TestCase):
     def setUp(self):
-        self.email = 'devon@sagebrew.com'
+        self.email = str(uuid1) + '@sagebrew.com'
         try:
             pleb = Pleb.index.get(email=self.email)
             wall = pleb.traverse('wall').run()[0]
@@ -168,3 +169,70 @@ class TestVoteComments(TestCase):
         my_comment.refresh()
 
         self.assertEqual(my_comment.down_vote_number, 2)
+
+class TestFlagComment(TestCase):
+    def setUp(self):
+        self.email = str(uuid1) + '@sagebrew.com'
+        try:
+            pleb = Pleb.index.get(email=self.email)
+            wall = pleb.traverse('wall').run()[0]
+            wall.delete()
+            pleb.delete()
+        except Pleb.DoesNotExist:
+            pass
+
+        self.user = User.objects.create_user(
+            username='Tyler' + str(uuid1())[:25], email=self.email)
+        self.pleb = Pleb.index.get(email=self.email)
+
+    def test_flag_comment_success_spam(self):
+        comment = SBComment(comment_id=uuid1())
+        comment.save()
+        res = flag_comment_util(comment_uuid=comment.comment_id,
+                                current_user=self.pleb.email,
+                                flag_reason='spam')
+
+        self.assertTrue(res)
+
+    def test_flag_comment_success_explicit(self):
+        comment = SBComment(comment_id=uuid1())
+        comment.save()
+        res = flag_comment_util(comment_uuid=comment.comment_id,
+                                current_user=self.pleb.email,
+                                flag_reason='explicit')
+
+        self.assertTrue(res)
+
+    def test_flag_comment_success_other(self):
+        comment = SBComment(comment_id=uuid1())
+        comment.save()
+        res = flag_comment_util(comment_uuid=comment.comment_id,
+                                current_user=self.pleb.email,
+                                flag_reason='other')
+
+        self.assertTrue(res)
+
+    def test_flag_comment_failure_incorrect_reason(self):
+        comment = SBComment(comment_id=uuid1())
+        comment.save()
+        res = flag_comment_util(comment_uuid=comment.comment_id,
+                                current_user=self.pleb.email,
+                                flag_reason='dumb')
+
+        self.assertFalse(res)
+
+    def test_flag_comment_failure_comment_does_not_exist(self):
+        res = flag_comment_util(comment_uuid=uuid1(),
+                                current_user=self.pleb.email,
+                                flag_reason='other')
+
+        self.assertFalse(res)
+
+    def test_flag_comment_failure_user_does_not_exist(self):
+        comment = SBComment(comment_id=uuid1())
+        comment.save()
+        res = flag_comment_util(comment_uuid=comment.comment_id,
+                                current_user=uuid1(),
+                                flag_reason='other')
+
+        self.assertFalse(res)

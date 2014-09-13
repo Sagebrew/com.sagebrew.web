@@ -30,6 +30,10 @@ class SBBase(StructuredNode):
     is_explicit = BooleanProperty(default=False)
     polarity = FloatProperty()
     subjectivity = FloatProperty()
+    flagged_as_spam_count = IntegerProperty(default=0)
+    flagged_as_explicit_count = IntegerProperty(default=0)
+    flagged_as_other_count = IntegerProperty(default=0)
+    view_count = IntegerProperty(default=0)
 
     # relationships
     auto_tags = RelationshipTo('sb_tag.neo_models.SBAutoTag',

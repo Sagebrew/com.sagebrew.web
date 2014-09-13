@@ -155,7 +155,6 @@ INSTALLED_APPS = (
     'django_admin_bootstrapped',
     'django.contrib.admin',
     'rest_framework',
-    'djcelery',
     'admin_honeypot',
     'provider',
     'provider.oauth2',

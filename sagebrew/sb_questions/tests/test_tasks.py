@@ -79,7 +79,8 @@ class TestQuestionTaskRaceConditions(TestCase):
 
     def test_race_condition_edit_multiple_times(self):
         edit_array = []
-        save_response = create_question_task.apply_async(kwargs=self.question_info_dict)
+        question = SBQuestion(**self.question_info_dict)
+        question.save()
 
         edit_dict = {'content': "post edited",
                      'post_uuid': self.question_info_dict['question_uuid'],
@@ -91,7 +92,6 @@ class TestQuestionTaskRaceConditions(TestCase):
             edit_response = edit_question_task.apply_async(kwargs=edit_dict)
             edit_array.append(edit_response)
 
-        self.assertTrue(save_response.get())
         for response in edit_array:
             self.assertTrue(response)
 

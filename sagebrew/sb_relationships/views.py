@@ -50,7 +50,7 @@ def get_friend_requests(request):
     :return:
     '''
     requests = []
-    citizen = Pleb.index.get(email=request.DATA['email'])
+    citizen = Pleb.nodes.get(email=request.DATA['email'])
     friend_requests = citizen.traverse('friend_requests_recieved').where(
         'seen', '=', False).run()
     for friend_request in friend_requests:
@@ -82,7 +82,7 @@ def respond_friend_request(request):
     '''
     request_data = get_post_data(request)
     try:
-        friend_request = FriendRequest.index.get(
+        friend_request = FriendRequest.nodes.get(
             friend_request_uuid=request_data['request_id'])
         to_pleb = friend_request.traverse('request_to').run()[0]
         from_pleb = friend_request.traverse('request_from').run()[0]

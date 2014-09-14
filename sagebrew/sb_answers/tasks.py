@@ -52,8 +52,8 @@ def edit_answer_task(content="", answer_uuid="", last_edited_on=None,
     :return:
     '''
     try:
-        my_pleb = Pleb.index.get(email=current_pleb)
-        my_answer = SBAnswer.index.get(answer_id=answer_uuid)
+        my_pleb = Pleb.nodes.get(email=current_pleb)
+        my_answer = SBAnswer.nodes.get(answer_id=answer_uuid)
         edit_response = edit_answer_util(content=content, answer_uuid=answer_uuid,
                             current_pleb=current_pleb, last_edited_on=last_edited_on)
         if edit_response:
@@ -88,8 +88,8 @@ def vote_answer_task(answer_uuid="", current_pleb="", vote_type=""):
     :return:
     '''
     try:
-        my_pleb = Pleb.index.get(email=current_pleb)
-        my_answer = SBAnswer.index.get(answer_id = answer_uuid)
+        my_pleb = Pleb.nodes.get(email=current_pleb)
+        my_answer = SBAnswer.nodes.get(answer_id = answer_uuid)
         if my_answer.up_voted_by.is_connected(
                 my_pleb) or my_answer.down_voted_by.is_connected(my_pleb):
             return False

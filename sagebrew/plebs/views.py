@@ -36,7 +36,7 @@ def profile_page(request, pleb_email):
     :param request:
     :return:
     '''
-    citizen = Pleb.index.get(email=pleb_email)
+    citizen = Pleb.nodes.get(email=pleb_email)
     current_user = request.user
     page_user = User.objects.get(email=pleb_email)
     is_owner = False

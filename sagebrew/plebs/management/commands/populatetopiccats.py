@@ -92,7 +92,7 @@ class Command(BaseCommand):
             sb_cat.save()
             for topic in item["sb_topics"]:
                 try:
-                    topic_object = SBTopic.index.get(title=topic["title"])
+                    topic_object = SBTopic.nodes.get(title=topic["title"])
                 except SBTopic.DoesNotExist:
                     topic_object = SBTopic(title=topic["title"],
                                            description=topic["description"])

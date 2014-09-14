@@ -9,8 +9,8 @@ def create_friend_request_util(data):
     create the relationships from the users to the friend requests
     '''
     try:
-        from_citizen = Pleb.index.get(email=data['from_pleb'])
-        to_citizen = Pleb.index.get(email=data['to_pleb'])
+        from_citizen = Pleb.nodes.get(email=data['from_pleb'])
+        to_citizen = Pleb.nodes.get(email=data['to_pleb'])
     except Pleb.DoesNotExist:
         return False
 

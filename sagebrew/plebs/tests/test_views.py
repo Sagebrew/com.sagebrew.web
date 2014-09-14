@@ -15,7 +15,7 @@ class ProfilePageTest(TestCase):
     def setUp(self):
         self.email = 'devon@sagebrew.com'
         try:
-            pleb = Pleb.index.get(email=self.email)
+            pleb = Pleb.nodes.get(email=self.email)
             wall = pleb.traverse('wall').run()[0]
             wall.delete()
             pleb.delete()
@@ -25,7 +25,7 @@ class ProfilePageTest(TestCase):
         self.factory = APIRequestFactory()
         self.user = User.objects.create_user(
             username='Tyler' + str(uuid1())[:25], email=self.email)
-        self.pleb = Pleb.index.get(email=self.email)
+        self.pleb = Pleb.nodes.get(email=self.email)
 
     def test_unauthenticated(self):
         request = self.factory.get('/%s' % self.email)

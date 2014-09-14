@@ -64,8 +64,8 @@ def create_upvote_comment_util(pleb="", comment_uuid=str(uuid1())):
                         comment_uuid=str(uuid) id of the comment being voted on
     :return:
     '''
-    my_comment = SBComment.index.get(comment_id=comment_uuid)
-    my_pleb = Pleb.index.get(email=pleb)
+    my_comment = SBComment.nodes.get(comment_id=comment_uuid)
+    my_pleb = Pleb.nodes.get(email=pleb)
     my_comment.up_vote_number += 1
     my_comment.up_voted_by.connect(my_pleb)
     my_comment.save()
@@ -81,8 +81,8 @@ def create_downvote_comment_util(pleb="", comment_uuid=str(uuid1())):
                         comment_uuid=str(uuid) id of the comment being voted on
     :return:
     '''
-    my_comment = SBComment.index.get(comment_id=comment_uuid)
-    my_pleb = Pleb.index.get(email=pleb)
+    my_comment = SBComment.nodes.get(comment_id=comment_uuid)
+    my_pleb = Pleb.nodes.get(email=pleb)
     my_comment.down_vote_number += 1
     my_comment.down_voted_by.connect(my_pleb)
     my_comment.save()
@@ -101,8 +101,8 @@ def save_comment_post(content="", pleb="", post_uuid=str(uuid1())):
     :return:
     '''
     try:
-        my_citizen = Pleb.index.get(email=pleb)
-        parent_object = SBPost.index.get(post_id=post_uuid)
+        my_citizen = Pleb.nodes.get(email=pleb)
+        parent_object = SBPost.nodes.get(post_id=post_uuid)
         comment_uuid = str(uuid1())
         my_comment = SBComment(content=content, comment_id=comment_uuid)
         my_comment.save()
@@ -137,7 +137,7 @@ def edit_comment_util(comment_uuid=str(uuid1()), content="",
     :return:
     '''
     try:
-        my_comment = SBComment.index.get(comment_id=comment_uuid)
+        my_comment = SBComment.nodes.get(comment_id=comment_uuid)
         if my_comment.last_edited_on is None:
             my_comment.content = content
             my_comment.last_edited_on = last_edited_on
@@ -175,7 +175,7 @@ def delete_comment_util(comment_uuid=str(uuid1())):
     :return:
     '''
     try:
-        my_comment = SBComment.index.get(comment_id=comment_uuid)
+        my_comment = SBComment.nodes.get(comment_id=comment_uuid)
         if datetime.now(pytz.utc).day - my_comment.delete_time.day >= 1:
             my_comment.delete()
             return True
@@ -196,8 +196,8 @@ def flag_comment_util(comment_uuid, current_user, flag_reason):
     :return:
     '''
     try:
-        comment = SBComment.index.get(comment_id=comment_uuid)
-        pleb = Pleb.index.get(email=current_user)
+        comment = SBComment.nodes.get(comment_id=comment_uuid)
+        pleb = Pleb.nodes.get(email=current_user)
 
         if comment.flagged_by.is_connected(pleb):
             return False

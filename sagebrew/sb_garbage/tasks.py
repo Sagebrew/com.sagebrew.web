@@ -7,7 +7,7 @@ from .utils import (delete_comments_util, delete_posts_util)
 @shared_task()
 def empty_garbage_can():
     try:
-        garbage_can = SBGarbageCan.index.get(garbage_can='garbage')
+        garbage_can = SBGarbageCan.nodes.get(garbage_can='garbage')
         delete_posts_util(garbage_can)
         delete_comments_util(garbage_can)
         # delete_plebs_util(garbage_can)

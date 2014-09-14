@@ -258,7 +258,7 @@ def get_friends(email):
     :return:
     '''
     try:
-        citizen = Pleb.index.get(email=email)
+        citizen = Pleb.nodes.get(email=email)
     except Pleb.DoesNotExist:
         return []
     friends = []

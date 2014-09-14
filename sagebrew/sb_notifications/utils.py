@@ -22,9 +22,9 @@ def create_notification_post_util(post_uuid=str(uuid1()), from_pleb="", to_pleb=
     if from_pleb == to_pleb:
         return True
     try:
-        from_citizen = Pleb.index.get(email=from_pleb)
-        to_citizen = Pleb.index.get(email=to_pleb)
-        post = SBPost.index.get(post_id=post_uuid)
+        from_citizen = Pleb.nodes.get(email=from_pleb)
+        to_citizen = Pleb.nodes.get(email=to_pleb)
+        post = SBPost.nodes.get(post_id=post_uuid)
         data = {'notification_uuid': str(uuid1()),
                 'notification_about_id': post_uuid,
                 'notification_about': 'post'}
@@ -49,9 +49,9 @@ def create_notification_comment_util(from_pleb="", to_pleb="",
     try:
         if from_pleb == to_pleb:
             return True
-        from_citizen = Pleb.index.get(email=from_pleb)
-        to_citizen = Pleb.index.get(email=to_pleb)
-        comment = SBComment.index.get(comment_id = comment_uuid)
+        from_citizen = Pleb.nodes.get(email=from_pleb)
+        to_citizen = Pleb.nodes.get(email=to_pleb)
+        comment = SBComment.nodes.get(comment_id = comment_uuid)
         data = {'notification_uuid': str(uuid1()),
                 'notification_about_id': comment_uuid,
                 'notification_about': 'comment'}

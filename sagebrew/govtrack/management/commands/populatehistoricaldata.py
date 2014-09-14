@@ -27,7 +27,7 @@ class Command(BaseCommand):
 
             try:
                 if row['gt_id'] != '':
-                    my_person = GTPersonHistorical.index.get(
+                    my_person = GTPersonHistorical.nodes.get(
                         gt_id=row['gt_id'])
                 else:
                     row['gt_id'] = '0'

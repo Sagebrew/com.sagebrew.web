@@ -49,10 +49,10 @@ def save_post(post_uuid=str(uuid1()), content="", current_pleb="",
             else returns SBPost object
     '''
     try:
-        test_post = SBPost.index.get(post_id=post_uuid)
+        test_post = SBPost.nodes.get(post_id=post_uuid)
     except SBPost.DoesNotExist:
-        poster = Pleb.index.get(email=current_pleb)
-        my_citizen = Pleb.index.get(email=wall_pleb)
+        poster = Pleb.nodes.get(email=current_pleb)
+        my_citizen = Pleb.nodes.get(email=wall_pleb)
         my_post = SBPost(content=content, post_id=post_uuid)
         my_post.save()
         wall = my_citizen.traverse('wall').run()[0]
@@ -99,7 +99,7 @@ def edit_post_info(content="", post_uuid=str(uuid1()), last_edited_on=None,
     '''
     # TODO create a function to determine if the object will be edited
     try:
-        my_post = SBPost.index.get(post_id=post_uuid)
+        my_post = SBPost.nodes.get(post_id=post_uuid)
         if my_post.to_be_deleted:
             return {'post': my_post, 'detail': 'to be deleted'}
 
@@ -140,7 +140,7 @@ def delete_post_info(post_id=str(uuid1())):
             if it cant find the post it returns False
     '''
     try:
-        my_post = SBPost.index.get(post_id=post_id)
+        my_post = SBPost.nodes.get(post_id=post_id)
         if datetime.now(pytz.utc).day - my_post.delete_time.day >=1:
             post_comments = my_post.traverse('comments')
             for comment in post_comments:
@@ -170,8 +170,8 @@ def create_post_vote(pleb="", post_uuid=str(uuid1()), vote_type=""):
     # TODO This needs to allow to changing of vote
     from sb_posts.tasks import create_downvote_post, create_upvote_post
 
-    my_pleb = Pleb.index.get(email=pleb)
-    my_post = SBPost.index.get(post_id=post_uuid)
+    my_pleb = Pleb.nodes.get(email=pleb)
+    my_post = SBPost.nodes.get(post_id=post_uuid)
     if my_post.up_voted_by.is_connected(
             my_pleb) or my_post.down_voted_by.is_connected(my_pleb):
         return False
@@ -200,8 +200,8 @@ def flag_post(post_uuid, current_user, flag_reason):
     :return:
     '''
     try:
-        post = SBPost.index.get(post_id=post_uuid)
-        pleb = Pleb.index.get(email=current_user)
+        post = SBPost.nodes.get(post_id=post_uuid)
+        pleb = Pleb.nodes.get(email=current_user)
 
         if post.flagged_by.is_connected(pleb):
             return False

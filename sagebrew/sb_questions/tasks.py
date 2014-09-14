@@ -34,7 +34,7 @@ def create_question_task(content="", current_pleb="", question_title="",
     '''
     tag_list = tags.split(',')
     try:
-        question = SBQuestion.index.get(question_id=question_uuid)
+        question = SBQuestion.nodes.get(question_id=question_uuid)
         return False
     except SBQuestion.DoesNotExist:
         response = create_question_util(content=content,
@@ -72,8 +72,8 @@ def edit_question_task(question_uuid="", content="", current_pleb="",
     :return:
     '''
     try:
-        my_pleb = Pleb.index.get(email=current_pleb)
-        my_question = SBQuestion.index.get(question_id=question_uuid)
+        my_pleb = Pleb.nodes.get(email=current_pleb)
+        my_question = SBQuestion.nodes.get(question_id=question_uuid)
         edit_question_return = edit_question_util(question_uuid=question_uuid,
                                                   content=content,
                                                   current_pleb=current_pleb,
@@ -109,8 +109,8 @@ def vote_question_task(question_uuid="", current_pleb="", vote_type=""):
     :return:
     '''
     try:
-        my_pleb = Pleb.index.get(email=current_pleb)
-        my_question = SBQuestion.index.get(question_id=question_uuid)
+        my_pleb = Pleb.nodes.get(email=current_pleb)
+        my_question = SBQuestion.nodes.get(question_id=question_uuid)
         if my_question.up_voted_by.is_connected(
                 my_pleb) or my_question.down_voted_by.is_connected(my_pleb):
             return False

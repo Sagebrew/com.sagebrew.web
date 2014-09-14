@@ -166,7 +166,7 @@ def create_user_profile(sender, instance, created, **kwargs):
         if instance.email == "":
             return None
         try:
-            citizen = Pleb.index.get(email=instance.email)
+            citizen = Pleb.nodes.get(email=instance.email)
         except Pleb.DoesNotExist:
             citizen = Pleb(email=instance.email,
                            first_name=instance.first_name,
@@ -195,7 +195,7 @@ def create_user_profile(sender, instance, created, **kwargs):
                        task_param=task_data)
     else:
         pass
-        # citizen = Pleb.index.get(instance.email)
+        # citizen = Pleb.nodes.get(instance.email)
         # TODO may not be necessary but if we update an email or something
         # we need to remember to update it in the pleb instance and the
         # default django instance.

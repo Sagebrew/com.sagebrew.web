@@ -36,7 +36,7 @@ def get_notifications(request):
                             status=400)
         notification_form = GetNotificationForm(notification_data)
         if notification_form.is_valid():
-            citizen = Pleb.index.get(email=notification_form.cleaned_data['email'])
+            citizen = Pleb.nodes.get(email=notification_form.cleaned_data['email'])
             notifications = citizen.traverse('notifications').where('seen', '=',
                     False).order_by_desc('time_sent').skip(
                     notification_form.cleaned_data['range_start']).limit(

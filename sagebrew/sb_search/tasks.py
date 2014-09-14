@@ -40,8 +40,8 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
     }
     try:
         if object_type == 'question':
-            question = SBQuestion.index.get(question_id=object_uuid)
-            pleb = Pleb.index.get(email=current_pleb)
+            question = SBQuestion.nodes.get(question_id=object_uuid)
+            pleb = Pleb.nodes.get(email=current_pleb)
             if pleb.object_weight.is_connected(question):
                 rel = pleb.object_weight.relationship(question)
 
@@ -95,8 +95,8 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
 
 
         if object_type == 'pleb':
-            pleb = Pleb.index.get(email=object_uuid)
-            c_pleb = Pleb.index.get(email=current_pleb)
+            pleb = Pleb.nodes.get(email=object_uuid)
+            c_pleb = Pleb.nodes.get(email=current_pleb)
             if c_pleb.user_weight.is_connected(pleb):
                 rel = c_pleb.user_weight.relationship(pleb)
                 if rel.interaction == 'seen' and modifier_type == 'search_seen':
@@ -112,9 +112,9 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
                 update_search_index_doc(**update_dict)
 
         if object_type == 'post':
-            post = SBPost.index.get(post_id=object_uuid)
+            post = SBPost.nodes.get(post_id=object_uuid)
         if object_type == 'answer':
-            answer = SBAnswer.index.get(answer_id = object_uuid)
+            answer = SBAnswer.nodes.get(answer_id = object_uuid)
     except Exception, e:
         logger.critical(dumps({"exception": "Unhandled Exception",
                                "function":
@@ -198,8 +198,8 @@ def update_search_query(pleb, query_param, keywords):
     :return:
     '''
     try:
-        pleb = Pleb.index.get(email=pleb)
-        search_query = SearchQuery.index.get(search_query=query_param)
+        pleb = Pleb.nodes.get(email=pleb)
+        search_query = SearchQuery.nodes.get(search_query=query_param)
         rel = pleb.searches.relationship(search_query)
         rel.times_searched += 1
         rel.last_searched = datetime.now(pytz.utc)
@@ -229,7 +229,7 @@ def create_keyword(text, relevance, query_param):
     :return:
     '''
     try:
-        search_query = SearchQuery.index.get(search_query=query_param)
+        search_query = SearchQuery.nodes.get(search_query=query_param)
         keyword = KeyWord(keyword=text).save()
         rel = search_query.keywords.connect(keyword)
         rel.relevance = relevance

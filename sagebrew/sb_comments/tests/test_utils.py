@@ -68,7 +68,7 @@ class TestSaveComments(TestCase):
         user2 = User.objects.create_user(
             username='Test' + str(uuid1())[:25],
             email=str(uuid1())[:10] + "@gmail.com")
-        pleb2 = Pleb.index.get(email=user2.email)
+        pleb2 = Pleb.nodes.get(email=user2.email)
         my_comment = save_comment_post(content="test comment from diff user",
                                        pleb=pleb2.email,
                                        post_uuid=post.post_id)
@@ -125,7 +125,7 @@ class TestVoteComments(TestCase):
         user2 = User.objects.create_user(
             username='Test' + str(uuid1())[:25],
             email=str(uuid1())[:10] + "@gmail.com")
-        pleb2 = Pleb.index.get(email=user2.email)
+        pleb2 = Pleb.nodes.get(email=user2.email)
 
         create_upvote_comment_util(pleb=self.user.email,
                                    comment_uuid=my_comment.comment_id)
@@ -147,7 +147,7 @@ class TestVoteComments(TestCase):
         user2 = User.objects.create_user(
             username='Test' + str(uuid1())[:25],
             email=str(uuid1())[:10] + "@gmail.com")
-        pleb2 = Pleb.index.get(email=user2.email)
+        pleb2 = Pleb.nodes.get(email=user2.email)
         create_downvote_comment_util(pleb=self.user.email,
                                      comment_uuid=my_comment.comment_id)
         my_comment.refresh()

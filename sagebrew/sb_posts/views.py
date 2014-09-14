@@ -63,7 +63,7 @@ def get_user_posts(request):
     post_data = get_post_data(request)
     post_form = GetPostForm(post_data)
     if post_form.is_valid():
-        citizen = Pleb.index.get(email=post_form.cleaned_data['email'])
+        citizen = Pleb.nodes.get(email=post_form.cleaned_data['email'])
         posts = get_pleb_posts(citizen, post_form.cleaned_data['range_end'],
                            post_form.cleaned_data['range_start'])
         for post in posts:

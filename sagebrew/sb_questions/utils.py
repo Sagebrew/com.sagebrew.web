@@ -27,7 +27,7 @@ def create_question_util(content="", current_pleb="", question_title="",
     try:
         if content == "" or question_title == "":
             return None
-        poster = Pleb.index.get(email=current_pleb)
+        poster = Pleb.nodes.get(email=current_pleb)
         content_blob = TextBlob(content)
         title_blob = TextBlob(question_title)
         my_question = SBQuestion(content=content, question_title=question_title,
@@ -164,7 +164,7 @@ def get_question_by_uuid(question_uuid=str(uuid1()), current_pleb=""):
     :return:
     '''
     try:
-        question = SBQuestion.index.get(question_id=question_uuid)
+        question = SBQuestion.nodes.get(question_id=question_uuid)
         response = prepare_get_question_dictionary(question, sort_by='uuid',
                                                    current_pleb=current_pleb)
         return response
@@ -238,8 +238,8 @@ def upvote_question_util(question_uuid="", current_pleb=""):
     '''
     from sb_questions.tasks import vote_question_task
     try:
-        pleb = Pleb.index.get(email=current_pleb)
-        my_question = SBQuestion.index.get(question_id=question_uuid)
+        pleb = Pleb.nodes.get(email=current_pleb)
+        my_question = SBQuestion.nodes.get(question_id=question_uuid)
         my_question.up_vote_number += 1
         my_question.up_voted_by.connect(pleb)
         my_question.save()
@@ -266,8 +266,8 @@ def downvote_question_util(question_uuid="", current_pleb=""):
     '''
     from sb_questions.tasks import vote_question_task
     try:
-        pleb = Pleb.index.get(email=current_pleb)
-        my_question = SBQuestion.index.get(question_id=question_uuid)
+        pleb = Pleb.nodes.get(email=current_pleb)
+        my_question = SBQuestion.nodes.get(question_id=question_uuid)
         my_question.down_vote_number += 1
         my_question.down_voted_by.connect(pleb)
         my_question.save()
@@ -299,7 +299,7 @@ def edit_question_util(question_uuid="", content="", last_edited_on="",
     :return:
     '''
     try:
-        my_question = SBQuestion.index.get(question_id=question_uuid)
+        my_question = SBQuestion.nodes.get(question_id=question_uuid)
         if my_question.to_be_deleted:
             return {'question': my_question, 'detail': 'to be deleted'}
 
@@ -327,7 +327,7 @@ def edit_question_util(question_uuid="", content="", last_edited_on="",
 
 def prepare_question_search_html(question_uuid):
     try:
-        my_question = SBQuestion.index.get(question_id=question_uuid)
+        my_question = SBQuestion.nodes.get(question_id=question_uuid)
         owner = my_question.traverse('owned_by').run()
         owner = owner[0]
         owner_name = owner.first_name + ' ' + owner.last_name

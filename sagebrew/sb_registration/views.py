@@ -54,7 +54,7 @@ def profile_information(request):
         citizen.college = profile_information_form.cleaned_data["college"]
         citizen.employer = profile_information_form.cleaned_data["employer"]
         citizen.save()
-
+    '''
     if address_information_form.is_valid():
         address_clean = address_information_form.cleaned_data
         address_info = validate_address(address_clean)
@@ -123,7 +123,7 @@ def profile_information(request):
                     citizen.address.connect(address)
                     citizen.save()
                     return redirect('interests')
-
+'''
     return render(request, 'profile_info.html',
                   {'profile_information_form': profile_information_form,
                    'address_information_form': address_information_form,

@@ -5,6 +5,7 @@
 }
 .sb_sign_up_input_box{
     max-width: 1300px;
+    margin-bottom: 30px;
 }
 .sb_title_signup {
     color: #eaf0e8;
@@ -19,6 +20,11 @@
     border: solid;
     border-width: 1px;
     border-color: #bdc3c7;
+}
+.sb-btn-login:active,
+.sb-btn-login:hover,
+.sb-btn-login:focus{
+    background-color: #1ba39c;
 }
 .sb_btn_signup{
     margin-bottom: 85px;
@@ -45,4 +51,3 @@
 .sb_signup_input_email {
     width: 100%;
 }
-

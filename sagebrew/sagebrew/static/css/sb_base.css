@@ -110,7 +110,7 @@
     border-radius: 0;
 }
 .sb_nav_bottom_menu {
-    height: 200px;
+    height: 220px;
     margin-top: auto;
     padding-top: 2em;
     margin-bottom: 0;
@@ -133,4 +133,7 @@
 }
 .sb_divider{
     color: #1ba39c;
+}
+.sb_bottom_container{
+    margin-bottom: 40px;
 }

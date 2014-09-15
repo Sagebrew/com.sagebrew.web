@@ -3,6 +3,7 @@ from datetime import datetime
 from uuid import uuid1
 from base64 import b64encode
 from rest_framework.test import APIRequestFactory
+from django.core.management import call_command
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.conf import settings
@@ -14,16 +15,12 @@ from sb_questions.views import (save_question_view, edit_question_view,
 
 class SaveQuestionViewTests(TestCase):
     def setUp(self):
-        try:
-            pleb = Pleb.index.get(email='tyler.wiersing@sagebrew.com')
-            pleb.delete()
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email='tyler.wiersing@sagebrew.com')
-        except Pleb.DoesNotExist:
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email='tyler.wiersing@sagebrew.com')
+        self.factory = APIRequestFactory()
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_save_question_view_correct_data(self):
         my_dict = {'content': 'aosdfhao',
@@ -97,16 +94,12 @@ class SaveQuestionViewTests(TestCase):
 
 class EditQuestionViewTests(TestCase):
     def setUp(self):
-        try:
-            pleb = Pleb.index.get(email='tyler.wiersing@sagebrew.com')
-            pleb.delete()
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email='tyler.wiersing@sagebrew.com')
-        except Pleb.DoesNotExist:
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email='tyler.wiersing@sagebrew.com')
+        self.factory = APIRequestFactory()
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_edit_question_view_correct_data(self):
         my_dict = {'content': 'aosdfhao',
@@ -180,16 +173,12 @@ class EditQuestionViewTests(TestCase):
 
 class VoteQuestionViewTests(TestCase):
     def setUp(self):
-        try:
-            pleb = Pleb.index.get(email='tyler.wiersing@sagebrew.com')
-            pleb.delete()
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email='tyler.wiersing@sagebrew.com')
-        except Pleb.DoesNotExist:
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email='tyler.wiersing@sagebrew.com')
+        self.factory = APIRequestFactory()
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_vote_question_view_correct_data(self):
         my_dict = {'current_pleb': self.user.email,
@@ -262,16 +251,12 @@ class VoteQuestionViewTests(TestCase):
 
 class TestGetQuestionView(TestCase):
     def setUp(self):
-        try:
-            pleb = Pleb.index.get(email='tyler.wiersing@sagebrew.com')
-            pleb.delete()
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email='tyler.wiersing@sagebrew.com')
-        except Pleb.DoesNotExist:
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email='tyler.wiersing@sagebrew.com')
+        self.factory = APIRequestFactory()
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_get_question_view_correct_data(self):
         my_dict = {'current_pleb': 'tyler.wiersing@sagebrew.com',

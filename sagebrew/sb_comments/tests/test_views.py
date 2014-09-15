@@ -2,6 +2,7 @@ from uuid import uuid1
 from base64 import b64encode
 from rest_framework.test import APIRequestFactory
 from django.contrib.auth.models import User
+from django.core.management import call_command
 from django.test import TestCase
 from django.conf import settings
 
@@ -12,18 +13,12 @@ from sb_comments.views import (save_comment_view, edit_comment, delete_comment,
 
 class TestSaveCommentView(TestCase):
     def setUp(self):
-        try:
-            pleb = Pleb.index.get(email='tyler.wiersing@gmail.com')
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email='tyler.wiersing@gmail.com')
-        except Pleb.DoesNotExist:
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email='tyler.wiersing@gmail.com')
+        self.factory = APIRequestFactory()
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_save_comment_view_correct_data(self):
         my_dict = {'content': 'testastdat', 'post_uuid': str(uuid1()),
@@ -94,18 +89,12 @@ class TestSaveCommentView(TestCase):
 
 class TestEditCommentView(TestCase):
     def setUp(self):
-        try:
-            pleb = Pleb.index.get(email='tyler.wiersing@gmail.com')
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email='tyler.wiersing@gmail.com')
-        except Pleb.DoesNotExist:
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email='tyler.wiersing@gmail.com')
+        self.factory = APIRequestFactory()
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_edit_comment_view_correct_data(self):
         my_dict = {'content': 'testastdat', 'comment_uuid': str(uuid1()),
@@ -176,18 +165,12 @@ class TestEditCommentView(TestCase):
 
 class TestDeleteCommentView(TestCase):
     def setUp(self):
-        try:
-            pleb = Pleb.index.get(email='tyler.wiersing@gmail.com')
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email='tyler.wiersing@gmail.com')
-        except Pleb.DoesNotExist:
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email='tyler.wiersing@gmail.com')
+        self.factory = APIRequestFactory()
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_delete_comment_view_correct_data(self):
         my_dict = {'comment_uuid': str(uuid1()),
@@ -257,18 +240,12 @@ class TestDeleteCommentView(TestCase):
 
 class TestVoteCommentView(TestCase):
     def setUp(self):
-        try:
-            pleb = Pleb.index.get(email='tyler.wiersing@gmail.com')
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email='tyler.wiersing@gmail.com')
-        except Pleb.DoesNotExist:
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email='tyler.wiersing@gmail.com')
+        self.factory = APIRequestFactory()
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_vote_comment_view_correct_data(self):
         my_dict = {'comment_uuid': str(uuid1()),
@@ -339,19 +316,12 @@ class TestVoteCommentView(TestCase):
 
 class TestFlagCommentView(TestCase):
     def setUp(self):
-        uuid = str(uuid1())
-        try:
-            pleb = Pleb.index.get(email=uuid + '@gmail.com')
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email=uuid + '@gmail.com')
-        except Pleb.DoesNotExist:
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email=uuid + '@gmail.com')
+        self.factory = APIRequestFactory()
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_flag_comment_view_correct_data_spam(self):
         my_dict = {'current_user': self.user.email,

@@ -1,26 +1,19 @@
 from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.core.management import call_command
 
 from sb_questions.neo_models import SBQuestion
 from plebs.neo_models import Pleb
 from sb_tag.tasks import add_auto_tags, add_tags
 
 class TestTagTask(TestCase):
-
     def setUp(self):
-        self.email = str(uuid1()) + '@gmail.com'
-        try:
-            pleb = Pleb.index.get(email=self.email)
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-        except Pleb.DoesNotExist:
-            pass
-
         self.user = User.objects.create_user(
-            username='Tyler' + str(uuid1())[:25], email=self.email)
-        self.pleb = Pleb.index.get(email=self.email)
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_add_tag_success(self):
         question = SBQuestion(question_id=uuid1())
@@ -57,20 +50,12 @@ class TestTagTask(TestCase):
 
 
 class TestAutoTagTask(TestCase):
-
     def setUp(self):
-        self.email = str(uuid1()) + '@gmail.com'
-        try:
-            pleb = Pleb.index.get(email=self.email)
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-        except Pleb.DoesNotExist:
-            pass
-
         self.user = User.objects.create_user(
-            username='Tyler' + str(uuid1())[:25], email=self.email)
-        self.pleb = Pleb.index.get(email=self.email)
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_add_auto_tag_success(self):
         question = SBQuestion(question_id=uuid1())

@@ -4,6 +4,7 @@ from uuid import uuid1
 from datetime import datetime
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.core.management import call_command
 
 from sb_posts.neo_models import SBPost
 from sb_posts.tasks import (delete_post_and_comments, save_post_task,
@@ -15,23 +16,16 @@ from plebs.neo_models import Pleb
 
 class TestSavePostTask(TestCase):
     def setUp(self):
-        self.email = 'devon@sagebrew.com'
-        try:
-            pleb = Pleb.index.get(email=self.email)
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-        except Pleb.DoesNotExist:
-            pass
-
         self.user = User.objects.create_user(
-            username='Tyler' + str(uuid1())[:25], email=self.email)
-        self.pleb = Pleb.index.get(email=self.email)
-
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.pleb = Pleb.index.get(email=self.user.email)
         self.post_info_dict = {'current_pleb': self.pleb.email,
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
                                'post_uuid': str(uuid1())}
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_save_post_task(self):
         response = save_post_task.apply_async(kwargs=self.post_info_dict)
@@ -40,23 +34,16 @@ class TestSavePostTask(TestCase):
 
 class TestDeletePostTask(TestCase):
     def setUp(self):
-        self.email = 'devon@sagebrew.com'
-        try:
-            pleb = Pleb.index.get(email=self.email)
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-        except Pleb.DoesNotExist:
-            pass
-
         self.user = User.objects.create_user(
-            username='Tyler' + str(uuid1())[:25], email=self.email)
-        self.pleb = Pleb.index.get(email=self.email)
-
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.pleb = Pleb.index.get(email=self.user.email)
         self.post_info_dict = {'current_pleb': self.pleb.email,
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
                                'post_uuid': str(uuid1())}
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_delete_post_task(self):
         save_response = save_post_task.apply_async(kwargs=self.post_info_dict)
@@ -69,23 +56,16 @@ class TestDeletePostTask(TestCase):
 
 class TestEditPostTask(TestCase):
     def setUp(self):
-        self.email = 'devon@sagebrew.com'
-        try:
-            pleb = Pleb.index.get(email=self.email)
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-        except Pleb.DoesNotExist:
-            pass
-
         self.user = User.objects.create_user(
-            username='Tyler' + str(uuid1())[:25], email=self.email)
-        self.pleb = Pleb.index.get(email=self.email)
-
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.pleb = Pleb.index.get(email=self.user.email)
         self.post_info_dict = {'current_pleb': self.pleb.email,
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
                                'post_uuid': str(uuid1())}
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_edit_post_task(self):
         post = SBPost(post_id=uuid1(), content="test post")
@@ -102,23 +82,16 @@ class TestEditPostTask(TestCase):
 
 class TestPostTaskRaceConditions(TestCase):
     def setUp(self):
-        self.email = 'devon@sagebrew.com'
-        try:
-            pleb = Pleb.index.get(email=self.email)
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-        except Pleb.DoesNotExist:
-            pass
-
         self.user = User.objects.create_user(
-            username='Tyler' + str(uuid1())[:25], email=self.email)
-        self.pleb = Pleb.index.get(email=self.email)
-
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.pleb = Pleb.index.get(email=self.user.email)
         self.post_info_dict = {'current_pleb': self.pleb.email,
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
                                'post_uuid': str(uuid1())}
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_race_condition_edit_delete_post_tasks(self):
         edit_post_dict = {'content': 'Post edited',
@@ -157,23 +130,16 @@ class TestPostTaskRaceConditions(TestCase):
 
 class TestMultipleTasks(TestCase):
     def setUp(self):
-        self.email = 'devon@sagebrew.com'
-        try:
-            pleb = Pleb.index.get(email=self.email)
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-        except Pleb.DoesNotExist:
-            pass
-
         self.user = User.objects.create_user(
-            username='Tyler' + str(uuid1())[:25], email=self.email)
-        self.pleb = Pleb.index.get(email=self.email)
-
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.pleb = Pleb.index.get(email=self.user.email)
         self.post_info_dict = {'current_pleb': self.pleb.email,
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
                                'post_uuid': str(uuid1())}
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_create_many_posts(self):
         response_array = []
@@ -219,18 +185,16 @@ class TestMultipleTasks(TestCase):
 
 class TestFlagPostTask(TestCase):
     def setUp(self):
-        self.email = str(uuid1()) + '@sagebrew.com'
-        try:
-            pleb = Pleb.index.get(email=self.email)
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-        except Pleb.DoesNotExist:
-            pass
-
         self.user = User.objects.create_user(
-            username='Tyler' + str(uuid1())[:25], email=self.email)
-        self.pleb = Pleb.index.get(email=self.email)
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.pleb = Pleb.index.get(email=self.user.email)
+        self.post_info_dict = {'current_pleb': self.pleb.email,
+                               'wall_pleb': self.pleb.email,
+                               'content': 'test post',
+                               'post_uuid': str(uuid1())}
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_flag_post_task_success_spam(self):
         post = SBPost(post_id=uuid1())

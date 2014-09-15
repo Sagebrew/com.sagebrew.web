@@ -4,6 +4,7 @@ from uuid import uuid1
 from base64 import b64encode
 from rest_framework.test import APIRequestFactory
 from django.contrib.auth.models import User
+from django.core.management import call_command
 from django.test import TestCase
 from django.conf import settings
 
@@ -13,18 +14,12 @@ from sb_notifications.views import get_notifications
 
 class TestNotificationViews(TestCase):
     def setUp(self):
-        try:
-            pleb = Pleb.index.get(email='tyler.wiersing@gmail.com')
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email='tyler.wiersing@gmail.com')
-        except Pleb.DoesNotExist:
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email='tyler.wiersing@gmail.com')
+        self.factory = APIRequestFactory()
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_get_notification_view_success(self):
         my_dict = {'range_end': 5, 'range_start': 0,

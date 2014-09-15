@@ -3,6 +3,7 @@ import pytz
 from datetime import datetime, timedelta
 from uuid import uuid1
 from django.test import TestCase
+from django.core.management import call_command
 from django.contrib.auth.models import User
 
 from sb_questions.utils import create_question_util
@@ -13,25 +14,19 @@ from plebs.neo_models import Pleb
 
 class TestCreateAnswerUtil(TestCase):
     def setUp(self):
-        self.email = 'devon@sagebrew.com'
-        try:
-            pleb = Pleb.index.get(email=self.email)
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-        except Pleb.DoesNotExist:
-            pass
-
         self.user = User.objects.create_user(
-            username='Tyler' + str(uuid1())[:25], email=self.email)
-        self.pleb = Pleb.index.get(email=self.email)
-        self.question_info_dict = {'current_pleb': self.pleb.email,
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
                                    'content': 'test post'}
         self.answer_info_dict = {'question_uuid': '',
                                  'content': 'test answer',
                                  'answer_uuid': str(uuid1()),
-                                 'current_pleb': self.pleb.email}
+                                 'current_pleb': self.user.email}
+
+    def tearDown(self):
+        call_command('clear_neo_db')
+
 
     def test_save_answer_util(self):
         question = create_question_util(**self.question_info_dict)
@@ -64,25 +59,18 @@ class TestCreateAnswerUtil(TestCase):
 
 class TestEditAnswerUtil(TestCase):
     def setUp(self):
-        self.email = 'devon@sagebrew.com'
-        try:
-            pleb = Pleb.index.get(email=self.email)
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-        except Pleb.DoesNotExist:
-            pass
-
         self.user = User.objects.create_user(
-            username='Tyler' + str(uuid1())[:25], email=self.email)
-        self.pleb = Pleb.index.get(email=self.email)
-        self.question_info_dict = {'current_pleb': self.pleb.email,
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
                                    'content': 'test post'}
         self.answer_info_dict = {'question_uuid': '',
                                  'content': 'test answer',
                                  'answer_uuid': str(uuid1()),
-                                 'current_pleb': self.pleb.email}
+                                 'current_pleb': self.user.email}
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_edit_answer_util(self):
         answer = SBAnswer(content="test answer", answer_id=str(uuid1()))
@@ -162,27 +150,20 @@ class TestEditAnswerUtil(TestCase):
 
 class TestVoteAnswerUtil(TestCase):
     def setUp(self):
-        self.email = 'devon@sagebrew.com'
-        try:
-            pleb = Pleb.index.get(email=self.email)
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-        except Pleb.DoesNotExist:
-            pass
-
         self.user = User.objects.create_user(
-            username='Tyler' + str(uuid1())[:25], email=self.email)
-        self.pleb = Pleb.index.get(email=self.email)
-        self.question_info_dict = {'current_pleb': self.pleb.email,
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
                                    'content': 'test post'}
         self.answer_info_dict = {'question_uuid': '',
                                  'content': 'test answer',
                                  'answer_uuid': str(uuid1()),
-                                 'current_pleb': self.pleb.email}
+                                 'current_pleb': self.user.email}
 
-    def test_upvote_question_util(self):
+    def tearDown(self):
+        call_command('clear_neo_db')
+
+    def test_upvote_answer_util(self):
         answer = SBAnswer(content="test answer", answer_id=str(uuid1()))
         answer.save()
 
@@ -191,7 +172,7 @@ class TestVoteAnswerUtil(TestCase):
 
         self.assertTrue(vote_response)
 
-    def test_downvote_question_util(self):
+    def test_downvote_answer_util(self):
         answer = SBAnswer(content="test answer", answer_id=str(uuid1()))
         answer.save()
 
@@ -200,7 +181,7 @@ class TestVoteAnswerUtil(TestCase):
 
         self.assertTrue(vote_response)
 
-    def test_downvote_question_util_question_dne(self):
+    def test_downvote_answer_util_answer_dne(self):
         answer = SBAnswer(content="test answer", answer_id=str(uuid1()))
         answer.save()
 
@@ -209,7 +190,7 @@ class TestVoteAnswerUtil(TestCase):
 
         self.assertFalse(vote_response)
 
-    def test_upvote_question_util_quesiton_dne(self):
+    def test_upvote_answer_util_answer_dne(self):
         answer = SBAnswer(content="test answer", answer_id=str(uuid1()))
         answer.save()
 
@@ -218,7 +199,7 @@ class TestVoteAnswerUtil(TestCase):
 
         self.assertFalse(vote_response)
 
-    def test_downvote_question_util_pleb_dne(self):
+    def test_downvote_answer_util_pleb_dne(self):
         answer = SBAnswer(content="test answer", answer_id=str(uuid1()))
         answer.save()
 
@@ -227,7 +208,7 @@ class TestVoteAnswerUtil(TestCase):
 
         self.assertFalse(vote_response)
 
-    def test_upvote_question_util_pleb_dne(self):
+    def test_upvote_answer_util_pleb_dne(self):
         answer = SBAnswer(content="test answer", answer_id=str(uuid1()))
         answer.save()
 

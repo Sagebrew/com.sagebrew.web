@@ -1,27 +1,21 @@
-import time
-from datetime import datetime
 from uuid import uuid1
 from base64 import b64encode
 from rest_framework.test import APIRequestFactory
+from django.core.management import call_command
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.conf import settings
 
-from plebs.neo_models import Pleb
 from sb_answers.views import (save_answer_view)
 
 class TestSaveAnswerView(TestCase):
     def setUp(self):
-        try:
-            pleb = Pleb.index.get(email='tyler.wiersing@sagebrew.com')
-            pleb.delete()
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email='tyler.wiersing@sagebrew.com')
-        except Pleb.DoesNotExist:
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email='tyler.wiersing@sagebrew.com')
+        self.factory = APIRequestFactory()
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_save_answer_view_correct_data(self):
         my_dict = {'content': 'test answer', 'current_pleb': self.user.email,

@@ -6,6 +6,7 @@ from django.test import TestCase
 from django.core.management import call_command
 from django.contrib.auth.models import User
 
+from api.utils import clear_neodb
 from sb_answers.neo_models import SBAnswer
 from sb_answers.utils import save_answer_util
 from sb_answers.tasks import save_answer_task, edit_answer_task, vote_answer_task
@@ -25,7 +26,6 @@ class TestSaveAnswerTask(TestCase):
 
     def tearDown(self):
         call_command('clear_neo_db')
-
 
 
     def test_save_answer_task(self):

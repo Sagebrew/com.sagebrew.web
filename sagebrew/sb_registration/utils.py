@@ -262,7 +262,8 @@ def get_friends(email):
     except Pleb.DoesNotExist:
         return []
     friends = []
-    friends_list = citizen.traverse('friends').run()
+    friends_list = citizen.friends.all()
+
     for friend in friends_list:
         friend_dict = {'name': friend.first_name + ' ' + friend.last_name,
                        'email': friend.email, 'picture': friend.profile_pic}

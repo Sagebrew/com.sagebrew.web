@@ -3,7 +3,7 @@ import logging
 from uuid import uuid1
 from datetime import datetime
 
-from api.utils import spawn_task
+from api.utils import spawn_task, execute_cypher_query
 from plebs.neo_models import Pleb
 from sb_comments.utils import get_post_comments
 from .neo_models import SBPost
@@ -20,12 +20,20 @@ def get_pleb_posts(pleb_object, range_end, range_start):
     :return:
     '''
     try:
-        pleb_wall = pleb_object.traverse('wall').run()[0]
-        pleb_posts = pleb_wall.traverse('post').where('to_be_deleted', '=',
-            False).order_by_desc('date_created').skip(range_start).limit(
-            range_end).run()
+        pleb_wall = pleb_object.wall.all()
+        print pleb_wall
+        pleb_wall = pleb_wall[0]
+        post_query = 'MATCH (pleb:Pleb) WHERE pleb.email="%s"- [:OWNS_WALL] - (wall)' % pleb_object.email
+        print post_query
+        pleb_posts = execute_cypher_query(post_query)
+        print pleb_posts
         return get_post_comments(pleb_posts)
-    except:
+    except IndexError:
+        print 1
+        logger.exception("IndexError: ")
+        return {'details': 'something broke'}
+    except Exception, e:
+        print e
         logger.exception("UnhandledException: ")
         return {"details": "You have no posts!"}
 

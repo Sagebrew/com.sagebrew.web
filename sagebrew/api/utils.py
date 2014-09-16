@@ -1,5 +1,6 @@
 import logging
 import requests
+from traceback import print_exc
 from uuid import uuid1
 from socket import error as socket_error
 from json import loads, dumps
@@ -10,6 +11,7 @@ from provider.oauth2.models import Client as OauthClient
 import boto.sqs
 from boto.sqs.message import Message
 from bomberman.client import Client
+from neomodel.exception import CypherException
 
 from api.alchemyapi import AlchemyAPI
 from sb_comments.neo_models import SBComment
@@ -209,3 +211,21 @@ def create_auto_tags(content):
     alchemyapi = AlchemyAPI()
     keywords = alchemyapi.keywords("text", content)
     return keywords
+
+def execute_cypher_query(query):
+    from neomodel import cypher_query
+    try:
+        return cypher_query(query)
+    except CypherException:
+        logger.exception("CypherException: ")
+        return {'detail': 'fail'}
+    except Exception:
+        logger.exception("UnhandledException: ")
+        return {'detail': 'fail'}
+
+def clear_neodb():
+    from neomodel import cypher_query
+    try:
+        cypher_query("START n=node(*) MATCH n-[r?]-() DELETE r,n")
+    except CypherException:
+        pass

@@ -1,5 +1,4 @@
 import logging
-from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -8,7 +7,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .utils import prepare_user_search_html
-from api.utils import post_to_api
 from plebs.neo_models import Pleb
 from sb_registration.utils import (get_friends, generate_profile_pic_url)
 
@@ -44,9 +42,9 @@ def profile_page(request, pleb_email):
     friends_list = get_friends(citizen.email)
     if current_user.email == page_user.email:
         is_owner = True
-    elif citizen.traverse('friends').where('email', '=',
-                                           current_user.email).run():
+    elif citizen.friends.search(email=current_user.email):
         is_friend = True
+
     # TODO check for index error
     # TODO check why address does not always work
     # TODO deal with address and senator/rep in a util + task

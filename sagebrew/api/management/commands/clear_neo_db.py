@@ -13,3 +13,4 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.clear_neo_db()
+

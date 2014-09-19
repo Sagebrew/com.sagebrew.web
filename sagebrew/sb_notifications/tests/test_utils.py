@@ -2,8 +2,8 @@ from uuid import uuid1
 
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.core.management import call_command
 
-from sb_comments.utils import save_comment_post
 from sb_comments.neo_models import SBComment
 from sb_notifications.utils import (create_notification_comment_util,
                                     create_notification_post_util)
@@ -12,23 +12,17 @@ from plebs.neo_models import Pleb
 
 class TestNotificationUtils(TestCase):
     def setUp(self):
-        self.email = 'devon@sagebrew.com'
-        try:
-            pleb = Pleb.index.get(email=self.email)
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-        except Pleb.DoesNotExist:
-            pass
-
         self.user = User.objects.create_user(
-            username='Tyler' + str(uuid1())[:25], email=self.email)
-        self.pleb = Pleb.index.get(email=self.email)
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.pleb = Pleb.index.get(email=self.user.email)
         self.user2 = User.objects.create_user(
             username='Devon' + str(uuid1())[:25],
             email=str(uuid1())
         )
         self.pleb2 = Pleb.index.get(email=self.user2.email)
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_create_post_notification(self):
         post = SBPost(post_id=uuid1(), content='as;ldkfja;')

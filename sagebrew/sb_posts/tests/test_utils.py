@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.core.management import call_command
 
 from sb_posts.utils import save_post, edit_post_info, delete_post_info, \
     create_post_vote, flag_post
@@ -15,18 +16,12 @@ logger = logging.getLogger('loggly_logs')
 
 class TestSavePost(TestCase):
     def setUp(self):
-        self.email = 'devon@sagebrew.com'
-        try:
-            pleb = Pleb.index.get(email=self.email)
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-        except Pleb.DoesNotExist:
-            pass
-
         self.user = User.objects.create_user(
-            username='Tyler' + str(uuid1())[:25], email=self.email)
-        self.pleb = Pleb.index.get(email=self.email)
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.pleb = Pleb.index.get(email=self.user.email)
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_save_post(self):
         poster = Pleb.index.get(email=self.pleb.email)
@@ -142,18 +137,12 @@ class TestSavePost(TestCase):
 
 class TestPostVotes(TestCase):
     def setUp(self):
-        self.email = 'devon@sagebrew.com'
-        try:
-            pleb = Pleb.index.get(email=self.email)
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-        except Pleb.DoesNotExist:
-            pass
-
         self.user = User.objects.create_user(
-            username='Tyler' + str(uuid1())[:25], email=self.email)
-        self.pleb = Pleb.index.get(email=self.email)
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.pleb = Pleb.index.get(email=self.user.email)
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_upvote_post(self):
         uuid = str(uuid1())
@@ -203,18 +192,12 @@ class TestPostVotes(TestCase):
 
 class TestFlagPost(TestCase):
     def setUp(self):
-        self.email = str(uuid1()) + '@sagebrew.com'
-        try:
-            pleb = Pleb.index.get(email=self.email)
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-        except Pleb.DoesNotExist:
-            pass
-
         self.user = User.objects.create_user(
-            username='Tyler' + str(uuid1())[:25], email=self.email)
-        self.pleb = Pleb.index.get(email=self.email)
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.pleb = Pleb.index.get(email=self.user.email)
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_flag_success_spam(self):
         post = SBPost(post_id=uuid1())

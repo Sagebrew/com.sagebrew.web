@@ -101,7 +101,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware'
+    #'django.contrib.auth.middleware.SessionAuthenticationMiddleware'
     'djangosecure.middleware.SecurityMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
@@ -221,6 +221,8 @@ OAUTH_ENFORCE_SECURE = True
 OAUTH_EXPIRE_DELTA = timedelta(days=30, minutes=0, seconds=0)
 OAUTH_EXPIRE_DELTA_PUBLIC = timedelta(days=30, minutes=0, seconds=0)
 OAUTH_DELETE_EXPIRED = True
+
+COUNTER = 0
 
 #SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 

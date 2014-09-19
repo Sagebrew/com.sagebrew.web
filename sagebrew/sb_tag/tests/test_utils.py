@@ -1,5 +1,6 @@
 from uuid import uuid1
 from django.contrib.auth.models import User
+from django.core.management import call_command
 from django.test import TestCase
 
 from plebs.neo_models import Pleb
@@ -10,20 +11,12 @@ from sb_tag.utils import (add_tag_util, add_auto_tags_util,
 from sb_tag.neo_models import SBAutoTag
 
 class TestCreateTagUtil(TestCase):
-
     def setUp(self):
-        self.email = 'devon@sagebrew.com'
-        try:
-            pleb = Pleb.index.get(email=self.email)
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-        except Pleb.DoesNotExist:
-            pass
-
         self.user = User.objects.create_user(
-            username='Tyler' + str(uuid1())[:25], email=self.email)
-        self.pleb = Pleb.index.get(email=self.email)
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_create_tag_util_success(self):
         question = SBQuestion(question_id=uuid1())
@@ -64,20 +57,12 @@ class TestCreateTagUtil(TestCase):
         self.assertFalse(res)
 
 class TestCreateAutoTagUtil(TestCase):
-
     def setUp(self):
-        self.email = 'devon@sagebrew.com'
-        try:
-            pleb = Pleb.index.get(email=self.email)
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-        except Pleb.DoesNotExist:
-            pass
-
         self.user = User.objects.create_user(
-            username='Tyler' + str(uuid1())[:25], email=self.email)
-        self.pleb = Pleb.index.get(email=self.email)
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_create_auto_tag_util_success(self):
         question = SBQuestion(question_id=uuid1())
@@ -118,20 +103,12 @@ class TestCreateAutoTagUtil(TestCase):
         self.assertFalse(res)
 
 class TestCreateAutoTagRelationships(TestCase):
-
     def setUp(self):
-        self.email = 'devon@sagebrew.com'
-        try:
-            pleb = Pleb.index.get(email=self.email)
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-        except Pleb.DoesNotExist:
-            pass
-
         self.user = User.objects.create_user(
-            username='Tyler' + str(uuid1())[:25], email=self.email)
-        self.pleb = Pleb.index.get(email=self.email)
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_create_auto_tag_relationship_success(self):
         tag_list = []

@@ -1,5 +1,8 @@
+from uuid import uuid1
+
 from django.contrib.auth.models import User
 from django.test import TestCase, RequestFactory
+from django.core.management import call_command
 
 from sb_registration.views import profile_information
 
@@ -37,7 +40,10 @@ class ProfileInfoTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.user = User.objects.create_user(
-            username='Tyler', email='tyler.wiersing@gmail.com')
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_user_info_population_no_birthday(self):
         my_dict = {'date_of_birth': [u'']}

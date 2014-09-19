@@ -2,6 +2,7 @@ import logging
 from uuid import uuid1
 from celery import shared_task
 from celery.exceptions import Retry
+from django.conf import settings
 
 from plebs.neo_models import Pleb
 from .neo_models import SBQuestion
@@ -13,7 +14,7 @@ logger = logging.getLogger('loggly_logs')
 
 @shared_task()
 def create_question_task(content="", current_pleb="", question_title="",
-                         question_uuid=str(uuid1()), tags=""):
+                         question_uuid=str(uuid1()), tags="", **kwargs):
     '''
     This task calls the util to create a question, if the util fails the
     task respawns itself.
@@ -31,24 +32,30 @@ def create_question_task(content="", current_pleb="", question_title="",
         question = SBQuestion.index.get(question_id=question_uuid)
         return False
     except SBQuestion.DoesNotExist:
-        if create_question_util(content=content, current_pleb=current_pleb,
-                                question_title=question_title, tags=tag_list) \
-                is not None:
+        response = create_question_util(content=content,
+                                        current_pleb=current_pleb,
+                                        question_title=question_title,
+                                        tags=tag_list)
+        if not response:
+            raise Exception
+        elif response is None:
+            return False
+        else:
             return True
-    except TypeError as exc:
+    except TypeError:
         logger.exception({'function': create_question_task.__name__,
                           'exception': "TypeError: "})
-        raise create_question_task.retry(exc=exc, countdown=20)
-    except Retry:
-        logger.exception({'function': create_question_task.__name__,
-                          'exception': "Retry: "})
-    except Exception as exc:
+        raise create_question_task.retry(exc=TypeError, countdown=5,
+                                         max_retries=None)
+    except Exception:
         logger.exception({'function': create_question_task.__name__,
                           'exception': "UnhandledException: "})
-        raise create_question_task.retry(exc=exc, countdown=20)
+        raise create_question_task.retry(exc=Exception, countdown=5,
+                                         max_retries=None)
 
 @shared_task()
-def edit_question_task(question_uuid="", content="", current_pleb="", last_edited_on=""):
+def edit_question_task(question_uuid="", content="", current_pleb="",
+                       last_edited_on=""):
     '''
     This task calls the util which determines if a question can be edited or not
     returns True and False based on how the util responds

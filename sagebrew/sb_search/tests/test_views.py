@@ -4,6 +4,7 @@ from rest_framework.test import APIRequestFactory
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.conf import settings
+from django.core.management import call_command
 
 from elasticsearch import Elasticsearch
 
@@ -13,18 +14,12 @@ from sb_search.views import search_result_api, search_result_view
 
 class TestSearchResultView(TestCase):
     def setUp(self):
-        try:
-            pleb = Pleb.index.get(email=str(uuid1()) + '@gmail.com')
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email=str(uuid1()) + '@gmail.com')
-        except Pleb.DoesNotExist:
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email=str(uuid1()) + '@gmail.com')
+        self.factory = APIRequestFactory()
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
     def test_search_result_view_success(self):
         request = self.factory.post('/search/q=test')
@@ -235,18 +230,12 @@ class TestSearchResultView(TestCase):
 
 class TestSearchResultAPI(TestCase):
     def setUp(self):
-        try:
-            pleb = Pleb.index.get(email=str(uuid1()) + '@gmail.com')
-            wall = pleb.traverse('wall').run()[0]
-            wall.delete()
-            pleb.delete()
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email=str(uuid1()) + '@gmail.com')
-        except Pleb.DoesNotExist:
-            self.factory = APIRequestFactory()
-            self.user = User.objects.create_user(
-                username='Tyler', email=str(uuid1()) + '@gmail.com')
+        self.factory = APIRequestFactory()
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+
+    def tearDown(self):
+        call_command('clear_neo_db')
 
 '''
     def test_search_result_api_success(self):

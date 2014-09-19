@@ -26,9 +26,8 @@ class TestSaveQuestionTask(TestCase):
 
     def test_save_question_task(self):
         response = create_question_task.apply_async(kwargs=self.question_info_dict)
-
         while not response.ready():
-            time.sleep(3)
+            time.sleep(1)
 
         self.assertTrue(response.result)
 

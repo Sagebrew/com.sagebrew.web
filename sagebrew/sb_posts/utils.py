@@ -19,7 +19,6 @@ def get_pleb_posts(pleb_object, range_end, range_start):
                         This is an instance of a Pleb object
     :return:
     '''
-    #'WHERE posts.to_be_deleted = False ' \
     try:
         post_query = 'MATCH (pleb:Pleb) WHERE pleb.email="%s" ' \
                      'WITH pleb ' \
@@ -38,7 +37,8 @@ def get_pleb_posts(pleb_object, range_end, range_start):
     except IndexError:
         logger.exception("IndexError: ")
         return {'details': 'something broke'}
-    except Exception:
+    except Exception,e:
+        print e
         logger.exception("UnhandledException: ")
         return {"details": "You have no posts!"}
 

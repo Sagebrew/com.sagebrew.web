@@ -1,12 +1,11 @@
-import pytz
-from uuid import uuid1
-from datetime import datetime
+import logging
 
 from api.utils import spawn_task
 from plebs.neo_models import Pleb
 from .neo_models import SBAnswer
 from sb_questions.neo_models import SBQuestion
 
+logger = logging.getLogger('loggly_logs')
 
 def save_answer_util(content="", current_pleb="", answer_uuid="",
                      question_uuid=""):
@@ -39,7 +38,8 @@ def save_answer_util(content="", current_pleb="", answer_uuid="",
         return answer
     except Pleb.DoesNotExist, SBQuestion.DoesNotExist:
         return False
-    except Exception, e:
+    except Exception:
+        logger.exception("UnhandledException: ")
         return False
 
 def edit_answer_util(content="", current_pleb="", answer_uuid="", last_edited_on=""):
@@ -66,7 +66,8 @@ def edit_answer_util(content="", current_pleb="", answer_uuid="", last_edited_on
         return True
     except SBAnswer.DoesNotExist:
         return False
-    except:
+    except Exception:
+        logger.exception("UnhandledException: ")
         return False
 
 def upvote_answer_util(answer_uuid="", current_pleb=""):
@@ -85,7 +86,8 @@ def upvote_answer_util(answer_uuid="", current_pleb=""):
         return False
     except Pleb.DoesNotExist:
         return False
-    except:
+    except Exception:
+        logger.exception("UnhandledException: ")
         return False
 
 
@@ -105,6 +107,7 @@ def downvote_answer_util(answer_uuid="", current_pleb=""):
         return False
     except Pleb.DoesNotExist:
         return False
-    except:
+    except Exception:
+        logger.exception("UnhandledException: ")
         return False
 

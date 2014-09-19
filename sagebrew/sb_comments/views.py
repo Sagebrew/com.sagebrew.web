@@ -35,7 +35,7 @@ def save_comment_view(request):
     :return:
     '''
     try:
-        comment_info = get_post_data(request)
+        comment_info = request.DATA
         if (type(comment_info) != dict):
             return Response({"details": "Please Provide a JSON Object"},
                             status=400)
@@ -62,7 +62,7 @@ def edit_comment(request):  # task
     :return:
     '''
     try:
-        comment_info = get_post_data(request)
+        comment_info = request.DATA
         try:
             comment_info['last_edited_on'] = datetime.now(pytz.utc)
         except TypeError:
@@ -95,7 +95,7 @@ def delete_comment(request):  # task
     :return:
     '''
     try:
-        comment_info = get_post_data(request)
+        comment_info = request.DATA
         if (type(comment_info) != dict):
             return Response({"details": "Please Provide a JSON Object"},
                             status=400)
@@ -120,7 +120,7 @@ def vote_comment(request):
     :return:
     '''
     try:
-        comment_info = get_post_data(request)
+        comment_info = request.DATA
 
         if (type(comment_info) != dict):
             return Response({"details": "Please Provide a JSON Object"},
@@ -148,7 +148,7 @@ def flag_comment(request):  # task
     :param request:
     :return:
     '''
-    comment_info = get_post_data(request)
+    comment_info = request.DATA
 
     if type(comment_info) != dict:
         return Response({'detail': 'Please Provide a Valid JSON Object'},
@@ -175,7 +175,7 @@ def share_comment(request):  # task
     :param request:
     :return:
     '''
-    post_info = get_post_data(request)
+    post_info = request.DATA
     if (post_info["giraffe_contents"] == 3):
         return Response({"comment": "hello"}, status=200)
         # do stuff with post_info
@@ -190,7 +190,7 @@ def reference_comment(request):  # task
     :param request:
     :return:
     '''
-    post_info = get_post_data(request)
+    post_info = request.DATA
     if (post_info["giraffe_contents"] == 3):
         return Response({"comment": "hello"}, status=200)
         # do stuff with post_info

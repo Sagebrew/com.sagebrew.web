@@ -29,7 +29,7 @@ def create_friend_request(request):
     # if action is True hide friend request button and show a delete friend
     # request button
     try:
-        friend_request_data = get_post_data(request)
+        friend_request_data = request.DATA
         friend_request_data['friend_request_uuid'] = uuid1()
         request_form = SubmitFriendRequestForm(friend_request_data)
         if request_form.is_valid():
@@ -86,7 +86,7 @@ def respond_friend_request(request):
     :param request:
     :return:
     '''
-    request_data = get_post_data(request)
+    request_data = request.DATA
     try:
         friend_request = FriendRequest.nodes.get(
             friend_request_uuid=request_data['request_id'])

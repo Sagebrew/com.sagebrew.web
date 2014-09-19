@@ -99,7 +99,7 @@ def save_question_view(request):
 
     :return:
     '''
-    question_data = get_post_data(request)
+    question_data = request.DATA
     if type(question_data) != dict:
         return Response({"details": "Please provide a valid JSON object"},
                         status=400)
@@ -130,7 +130,7 @@ def edit_question_view(request):
 
     :return:
     '''
-    question_data = get_post_data(request)
+    question_data = request.DATA
     if type(question_data) != dict:
         return Response({"details": "Please provide a valid JSON object"},
                         status=400)
@@ -181,7 +181,7 @@ def vote_question_view(request):
     :return:
     '''
     try:
-        post_data = get_post_data(request)
+        post_data = request.DATA
         if type(post_data) != dict:
             return Response({"details": "Please Provide a JSON Object"},
                             status=400)
@@ -242,7 +242,7 @@ def get_question_view(request):
     :return:
     '''
     try:
-        question_data = get_post_data(request)
+        question_data = request.DATA
         if question_data['sort_by'] == 'most_recent':
             response = get_question_by_most_recent(current_pleb=question_data['current_pleb'])
         elif question_data['sort_by'] == 'uuid':

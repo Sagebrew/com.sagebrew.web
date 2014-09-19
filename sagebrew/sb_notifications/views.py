@@ -31,7 +31,7 @@ def get_notifications(request):
     '''
     try:
         notification_array = []
-        notification_data = get_post_data(request)
+        notification_data = request.DATA
         if (type(notification_data) != dict):
             return Response({"details": "Please Provide a JSON Object"},
                             status=400)

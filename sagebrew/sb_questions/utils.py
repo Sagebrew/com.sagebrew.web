@@ -6,8 +6,9 @@ from django.conf import settings
 from django.template.loader import render_to_string
 
 from api.tasks import add_object_to_search_index
-from api.utils import spawn_task, create_auto_tags
+from api.utils import spawn_task, create_auto_tags, execute_cypher_query
 from plebs.neo_models import Pleb
+from sb_answers.neo_models import SBAnswer
 from .neo_models import SBQuestion
 from sb_tag.tasks import add_auto_tags, add_tags
 
@@ -86,14 +87,19 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
     answer_array = []
     try:
         if sort_by == 'uuid':
-            owner = questions.traverse('owned_by').run()
+            owner = questions.owned_by.all()
             owner = owner[0]
             owner_name = owner.first_name + ' ' + owner.last_name
             owner_profile_url = settings.WEB_ADDRESS + '/user/' + owner.email
-            answers = questions.traverse('answer').where('to_be_deleted', '=',
-                                                         False).run()
+            query = 'match (q:SBQuestion) where q.question_id="%s" ' \
+                    'with q ' \
+                    'match (q)-[:possible_answer]-(a:SBAnswer) ' \
+                    'where a.to_be_deleted=False ' \
+                    'return a ' % questions
+            answers, meta = execute_cypher_query(query)
+            answers = [SBAnswer.inflate(row[0]) for row in answers]
             for answer in answers:
-                answer_owner = answer.traverse('owned_by').run()[0]
+                answer_owner = answer.owned_by.all()[0]
                 answer_owner_name = answer_owner.first_name +' '+answer_owner.last_name
                 answer_owner_url = settings.WEB_ADDRESS+'/user/'+owner.email
                 answer_dict = {'answer_content': answer.content,
@@ -124,7 +130,7 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
             return question_dict
         else:
             for question in questions:
-                owner = question.traverse('owned_by').run()
+                owner = question.owned_by.all()
                 owner = owner[0]
                 owner = owner.first_name + ' ' + owner.last_name
                 question_dict = {'question_title': question.question_title,
@@ -188,10 +194,12 @@ def get_question_by_most_recent(range_start=0, range_end=5, current_pleb=""):
     :return:
     '''
     try:
-        question_category = SBQuestion.category()
-        questions = question_category.traverse('instance').where('to_be_deleted',
-            '=', False).order_by_desc('date_created').skip(range_start).limit(
-            range_end).run()
+        query = 'match (q:SBQuestion) where q.to_be_deleted=False ' \
+                'with q order by q.date_created desc ' \
+                'with q skip %s limit %s ' \
+                'return q' % (range_start, range_end)
+        questions, meta = execute_cypher_query(query)
+        questions = [SBQuestion.inflate(row[0]) for row in questions]
         return_dict = prepare_get_question_dictionary(questions,
                                                       sort_by='most recent',
                                                       current_pleb=current_pleb)
@@ -214,10 +222,12 @@ def get_question_by_least_recent(range_start=0, range_end=5, current_pleb=""):
     :return:
     '''
     try:
-        question_category = SBQuestion.category()
-        questions = question_category.traverse('instance').where('to_be_deleted',
-            '=', False).order_by('date_created').skip(range_start).limit(
-            range_end).run()
+        query = 'match (q:SBQuestion) where q.to_be_deleted=False ' \
+                'with q order by q.date_created ' \
+                'with q skip %s limit %s ' \
+                'return q' % (range_start, range_end)
+        questions, meta = execute_cypher_query(query)
+        questions = [SBQuestion.inflate(row[0]) for row in questions]
         return_dict = prepare_get_question_dictionary(questions,
                                                       sort_by='most recent',
                                                       current_pleb=current_pleb)
@@ -328,7 +338,7 @@ def edit_question_util(question_uuid="", content="", last_edited_on="",
 def prepare_question_search_html(question_uuid):
     try:
         my_question = SBQuestion.nodes.get(question_id=question_uuid)
-        owner = my_question.traverse('owned_by').run()
+        owner = my_question.owned_by.all()
         owner = owner[0]
         owner_name = owner.first_name + ' ' + owner.last_name
         owner_profile_url = settings.WEB_ADDRESS + '/user/' + owner.email

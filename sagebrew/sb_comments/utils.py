@@ -6,6 +6,7 @@ from datetime import datetime
 from .neo_models import SBComment
 from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
+from api.utils import execute_cypher_query
 
 logger = logging.getLogger('loggly_logs')
 
@@ -21,16 +22,21 @@ def get_post_comments(post_info):
     comment_array = []
     post_array = []
     for post in post_info:
-        post_comments = post.traverse('comments').where('to_be_deleted', '=',
-            False).order_by('created_on').run()
-        post_owner = post.traverse('owned_by').run()[0]
+        query = 'MATCH (p:SBPost) WHERE p.post_id="%s" ' \
+                'WITH p MATCH (p) - [:HAS_A] - (c:SBComment) ' \
+                'WHERE c.to_be_deleted=False ' \
+                'WITH c ORDER BY c.created_on ' \
+                'RETURN c' % post.post_id
+        post_comments, meta = execute_cypher_query(query)
+        post_comments = [SBComment.inflate(row[0]) for row in post_comments]
+        post_owner = post.owned_by.all()[0]
         post.view_count += 1
         post.save()
         for comment in post_comments:
-            comment_owner = comment.traverse('is_owned_by').run()[0]
+            comment_owner = comment.is_owned_by.all()[0]
             comment_dict = {'comment_content': comment.content,
-                            'comment_id': comment.comment_id,
                             'comment_up_vote_number': comment.up_vote_number,
+                            'comment_id': comment.comment_id,
                             'comment_down_vote_number':
                                 comment.down_vote_number,
                             'comment_last_edited_on': comment.last_edited_on,

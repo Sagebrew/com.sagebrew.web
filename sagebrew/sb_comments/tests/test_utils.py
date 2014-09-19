@@ -73,7 +73,7 @@ class TestSaveComments(TestCase):
                                        pleb=pleb2.email,
                                        post_uuid=post.post_id)
 
-        self.assertEqual(my_comment.traverse('is_owned_by').run()[0].email,
+        self.assertEqual(my_comment.is_owned_by.all()[0].email,
                          pleb2.email)
 
 

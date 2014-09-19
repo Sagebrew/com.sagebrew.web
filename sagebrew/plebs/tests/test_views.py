@@ -16,7 +16,7 @@ class ProfilePageTest(TestCase):
         self.email = 'devon@sagebrew.com'
         try:
             pleb = Pleb.nodes.get(email=self.email)
-            wall = pleb.traverse('wall').run()[0]
+            wall = pleb.wall.all()[0]
             wall.delete()
             pleb.delete()
         except Pleb.DoesNotExist:
@@ -34,10 +34,7 @@ class ProfilePageTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_without_post(self):
-        wall = self.pleb.traverse('wall').run()[0]
-        posts = wall.traverse('post').run()
-        for post in posts:
-            post.delete()
+        wall = self.pleb.wall.all()[0]
         request = self.factory.get('/%s' % self.email)
         request.user = self.user
         response = profile_page(request, self.email)
@@ -46,7 +43,7 @@ class ProfilePageTest(TestCase):
     def test_post(self):
         test_post = SBPost(content='test', post_id=str(uuid1()))
         test_post.save()
-        wall = self.pleb.traverse('wall').run()[0]
+        wall = self.pleb.wall.all()[0]
         test_post.posted_on_wall.connect(wall)
         wall.post.connect(test_post)
         rel = test_post.owned_by.connect(self.pleb)
@@ -62,7 +59,7 @@ class ProfilePageTest(TestCase):
     def test_post_with_comments(self):
         test_post = SBPost(content='test', post_id=str(uuid1()))
         test_post.save()
-        wall = self.pleb.traverse('wall').run()[0]
+        wall = self.pleb.wall.all()[0]
         test_post.posted_on_wall.connect(wall)
         wall.post.connect(test_post)
         rel = test_post.owned_by.connect(self.pleb)
@@ -91,7 +88,7 @@ class ProfilePageTest(TestCase):
         test_user.save()
         test_post = SBPost(content='test', post_id=str(uuid1()))
         test_post.save()
-        wall = self.pleb.traverse('wall').run()[0]
+        wall = self.pleb.wall.all()[0]
         test_post.posted_on_wall.connect(wall)
         wall.post.connect(test_post)
         rel = test_post.owned_by.connect(self.pleb)
@@ -118,7 +115,7 @@ class ProfilePageTest(TestCase):
 
     def test_multiple_posts(self):
         post_array = []
-        wall = self.pleb.traverse('wall').run()[0]
+        wall = self.pleb.wall.all()[0]
         for item in range(0, 50):
             test_post = SBPost(content='test', post_id=str(uuid1()))
             test_post.save()
@@ -137,7 +134,7 @@ class ProfilePageTest(TestCase):
             post.delete()
 
     def test_multiple_posts_friends(self):
-        wall = self.pleb.traverse('wall').run()[0]
+        wall = self.pleb.wall.all()[0]
         pleb_array = []
         post_array = []
         for item in range(0, 2):
@@ -173,7 +170,7 @@ class ProfilePageTest(TestCase):
         test_post.delete()
 
     def test_multiple_posts_multiple_comments_friends(self):
-        wall = self.pleb.traverse('wall').run()[0]
+        wall = self.pleb.wall.all()[0]
         pleb_array = []
         post_array = []
         comment_array = []

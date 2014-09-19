@@ -48,6 +48,7 @@ def profile_page(request, pleb_email):
     # TODO check for index error
     # TODO check why address does not always work
     # TODO deal with address and senator/rep in a util + task
+    # TODO Create a cypher query to get addresses to replace traverse
     #address = citizen.traverse('address').run()[0]
     #sen_array = determine_senators(address)
     #rep_array = determine_reps(address)

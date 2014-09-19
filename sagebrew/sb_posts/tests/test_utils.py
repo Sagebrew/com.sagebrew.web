@@ -29,11 +29,11 @@ class TestSavePost(TestCase):
         post = save_post(post_uuid=uuid, content="test post",
                          current_pleb=self.pleb.email,
                          wall_pleb=self.pleb.email)
-        wall = post.traverse('posted_on_wall').run()[0]
+        wall = post.posted_on_wall.all()[0]
 
         self.assertEqual(poster.email,
-                         post.traverse('owned_by').run()[0].email)
-        self.assertEqual(wall, self.pleb.traverse('wall').run()[0])
+                         post.owned_by.all()[0].email)
+        self.assertEqual(wall, self.pleb.wall.all()[0])
         self.assertEqual("test post", post.content)
         self.assertEqual(post.post_id, uuid)
         post.delete()

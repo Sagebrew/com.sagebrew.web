@@ -222,7 +222,7 @@ def determine_senators(pleb_address):
     senator_names = ['There are no senators in the DB']
     senator_array = GTRole.index.search(state=pleb_address.state, title='Sen.')
     for senator in senator_array:
-        determined_sen.append(senator.traverse('person').run())
+        determined_sen.append(senator.person.all())
     for item in determined_sen:
         for name in item:
             senator_names.append(name.name)
@@ -242,7 +242,7 @@ def determine_reps(pleb_address):
                                     district=int(
                                         pleb_address.congressional_district))
     for rep in rep_array:
-        determined_reps.append(rep.traverse('person').run())
+        determined_reps.append(rep.person.all())
     for item in determined_reps:
         for name in item:
             rep_name = name.name

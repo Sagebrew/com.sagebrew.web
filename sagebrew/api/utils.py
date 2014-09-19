@@ -11,8 +11,7 @@ import boto.sqs
 from boto.sqs.message import Message
 from bomberman.client import Client
 from neomodel.exception import CypherException
-
-import neomodel
+from neomodel import db
 
 from api.alchemyapi import AlchemyAPI
 from sb_comments.neo_models import SBComment
@@ -168,7 +167,13 @@ def language_filter(content):
 def post_to_garbage(post_id):
     try:
         post = SBPost.nodes.get(post_id=post_id)
-        comments = post.traverse('comments').run()
+        query = 'MATCH (p:SBPost) WHERE p.post_id="%s" ' \
+                'WITH p MATCH (p) - [:HAS_A] - (c:SBComment) ' \
+                'WHERE c.to_be_deleted=False ' \
+                'WITH c ORDER BY c.created_on ' \
+                'RETURN c' % post.post_id
+        comments, meta = execute_cypher_query(query)
+        comments = [SBComment.inflate(row[0]) for row in comments]
         for comment in comments:
             comment.to_be_deleted = True
             comment.save()
@@ -214,17 +219,18 @@ def create_auto_tags(content):
     return keywords
 
 def execute_cypher_query(query):
+
     try:
-        return neomodel.cypher_query(query)
+        return db.cypher_query(query)
     except CypherException:
         logger.exception("CypherException: ")
-        return {'detail': 'fail'}
-    except Exception:
+        return {'detail': 'CypherException'}
+    except Exception, e:
         logger.exception("UnhandledException: ")
         return {'detail': 'fail'}
 
 def clear_neodb():
     try:
-        neomodel.cypher_query("START n=node(*) MATCH n-[r?]-() DELETE r,n")
+        db.cypher_query("START n=node(*) MATCH n-[r?]-() DELETE r,n")
     except CypherException:
         pass

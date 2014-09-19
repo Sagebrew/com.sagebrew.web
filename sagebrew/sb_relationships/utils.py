@@ -1,3 +1,4 @@
+from api.utils import execute_cypher_query
 from plebs.neo_models import Pleb
 from .neo_models import FriendRequest
 
@@ -14,11 +15,15 @@ def create_friend_request_util(data):
     except Pleb.DoesNotExist:
         return False
 
-    requests = from_citizen.traverse('friend_requests_sent').run()
-    for request in requests:
-        if request.traverse('request_to').where('email', '=',
-                                                to_citizen.email).run():
-            return True
+    query = 'match (p:Pleb) where p.email="%s" ' \
+            'with p ' \
+            'match (p)-[:SENT_A_REQUEST]-(r:FriendRequest) ' \
+            'with p, r ' \
+            'match (r)-[:REQUEST_TO]-(p2:Pleb) where p2.email="%s" ' \
+            'return p2' % (data['from_pleb'], data['to_pleb'])
+    pleb2, meta = execute_cypher_query(query)
+    if pleb2:
+        return True
 
     data.pop('from_pleb', None)
     data.pop('to_pleb', None)
@@ -33,3 +38,4 @@ def create_friend_request_util(data):
     from_citizen.save()
     to_citizen.friend_requests_recieved.connect(friend_request)
     to_citizen.save()
+    return True

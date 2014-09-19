@@ -19,21 +19,26 @@ def get_pleb_posts(pleb_object, range_end, range_start):
                         This is an instance of a Pleb object
     :return:
     '''
+    #'WHERE posts.to_be_deleted = False ' \
     try:
-        pleb_wall = pleb_object.wall.all()
-        print pleb_wall
-        pleb_wall = pleb_wall[0]
-        post_query = 'MATCH (pleb:Pleb) WHERE pleb.email="%s"- [:OWNS_WALL] - (wall)' % pleb_object.email
-        print post_query
-        pleb_posts = execute_cypher_query(post_query)
-        print pleb_posts
-        return get_post_comments(pleb_posts)
+        post_query = 'MATCH (pleb:Pleb) WHERE pleb.email="%s" ' \
+                     'WITH pleb ' \
+                     'MATCH (pleb)-[:OWNS_WALL]-(wall) ' \
+                     'WITH wall ' \
+                     'MATCH (wall)-[:POST]-(posts:SBPost) ' \
+                     'WHERE posts.to_be_deleted=False ' \
+                     'WITH posts ' \
+                     'ORDER BY posts.date_created DESC ' \
+                     'SKIP %s LIMIT %s ' \
+                     'RETURN posts'\
+                     % (pleb_object.email, str(range_start), str(range_end))
+        pleb_posts, meta = execute_cypher_query(post_query)
+        posts = [SBPost.inflate(row[0]) for row in pleb_posts]
+        return get_post_comments(posts)
     except IndexError:
-        print 1
         logger.exception("IndexError: ")
         return {'details': 'something broke'}
-    except Exception, e:
-        print e
+    except Exception:
         logger.exception("UnhandledException: ")
         return {"details": "You have no posts!"}
 
@@ -63,7 +68,7 @@ def save_post(post_uuid=str(uuid1()), content="", current_pleb="",
         my_citizen = Pleb.nodes.get(email=wall_pleb)
         my_post = SBPost(content=content, post_id=post_uuid)
         my_post.save()
-        wall = my_citizen.traverse('wall').run()[0]
+        wall = my_citizen.wall.all()[0]
         my_post.posted_on_wall.connect(wall)
         wall.post.connect(my_post)
         rel = my_post.owned_by.connect(poster)
@@ -150,7 +155,7 @@ def delete_post_info(post_id=str(uuid1())):
     try:
         my_post = SBPost.nodes.get(post_id=post_id)
         if datetime.now(pytz.utc).day - my_post.delete_time.day >=1:
-            post_comments = my_post.traverse('comments')
+            post_comments = my_post.comments.all()
             for comment in post_comments:
                 comment.delete()
             my_post.delete()

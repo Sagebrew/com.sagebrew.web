@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
+from api.utils import execute_cypher_query
 from .forms import SubmitFriendRequestForm
 from .neo_models import FriendRequest
 from .tasks import create_friend_request_task
@@ -50,12 +51,17 @@ def get_friend_requests(request):
     :return:
     '''
     requests = []
-    citizen = Pleb.index.get(email=request.DATA['email'])
-    friend_requests = citizen.traverse('friend_requests_recieved').where(
-        'seen', '=', False).run()
+    citizen = Pleb.nodes.get(email=request.DATA['email'])
+    query = 'match (p:Pleb) where p.email ="%s" ' \
+            'with p ' \
+            'match (p)-[:RECEIVED_A_REQUEST]-(r:FriendRequest) ' \
+            'where r.seen=False ' \
+            'return r' % request.DATA['email']
+    friend_requests, meta = execute_cypher_query(query)
+    friend_requests = [FriendRequest.inflate(row[0]) for row in friend_requests]
     for friend_request in friend_requests:
         request_id = friend_request.friend_request_uuid
-        request_sender = friend_request.traverse('request_from').run()[0]
+        request_sender = friend_request.request_from.all()[0]
         request_dict = {
         'from_name': request_sender.first_name + ' ' +
                      request_sender.last_name,
@@ -82,10 +88,10 @@ def respond_friend_request(request):
     '''
     request_data = get_post_data(request)
     try:
-        friend_request = FriendRequest.index.get(
+        friend_request = FriendRequest.nodes.get(
             friend_request_uuid=request_data['request_id'])
-        to_pleb = friend_request.traverse('request_to').run()[0]
-        from_pleb = friend_request.traverse('request_from').run()[0]
+        to_pleb = friend_request.request_to.all()[0]
+        from_pleb = friend_request.request_from.all()[0]
     except (FriendRequest.DoesNotExist, Pleb.DoesNotExist):
         return Response(status=408)
 

@@ -18,22 +18,22 @@ class TestSavePost(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.index.get(email=self.user.email)
+        self.pleb = Pleb.nodes.get(email=self.user.email)
 
     def tearDown(self):
         call_command('clear_neo_db')
 
     def test_save_post(self):
-        poster = Pleb.index.get(email=self.pleb.email)
+        poster = Pleb.nodes.get(email=self.pleb.email)
         uuid = str(uuid1())
         post = save_post(post_uuid=uuid, content="test post",
                          current_pleb=self.pleb.email,
                          wall_pleb=self.pleb.email)
-        wall = post.traverse('posted_on_wall').run()[0]
+        wall = post.posted_on_wall.all()[0]
 
         self.assertEqual(poster.email,
-                         post.traverse('owned_by').run()[0].email)
-        self.assertEqual(wall, self.pleb.traverse('wall').run()[0])
+                         post.owned_by.all()[0].email)
+        self.assertEqual(wall, self.pleb.wall.all()[0])
         self.assertEqual("test post", post.content)
         self.assertEqual(post.post_id, uuid)
         post.delete()
@@ -73,7 +73,7 @@ class TestSavePost(TestCase):
         test_post.save()
         if delete_post_info(uuid):
             try:
-                post = SBPost.index.get(post_id=uuid)
+                post = SBPost.nodes.get(post_id=uuid)
             except SBPost.DoesNotExist:
                 return
 
@@ -139,7 +139,7 @@ class TestPostVotes(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.index.get(email=self.user.email)
+        self.pleb = Pleb.nodes.get(email=self.user.email)
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -170,7 +170,7 @@ class TestPostVotes(TestCase):
         uuid = str(uuid1())
         post = SBPost(post_id=uuid, content='test')
         post.save()
-        pleb = Pleb.index.get(email=self.pleb.email)
+        pleb = Pleb.nodes.get(email=self.pleb.email)
         post.down_voted_by.connect(pleb)
         res = create_post_vote(pleb=self.pleb.email, post_uuid=post.post_id,
                          vote_type="down")
@@ -182,7 +182,7 @@ class TestPostVotes(TestCase):
         uuid = str(uuid1())
         post = SBPost(post_id=uuid, content='test')
         post.save()
-        pleb = Pleb.index.get(email=self.pleb.email)
+        pleb = Pleb.nodes.get(email=self.pleb.email)
         post.up_voted_by.connect(pleb)
         res = create_post_vote(pleb=self.pleb.email, post_uuid=post.post_id,
                          vote_type="up")
@@ -194,7 +194,7 @@ class TestFlagPost(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.index.get(email=self.user.email)
+        self.pleb = Pleb.nodes.get(email=self.user.email)
 
     def tearDown(self):
         call_command('clear_neo_db')

@@ -224,7 +224,7 @@ class TestVoteComment(TestCase):
         user2 = User.objects.create_user(
             username='Test' + str(uuid1())[:25],
             email=str(uuid1())[:10] + "@gmail.com")
-        pleb2 = Pleb.index.get(email=user2.email)
+        pleb2 = Pleb.nodes.get(email=user2.email)
         vote_task_param['pleb'] = pleb2.email
         vote_task_param['vote_type'] = 'up'
         response2 = create_vote_comment.apply_async(kwargs=vote_task_param)

@@ -30,3 +30,4 @@ bomberman-python
 elasticsearch
 textblob
 nltk
+neomodel

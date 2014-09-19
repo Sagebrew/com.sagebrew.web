@@ -56,17 +56,17 @@ def add_auto_tags_util(tag_list):
     for tag in tag_list:
         if tag['object_type'] == 'question':
             try:
-                question = SBQuestion.index.get(question_id=
+                question = SBQuestion.nodes.get(question_id=
                                                 tag['object_uuid'])
                 relevance = tag['tags']['relevance']
-                tag = SBAutoTag.index.get(tag_name=tag['tags']['text'])
+                tag = SBAutoTag.nodes.get(tag_name=tag['tags']['text'])
                 rel = question.auto_tags.connect(tag)
                 rel.relevance = relevance
                 rel.save()
                 tag.questions.connect(question)
                 tag_array.append(tag)
             except SBAutoTag.DoesNotExist:
-                question =SBQuestion.index.get(question_id=tag['object_uuid'])
+                question =SBQuestion.nodes.get(question_id=tag['object_uuid'])
                 relevance = tag['tags']['relevance']
                 tag = SBAutoTag(tag_name=tag['tags']['text'])
                 tag.save()
@@ -108,7 +108,7 @@ def add_tag_util(object_type, object_uuid, tags):
 
     for tag in tags:
         try:
-            tag_object = SBTag.index.get(tag_name=tag)
+            tag_object = SBTag.nodes.get(tag_name=tag)
             tag_array.append(tag_object)
         except SBTag.DoesNotExist:
             es.index(index='tags', doc_type='tag',
@@ -118,7 +118,7 @@ def add_tag_util(object_type, object_uuid, tags):
 
     if object_type == 'question':
         try:
-            question = SBQuestion.index.get(question_id=object_uuid)
+            question = SBQuestion.nodes.get(question_id=object_uuid)
             for tag in tag_array:
                 question.tags.connect(tag)
                 tag.questions.connect(question)

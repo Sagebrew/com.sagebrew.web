@@ -59,8 +59,8 @@ def create_vote_comment(pleb="", comment_uuid=str(uuid1()), vote_type=""):
 
             Will return True if the vote is created
     '''
-    my_pleb = Pleb.index.get(email=pleb)
-    my_comment = SBComment.index.get(comment_id=comment_uuid)
+    my_pleb = Pleb.nodes.get(email=pleb)
+    my_comment = SBComment.nodes.get(comment_id=comment_uuid)
     if my_comment.up_voted_by.is_connected(
             my_pleb) or my_comment.down_voted_by.is_connected(my_pleb):
         return False
@@ -89,9 +89,9 @@ def submit_comment_on_post(content="", pleb="", post_uuid=str(uuid1())):
     '''
     my_comment = save_comment_post(content, pleb, post_uuid)
     if my_comment is not None:
-        from_pleb_email = my_comment.traverse('is_owned_by').run()[0].email
-        post = my_comment.traverse('commented_on_post').run()[0]
-        to_pleb_email = post.traverse('owned_by').run()[0].email
+        from_pleb_email = my_comment.is_owned_by.all()[0].email
+        post = my_comment.commented_on_post.all()[0]
+        to_pleb_email = post.owned_by.all()[0].email
         data = {'from_pleb': from_pleb_email, 'to_pleb': to_pleb_email,
                 'comment_on': 'post', 'comment_on_id': post.post_id,
                 'comment_uuid': my_comment.comment_id}

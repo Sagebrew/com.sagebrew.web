@@ -5,7 +5,7 @@ from govtrack.neo_models import (GTPerson, GTRole)
 
 def create_gt_role(rep):
     try:
-        my_role = GTRole.index.get(role_id=rep["id"])
+        my_role = GTRole.nodes.get(role_id=rep["id"])
     except GTRole.DoesNotExist:
         my_person = create_gt_person(rep['person'])
         rep.pop("person", None)
@@ -28,7 +28,7 @@ def create_gt_role(rep):
 
 def create_gt_person(gt_person):
     try:
-        my_person = GTPerson.index.get(gt_id=gt_person["id"])
+        my_person = GTPerson.nodes.get(gt_id=gt_person["id"])
     except GTPerson.DoesNotExist:
         gt_person["birthday"] = datetime.strptime(gt_person["birthday"],
                                                   '%Y-%m-%d')

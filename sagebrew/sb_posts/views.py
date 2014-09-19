@@ -30,7 +30,7 @@ def save_post_view(request):
     :return:
     '''
     try:
-        post_data = get_post_data(request)
+        post_data = request.DATA
         if type(post_data) != dict:
             return Response({"details": "Please Provide a JSON Object"},
                             status=400)
@@ -60,7 +60,7 @@ def get_user_posts(request):
     :return:
     '''
     html_array = []
-    post_data = get_post_data(request)
+    post_data = request.DATA
     post_form = GetPostForm(post_data)
     if post_form.is_valid():
         citizen = Pleb.nodes.get(email=post_form.cleaned_data['email'])
@@ -97,7 +97,7 @@ def edit_post(request):
 
     '''
     try:
-        post_data = get_post_data(request)
+        post_data = request.DATA
         if type(post_data) != dict:
             return Response({"details": "Please Provide a JSON Object"},
                             status=400)
@@ -132,7 +132,7 @@ def delete_post(request):
     :return:
     '''
     try:
-        post_data = get_post_data(request)
+        post_data = request.DATA
         if type(post_data) != dict:
             return Response({"details": "Please Provide a JSON Object"},
                             status=400)
@@ -158,7 +158,7 @@ def vote_post(request):
     :return:
     '''
     try:
-        post_data = get_post_data(request)
+        post_data = request.DATA
         if type(post_data) != dict:
             return Response({"details": "Please Provide a JSON Object"},
                             status=400)
@@ -184,7 +184,7 @@ def flag_post(request):
     :return:
     '''
     try:
-        flag_data = get_post_data(request)
+        flag_data = request.DATA
         if type(flag_data) != dict:
             return Response({'detail': 'Please Provide a valid JSON Object'},
                             status=400)

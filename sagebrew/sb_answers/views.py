@@ -35,7 +35,7 @@ def save_answer_view(request):
 
     :return:
     '''
-    answer_data = get_post_data(request)
+    answer_data = request.DATA
     if type(answer_data) != dict:
         return Response({'detail': 'Please provide a valid JSON object'}, status=400)
     #answer_data['content'] = language_filter(answer_data['content'])
@@ -60,7 +60,7 @@ def edit_answer_view(request):
 
     :return:
     '''
-    answer_data = get_post_data(request)
+    answer_data = request.DATA
     if type(answer_data) != dict:
         return Response({"details": "Please provide a valid JSON object"},
                         status=400)
@@ -93,7 +93,7 @@ def vote_answer_view(request):
     :return:
     '''
     try:
-        post_data = get_post_data(request)
+        post_data = request.DATA
         if type(post_data) != dict:
             return Response({"details": "Please Provide a JSON Object"},
                             status=400)

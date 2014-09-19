@@ -1,5 +1,6 @@
 import logging
 import requests
+from copy import copy
 from uuid import uuid1
 from socket import error as socket_error
 from json import loads, dumps
@@ -138,10 +139,10 @@ def get_post_data(request):
     :param request:
     :return:
     '''
-    post_info = request.DATA
+    post_info = loads(request.body)
     if not post_info:
         try:
-            post_info = loads(request.body)
+            post_info = request.DATA
         except ValueError:
             return {}
     return post_info

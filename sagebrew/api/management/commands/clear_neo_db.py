@@ -7,7 +7,7 @@ class Command(BaseCommand):
 
     def clear_neo_db(self):
         try:
-            db.cypher_query("START n=node(*) MATCH n-[r?]-() DELETE r,n")
+            db.cypher_query("START n=node(*) OPTIONAL MATCH n-[r]-() DELETE r,n")
         except CypherException:
             pass
 

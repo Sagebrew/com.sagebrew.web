@@ -4,7 +4,6 @@
     {% include "navigation/logged_in_navigation.html" %}
 {% endblock %}
 {% block content %}
-
 {% if is_owner == True or is_friend == True %}
        <div id="pleb_info"
             style="display: none"
@@ -21,16 +20,16 @@
            <div class="sb_profile_btn_menu_container ">
                 {% include "sb_profile_user_menu.html" %}
            </div>
-           <div class="sb_home" style="display:none">
+           <div class="sb_home">
                 {% include "sb_home.html" %}
            </div>
-           <div class="col-12-lg sb_about" style="display:none">
+           <div class="col-12-lg sb_about">
                 {% include "sb_about.html" %}
            </div>
-           <div class="col-12-lg sb_reputation" style="display:none">
+           <div class="col-12-lg sb_reputation">
                 {% include "sb_reputation.html" %}
            </div>
-           <div class="col-12-lg sb_friends" style="display:none">
+           <div class="col-12-lg sb_friends">
                 {% include "sb_friends.html" %}
            </div>
         </div>
@@ -59,7 +58,6 @@
     {% endif %}
 {% endblock %}
 {% block footer %}
-
 {% endblock %}
 {% block scripts %}
     {{ block.super }}

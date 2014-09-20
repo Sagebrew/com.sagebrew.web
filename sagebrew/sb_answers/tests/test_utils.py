@@ -10,7 +10,7 @@ from sb_questions.utils import create_question_util
 from sb_answers.utils import (save_answer_util, edit_answer_util,
                               upvote_answer_util, downvote_answer_util)
 from sb_answers.neo_models import SBAnswer
-from plebs.neo_models import Pleb
+from sb_questions.neo_models import SBQuestion
 
 class TestCreateAnswerUtil(TestCase):
     def setUp(self):
@@ -29,14 +29,18 @@ class TestCreateAnswerUtil(TestCase):
 
 
     def test_save_answer_util(self):
-        question = create_question_util(**self.question_info_dict)
+        self.question_info_dict['question_id']=str(uuid1())
+        question = SBQuestion(**self.question_info_dict)
+        question.save()
         self.answer_info_dict['question_uuid'] = question.question_id
         response = save_answer_util(**self.answer_info_dict)
 
         self.assertIsNot(response, False)
 
     def test_save_answer_util_empty_content(self):
-        question = create_question_util(**self.question_info_dict)
+        self.question_info_dict['question_id']=str(uuid1())
+        question = SBQuestion(**self.question_info_dict)
+        question.save()
         self.answer_info_dict['question_uuid'] = question.question_id
         self.answer_info_dict['content'] = ''
         response = save_answer_util(**self.answer_info_dict)
@@ -50,7 +54,9 @@ class TestCreateAnswerUtil(TestCase):
         self.assertFalse(response)
 
     def test_save_answer_util_pleb_does_not_exist(self):
-        question = create_question_util(**self.question_info_dict)
+        self.question_info_dict['question_id']=str(uuid1())
+        question = SBQuestion(**self.question_info_dict)
+        question.save()
         self.answer_info_dict['question_uuid'] = question.question_id
         self.answer_info_dict['current_pleb'] = 'adsfasd152fasdfasdf@gmail.com'
         response = save_answer_util(**self.answer_info_dict)

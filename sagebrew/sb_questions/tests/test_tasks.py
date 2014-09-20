@@ -26,9 +26,8 @@ class TestSaveQuestionTask(TestCase):
 
     def test_save_question_task(self):
         response = create_question_task.apply_async(kwargs=self.question_info_dict)
-
         while not response.ready():
-            time.sleep(3)
+            time.sleep(1)
 
         self.assertTrue(response.result)
 
@@ -123,7 +122,7 @@ class TestVoteTask(TestCase):
                               question_title="testquestiontitle from votetest",
                               question_id=uuid1())
         question.save()
-        pleb = Pleb.index.get(email=self.user.email)
+        pleb = Pleb.nodes.get(email=self.user.email)
         vote_info_dict = {"question_uuid": question.question_id,
                           "current_pleb": pleb.email, 'vote_type': 'up'}
         vote_response = vote_question_task.apply_async(kwargs=vote_info_dict)

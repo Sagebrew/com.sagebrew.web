@@ -9,6 +9,7 @@ from django.core.management import call_command
 from sb_questions.utils import (create_question_util, upvote_question_util,
                                 downvote_question_util, edit_question_util,
                                 prepare_get_question_dictionary)
+from sb_questions.neo_models import SBQuestion
 from plebs.neo_models import Pleb
 
 class TestCreateQuestion(TestCase):
@@ -50,6 +51,7 @@ class TestPrepareQuestionDictUtil(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.pleb = Pleb.nodes.get(email=self.user.email)
         self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
                                    'content': 'test post',
@@ -59,9 +61,13 @@ class TestPrepareQuestionDictUtil(TestCase):
         call_command('clear_neo_db')
 
     def test_get_question_dict_by_uuid(self):
-        response = create_question_util(**self.question_info_dict)
-
-        dict_response = prepare_get_question_dictionary(response,
+        self.question_info_dict.pop('question_uuid',None)
+        self.question_info_dict['question_id']=str(uuid1())
+        question = SBQuestion(question_id=str(uuid1()))
+        question.save()
+        question.owned_by.connect(self.pleb)
+        question.save()
+        dict_response = prepare_get_question_dictionary(question,
                             sort_by='uuid',
                             current_pleb=self.question_info_dict['current_pleb'])
 
@@ -93,50 +99,58 @@ class TestEditQuestionUtils(TestCase):
         call_command('clear_neo_db')
 
     def test_edit_question_util(self):
-        response = create_question_util(**self.question_info_dict)
+        self.question_info_dict['question_id']=str(uuid1())
+        question = SBQuestion(question_id=str(uuid1()), content="test")
+        question.save()
 
         edit_question_dict = {'current_pleb': self.question_info_dict['current_pleb'],
                               'content': 'edit content',
                               'last_edited_on': datetime.now(pytz.utc),
-                              'question_uuid': response.question_id}
+                              'question_uuid': question.question_id}
         edit_response = edit_question_util(**edit_question_dict)
 
         self.assertTrue(edit_response)
 
     def test_edit_question_util_to_be_deleted(self):
-        response = create_question_util(**self.question_info_dict)
-        response.to_be_deleted = True
-        response.save()
+        self.question_info_dict['question_id']=str(uuid1())
+        question = SBQuestion(question_id=str(uuid1()), content="test")
+        question.save()
+        question.to_be_deleted = True
+        question.save()
 
         edit_question_dict = {'current_pleb': self.question_info_dict['current_pleb'],
                               'content': 'edit content',
                               'last_edited_on': datetime.now(pytz.utc),
-                              'question_uuid': response.question_id}
+                              'question_uuid': question.question_id}
         edit_response = edit_question_util(**edit_question_dict)
 
         self.assertEqual(edit_response['detail'], 'to be deleted')
 
     def test_edit_question_util_same_content(self):
-        response = create_question_util(**self.question_info_dict)
+        self.question_info_dict['question_id']=str(uuid1())
+        question = SBQuestion(**self.question_info_dict)
+        question.save()
 
         edit_question_dict = {'current_pleb': self.question_info_dict['current_pleb'],
                               'content': 'test post',
                               'last_edited_on': datetime.now(pytz.utc),
-                              'question_uuid': response.question_id}
+                              'question_uuid': question.question_id}
         edit_response = edit_question_util(**edit_question_dict)
 
         self.assertEqual(edit_response['detail'], 'same content')
 
     def test_edit_question_util_same_timestamp(self):
         now = datetime.now(pytz.utc)
-        response = create_question_util(**self.question_info_dict)
-        response.last_edited_on = now
-        response.save()
+        self.question_info_dict['question_id']=str(uuid1())
+        question = SBQuestion(question_id=str(uuid1()), content="test")
+        question.save()
+        question.last_edited_on = now
+        question.save()
 
         edit_question_dict = {'current_pleb': self.question_info_dict['current_pleb'],
                               'content': 'test  question',
                               'last_edited_on': now,
-                              'question_uuid': response.question_id}
+                              'question_uuid': question.question_id}
         edit_response = edit_question_util(**edit_question_dict)
 
         self.assertEqual(edit_response['detail'], 'same timestamp')
@@ -145,14 +159,16 @@ class TestEditQuestionUtils(TestCase):
         now = datetime.now(pytz.utc)
         future_edit = now + timedelta(minutes=10)
 
-        response = create_question_util(**self.question_info_dict)
-        response.last_edited_on = future_edit
-        response.save()
+        self.question_info_dict['question_id']=str(uuid1())
+        question = SBQuestion(question_id=str(uuid1()),content="test")
+        question.save()
+        question.last_edited_on = future_edit
+        question.save()
 
         edit_question_dict = {'current_pleb': self.question_info_dict['current_pleb'],
                               'content': 'test     question',
                               'last_edited_on': now,
-                              'question_uuid': response.question_id}
+                              'question_uuid': question.question_id}
         edit_response = edit_question_util(**edit_question_dict)
 
         self.assertEqual(edit_response['detail'], 'last edit more recent')
@@ -179,30 +195,30 @@ class TestVoteQuestionUtil(TestCase):
         call_command('clear_neo_db')
 
     def test_upvote_question_util(self):
-        response = create_question_util(**self.question_info_dict)
-        vote_response = upvote_question_util(response.question_id,
+        self.question_info_dict['question_id']=str(uuid1())
+        question = SBQuestion(**self.question_info_dict)
+        question.save()
+        vote_response = upvote_question_util(question.question_id,
                                              self.question_info_dict['current_pleb'])
 
         self.assertTrue(vote_response)
 
     def test_downvote_question_util(self):
-        response = create_question_util(**self.question_info_dict)
-        vote_response = downvote_question_util(response.question_id,
+        self.question_info_dict['question_id']=str(uuid1())
+        question = SBQuestion(**self.question_info_dict)
+        question.save()
+        vote_response = downvote_question_util(question.question_id,
                                              self.question_info_dict['current_pleb'])
 
         self.assertTrue(vote_response)
 
     def test_downvote_question_util_question_dne(self):
-        response = create_question_util(**self.question_info_dict)
-
         vote_response = downvote_question_util(uuid1(),
                                              self.question_info_dict['current_pleb'])
 
         self.assertFalse(vote_response)
 
     def test_upvote_question_util_question_dne(self):
-        response = create_question_util(**self.question_info_dict)
-
         vote_response = upvote_question_util(uuid1(),
                                              self.question_info_dict['current_pleb'])
 

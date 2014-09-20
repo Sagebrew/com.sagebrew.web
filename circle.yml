@@ -9,7 +9,6 @@ dependencies:
     - elasticsearch-1.3.2
   post:
     - pip install -r ../requirements/base.txt
-    - pip install git+https://github.com/robinedwards/neomodel.git@0.3.6
     - sudo chown ubuntu /etc/rsyslog.d/
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py logglypopulation $LOG_ACCOUNT $LOG_TOKEN
     - sudo chown root /etc/rsyslog.d/

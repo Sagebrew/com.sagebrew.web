@@ -18,7 +18,7 @@ class TestSavePostTask(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.index.get(email=self.user.email)
+        self.pleb = Pleb.nodes.get(email=self.user.email)
         self.post_info_dict = {'current_pleb': self.pleb.email,
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
@@ -36,7 +36,7 @@ class TestDeletePostTask(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.index.get(email=self.user.email)
+        self.pleb = Pleb.nodes.get(email=self.user.email)
         self.post_info_dict = {'current_pleb': self.pleb.email,
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
@@ -58,7 +58,7 @@ class TestEditPostTask(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.index.get(email=self.user.email)
+        self.pleb = Pleb.nodes.get(email=self.user.email)
         self.post_info_dict = {'current_pleb': self.pleb.email,
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
@@ -84,7 +84,7 @@ class TestPostTaskRaceConditions(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.index.get(email=self.user.email)
+        self.pleb = Pleb.nodes.get(email=self.user.email)
         self.post_info_dict = {'current_pleb': self.pleb.email,
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
@@ -132,7 +132,7 @@ class TestMultipleTasks(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.index.get(email=self.user.email)
+        self.pleb = Pleb.nodes.get(email=self.user.email)
         self.post_info_dict = {'current_pleb': self.pleb.email,
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
@@ -187,7 +187,7 @@ class TestFlagPostTask(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.index.get(email=self.user.email)
+        self.pleb = Pleb.nodes.get(email=self.user.email)
         self.post_info_dict = {'current_pleb': self.pleb.email,
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',

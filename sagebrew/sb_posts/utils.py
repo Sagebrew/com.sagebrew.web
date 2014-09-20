@@ -3,7 +3,7 @@ import logging
 from uuid import uuid1
 from datetime import datetime
 
-from api.utils import spawn_task
+from api.utils import spawn_task, execute_cypher_query
 from plebs.neo_models import Pleb
 from sb_comments.utils import get_post_comments
 from .neo_models import SBPost
@@ -20,12 +20,25 @@ def get_pleb_posts(pleb_object, range_end, range_start):
     :return:
     '''
     try:
-        pleb_wall = pleb_object.traverse('wall').run()[0]
-        pleb_posts = pleb_wall.traverse('post').where('to_be_deleted', '=',
-            False).order_by_desc('date_created').skip(range_start).limit(
-            range_end).run()
-        return get_post_comments(pleb_posts)
-    except:
+        post_query = 'MATCH (pleb:Pleb) WHERE pleb.email="%s" ' \
+                     'WITH pleb ' \
+                     'MATCH (pleb)-[:OWNS_WALL]-(wall) ' \
+                     'WITH wall ' \
+                     'MATCH (wall)-[:POST]-(posts:SBPost) ' \
+                     'WHERE posts.to_be_deleted=False ' \
+                     'WITH posts ' \
+                     'ORDER BY posts.date_created DESC ' \
+                     'SKIP %s LIMIT %s ' \
+                     'RETURN posts'\
+                     % (pleb_object.email, str(range_start), str(range_end))
+        pleb_posts, meta = execute_cypher_query(post_query)
+        posts = [SBPost.inflate(row[0]) for row in pleb_posts]
+        return get_post_comments(posts)
+    except IndexError:
+        logger.exception("IndexError: ")
+        return {'details': 'something broke'}
+    except Exception,e:
+        print e
         logger.exception("UnhandledException: ")
         return {"details": "You have no posts!"}
 
@@ -49,13 +62,13 @@ def save_post(post_uuid=str(uuid1()), content="", current_pleb="",
             else returns SBPost object
     '''
     try:
-        test_post = SBPost.index.get(post_id=post_uuid)
+        test_post = SBPost.nodes.get(post_id=post_uuid)
     except SBPost.DoesNotExist:
-        poster = Pleb.index.get(email=current_pleb)
-        my_citizen = Pleb.index.get(email=wall_pleb)
+        poster = Pleb.nodes.get(email=current_pleb)
+        my_citizen = Pleb.nodes.get(email=wall_pleb)
         my_post = SBPost(content=content, post_id=post_uuid)
         my_post.save()
-        wall = my_citizen.traverse('wall').run()[0]
+        wall = my_citizen.wall.all()[0]
         my_post.posted_on_wall.connect(wall)
         wall.post.connect(my_post)
         rel = my_post.owned_by.connect(poster)
@@ -99,7 +112,7 @@ def edit_post_info(content="", post_uuid=str(uuid1()), last_edited_on=None,
     '''
     # TODO create a function to determine if the object will be edited
     try:
-        my_post = SBPost.index.get(post_id=post_uuid)
+        my_post = SBPost.nodes.get(post_id=post_uuid)
         if my_post.to_be_deleted:
             return {'post': my_post, 'detail': 'to be deleted'}
 
@@ -140,9 +153,9 @@ def delete_post_info(post_id=str(uuid1())):
             if it cant find the post it returns False
     '''
     try:
-        my_post = SBPost.index.get(post_id=post_id)
+        my_post = SBPost.nodes.get(post_id=post_id)
         if datetime.now(pytz.utc).day - my_post.delete_time.day >=1:
-            post_comments = my_post.traverse('comments')
+            post_comments = my_post.comments.all()
             for comment in post_comments:
                 comment.delete()
             my_post.delete()
@@ -170,8 +183,8 @@ def create_post_vote(pleb="", post_uuid=str(uuid1()), vote_type=""):
     # TODO This needs to allow to changing of vote
     from sb_posts.tasks import create_downvote_post, create_upvote_post
 
-    my_pleb = Pleb.index.get(email=pleb)
-    my_post = SBPost.index.get(post_id=post_uuid)
+    my_pleb = Pleb.nodes.get(email=pleb)
+    my_post = SBPost.nodes.get(post_id=post_uuid)
     if my_post.up_voted_by.is_connected(
             my_pleb) or my_post.down_voted_by.is_connected(my_pleb):
         return False
@@ -200,8 +213,8 @@ def flag_post(post_uuid, current_user, flag_reason):
     :return:
     '''
     try:
-        post = SBPost.index.get(post_id=post_uuid)
-        pleb = Pleb.index.get(email=current_user)
+        post = SBPost.nodes.get(post_id=post_uuid)
+        pleb = Pleb.nodes.get(email=current_user)
 
         if post.flagged_by.is_connected(pleb):
             return False

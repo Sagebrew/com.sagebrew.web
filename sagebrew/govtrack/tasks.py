@@ -24,7 +24,7 @@ def populate_gt_role(requesturl):
         print rep
         for number in rep['congress_numbers']:
             try:
-                my_congress_number = GTCongressNumbers.index.get(
+                my_congress_number = GTCongressNumbers.nodes.get(
                     congress_number=number)
             except GTCongressNumbers.DoesNotExist:
                 print number
@@ -53,7 +53,7 @@ def populate_gt_person(requesturl):
     person_data_dict = person_request.json()
     for person in person_data_dict['objects']:
         try:
-            my_person = GTPerson.index.get(gt_id=person["id"])
+            my_person = GTPerson.nodes.get(gt_id=person["id"])
         except GTPerson.DoesNotExist:
             person["birthday"] = datetime.strptime(person["birthday"],
                                                    '%Y-%m-%d')
@@ -78,7 +78,7 @@ def populate_gt_committee(requesturl):
     committee_data_dict = committee_request.json()
     for committee in committee_data_dict['objects']:
         try:
-            my_committee = GTCommittee.index.get(committee_id=committee["id"])
+            my_committee = GTCommittee.nodes.get(committee_id=committee["id"])
         except GTCommittee.DoesNotExist:
             committee["committee_id"] = committee["id"]
             committee.pop("id", None)
@@ -103,11 +103,11 @@ def populate_gt_votes(requesturl):
     my_votes = []
     for vote in vote_data_dict['objects']:
         try:
-            my_vote = GT_RCVotes.index.get(vote_id=vote["id"])
+            my_vote = GT_RCVotes.nodes.get(vote_id=vote["id"])
         except GT_RCVotes.DoesNotExist:
             for voteoption in vote['options']:
                 try:
-                    my_vote_option = GTVoteOption.index.get(
+                    my_vote_option = GTVoteOption.nodes.get(
                         option_id=voteoption["id"])
                 except GTVoteOption.DoesNotExist:
                     vote["option_id"] = vote["id"]

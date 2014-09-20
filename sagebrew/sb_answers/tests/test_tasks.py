@@ -10,7 +10,7 @@ from sb_answers.neo_models import SBAnswer
 from sb_answers.utils import save_answer_util
 from sb_answers.tasks import save_answer_task, edit_answer_task, vote_answer_task
 from sb_questions.utils import create_question_util
-from plebs.neo_models import Pleb
+from sb_questions.neo_models import SBQuestion
 
 class TestSaveAnswerTask(TestCase):
     def setUp(self):
@@ -27,13 +27,14 @@ class TestSaveAnswerTask(TestCase):
         call_command('clear_neo_db')
 
 
-
     def test_save_answer_task(self):
-        question_response = create_question_util(**self.question_info_dict)
-        self.answer_info_dict['question_uuid'] = question_response.question_id
+        self.question_info_dict['question_id']=str(uuid1())
+        question = SBQuestion(**self.question_info_dict)
+        question.save()
+        self.answer_info_dict['question_uuid'] = question.question_id
         save_response = save_answer_task.apply_async(kwargs=self.answer_info_dict)
 
-        self.assertIsNotNone(question_response)
+        self.assertIsNotNone(question)
         self.assertTrue(save_response.get())
 
     def test_save_answer_task_fail(self):
@@ -58,8 +59,10 @@ class TestEditAnswerTask(TestCase):
         call_command('clear_neo_db')
 
     def test_edit_answer_task(self):
-        save_q_response = create_question_util(**self.question_info_dict)
-        self.answer_info_dict['question_uuid'] = save_q_response.question_id
+        self.question_info_dict['question_id']=str(uuid1())
+        question = SBQuestion(**self.question_info_dict)
+        question.save()
+        self.answer_info_dict['question_uuid'] = question.question_id
         self.answer_info_dict.pop('to_pleb', None)
         self.answer_info_dict['answer_uuid'] = str(uuid1())
         save_ans_response = save_answer_util(**self.answer_info_dict)
@@ -73,8 +76,10 @@ class TestEditAnswerTask(TestCase):
         self.assertTrue(edit_response.get())
 
     def test_edit_answer_task_missing_data(self):
-        save_q_response = create_question_util(**self.question_info_dict)
-        self.answer_info_dict['question_uuid'] = save_q_response.question_id
+        self.question_info_dict['question_id']=str(uuid1())
+        question = SBQuestion(**self.question_info_dict)
+        question.save()
+        self.answer_info_dict['question_uuid'] = question.question_id
         self.answer_info_dict.pop('to_pleb', None)
         self.answer_info_dict['answer_uuid'] = str(uuid1())
         save_ans_response = save_answer_util(**self.answer_info_dict)

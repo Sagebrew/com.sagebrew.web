@@ -39,8 +39,8 @@ def create_upvote_post(post_uuid=str(uuid1()), pleb=""):
     :return:
     '''
     try:
-        my_post = SBPost.index.get(post_id=post_uuid)
-        my_pleb = Pleb.index.get(email=pleb)
+        my_post = SBPost.nodes.get(post_id=post_uuid)
+        my_pleb = Pleb.nodes.get(email=pleb)
         my_post.up_vote_number += 1
         my_post.up_voted_by.connect(my_pleb)
         my_post.save()
@@ -66,8 +66,8 @@ def create_downvote_post(post_uuid=str(uuid1()), pleb=""):
     :return:
     '''
     try:
-        my_post = SBPost.index.get(post_id=post_uuid)
-        my_pleb = Pleb.index.get(email=pleb)
+        my_post = SBPost.nodes.get(post_id=post_uuid)
+        my_pleb = Pleb.nodes.get(email=pleb)
         my_post.down_vote_number += 1
         my_post.down_voted_by.connect(my_pleb)
         my_post.save()

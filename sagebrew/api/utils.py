@@ -1,5 +1,6 @@
 import logging
 import requests
+from copy import copy
 from uuid import uuid1
 from socket import error as socket_error
 from json import loads, dumps
@@ -10,6 +11,8 @@ from provider.oauth2.models import Client as OauthClient
 import boto.sqs
 from boto.sqs.message import Message
 from bomberman.client import Client
+from neomodel.exception import CypherException
+from neomodel import db
 
 from api.alchemyapi import AlchemyAPI
 from sb_comments.neo_models import SBComment
@@ -136,10 +139,10 @@ def get_post_data(request):
     :param request:
     :return:
     '''
-    post_info = request.DATA
+    post_info = loads(request.body)
     if not post_info:
         try:
-            post_info = loads(request.body)
+            post_info = request.DATA
         except ValueError:
             return {}
     return post_info
@@ -164,18 +167,24 @@ def language_filter(content):
 
 def post_to_garbage(post_id):
     try:
-        post = SBPost.index.get(post_id=post_id)
-        comments = post.traverse('comments').run()
+        post = SBPost.nodes.get(post_id=post_id)
+        query = 'MATCH (p:SBPost) WHERE p.post_id="%s" ' \
+                'WITH p MATCH (p) - [:HAS_A] - (c:SBComment) ' \
+                'WHERE c.to_be_deleted=False ' \
+                'WITH c ORDER BY c.created_on ' \
+                'RETURN c' % post.post_id
+        comments, meta = execute_cypher_query(query)
+        comments = [SBComment.inflate(row[0]) for row in comments]
         for comment in comments:
             comment.to_be_deleted = True
             comment.save()
-        garbage_can = SBGarbageCan.index.get(garbage_can='garbage')
+        garbage_can = SBGarbageCan.nodes.get(garbage_can='garbage')
         post.to_be_deleted = True
         garbage_can.posts.connect(post)
         garbage_can.save()
         post.save()
     except SBGarbageCan.DoesNotExist:
-        post = SBPost.index.get(post_id=post_id)
+        post = SBPost.nodes.get(post_id=post_id)
         garbage_can = SBGarbageCan(garbage_can='garbage')
         garbage_can.save()
         post.to_be_deleted = True
@@ -188,14 +197,14 @@ def post_to_garbage(post_id):
 
 def comment_to_garbage(comment_id):
     try:
-        comment = SBComment.index.get(comment_id=comment_id)
-        garbage_can = SBGarbageCan.index.get(garbage_can='garbage')
+        comment = SBComment.nodes.get(comment_id=comment_id)
+        garbage_can = SBGarbageCan.nodes.get(garbage_can='garbage')
         comment.to_be_deleted = True
         garbage_can.comments.connect(comment)
         garbage_can.save()
         comment.save()
     except SBGarbageCan.DoesNotExist:
-        comment = SBComment.index.get(comment_id=comment_id)
+        comment = SBComment.nodes.get(comment_id=comment_id)
         garbage_can = SBGarbageCan(garbage_can='garbage')
         garbage_can.save()
         comment.to_be_deleted = True
@@ -209,3 +218,20 @@ def create_auto_tags(content):
     alchemyapi = AlchemyAPI()
     keywords = alchemyapi.keywords("text", content)
     return keywords
+
+def execute_cypher_query(query):
+
+    try:
+        return db.cypher_query(query)
+    except CypherException:
+        logger.exception("CypherException: ")
+        return {'detail': 'CypherException'}
+    except Exception, e:
+        logger.exception("UnhandledException: ")
+        return {'detail': 'fail'}
+
+def clear_neodb():
+    try:
+        db.cypher_query("START n=node(*) MATCH n-[r?]-() DELETE r,n")
+    except CypherException:
+        pass

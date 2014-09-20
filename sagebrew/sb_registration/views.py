@@ -42,7 +42,7 @@ def profile_information(request):
     address_selection_form = AddressChoiceForm(request.POST or None)
     address_selection = "no_selection"
     try:
-        citizen = Pleb.index.get(email=request.user.email)
+        citizen = Pleb.nodes.get(email=request.user.email)
     except Pleb.DoesNotExist:
         return redirect("404_Error")
     if profile_information_form.is_valid():
@@ -68,7 +68,7 @@ def profile_information(request):
                 address_long_hash = create_address_long_hash(
                     address_info[0])
                 try:
-                    address = Address.index.get(address_hash=address_long_hash)
+                    address = Address.nodes.get(address_hash=address_long_hash)
                 except Address.DoesNotExist:
                     address_info[0]["address_hash"] = address_long_hash
                     address = Address(**address_info[0])
@@ -112,7 +112,7 @@ def profile_information(request):
                 if (store_address is not None):
                     address_long_hash = create_address_long_hash(store_address)
                     try:
-                        address = Address.index.get(
+                        address = Address.nodes.get(
                             address_hash=address_long_hash)
                     except Address.DoesNotExist:
                         store_address["address_hash"] = address_long_hash
@@ -150,14 +150,14 @@ def interests(request):
             if (interest_form.cleaned_data[item] and
                         item != "specific_interests"):
                 try:
-                    citizen = Pleb.index.get(email=request.user.email)
+                    citizen = Pleb.nodes.get(email=request.user.email)
                     # TODO profile page profile picture
                     if citizen.completed_profile_info:
                         return redirect('profile_picture')
                 except Pleb.DoesNotExist:
                     redirect("404_Error")
                 try:
-                    category_object = TopicCategory.index.get(
+                    category_object = TopicCategory.nodes.get(
                         title=item.capitalize())
                     for topic in category_object.sb_topics.all():
                         # citizen.sb_topics.connect(topic)
@@ -168,7 +168,7 @@ def interests(request):
 
         for topic in interest_form.cleaned_data["specific_interests"]:
             try:
-                interest_object = SBTopic.index.get(title=topic)
+                interest_object = SBTopic.nodes.get(title=topic)
             except SBTopic.DoesNotExist:
                 redirect("404_Error")
                 # citizen.sb_topics.connect(interest_object)
@@ -194,7 +194,7 @@ def profile_picture(request):
         profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
         if profile_picture_form.is_valid():
             try:
-                citizen = Pleb.index.get(email=request.user.email)
+                citizen = Pleb.nodes.get(email=request.user.email)
                 # if citizen.completed_profile_info:
                 #    return redirect('profile_page')
             except Pleb.DoesNotExist:

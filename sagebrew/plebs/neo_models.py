@@ -91,9 +91,9 @@ class Pleb(StructuredNode):
 
     # Relationships
     home_town_address = RelationshipTo("Address", "GREW_UP_AT")
-    high_school = RelationshipTo("HighSchool", "ATTENDED",
+    high_school = RelationshipTo("HighSchool", "ATTENDED_HS",
                                  model=ReceivedEducationRel)
-    university = RelationshipTo("University", "ATTENDED",
+    university = RelationshipTo("University", "ATTENDED_UNIV",
                                 model=ReceivedEducationRel)
     employer = RelationshipTo("Company", "WORKS_AT")
     address = RelationshipTo("Address", "LIVES_AT")
@@ -104,21 +104,21 @@ class Pleb(StructuredNode):
                              "HAS_SENATOR")
     house_rep = RelationshipTo("govtrack.neo_models.GTRole",
                                "HAS_REPRESENTATIVE")
-    posts = RelationshipTo('sb_posts.neo_models.SBPost', 'OWNS',
+    posts = RelationshipTo('sb_posts.neo_models.SBPost', 'OWNS_POST',
                            model=PostObjectCreated)
-    questions = RelationshipTo('sb_questions.neo_models.SBQuestion', 'OWNS',
+    questions = RelationshipTo('sb_questions.neo_models.SBQuestion', 'OWNS_QUESTION',
                                model=PostObjectCreated)
-    answers = RelationshipTo('sb_answers.neo_models.SBAnswer', 'OWNS',
+    answers = RelationshipTo('sb_answers.neo_models.SBAnswer', 'OWNS_ANSWER',
                              model=PostObjectCreated)
-    comments = RelationshipTo('sb_comments.neo_models.SBComment', 'OWNS',
+    comments = RelationshipTo('sb_comments.neo_models.SBComment', 'OWNS_COMMENT',
                               model=PostObjectCreated)
-    wall = RelationshipTo('sb_wall.neo_models.SBWall', 'OWNS')
+    wall = RelationshipTo('sb_wall.neo_models.SBWall', 'OWNS_WALL')
     notifications = RelationshipTo(
-        'sb_notifications.neo_models.NotificationBase', 'RECIEVED_A')
+        'sb_notifications.neo_models.NotificationBase', 'RECEIVED_A')
     friend_requests_sent = RelationshipTo(
         'sb_relationships.neo_models.FriendRequest', 'SENT_A_REQUEST')
     friend_requests_recieved = RelationshipTo(
-        'sb_relationships.neo_models.FriendRequest', 'RECIEVED_A_REQUEST')
+        'sb_relationships.neo_models.FriendRequest', 'RECEIVED_A_REQUEST')
     user_weight = RelationshipTo('Pleb', 'WEIGHTED_USER',
                                  model=UserWeightRelationship)
     object_weight = RelationshipTo(['sb_questions.neo_models.SBQuestion',
@@ -166,7 +166,7 @@ def create_user_profile(sender, instance, created, **kwargs):
         if instance.email == "":
             return None
         try:
-            citizen = Pleb.index.get(email=instance.email)
+            citizen = Pleb.nodes.get(email=instance.email)
         except Pleb.DoesNotExist:
             citizen = Pleb(email=instance.email,
                            first_name=instance.first_name,
@@ -195,7 +195,7 @@ def create_user_profile(sender, instance, created, **kwargs):
                        task_param=task_data)
     else:
         pass
-        # citizen = Pleb.index.get(instance.email)
+        # citizen = Pleb.nodes.get(instance.email)
         # TODO may not be necessary but if we update an email or something
         # we need to remember to update it in the pleb instance and the
         # default django instance.
@@ -204,3 +204,7 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 
 post_save.connect(create_user_profile, sender=User)
+
+'''
+
+'''

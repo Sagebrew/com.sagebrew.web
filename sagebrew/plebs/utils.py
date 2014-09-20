@@ -11,7 +11,7 @@ def prepare_user_search_html(pleb=""):
     :param pleb:
     :return:
     '''
-    pleb = Pleb.index.get(email=pleb)
+    pleb = Pleb.nodes.get(email=pleb)
     pleb_data = {
         'full_name': pleb.first_name + ' ' + pleb.last_name,
         'reputation': 0, 'pleb_url': settings.WEB_ADDRESS+'/user/'+pleb.email,

@@ -5,8 +5,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
+from .neo_models import NotificationBase
 from .forms import GetNotificationForm
-from api.utils import get_post_data
+from api.utils import get_post_data, execute_cypher_query
 from plebs.neo_models import Pleb
 
 logger = logging.getLogger('loggly_logs')
@@ -30,20 +31,28 @@ def get_notifications(request):
     '''
     try:
         notification_array = []
-        notification_data = get_post_data(request)
+        notification_data = request.DATA
         if (type(notification_data) != dict):
             return Response({"details": "Please Provide a JSON Object"},
                             status=400)
         notification_form = GetNotificationForm(notification_data)
-        if notification_form.is_valid():
-            citizen = Pleb.index.get(email=notification_form.cleaned_data['email'])
-            notifications = citizen.traverse('notifications').where('seen', '=',
-                    False).order_by_desc('time_sent').skip(
-                    notification_form.cleaned_data['range_start']).limit(
-                    notification_form.cleaned_data['range_end']).run()
 
+        if notification_form.is_valid():
+            query = 'match (p:Pleb) where p.email="%s" ' \
+                'with p ' \
+                'match (p)-[:RECEIVED_A]-(n:NotificationBase) ' \
+                'where n.seen=False ' \
+                'with p, n ' \
+                'order by n.time_sent desc ' \
+                'with n skip %s limit %s return n' % (
+            notification_form.cleaned_data['email'],
+            str(notification_form.cleaned_data['range_start']),
+            str(notification_form.cleaned_data['range_end']))
+
+            notifications, meta = execute_cypher_query(query)
+            notifications = [NotificationBase.inflate(row[0]) for row in notifications]
             for notification in notifications:
-                from_user = notification.traverse('notification_from').run()[0]
+                from_user = notification.notification_from.all()[0]
                 notification_dict = {'notification_about': notification.notification_about,
                         'time_sent': notification.time_sent,
                         'from_user': from_user.first_name+' '+from_user.last_name,

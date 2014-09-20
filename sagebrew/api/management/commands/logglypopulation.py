@@ -11,7 +11,6 @@ class Command(BaseCommand):
         with open ("%s/rsyslog_template.conf" % settings.REPO_DIR,
                    "r") as rsys_log:
             data = rsys_log.read().replace('{{LOG_ACCOUNT}}', account)
-            data = data.replace('{{LOG_TOKEN}}', account)
             data = data.replace('{{TOKEN}}', token_value)
             data = data.replace('{{HOST}}', "sb_%s" % socket.gethostname())
         f = open("/etc/rsyslog.d/sagebrew.conf", "w")

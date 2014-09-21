@@ -55,7 +55,7 @@ def profile_page(request, pleb_email):
 
     citizen.profile_pic = generate_profile_pic_url(citizen.profile_pic_uuid)
     citizen.save()
-    return render(request, 'profile_page.html', {
+    return render(request, 'sb_plebs_base/profile_page.html', {
         'pleb_info': citizen,
         'current_user': current_user.email,
         'page_user': page_user.email,
@@ -127,7 +127,7 @@ def about_page(request, pleb_email):
 
     citizen.profile_pic = generate_profile_pic_url(citizen.profile_pic_uuid)
     citizen.save()
-    return render(request, 'sb_about.html', {
+    return render(request, 'sb_about_section/sb_about.html', {
         'pleb_info': citizen,
         'current_user': current_user.email,
         'page_user': page_user.email,
@@ -182,7 +182,7 @@ def reputation_page(request, pleb_email):
 
     citizen.profile_pic = generate_profile_pic_url(citizen.profile_pic_uuid)
     citizen.save()
-    return render(request, 'sb_reputation.html', {
+    return render(request, 'sb_reputation_section/sb_reputation.html', {
         'pleb_info': citizen,
         'current_user': current_user.email,
         'page_user': page_user.email,
@@ -236,7 +236,7 @@ def friends_page(request, pleb_email):
 
     citizen.profile_pic = generate_profile_pic_url(citizen.profile_pic_uuid)
     citizen.save()
-    return render(request, 'sb_friends.html', {
+    return render(request, 'sb_friends_section/sb_friends.html', {
         'pleb_info': citizen,
         'current_user': current_user.email,
         'page_user': page_user.email,

@@ -15,7 +15,8 @@
     margin-bottom: 15px;
     padding-bottom: 30px;
     border-radius: 2px;
-    margin-left: -15px;s
+    margin-rigth: -15px;
+    margin-right: -15px;
 }
 .sb_about_header {
     border-radius: 2px;
@@ -23,11 +24,11 @@
     padding-top: 5px;
     margin-top: 0;
     height: 45px;
-    background-color: #eaf0e8;
+    background-color: #e0e7e1;
     color: #838c92;
     font-size: 15pt;
     border-bottom: solid;
-    border-bottom-color: #9DBBB9;
+    border-bottom-color: #cfd6d0;
     border-width: 2px;
     width: 100%;
     text-align: left;
@@ -38,7 +39,7 @@
     color: #838c92;
 }
 .sb_profile_about{
-    margin-bottom: 30px;
+    margin-bottom: 15px;
     margin-left: -15px;
     margin-right: -15px;
 }
@@ -47,4 +48,7 @@
    color: #838c92;
    font-size: 15pt;
    font: "Lato", Helvetica, Arial, sans-serif;
+}
+.sb_user{
+    color: rgba(27, 163, 156, 0.59);
 }

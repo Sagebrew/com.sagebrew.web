@@ -24,7 +24,7 @@ def get_pleb_posts(pleb_object, range_end, range_start):
                      'WITH pleb ' \
                      'MATCH (pleb)-[:OWNS_WALL]-(wall) ' \
                      'WITH wall ' \
-                     'MATCH (wall)-[:POST]-(posts:SBPost) ' \
+                     'MATCH (wall)-[:HAS_POST]-(posts:SBPost) ' \
                      'WHERE posts.to_be_deleted=False ' \
                      'WITH posts ' \
                      'ORDER BY posts.date_created DESC ' \

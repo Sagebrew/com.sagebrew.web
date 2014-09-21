@@ -246,3 +246,4 @@ def friends_page(request, pleb_email):
         'is_friend': is_friend,
         'friends_list': friends_list,
     })
+

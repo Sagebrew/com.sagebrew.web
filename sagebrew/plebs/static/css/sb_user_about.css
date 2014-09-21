@@ -3,8 +3,9 @@
     height: auto;
     min-height: 208px;
     padding-bottom: 30px;
-    border-radius: 0;
+    border-radius: 0 0 2px 2px;
     margin-left: 0;
+    margin-bottom: 15px;
 }
 
 .sb_profile_container_suggestions{
@@ -16,8 +17,8 @@
     border-radius: 2px;
     margin-left: -15px;s
 }
-.sb_btn_about_header {
-    border-radius:0;
+.sb_about_header {
+    border-radius: 2px;
     padding-left: 15px;
     padding-top: 5px;
     margin-top: 0;
@@ -35,20 +36,6 @@
 .sb_btn_about_header:active,
 .sb_btn_about_header:hover{
     color: #838c92;
-}
-
-.sb_about_header_overview {
-    border-radius: 2px;
-    padding-left: 15px;
-    padding-top: 5px;
-    margin-top: 0;
-    height: 45px;
-    background-color: #eaf0e8;
-    color: #838c92;
-    font-size: 15pt;
-    border-bottom: solid;
-    border-bottom-color: #9DBBB9;
-    border-width: 2px;
 }
 .sb_profile_about{
     margin-bottom: 30px;

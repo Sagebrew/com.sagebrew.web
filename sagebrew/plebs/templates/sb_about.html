@@ -1,30 +1,11 @@
 {% extends "profile_page.html" %}
 {% load staticfiles %}
-{%  block content %}
-    {% if is_owner == True or is_friend == True %}
-       <div id="pleb_info"
-            style="display: none"
-            data-current_user_email="{{ current_user }}"
-            data-page_user_email="{{ pleb_info.email }}"></div>
-       <div class="row-fluid ">
-       <div class="sb_profile_content">
-           <div class="thumbnail sb_profile_pic">
-                <img src="{% static 'images/profile.jpg' %}">
-           </div>
-           <div class="sb_profile_container_top_div">
-                <img class="sb_profile_container_top" src="{% static 'images/Capitol_reflection.jpg' %}">
-           </div>
-           <div class="sb_profile_btn_menu_container ">
-                {% include "sb_profile_user_menu.html" %}
-           </div>
-           <div class="row-fluid">
-                <div class="col-lg-4">
-                    {% include "sb_about_content_suggestions.html" %}
-                </div>
-                <div class="col-lg-8">
-                    {% include "sb_about_content_blocks.html" %}
-                </div>
-           </div>
-       </div>
-{% endif %}
+{%  block midsection %}
+    <div class="">
+    <div class="col-lg-4">
+        {% include "sb_about_content_suggestions.html" %}
+    </div>
+    <div class="col-lg-8">
+        {% include "sb_about_content_blocks.html" %}
+    </div>
 {% endblock %}

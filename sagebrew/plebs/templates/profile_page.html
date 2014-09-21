@@ -20,6 +20,11 @@
            <div class="sb_profile_btn_menu_container ">
                 {% include "sb_profile_user_menu.html" %}
            </div>
+           {% block midsection %}
+           <div class="sb_home">
+                {% include "sb_home.html" %}
+           </div>
+           {%  endblock %}
         </div>
     {% elif is_friend == False and is_owner == False %}
            <div class="row-fluid sb_profile_content">

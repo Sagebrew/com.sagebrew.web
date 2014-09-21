@@ -11,9 +11,9 @@ urlpatterns = patterns(
     url(r'^(?P<pleb_email>[A-Za-z0-9.@_%+-]{7,40})/about/',
        about_page, name="about_page"),
     url(r'^(?P<pleb_email>[A-Za-z0-9.@_%+-]{7,40})/friends/',
-       friends_page, name="friends"),
+       friends_page, name="friends_page"),
     url(r'^(?P<pleb_email>[A-Za-z0-9.@_%+-]{7,40})/reputation/',
-       reputation_page, name="reputation"),
+       reputation_page, name="reputation_page"),
     url(r'^(?P<pleb_email>[A-Za-z0-9.@_%+-]{7,40})/',
        profile_page, name="profile_page"),
 

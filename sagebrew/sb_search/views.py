@@ -163,5 +163,4 @@ def search_result_api(request, query_param="", display_num=10, page=1,
             logger.exception("UnhandledException: ")
             return Response({'detail': 'fail'}, status=400)
     else:
-        print search_form.errors
         return Response({'detail': 'invalid form'}, status=400)

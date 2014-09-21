@@ -1,10 +1,11 @@
 from uuid import uuid1
 from base64 import b64encode
-from rest_framework.test import APIRequestFactory
+from rest_framework.test import APIRequestFactory, APIClient
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.conf import settings
 from django.core.management import call_command
+from django.core.urlresolvers import reverse
 
 from elasticsearch import Elasticsearch
 
@@ -230,14 +231,15 @@ class TestSearchResultView(TestCase):
 
 class TestSearchResultAPI(TestCase):
     def setUp(self):
+        self.client = APIClient()
         self.factory = APIRequestFactory()
         self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+            username='Tyler', email=str(uuid1())+'@gmail.com',
+            password='password')
 
     def tearDown(self):
         call_command('clear_neo_db')
 
-'''
     def test_search_result_api_success(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         res_array = []
@@ -247,11 +249,34 @@ class TestSearchResultAPI(TestCase):
                            body={'content': 'test content'})
             res_array.append(res)
 
-        request = self.factory.get('/search/q=test&page=1')
-        request.user = self.user
+        self.client.login(username='Tyler', password='password')
+        request = self.client.get(reverse('search_result_api',kwargs={'query_param':'test', 'page': '1'}))
 
-        response = search_result_api(request)
+        print request
 
-        self.assertEqual(response.status_code, 200)
-'''
+        self.assertEqual(request.status_code, 200)
 
+    def test_search_result_api_failure_unauthenticated(self):
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        res_array = []
+        for item in range(0,9):
+            res = es.index(index='full-search-user-specific-1',
+                           doc_type='sb_test',
+                           body={'content': 'test content'})
+            res_array.append(res)
+
+        self.client.login(username='Tyler', password='asdfa')
+        request = self.client.get(reverse('search_result_api',kwargs={'query_param':'test', 'page': '1'}))
+
+        self.assertEqual(request.status_code, 401)
+
+class TestSearchResultAPIReturns(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.factory = APIRequestFactory()
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com',
+            password='password')
+
+    def tearDown(self):
+        call_command('clear_neo_db')

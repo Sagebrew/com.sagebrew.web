@@ -24,21 +24,20 @@ def get_pleb_posts(pleb_object, range_end, range_start):
                      'WITH pleb ' \
                      'MATCH (pleb)-[:OWNS_WALL]-(wall) ' \
                      'WITH wall ' \
-                     'MATCH (wall)-[:POST]-(posts:SBPost) ' \
+                     'MATCH (wall)-[:HAS_POST]-(posts:SBPost) ' \
                      'WHERE posts.to_be_deleted=False ' \
                      'WITH posts ' \
                      'ORDER BY posts.date_created DESC ' \
                      'SKIP %s LIMIT %s ' \
                      'RETURN posts'\
-                     % (pleb_object.email, str(range_start), str(range_end))
+                     % (pleb_object.email, str(0), str(range_end))
         pleb_posts, meta = execute_cypher_query(post_query)
         posts = [SBPost.inflate(row[0]) for row in pleb_posts]
         return get_post_comments(posts)
     except IndexError:
         logger.exception("IndexError: ")
         return {'details': 'something broke'}
-    except Exception,e:
-        print e
+    except Exception:
         logger.exception("UnhandledException: ")
         return {"details": "You have no posts!"}
 

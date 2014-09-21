@@ -252,8 +252,6 @@ class TestSearchResultAPI(TestCase):
         self.client.login(username='Tyler', password='password')
         request = self.client.get(reverse('search_result_api',kwargs={'query_param':'test', 'page': '1'}))
 
-        print request
-
         self.assertEqual(request.status_code, 200)
 
     def test_search_result_api_failure_unauthenticated(self):
@@ -275,8 +273,57 @@ class TestSearchResultAPIReturns(TestCase):
         self.client = APIClient()
         self.factory = APIRequestFactory()
         self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com',
+            username='Tyler', email="tyler"+str(uuid1())[:8]+'@gmail.com',
             password='password')
 
     def tearDown(self):
         call_command('clear_neo_db')
+        #TODO make this test create actual questions so that there is actual
+        #html that can be returned and checked to make sure what I am getting
+        #back is what I actually want
+'''
+    def test_search_result_api_returns_expected(self):
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        es.index(index='full-search-user-specific-1',
+                 doc_type='question',
+                 body={
+                     'question_title': 'Are current battery-powered cars really'
+                                       ' more eco-friendly than cars that run '
+                                       'off fossil fuels?',
+                     'question_content': 'There have been mixed reviews as to '
+                                         'whether or not battery-powered cars '
+                                         'are actually more eco-friendly, as '
+                                         'they claim to be. On one side of the '
+                                         'equation, battery powered cars give '
+                                         'off no fuel emissions, meaning no '
+                                         'carbon dioxide or other greenhouse '
+                                         'gasses that have been shown to '
+                                         'negatively impact the balance of the '
+                                         'environment. On the other side, the '
+                                         'process by which electric cars are '
+                                         'made, in addition to the electricity '
+                                         'needed to power them, are both heavy '
+                                         'proponents of greenhouse gas '
+                                         'emissions. ',
+                     'related_user': self.user.email
+                 })
+        es.index(index='full-search-user-specific-1',
+                 doc_type='question',
+                 body={
+                     'question_title': 'How can we reduce the amount of NO2 '
+                                       'pollution in the atmosphere?',
+                     'question_content': 'NO2 is a greenhouse gas 300 times '
+                                         'more harmful to the environment than '
+                                         'CO2, and the levels of NO2 in the '
+                                         'environment are rising far above '
+                                         'average atmospheric fluctuation. '
+                                         'What are some of the causes of this '
+                                         'and what can we do to reduce the '
+                                         'amount of NO2 being placed into the '
+                                         'atmosphere? ',
+                     'related_user': self.user.email
+                 })
+        self.client.login(username='Tyler', password='password')
+        request = self.client.get(reverse('search_result_api',kwargs={'query_param':'reduce', 'page': '1'}))
+        self.assertEqual(request.status_code, 200)
+'''

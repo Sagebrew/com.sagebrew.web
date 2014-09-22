@@ -132,6 +132,15 @@
     border-color: #b7bfbb;
     margin-left: auto;
 }
+.sb_thumbnail_md {
+    height: 80px;
+    width:  80px;
+    border-width: 1px;
+    border-radius: 2px;
+    background-color: transparent;
+    border-color: transparent;
+    margin-left: 0px;
+}
 .sb_divider{
     color: #1ba39c;
 }

@@ -78,7 +78,8 @@ def search_result_api(request, query_param="", display_num=10, page=1,
     :param filter_param:
     :return:
     '''
-    data = {'query_param': query_param, 'display_num': display_num, 'page': 1,
+    data = {'query_param': query_param, 'display_num': display_num,
+            'page': int(page),
             'filter_type': filter_type, 'filter_param': filter_param}
     search_form = SearchFormApi(data)
     if search_form.is_valid():

@@ -330,13 +330,13 @@ class TestSearchResultAPIReturns(TestCase):
                      'question_content': question1.question_content,
                      'related_user': self.user.email
                  })
-        time.sleep(1)
         self.client.login(username='Tyler', password='password')
         request = self.client.get(reverse('search_result_api',
-                                          kwargs={'query_param':'reduce',
-                                                  'page': '2'}))
+                                          kwargs={'query_param':'battery-powered',
+                                                  'page': '1'}))
         self.assertEqual(request.status_code, 200)
         self.assertIn('question_uuid', request.content)
+
 '''
 question2 = SBQuestion(question_id=str(uuid1()),
                        question_title='How can we reduce the amount of'

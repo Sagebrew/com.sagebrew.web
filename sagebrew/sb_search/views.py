@@ -16,7 +16,6 @@ from .utils import process_search_result
 from .forms import SearchForm, SearchFormApi
 from api.alchemyapi import AlchemyAPI
 from api.utils import (spawn_task)
-from plebs.neo_models import Pleb
 from plebs.utils import prepare_user_search_html
 from sb_search.tasks import update_weight_relationship
 from sb_questions.utils import prepare_question_search_html
@@ -93,7 +92,7 @@ def search_result_api(request, query_param="", display_num=10, page=1,
         try:
             es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
             #TODO benchmark getting the index from neo vs. getting from postgres
-            #TODO run query_param through natural language proccessor, determine
+            #TODO run query_param through natural language processor, determine
             #if what they have searched is an email address or a name so that
             #the first search result is that user
             #TODO implement filtering on auto generated keywords from alchemyapi
@@ -102,12 +101,14 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                             {
                                 "query": {
                                     "query_string": {
-                                        "query": search_form.cleaned_data['query_param']
+                                        "query": search_form.cleaned_data[
+                                            'query_param']
                                     }
                                 },
                                 "filter": {
-                                    "term": { "related_user" :
-                                                  current_user_email}
+                                    "term": {
+                                        "related_user" :current_user_email
+                                    }
                                 }
                             })
             res = res['hits']['hits']

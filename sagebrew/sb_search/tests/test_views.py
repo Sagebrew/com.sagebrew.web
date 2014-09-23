@@ -330,6 +330,7 @@ class TestSearchResultAPIReturns(TestCase):
                      'question_content': question1.question_content,
                      'related_user': self.user.email
                  })
+        time.sleep(2)
         self.client.login(username='Tyler', password='password')
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':'battery-powered',

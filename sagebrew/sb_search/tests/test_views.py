@@ -1,3 +1,6 @@
+import pytz
+import time
+from datetime import datetime
 from uuid import uuid1
 from base64 import b64encode
 from rest_framework.test import APIRequestFactory, APIClient
@@ -12,6 +15,7 @@ from elasticsearch import Elasticsearch
 from api.tasks import add_object_to_search_index
 from plebs.neo_models import Pleb
 from sb_search.views import search_result_api, search_result_view
+from sb_questions.neo_models import SBQuestion
 
 class TestSearchResultView(TestCase):
     def setUp(self):
@@ -250,7 +254,8 @@ class TestSearchResultAPI(TestCase):
             res_array.append(res)
 
         self.client.login(username='Tyler', password='password')
-        request = self.client.get(reverse('search_result_api',kwargs={'query_param':'test', 'page': '1'}))
+        request = self.client.get(reverse('search_result_api',kwargs={
+            'query_param':'test', 'page': '1'}))
 
         self.assertEqual(request.status_code, 200)
 
@@ -264,7 +269,8 @@ class TestSearchResultAPI(TestCase):
             res_array.append(res)
 
         self.client.login(username='Tyler', password='asdfa')
-        request = self.client.get(reverse('search_result_api',kwargs={'query_param':'test', 'page': '1'}))
+        request = self.client.get(reverse('search_result_api',kwargs={
+            'query_param':'test', 'page': '1'}))
 
         self.assertEqual(request.status_code, 401)
 
@@ -273,57 +279,88 @@ class TestSearchResultAPIReturns(TestCase):
         self.client = APIClient()
         self.factory = APIRequestFactory()
         self.user = User.objects.create_user(
-            username='Tyler', email="tyler"+str(uuid1())[:8]+'@gmail.com',
+            username='Tyler', email="tyler"+str(uuid1()).replace('-','')+'@gmail.com',
             password='password')
+        self.pleb = Pleb.nodes.get(email=self.user.email)
+        self.pleb.first_name='Tyler'
+        self.pleb.last_name='Wiersing'
+        self.pleb.save()
 
     def tearDown(self):
         call_command('clear_neo_db')
-        #TODO make this test create actual questions so that there is actual
-        #html that can be returned and checked to make sure what I am getting
-        #back is what I actually want
-'''
+
     def test_search_result_api_returns_expected(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        question1 = SBQuestion(question_id=str(uuid1()),
+                               question_title='Are current battery-powered '
+                                              'cars really more eco-friendly '
+                                              'than cars that run '
+                                              'off fossil fuels?',
+                               question_content='There have been mixed reviews'
+                                                ' as to whether or not '
+                                                'battery-powered cars are '
+                                                'actually more eco-friendly, '
+                                                'as they claim to be. On one '
+                                                'side of the equation, battery'
+                                                ' powered cars give off no '
+                                                'fuel emissions, meaning no '
+                                                'carbon dioxide or other '
+                                                'greenhouse gasses that have '
+                                                'been shown to negatively '
+                                                'impact the balance of the '
+                                                'environment. On the other '
+                                                'side, the process by which '
+                                                'electric cars are made, in '
+                                                'addition to the electricity '
+                                                'needed to power them, are '
+                                                'both heavy proponents of '
+                                                'greenhouse gas emissions. ',
+                               is_closed=False, answer_number=0,
+                               last_edited_on=datetime.now(pytz.utc),
+                               up_vote_number=0,
+                               down_vote_number=0,
+                               date_created=datetime.now(pytz.utc))
+        question1.save()
+        question1.owned_by.connect(self.pleb)
         es.index(index='full-search-user-specific-1',
                  doc_type='question',
                  body={
-                     'question_title': 'Are current battery-powered cars really'
-                                       ' more eco-friendly than cars that run '
-                                       'off fossil fuels?',
-                     'question_content': 'There have been mixed reviews as to '
-                                         'whether or not battery-powered cars '
-                                         'are actually more eco-friendly, as '
-                                         'they claim to be. On one side of the '
-                                         'equation, battery powered cars give '
-                                         'off no fuel emissions, meaning no '
-                                         'carbon dioxide or other greenhouse '
-                                         'gasses that have been shown to '
-                                         'negatively impact the balance of the '
-                                         'environment. On the other side, the '
-                                         'process by which electric cars are '
-                                         'made, in addition to the electricity '
-                                         'needed to power them, are both heavy '
-                                         'proponents of greenhouse gas '
-                                         'emissions. ',
+                     'question_uuid': question1.question_id,
+                     'question_title': question1.question_title,
+                     'question_content': question1.question_content,
                      'related_user': self.user.email
                  })
-        es.index(index='full-search-user-specific-1',
-                 doc_type='question',
-                 body={
-                     'question_title': 'How can we reduce the amount of NO2 '
-                                       'pollution in the atmosphere?',
-                     'question_content': 'NO2 is a greenhouse gas 300 times '
-                                         'more harmful to the environment than '
-                                         'CO2, and the levels of NO2 in the '
-                                         'environment are rising far above '
-                                         'average atmospheric fluctuation. '
-                                         'What are some of the causes of this '
-                                         'and what can we do to reduce the '
-                                         'amount of NO2 being placed into the '
-                                         'atmosphere? ',
-                     'related_user': self.user.email
-                 })
+        time.sleep(1)
         self.client.login(username='Tyler', password='password')
-        request = self.client.get(reverse('search_result_api',kwargs={'query_param':'reduce', 'page': '1'}))
+        request = self.client.get(reverse('search_result_api',
+                                          kwargs={'query_param':'reduce',
+                                                  'page': '2'}))
         self.assertEqual(request.status_code, 200)
+        self.assertIn('question_uuid', request.content)
+'''
+question2 = SBQuestion(question_id=str(uuid1()),
+                       question_title='How can we reduce the amount of'
+                                      ' NO2 pollution in the '
+                                      'atmosphere?',
+                       question_content='NO2 is a greenhouse gas 300 '
+                                        'times more harmful to the '
+                                        'environment than CO2, and the'
+                                        ' levels of NO2 in the '
+                                        'environment are rising '
+                                        'far above average atmospheric'
+                                        ' fluctuation. What are some '
+                                        'of the causes of this and '
+                                        'what can we do to reduce the '
+                                        'amount of NO2 being placed '
+                                        'into the atmosphere? ')
+question2.save()
+question2.owned_by.connect(self.pleb)
+es.index(index='full-search-user-specific-1',
+         doc_type='question',
+         body={
+             'question_uuid': question2.question_id,
+             'question_title': question2.question_title,
+             'question_content': question2.question_content,
+             'related_user': self.user.email
+         })
 '''

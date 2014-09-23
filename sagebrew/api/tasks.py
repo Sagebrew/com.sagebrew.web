@@ -9,7 +9,7 @@ from sb_questions.neo_models import SBQuestion
 
 
 @shared_task()
-def add_object_to_search_index(index="full-search-base", object_type="", object_data=""):
+def add_object_to_search_index(index="full-search-base", object_type="", object_data=None):
     '''
     This adds the an object to the index specified.
     :param index:
@@ -18,7 +18,8 @@ def add_object_to_search_index(index="full-search-base", object_type="", object_
     :return:
     '''
     from sb_search.tasks import update_user_indices
-
+    if object_data == None:
+        return False
     es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
     res = es.index(index=index, doc_type=object_type, body=object_data)
     task_data = {

@@ -88,9 +88,7 @@ def search_result_api(request, query_param="", display_num=10, page=1,
         current_page = int(search_form.cleaned_data['page'])
         results=[]
         current_user_email = request.user.email
-        print current_user_email
         current_user_email,current_user_address = current_user_email.split('@')
-        print current_user_email, current_user_address
         try:
             es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
             #TODO benchmark getting the index from neo vs. getting from postgres
@@ -98,7 +96,6 @@ def search_result_api(request, query_param="", display_num=10, page=1,
             #if what they have searched is an email address or a name so that
             #the first search result is that user
             #TODO implement filtering on auto generated keywords from alchemyapi
-            print search_form.cleaned_data['query_param']
             res = es.search(index='full-search-user-specific-1', size=50,
                             body=
                             {
@@ -112,7 +109,6 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                                                   current_user_email}
                                 }
                             })
-            print res
             res = res['hits']['hits']
             task_param = {"pleb": request.user.email, "query_param":
                 search_form.cleaned_data['query_param'],

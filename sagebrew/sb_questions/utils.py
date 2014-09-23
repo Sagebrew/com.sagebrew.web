@@ -38,7 +38,6 @@ def create_question_util(content="", current_pleb="", question_title="",
         my_question.positivity = content_blob.polarity
         my_question.title_polarity = title_blob.polarity
         my_question.title_subjectivity = title_blob.subjectivity
-        my_question.save()
         search_dict = {'question_content': my_question.content, 'user': current_pleb,
                        'question_title': my_question.question_title, 'tags': tags,
                        'question_uuid': my_question.question_id,

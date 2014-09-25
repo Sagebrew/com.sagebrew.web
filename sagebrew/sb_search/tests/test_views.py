@@ -395,7 +395,7 @@ class TestSearchResultAPIReturns(TestCase):
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':'battery-powered',
                                                   'page': '1'}))
-        
+
         self.assertEqual(request.status_code, 200)
         self.assertIn('question_uuid', request.content)
 

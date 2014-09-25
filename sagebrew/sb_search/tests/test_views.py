@@ -288,6 +288,43 @@ class TestSearchResultAPIReturns(TestCase):
         self.pleb.first_name='Tyler'
         self.pleb.last_name='Wiersing'
         self.pleb.save()
+        self.q1dict = {'question_title': 'Are current battery-powered '
+                                    'cars really more eco-friendly '
+                                    'than cars that run '
+                                    'off fossil fuels?',
+                        'question_content': 'There have been mixed reviews'
+                                      ' as to whether or not '
+                                      'battery-powered cars are '
+                                      'actually more eco-friendly, '
+                                      'as they claim to be. On one '
+                                      'side of the equation, battery'
+                                      ' powered cars give off no '
+                                      'fuel emissions, meaning no '
+                                      'carbon dioxide or other '
+                                      'greenhouse gasses that have '
+                                      'been shown to negatively '
+                                      'impact the balance of the '
+                                      'environment. On the other '
+                                      'side, the process by which '
+                                      'electric cars are made, in '
+                                      'addition to the electricity '
+                                      'needed to power them, are '
+                                      'both heavy proponents of '
+                                      'greenhouse gas emissions. '}
+        self.q2dict = {'question_title': 'How can we reduce the amount of'
+                                         ' NO2 pollution in the '
+                                         'atmosphere?',
+                       'question_content':  'NO2 is a greenhouse gas 300 '
+                                            'times more harmful to the '
+                                            'environment than CO2, and the'
+                                            ' levels of NO2 in the '
+                                            'environment are rising '
+                                            'far above average atmospheric'
+                                            ' fluctuation. What are some '
+                                            'of the causes of this and '
+                                            'what can we do to reduce the '
+                                            'amount of NO2 being placed '
+                                            'into the atmosphere? '}
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -295,29 +332,8 @@ class TestSearchResultAPIReturns(TestCase):
     def test_search_result_api_returns_expected(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(question_id=str(uuid1()),
-                               question_title='Are current battery-powered '
-                                              'cars really more eco-friendly '
-                                              'than cars that run '
-                                              'off fossil fuels?',
-                               question_content='There have been mixed reviews'
-                                                ' as to whether or not '
-                                                'battery-powered cars are '
-                                                'actually more eco-friendly, '
-                                                'as they claim to be. On one '
-                                                'side of the equation, battery'
-                                                ' powered cars give off no '
-                                                'fuel emissions, meaning no '
-                                                'carbon dioxide or other '
-                                                'greenhouse gasses that have '
-                                                'been shown to negatively '
-                                                'impact the balance of the '
-                                                'environment. On the other '
-                                                'side, the process by which '
-                                                'electric cars are made, in '
-                                                'addition to the electricity '
-                                                'needed to power them, are '
-                                                'both heavy proponents of '
-                                                'greenhouse gas emissions. ',
+                               question_title=self.q1dict['question_title'],
+                               question_content=self.q1dict['question_content'],
                                is_closed=False, answer_number=0,
                                last_edited_on=datetime.now(pytz.utc),
                                up_vote_number=0,
@@ -345,29 +361,8 @@ class TestSearchResultAPIReturns(TestCase):
     def test_search_result_api_returns_multi_expected(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(question_id=str(uuid1()),
-                               question_title='Are current battery-powered '
-                                              'cars really more eco-friendly '
-                                              'than cars that run '
-                                              'off fossil fuels?',
-                               question_content='There have been mixed reviews'
-                                                ' as to whether or not '
-                                                'battery-powered cars are '
-                                                'actually more eco-friendly, '
-                                                'as they claim to be. On one '
-                                                'side of the equation, battery'
-                                                ' powered cars give off no '
-                                                'fuel emissions, meaning no '
-                                                'carbon dioxide or other '
-                                                'greenhouse gasses that have '
-                                                'been shown to negatively '
-                                                'impact the balance of the '
-                                                'environment. On the other '
-                                                'side, the process by which '
-                                                'electric cars are made, in '
-                                                'addition to the electricity '
-                                                'needed to power them, are '
-                                                'both heavy proponents of '
-                                                'greenhouse gas emissions. ',
+                               question_title=self.q1dict['question_title'],
+                               question_content=self.q1dict['question_content'],
                                is_closed=False, answer_number=0,
                                last_edited_on=datetime.now(pytz.utc),
                                up_vote_number=0,
@@ -404,29 +399,8 @@ class TestSearchResultAPIReturns(TestCase):
     def test_search_result_api_returns_page_2(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(question_id=str(uuid1()),
-                               question_title='Are current battery-powered '
-                                              'cars really more eco-friendly '
-                                              'than cars that run '
-                                              'off fossil fuels?',
-                               question_content='There have been mixed reviews'
-                                                ' as to whether or not '
-                                                'battery-powered cars are '
-                                                'actually more eco-friendly, '
-                                                'as they claim to be. On one '
-                                                'side of the equation, battery'
-                                                ' powered cars give off no '
-                                                'fuel emissions, meaning no '
-                                                'carbon dioxide or other '
-                                                'greenhouse gasses that have '
-                                                'been shown to negatively '
-                                                'impact the balance of the '
-                                                'environment. On the other '
-                                                'side, the process by which '
-                                                'electric cars are made, in '
-                                                'addition to the electricity '
-                                                'needed to power them, are '
-                                                'both heavy proponents of '
-                                                'greenhouse gas emissions. ',
+                               question_title=self.q1dict['question_title'],
+                               question_content=self.q1dict['question_content'],
                                is_closed=False, answer_number=0,
                                last_edited_on=datetime.now(pytz.utc),
                                up_vote_number=0,
@@ -465,29 +439,8 @@ class TestSearchResultAPIReturns(TestCase):
     def test_search_result_api_returns_page_3(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(question_id=str(uuid1()),
-                               question_title='Are current battery-powered '
-                                              'cars really more eco-friendly '
-                                              'than cars that run '
-                                              'off fossil fuels?',
-                               question_content='There have been mixed reviews'
-                                                ' as to whether or not '
-                                                'battery-powered cars are '
-                                                'actually more eco-friendly, '
-                                                'as they claim to be. On one '
-                                                'side of the equation, battery'
-                                                ' powered cars give off no '
-                                                'fuel emissions, meaning no '
-                                                'carbon dioxide or other '
-                                                'greenhouse gasses that have '
-                                                'been shown to negatively '
-                                                'impact the balance of the '
-                                                'environment. On the other '
-                                                'side, the process by which '
-                                                'electric cars are made, in '
-                                                'addition to the electricity '
-                                                'needed to power them, are '
-                                                'both heavy proponents of '
-                                                'greenhouse gas emissions. ',
+                               question_title=self.q1dict['question_title'],
+                               question_content=self.q1dict['question_content'],
                                is_closed=False, answer_number=0,
                                last_edited_on=datetime.now(pytz.utc),
                                up_vote_number=0,
@@ -526,29 +479,8 @@ class TestSearchResultAPIReturns(TestCase):
     def test_search_result_api_result_user_as_no_results(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(question_id=str(uuid1()),
-                               question_title='Are current battery-powered '
-                                              'cars really more eco-friendly '
-                                              'than cars that run '
-                                              'off fossil fuels?',
-                               question_content='There have been mixed reviews'
-                                                ' as to whether or not '
-                                                'battery-powered cars are '
-                                                'actually more eco-friendly, '
-                                                'as they claim to be. On one '
-                                                'side of the equation, battery'
-                                                ' powered cars give off no '
-                                                'fuel emissions, meaning no '
-                                                'carbon dioxide or other '
-                                                'greenhouse gasses that have '
-                                                'been shown to negatively '
-                                                'impact the balance of the '
-                                                'environment. On the other '
-                                                'side, the process by which '
-                                                'electric cars are made, in '
-                                                'addition to the electricity '
-                                                'needed to power them, are '
-                                                'both heavy proponents of '
-                                                'greenhouse gas emissions. ',
+                               question_title=self.q1dict['question_title'],
+                               question_content=self.q1dict['question_content'],
                                is_closed=False, answer_number=0,
                                last_edited_on=datetime.now(pytz.utc),
                                up_vote_number=0,
@@ -582,6 +514,9 @@ class TestSearchResultAPIReturns(TestCase):
         self.assertEqual(request.status_code, 200)
         self.assertIn('<div>Sorry! There seems to be nothing here!</div>',
                       request.content)
+
+    def test_search_result_api_similar_questions_and_query(self):
+        pass
 
 
 '''

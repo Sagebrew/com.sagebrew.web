@@ -29,7 +29,6 @@ dependencies:
 
 test:
   post:
-    - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py clear_neo_db
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
     - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg
     - docker build --no-cache=$CLEAR_CACHE -t sb_worker ~/com.sagebrew.web/dockerfiles/worker/

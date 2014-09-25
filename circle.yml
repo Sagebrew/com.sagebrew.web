@@ -1,8 +1,8 @@
 machine:
   services:
-    - neo4j
     - rabbitmq-server
     - docker
+    - neo4j
 
 
 dependencies:

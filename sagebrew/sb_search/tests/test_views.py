@@ -275,6 +275,7 @@ class TestSearchResultAPI(TestCase):
 
         self.assertEqual(request.status_code, 401)
 
+
 class TestSearchResultAPIReturns(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -389,16 +390,199 @@ class TestSearchResultAPIReturns(TestCase):
                          'question_uuid': question1.question_id,
                          'question_title': question1.question_title,
                          'question_content': question1.question_content,
-                         'related_user': self.user.email+str(item)
+                         'related_user': self.user.email[:37]+str(item)+'@gmail.com'
                      })
         time.sleep(2)
         self.client.login(username='Tyler', password='password')
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':'battery-powered',
                                                   'page': '1'}))
-        print len(loads(request.content)['html'])
+        self.assertEqual(len(loads(request.content)['html']), 1)
         self.assertEqual(request.status_code, 200)
         self.assertIn('question_uuid', request.content)
+
+    def test_search_result_api_returns_page_2(self):
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        question1 = SBQuestion(question_id=str(uuid1()),
+                               question_title='Are current battery-powered '
+                                              'cars really more eco-friendly '
+                                              'than cars that run '
+                                              'off fossil fuels?',
+                               question_content='There have been mixed reviews'
+                                                ' as to whether or not '
+                                                'battery-powered cars are '
+                                                'actually more eco-friendly, '
+                                                'as they claim to be. On one '
+                                                'side of the equation, battery'
+                                                ' powered cars give off no '
+                                                'fuel emissions, meaning no '
+                                                'carbon dioxide or other '
+                                                'greenhouse gasses that have '
+                                                'been shown to negatively '
+                                                'impact the balance of the '
+                                                'environment. On the other '
+                                                'side, the process by which '
+                                                'electric cars are made, in '
+                                                'addition to the electricity '
+                                                'needed to power them, are '
+                                                'both heavy proponents of '
+                                                'greenhouse gas emissions. ',
+                               is_closed=False, answer_number=0,
+                               last_edited_on=datetime.now(pytz.utc),
+                               up_vote_number=0,
+                               down_vote_number=0,
+                               date_created=datetime.now(pytz.utc))
+        question1.save()
+        question1.owned_by.connect(self.pleb)
+        es.index(index='full-search-user-specific-1',
+                 doc_type='question',
+                 body={
+                     'question_uuid': question1.question_id,
+                     'question_title': question1.question_title,
+                     'question_content': question1.question_content,
+                     'related_user': self.user.email
+                 })
+        for item in range(0,19):
+            es.index(index='full-search-user-specific-1',
+                     doc_type='question',
+                     body={
+                         'question_uuid': question1.question_id,
+                         'question_title': question1.question_title,
+                         'question_content': question1.question_content,
+                         'related_user': self.user.email
+                     })
+        time.sleep(2)
+        self.client.login(username='Tyler', password='password')
+        request = self.client.get(reverse('search_result_api',
+                                          kwargs={'query_param':'battery-powered',
+                                                  'page': '2'}))
+
+        self.assertEqual(len(loads(request.content)['html']), 10)
+        self.assertEqual(request.status_code, 200)
+        self.assertIn('<h2><a href=\\"https://192.168.56.101/questions/',
+                      request.content)
+
+    def test_search_result_api_returns_page_3(self):
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        question1 = SBQuestion(question_id=str(uuid1()),
+                               question_title='Are current battery-powered '
+                                              'cars really more eco-friendly '
+                                              'than cars that run '
+                                              'off fossil fuels?',
+                               question_content='There have been mixed reviews'
+                                                ' as to whether or not '
+                                                'battery-powered cars are '
+                                                'actually more eco-friendly, '
+                                                'as they claim to be. On one '
+                                                'side of the equation, battery'
+                                                ' powered cars give off no '
+                                                'fuel emissions, meaning no '
+                                                'carbon dioxide or other '
+                                                'greenhouse gasses that have '
+                                                'been shown to negatively '
+                                                'impact the balance of the '
+                                                'environment. On the other '
+                                                'side, the process by which '
+                                                'electric cars are made, in '
+                                                'addition to the electricity '
+                                                'needed to power them, are '
+                                                'both heavy proponents of '
+                                                'greenhouse gas emissions. ',
+                               is_closed=False, answer_number=0,
+                               last_edited_on=datetime.now(pytz.utc),
+                               up_vote_number=0,
+                               down_vote_number=0,
+                               date_created=datetime.now(pytz.utc))
+        question1.save()
+        question1.owned_by.connect(self.pleb)
+        es.index(index='full-search-user-specific-1',
+                 doc_type='question',
+                 body={
+                     'question_uuid': question1.question_id,
+                     'question_title': question1.question_title,
+                     'question_content': question1.question_content,
+                     'related_user': self.user.email
+                 })
+        for item in range(0,29):
+            es.index(index='full-search-user-specific-1',
+                     doc_type='question',
+                     body={
+                         'question_uuid': question1.question_id,
+                         'question_title': question1.question_title,
+                         'question_content': question1.question_content,
+                         'related_user': self.user.email
+                     })
+        time.sleep(2)
+        self.client.login(username='Tyler', password='password')
+        request = self.client.get(reverse('search_result_api',
+                                          kwargs={'query_param':'battery-powered',
+                                                  'page': '3'}))
+
+        self.assertEqual(len(loads(request.content)['html']), 10)
+        self.assertEqual(request.status_code, 200)
+        self.assertIn('<h2><a href=\\"https://192.168.56.101/questions/',
+                      request.content)
+
+    def test_search_result_api_result_user_as_no_results(self):
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        question1 = SBQuestion(question_id=str(uuid1()),
+                               question_title='Are current battery-powered '
+                                              'cars really more eco-friendly '
+                                              'than cars that run '
+                                              'off fossil fuels?',
+                               question_content='There have been mixed reviews'
+                                                ' as to whether or not '
+                                                'battery-powered cars are '
+                                                'actually more eco-friendly, '
+                                                'as they claim to be. On one '
+                                                'side of the equation, battery'
+                                                ' powered cars give off no '
+                                                'fuel emissions, meaning no '
+                                                'carbon dioxide or other '
+                                                'greenhouse gasses that have '
+                                                'been shown to negatively '
+                                                'impact the balance of the '
+                                                'environment. On the other '
+                                                'side, the process by which '
+                                                'electric cars are made, in '
+                                                'addition to the electricity '
+                                                'needed to power them, are '
+                                                'both heavy proponents of '
+                                                'greenhouse gas emissions. ',
+                               is_closed=False, answer_number=0,
+                               last_edited_on=datetime.now(pytz.utc),
+                               up_vote_number=0,
+                               down_vote_number=0,
+                               date_created=datetime.now(pytz.utc))
+        question1.save()
+        question1.owned_by.connect(self.pleb)
+        es.index(index='full-search-user-specific-1',
+                 doc_type='question',
+                 body={
+                     'question_uuid': question1.question_id,
+                     'question_title': question1.question_title,
+                     'question_content': question1.question_content,
+                     'related_user': self.user.email[:37]+'1231'
+                 })
+        for item in range(0,29):
+            es.index(index='full-search-user-specific-1',
+                     doc_type='question',
+                     body={
+                         'question_uuid': question1.question_id,
+                         'question_title': question1.question_title,
+                         'question_content': question1.question_content,
+                         'related_user': self.user.email[:37]+'1231'
+                     })
+        time.sleep(2)
+        self.client.login(username='Tyler', password='password')
+        request = self.client.get(reverse('search_result_api',
+                                          kwargs={'query_param':'battery-powered',
+                                                  'page': '1'}))
+
+        self.assertEqual(request.status_code, 200)
+        self.assertIn('<div>Sorry! There seems to be nothing here!</div>',
+                      request.content)
+
 
 '''
 question2 = SBQuestion(question_id=str(uuid1()),

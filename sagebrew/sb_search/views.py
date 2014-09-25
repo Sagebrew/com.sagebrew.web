@@ -96,6 +96,8 @@ def search_result_api(request, query_param="", display_num=10, page=1,
             #if what they have searched is an email address or a name so that
             #the first search result is that user
             #TODO implement filtering on auto generated keywords from alchemyapi
+            #TODO change using the current_user_email to the users
+            #username
             res = es.search(index='full-search-user-specific-1', size=50,
                             body=
                             {
@@ -107,7 +109,7 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                                 },
                                 "filter": {
                                     "term": {
-                                        "related_user" :current_user_email
+                                        "related_user": current_user_email
                                     }
                                 }
                             })
@@ -134,15 +136,17 @@ def search_result_api(request, query_param="", display_num=10, page=1,
             elif current_page > 1:
                 for item in page.object_list:
                     if item['_type'] == 'question':
-                        results.append(prepare_question_search_html(item['_source'][
-                            'question_uuid']))
+                        results.append(prepare_question_search_html(
+                            item['_source']['question_uuid']))
                         spawn_task(update_weight_relationship,
                                    task_param=
                                    {'index': item['_index'],
                                     'document_id': item['_id'],
-                                    'object_uuid': item['_source']['question_uuid'],
+                                    'object_uuid': item['_source'][
+                                        'question_uuid'],
                                     'object_type': 'question',
-                                    'current_pleb': item['_source']['related_user'],
+                                    'current_pleb': item['_source'][
+                                        'related_user'],
                                     'modifier_type': 'search_seen'})
                     if item['_type'] == 'pleb':
                         spawn_task(update_weight_relationship,
@@ -151,10 +155,11 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                                    'object_uuid':
                                        item['_source']['pleb_email'],
                                    'object_type': 'pleb',
-                                   'current_pleb': item['_source']['related_user'],
+                                   'current_pleb': item['_source'][
+                                       'related_user'],
                                    'modifier_type': 'search_seen'})
-                        results.append(prepare_user_search_html(item['_source'][
-                            'pleb_email']))
+                        results.append(prepare_user_search_html(
+                            item['_source']['pleb_email']))
             try:
                 next_page_num = page.next_page_number()
             except EmptyPage:

@@ -1,5 +1,6 @@
 import pytz
 import time
+from json import loads
 from datetime import datetime
 from uuid import uuid1
 from base64 import b64encode
@@ -395,7 +396,7 @@ class TestSearchResultAPIReturns(TestCase):
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':'battery-powered',
                                                   'page': '1'}))
-
+        print len(loads(request.content)['html'])
         self.assertEqual(request.status_code, 200)
         self.assertIn('question_uuid', request.content)
 

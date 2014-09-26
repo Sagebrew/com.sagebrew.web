@@ -66,6 +66,8 @@ def create_vote_comment(pleb="", comment_uuid=str(uuid1()), vote_type=""):
         my_comment = SBComment.nodes.get(comment_id=comment_uuid)
         if my_comment.up_voted_by.is_connected(
                 my_pleb) or my_comment.down_voted_by.is_connected(my_pleb):
+            logger.log({"function": create_vote_comment.__name__,
+                          "detail": "AlreadyConnected"})
             return False
         else:
             if vote_type == 'up':
@@ -74,6 +76,8 @@ def create_vote_comment(pleb="", comment_uuid=str(uuid1()), vote_type=""):
                 if res:
                     return True
                 elif res is None:
+                    logger.exception({"function": create_vote_comment.__name__,
+                          "exception": "Failure: "})
                     return False
                 else:
                     raise Exception
@@ -84,14 +88,18 @@ def create_vote_comment(pleb="", comment_uuid=str(uuid1()), vote_type=""):
                 if res:
                     return True
                 elif res is None:
+                    logger.exception({"function": create_vote_comment.__name__,
+                          "exception": "Failure: "})
                     return False
                 else:
                     raise Exception
     except Pleb.DoesNotExist:
+        logger.exception({"function": create_vote_comment.__name__,
+                          "exception": "DoesNotExist: "})
         return False
     except SBComment.DoesNotExist:
         logger.exception({"function": create_vote_comment.__name__,
-                          "exception": "UnhandledException: "})
+                          "exception": "DoesNotExist: "})
         raise create_vote_comment.retry(exc=Exception, countdown=3,
                                                     max_retries=None)
     except Exception:

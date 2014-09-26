@@ -72,19 +72,14 @@ class TestVoteComment(TestCase):
         call_command('clear_neo_db')
 
     def test_upvote_comment(self):
-        uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.user.email,
-                         wall_pleb=self.user.email)
-        task_param = {'content': 'test comment',
-                      'pleb': self.user.email,
-                      'post_uuid': post.post_id}
-        my_comment = save_comment_post(**task_param)
+        my_comment = SBComment(comment_id=str(uuid1()))
         vote_task_param = {'pleb': self.user.email,
                            'comment_uuid': my_comment.comment_id,
                            'vote_type': 'up'}
         response = create_vote_comment.apply_async(kwargs=vote_task_param)
-        response = response.get()
+        while not response.ready():
+            time.sleep(1)
+        response = response.result
 
         my_comment.refresh()
 
@@ -92,19 +87,14 @@ class TestVoteComment(TestCase):
         self.assertTrue(response)
 
     def test_downvote_comment(self):
-        uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.user.email,
-                         wall_pleb=self.user.email)
-        task_param = {'content': 'test comment',
-                      'pleb': self.user.email,
-                      'post_uuid': post.post_id}
-        my_comment = save_comment_post(**task_param)
+        my_comment = SBComment(comment_id=str(uuid1()))
         vote_task_param = {'pleb': self.user.email,
                            'comment_uuid': my_comment.comment_id,
                            'vote_type': 'down'}
         response = create_vote_comment.apply_async(kwargs=vote_task_param)
-        response = response.get()
+        while not response.ready():
+            time.sleep(1)
+        response = response.result
 
         my_comment.refresh()
 
@@ -112,22 +102,19 @@ class TestVoteComment(TestCase):
         self.assertTrue(response)
 
     def test_upvote_comment_twice(self):
-        uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.user.email,
-                         wall_pleb=self.user.email)
-        task_param = {'content': 'test comment',
-                      'pleb': self.user.email,
-                      'post_uuid': post.post_id}
-        my_comment = save_comment_post(**task_param)
+        my_comment = SBComment(comment_id=str(uuid1()))
         vote_task_param = {'pleb': self.user.email,
                            'comment_uuid': my_comment.comment_id,
                            'vote_type': 'up'}
         response = create_vote_comment.apply_async(kwargs=vote_task_param)
-        response = response.get()
+        while not response.ready():
+            time.sleep(1)
+        response = response.result
 
         response2 = create_vote_comment.apply_async(kwargs=vote_task_param)
-        response2 = response2.get()
+        while not response2.ready():
+            time.sleep(1)
+        response2 = response2.result
 
         my_comment.refresh()
 
@@ -136,22 +123,20 @@ class TestVoteComment(TestCase):
         self.assertFalse(response2)
 
     def test_downvote_comment_twice(self):
-        uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.user.email,
-                         wall_pleb=self.user.email)
-        task_param = {'content': 'test comment',
-                      'pleb': self.user.email,
-                      'post_uuid': post.post_id}
-        my_comment = save_comment_post(**task_param)
+        my_comment = SBComment(comment_id=str(uuid1()))
+        my_comment.save()
         vote_task_param = {'pleb': self.user.email,
                            'comment_uuid': my_comment.comment_id,
                            'vote_type': 'down'}
         response = create_vote_comment.apply_async(kwargs=vote_task_param)
-        response = response.get()
+        while not response.ready():
+            time.sleep(1)
+        response = response.result
 
         response2 = create_vote_comment.apply_async(kwargs=vote_task_param)
-        response2 = response2.get()
+        while not response2.ready():
+            time.sleep(1)
+        response2 = response2.result
 
         my_comment.refresh()
 
@@ -160,22 +145,22 @@ class TestVoteComment(TestCase):
         self.assertFalse(response2)
 
     def test_upvote_then_downvote_comment(self):
-        uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.user.email,
-                         wall_pleb=self.user.email)
-        task_param = {'content': 'test comment',
-                      'pleb': self.user.email,
-                      'post_uuid': post.post_id}
-        my_comment = save_comment_post(**task_param)
+        my_comment = SBComment(comment_id=str(uuid1()))
+        my_comment.save()
         vote_task_param = {'pleb': self.user.email,
                            'comment_uuid': my_comment.comment_id,
                            'vote_type': 'up'}
+
         response = create_vote_comment.apply_async(kwargs=vote_task_param)
-        response = response.get()
+        while not response.ready():
+            time.sleep(1)
+        response = response.result
+
         vote_task_param['vote_type'] = 'down'
         response2 = create_vote_comment.apply_async(kwargs=vote_task_param)
-        response2 = response2.get()
+        while not response2.ready():
+            time.sleep(1)
+        response2 = response2.result
 
         my_comment.refresh()
 
@@ -185,22 +170,22 @@ class TestVoteComment(TestCase):
         self.assertFalse(response2)
 
     def test_downvote_then_upvote_comment(self):
-        uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.user.email,
-                         wall_pleb=self.user.email)
-        task_param = {'content': 'test comment',
-                      'pleb': self.user.email,
-                      'post_uuid': post.post_id}
-        my_comment = save_comment_post(**task_param)
+        my_comment = SBComment(comment_id=str(uuid1()))
+        my_comment.save()
         vote_task_param = {'pleb': self.user.email,
                            'comment_uuid': my_comment.comment_id,
                            'vote_type': 'down'}
+
         response = create_vote_comment.apply_async(kwargs=vote_task_param)
-        response = response.get()
+        while not response.ready():
+            time.sleep(1)
+        response = response.result
+
         vote_task_param['vote_type'] = 'up'
         response2 = create_vote_comment.apply_async(kwargs=vote_task_param)
-        response2 = response2.get()
+        while not response2.ready():
+            time.sleep(1)
+        response2 = response2.result
 
         my_comment.refresh()
 

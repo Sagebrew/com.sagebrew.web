@@ -2,6 +2,7 @@ import pytz
 import logging
 from uuid import uuid1
 from datetime import datetime
+from neomodel import CypherException
 
 from .neo_models import SBComment
 from sb_posts.neo_models import SBPost
@@ -121,9 +122,14 @@ def save_comment_post(content="", pleb="", post_uuid=str(uuid1())):
         rel_from_post = parent_object.comments.connect(my_comment)
         rel_from_post.save()
         return my_comment
-    except:
+    except CypherException:
+        logger.exception({"function": save_comment_post.__name__,
+                          "exception": "UnhandledException: "})
+        return False
+    except Exception:
         return None
-        # determine who referenced/shared/...
+
+
 
 
 def edit_comment_util(comment_uuid=str(uuid1()), content="",

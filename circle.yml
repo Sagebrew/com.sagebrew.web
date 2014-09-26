@@ -1,7 +1,6 @@
 machine:
   services:
     - rabbitmq-server
-    - neo4j
 
 dependencies:
   cache_directories:

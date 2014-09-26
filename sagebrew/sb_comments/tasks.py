@@ -61,18 +61,36 @@ def create_vote_comment(pleb="", comment_uuid=str(uuid1()), vote_type=""):
 
             Will return True if the vote is created
     '''
-    my_pleb = Pleb.nodes.get(email=pleb)
-    my_comment = SBComment.nodes.get(comment_id=comment_uuid)
-    if my_comment.up_voted_by.is_connected(
-            my_pleb) or my_comment.down_voted_by.is_connected(my_pleb):
+    try:
+        my_pleb = Pleb.nodes.get(email=pleb)
+        my_comment = SBComment.nodes.get(comment_id=comment_uuid)
+        if my_comment.up_voted_by.is_connected(
+                my_pleb) or my_comment.down_voted_by.is_connected(my_pleb):
+            return False
+        else:
+            if vote_type == 'up':
+                res = create_upvote_comment_util(pleb=pleb,
+                                                 comment_uuid=comment_uuid)
+                if res:
+                    return True
+                elif res is None:
+                    return False
+                else:
+                    raise create_vote_comment.retry(exc=Exception, countdown=3,
+                                                    max_retries=None)
+
+            elif vote_type == 'down':
+                res = create_downvote_comment_util(pleb=pleb, comment_uuid=comment_uuid)
+                if res:
+                    return True
+                elif res is None:
+                    return False
+                else:
+                    raise create_vote_comment.retry(exc=Exception, countdown=3,
+                                                    max_retries=None)
+    except Pleb.DoesNotExist:
         return False
-    else:
-        if vote_type == 'up':
-            create_upvote_comment_util(pleb=pleb, comment_uuid=comment_uuid)
-            return True
-        elif vote_type == 'down':
-            create_downvote_comment_util(pleb=pleb, comment_uuid=comment_uuid)
-            return True
+
 
 
 @shared_task()

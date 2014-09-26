@@ -71,11 +71,25 @@ def create_upvote_comment_util(pleb="", comment_uuid=str(uuid1())):
                         comment_uuid=str(uuid) id of the comment being voted on
     :return:
     '''
-    my_comment = SBComment.nodes.get(comment_id=comment_uuid)
-    my_pleb = Pleb.nodes.get(email=pleb)
-    my_comment.up_vote_number += 1
-    my_comment.up_voted_by.connect(my_pleb)
-    my_comment.save()
+    try:
+        my_comment = SBComment.nodes.get(comment_id=comment_uuid)
+        my_pleb = Pleb.nodes.get(email=pleb)
+        my_comment.up_vote_number += 1
+        my_comment.up_voted_by.connect(my_pleb)
+        my_comment.save()
+        return True
+    except Pleb.DoesNotExist:
+        return False
+    except SBComment.DoesNotExist:
+        return False
+    except CypherException:
+        logger.exception({"function": create_downvote_comment_util.__name__,
+                          "exception": "CypherException: "})
+        return False
+    except Exception:
+        logger.exception({"function": create_downvote_comment_util.__name__,
+                          "exception": "UnhandledException: "})
+        return None
 
 
 def create_downvote_comment_util(pleb="", comment_uuid=str(uuid1())):
@@ -88,11 +102,24 @@ def create_downvote_comment_util(pleb="", comment_uuid=str(uuid1())):
                         comment_uuid=str(uuid) id of the comment being voted on
     :return:
     '''
-    my_comment = SBComment.nodes.get(comment_id=comment_uuid)
-    my_pleb = Pleb.nodes.get(email=pleb)
-    my_comment.down_vote_number += 1
-    my_comment.down_voted_by.connect(my_pleb)
-    my_comment.save()
+    try:
+        my_comment = SBComment.nodes.get(comment_id=comment_uuid)
+        my_pleb = Pleb.nodes.get(email=pleb)
+        my_comment.down_vote_number += 1
+        my_comment.down_voted_by.connect(my_pleb)
+        my_comment.save()
+    except Pleb.DoesNotExist:
+        return False
+    except SBComment.DoesNotExist:
+        return False
+    except CypherException:
+        logger.exception({"function": create_downvote_comment_util.__name__,
+                          "exception": "CypherException: "})
+        return False
+    except Exception:
+        logger.exception({"function": create_downvote_comment_util.__name__,
+                          "exception": "UnhandledException: "})
+        return None
 
 
 def save_comment_post(content="", pleb="", post_uuid=str(uuid1())):

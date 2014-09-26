@@ -254,7 +254,7 @@ class TestFlagCommentTask(TestCase):
         res = flag_comment_task.apply_async(kwargs=task_data)
         while not res.ready():
             time.sleep(1)
-        res = res.result()
+        res = res.result
 
         self.assertTrue(res)
 
@@ -269,7 +269,7 @@ class TestFlagCommentTask(TestCase):
         res = flag_comment_task.apply_async(kwargs=task_data)
         while not res.ready():
             time.sleep(1)
-        res = res.result()
+        res = res.result
 
         self.assertTrue(res)
 
@@ -285,7 +285,7 @@ class TestFlagCommentTask(TestCase):
 
         while not res.ready():
             time.sleep(1)
-        res = res.result()
+        res = res.result
 
         self.assertTrue(res)
 

@@ -71,34 +71,31 @@ def create_vote_comment(pleb="", comment_uuid=str(uuid1()), vote_type=""):
             if vote_type == 'up':
                 res = create_upvote_comment_util(pleb=pleb,
                                                  comment_uuid=comment_uuid)
-                print res
                 if res:
-                    print 1
                     return True
                 elif res is None:
-                    print 2
                     return False
                 else:
-                    print 3
-                    raise create_vote_comment.retry(exc=Exception, countdown=3,
-                                                    max_retries=None)
+                    raise Exception
 
             elif vote_type == 'down':
                 res = create_downvote_comment_util(pleb=pleb,
                                                    comment_uuid=comment_uuid)
-                print res
                 if res:
-                    print 1
                     return True
                 elif res is None:
-                    print 2
                     return False
                 else:
-                    print 3
-                    raise create_vote_comment.retry(exc=Exception, countdown=3,
-                                                    max_retries=None)
+                    raise Exception
     except Pleb.DoesNotExist:
         return False
+    except SBComment.DoesNotExist:
+        return False
+    except Exception:
+        logger.exception({"function": create_vote_comment.__name__,
+                          "exception": "UnhandledException: "})
+        raise create_vote_comment.retry(exc=Exception, countdown=3,
+                                                    max_retries=None)
 
 
 

@@ -73,6 +73,7 @@ class TestVoteComment(TestCase):
 
     def test_upvote_comment(self):
         my_comment = SBComment(comment_id=str(uuid1()))
+        my_comment.save()
         vote_task_param = {'pleb': self.user.email,
                            'comment_uuid': my_comment.comment_id,
                            'vote_type': 'up'}
@@ -88,6 +89,7 @@ class TestVoteComment(TestCase):
 
     def test_downvote_comment(self):
         my_comment = SBComment(comment_id=str(uuid1()))
+        my_comment.save()
         vote_task_param = {'pleb': self.user.email,
                            'comment_uuid': my_comment.comment_id,
                            'vote_type': 'down'}
@@ -103,6 +105,7 @@ class TestVoteComment(TestCase):
 
     def test_upvote_comment_twice(self):
         my_comment = SBComment(comment_id=str(uuid1()))
+        my_comment.save()
         vote_task_param = {'pleb': self.user.email,
                            'comment_uuid': my_comment.comment_id,
                            'vote_type': 'up'}

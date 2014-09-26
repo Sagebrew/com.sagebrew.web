@@ -516,7 +516,58 @@ class TestSearchResultAPIReturns(TestCase):
                       request.content)
 
     def test_search_result_api_similar_questions_and_query(self):
-        pass
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        question1 = SBQuestion(question_id=str(uuid1()),
+                               question_title=self.q1dict['question_title'],
+                               question_content=self.q1dict['question_content'],
+                               is_closed=False, answer_number=0,
+                               last_edited_on=datetime.now(pytz.utc),
+                               up_vote_number=0,
+                               down_vote_number=0,
+                               date_created=datetime.now(pytz.utc))
+        question1.save()
+        question1.owned_by.connect(self.pleb)
+        es.index(index='full-search-user-specific-1',
+                 doc_type='question',
+                 body={
+                     'question_uuid': question1.question_id,
+                     'question_title': question1.question_title,
+                     'question_content': question1.question_content,
+                     'related_user': self.user.email
+                 })
+        
+        question2 = SBQuestion(question_id=str(uuid1()),
+                               question_title='Should we ban the use '
+                                              'of fossil fuels?',
+                               question_content='With battery-powered cars '
+                                                'becoming more and more '
+                                                'efficient and affordable'
+                                                'and home energy solutions '
+                                                'such as solar or natural '
+                                                'gas becoming more feasible '
+                                                'and popular, would it '
+                                                'be better for us to ban '
+                                                'use of fossil fuels?',
+                               )
+        question2.save()
+        es.index(index='full-search-user-specific-1',
+                 doc_type='question',
+                 body={'question_uuid': question2.question_id,
+                       'question_content': question2.question_content,
+                       'question_title': question2.question_title,
+                       'related_user': self.user.email})
+        time.sleep(2)
+        self.client.login(username='Tyler', password='password')
+        request = self.client.get(reverse('search_result_api',
+                                          kwargs={'query_param':'fossil fuels',
+                                                  'page': '1'}))
+        result_dict = loads(request.content)
+
+        res1 = SBQuestion.nodes.get(question_id=result_dict['html'][0]['question_uuid'])
+        res2 = SBQuestion.nodes.get(question_id=result_dict['html'][1]['question_uuid'])
+        self.assertEqual(res1.question_title, question2.question_title)
+        self.assertEqual(res2.question_title, question1.question_title)
+        self.assertEqual(request.status_code, 200)
 
 
 '''

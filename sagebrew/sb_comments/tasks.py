@@ -90,7 +90,10 @@ def create_vote_comment(pleb="", comment_uuid=str(uuid1()), vote_type=""):
     except Pleb.DoesNotExist:
         return False
     except SBComment.DoesNotExist:
-        return False
+        logger.exception({"function": create_vote_comment.__name__,
+                          "exception": "UnhandledException: "})
+        raise create_vote_comment.retry(exc=Exception, countdown=3,
+                                                    max_retries=None)
     except Exception:
         logger.exception({"function": create_vote_comment.__name__,
                           "exception": "UnhandledException: "})

@@ -535,7 +535,7 @@ class TestSearchResultAPIReturns(TestCase):
                      'question_content': question1.question_content,
                      'related_user': self.user.email
                  })
-        
+
         question2 = SBQuestion(question_id=str(uuid1()),
                                question_title='Should we ban the use '
                                               'of fossil fuels?',

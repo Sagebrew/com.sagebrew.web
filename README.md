@@ -184,7 +184,7 @@ Finally, reload the UFW:
 sudo ufw reload
 
 Removed from fixture to work with django 1.7 is this necessary?
-
+```
 [
     {
         "pk": 1,
@@ -395,3 +395,4 @@ Removed from fixture to work with django 1.7 is this necessary?
         }
     }
 ]
+```

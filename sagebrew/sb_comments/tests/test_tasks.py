@@ -31,8 +31,10 @@ class TestSaveComment(TestCase):
                       'pleb': self.user.email,
                       'post_uuid': post.post_id}
         response = submit_comment_on_post.apply_async(kwargs=task_param)
-        time.sleep(1)
-        self.assertTrue(response.get())
+        while not response.ready():
+            time.sleep(1)
+        response = response.result
+        self.assertTrue(response)
 
 
 class TestEditComment(TestCase):

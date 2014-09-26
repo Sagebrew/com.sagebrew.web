@@ -229,5 +229,5 @@ def flag_comment_util(comment_uuid, current_user, flag_reason):
         return False
     except Exception:
         logger.exception('UnhandledException: ')
-        return False
+        return None
 

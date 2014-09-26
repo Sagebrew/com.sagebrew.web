@@ -124,13 +124,16 @@ def flag_comment_task(comment_uuid, current_user, flag_reason):
     :return:
     '''
     try:
-        if flag_comment_util(comment_uuid=comment_uuid, current_user=current_user,
-                             flag_reason=flag_reason):
-            return True
-        else:
+        result = flag_comment_util(comment_uuid=comment_uuid, current_user=current_user,
+                             flag_reason=flag_reason)
+        if not result:
             return False
+        elif result is None:
+            raise Exception
+        else:
+            return True
     except Exception:
         logger.exception({"function": flag_comment_task.__name__,
                           "exception": "UnhandledException"})
-        raise flag_comment_task.retry(exc=TypeError, countdown=5,
+        raise flag_comment_task.retry(exc=Exception, countdown=5,
                                          max_retries=None)

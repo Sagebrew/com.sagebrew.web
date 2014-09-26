@@ -1,3 +1,4 @@
+import logging
 from uuid import uuid1
 from celery import shared_task
 
@@ -8,6 +9,7 @@ from .utils import (create_upvote_comment_util, create_downvote_comment_util,
 from sb_comments.neo_models import SBComment
 from plebs.neo_models import Pleb
 
+logger = logging.getLogger('loggly_logs')
 
 @shared_task()
 def edit_comment_task(comment_uuid=str(uuid1()), content="",
@@ -121,8 +123,14 @@ def flag_comment_task(comment_uuid, current_user, flag_reason):
     :param flag_reason:
     :return:
     '''
-    if flag_comment_util(comment_uuid=comment_uuid, current_user=current_user,
-                         flag_reason=flag_reason):
-        return True
-    else:
-        return False
+    try:
+        if flag_comment_util(comment_uuid=comment_uuid, current_user=current_user,
+                             flag_reason=flag_reason):
+            return True
+        else:
+            return False
+    except Exception:
+        logger.exception({"function": flag_comment_task.__name__,
+                          "exception": "UnhandledException"})
+        raise flag_comment_task.retry(exc=TypeError, countdown=5,
+                                         max_retries=None)

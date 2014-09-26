@@ -252,8 +252,11 @@ class TestFlagCommentTask(TestCase):
             'flag_reason': 'spam'
         }
         res = flag_comment_task.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result()
 
-        self.assertTrue(res.get())
+        self.assertTrue(res)
 
     def test_flag_comment_success_explicit(self):
         comment = SBComment(comment_id=uuid1())
@@ -264,8 +267,11 @@ class TestFlagCommentTask(TestCase):
             'flag_reason': 'explicit'
         }
         res = flag_comment_task.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result()
 
-        self.assertTrue(res.get())
+        self.assertTrue(res)
 
     def test_flag_comment_success_other(self):
         comment = SBComment(comment_id=uuid1())
@@ -277,7 +283,11 @@ class TestFlagCommentTask(TestCase):
         }
         res = flag_comment_task.apply_async(kwargs=task_data)
 
-        self.assertTrue(res.get())
+        while not res.ready():
+            time.sleep(1)
+        res = res.result()
+
+        self.assertTrue(res)
 
     def test_flag_comment_failure_incorrect_reason(self):
         comment = SBComment(comment_id=uuid1())

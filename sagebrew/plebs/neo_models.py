@@ -71,7 +71,7 @@ class ReceivedEducationRel(StructuredRel):
 
 
 class Pleb(StructuredNode):
-    username = StringProperty()
+    username = StringProperty(unique_index=True)
     first_name = StringProperty()
     last_name = StringProperty()
     age = IntegerProperty()
@@ -130,6 +130,13 @@ class Pleb(StructuredNode):
                               model=SearchCount)
     clicked_results = RelationshipTo('sb_search.neo_models.SearchResult',
                                      'CLICKED_RESULT')
+
+    def generate_username(self):
+        temp_username = str(self.first_name).lower() + str(self.last_name).lower()
+        try:
+            pleb = Pleb.nodes.get(username=temp_username)
+        except Pleb.DoesNotExist:
+            self.username = temp_username
 
 
 

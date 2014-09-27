@@ -156,12 +156,14 @@ class TestVoteComment(TestCase):
                            'vote_type': 'up'}
 
         response = create_vote_comment.apply_async(kwargs=vote_task_param)
+
         while not response.ready():
             time.sleep(1)
         response = response.result
 
         vote_task_param['vote_type'] = 'down'
         response2 = create_vote_comment.apply_async(kwargs=vote_task_param)
+
         while not response2.ready():
             time.sleep(1)
         response2 = response2.result

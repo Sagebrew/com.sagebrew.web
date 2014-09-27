@@ -254,7 +254,7 @@ class TestSearchResultAPI(TestCase):
                            body={'content': 'test content'})
             res_array.append(res)
 
-        self.client.login(username='Tyler', password='password')
+        self.client.login(username=self.user.username, password='password')
         request = self.client.get(reverse('search_result_api',kwargs={
             'query_param':'test', 'page': '1'}))
 
@@ -269,7 +269,7 @@ class TestSearchResultAPI(TestCase):
                            body={'content': 'test content'})
             res_array.append(res)
 
-        self.client.login(username='Tyler', password='asdfa')
+        self.client.login(username=self.user.username, password='asdfa')
         request = self.client.get(reverse('search_result_api',kwargs={
             'query_param':'test', 'page': '1'}))
 
@@ -351,7 +351,7 @@ class TestSearchResultAPIReturns(TestCase):
                  })
         self.assertTrue(index_res['created'])
         time.sleep(2)
-        self.client.login(username='Tyler', password='password')
+        self.client.login(username=self.user.username, password='password')
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':'battery-powered',
                                                   'page': '1'}))
@@ -388,7 +388,7 @@ class TestSearchResultAPIReturns(TestCase):
                          'related_user': self.user.email[:37]+str(item)+'@gmail.com'
                      })
         time.sleep(2)
-        self.client.login(username='Tyler', password='password')
+        self.client.login(username=self.user.username, password='password')
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':'battery-powered',
                                                   'page': '1'}))
@@ -426,7 +426,7 @@ class TestSearchResultAPIReturns(TestCase):
                          'related_user': self.user.email
                      })
         time.sleep(2)
-        self.client.login(username='Tyler', password='password')
+        self.client.login(username=self.user.username, password='password')
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':'battery-powered',
                                                   'page': '2'}))
@@ -466,7 +466,7 @@ class TestSearchResultAPIReturns(TestCase):
                          'related_user': self.user.email
                      })
         time.sleep(2)
-        self.client.login(username='Tyler', password='password')
+        self.client.login(username=self.user.username, password='password')
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':'battery-powered',
                                                   'page': '3'}))
@@ -506,7 +506,7 @@ class TestSearchResultAPIReturns(TestCase):
                          'related_user': self.user.email[:37]+'1231'
                      })
         time.sleep(2)
-        self.client.login(username='Tyler', password='password')
+        self.client.login(username=self.user.username, password='password')
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':'battery-powered',
                                                   'page': '1'}))
@@ -557,7 +557,7 @@ class TestSearchResultAPIReturns(TestCase):
                        'question_title': question2.question_title,
                        'related_user': self.user.email})
         time.sleep(2)
-        self.client.login(username='Tyler', password='password')
+        self.client.login(username=self.user.username, password='password')
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':'fossil fuels',
                                                   'page': '1'}))

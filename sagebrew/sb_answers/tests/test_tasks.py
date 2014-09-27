@@ -38,7 +38,8 @@ class TestSaveAnswerTask(TestCase):
         self.assertTrue(save_response.get())
 
     def test_save_answer_task_fail(self):
-        question_response = create_question_util(**self.question_info_dict)
+        question_response = SBQuestion(question_id=str(uuid1()))
+        question_response.save()
         save_response = save_answer_task.apply_async(kwargs=self.answer_info_dict)
 
         self.assertIsNotNone(question_response)

@@ -36,11 +36,13 @@ def save_answer_util(content="", current_pleb="", answer_uuid="",
         rel_to_pleb.save()
         answer.save()
         return answer
-    except Pleb.DoesNotExist, SBQuestion.DoesNotExist:
+    except Pleb.DoesNotExist:
         return False
+    except SBQuestion.DoesNotExist:
+        return None
     except Exception:
         logger.exception("UnhandledException: ")
-        return False
+        return None
 
 def edit_answer_util(content="", current_pleb="", answer_uuid="", last_edited_on=""):
     try:

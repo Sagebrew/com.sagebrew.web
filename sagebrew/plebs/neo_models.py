@@ -71,6 +71,7 @@ class ReceivedEducationRel(StructuredRel):
 
 
 class Pleb(StructuredNode):
+    username = StringProperty()
     first_name = StringProperty()
     last_name = StringProperty()
     age = IntegerProperty()

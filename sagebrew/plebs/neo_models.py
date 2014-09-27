@@ -180,7 +180,6 @@ def create_user_profile(sender, instance, created, **kwargs):
             citizen = Pleb.nodes.get(email=instance.email)
         except Pleb.DoesNotExist:
             instance.username = str(shortuuid.uuid())
-            print instance.username
             instance.save()
             citizen = Pleb(email=instance.email,
                            first_name=instance.first_name,

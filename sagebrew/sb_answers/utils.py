@@ -4,6 +4,7 @@ from api.utils import spawn_task
 from plebs.neo_models import Pleb
 from .neo_models import SBAnswer
 from sb_questions.neo_models import SBQuestion
+from neomodel import CypherException
 
 logger = logging.getLogger('loggly_logs')
 
@@ -67,7 +68,9 @@ def edit_answer_util(content="", current_pleb="", answer_uuid="", last_edited_on
         my_answer.save()
         return True
     except SBAnswer.DoesNotExist:
-        return False
+        return None
+    except CypherException:
+        return None
     except Exception:
         logger.exception("UnhandledException: ")
         return False

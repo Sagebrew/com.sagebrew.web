@@ -1,5 +1,6 @@
 import logging
 import hashlib
+from django.contrib.auth.models import User
 from django.conf import settings
 from uuid import uuid1
 from django.shortcuts import render, redirect
@@ -120,6 +121,8 @@ def profile_information(request):
                         address.save()
                     address.address.connect(citizen)
                     citizen.completed_profile_info = True
+                    user = User.index.get(email=citizen.email)
+                    print user.user_permissions
                     citizen.address.connect(address)
                     citizen.save()
                     return redirect('interests')

@@ -135,6 +135,7 @@ class Pleb(StructuredNode):
         temp_username = str(self.first_name).lower() + str(self.last_name).lower()
         try:
             pleb = Pleb.nodes.get(username=temp_username)
+
         except Pleb.DoesNotExist:
             self.username = temp_username
 

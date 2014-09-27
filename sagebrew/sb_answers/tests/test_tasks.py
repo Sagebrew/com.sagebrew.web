@@ -81,8 +81,11 @@ class TestEditAnswerTask(TestCase):
                      'answer_uuid': save_ans_response.answer_id}
 
         edit_response = edit_answer_task.apply_async(kwargs=edit_dict)
+        while not edit_response.ready():
+            time.sleep(1)
+        edit_response = edit_response.result
 
-        self.assertTrue(edit_response.get())
+        self.assertTrue(edit_response)
 
     def test_edit_answer_task_missing_data(self):
         self.question_info_dict['question_id']=str(uuid1())
@@ -97,8 +100,11 @@ class TestEditAnswerTask(TestCase):
                      'last_edited_on': datetime.now(pytz.utc)}
 
         edit_response = edit_answer_task.apply_async(kwargs=edit_dict)
+        while not edit_response.ready():
+            time.sleep(1)
+        edit_response = edit_response.result
 
-        self.assertFalse(edit_response.get())
+        self.assertFalse(edit_response)
 
 class TestVoteAnswerTask(TestCase):
     def setUp(self):

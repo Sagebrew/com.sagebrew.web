@@ -72,12 +72,19 @@ def edit_answer_task(content="", answer_uuid="", last_edited_on=None,
             return False
         elif edit_response['detail'] == 'last edit more recent':
             return False
+        elif edit_response is None:
+            raise Exception
 
-    except (SBAnswer.DoesNotExist, Pleb.DoesNotExist):
+
+    except Pleb.DoesNotExist:
         return False
+    except SBAnswer.DoesNotExist:
+        raise edit_answer_task.retry(exc=Exception, countdown=3,
+                                     max_retries=2)
     except Exception:
         logger.exception("UnhandledException: ")
-        return False
+        raise edit_answer_task.retry(exc=Exception, countdown=3,
+                                     max_retries=None)
 
 
 

@@ -37,6 +37,7 @@ class TestSaveAnswerTask(TestCase):
         while not save_response.ready():
             time.sleep(1)
         save_response = save_response.result
+
         self.assertIsNotNone(question)
         self.assertTrue(save_response)
 
@@ -44,9 +45,11 @@ class TestSaveAnswerTask(TestCase):
         question_response = SBQuestion(question_id=str(uuid1()))
         question_response.save()
         save_response = save_answer_task.apply_async(kwargs=self.answer_info_dict)
+
         while not save_response.ready():
             time.sleep(1)
         save_response = save_response.result
+
         self.assertIsNotNone(question_response)
         self.assertFalse(save_response)
 

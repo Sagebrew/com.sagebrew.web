@@ -108,6 +108,7 @@ def create_downvote_comment_util(pleb="", comment_uuid=str(uuid1())):
         my_comment.down_vote_number += 1
         my_comment.down_voted_by.connect(my_pleb)
         my_comment.save()
+        return True
     except Pleb.DoesNotExist:
         return False
     except SBComment.DoesNotExist:

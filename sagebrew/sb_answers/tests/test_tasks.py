@@ -34,16 +34,21 @@ class TestSaveAnswerTask(TestCase):
         self.answer_info_dict['question_uuid'] = question.question_id
         save_response = save_answer_task.apply_async(kwargs=self.answer_info_dict)
 
+        while not save_response.ready():
+            time.sleep(1)
+        save_response = save_response.result
         self.assertIsNotNone(question)
-        self.assertTrue(save_response.get())
+        self.assertTrue(save_response)
 
     def test_save_answer_task_fail(self):
         question_response = SBQuestion(question_id=str(uuid1()))
         question_response.save()
         save_response = save_answer_task.apply_async(kwargs=self.answer_info_dict)
-
+        while not save_response.ready():
+            time.sleep(1)
+        save_response = save_response.result
         self.assertIsNotNone(question_response)
-        self.assertFalse(save_response.get())
+        self.assertFalse(save_response)
 
 class TestEditAnswerTask(TestCase):
     def setUp(self):

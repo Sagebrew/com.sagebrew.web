@@ -68,6 +68,7 @@ class TestVoteComment(TestCase):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
 
+
     def tearDown(self):
         call_command('clear_neo_db')
 

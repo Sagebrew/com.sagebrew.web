@@ -39,7 +39,7 @@ def save_answer_util(content="", current_pleb="", answer_uuid="",
     except Pleb.DoesNotExist:
         return False
     except SBQuestion.DoesNotExist:
-        return None
+        return False
     except Exception:
         logger.exception("UnhandledException: ")
         return None
@@ -113,3 +113,27 @@ def downvote_answer_util(answer_uuid="", current_pleb=""):
         logger.exception("UnhandledException: ")
         return False
 
+'''
+def test_save_answer_task_fail(self):
+        question_response = SBQuestion(question_id=str(uuid1()))
+        question_response.save()
+        save_response = save_answer_task.apply_async(kwargs=self.answer_info_dict)
+        while not save_response.ready():
+            time.sleep(1)
+        save_response = save_response.result
+        self.assertIsNotNone(question_response)
+        self.assertFalse(save_response)
+
+def test_save_answer_task(self):
+        self.question_info_dict['question_id']=str(uuid1())
+        question = SBQuestion(**self.question_info_dict)
+        question.save()
+        self.answer_info_dict['question_uuid'] = question.question_id
+        save_response = save_answer_task.apply_async(kwargs=self.answer_info_dict)
+
+        while not save_response.ready():
+            time.sleep(1)
+        save_response = save_response.result
+        self.assertIsNotNone(question)
+        self.assertTrue(save_response)
+        '''

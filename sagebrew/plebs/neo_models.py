@@ -1,3 +1,4 @@
+import shortuuid
 from uuid import uuid1
 from datetime import datetime
 import pytz
@@ -135,7 +136,8 @@ class Pleb(StructuredNode):
         temp_username = str(self.first_name).lower() + str(self.last_name).lower()
         try:
             pleb = Pleb.nodes.get(username=temp_username)
-
+            self.username = shortuuid.ShortUUID()
+            self.save()
         except Pleb.DoesNotExist:
             self.username = temp_username
 
@@ -177,6 +179,9 @@ def create_user_profile(sender, instance, created, **kwargs):
         try:
             citizen = Pleb.nodes.get(email=instance.email)
         except Pleb.DoesNotExist:
+            instance.username = str(shortuuid.uuid())
+            print instance.username
+            instance.save()
             citizen = Pleb(email=instance.email,
                            first_name=instance.first_name,
                            last_name=instance.last_name)
@@ -213,7 +218,3 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 
 post_save.connect(create_user_profile, sender=User)
-
-'''
-
-'''

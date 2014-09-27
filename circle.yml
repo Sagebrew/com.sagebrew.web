@@ -2,6 +2,7 @@ machine:
   services:
     - rabbitmq-server
     - docker
+    - neo4j
 
 
 dependencies:
@@ -15,9 +16,9 @@ dependencies:
     - sudo service rsyslog restart
     - if [[ ! -e elasticsearch-1.3.2 ]]; then wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.3.2.tar.gz && tar -xvf elasticsearch-1.3.2.tar.gz; fi
     - elasticsearch-1.3.2/bin/elasticsearch: {background: true}
-    - cd ~/com.sagebrew.web/sagebrew && ~/virtualenvs/venv-system/bin/celery -A sagebrew worker -l info -n worker1:
+    - cd ~/com.sagebrew.web/sagebrew && ~/virtualenvs/venv-system/bin/celery -A sagebrew worker -l info -n worker1 --concurrency=2:
         background: true
-    - cd ~/com.sagebrew.web/sagebrew && ~/virtualenvs/venv-system/bin/celery -A sagebrew worker -l info -n worker2:
+    - cd ~/com.sagebrew.web/sagebrew && ~/virtualenvs/venv-system/bin/celery -A sagebrew worker -l info -n worker2 --concurrency=2:
         background: true
     - cd ~/com.sagebrew.web/sagebrew && ~/virtualenvs/venv-system/bin/celery -A sagebrew beat -l info:
         background: true

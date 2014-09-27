@@ -79,8 +79,7 @@ def edit_answer_task(content="", answer_uuid="", last_edited_on=None,
     except Pleb.DoesNotExist:
         return False
     except SBAnswer.DoesNotExist:
-        raise edit_answer_task.retry(exc=False, countdown=3,
-                                     max_retries=2)
+        return False
     except Exception:
         logger.exception("UnhandledException: ")
         raise edit_answer_task.retry(exc=Exception, countdown=3,

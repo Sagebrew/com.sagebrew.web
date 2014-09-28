@@ -1,5 +1,5 @@
+import time
 from uuid import uuid1
-from datetime import time
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.management import call_command

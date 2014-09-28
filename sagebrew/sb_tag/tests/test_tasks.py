@@ -1,4 +1,5 @@
 from uuid import uuid1
+from datetime import time
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.management import call_command
@@ -83,5 +84,6 @@ class TestAutoTagTask(TestCase):
                       'tags': {'relevance': '.9', 'text': 'test'}}]}
         res = add_auto_tags.apply_async(kwargs=task_dict)
         while not res.ready():
-            res = res.result
+            time.sleep(1)
+        res = res.result
         self.assertFalse(res)

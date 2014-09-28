@@ -24,8 +24,6 @@ def add_auto_tags(tag_list):
 
     if response:
         return True
-    elif response is None:
-        raise Exception
     else:
         return False
 

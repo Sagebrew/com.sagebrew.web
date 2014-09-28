@@ -1,3 +1,4 @@
+import time
 from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
@@ -78,11 +79,11 @@ class TestAutoTagTask(TestCase):
         self.assertFalse(res.get())
 
     def test_add_auto_tag_object_does_not_exist(self):
-        question = SBQuestion(question_id=uuid1())
-        question.save()
         task_dict = {'tag_list': [{'object_type': 'question',
-                      'object_uuid': uuid1(),
+                      'object_uuid': str(uuid1()),
                       'tags': {'relevance': '.9', 'text': 'test'}}]}
         res = add_auto_tags.apply_async(kwargs=task_dict)
-
-        self.assertFalse(res.get())
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+        self.assertFalse(res)

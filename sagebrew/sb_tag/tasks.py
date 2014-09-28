@@ -17,16 +17,16 @@ def add_auto_tags(tag_list):
     :return:
     '''
     response_list = []
-
     if len(tag_list) < 1:
         return True
 
-    response = (add_auto_tags_util(tag_list))
+    response = add_auto_tags_util(tag_list)
 
     if response:
         return True
     else:
         return False
+
 
 @shared_task()
 def add_tags(object_uuid, object_type, tags):

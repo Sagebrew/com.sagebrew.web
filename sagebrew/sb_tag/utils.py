@@ -76,7 +76,7 @@ def add_auto_tags_util(tag_list):
                 tag.questions.connect(question)
                 tag_array.append(tag)
             except SBQuestion.DoesNotExist:
-                return False
+                return None
             except KeyError:
                 return False
             except IndexError:

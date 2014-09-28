@@ -181,6 +181,7 @@ def create_user_profile(sender, instance, created, **kwargs):
         except Pleb.DoesNotExist:
             instance.username = str(shortuuid.uuid())
             instance.save()
+            print instance.user_permissions
             citizen = Pleb(email=instance.email,
                            first_name=instance.first_name,
                            last_name=instance.last_name)

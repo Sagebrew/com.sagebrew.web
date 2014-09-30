@@ -270,3 +270,13 @@ def get_friends(email):
         friends.append(friend_dict)
 
     return friends
+
+def verify_completed_registration(user):
+    try:
+        pleb = Pleb.nodes.get(email=user.email)
+        if pleb.completed_profile_info:
+            return True
+        else:
+            return False
+    except Pleb.DoesNotExist:
+        return False

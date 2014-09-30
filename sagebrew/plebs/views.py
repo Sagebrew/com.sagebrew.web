@@ -1,6 +1,6 @@
 import logging
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -8,11 +8,14 @@ from rest_framework.response import Response
 
 from .utils import prepare_user_search_html
 from plebs.neo_models import Pleb
-from sb_registration.utils import (get_friends, generate_profile_pic_url)
+from sb_registration.utils import (get_friends, generate_profile_pic_url,
+                                   verify_completed_registration)
 
 logger = logging.getLogger('loggly_logs')
 
 @login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
 def profile_page(request, pleb_email):
     '''
     Displays the users profile_page. This is where we call the functions to

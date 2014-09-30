@@ -1,21 +1,61 @@
+import shortuuid
+import traceback
 import logging
 import hashlib
-from django.contrib.auth.models import User
+from json import loads
 from django.conf import settings
 from uuid import uuid1
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required, user_passes_test
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
                     ProfilePictureForm,
-                    AddressChoiceForm)
+                    AddressChoiceForm, SignupForm)
 from .utils import (validate_address, generate_interests_tuple, upload_image,
                     compare_address, generate_address_tuple,
                     create_address_string,
-                    create_address_long_hash)
+                    create_address_long_hash, verify_completed_registration)
 
 logger = logging.getLogger('loggly_logs')
+
+
+def signup_view(request):
+    return render(request, 'sign_up_page/index.html')
+
+@api_view(['POST'])
+def signup_view_api(request):
+    try:
+        signup_form = SignupForm(loads(request.body))
+        print signup_form
+        if signup_form.is_valid():
+            if signup_form.cleaned_data['password'] != \
+                    signup_form.cleaned_data['password2']:
+                return Response({'detail': 'Passwords do not match!',
+                                 'res': False},
+                                status=401)
+            try:
+                test_user = User.objects.get(email=signup_form.
+                                             cleaned_data['email'])
+                return Response({'detail':
+                                     'A user with this email already exists!'},
+                                status=401)
+            except User.DoesNotExist:
+                user = User.objects.create_user(first_name=signup_form.
+                                                cleaned_data['first_name'],
+                                                last_name=signup_form.
+                                                cleaned_data['last_name'],
+                                                email=signup_form.
+                                                cleaned_data['email'],
+                                                username=shortuuid.uuid())
+                user.save()
+                return Response(status=200)
+    except Exception:
+        traceback.print_exc()
+
 
 @login_required
 def profile_information(request):
@@ -121,8 +161,6 @@ def profile_information(request):
                         address.save()
                     address.address.connect(citizen)
                     citizen.completed_profile_info = True
-                    user = User.index.get(email=citizen.email)
-                    print user.user_permissions
                     citizen.address.connect(address)
                     citizen.save()
                     return redirect('interests')
@@ -135,6 +173,8 @@ def profile_information(request):
 
 
 @login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
 def interests(request):
     '''
     The interests view creates an InterestForm populates the topics that
@@ -181,6 +221,8 @@ def interests(request):
 
 
 @login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
 def profile_picture(request):
     '''
     The profile picture view accepts an image from the user, which is stored in

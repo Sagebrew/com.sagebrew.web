@@ -156,8 +156,10 @@ def delete_post_info(post_id=str(uuid1())):
         if datetime.now(pytz.utc).day - my_post.delete_time.day >=1:
             post_comments = my_post.comments.all()
             for comment in post_comments:
-                comment.delete()
-            my_post.delete()
+                comment.content = ""
+                comment.save()
+            my_post.content = ""
+            my_post.save()
             return True
         else:
             return True

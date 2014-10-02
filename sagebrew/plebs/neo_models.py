@@ -90,6 +90,8 @@ class Pleb(StructuredNode):
     is_sage = BooleanProperty(default=False)
     search_index = StringProperty()
     base_index_id = StringProperty()
+    email_verified = BooleanProperty(default=False)
+    email_verification_str = StringProperty(default=str(uuid1()))
 
     # Relationships
     home_town_address = RelationshipTo("Address", "GREW_UP_AT")
@@ -179,8 +181,6 @@ def create_user_profile(sender, instance, created, **kwargs):
         try:
             citizen = Pleb.nodes.get(email=instance.email)
         except Pleb.DoesNotExist:
-            instance.username = str(shortuuid.uuid())
-            instance.save()
             citizen = Pleb(email=instance.email,
                            first_name=instance.first_name,
                            last_name=instance.last_name)

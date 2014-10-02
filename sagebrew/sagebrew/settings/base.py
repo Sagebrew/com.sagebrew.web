@@ -199,7 +199,7 @@ EMAIL_BACKEND = "sgbackend.SendGridBackend"
 SENDGRID_USER = "bleib1dj"
 SENDGRID_PASSWORD = "wp*D8S@kRnc:6pA"
 
-LOGIN_URL = '/accounts/login/'
+LOGIN_URL = '/registration/login/'
 LOGOUT_URL = '/accounts/logout/'
 
 ANONYMOUS_USER_ID = -1

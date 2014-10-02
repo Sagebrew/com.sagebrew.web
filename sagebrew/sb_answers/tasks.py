@@ -40,7 +40,7 @@ def save_answer_task(content="", current_pleb="", question_uuid="", to_pleb=""):
     except Exception:
         logger.exception({"function": save_answer_task.__name__,
                           "exception": "UnhandledException"})
-        save_answer_task.retry(exc=Exception, countdown=5,
+        raise save_answer_task.retry(exc=Exception, countdown=5,
                                      max_retries=None)
 
 @shared_task()
@@ -116,4 +116,5 @@ def vote_answer_task(answer_uuid="", current_pleb="", vote_type=""):
         return False
     except Exception:
         logger.exception("UnhandledException: ")
-        return False
+        raise vote_answer_task.retry(exc=Exception, countdown=3,
+                                     max_retries=None)

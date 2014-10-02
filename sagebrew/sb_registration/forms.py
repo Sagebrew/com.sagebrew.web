@@ -229,6 +229,10 @@ class SignupForm(forms.Form):
     password = forms.CharField(required=True, max_length=30)
     password2 = forms.CharField(required=True, max_length=30)
 
+class LoginForm(forms.Form):
+    email = forms.EmailField(required=True)
+    password = forms.CharField(required=True)
+
 
 '''
 If you want to adjust field attributes programatically without overwritting

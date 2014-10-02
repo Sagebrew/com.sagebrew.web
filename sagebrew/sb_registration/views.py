@@ -1,11 +1,11 @@
 import shortuuid
-import traceback
 import logging
 import hashlib
 from json import loads
 from django.conf import settings
 from uuid import uuid1
 from django.shortcuts import render, redirect
+from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
 from rest_framework.decorators import api_view
@@ -13,8 +13,8 @@ from rest_framework.response import Response
 
 from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
-                    ProfilePictureForm,
-                    AddressChoiceForm, SignupForm)
+                    ProfilePictureForm, AddressChoiceForm, SignupForm,
+                    LoginForm)
 from .utils import (validate_address, generate_interests_tuple, upload_image,
                     compare_address, generate_address_tuple,
                     create_address_string,
@@ -22,6 +22,9 @@ from .utils import (validate_address, generate_interests_tuple, upload_image,
 
 logger = logging.getLogger('loggly_logs')
 
+@login_required()
+def confirm_view(request):
+    return render(request, 'verify_email.html')
 
 def signup_view(request):
     return render(request, 'sign_up_page/index.html')
@@ -30,12 +33,10 @@ def signup_view(request):
 def signup_view_api(request):
     try:
         signup_form = SignupForm(loads(request.body))
-        print signup_form
         if signup_form.is_valid():
             if signup_form.cleaned_data['password'] != \
                     signup_form.cleaned_data['password2']:
-                return Response({'detail': 'Passwords do not match!',
-                                 'res': False},
+                return Response({'detail': 'Passwords do not match!'},
                                 status=401)
             try:
                 test_user = User.objects.get(email=signup_form.
@@ -50,11 +51,84 @@ def signup_view_api(request):
                                                 cleaned_data['last_name'],
                                                 email=signup_form.
                                                 cleaned_data['email'],
-                                                username=shortuuid.uuid())
+                                                username=shortuuid.uuid(),
+                                                password=signup_form.
+                                                cleaned_data['password'])
                 user.save()
-                return Response(status=200)
+                user = authenticate(username=user.username,
+                                    password=signup_form.cleaned_data['password'])
+                if user is not None:
+                    if user.is_active:
+                        pleb = Pleb.nodes.get(email=user.email)
+                        login(request, user)
+                        user.email_user(subject="Sagebrew Email Verification",
+                                        message="Go To:"
+                                                "https://192.168.56.101/registration/email_confirmation/%s/"%pleb.email_verification_str)
+                        return Response({'detail': 'success'}, status=200)
+                    else:
+                        return Response({'detail': 'account disabled'},
+                                        status=400)
+                else:
+                    return Response({'detail': 'invalid login'},
+                                    status=400)
     except Exception:
-        traceback.print_exc()
+        logger.exception({'function': signup_view_api.__name__,
+                          'exception': 'UnhandledException: '})
+        return Response({'detail': 'exception'}, status=400)
+
+def login_view(request):
+    return render(request, 'login.html')
+
+@api_view(['POST'])
+def login_view_api(request):
+    try:
+        login_form = LoginForm(loads(request.body))
+        if login_form.is_valid():
+            user = User.objects.get(email=login_form.cleaned_data['email'])
+            user = authenticate(username=user.username,
+                                password=login_form.cleaned_data['password'])
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    return Response({'detail': 'success',
+                                     'user': user.email}, status=200)
+                else:
+                    return Response({'detail': 'account disabled'},
+                                    status=400)
+            else:
+                return Response({'detail': 'invalid password'}, status=200)
+    except User.DoesNotExist:
+        logger.exception({'detail': 'cannot find user',
+                          'exception': 'User.DoesNotExist'})
+        return Response({'detail': 'cannot find user'}, status=200)
+    except Exception:
+        logger.exception({'function': login_view_api.__name__,
+                          'exception': 'UnhandledException: '})
+        return Response({'detail': 'unknown exception'}, status=400)
+
+@login_required()
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
+@login_required()
+def email_verification(request, confirmation):
+    try:
+        pleb = Pleb.nodes.get(email=request.user.email)
+        if pleb.email_verification_str == confirmation:
+            pleb.email_verified = True
+            pleb.save()
+            return redirect('profile_info')
+        else:
+            return redirect('confirm_view')
+    except Pleb.DoesNotExist:
+        logger.exception({'function': email_verification.__name__,
+                          'exception': 'DoesNotExist: '})
+        return redirect('logout')
+    except Exception:
+        logger.exception({'function': email_verification.__name__,
+                          'exception': 'UnhandledException: '})
+        return redirect('confirm_view')
 
 
 @login_required

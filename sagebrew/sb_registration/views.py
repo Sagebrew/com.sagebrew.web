@@ -4,10 +4,13 @@ import hashlib
 from json import loads
 from django.conf import settings
 from uuid import uuid1
+from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.template.loader import render_to_string, get_template
+from django.template import Context
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -18,9 +21,12 @@ from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
 from .utils import (validate_address, generate_interests_tuple, upload_image,
                     compare_address, generate_address_tuple,
                     create_address_string,
-                    create_address_long_hash, verify_completed_registration)
+                    create_address_long_hash, verify_completed_registration,
+                    verify_verified_email)
+from .models import EmailAuthTokenGenerator
 
 logger = logging.getLogger('loggly_logs')
+token_gen = EmailAuthTokenGenerator()
 
 @login_required()
 def confirm_view(request):
@@ -56,14 +62,21 @@ def signup_view_api(request):
                                                 cleaned_data['password'])
                 user.save()
                 user = authenticate(username=user.username,
-                                    password=signup_form.cleaned_data['password'])
+                                    password=signup_form.cleaned_data[
+                                        'password'])
                 if user is not None:
                     if user.is_active:
-                        pleb = Pleb.nodes.get(email=user.email)
                         login(request, user)
-                        user.email_user(subject="Sagebrew Email Verification",
-                                        message="Go To:"
-                                                "https://192.168.56.101/registration/email_confirmation/%s/"%pleb.email_verification_str)
+                        template_dict = {
+                            'full_name': request.user.first_name+' '+request.user.last_name,
+                            'verification_url': settings.EMAIL_VERIFICATION_URL+token_gen.make_token(user)+'/'
+                        }
+                        subject, to = "Sagebrew Email Verification", request.user.email
+                        text_content = get_template('email_templates/email_verification.txt').render(Context(template_dict))
+                        html_content = get_template('email_templates/email_verification.html').render(Context(template_dict))
+                        msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [to])
+                        msg.attach_alternative(html_content, 'text/html')
+                        msg.send()
                         return Response({'detail': 'success'}, status=200)
                     else:
                         return Response({'detail': 'account disabled'},
@@ -79,6 +92,25 @@ def signup_view_api(request):
 def login_view(request):
     return render(request, 'login.html')
 
+@login_required()
+def resend_email_verification(request):
+    try:
+        template_dict = {
+            'full_name': request.user.first_name+' '+request.user.last_name,
+            'verification_url': settings.EMAIL_VERIFICATION_URL+token_gen.make_token(request.user)+'/'
+        }
+        subject, to = "Sagebrew Email Verification", request.user.email
+        text_content = get_template('email_templates/email_verification.txt').render(Context(template_dict))
+        html_content = get_template('email_templates/email_verification.html').render(Context(template_dict))
+        msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [to])
+        msg.attach_alternative(html_content, 'text/html')
+        msg.send()
+        return redirect("confirm_view")
+    except Pleb.DoesNotExist:
+        logger.exception({'function': resend_email_verification.__name__,
+                          'exception': 'DoesNotExist: '})
+        return Response({'detail': 'pleb does not exist'}, status=400)
+
 @api_view(['POST'])
 def login_view_api(request):
     try:
@@ -90,8 +122,12 @@ def login_view_api(request):
             if user is not None:
                 if user.is_active:
                     login(request, user)
+                    pleb = Pleb.nodes.get(email=user.email)
+                    pleb.generate_username()
+                    profile_page_url = settings.WEB_ADDRESS+'/user/'+pleb.username
                     return Response({'detail': 'success',
-                                     'user': user.email}, status=200)
+                                     'user': user.email,
+                                     'url': profile_page_url}, status=200)
                 else:
                     return Response({'detail': 'account disabled'},
                                     status=400)
@@ -115,7 +151,7 @@ def logout_view(request):
 def email_verification(request, confirmation):
     try:
         pleb = Pleb.nodes.get(email=request.user.email)
-        if pleb.email_verification_str == confirmation:
+        if token_gen.check_token(request.user, confirmation):
             pleb.email_verified = True
             pleb.save()
             return redirect('profile_info')
@@ -132,6 +168,8 @@ def email_verification(request, confirmation):
 
 
 @login_required
+@user_passes_test(verify_verified_email,
+                  login_url='/registration/signup/confirm/')
 def profile_information(request):
     '''
     Creates both a ProfileInfoForm and AddressInfoForm which populates the

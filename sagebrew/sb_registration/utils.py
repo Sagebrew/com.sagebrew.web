@@ -280,3 +280,13 @@ def verify_completed_registration(user):
             return False
     except Pleb.DoesNotExist:
         return False
+
+def verify_verified_email(user):
+    try:
+        pleb = Pleb.nodes.get(email=user.email)
+        if pleb.email_verified:
+            return True
+        else:
+            return False
+    except Pleb.DoesNotExist:
+        return False

@@ -17,8 +17,7 @@ $(document).ready(function(){
             dataType: "json",
             success: function (data) {
                 if (data['detail']==='success'){
-                    window.location.href = "https://192.168.56.101/" +
-                    "registration/profile_information"
+                    window.location.href = data['url']
                 }
                 else if (data['detail']==='cannot find user'){
                     alert("We cannot find a user with that email")

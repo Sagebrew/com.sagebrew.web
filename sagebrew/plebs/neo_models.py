@@ -1,6 +1,6 @@
 import shortuuid
 from uuid import uuid1
-from datetime import datetime
+from datetime import datetime, date
 import pytz
 from api.utils import spawn_task
 from api.tasks import add_object_to_search_index
@@ -91,7 +91,6 @@ class Pleb(StructuredNode):
     search_index = StringProperty()
     base_index_id = StringProperty()
     email_verified = BooleanProperty(default=False)
-    email_verification_str = StringProperty(default=str(uuid1()))
 
     # Relationships
     home_town_address = RelationshipTo("Address", "GREW_UP_AT")

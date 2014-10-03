@@ -192,6 +192,9 @@ ACCOUNT_EMAIL_VERIFICATION = "optional"
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_SIGNUP_PASSWORD_VERIFICATION = False
 
+EMAIL_VERIFICATION_URL = "https://192.168.56.101/registration/email_confirmation/"
+EMAIL_VERIFICATION_TIMEOUT_DAYS = 1
+
 SERVER_EMAIL = "service@sagebrew.com"
 DEFAULT_FROM_EMAIL = "service@sagebrew.com"
 
@@ -221,8 +224,6 @@ OAUTH_ENFORCE_SECURE = True
 OAUTH_EXPIRE_DELTA = timedelta(days=30, minutes=0, seconds=0)
 OAUTH_EXPIRE_DELTA_PUBLIC = timedelta(days=30, minutes=0, seconds=0)
 OAUTH_DELETE_EXPIRED = True
-
-COUNTER = 0
 
 #SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 

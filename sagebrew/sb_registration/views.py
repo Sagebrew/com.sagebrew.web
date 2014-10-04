@@ -214,7 +214,7 @@ def profile_information(request):
         if not address_info:
             print address_clean
             address = Address(address_hash=str(uuid1()),
-                              street=address_clean['primary_address'],
+                              street=address_clean['street'],
                               street_additional=address_clean['street_additional'],
                               city=address_clean['city'],
                               state=address_clean['state'],

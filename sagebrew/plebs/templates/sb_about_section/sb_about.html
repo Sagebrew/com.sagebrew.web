@@ -1,14 +1,16 @@
 {% extends "sb_plebs_base/profile_page.html" %}
 {% load staticfiles %}
 {%  block midsection %}
-    <div class="col-lg-8">
+    <div class="col-lg-8 col-md-8 col-sm-12 col-xs-sm">
         {% include "sb_about_section/sb_about_content_blocks.html" %}
     </div>
-    <div class="col-lg-4">
+    <div class="col-lg-4 col-md-4 hidden-sm hidden-xs">
         {% include "sb_about_section/sb_about_content_suggestions.html" %}
         {% include "sb_about_section/sb_about_content_have_read.html" %}
     </div>
-    <div class="col-lg-8">
-
+    <div class="col-sm-12 col-xs-12 hidden-lg hidden-md">
+        {% include "sb_about_section/sb_about_content_suggestions.html" %}
+        {% include "sb_about_section/sb_about_content_have_read.html" %}
     </div>
+
 {% endblock %}

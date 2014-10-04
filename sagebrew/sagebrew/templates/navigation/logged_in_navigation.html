@@ -1,20 +1,22 @@
+{% load staticfiles %}
 <div class="col-lg-2 col-md-2 col-sm-6 col-xs-6">
     <div class="sb_nav_head navbar-header">
         <h1 id="sb_nav_logo" class="hidden-xs">Sagebrew</h1>
         <h1 id="sb_logo_xs" class="hidden-lg hidden-md hidden-sm">Sagebrew</h1>
     </div>
 </div>
-<div class="col-lg-4 col-md-5 hidden-sm hidden-xs">
+<div class="col-lg-5 col-md-6 hidden-sm hidden-xs">
     <form class="sb_nav_search navbar-form" role="search">
         <div class="sb_search_input_div input-group">
             <input type="text" id="sb_search_input"class="form-control" placeholder="Search">
-             <span class="input-group-btn">
+
+        </div>
+                     <span class="input-group-btn">
                  <button type="submit" id="sb_nav_spy" class=" btn"><span class="fui-search"></span></button>
             </span>
-        </div>
     </form>
 </div>
-<div class="col-lg-2 col-md-1 hidden-sm hidden-xs">
+<div class="col-lg-1 col-md-0 hidden-sm hidden-xs">
 
 </div>
 <div class="sb_nav_user col-lg-2 col-md-2 col-sm-3 hidden-xs" align="right">
@@ -22,7 +24,7 @@
     </a>
 {% if is_owner == True %}
     {% block notifications %}
-    <div class="col-lg-2 col-md-2 col-sm-3 col-xs-6" align="right">
+    <div class="sb_nav_btn_row col-lg-2 col-md-2 col-sm-3 col-xs-12">
         <div class="sb_nav_btn_group btn-group">
             <div class="btn-group">
                 <a class="sb_btn_dropdown show_friend_request-action btn dropdown-toggle pull-right"
@@ -97,4 +99,7 @@
 {% endif %}
 {% block friends %}
     {% include "friends_list.html" %}
+{% endblock %}
+{% block scripts %}
+        <script src="{% static 'js/sb_nav_elements.js' %}"></script>
 {% endblock %}

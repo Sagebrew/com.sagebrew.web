@@ -41,7 +41,7 @@
     margin-bottom: 15px;
 }
 .sb_profile_menu_btn{
-    background-color: #eaf0e8;
+    background-color: #e5ece6;
     color: #838c92;
     border-radius: 0 0 2px 2px;
     font-family: 'Lato', sans-serif;
@@ -52,7 +52,7 @@
 .sb_profile_menu_btn:hover,
 .sb_profile_menu_btn:focus,
 .sb_profile_menu_btn:active{
-    background-color: #e0e7e1;
+    background-color:#e0e7e1;
     color: #838c92;
 }
 .sb_profile_btn_menu_group{
@@ -60,7 +60,7 @@
     margin-bottom: 0;
 }
 .sb_profile_pic {
-    border-color: #eaf0e8;
+    border-color: #e5ece6;
     margin-left: 15px;
     margin-top: 65px;
     width: 200px;

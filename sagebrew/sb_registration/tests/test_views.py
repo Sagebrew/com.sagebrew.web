@@ -5,6 +5,7 @@ from django.test import TestCase, RequestFactory
 from django.core.management import call_command
 
 from sb_registration.views import profile_information
+from plebs.neo_models import Pleb
 
 
 class InterestsTest(TestCase):
@@ -41,6 +42,9 @@ class ProfileInfoTest(TestCase):
         self.factory = RequestFactory()
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.pleb = Pleb.nodes.get(email=self.user.email)
+        self.pleb.email_verified = True
+        self.pleb.save()
 
     def tearDown(self):
         call_command('clear_neo_db')

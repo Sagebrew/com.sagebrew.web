@@ -212,6 +212,7 @@ def profile_information(request):
         address_clean = address_information_form.cleaned_data
         address_info = validate_address(address_clean)
         if not address_info:
+            print address_clean
             address = Address(address_hash=str(uuid1()),
                               street=address_clean['primary_address'],
                               street_additional=address_clean['street_additional'],

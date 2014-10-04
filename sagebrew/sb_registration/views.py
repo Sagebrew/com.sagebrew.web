@@ -211,6 +211,20 @@ def profile_information(request):
     if address_information_form.is_valid():
         address_clean = address_information_form.cleaned_data
         address_info = validate_address(address_clean)
+        if not address_info:
+            address = Address(address_hash=str(uuid1()),
+                              street=address_clean['primary_address'],
+                              street_additional=address_clean['street_additional'],
+                              city=address_clean['city'],
+                              state=address_clean['state'],
+                              postal_code=address_clean['postal_code'],
+                              validated=False)
+            address.save()
+            address.address.connect(citizen)
+            citizen.address.connect(address)
+            citizen.completed_profile_info = True
+            citizen.save()
+            return redirect('interests')
         addresses_returned = len(address_info)
         address_tuple = generate_address_tuple(address_info)
 

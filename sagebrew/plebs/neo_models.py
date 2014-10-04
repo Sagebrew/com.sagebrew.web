@@ -155,6 +155,7 @@ class Address(StructuredNode):
     longitude = FloatProperty()
     congressional_district = StringProperty()
     address_hash = StringProperty(unique_index=True)
+    validated = BooleanProperty(default=True)
 
     # Relationships
     address = RelationshipTo("Pleb", 'LIVES_IN')

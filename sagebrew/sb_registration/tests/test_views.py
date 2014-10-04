@@ -118,7 +118,7 @@ class ProfileInfoTest(TestCase):
                                     data=my_dict)
         request.user = self.user
         response = profile_information(request)
-        self.assertEqual(response.status_code, 200)
+        self.assertIn(response.status_code, [200,302])
 
     def test_address_validation_util_invalid_no_city(self):
         my_dict = {u'city': [u''], u'home_town': [u''],

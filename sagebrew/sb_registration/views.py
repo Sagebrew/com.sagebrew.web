@@ -218,7 +218,7 @@ def profile_information(request):
                               street_additional=address_clean['street_additional'],
                               city=address_clean['city'],
                               state=address_clean['state'],
-                              postal_code=address_clean['postal_code'],
+                              postal_code=address_clean['zipCode'],
                               validated=False)
             address.save()
             address.address.connect(citizen)

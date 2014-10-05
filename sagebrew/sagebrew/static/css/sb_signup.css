@@ -1,34 +1,49 @@
 .sb_image_background {
-    position: fixed;
+    position:fixed;
     margin: 0;
     padding: 0;
+    margin-left: -15px;
+    min-width: 100%;
 }
+
 .sb_title_signup {
-    color: #eaf0e8;
+    color: #eeeeee;
     font-size: 1.75em;
-    margin-top: 20px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    position: relative;
 }
 .sb-btn-login{
     color: #1ba39c;
     background-color: #eaf0e8;
     font-weight: bolder;
+    border: solid;
+    border-width: 1px;
+    border-color: #bdc3c7;
+}
+.sb-btn-login:active,
+.sb-btn-login:hover,
+.sb-btn-login:focus{
+    background-color: #1ba39c;
 }
 .sb_btn_signup{
     margin-bottom: 85px;
 }
-#sb_input {
-    margin: auto;
-    width: 400px;
-    display:block;
-    position: relative;
-}
-.sb_signup_input{
-    width: 100%;
-    margin-bottom: 15px;
+.sb_signup_input:focus,
+.sb_signup_input:active,
+.sb_signup_input:hover{
+    border: solid;
+    border-color: #1ba39c;
+    border-width: 1px;
 }
 .sb_signup_input_group{
     width: 80%;
     margin-left: 10%;
+}
+.sb_signup_input{
+    width: 100%;
+    margin-bottom: 15px;
+    border-width: 1px;
 }
 .sb_signup_input_name {
     width: 100%;
@@ -36,4 +51,6 @@
 .sb_signup_input_email {
     width: 100%;
 }
-
+.sb_sign_up{
+    color: #ffffff;
+}

@@ -28,14 +28,20 @@
     margin-left: 5em;
     margin-right: -15px;
     font-weight: bold;
+    color: #838c92;
+    font-size: 15pt;
 }
 .sb_registration_label_2 {
     margin-left: 4em;
     font-weight: bold;
+    color: #838c92;
+    font-size: 15pt;
 }
 .sb_registration_label_xs {
     margin-left: 1em;
     margin-top: 10px;
+    color: #838c92;
+    font-size: 15pt;
 }
 #sb_picture_header {
     color: #eaf0e8;

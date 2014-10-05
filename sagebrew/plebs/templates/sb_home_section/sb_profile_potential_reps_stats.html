@@ -1,0 +1,49 @@
+<div class="sb_rep_container">
+    <div class="sb_profile_rep_container">
+        <div class="sb_container_header">
+            <div>Potential Representatives</div>
+        </div>
+        <div class="sb_profile_rep_content">
+            <div class="sb_rep_header">Senators</div>
+                <div class="row">
+                    <div class="col-lg-2 col-md-2">
+                        <div class="sb_thumbnail_rep sb_thumbnail_xs thumbnail"></div>
+                    </div>
+                    <div class="sb_rep col-lg-10 col-md-10" align="left">
+                        <ul>
+                            <div class="btn sb_rep_name">John Doe</div>
+                        </ul>
+                    {% for senator in senator_names %}
+                         {{ senator }}
+                    {% endfor %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-2 col-md-2">
+                        <div class="sb_thumbnail_rep sb_thumbnail_xs thumbnail"></div>
+                    </div>
+                    <div class="sb_rep col-lg-10 col-md-10" align="left">
+                        <ul>
+                            <div class="btn sb_rep_name">Deltriasha Johnson</div>
+                        </ul>
+                    {% for senator in senator_names %}
+                         {{ senator }}
+                    {% endfor %}
+                    </div>
+                </div>
+
+            <div class="sb_rep_header">House Representatives</div>
+                <div class="row">
+                    <div class="col-lg-2 col-md-2">
+                        <div class="sb_thumbnail_rep sb_thumbnail_xs thumbnail"></div>
+                    </div>
+                    <div class="sb_rep col-lg-10 col-md-10" align="left">
+                        <ul>
+                            <div class="btn sb_rep_name">Johnny Downer</div>
+                        </ul>
+                        {{ rep_name }}
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>

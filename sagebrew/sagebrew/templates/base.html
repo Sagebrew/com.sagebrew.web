@@ -19,6 +19,7 @@
         <link href="{% static 'css/sb_comment.css' %}" rel="stylesheet"/>
         <link href="{% static 'css/sb_profile_rep_stats.css' %}" rel="stylesheet"/>
         <link href="{% static 'css/sb_friend_request.css' %}" rel="stylesheet"/>
+        <link href="{% static 'css/sb_user_about.css' %}" rel="stylesheet"/>
         <!-- <link href="{% static 'css/navigation.css' %}" rel="stylesheet"/> -->
     {% endblock css %}
     {% block page-javascript %}
@@ -29,7 +30,7 @@
                 <nav class="sb_navbar navbar navbar-lg" role="navigation">
                     <div class="col-lg-12">
                         {% block navigation %}
-
+                            {% include "navigation/sign_up_navigation.html" %}
                         {% endblock navigation %}
                     </div>
                 </nav>
@@ -37,7 +38,6 @@
     {% block content %}
     {% endblock %}
     {% block footer %}
-        {% comment %}{% include "footer.html" %} {% endcomment %}
     {% endblock footer %}
 {% block scripts %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>

@@ -18,7 +18,6 @@
     margin-top: 30px;
 }
 .sb_profile_container_top_div{
-
 }
 .sb_profile_container_left {
     background-color: transparent;
@@ -27,13 +26,13 @@
     margin-left: -15px;
     margin-right: -15px;
     margin-bottom: 3px;
-    padding-left: 0px;
-    pardding-right: 35px;
+    padding-left: 0;
+    padding-right: 35px;
     padding-bottom: 15px;
-    padding-top: 0px;
+    padding-top: 0;
 }
 .sb_profile_btn_menu_container {
-    background-color: #eaf0e8;
+    background-color: #e5ece6;
     height: 45px;
     border-radius: 0 0 2px 2px;
     border-bottom: solid;
@@ -42,7 +41,7 @@
     margin-bottom: 15px;
 }
 .sb_profile_menu_btn{
-    background-color: #eaf0e8;
+    background-color: #e5ece6;
     color: #838c92;
     border-radius: 0 0 2px 2px;
     font-family: 'Lato', sans-serif;
@@ -53,7 +52,7 @@
 .sb_profile_menu_btn:hover,
 .sb_profile_menu_btn:focus,
 .sb_profile_menu_btn:active{
-    background-color: #e0e7e1;
+    background-color:#e0e7e1;
     color: #838c92;
 }
 .sb_profile_btn_menu_group{
@@ -61,7 +60,7 @@
     margin-bottom: 0;
 }
 .sb_profile_pic {
-    border-color: #eaf0e8;
+    border-color: #e5ece6;
     margin-left: 15px;
     margin-top: 65px;
     width: 200px;
@@ -69,7 +68,6 @@
     border-radius: 2px;
     position: absolute;
     padding:0;
-
 }
 .sb_profile_name{
     color: #838c92;

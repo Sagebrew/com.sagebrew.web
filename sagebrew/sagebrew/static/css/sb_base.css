@@ -8,7 +8,14 @@
   margin: 0 auto -190px;
   padding: 0 0 190px;
 }
-
+.sb_nav_input{
+    border-width: 1px;
+}
+.sb_nav_input:hover,
+.sb_nav_input:active,
+.sb_nav_input:focus{
+    border-color: #b7bfbb;
+}
 #sb_logo_bottom {
     margin-left: 30px;
 }
@@ -103,12 +110,13 @@
     border-radius: 0;
 }
 .sb_nav_bottom_menu {
-    height: 200px;
+    height: 220px;
     margin-top: auto;
     padding-top: 2em;
     margin-bottom: 0;
     margin-left: -15px;
     margin-right: -15px;
+   opacity: .7;
 }
 .sb_nav_bottom_links {
     color: #7c7e80;
@@ -122,8 +130,19 @@
     width: 40px;
     border-width: 1px;
     border-color: #b7bfbb;
-    margin-left: auto;
+}
+.sb_thumbnail_md {
+    height: 80px;
+    width:  80px;
+    border-width: 1px;
+    border-radius: 2px;
+    background-color: transparent;
+    border-color: transparent;
+    margin-left: 0px;
 }
 .sb_divider{
     color: #1ba39c;
+}
+.sb_bottom_container{
+    margin-bottom: 40px;
 }

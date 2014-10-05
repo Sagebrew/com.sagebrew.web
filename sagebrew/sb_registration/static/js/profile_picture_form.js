@@ -8,6 +8,7 @@ $( document ).ready(function() {
     $("#sb_modal_close").click(function(){
         $("#sb_menu").appendTo("#sb_photo_parent");
         $("#sb_btn_upload").show();
+        $(".sb_btn_skip").ccs("margin-top","15px");
         $("#sb_btn_change").hide();
     });
     $("#sb_btn_remove").click(function(){

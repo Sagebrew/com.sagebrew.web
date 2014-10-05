@@ -3,13 +3,13 @@
     border-radius: 2px;
     padding-bottom: 15px;
 }
-.sb_profile_rep_header{
+.sb_container_header {
     border-radius: 2px 2px 0 0 ;
     padding-left: 15px;
     padding-top: 5px;
     margin-top: 0;
     height: 45px;
-    background-color: #eaf0e8;
+    background-color: #e5ece6;
     color: #838c92;
     font-size: 15pt;
     border-bottom: solid;

@@ -9,14 +9,14 @@ publicly might need to use something like:
 Rather than setting it globally in the settings for authentication.
 
 ### TextBlob/NLTK ###
-'''
+```
 pip install nltk
-'''
-'''
+```
+```
 python manage.py shell
 import nltk
 nltk.download()
-'''
+```
 Then select download then hit enter until you see [ ]all come up and type in all
 Do not need to include it in the settings.INSTALLED_APPS
 
@@ -184,7 +184,7 @@ Finally, reload the UFW:
 sudo ufw reload
 
 Removed from fixture to work with django 1.7 is this necessary?
-
+```
 [
     {
         "pk": 1,
@@ -395,3 +395,4 @@ Removed from fixture to work with django 1.7 is this necessary?
         }
     }
 ]
+```

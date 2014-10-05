@@ -4,26 +4,29 @@ from django.conf import settings
 from multiprocessing import Pool
 from django.shortcuts import render
 from elasticsearch import Elasticsearch
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.template.loader import render_to_string
-from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.contrib.auth.decorators import login_required, user_passes_test
+from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
-from rest_framework.response import Response
+
 
 from .tasks import update_search_query
 from .utils import process_search_result
 from .forms import SearchForm, SearchFormApi
 from api.alchemyapi import AlchemyAPI
 from api.utils import (spawn_task)
-from plebs.neo_models import Pleb
 from plebs.utils import prepare_user_search_html
 from sb_search.tasks import update_weight_relationship
 from sb_questions.utils import prepare_question_search_html
+from sb_registration.utils import verify_completed_registration
 
 logger = logging.getLogger('loggly_logs')
 
 @login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
 def search_view(request):
     '''
     This view serves the main search page. This page may be removed later
@@ -36,6 +39,8 @@ def search_view(request):
     return render(request, 'search_page.html', {})
 
 @login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
 def search_result_view(request, query_param, display_num=5, page=1,
                        range_start=0, range_end=10):
     '''
@@ -78,7 +83,8 @@ def search_result_api(request, query_param="", display_num=10, page=1,
     :param filter_param:
     :return:
     '''
-    data = {'query_param': query_param, 'display_num': display_num, 'page': 1,
+    data = {'query_param': query_param, 'display_num': display_num,
+            'page': int(page),
             'filter_type': filter_type, 'filter_param': filter_param}
     search_form = SearchFormApi(data)
     if search_form.is_valid():
@@ -92,22 +98,25 @@ def search_result_api(request, query_param="", display_num=10, page=1,
         try:
             es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
             #TODO benchmark getting the index from neo vs. getting from postgres
-            #TODO run query_param through natural language proccessor, determine
+            #TODO run query_param through natural language processor, determine
             #if what they have searched is an email address or a name so that
             #the first search result is that user
             #TODO implement filtering on auto generated keywords from alchemyapi
+            #TODO change using the current_user_email to the users
+            #username
             res = es.search(index='full-search-user-specific-1', size=50,
                             body=
                             {
                                 "query": {
                                     "query_string": {
-                                        "query": search_form.cleaned_data[''
-                                                                          'query_param']
+                                        "query": search_form.cleaned_data[
+                                            'query_param']
                                     }
                                 },
                                 "filter": {
-                                    "term": { "related_user" :
-                                                  current_user_email}
+                                    "term": {
+                                        "related_user": current_user_email
+                                    }
                                 }
                             })
             res = res['hits']['hits']
@@ -133,15 +142,17 @@ def search_result_api(request, query_param="", display_num=10, page=1,
             elif current_page > 1:
                 for item in page.object_list:
                     if item['_type'] == 'question':
-                        results.append(prepare_question_search_html(item['_source'][
-                            'question_uuid']))
+                        results.append(prepare_question_search_html(
+                            item['_source']['question_uuid']))
                         spawn_task(update_weight_relationship,
                                    task_param=
                                    {'index': item['_index'],
                                     'document_id': item['_id'],
-                                    'object_uuid': item['_source']['question_uuid'],
+                                    'object_uuid': item['_source'][
+                                        'question_uuid'],
                                     'object_type': 'question',
-                                    'current_pleb': item['_source']['related_user'],
+                                    'current_pleb': item['_source'][
+                                        'related_user'],
                                     'modifier_type': 'search_seen'})
                     if item['_type'] == 'pleb':
                         spawn_task(update_weight_relationship,
@@ -150,10 +161,11 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                                    'object_uuid':
                                        item['_source']['pleb_email'],
                                    'object_type': 'pleb',
-                                   'current_pleb': item['_source']['related_user'],
+                                   'current_pleb': item['_source'][
+                                       'related_user'],
                                    'modifier_type': 'search_seen'})
-                        results.append(prepare_user_search_html(item['_source'][
-                            'pleb_email']))
+                        results.append(prepare_user_search_html(
+                            item['_source']['pleb_email']))
             try:
                 next_page_num = page.next_page_number()
             except EmptyPage:
@@ -163,5 +175,4 @@ def search_result_api(request, query_param="", display_num=10, page=1,
             logger.exception("UnhandledException: ")
             return Response({'detail': 'fail'}, status=400)
     else:
-        print search_form.errors
         return Response({'detail': 'invalid form'}, status=400)

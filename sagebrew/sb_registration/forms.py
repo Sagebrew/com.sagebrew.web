@@ -222,6 +222,17 @@ class ProfilePageForm(forms.Form):
         label='Profile Picture',
     )
 
+class SignupForm(forms.Form):
+    first_name = forms.CharField(required=True, max_length=30, label="First Name")
+    last_name = forms.CharField(required=True, max_length=30, label="Last Name")
+    email = forms.EmailField(required=True, label="Email")
+    password = forms.CharField(required=True, max_length=30)
+    password2 = forms.CharField(required=True, max_length=30)
+
+class LoginForm(forms.Form):
+    email = forms.EmailField(required=True)
+    password = forms.CharField(required=True)
+
 
 '''
 If you want to adjust field attributes programatically without overwritting

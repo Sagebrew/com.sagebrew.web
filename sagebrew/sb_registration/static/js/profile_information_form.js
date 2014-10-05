@@ -14,7 +14,7 @@ $(document).ready(function () {
     });
     $.extend($.datepicker, {_checkOffset: function (inst, offset, isFixed) {
         return offset;
-    });
+    }});
 
     // Now let's align datepicker with the prepend button
     $(datepickerSelector).datepicker('widget').css({'margin-left': -$(datepickerSelector).prev('.input-group-btn').find('.btn').outerWidth()});

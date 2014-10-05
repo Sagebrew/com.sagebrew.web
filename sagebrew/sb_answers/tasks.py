@@ -27,15 +27,21 @@ def save_answer_task(content="", current_pleb="", question_uuid="", to_pleb=""):
     :param to_pleb:
     :return:
     '''
-    if save_answer_util(content=content, answer_uuid=str(uuid1()),
-                        question_uuid=question_uuid,
-                        current_pleb=current_pleb):
-        return True
-    else:
-        data = {'content': content, 'current_pleb': current_pleb,
-                'question_uuid': question_uuid}
-        spawn_task(task_func=save_answer_task, task_param=data, countdown=2)
-        return False
+    try:
+        res = save_answer_util(content=content, answer_uuid=str(uuid1()),
+                            question_uuid=question_uuid,
+                            current_pleb=current_pleb)
+        if res:
+            return True
+        elif res is None:
+            raise Exception
+        else:
+            return False
+    except Exception:
+        logger.exception({"function": save_answer_task.__name__,
+                          "exception": "UnhandledException"})
+        raise save_answer_task.retry(exc=Exception, countdown=5,
+                                     max_retries=None)
 
 @shared_task()
 def edit_answer_task(content="", answer_uuid="", last_edited_on=None,
@@ -66,12 +72,18 @@ def edit_answer_task(content="", answer_uuid="", last_edited_on=None,
             return False
         elif edit_response['detail'] == 'last edit more recent':
             return False
+        elif edit_response is None:
+            raise Exception
 
-    except (SBAnswer.DoesNotExist, Pleb.DoesNotExist):
+
+    except Pleb.DoesNotExist:
+        return False
+    except SBAnswer.DoesNotExist:
         return False
     except Exception:
         logger.exception("UnhandledException: ")
-        return False
+        raise edit_answer_task.retry(exc=Exception, countdown=3,
+                                     max_retries=None)
 
 
 
@@ -104,4 +116,5 @@ def vote_answer_task(answer_uuid="", current_pleb="", vote_type=""):
         return False
     except Exception:
         logger.exception("UnhandledException: ")
-        return False
+        raise vote_answer_task.retry(exc=Exception, countdown=3,
+                                     max_retries=None)

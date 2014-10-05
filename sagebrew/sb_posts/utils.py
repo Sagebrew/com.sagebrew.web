@@ -30,15 +30,14 @@ def get_pleb_posts(pleb_object, range_end, range_start):
                      'ORDER BY posts.date_created DESC ' \
                      'SKIP %s LIMIT %s ' \
                      'RETURN posts'\
-                     % (pleb_object.email, str(range_start), str(range_end))
+                     % (pleb_object.email, str(0), str(range_end))
         pleb_posts, meta = execute_cypher_query(post_query)
         posts = [SBPost.inflate(row[0]) for row in pleb_posts]
         return get_post_comments(posts)
     except IndexError:
         logger.exception("IndexError: ")
         return {'details': 'something broke'}
-    except Exception,e:
-        print e
+    except Exception:
         logger.exception("UnhandledException: ")
         return {"details": "You have no posts!"}
 
@@ -157,8 +156,10 @@ def delete_post_info(post_id=str(uuid1())):
         if datetime.now(pytz.utc).day - my_post.delete_time.day >=1:
             post_comments = my_post.comments.all()
             for comment in post_comments:
-                comment.delete()
-            my_post.delete()
+                comment.content = ""
+                comment.save()
+            my_post.content = ""
+            my_post.save()
             return True
         else:
             return True

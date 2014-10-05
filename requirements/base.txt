@@ -31,3 +31,4 @@ elasticsearch
 textblob
 nltk
 neomodel
+shortuuid

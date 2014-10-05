@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block css %}
+    {{ block.super }}
+{% endblock css %}
+
+{% block content %}
+<div class="sb_wrapper">
+    <div class="row sb_title_verify_email" align="center">
+        <h2 class="sb_title">Please verify your email!</h2>
+    </div>
+    <div class="sb_verify_email_group">
+        <div class="row-fluid">
+            <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2">
+                <div style="font-size: 13pt">
+                    Please check your email for your verification email.
+                    <div style="font-size: 10pt">
+                        If it has been awhile and you still haven't received an email
+                        click <a href="https://192.168.56.101/registration/email_confirmation/resend/">here</a> to get another.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

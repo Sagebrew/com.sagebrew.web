@@ -1,5 +1,6 @@
+import shortuuid
 from uuid import uuid1
-from datetime import datetime
+from datetime import datetime, date
 import pytz
 from api.utils import spawn_task
 from api.tasks import add_object_to_search_index
@@ -71,6 +72,7 @@ class ReceivedEducationRel(StructuredRel):
 
 
 class Pleb(StructuredNode):
+    username = StringProperty(unique_index=True)
     first_name = StringProperty()
     last_name = StringProperty()
     age = IntegerProperty()
@@ -88,6 +90,7 @@ class Pleb(StructuredNode):
     is_sage = BooleanProperty(default=False)
     search_index = StringProperty()
     base_index_id = StringProperty()
+    email_verified = BooleanProperty(default=False)
 
     # Relationships
     home_town_address = RelationshipTo("Address", "GREW_UP_AT")
@@ -130,6 +133,15 @@ class Pleb(StructuredNode):
     clicked_results = RelationshipTo('sb_search.neo_models.SearchResult',
                                      'CLICKED_RESULT')
 
+    def generate_username(self):
+        temp_username = str(self.first_name).lower() + str(self.last_name).lower()
+        try:
+            pleb = Pleb.nodes.get(username=temp_username)
+            self.username = shortuuid.ShortUUID()
+            self.save()
+        except Pleb.DoesNotExist:
+            self.username = temp_username
+
 
 
 class Address(StructuredNode):
@@ -143,6 +155,7 @@ class Address(StructuredNode):
     longitude = FloatProperty()
     congressional_district = StringProperty()
     address_hash = StringProperty(unique_index=True)
+    validated = BooleanProperty(default=True)
 
     # Relationships
     address = RelationshipTo("Pleb", 'LIVES_IN')
@@ -204,7 +217,3 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 
 post_save.connect(create_user_profile, sender=User)
-
-'''
-
-'''

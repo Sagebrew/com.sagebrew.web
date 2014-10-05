@@ -22,6 +22,7 @@ def delete_post_and_comments(post_info):
         return True
     else:
         task_id = str(uuid1())
+        # TODO Shouldn't this be a retry?
         spawn_task(task_func=delete_post_and_comments, task_param=post_info,
                    countdown=2, task_id=task_id)
         return False
@@ -76,6 +77,7 @@ def create_downvote_post(post_uuid=str(uuid1()), pleb=""):
         task_id = uuid1()
         task_param = {'post_uuid': post_uuid,
                       'pleb': pleb}
+        # TODO Shouldn't this be a raise retry?
         spawn_task(task_func=create_downvote_post, task_param=task_param,
                    countdown=2, task_id=task_id)
         return False
@@ -109,6 +111,7 @@ def save_post_task(content="", current_pleb="", wall_pleb="",
                    task_param=notification_data)
         return True
     else:
+        # TODO Shouldn't this be a raise retry rather than a False?
         return False
 
 
@@ -172,6 +175,7 @@ def edit_post_info_task(content="", post_uuid=str(uuid1()),
                       'post_uuid': post_uuid,
                       'last_edited_on': last_edited_on,
                       'current_pleb': current_pleb}
+        # TODO Shouldn't this be a raise retry?
         spawn_task(task_func=edit_post_info_task, task_param=task_param,
                    countdown=1, task_id=task_id)
         return {'detail': 'retrying'}
@@ -198,4 +202,5 @@ def flag_post_task(post_uuid, current_user, flag_reason):
                  flag_reason=flag_reason):
         return True
     else:
+        # TODO Shouldn't this be a raise retry?
         return False

@@ -90,9 +90,11 @@ def edit_question_task(question_uuid="", content="", current_pleb="",
             return False
 
     except (SBQuestion.DoesNotExist, Pleb.DoesNotExist):
+        # TODO Shouldn't this be a raise retry?
         return False
     except Exception:
         logger.exception("MultipleObjectsReturned: ")
+        # TODO Shouldn't there be a raise retry here?
         return False
 
 @shared_task()
@@ -122,9 +124,12 @@ def vote_question_task(question_uuid="", current_pleb="", vote_type=""):
                 downvote_question_util(question_uuid, current_pleb)
                 return True
     except SBQuestion.DoesNotExist:
+        # TODO Shouldn't there be a raise retry here?
         return False
     except Pleb.DoesNotExist:
+        # TODO Shouldn't there be a raise retry here?
         return False
     except Exception:
+        # TODO Shouldn't there be a raise retry here?
         logger.exception("MultipleObjectsReturned: ")
         return False

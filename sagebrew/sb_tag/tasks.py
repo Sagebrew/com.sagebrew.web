@@ -25,6 +25,7 @@ def add_auto_tags(tag_list):
     if response:
         return True
     else:
+        # TODO Shouldn't this be a raise retry?
         return False
 
 
@@ -43,4 +44,5 @@ def add_tags(object_uuid, object_type, tags):
     if add_tag_util(object_type, object_uuid, tags):
         return True
     else:
+        # TODO Shouldn't this be a raise retry
         return False

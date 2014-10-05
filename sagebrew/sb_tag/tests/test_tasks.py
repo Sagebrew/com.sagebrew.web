@@ -24,7 +24,7 @@ class TestTagTask(TestCase):
                      'object_type': 'question',
                      'tags': tags}
         res = add_tags.apply_async(kwargs=task_dict)
-
+        # TODO Add while loop wait rather than get to reflect retry
         self.assertTrue(res.get())
 
     def test_add_tag_failure_wrong_object_type(self):
@@ -35,7 +35,7 @@ class TestTagTask(TestCase):
                      'object_type': 'nothing',
                      'tags': tags}
         res = add_tags.apply_async(kwargs=task_dict)
-
+        # TODO Add while loop wait rather than get to reflect retry
         self.assertFalse(res.get())
 
     def test_add_tag_failure_object_does_not_exist(self):
@@ -46,7 +46,7 @@ class TestTagTask(TestCase):
                      'object_type': 'nothing',
                      'tags': tags}
         res = add_tags.apply_async(kwargs=task_dict)
-
+        # TODO Add while loop wait rather than get to reflect retry
         self.assertFalse(res.get())
 
 
@@ -65,7 +65,7 @@ class TestAutoTagTask(TestCase):
                       'object_uuid': question.question_id,
                       'tags': {'relevance': '.9', 'text': 'test'}}]}
         res = add_auto_tags.apply_async(kwargs=task_dict)
-
+        # TODO Add while loop wait rather than get to reflect retry
         self.assertTrue(res.get())
 
     def test_add_auto_tag_wrong_object_type(self):
@@ -75,7 +75,7 @@ class TestAutoTagTask(TestCase):
                       'object_uuid': question.question_id,
                       'tags': {'relevance': '.9', 'text': 'test'}}]}
         res = add_auto_tags.apply_async(kwargs=task_dict)
-
+        # TODO Add while loop wait rather than get to reflect retry
         self.assertFalse(res.get())
 
     def test_add_auto_tag_object_does_not_exist(self):

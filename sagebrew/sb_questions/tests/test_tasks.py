@@ -70,7 +70,7 @@ class TestEditQuestionTask(TestCase):
                           'current_pleb': self.user.email,
                           'last_edited_on': datetime.now(pytz.utc)}
         edit_response = edit_question_task.apply_async(kwargs=edit_question_dict)
-
+        # TODO Add while loop wait rather than get to reflect retry
         self.assertTrue(edit_response.get())
 
 
@@ -126,6 +126,7 @@ class TestVoteTask(TestCase):
         vote_info_dict = {"question_uuid": question.question_id,
                           "current_pleb": pleb.email, 'vote_type': 'up'}
         vote_response = vote_question_task.apply_async(kwargs=vote_info_dict)
+        # TODO Add while loop wait rather than get to reflect retry
         self.assertTrue(vote_response.get())
 
 class TestMultipleTasks(TestCase):
@@ -162,5 +163,5 @@ class TestMultipleTasks(TestCase):
                           'content': 'test question',
                           'question_uuid': question.question_id}
         response2 = create_question_task.apply_async(kwargs=post_info_dict)
-
+        # TODO Add while loop wait rather than get to reflect retry
         self.assertFalse(response2.get())

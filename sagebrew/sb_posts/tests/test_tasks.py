@@ -29,7 +29,7 @@ class TestSavePostTask(TestCase):
 
     def test_save_post_task(self):
         response = save_post_task.apply_async(kwargs=self.post_info_dict)
-
+        # TODO Add while loop wait rather than get to reflect retry
         self.assertTrue(response.get())
 
 class TestDeletePostTask(TestCase):
@@ -50,7 +50,7 @@ class TestDeletePostTask(TestCase):
         time.sleep(1)
         delete_response = delete_post_and_comments.apply_async(
             [self.post_info_dict['post_uuid'], ])
-
+        # TODO Add while loop wait rather than get to reflect retry
         self.assertTrue(save_response.get())
         self.assertTrue(delete_response.get())
 
@@ -75,6 +75,7 @@ class TestEditPostTask(TestCase):
                           'post_uuid': post.post_id,
                           'current_pleb': self.pleb.email}
         edit_response = edit_post_info_task.apply_async(kwargs=edit_post_dict)
+        # TODO Add while loop wait rather than get to reflect retry
         edit_response = edit_response.get()
         self.assertTrue(edit_response)
 
@@ -104,7 +105,7 @@ class TestPostTaskRaceConditions(TestCase):
         time.sleep(1)
         delete_response = delete_post_and_comments.apply_async(
             [self.post_info_dict['post_uuid'], ])
-
+        # TODO Add while loop wait rather than get to reflect retry
         self.assertTrue(save_response.get())
         self.assertTrue(edit_response)
         self.assertTrue(delete_response.get())
@@ -122,7 +123,7 @@ class TestPostTaskRaceConditions(TestCase):
             edit_dict['last_edited_on'] = datetime.now(pytz.utc)
             edit_response = edit_post_info_task.apply_async(kwargs=edit_dict)
             edit_array.append(edit_response)
-
+        # TODO Add while loop wait rather than get to reflect retry
         self.assertTrue(save_response.get())
         for response in edit_array:
             self.assertTrue(response)
@@ -146,7 +147,9 @@ class TestMultipleTasks(TestCase):
         for num in range(1, 10):
             uuid = str(uuid1())
             self.post_info_dict['post_uuid'] = uuid
-            save_response = save_post_task.apply_async(kwargs=self.post_info_dict)
+            save_response = save_post_task.apply_async(
+                kwargs=self.post_info_dict)
+            # TODO Add while loop wait rather than get to reflect retry
             response_array.append(save_response.get())
 
         for item in response_array:
@@ -157,6 +160,7 @@ class TestMultipleTasks(TestCase):
         vote_info_dict = {"post_uuid": self.post_info_dict['post_uuid'],
                           "pleb": self.pleb.email}
         response = save_post_task.apply_async(kwargs=self.post_info_dict)
+        # TODO Add while loop wait rather than get to reflect retry
         response = response.get()
 
         for num in range(1, 10):
@@ -164,6 +168,7 @@ class TestMultipleTasks(TestCase):
                 kwargs=vote_info_dict)
             dvote_response = create_downvote_post.apply_async(
                 kwargs=vote_info_dict)
+            # TODO Add while loop wait rather than get to reflect retry
             vote_array.append(uvote_response.get())
             vote_array.append(dvote_response.get())
         self.assertTrue(response)
@@ -176,11 +181,13 @@ class TestMultipleTasks(TestCase):
                           'content': 'test post',
                           'post_uuid': str(uuid1())}
         response1 = save_post_task.apply_async(kwargs=post_info_dict)
+        # TODO Add while loop wait rather than get to reflect retry
         response1 = response1.get()
         time.sleep(1)
         response2 = save_post_task.apply_async(kwargs=post_info_dict)
 
         self.assertTrue(response1)
+        # TODO Add while loop wait rather than get to reflect retry
         self.assertFalse(response2.get())
 
 class TestFlagPostTask(TestCase):
@@ -203,7 +210,7 @@ class TestFlagPostTask(TestCase):
                      'flag_reason': 'spam'}
 
         res = flag_post_task.apply_async(kwargs=task_dict)
-
+        # TODO Add while loop wait rather than get to reflect retry
         self.assertTrue(res.get())
 
     def test_flag_post_task_success_explicit(self):
@@ -213,7 +220,7 @@ class TestFlagPostTask(TestCase):
                      'flag_reason': 'explicit'}
 
         res = flag_post_task.apply_async(kwargs=task_dict)
-
+        # TODO Add while loop wait rather than get to reflect retry
         self.assertTrue(res.get())
 
     def test_flag_post_task_success_other(self):
@@ -223,7 +230,7 @@ class TestFlagPostTask(TestCase):
                      'flag_reason': 'other'}
 
         res = flag_post_task.apply_async(kwargs=task_dict)
-
+        # TODO Add while loop wait rather than get to reflect retry
         self.assertTrue(res.get())
 
     def test_flag_post_task_failure_incorrect_reason(self):
@@ -233,7 +240,7 @@ class TestFlagPostTask(TestCase):
                      'flag_reason': 'dumb'}
 
         res = flag_post_task.apply_async(kwargs=task_dict)
-
+        # TODO Add while loop wait rather than get to reflect retry
         self.assertFalse(res.get())
 
     def test_flag_post_task_post_does_not_exist(self):
@@ -241,7 +248,7 @@ class TestFlagPostTask(TestCase):
                      'flag_reason': 'other'}
 
         res = flag_post_task.apply_async(kwargs=task_dict)
-
+        # TODO Add while loop wait rather than get to reflect retry
         self.assertFalse(res.get())
 
     def test_flag_post_task_user_does_not_exist(self):
@@ -251,5 +258,5 @@ class TestFlagPostTask(TestCase):
                      'flag_reason': 'other'}
 
         res = flag_post_task.apply_async(kwargs=task_dict)
-
+        # TODO Add while loop wait rather than get to reflect retry
         self.assertFalse(res.get())

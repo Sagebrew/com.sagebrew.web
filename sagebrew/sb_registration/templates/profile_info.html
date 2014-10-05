@@ -111,7 +111,7 @@
                     {% if field.value == None %}
                         <input type="text"
                                value=""
-                               name=""
+                               name="{{ field.html_name }}"
                                placeholder="Where did you go to college?"
                                class="form-control input-lg">
                     {% else %}
@@ -124,7 +124,7 @@
                     {% if field.value == None %}
                         <input type="text"
                                value=""
-                               name=""
+                               name="{{ field.html_name }}"
                                placeholder="Who do you work for?"
                                class="form-control input-lg">
                     {% else %}
@@ -174,13 +174,13 @@
                                         {% if field.id_for_label == "id_primary_address" %}
                                             {% if field.value == None %}
                                                 <input type="text"
-                                                       name="primary_address"
+                                                       name="{{ field.html_name }}"
                                                        value=""
                                                        placeholder="Address Line 1"
                                                        class="form-control input-lg">
                                             {% else %}
                                                 <input type="text"
-                                                       name="primary_address"
+                                                       name="{{ field.html_name }}"
                                                        value="{{ field.value }}"
                                                        placeholder="Address Line 1"
                                                        class="form-control input-lg">
@@ -188,13 +188,13 @@
                                         {% elif field.id_for_label == "id_street_additional" %}
                                             {% if field.value == None %}
                                                 <input type="text"
-                                                       name="street_additional"
+                                                       name="{{ field.html_name }}"
                                                        value=""
                                                        placeholder="Apt, Building, etc"
                                                        class="form-control input-lg">
                                             {% else %}
                                                 <input type="text"
-                                                       name="street_additional"
+                                                       name="{{ field.html_name }}"
                                                        value="{{ field.value }}"
                                                        placeholder="Apt, Building, etc"
                                                        class="form-control input-lg">
@@ -223,13 +223,13 @@
                                                 {% if field.id_for_label == "id_city" %}
                                                     {% if field.value == None %}
                                                         <input type="text"
-                                                               name="city"
+                                                               name="{{ field.html_name }}"
                                                                value=""
                                                                placeholder="City*"
                                                                class="form-control input-lg">
                                                     {% else %}
                                                         <input type="text"
-                                                               name="city"
+                                                               name="{{ field.html_name }}"
                                                                value="{{ field.value }}"
                                                                placeholder="City*"
                                                                class="form-control input-lg sb-city">
@@ -237,13 +237,13 @@
                                                 {% elif field.id_for_label == "id_state" %}
                                                     {% if field.value == None %}
                                                         <input type="text"
-                                                               name="state"
+                                                               name="{{ field.html_name }}"
                                                                value=""
                                                                placeholder="State*"
                                                                class="form-control input-lg">
                                                     {% else %}
                                                         <input type="text"
-                                                               name="state"
+                                                               name="{{ field.html_name }}"
                                                                value="{{ field.value }}"
                                                                placeholder="State*"
                                                                class="form-control input-lg sb-city">
@@ -251,13 +251,13 @@
                                                 {% elif field.id_for_label == "id_postal_code" %}
                                                     {% if field.value == None %}
                                                         <input type="text"
-                                                               name="postal_code"
+                                                               name="{{ field.html_name }}"
                                                                value=""
                                                                placeholder="Zip Code*"
                                                                class="form-control input-lg sb_zip">
                                                     {% else %}
                                                         <input type="text"
-                                                               name="postal_code"
+                                                               name="{{ field.html_name }}"
                                                                value="{{ field.value }}"
                                                                placeholder="Zip Code*"
                                                                class="form-control input-lg">

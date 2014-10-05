@@ -194,6 +194,7 @@ def profile_information(request):
     address_information_form = AddressInfoForm(request.POST or None)
     address_selection_form = AddressChoiceForm(request.POST or None)
     address_selection = "no_selection"
+
     try:
         citizen = Pleb.nodes.get(email=request.user.email)
     except Pleb.DoesNotExist:
@@ -202,12 +203,10 @@ def profile_information(request):
         citizen.date_of_birth = profile_information_form.cleaned_data[
             "date_of_birth"]
         citizen.home_town = profile_information_form.cleaned_data["home_town"]
-        citizen.high_school = profile_information_form.cleaned_data[
-            "high_school"]
-        citizen.college = profile_information_form.cleaned_data["college"]
-        citizen.employer = profile_information_form.cleaned_data["employer"]
+        #citizen.high_school = profile_information_form.cleaned_data.get("high_school", "")
+        #citizen.college = profile_information_form.cleaned_data.get("college", "")
+        #citizen.employer = profile_information_form.cleaned_data.get("employer", "")
         citizen.save()
-    '''
     if address_information_form.is_valid():
         address_clean = address_information_form.cleaned_data
         address_info = validate_address(address_clean)
@@ -290,7 +289,7 @@ def profile_information(request):
                     citizen.address.connect(address)
                     citizen.save()
                     return redirect('interests')
-'''
+
     return render(request, 'profile_info.html',
                   {'profile_information_form': profile_information_form,
                    'address_information_form': address_information_form,

@@ -71,7 +71,7 @@
 #sb_search_input:hover,
 #sb_search_input:active,
 #sb_search_input:focus{
-    border-color: #838c92;
+    border-color: #b7bfbb;
 }
 #sb_nav_spy{
     color: #1ba39c;
@@ -103,9 +103,9 @@
 .sb_btn_see_all{
     background-color: #eaf0e8;
     color: #838c92;
-    border-color: #9DBBB9;
+    border-color: #b7bfbb;
     border-top-style: solid;
-    border-width: 2px;
+    border-width: 1px;
     border-radius: 0;
     width: 100%;
     height: 40px;
@@ -121,7 +121,9 @@
     padding-left: 15px;
     padding-bottom: 5px;
     padding-top: 5px;
-    color: #838c92;
+    margin-bottom: 5px;
+    background-color: #eaf0e8;
+    color: #1ba39c;
     font-size: 12pt;
 }
 .sb_dropdown_content{
@@ -130,7 +132,7 @@
     margin-top: -5px;
     border-style: solid;
     border-width: 1px;
-    border-color: #d8e7d6;
+    border-color: #b7bfbb;
     border-left: none;
     border-right: none;
     border-bottom: none;

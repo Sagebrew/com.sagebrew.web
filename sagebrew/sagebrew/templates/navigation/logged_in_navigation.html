@@ -11,7 +11,7 @@
             <input type="text" id="sb_search_input"class="form-control" placeholder="Search">
 
         </div>
-                     <span class="input-group-btn">
+                     <span class="sb_search_btn input-group-btn">
                  <button type="submit" id="sb_nav_spy" class=" btn"><span class="fui-search"></span></button>
             </span>
     </form>
@@ -56,7 +56,7 @@
                 <ul class="sb_nav_dropdown_container dropdown-menu dropdown-menu-right"
                     role="menu" aria-labelledby="dropdownMenu1">
                     <li role="presentation">
-                        <div id="notification_div">
+                        <div>
                             {% block notification_divs %}
                                 {% include "notifications.html" %}
                             {% endblock %}

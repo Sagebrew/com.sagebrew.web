@@ -4,12 +4,13 @@ from django.conf import settings
 from multiprocessing import Pool
 from django.shortcuts import render
 from elasticsearch import Elasticsearch
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.template.loader import render_to_string
-from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.contrib.auth.decorators import login_required, user_passes_test
+from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
-from rest_framework.response import Response
+
 
 from .tasks import update_search_query
 from .utils import process_search_result
@@ -19,10 +20,13 @@ from api.utils import (spawn_task)
 from plebs.utils import prepare_user_search_html
 from sb_search.tasks import update_weight_relationship
 from sb_questions.utils import prepare_question_search_html
+from sb_registration.utils import verify_completed_registration
 
 logger = logging.getLogger('loggly_logs')
 
 @login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
 def search_view(request):
     '''
     This view serves the main search page. This page may be removed later
@@ -35,6 +39,8 @@ def search_view(request):
     return render(request, 'search_page.html', {})
 
 @login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
 def search_result_view(request, query_param, display_num=5, page=1,
                        range_start=0, range_end=10):
     '''

@@ -1,6 +1,6 @@
 import shortuuid
 from uuid import uuid1
-from datetime import datetime
+from datetime import datetime, date
 import pytz
 from api.utils import spawn_task
 from api.tasks import add_object_to_search_index
@@ -90,6 +90,7 @@ class Pleb(StructuredNode):
     is_sage = BooleanProperty(default=False)
     search_index = StringProperty()
     base_index_id = StringProperty()
+    email_verified = BooleanProperty(default=False)
 
     # Relationships
     home_town_address = RelationshipTo("Address", "GREW_UP_AT")
@@ -154,6 +155,7 @@ class Address(StructuredNode):
     longitude = FloatProperty()
     congressional_district = StringProperty()
     address_hash = StringProperty(unique_index=True)
+    validated = BooleanProperty(default=True)
 
     # Relationships
     address = RelationshipTo("Pleb", 'LIVES_IN')
@@ -179,8 +181,6 @@ def create_user_profile(sender, instance, created, **kwargs):
         try:
             citizen = Pleb.nodes.get(email=instance.email)
         except Pleb.DoesNotExist:
-            instance.username = str(shortuuid.uuid())
-            instance.save()
             citizen = Pleb(email=instance.email,
                            first_name=instance.first_name,
                            last_name=instance.last_name)

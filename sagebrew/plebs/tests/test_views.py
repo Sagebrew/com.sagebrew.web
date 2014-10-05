@@ -26,6 +26,8 @@ class ProfilePageTest(TestCase):
         self.user = User.objects.create_user(
             username='Tyler' + str(uuid1())[:25], email=self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb.completed_profile_info = True
+        self.pleb.save()
 
     def test_unauthenticated(self):
         request = self.factory.get('/%s' % self.email)

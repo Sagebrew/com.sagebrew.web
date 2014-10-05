@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.views.generic.base import RedirectView, TemplateView
 from django.conf.urls import patterns, url
 
+
 urlpatterns = patterns('',
                        (r'^robots\.txt$',
                         lambda r: HttpResponse("User-agent: *\nDisallow: /",
@@ -13,8 +14,7 @@ urlpatterns = patterns('',
                            url='/static/images/favicon.ico')),
                        (r'^admin/', include('admin_honeypot.urls')),
                        (r'^secret/', include(admin.site.urls)),
-                       (r'^$',
-                        TemplateView.as_view(template_name="sign_up_page/index.html")),
+                       (r'^$', include('sb_registration.urls')),
                        (r'^accounts/', include('allauth.urls')),
                        (r'^locations/$',
                         TemplateView.as_view(template_name="location.html")),

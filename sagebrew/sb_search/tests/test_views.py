@@ -23,6 +23,9 @@ class TestSearchResultView(TestCase):
         self.factory = APIRequestFactory()
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.pleb = Pleb.nodes.get(email=self.user.email)
+        self.pleb.completed_profile_info = True
+        self.pleb.save()
 
     def tearDown(self):
         call_command('clear_neo_db')

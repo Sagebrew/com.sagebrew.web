@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block css %}
+    {{ block.super }}
+{% endblock css %}
+
+{% block content %}
+<div class="sb_wrapper">
+    <div class="row sb_title_email" align="center">
+        <h2 class="sb_title">Hi {{ full_name }},</h2>
+    </div>
+    <div class="sb_verify_email_group">
+        <div class="row-fluid">
+            <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2">
+                <div style="font-size: 13pt">
+                    Thank you for signing up for a Sagebrew account! Please
+                    click the button below to verify your email.
+                </div>
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2">
+                <a class="sb_btn sb_btn_login btn btn-embossed btn-primary submit_login"
+                   href="{{ verification_url }}">
+                    Verify!
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

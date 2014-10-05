@@ -2,20 +2,15 @@ import pytz
 import logging
 from uuid import uuid1
 from datetime import datetime
-from urllib2 import HTTPError
-from requests import ConnectionError
 from django.shortcuts import render
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth.decorators import login_required
-from rest_framework.decorators import (api_view, permission_classes,
-                                       renderer_classes)
+from django.contrib.auth.decorators import login_required, user_passes_test
+from rest_framework.decorators import (api_view, permission_classes)
 
-from api.utils import (get_post_data, spawn_task, post_to_api)
-from plebs.neo_models import Pleb
+from api.utils import (spawn_task, post_to_api)
+from sb_registration.utils import verify_completed_registration
 from .utils import (get_question_by_most_recent, get_question_by_uuid,
                     get_question_by_least_recent, prepare_question_search_html)
 from .tasks import create_question_task, vote_question_task, edit_question_task
@@ -24,6 +19,8 @@ from .forms import SaveQuestionForm, EditQuestionForm, VoteQuestionForm
 logger = logging.getLogger('loggly_logs')
 
 @login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
 def submit_question_view_page(request):
     '''
     This is the view that creates the page which displays the html to create
@@ -38,6 +35,8 @@ def submit_question_view_page(request):
     })
 
 @login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
 def question_page(request, sort_by="most_recent"):
     '''
     This is the page that displays what is returned from the get_question_view
@@ -66,6 +65,8 @@ def question_page(request, sort_by="most_recent"):
     return render(request, 'question_sort_page.html', {'questions': questions})
 
 @login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
 def question_detail_page(request, question_uuid=str(uuid1())):
     '''
     This is the view that displays a single question with all answers, comments,

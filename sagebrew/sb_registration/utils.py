@@ -126,9 +126,10 @@ def validate_address(address_request):
 
     URL = LOCATION + '?' + QUERY_STRING
     response = urllib.urlopen(URL).read()
-    #TODO if the smartystreets has no more available api calls it will return
-    #none and loads will fail, implement handling of this error
-    structure = json.loads(response)
+    try:
+        structure = json.loads(response)
+    except ValueError:
+        return False
 
     return create_address_array(structure)
 
@@ -270,3 +271,23 @@ def get_friends(email):
         friends.append(friend_dict)
 
     return friends
+
+def verify_completed_registration(user):
+    try:
+        pleb = Pleb.nodes.get(email=user.email)
+        if pleb.completed_profile_info:
+            return True
+        else:
+            return False
+    except Pleb.DoesNotExist:
+        return False
+
+def verify_verified_email(user):
+    try:
+        pleb = Pleb.nodes.get(email=user.email)
+        if pleb.email_verified:
+            return True
+        else:
+            return False
+    except Pleb.DoesNotExist:
+        return False

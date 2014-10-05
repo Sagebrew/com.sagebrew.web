@@ -1,23 +1,175 @@
+import shortuuid
 import logging
 import hashlib
-from django.contrib.auth.models import User
+from json import loads
 from django.conf import settings
 from uuid import uuid1
+from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.template.loader import render_to_string, get_template
+from django.template import Context
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
-                    ProfilePictureForm,
-                    AddressChoiceForm)
+                    ProfilePictureForm, AddressChoiceForm, SignupForm,
+                    LoginForm)
 from .utils import (validate_address, generate_interests_tuple, upload_image,
                     compare_address, generate_address_tuple,
                     create_address_string,
-                    create_address_long_hash)
+                    create_address_long_hash, verify_completed_registration,
+                    verify_verified_email)
+from .models import EmailAuthTokenGenerator
 
 logger = logging.getLogger('loggly_logs')
+token_gen = EmailAuthTokenGenerator()
+
+@login_required()
+def confirm_view(request):
+    return render(request, 'verify_email.html')
+
+def signup_view(request):
+    return render(request, 'sign_up_page/index.html')
+
+@api_view(['POST'])
+def signup_view_api(request):
+    try:
+        signup_form = SignupForm(loads(request.body))
+        if signup_form.is_valid():
+            if signup_form.cleaned_data['password'] != \
+                    signup_form.cleaned_data['password2']:
+                return Response({'detail': 'Passwords do not match!'},
+                                status=401)
+            try:
+                test_user = User.objects.get(email=signup_form.
+                                             cleaned_data['email'])
+                return Response({'detail':
+                                     'A user with this email already exists!'},
+                                status=401)
+            except User.DoesNotExist:
+                user = User.objects.create_user(first_name=signup_form.
+                                                cleaned_data['first_name'],
+                                                last_name=signup_form.
+                                                cleaned_data['last_name'],
+                                                email=signup_form.
+                                                cleaned_data['email'],
+                                                username=shortuuid.uuid(),
+                                                password=signup_form.
+                                                cleaned_data['password'])
+                user.save()
+                user = authenticate(username=user.username,
+                                    password=signup_form.cleaned_data[
+                                        'password'])
+                if user is not None:
+                    if user.is_active:
+                        login(request, user)
+                        template_dict = {
+                            'full_name': request.user.first_name+' '+request.user.last_name,
+                            'verification_url': settings.EMAIL_VERIFICATION_URL+token_gen.make_token(user)+'/'
+                        }
+                        subject, to = "Sagebrew Email Verification", request.user.email
+                        text_content = get_template('email_templates/email_verification.txt').render(Context(template_dict))
+                        html_content = get_template('email_templates/email_verification.html').render(Context(template_dict))
+                        msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [to])
+                        msg.attach_alternative(html_content, 'text/html')
+                        msg.send()
+                        return Response({'detail': 'success'}, status=200)
+                    else:
+                        return Response({'detail': 'account disabled'},
+                                        status=400)
+                else:
+                    return Response({'detail': 'invalid login'},
+                                    status=400)
+    except Exception:
+        logger.exception({'function': signup_view_api.__name__,
+                          'exception': 'UnhandledException: '})
+        return Response({'detail': 'exception'}, status=400)
+
+def login_view(request):
+    return render(request, 'login.html')
+
+@login_required()
+def resend_email_verification(request):
+    try:
+        template_dict = {
+            'full_name': request.user.first_name+' '+request.user.last_name,
+            'verification_url': settings.EMAIL_VERIFICATION_URL+token_gen.make_token(request.user)+'/'
+        }
+        subject, to = "Sagebrew Email Verification", request.user.email
+        text_content = get_template('email_templates/email_verification.txt').render(Context(template_dict))
+        html_content = get_template('email_templates/email_verification.html').render(Context(template_dict))
+        msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [to])
+        msg.attach_alternative(html_content, 'text/html')
+        msg.send()
+        return redirect("confirm_view")
+    except Pleb.DoesNotExist:
+        logger.exception({'function': resend_email_verification.__name__,
+                          'exception': 'DoesNotExist: '})
+        return Response({'detail': 'pleb does not exist'}, status=400)
+
+@api_view(['POST'])
+def login_view_api(request):
+    try:
+        login_form = LoginForm(loads(request.body))
+        if login_form.is_valid():
+            user = User.objects.get(email=login_form.cleaned_data['email'])
+            user = authenticate(username=user.username,
+                                password=login_form.cleaned_data['password'])
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    pleb = Pleb.nodes.get(email=user.email)
+                    pleb.generate_username()
+                    profile_page_url = settings.WEB_ADDRESS+'/user/'+pleb.username
+                    return Response({'detail': 'success',
+                                     'user': user.email,
+                                     'url': profile_page_url}, status=200)
+                else:
+                    return Response({'detail': 'account disabled'},
+                                    status=400)
+            else:
+                return Response({'detail': 'invalid password'}, status=200)
+    except User.DoesNotExist:
+        logger.exception({'detail': 'cannot find user',
+                          'exception': 'User.DoesNotExist'})
+        return Response({'detail': 'cannot find user'}, status=200)
+    except Exception:
+        logger.exception({'function': login_view_api.__name__,
+                          'exception': 'UnhandledException: '})
+        return Response({'detail': 'unknown exception'}, status=400)
+
+@login_required()
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
+@login_required()
+def email_verification(request, confirmation):
+    try:
+        pleb = Pleb.nodes.get(email=request.user.email)
+        if token_gen.check_token(request.user, confirmation):
+            pleb.email_verified = True
+            pleb.save()
+            return redirect('profile_info')
+        else:
+            return redirect('confirm_view')
+    except Pleb.DoesNotExist:
+        logger.exception({'function': email_verification.__name__,
+                          'exception': 'DoesNotExist: '})
+        return redirect('logout')
+    except Exception:
+        logger.exception({'function': email_verification.__name__,
+                          'exception': 'UnhandledException: '})
+        return redirect('confirm_view')
+
 
 @login_required
+@user_passes_test(verify_verified_email,
+                  login_url='/registration/signup/confirm/')
 def profile_information(request):
     '''
     Creates both a ProfileInfoForm and AddressInfoForm which populates the
@@ -59,6 +211,20 @@ def profile_information(request):
     if address_information_form.is_valid():
         address_clean = address_information_form.cleaned_data
         address_info = validate_address(address_clean)
+        if not address_info:
+            address = Address(address_hash=str(uuid1()),
+                              street=address_clean['street'],
+                              street_additional=address_clean['street_additional'],
+                              city=address_clean['city'],
+                              state=address_clean['state'],
+                              postal_code=address_clean['zipCode'],
+                              validated=False)
+            address.save()
+            address.address.connect(citizen)
+            citizen.address.connect(address)
+            citizen.completed_profile_info = True
+            citizen.save()
+            return redirect('interests')
         addresses_returned = len(address_info)
         address_tuple = generate_address_tuple(address_info)
 
@@ -121,8 +287,6 @@ def profile_information(request):
                         address.save()
                     address.address.connect(citizen)
                     citizen.completed_profile_info = True
-                    user = User.index.get(email=citizen.email)
-                    print user.user_permissions
                     citizen.address.connect(address)
                     citizen.save()
                     return redirect('interests')
@@ -135,6 +299,8 @@ def profile_information(request):
 
 
 @login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
 def interests(request):
     '''
     The interests view creates an InterestForm populates the topics that
@@ -181,6 +347,8 @@ def interests(request):
 
 
 @login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
 def profile_picture(request):
     '''
     The profile picture view accepts an image from the user, which is stored in

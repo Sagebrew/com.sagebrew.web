@@ -21,9 +21,11 @@ def create_notification_post_task(post_uuid=str(uuid1()), from_pleb="",
     # TODO Review why create_notification_post_util has a potential to fail
     # and see if we should have a strategy other than just retring the task
     # endlessly
-    if create_notification_post_util(post_uuid, from_pleb, to_pleb):
-        return True
-    else:
+    try:
+        if create_notification_post_util(post_uuid, from_pleb, to_pleb):
+            return True
+        raise Exception
+    except Exception:
         raise create_notification_post_task.retry(exc=Exception, countdown=3,
                                                   max_retries=None)
 
@@ -35,9 +37,11 @@ def create_notification_comment_task(from_pleb="", to_pleb="", comment_on="",
     # TODO Review why create_notification_post_util has a potential to fail
     # and see if we should have a strategy other than just retring the task
     # endlessly. Also need comments for this task
-    if create_notification_comment_util(from_pleb, to_pleb, comment_uuid,
-                                        comment_on, comment_on_id):
-        return True
-    else:
-        raise create_notification_comment_task.retry(exc=Exception, countdown=3,
+    try:
+        if create_notification_comment_util(from_pleb, to_pleb, comment_uuid,
+                                            comment_on, comment_on_id):
+            return True
+        raise Exception
+    except Exception:
+        raise create_notification_post_task.retry(exc=Exception, countdown=3,
                                                   max_retries=None)

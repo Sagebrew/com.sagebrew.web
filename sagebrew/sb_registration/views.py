@@ -124,6 +124,7 @@ def login_view_api(request):
                     login(request, user)
                     pleb = Pleb.nodes.get(email=user.email)
                     pleb.generate_username()
+                    # TODO @Tyler Can't this be refined to a reverse lookup?
                     profile_page_url = settings.WEB_ADDRESS+'/user/'+pleb.username
                     return Response({'detail': 'success',
                                      'user': user.email,

@@ -87,7 +87,7 @@ def get_user_search_view(request, pleb_email=""):
     except:
         return Response({'html': []}, status=400)
 
-    
+
 @login_required()
 def about_page(request, pleb_email):
     '''

@@ -15,8 +15,6 @@ class Command(BaseCommand):
             if(circle_branch is not None):
                 project_username = os.environ.get("CIRCLE_PROJECT_USERNAME", "")
                 project_reponame = os.environ.get("CIRCLE_PROJECT_REPONAME", "")
-                data = data.replace(
-                    '{{DOCKER_ENV}}', os.environ.get("CIRCLE_BRANCH", ""))
                 data = data.replace("{{PROJECT_REPONAME}}", project_reponame)
                 data = data.replace("{{PROJECT_USERNAME}}", project_username)
                 if(circle_branch == "staging"):
@@ -35,6 +33,12 @@ class Command(BaseCommand):
                                     os.environ.get("PROJECT_REPONAME", ""))
                 data = data.replace("{{PROJECT_USERNAME}}",
                                     os.environ.get("PROJECT_USERNAME", ""))
+            docker_env = os.environ.get("CIRCLE_BRANCH", None)
+            # TODO Still not picking up the correct repo to pull from github
+            # on local instances.
+            if docker_env is None:
+                docker_env = os.environ.get("DOCKER_ENV", "")
+            data = data.replace('{{DOCKER_ENV}}', docker_env)
             data = data.replace('{{APP_USER}}', os.environ.get(
                 "APP_USER", ""))
             data = data.replace('{{BOMBERMAN_API_KEY}}', os.environ.get(

@@ -1,4 +1,4 @@
-FROM {{PROJECT_NAME}}/django.web.primary.base:v10
+FROM {{PROJECT_NAME}}/django.web.primary.base:v11
 
 MAINTAINER Devon Bleibtrey <devon@sagebrew.com>
 
@@ -14,7 +14,6 @@ RUN rm -r /root/.ssh
 RUN apt-get remove --auto-remove -y openssh-client
 
 RUN pip install -r /home/apps/{{PROJECT_NAME}}/requirements/{{REQUIREMENTS_FILE}}.txt
-RUN pip install git+https://github.com/robinedwards/neomodel.git@0.3.6
 RUN apt-get remove --auto-remove -y git
 
 ENV BOMBERMAN_API_KEY {{BOMBERMAN_API_KEY}}

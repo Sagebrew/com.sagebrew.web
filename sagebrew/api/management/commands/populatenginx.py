@@ -1,6 +1,8 @@
 import logging
 import socket
+import os
 import multiprocessing
+from subprocess32 import call, check_output
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
@@ -14,6 +16,7 @@ class Command(BaseCommand):
         else:
             env = "production"
         worker_count = str((multiprocessing.cpu_count() *2) + 1)
+        call("sudo chown -R %s:%s /etc/nginx/" % (user, user), shell=True)
         with open ("%s/nginx_templates/base.tmpl" % (
                 settings.REPO_DIR), "r") as nginx_file:
             data = nginx_file.read()
@@ -43,12 +46,30 @@ class Command(BaseCommand):
             project_name = settings.PROJECT_DIR[settings.PROJECT_DIR.rfind('/') + 1:]
             data = data.replace("{{PROJECT_NAME}}", project_name)
             data = data.replace("{{PROJECT_PATH}}", settings.PROJECT_DIR)
+            data = data.replace("{{PROJECT_DIRECTORY}}", settings.REPO_DIR)
             data = data.replace("{{DOMAINS_PIPE}}", domains_pipe)
             data = data.replace("{{DOMAINS_SPACE}}", domains_space)
 
-        f = open("/etc/nginx/%s.conf", "w")
+        f = open("/etc/nginx/sites-available/%s.conf" % env, "w")
         f.write(data)
         f.close()
+        if os.path.isfile("/etc/nginx/sites-enabled/%s.conf" % env):
+            logger.info({"Exception": "Nginx file exists and was removed",
+                             "Location": "Initial Population",
+                             "Server": hostname,
+                             "Message": "This server's nginx file has already"
+                                        "been populated. This should"
+                                        "not happen and all nginx files should"
+                                        "be the same for consistency and to"
+                                        "reduced intermittent issues. Because"
+                                        "of this the file was removed and"
+                                        "the latest template replaced it."})
+            os.remove("/etc/nginx/sites-enabled/%s.conf" % env)
+            return False
+        call("sudo ln -s /etc/nginx/sites-available/%s.conf" % (env) +
+             " /etc/nginx/sites-enabled/%s.conf" % (env), shell=True)
+        call("sudo chown -R root:root /etc/nginx/", shell=True)
+        return True
 
     def handle(self, *args, **options):
         self.populate_nginx(args[0])

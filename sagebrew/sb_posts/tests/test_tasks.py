@@ -205,13 +205,13 @@ class TestMultipleTasks(TestCase):
         while not response1.ready():
             time.sleep(1)
         response1 = response1.result
+        self.assertTrue(response1)
 
         response2 = save_post_task.apply_async(kwargs=post_info_dict)
         while not response2.ready():
             time.sleep(1)
         response2 = response2.ready()
 
-        self.assertTrue(response1)
         self.assertFalse(response2)
 
 class TestFlagPostTask(TestCase):

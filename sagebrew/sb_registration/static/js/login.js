@@ -1,5 +1,11 @@
 $(document).ready(function(){
     $('.submit_login').on('click', function() {
+        try {
+            var next = getUrlParameter('next');
+        }
+        catch (err){
+            var next = ""
+        }
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 ajax_security(xhr, settings)
@@ -16,7 +22,10 @@ $(document).ready(function(){
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-                if (data['detail']==='success'){
+                if (data['detail']==='success' && typeof next !=="undefined"){
+                    window.location.href = 'https://192.168.56.101'+next
+                }
+                else if (data['detail']==='success'){
                     window.location.href = data['url']
                 }
                 else if (data['detail']==='cannot find user'){

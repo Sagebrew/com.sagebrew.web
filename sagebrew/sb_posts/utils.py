@@ -62,6 +62,7 @@ def save_post(post_uuid=str(uuid1()), content="", current_pleb="",
     '''
     try:
         test_post = SBPost.nodes.get(post_id=post_uuid)
+        return False
     except SBPost.DoesNotExist:
         poster = Pleb.nodes.get(email=current_pleb)
         my_citizen = Pleb.nodes.get(email=wall_pleb)

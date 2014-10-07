@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.template.loader import render_to_string, get_template
+from django.template.loader import get_template
 from django.template import Context
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -22,7 +22,7 @@ from .utils import (validate_address, generate_interests_tuple, upload_image,
                     compare_address, generate_address_tuple,
                     create_address_string,
                     create_address_long_hash, verify_completed_registration,
-                    verify_verified_email)
+                    verify_verified_email, calc_age)
 from .models import EmailAuthTokenGenerator
 
 logger = logging.getLogger('loggly_logs')

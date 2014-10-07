@@ -55,6 +55,7 @@ def search_result_view(request, query_param, display_num=5, page=1,
     :param range_end:
     :return:
     '''
+    pleb = Pleb.nodes.get(email=request.user.email)
     search_data = {'query_param': query_param, 'page': page, 'display_num':
                    display_num, 'range_start': range_start,
                    'range_end': range_end}
@@ -62,9 +63,10 @@ def search_result_view(request, query_param, display_num=5, page=1,
     if search_form.is_valid():
         return render(request, 'search_result.html',
                       {'search_param': search_form.cleaned_data['query_param'],
-                       'page': search_form.cleaned_data['page']}, status=200)
+                       'page': search_form.cleaned_data['page'],
+                       'pleb_info': pleb}, status=200)
     else:
-        return render(request, 'search_result.html', status=400)
+        return render(request, 'search_result.html', {'pleb_info': pleb},status=400)
 
 
 @api_view(['GET'])

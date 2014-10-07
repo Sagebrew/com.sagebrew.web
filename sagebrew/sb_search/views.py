@@ -11,12 +11,12 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
 
-
 from .tasks import update_search_query
 from .utils import process_search_result
 from .forms import SearchForm, SearchFormApi
 from api.alchemyapi import AlchemyAPI
 from api.utils import (spawn_task)
+from plebs.neo_models import Pleb
 from plebs.utils import prepare_user_search_html
 from sb_search.tasks import update_weight_relationship
 from sb_questions.utils import prepare_question_search_html
@@ -36,7 +36,8 @@ def search_view(request):
     :param request:
     :return:
     '''
-    return render(request, 'search_page.html', {})
+    pleb = Pleb.nodes.get(email=request.user.email)
+    return render(request, 'search_page.html', {"pleb_info": pleb})
 
 @login_required()
 @user_passes_test(verify_completed_registration,

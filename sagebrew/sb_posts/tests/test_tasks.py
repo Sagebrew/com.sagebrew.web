@@ -123,19 +123,22 @@ class TestPostTaskRaceConditions(TestCase):
 
     def test_race_condition_edit_multiple_times(self):
         edit_array = []
-        save_response = save_post_task.apply_async(kwargs=self.post_info_dict)
-
+        post = SBPost(content="test post")
+        post.save()
+        
         edit_dict = {'content': "post edited",
-                     'post_uuid': self.post_info_dict['post_uuid'],
+                     'post_uuid': post.post_id,
                      'current_pleb': self.pleb.email,
                      'last_edited_on': datetime.now(pytz.utc)}
         for num in range(1, 10):
-            edit_dict['content'] = "post edited" + str(num)
+            edit_dict['content'] = "post edited" + str(uuid1())
             edit_dict['last_edited_on'] = datetime.now(pytz.utc)
             edit_response = edit_post_info_task.apply_async(kwargs=edit_dict)
+            while not edit_response.ready():
+                time.sleep(1)
+            edit_response = edit_response.result
             edit_array.append(edit_response)
-        # TODO Add while loop wait rather than get to reflect retry
-        self.assertTrue(save_response.get())
+
         for response in edit_array:
             self.assertTrue(response)
 

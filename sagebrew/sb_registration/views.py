@@ -1,10 +1,10 @@
 import shortuuid
 import logging
 import hashlib
-from json import loads
 from django.conf import settings
 from uuid import uuid1
 from django.core.mail import EmailMultiAlternatives
+from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
@@ -124,8 +124,9 @@ def login_view_api(request):
                     login(request, user)
                     pleb = Pleb.nodes.get(email=user.email)
                     pleb.generate_username()
-                    # TODO @Tyler Can't this be refined to a reverse lookup?
-                    profile_page_url = settings.WEB_ADDRESS+'/user/'+pleb.username
+                    rev = reverse('profile_page',
+                                  kwargs={'pleb_email': pleb.email})
+                    profile_page_url = settings.WEB_ADDRESS+rev
                     return Response({'detail': 'success',
                                      'user': user.email,
                                      'url': profile_page_url}, status=200)
@@ -134,7 +135,7 @@ def login_view_api(request):
                                     status=400)
             else:
                 return Response({'detail': 'invalid password'}, status=200)
-    except User.DoesNotExist:
+    except (User.DoesNotExist, Pleb.DoesNotExist):
         logger.exception({'detail': 'cannot find user',
                           'exception': 'User.DoesNotExist'})
         return Response({'detail': 'cannot find user'}, status=200)

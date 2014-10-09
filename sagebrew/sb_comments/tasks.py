@@ -36,15 +36,12 @@ def edit_comment_task(comment_uuid=str(uuid1()), content="",
         return True
 
     elif edit_response['detail'] == 'retry':
-        task_param = {'comment_uuid': comment_uuid,
-                      'content': content,
-                      'last_edited_on': last_edited_on,
-                      'pleb': pleb}
-        spawn_task(task_func=edit_comment_task, task_param=task_param,
-                   countdown=2)
-        return False
+        raise edit_comment_task.retry(exc=Exception, countdown=3,
+                                      max_retries=None)
+
     else:
-        return edit_response['exception']
+        logger.exception({"function": edit_comment_task.__name__,
+                          "exception": "UnhandledException: "})
 
 
 @shared_task()

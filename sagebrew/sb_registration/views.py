@@ -38,7 +38,7 @@ def signup_view(request):
 @api_view(['POST'])
 def signup_view_api(request):
     try:
-        signup_form = SignupForm(loads(request.body))
+        signup_form = SignupForm(request.DATA)
         if signup_form.is_valid():
             if signup_form.cleaned_data['password'] != \
                     signup_form.cleaned_data['password2']:
@@ -114,7 +114,7 @@ def resend_email_verification(request):
 @api_view(['POST'])
 def login_view_api(request):
     try:
-        login_form = LoginForm(loads(request.body))
+        login_form = LoginForm(request.DATA)
         if login_form.is_valid():
             user = User.objects.get(email=login_form.cleaned_data['email'])
             user = authenticate(username=user.username,

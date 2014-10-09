@@ -195,25 +195,6 @@ class TestMultipleTasks(TestCase):
         for item in vote_array:
             self.assertTrue(item)
 
-    def test_create_same_post_twice(self):
-        post_info_dict = {'current_pleb': self.pleb.email,
-                          'wall_pleb': self.pleb.email,
-                          'content': 'test post',
-                          'post_uuid': str(uuid1())}
-
-        response1 = save_post_task.apply_async(kwargs=post_info_dict)
-        while not response1.ready():
-            time.sleep(1)
-        response1 = response1.result
-        self.assertTrue(response1)
-
-        response2 = save_post_task.apply_async(kwargs=post_info_dict)
-        while not response2.ready():
-            time.sleep(1)
-        response2 = response2.ready()
-
-        self.assertFalse(response2)
-
 class TestFlagPostTask(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(

@@ -37,7 +37,7 @@ def create_notification_post_util(post_uuid=str(uuid1()), from_pleb="", to_pleb=
         to_citizen.save()
         return True
     except Pleb.DoesNotExist:
-        return False
+        return None
     except SBPost.DoesNotExist:
         return False
 
@@ -64,6 +64,6 @@ def create_notification_comment_util(from_pleb="", to_pleb="",
         to_citizen.save()
         return True
     except SBComment.DoesNotExist:
-        return False
+        return None
     except Pleb.DoesNotExist:
         return False

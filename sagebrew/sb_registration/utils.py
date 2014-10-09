@@ -2,6 +2,7 @@ import os
 import hashlib
 import json
 import urllib
+from datetime import date
 from django.conf import settings
 from boto import connect_s3
 from boto.s3.key import Key
@@ -29,6 +30,16 @@ def generate_interests_tuple():
 
     return choices_tuple
 
+def calc_age(birthday):
+    '''
+    This function just calculates and returns the age of a person based on
+    given date.
+
+    :param birthday:
+    :return:
+    '''
+    today = date.today()
+    return today.year - birthday.year - ((today.month, today.day) < (birthday.month - birthday.day))
 
 def create_address_long_hash(address):
     if ("address2" in address):

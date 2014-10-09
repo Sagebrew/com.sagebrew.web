@@ -1,15 +1,15 @@
 import shortuuid
 import logging
 import hashlib
-from json import loads
 from django.conf import settings
 from uuid import uuid1
 from django.core.mail import EmailMultiAlternatives
+from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.template.loader import render_to_string, get_template
+from django.template.loader import get_template
 from django.template import Context
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -22,7 +22,7 @@ from .utils import (validate_address, generate_interests_tuple, upload_image,
                     compare_address, generate_address_tuple,
                     create_address_string,
                     create_address_long_hash, verify_completed_registration,
-                    verify_verified_email)
+                    verify_verified_email, calc_age)
 from .models import EmailAuthTokenGenerator
 
 logger = logging.getLogger('loggly_logs')
@@ -38,7 +38,7 @@ def signup_view(request):
 @api_view(['POST'])
 def signup_view_api(request):
     try:
-        signup_form = SignupForm(loads(request.body))
+        signup_form = SignupForm(request.DATA)
         if signup_form.is_valid():
             if signup_form.cleaned_data['password'] != \
                     signup_form.cleaned_data['password2']:
@@ -114,7 +114,7 @@ def resend_email_verification(request):
 @api_view(['POST'])
 def login_view_api(request):
     try:
-        login_form = LoginForm(loads(request.body))
+        login_form = LoginForm(request.DATA)
         if login_form.is_valid():
             user = User.objects.get(email=login_form.cleaned_data['email'])
             user = authenticate(username=user.username,
@@ -124,8 +124,9 @@ def login_view_api(request):
                     login(request, user)
                     pleb = Pleb.nodes.get(email=user.email)
                     pleb.generate_username()
-                    # TODO @Tyler Can't this be refined to a reverse lookup?
-                    profile_page_url = settings.WEB_ADDRESS+'/user/'+pleb.username
+                    rev = reverse('profile_page',
+                                  kwargs={'pleb_email': pleb.email})
+                    profile_page_url = settings.WEB_ADDRESS+rev
                     return Response({'detail': 'success',
                                      'user': user.email,
                                      'url': profile_page_url}, status=200)
@@ -134,7 +135,7 @@ def login_view_api(request):
                                     status=400)
             else:
                 return Response({'detail': 'invalid password'}, status=200)
-    except User.DoesNotExist:
+    except (User.DoesNotExist, Pleb.DoesNotExist):
         logger.exception({'detail': 'cannot find user',
                           'exception': 'User.DoesNotExist'})
         return Response({'detail': 'cannot find user'}, status=200)

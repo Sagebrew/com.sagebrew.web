@@ -76,14 +76,14 @@ def add_auto_tags_util(tag_list):
                 tag.questions.connect(question)
                 tag_array.append(tag)
             except SBQuestion.DoesNotExist:
-                return False
+                return None
             except KeyError:
                 return False
             except IndexError:
                 return False
             except Exception:
                 logger.exception("UnhandledException: ")
-                return False
+                return None
         else:
             return False
 
@@ -126,9 +126,9 @@ def add_tag_util(object_type, object_uuid, tags):
                 tag.save()
             return True
         except SBQuestion.DoesNotExist:
-            return False
+            return None
         except Exception:
             logger.exception("UnhandledException: ")
-            return False
+            return None
     else:
         return False

@@ -50,7 +50,7 @@ class TestSavePost(TestCase):
                          content='test post',
                          current_pleb=self.pleb.email,
                          wall_pleb=self.pleb.email)
-        self.assertEqual(post, None)
+        self.assertFalse(post)
 
     def test_edit_post(self):
         uuid = str(uuid1())

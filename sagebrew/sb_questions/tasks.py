@@ -52,6 +52,11 @@ def create_question_task(content="", current_pleb="", question_title="",
                           'exception': "TypeError: "})
         raise create_question_task.retry(exc=TypeError, countdown=5,
                                          max_retries=None)
+    except SBQuestion.DoesNotExist:
+        logger.exception({"function": create_question_task.__name__,
+                          "exception": "DoesNotExist: "})
+        raise edit_question_task.retry(exc=Exception, countdown=3,
+                                       max_retries=None)
     except Exception:
         logger.exception({'function': create_question_task.__name__,
                           'exception': "UnhandledException: "})
@@ -89,13 +94,20 @@ def edit_question_task(question_uuid="", content="", current_pleb="",
         elif edit_question_return['detail'] == 'last edit more recent':
             return False
 
-    except (SBQuestion.DoesNotExist, Pleb.DoesNotExist):
-        # TODO Shouldn't this be a raise retry?
+    except SBQuestion.DoesNotExist:
+        logger.exception({"function": edit_question_task.__name__,
+                          "exception": "DoesNotExist: "})
+        raise edit_question_task.retry(exc=Exception, countdown=3,
+                                       max_retries=None)
+    except Pleb.DoesNotExist:
+        logger.exception({"function": edit_question_task.__name__,
+                          "exception": "DoesNotExist: "})
         return False
     except Exception:
-        logger.exception("MultipleObjectsReturned: ")
-        # TODO Shouldn't there be a raise retry here?
-        return False
+        logger.exception({"function": edit_question_task.__name__,
+                          "exception": "UnhandledException: "})
+        raise edit_question_task.retry(exc=Exception, countdown=3,
+                                       max_retries=None)
 
 @shared_task()
 def vote_question_task(question_uuid="", current_pleb="", vote_type=""):
@@ -124,12 +136,16 @@ def vote_question_task(question_uuid="", current_pleb="", vote_type=""):
                 downvote_question_util(question_uuid, current_pleb)
                 return True
     except SBQuestion.DoesNotExist:
-        # TODO Shouldn't there be a raise retry here?
-        return False
+        logger.exception({"function": vote_question_task.__name__,
+                          "exception": "DoesNotExist: "})
+        raise edit_question_task.retry(exc=Exception, countdown=3,
+                                       max_retries=None)
     except Pleb.DoesNotExist:
-        # TODO Shouldn't there be a raise retry here?
+        logger.exception({"function": vote_question_task.__name__,
+                          "exception": "DoesNotExist: "})
         return False
     except Exception:
-        # TODO Shouldn't there be a raise retry here?
-        logger.exception("MultipleObjectsReturned: ")
-        return False
+        logger.exception({"function": vote_question_task.__name__,
+                          "exception": "UnhandledException: "})
+        raise edit_question_task.retry(exc=Exception, countdown=3,
+                                       max_retries=None)

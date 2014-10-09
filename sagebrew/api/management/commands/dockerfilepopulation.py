@@ -24,8 +24,6 @@ class Command(BaseCommand):
                 elif(circle_branch == "master"):
                     data = data.replace('{{REQUIREMENTS_FILE}}', "production")
             else:
-                data = data.replace(
-                    '{{DOCKER_ENV}}', os.environ.get("BRANCH", ""))
                 data = data.replace('{{REQUIREMENTS_FILE}}',
                                     os.environ.get(
                                         "REQUIREMENTS_FILE", "production"))
@@ -36,6 +34,7 @@ class Command(BaseCommand):
             docker_env = os.environ.get("CIRCLE_BRANCH", None)
             # TODO Still not picking up the correct repo to pull from github
             # on local instances.
+
             if docker_env is None:
                 docker_env = os.environ.get("DOCKER_ENV", "")
             data = data.replace('{{DOCKER_ENV}}', docker_env)
@@ -43,6 +42,8 @@ class Command(BaseCommand):
                 "APP_USER", ""))
             data = data.replace('{{BOMBERMAN_API_KEY}}', os.environ.get(
                 "BOMBERMAN_API_KEY", ""))
+            data = data.replace('{{NEO4J_REST_URL}}', os.environ.get(
+                "NEO4J_REST_URL", ""))
             data = data.replace("{{PROJECT_NAME}}", "sagebrew")
             data = data.replace("{{LOG_ACCOUNT}}", os.environ.get(
                 "LOG_ACCOUNT", ""))

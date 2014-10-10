@@ -39,11 +39,16 @@ class Command(BaseCommand):
                 settings.REPO_DIR, env), "r") as site_file:
             data = site_file.read()
             domains = ""
-            for item in settings.ALLOWED_HOSTS:
-                domains += domains + "|" + item
-            domains_pipe = domains[1:]
-            domains_space = domains_pipe.replace("|", " ")
-            project_name = settings.PROJECT_DIR[settings.PROJECT_DIR.rfind('/') + 1:]
+            if settings.ALLOWED_HOSTS == ["*"]:
+                domains_pipe = "localhost"
+                domains_space = "localhost"
+            else:
+                for item in settings.ALLOWED_HOSTS:
+                    domains += domains + "|" + item
+                domains_pipe = domains[1:]
+                domains_space = domains_pipe.replace("|", " ")
+            project_name = settings.PROJECT_DIR[
+                           settings.PROJECT_DIR.rfind('/') + 1:]
             data = data.replace("{{PROJECT_NAME}}", project_name)
             data = data.replace("{{PROJECT_PATH}}", settings.PROJECT_DIR)
             data = data.replace("{{PROJECT_DIRECTORY}}", settings.REPO_DIR)

@@ -15,8 +15,8 @@ class Command(BaseCommand):
                 data = dockerfile.read()
                 data = data.replace("{{WEB_WORKER_COUNT}}", worker_count)
                 data = data.replace("{{APP_USER}}", user)
-                data = data.replace("%(ENV_PROJECT_DIR))s",
-                                    settings.PROJECT_DIR)
+                data = data.replace("%(ENV_PROJECT_DIR)s",
+                                     settings.PROJECT_DIR)
                 data = data.replace("%(ENV_PROJECT_NAME)s", "sagebrew")
             f = open("/etc/supervisor/conf.d/sagebrew.conf", "w")
             f.write(data)

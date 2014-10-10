@@ -14,7 +14,6 @@ sagebrew/static/*
 *.pot
 *.pyc
 newrelic.ini
-certs/key.pem
 .DS_Store
 sagebrew/celerybeat.pid
 sagebrew/media/

@@ -14,6 +14,8 @@ RUN rm -r /root/.ssh
 RUN apt-get remove --auto-remove -y openssh-client
 
 RUN pip install -r /home/apps/{{PROJECT_NAME}}/requirements/{{REQUIREMENTS_FILE}}.txt
+RUN pip install git+https://github.com/Supervisor/supervisor.git@03333b854625d5e948d077d1110f1b7f14bd2892 --upgrade
+
 RUN apt-get remove --auto-remove -y git
 ENV NEO4J_REST_URL {{NEO4J_REST_URL}}
 ENV BOMBERMAN_API_KEY {{BOMBERMAN_API_KEY}}
@@ -27,8 +29,9 @@ RUN service rsyslog restart
 
 EXPOSE 80
 EXPOSE 443
+
 RUN chown {{APP_USER}} /etc/supervisor/conf.d/
 RUN python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py populatesupervisor {{SUPER_TEMPLATE}} {{APP_USER}}
 RUN chown root /etc/supervisor/conf.d/
 
-CMD supervisord -c /etc/supervisor/supervisord.conf start all && nginx
+CMD supervisord -c /etc/supervisor/supervisord.conf && nginx

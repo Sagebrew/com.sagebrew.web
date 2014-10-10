@@ -16,6 +16,7 @@ from sb_registration.views import (profile_information, confirm_view,
                                    login_view, login_view_api,
                                    resend_email_verification,
                                    email_verification)
+from sb_registration.models import EmailAuthTokenGenerator
 from plebs.neo_models import Pleb
 
 
@@ -482,5 +483,55 @@ class TestLogoutView(TestCase):
         res = logout_view(request)
 
         self.assertEqual(res.status_code, 302)
+
+class TestEmailVerificationView(TestCase):
+    def setUp(self):
+        self.token_gen = EmailAuthTokenGenerator()
+        self.factory = RequestFactory()
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com',
+            password='testpass')
+        self.pleb = Pleb.nodes.get(email=self.user.email)
+        self.pleb.email_verified = False
+        self.pleb.save()
+
+    def tearDown(self):
+        call_command('clear_neo_db')
+
+    def test_email_verification_view_success(self):
+        user = authenticate(username=self.user.username,
+                            password='testpass')
+        request = self.factory.request()
+        s = SessionStore()
+        s.save()
+        request.session = s
+        login(request, user)
+        request.user = user
+        token = self.token_gen.make_token(user)
+
+        res = email_verification(request, token)
+
+        self.assertEqual(res.status_code, 302)
+
+'''
+    def test_email_verification_view_incorrect_token(self):
+        user = authenticate(username=self.user.username,
+                            password='testpass')
+        request = self.factory.request()
+        s = SessionStore()
+        s.save()
+        request.session = s
+        login(request, user)
+        request.user = user
+        token = self.token_gen.make_token(user)
+
+        res = email_verification(request, 'this is a fake token')
+
+        res.render()
+
+        self.assertEqual(loads(res.content)['detail'], 'failed to authenticate')
+        self.assertEqual(res.status_code, 401)
+'''
+
 
 

@@ -156,7 +156,7 @@ def email_verification(request, confirmation):
             pleb.save()
             return redirect('profile_info')
         else:
-            return redirect('confirm_view')
+            return Response({"detail": "failed to authenticate"}, status=401)
     except Pleb.DoesNotExist:
         logger.exception({'function': email_verification.__name__,
                           'exception': 'DoesNotExist: '})

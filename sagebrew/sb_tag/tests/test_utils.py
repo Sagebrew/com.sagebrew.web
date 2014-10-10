@@ -74,6 +74,22 @@ class TestCreateAutoTagUtil(TestCase):
 
         self.assertTrue(res)
 
+    def test_create_auto_tag_util_success_tag_exists(self):
+        question = SBQuestion(question_id=uuid1())
+        question.save()
+        util_dict = [{'object_type': 'question',
+                      'object_uuid': question.question_id,
+                      'tags': {'relevance': '.9', 'text': 'test'}},
+                     {'object_type': 'question',
+                      'object_uuid': question.question_id,
+                      'tags': {'relevance': '.9', 'text': 'test'}},
+                     {'object_type': 'question',
+                      'object_uuid': question.question_id,
+                      'tags': {'relevance': '.9', 'text': 'test'}}]
+        res = add_auto_tags_util(util_dict)
+
+        self.assertTrue(res)
+
     def test_create_auto_tag_util_object_does_not_exist(self):
         util_dict = [{'object_type': 'question',
                       'object_uuid': uuid1(),

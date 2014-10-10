@@ -4,6 +4,7 @@ from __future__ import absolute_import
 from os import environ, path, makedirs
 from unipath import Path
 from datetime import timedelta
+import multiprocessing
 
 
 PROJECT_DIR = Path(__file__).ancestor(3)
@@ -18,6 +19,7 @@ ADMINS = (
     ('Devon Bleibtrey', 'bleib1dj@gmail.com'),
 )
 
+environ['WEB_WORKER_COUNT'] = str((multiprocessing.cpu_count() *2) + 1)
 environ['HTTPS'] = "on"
 MANAGERS = ADMINS
 

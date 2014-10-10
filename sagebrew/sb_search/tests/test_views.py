@@ -13,7 +13,6 @@ from django.core.urlresolvers import reverse
 
 from elasticsearch import Elasticsearch
 
-from api.tasks import add_object_to_search_index
 from plebs.neo_models import Pleb
 from sb_search.views import search_result_api, search_result_view
 from sb_questions.neo_models import SBQuestion

@@ -125,7 +125,7 @@ class TestPostTaskRaceConditions(TestCase):
         edit_array = []
         post = SBPost(content="test post")
         post.save()
-        
+
         edit_dict = {'content': "post edited",
                      'post_uuid': post.post_id,
                      'current_pleb': self.pleb.email,

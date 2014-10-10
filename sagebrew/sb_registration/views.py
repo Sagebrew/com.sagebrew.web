@@ -1,6 +1,7 @@
 import shortuuid
 import logging
 import hashlib
+import traceback
 from django.conf import settings
 from uuid import uuid1
 from django.core.mail import EmailMultiAlternatives
@@ -22,7 +23,7 @@ from .utils import (validate_address, generate_interests_tuple, upload_image,
                     compare_address, generate_address_tuple,
                     create_address_string,
                     create_address_long_hash, verify_completed_registration,
-                    verify_verified_email, calc_age)
+                    verify_verified_email, calc_age, sb_send_email)
 from .models import EmailAuthTokenGenerator
 
 logger = logging.getLogger('loggly_logs')
@@ -74,9 +75,7 @@ def signup_view_api(request):
                         subject, to = "Sagebrew Email Verification", request.user.email
                         text_content = get_template('email_templates/email_verification.txt').render(Context(template_dict))
                         html_content = get_template('email_templates/email_verification.html').render(Context(template_dict))
-                        msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [to])
-                        msg.attach_alternative(html_content, 'text/html')
-                        msg.send()
+                        sb_send_email(to, subject, text_content, html_content)
                         return Response({'detail': 'success'}, status=200)
                     else:
                         return Response({'detail': 'account disabled'},

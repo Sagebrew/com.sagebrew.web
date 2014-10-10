@@ -19,3 +19,4 @@ def prepare_user_search_html(pleb=""):
     }
     html = render_to_string('sb_search_section/pleb_search.html', pleb_data)
     return html
+

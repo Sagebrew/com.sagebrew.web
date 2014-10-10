@@ -5,6 +5,7 @@ from base64 import b64encode
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.auth import login, logout, authenticate
 from django.test import TestCase, RequestFactory
 from django.contrib.sessions.backends.db import SessionStore
 from django.core.management import call_command
@@ -455,3 +456,31 @@ class TestLoginAPIView(TestCase):
         res = login_view_api(request)
 
         self.assertEqual(res.status_code, 400)
+
+class TestLogoutView(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com',
+            password='testpass')
+        self.pleb = Pleb.nodes.get(email=self.user.email)
+        self.pleb.email_verified = True
+        self.pleb.save()
+
+    def tearDown(self):
+        call_command('clear_neo_db')
+
+    def test_logout_view_success(self):
+        user = authenticate(username=self.user.username,
+                            password='testpass')
+        request = self.factory.request()
+        s = SessionStore()
+        s.save()
+        request.session = s
+        login(request, user)
+        request.user = user
+        res = logout_view(request)
+
+        self.assertEqual(res.status_code, 302)
+
+

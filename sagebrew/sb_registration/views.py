@@ -1,7 +1,6 @@
 import shortuuid
 import logging
 import hashlib
-import traceback
 from django.conf import settings
 from uuid import uuid1
 from django.core.mail import EmailMultiAlternatives
@@ -166,7 +165,6 @@ def email_verification(request, confirmation):
         logger.exception({'function': email_verification.__name__,
                           'exception': 'UnhandledException: '})
         return redirect('confirm_view')
-
 
 @login_required
 @user_passes_test(verify_verified_email,

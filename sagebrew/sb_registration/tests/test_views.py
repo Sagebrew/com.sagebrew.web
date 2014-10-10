@@ -544,6 +544,48 @@ class TestEmailVerificationView(TestCase):
 
         self.assertEqual(res.status_code, 302)
 
+class TestResendEmailVerificationView(TestCase):
+    def setUp(self):
+        self.token_gen = EmailAuthTokenGenerator()
+        self.factory = RequestFactory()
+        self.user = User.objects.create_user(
+            first_name='Tyler', last_name='Wiersing',
+            username='Tyler', email='success@simulator.amazonses.com',
+            password='testpass')
+        self.pleb = Pleb.nodes.get(email=self.user.email)
+        self.pleb.email_verified = False
+        self.pleb.save()
+
+    def tearDown(self):
+        call_command('clear_neo_db')
+
+    def test_resend_email_verification_view_success(self):
+        user = authenticate(username=self.user.username,
+                            password='testpass')
+        request = self.factory.request()
+        s = SessionStore()
+        s.save()
+        request.session = s
+        login(request, user)
+        request.user = user
+
+        res = resend_email_verification(request)
+
+        self.assertEqual(res.status_code, 302)
+
+    def test_resend_email_verification_view_failure_pleb_does_not_exist(self):
+        user = authenticate(username=self.user.username,
+                            password='testpass')
+        request = self.factory.request()
+        s = SessionStore()
+        s.save()
+        request.session = s
+        login(request, user)
+        request.user = user
+        request.user.email = 'totallynotafakeuser@fake.com'
+        res = resend_email_verification(request)
+
+        self.assertEqual(res.status_code, 400)
 
 
 

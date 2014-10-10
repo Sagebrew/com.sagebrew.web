@@ -4,7 +4,7 @@ from api.utils import spawn_task
 from plebs.neo_models import Pleb
 from .neo_models import SBAnswer
 from sb_questions.neo_models import SBQuestion
-from neomodel import CypherException
+from neomodel import CypherException, DoesNotExist
 
 logger = logging.getLogger('loggly_logs')
 

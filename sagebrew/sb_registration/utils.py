@@ -2,6 +2,7 @@ import os
 import hashlib
 import json
 import urllib
+import boto.ses
 from datetime import date
 from django.conf import settings
 from boto import connect_s3
@@ -302,3 +303,16 @@ def verify_verified_email(user):
             return False
     except Pleb.DoesNotExist:
         return False
+
+def sb_send_email(to_email, subject, text_content, html_content):
+    conn = boto.ses.connect_to_region(
+        'us-east-1',
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
+    )
+
+    res = conn.send_email(source='devon@sagebrew.com',
+                          subject=subject,
+                          body=html_content,
+                          to_addresses=[to_email],
+                          format='html')

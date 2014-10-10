@@ -22,7 +22,7 @@ from .utils import (validate_address, generate_interests_tuple, upload_image,
                     compare_address, generate_address_tuple,
                     create_address_string,
                     create_address_long_hash, verify_completed_registration,
-                    verify_verified_email, calc_age)
+                    verify_verified_email, calc_age, sb_send_email)
 from .models import EmailAuthTokenGenerator
 
 logger = logging.getLogger('loggly_logs')
@@ -74,9 +74,7 @@ def signup_view_api(request):
                         subject, to = "Sagebrew Email Verification", request.user.email
                         text_content = get_template('email_templates/email_verification.txt').render(Context(template_dict))
                         html_content = get_template('email_templates/email_verification.html').render(Context(template_dict))
-                        msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [to])
-                        msg.attach_alternative(html_content, 'text/html')
-                        msg.send()
+                        sb_send_email(to, subject, text_content, html_content)
                         return Response({'detail': 'success'}, status=200)
                     else:
                         return Response({'detail': 'account disabled'},
@@ -95,6 +93,7 @@ def login_view(request):
 @login_required()
 def resend_email_verification(request):
     try:
+        pleb = Pleb.nodes.get(email=request.user.email)
         template_dict = {
             'full_name': request.user.first_name+' '+request.user.last_name,
             'verification_url': settings.EMAIL_VERIFICATION_URL+token_gen.make_token(request.user)+'/'
@@ -102,9 +101,7 @@ def resend_email_verification(request):
         subject, to = "Sagebrew Email Verification", request.user.email
         text_content = get_template('email_templates/email_verification.txt').render(Context(template_dict))
         html_content = get_template('email_templates/email_verification.html').render(Context(template_dict))
-        msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [to])
-        msg.attach_alternative(html_content, 'text/html')
-        msg.send()
+        sb_send_email(to, subject, text_content, html_content)
         return redirect("confirm_view")
     except Pleb.DoesNotExist:
         logger.exception({'function': resend_email_verification.__name__,
@@ -134,11 +131,11 @@ def login_view_api(request):
                     return Response({'detail': 'account disabled'},
                                     status=400)
             else:
-                return Response({'detail': 'invalid password'}, status=200)
+                return Response({'detail': 'invalid password'}, status=400)
     except (User.DoesNotExist, Pleb.DoesNotExist):
-        logger.exception({'detail': 'cannot find user',
+        logger.exception({'function': login_view_api.__name__,
                           'exception': 'User.DoesNotExist'})
-        return Response({'detail': 'cannot find user'}, status=200)
+        return Response({'detail': 'cannot find user'}, status=400)
     except Exception:
         logger.exception({'function': login_view_api.__name__,
                           'exception': 'UnhandledException: '})
@@ -158,16 +155,13 @@ def email_verification(request, confirmation):
             pleb.save()
             return redirect('profile_info')
         else:
-            return redirect('confirm_view')
+            return Response({"detail": "failed to authenticate"}, status=401)
     except Pleb.DoesNotExist:
-        logger.exception({'function': email_verification.__name__,
-                          'exception': 'DoesNotExist: '})
         return redirect('logout')
     except Exception:
         logger.exception({'function': email_verification.__name__,
                           'exception': 'UnhandledException: '})
         return redirect('confirm_view')
-
 
 @login_required
 @user_passes_test(verify_verified_email,

@@ -115,7 +115,9 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
             post = SBPost.nodes.get(post_id=object_uuid)
         if object_type == 'answer':
             answer = SBAnswer.nodes.get(answer_id = object_uuid)
-    except Exception, e:
+    except TypeError:
+        return False
+    except Exception:
         logger.critical(dumps({"exception": "Unhandled Exception",
                                "function":
                                    update_weight_relationship.__name__}))

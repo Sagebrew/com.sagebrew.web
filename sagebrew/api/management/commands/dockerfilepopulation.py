@@ -46,6 +46,10 @@ class Command(BaseCommand):
             if neo4j_db is None:
                 neo4j_db = os.environ.get("NEO4J_REST_URL", "")
             data = data.replace('{{NEO4J_REST_URL}}', neo4j_db)
+            data = data.replace('{{SSL_CERT_LOCATION}}', os.environ.get(
+                "SSL_CERT_LOCATION", ""))
+            data = data.replace('{{SSL_KEY_LOCATION}}', os.environ.get(
+                "SSL_KEY_LOCATION", ""))
             data = data.replace("{{PROJECT_NAME}}", "sagebrew")
             data = data.replace("{{LOG_ACCOUNT}}", os.environ.get(
                 "LOG_ACCOUNT", ""))

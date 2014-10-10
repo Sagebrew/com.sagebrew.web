@@ -16,7 +16,7 @@ RUN apt-get remove --auto-remove -y openssh-client
 RUN pip install -r /home/apps/{{PROJECT_NAME}}/requirements/{{REQUIREMENTS_FILE}}.txt
 
 RUN apt-get remove --auto-remove -y git
-
+ENV NEO4J_REST_URL {{NEO4J_REST_URL}}
 ENV BOMBERMAN_API_KEY {{BOMBERMAN_API_KEY}}
 RUN chown {{APP_USER}} /etc/rsyslog.d/
 RUN python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py logglypopulation {{LOG_ACCOUNT}} {{LOG_TOKEN}}

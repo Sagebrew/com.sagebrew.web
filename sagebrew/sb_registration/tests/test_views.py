@@ -513,7 +513,6 @@ class TestEmailVerificationView(TestCase):
 
         self.assertEqual(res.status_code, 302)
 
-'''
     def test_email_verification_view_incorrect_token(self):
         user = authenticate(username=self.user.username,
                             password='testpass')
@@ -527,11 +526,7 @@ class TestEmailVerificationView(TestCase):
 
         res = email_verification(request, 'this is a fake token')
 
-        res.render()
-
-        self.assertEqual(loads(res.content)['detail'], 'failed to authenticate')
         self.assertEqual(res.status_code, 401)
-'''
 
 
 

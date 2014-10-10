@@ -1,6 +1,7 @@
 import logging
 from django.conf import settings
-from elasticsearch import Elasticsearch, helpers
+from elasticsearch import Elasticsearch
+from neomodel.exception import UniqueProperty, DoesNotExist
 
 from .neo_models import SBAutoTag, SBTag
 from sb_questions.neo_models import SBQuestion
@@ -66,23 +67,33 @@ def add_auto_tags_util(tag_list):
                 tag.questions.connect(question)
                 tag_array.append(tag)
             except SBAutoTag.DoesNotExist:
-                question =SBQuestion.nodes.get(question_id=tag['object_uuid'])
-                relevance = tag['tags']['relevance']
-                tag = SBAutoTag(tag_name=tag['tags']['text'])
-                tag.save()
-                rel = question.auto_tags.connect(tag)
-                rel.relevance = relevance
-                rel.save()
-                tag.questions.connect(question)
-                tag_array.append(tag)
+                try:
+                    question =SBQuestion.nodes.get(question_id=tag['object_uuid'])
+                    relevance = tag['tags']['relevance']
+                    tag = SBAutoTag(tag_name=tag['tags']['text'])
+                    tag.save()
+                    rel = question.auto_tags.connect(tag)
+                    rel.relevance = relevance
+                    rel.save()
+                    tag.questions.connect(question)
+                    tag_array.append(tag)
+                except UniqueProperty:
+                    logger.exception({'function': add_auto_tags_util.__name__,
+                                  'exception': "UniqueProperty: "})
+                    return None
+
             except SBQuestion.DoesNotExist:
                 return None
+
             except KeyError:
                 return False
+
             except IndexError:
                 return False
+
             except Exception:
-                logger.exception("UnhandledException: ")
+                logger.exception({'function': add_auto_tags_util.__name__,
+                                  'exception': "UnhandledException: "})
                 return None
         else:
             return False

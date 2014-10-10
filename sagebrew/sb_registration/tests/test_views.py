@@ -185,7 +185,6 @@ class TestSignupAPIView(TestCase):
     def setUp(self):
         self.store = SessionStore()
         self.factory = APIRequestFactory()
-        self.client = APIClient()
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
         self.pleb = Pleb.nodes.get(email=self.user.email)
@@ -306,3 +305,153 @@ class TestSignupAPIView(TestCase):
 
         self.assertEqual(res.status_code, 400)
 
+class TestLoginView(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.pleb = Pleb.nodes.get(email=self.user.email)
+        self.pleb.email_verified = True
+        self.pleb.save()
+
+    def tearDown(self):
+        call_command('clear_neo_db')
+
+    def test_login_view_success(self):
+        request = self.factory.request()
+        res = login_view(request)
+
+        self.assertEqual(res.status_code, 200)
+
+class TestLoginAPIView(TestCase):
+    def setUp(self):
+        self.store = SessionStore()
+        self.factory = APIRequestFactory()
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com',
+            password='testpass')
+        self.pleb = Pleb.nodes.get(email=self.user.email)
+        self.pleb.email_verified = True
+        self.pleb.save()
+
+    def tearDown(self):
+        call_command('clear_neo_db')
+
+    def test_login_api_view_success(self):
+        login_data = {
+            'email': self.user.email,
+            'password': 'testpass'
+        }
+
+        request = self.factory.post('/registration/login/api/', data=login_data,
+                                    format='json')
+        s=SessionStore()
+        s.save()
+        request.session = s
+
+        res = login_view_api(request)
+
+        res.render()
+
+        self.assertEqual(loads(res.content)['detail'], 'success')
+        self.assertEqual(res.status_code, 200)
+
+    def test_login_api_view_inactive_user(self):
+        login_data = {
+            'email': self.user.email,
+            'password': 'testpass'
+        }
+        self.user.is_active = False
+        self.user.save()
+        request = self.factory.post('/registration/login/api/', data=login_data,
+                                    format='json')
+        s=SessionStore()
+        s.save()
+        request.session = s
+
+        res = login_view_api(request)
+
+        res.render()
+
+        self.assertEqual(loads(res.content)['detail'], 'account disabled')
+        self.assertEqual(res.status_code, 400)
+
+    def test_login_api_view_invalid_password(self):
+        login_data = {
+            'email': self.user.email,
+            'password': 'incorrect password'
+        }
+        request = self.factory.post('/registration/login/api/', data=login_data,
+                                    format='json')
+        s=SessionStore()
+        s.save()
+        request.session = s
+
+        res = login_view_api(request)
+
+        res.render()
+
+        self.assertEqual(loads(res.content)['detail'], 'invalid password')
+        self.assertEqual(res.status_code, 400)
+
+    def test_login_api_view_user_does_not_exist(self):
+        login_data = {
+            'email': 'reallydoesntexist@fake.com',
+            'password': 'incorrect password'
+        }
+        request = self.factory.post('/registration/login/api/', data=login_data,
+                                    format='json')
+        s=SessionStore()
+        s.save()
+        request.session = s
+
+        res = login_view_api(request)
+
+        res.render()
+
+        self.assertEqual(loads(res.content)['detail'], 'cannot find user')
+        self.assertEqual(res.status_code, 400)
+
+    def test_login_api_view_incorrect_data_int(self):
+        request = self.factory.post('/registration/login/api/', data=1231,
+                                    format='json')
+        s=SessionStore()
+        s.save()
+        request.session = s
+
+        res = login_view_api(request)
+
+        self.assertEqual(res.status_code, 400)
+
+    def test_login_api_view_incorrect_data_string(self):
+        request = self.factory.post('/registration/login/api/', data='teststring',
+                                    format='json')
+        s=SessionStore()
+        s.save()
+        request.session = s
+
+        res = login_view_api(request)
+
+        self.assertEqual(res.status_code, 400)
+
+    def test_login_api_view_incorrect_data_float(self):
+        request = self.factory.post('/registration/login/api/', data=1.1234,
+                                    format='json')
+        s=SessionStore()
+        s.save()
+        request.session = s
+
+        res = login_view_api(request)
+
+        self.assertEqual(res.status_code, 400)
+
+    def test_login_api_view_incorrect_data_image(self):
+        request = self.factory.post('/registration/login/api/', data=1231,
+                                    format='json')
+        s=SessionStore()
+        s.save()
+        request.session = s
+
+        res = login_view_api(request)
+
+        self.assertEqual(res.status_code, 400)

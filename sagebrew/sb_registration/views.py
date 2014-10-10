@@ -133,11 +133,11 @@ def login_view_api(request):
                     return Response({'detail': 'account disabled'},
                                     status=400)
             else:
-                return Response({'detail': 'invalid password'}, status=200)
+                return Response({'detail': 'invalid password'}, status=400)
     except (User.DoesNotExist, Pleb.DoesNotExist):
-        logger.exception({'detail': 'cannot find user',
+        logger.exception({'function': login_view_api.__name__,
                           'exception': 'User.DoesNotExist'})
-        return Response({'detail': 'cannot find user'}, status=200)
+        return Response({'detail': 'cannot find user'}, status=400)
     except Exception:
         logger.exception({'function': login_view_api.__name__,
                           'exception': 'UnhandledException: '})

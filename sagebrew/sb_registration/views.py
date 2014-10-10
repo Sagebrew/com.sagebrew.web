@@ -100,9 +100,7 @@ def resend_email_verification(request):
         subject, to = "Sagebrew Email Verification", request.user.email
         text_content = get_template('email_templates/email_verification.txt').render(Context(template_dict))
         html_content = get_template('email_templates/email_verification.html').render(Context(template_dict))
-        msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [to])
-        msg.attach_alternative(html_content, 'text/html')
-        msg.send()
+        sb_send_email(to, subject, text_content, html_content)
         return redirect("confirm_view")
     except Pleb.DoesNotExist:
         logger.exception({'function': resend_email_verification.__name__,
@@ -158,8 +156,6 @@ def email_verification(request, confirmation):
         else:
             return Response({"detail": "failed to authenticate"}, status=401)
     except Pleb.DoesNotExist:
-        logger.exception({'function': email_verification.__name__,
-                          'exception': 'DoesNotExist: '})
         return redirect('logout')
     except Exception:
         logger.exception({'function': email_verification.__name__,

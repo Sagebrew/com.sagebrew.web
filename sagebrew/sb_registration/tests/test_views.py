@@ -528,5 +528,22 @@ class TestEmailVerificationView(TestCase):
 
         self.assertEqual(res.status_code, 401)
 
+    def test_email_verification_view_pleb_does_not_exist(self):
+        user = authenticate(username=self.user.username,
+                            password='testpass')
+        request = self.factory.request()
+        s = SessionStore()
+        s.save()
+        request.session = s
+        login(request, user)
+        request.user = user
+        request.user.email = "totallynotafakeuser@fake.com"
+        token = self.token_gen.make_token(user)
+
+        res = email_verification(request, token)
+
+        self.assertEqual(res.status_code, 302)
+
+
 
 

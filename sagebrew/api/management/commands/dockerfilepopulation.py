@@ -42,8 +42,6 @@ class Command(BaseCommand):
                 "APP_USER", ""))
             data = data.replace('{{BOMBERMAN_API_KEY}}', os.environ.get(
                 "BOMBERMAN_API_KEY", ""))
-            data = data.replace('{{NEO4J_REST_URL}}', os.environ.get(
-                "NEO4J_REST_URL", ""))
             data = data.replace("{{PROJECT_NAME}}", "sagebrew")
             data = data.replace("{{LOG_ACCOUNT}}", os.environ.get(
                 "LOG_ACCOUNT", ""))

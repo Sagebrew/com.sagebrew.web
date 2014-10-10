@@ -11,8 +11,8 @@ server {
     ssl_protocols        SSLv3 TLSv1 TLSv1.1 TLSv1.2;
     ssl_ciphers          HIGH:!aNULL:!MD5;
 	
-	access_log /home/apps/logs/{{PROJECT_PATH}}_nginx.access.log;
-	error_log /home/apps/logs/{{PROJECT_PATH}}_nginx.error.log;
+	access_log /home/apps/logs/{{PROJECT_NAME}}_nginx.access.log;
+	error_log /home/apps/logs/{{PROJECT_NAME}}_nginx.error.log;
 	
     client_max_body_size 4G;
     server_name {{DOMAINS_SPACE}};

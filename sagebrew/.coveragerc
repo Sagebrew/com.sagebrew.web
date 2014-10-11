@@ -6,7 +6,6 @@ omit =
     *__init__.py*
     */settings/*
     *wsgi.py*
-    *admin.py*
 
 [report]
 # Regexes for lines to exclude from consideration

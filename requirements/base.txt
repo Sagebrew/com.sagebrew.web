@@ -35,3 +35,4 @@ neomodel
 shortuuid
 gunicorn
 coverage
+coveralls-python

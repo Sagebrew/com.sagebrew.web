@@ -8,19 +8,11 @@ from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
 from plebs.views import profile_page
 
-#TODO checkout the 302 vs 200 response codes from circleci
 
 class ProfilePageTest(TestCase):
     fixtures = ["sagebrew/fixtures/initial_data.json"]
     def setUp(self):
-        self.email = 'devon@sagebrew.com'
-        try:
-            pleb = Pleb.nodes.get(email=self.email)
-            wall = pleb.wall.all()[0]
-            wall.delete()
-            pleb.delete()
-        except Pleb.DoesNotExist:
-            pass
+        self.email = str(uuid1())+"@gmail.com"
 
         self.factory = APIRequestFactory()
         self.user = User.objects.create_user(

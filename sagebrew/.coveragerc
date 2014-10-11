@@ -3,6 +3,8 @@ branch = True
 omit =
     */tests*
     */migrations/*
+    *__init__.py*
+    */settings/*
 
 [report]
 # Regexes for lines to exclude from consideration

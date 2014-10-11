@@ -29,10 +29,11 @@ test:
   post:
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
     - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg
-    - docker build --no-cache=$CLEAR_CACHE -t sb_worker ~/com.sagebrew.web/dockerfiles/worker/
-    - docker build --no-cache=$CLEAR_CACHE -t sb_web ~/com.sagebrew.web/dockerfiles/web_app/
+    - docker build --no-cache=$CLEAR_CACHE -t sagebrew/sb_worker:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/worker/
+    - docker build --no-cache=$CLEAR_CACHE -t sagebrew/sb_web:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/web_app/
     - docker run -h box-worker -e NEO4J_REST_URL=$GRAPHEN_NEO4J_REST_URL -e APP_USER=$APP_USER -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME -e LOG_ACCOUNT=$LOG_ACCOUNT -e LOG_TOKEN=$LOG_TOKEN sb_worker
-    - docker run -h box-webapp -e NEO4J_REST_URL=$GRAPHEN_NEO4J_REST_URL -e APP_USER=$APP_USER -e PROJECT_PATH=$PROJECT_PATH -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME -e LOG_ACCOUNT=$LOG_ACCOUNT -e LOG_TOKEN=$LOG_TOKEN sb_web
+    - docker run -h box-webapp -p 3000:80 -e NEO4J_REST_URL=$GRAPHEN_NEO4J_REST_URL -e APP_USER=$APP_USER -e PROJECT_PATH=$PROJECT_PATH -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME -e LOG_ACCOUNT=$LOG_ACCOUNT -e LOG_TOKEN=$LOG_TOKEN sb_web
+    - curl --retry 10 --retry-delay 5 -v http://localhost:3000
 
 checkout:
   post:

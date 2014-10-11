@@ -21,7 +21,7 @@ ADMINS = (
 worker_count = (multiprocessing.cpu_count() *2) + 1
 if worker_count > 12:
     worker_count = 12
-environ['WEB_WORKER_COUNT'] = worker_count
+environ['WEB_WORKER_COUNT'] = str(worker_count)
 environ['HTTPS'] = "on"
 MANAGERS = ADMINS
 

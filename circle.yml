@@ -44,6 +44,17 @@ checkout:
     - git submodule sync
     - git submodule update --init
 
+deployment:
+#  production:
+#    branch: master
+  staging:
+    branch: staging
+    commands:
+      - git checkout master
+      - git merge staging
+      - git push
+      - git checkout staging
+
 general:
   build_dir: sagebrew
 

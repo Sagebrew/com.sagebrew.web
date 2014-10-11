@@ -1,31 +1,31 @@
-upstream [[project_name]] {
-    server unix:[[project_path]]/run/gunicorn.sock
+upstream {{PROJECT_NAME}} {
+    server unix:{{PROJECT_PATH}}/run/gunicorn.sock
 	fail_timeout=0;
 }
 
 server {
 	listen 443 ssl;
 	ssl on;
-    ssl_certificate [[project_dir]]/certs/cert.pem;
-    ssl_certificate_key [[project_dir]]/certs/key.pem;
+    ssl_certificate {{PROJECT_DIRECTORY}}/certs/cert.pem;
+    ssl_certificate_key {{PROJECT_DIRECTORY}}/certs/key.pem;
     ssl_protocols        SSLv3 TLSv1 TLSv1.1 TLSv1.2;
     ssl_ciphers          HIGH:!aNULL:!MD5;
 	
-	access_log /tmp/[[project_name]]nginx.access.log;
-	error_log /tmp/[[project_name]]nginx.error.log;
+	access_log /home/apps/logs/{{PROJECT_NAME}}nginx.access.log;
+	error_log /home/apps/logs/{{PROJECT_NAME}}nginx.error.log;
 	
     client_max_body_size 4G;
-    server_name [[server_name]];
+    server_name {{DOMAINS_SPACE}};
     keepalive_timeout 5;
 
     location /static {
 	    autoindex on;
-        alias [[project_path]]/static/;
+        alias {{PROJECT_PATH}}/static/;
     }
 
     location /media {
 	    autoindex on;
-        alias [[project_path]]/media/;
+        alias {{PROJECT_PATH}}/media/;
     }
 	
     location / {
@@ -45,7 +45,7 @@ server {
 	
     error_page 500 502 503 504 /500.html;
     location = /500.html {
-        root [[project_path]]/static/;
+        root {{PROJECT_PATH}}/static/;
     }
 }
 

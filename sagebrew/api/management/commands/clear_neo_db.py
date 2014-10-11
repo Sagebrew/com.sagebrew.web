@@ -7,11 +7,17 @@ class Command(BaseCommand):
 
     def clear_neo_db(self):
         try:
-            res = db.cypher_query("START n=node(*) OPTIONAL MATCH n-[r]-() DELETE r,n")
+            res = db.cypher_query(
+                "START n=node(*) OPTIONAL MATCH n-[r]-() DELETE r,n")
         except CypherException:
-            res = db.cypher_query("START n=node(*) OPTIONAL MATCH n-[r]-() DELETE r,n")
-            while type(res) != tuple:
-                res = db.cypher_query("START n=node(*) OPTIONAL MATCH n-[r]-() DELETE r,n")
+            try:
+                res = db.cypher_query(
+                    "START n=node(*) OPTIONAL MATCH n-[r]-() DELETE r,n")
+                while type(res) != tuple:
+                    res = db.cypher_query(
+                        "START n=node(*) OPTIONAL MATCH n-[r]-() DELETE r,n")
+            except CypherException:
+                pass
 
     def handle(self, *args, **options):
         self.clear_neo_db()

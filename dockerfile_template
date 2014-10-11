@@ -1,4 +1,4 @@
-FROM {{PROJECT_NAME}}/django.web.primary.base:v10
+FROM {{PROJECT_NAME}}/django.web.primary.base:v11
 
 MAINTAINER Devon Bleibtrey <devon@sagebrew.com>
 
@@ -14,20 +14,25 @@ RUN rm -r /root/.ssh
 RUN apt-get remove --auto-remove -y openssh-client
 
 RUN pip install -r /home/apps/{{PROJECT_NAME}}/requirements/{{REQUIREMENTS_FILE}}.txt
-RUN pip install git+https://github.com/robinedwards/neomodel.git@0.3.6
-RUN apt-get remove --auto-remove -y git
 
+RUN apt-get remove --auto-remove -y git
+ENV NEO4J_REST_URL {{NEO4J_REST_URL}}
 ENV BOMBERMAN_API_KEY {{BOMBERMAN_API_KEY}}
+ENV SSL_CERT_LOCATION {{SSL_CERT_LOCATION}}
+ENV SSL_KEY_LOCATION {{SSL_KEY_LOCATION}}
 RUN chown {{APP_USER}} /etc/rsyslog.d/
 RUN python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py logglypopulation {{LOG_ACCOUNT}} {{LOG_TOKEN}}
+RUN chown {{APP_USER}} /etc/nginx/
 RUN python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py populatenginx {{APP_USER}}
 RUN chown root /etc/rsyslog.d/
+RUN chown root /etc/nginx/
 RUN service rsyslog restart
 
 EXPOSE 80
 EXPOSE 443
+
 RUN chown {{APP_USER}} /etc/supervisor/conf.d/
 RUN python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py populatesupervisor {{SUPER_TEMPLATE}} {{APP_USER}}
 RUN chown root /etc/supervisor/conf.d/
 
-CMD supervisord -c /etc/supervisor/supervisord.conf start all && nginx
+CMD supervisord -c /etc/supervisor/supervisord.conf && nginx

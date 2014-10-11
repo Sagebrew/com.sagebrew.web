@@ -57,8 +57,11 @@ def add_auto_tags_util(tag_list):
     for tag in tag_list:
         if tag['object_type'] == 'question':
             try:
-                question = SBQuestion.nodes.get(question_id=
-                                                tag['object_uuid'])
+                try:
+                    question = SBQuestion.nodes.get(question_id=
+                                                    tag['object_uuid'])
+                except (SBQuestion.DoesNotExist, DoesNotExist):
+                    return None
                 relevance = tag['tags']['relevance']
                 tag = SBAutoTag.nodes.get(tag_name=tag['tags']['text'])
                 rel = question.auto_tags.connect(tag)
@@ -66,7 +69,7 @@ def add_auto_tags_util(tag_list):
                 rel.save()
                 tag.questions.connect(question)
                 tag_array.append(tag)
-            except SBAutoTag.DoesNotExist:
+            except (SBAutoTag.DoesNotExist, DoesNotExist):
                 try:
                     question =SBQuestion.nodes.get(question_id=tag['object_uuid'])
                     relevance = tag['tags']['relevance']
@@ -81,9 +84,6 @@ def add_auto_tags_util(tag_list):
                     logger.exception({'function': add_auto_tags_util.__name__,
                                   'exception': "UniqueProperty: "})
                     return None
-
-            except SBQuestion.DoesNotExist:
-                return None
 
             except KeyError:
                 return False
@@ -121,7 +121,7 @@ def add_tag_util(object_type, object_uuid, tags):
         try:
             tag_object = SBTag.nodes.get(tag_name=tag)
             tag_array.append(tag_object)
-        except SBTag.DoesNotExist:
+        except (SBTag.DoesNotExist, DoesNotExist):
             es.index(index='tags', doc_type='tag',
                      body={'tag_name': tag})
             tag_object = SBTag(tag_name=tag).save()
@@ -129,15 +129,17 @@ def add_tag_util(object_type, object_uuid, tags):
 
     if object_type == 'question':
         try:
-            question = SBQuestion.nodes.get(question_id=object_uuid)
+            try:
+                question = SBQuestion.nodes.get(question_id=object_uuid)
+            except (SBQuestion.DoesNotExist, DoesNotExist):
+                return None
             for tag in tag_array:
                 question.tags.connect(tag)
                 tag.questions.connect(question)
                 tag.tag_used += 1
                 tag.save()
             return True
-        except SBQuestion.DoesNotExist:
-            return None
+
         except Exception:
             logger.exception("UnhandledException: ")
             return None

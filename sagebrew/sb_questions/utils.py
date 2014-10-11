@@ -2,6 +2,7 @@ import logging
 from uuid import uuid1
 from textblob import TextBlob
 
+from neomodel import DoesNotExist
 from django.conf import settings
 from django.template.loader import render_to_string
 
@@ -28,7 +29,11 @@ def create_question_util(content="", current_pleb="", question_title="",
     try:
         if content == "" or question_title == "":
             return None
-        poster = Pleb.nodes.get(email=current_pleb)
+        try:
+            poster = Pleb.nodes.get(email=current_pleb)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            return None
+
         content_blob = TextBlob(content)
         title_blob = TextBlob(question_title)
         my_question = SBQuestion(content=content, question_title=question_title,
@@ -61,12 +66,9 @@ def create_question_util(content="", current_pleb="", question_title="",
         tag_list = {'tag_list': task_data}
         spawn_task(task_func=add_auto_tags, task_param=tag_list)
         return my_question
-    except SBQuestion.DoesNotExist:
-        return None
-    except Pleb.DoesNotExist:
-        return None
-    except Exception as exc:
-        logger.exception("UnhandledException: ")
+    except Exception:
+        logger.exception({"function": create_question_util.__name__,
+                          'exception': "UnhandledException: "})
         return False
 
 def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
@@ -173,7 +175,7 @@ def get_question_by_uuid(question_uuid=str(uuid1()), current_pleb=""):
         response = prepare_get_question_dictionary(question, sort_by='uuid',
                                                    current_pleb=current_pleb)
         return response
-    except SBQuestion.DoesNotExist:
+    except (SBQuestion.DoesNotExist, DoesNotExist):
         return {"detail": "There are no questions with that ID"}
     except Exception:
         logger.exception("UnhandledException: ")
@@ -247,21 +249,22 @@ def upvote_question_util(question_uuid="", current_pleb=""):
     '''
     from sb_questions.tasks import vote_question_task
     try:
-        pleb = Pleb.nodes.get(email=current_pleb)
-        my_question = SBQuestion.nodes.get(question_id=question_uuid)
+        try:
+            pleb = Pleb.nodes.get(email=current_pleb)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            return None
+        try:
+            my_question = SBQuestion.nodes.get(question_id=question_uuid)
+        except (SBQuestion.DoesNotExist, DoesNotExist):
+            return False
+
         my_question.up_vote_number += 1
         my_question.up_voted_by.connect(pleb)
         my_question.save()
         return True
-    except SBQuestion.DoesNotExist:
-        data = {'question_uuid': question_uuid, 'current_pleb': current_pleb,
-                'vote_type': 'up'}
-        spawn_task(task_func=vote_question_task, task_param=data, countdown=1)
-        return False
-    except Pleb.DoesNotExist:
-        return False
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception({"function": upvote_question_util.__name__,
+                          "exception:":"UnhandledException: "})
         return False
 
 def downvote_question_util(question_uuid="", current_pleb=""):
@@ -275,21 +278,21 @@ def downvote_question_util(question_uuid="", current_pleb=""):
     '''
     from sb_questions.tasks import vote_question_task
     try:
-        pleb = Pleb.nodes.get(email=current_pleb)
-        my_question = SBQuestion.nodes.get(question_id=question_uuid)
+        try:
+            pleb = Pleb.nodes.get(email=current_pleb)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            return None
+        try:
+            my_question = SBQuestion.nodes.get(question_id=question_uuid)
+        except (SBQuestion.DoesNotExist, DoesNotExist):
+            return False
         my_question.down_vote_number += 1
         my_question.down_voted_by.connect(pleb)
         my_question.save()
         return True
-    except SBQuestion.DoesNotExist:
-        data = {'question_uuid': question_uuid, 'current_pleb': current_pleb,
-                'vote_type': 'down'}
-        spawn_task(task_func=vote_question_task, task_param=data, countdown=1)
-        return False
-    except Pleb.DoesNotExist:
-        return False
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception({"function": downvote_question_util.__name__,
+                          "exception": "UnhandledException: "})
         return False
 
 def edit_question_util(question_uuid="", content="", last_edited_on="",
@@ -308,7 +311,10 @@ def edit_question_util(question_uuid="", content="", last_edited_on="",
     :return:
     '''
     try:
-        my_question = SBQuestion.nodes.get(question_id=question_uuid)
+        try:
+            my_question = SBQuestion.nodes.get(question_id=question_uuid)
+        except (SBQuestion.DoesNotExist, DoesNotExist):
+            return False
         if my_question.to_be_deleted:
             return {'question': my_question, 'detail': 'to be deleted'}
 
@@ -321,22 +327,25 @@ def edit_question_util(question_uuid="", content="", last_edited_on="",
         try:
             if my_question.last_edited_on > last_edited_on:
                 return{'question': my_question, 'detail': 'last edit more recent'}
-        except:
-            pass
+        except Exception:
+            logger.exception({"function": edit_question_util.__name__,
+                              "exception": "UnhandledException: "})
 
         my_question.content = content
         my_question.last_edited_on = last_edited_on
         my_question.save()
         return True
-    except SBQuestion.DoesNotExist:
-        return False
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception({"function": edit_question_util.__name__,
+                          "exception": "UnhandledException: "})
         return False
 
 def prepare_question_search_html(question_uuid):
     try:
-        my_question = SBQuestion.nodes.get(question_id=question_uuid)
+        try:
+            my_question = SBQuestion.nodes.get(question_id=question_uuid)
+        except (SBQuestion.DoesNotExist, DoesNotExist):
+            return False
         owner = my_question.owned_by.all()
         owner = owner[0]
         owner_name = owner.first_name + ' ' + owner.last_name
@@ -359,8 +368,8 @@ def prepare_question_search_html(question_uuid):
         logger.exception({"function": prepare_question_search_html.__name__,
                           "exception": "IndexError"})
         return False
-    except SBQuestion.DoesNotExist:
-        return False
+
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception({"function": prepare_question_search_html.__name__,
+                          "exception": "UnhandledException: "})
         return False

@@ -2,6 +2,8 @@ from uuid import uuid1
 from celery import shared_task
 from logging import getLogger
 
+from neomodel import DoesNotExist
+
 from sb_notifications.tasks import create_notification_post_task
 from api.utils import spawn_task
 from .neo_models import SBPost
@@ -39,17 +41,23 @@ def create_upvote_post(post_uuid=str(uuid1()), pleb=""):
     :return:
     '''
     try:
-        my_post = SBPost.nodes.get(post_id=post_uuid)
-        my_pleb = Pleb.nodes.get(email=pleb)
+        try:
+            my_post = SBPost.nodes.get(post_id=post_uuid)
+        except (SBPost.DoesNotExist, DoesNotExist):
+            raise create_upvote_post.retry(exc=Exception, countdown=3,
+                                       max_retries=None)
+
+        try:
+            my_pleb = Pleb.nodes.get(email=pleb)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            return False
         my_post.up_vote_number += 1
         my_post.up_voted_by.connect(my_pleb)
         my_post.save()
         return True
-    except SBPost.DoesNotExist:
+    except Exception:
         logger.exception({"function": create_upvote_post.__name__,
                           "exception": "UnhandledException: "})
-        raise create_upvote_post.retry(exc=Exception, countdown=3,
-                                       max_retries=None)
 
 @shared_task()
 def create_downvote_post(post_uuid=str(uuid1()), pleb=""):
@@ -64,17 +72,23 @@ def create_downvote_post(post_uuid=str(uuid1()), pleb=""):
     :return:
     '''
     try:
-        my_post = SBPost.nodes.get(post_id=post_uuid)
-        my_pleb = Pleb.nodes.get(email=pleb)
+        try:
+            my_post = SBPost.nodes.get(post_id=post_uuid)
+        except (SBPost.DoesNotExist, DoesNotExist):
+            raise create_downvote_post.retry(exc=Exception, countdown=3,
+                                         max_retries=None)
+        try:
+            my_pleb = Pleb.nodes.get(email=pleb)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            return False
         my_post.down_vote_number += 1
         my_post.down_voted_by.connect(my_pleb)
         my_post.save()
         return True
-    except SBPost.DoesNotExist:
-        logger.exception({"function": create_downvote_post.__name__,
-                          "exception": "SBPost.DoesNotExist"})
-        raise create_downvote_post.retry(exc=Exception, countdown=3,
-                                         max_retries=None)
+    except Exception:
+        logger.exception({'function': create_downvote_post.__name__,
+                          'exception': 'UnhandledException: '})
+
 
 
 @shared_task()

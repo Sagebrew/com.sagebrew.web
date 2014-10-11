@@ -5,12 +5,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
+from neomodel import DoesNotExist
+
 from api.utils import execute_cypher_query
 from .forms import SubmitFriendRequestForm
 from .neo_models import FriendRequest
 from .tasks import create_friend_request_task
 from plebs.neo_models import Pleb
-from api.utils import get_post_data
 
 
 @api_view(['POST'])
@@ -51,7 +52,11 @@ def get_friend_requests(request):
     :return:
     '''
     requests = []
-    citizen = Pleb.nodes.get(email=request.DATA['email'])
+    try:
+        citizen = Pleb.nodes.get(email=request.DATA['email'])
+    except (Pleb.DoesNotExist, DoesNotExist):
+        return Response({"detail": "pleb does not exist"}, status=400)
+
     query = 'match (p:Pleb) where p.email ="%s" ' \
             'with p ' \
             'match (p)-[:RECEIVED_A_REQUEST]-(r:FriendRequest) ' \

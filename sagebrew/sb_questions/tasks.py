@@ -1,12 +1,10 @@
 import logging
 from uuid import uuid1
 from celery import shared_task
-from celery.exceptions import Retry
-from django.conf import settings
+from neomodel import DoesNotExist
 
 from plebs.neo_models import Pleb
 from .neo_models import SBQuestion
-from api.utils import spawn_task
 from .utils import (create_question_util, upvote_question_util,
                     downvote_question_util, edit_question_util)
 
@@ -36,7 +34,7 @@ def create_question_task(content="", current_pleb="", question_title="",
     try:
         question = SBQuestion.nodes.get(question_id=question_uuid)
         return False
-    except SBQuestion.DoesNotExist:
+    except (SBQuestion.DoesNotExist, DoesNotExist):
         response = create_question_util(content=content,
                                         current_pleb=current_pleb,
                                         question_title=question_title,
@@ -52,11 +50,6 @@ def create_question_task(content="", current_pleb="", question_title="",
                           'exception': "TypeError: "})
         raise create_question_task.retry(exc=TypeError, countdown=5,
                                          max_retries=None)
-    except SBQuestion.DoesNotExist:
-        logger.exception({"function": create_question_task.__name__,
-                          "exception": "DoesNotExist: "})
-        raise edit_question_task.retry(exc=Exception, countdown=3,
-                                       max_retries=None)
     except Exception:
         logger.exception({'function': create_question_task.__name__,
                           'exception': "UnhandledException: "})
@@ -77,8 +70,15 @@ def edit_question_task(question_uuid="", content="", current_pleb="",
     :return:
     '''
     try:
-        my_pleb = Pleb.nodes.get(email=current_pleb)
-        my_question = SBQuestion.nodes.get(question_id=question_uuid)
+        try:
+            my_pleb = Pleb.nodes.get(email=current_pleb)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            return False
+        try:
+            my_question = SBQuestion.nodes.get(question_id=question_uuid)
+        except (SBQuestion.DoesNotExist, DoesNotExist):
+            raise edit_question_task.retry(exc=Exception, countdown=3,
+                                           max_retries=None)
         edit_question_return = edit_question_util(question_uuid=question_uuid,
                                                   content=content,
                                                   current_pleb=current_pleb,
@@ -94,15 +94,6 @@ def edit_question_task(question_uuid="", content="", current_pleb="",
         elif edit_question_return['detail'] == 'last edit more recent':
             return False
 
-    except SBQuestion.DoesNotExist:
-        logger.exception({"function": edit_question_task.__name__,
-                          "exception": "DoesNotExist: "})
-        raise edit_question_task.retry(exc=Exception, countdown=3,
-                                       max_retries=None)
-    except Pleb.DoesNotExist:
-        logger.exception({"function": edit_question_task.__name__,
-                          "exception": "DoesNotExist: "})
-        return False
     except Exception:
         logger.exception({"function": edit_question_task.__name__,
                           "exception": "UnhandledException: "})
@@ -123,29 +114,37 @@ def vote_question_task(question_uuid="", current_pleb="", vote_type=""):
     :return:
     '''
     try:
-        my_pleb = Pleb.nodes.get(email=current_pleb)
-        my_question = SBQuestion.nodes.get(question_id=question_uuid)
+        try:
+            my_pleb = Pleb.nodes.get(email=current_pleb)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            return False
+        try:
+            my_question = SBQuestion.nodes.get(question_id=question_uuid)
+        except (SBQuestion.DoesNotExist, DoesNotExist):
+            raise edit_question_task.retry(exc=Exception, countdown=3,
+                                           max_retries=None)
         if my_question.up_voted_by.is_connected(
                 my_pleb) or my_question.down_voted_by.is_connected(my_pleb):
             return False
         else:
             if vote_type == 'up':
-                upvote_question_util(question_uuid, current_pleb)
-                return True
+                res = upvote_question_util(question_uuid, current_pleb)
+                if not res:
+                    raise Exception
+                elif res is None:
+                    return False
+                else:
+                    return True
             elif vote_type == 'down':
-                downvote_question_util(question_uuid, current_pleb)
-                return True
-    except SBQuestion.DoesNotExist:
-        logger.exception({"function": vote_question_task.__name__,
-                          "exception": "DoesNotExist: "})
-        raise edit_question_task.retry(exc=Exception, countdown=3,
-                                       max_retries=None)
-    except Pleb.DoesNotExist:
-        logger.exception({"function": vote_question_task.__name__,
-                          "exception": "DoesNotExist: "})
-        return False
+                res = downvote_question_util(question_uuid, current_pleb)
+                if not res:
+                    raise Exception
+                elif res is None:
+                    return False
+                else:
+                    return True
     except Exception:
         logger.exception({"function": vote_question_task.__name__,
                           "exception": "UnhandledException: "})
-        raise edit_question_task.retry(exc=Exception, countdown=3,
+        raise vote_question_task.retry(exc=Exception, countdown=3,
                                        max_retries=None)

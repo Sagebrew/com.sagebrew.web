@@ -1,7 +1,5 @@
-import pytz
 import time
 from uuid import uuid1
-from datetime import datetime
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.management import call_command
@@ -74,4 +72,4 @@ class TestNotificationTasks(TestCase):
         response = create_notification_comment_task.apply_async(kwargs=data)
         while not response.ready():
             time.sleep(3)
-        self.assertFalse(response.result)
+        self.assertEqual(type(response.result), Exception)

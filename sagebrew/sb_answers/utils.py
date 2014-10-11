@@ -23,8 +23,18 @@ def save_answer_util(content="", current_pleb="", answer_uuid="",
     if content=='':
         return False
     try:
-        my_pleb = Pleb.nodes.get(email=current_pleb)
-        question = SBQuestion.nodes.get(question_id=question_uuid)
+        try:
+            my_pleb = Pleb.nodes.get(email=current_pleb)
+        except Pleb.DoesNotExist:
+            return False
+        except DoesNotExist:
+            return False
+        try:
+            question = SBQuestion.nodes.get(question_id=question_uuid)
+        except SBQuestion.DoesNotExist:
+            return None
+        except DoesNotExist:
+            return None
         answer = SBAnswer(content=content, answer_id=answer_uuid)
         answer.save()
         answer.answer_to.connect(question)
@@ -37,17 +47,18 @@ def save_answer_util(content="", current_pleb="", answer_uuid="",
         rel_to_pleb.save()
         answer.save()
         return answer
-    except Pleb.DoesNotExist:
-        return False
-    except SBQuestion.DoesNotExist:
-        return False
     except Exception:
         logger.exception("UnhandledException: ")
         return None
 
 def edit_answer_util(content="", current_pleb="", answer_uuid="", last_edited_on=""):
     try:
-        my_answer = SBAnswer.nodes.get(answer_id=answer_uuid)
+        try:
+            my_answer = SBAnswer.nodes.get(answer_id=answer_uuid)
+        except SBAnswer.DoesNotExist:
+            return None
+        except DoesNotExist:
+            return None
         if my_answer.to_be_deleted:
             return {'question': my_answer, 'detail': 'to be deleted'}
 
@@ -67,8 +78,6 @@ def edit_answer_util(content="", current_pleb="", answer_uuid="", last_edited_on
         my_answer.last_edited_on = last_edited_on
         my_answer.save()
         return True
-    except SBAnswer.DoesNotExist:
-        return None
     except CypherException:
         return None
     except Exception:
@@ -78,65 +87,57 @@ def edit_answer_util(content="", current_pleb="", answer_uuid="", last_edited_on
 def upvote_answer_util(answer_uuid="", current_pleb=""):
     from .tasks import vote_answer_task
     try:
-        pleb = Pleb.nodes.get(email=current_pleb)
-        my_question = SBAnswer.nodes.get(answer_id=answer_uuid)
+        try:
+            pleb = Pleb.nodes.get(email=current_pleb)
+        except Pleb.DoesNotExist:
+            return False
+        except DoesNotExist:
+            return False
+        try:
+            my_question = SBAnswer.nodes.get(answer_id=answer_uuid)
+        except SBAnswer.DoesNotExist:
+            data = {'question_uuid': answer_uuid, 'current_pleb': current_pleb,
+                    'vote_type': 'up'}
+            spawn_task(task_func=vote_answer_task, task_param=data, countdown=1)
+            return False
+        except DoesNotExist:
+            data = {'question_uuid': answer_uuid, 'current_pleb': current_pleb,
+                    'vote_type': 'up'}
+            spawn_task(task_func=vote_answer_task, task_param=data, countdown=1)
+            return False
         my_question.up_vote_number += 1
         my_question.up_voted_by.connect(pleb)
         my_question.save()
         return True
-    except SBQuestion.DoesNotExist:
-        data = {'question_uuid': answer_uuid, 'current_pleb': current_pleb,
-                'vote_type': 'up'}
-        spawn_task(task_func=vote_answer_task, task_param=data, countdown=1)
-        return False
-    except Pleb.DoesNotExist:
-        return False
     except Exception:
         logger.exception("UnhandledException: ")
         return False
-
 
 def downvote_answer_util(answer_uuid="", current_pleb=""):
     from .tasks import vote_answer_task
     try:
-        pleb = Pleb.nodes.get(email=current_pleb)
-        my_question = SBAnswer.nodes.get(answer_id=answer_uuid)
+        try:
+            pleb = Pleb.nodes.get(email=current_pleb)
+        except Pleb.DoesNotExist:
+            return False
+        except DoesNotExist:
+            return False
+        try:
+            my_question = SBAnswer.nodes.get(answer_id=answer_uuid)
+        except SBAnswer.DoesNotExist:
+            data = {'question_uuid': answer_uuid, 'current_pleb': current_pleb,
+                'vote_type': 'down'}
+            spawn_task(task_func=vote_answer_task, task_param=data, countdown=1)
+            return False
+        except DoesNotExist:
+            data = {'question_uuid': answer_uuid, 'current_pleb': current_pleb,
+                'vote_type': 'down'}
+            spawn_task(task_func=vote_answer_task, task_param=data, countdown=1)
+            return False
         my_question.down_vote_number += 1
         my_question.down_voted_by.connect(pleb)
         my_question.save()
         return True
-    except SBQuestion.DoesNotExist:
-        data = {'question_uuid': answer_uuid, 'current_pleb': current_pleb,
-                'vote_type': 'down'}
-        spawn_task(task_func=vote_answer_task, task_param=data, countdown=1)
-        return False
-    except Pleb.DoesNotExist:
-        return False
     except Exception:
         logger.exception("UnhandledException: ")
         return False
-
-'''
-def test_save_answer_task_fail(self):
-        question_response = SBQuestion(question_id=str(uuid1()))
-        question_response.save()
-        save_response = save_answer_task.apply_async(kwargs=self.answer_info_dict)
-        while not save_response.ready():
-            time.sleep(1)
-        save_response = save_response.result
-        self.assertIsNotNone(question_response)
-        self.assertFalse(save_response)
-
-def test_save_answer_task(self):
-        self.question_info_dict['question_id']=str(uuid1())
-        question = SBQuestion(**self.question_info_dict)
-        question.save()
-        self.answer_info_dict['question_uuid'] = question.question_id
-        save_response = save_answer_task.apply_async(kwargs=self.answer_info_dict)
-
-        while not save_response.ready():
-            time.sleep(1)
-        save_response = save_response.result
-        self.assertIsNotNone(question)
-        self.assertTrue(save_response)
-        '''

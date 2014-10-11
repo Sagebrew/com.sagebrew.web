@@ -7,6 +7,7 @@ from datetime import date
 from django.conf import settings
 from boto import connect_s3
 from boto.s3.key import Key
+from neomodel import DoesNotExist
 
 from plebs.neo_models import TopicCategory, Pleb
 from govtrack.neo_models import GTRole
@@ -272,7 +273,7 @@ def get_friends(email):
     '''
     try:
         citizen = Pleb.nodes.get(email=email)
-    except Pleb.DoesNotExist:
+    except (Pleb.DoesNotExist, DoesNotExist):
         return []
     friends = []
     friends_list = citizen.friends.all()
@@ -285,26 +286,50 @@ def get_friends(email):
     return friends
 
 def verify_completed_registration(user):
+    '''
+    This function checks if the user has complete registration, it is used
+    in the user_passes_test decorator
+
+    :param user:
+    :return:
+    '''
     try:
         pleb = Pleb.nodes.get(email=user.email)
         if pleb.completed_profile_info:
             return True
         else:
             return False
-    except Pleb.DoesNotExist:
+    except (Pleb.DoesNotExist,DoesNotExist):
         return False
 
 def verify_verified_email(user):
+    '''
+    This function checks if the user has verified their email address,
+    It is used in the user_passes_test decorator
+
+    :param user:
+    :return:
+    '''
     try:
         pleb = Pleb.nodes.get(email=user.email)
         if pleb.email_verified:
             return True
         else:
             return False
-    except Pleb.DoesNotExist:
+    except (Pleb.DoesNotExist, DoesNotExist):
         return False
 
 def sb_send_email(to_email, subject, text_content, html_content):
+    '''
+    This function is used to send mail through the amazon ses service,
+    we can use this for any emails we send just specify html content
+
+    :param to_email:
+    :param subject:
+    :param text_content:
+    :param html_content:
+    :return:
+    '''
     conn = boto.ses.connect_to_region(
         'us-east-1',
         aws_access_key_id=settings.AWS_ACCESS_KEY_ID,

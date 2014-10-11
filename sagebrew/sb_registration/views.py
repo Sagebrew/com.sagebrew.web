@@ -1,18 +1,18 @@
 import shortuuid
 import logging
 import hashlib
-from json import loads
 from django.conf import settings
 from uuid import uuid1
-from django.core.mail import EmailMultiAlternatives
+from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.template.loader import render_to_string, get_template
+from django.template.loader import get_template
 from django.template import Context
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from neomodel import DoesNotExist
 
 from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
@@ -22,7 +22,7 @@ from .utils import (validate_address, generate_interests_tuple, upload_image,
                     compare_address, generate_address_tuple,
                     create_address_string,
                     create_address_long_hash, verify_completed_registration,
-                    verify_verified_email)
+                    verify_verified_email, calc_age, sb_send_email)
 from .models import EmailAuthTokenGenerator
 
 logger = logging.getLogger('loggly_logs')
@@ -38,7 +38,7 @@ def signup_view(request):
 @api_view(['POST'])
 def signup_view_api(request):
     try:
-        signup_form = SignupForm(loads(request.body))
+        signup_form = SignupForm(request.DATA)
         if signup_form.is_valid():
             if signup_form.cleaned_data['password'] != \
                     signup_form.cleaned_data['password2']:
@@ -74,9 +74,7 @@ def signup_view_api(request):
                         subject, to = "Sagebrew Email Verification", request.user.email
                         text_content = get_template('email_templates/email_verification.txt').render(Context(template_dict))
                         html_content = get_template('email_templates/email_verification.html').render(Context(template_dict))
-                        msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [to])
-                        msg.attach_alternative(html_content, 'text/html')
-                        msg.send()
+                        sb_send_email(to, subject, text_content, html_content)
                         return Response({'detail': 'success'}, status=200)
                     else:
                         return Response({'detail': 'account disabled'},
@@ -95,36 +93,59 @@ def login_view(request):
 @login_required()
 def resend_email_verification(request):
     try:
-        template_dict = {
-            'full_name': request.user.first_name+' '+request.user.last_name,
-            'verification_url': settings.EMAIL_VERIFICATION_URL+token_gen.make_token(request.user)+'/'
-        }
-        subject, to = "Sagebrew Email Verification", request.user.email
-        text_content = get_template('email_templates/email_verification.txt').render(Context(template_dict))
-        html_content = get_template('email_templates/email_verification.html').render(Context(template_dict))
-        msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [to])
-        msg.attach_alternative(html_content, 'text/html')
-        msg.send()
-        return redirect("confirm_view")
+        pleb = Pleb.nodes.get(email=request.user.email)
     except Pleb.DoesNotExist:
         logger.exception({'function': resend_email_verification.__name__,
                           'exception': 'DoesNotExist: '})
         return Response({'detail': 'pleb does not exist'}, status=400)
+    except DoesNotExist:
+        logger.exception({'function': resend_email_verification.__name__,
+                          'exception': 'DoesNotExist: '})
+        return Response({'detail': 'pleb does not exist'}, status=400)
+
+    template_dict = {
+        'full_name': request.user.first_name+' '+request.user.last_name,
+        'verification_url': settings.EMAIL_VERIFICATION_URL+token_gen.make_token(request.user)+'/'
+    }
+    subject, to = "Sagebrew Email Verification", request.user.email
+    text_content = get_template('email_templates/email_verification.txt').render(Context(template_dict))
+    html_content = get_template('email_templates/email_verification.html').render(Context(template_dict))
+    sb_send_email(to, subject, text_content, html_content)
+    return redirect("confirm_view")
+
 
 @api_view(['POST'])
 def login_view_api(request):
     try:
-        login_form = LoginForm(loads(request.body))
+        login_form = LoginForm(request.DATA)
         if login_form.is_valid():
-            user = User.objects.get(email=login_form.cleaned_data['email'])
+            try:
+                user = User.objects.get(email=login_form.cleaned_data['email'])
+            except User.DoesNotExist:
+                logger.exception({'function': login_view_api.__name__,
+                                  'exception': 'User.DoesNotExist'})
+                return Response({'detail': 'cannot find user'}, status=400)
             user = authenticate(username=user.username,
                                 password=login_form.cleaned_data['password'])
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    pleb = Pleb.nodes.get(email=user.email)
+                    try:
+                        pleb = Pleb.nodes.get(email=user.email)
+                    except Pleb.DoesNotExist:
+                        logger.exception({'function': login_view_api.__name__,
+                          'exception': 'Pleb.DoesNotExist'})
+                        return Response({'detail': 'cannot find user'},
+                                        status=400)
+                    except DoesNotExist:
+                        logger.exception({'function': login_view_api.__name__,
+                          'exception': 'Pleb.DoesNotExist'})
+                        return Response({'detail': 'cannot find user'},
+                                        status=400)
                     pleb.generate_username()
-                    profile_page_url = settings.WEB_ADDRESS+'/user/'+pleb.username
+                    rev = reverse('profile_page',
+                                  kwargs={'pleb_email': pleb.email})
+                    profile_page_url = settings.WEB_ADDRESS+rev
                     return Response({'detail': 'success',
                                      'user': user.email,
                                      'url': profile_page_url}, status=200)
@@ -132,11 +153,7 @@ def login_view_api(request):
                     return Response({'detail': 'account disabled'},
                                     status=400)
             else:
-                return Response({'detail': 'invalid password'}, status=200)
-    except User.DoesNotExist:
-        logger.exception({'detail': 'cannot find user',
-                          'exception': 'User.DoesNotExist'})
-        return Response({'detail': 'cannot find user'}, status=200)
+                return Response({'detail': 'invalid password'}, status=400)
     except Exception:
         logger.exception({'function': login_view_api.__name__,
                           'exception': 'UnhandledException: '})
@@ -156,16 +173,15 @@ def email_verification(request, confirmation):
             pleb.save()
             return redirect('profile_info')
         else:
-            return redirect('confirm_view')
+            return Response({"detail": "failed to authenticate"}, status=401)
     except Pleb.DoesNotExist:
-        logger.exception({'function': email_verification.__name__,
-                          'exception': 'DoesNotExist: '})
+        return redirect('logout')
+    except DoesNotExist:
         return redirect('logout')
     except Exception:
         logger.exception({'function': email_verification.__name__,
                           'exception': 'UnhandledException: '})
         return redirect('confirm_view')
-
 
 @login_required
 @user_passes_test(verify_verified_email,

@@ -1,4 +1,3 @@
-import time
 import pytz
 from datetime import datetime, timedelta
 from uuid import uuid1
@@ -230,7 +229,7 @@ class TestVoteQuestionUtil(TestCase):
         vote_response = downvote_question_util(self.question_info_dict['question_uuid'],
                                              'nope')
 
-        self.assertFalse(vote_response)
+        self.assertEqual(vote_response, None)
 
     def test_upvote_question_util_pleb_dne(self):
         response = create_question_util(**self.question_info_dict)
@@ -238,6 +237,6 @@ class TestVoteQuestionUtil(TestCase):
         vote_response = upvote_question_util(self.question_info_dict['question_uuid'],
                                              'nope')
 
-        self.assertFalse(vote_response)
+        self.assertEqual(vote_response, None)
 
 

@@ -1,6 +1,7 @@
 import logging
 from django.conf import settings
-from elasticsearch import Elasticsearch, helpers
+from elasticsearch import Elasticsearch
+from neomodel.exception import UniqueProperty, DoesNotExist
 
 from .neo_models import SBAutoTag, SBTag
 from sb_questions.neo_models import SBQuestion
@@ -56,8 +57,11 @@ def add_auto_tags_util(tag_list):
     for tag in tag_list:
         if tag['object_type'] == 'question':
             try:
-                question = SBQuestion.nodes.get(question_id=
-                                                tag['object_uuid'])
+                try:
+                    question = SBQuestion.nodes.get(question_id=
+                                                    tag['object_uuid'])
+                except (SBQuestion.DoesNotExist, DoesNotExist):
+                    return None
                 relevance = tag['tags']['relevance']
                 tag = SBAutoTag.nodes.get(tag_name=tag['tags']['text'])
                 rel = question.auto_tags.connect(tag)
@@ -65,25 +69,32 @@ def add_auto_tags_util(tag_list):
                 rel.save()
                 tag.questions.connect(question)
                 tag_array.append(tag)
-            except SBAutoTag.DoesNotExist:
-                question =SBQuestion.nodes.get(question_id=tag['object_uuid'])
-                relevance = tag['tags']['relevance']
-                tag = SBAutoTag(tag_name=tag['tags']['text'])
-                tag.save()
-                rel = question.auto_tags.connect(tag)
-                rel.relevance = relevance
-                rel.save()
-                tag.questions.connect(question)
-                tag_array.append(tag)
-            except SBQuestion.DoesNotExist:
-                return False
+            except (SBAutoTag.DoesNotExist, DoesNotExist):
+                try:
+                    question =SBQuestion.nodes.get(question_id=tag['object_uuid'])
+                    relevance = tag['tags']['relevance']
+                    tag = SBAutoTag(tag_name=tag['tags']['text'])
+                    tag.save()
+                    rel = question.auto_tags.connect(tag)
+                    rel.relevance = relevance
+                    rel.save()
+                    tag.questions.connect(question)
+                    tag_array.append(tag)
+                except UniqueProperty:
+                    logger.exception({'function': add_auto_tags_util.__name__,
+                                  'exception': "UniqueProperty: "})
+                    return None
+
             except KeyError:
                 return False
+
             except IndexError:
                 return False
+
             except Exception:
-                logger.exception("UnhandledException: ")
-                return False
+                logger.exception({'function': add_auto_tags_util.__name__,
+                                  'exception': "UnhandledException: "})
+                return None
         else:
             return False
 
@@ -110,7 +121,7 @@ def add_tag_util(object_type, object_uuid, tags):
         try:
             tag_object = SBTag.nodes.get(tag_name=tag)
             tag_array.append(tag_object)
-        except SBTag.DoesNotExist:
+        except (SBTag.DoesNotExist, DoesNotExist):
             es.index(index='tags', doc_type='tag',
                      body={'tag_name': tag})
             tag_object = SBTag(tag_name=tag).save()
@@ -118,17 +129,19 @@ def add_tag_util(object_type, object_uuid, tags):
 
     if object_type == 'question':
         try:
-            question = SBQuestion.nodes.get(question_id=object_uuid)
+            try:
+                question = SBQuestion.nodes.get(question_id=object_uuid)
+            except (SBQuestion.DoesNotExist, DoesNotExist):
+                return None
             for tag in tag_array:
                 question.tags.connect(tag)
                 tag.questions.connect(question)
                 tag.tag_used += 1
                 tag.save()
             return True
-        except SBQuestion.DoesNotExist:
-            return False
+
         except Exception:
             logger.exception("UnhandledException: ")
-            return False
+            return None
     else:
         return False

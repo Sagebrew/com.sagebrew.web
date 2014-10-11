@@ -2,7 +2,7 @@ import pytz
 import logging
 from uuid import uuid1
 from datetime import datetime
-from neomodel import CypherException
+from neomodel import CypherException, DoesNotExist
 
 from .neo_models import SBComment
 from sb_posts.neo_models import SBPost
@@ -59,7 +59,6 @@ def get_post_comments(post_info):
         comment_array = []
     return post_array
 
-
 def create_upvote_comment_util(pleb="", comment_uuid=str(uuid1())):
     '''
     creates an upvote on a comment, this is called by a util or task which
@@ -72,16 +71,22 @@ def create_upvote_comment_util(pleb="", comment_uuid=str(uuid1())):
     :return:
     '''
     try:
-        my_comment = SBComment.nodes.get(comment_id=comment_uuid)
-        my_pleb = Pleb.nodes.get(email=pleb)
+        try:
+            my_comment = SBComment.nodes.get(comment_id=comment_uuid)
+        except SBComment.DoesNotExist:
+            return False
+        except DoesNotExist:
+            return False
+        try:
+            my_pleb = Pleb.nodes.get(email=pleb)
+        except Pleb.DoesNotExist:
+            return False
+        except DoesNotExist:
+            return False
         my_comment.up_vote_number += 1
         my_comment.up_voted_by.connect(my_pleb)
         my_comment.save()
         return True
-    except Pleb.DoesNotExist:
-        return False
-    except SBComment.DoesNotExist:
-        return False
     except CypherException:
         logger.exception({"function": create_downvote_comment_util.__name__,
                           "exception": "CypherException: "})
@@ -103,16 +108,22 @@ def create_downvote_comment_util(pleb="", comment_uuid=str(uuid1())):
     :return:
     '''
     try:
-        my_comment = SBComment.nodes.get(comment_id=comment_uuid)
-        my_pleb = Pleb.nodes.get(email=pleb)
+        try:
+            my_comment = SBComment.nodes.get(comment_id=comment_uuid)
+        except SBComment.DoesNotExist:
+            return False
+        except DoesNotExist:
+            return False
+        try:
+            my_pleb = Pleb.nodes.get(email=pleb)
+        except Pleb.DoesNotExist:
+            return False
+        except DoesNotExist:
+            return False
         my_comment.down_vote_number += 1
         my_comment.down_voted_by.connect(my_pleb)
         my_comment.save()
         return True
-    except Pleb.DoesNotExist:
-        return False
-    except SBComment.DoesNotExist:
-        return False
     except CypherException:
         logger.exception({"function": create_downvote_comment_util.__name__,
                           "exception": "CypherException: "})
@@ -136,8 +147,18 @@ def save_comment_post(content="", pleb="", post_uuid=str(uuid1())):
     :return:
     '''
     try:
-        my_citizen = Pleb.nodes.get(email=pleb)
-        parent_object = SBPost.nodes.get(post_id=post_uuid)
+        try:
+            my_citizen = Pleb.nodes.get(email=pleb)
+        except Pleb.DoesNotExist:
+            return False
+        except DoesNotExist:
+            return False
+        try:
+            parent_object = SBPost.nodes.get(post_id=post_uuid)
+        except SBPost.DoesNotExist:
+            return False
+        except DoesNotExist:
+            return False
         comment_uuid = str(uuid1())
         my_comment = SBComment(content=content, comment_id=comment_uuid)
         my_comment.save()
@@ -152,13 +173,10 @@ def save_comment_post(content="", pleb="", post_uuid=str(uuid1())):
         return my_comment
     except CypherException:
         logger.exception({"function": save_comment_post.__name__,
-                          "exception": "UnhandledException: "})
+                          "exception": "CypherException: "})
         return False
     except Exception:
         return None
-
-
-
 
 def edit_comment_util(comment_uuid=str(uuid1()), content="",
                       last_edited_on=None, pleb=""):
@@ -202,9 +220,10 @@ def edit_comment_util(comment_uuid=str(uuid1()), content="",
         return True
     except SBComment.DoesNotExist:
         return {'detail': "retry"}
+    except DoesNotExist:
+        return {'detail': 'retry'}
     except Exception, e:
         return {'exception', e}
-
 
 def delete_comment_util(comment_uuid=str(uuid1())):
     '''
@@ -223,6 +242,8 @@ def delete_comment_util(comment_uuid=str(uuid1())):
             return True
     except SBComment.DoesNotExist:
         return False
+    except DoesNotExist:
+        return False
 
 def flag_comment_util(comment_uuid, current_user, flag_reason):
     '''
@@ -236,8 +257,19 @@ def flag_comment_util(comment_uuid, current_user, flag_reason):
     :return:
     '''
     try:
-        comment = SBComment.nodes.get(comment_id=comment_uuid)
-        pleb = Pleb.nodes.get(email=current_user)
+        try:
+            comment = SBComment.nodes.get(comment_id=comment_uuid)
+        except SBComment.DoesNotExist:
+            return None
+        except DoesNotExist:
+            return None
+
+        try:
+            pleb = Pleb.nodes.get(email=current_user)
+        except Pleb.DoesNotExist:
+            return False
+        except DoesNotExist:
+            return False
 
         if comment.flagged_by.is_connected(pleb):
             return False
@@ -257,10 +289,6 @@ def flag_comment_util(comment_uuid, current_user, flag_reason):
         else:
             return False
         return True
-    except SBComment.DoesNotExist:
-        return False
-    except Pleb.DoesNotExist:
-        return False
     except Exception:
         logger.exception('UnhandledException: ')
         return None

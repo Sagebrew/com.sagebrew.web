@@ -2,6 +2,8 @@ import logging
 from uuid import uuid1
 from celery import shared_task
 
+from neomodel import DoesNotExist
+
 from sb_notifications.tasks import create_notification_post_task
 from api.utils import spawn_task
 from .neo_models import SBAnswer
@@ -58,8 +60,18 @@ def edit_answer_task(content="", answer_uuid="", last_edited_on=None,
     :return:
     '''
     try:
-        my_pleb = Pleb.nodes.get(email=current_pleb)
-        my_answer = SBAnswer.nodes.get(answer_id=answer_uuid)
+        try:
+            my_pleb = Pleb.nodes.get(email=current_pleb)
+        except Pleb.DoesNotExist:
+            return False
+        except DoesNotExist:
+            return False
+        try:
+            my_answer = SBAnswer.nodes.get(answer_id=answer_uuid)
+        except SBAnswer.DoesNotExist:
+            return False
+        except DoesNotExist:
+            return False
         edit_response = edit_answer_util(content=content, answer_uuid=answer_uuid,
                             current_pleb=current_pleb, last_edited_on=last_edited_on)
         if edit_response:
@@ -75,11 +87,6 @@ def edit_answer_task(content="", answer_uuid="", last_edited_on=None,
         elif edit_response is None:
             raise Exception
 
-
-    except Pleb.DoesNotExist:
-        return False
-    except SBAnswer.DoesNotExist:
-        return False
     except Exception:
         logger.exception("UnhandledException: ")
         raise edit_answer_task.retry(exc=Exception, countdown=3,
@@ -100,8 +107,18 @@ def vote_answer_task(answer_uuid="", current_pleb="", vote_type=""):
     :return:
     '''
     try:
-        my_pleb = Pleb.nodes.get(email=current_pleb)
-        my_answer = SBAnswer.nodes.get(answer_id = answer_uuid)
+        try:
+            my_pleb = Pleb.nodes.get(email=current_pleb)
+        except Pleb.DoesNotExist:
+            return False
+        except DoesNotExist:
+            return False
+        try:
+            my_answer = SBAnswer.nodes.get(answer_id = answer_uuid)
+        except SBAnswer.DoesNotExist:
+            return False
+        except DoesNotExist:
+            return False
         if my_answer.up_voted_by.is_connected(
                 my_pleb) or my_answer.down_voted_by.is_connected(my_pleb):
             return False
@@ -112,8 +129,6 @@ def vote_answer_task(answer_uuid="", current_pleb="", vote_type=""):
             elif vote_type == 'down':
                 downvote_answer_util(answer_uuid, current_pleb)
                 return True
-    except (SBAnswer.DoesNotExist, Pleb.DoesNotExist):
-        return False
     except Exception:
         logger.exception("UnhandledException: ")
         raise vote_answer_task.retry(exc=Exception, countdown=3,

@@ -1,0 +1,8 @@
+user {{APP_USER}} {{APP_USER}};
+worker_processes {{WEB_WORKER_COUNT}};
+pid /var/run/nginx.pid;
+
+events {
+    worker_connections 2048;
+    accept_mutex off;
+}

@@ -24,6 +24,11 @@ def add_auto_tags(tag_list):
 
     if response:
         return True
+    elif response is None:
+        logger.exception({"function": add_auto_tags.__name__,
+                          "exception": "UnhandledException: "})
+        raise add_auto_tags.retry(exc=Exception, countdown=3,
+                                  max_retries=None)
     else:
         return False
 
@@ -40,7 +45,13 @@ def add_tags(object_uuid, object_type, tags):
     :param tags:
     :return:
     '''
-    if add_tag_util(object_type, object_uuid, tags):
+    res = add_tag_util(object_type, object_uuid, tags)
+    if res:
         return True
+    elif res is None:
+        logger.exception({"function": add_tags.__name__,
+                          "exception": "UnhandledException: "})
+        raise add_auto_tags.retry(exc=Exception, countdown=3,
+                                  max_retries=None)
     else:
         return False

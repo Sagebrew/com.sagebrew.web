@@ -1,10 +1,11 @@
 import logging
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from neomodel import DoesNotExist
 
 from .utils import prepare_user_search_html
 from plebs.neo_models import Pleb
@@ -37,7 +38,12 @@ def profile_page(request, pleb_email):
     :param request:
     :return:
     '''
-    citizen = Pleb.nodes.get(email=pleb_email)
+    try:
+        citizen = Pleb.nodes.get(email=pleb_email)
+    except Pleb.DoesNotExist:
+        redirect('404_Error')
+    except DoesNotExist:
+        redirect('404_Error')
     current_user = request.user
     page_user = User.objects.get(email=pleb_email)
     is_owner = False
@@ -49,7 +55,6 @@ def profile_page(request, pleb_email):
         is_friend = True
 
     # TODO check for index error
-    # TODO check why address does not always work
     # TODO deal with address and senator/rep in a util + task
     # TODO Create a cypher query to get addresses to replace traverse
     #address = citizen.traverse('address').run()[0]
@@ -122,7 +127,6 @@ def about_page(request, pleb_email):
         is_friend = True
 
     # TODO check for index error
-    # TODO check why address does not always work
     # TODO deal with address and senator/rep in a util + task
     # TODO Create a cypher query to get addresses to replace traverse
     #address = citizen.traverse('address').run()[0]
@@ -177,7 +181,6 @@ def reputation_page(request, pleb_email):
         is_friend = True
 
     # TODO check for index error
-    # TODO check why address does not always work
     # TODO deal with address and senator/rep in a util + task
     # TODO Create a cypher query to get addresses to replace traverse
     #address = citizen.traverse('address').run()[0]
@@ -231,7 +234,6 @@ def friends_page(request, pleb_email):
         is_friend = True
 
     # TODO check for index error
-    # TODO check why address does not always work
     # TODO deal with address and senator/rep in a util + task
     # TODO Create a cypher query to get addresses to replace traverse
     #address = citizen.traverse('address').run()[0]

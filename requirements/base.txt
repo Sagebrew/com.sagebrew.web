@@ -1,4 +1,5 @@
 Django
+subprocess32
 unipath
 psycopg2
 boto
@@ -32,3 +33,6 @@ textblob
 nltk
 neomodel
 shortuuid
+gunicorn
+coverage
+coveralls

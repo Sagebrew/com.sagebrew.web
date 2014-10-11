@@ -1,5 +1,8 @@
 from uuid import uuid1
 from celery import shared_task
+from logging import getLogger
+
+from neomodel import DoesNotExist
 
 from sb_notifications.tasks import create_notification_post_task
 from api.utils import spawn_task
@@ -7,6 +10,7 @@ from .neo_models import SBPost
 from plebs.neo_models import Pleb
 from .utils import (save_post, edit_post_info, delete_post_info, flag_post)
 
+logger = getLogger('loggly_logs')
 
 @shared_task()
 def delete_post_and_comments(post_info):
@@ -21,10 +25,8 @@ def delete_post_and_comments(post_info):
     if delete_post_info(post_info):
         return True
     else:
-        task_id = str(uuid1())
-        spawn_task(task_func=delete_post_and_comments, task_param=post_info,
-                   countdown=2, task_id=task_id)
-        return False
+        raise delete_post_and_comments.retry(exc=Exception, countdown=3,
+                                             max_retries=None)
 
 @shared_task()
 def create_upvote_post(post_uuid=str(uuid1()), pleb=""):
@@ -39,19 +41,23 @@ def create_upvote_post(post_uuid=str(uuid1()), pleb=""):
     :return:
     '''
     try:
-        my_post = SBPost.nodes.get(post_id=post_uuid)
-        my_pleb = Pleb.nodes.get(email=pleb)
+        try:
+            my_post = SBPost.nodes.get(post_id=post_uuid)
+        except (SBPost.DoesNotExist, DoesNotExist):
+            raise create_upvote_post.retry(exc=Exception, countdown=3,
+                                       max_retries=None)
+
+        try:
+            my_pleb = Pleb.nodes.get(email=pleb)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            return False
         my_post.up_vote_number += 1
         my_post.up_voted_by.connect(my_pleb)
         my_post.save()
         return True
-    except SBPost.DoesNotExist:
-        task_id = uuid1()
-        task_param = {'post_uuid': post_uuid,
-                      'pleb': pleb}
-        spawn_task(task_func=create_upvote_post, task_param=task_param,
-                   countdown=2, task_id=task_id)
-        return False
+    except Exception:
+        logger.exception({"function": create_upvote_post.__name__,
+                          "exception": "UnhandledException: "})
 
 @shared_task()
 def create_downvote_post(post_uuid=str(uuid1()), pleb=""):
@@ -66,19 +72,23 @@ def create_downvote_post(post_uuid=str(uuid1()), pleb=""):
     :return:
     '''
     try:
-        my_post = SBPost.nodes.get(post_id=post_uuid)
-        my_pleb = Pleb.nodes.get(email=pleb)
+        try:
+            my_post = SBPost.nodes.get(post_id=post_uuid)
+        except (SBPost.DoesNotExist, DoesNotExist):
+            raise create_downvote_post.retry(exc=Exception, countdown=3,
+                                         max_retries=None)
+        try:
+            my_pleb = Pleb.nodes.get(email=pleb)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            return False
         my_post.down_vote_number += 1
         my_post.down_voted_by.connect(my_pleb)
         my_post.save()
         return True
-    except SBPost.DoesNotExist:
-        task_id = uuid1()
-        task_param = {'post_uuid': post_uuid,
-                      'pleb': pleb}
-        spawn_task(task_func=create_downvote_post, task_param=task_param,
-                   countdown=2, task_id=task_id)
-        return False
+    except Exception:
+        logger.exception({'function': create_downvote_post.__name__,
+                          'exception': 'UnhandledException: '})
+
 
 
 @shared_task()
@@ -99,17 +109,22 @@ def save_post_task(content="", current_pleb="", wall_pleb="",
         Returns True if the prepare_post_notification task is spawned and
         the post is successfully created
     '''
-
-    my_post = save_post(post_uuid=post_uuid, content=content,
-                        current_pleb=current_pleb, wall_pleb=wall_pleb)
-    if my_post is not None:
-        notification_data={'post_uuid': my_post.post_id,
-                           'from_pleb':current_pleb, 'to_pleb': wall_pleb}
-        spawn_task(task_func=create_notification_post_task,
-                   task_param=notification_data)
-        return True
-    else:
-        return False
+    try:
+        my_post = save_post(post_uuid=post_uuid, content=content,
+                            current_pleb=current_pleb, wall_pleb=wall_pleb)
+        if my_post==False:
+            return False
+        elif my_post is not None:
+            notification_data={'post_uuid': my_post.post_id,
+                               'from_pleb':current_pleb, 'to_pleb': wall_pleb}
+            spawn_task(task_func=create_notification_post_task,
+                       task_param=notification_data)
+            return True
+        raise Exception
+    except Exception:
+        logger.exception({"function": save_post_task.__name__,
+                          "exception": "UnhandledException: "})
+        raise save_post_task.retry(exc=Exception, countdown=3, max_retries=None)
 
 
 @shared_task()
@@ -167,14 +182,10 @@ def edit_post_info_task(content="", post_uuid=str(uuid1()),
     if edit_post_return == True:
         return True
     if edit_post_return['detail'] == 'post does not exist yet':
-        task_id = str(uuid1())
-        task_param = {'content': content,
-                      'post_uuid': post_uuid,
-                      'last_edited_on': last_edited_on,
-                      'current_pleb': current_pleb}
-        spawn_task(task_func=edit_post_info_task, task_param=task_param,
-                   countdown=1, task_id=task_id)
-        return {'detail': 'retrying'}
+        logger.exception({"function": edit_post_info_task.__name__,
+                          "exception": "DoesNotExist: "})
+        raise edit_post_info_task.retry(exc=Exception, countdown=3,
+                                        max_retries=None)
     if edit_post_return['detail'] == 'content is the same':
         return False
     if edit_post_return['detail'] == 'to be deleted':
@@ -194,8 +205,13 @@ def flag_post_task(post_uuid, current_user, flag_reason):
     :param flag_reason:
     :return:
     '''
-    if flag_post(post_uuid=post_uuid, current_user=current_user,
-                 flag_reason=flag_reason):
-        return True
-    else:
-        return False
+    try:
+        if flag_post(post_uuid=post_uuid, current_user=current_user,
+                     flag_reason=flag_reason):
+            return True
+        raise Exception
+    except Exception:
+        logger.exception({"function": flag_post_task.__name__,
+                          "exception": "UnhandledException: "})
+        raise flag_post_task.retry(exc=Exception, countdown=3,
+                                   max_retries=None)

@@ -50,8 +50,7 @@ class TestSaveAnswerTask(TestCase):
             time.sleep(1)
         save_response = save_response.result
 
-        self.assertIsNotNone(question_response)
-        self.assertFalse(save_response)
+        self.assertEqual(type(save_response), Exception)
 
 class TestEditAnswerTask(TestCase):
     def setUp(self):
@@ -126,8 +125,9 @@ class TestVoteAnswerTask(TestCase):
         my_dict = {'vote_type': 'up', 'current_pleb': self.user.email,
                    'answer_uuid': answer.answer_id}
         response = vote_answer_task.apply_async(kwargs=my_dict)
-
-        self.assertTrue(response.get())
+        while not response.ready():
+            time.sleep(3)
+        self.assertTrue(response.result)
 
     def test_vote_answer_task_missing_data(self):
         answer = SBAnswer(answer_id=str(uuid1()), content="test answer")
@@ -135,5 +135,6 @@ class TestVoteAnswerTask(TestCase):
         my_dict = {'vote_type': 'up', 'current_pleb': self.user.email,
                    'answer_uuid': ''}
         response = vote_answer_task.apply_async(kwargs=my_dict)
-        time.sleep(1)
-        self.assertFalse(response.get())
+        while not response.ready():
+            time.sleep(3)
+        self.assertFalse(response.result)

@@ -59,8 +59,9 @@ class TestEditComment(TestCase):
                            'last_edited_on': datetime.now(pytz.utc),
                            'pleb': self.user.email}
         response = edit_comment_task.apply_async(kwargs=edit_task_param)
-        time.sleep(1)
-        self.assertTrue(response.get())
+        while not response.ready():
+            time.sleep(3)
+        self.assertTrue(response.result)
 
 
 class TestVoteComment(TestCase):
@@ -213,7 +214,8 @@ class TestVoteComment(TestCase):
                            'comment_uuid': my_comment.comment_id,
                            'vote_type': 'up'}
         response = create_vote_comment.apply_async(kwargs=vote_task_param)
-        response = response.get()
+        while not response.ready():
+            time.sleep(3)
         user2 = User.objects.create_user(
             username='Test' + str(uuid1())[:25],
             email=str(uuid1())[:10] + "@gmail.com")
@@ -221,12 +223,13 @@ class TestVoteComment(TestCase):
         vote_task_param['pleb'] = pleb2.email
         vote_task_param['vote_type'] = 'up'
         response2 = create_vote_comment.apply_async(kwargs=vote_task_param)
-        response2 = response2.get()
+        while not response2.ready():
+            time.sleep(3)
 
         my_comment.refresh()
         self.assertEqual(my_comment.up_vote_number, 2)
-        self.assertTrue(response)
-        self.assertTrue(response2)
+        self.assertTrue(response.result)
+        self.assertTrue(response2.result)
 
 class TestFlagCommentTask(TestCase):
     def setUp(self):
@@ -290,9 +293,10 @@ class TestFlagCommentTask(TestCase):
             'current_user': self.user.email,
             'flag_reason': 'dumb'
         }
-        res = flag_comment_task.apply_async(kwargs=task_data)
-
-        self.assertFalse(res.get())
+        response = flag_comment_task.apply_async(kwargs=task_data)
+        while not response.ready():
+            time.sleep(3)
+        self.assertFalse(response.result)
 
     def test_flag_comment_failure_comment_does_not_exist(self):
         task_data = {
@@ -300,9 +304,10 @@ class TestFlagCommentTask(TestCase):
             'current_user': self.user.email,
             'flag_reason': 'other'
         }
-        res = flag_comment_task.apply_async(kwargs=task_data)
-
-        self.assertFalse(res.get())
+        response = flag_comment_task.apply_async(kwargs=task_data)
+        while not response.ready():
+            time.sleep(3)
+        self.assertFalse(response.result)
 
     def test_flag_comment_failure_user_does_not_exist(self):
         comment = SBComment(comment_id=uuid1())
@@ -312,6 +317,7 @@ class TestFlagCommentTask(TestCase):
             'current_user': uuid1(),
             'flag_reason': 'other'
         }
-        res = flag_comment_task.apply_async(kwargs=task_data)
-
-        self.assertFalse(res.get())
+        response = flag_comment_task.apply_async(kwargs=task_data)
+        while not response.ready():
+            time.sleep(3)
+        self.assertFalse(response.result)

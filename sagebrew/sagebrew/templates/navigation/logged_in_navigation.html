@@ -20,8 +20,8 @@
 
 </div>
 <div class="sb_nav_user col-lg-2 col-md-2 col-sm-3 hidden-xs" align="right">
-    <a href="{% url 'profile_page' pleb_info.email %}" id="sb_nav_user">{{ pleb_info.first_name }} {{ pleb_info.last_name }}</div>
-    </a>
+    <a href="{% url 'profile_page' pleb_info.email %}" id="sb_nav_user">{{ pleb_info.first_name }} {{ pleb_info.last_name }}</a>
+</div>
 {% if is_owner == True %}
     {% block notifications %}
     <div class="sb_nav_btn_row col-lg-2 col-md-2 hidden-sm hidden-xs">

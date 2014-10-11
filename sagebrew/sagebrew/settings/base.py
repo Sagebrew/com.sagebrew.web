@@ -4,6 +4,7 @@ from __future__ import absolute_import
 from os import environ, path, makedirs
 from unipath import Path
 from datetime import timedelta
+import multiprocessing
 
 
 PROJECT_DIR = Path(__file__).ancestor(3)
@@ -17,7 +18,10 @@ TEMPLATE_DEBUG = DEBUG
 ADMINS = (
     ('Devon Bleibtrey', 'bleib1dj@gmail.com'),
 )
-
+worker_count = (multiprocessing.cpu_count() *2) + 1
+if worker_count > 12:
+    worker_count = 12
+environ['WEB_WORKER_COUNT'] = str(worker_count)
 environ['HTTPS'] = "on"
 MANAGERS = ADMINS
 
@@ -201,7 +205,7 @@ EMAIL_BACKEND = "sgbackend.SendGridBackend"
 SENDGRID_USER = "bleib1dj"
 SENDGRID_PASSWORD = "wp*D8S@kRnc:6pA"
 
-LOGIN_URL = '/registration/login/'
+LOGIN_URL = '/login/'
 LOGOUT_URL = '/accounts/logout/'
 
 ANONYMOUS_USER_ID = -1

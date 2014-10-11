@@ -70,8 +70,10 @@ class TestEditQuestionTask(TestCase):
                           'current_pleb': self.user.email,
                           'last_edited_on': datetime.now(pytz.utc)}
         edit_response = edit_question_task.apply_async(kwargs=edit_question_dict)
-
-        self.assertTrue(edit_response.get())
+        while not edit_response.ready():
+            time.sleep(1)
+        edit_response = edit_response.result
+        self.assertTrue(edit_response)
 
 
 
@@ -93,13 +95,16 @@ class TestQuestionTaskRaceConditions(TestCase):
         question.save()
 
         edit_dict = {'content': "post edited",
-                     'post_uuid': self.question_info_dict['question_uuid'],
+                     'question_uuid': question.question_id,
                      'current_pleb': self.user.email,
                      'last_edited_on': datetime.now(pytz.utc)}
         for num in range(1, 10):
-            edit_dict['content'] = "post edited" + str(num)
+            edit_dict['content'] = "post edited" + str(uuid1())
             edit_dict['last_edited_on'] = datetime.now(pytz.utc)
             edit_response = edit_question_task.apply_async(kwargs=edit_dict)
+            while not edit_response.ready():
+                time.sleep(3)
+            edit_response = edit_response.result
             edit_array.append(edit_response)
 
         for response in edit_array:
@@ -126,7 +131,10 @@ class TestVoteTask(TestCase):
         vote_info_dict = {"question_uuid": question.question_id,
                           "current_pleb": pleb.email, 'vote_type': 'up'}
         vote_response = vote_question_task.apply_async(kwargs=vote_info_dict)
-        self.assertTrue(vote_response.get())
+        while not vote_response.ready():
+            time.sleep(1)
+        vote_response = vote_response.result
+        self.assertTrue(vote_response)
 
 class TestMultipleTasks(TestCase):
     def setUp(self):
@@ -162,5 +170,7 @@ class TestMultipleTasks(TestCase):
                           'content': 'test question',
                           'question_uuid': question.question_id}
         response2 = create_question_task.apply_async(kwargs=post_info_dict)
-
-        self.assertFalse(response2.get())
+        while not response2.ready():
+            time.sleep(1)
+        response2 = response2.result
+        self.assertFalse(response2)

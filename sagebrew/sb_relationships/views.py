@@ -1,3 +1,4 @@
+import logging
 from uuid import uuid1
 from urllib2 import HTTPError
 from requests import ConnectionError
@@ -5,13 +6,16 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
+from neomodel import DoesNotExist
+
 from api.utils import execute_cypher_query
-from .forms import SubmitFriendRequestForm
+from .forms import (SubmitFriendRequestForm, GetFriendRequestForm,
+                    RespondFriendRequestForm)
 from .neo_models import FriendRequest
 from .tasks import create_friend_request_task
 from plebs.neo_models import Pleb
-from api.utils import get_post_data
 
+logger = logging.getLogger('loggly_logs')
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
@@ -37,9 +41,19 @@ def create_friend_request(request):
             return Response({"action": True,
                          "friend_request_id": request_form.cleaned_data[
                              'friend_request_uuid']}, status=200)
+        else:
+            return Response({'detail': 'invalid form'}, status=400)
+
+    except KeyError:
+        return Response({'detail': 'key error'}, status=400)
+
     except(HTTPError, ConnectionError):
         return Response({"action": False}, status=408)
 
+    except Exception:
+        logger.exception({"function": create_friend_request.__name__,
+                          "exception": "UnhandledException: "})
+        return Response(status=400)
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
@@ -51,23 +65,40 @@ def get_friend_requests(request):
     :return:
     '''
     requests = []
-    citizen = Pleb.nodes.get(email=request.DATA['email'])
-    query = 'match (p:Pleb) where p.email ="%s" ' \
-            'with p ' \
-            'match (p)-[:RECEIVED_A_REQUEST]-(r:FriendRequest) ' \
-            'where r.seen=False ' \
-            'return r' % request.DATA['email']
-    friend_requests, meta = execute_cypher_query(query)
-    friend_requests = [FriendRequest.inflate(row[0]) for row in friend_requests]
-    for friend_request in friend_requests:
-        request_id = friend_request.friend_request_uuid
-        request_sender = friend_request.request_from.all()[0]
-        request_dict = {
-        'from_name': request_sender.first_name + ' ' +
-                     request_sender.last_name,
-        'from_email': request_sender.email, 'request_id': request_id}
-        requests.append(request_dict)
-    return Response(requests, status=200)
+    try:
+        form = GetFriendRequestForm(request.DATA)
+        if form.is_valid():
+            try:
+                citizen = Pleb.nodes.get(email=form.cleaned_data['email'])
+            except (Pleb.DoesNotExist, DoesNotExist):
+                return Response({"detail": "pleb does not exist"}, status=400)
+
+            query = 'match (p:Pleb) where p.email ="%s" ' \
+                    'with p ' \
+                    'match (p)-[:RECEIVED_A_REQUEST]-(r:FriendRequest) ' \
+                    'where r.seen=False ' \
+                    'return r' % request.DATA['email']
+            friend_requests, meta = execute_cypher_query(query)
+            friend_requests = [FriendRequest.inflate(row[0]) for row in friend_requests]
+            for friend_request in friend_requests:
+                request_id = friend_request.friend_request_uuid
+                request_sender = friend_request.request_from.all()[0]
+                request_dict = {
+                'from_name': request_sender.first_name + ' ' +
+                             request_sender.last_name,
+                'from_email': request_sender.email, 'request_id': request_id}
+                requests.append(request_dict)
+            return Response(requests, status=200)
+        else:
+            return Response({"detail": "invalid form"}, status=400)
+
+    except IndexError:
+        return Response(status=400)
+
+    except Exception:
+        logger.exception({"function": get_friend_requests.__name__,
+                          "exception": "UnhandledException: "})
+        return Response(status=400)
 
 
 @api_view(['POST'])
@@ -86,29 +117,41 @@ def respond_friend_request(request):
     :param request:
     :return:
     '''
-    request_data = request.DATA
     try:
-        friend_request = FriendRequest.nodes.get(
-            friend_request_uuid=request_data['request_id'])
-        to_pleb = friend_request.request_to.all()[0]
-        from_pleb = friend_request.request_from.all()[0]
-    except (FriendRequest.DoesNotExist, Pleb.DoesNotExist):
-        return Response(status=408)
+        form = RespondFriendRequestForm(request.DATA)
+        if form.is_valid():
+            try:
+                friend_request = FriendRequest.nodes.get(
+                    friend_request_uuid=form.cleaned_data['request_id'])
+                to_pleb = friend_request.request_to.all()[0]
+                from_pleb = friend_request.request_from.all()[0]
+            except (FriendRequest.DoesNotExist, Pleb.DoesNotExist):
+                return Response(status=408)
 
-    if request_data['response'] == 'accept':
-        rel1 = to_pleb.friends.connect(from_pleb)
-        rel2 = from_pleb.friends.connect(to_pleb)
-        rel1.save()
-        rel2.save()
-        friend_request.delete()
-        to_pleb.save()
-        from_pleb.save()
-        return Response(status=200)
-    elif request_data['response'] == 'deny':
-        friend_request.delete()
-        return Response(status=200)
-    elif request_data['response'] == 'block':
-        friend_request.seen = True
-        friend_request.response = 'block'
-        friend_request.save()
-        return Response(status=200)
+            if form.cleaned_data['response'] == 'accept':
+                rel1 = to_pleb.friends.connect(from_pleb)
+                rel2 = from_pleb.friends.connect(to_pleb)
+                rel1.save()
+                rel2.save()
+                friend_request.delete()
+                to_pleb.save()
+                from_pleb.save()
+                return Response(status=200)
+            elif form.cleaned_data['response'] == 'deny':
+                friend_request.delete()
+                return Response(status=200)
+            elif form.cleaned_data['response'] == 'block':
+                friend_request.seen = True
+                friend_request.response = 'block'
+                friend_request.save()
+                return Response(status=200)
+        else:
+            return Response({"detail": "invalid form"}, status=400)
+
+    except IndexError:
+        return Response(status=400)
+
+    except Exception:
+        logger.exception({"function": respond_friend_request.__name__,
+                          "exception": Exception})
+        return Response(status=400)

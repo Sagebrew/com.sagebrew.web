@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.views.generic.base import RedirectView, TemplateView
 from django.conf.urls import patterns, url
 
+from sb_registration.views import login_view, logout_view
 
 urlpatterns = patterns('',
                        (r'^robots\.txt$',
@@ -16,6 +17,8 @@ urlpatterns = patterns('',
                        (r'^secret/', include(admin.site.urls)),
                        (r'^$', include('sb_registration.urls')),
                        (r'^accounts/', include('allauth.urls')),
+                       url(r'^login/$', login_view, name="login"),
+                       url(r'^logout/$', logout_view, name="logout"),
                        (r'^locations/$',
                         TemplateView.as_view(template_name="location.html")),
                        url(r'^404/$',

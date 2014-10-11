@@ -1,5 +1,4 @@
 import pytz
-import traceback
 import logging
 from json import dumps
 from uuid import uuid1
@@ -7,6 +6,7 @@ from datetime import datetime
 from django.conf import settings
 
 from celery import shared_task
+from neomodel import DoesNotExist
 from elasticsearch import Elasticsearch
 
 from .neo_models import SearchQuery, KeyWord
@@ -40,8 +40,14 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
     }
     try:
         if object_type == 'question':
-            question = SBQuestion.nodes.get(question_id=object_uuid)
-            pleb = Pleb.nodes.get(email=current_pleb)
+            try:
+                question = SBQuestion.nodes.get(question_id=object_uuid)
+            except (SBQuestion.DoesNotExist, DoesNotExist):
+                raise Exception
+            try:
+                pleb = Pleb.nodes.get(email=current_pleb)
+            except (Pleb.DoesNotExist, DoesNotExist):
+                return False
             if pleb.object_weight.is_connected(question):
                 rel = pleb.object_weight.relationship(question)
 
@@ -95,8 +101,11 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
 
 
         if object_type == 'pleb':
-            pleb = Pleb.nodes.get(email=object_uuid)
-            c_pleb = Pleb.nodes.get(email=current_pleb)
+            try:
+                pleb = Pleb.nodes.get(email=object_uuid)
+                c_pleb = Pleb.nodes.get(email=current_pleb)
+            except (Pleb.DoesNotExist, DoesNotExist):
+                return False
             if c_pleb.user_weight.is_connected(pleb):
                 rel = c_pleb.user_weight.relationship(pleb)
                 if rel.interaction == 'seen' and modifier_type == 'search_seen':
@@ -112,15 +121,25 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
                 update_search_index_doc(**update_dict)
 
         if object_type == 'post':
-            post = SBPost.nodes.get(post_id=object_uuid)
+            try:
+                post = SBPost.nodes.get(post_id=object_uuid)
+            except (SBPost.DoesNotExist, DoesNotExist):
+                raise Exception
         if object_type == 'answer':
-            answer = SBAnswer.nodes.get(answer_id = object_uuid)
-    except Exception, e:
+            try:
+                answer = SBAnswer.nodes.get(answer_id = object_uuid)
+            except (SBAnswer.DoesNotExist, DoesNotExist):
+                raise Exception
+    except TypeError:
+        return False
+    except Exception:
         logger.critical(dumps({"exception": "Unhandled Exception",
                                "function":
                                    update_weight_relationship.__name__}))
         logger.exception("Unhandled Exception: ")
-        return False
+        raise update_weight_relationship.retry(exc=Exception, countdown=3,
+                                               max_retries=None)
+
 
 @shared_task()
 def add_user_to_custom_index(pleb="", index="full-search-user-specific-1"):
@@ -198,15 +217,17 @@ def update_search_query(pleb, query_param, keywords):
     :return:
     '''
     try:
-        pleb = Pleb.nodes.get(email=pleb)
+        try:
+            pleb = Pleb.nodes.get(email=pleb)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            return False
         search_query = SearchQuery.nodes.get(search_query=query_param)
         rel = pleb.searches.relationship(search_query)
         rel.times_searched += 1
         rel.last_searched = datetime.now(pytz.utc)
         rel.save()
-    except Pleb.DoesNotExist:
-        return False
-    except SearchQuery.DoesNotExist:
+
+    except (SearchQuery.DoesNotExist, DoesNotExist):
         search_query = SearchQuery(search_query=query_param)
         search_query.save()
         search_query.searched_by.connect(pleb)
@@ -217,7 +238,8 @@ def update_search_query(pleb, query_param, keywords):
             spawn_task(task_func=create_keyword, task_param=keyword)
     except Exception:
         logger.exception("UnhandledException: ")
-        return False
+        raise update_search_query.retry(exc=Exception, countdown=3,
+                                        max_retries=None)
 
 @shared_task()
 def create_keyword(text, relevance, query_param):
@@ -229,7 +251,10 @@ def create_keyword(text, relevance, query_param):
     :return:
     '''
     try:
-        search_query = SearchQuery.nodes.get(search_query=query_param)
+        try:
+            search_query = SearchQuery.nodes.get(search_query=query_param)
+        except (SearchQuery.DoesNotExist, DoesNotExist):
+            raise Exception
         keyword = KeyWord(keyword=text).save()
         rel = search_query.keywords.connect(keyword)
         rel.relevance = relevance
@@ -238,9 +263,9 @@ def create_keyword(text, relevance, query_param):
         search_query.save()
         keyword.save()
         return True
-    except SearchQuery.DoesNotExist:
-        return False
     except Exception:
         logger.exception("UnhandledException: ")
-        return False
+        raise create_keyword.retry(exc=Exception, countdown=3,
+                                   max_retries=None)
+
 

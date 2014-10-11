@@ -2,7 +2,7 @@ import logging
 from operator import itemgetter
 from django.conf import settings
 from multiprocessing import Pool
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from elasticsearch import Elasticsearch
 from django.template.loader import render_to_string
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -11,12 +11,14 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
 
+from neomodel import DoesNotExist
 
 from .tasks import update_search_query
 from .utils import process_search_result
 from .forms import SearchForm, SearchFormApi
 from api.alchemyapi import AlchemyAPI
 from api.utils import (spawn_task)
+from plebs.neo_models import Pleb
 from plebs.utils import prepare_user_search_html
 from sb_search.tasks import update_weight_relationship
 from sb_questions.utils import prepare_question_search_html
@@ -36,7 +38,11 @@ def search_view(request):
     :param request:
     :return:
     '''
-    return render(request, 'search_page.html', {})
+    try:
+        pleb = Pleb.nodes.get(email=request.user.email)
+    except (Pleb.DoesNotExist, DoesNotExist):
+        redirect('404_error')
+    return render(request, 'search_page.html', {"pleb_info": pleb})
 
 @login_required()
 @user_passes_test(verify_completed_registration,
@@ -54,6 +60,7 @@ def search_result_view(request, query_param, display_num=5, page=1,
     :param range_end:
     :return:
     '''
+    pleb = Pleb.nodes.get(email=request.user.email)
     search_data = {'query_param': query_param, 'page': page, 'display_num':
                    display_num, 'range_start': range_start,
                    'range_end': range_end}
@@ -61,10 +68,10 @@ def search_result_view(request, query_param, display_num=5, page=1,
     if search_form.is_valid():
         return render(request, 'search_result.html',
                       {'search_param': search_form.cleaned_data['query_param'],
-                       'page': search_form.cleaned_data['page']}, status=200)
+                       'page': search_form.cleaned_data['page'],
+                       'pleb_info': pleb}, status=200)
     else:
-        return render(request, 'search_result.html', status=400)
-
+        return render(request, 'search_result.html', {'pleb_info': pleb},status=400)
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))

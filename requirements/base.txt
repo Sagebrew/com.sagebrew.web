@@ -34,3 +34,4 @@ nltk
 neomodel
 shortuuid
 gunicorn
+coverage

@@ -8,6 +8,7 @@ from django.conf import settings
 
 logger = logging.getLogger('loggly_logs')
 
+
 class Command(BaseCommand):
     def populate_nginx(self, user):
         hostname = socket.gethostname()

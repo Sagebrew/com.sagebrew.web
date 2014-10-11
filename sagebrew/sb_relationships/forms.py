@@ -5,3 +5,10 @@ class SubmitFriendRequestForm(forms.Form):
     to_pleb = forms.CharField()
     friend_request_uuid = forms.CharField()
 
+class GetFriendRequestForm(forms.Form):
+    email = forms.EmailField()
+
+class RespondFriendRequestForm(forms.Form):
+    request_id = forms.CharField()
+    response = forms.CharField()
+

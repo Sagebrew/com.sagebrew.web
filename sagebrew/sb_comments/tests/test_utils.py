@@ -206,7 +206,7 @@ class TestFlagComment(TestCase):
                                 current_user=self.user.email,
                                 flag_reason='other')
 
-        self.assertFalse(res)
+        self.assertEqual(res, None)
 
     def test_flag_comment_failure_user_does_not_exist(self):
         comment = SBComment(comment_id=uuid1())

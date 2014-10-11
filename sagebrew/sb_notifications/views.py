@@ -17,7 +17,6 @@ logger = logging.getLogger('loggly_logs')
 def create_notification(request):
     pass
 
-
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def get_notifications(request):

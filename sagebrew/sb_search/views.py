@@ -2,7 +2,7 @@ import logging
 from operator import itemgetter
 from django.conf import settings
 from multiprocessing import Pool
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from elasticsearch import Elasticsearch
 from django.template.loader import render_to_string
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -10,6 +10,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
+
+from neomodel import DoesNotExist
 
 from .tasks import update_search_query
 from .utils import process_search_result
@@ -36,7 +38,10 @@ def search_view(request):
     :param request:
     :return:
     '''
-    pleb = Pleb.nodes.get(email=request.user.email)
+    try:
+        pleb = Pleb.nodes.get(email=request.user.email)
+    except (Pleb.DoesNotExist, DoesNotExist):
+        redirect('404_error')
     return render(request, 'search_page.html', {"pleb_info": pleb})
 
 @login_required()
@@ -67,7 +72,6 @@ def search_result_view(request, query_param, display_num=5, page=1,
                        'pleb_info': pleb}, status=200)
     else:
         return render(request, 'search_result.html', {'pleb_info': pleb},status=400)
-
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))

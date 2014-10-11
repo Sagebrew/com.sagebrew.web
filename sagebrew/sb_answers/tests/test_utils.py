@@ -51,7 +51,7 @@ class TestCreateAnswerUtil(TestCase):
         self.answer_info_dict['question_uuid'] = '246646156156615'
         response = save_answer_util(**self.answer_info_dict)
 
-        self.assertFalse(response)
+        self.assertEqual(response, None)
 
     def test_save_answer_util_pleb_does_not_exist(self):
         self.question_info_dict['question_id']=str(uuid1())

@@ -1,7 +1,11 @@
+import logging
+from neomodel import DoesNotExist
+
 from api.utils import execute_cypher_query
 from plebs.neo_models import Pleb
 from .neo_models import FriendRequest
 
+logger = logging.getLogger('loggly_logs')
 
 def create_friend_request_util(data):
     '''
@@ -10,32 +14,37 @@ def create_friend_request_util(data):
     create the relationships from the users to the friend requests
     '''
     try:
-        from_citizen = Pleb.nodes.get(email=data['from_pleb'])
-        to_citizen = Pleb.nodes.get(email=data['to_pleb'])
-    except Pleb.DoesNotExist:
-        return False
+        try:
+            from_citizen = Pleb.nodes.get(email=data['from_pleb'])
+            to_citizen = Pleb.nodes.get(email=data['to_pleb'])
+        except (Pleb.DoesNotExist, DoesNotExist):
+            return None
 
-    query = 'match (p:Pleb) where p.email="%s" ' \
-            'with p ' \
-            'match (p)-[:SENT_A_REQUEST]-(r:FriendRequest) ' \
-            'with p, r ' \
-            'match (r)-[:REQUEST_TO]-(p2:Pleb) where p2.email="%s" ' \
-            'return p2' % (data['from_pleb'], data['to_pleb'])
-    pleb2, meta = execute_cypher_query(query)
-    if pleb2:
+        query = 'match (p:Pleb) where p.email="%s" ' \
+                'with p ' \
+                'match (p)-[:SENT_A_REQUEST]-(r:FriendRequest) ' \
+                'with p, r ' \
+                'match (r)-[:REQUEST_TO]-(p2:Pleb) where p2.email="%s" ' \
+                'return p2' % (data['from_pleb'], data['to_pleb'])
+        pleb2, meta = execute_cypher_query(query)
+        if pleb2:
+            return True
+
+        data.pop('from_pleb', None)
+        data.pop('to_pleb', None)
+
+        friend_request = FriendRequest(friend_request_uuid=data[
+            'friend_request_uuid'])
+        friend_request.save()
+        friend_request.request_from.connect(from_citizen)
+        friend_request.request_to.connect(to_citizen)
+        friend_request.save()
+        from_citizen.friend_requests_sent.connect(friend_request)
+        from_citizen.save()
+        to_citizen.friend_requests_recieved.connect(friend_request)
+        to_citizen.save()
         return True
-
-    data.pop('from_pleb', None)
-    data.pop('to_pleb', None)
-
-    friend_request = FriendRequest(friend_request_uuid=data[
-        'friend_request_uuid'])
-    friend_request.save()
-    friend_request.request_from.connect(from_citizen)
-    friend_request.request_to.connect(to_citizen)
-    friend_request.save()
-    from_citizen.friend_requests_sent.connect(friend_request)
-    from_citizen.save()
-    to_citizen.friend_requests_recieved.connect(friend_request)
-    to_citizen.save()
-    return True
+    except Exception:
+        logger.exception({"function": create_friend_request_util.__name__,
+                          "exception": "UnhandledException: "})
+        return False

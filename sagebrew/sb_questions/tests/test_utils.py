@@ -1,4 +1,3 @@
-import time
 import pytz
 from datetime import datetime, timedelta
 from uuid import uuid1

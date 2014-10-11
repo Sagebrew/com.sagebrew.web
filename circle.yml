@@ -26,6 +26,8 @@ dependencies:
         background: true
 
 test:
+  override:
+    - coverage run --source='.' manage.py test
   post:
     - coverage html
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation

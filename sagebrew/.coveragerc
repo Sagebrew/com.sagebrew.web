@@ -2,6 +2,7 @@
 branch = True
 omit =
     */tests*
+    */migrations/*
 
 [report]
 # Regexes for lines to exclude from consideration

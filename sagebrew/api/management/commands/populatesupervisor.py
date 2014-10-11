@@ -9,6 +9,9 @@ logger = logging.getLogger('loggly_logs')
 class Command(BaseCommand):
     def populate_supervisor(self, env, user):
         worker_count = str((multiprocessing.cpu_count() *2) + 1)
+        worker_count = (multiprocessing.cpu_count() *2) + 1
+        if worker_count > 12:
+            worker_count = 12
         if(env == "web"):
             with open ("%s/supervisor_confs/web_template.conf" % (
                     settings.REPO_DIR), "r") as dockerfile:

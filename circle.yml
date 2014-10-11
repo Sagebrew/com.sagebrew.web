@@ -30,6 +30,7 @@ test:
     - coverage run --source='.' manage.py test
   post:
     - coverage html
+    - coveralls --rcfile=$CIRCLE_ARTIFACTS
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
     - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg
     - docker build --no-cache=$CLEAR_CACHE -t sagebrew/sb_worker:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/worker/

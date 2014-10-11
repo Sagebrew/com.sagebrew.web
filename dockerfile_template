@@ -28,9 +28,6 @@ RUN chown root /etc/rsyslog.d/
 RUN chown root /etc/nginx/
 RUN service rsyslog restart
 
-EXPOSE 80
-EXPOSE 443
-
 RUN chown {{APP_USER}} /etc/supervisor/conf.d/
 RUN python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py populatesupervisor {{SUPER_TEMPLATE}} {{APP_USER}}
 RUN chown root /etc/supervisor/conf.d/

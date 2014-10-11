@@ -7,6 +7,13 @@ omit =
     */settings/*
     *wsgi.py*
     *admin.py*
+    # Management commands should be included usually but these are tested
+    # in a different way than running unit tests. The build will fail if
+    # these fail when docker attempts to run.
+    */management/commands/dockerfilepopulation.py
+    */management/commands/logglypopulation.py
+    */management/commands/populatenginx.py
+    */management/commands/populatesupervisor.py
 
 [report]
 # Regexes for lines to exclude from consideration

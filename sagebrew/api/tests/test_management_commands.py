@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from plebs.neo_models import Pleb
 
 
-class TestSaveAnswerTask(TestCase):
+class TestClearNeoDBCommand(TestCase):
 
     def test_clear_neo_db(self):
         email = 'devon@sagebrew.com'

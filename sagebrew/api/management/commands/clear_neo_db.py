@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+
 from neomodel import db
 from neomodel.exception import CypherException
 

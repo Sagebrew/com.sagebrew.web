@@ -35,14 +35,25 @@ test:
     - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg
     - docker build --no-cache=$CLEAR_CACHE -t sagebrew/sb_worker:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/worker/
     - docker build --no-cache=$CLEAR_CACHE -t sagebrew/sb_web:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/web_app/
-    - docker run -h box-worker -e NEO4J_REST_URL=$GRAPHEN_NEO4J_REST_URL -e APP_USER=$APP_USER -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME -e LOG_ACCOUNT=$LOG_ACCOUNT -e LOG_TOKEN=$LOG_TOKEN sagebrew/sb_worker:$CIRCLE_SHA1
-    - docker run -h box-webapp -p 9200:443 -e NEO4J_REST_URL=$GRAPHEN_NEO4J_REST_URL -e APP_USER=$APP_USER -e PROJECT_PATH=$PROJECT_PATH -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME -e LOG_ACCOUNT=$LOG_ACCOUNT -e LOG_TOKEN=$LOG_TOKEN sagebrew/sb_web:$CIRCLE_SHA1
-    - curl --retry 10 --retry-delay 5 --insecure -v https://localhost:9200/
+    - docker run -h box-worker --name worker_one -e NEO4J_REST_URL=$GRAPHEN_NEO4J_REST_URL -e APP_USER=$APP_USER -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME -e LOG_ACCOUNT=$LOG_ACCOUNT -e LOG_TOKEN=$LOG_TOKEN -d -t sagebrew/sb_worker:$CIRCLE_SHA1
+    - docker run -h box-webapp --name web_app_one -p 443:443 -e NEO4J_REST_URL=$GRAPHEN_NEO4J_REST_URL -e APP_USER=$APP_USER -e PROJECT_PATH=$PROJECT_PATH -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME -e LOG_ACCOUNT=$LOG_ACCOUNT -e LOG_TOKEN=$LOG_TOKEN -d -t sagebrew/sb_web:$CIRCLE_SHA1
+    - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/
 
 checkout:
   post:
     - git submodule sync
     - git submodule update --init
+
+deployment:
+#  production:
+#    branch: master
+  staging:
+    branch: staging
+    commands:
+      - git checkout master
+      - git merge staging
+      - git push
+      - git checkout staging
 
 general:
   build_dir: sagebrew

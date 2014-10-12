@@ -1,14 +1,22 @@
 import time
+import pytz
 from uuid import uuid1
+from datetime import datetime
 from django.test import TestCase
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.management import call_command
 
+from elasticsearch import Elasticsearch
+
 from plebs.neo_models import Pleb
+from api.alchemyapi import AlchemyAPI
 from sb_posts.neo_models import SBPost
 from sb_answers.neo_models import SBAnswer
 from sb_questions.neo_models import SBQuestion
-from sb_search.tasks import update_weight_relationship
+from sb_search.tasks import (update_weight_relationship,
+                             add_user_to_custom_index, update_user_indices,
+                             update_search_query)
 
 class TestUpdateWeightRelationshipTaskQuestion(TestCase):
     def setUp(self):
@@ -508,9 +516,6 @@ class TestUpdateWeightRelationshipTaskPleb(TestCase):
         self.user1 = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
         self.pleb1 = Pleb.nodes.get(email=self.user1.email)
-        self.user2 = User.objects.create_user(
-            username='Tyler2', email=str(uuid1())+'@gmail.com')
-        self.pleb2 = Pleb.nodes.get(email=self.user2.email)
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -527,3 +532,136 @@ class TestUpdateWeightRelationshipTaskPost(TestCase):
     def tearDown(self):
         call_command('clear_neo_db')
 
+class TestAddUserToCustomIndexTask(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.pleb = Pleb.nodes.get(email=self.user.email)
+
+    def tearDown(self):
+        call_command('clear_neo_db')
+
+    def test_add_user_to_custom_index_success(self):
+        data = {
+            'pleb': self.user.email
+        }
+        res = add_user_to_custom_index.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertTrue(res.result)
+
+
+class TestUpdateUserIndices(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.pleb = Pleb.nodes.get(email=self.user.email)
+
+    def tearDown(self):
+        call_command('clear_neo_db')
+
+    def test_update_user_indices_success(self):
+        search_dict = {'question_content': 'test_c', 'user': self.user.email,
+                       'question_title': 'test_t', 'tags': ['test','tag'],
+                       'question_uuid': str(uuid1()),
+                       'post_date': datetime.now(pytz.utc),
+                       'related_user': ''}
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        res = es.index(index='full-search-base', doc_type='question',
+                       body=search_dict)
+        task_data = {
+            "doc_id": res['_id'],
+            "doc_type": res['_type']
+        }
+
+        res = update_user_indices.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertTrue(res)
+
+
+class TestUpdateSearchQuery(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.pleb = Pleb.nodes.get(email=self.user.email)
+
+    def tearDown(self):
+        call_command('clear_neo_db')
+
+    def test_update_search_query_success_search_query_does_not_exist(self):
+        from sb_search.neo_models import SearchQuery
+        query_param = "this is a test search thing"
+        alchemyapi = AlchemyAPI()
+        response = alchemyapi.keywords("text", query_param)
+        task_data = {
+            "pleb": self.pleb.email, "query_param": query_param,
+            "keywords": response['keywords']
+        }
+        res = update_search_query.apply_async(kwargs=task_data)
+
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertTrue(res)
+
+        test_query = SearchQuery.nodes.get(search_query=query_param)
+        rel = self.pleb.searches.relationship(test_query)
+
+        self.assertEqual(test_query.__class__, SearchQuery)
+        self.assertEqual(rel.times_searched, 1)
+
+    def test_update_search_query_success_search_query_exists_connected(self):
+        from sb_search.neo_models import SearchQuery
+        test_query = SearchQuery(search_query="this is a test search")
+        test_query.save()
+
+        rel = self.pleb.searches.connect(test_query)
+        rel.save()
+
+        task_data = {
+            "pleb": self.pleb.email, "query_param": test_query.search_query,
+            "keywords": ['fake', 'keywords']
+        }
+
+        res = update_search_query.apply_async(kwargs=task_data)
+
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertTrue(res)
+
+        test_query.refresh()
+
+        rel = self.pleb.searches.relationship(test_query)
+
+        self.assertEqual(rel.times_searched, 2)
+
+    def test_update_search_query_success_search_query_exists_unconnected(self):
+        from sb_search.neo_models import SearchQuery
+        test_query = SearchQuery(search_query="this is a test search")
+        test_query.save()
+
+        task_data = {
+            "pleb": self.pleb.email, "query_param": test_query.search_query,
+            "keywords": ['fake', 'keywords']
+        }
+
+        res = update_search_query.apply_async(kwargs=task_data)
+
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertTrue(res)
+
+        test_query.refresh()
+
+        rel = self.pleb.searches.relationship(test_query)
+
+        self.assertEqual(rel.times_searched, 1)

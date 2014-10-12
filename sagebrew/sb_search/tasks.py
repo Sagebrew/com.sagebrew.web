@@ -166,7 +166,9 @@ def add_user_to_custom_index(pleb="", index="full-search-user-specific-1"):
         logger.critical(dumps({"exception": "Unhandled Exception",
                                "function": add_user_to_custom_index.__name__}))
         logger.exception("Unhandled Exception: ")
-        return False
+        raise add_user_to_custom_index.retry(exc=Exception, countdown=3,
+                                             max_retries=None)
+
 
 
 @shared_task()
@@ -209,11 +211,17 @@ def update_search_query(pleb, query_param, keywords):
         except (Pleb.DoesNotExist, DoesNotExist):
             return False
         search_query = SearchQuery.nodes.get(search_query=query_param)
-        rel = pleb.searches.relationship(search_query)
-        rel.times_searched += 1
-        rel.last_searched = datetime.now(pytz.utc)
-        rel.save()
-
+        if pleb.searches.is_connected(search_query):
+            rel = pleb.searches.relationship(search_query)
+            rel.times_searched += 1
+            rel.last_searched = datetime.now(pytz.utc)
+            rel.save()
+            return True
+        else:
+            rel = pleb.searches.connect(search_query)
+            rel.save()
+            search_query.searched_by.connect(pleb)
+            return True
     except (SearchQuery.DoesNotExist, DoesNotExist):
         search_query = SearchQuery(search_query=query_param)
         search_query.save()
@@ -223,6 +231,7 @@ def update_search_query(pleb, query_param, keywords):
         for keyword in keywords:
             keyword['query_param'] = query_param
             spawn_task(task_func=create_keyword, task_param=keyword)
+        return True
     except Exception:
         logger.exception("UnhandledException: ")
         raise update_search_query.retry(exc=Exception, countdown=3,

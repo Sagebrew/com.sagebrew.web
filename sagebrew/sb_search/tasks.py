@@ -251,14 +251,24 @@ def create_keyword(text, relevance, query_param):
             search_query = SearchQuery.nodes.get(search_query=query_param)
         except (SearchQuery.DoesNotExist, DoesNotExist):
             raise Exception
-        keyword = KeyWord(keyword=text).save()
-        rel = search_query.keywords.connect(keyword)
-        rel.relevance = relevance
-        rel.save()
-        keyword.search_queries.connect(search_query)
-        search_query.save()
-        keyword.save()
-        return True
+        try:
+            keyword = KeyWord.nodes.get(keyword=text)
+            rel = search_query.keywords.connect(keyword)
+            rel.relevance = relevance
+            rel.save()
+            keyword.search_queries.connect(search_query)
+            search_query.save()
+            keyword.save()
+            return True
+        except (KeyWord.DoesNotExist, DoesNotExist):
+            keyword = KeyWord(keyword=text).save()
+            rel = search_query.keywords.connect(keyword)
+            rel.relevance = relevance
+            rel.save()
+            keyword.search_queries.connect(search_query)
+            search_query.save()
+            keyword.save()
+            return True
     except CypherException:
         raise create_keyword.retry(exc=Exception, countdown=3,
                                    max_retries=None)

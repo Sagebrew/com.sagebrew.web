@@ -16,10 +16,11 @@ from sb_answers.neo_models import SBAnswer
 from sb_questions.neo_models import SBQuestion
 from sb_search.tasks import (update_weight_relationship,
                              add_user_to_custom_index, update_user_indices,
-                             update_search_query)
+                             update_search_query, create_keyword)
 
 class TestUpdateWeightRelationshipTaskQuestion(TestCase):
     def setUp(self):
+        settings.CELERY_ALWAYS_EAGER = True
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
         self.pleb = Pleb.nodes.get(email=self.user.email)
@@ -27,6 +28,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.question.save()
 
     def tearDown(self):
+        settings.CELERY_ALWAYS_EAGER = False
         call_command('clear_neo_db')
 
     def test_update_weight_relationship_task_success_seen_unconnected(self):
@@ -665,3 +667,72 @@ class TestUpdateSearchQuery(TestCase):
         rel = self.pleb.searches.relationship(test_query)
 
         self.assertEqual(rel.times_searched, 1)
+
+
+class TestCreateKeywordTask(TestCase):
+    from sb_search.neo_models import SearchQuery
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.pleb = Pleb.nodes.get(email=self.user.email)
+
+    def tearDown(self):
+        call_command('clear_neo_db')
+
+    def test_create_keyword_task_success_keyword_does_not_exist(self):
+        from sb_search.neo_models import SearchQuery
+        query = SearchQuery(search_query="test query")
+        query.save()
+
+        data = {
+            "text": "test", "relevance": ".9",
+            "query_param": query.search_query
+        }
+
+        res = create_keyword.apply_async(kwargs=data)
+
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertTrue(res)
+
+    def test_create_keyword_task_success_keyword_exists(self):
+        from sb_search.neo_models import SearchQuery, KeyWord
+        query = SearchQuery(search_query="test query")
+        query.save()
+        keyword = KeyWord(keyword="test")
+        keyword.save()
+
+        data = {
+            "text": "test", "relevance": ".9",
+            "query_param": query.search_query
+        }
+
+        res = create_keyword.apply_async(kwargs=data, )
+
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertTrue(res)
+
+'''
+    def test_create_keyword_task_failure_search_query_does_not_exist(self):
+        from sb_search.neo_models import SearchQuery, KeyWord
+        keyword = KeyWord(keyword="test")
+        keyword.save()
+
+        data = {
+            "text": "test", "relevance": ".9",
+            "query_param": "this does not exist"
+        }
+
+        res = create_keyword.apply_async(kwargs=data)
+
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertTrue(res)
+'''

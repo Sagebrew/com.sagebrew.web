@@ -20,7 +20,6 @@ from sb_search.tasks import (update_weight_relationship,
 
 class TestUpdateWeightRelationshipTaskQuestion(TestCase):
     def setUp(self):
-        settings.CELERY_ALWAYS_EAGER = True
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
         self.pleb = Pleb.nodes.get(email=self.user.email)
@@ -28,7 +27,6 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.question.save()
 
     def tearDown(self):
-        settings.CELERY_ALWAYS_EAGER = False
         call_command('clear_neo_db')
 
     def test_update_weight_relationship_task_success_seen_unconnected(self):

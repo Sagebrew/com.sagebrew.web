@@ -240,6 +240,7 @@ def update_search_query(pleb, query_param, keywords):
 @shared_task()
 def create_keyword(text, relevance, query_param):
     '''
+    This function takes
 
     :param keyword:
     :param relevance:

@@ -6,7 +6,7 @@ from datetime import datetime
 from django.conf import settings
 
 from celery import shared_task
-from neomodel import DoesNotExist
+from neomodel import DoesNotExist, CypherException
 from elasticsearch import Elasticsearch
 
 from .neo_models import SearchQuery, KeyWord
@@ -28,6 +28,8 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
     are used in generating more personalized search results via the
     point system
 
+    :param document_id:
+    :param index:
     :param object_type:
     :param object_uuid:
     :param current_pleb:
@@ -40,14 +42,17 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
     }
     try:
         if object_type == 'question':
+
             try:
                 question = SBQuestion.nodes.get(question_id=object_uuid)
             except (SBQuestion.DoesNotExist, DoesNotExist):
                 raise Exception
+
             try:
                 pleb = Pleb.nodes.get(email=current_pleb)
             except (Pleb.DoesNotExist, DoesNotExist):
                 return False
+
             if pleb.object_weight.is_connected(question):
                 rel = pleb.object_weight.relationship(question)
 
@@ -91,21 +96,23 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
                     update_dict['update_value'] = rel.weight
 
                 update_search_index_doc(**update_dict)
-
+                return True
             else:
                 rel = pleb.object_weight.connect(question)
                 rel.save()
                 update_dict['update_value'] = rel.weight
                 update_search_index_doc(**update_dict)
-
+                return True
 
 
         if object_type == 'pleb':
+
             try:
                 pleb = Pleb.nodes.get(email=object_uuid)
                 c_pleb = Pleb.nodes.get(email=current_pleb)
             except (Pleb.DoesNotExist, DoesNotExist):
                 return False
+
             if c_pleb.user_weight.is_connected(pleb):
                 rel = c_pleb.user_weight.relationship(pleb)
                 if rel.interaction == 'seen' and modifier_type == 'search_seen':
@@ -263,6 +270,9 @@ def create_keyword(text, relevance, query_param):
         search_query.save()
         keyword.save()
         return True
+    except CypherException:
+        raise create_keyword.retry(exc=Exception, countdown=3,
+                                   max_retries=None)
     except Exception:
         logger.exception("UnhandledException: ")
         raise create_keyword.retry(exc=Exception, countdown=3,

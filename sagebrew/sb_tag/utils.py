@@ -1,7 +1,7 @@
 import logging
 from django.conf import settings
 from elasticsearch import Elasticsearch
-from neomodel.exception import UniqueProperty, DoesNotExist
+from neomodel.exception import UniqueProperty, DoesNotExist, CypherException
 
 from .neo_models import SBAutoTag, SBTag
 from sb_questions.neo_models import SBQuestion
@@ -139,6 +139,9 @@ def add_tag_util(object_type, object_uuid, tags):
                 tag.tag_used += 1
                 tag.save()
             return True
+
+        except CypherException:
+            return None
 
         except Exception:
             logger.exception("UnhandledException: ")

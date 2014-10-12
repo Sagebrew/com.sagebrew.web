@@ -7,11 +7,6 @@ omit =
     */settings/*
     *wsgi.py*
     *admin.py*
-    # Tasks are only wrappers to utils and coverage.py does not support
-    # asynchronous tasks. So we have commented this out until coverage supports
-    # it. TASKS SHOULD ONLY BE UTIL WRAPPERS. DO NOT USE THEM FOR MORE THAN
-    # THAT.
-    *tasks.py*
     # Management commands should be included usually but these are tested
     # in a different way than running unit tests. The build will fail if
     # these fail when docker attempts to run.

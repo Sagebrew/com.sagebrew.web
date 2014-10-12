@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty)
+                      BooleanProperty, FloatProperty, db)
 
 from sb_relationships.neo_models import FriendRelationship, UserWeightRelationship
 from sb_posts.neo_models import RelationshipWeight
@@ -125,13 +125,26 @@ class Pleb(StructuredNode):
     user_weight = RelationshipTo('Pleb', 'WEIGHTED_USER',
                                  model=UserWeightRelationship)
     object_weight = RelationshipTo(['sb_questions.neo_models.SBQuestion',
-                                    'sb_answers.neo_models.SBAnswer'],
-                                     'OBJECT_WEIGHT',
-                                     model=RelationshipWeight)
+                                   'sb_answers.neo_models.SBAnswer'],
+                                   'OBJECT_WEIGHT',
+                                   model=RelationshipWeight)
     searches = RelationshipTo('sb_search.neo_models.SearchQuery', 'SEARCHED',
                               model=SearchCount)
     clicked_results = RelationshipTo('sb_search.neo_models.SearchResult',
                                      'CLICKED_RESULT')
+
+    def obj_weight_is_connected(self, obj):
+        if str(type(obj)) == "<class 'sb_questions.neo_models.SBQuestion'>":
+            query = 'match (p:Pleb)-[r:OBJECT_WEIGHT]-(s:SBQuestion) ' \
+                    'where s.question_id="%s" return s' % str(obj.question_id)
+            res, meta = db.cypher_query(query)
+            print res
+        elif str(type(obj)) == "<class 'sb_answers.neo_models.SBAnswer'>":
+            query = "match (p:Pleb)-[r:OBJECT_WEIGHT]-(s:SBAnswer) " \
+                    "where s.answer_id=%s return s" % obj.answer_id
+            res, meta = db.cypher_query(query)
+            print res
+
 
     def generate_username(self):
         temp_username = str(self.first_name).lower() + str(self.last_name).lower()

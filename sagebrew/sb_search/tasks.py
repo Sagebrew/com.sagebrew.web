@@ -10,7 +10,8 @@ from neomodel import DoesNotExist, CypherException
 from elasticsearch import Elasticsearch
 
 from .neo_models import SearchQuery, KeyWord
-from .utils import update_search_index_doc_script, update_search_index_doc
+from .utils import (update_search_index_doc_script, update_search_index_doc,
+                    update_weight_relationship_values)
 from api.utils import spawn_task
 from plebs.neo_models import Pleb
 from sb_posts.neo_models import SBPost
@@ -41,6 +42,11 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
         "document_type" : object_type, "update_value": 0
     }
     try:
+        try:
+            pleb = Pleb.nodes.get(email=current_pleb)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            return False
+
         if object_type == 'question':
 
             try:
@@ -48,52 +54,11 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
             except (SBQuestion.DoesNotExist, DoesNotExist):
                 raise Exception
 
-            try:
-                pleb = Pleb.nodes.get(email=current_pleb)
-            except (Pleb.DoesNotExist, DoesNotExist):
-                return False
-
             if pleb.obj_weight_is_connected(question):
                 rel = pleb.obj_weight_relationship(question)
 
-                if rel.seen == True and modifier_type == 'search_seen':
-                    rel.weight += settings.OBJECT_SEARCH_MODIFIERS[
-                        'seen_search']
-                    rel.save()
-                    update_dict['update_value'] = rel.weight
-
-                if modifier_type == 'comment_on':
-                    rel.weight += settings.OBJECT_SEARCH_MODIFIERS[
-                        'comment_on']
-                    rel.status = 'commented_on'
-                    rel.save()
-                    update_dict['update_value'] = rel.weight
-
-                if modifier_type == 'flag_as_inappropriate':
-                    rel.weight += settings.OBJECT_SEARCH_MODIFIERS[
-                        'flag_as_inappropriate']
-                    rel.status = 'flagged_as_inappropriate'
-                    rel.save()
-                    update_dict['update_value'] = rel.weight
-
-                if modifier_type == 'flag_as_spam':
-                    rel.weight += settings.OBJECT_SEARCH_MODIFIERS[
-                        'flag_as_spam']
-                    rel.status = 'flagged_as_spam'
-                    rel.save()
-                    update_dict['update_value'] = rel.weight
-
-                if modifier_type == 'share':
-                    rel.weight += settings.OBJECT_SEARCH_MODIFIERS['share']
-                    rel.status = 'shared'
-                    rel.save()
-                    update_dict['update_value'] = rel.weight
-
-                if modifier_type == 'answered':
-                    rel.weight += settings.OBJECT_SEARCH_MODIFIERS['answered']
-                    rel.status = 'answered'
-                    rel.save()
-                    update_dict['update_value'] = rel.weight
+                update_dict['update_value'] = \
+                    update_weight_relationship_values(rel, modifier_type)
 
                 update_search_index_doc(**update_dict)
                 return True
@@ -104,6 +69,25 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
                 update_search_index_doc(**update_dict)
                 return True
 
+        if object_type == 'answer':
+            try:
+                answer = SBAnswer.nodes.get(answer_id = object_uuid)
+            except (SBAnswer.DoesNotExist, DoesNotExist):
+                raise Exception
+
+            if pleb.obj_weight_is_connected(answer):
+                rel = pleb.obj_weight_relationship(answer)
+
+                update_dict['update_value'] = \
+                    update_weight_relationship_values(rel, modifier_type)
+                update_search_index_doc(**update_dict)
+                return True
+            else:
+                rel = pleb.obj_weight_connect(answer)
+                rel.save()
+                update_dict['update_value'] = rel.weight
+                update_search_index_doc(**update_dict)
+                return True
 
         if object_type == 'pleb':
 
@@ -132,11 +116,7 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
                 post = SBPost.nodes.get(post_id=object_uuid)
             except (SBPost.DoesNotExist, DoesNotExist):
                 raise Exception
-        if object_type == 'answer':
-            try:
-                answer = SBAnswer.nodes.get(answer_id = object_uuid)
-            except (SBAnswer.DoesNotExist, DoesNotExist):
-                raise Exception
+
     except TypeError:
         return False
     except Exception:

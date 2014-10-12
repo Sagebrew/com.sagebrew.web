@@ -176,11 +176,12 @@ class Pleb(StructuredNode):
         elif obj.__class__ == SBAnswer:
             query = 'match (p:Pleb) where p.email="%s" with p match ' \
                     '(a:SBAnswer) where a.answer_id="%s" ' \
-                    'with p,q merge (p)-[r:OBJECT_WEIGHT]-(a) return r' % \
+                    'with p,a merge (p)-[r:OBJECT_WEIGHT]-(a) return r' % \
                     (self.email, obj.answer_id)
             res, meta = db.cypher_query(query)
+            rel = RelationshipWeight.inflate(res[0][0])
             if res:
-                return True
+                return rel
             else:
                 return False
 
@@ -197,7 +198,7 @@ class Pleb(StructuredNode):
 
         if obj.__class__ == SBAnswer:
             query = 'match (p:Pleb {email: "%s"})-[r:OBJECT_WEIGHT]->' \
-                    '(q:SBAnswer {answer_id: "%s"}) return r' % \
+                    '(a:SBAnswer {answer_id: "%s"}) return r' % \
                     (self.email, obj.answer_id)
             res, meta = db.cypher_query(query)
             rel = RelationshipWeight.inflate(res[0][0])

@@ -110,3 +110,43 @@ def process_search_result(item):
                        "type": "pleb",
                        "temp_score": item['_score']*item['_source']['sb_score'],
                        "score": item['_score']}
+
+def update_weight_relationship_values(rel, modifier_type):
+    if rel.seen == True and modifier_type == 'search_seen':
+        rel.weight += settings.OBJECT_SEARCH_MODIFIERS[
+            'seen_search']
+        rel.save()
+        return rel.weight
+
+    if modifier_type == 'comment_on':
+        rel.weight += settings.OBJECT_SEARCH_MODIFIERS[
+            'comment_on']
+        rel.status = 'commented_on'
+        rel.save()
+        return rel.weight
+
+    if modifier_type == 'flag_as_inappropriate':
+        rel.weight += settings.OBJECT_SEARCH_MODIFIERS[
+            'flag_as_inappropriate']
+        rel.status = 'flagged_as_inappropriate'
+        rel.save()
+        return rel.weight
+
+    if modifier_type == 'flag_as_spam':
+        rel.weight += settings.OBJECT_SEARCH_MODIFIERS[
+            'flag_as_spam']
+        rel.status = 'flagged_as_spam'
+        rel.save()
+        return rel.weight
+
+    if modifier_type == 'share':
+        rel.weight += settings.OBJECT_SEARCH_MODIFIERS['share']
+        rel.status = 'shared'
+        rel.save()
+        return rel.weight
+
+    if modifier_type == 'answered':
+        rel.weight += settings.OBJECT_SEARCH_MODIFIERS['answered']
+        rel.status = 'answered'
+        rel.save()
+        return rel.weight

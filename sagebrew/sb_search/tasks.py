@@ -53,10 +53,10 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
             except (Pleb.DoesNotExist, DoesNotExist):
                 return False
 
-            if pleb.object_weight.is_connected(question):
-                rel = pleb.object_weight.relationship(question)
+            if pleb.obj_weight_is_connected(question):
+                rel = pleb.obj_weight_relationship(question)
 
-                if rel.seen == 'seen' and modifier_type == 'search_seen':
+                if rel.seen == True and modifier_type == 'search_seen':
                     rel.weight += settings.OBJECT_SEARCH_MODIFIERS[
                         'seen_search']
                     rel.save()
@@ -98,7 +98,7 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
                 update_search_index_doc(**update_dict)
                 return True
             else:
-                rel = pleb.object_weight.connect(question)
+                rel = pleb.obj_weight_connect(question)
                 rel.save()
                 update_dict['update_value'] = rel.weight
                 update_search_index_doc(**update_dict)

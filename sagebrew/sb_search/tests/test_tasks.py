@@ -21,8 +21,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
     def tearDown(self):
         call_command('clear_neo_db')
 
-    def test_update_weight_relationship_task_success_seen(self):
-        '''
+    def test_update_weight_relationship_task_success_seen_unconnected(self):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
                 'object_type': 'question',
@@ -30,7 +29,6 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
                 'current_pleb': self.user.email,
                 'modifier_type': 'search_seen'}
         res = update_weight_relationship.apply_async(kwargs=data)
-
         while not res.ready():
             time.sleep(1)
         res = res.result
@@ -38,26 +36,246 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.pleb.refresh()
         self.question.refresh()
 
-        self.assertTrue(self.pleb.object_weight.is_connected(self.question))
+        self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
         self.assertTrue(res)
-        '''
-        pass
 
-    def test_update_weight_relationship_task_success_comment_on(self):
-        pass
+        self.assertEqual(self.pleb.obj_weight_relationship(self.question).weight, 150)
 
-    def test_update_weight_relationship_task_success_flag_as_inappropriate(self):
-        pass
+    def test_update_weight_relationship_task_success_comment_on_unconnected(self):
+        data = {"document_id": str(uuid1()),
+                'index': 'full-search-user-specific-1',
+                'object_type': 'question',
+                'object_uuid': self.question.question_id,
+                'current_pleb': self.user.email,
+                'modifier_type': 'comment_on'}
+        res = update_weight_relationship.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
 
-    def test_update_weight_relationship_task_success_flag_as_spam(self):
-        pass
+        self.pleb.refresh()
+        self.question.refresh()
 
-    def test_update_weight_relationship_task_success_share(self):
-        pass
+        self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
+        self.assertTrue(res)
 
-    def test_update_weight_relationship_task_success_answered(self):
-        pass
+        self.assertEqual(self.pleb.obj_weight_relationship(self.question).weight, 150)
 
+    def test_update_weight_relationship_task_success_flag_as_inappropriate_unconnected(self):
+        data = {"document_id": str(uuid1()),
+                'index': 'full-search-user-specific-1',
+                'object_type': 'question',
+                'object_uuid': self.question.question_id,
+                'current_pleb': self.user.email,
+                'modifier_type': 'flag_as_inappropriate'}
+        res = update_weight_relationship.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.pleb.refresh()
+        self.question.refresh()
+
+        self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
+        self.assertTrue(res)
+
+        self.assertEqual(self.pleb.obj_weight_relationship(self.question).weight, 150)
+
+    def test_update_weight_relationship_task_success_flag_as_spam_unconnected(self):
+        data = {"document_id": str(uuid1()),
+                'index': 'full-search-user-specific-1',
+                'object_type': 'question',
+                'object_uuid': self.question.question_id,
+                'current_pleb': self.user.email,
+                'modifier_type': 'flag_as_spam'}
+        res = update_weight_relationship.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.pleb.refresh()
+        self.question.refresh()
+
+        self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
+        self.assertTrue(res)
+
+        self.assertEqual(self.pleb.obj_weight_relationship(self.question).weight, 150)
+
+    def test_update_weight_relationship_task_success_share_unconnected(self):
+        data = {"document_id": str(uuid1()),
+                'index': 'full-search-user-specific-1',
+                'object_type': 'question',
+                'object_uuid': self.question.question_id,
+                'current_pleb': self.user.email,
+                'modifier_type': 'share'}
+        res = update_weight_relationship.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.pleb.refresh()
+        self.question.refresh()
+
+        self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
+        self.assertTrue(res)
+
+        self.assertEqual(self.pleb.obj_weight_relationship(self.question).weight, 150)
+
+    def test_update_weight_relationship_task_success_answered_unconnected(self):
+        data = {"document_id": str(uuid1()),
+                'index': 'full-search-user-specific-1',
+                'object_type': 'question',
+                'object_uuid': self.question.question_id,
+                'current_pleb': self.user.email,
+                'modifier_type': 'answered'}
+        res = update_weight_relationship.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.pleb.refresh()
+        self.question.refresh()
+
+        self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
+        self.assertTrue(res)
+
+    def test_update_weight_relationship_task_success_seen_connected(self):
+        res = self.pleb.obj_weight_connect(self.question)
+
+        self.assertIsNot(res, False)
+
+        data = {"document_id": str(uuid1()),
+                'index': 'full-search-user-specific-1',
+                'object_type': 'question',
+                'object_uuid': self.question.question_id,
+                'current_pleb': self.user.email,
+                'modifier_type': 'search_seen'}
+        res = update_weight_relationship.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.pleb.refresh()
+        self.question.refresh()
+
+        self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
+        self.assertTrue(res)
+        self.assertEqual(self.pleb.obj_weight_relationship(self.question).weight, 155)
+
+    def test_update_weight_relationship_task_success_comment_on_connected(self):
+        res = self.pleb.obj_weight_connect(self.question)
+
+        self.assertIsNot(res, False)
+
+        data = {"document_id": str(uuid1()),
+                'index': 'full-search-user-specific-1',
+                'object_type': 'question',
+                'object_uuid': self.question.question_id,
+                'current_pleb': self.user.email,
+                'modifier_type': 'comment_on'}
+        res = update_weight_relationship.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.pleb.refresh()
+        self.question.refresh()
+
+        self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
+        self.assertTrue(res)
+        self.assertEqual(self.pleb.obj_weight_relationship(self.question).weight, 155)
+
+    def test_update_weight_relationship_task_success_flag_as_inappropriate_connected(self):
+        res = self.pleb.obj_weight_connect(self.question)
+
+        self.assertIsNot(res, False)
+
+        data = {"document_id": str(uuid1()),
+                'index': 'full-search-user-specific-1',
+                'object_type': 'question',
+                'object_uuid': self.question.question_id,
+                'current_pleb': self.user.email,
+                'modifier_type': 'flag_as_inappropriate'}
+        res = update_weight_relationship.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.pleb.refresh()
+        self.question.refresh()
+
+        self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
+        self.assertTrue(res)
+        self.assertEqual(self.pleb.obj_weight_relationship(self.question).weight, 145)
+
+    def test_update_weight_relationship_task_success_flag_as_spam_connected(self):
+        res = self.pleb.obj_weight_connect(self.question)
+
+        self.assertIsNot(res, False)
+
+        data = {"document_id": str(uuid1()),
+                'index': 'full-search-user-specific-1',
+                'object_type': 'question',
+                'object_uuid': self.question.question_id,
+                'current_pleb': self.user.email,
+                'modifier_type': 'flag_as_spam'}
+        res = update_weight_relationship.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.pleb.refresh()
+        self.question.refresh()
+
+        self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
+        self.assertTrue(res)
+        self.assertEqual(self.pleb.obj_weight_relationship(self.question).weight, 50)
+
+    def test_update_weight_relationship_task_success_share_connected(self):
+        res = self.pleb.obj_weight_connect(self.question)
+
+        self.assertIsNot(res, False)
+
+        data = {"document_id": str(uuid1()),
+                'index': 'full-search-user-specific-1',
+                'object_type': 'question',
+                'object_uuid': self.question.question_id,
+                'current_pleb': self.user.email,
+                'modifier_type': 'share'}
+        res = update_weight_relationship.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.pleb.refresh()
+        self.question.refresh()
+
+        self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
+        self.assertTrue(res)
+        self.assertEqual(self.pleb.obj_weight_relationship(self.question).weight, 157)
+
+    def test_update_weight_relationship_task_success_answered_connected(self):
+        res = self.pleb.obj_weight_connect(self.question)
+
+        self.assertIsNot(res, False)
+
+        data = {"document_id": str(uuid1()),
+                'index': 'full-search-user-specific-1',
+                'object_type': 'question',
+                'object_uuid': self.question.question_id,
+                'current_pleb': self.user.email,
+                'modifier_type': 'answered'}
+        res = update_weight_relationship.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.pleb.refresh()
+        self.question.refresh()
+
+        self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
+        self.assertTrue(res)
+        self.assertEqual(self.pleb.obj_weight_relationship(self.question).weight, 200)
 
 class TestUpdateWeightRelationshipTaskPleb(TestCase):
     def setUp(self):

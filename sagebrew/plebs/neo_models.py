@@ -134,16 +134,74 @@ class Pleb(StructuredNode):
                                      'CLICKED_RESULT')
 
     def obj_weight_is_connected(self, obj):
-        if str(type(obj)) == "<class 'sb_questions.neo_models.SBQuestion'>":
-            query = 'match (p:Pleb)-[r:OBJECT_WEIGHT]-(s:SBQuestion) ' \
-                    'where s.question_id="%s" return s' % str(obj.question_id)
+        from sb_questions.neo_models import SBQuestion
+        from sb_answers.neo_models import SBAnswer
+        if obj.__class__ == SBQuestion:
+            query = 'match (p:Pleb {email: "%s"})-[r:OBJECT_WEIGHT]->' \
+                    '(s:SBQuestion {question_id: "%s"}) ' \
+                    'return s' % (self.email, obj.question_id)
             res, meta = db.cypher_query(query)
-            print res
-        elif str(type(obj)) == "<class 'sb_answers.neo_models.SBAnswer'>":
-            query = "match (p:Pleb)-[r:OBJECT_WEIGHT]-(s:SBAnswer) " \
-                    "where s.answer_id=%s return s" % obj.answer_id
+            question = [SBQuestion.inflate(row[0]) for row in res]
+            try:
+                return question[0]
+            except IndexError:
+                return False
+
+        elif obj.__class__ == SBAnswer:
+            query = 'match (p:Pleb {email: "%s"})-[r:OBJECT_WEIGHT]->' \
+                    '(s:SBAnswer {answer_id: "%s"}) ' \
+                    'return s' % (self.email, obj.answer_id)
             res, meta = db.cypher_query(query)
-            print res
+            answer = [SBAnswer.inflate(row[0]) for row in res]
+            try:
+                return answer[0]
+            except IndexError:
+                return False
+
+    def obj_weight_connect(self, obj):
+        from sb_questions.neo_models import SBQuestion
+        from sb_answers.neo_models import SBAnswer
+        if obj.__class__ == SBQuestion:
+            query = 'match (p:Pleb) where p.email="%s" with p match ' \
+                    '(q:SBQuestion) where q.question_id="%s" ' \
+                    'with p,q merge (p)-[r:OBJECT_WEIGHT]-(q) return r' % \
+                    (self.email, obj.question_id)
+            res, meta = db.cypher_query(query)
+            rel = RelationshipWeight.inflate(res[0][0])
+            if rel:
+                return rel
+            else:
+                return False
+
+        elif obj.__class__ == SBAnswer:
+            query = 'match (p:Pleb) where p.email="%s" with p match ' \
+                    '(a:SBAnswer) where a.answer_id="%s" ' \
+                    'with p,q merge (p)-[r:OBJECT_WEIGHT]-(a) return r' % \
+                    (self.email, obj.answer_id)
+            res, meta = db.cypher_query(query)
+            if res:
+                return True
+            else:
+                return False
+
+    def obj_weight_relationship(self, obj):
+        from sb_questions.neo_models import SBQuestion
+        from sb_answers.neo_models import SBAnswer
+        if obj.__class__ == SBQuestion:
+            query = 'match (p:Pleb {email: "%s"})-[r:OBJECT_WEIGHT]->' \
+                    '(q:SBQuestion {question_id: "%s"}) return r' % \
+                    (self.email, obj.question_id)
+            res, meta = db.cypher_query(query)
+            rel = RelationshipWeight.inflate(res[0][0])
+            return rel
+
+        if obj.__class__ == SBAnswer:
+            query = 'match (p:Pleb {email: "%s"})-[r:OBJECT_WEIGHT]->' \
+                    '(q:SBAnswer {answer_id: "%s"}) return r' % \
+                    (self.email, obj.answer_id)
+            res, meta = db.cypher_query(query)
+            rel = RelationshipWeight.inflate(res[0][0])
+            return rel
 
 
     def generate_username(self):

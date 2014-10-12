@@ -1,10 +1,9 @@
-import traceback
 import logging
-from operator import itemgetter
+from urllib2 import HTTPError
 from django.conf import settings
-from django.template.loader import render_to_string
 
 from elasticsearch import Elasticsearch
+from elasticsearch.exceptions import TransportError, NotFoundError
 
 from api.utils import spawn_task
 from plebs.neo_models import Pleb
@@ -54,15 +53,22 @@ def update_search_index_doc(document_id, index, field, update_value,
     :param document_type:
     :return:
     '''
-    es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-    body = {
-        "doc" : {
-            field : update_value
+    try:
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        body = {
+            "doc" : {
+                field : update_value
+            }
         }
-    }
-    res = es.update(index=index, fields=["_source"], doc_type=document_type,
-                    id=document_id, body=body)
-    return True
+        res = es.update(index=index, fields=["_source"], doc_type=document_type,
+                        id=document_id, body=body)
+        return True
+    except HTTPError:
+        logger.error({"function": update_search_index_doc.__name__,
+                      "error": "HTTPError: "})
+        return False
+    except TransportError:
+        return False
 
 def process_search_result(item):
     '''

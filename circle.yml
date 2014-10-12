@@ -53,7 +53,7 @@ deployment:
       - bash -x deployment/staging.sh $CIRCLE_SHA1
       - git checkout master
       - git merge --no-edit staging
-      - git push
+      - git push origin master
       - git checkout staging
 
 

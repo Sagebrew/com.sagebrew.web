@@ -37,7 +37,6 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.pleb.refresh()
         self.question.refresh()
 
-        print self.pleb.definition
         self.assertTrue(self.pleb.object_weight.is_connected(self.question))
         self.assertTrue(res)
 

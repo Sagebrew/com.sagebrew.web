@@ -1,3 +1,4 @@
+from os import environ
 import logging
 import multiprocessing
 
@@ -9,7 +10,7 @@ logger = logging.getLogger('loggly_logs')
 class Command(BaseCommand):
     def populate_supervisor(self, env, user):
         worker_count = (multiprocessing.cpu_count() *2) + 1
-        if worker_count > 12:
+        if worker_count > 12 and environ.get("CIRCLECI", False):
             worker_count = 12
         worker_count = str(worker_count)
         if(env == "web"):

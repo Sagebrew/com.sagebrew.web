@@ -16,6 +16,7 @@ echo "Starting $NAME"
 cd $DJANGODIR
 export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
 export PYTHONPATH=$DJANGODIR:$PYTHONPATH
+export NEW_RELIC_CONFIG_FILE=/home/apps/newrelic.ini
 
 # Create the run directory if it doesn't exist
 RUNDIR=$(dirname $SOCKFILE)
@@ -23,7 +24,7 @@ test -d $RUNDIR || mkdir -p $RUNDIR
  
 # Start your Django Unicorn
 # Programs meant to be run under supervisor should not daemonize themselves (do not use --daemon)
-exec NEW_RELIC_CONFIG_FILE=/home/apps/newrelic.ini newrelic-admin run-program gunicorn ${DJANGO_WSGI_MODULE}:application \
+exec newrelic-admin run-program gunicorn ${DJANGO_WSGI_MODULE}:application \
   --name $NAME \
   --workers $NUM_WORKERS \
   --user=$USER --group=$GROUP \

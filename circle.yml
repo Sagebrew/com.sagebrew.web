@@ -50,10 +50,12 @@ deployment:
   staging:
     branch: staging
     commands:
+      - bash -x deployment/staging.sh $CIRCLE_SHA1
       - git checkout master
-      - git merge staging
+      - git merge --no-edit staging
       - git push
       - git checkout staging
+
 
 general:
   build_dir: sagebrew

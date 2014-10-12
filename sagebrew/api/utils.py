@@ -1,6 +1,5 @@
 import logging
 import requests
-from copy import copy
 from uuid import uuid1
 from socket import error as socket_error
 from json import loads, dumps

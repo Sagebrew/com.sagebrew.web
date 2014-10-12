@@ -24,6 +24,7 @@
     {% endblock css %}
     {% block page-javascript %}
     {% endblock page-javascript %}
+
 </head>
 <body class="container-fluid sb_background" id="sb-body">
         <div class="sb_nav_container">
@@ -56,5 +57,8 @@
     <script src="{% static 'js/jquery-cookie/jquery.cookie.js' %}"></script>
     <script src="{% static 'js/sb_utils.js' %}"></script>
 {% endblock scripts %}
+{% block analytics %}
+    {% include "google_analytics.html" %}
+{% endblock analytics %}
 </body>
 </html>

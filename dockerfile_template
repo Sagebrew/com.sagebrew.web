@@ -3,6 +3,7 @@ FROM {{PROJECT_NAME}}/django.web.primary.base:v11
 MAINTAINER Devon Bleibtrey <devon@sagebrew.com>
 
 RUN apt-get update && apt-get install -y git
+
 RUN mkdir /home/apps/
 RUN mkdir /home/apps/logs
 
@@ -15,7 +16,17 @@ RUN apt-get remove --auto-remove -y openssh-client
 
 RUN pip install -r /home/apps/{{PROJECT_NAME}}/requirements/{{REQUIREMENTS_FILE}}.txt
 
+RUN apt-get -y install wget
+RUN echo deb http://apt.newrelic.com/debian/ newrelic non-free >> /etc/apt/sources.list.d/newrelic.list
+RUN wget -O- https://download.newrelic.com/548C16BF.gpg | apt-key add -
+RUN apt-get update
+RUN apt-get install newrelic-sysmond
+RUN nrsysmond-config --set license_key={{NEW_RELIC_LICENSE}}
+newrelic-admin generate-config {{NEW_RELIC_LICENSE}} /home/apps/newrelic.ini
+
+
 RUN apt-get remove --auto-remove -y git
+RUN apt-get remove --auto-remove -y wget
 ENV NEO4J_REST_URL {{NEO4J_REST_URL}}
 ENV BOMBERMAN_API_KEY {{BOMBERMAN_API_KEY}}
 ENV SSL_CERT_LOCATION {{SSL_CERT_LOCATION}}

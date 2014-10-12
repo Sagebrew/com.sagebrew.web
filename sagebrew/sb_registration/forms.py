@@ -137,10 +137,6 @@ class InterestForm(forms.Form):
     )
 
 
-    def __init__(self, *args, **kwargs):
-        super(InterestForm, self).__init__(*args, **kwargs)
-
-
 class ProfileInfoForm(forms.Form):
     date_of_birth = forms.DateTimeField(
         label="Birthday*",

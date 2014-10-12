@@ -14,6 +14,7 @@ omit =
     */management/commands/logglypopulation.py
     */management/commands/populatenginx.py
     */management/commands/populatesupervisor.py
+    */api/alchemyapi.py
 
 [report]
 # Regexes for lines to exclude from consideration

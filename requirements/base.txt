@@ -30,6 +30,7 @@ sendgrid-django
 bomberman-python
 elasticsearch
 textblob
+newrelic
 nltk
 neomodel
 shortuuid

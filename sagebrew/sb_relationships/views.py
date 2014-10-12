@@ -35,7 +35,11 @@ def create_friend_request(request):
     try:
         friend_request_data = request.DATA
         friend_request_data['friend_request_uuid'] = uuid1()
-        request_form = SubmitFriendRequestForm(friend_request_data)
+        try:
+            request_form = SubmitFriendRequestForm(friend_request_data)
+        except TypeError:
+            return Response(status=400)
+
         if request_form.is_valid():
             create_friend_request_task.apply_async([request_form.cleaned_data, ])
             return Response({"action": True,
@@ -66,7 +70,11 @@ def get_friend_requests(request):
     '''
     requests = []
     try:
-        form = GetFriendRequestForm(request.DATA)
+        try:
+            form = GetFriendRequestForm(request.DATA)
+        except TypeError:
+            return Response(status=400)
+
         if form.is_valid():
             try:
                 citizen = Pleb.nodes.get(email=form.cleaned_data['email'])
@@ -118,7 +126,11 @@ def respond_friend_request(request):
     :return:
     '''
     try:
-        form = RespondFriendRequestForm(request.DATA)
+        try:
+            form = RespondFriendRequestForm(request.DATA)
+        except TypeError:
+            return Response(status=400)
+
         if form.is_valid():
             try:
                 friend_request = FriendRequest.nodes.get(

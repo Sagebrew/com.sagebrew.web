@@ -234,6 +234,7 @@ CELERY_DISABLE_RATE_LIMITS = True
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 BROKER_URL = 'amqp://sagebrew:this_is_the_sagebrew_password@localhost:5672//'
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+CELERY_ALWAYS_EAGER = False
 CELERY_IGNORE_RESULT = False
 
 CELERYBEAT_SCHEDULE = {

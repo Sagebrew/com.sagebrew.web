@@ -50,7 +50,7 @@ deployment:
   staging:
     branch: staging
     commands:
-      - bash -x deployment/staging.sh $CIRCLE_SHA1
+      - bash -x ~/com.sagebrew.web/deployment/staging.sh $CIRCLE_SHA1
       - git checkout master
       - git merge --no-edit staging
       - git push origin master

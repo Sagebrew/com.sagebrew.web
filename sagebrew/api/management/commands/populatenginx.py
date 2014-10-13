@@ -16,7 +16,10 @@ class Command(BaseCommand):
             env = "development"
         else:
             env = "production"
-        worker_count = str((multiprocessing.cpu_count() *2) + 1)
+        worker_count = (multiprocessing.cpu_count() *2) + 1
+        if worker_count > 12 and os.environ.get("CIRCLECI", False):
+            worker_count = 12
+        worker_count = str(worker_count)
         call("sudo chown -R %s:%s /etc/nginx/" % (user, user), shell=True)
         with open ("%s/nginx_templates/base.tmpl" % (
                 settings.REPO_DIR), "r") as nginx_file:

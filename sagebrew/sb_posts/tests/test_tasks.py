@@ -92,6 +92,102 @@ class TestEditPostTask(TestCase):
         self.assertTrue(edit_response)
 
 
+class TestPostVoteTask(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.pleb = Pleb.nodes.get(email=self.user.email)
+        settings.CELERY_ALWAYS_EAGER = True
+
+    def tearDown(self):
+        call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
+
+    def test_upvote_post_success(self):
+        post = SBPost(post_id=str(uuid1()))
+        post.save()
+        task_data = {
+            "pleb": self.pleb.email,
+            "post_uuid": post.post_id
+        }
+        res = create_upvote_post.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertTrue(res)
+
+    def test_upvote_post_failure_post_does_not_exist(self):
+        post = SBPost(post_id=str(uuid1()))
+        post.save()
+        task_data = {
+            "pleb": self.pleb.email,
+            "post_uuid": str(uuid1())
+        }
+        res = create_upvote_post.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertIsNone(res)
+
+    def test_upvote_post_failure_pleb_does_not_exist(self):
+        post = SBPost(post_id=str(uuid1()))
+        post.save()
+        task_data = {
+            "pleb": str(uuid1()),
+            "post_uuid": post.post_id
+        }
+        res = create_upvote_post.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertFalse(res)
+
+    def test_downvote_post_success(self):
+        post = SBPost(post_id=str(uuid1()))
+        post.save()
+        task_data = {
+            "pleb": self.pleb.email,
+            "post_uuid": post.post_id
+        }
+        res = create_downvote_post.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertTrue(res)
+
+    def test_downvote_post_failure_post_does_not_exist(self):
+        post = SBPost(post_id=str(uuid1()))
+        post.save()
+        task_data = {
+            "pleb": self.pleb.email,
+            "post_uuid": str(uuid1())
+        }
+        res = create_downvote_post.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertIsNone(res)
+
+    def test_downvote_post_failure_pleb_does_not_exist(self):
+        post = SBPost(post_id=str(uuid1()))
+        post.save()
+        task_data = {
+            "pleb": str(uuid1()),
+            "post_uuid": post.post_id
+        }
+        res = create_downvote_post.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertFalse(res)
+
+
 
 class TestPostTaskRaceConditions(TestCase):
     def setUp(self):

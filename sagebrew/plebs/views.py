@@ -54,7 +54,6 @@ def profile_page(request, pleb_email):
     elif citizen.friends.search(email=current_user.email):
         is_friend = True
 
-    # TODO check for index error
     # TODO deal with address and senator/rep in a util + task
     # TODO Create a cypher query to get addresses to replace traverse
     #address = citizen.traverse('address').run()[0]

@@ -6,7 +6,8 @@ from django.test import TestCase
 from sb_comments.neo_models import SBComment
 from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
-from plebs.views import profile_page
+from plebs.views import (profile_page, friends_page, about_page,
+                         reputation_page)
 
 
 class ProfilePageTest(TestCase):
@@ -34,7 +35,7 @@ class ProfilePageTest(TestCase):
         response = profile_page(request, self.email)
         self.assertEqual(response.status_code, 200)
 
-    def test_post(self):
+    def test_with_post(self):
         test_post = SBPost(content='test', post_id=str(uuid1()))
         test_post.save()
         wall = self.pleb.wall.all()[0]

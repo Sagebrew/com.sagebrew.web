@@ -78,7 +78,7 @@ class TestEditPostTask(TestCase):
         call_command('clear_neo_db')
         settings.CELERY_ALWAYS_EAGER = False
 
-    def test_edit_post_task(self):
+    def test_edit_post_task_success(self):
         post = SBPost(post_id=uuid1(), content="test post")
         post.last_edited_on = datetime.now(pytz.utc)
         post.save()
@@ -90,6 +90,75 @@ class TestEditPostTask(TestCase):
             time.sleep(1)
         edit_response = edit_response.result
         self.assertTrue(edit_response)
+
+    def test_edit_post_task_failure_post_does_not_exist(self):
+        edit_post_dict = {'content': 'Post edited',
+                          'post_uuid': str(uuid1()),
+                          'current_pleb': self.pleb.email}
+        edit_response = edit_post_info_task.apply_async(kwargs=edit_post_dict)
+        while not edit_response.ready():
+            time.sleep(1)
+        edit_response = edit_response.result
+        self.assertEqual(type(edit_response), Exception)
+
+    def test_edit_post_task_failure_content_is_the_same(self):
+        post = SBPost(post_id=uuid1(), content="test post")
+        post.last_edited_on = datetime.now(pytz.utc)
+        post.save()
+        edit_post_dict = {'content': 'test post',
+                          'post_uuid': post.post_id,
+                          'current_pleb': self.pleb.email}
+        edit_response = edit_post_info_task.apply_async(kwargs=edit_post_dict)
+        while not edit_response.ready():
+            time.sleep(1)
+        edit_response = edit_response.result
+        self.assertFalse(edit_response)
+
+    def test_edit_post_task_failure_to_be_deleted(self):
+        post = SBPost(post_id=uuid1(), content="test post")
+        post.last_edited_on = datetime.now(pytz.utc)
+        post.to_be_deleted = True
+        post.save()
+        edit_post_dict = {'content': 'test edit',
+                          'post_uuid': post.post_id,
+                          'current_pleb': self.pleb.email}
+        edit_response = edit_post_info_task.apply_async(kwargs=edit_post_dict)
+        while not edit_response.ready():
+            time.sleep(1)
+        edit_response = edit_response.result
+        self.assertFalse(edit_response)
+
+    def test_edit_post_task_failure_same_timestamp(self):
+        now = datetime.now(pytz.utc)
+        post = SBPost(post_id=uuid1(), content="test post")
+        post.last_edited_on = now
+        post.to_be_deleted = True
+        post.save()
+        edit_post_dict = {'content': 'test edit',
+                          'post_uuid': post.post_id,
+                          'current_pleb': self.pleb.email,
+                          'last_edited_on': now}
+        edit_response = edit_post_info_task.apply_async(kwargs=edit_post_dict)
+        while not edit_response.ready():
+            time.sleep(1)
+        edit_response = edit_response.result
+        self.assertFalse(edit_response)
+
+    def test_edit_post_task_failure_last_edit_more_recent(self):
+        now = datetime.now(pytz.utc)
+        post = SBPost(post_id=uuid1(), content="test post")
+        post.last_edited_on = datetime.now(pytz.utc)
+        post.to_be_deleted = True
+        post.save()
+        edit_post_dict = {'content': 'test edit',
+                          'post_uuid': post.post_id,
+                          'current_pleb': self.pleb.email,
+                          'last_edited_on': now}
+        edit_response = edit_post_info_task.apply_async(kwargs=edit_post_dict)
+        while not edit_response.ready():
+            time.sleep(1)
+        edit_response = edit_response.result
+        self.assertFalse(edit_response)
 
 
 class TestPostVoteTask(TestCase):

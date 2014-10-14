@@ -182,8 +182,6 @@ def edit_post_info_task(content="", post_uuid=str(uuid1()),
     if edit_post_return == True:
         return True
     if edit_post_return['detail'] == 'post does not exist yet':
-        logger.exception({"function": edit_post_info_task.__name__,
-                          "exception": "DoesNotExist: "})
         raise edit_post_info_task.retry(exc=Exception, countdown=3,
                                         max_retries=None)
     if edit_post_return['detail'] == 'content is the same':

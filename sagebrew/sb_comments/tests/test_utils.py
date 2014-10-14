@@ -33,21 +33,6 @@ class TestSaveComments(TestCase):
 
         self.assertEqual(my_comment.content, "test comment")
 
-    def test_edit_comment(self):
-        uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.user.email,
-                         wall_pleb=self.user.email)
-        my_comment = save_comment_post(content="test comment",
-                                       pleb=self.user.email,
-                                       post_uuid=post.post_id)
-        edited_time = datetime.now(pytz.utc)
-        edited_comment = edit_comment_util(comment_uuid=my_comment.comment_id,
-                                           last_edited_on=edited_time,
-                                           content="edited comment", pleb="")
-
-        self.assertEqual(edited_comment, True)
-
     def test_delete_comment(self):
         uuid = str(uuid1())
         post = save_post(post_uuid=uuid, content="test post",
@@ -129,7 +114,6 @@ class TestEditComment(TestCase):
         self.assertFalse(edited_comment)
 
     def test_edit_comment_failure_to_be_deleted(self):
-        now = datetime.now(pytz.utc)
         comment = SBComment(comment_id=str(uuid1()), content='test_comment')
         comment.to_be_deleted = True
         comment.save()

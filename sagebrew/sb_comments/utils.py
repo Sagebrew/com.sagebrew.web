@@ -220,7 +220,7 @@ def edit_comment_util(comment_uuid=str(uuid1()), content="",
     except Exception:
         logger.exception({"function": edit_comment_util.__name__,
                           'exception': "UnhandledException: "})
-        return {'exception', 'retry'}
+        return {'detail': 'retry'}
 
 def delete_comment_util(comment_uuid=str(uuid1())):
     '''

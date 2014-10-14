@@ -1,4 +1,5 @@
 import pytz
+from json import dumps
 from uuid import uuid1
 from datetime import datetime
 from django.test import TestCase
@@ -9,7 +10,8 @@ from sb_posts.utils import save_post
 from sb_comments.utils import (save_comment_post, edit_comment_util,
                                delete_comment_util,
                                create_downvote_comment_util,
-                               create_upvote_comment_util, flag_comment_util)
+                               create_upvote_comment_util, flag_comment_util,
+                               get_post_comments)
 from sb_comments.neo_models import SBComment
 from plebs.neo_models import Pleb
 
@@ -108,7 +110,7 @@ class TestEditComment(TestCase):
         comment.save()
 
         edited_comment = edit_comment_util(comment_uuid=comment.comment_id,
-                                           content="test_comment", pleb="",
+                                           content="fasdf", pleb="",
                                            last_edited_on=now)
 
         self.assertFalse(edited_comment)
@@ -119,7 +121,7 @@ class TestEditComment(TestCase):
         comment.save()
 
         edited_comment = edit_comment_util(comment_uuid=comment.comment_id,
-                                           content="test_comment", pleb="")
+                                           content="asdfadsf", pleb="")
 
         self.assertFalse(edited_comment)
 
@@ -262,3 +264,34 @@ class TestFlagComment(TestCase):
                                 flag_reason='other')
 
         self.assertFalse(res)
+
+class TestGetPostComments(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.pleb = Pleb.nodes.get(email=self.user.email)
+        self.pleb.first_name = 'Tyler'
+        self.pleb.last_name = 'Wiersing'
+        self.pleb.save()
+
+    def tearDown(self):
+        call_command('clear_neo_db')
+
+    def test_get_post_comments_success(self):
+        from sb_posts.neo_models import SBPost
+
+        post = SBPost(post_id=str(uuid1()))
+        post.save()
+
+        for num in range(0,4):
+            comment = SBComment(comment_id=str(uuid1()), content=str(uuid1()))
+            comment.save()
+            post.owned_by.connect(self.pleb)
+            comment.is_owned_by.connect(self.pleb)
+            post.comments.connect(comment)
+
+        res = get_post_comments([post])
+
+        self.assertEqual(type(res), list)
+        self.assertIn(post.post_id, dumps(res))
+

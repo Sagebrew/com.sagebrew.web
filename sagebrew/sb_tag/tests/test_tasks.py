@@ -1,5 +1,6 @@
 import time
 from uuid import uuid1
+from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.management import call_command
@@ -12,9 +13,11 @@ class TestTagTask(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_add_tag_success(self):
         question = SBQuestion(question_id=uuid1())
@@ -47,9 +50,11 @@ class TestAutoTagTask(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_add_auto_tag_success(self):
         question = SBQuestion(question_id=uuid1())

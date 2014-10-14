@@ -2,6 +2,7 @@ import pytz
 import time
 from uuid import uuid1
 from datetime import datetime
+from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.management import call_command
@@ -23,9 +24,11 @@ class TestSavePostTask(TestCase):
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
                                'post_uuid': str(uuid1())}
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_save_post_task(self):
         response = save_post_task.apply_async(kwargs=self.post_info_dict)
@@ -43,9 +46,11 @@ class TestDeletePostTask(TestCase):
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
                                'post_uuid': str(uuid1())}
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_delete_post_task(self):
         post = SBPost(content=self.post_info_dict['content'],
@@ -67,9 +72,11 @@ class TestEditPostTask(TestCase):
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
                                'post_uuid': str(uuid1())}
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_edit_post_task(self):
         post = SBPost(post_id=uuid1(), content="test post")
@@ -207,9 +214,11 @@ class TestFlagPostTask(TestCase):
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
                                'post_uuid': str(uuid1())}
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_flag_post_task_success_spam(self):
         post = SBPost(post_id=uuid1())

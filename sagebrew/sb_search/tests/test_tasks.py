@@ -289,6 +289,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
 
 class TestUpdateWeightRelationshipTaskAnswer(TestCase):
     def setUp(self):
+        settings.CELERY_ALWAYS_EAGER = True
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
         self.pleb = Pleb.nodes.get(email=self.user.email)
@@ -297,6 +298,7 @@ class TestUpdateWeightRelationshipTaskAnswer(TestCase):
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_update_weight_relationship_task_success_seen_unconnected(self):
         data = {"document_id": str(uuid1()),
@@ -515,12 +517,14 @@ class TestUpdateWeightRelationshipTaskAnswer(TestCase):
 
 class TestUpdateWeightRelationshipTaskPleb(TestCase):
     def setUp(self):
+        settings.CELERY_ALWAYS_EAGER = True
         self.user1 = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
         self.pleb1 = Pleb.nodes.get(email=self.user1.email)
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
 class TestUpdateWeightRelationshipTaskPost(TestCase):
     def setUp(self):
@@ -536,12 +540,14 @@ class TestUpdateWeightRelationshipTaskPost(TestCase):
 
 class TestAddUserToCustomIndexTask(TestCase):
     def setUp(self):
+        settings.CELERY_ALWAYS_EAGER = True
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
         self.pleb = Pleb.nodes.get(email=self.user.email)
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_add_user_to_custom_index_success(self):
         data = {
@@ -556,12 +562,14 @@ class TestAddUserToCustomIndexTask(TestCase):
 
 class TestUpdateUserIndices(TestCase):
     def setUp(self):
+        settings.CELERY_ALWAYS_EAGER = True
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
         self.pleb = Pleb.nodes.get(email=self.user.email)
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_update_user_indices_success(self):
         search_dict = {'question_content': 'test_c', 'user': self.user.email,
@@ -590,9 +598,11 @@ class TestUpdateSearchQuery(TestCase):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
         self.pleb = Pleb.nodes.get(email=self.user.email)
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_update_search_query_success_search_query_does_not_exist(self):
         from sb_search.neo_models import SearchQuery
@@ -670,14 +680,15 @@ class TestUpdateSearchQuery(TestCase):
 
 
 class TestCreateKeywordTask(TestCase):
-    from sb_search.neo_models import SearchQuery
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
         self.pleb = Pleb.nodes.get(email=self.user.email)
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_create_keyword_task_success_keyword_does_not_exist(self):
         from sb_search.neo_models import SearchQuery

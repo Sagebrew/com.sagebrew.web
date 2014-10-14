@@ -2,6 +2,7 @@ import pytz
 import time
 from uuid import uuid1
 from datetime import datetime
+from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.management import call_command
@@ -18,9 +19,11 @@ class TestSaveComment(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_save_comment_on_post_task(self):
         uuid = str(uuid1())
@@ -41,9 +44,11 @@ class TestEditComment(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_edit_comment_success(self):
         uuid = str(uuid1())
@@ -68,10 +73,12 @@ class TestVoteComment(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
+        settings.CELERY_ALWAYS_EAGER = True
 
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_upvote_comment(self):
         my_comment = SBComment(comment_id=str(uuid1()))
@@ -235,9 +242,11 @@ class TestFlagCommentTask(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_flag_comment_success_spam(self):
         comment = SBComment(comment_id=uuid1())

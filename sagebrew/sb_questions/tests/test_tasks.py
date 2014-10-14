@@ -2,6 +2,7 @@ import pytz
 import time
 from uuid import uuid1
 from datetime import datetime
+from django.conf import settings
 from django.test import TestCase
 from django.core.management import call_command
 from django.contrib.auth.models import User
@@ -14,6 +15,7 @@ from sb_questions.neo_models import SBQuestion
 
 class TestSaveQuestionTask(TestCase):
     def setUp(self):
+        settings.CELERY_ALWAYS_EAGER = True
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
         self.question_info_dict = {'current_pleb': self.user.email,
@@ -23,6 +25,7 @@ class TestSaveQuestionTask(TestCase):
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_save_question_task(self):
         response = create_question_task.apply_async(kwargs=self.question_info_dict)
@@ -49,6 +52,7 @@ class TestSaveQuestionTask(TestCase):
 
 class TestEditQuestionTask(TestCase):
     def setUp(self):
+        settings.CELERY_ALWAYS_EAGER = True
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
         self.question_info_dict = {'current_pleb': self.user.email,
@@ -58,6 +62,7 @@ class TestEditQuestionTask(TestCase):
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
 
     def test_edit_question_task(self):
@@ -118,9 +123,11 @@ class TestVoteTask(TestCase):
                                    'question_title': "Test question",
                                    'content': 'test post',
                                    'question_uuid': str(uuid1())}
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_question_vote_task(self):
         question = SBQuestion(content="test question from vote task test",

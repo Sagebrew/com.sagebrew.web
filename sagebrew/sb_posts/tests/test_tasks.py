@@ -6,6 +6,7 @@ from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.management import call_command
+from celery.utils.serialization import UnpickleableExceptionWrapper
 
 from sb_posts.neo_models import SBPost
 from sb_posts.tasks import (delete_post_and_comments, save_post_task,
@@ -198,7 +199,7 @@ class TestPostVoteTask(TestCase):
             time.sleep(1)
         res = res.result
 
-        self.assertIsNone(res)
+        self.assertEqual(type(res), UnpickleableExceptionWrapper)
 
     def test_upvote_post_failure_pleb_does_not_exist(self):
         post = SBPost(post_id=str(uuid1()))
@@ -240,7 +241,7 @@ class TestPostVoteTask(TestCase):
             time.sleep(1)
         res = res.result
 
-        self.assertIsNone(res)
+        self.assertEqual(type(res), UnpickleableExceptionWrapper)
 
     def test_downvote_post_failure_pleb_does_not_exist(self):
         post = SBPost(post_id=str(uuid1()))

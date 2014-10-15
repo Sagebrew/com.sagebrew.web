@@ -55,6 +55,8 @@ class Command(BaseCommand):
             data = data.replace("{{PROJECT_NAME}}", "sagebrew")
             data = data.replace("{{LOG_ACCOUNT}}", os.environ.get(
                 "LOG_ACCOUNT", ""))
+            data = data.replace("{{CIRCLECI}}", os.environ.get(
+                "CIRCLECI", False))
             data = data.replace("{{LOG_TOKEN}}", os.environ.get(
                 "LOG_TOKEN", ""))
             web_docker = data.replace('{{SUPER_TEMPLATE}}', "web")

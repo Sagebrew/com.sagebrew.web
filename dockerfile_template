@@ -27,6 +27,7 @@ RUN newrelic-admin generate-config {{NEW_RELIC_LICENSE}} /home/apps/newrelic.ini
 
 RUN apt-get remove --auto-remove -y git
 RUN apt-get remove --auto-remove -y wget
+ENV CIRCLECI {{CIRCLECI}}
 ENV NEO4J_REST_URL {{NEO4J_REST_URL}}
 ENV BOMBERMAN_API_KEY {{BOMBERMAN_API_KEY}}
 ENV SSL_CERT_LOCATION {{SSL_CERT_LOCATION}}

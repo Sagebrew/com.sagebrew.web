@@ -46,8 +46,6 @@ def create_question_task(content="", current_pleb="", question_title="",
         else:
             return True
     except TypeError:
-        logger.exception({'function': create_question_task.__name__,
-                          'exception': "TypeError: "})
         raise create_question_task.retry(exc=TypeError, countdown=5,
                                          max_retries=None)
     except Exception:
@@ -83,7 +81,7 @@ def edit_question_task(question_uuid="", content="", current_pleb="",
                                                   content=content,
                                                   current_pleb=current_pleb,
                                                   last_edited_on=last_edited_on)
-        if edit_question_return:
+        if edit_question_return == True:
             return True
         if edit_question_return['detail'] == 'to be deleted':
             return False

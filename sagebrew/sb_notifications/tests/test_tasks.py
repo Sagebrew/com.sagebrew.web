@@ -1,5 +1,6 @@
 import time
 from uuid import uuid1
+from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.management import call_command
@@ -22,9 +23,11 @@ class TestNotificationTasks(TestCase):
         self.pleb2 = Pleb.nodes.get(email=self.user2.email)
         self.post_info_dict = {'content': 'test post',
                                'post_id': str(uuid1())}
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_create_notification_post_task(self):
         post = SBPost(**self.post_info_dict)

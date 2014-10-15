@@ -2,9 +2,11 @@ import pytz
 import time
 from uuid import uuid1
 from datetime import datetime
+from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.management import call_command
+from celery.utils.serialization import UnpickleableExceptionWrapper
 
 from sb_posts.neo_models import SBPost
 from sb_posts.tasks import (delete_post_and_comments, save_post_task,
@@ -23,9 +25,11 @@ class TestSavePostTask(TestCase):
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
                                'post_uuid': str(uuid1())}
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_save_post_task(self):
         response = save_post_task.apply_async(kwargs=self.post_info_dict)
@@ -43,9 +47,11 @@ class TestDeletePostTask(TestCase):
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
                                'post_uuid': str(uuid1())}
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_delete_post_task(self):
         post = SBPost(content=self.post_info_dict['content'],
@@ -67,11 +73,13 @@ class TestEditPostTask(TestCase):
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
                                'post_uuid': str(uuid1())}
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
-    def test_edit_post_task(self):
+    def test_edit_post_task_success(self):
         post = SBPost(post_id=uuid1(), content="test post")
         post.last_edited_on = datetime.now(pytz.utc)
         post.save()
@@ -83,6 +91,171 @@ class TestEditPostTask(TestCase):
             time.sleep(1)
         edit_response = edit_response.result
         self.assertTrue(edit_response)
+
+    def test_edit_post_task_failure_post_does_not_exist(self):
+        edit_post_dict = {'content': 'Post edited',
+                          'post_uuid': str(uuid1()),
+                          'current_pleb': self.pleb.email}
+        edit_response = edit_post_info_task.apply_async(kwargs=edit_post_dict)
+        while not edit_response.ready():
+            time.sleep(1)
+        edit_response = edit_response.result
+        self.assertEqual(type(edit_response), Exception)
+
+    def test_edit_post_task_failure_content_is_the_same(self):
+        post = SBPost(post_id=uuid1(), content="test post")
+        post.last_edited_on = datetime.now(pytz.utc)
+        post.save()
+        edit_post_dict = {'content': 'test post',
+                          'post_uuid': post.post_id,
+                          'current_pleb': self.pleb.email}
+        edit_response = edit_post_info_task.apply_async(kwargs=edit_post_dict)
+        while not edit_response.ready():
+            time.sleep(1)
+        edit_response = edit_response.result
+        self.assertFalse(edit_response)
+
+    def test_edit_post_task_failure_to_be_deleted(self):
+        post = SBPost(post_id=uuid1(), content="test post")
+        post.last_edited_on = datetime.now(pytz.utc)
+        post.to_be_deleted = True
+        post.save()
+        edit_post_dict = {'content': 'test edit',
+                          'post_uuid': post.post_id,
+                          'current_pleb': self.pleb.email}
+        edit_response = edit_post_info_task.apply_async(kwargs=edit_post_dict)
+        while not edit_response.ready():
+            time.sleep(1)
+        edit_response = edit_response.result
+        self.assertFalse(edit_response)
+
+    def test_edit_post_task_failure_same_timestamp(self):
+        now = datetime.now(pytz.utc)
+        post = SBPost(post_id=uuid1(), content="test post")
+        post.last_edited_on = now
+        post.to_be_deleted = True
+        post.save()
+        edit_post_dict = {'content': 'test edit',
+                          'post_uuid': post.post_id,
+                          'current_pleb': self.pleb.email,
+                          'last_edited_on': now}
+        edit_response = edit_post_info_task.apply_async(kwargs=edit_post_dict)
+        while not edit_response.ready():
+            time.sleep(1)
+        edit_response = edit_response.result
+        self.assertFalse(edit_response)
+
+    def test_edit_post_task_failure_last_edit_more_recent(self):
+        now = datetime.now(pytz.utc)
+        post = SBPost(post_id=uuid1(), content="test post")
+        post.last_edited_on = datetime.now(pytz.utc)
+        post.to_be_deleted = True
+        post.save()
+        edit_post_dict = {'content': 'test edit',
+                          'post_uuid': post.post_id,
+                          'current_pleb': self.pleb.email,
+                          'last_edited_on': now}
+        edit_response = edit_post_info_task.apply_async(kwargs=edit_post_dict)
+        while not edit_response.ready():
+            time.sleep(1)
+        edit_response = edit_response.result
+        self.assertFalse(edit_response)
+
+
+class TestPostVoteTask(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.pleb = Pleb.nodes.get(email=self.user.email)
+        settings.CELERY_ALWAYS_EAGER = True
+
+    def tearDown(self):
+        call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
+
+    def test_upvote_post_success(self):
+        post = SBPost(post_id=str(uuid1()))
+        post.save()
+        task_data = {
+            "pleb": self.pleb.email,
+            "post_uuid": post.post_id
+        }
+        res = create_upvote_post.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertTrue(res)
+
+    def test_upvote_post_failure_post_does_not_exist(self):
+        post = SBPost(post_id=str(uuid1()))
+        post.save()
+        task_data = {
+            "pleb": self.pleb.email,
+            "post_uuid": str(uuid1())
+        }
+        res = create_upvote_post.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertEqual(type(res), UnpickleableExceptionWrapper)
+
+    def test_upvote_post_failure_pleb_does_not_exist(self):
+        post = SBPost(post_id=str(uuid1()))
+        post.save()
+        task_data = {
+            "pleb": str(uuid1()),
+            "post_uuid": post.post_id
+        }
+        res = create_upvote_post.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertFalse(res)
+
+    def test_downvote_post_success(self):
+        post = SBPost(post_id=str(uuid1()))
+        post.save()
+        task_data = {
+            "pleb": self.pleb.email,
+            "post_uuid": post.post_id
+        }
+        res = create_downvote_post.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertTrue(res)
+
+    def test_downvote_post_failure_post_does_not_exist(self):
+        post = SBPost(post_id=str(uuid1()))
+        post.save()
+        task_data = {
+            "pleb": self.pleb.email,
+            "post_uuid": str(uuid1())
+        }
+        res = create_downvote_post.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertEqual(type(res), UnpickleableExceptionWrapper)
+
+    def test_downvote_post_failure_pleb_does_not_exist(self):
+        post = SBPost(post_id=str(uuid1()))
+        post.save()
+        task_data = {
+            "pleb": str(uuid1()),
+            "post_uuid": post.post_id
+        }
+        res = create_downvote_post.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertFalse(res)
 
 
 
@@ -207,9 +380,11 @@ class TestFlagPostTask(TestCase):
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
                                'post_uuid': str(uuid1())}
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_flag_post_task_success_spam(self):
         post = SBPost(post_id=uuid1())

@@ -2,6 +2,7 @@ import pytz
 import time
 from uuid import uuid1
 from datetime import datetime
+from django.conf import settings
 from django.test import TestCase
 from django.core.management import call_command
 from django.contrib.auth.models import User
@@ -22,9 +23,11 @@ class TestSaveAnswerTask(TestCase):
         self.answer_info_dict = {'current_pleb': self.user.email,
                                  'content': 'test answer',
                                  'to_pleb': self.user.email}
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
 
     def test_save_answer_task(self):
@@ -62,9 +65,11 @@ class TestEditAnswerTask(TestCase):
         self.answer_info_dict = {'current_pleb': self.user.email,
                                  'content': 'test answer',
                                  'to_pleb': self.user.email}
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_edit_answer_task(self):
         self.question_info_dict['question_id']=str(uuid1())
@@ -115,9 +120,11 @@ class TestVoteAnswerTask(TestCase):
         self.answer_info_dict = {'current_pleb': self.user.email,
                                  'content': 'test answer',
                                  'to_pleb': self.user.email}
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_vote_answer_task(self):
         answer = SBAnswer(answer_id=str(uuid1()), content="test answer")

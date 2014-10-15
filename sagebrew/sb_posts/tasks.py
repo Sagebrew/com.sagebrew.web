@@ -44,7 +44,7 @@ def create_upvote_post(post_uuid=str(uuid1()), pleb=""):
         try:
             my_post = SBPost.nodes.get(post_id=post_uuid)
         except (SBPost.DoesNotExist, DoesNotExist):
-            raise create_upvote_post.retry(exc=Exception, countdown=3,
+            raise create_upvote_post.retry(exc=DoesNotExist, countdown=3,
                                        max_retries=None)
 
         try:
@@ -58,6 +58,8 @@ def create_upvote_post(post_uuid=str(uuid1()), pleb=""):
     except Exception:
         logger.exception({"function": create_upvote_post.__name__,
                           "exception": "UnhandledException: "})
+        raise create_downvote_post.retry(exc=Exception, countdown=3,
+                                         max_retries=None)
 
 @shared_task()
 def create_downvote_post(post_uuid=str(uuid1()), pleb=""):
@@ -75,7 +77,7 @@ def create_downvote_post(post_uuid=str(uuid1()), pleb=""):
         try:
             my_post = SBPost.nodes.get(post_id=post_uuid)
         except (SBPost.DoesNotExist, DoesNotExist):
-            raise create_downvote_post.retry(exc=Exception, countdown=3,
+            raise create_downvote_post.retry(exc=DoesNotExist, countdown=3,
                                          max_retries=None)
         try:
             my_pleb = Pleb.nodes.get(email=pleb)
@@ -88,6 +90,8 @@ def create_downvote_post(post_uuid=str(uuid1()), pleb=""):
     except Exception:
         logger.exception({'function': create_downvote_post.__name__,
                           'exception': 'UnhandledException: '})
+        raise create_downvote_post.retry(exc=Exception, countdown=3,
+                                         max_retries=None)
 
 
 
@@ -182,8 +186,6 @@ def edit_post_info_task(content="", post_uuid=str(uuid1()),
     if edit_post_return == True:
         return True
     if edit_post_return['detail'] == 'post does not exist yet':
-        logger.exception({"function": edit_post_info_task.__name__,
-                          "exception": "DoesNotExist: "})
         raise edit_post_info_task.retry(exc=Exception, countdown=3,
                                         max_retries=None)
     if edit_post_return['detail'] == 'content is the same':

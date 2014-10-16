@@ -55,7 +55,7 @@ LOGGING = {
             'handlers': ['logging.handlers.SysLogHandler'],
             'propagate': True,
             'format': 'loggly: %(message)s',
-            'level': 'DEBUG',
+            'level': 'CRITICAL',
             'token': LOG_TOKEN
         },
         'loggly_logs': {
@@ -69,7 +69,7 @@ LOGGING = {
             'handlers': ['logging.handlers.SysLogHandler'],
             'propagate': True,
             'format': 'loggly: %(message)s',
-            'level': 'DEBUG',
+            'level': 'CRITICAL',
             'token': LOG_TOKEN
         },
         'django.request': {

@@ -54,14 +54,14 @@ LOGGING = {
             'handlers': ['logging.handlers.SysLogHandler'],
             'propagate': True,
             'format': 'loggly: %(message)s',
-            'level': 'DEBUG',
+            'level': 'CRITICAL',
             'token': LOG_TOKEN
         },
         'elasticsearch.trace': {
             'handlers': ['logging.handlers.SysLogHandler'],
             'propagate': True,
             'format': 'loggly: %(message)s',
-            'level': 'DEBUG',
+            'level': 'CRITICAL',
             'token': LOG_TOKEN
         },
         'django.request': {

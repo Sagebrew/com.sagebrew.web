@@ -51,6 +51,13 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False,
         },
+        'elasticsearch': {
+            'handlers': ['logging.handlers.SysLogHandler'],
+            'propagate': True,
+            'format': 'loggly: %(message)s',
+            'level': 'DEBUG',
+            'token': LOG_TOKEN
+        },
         'loggly_logs': {
             'handlers': ['logging.handlers.SysLogHandler'],
             'propagate': True,

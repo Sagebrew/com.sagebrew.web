@@ -304,7 +304,7 @@ class TestVoteTask(TestCase):
             time.sleep(1)
 
         vote_response = vote_response.result
-        print vote_response
+
         self.assertEqual(type(vote_response), UnpickleableExceptionWrapper)
 
     def test_question_vote_task_already_connected(self):
@@ -326,7 +326,8 @@ class TestMultipleTasks(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.question_info_dict = {'current_pleb': self.user.email,
+        self.pleb = Pleb.nodes.get(email=self.user.email)
+        self.question_info_dict = {'current_pleb': self.pleb.email,
                                    'question_title': "Test question",
                                    'content': 'test post',
                                    'question_uuid': str(uuid1())}
@@ -342,7 +343,7 @@ class TestMultipleTasks(TestCase):
             save_response = create_question_task.apply_async(
                 kwargs=self.question_info_dict)
             while not save_response.ready():
-                time.sleep(3)
+                time.sleep(1)
             response_array.append(save_response.result)
 
         self.assertNotIn(False, response_array)
@@ -351,7 +352,7 @@ class TestMultipleTasks(TestCase):
         question = SBQuestion(content="test question", question_title="title",
                               question_id=str(uuid1()))
         question.save()
-        post_info_dict = {'current_pleb': self.user.email,
+        post_info_dict = {'current_pleb': self.pleb.email,
                           'question_title': 'Question Title',
                           'content': 'test question',
                           'question_uuid': question.question_id}

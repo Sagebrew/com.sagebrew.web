@@ -152,6 +152,13 @@ LOGGING = {
             'level': 'DEBUG',
             'token': LOG_TOKEN
         },
+        'elasticsearch.trace': {
+            'handlers': ['logging.handlers.SysLogHandler'],
+            'propagate': True,
+            'format': 'loggly: %(message)s',
+            'level': 'DEBUG',
+            'token': LOG_TOKEN
+        },
         'django.request': {
             'handlers': ['logging.handlers.SysLogHandler'],
             'level': 'ERROR',

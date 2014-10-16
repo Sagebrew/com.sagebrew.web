@@ -302,8 +302,9 @@ class TestVoteTask(TestCase):
         vote_response = vote_question_task.apply_async(kwargs=vote_info_dict)
         while not vote_response.ready():
             time.sleep(1)
-        vote_response = vote_response.result
 
+        vote_response = vote_response.result
+        print vote_response
         self.assertEqual(type(vote_response), UnpickleableExceptionWrapper)
 
     def test_question_vote_task_already_connected(self):

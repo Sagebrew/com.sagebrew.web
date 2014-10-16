@@ -4,6 +4,7 @@ from celery import shared_task
 from neomodel import DoesNotExist
 
 from plebs.neo_models import Pleb
+from api.exceptions import DoesNotExistWrapper
 from .neo_models import SBQuestion
 from .utils import (create_question_util, upvote_question_util,
                     downvote_question_util, edit_question_util)
@@ -119,8 +120,8 @@ def vote_question_task(question_uuid="", current_pleb="", vote_type=""):
         try:
             my_question = SBQuestion.nodes.get(question_id=question_uuid)
         except (SBQuestion.DoesNotExist, DoesNotExist):
-            raise edit_question_task.retry(exc=Exception, countdown=3,
-                                           max_retries=None)
+            raise edit_question_task.retry(exc=DoesNotExistWrapper,
+                                           countdown=3, max_retries=None)
         if my_question.up_voted_by.is_connected(
                 my_pleb) or my_question.down_voted_by.is_connected(my_pleb):
             return False
@@ -142,6 +143,8 @@ def vote_question_task(question_uuid="", current_pleb="", vote_type=""):
                 else:
                     return True
     except Exception:
+        # We must have this except because source_class.DoesNotExist gets
+        # to this portion of code, as far as we know there's no work around.
         logger.exception({"function": vote_question_task.__name__,
                           "exception": "UnhandledException: "})
         raise vote_question_task.retry(exc=Exception, countdown=3,

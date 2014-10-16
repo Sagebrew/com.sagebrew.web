@@ -326,11 +326,11 @@ class TestMultipleTasks(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.pleb = Pleb.nodes.get(email=self.user.email)
         self.question_info_dict = {'current_pleb': self.pleb.email,
                                    'question_title': "Test question",
                                    'content': 'test post',
                                    'question_uuid': str(uuid1())}
-        self.pleb = Pleb.nodes.get(email=self.user.email)
 
     def tearDown(self):
         call_command('clear_neo_db')

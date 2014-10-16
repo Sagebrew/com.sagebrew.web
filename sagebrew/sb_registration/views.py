@@ -67,14 +67,6 @@ def signup_view_api(request):
                 if user is not None:
                     if user.is_active:
                         login(request, user)
-                        template_dict = {
-                            'full_name': request.user.first_name+' '+request.user.last_name,
-                            'verification_url': settings.EMAIL_VERIFICATION_URL+token_gen.make_token(user)+'/'
-                        }
-                        subject, to = "Sagebrew Email Verification", request.user.email
-                        text_content = get_template('email_templates/email_verification.txt').render(Context(template_dict))
-                        html_content = get_template('email_templates/email_verification.html').render(Context(template_dict))
-                        sb_send_email(to, subject, text_content, html_content)
                         return Response({'detail': 'success'}, status=200)
                     else:
                         return Response({'detail': 'account disabled'},

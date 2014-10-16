@@ -29,7 +29,8 @@ class TestSaveQuestionTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_save_question_task(self):
-        response = create_question_task.apply_async(kwargs=self.question_info_dict)
+        response = create_question_task.apply_async(
+            kwargs=self.question_info_dict)
         while not response.ready():
             time.sleep(1)
 
@@ -78,7 +79,6 @@ class TestEditQuestionTask(TestCase):
         call_command('clear_neo_db')
         settings.CELERY_ALWAYS_EAGER = False
 
-
     def test_edit_question_task(self):
         question = SBQuestion(content="test question from edit task test",
                               question_title="testquestiontitle from edit test",
@@ -88,7 +88,8 @@ class TestEditQuestionTask(TestCase):
                           'question_uuid': question.question_id,
                           'current_pleb': self.user.email,
                           'last_edited_on': datetime.now(pytz.utc)}
-        edit_response = edit_question_task.apply_async(kwargs=edit_question_dict)
+        edit_response = edit_question_task.apply_async(
+            kwargs=edit_question_dict)
         while not edit_response.ready():
             time.sleep(1)
         edit_response = edit_response.result
@@ -201,12 +202,17 @@ class TestEditQuestionTask(TestCase):
         self.assertFalse(res)
 
 
-
 class TestQuestionTaskRaceConditions(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while(True):
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         self.question_info_dict = {'current_pleb': self.pleb.email,
                                    'question_title': "Test question",
                                    'content': 'test post',
@@ -216,9 +222,6 @@ class TestQuestionTaskRaceConditions(TestCase):
         call_command('clear_neo_db')
 
     def test_race_condition_edit_multiple_times(self):
-        print settings.CELERY_ALWAYS_EAGER
-        if settings.CELERY_ALWAYS_EAGER:
-            settings.CELERY_ALWAYS_EAGER = False
         edit_array = []
         question = SBQuestion(**self.question_info_dict)
         question.save()
@@ -237,6 +240,7 @@ class TestQuestionTaskRaceConditions(TestCase):
             edit_array.append(edit_response)
 
         self.assertNotIn(False, edit_array)
+
 
 class TestVoteTask(TestCase):
     def setUp(self):
@@ -325,6 +329,7 @@ class TestVoteTask(TestCase):
         vote_response = vote_response.result
         self.assertFalse(vote_response)
 
+
 class TestMultipleTasks(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
@@ -339,9 +344,6 @@ class TestMultipleTasks(TestCase):
         call_command('clear_neo_db')
 
     def test_create_many_questions(self):
-        print settings.CELERY_ALWAYS_EAGER
-        if settings.CELERY_ALWAYS_EAGER:
-            settings.CELERY_ALWAYS_EAGER = False
         response_array = []
         for num in range(1, 10):
             uuid = str(uuid1())
@@ -355,9 +357,6 @@ class TestMultipleTasks(TestCase):
         self.assertNotIn(False, response_array)
 
     def test_create_same_question_twice(self):
-        print settings.CELERY_ALWAYS_EAGER
-        if settings.CELERY_ALWAYS_EAGER:
-            settings.CELERY_ALWAYS_EAGER = False
         question = SBQuestion(content="test question", question_title="title",
                               question_id=str(uuid1()))
         question.save()

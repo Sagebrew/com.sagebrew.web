@@ -5,6 +5,7 @@ from neomodel import (StringProperty, IntegerProperty,
 from sb_posts.neo_models import SBBase
 from sb_tag.neo_models import TagRelevanceModel
 
+
 class SBQuestion(SBBase):
     answer_number = IntegerProperty(default=0)
     question_title = StringProperty()

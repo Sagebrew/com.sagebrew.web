@@ -11,12 +11,13 @@ from elasticsearch import Elasticsearch
 
 from plebs.neo_models import Pleb
 from api.alchemyapi import AlchemyAPI
-from sb_posts.neo_models import SBPost
+
 from sb_answers.neo_models import SBAnswer
 from sb_questions.neo_models import SBQuestion
 from sb_search.tasks import (update_weight_relationship,
                              add_user_to_custom_index, update_user_indices,
                              update_search_query, create_keyword)
+
 
 class TestUpdateWeightRelationshipTaskQuestion(TestCase):
     def setUp(self):
@@ -49,7 +50,8 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
         self.assertTrue(res)
 
-        self.assertEqual(self.pleb.obj_weight_relationship(self.question).weight, 150)
+        self.assertEqual(
+            self.pleb.obj_weight_relationship(self.question).weight, 150)
 
     def test_update_weight_relationship_task_success_comment_on_unconnected(self):
         data = {"document_id": str(uuid1()),
@@ -69,7 +71,8 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
         self.assertTrue(res)
 
-        self.assertEqual(self.pleb.obj_weight_relationship(self.question).weight, 150)
+        self.assertEqual(
+            self.pleb.obj_weight_relationship(self.question).weight, 150)
 
     def test_update_weight_relationship_task_success_flag_as_inappropriate_unconnected(self):
         data = {"document_id": str(uuid1()),
@@ -89,7 +92,8 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
         self.assertTrue(res)
 
-        self.assertEqual(self.pleb.obj_weight_relationship(self.question).weight, 150)
+        self.assertEqual(
+            self.pleb.obj_weight_relationship(self.question).weight, 150)
 
     def test_update_weight_relationship_task_success_flag_as_spam_unconnected(self):
         data = {"document_id": str(uuid1()),
@@ -109,7 +113,8 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
         self.assertTrue(res)
 
-        self.assertEqual(self.pleb.obj_weight_relationship(self.question).weight, 150)
+        self.assertEqual(
+            self.pleb.obj_weight_relationship(self.question).weight, 150)
 
     def test_update_weight_relationship_task_success_share_unconnected(self):
         data = {"document_id": str(uuid1()),
@@ -129,7 +134,8 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
         self.assertTrue(res)
 
-        self.assertEqual(self.pleb.obj_weight_relationship(self.question).weight, 150)
+        self.assertEqual(
+            self.pleb.obj_weight_relationship(self.question).weight, 150)
 
     def test_update_weight_relationship_task_success_answered_unconnected(self):
         data = {"document_id": str(uuid1()),
@@ -170,7 +176,8 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
 
         self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
         self.assertTrue(res)
-        self.assertEqual(self.pleb.obj_weight_relationship(self.question).weight, 155)
+        self.assertEqual(
+            self.pleb.obj_weight_relationship(self.question).weight, 155)
 
     def test_update_weight_relationship_task_success_comment_on_connected(self):
         res = self.pleb.obj_weight_connect(self.question)
@@ -193,7 +200,8 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
 
         self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
         self.assertTrue(res)
-        self.assertEqual(self.pleb.obj_weight_relationship(self.question).weight, 155)
+        self.assertEqual(
+            self.pleb.obj_weight_relationship(self.question).weight, 155)
 
     def test_update_weight_relationship_task_success_flag_as_inappropriate_connected(self):
         res = self.pleb.obj_weight_connect(self.question)
@@ -216,7 +224,8 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
 
         self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
         self.assertTrue(res)
-        self.assertEqual(self.pleb.obj_weight_relationship(self.question).weight, 145)
+        self.assertEqual(
+            self.pleb.obj_weight_relationship(self.question).weight, 145)
 
     def test_update_weight_relationship_task_success_flag_as_spam_connected(self):
         res = self.pleb.obj_weight_connect(self.question)
@@ -239,7 +248,8 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
 
         self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
         self.assertTrue(res)
-        self.assertEqual(self.pleb.obj_weight_relationship(self.question).weight, 50)
+        self.assertEqual(
+            self.pleb.obj_weight_relationship(self.question).weight, 50)
 
     def test_update_weight_relationship_task_success_share_connected(self):
         res = self.pleb.obj_weight_connect(self.question)
@@ -262,7 +272,8 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
 
         self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
         self.assertTrue(res)
-        self.assertEqual(self.pleb.obj_weight_relationship(self.question).weight, 157)
+        self.assertEqual(
+            self.pleb.obj_weight_relationship(self.question).weight, 157)
 
     def test_update_weight_relationship_task_success_answered_connected(self):
         res = self.pleb.obj_weight_connect(self.question)
@@ -285,7 +296,8 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
 
         self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
         self.assertTrue(res)
-        self.assertEqual(self.pleb.obj_weight_relationship(self.question).weight, 200)
+        self.assertEqual(
+            self.pleb.obj_weight_relationship(self.question).weight, 200)
 
 class TestUpdateWeightRelationshipTaskAnswer(TestCase):
     def setUp(self):
@@ -318,7 +330,8 @@ class TestUpdateWeightRelationshipTaskAnswer(TestCase):
         self.assertTrue(self.pleb.obj_weight_is_connected(self.answer))
         self.assertTrue(res)
 
-        self.assertEqual(self.pleb.obj_weight_relationship(self.answer).weight, 150)
+        self.assertEqual(
+            self.pleb.obj_weight_relationship(self.answer).weight, 150)
 
     def test_update_weight_relationship_task_success_comment_on_unconnected(self):
         data = {"document_id": str(uuid1()),
@@ -338,7 +351,8 @@ class TestUpdateWeightRelationshipTaskAnswer(TestCase):
         self.assertTrue(self.pleb.obj_weight_is_connected(self.answer))
         self.assertTrue(res)
 
-        self.assertEqual(self.pleb.obj_weight_relationship(self.answer).weight, 150)
+        self.assertEqual(
+            self.pleb.obj_weight_relationship(self.answer).weight, 150)
 
     def test_update_weight_relationship_task_success_flag_as_inappropriate_unconnected(self):
         data = {"document_id": str(uuid1()),
@@ -358,7 +372,8 @@ class TestUpdateWeightRelationshipTaskAnswer(TestCase):
         self.assertTrue(self.pleb.obj_weight_is_connected(self.answer))
         self.assertTrue(res)
 
-        self.assertEqual(self.pleb.obj_weight_relationship(self.answer).weight, 150)
+        self.assertEqual(
+            self.pleb.obj_weight_relationship(self.answer).weight, 150)
 
     def test_update_weight_relationship_task_success_flag_as_spam_unconnected(self):
         data = {"document_id": str(uuid1()),
@@ -378,7 +393,8 @@ class TestUpdateWeightRelationshipTaskAnswer(TestCase):
         self.assertTrue(self.pleb.obj_weight_is_connected(self.answer))
         self.assertTrue(res)
 
-        self.assertEqual(self.pleb.obj_weight_relationship(self.answer).weight, 150)
+        self.assertEqual(
+            self.pleb.obj_weight_relationship(self.answer).weight, 150)
 
     def test_update_weight_relationship_task_success_share_unconnected(self):
         data = {"document_id": str(uuid1()),
@@ -398,7 +414,8 @@ class TestUpdateWeightRelationshipTaskAnswer(TestCase):
         self.assertTrue(self.pleb.obj_weight_is_connected(self.answer))
         self.assertTrue(res)
 
-        self.assertEqual(self.pleb.obj_weight_relationship(self.answer).weight, 150)
+        self.assertEqual(
+            self.pleb.obj_weight_relationship(self.answer).weight, 150)
 
     def test_update_weight_relationship_task_success_seen_connected(self):
         res = self.pleb.obj_weight_connect(self.answer)
@@ -421,7 +438,8 @@ class TestUpdateWeightRelationshipTaskAnswer(TestCase):
 
         self.assertTrue(self.pleb.obj_weight_is_connected(self.answer))
         self.assertTrue(res)
-        self.assertEqual(self.pleb.obj_weight_relationship(self.answer).weight, 155)
+        self.assertEqual(
+            self.pleb.obj_weight_relationship(self.answer).weight, 155)
 
     def test_update_weight_relationship_task_success_comment_on_connected(self):
         res = self.pleb.obj_weight_connect(self.answer)
@@ -467,7 +485,8 @@ class TestUpdateWeightRelationshipTaskAnswer(TestCase):
 
         self.assertTrue(self.pleb.obj_weight_is_connected(self.answer))
         self.assertTrue(res)
-        self.assertEqual(self.pleb.obj_weight_relationship(self.answer).weight, 145)
+        self.assertEqual(
+            self.pleb.obj_weight_relationship(self.answer).weight, 145)
 
     def test_update_weight_relationship_task_success_flag_as_spam_connected(self):
         res = self.pleb.obj_weight_connect(self.answer)
@@ -490,7 +509,8 @@ class TestUpdateWeightRelationshipTaskAnswer(TestCase):
 
         self.assertTrue(self.pleb.obj_weight_is_connected(self.answer))
         self.assertTrue(res)
-        self.assertEqual(self.pleb.obj_weight_relationship(self.answer).weight, 50)
+        self.assertEqual(
+            self.pleb.obj_weight_relationship(self.answer).weight, 50)
 
     def test_update_weight_relationship_task_success_share_connected(self):
         res = self.pleb.obj_weight_connect(self.answer)
@@ -513,7 +533,8 @@ class TestUpdateWeightRelationshipTaskAnswer(TestCase):
 
         self.assertTrue(self.pleb.obj_weight_is_connected(self.answer))
         self.assertTrue(res)
-        self.assertEqual(self.pleb.obj_weight_relationship(self.answer).weight, 157)
+        self.assertEqual(
+            self.pleb.obj_weight_relationship(self.answer).weight, 157)
 
 class TestUpdateWeightRelationshipTaskPleb(TestCase):
     def setUp(self):

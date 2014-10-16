@@ -8,6 +8,7 @@ from sb_questions.neo_models import SBQuestion
 
 logger = logging.getLogger('loggly_logs')
 
+
 def create_tag_relations(tags):
     '''
     This function creates and manages the relationships between tags, such as
@@ -31,6 +32,8 @@ def create_tag_relations(tags):
                 else:
                     rel = tag.frequently_auto_tagged_with.connect(item)
                     rel.save()
+            # TODO is this needed since temp_list is assigned to tags at the
+            # start of the for loop?
             temp_list = []
         return True
 
@@ -82,7 +85,7 @@ def add_auto_tags_util(tag_list):
                     tag_array.append(tag)
                 except UniqueProperty:
                     logger.exception({'function': add_auto_tags_util.__name__,
-                                  'exception': "UniqueProperty: "})
+                                      'exception': "UniqueProperty: "})
                     return None
 
             except KeyError:
@@ -100,6 +103,7 @@ def add_auto_tags_util(tag_list):
 
     create_tag_relations(tag_array)
     return True
+
 
 def add_tag_util(object_type, object_uuid, tags):
     '''

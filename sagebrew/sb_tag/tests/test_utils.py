@@ -3,12 +3,11 @@ from django.contrib.auth.models import User
 from django.core.management import call_command
 from django.test import TestCase
 
-from plebs.neo_models import Pleb
-
 from sb_questions.neo_models import SBQuestion
 from sb_tag.utils import (add_tag_util, add_auto_tags_util,
                           create_tag_relations)
 from sb_tag.neo_models import SBAutoTag
+
 
 class TestCreateTagUtil(TestCase):
     def setUp(self):
@@ -75,16 +74,17 @@ class TestCreateAutoTagUtil(TestCase):
         self.assertTrue(res)
 
     def test_create_auto_tag_util_success_tag_exists(self):
-        question = SBQuestion(question_id=uuid1())
+        question_id = uuid1()
+        question = SBQuestion(question_id=question_id)
         question.save()
         util_dict = [{'object_type': 'question',
-                      'object_uuid': question.question_id,
+                      'object_uuid': question_id,
                       'tags': {'relevance': '.9', 'text': 'test'}},
                      {'object_type': 'question',
-                      'object_uuid': question.question_id,
+                      'object_uuid': question_id,
                       'tags': {'relevance': '.9', 'text': 'test'}},
                      {'object_type': 'question',
-                      'object_uuid': question.question_id,
+                      'object_uuid': question_id,
                       'tags': {'relevance': '.9', 'text': 'test'}}]
         res = add_auto_tags_util(util_dict)
 

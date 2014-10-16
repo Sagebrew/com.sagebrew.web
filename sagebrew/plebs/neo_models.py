@@ -254,7 +254,32 @@ def create_user_profile(sender, instance, created, **kwargs):
         try:
             citizen = Pleb.nodes.get(email=instance.email)
         except (Pleb.DoesNotExist, DoesNotExist):
-            spawn_task(create_pleb_task, instance)
+            citizen = Pleb(email=instance.email,
+                           first_name=instance.first_name,
+                           last_name=instance.last_name)
+            citizen.save()
+            wall = SBWall(wall_id=uuid1())
+            wall.save()
+            wall.owner.connect(citizen)
+            citizen.wall.connect(wall)
+            wall.save()
+            citizen.save()
+            task_data = {'object_data': {
+                'first_name': citizen.first_name,
+                'last_name': citizen.last_name,
+                'full_name': str(citizen.first_name) + ' '
+                             + str(citizen.last_name),
+                'pleb_email': citizen.email
+                },
+                         'object_type': 'pleb'
+            }
+            spawn_task(task_func=add_object_to_search_index,
+                       task_param=task_data)
+            task_data = {'pleb': citizen.email,
+                         'index': "full-search-user-specific-1"}
+            spawn_task(task_func=add_user_to_custom_index,
+                       task_param=task_data)
+            #spawn_task(create_pleb_task, instance)
     else:
         pass
         # citizen = Pleb.nodes.get(instance.email)

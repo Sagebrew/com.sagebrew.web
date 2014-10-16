@@ -1,6 +1,6 @@
 import shortuuid
 from uuid import uuid1
-from datetime import datetime, date
+from datetime import datetime
 import pytz
 from api.utils import spawn_task
 from api.tasks import add_object_to_search_index
@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty, db)
+                      BooleanProperty, FloatProperty, db, DoesNotExist)
 
 from sb_relationships.neo_models import FriendRelationship, UserWeightRelationship
 from sb_posts.neo_models import RelationshipWeight
@@ -246,38 +246,15 @@ class SBTopic(StructuredNode):
 
 def create_user_profile(sender, instance, created, **kwargs):
     from sb_search.tasks import add_user_to_custom_index
+    from .tasks import create_pleb_task
     if created:
         # fixes test fails due to ghost plebs
         if instance.email == "":
             return None
         try:
             citizen = Pleb.nodes.get(email=instance.email)
-        except Pleb.DoesNotExist:
-            citizen = Pleb(email=instance.email,
-                           first_name=instance.first_name,
-                           last_name=instance.last_name)
-            citizen.save()
-            wall = SBWall(wall_id=uuid1())
-            wall.save()
-            wall.owner.connect(citizen)
-            citizen.wall.connect(wall)
-            wall.save()
-            citizen.save()
-            task_data = {'object_data': {
-                'first_name': citizen.first_name,
-                'last_name': citizen.last_name,
-                'full_name': str(citizen.first_name) + ' '
-                             + str(citizen.last_name),
-                'pleb_email': citizen.email
-                },
-                         'object_type': 'pleb'
-            }
-            spawn_task(task_func=add_object_to_search_index,
-                       task_param=task_data)
-            task_data = {'pleb': citizen.email,
-                         'index': "full-search-user-specific-1"}
-            spawn_task(task_func=add_user_to_custom_index,
-                       task_param=task_data)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            spawn_task(create_pleb_task, instance)
     else:
         pass
         # citizen = Pleb.nodes.get(instance.email)

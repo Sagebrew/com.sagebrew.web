@@ -217,6 +217,8 @@ class TestQuestionTaskRaceConditions(TestCase):
 
     def test_race_condition_edit_multiple_times(self):
         print settings.CELERY_ALWAYS_EAGER
+        if settings.CELERY_ALWAYS_EAGER:
+            settings.CELERY_ALWAYS_EAGER = False
         edit_array = []
         question = SBQuestion(**self.question_info_dict)
         question.save()
@@ -338,6 +340,8 @@ class TestMultipleTasks(TestCase):
 
     def test_create_many_questions(self):
         print settings.CELERY_ALWAYS_EAGER
+        if settings.CELERY_ALWAYS_EAGER:
+            settings.CELERY_ALWAYS_EAGER = False
         response_array = []
         for num in range(1, 10):
             uuid = str(uuid1())
@@ -352,6 +356,8 @@ class TestMultipleTasks(TestCase):
 
     def test_create_same_question_twice(self):
         print settings.CELERY_ALWAYS_EAGER
+        if settings.CELERY_ALWAYS_EAGER:
+            settings.CELERY_ALWAYS_EAGER = False
         question = SBQuestion(content="test question", question_title="title",
                               question_id=str(uuid1()))
         question.save()

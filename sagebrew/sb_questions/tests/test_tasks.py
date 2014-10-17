@@ -334,7 +334,13 @@ class TestMultipleTasks(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while (True):
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         self.question_info_dict = {'current_pleb': self.pleb.email,
                                    'question_title': "Test question",
                                    'content': 'test post',

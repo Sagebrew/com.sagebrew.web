@@ -1,3 +1,4 @@
+import time
 from uuid import uuid1
 from base64 import b64encode
 from rest_framework.test import APIRequestFactory
@@ -9,16 +10,20 @@ from django.conf import settings
 from plebs.neo_models import Pleb
 from sb_comments.views import (save_comment_view, edit_comment, delete_comment,
                                vote_comment, flag_comment)
-
+from sb_registration.utils import create_user_util
 
 class TestSaveCommentView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
@@ -97,11 +102,15 @@ class TestSaveCommentView(TestCase):
 class TestEditCommentView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
@@ -180,11 +189,15 @@ class TestEditCommentView(TestCase):
 class TestDeleteCommentView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
@@ -262,11 +275,15 @@ class TestDeleteCommentView(TestCase):
 class TestVoteCommentView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
@@ -345,11 +362,15 @@ class TestVoteCommentView(TestCase):
 class TestFlagCommentView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:

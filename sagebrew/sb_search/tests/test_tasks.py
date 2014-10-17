@@ -17,16 +17,20 @@ from sb_questions.neo_models import SBQuestion
 from sb_search.tasks import (update_weight_relationship,
                              add_user_to_custom_index, update_user_indices,
                              update_search_query, create_keyword)
-
+from sb_registration.utils import create_user_util
 
 class TestUpdateWeightRelationshipTaskQuestion(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
@@ -308,11 +312,15 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
 class TestUpdateWeightRelationshipTaskAnswer(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
@@ -551,11 +559,15 @@ class TestUpdateWeightRelationshipTaskAnswer(TestCase):
 class TestUpdateWeightRelationshipTaskPleb(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
-        self.user1 = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb1 = Pleb.nodes.get(email=self.user1.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
@@ -567,20 +579,28 @@ class TestUpdateWeightRelationshipTaskPleb(TestCase):
 
 class TestUpdateWeightRelationshipTaskPost(TestCase):
     def setUp(self):
-        self.user1 = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb1 = Pleb.nodes.get(email=self.user1.email)
+                self.pleb1 = Pleb.nodes.get(email=self.email)
+                self.user1 = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
                 break
-        self.user2 = User.objects.create_user(
-            username='Tyler2', email=str(uuid1())+'@gmail.com')
+        self.email2= "bounce@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email2, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb2 = Pleb.nodes.get(email=self.user2.email)
+                self.pleb2 = Pleb.nodes.get(email=self.email2)
+                self.user2 = User.objects.get(email=self.email2)
             except Exception:
                 pass
             else:
@@ -592,11 +612,15 @@ class TestUpdateWeightRelationshipTaskPost(TestCase):
 class TestAddUserToCustomIndexTask(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
@@ -620,11 +644,15 @@ class TestAddUserToCustomIndexTask(TestCase):
 class TestUpdateUserIndices(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
@@ -658,11 +686,15 @@ class TestUpdateUserIndices(TestCase):
 
 class TestUpdateSearchQuery(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
@@ -750,11 +782,15 @@ class TestUpdateSearchQuery(TestCase):
 
 class TestCreateKeywordTask(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:

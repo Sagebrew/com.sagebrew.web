@@ -1,17 +1,22 @@
 import os
+import shortuuid
 import hashlib
 import json
 import urllib
 import boto.ses
+import logging
 from datetime import date
 from django.conf import settings
+from django.contrib.auth.models import User
 from boto import connect_s3
 from boto.s3.key import Key
 from neomodel import DoesNotExist
 
+from plebs.tasks import create_pleb_task
 from plebs.neo_models import TopicCategory, Pleb
 from govtrack.neo_models import GTRole
 
+logger = logging.getLogger('loggly_logs')
 
 def generate_interests_tuple():
     cat_instance = TopicCategory.category()
@@ -341,3 +346,21 @@ def sb_send_email(to_email, subject, text_content, html_content):
                           body=html_content,
                           to_addresses=[to_email],
                           format='html')
+
+def create_user_util(first_name, last_name, email, password,
+                     username=""):
+    try:
+        if username=="":
+            username = shortuuid.uuid()
+        user = User.objects.create_user(first_name=first_name,
+                                        last_name=last_name,
+                                        email=email,
+                                        password=password,
+                                        username=username)
+        user.save()
+        res = create_pleb_task.apply_async(kwargs={"user_instance": user})
+        return {"task_id": res, "username": user.username}
+    except Exception:
+        logger.exception({"function": create_user_util.__name__,
+                          "exception": "UnhandledException: "})
+        return False

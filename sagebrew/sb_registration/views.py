@@ -22,7 +22,8 @@ from .utils import (validate_address, generate_interests_tuple, upload_image,
                     compare_address, generate_address_tuple,
                     create_address_string,
                     create_address_long_hash, verify_completed_registration,
-                    verify_verified_email, calc_age, sb_send_email)
+                    verify_verified_email, calc_age, sb_send_email,
+                    create_user_util)
 from .models import EmailAuthTokenGenerator
 
 logger = logging.getLogger('loggly_logs')
@@ -38,7 +39,10 @@ def signup_view(request):
 @api_view(['POST'])
 def signup_view_api(request):
     try:
-        signup_form = SignupForm(request.DATA)
+        try:
+            signup_form = SignupForm(request.DATA)
+        except TypeError:
+            return Response(status=400)
         if signup_form.is_valid():
             if signup_form.cleaned_data['password'] != \
                     signup_form.cleaned_data['password2']:
@@ -51,17 +55,15 @@ def signup_view_api(request):
                                      'A user with this email already exists!'},
                                 status=401)
             except User.DoesNotExist:
-                user = User.objects.create_user(first_name=signup_form.
-                                                cleaned_data['first_name'],
-                                                last_name=signup_form.
-                                                cleaned_data['last_name'],
-                                                email=signup_form.
-                                                cleaned_data['email'],
-                                                username=shortuuid.uuid(),
-                                                password=signup_form.
-                                                cleaned_data['password'])
-                user.save()
-                user = authenticate(username=user.username,
+                res = create_user_util(first_name=signup_form.
+                                       cleaned_data['first_name'],
+                                       last_name=signup_form.
+                                       cleaned_data['last_name'],
+                                       email=signup_form.
+                                       cleaned_data['email'],
+                                       password=signup_form.
+                                       cleaned_data['password'])
+                user = authenticate(username=res['username'],
                                     password=signup_form.cleaned_data[
                                         'password'])
                 if user is not None:
@@ -109,7 +111,10 @@ def resend_email_verification(request):
 @api_view(['POST'])
 def login_view_api(request):
     try:
-        login_form = LoginForm(request.DATA)
+        try:
+            login_form = LoginForm(request.DATA)
+        except TypeError:
+            return Response(status=400)
         if login_form.is_valid():
             try:
                 user = User.objects.get(email=login_form.cleaned_data['email'])
@@ -327,7 +332,6 @@ def interests(request):
                         item != "specific_interests"):
                 try:
                     citizen = Pleb.nodes.get(email=request.user.email)
-                    # TODO profile page profile picture
                     if citizen.completed_profile_info:
                         return redirect('profile_picture')
                 except Pleb.DoesNotExist:

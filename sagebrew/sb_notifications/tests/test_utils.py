@@ -1,3 +1,4 @@
+import time
 from uuid import uuid1
 
 from django.contrib.auth.models import User
@@ -9,25 +10,32 @@ from sb_notifications.utils import (create_notification_comment_util,
                                     create_notification_post_util)
 from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
+from sb_registration.utils import create_user_util
 
 class TestNotificationUtils(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
                 break
-        self.user2 = User.objects.create_user(
-            username='Devon' + str(uuid1())[:25],
-            email=str(uuid1())
-        )
+        self.email2= "bounce@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email2, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb2 = Pleb.nodes.get(email=self.user2.email)
+                self.pleb2 = Pleb.nodes.get(email=self.email2)
+                self.user2 = User.objects.get(email=self.email2)
             except Exception:
                 pass
             else:

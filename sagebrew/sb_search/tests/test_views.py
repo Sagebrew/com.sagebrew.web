@@ -16,15 +16,20 @@ from elasticsearch import Elasticsearch
 from plebs.neo_models import Pleb
 from sb_search.views import search_result_api, search_result_view
 from sb_questions.neo_models import SBQuestion
+from sb_registration.utils import create_user_util
 
 class TestSearchResultView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
@@ -246,12 +251,15 @@ class TestSearchResultAPI(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com',
-            password='password')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "password")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
@@ -295,13 +303,15 @@ class TestSearchResultAPIReturns(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler',
-            email="tyler"+str(uuid1()).replace('-','')+'@gmail.com',
-            password='password')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "password")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
@@ -577,13 +587,12 @@ class TestSearchResultAPIReturns(TestCase):
                        'question_content': question2.question_content,
                        'question_title': question2.question_title,
                        'related_user': self.user.email})
-        time.sleep(2)
+        time.sleep(3)
         self.client.login(username=self.user.username, password='password')
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':'fossil fuels',
                                                   'page': '1'}))
         result_dict = loads(request.content)
-
         res1 = SBQuestion.nodes.get(question_id=result_dict['html'][0]['question_uuid'])
         res2 = SBQuestion.nodes.get(question_id=result_dict['html'][1]['question_uuid'])
         self.assertEqual(res1.question_title, question2.question_title)

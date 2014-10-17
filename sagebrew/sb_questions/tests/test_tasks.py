@@ -12,24 +12,28 @@ from sb_questions.tasks import (create_question_task, edit_question_task,
                                 vote_question_task)
 from plebs.neo_models import Pleb
 from sb_questions.neo_models import SBQuestion
-
+from sb_registration.utils import create_user_util
 
 class TestSaveQuestionTask(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.question_info_dict = {'current_pleb': self.user.email,
-                                   'question_title': "Test question",
-                                   'content': 'test post',
-                                   'tags': "this,is,a,test"}
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
                 break
+        self.question_info_dict = {'current_pleb': self.user.email,
+                                   'question_title': "Test question",
+                                   'content': 'test post',
+                                   'tags': "this,is,a,test"}
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -75,19 +79,23 @@ class TestSaveQuestionTask(TestCase):
 class TestEditQuestionTask(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.question_info_dict = {'current_pleb': self.user.email,
-                                   'question_title': "Test question",
-                                   'content': 'test post',
-                                   'question_uuid': str(uuid1())}
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
                 break
+        self.question_info_dict = {'current_pleb': self.user.email,
+                                   'question_title': "Test question",
+                                   'content': 'test post',
+                                   'question_uuid': str(uuid1())}
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -218,11 +226,15 @@ class TestEditQuestionTask(TestCase):
 
 class TestQuestionTaskRaceConditions(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-        while(True):
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
+        while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
@@ -258,20 +270,24 @@ class TestQuestionTaskRaceConditions(TestCase):
 
 class TestVoteTask(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
+            except Exception:
+                pass
+            else:
+                break
         self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
                                    'content': 'test post',
                                    'question_uuid': str(uuid1())}
         settings.CELERY_ALWAYS_EAGER = True
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
-            except Exception:
-                pass
-            else:
-                break
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -353,11 +369,15 @@ class TestVoteTask(TestCase):
 
 class TestMultipleTasks(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-        while (True):
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
+        while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:

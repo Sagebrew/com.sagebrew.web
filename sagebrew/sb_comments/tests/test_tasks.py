@@ -12,6 +12,7 @@ from sb_comments.utils import save_comment_post
 from sb_comments.tasks import (edit_comment_task, create_vote_comment,
                                submit_comment_on_post, flag_comment_task)
 from sb_posts.utils import save_post
+from sb_posts.tasks import save_post_task
 from plebs.neo_models import Pleb
 
 
@@ -34,12 +35,15 @@ class TestSaveComment(TestCase):
 
     def test_save_comment_on_post_task(self):
         uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.user.email,
-                         wall_pleb=self.user.email)
+        task_data = {"post_uuid": uuid, "content": "test post",
+                     "current_pleb": self.user.email,
+                     "wall_pleb": self.user.email}
+        res = save_post_task.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
         task_param = {'content': 'test comment',
                       'pleb': self.user.email,
-                      'post_uuid': post.post_id}
+                      'post_uuid': uuid}
         response = submit_comment_on_post.apply_async(kwargs=task_param)
         while not response.ready():
             time.sleep(1)
@@ -66,12 +70,16 @@ class TestEditComment(TestCase):
 
     def test_edit_comment_success(self):
         uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.user.email,
-                         wall_pleb=self.user.email)
+        task_data = {"post_uuid": uuid, "content": "test post",
+                     "current_pleb": self.user.email,
+                     "wall_pleb": self.user.email}
+        res = save_post_task.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+
         task_param = {'content': 'test comment',
                       'pleb': self.user.email,
-                      'post_uuid': post.post_id}
+                      'post_uuid': uuid}
         my_comment = save_comment_post(**task_param)
         edit_task_param = {'comment_uuid': my_comment.comment_id,
                            'content': 'test edit',
@@ -231,12 +239,15 @@ class TestVoteComment(TestCase):
 
     def test_upvote_from_other_user(self):
         uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.user.email,
-                         wall_pleb=self.user.email)
+        task_data = {"post_uuid": uuid, "content": "test post",
+                     "current_pleb": self.user.email,
+                     "wall_pleb": self.user.email}
+        res = save_post_task.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
         task_param = {'content': 'test comment',
                       'pleb': self.user.email,
-                      'post_uuid': post.post_id}
+                      'post_uuid': uuid}
         my_comment = save_comment_post(**task_param)
         vote_task_param = {'pleb': self.user.email,
                            'comment_uuid': my_comment.comment_id,

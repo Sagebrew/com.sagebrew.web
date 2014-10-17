@@ -73,8 +73,6 @@ def create_vote_comment(pleb="", comment_uuid=str(uuid1()), vote_type=""):
                 if res:
                     return True
                 elif res is None:
-                    logger.exception({"function": create_vote_comment.__name__,
-                          "exception": "Failure: "})
                     return False
                 else:
                     raise Exception
@@ -85,8 +83,6 @@ def create_vote_comment(pleb="", comment_uuid=str(uuid1()), vote_type=""):
                 if res:
                     return True
                 elif res is None:
-                    logger.exception({"function": create_vote_comment.__name__,
-                          "exception": "Failure: "})
                     return False
                 else:
                     raise Exception
@@ -123,7 +119,11 @@ def submit_comment_on_post(content="", pleb="", post_uuid=str(uuid1())):
     '''
     try:
         my_comment = save_comment_post(content, pleb, post_uuid)
-        if my_comment is not None:
+        if my_comment is None:
+            return False
+        elif my_comment==False:
+            raise Exception
+        else:
             from_pleb_email = my_comment.is_owned_by.all()[0].email
             post = my_comment.commented_on_post.all()[0]
             to_pleb_email = post.owned_by.all()[0].email
@@ -133,10 +133,6 @@ def submit_comment_on_post(content="", pleb="", post_uuid=str(uuid1())):
             spawn_task(task_func=create_notification_comment_task,
             task_param=data)
             return True
-        elif not my_comment:
-            raise Exception
-        else:
-            return False
     except Exception:
         logger.exception({'function': submit_comment_on_post.__name__,
                     'exception': "UnhandledException: "})

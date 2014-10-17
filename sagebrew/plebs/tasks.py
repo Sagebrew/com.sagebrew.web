@@ -79,4 +79,3 @@ def create_pleb_task(user_instance):
                           "exception": "UnhandledException: "})
         raise create_pleb_task.retry(exc=Exception, countdown=3,
                                      max_retries=None)
-

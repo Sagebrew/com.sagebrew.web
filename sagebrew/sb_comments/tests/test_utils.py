@@ -193,11 +193,10 @@ class TestVoteComments(TestCase):
         res = save_post_task.apply_async(kwargs=task_data)
         while not res.ready():
             time.sleep(1)
-        my_comment = save_comment_post(content="test comment",
-                                       pleb=self.user.email,
-                                       post_uuid=uuid)
-        create_downvote_comment_util(pleb=self.user.email,
-                                     comment_uuid=my_comment.comment_id)
+        my_comment = SBComment(comment_id=uuid)
+        my_comment.save()
+        res = create_downvote_comment_util(pleb=self.user.email,
+                                           comment_uuid=uuid)
         my_comment.refresh()
 
         self.assertEqual(my_comment.down_vote_number, 1)

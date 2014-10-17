@@ -80,9 +80,9 @@ def create_upvote_comment_util(pleb="", comment_uuid=str(uuid1())):
         try:
             my_pleb = Pleb.nodes.get(email=pleb)
         except Pleb.DoesNotExist:
-            return False
+            return None
         except DoesNotExist:
-            return False
+            return None
         my_comment.up_vote_number += 1
         my_comment.up_voted_by.connect(my_pleb)
         my_comment.save()
@@ -94,7 +94,7 @@ def create_upvote_comment_util(pleb="", comment_uuid=str(uuid1())):
     except Exception:
         logger.exception({"function": create_downvote_comment_util.__name__,
                           "exception": "UnhandledException: "})
-        return None
+        return False
 
 
 def create_downvote_comment_util(pleb="", comment_uuid=str(uuid1())):
@@ -117,21 +117,19 @@ def create_downvote_comment_util(pleb="", comment_uuid=str(uuid1())):
         try:
             my_pleb = Pleb.nodes.get(email=pleb)
         except Pleb.DoesNotExist:
-            return False
+            return None
         except DoesNotExist:
-            return False
+            return None
         my_comment.down_vote_number += 1
         my_comment.down_voted_by.connect(my_pleb)
         my_comment.save()
         return True
     except CypherException:
-        logger.exception({"function": create_downvote_comment_util.__name__,
-                          "exception": "CypherException: "})
         return False
     except Exception:
         logger.exception({"function": create_downvote_comment_util.__name__,
                           "exception": "UnhandledException: "})
-        return None
+        return False
 
 
 def save_comment_post(content="", pleb="", post_uuid=str(uuid1())):
@@ -150,9 +148,9 @@ def save_comment_post(content="", pleb="", post_uuid=str(uuid1())):
         try:
             my_citizen = Pleb.nodes.get(email=pleb)
         except Pleb.DoesNotExist:
-            return False
+            return None
         except DoesNotExist:
-            return False
+            return None
         try:
             parent_object = SBPost.nodes.get(post_id=post_uuid)
         except SBPost.DoesNotExist:
@@ -172,11 +170,11 @@ def save_comment_post(content="", pleb="", post_uuid=str(uuid1())):
         rel_from_post.save()
         return my_comment
     except CypherException:
-        logger.exception({"function": save_comment_post.__name__,
-                          "exception": "CypherException: "})
         return False
     except Exception:
-        return None
+        logger.exception({"function": save_comment_post.__name__,
+                          "exception": "UnhandledException: "})
+        return False
 
 def edit_comment_util(comment_uuid=str(uuid1()), content="",
                       last_edited_on=None, pleb=""):

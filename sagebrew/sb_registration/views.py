@@ -332,7 +332,6 @@ def interests(request):
                         item != "specific_interests"):
                 try:
                     citizen = Pleb.nodes.get(email=request.user.email)
-                    # TODO profile page profile picture
                     if citizen.completed_profile_info:
                         return redirect('profile_picture')
                 except Pleb.DoesNotExist:

@@ -13,7 +13,7 @@ class Command(BaseCommand):
                 res = db.cypher_query(
                     "START n=node(*) OPTIONAL MATCH n-[r]-() DELETE r,n")
             except CypherException:
-                sleep(1)
+                sleep(3)
             else:
                 break
         return True

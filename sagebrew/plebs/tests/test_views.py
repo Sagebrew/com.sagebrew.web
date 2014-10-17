@@ -18,7 +18,13 @@ class ProfilePageTest(TestCase):
         self.factory = APIRequestFactory()
         self.user = User.objects.create_user(
             username='Tyler' + str(uuid1())[:25], email=self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        while (True):
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         self.pleb.completed_profile_info = True
         self.pleb.save()
 

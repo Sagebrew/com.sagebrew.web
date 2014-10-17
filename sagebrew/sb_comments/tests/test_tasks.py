@@ -20,6 +20,13 @@ class TestSaveComment(TestCase):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
         settings.CELERY_ALWAYS_EAGER = True
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -45,6 +52,13 @@ class TestEditComment(TestCase):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
         settings.CELERY_ALWAYS_EAGER = True
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -74,6 +88,13 @@ class TestVoteComment(TestCase):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
         settings.CELERY_ALWAYS_EAGER = True
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
 
 
     def tearDown(self):
@@ -243,6 +264,13 @@ class TestFlagCommentTask(TestCase):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
         settings.CELERY_ALWAYS_EAGER = True
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')

@@ -23,6 +23,13 @@ class TestSaveQuestionTask(TestCase):
                                    'question_title': "Test question",
                                    'content': 'test post',
                                    'tags': "this,is,a,test"}
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -74,6 +81,13 @@ class TestEditQuestionTask(TestCase):
                                    'question_title': "Test question",
                                    'content': 'test post',
                                    'question_uuid': str(uuid1())}
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -251,6 +265,13 @@ class TestVoteTask(TestCase):
                                    'content': 'test post',
                                    'question_uuid': str(uuid1())}
         settings.CELERY_ALWAYS_EAGER = True
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')

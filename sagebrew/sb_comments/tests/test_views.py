@@ -16,6 +16,13 @@ class TestSaveCommentView(TestCase):
         self.factory = APIRequestFactory()
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -92,6 +99,13 @@ class TestEditCommentView(TestCase):
         self.factory = APIRequestFactory()
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -168,6 +182,13 @@ class TestDeleteCommentView(TestCase):
         self.factory = APIRequestFactory()
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -243,6 +264,13 @@ class TestVoteCommentView(TestCase):
         self.factory = APIRequestFactory()
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -319,6 +347,13 @@ class TestFlagCommentView(TestCase):
         self.factory = APIRequestFactory()
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')

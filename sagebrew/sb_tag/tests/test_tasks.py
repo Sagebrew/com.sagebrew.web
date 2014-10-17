@@ -13,6 +13,13 @@ class TestTagTask(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
@@ -50,6 +57,13 @@ class TestAutoTagTask(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):

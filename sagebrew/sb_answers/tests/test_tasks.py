@@ -12,6 +12,7 @@ from sb_answers.utils import save_answer_util
 from sb_answers.tasks import save_answer_task, edit_answer_task, vote_answer_task
 from sb_questions.utils import create_question_util
 from sb_questions.neo_models import SBQuestion
+from plebs.neo_models import Pleb
 
 class TestSaveAnswerTask(TestCase):
     def setUp(self):
@@ -24,6 +25,13 @@ class TestSaveAnswerTask(TestCase):
                                  'content': 'test answer',
                                  'to_pleb': self.user.email}
         settings.CELERY_ALWAYS_EAGER = True
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -121,6 +129,13 @@ class TestVoteAnswerTask(TestCase):
                                  'content': 'test answer',
                                  'to_pleb': self.user.email}
         settings.CELERY_ALWAYS_EAGER = True
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')

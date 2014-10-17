@@ -24,7 +24,13 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         self.question = SBQuestion(question_id=str(uuid1()))
         self.question.save()
 
@@ -304,7 +310,13 @@ class TestUpdateWeightRelationshipTaskAnswer(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         self.answer = SBAnswer(answer_id=str(uuid1()))
         self.answer.save()
 
@@ -541,7 +553,13 @@ class TestUpdateWeightRelationshipTaskPleb(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
         self.user1 = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb1 = Pleb.nodes.get(email=self.user1.email)
+        while True:
+            try:
+                self.pleb1 = Pleb.nodes.get(email=self.user1.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -551,10 +569,22 @@ class TestUpdateWeightRelationshipTaskPost(TestCase):
     def setUp(self):
         self.user1 = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb1 = Pleb.nodes.get(email=self.user1.email)
+        while True:
+            try:
+                self.pleb1 = Pleb.nodes.get(email=self.user1.email)
+            except Exception:
+                pass
+            else:
+                break
         self.user2 = User.objects.create_user(
             username='Tyler2', email=str(uuid1())+'@gmail.com')
-        self.pleb2 = Pleb.nodes.get(email=self.user2.email)
+        while True:
+            try:
+                self.pleb2 = Pleb.nodes.get(email=self.user2.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -564,7 +594,13 @@ class TestAddUserToCustomIndexTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -586,7 +622,13 @@ class TestUpdateUserIndices(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -618,7 +660,13 @@ class TestUpdateSearchQuery(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
@@ -704,7 +752,13 @@ class TestCreateKeywordTask(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):

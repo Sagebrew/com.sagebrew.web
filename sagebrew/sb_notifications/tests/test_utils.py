@@ -14,12 +14,24 @@ class TestNotificationUtils(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         self.user2 = User.objects.create_user(
             username='Devon' + str(uuid1())[:25],
             email=str(uuid1())
         )
-        self.pleb2 = Pleb.nodes.get(email=self.user2.email)
+        while True:
+            try:
+                self.pleb2 = Pleb.nodes.get(email=self.user2.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')

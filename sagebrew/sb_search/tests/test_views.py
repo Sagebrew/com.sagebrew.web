@@ -22,7 +22,13 @@ class TestSearchResultView(TestCase):
         self.factory = APIRequestFactory()
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         self.pleb.completed_profile_info = True
         self.pleb.save()
 
@@ -243,6 +249,13 @@ class TestSearchResultAPI(TestCase):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com',
             password='password')
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -286,7 +299,13 @@ class TestSearchResultAPIReturns(TestCase):
             username='Tyler',
             email="tyler"+str(uuid1()).replace('-','')+'@gmail.com',
             password='password')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         self.pleb.first_name='Tyler'
         self.pleb.last_name='Wiersing'
         self.pleb.save()

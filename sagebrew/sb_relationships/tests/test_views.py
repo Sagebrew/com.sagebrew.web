@@ -19,6 +19,20 @@ class TestCreateFriendRequestView(TestCase):
             username='Tyler', email=str(uuid1())+'@gmail.com')
         self.user2 = User.objects.create_user(
             username='Tyler2', email=str(uuid1())+'@gmail.com')
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
+        while True:
+            try:
+                self.pleb2 = Pleb.nodes.get(email=self.user2.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -122,6 +136,20 @@ class TestGetFriendRequestsView(TestCase):
             username='Tyler', email=str(uuid1())+'@gmail.com')
         self.user2 = User.objects.create_user(
             username='Tyler2', email=str(uuid1())+'@gmail.com')
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
+        while True:
+            try:
+                self.pleb2 = Pleb.nodes.get(email=self.user2.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -213,6 +241,20 @@ class TestRespondFriendRequestView(TestCase):
             username='Tyler', email=str(uuid1())+'@gmail.com')
         self.user2 = User.objects.create_user(
             username='Tyler2', email=str(uuid1())+'@gmail.com')
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
+        while True:
+            try:
+                self.pleb2 = Pleb.nodes.get(email=self.user2.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')

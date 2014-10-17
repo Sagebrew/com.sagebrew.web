@@ -19,6 +19,13 @@ class TestCreateQuestion(TestCase):
                                    'question_title': "Test question",
                                    'content': 'test post',
                                    'question_uuid': str(uuid1())}
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -93,6 +100,13 @@ class TestEditQuestionUtils(TestCase):
                                    'question_title': "Test question",
                                    'content': 'test post',
                                    'question_uuid': str(uuid1())}
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -189,6 +203,13 @@ class TestVoteQuestionUtil(TestCase):
                                    'question_title': "Test question",
                                    'content': 'test post',
                                    'question_uuid': str(uuid1())}
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')

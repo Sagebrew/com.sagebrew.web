@@ -54,7 +54,13 @@ class ProfileInfoTest(TestCase):
         self.factory = RequestFactory()
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         self.pleb.email_verified = True
         self.pleb.save()
 
@@ -170,7 +176,13 @@ class TestSignupView(TestCase):
         self.factory = RequestFactory()
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         self.pleb.email_verified = True
         self.pleb.save()
 
@@ -189,7 +201,13 @@ class TestSignupAPIView(TestCase):
         self.factory = APIRequestFactory()
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         self.pleb.email_verified = True
         self.pleb.save()
 
@@ -312,7 +330,13 @@ class TestLoginView(TestCase):
         self.factory = RequestFactory()
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         self.pleb.email_verified = True
         self.pleb.save()
 
@@ -464,7 +488,13 @@ class TestLogoutView(TestCase):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com',
             password='testpass')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         self.pleb.email_verified = True
         self.pleb.save()
 
@@ -491,7 +521,13 @@ class TestEmailVerificationView(TestCase):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com',
             password='testpass')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         self.pleb.email_verified = False
         self.pleb.save()
 
@@ -552,7 +588,13 @@ class TestResendEmailVerificationView(TestCase):
             first_name='Tyler', last_name='Wiersing',
             username='Tyler', email='success@simulator.amazonses.com',
             password='testpass')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         self.pleb.email_verified = False
         self.pleb.save()
 

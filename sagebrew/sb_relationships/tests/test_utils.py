@@ -11,10 +11,22 @@ class TestCreateFriendRequestUtil(TestCase):
     def setUp(self):
         self.user1 = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb1 = Pleb.nodes.get(email=self.user1.email)
+        while True:
+            try:
+                self.pleb1 = Pleb.nodes.get(email=self.user1.email)
+            except Exception:
+                pass
+            else:
+                break
         self.user2 = User.objects.create_user(
             username='Tyler2', email=str(uuid1())+'@gmail.com')
-        self.pleb2 = Pleb.nodes.get(email=self.user2.email)
+        while True:
+            try:
+                self.pleb2 = Pleb.nodes.get(email=self.user2.email)
+            except Exception:
+                pass
+            else:
+                break
 
     def tearDown(self):
         call_command('clear_neo_db')

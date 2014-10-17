@@ -20,7 +20,13 @@ class TestSavePostTask(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         self.post_info_dict = {'current_pleb': self.pleb.email,
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
@@ -42,7 +48,13 @@ class TestDeletePostTask(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         self.post_info_dict = {'current_pleb': self.pleb.email,
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
@@ -68,7 +80,13 @@ class TestEditPostTask(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         self.post_info_dict = {'current_pleb': self.pleb.email,
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
@@ -166,7 +184,13 @@ class TestPostVoteTask(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
@@ -263,7 +287,13 @@ class TestPostTaskRaceConditions(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         self.post_info_dict = {'current_pleb': self.pleb.email,
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
@@ -320,7 +350,13 @@ class TestMultipleTasks(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         self.post_info_dict = {'current_pleb': self.pleb.email,
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
@@ -375,7 +411,13 @@ class TestFlagPostTask(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.user.email)
+            except Exception:
+                pass
+            else:
+                break
         self.post_info_dict = {'current_pleb': self.pleb.email,
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',

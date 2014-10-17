@@ -507,7 +507,7 @@ class TestSearchResultAPIReturns(TestCase):
         self.assertIn('<h2><a href=\\"https://192.168.56.101/questions/',
                       request.content)
 
-    def test_search_result_api_result_user_as_no_results(self):
+    def test_search_result_api_result_user_has_no_results(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(question_id=str(uuid1()),
                                question_title=self.q1dict['question_title'],
@@ -525,7 +525,7 @@ class TestSearchResultAPIReturns(TestCase):
                      'question_uuid': question1.question_id,
                      'question_title': question1.question_title,
                      'question_content': question1.question_content,
-                     'related_user': self.user.email[:37]+'1231'
+                     'related_user': str(uuid1()).strip('-')
                  })
         for item in range(0,29):
             es.index(index='full-search-user-specific-1',
@@ -534,7 +534,7 @@ class TestSearchResultAPIReturns(TestCase):
                          'question_uuid': question1.question_id,
                          'question_title': question1.question_title,
                          'question_content': question1.question_content,
-                         'related_user': self.user.email[:37]+'1231'
+                         'related_user': str(uuid1()).strip('-')
                      })
         time.sleep(2)
         self.client.login(username=self.user.username, password='password')

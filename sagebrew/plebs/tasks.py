@@ -6,7 +6,6 @@ from django.template.loader import get_template
 from django.template import Context
 from neomodel import DoesNotExist
 
-from .neo_models import Pleb
 from api.utils import spawn_task
 from api.tasks import add_object_to_search_index
 from sb_search.tasks import add_user_to_custom_index
@@ -19,6 +18,7 @@ token_gen = EmailAuthTokenGenerator()
 
 @shared_task()
 def create_pleb_task(user_instance):
+    from plebs.neo_models import Pleb
     try:
         try:
             test = Pleb.nodes.get(email=user_instance.email)
@@ -52,11 +52,16 @@ def create_pleb_task(user_instance):
                        task_param=task_data)
             template_dict = {
                 'full_name': pleb.first_name+' '+pleb.last_name,
-                'verification_url': settings.EMAIL_VERIFICATION_URL+token_gen.make_token(user_instance)+'/'
+                'verification_url': settings.EMAIL_VERIFICATION_URL+
+                                    token_gen.make_token(user_instance)+'/'
             }
             subject, to = "Sagebrew Email Verification", pleb.email
-            text_content = get_template('email_templates/email_verification.txt').render(Context(template_dict))
-            html_content = get_template('email_templates/email_verification.html').render(Context(template_dict))
+            text_content = get_template(
+                'email_templates/email_verification.txt').\
+                render(Context(template_dict))
+            html_content = get_template(
+                'email_templates/email_verification.html').\
+                render(Context(template_dict))
             sb_send_email(to, subject, text_content, html_content)
             return True
     except Exception:
@@ -72,4 +77,5 @@ def send_email_task(to, subject, text_content, html_content):
     except Exception:
         logger.exception({"function": send_email_task.__name__,
                           "exception": "UnhandledException: "})
-        raise send_email_task.retry(exc=Exception, countdown=3, max_retries=None)
+        raise send_email_task.retry(exc=Exception, countdown=3,
+                                    max_retries=None)

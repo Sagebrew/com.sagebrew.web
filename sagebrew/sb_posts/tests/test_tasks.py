@@ -374,11 +374,9 @@ class TestMultipleTasks(TestCase):
                 kwargs=self.post_info_dict)
             while not save_response.ready():
                 time.sleep(1)
-            save_response = save_response.result
-            response_array.append(save_response)
+            response_array.append(save_response.result)
 
-        for item in response_array:
-            self.assertTrue(item)
+        self.assertNotIn(False, response_array)
 
     def test_create_many_votes(self):
         vote_array = []
@@ -396,16 +394,13 @@ class TestMultipleTasks(TestCase):
                 kwargs=vote_info_dict)
             while not uvote_response.ready():
                 time.sleep(1)
-            uvote_response = uvote_response.result
             while not dvote_response.ready():
                 time.sleep(1)
-            dvote_response = dvote_response.result
-            vote_array.append(uvote_response)
-            vote_array.append(dvote_response)
+            vote_array.append(uvote_response.result)
+            vote_array.append(dvote_response.result)
 
         self.assertTrue(response)
-        for item in vote_array:
-            self.assertTrue(item)
+        self.assertNotIn(False, vote_array)
 
 class TestFlagPostTask(TestCase):
     def setUp(self):

@@ -248,6 +248,7 @@ def create_user_profile(sender, instance, created, **kwargs):
     from sb_search.tasks import add_user_to_custom_index
     from .tasks import create_pleb_task
     if created:
+        # fixes test fails due to ghost plebs
         if instance.email == "":
             return None
         try:

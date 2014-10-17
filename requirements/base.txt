@@ -34,6 +34,7 @@ newrelic
 nltk
 neomodel
 shortuuid
+pep8
 gunicorn
 coverage
 coveralls

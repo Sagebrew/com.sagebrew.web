@@ -34,8 +34,8 @@ def create_friend_request(request):
     # request button
     try:
         friend_request_data = request.DATA
-        friend_request_data['friend_request_uuid'] = uuid1()
         try:
+            friend_request_data['friend_request_uuid'] = uuid1()
             request_form = SubmitFriendRequestForm(friend_request_data)
         except TypeError:
             return Response(status=400)
@@ -50,6 +50,9 @@ def create_friend_request(request):
 
     except KeyError:
         return Response({'detail': 'key error'}, status=400)
+
+    except TypeError:
+        return Response({'detail': 'type error'}, status=400)
 
     except(HTTPError, ConnectionError):
         return Response({"action": False}, status=408)
@@ -161,6 +164,9 @@ def respond_friend_request(request):
             return Response({"detail": "invalid form"}, status=400)
 
     except IndexError:
+        return Response(status=400)
+
+    except AttributeError:
         return Response(status=400)
 
     except Exception:

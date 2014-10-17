@@ -10,14 +10,25 @@ from django.contrib.auth.models import User
 from sb_answers.neo_models import SBAnswer
 from sb_answers.utils import save_answer_util
 from sb_answers.tasks import save_answer_task, edit_answer_task, vote_answer_task
-from sb_questions.utils import create_question_util
 from sb_questions.neo_models import SBQuestion
 from plebs.neo_models import Pleb
+from sb_registration.utils import create_user_util
 
 class TestSaveAnswerTask(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
+            except Exception:
+                pass
+            else:
+                break
         self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
                                    'content': 'test post',}
@@ -25,13 +36,6 @@ class TestSaveAnswerTask(TestCase):
                                  'content': 'test answer',
                                  'to_pleb': self.user.email}
         settings.CELERY_ALWAYS_EAGER = True
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
-            except Exception:
-                pass
-            else:
-                break
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -65,8 +69,19 @@ class TestSaveAnswerTask(TestCase):
 
 class TestEditAnswerTask(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
+            except Exception:
+                pass
+            else:
+                break
         self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
                                    'content': 'test post',}
@@ -120,8 +135,19 @@ class TestEditAnswerTask(TestCase):
 
 class TestVoteAnswerTask(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
+            except Exception:
+                pass
+            else:
+                break
         self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
                                    'content': 'test post',}
@@ -129,13 +155,6 @@ class TestVoteAnswerTask(TestCase):
                                  'content': 'test answer',
                                  'to_pleb': self.user.email}
         settings.CELERY_ALWAYS_EAGER = True
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
-            except Exception:
-                pass
-            else:
-                break
 
     def tearDown(self):
         call_command('clear_neo_db')

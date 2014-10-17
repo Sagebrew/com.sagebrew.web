@@ -4,20 +4,21 @@ from logging import getLogger
 from django.conf import settings
 from django.template.loader import get_template
 from django.template import Context
-from neomodel import DoesNotExist
+from neomodel import DoesNotExist, CypherException
 
+from .neo_models import Pleb
 from api.utils import spawn_task
 from api.tasks import add_object_to_search_index
 from sb_search.tasks import add_user_to_custom_index
 from sb_wall.neo_models import SBWall
 from sb_registration.models import EmailAuthTokenGenerator
-from sb_registration.utils import sb_send_email
 
 logger = getLogger('loggly_logs')
 token_gen = EmailAuthTokenGenerator()
 
 @shared_task()
 def send_email_task(to, subject, text_content, html_content):
+    from sb_registration.utils import sb_send_email
     try:
         sb_send_email(to, subject, text_content, html_content)
     except Exception:
@@ -28,7 +29,6 @@ def send_email_task(to, subject, text_content, html_content):
 
 @shared_task()
 def create_pleb_task(user_instance):
-    from plebs.neo_models import Pleb
     try:
         try:
             test = Pleb.nodes.get(email=user_instance.email)
@@ -38,10 +38,10 @@ def create_pleb_task(user_instance):
                         first_name=user_instance.first_name,
                         last_name=user_instance.last_name)
             pleb.save()
-            wall = SBWall(wall_id=uuid1())
+            wall = SBWall(wall_id=str(uuid1()))
             wall.save()
             wall.owner.connect(pleb)
-            pleb.wall.connect(pleb)
+            pleb.wall.connect(wall)
             wall.save()
             pleb.save()
 
@@ -72,8 +72,16 @@ def create_pleb_task(user_instance):
             html_content = get_template(
                 'email_templates/email_verification.html').\
                 render(Context(template_dict))
-            sb_send_email(to, subject, text_content, html_content)
+            task_dict = {
+                "to": to, "subject": subject, "text_content": text_content,
+                "html_content": html_content
+            }
+            spawn_task(task_func=send_email_task, task_param=task_dict)
             return True
+    except CypherException:
+        raise create_pleb_task.retry(exc=Exception, countdown=3,
+                                     max_retries=None)
+
     except Exception:
         logger.exception({"function": create_pleb_task.__name__,
                           "exception": "UnhandledException: "})

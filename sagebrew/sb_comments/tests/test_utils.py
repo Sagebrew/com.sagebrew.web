@@ -16,15 +16,20 @@ from sb_comments.utils import (save_comment_post, edit_comment_util,
                                get_post_comments)
 from sb_comments.neo_models import SBComment
 from plebs.neo_models import Pleb
+from sb_registration.utils import create_user_util
 
 
 class TestSaveComments(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
@@ -70,12 +75,15 @@ class TestSaveComments(TestCase):
         res = save_post_task.apply_async(kwargs=task_data)
         while not res.ready():
             time.sleep(1)
-        user2 = User.objects.create_user(
-            username='Test' + str(uuid1())[:25],
-            email=str(uuid1())[:10] + "@gmail.com")
+        email = "bounce@simulator.amazonses.com"
+        res = create_user_util("test", "test", email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                pleb2 = Pleb.nodes.get(email=user2.email)
+                pleb2 = Pleb.nodes.get(email=email)
+                user2 = User.objects.get(email=email)
             except Exception:
                 pass
             else:
@@ -90,11 +98,15 @@ class TestSaveComments(TestCase):
 
 class TestEditComment(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
@@ -158,11 +170,15 @@ class TestEditComment(TestCase):
 
 class TestVoteComments(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
@@ -213,12 +229,15 @@ class TestVoteComments(TestCase):
                                        pleb=self.user.email,
                                        post_uuid=uuid)
 
-        user2 = User.objects.create_user(
-            username='Test' + str(uuid1())[:25],
-            email=str(uuid1())[:10] + "@gmail.com")
+        email = "bounce@simulator.amazonses.com"
+        res = create_user_util("test", "test", email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                pleb2 = Pleb.nodes.get(email=user2.email)
+                pleb2 = Pleb.nodes.get(email=email)
+                self.user2 = User.objects.get(email=email)
             except Exception:
                 pass
             else:
@@ -240,12 +259,15 @@ class TestVoteComments(TestCase):
         my_comment = save_comment_post(content="test comment",
                                        pleb=self.user.email,
                                        post_uuid=post.post_id)
-        user2 = User.objects.create_user(
-            username='Test' + str(uuid1())[:25],
-            email=str(uuid1())[:10] + "@gmail.com")
+        email = "bounce@simulator.amazonses.com"
+        res = create_user_util("test", "test", email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                pleb2 = Pleb.nodes.get(email=user2.email)
+                pleb2 = Pleb.nodes.get(email=email)
+                self.user2 = User.objects.get(email=email)
             except Exception:
                 pass
             else:
@@ -261,11 +283,15 @@ class TestVoteComments(TestCase):
 
 class TestFlagComment(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
@@ -328,11 +354,15 @@ class TestFlagComment(TestCase):
 
 class TestGetPostComments(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:

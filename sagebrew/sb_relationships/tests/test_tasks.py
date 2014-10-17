@@ -7,23 +7,32 @@ from django.core.management import call_command
 
 from plebs.neo_models import Pleb
 from sb_relationships.tasks import create_friend_request_task
+from sb_registration.utils import create_user_util
 
 class TestCreateFriendRequestTask(TestCase):
     def setUp(self):
-        self.user1 = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb1 = Pleb.nodes.get(email=self.user1.email)
+                self.pleb1 = Pleb.nodes.get(email=self.email)
+                self.user1 = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
                 break
-        self.user2 = User.objects.create_user(
-            username='Tyler2', email=str(uuid1())+'@gmail.com')
+        self.email2= "bounce@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email2, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb2 = Pleb.nodes.get(email=self.user2.email)
+                self.pleb2 = Pleb.nodes.get(email=self.email2)
+                self.user2 = User.objects.get(email=self.email2)
             except Exception:
                 pass
             else:

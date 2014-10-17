@@ -1,32 +1,40 @@
+import time
 from uuid import uuid1
 from rest_framework.test import APIRequestFactory
 from django.contrib.auth.models import User, AnonymousUser
 from django.test import TestCase
+from django.core.management import call_command
 
 from sb_comments.neo_models import SBComment
 from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
 from plebs.views import (profile_page, friends_page, about_page,
                          reputation_page)
+from sb_registration.utils import create_user_util
 
 
 class ProfilePageTest(TestCase):
     fixtures = ["sagebrew/fixtures/initial_data.json"]
     def setUp(self):
-        self.email = str(uuid1())+"@gmail.com"
-
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler' + str(uuid1())[:25], email=self.email)
-        while (True):
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
+        while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
                 break
         self.pleb.completed_profile_info = True
         self.pleb.save()
+
+    def tearDown(self):
+        call_command("clear_neo_db")
 
     def test_unauthenticated(self):
         request = self.factory.get('/%s' % self.email)

@@ -1,4 +1,5 @@
 import pytz
+import time
 from datetime import datetime, timedelta
 from uuid import uuid1
 from django.test import TestCase
@@ -10,22 +11,27 @@ from sb_questions.utils import (create_question_util, upvote_question_util,
                                 prepare_get_question_dictionary)
 from sb_questions.neo_models import SBQuestion
 from plebs.neo_models import Pleb
+from sb_registration.utils import create_user_util
 
 class TestCreateQuestion(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.question_info_dict = {'current_pleb': self.user.email,
-                                   'question_title': "Test question",
-                                   'content': 'test post',
-                                   'question_uuid': str(uuid1())}
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
                 break
+        self.question_info_dict = {'current_pleb': self.user.email,
+                                   'question_title': "Test question",
+                                   'content': 'test post',
+                                   'question_uuid': str(uuid1())}
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -55,9 +61,19 @@ class TestCreateQuestion(TestCase):
 
 class TestPrepareQuestionDictUtil(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
+        while True:
+            try:
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
+            except Exception:
+                pass
+            else:
+                break
         self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
                                    'content': 'test post',
@@ -94,19 +110,23 @@ class TestPrepareQuestionDictUtil(TestCase):
 
 class TestEditQuestionUtils(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.question_info_dict = {'current_pleb': self.user.email,
-                                   'question_title': "Test question",
-                                   'content': 'test post',
-                                   'question_uuid': str(uuid1())}
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
                 break
+        self.question_info_dict = {'current_pleb': self.user.email,
+                                   'question_title': "Test question",
+                                   'content': 'test post',
+                                   'question_uuid': str(uuid1())}
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -197,19 +217,23 @@ class TestEditQuestionUtils(TestCase):
 
 class TestVoteQuestionUtil(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.question_info_dict = {'current_pleb': self.user.email,
-                                   'question_title': "Test question",
-                                   'content': 'test post',
-                                   'question_uuid': str(uuid1())}
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
                 break
+        self.question_info_dict = {'current_pleb': self.user.email,
+                                   'question_title': "Test question",
+                                   'content': 'test post',
+                                   'question_uuid': str(uuid1())}
 
     def tearDown(self):
         call_command('clear_neo_db')

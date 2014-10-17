@@ -1,4 +1,5 @@
 import pytz
+import time
 from json import dumps
 from uuid import uuid1
 from datetime import datetime
@@ -7,6 +8,7 @@ from django.contrib.auth.models import User
 from django.core.management import call_command
 
 from sb_posts.utils import save_post
+from sb_posts.tasks import save_post_task
 from sb_comments.utils import (save_comment_post, edit_comment_util,
                                delete_comment_util,
                                create_downvote_comment_util,
@@ -33,39 +35,54 @@ class TestSaveComments(TestCase):
 
     def test_save_comment(self):
         uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.user.email,
-                         wall_pleb=self.user.email)
+        task_data = {"post_uuid": uuid, "content": "test post",
+                     "current_pleb": self.user.email,
+                     "wall_pleb": self.user.email}
+        res = save_post_task.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
         my_comment = save_comment_post(content="test comment",
                                        pleb=self.user.email,
-                                       post_uuid=post.post_id)
+                                       post_uuid=uuid)
 
         self.assertEqual(my_comment.content, "test comment")
 
     def test_delete_comment(self):
         uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.user.email,
-                         wall_pleb=self.user.email)
+        task_data = {"post_uuid": uuid, "content": "test post",
+                     "current_pleb": self.user.email,
+                     "wall_pleb": self.user.email}
+        res = save_post_task.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
         my_comment = save_comment_post(content="test comment",
                                        pleb=self.user.email,
-                                       post_uuid=post.post_id)
+                                       post_uuid=uuid)
         comment_deleted = delete_comment_util(my_comment.comment_id)
 
         self.assertEqual(comment_deleted, True)
 
     def test_comment_from_diff_user(self):
         uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.user.email,
-                         wall_pleb=self.user.email)
+        task_data = {"post_uuid": uuid, "content": "test post",
+                     "current_pleb": self.user.email,
+                     "wall_pleb": self.user.email}
+        res = save_post_task.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
         user2 = User.objects.create_user(
             username='Test' + str(uuid1())[:25],
             email=str(uuid1())[:10] + "@gmail.com")
-        pleb2 = Pleb.nodes.get(email=user2.email)
+        while True:
+            try:
+                pleb2 = Pleb.nodes.get(email=user2.email)
+            except Exception:
+                pass
+            else:
+                break
         my_comment = save_comment_post(content="test comment from diff user",
                                        pleb=pleb2.email,
-                                       post_uuid=post.post_id)
+                                       post_uuid=uuid)
 
         self.assertEqual(my_comment.is_owned_by.all()[0].email,
                          pleb2.email)
@@ -170,12 +187,15 @@ class TestVoteComments(TestCase):
 
     def test_downvote_comment(self):
         uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.user.email,
-                         wall_pleb=self.user.email)
+        task_data = {"post_uuid": uuid, "content": "test post",
+                     "current_pleb": self.user.email,
+                     "wall_pleb": self.user.email}
+        res = save_post_task.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
         my_comment = save_comment_post(content="test comment",
                                        pleb=self.user.email,
-                                       post_uuid=post.post_id)
+                                       post_uuid=uuid)
         create_downvote_comment_util(pleb=self.user.email,
                                      comment_uuid=my_comment.comment_id)
         my_comment.refresh()
@@ -184,18 +204,26 @@ class TestVoteComments(TestCase):
 
     def test_upvote_from_diff_user(self):
         uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.user.email,
-                         wall_pleb=self.user.email)
+        task_data = {"post_uuid": uuid, "content": "test post",
+                     "current_pleb": self.user.email,
+                     "wall_pleb": self.user.email}
+        res = save_post_task.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
         my_comment = save_comment_post(content="test comment",
                                        pleb=self.user.email,
-                                       post_uuid=post.post_id)
+                                       post_uuid=uuid)
 
         user2 = User.objects.create_user(
             username='Test' + str(uuid1())[:25],
             email=str(uuid1())[:10] + "@gmail.com")
-        pleb2 = Pleb.nodes.get(email=user2.email)
-
+        while True:
+            try:
+                pleb2 = Pleb.nodes.get(email=user2.email)
+            except Exception:
+                pass
+            else:
+                break
         create_upvote_comment_util(pleb=self.user.email,
                                    comment_uuid=my_comment.comment_id)
         my_comment.refresh()
@@ -216,7 +244,13 @@ class TestVoteComments(TestCase):
         user2 = User.objects.create_user(
             username='Test' + str(uuid1())[:25],
             email=str(uuid1())[:10] + "@gmail.com")
-        pleb2 = Pleb.nodes.get(email=user2.email)
+        while True:
+            try:
+                pleb2 = Pleb.nodes.get(email=user2.email)
+            except Exception:
+                pass
+            else:
+                break
         create_downvote_comment_util(pleb=self.user.email,
                                      comment_uuid=my_comment.comment_id)
         my_comment.refresh()

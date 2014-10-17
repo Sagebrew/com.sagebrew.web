@@ -17,6 +17,16 @@ logger = getLogger('loggly_logs')
 token_gen = EmailAuthTokenGenerator()
 
 @shared_task()
+def send_email_task(to, subject, text_content, html_content):
+    try:
+        sb_send_email(to, subject, text_content, html_content)
+    except Exception:
+        logger.exception({"function": send_email_task.__name__,
+                          "exception": "UnhandledException: "})
+        raise send_email_task.retry(exc=Exception, countdown=3,
+                                    max_retries=None)
+
+@shared_task()
 def create_pleb_task(user_instance):
     from plebs.neo_models import Pleb
     try:
@@ -70,12 +80,3 @@ def create_pleb_task(user_instance):
         raise create_pleb_task.retry(exc=Exception, countdown=3,
                                      max_retries=None)
 
-@shared_task()
-def send_email_task(to, subject, text_content, html_content):
-    try:
-        sb_send_email(to, subject, text_content, html_content)
-    except Exception:
-        logger.exception({"function": send_email_task.__name__,
-                          "exception": "UnhandledException: "})
-        raise send_email_task.retry(exc=Exception, countdown=3,
-                                    max_retries=None)

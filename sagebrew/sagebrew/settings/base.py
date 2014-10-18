@@ -1,4 +1,3 @@
-' Django default settings for automated_test_client project.'
 from __future__ import absolute_import
 
 from os import environ, path, makedirs

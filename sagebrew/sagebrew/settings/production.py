@@ -1,4 +1,3 @@
-# Django settings for automated_test_client project.
 from base import *
 from os import environ
 

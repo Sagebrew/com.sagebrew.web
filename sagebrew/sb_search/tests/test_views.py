@@ -411,7 +411,7 @@ class TestSearchResultAPIReturns(TestCase):
                  })
         for item in range(0,9):
             related_user = "%s%d%s" % (
-                self.user.email[:self.user.email.rfind("@")], item,
+                self.user.email[:self.user.email.rfind("@")-1], item,
                 '@gmail.com')
             es.index(index='full-search-user-specific-1',
                      doc_type='question',
@@ -522,8 +522,8 @@ class TestSearchResultAPIReturns(TestCase):
                                date_created=datetime.now(pytz.utc))
         question1.save()
         question1.owned_by.connect(self.pleb)
-        related_user = "%s%s%s" % (self.user.email[:self.user.email.rfind("@")],
-                                   '1231', '@gmail.com')
+        related_user = "%s%s" % (self.user.email[:self.user.email.rfind("@")+1],
+                                 '1231')
         es.index(index='full-search-user-specific-1',
                  doc_type='question',
                  body={

@@ -410,16 +410,13 @@ class TestSearchResultAPIReturns(TestCase):
                      'related_user': self.user.email
                  })
         for item in range(0,9):
-            related_user = "%s%d%s" % (
-                self.user.email[:self.user.email.rfind("@")-1], item,
-                self.email[self.email.rfind("@"):])
             es.index(index='full-search-user-specific-1',
                      doc_type='question',
                      body={
                          'question_uuid': question1.question_id,
                          'question_title': question1.question_title,
                          'question_content': question1.question_content,
-                         'related_user': related_user
+                         'related_user': self.user.email[:37]+str(item)+'@gmail.com'
                      })
         time.sleep(2)
         self.client.login(username=self.user.username, password='password')
@@ -522,25 +519,22 @@ class TestSearchResultAPIReturns(TestCase):
                                date_created=datetime.now(pytz.utc))
         question1.save()
         question1.owned_by.connect(self.pleb)
-        related_user = "%s%s" % (self.user.email[:self.user.email.rfind("@")+1],
-                                 '1231')
         es.index(index='full-search-user-specific-1',
                  doc_type='question',
                  body={
                      'question_uuid': question1.question_id,
                      'question_title': question1.question_title,
                      'question_content': question1.question_content,
-                     'related_user': related_user
+                     'related_user': str(uuid1()).strip('-')
                  })
         for item in range(0,29):
-
             es.index(index='full-search-user-specific-1',
                      doc_type='question',
                      body={
                          'question_uuid': question1.question_id,
                          'question_title': question1.question_title,
                          'question_content': question1.question_content,
-                         'related_user': related_user
+                         'related_user': str(uuid1()).strip('-')
                      })
         time.sleep(2)
         self.client.login(username=self.user.username, password='password')

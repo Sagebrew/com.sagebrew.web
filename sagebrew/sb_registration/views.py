@@ -170,7 +170,7 @@ def email_verification(request, confirmation):
             pleb.save()
             return redirect('profile_info')
         else:
-            return Response({"detail": "failed to authenticate"}, status=401)
+            return Response(status=401)
     except Pleb.DoesNotExist:
         return redirect('logout')
     except DoesNotExist:

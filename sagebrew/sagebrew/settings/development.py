@@ -1,4 +1,3 @@
-# Django settings for automated_test_client project.
 from fnmatch import fnmatch
 
 from base import *
@@ -28,14 +27,15 @@ CACHES = {
         'LOCATION': '127.0.0.1:11211',
     }
 }
-
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+CELERY_RESULT_BACKEND = 'redis://%s:%s/0' % (environ.get("REDIS_LOCATION", ""),
+                                             environ.get("REDIS_PORT", ""))
 
 EMAIL_VERIFICATION_URL = "%s/registration/email_confirmation/" % WEB_ADDRESS
 
-
-BROKER_URL = 'amqp://sagebrew:this_is_the_sagebrew_password@localhost:5672//'
-
+BROKER_URL = 'amqp://%s:%s@%s:%s//' % (environ.get("QUEUE_USERNAME", ""),
+                                       environ.get("QUEUE_PASSWORD", ""),
+                                       environ.get("QUEUE_HOST", ""),
+                                       environ.get("QUEUE_PORT", ""))
 REST_FRAMEWORK = {
     'DEFAULT_MODEL_SERIALIZER_CLASS':
         'rest_framework.serializers.HyperlinkedModelSerializer',
@@ -62,10 +62,11 @@ DEBUG_TOOLBAR_PANELS = (
     # 'cache_panel.panel.CacheDebugPanel',
 )
 
-ELASTIC_SEARCH_HOST = [{'host': 'dwalin-us-east-1.searchly.com',
-                        'port':443, 'use_ssl': True,
-                        'http_auth': ('site',
-                                      '6495ff8387e86cb755da1f45da88b475')
+ELASTIC_SEARCH_HOST = [{'host': environ.get("ELASTIC_SEARCH_HOST", ""),
+                        'port': environ.get("ELASTIC_SEARCH_PORT", ""),
+                        'use_ssl': True,
+                        'http_auth': (environ.get("ELASTIC_SEARCH_USER", ""),
+                                      environ.get("ELASTIC_SEARCH_KEY", ""))
                        }]
 
 

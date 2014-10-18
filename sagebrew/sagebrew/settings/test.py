@@ -1,9 +1,7 @@
-# Django settings for automated_test_client project.
 from base import *
 from os import environ
-from fnmatch import fnmatch
 
-DEBUG = True
+DEBUG = False
 
 TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['*']
@@ -37,7 +35,9 @@ CACHES = {
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 
 EMAIL_VERIFICATION_URL = "https://localhost/registration/email_confirmation/"
-BROKER_URL = 'amqp://guest@localhost:5672//'
+BROKER_URL = 'amqp://%s@%s:%s//' % (environ.get("QUEUE_USERNAME", ""),
+                                    environ.get("QUEUE_HOST", ""),
+                                    environ.get("QUEUE_PORT", ""))
 
 
 REST_FRAMEWORK = {

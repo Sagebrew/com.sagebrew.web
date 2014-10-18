@@ -1,4 +1,3 @@
-' Django default settings for automated_test_client project.'
 from __future__ import absolute_import
 
 from os import environ, path, makedirs
@@ -90,8 +89,6 @@ STATICFILES_FINDERS = (
     # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-# Make this unique, and don't share it with anybody.
-
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -120,14 +117,10 @@ WSGI_APPLICATION = 'sagebrew.wsgi.application'
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request",
     'django.contrib.auth.context_processors.auth',
-    "allauth.account.context_processors.account",
-    "allauth.socialaccount.context_processors.socialaccount",
 )
 
 AUTHENTICATION_BACKENDS = (
-    # Needed to login by username in Django admin, regardless of `allauth`
     "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend",
 )
 
 TEMPLATE_DIRS = (
@@ -185,12 +178,6 @@ INSTALLED_APPS = (
 )
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
-
-ACCOUNT_AUTHENTICATION_METHOD = "email"
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = "optional"
-ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_SIGNUP_PASSWORD_VERIFICATION = False
 
 EMAIL_VERIFICATION_TIMEOUT_DAYS = 1
 

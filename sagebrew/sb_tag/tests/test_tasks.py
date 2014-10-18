@@ -8,14 +8,19 @@ from django.core.management import call_command
 from sb_questions.neo_models import SBQuestion
 from plebs.neo_models import Pleb
 from sb_tag.tasks import add_auto_tags, add_tags
+from sb_registration.utils import create_user_util
 
 class TestTagTask(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
@@ -55,11 +60,15 @@ class TestTagTask(TestCase):
 
 class TestAutoTagTask(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:

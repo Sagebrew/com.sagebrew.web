@@ -416,7 +416,7 @@ class TestSearchResultAPIReturns(TestCase):
                          'question_uuid': question1.question_id,
                          'question_title': question1.question_title,
                          'question_content': question1.question_content,
-                         'related_user': self.user.email[:37]+str(item)+'@gmail.com'
+                         'related_user': str(uuid1()).strip('-')
                      })
         time.sleep(2)
         self.client.login(username=self.user.username, password='password')
@@ -525,7 +525,7 @@ class TestSearchResultAPIReturns(TestCase):
                      'question_uuid': question1.question_id,
                      'question_title': question1.question_title,
                      'question_content': question1.question_content,
-                     'related_user': self.user.email[:37]+'1231'
+                     'related_user': str(uuid1()).strip('-')
                  })
         for item in range(0,29):
             es.index(index='full-search-user-specific-1',
@@ -534,7 +534,7 @@ class TestSearchResultAPIReturns(TestCase):
                          'question_uuid': question1.question_id,
                          'question_title': question1.question_title,
                          'question_content': question1.question_content,
-                         'related_user': self.user.email[:37]+'1231'
+                         'related_user': str(uuid1()).strip('-')
                      })
         time.sleep(2)
         self.client.login(username=self.user.username, password='password')

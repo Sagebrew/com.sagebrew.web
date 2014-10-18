@@ -102,6 +102,7 @@ def search_result_api(request, query_param="", display_num=10, page=1,
         results=[]
         current_user_email = request.user.email
         current_user_email,current_user_address = current_user_email.split('@')
+
         try:
             es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
             #TODO benchmark getting the index from neo vs. getting from postgres

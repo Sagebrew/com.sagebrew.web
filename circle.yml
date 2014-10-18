@@ -10,6 +10,7 @@ dependencies:
     - elasticsearch-1.3.2
   post:
     - pip install -r ../requirements/base.txt
+    - if [[ ! -e AWS-ElasticBeanstalk-CLI-2.6.3 ]]; then wget https://s3.amazonaws.com/elasticbeanstalk/cli/AWS-ElasticBeanstalk-CLI-2.6.3.zip && unzip AWS-ElasticBeanstalk-CLI-2.6.3.zip && rm -r AWS-ElasticBeanstalk-CLI-2.6.3.zip; fi
     - sudo chown ubuntu /etc/rsyslog.d/
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py logglypopulation $LOG_ACCOUNT $LOG_TOKEN
     - sudo chown root /etc/rsyslog.d/
@@ -32,6 +33,7 @@ test:
   post:
     - coverage html
     - coveralls --rcfile=$CIRCLE_ARTIFACTS
+#    - pep8 --show-source --exclude='~/com.sagebrew.web/sagebrew/api/alchemyapi.py` --show-pep8 ~/com.sagebrew.web/sagebrew/
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
     - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg
     - docker build --no-cache=$CLEAR_CACHE -t sagebrew/sb_worker:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/worker/

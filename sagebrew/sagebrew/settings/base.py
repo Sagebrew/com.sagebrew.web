@@ -16,7 +16,7 @@ DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    ('Devon Bleibtrey', 'bleib1dj@gmail.com'),
+    ('Devon Bleibtrey', 'devon@sagebrew.com'),
 )
 worker_count = (multiprocessing.cpu_count() *2) + 1
 if worker_count > 12 and environ.get("CIRCLECI", False):
@@ -164,9 +164,6 @@ INSTALLED_APPS = (
     'provider.oauth2',
     'storages',
     'localflavor',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
     'plebs',
     'api',
     'govtrack',
@@ -195,18 +192,13 @@ ACCOUNT_EMAIL_VERIFICATION = "optional"
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_SIGNUP_PASSWORD_VERIFICATION = False
 
-EMAIL_VERIFICATION_URL = "https://192.168.56.101/registration/email_confirmation/"
 EMAIL_VERIFICATION_TIMEOUT_DAYS = 1
 
 SERVER_EMAIL = "service@sagebrew.com"
 DEFAULT_FROM_EMAIL = "service@sagebrew.com"
 
-EMAIL_BACKEND = "sgbackend.SendGridBackend"
-SENDGRID_USER = "bleib1dj"
-SENDGRID_PASSWORD = "wp*D8S@kRnc:6pA"
-
 LOGIN_URL = '/login/'
-LOGOUT_URL = '/accounts/logout/'
+LOGOUT_URL = '/logout/'
 
 ANONYMOUS_USER_ID = -1
 
@@ -228,14 +220,22 @@ OAUTH_EXPIRE_DELTA = timedelta(days=30, minutes=0, seconds=0)
 OAUTH_EXPIRE_DELTA_PUBLIC = timedelta(days=30, minutes=0, seconds=0)
 OAUTH_DELETE_EXPIRED = True
 
-#SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-
 CELERY_DISABLE_RATE_LIMITS = True
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
-BROKER_URL = 'amqp://sagebrew:this_is_the_sagebrew_password@localhost:5672//'
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 CELERY_ALWAYS_EAGER = False
 CELERY_IGNORE_RESULT = False
+
+AWS_BUCKET_NAME = environ.get("AWS_S3_BUCKET", "")
+AWS_ACCESS_KEY_ID = environ.get("AWS_ACCESS_KEY_ID", "")
+AWS_SECRET_ACCESS_KEY = environ.get("AWS_SECRET_ACCESS_KEY", "")
+AWS_PROFILE_PICTURE_FOLDER_NAME = 'profile_pictures'
+SECRET_KEY = environ.get("APPLICATION_SECRET_KEY", "")
+BOMBERMAN_API_KEY = environ.get("BOMBERMAN_API_KEY", "")
+LOG_TOKEN = environ.get("LOG_TOKEN", "")
+ALCHEMY_API_KEY = environ.get("ALCHEMY_API_KEY", '')
+ADDRESS_VALIDATION_ID = environ.get("ADDRESS_VALIDATION_ID", '')
+ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN", '')
+
 
 CELERYBEAT_SCHEDULE = {
     'empty-garbage-can-minute': {
@@ -245,16 +245,7 @@ CELERYBEAT_SCHEDULE = {
 }
 CELERY_TIMEZONE = 'UTC'
 
-BOMBERMAN_API_KEY = environ.get("BOMBERMAN_API_KEY",
-                                "6a224aea0ecb3601ae9197c5762aef56")
 
-LOG_TOKEN = environ.get("LOG_TOKEN", "4befe913-b753-4823-a844-193a41779000")
-
-ALCHEMY_API_KEY = '9a65358c4596c05991a406c039281504a0d26bce'
-ADDRESS_VALIDATION_ID = environ.get("ADDRESS_VALIDATION_ID",
-                                    '84a98057-05ed-4109-8758-19acd5336c38')
-ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN",
-                                       'p3GbchbjA3q13MUdT7gM')
 CSV_FILES = '%s/csv_content/' % PROJECT_DIR
 
 TEMP_FILES = '%s/temp_files/' % PROJECT_DIR

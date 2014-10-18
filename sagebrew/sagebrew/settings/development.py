@@ -3,33 +3,13 @@ from fnmatch import fnmatch
 
 from base import *
 
-
 DEBUG = True
-
 TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['*']
-
 WEB_ADDRESS = "https://192.168.56.101"
-
 API_PASSWORD = "admin"
-
 VERIFY_SECURE = False
-'''
-# TODO this makes it so we cannot run tests concurrently (parallel processing in
-# circle. This is because the test db gets created on this server and then
-# if another one starts running it fails. Might want to look into making a
-# separate test config again that uses a local psql db based on circles docs.
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'sagebrewdb',
-        'USER': 'sagedev',
-        'PASSWORD': 'thisisthesagebrewpassword',
-        'HOST': 'sagebrewdb.clkvngd3diph.us-west-2.rds.amazonaws.com',
-        'PORT': '5432',
-    }
-}
-'''
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -49,27 +29,21 @@ CACHES = {
     }
 }
 
-AWS_BUCKET_NAME = "sagebrew"
-AWS_ACCESS_KEY_ID = "AKIAJIWX3E2JPTBS6CRA"
-AWS_SECRET_ACCESS_KEY = "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"
-AWS_PROFILE_PICTURE_FOLDER_NAME = 'profile_pictures'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 
-SECRET_KEY = "5fd&2wkqx8r!h2y1)j!izqi!982$p87)sred(5#x0mtqa^cbx)"
+EMAIL_VERIFICATION_URL = "%s/registration/email_confirmation/" % WEB_ADDRESS
 
-INTERNAL_IPS = ('127.0.0.1', 'localhost', '0.0.0.0', '192.168.56.101',
-                '192.168.56.102')
+
+BROKER_URL = 'amqp://sagebrew:this_is_the_sagebrew_password@localhost:5672//'
 
 REST_FRAMEWORK = {
-    # Use hyperlinked styles by default.
-    # Only used if the `serializer_class` attribute is not set on a view.
     'DEFAULT_MODEL_SERIALIZER_CLASS':
         'rest_framework.serializers.HyperlinkedModelSerializer',
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.OAuth2Authentication',
         'rest_framework.authentication.SessionAuthentication',
     )
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
 }
 
 DEBUG_TOOLBAR_PANELS = (

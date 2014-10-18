@@ -17,7 +17,7 @@ from rest_framework.decorators import (api_view, permission_classes,
 from .forms import (SaveAnswerForm, EditAnswerForm, VoteAnswerForm,
                     GetAnswerForm)
 from .tasks import (save_answer_task, edit_answer_task, vote_answer_task)
-from api.utils import (get_post_data, spawn_task, post_to_api)
+from api.utils import spawn_task
 from plebs.neo_models import Pleb
 
 logger = logging.getLogger('loggly_logs')

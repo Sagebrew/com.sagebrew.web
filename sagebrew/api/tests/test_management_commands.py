@@ -13,6 +13,8 @@ class TestClearNeoDBCommand(TestCase):
     def test_clear_neo_db(self):
         email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", email, "testpassword")
+        self.assertIsNotNone(res, "Issue Connecting to Celery Broker")
+
         while not res['task_id'].ready():
             time.sleep(1)
         self.assertTrue(res['task_id'].result)

@@ -5,6 +5,7 @@ import json
 import urllib
 import boto.ses
 import logging
+from socket import error as socket_error
 from datetime import date
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -360,6 +361,8 @@ def create_user_util(first_name, last_name, email, password,
         user.save()
         res = create_pleb_task.apply_async(kwargs={"user_instance": user})
         return {"task_id": res, "username": user.username}
+    except socket_error:
+        return None
     except Exception:
         logger.exception({"function": create_user_util.__name__,
                           "exception": "UnhandledException: "})

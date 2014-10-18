@@ -1,3 +1,4 @@
+import time
 from uuid import uuid1
 from django.contrib.auth.models import User
 from django.core.management import call_command
@@ -8,15 +9,20 @@ from sb_tag.utils import (add_tag_util, add_auto_tags_util,
                           create_tag_relations)
 from sb_tag.neo_models import SBAutoTag
 from plebs.neo_models import Pleb
+from sb_registration.utils import create_user_util
 
 
 class TestCreateTagUtil(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
@@ -65,11 +71,15 @@ class TestCreateTagUtil(TestCase):
 
 class TestCreateAutoTagUtil(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:
@@ -135,11 +145,15 @@ class TestCreateAutoTagUtil(TestCase):
 
 class TestCreateAutoTagRelationships(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        while not res['task_id'].ready():
+            time.sleep(1)
+        self.assertTrue(res['task_id'].result)
         while True:
             try:
-                self.pleb = Pleb.nodes.get(email=self.user.email)
+                self.pleb = Pleb.nodes.get(email=self.email)
+                self.user = User.objects.get(email=self.email)
             except Exception:
                 pass
             else:

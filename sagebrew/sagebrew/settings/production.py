@@ -2,9 +2,11 @@
 from base import *
 from os import environ
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['beta.sagebrew.com', 'www.sagebrew.com', 'sagebrew.com']
+WEB_ADDRESS = "https://sagebrew.com"
+VERIFY_SECURE = True
 
 DATABASES = {
     'default': {
@@ -24,8 +26,19 @@ CACHES = {
     }
 }
 
+ELASTIC_SEARCH_HOST = [{'host': environ.get("ELASTIC_SEARCH_HOST", ""),
+                        'port': environ.get("ELASTIC_SEARCH_PORT", ""),
+                        'use_ssl': True,
+                        'http_auth': (environ.get("ELASTIC_SEARCH_USER", ""),
+                                      environ.get("ELASTIC_SEARCH_KEY", ""))
+                       }]
+
 CELERY_RESULT_BACKEND = 'redis://%s:%s/0' % (environ.get("REDIS_LOCATION", ""),
                                              environ.get("REDIS_PORT", ""))
+BROKER_URL = 'amqp://%s:%s@%s:%s//' % (environ.get("QUEUE_USERNAME", ""),
+                                       environ.get("QUEUE_PASSWORD", ""),
+                                       environ.get("QUEUE_HOST", ""),
+                                       environ.get("QUEUE_PORT", ""))
 
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
@@ -40,7 +53,7 @@ REST_FRAMEWORK = {
 }
 
 
-EMAIL_VERIFICATION_URL = "https://sagebrew.com/registration/email_confirmation/"
+EMAIL_VERIFICATION_URL = "%s/registration/email_confirmation/" % WEB_ADDRESS
 
 LOGGING = {
     'version': 1,

@@ -1,33 +1,46 @@
 # Django settings for automated_test_client project.
 from base import *
+from os import environ
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-ALLOWED_HOSTS = ['sagebrew.com']
+ALLOWED_HOSTS = ['beta.sagebrew.com', 'www.sagebrew.com', 'sagebrew.com']
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'sagebrew_prod_db',
-        'USER': 'admin',
-        'PASSWORD': 'admin',
-        'HOST': 'localhost',
-        'PORT': '',
+        'NAME': environ.get("RDS_DB_NAME", ""),
+        'USER': environ.get("RDS_USERNAME", ""),
+        'PASSWORD': environ.get("RDS_PASSWORD", ""),
+        'HOST': environ.get("RDS_HOSTNAME", ""),
+        'PORT': environ.get("RDS_PORT", ""),
     }
 }
 
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
+        'LOCATION': environ.get("CACHE_LOCATION", ""),
     }
 }
 
-AWS_UPLOAD_BUCKET_NAME = "sagebrew"
-AWS_UPLOAD_CLIENT_KEY = ""
-AWS_UPLOAD_CLIENT_SECRET_KEY = ""
+CELERY_RESULT_BACKEND = 'redis://%s:%s/0' % (environ.get("REDIS_LOCATION", ""),
+                                             environ.get("REDIS_PORT", ""))
 
-SECRET_KEY = "5fd&2wkqx8r!h2y1)j!izqi!982$p87)sred(5#x0mtqa^cbx)"
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+    'DEFAULT_MODEL_SERIALIZER_CLASS':
+        'rest_framework.serializers.HyperlinkedModelSerializer',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.OAuth2Authentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+}
+
+
+EMAIL_VERIFICATION_URL = "https://sagebrew.com/registration/email_confirmation/"
 
 LOGGING = {
     'version': 1,

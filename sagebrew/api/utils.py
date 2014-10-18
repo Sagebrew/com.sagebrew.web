@@ -21,7 +21,9 @@ from sb_garbage.neo_models import SBGarbageCan
 
 logger = logging.getLogger('loggly_logs')
 
-
+'''
+# TOOD Add tagging process into git so that we can label point that we deleted
+this
 def post_to_api(api_url, data, headers=None):
     if headers is None:
         headers = {}
@@ -71,7 +73,7 @@ def get_oauth_access_token():
     return oauth_client['access_token']
 
 
-'''
+
 iron_mq = IronMQ(project_id=settings.IRON_PROJECT_ID,
                          token=settings.IRON_TOKEN)
         queue = iron_mq.queue('sb_failures')
@@ -213,10 +215,12 @@ def comment_to_garbage(comment_id):
     except SBComment.DoesNotExist:
         pass
 
+
 def create_auto_tags(content):
     alchemyapi = AlchemyAPI()
     keywords = alchemyapi.keywords("text", content)
     return keywords
+
 
 def execute_cypher_query(query):
 
@@ -228,6 +232,7 @@ def execute_cypher_query(query):
     except Exception, e:
         logger.exception("UnhandledException: ")
         return {'detail': 'fail'}
+
 
 def clear_neodb():
     try:

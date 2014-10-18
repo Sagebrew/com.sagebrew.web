@@ -4,7 +4,7 @@ import os
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
-
+ALLOWED_HOSTS = ['staging.sagebrew.com']
 if 'RDS_HOSTNAME' in os.environ:
     DATABASES = {
         'default': {
@@ -28,11 +28,29 @@ else:
         }
     }
 
+EMAIL_VERIFICATION_URL = "https://staging.sagebrew.com" \
+                         "/registration/email_confirmation/"
+
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
+        'LOCATION': environ.get("CACHE_LOCATION", ""),
     }
+}
+
+CELERY_RESULT_BACKEND = 'redis://%s:%s/0' % (environ.get("REDIS_LOCATION", ""),
+                                             environ.get("REDIS_PORT", ""))
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+    'DEFAULT_MODEL_SERIALIZER_CLASS':
+        'rest_framework.serializers.HyperlinkedModelSerializer',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.OAuth2Authentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
 }
 
 LOGGING = {

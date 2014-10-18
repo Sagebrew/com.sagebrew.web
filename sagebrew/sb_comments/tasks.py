@@ -63,8 +63,6 @@ def create_vote_comment(pleb="", comment_uuid=str(uuid1()), vote_type=""):
         my_comment = SBComment.nodes.get(comment_id=comment_uuid)
         if my_comment.up_voted_by.is_connected(
                 my_pleb) or my_comment.down_voted_by.is_connected(my_pleb):
-            logger.exception({"function": create_vote_comment.__name__,
-                          "detail": "AlreadyConnected"})
             return False
         else:
             if vote_type == 'up':

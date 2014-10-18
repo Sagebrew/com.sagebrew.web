@@ -64,9 +64,7 @@ def save_post(post_uuid=str(uuid1()), content="", current_pleb="",
             else returns SBPost object
     '''
     try:
-        logger.exception({"function": save_post.__name__, "test": 'here'})
         test_post = SBPost.nodes.get(post_id=post_uuid)
-        logger.exception({"function": save_post.__name__, "post": test_post})
         return False
     except SBPost.DoesNotExist:
         try:

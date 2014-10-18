@@ -1,5 +1,6 @@
 import pytz
 import time
+import shortuuid
 from json import loads
 from datetime import datetime
 from uuid import uuid1
@@ -359,6 +360,15 @@ class TestSearchResultAPIReturns(TestCase):
 
     def tearDown(self):
         call_command('clear_neo_db')
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        es.delete_by_query('full-search-user-specific-1', 'question',
+                           body={
+                               'query': {
+                                   'query_string': {
+                                       'query': 'batter-powered'
+                                   }
+                               }
+                           })
 
     def test_search_result_api_returns_expected(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
@@ -410,23 +420,20 @@ class TestSearchResultAPIReturns(TestCase):
                      'related_user': self.user.email
                  })
         for item in range(0,9):
-            related_user = "%s%d%s" % (
-                self.user.email[:self.user.email.rfind("@")],
-                item, self.user.email[self.user.email.rfind("@"):])
             es.index(index='full-search-user-specific-1',
                      doc_type='question',
                      body={
                          'question_uuid': question1.question_id,
                          'question_title': question1.question_title,
                          'question_content': question1.question_content,
-                         'related_user': related_user
+                         'related_user': self.user.email[:37]+str(item)+'@gmail.com'
                      })
         time.sleep(2)
         self.client.login(username=self.user.username, password='password')
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':'battery-powered',
                                                   'page': '1'}))
-        self.assertEqual(len(loads(request.content)['html']), 1)
+        self.assertGreaterEqual(len(loads(request.content)['html']), 1)
         self.assertEqual(request.status_code, 200)
         self.assertIn('question_uuid', request.content)
 
@@ -471,6 +478,13 @@ class TestSearchResultAPIReturns(TestCase):
                       request.content)
 
     def test_search_result_api_returns_page_3(self):
+        email = "suppressionlist@simulator.amazonses.com"
+        pleb = Pleb(email=email)
+        pleb.first_name='Tyler'
+        pleb.last_name='Wiersing'
+        pleb.save()
+        user = User.objects.create_user(shortuuid.uuid(), email, 'password')
+
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(question_id=str(uuid1()),
                                question_title=self.q1dict['question_title'],
@@ -481,26 +495,27 @@ class TestSearchResultAPIReturns(TestCase):
                                down_vote_number=0,
                                date_created=datetime.now(pytz.utc))
         question1.save()
-        question1.owned_by.connect(self.pleb)
+        question1.owned_by.connect(pleb)
         es.index(index='full-search-user-specific-1',
                  doc_type='question',
                  body={
                      'question_uuid': question1.question_id,
                      'question_title': question1.question_title,
                      'question_content': question1.question_content,
-                     'related_user': self.user.email
+                     'related_user': user.email
                  })
-        for item in range(0,29):
+        for item in range(0,39):
             es.index(index='full-search-user-specific-1',
                      doc_type='question',
                      body={
                          'question_uuid': question1.question_id,
                          'question_title': question1.question_title,
                          'question_content': question1.question_content,
-                         'related_user': self.user.email
+                         'related_user': user.email
                      })
-        time.sleep(2)
-        self.client.login(username=self.user.username, password='password')
+        time.sleep(3)
+
+        self.client.login(username=user.username, password='password')
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':'battery-powered',
                                                   'page': '3'}))
@@ -511,6 +526,10 @@ class TestSearchResultAPIReturns(TestCase):
                       request.content)
 
     def test_search_result_api_result_user_has_no_results(self):
+        email = str(uuid1()).strip('-')+"@gmail.com"
+        pleb = Pleb(email=email)
+        pleb.save()
+        user = User.objects.create_user(shortuuid.uuid(), email, 'password')
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(question_id=str(uuid1()),
                                question_title=self.q1dict['question_title'],
@@ -522,15 +541,13 @@ class TestSearchResultAPIReturns(TestCase):
                                date_created=datetime.now(pytz.utc))
         question1.save()
         question1.owned_by.connect(self.pleb)
-        related_user = "%s%s%s" % (self.user.email[:self.user.email.rfind("@")],
-                                   '1231', self.email[self.email.rfind("@"):])
         es.index(index='full-search-user-specific-1',
                  doc_type='question',
                  body={
                      'question_uuid': question1.question_id,
                      'question_title': question1.question_title,
                      'question_content': question1.question_content,
-                     'related_user': related_user
+                     'related_user': str(uuid1()).strip('-')
                  })
         for item in range(0,29):
             es.index(index='full-search-user-specific-1',
@@ -539,10 +556,10 @@ class TestSearchResultAPIReturns(TestCase):
                          'question_uuid': question1.question_id,
                          'question_title': question1.question_title,
                          'question_content': question1.question_content,
-                         'related_user': related_user
+                         'related_user': str(uuid1()).strip('-')
                      })
         time.sleep(2)
-        self.client.login(username=self.user.username, password='password')
+        self.client.login(username=user.username, password='password')
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':'battery-powered',
                                                   'page': '1'}))

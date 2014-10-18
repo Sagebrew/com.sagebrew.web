@@ -366,9 +366,8 @@ def prepare_question_search_html(question_uuid):
                          "owner_email": owner.email}
         rendered = render_to_string('question_search.html', question_dict)
         return rendered
+
     except IndexError:
-        logger.exception({"function": prepare_question_search_html.__name__,
-                          "exception": "IndexError"})
         return False
 
     except Exception:

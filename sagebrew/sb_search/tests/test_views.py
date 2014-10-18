@@ -412,7 +412,7 @@ class TestSearchResultAPIReturns(TestCase):
         for item in range(0,9):
             related_user = "%s%d%s" % (
                 self.user.email[:self.user.email.rfind("@")-1], item,
-                '@gmail.com')
+                self.email[self.email.rfind("@"):])
             es.index(index='full-search-user-specific-1',
                      doc_type='question',
                      body={
@@ -510,7 +510,7 @@ class TestSearchResultAPIReturns(TestCase):
         self.assertIn('<h2><a href=\\"https://192.168.56.101/questions/',
                       request.content)
 
-    def test_search_result_api_result_user_as_no_results(self):
+    def test_search_result_api_result_user_has_no_results(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(question_id=str(uuid1()),
                                question_title=self.q1dict['question_title'],

@@ -186,9 +186,6 @@ class TestVoteComments(TestCase):
             else:
                 break
 
-    def tearDown(self):
-        call_command('clear_neo_db')
-
     def test_upvote_comment(self):
         uuid = str(uuid1())
         post = save_post(post_uuid=uuid, content="test post",

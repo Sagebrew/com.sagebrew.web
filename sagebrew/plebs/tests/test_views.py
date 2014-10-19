@@ -14,7 +14,7 @@ from sb_registration.utils import create_user_util
 
 
 class ProfilePageTest(TestCase):
-    fixtures = ["sagebrew/fixtures/initial_data.json"]
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
@@ -138,6 +138,8 @@ class ProfilePageTest(TestCase):
         request = self.factory.get('/%s' % self.email)
         request.user = self.user
         response = profile_page(request, self.email)
+        print response.content
+        print response.body
         self.assertEqual(response.status_code, 200)
         for post in post_array:
             post.delete()

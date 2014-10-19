@@ -98,12 +98,9 @@ def create_wall_task(pleb, user):
                              "exception": "More than one wall found"})
             return False
         logger.critical({"function": "create_wall_task", "location": "start"})
-        wall = SBWall(wall_id=str(uuid1()))
-        wall.save()
+        wall = SBWall(wall_id=str(uuid1())).save()
         wall.owner.connect(pleb)
         pleb.wall.connect(wall)
-        wall.save()
-        pleb.save()
         logger.critical({"function": "create_wall_task", "location": "end",
                          "wall": wall.wall_id})
         # TODO Seems like we have a race condition going on with this wall

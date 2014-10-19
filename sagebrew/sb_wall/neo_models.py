@@ -1,4 +1,5 @@
-from neomodel import (StructuredNode, StringProperty, RelationshipTo, One)
+from neomodel import (StructuredNode, StringProperty, RelationshipTo,
+                      One)
 
 
 class SBWall(StructuredNode):

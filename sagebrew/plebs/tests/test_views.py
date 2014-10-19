@@ -32,7 +32,6 @@ class ProfilePageTest(TestCase):
             try:
                 self.pleb = Pleb.nodes.get(email=self.email)
                 self.user = User.objects.get(email=self.email)
-                print self.pleb.wall.all()[0].wall_id
             except Exception:
                 pass
             else:

@@ -82,6 +82,8 @@ def finalize_citizen_creation(pleb, user):
 
     logger.critical({"function": finalize_citizen_creation.__name__,
                      "location": "end"})
+    logger.critical({"function": finalize_citizen_creation.__name__,
+                     "dict": task_list})
     return task_list
 
 

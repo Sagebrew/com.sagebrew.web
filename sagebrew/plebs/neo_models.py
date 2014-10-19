@@ -3,7 +3,7 @@ from datetime import datetime
 import pytz
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty, db, ZeroOrOne)
+                      BooleanProperty, FloatProperty, db)
 
 from sb_relationships.neo_models import (FriendRelationship,
                                          UserWeightRelationship)
@@ -112,8 +112,7 @@ class Pleb(StructuredNode):
     comments = RelationshipTo('sb_comments.neo_models.SBComment',
                               'OWNS_COMMENT',
                               model=PostObjectCreated)
-    wall = RelationshipTo('sb_wall.neo_models.SBWall', 'OWNS_WALL',
-                          cardinality=ZeroOrOne)
+    wall = RelationshipTo('sb_wall.neo_models.SBWall', 'OWNS_WALL')
     notifications = RelationshipTo(
         'sb_notifications.neo_models.NotificationBase', 'RECEIVED_A')
     friend_requests_sent = RelationshipTo(

@@ -37,10 +37,10 @@ def save_answer_task(content="", current_pleb="", question_uuid="", to_pleb=""):
         if res:
             return True
         elif res is None:
-            raise CypherException
+            raise TypeError
         else:
             return False
-    except CypherException:
+    except TypeError:
         raise save_answer_task.retry(exc=CypherException, countdown=5,
                                      max_retries=None)
     except Exception:

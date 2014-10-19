@@ -8,7 +8,6 @@ from django.conf import settings
 from celery import shared_task
 from neomodel import DoesNotExist, CypherException
 from elasticsearch import Elasticsearch
-from elasticsearch.client import IndicesClient
 
 from .neo_models import SearchQuery, KeyWord
 from .utils import (update_search_index_doc_script, update_search_index_doc,
@@ -143,9 +142,8 @@ def add_user_to_custom_index(pleb="", index="full-search-user-specific-1"):
     '''
     res =[]
     es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-    ic = IndicesClient(es)
-    if not ic.exists('full-search-base'):
-        ic.create('full-search-base')
+    if not es.indices.exists('full-search-base'):
+        es.indices.create('full-search-base')
 
     scanres = es.search(index='full-search-base', search_type="scan",
                         scroll="10m", size=50, body={

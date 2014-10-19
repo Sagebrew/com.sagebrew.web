@@ -602,8 +602,7 @@ class TestEmailVerificationView(TestCase):
         login(request, user)
         request.user = user
         request.user.email = "totallynotafakeuser@fake.com"
-        pleb = Pleb.nodes.get(email=user.email)
-        token = self.token_gen.make_token(user, pleb)
+        token = self.token_gen.make_token(user, None)
 
         res = email_verification(request, token)
 

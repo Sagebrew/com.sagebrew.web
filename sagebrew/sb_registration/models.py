@@ -10,6 +10,8 @@ class EmailAuthTokenGenerator(object):
     This object is created for user email verification
     '''
     def make_token(self, user, pleb):
+        if pleb is None:
+            return None
         return self._make_timestamp_token(user, self._num_days(self._today()),
                                           pleb)
 

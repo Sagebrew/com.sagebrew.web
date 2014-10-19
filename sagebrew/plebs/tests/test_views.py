@@ -143,10 +143,9 @@ class ProfilePageTest(TestCase):
             rel_from_pleb = self.pleb.posts.connect(test_post)
             rel_from_pleb.save()
             post_array.append(test_post)
-        request = self.factory.get('/%s' % self.email)
-        request.user = self.user
         self.client.login(username=self.username, password=self.password)
-        response = self.client.get(reverse("profile_page", self.email),
+        response = self.client.get(reverse("profile_page",
+                                           kwargs={"pleb_email": self.email}),
                                    follow=True)
         print response.redirect_chain
         self.assertEqual(response.status_code, 200)

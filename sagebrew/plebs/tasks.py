@@ -1,5 +1,6 @@
 from uuid import uuid1
 from json import dumps
+from time import sleep
 from celery import shared_task
 from logging import getLogger
 from django.conf import settings
@@ -13,6 +14,7 @@ from api.tasks import add_object_to_search_index
 from sb_search.tasks import add_user_to_custom_index
 from sb_wall.neo_models import SBWall
 from sb_registration.models import EmailAuthTokenGenerator
+
 
 logger = getLogger('loggly_logs')
 
@@ -86,6 +88,7 @@ def create_wall_task(pleb, user):
         pleb.wall.connect(wall)
         wall.save()
         pleb.save()
+        sleep(15)
         return spawn_task(task_func=finalize_citizen_creation,
                           task_param={"pleb": pleb, "user": user})
     except CypherException:
@@ -114,6 +117,8 @@ def create_pleb_task(user_instance):
                         first_name=user_instance.first_name,
                         last_name=user_instance.last_name)
             pleb.save()
+            # TODO how do we track the result of this spawned task?
+            # does it just auto do it?
             return spawn_task(task_func=create_wall_task,
                               task_param={"pleb": pleb, "user": user_instance})
     except CypherException:

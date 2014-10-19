@@ -360,7 +360,10 @@ def create_user_util(first_name, last_name, email, password,
                                         username=username)
         user.save()
         res = spawn_task(create_pleb_task, {"user_instance": user})
-        return {"task_id": res, "username": user.username}
+        if res is not None:
+            return {"task_id": res, "username": user.username}
+        else:
+            return False
     except Exception:
         logger.exception({"function": create_user_util.__name__,
                           "exception": "UnhandledException: "})

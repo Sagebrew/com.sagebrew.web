@@ -129,7 +129,8 @@ class ProfilePageTest(TestCase):
     def test_multiple_posts(self):
         # TODO Review with Tyler
         post_array = []
-        wall = self.pleb.wall.all()[0]
+        wall = self.pleb.wall.all().get(0, None)
+        self.assertIsNotNone(wall)
         for item in range(0, 50):
             test_post = SBPost(content='test', post_id=str(uuid1()))
             test_post.save()

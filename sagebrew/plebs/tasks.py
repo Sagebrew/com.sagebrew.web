@@ -30,6 +30,72 @@ def send_email_task(to, subject, text_content, html_content):
 
 
 @shared_task()
+def finalize_citizen_creation(pleb, user):
+    task_list = {}
+    task_data = {'object_data': {
+            'first_name': pleb.first_name,
+            'last_name': pleb.last_name,
+            'full_name': str(pleb.first_name) + ' '
+                         + str(pleb.last_name),
+            'pleb_email': pleb.email
+            },
+                     'object_type': 'pleb'
+        }
+    task_list["add_object_to_search_index"] = spawn_task(
+        task_func=add_object_to_search_index,
+        task_param=task_data)
+    task_data = {'pleb': pleb.email,
+                 'index': "full-search-user-specific-1"}
+    task_list["add_user_to_custom_index"] = spawn_task(
+        task_func=add_user_to_custom_index,
+        task_param=task_data)
+
+    generated_token = token_gen.make_token(user, pleb)
+
+    template_dict = {
+        'full_name': "%s %s" % (pleb.first_name, pleb.last_name),
+        'verification_url': "%s%s/" % (settings.EMAIL_VERIFICATION_URL,
+                                       generated_token)
+    }
+    subject, to = "Sagebrew Email Verification", pleb.email
+    text_content = get_template(
+        'email_templates/email_verification.txt').\
+        render(Context(template_dict))
+    html_content = get_template(
+        'email_templates/email_verification.html').\
+        render(Context(template_dict))
+    task_dict = {
+        "to": to, "subject": subject, "text_content": text_content,
+        "html_content": html_content
+    }
+    task_list["send_email_task"] = spawn_task(
+        task_func=send_email_task, task_param=task_dict)
+
+    return task_list
+
+
+@shared_task()
+def create_wall_task(pleb, user):
+    try:
+        wall = SBWall(wall_id=str(uuid1()))
+        wall.save()
+        wall.owner.connect(pleb)
+        pleb.wall.connect(wall)
+        wall.save()
+        pleb.save()
+        return spawn_task(task_func=finalize_citizen_creation,
+                          task_param={"pleb": pleb, "user": user})
+    except CypherException:
+        raise create_wall_task.retry(exc=CypherException, countdown=3,
+                                     max_retries=None)
+    except Exception:
+        logger.exception(dumps({"function": create_wall_task.__name__,
+                                "exception": "Unhandled Exception"}))
+        raise create_wall_task.retry(exc=Exception, countdown=3,
+                                     max_retries=None)
+
+
+@shared_task()
 def create_pleb_task(user_instance):
     # TODO review with Tyler
     token_gen = EmailAuthTokenGenerator()
@@ -45,55 +111,11 @@ def create_pleb_task(user_instance):
                         first_name=user_instance.first_name,
                         last_name=user_instance.last_name)
             pleb.save()
-            wall = SBWall(wall_id=str(uuid1()))
-            wall.save()
-            wall.owner.connect(pleb)
-            pleb.wall.connect(wall)
-            wall.save()
-            pleb.save()
-
-            task_data = {'object_data': {
-                    'first_name': pleb.first_name,
-                    'last_name': pleb.last_name,
-                    'full_name': str(pleb.first_name) + ' '
-                                 + str(pleb.last_name),
-                    'pleb_email': pleb.email
-                    },
-                             'object_type': 'pleb'
-                }
-            spawn_task(task_func=add_object_to_search_index,
-                           task_param=task_data)
-            task_data = {'pleb': pleb.email,
-                         'index': "full-search-user-specific-1"}
-            spawn_task(task_func=add_user_to_custom_index,
-                       task_param=task_data)
-            generated_token = token_gen.make_token(user_instance, pleb)
-
-            template_dict = {
-                'full_name': "%s %s" % (pleb.first_name, pleb.last_name),
-                'verification_url': "%s%s/" % (settings.EMAIL_VERIFICATION_URL,
-                                               generated_token)
-            }
-            subject, to = "Sagebrew Email Verification", pleb.email
-            text_content = get_template(
-                'email_templates/email_verification.txt').\
-                render(Context(template_dict))
-            html_content = get_template(
-                'email_templates/email_verification.html').\
-                render(Context(template_dict))
-            task_dict = {
-                "to": to, "subject": subject, "text_content": text_content,
-                "html_content": html_content
-            }
-            spawn_task(task_func=send_email_task, task_param=task_dict)
-            return True
-    except DoesNotExist:
-        raise create_pleb_task.retry(exc=DoesNotExist, countdown=3,
-                                     max_retries=None)
+            return spawn_task(task_func=create_wall_task,
+                              task_param={"pleb": pleb, "user": user_instance})
     except CypherException:
         raise create_pleb_task.retry(exc=CypherException, countdown=3,
                                      max_retries=None)
-
     except Exception:
         logger.exception(dumps({"function": create_pleb_task.__name__,
                                 "exception": "Unhandled Exception"}))

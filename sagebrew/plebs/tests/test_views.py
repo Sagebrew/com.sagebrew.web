@@ -18,7 +18,6 @@ from sb_registration.utils import create_user_util
 class ProfilePageTest(TestCase):
 
     def setUp(self):
-        print "setup"
         self.factory = APIRequestFactory()
         self.client = Client()
         self.email = "success@simulator.amazonses.com"
@@ -40,10 +39,6 @@ class ProfilePageTest(TestCase):
         self.pleb.completed_profile_info = True
         self.pleb.email_verified = True
         self.pleb.save()
-
-    def tearDown(self):
-        print "teardown"
-
 
     def test_unauthenticated(self):
         request = self.factory.get('/%s' % self.email)
@@ -132,7 +127,6 @@ class ProfilePageTest(TestCase):
         my_comment.delete()
 
     def test_multiple_posts(self):
-        print "test_multiple_posts"
         post_array = []
         wall = self.pleb.wall.all()[0]
         for item in range(0, 50):

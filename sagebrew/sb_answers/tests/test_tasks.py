@@ -65,7 +65,7 @@ class TestSaveAnswerTask(TestCase):
             time.sleep(1)
         save_response = save_response.result
 
-        self.assertEqual(type(save_response), Exception)
+        self.assertEqual(type(save_response), TypeError)
 
 class TestEditAnswerTask(TestCase):
     def setUp(self):

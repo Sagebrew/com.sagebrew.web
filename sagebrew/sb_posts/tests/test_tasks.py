@@ -386,8 +386,6 @@ class TestMultipleTasks(TestCase):
                                'content': 'test post',
                                'post_uuid': str(uuid1())}
 
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_create_many_posts(self):
         response_array = []

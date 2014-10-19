@@ -65,6 +65,10 @@ def save_post(post_uuid=str(uuid1()), content="", current_pleb="",
     '''
     try:
         test_post = SBPost.nodes.get(post_id=post_uuid)
+        # TODO should we return True here or continue on with the function
+        # with test_post? Or do a check to see if links are already created?
+        # If they are we can return True and identify that connections were
+        # already created but they are there. Rather than failing out.
         return False
     except SBPost.DoesNotExist:
         try:

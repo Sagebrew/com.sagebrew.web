@@ -33,6 +33,9 @@ def send_email_task(to, subject, text_content, html_content):
 
 @shared_task()
 def finalize_citizen_creation(pleb, user):
+    # TODO review with Tyler if token gne can go in here and why it was a global
+    # var before?
+    token_gen = EmailAuthTokenGenerator()
     task_list = {}
     task_data = {
         'object_data': {
@@ -88,7 +91,8 @@ def create_wall_task(pleb, user):
         pleb.wall.connect(wall)
         wall.save()
         pleb.save()
-        sleep(15)
+        # TODO Seems like we have a race condition going on with this wall
+        # creation
         return spawn_task(task_func=finalize_citizen_creation,
                           task_param={"pleb": pleb, "user": user})
     except CypherException:
@@ -103,8 +107,6 @@ def create_wall_task(pleb, user):
 
 @shared_task()
 def create_pleb_task(user_instance):
-    # TODO review with Tyler
-    token_gen = EmailAuthTokenGenerator()
     try:
         try:
             test = Pleb.nodes.get(email=user_instance.email)

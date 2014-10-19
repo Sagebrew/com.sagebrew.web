@@ -116,7 +116,7 @@ def save_post_task(content="", current_pleb="", wall_pleb="",
     try:
         my_post = save_post(post_uuid=post_uuid, content=content,
                             current_pleb=current_pleb, wall_pleb=wall_pleb)
-        if my_post==False:
+        if not my_post:
             return False
         elif my_post is not None:
             notification_data={'post_uuid': my_post.post_id,

@@ -24,6 +24,8 @@ def create_notification_post_util(post_uuid=str(uuid1()),
 
             If the notification is not created returns False
     '''
+    # TODO Review with Tyler. Does this check if a notification has already been
+    # connected and if it has not create another?
     if from_pleb == to_pleb:
         return True
     try:

@@ -36,6 +36,9 @@ def finalize_citizen_creation(pleb, user):
     # TODO review with Tyler if token gne can go in here and why it was a global
     # var before?
     token_gen = EmailAuthTokenGenerator()
+    # TODO do we have any indicator that an email has been sent and these
+    # initial tasks have already been run and successful? If so we should check
+    # that value prior to spawning new versions of the tasks.
     task_list = {}
     task_data = {
         'object_data': {
@@ -85,6 +88,13 @@ def create_wall_task(pleb, user):
         # TODO should probably check if wall already exists here too
         # that way if CypherException occurred later on in the line we aren't
         # replacing the wall
+        if(len(pleb.wall.all()) == 1):
+            return spawn_task(task_func=finalize_citizen_creation,
+                              task_param={"pleb": pleb, "user": user})
+        elif(len(pleb.wall.all()) > 1):
+            logger.critical({"function": "create_wall_task",
+                             "exception": "More than one wall found"})
+            return False
         logger.critical({"function": "create_wall_task", "location": "start"})
         wall = SBWall(wall_id=str(uuid1()))
         wall.save()

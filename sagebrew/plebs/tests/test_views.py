@@ -18,6 +18,7 @@ from sb_registration.utils import create_user_util
 class ProfilePageTest(TestCase):
 
     def setUp(self):
+        print "setup"
         self.factory = APIRequestFactory()
         self.client = Client()
         self.email = "success@simulator.amazonses.com"
@@ -41,6 +42,7 @@ class ProfilePageTest(TestCase):
         self.pleb.save()
 
     def tearDown(self):
+        print "teardown"
         call_command("clear_neo_db")
 
     def test_unauthenticated(self):
@@ -143,11 +145,9 @@ class ProfilePageTest(TestCase):
             rel_from_pleb.save()
             post_array.append(test_post)
         self.client.login(username=self.username, password=self.password)
-        print reverse("profile_page", kwargs={"pleb_email": self.email})
         response = self.client.get(reverse("profile_page",
                                            kwargs={"pleb_email": self.email}),
                                    follow=True)
-        print response.redirect_chain
         self.assertEqual(response.status_code, 200)
         for post in post_array:
             post.delete()

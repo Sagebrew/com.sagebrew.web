@@ -322,11 +322,12 @@ def verify_verified_email(user):
     '''
     try:
         pleb = Pleb.nodes.get(email=user.email)
-        if pleb.email_verified:
-            return True
-        else:
-            return False
+        return pleb.email_verified
     except (Pleb.DoesNotExist, DoesNotExist):
+        return False
+    except CypherException:
+        logger.critical({"exception": "cypher exception",
+                         "function": "verify_verified_email"})
         return False
 
 def sb_send_email(to_email, subject, text_content, html_content):

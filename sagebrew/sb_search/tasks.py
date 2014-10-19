@@ -130,7 +130,7 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
 
 
 @shared_task()
-def add_user_to_custom_index(pleb="", index="full-search-user-specific-1"):
+def add_user_to_custom_index(pleb, index="full-search-user-specific-1"):
     '''
     This function is called when a user is created, it reindexes every document
     from the full-search-base index to the users assigned index with the
@@ -141,6 +141,8 @@ def add_user_to_custom_index(pleb="", index="full-search-user-specific-1"):
     :return:
     '''
     res =[]
+    if pleb.populated_personal_index:
+        return True
     es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
     if not es.indices.exists('full-search-base'):
         es.indices.create('full-search-base')
@@ -157,7 +159,7 @@ def add_user_to_custom_index(pleb="", index="full-search-user-specific-1"):
     res = results['hits']['hits']
     try:
         for item in res:
-            item['_source']['related_user'] = pleb
+            item['_source']['related_user'] = pleb.email
             item['_source']['sb_score'] = 0
             if item['_type'] == 'question':
                 result = es.index(index=index, doc_type='question',
@@ -165,6 +167,8 @@ def add_user_to_custom_index(pleb="", index="full-search-user-specific-1"):
             if item['_type'] == 'pleb':
                 result = es.index(index=index, doc_type='pleb',
                                   body=item['_source'])
+        pleb.populated_personal_index = True
+        pleb.save()
         return True
     except Exception:
         logger.critical(dumps({"exception": "Unhandled Exception",

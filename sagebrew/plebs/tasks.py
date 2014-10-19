@@ -23,7 +23,12 @@ logger = getLogger('loggly_logs')
 def send_email_task(to, subject, text_content, html_content):
     from sb_registration.utils import sb_send_email
     try:
-        sb_send_email(to, subject, text_content, html_content)
+        res = sb_send_email(to, subject, text_content, html_content)
+        if not res:
+            raise TypeError
+    except TypeError:
+        raise send_email_task.retry(exc=TypeError, countdown=3,
+                                    max_retries=None)
     except Exception:
         logger.exception(dumps({"function": send_email_task.__name__,
                                 "exception": "Unhandled Exception"}))
@@ -42,6 +47,7 @@ def finalize_citizen_creation(pleb, user):
                      "location": "start"}))
     task_list = {}
     task_data = {
+        'object_added': pleb,
         'object_data': {
             'first_name': pleb.first_name,
             'last_name': pleb.last_name,
@@ -59,26 +65,30 @@ def finalize_citizen_creation(pleb, user):
         task_func=add_user_to_custom_index,
         task_param=task_data)
 
-    generated_token = token_gen.make_token(user, pleb)
+    if not pleb.initial_verification_email_sent:
+        generated_token = token_gen.make_token(user, pleb)
 
-    template_dict = {
-        'full_name': "%s %s" % (pleb.first_name, pleb.last_name),
-        'verification_url': "%s%s/" % (settings.EMAIL_VERIFICATION_URL,
-                                       generated_token)
-    }
-    subject, to = "Sagebrew Email Verification", pleb.email
-    text_content = get_template(
-        'email_templates/email_verification.txt').render(
-        Context(template_dict))
-    html_content = get_template(
-        'email_templates/email_verification.html').render(
-        Context(template_dict))
-    task_dict = {
-        "to": to, "subject": subject, "text_content": text_content,
-        "html_content": html_content
-    }
-    task_list["send_email_task"] = spawn_task(
-        task_func=send_email_task, task_param=task_dict)
+        template_dict = {
+            'full_name': "%s %s" % (pleb.first_name, pleb.last_name),
+            'verification_url': "%s%s/" % (settings.EMAIL_VERIFICATION_URL,
+                                           generated_token)
+        }
+        subject, to = "Sagebrew Email Verification", pleb.email
+        text_content = get_template(
+            'email_templates/email_verification.txt').render(
+            Context(template_dict))
+        html_content = get_template(
+            'email_templates/email_verification.html').render(
+            Context(template_dict))
+        task_dict = {
+            "to": to, "subject": subject, "text_content": text_content,
+            "html_content": html_content
+        }
+        task_list["send_email_task"] = spawn_task(
+            task_func=send_email_task, task_param=task_dict)
+        if task_list['send_email_task'] is not None:
+            pleb.initial_verification_email_sent = True
+            pleb.save()
 
     logger.critical(dumps({"function": finalize_citizen_creation.__name__,
                      "location": "end"}))
@@ -137,7 +147,8 @@ def create_pleb_task(user_instance):
             logger.critical({"function": "create_pleb_task",
                              "pleb_email": test.email,
                              "pleb": test})
-            return False
+            return spawn_task(create_wall_task,
+                              task_param={'pleb': test, 'user': user_instance})
         except (Pleb.DoesNotExist, DoesNotExist):
             pleb = Pleb(email=user_instance.email,
                         first_name=user_instance.first_name,

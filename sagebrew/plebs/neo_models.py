@@ -86,6 +86,9 @@ class Pleb(StructuredNode):
     search_index = StringProperty()
     base_index_id = StringProperty()
     email_verified = BooleanProperty(default=False)
+    populated_es_index = BooleanProperty(default=False)
+    populated_personal_index = BooleanProperty(default=False)
+    initial_verification_email_sent = BooleanProperty(default=False)
 
     # Relationships
     home_town_address = RelationshipTo("Address", "GREW_UP_AT")

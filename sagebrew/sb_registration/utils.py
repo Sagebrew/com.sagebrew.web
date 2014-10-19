@@ -340,17 +340,22 @@ def sb_send_email(to_email, subject, text_content, html_content):
     :param html_content:
     :return:
     '''
-    conn = boto.ses.connect_to_region(
-        'us-east-1',
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-        aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
-    )
+    try:
+        conn = boto.ses.connect_to_region(
+            'us-east-1',
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
+        )
 
-    res = conn.send_email(source='devon@sagebrew.com',
-                          subject=subject,
-                          body=html_content,
-                          to_addresses=[to_email],
-                          format='html')
+        conn.send_email(source='devon@sagebrew.com',
+                        subject=subject,
+                        body=html_content,
+                        to_addresses=[to_email],
+                        format='html')
+    except Exception:
+        logger.exception(json.dumps({"function": sb_send_email.__name__,
+                                     "exception": "UnhandledException: "}))
+        return False
 
 def create_user_util(first_name, last_name, email, password,
                      username=""):

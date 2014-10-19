@@ -27,6 +27,7 @@ class ProfilePageTest(TestCase):
                                self.username)
         while not res['task_id'].ready():
             time.sleep(1)
+        print res['task_id'].result
         self.assertTrue(res['task_id'].result)
         while True:
             try:

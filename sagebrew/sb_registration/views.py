@@ -4,6 +4,7 @@ import hashlib
 from django.conf import settings
 from uuid import uuid1
 from django.core.urlresolvers import reverse
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
@@ -170,7 +171,8 @@ def email_verification(request, confirmation):
             pleb.save()
             return redirect('profile_info')
         else:
-            return Response(status=401)
+            # TODO Ensure to link up to a real redirect page
+            return HttpResponse('Unauthorized', status=401)
     except Pleb.DoesNotExist:
         return redirect('logout')
     except DoesNotExist:

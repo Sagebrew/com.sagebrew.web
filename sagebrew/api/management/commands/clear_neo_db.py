@@ -22,6 +22,7 @@ class Command(BaseCommand):
                 sleep(3)
             else:
                 break
+        sleep(3)
         return True
 
     def handle(self, *args, **options):

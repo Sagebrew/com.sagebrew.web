@@ -15,7 +15,7 @@ class EmailAuthTokenGenerator(object):
         return self._make_timestamp_token(user, self._num_days(self._today()),
                                           pleb)
 
-    def check_token(self, user, token):
+    def check_token(self, user, token, pleb):
         try:
             timestamp_base36, hash = token.split("-")
         except ValueError:
@@ -25,8 +25,9 @@ class EmailAuthTokenGenerator(object):
             timestamp = base36_to_int(timestamp_base36)
         except ValueError:
             return False
-
-        if not constant_time_compare(self._make_timestamp_token(user, timestamp),
+        print self._make_timestamp_token(user, timestamp, pleb)
+        print token
+        if not constant_time_compare(self._make_timestamp_token(user, timestamp, pleb),
                                      token):
             return False
 
@@ -40,7 +41,8 @@ class EmailAuthTokenGenerator(object):
         timestamp_base36 = int_to_base36(timestamp)
 
         key_salt = "sagebrew.sb_registration.models.EmailAuthTokenGenerator"
-
+        print user.username, user.first_name, user.last_name, user.email
+        print str(pleb.completed_profile_info), str(pleb.email_verified)
         hash_val = user.username + user.first_name + user.last_name + \
                    user.email + str(pleb.completed_profile_info) + \
                    str(pleb.email_verified)
@@ -52,3 +54,5 @@ class EmailAuthTokenGenerator(object):
 
     def _today(self):
         return date.today()
+
+token_gen = EmailAuthTokenGenerator()

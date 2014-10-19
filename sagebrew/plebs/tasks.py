@@ -14,7 +14,7 @@ from api.utils import spawn_task
 from api.tasks import add_object_to_search_index
 from sb_search.tasks import add_user_to_custom_index
 from sb_wall.neo_models import SBWall
-from sb_registration.models import EmailAuthTokenGenerator
+from sb_registration.models import token_gen
 
 
 logger = getLogger('loggly_logs')
@@ -43,7 +43,6 @@ def send_email_task(to, subject, text_content, html_content):
 @shared_task()
 def finalize_citizen_creation(pleb, user):
     # TODO look into celery chaining and/or grouping
-    token_gen = EmailAuthTokenGenerator()
     # TODO do we have any indicator that an email has been sent and these
     # initial tasks have already been run and successful? If so we should check
     # that value prior to spawning new versions of the tasks.
@@ -63,7 +62,7 @@ def finalize_citizen_creation(pleb, user):
     task_list["add_object_to_search_index"] = spawn_task(
         task_func=add_object_to_search_index,
         task_param=task_data)
-    task_data = {'pleb': pleb.email,
+    task_data = {'pleb': pleb,
                  'index': "full-search-user-specific-1"}
     task_list["add_user_to_custom_index"] = spawn_task(
         task_func=add_user_to_custom_index,

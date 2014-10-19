@@ -140,7 +140,6 @@ def add_user_to_custom_index(pleb, index="full-search-user-specific-1"):
     :param index:
     :return:
     '''
-    res =[]
     if pleb.populated_personal_index:
         return True
     es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)

@@ -27,10 +27,10 @@ from .utils import (validate_address, generate_interests_tuple, upload_image,
                     create_address_long_hash, verify_completed_registration,
                     verify_verified_email, calc_age, sb_send_email,
                     create_user_util)
-from .models import EmailAuthTokenGenerator
+from .models import token_gen
 
 logger = logging.getLogger('loggly_logs')
-token_gen = EmailAuthTokenGenerator()
+
 
 @login_required()
 def confirm_view(request):
@@ -173,7 +173,7 @@ def logout_view(request):
 def email_verification(request, confirmation):
     try:
         pleb = Pleb.nodes.get(email=request.user.email)
-        if token_gen.check_token(request.user, confirmation):
+        if token_gen.check_token(request.user, confirmation, pleb):
             pleb.email_verified = True
             pleb.save()
             return redirect('profile_info')

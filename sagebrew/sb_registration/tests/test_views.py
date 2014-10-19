@@ -571,7 +571,8 @@ class TestEmailVerificationView(TestCase):
         request.session = s
         login(request, user)
         request.user = user
-        token = self.token_gen.make_token(user)
+        pleb = Pleb.nodes.get(email=user.email)
+        token = self.token_gen.make_token(user, pleb)
 
         res = email_verification(request, token)
 
@@ -586,7 +587,6 @@ class TestEmailVerificationView(TestCase):
         request.session = s
         login(request, user)
         request.user = user
-        token = self.token_gen.make_token(user)
 
         res = email_verification(request, 'this is a fake token')
 
@@ -602,7 +602,8 @@ class TestEmailVerificationView(TestCase):
         login(request, user)
         request.user = user
         request.user.email = "totallynotafakeuser@fake.com"
-        token = self.token_gen.make_token(user)
+        pleb = Pleb.nodes.get(email=user.email)
+        token = self.token_gen.make_token(user, pleb)
 
         res = email_verification(request, token)
 

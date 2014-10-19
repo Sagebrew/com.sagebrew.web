@@ -139,7 +139,7 @@ class ProfilePageTest(TestCase):
         request.user = self.user
         response = profile_page(request, self.email)
         print response.content
-        print response.body
+        print response.next()
         self.assertEqual(response.status_code, 200)
         for post in post_array:
             post.delete()

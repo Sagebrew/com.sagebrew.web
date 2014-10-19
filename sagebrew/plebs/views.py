@@ -41,8 +41,10 @@ def profile_page(request, pleb_email):
     try:
         citizen = Pleb.nodes.get(email=pleb_email)
     except Pleb.DoesNotExist:
+        logger.critical("Pleb does not exist")
         redirect('404_Error')
     except DoesNotExist:
+        logger.critical("Pleb does not exist D")
         redirect('404_Error')
     current_user = request.user
     page_user = User.objects.get(email=pleb_email)

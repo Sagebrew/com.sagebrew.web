@@ -302,10 +302,12 @@ def verify_completed_registration(user):
     try:
         pleb = Pleb.nodes.get(email=user.email)
         if pleb.completed_profile_info:
+            logger.critical("Pleb has not completed profile_info")
             return True
         else:
             return False
     except (Pleb.DoesNotExist,DoesNotExist):
+        logger.critical("Pleb does not exist verify registration")
         return False
 
 def verify_verified_email(user):

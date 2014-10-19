@@ -33,6 +33,7 @@ class ProfilePageTest(TestCase):
             try:
                 self.pleb = Pleb.nodes.get(email=self.email)
                 self.user = User.objects.get(email=self.email)
+                print self.pleb.wall.wall_id
             except Exception:
                 pass
             else:
@@ -130,6 +131,8 @@ class ProfilePageTest(TestCase):
     def test_multiple_posts(self):
         # TODO Review with Tyler
         post_array = []
+        print self.pleb.email
+        print self.pleb.wall.wall_id
         wall = self.pleb.wall.all()[0]
         for item in range(0, 50):
             test_post = SBPost(content='test', post_id=str(uuid1()))

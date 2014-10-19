@@ -85,17 +85,22 @@ def create_wall_task(pleb, user):
         # TODO should probably check if wall already exists here too
         # that way if CypherException occurred later on in the line we aren't
         # replacing the wall
+        logger.critical({"function": "create_wall_task", "location": "start"})
         wall = SBWall(wall_id=str(uuid1()))
         wall.save()
         wall.owner.connect(pleb)
         pleb.wall.connect(wall)
         wall.save()
         pleb.save()
+        logger.critical({"function": "create_wall_task", "location": "end",
+                         "wall": wall.wall_id})
         # TODO Seems like we have a race condition going on with this wall
         # creation
         return spawn_task(task_func=finalize_citizen_creation,
                           task_param={"pleb": pleb, "user": user})
     except CypherException:
+        logger.critical({"function": "create_wall_task",
+                         "location": "CypherException"})
         raise create_wall_task.retry(exc=CypherException, countdown=3,
                                      max_retries=None)
     except Exception:

@@ -1,5 +1,6 @@
 import time
 from uuid import uuid1
+import shortuuid
 from rest_framework.test import APIRequestFactory
 from django.contrib.auth.models import User, AnonymousUser
 from django.test import TestCase, Client
@@ -20,7 +21,10 @@ class ProfilePageTest(TestCase):
         self.factory = APIRequestFactory()
         self.client = Client()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        self.username = shortuuid.uuid()
+        self.password = "testpassword"
+        res = create_user_util("test", "test", self.email, self.password,
+                               self.username)
         while not res['task_id'].ready():
             time.sleep(1)
         self.assertTrue(res['task_id'].result)
@@ -141,7 +145,7 @@ class ProfilePageTest(TestCase):
             post_array.append(test_post)
         request = self.factory.get('/%s' % self.email)
         request.user = self.user
-
+        self.client.login(username=self.username, password=self.password)
         response = self.client.get(reverse("profile_page", self.email),
                                    follow=True)
         print response.redirect_chain

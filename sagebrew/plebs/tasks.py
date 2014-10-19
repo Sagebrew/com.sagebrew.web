@@ -82,8 +82,11 @@ def finalize_citizen_creation(pleb, user):
 
     logger.critical(dumps({"function": finalize_citizen_creation.__name__,
                      "location": "end"}))
+    task_ids = []
+    for item in task_list:
+        task_ids.append(item.task_id)
     logger.critical(dumps({"function": finalize_citizen_creation.__name__,
-                     "dict": task_list}))
+                     "dict": task_ids}))
     return task_list
 
 

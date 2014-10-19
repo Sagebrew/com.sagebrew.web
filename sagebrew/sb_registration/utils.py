@@ -301,7 +301,6 @@ def verify_completed_registration(user):
     '''
     try:
         pleb = Pleb.nodes.get(email=user.email)
-        logger.critical({"complete_profile_info": pleb.completed_profile_info})
         return pleb.completed_profile_info
     except (Pleb.DoesNotExist,DoesNotExist):
         logger.critical({"exception": "Pleb does not exist",
@@ -369,8 +368,10 @@ def create_user_util(first_name, last_name, email, password,
         if res is not None:
             return {"task_id": res, "username": user.username}
         else:
+            logger.critical(json.dumps({"function": create_user_util.__name__,
+                          "exception": "res is None"}))
             return False
     except Exception:
-        logger.exception({"function": create_user_util.__name__,
-                          "exception": "UnhandledException: "})
+        logger.exception(json.dumps({"function": create_user_util.__name__,
+                          "exception": "UnhandledException: "}))
         return False

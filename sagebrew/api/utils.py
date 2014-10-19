@@ -119,7 +119,7 @@ def spawn_task(task_func, task_param, countdown=0, task_id=None):
              'exception': 'socket_error'}))
         logger.exception('Trace back from error: ')
         add_failure_to_queue(failure_dict)
-        return False
+        return None
     except Exception:
         failure_uuid = str(uuid1())
         failure_dict = {
@@ -133,7 +133,7 @@ def spawn_task(task_func, task_param, countdown=0, task_id=None):
              'exception': 'unknown_error'}))
         logger.exception('Trace back from error: ')
         add_failure_to_queue(failure_dict)
-        return False
+        return None
 
 
 def get_post_data(request):

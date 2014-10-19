@@ -38,8 +38,8 @@ def finalize_citizen_creation(pleb, user):
     # TODO do we have any indicator that an email has been sent and these
     # initial tasks have already been run and successful? If so we should check
     # that value prior to spawning new versions of the tasks.
-    logger.critical({"function": finalize_citizen_creation.__name__,
-                     "location": "start"})
+    logger.critical(dumps({"function": finalize_citizen_creation.__name__,
+                     "location": "start"}))
     task_list = {}
     task_data = {
         'object_data': {
@@ -80,10 +80,10 @@ def finalize_citizen_creation(pleb, user):
     task_list["send_email_task"] = spawn_task(
         task_func=send_email_task, task_param=task_dict)
 
-    logger.critical({"function": finalize_citizen_creation.__name__,
-                     "location": "end"})
-    logger.critical({"function": finalize_citizen_creation.__name__,
-                     "dict": task_list})
+    logger.critical(dumps({"function": finalize_citizen_creation.__name__,
+                     "location": "end"}))
+    logger.critical(dumps({"function": finalize_citizen_creation.__name__,
+                     "dict": task_list}))
     return task_list
 
 
@@ -97,15 +97,16 @@ def create_wall_task(pleb, user):
             return spawn_task(task_func=finalize_citizen_creation,
                               task_param={"pleb": pleb, "user": user})
         elif len(pleb.wall.all()) > 1:
-            logger.critical({"function": "create_wall_task",
-                             "exception": "More than one wall found"})
+            logger.critical(dumps({"function": "create_wall_task",
+                             "exception": "More than one wall found"}))
             return False
-        logger.critical({"function": "create_wall_task", "location": "start"})
+        logger.critical(dumps({"function": "create_wall_task",
+                               "location": "start"}))
         wall = SBWall(wall_id=str(uuid1())).save()
         wall.owner.connect(pleb)
         pleb.wall.connect(wall)
-        logger.critical({"function": "create_wall_task", "location": "end",
-                         "wall": wall.wall_id})
+        logger.critical(dumps({"function": "create_wall_task", "location": "end",
+                         "wall": wall.wall_id}))
         # TODO Seems like we have a race condition going on with this wall
         # creation
         return spawn_task(task_func=finalize_citizen_creation,
@@ -114,8 +115,8 @@ def create_wall_task(pleb, user):
         raise create_wall_task.retry(exc=TypeError, countdown=3,
                                      max_retries=None)
     except CypherException:
-        logger.critical({"function": "create_wall_task",
-                         "location": "CypherException"})
+        logger.critical(dumps({"function": "create_wall_task",
+                         "location": "CypherException"}))
         raise create_wall_task.retry(exc=TypeError, countdown=3,
                                      max_retries=None)
     except Exception:

@@ -24,10 +24,11 @@ class ProfilePageTest(TestCase):
         self.password = "testpassword"
         res = create_user_util("test", "test", self.email, self.password,
                                self.username)
+        print res['task_id'].task_id
         while not res['task_id'].ready():
             time.sleep(1)
-        print type(res['task_id'].result)
-        self.assertTrue(res['task_id'].result)
+        print res['task_id'].result
+
         while not res['task_id'].result.ready():
             time.sleep(1)
         print type(res['task_id'].result.result)

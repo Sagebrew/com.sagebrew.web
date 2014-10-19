@@ -135,8 +135,11 @@ def create_pleb_task(user_instance):
             pleb.save()
             # TODO how do we track the result of this spawned task?
             # does it just auto do it?
-            return spawn_task(task_func=create_wall_task,
+            task_info = spawn_task(task_func=create_wall_task,
                               task_param={"pleb": pleb, "user": user_instance})
+            logger.critical({"function": create_pleb_task.__name__,
+                             "detail": task_info.task_id})
+            return task_info
     except CypherException:
         raise create_pleb_task.retry(exc=CypherException, countdown=3,
                                      max_retries=None)

@@ -12,7 +12,7 @@ from plebs.neo_models import Pleb
 from plebs.views import (profile_page, friends_page, about_page,
                          reputation_page)
 from sb_registration.utils import create_user_util
-
+from api.utils import test_wait_util
 
 class ProfilePageTest(TestCase):
 
@@ -25,19 +25,9 @@ class ProfilePageTest(TestCase):
         res = create_user_util("test", "test", self.email, self.password,
                                self.username)
         self.assertNotEqual(res, False)
-        while not res['task_id'].ready():
-            time.sleep(1)
-
-        while not res['task_id'].result.ready():
-            time.sleep(1)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        test_wait_util(res['task_id'])
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.pleb.completed_profile_info = True
         self.pleb.email_verified = True
         self.pleb.save()

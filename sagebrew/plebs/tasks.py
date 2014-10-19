@@ -1,6 +1,7 @@
 from uuid import uuid1
 from json import dumps
 from time import sleep
+from boto.ses.exceptions import SESMaxSendingRateExceededError
 from celery import shared_task
 from logging import getLogger
 from django.conf import settings
@@ -25,7 +26,10 @@ def send_email_task(to, subject, text_content, html_content):
     try:
         res = sb_send_email(to, subject, text_content, html_content)
         if not res:
-            raise TypeError
+            raise res
+    except SESMaxSendingRateExceededError as e:
+        raise send_email_task.retry(exc=e, countdown=5,
+                                    max_retries=None)
     except TypeError:
         raise send_email_task.retry(exc=TypeError, countdown=3,
                                     max_retries=None)

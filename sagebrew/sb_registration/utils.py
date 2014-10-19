@@ -5,6 +5,7 @@ import json
 import urllib
 import boto.ses
 import logging
+from boto.ses.exceptions import SESMaxSendingRateExceededError
 from socket import error as socket_error
 from datetime import date
 from django.conf import settings
@@ -352,10 +353,12 @@ def sb_send_email(to_email, subject, text_content, html_content):
                         body=html_content,
                         to_addresses=[to_email],
                         format='html')
-    except Exception:
+    except SESMaxSendingRateExceededError as e:
+        return e
+    except Exception as e:
         logger.exception(json.dumps({"function": sb_send_email.__name__,
                                      "exception": "UnhandledException: "}))
-        return False
+        return e
 
 def create_user_util(first_name, last_name, email, password,
                      username=""):

@@ -1,17 +1,14 @@
 import logging
-import requests
+import time
 from uuid import uuid1
 from socket import error as socket_error
 from json import loads, dumps
-from django.conf import settings
-from requests import post as request_post
-from django.contrib.auth.models import User
-from provider.oauth2.models import Client as OauthClient
 import boto.sqs
 from boto.sqs.message import Message
 from bomberman.client import Client
 from neomodel.exception import CypherException
 from neomodel import db
+from django.conf import settings
 
 from api.alchemyapi import AlchemyAPI
 from sb_comments.neo_models import SBComment
@@ -243,3 +240,10 @@ def clear_neodb():
         db.cypher_query("START n=node(*) MATCH n-[r?]-() DELETE r,n")
     except CypherException:
         pass
+
+def test_wait_util(async_res):
+    while not async_res['task_id'].ready():
+        time.sleep(1)
+
+    while not async_res['task_id'].result.ready():
+        time.sleep(1)

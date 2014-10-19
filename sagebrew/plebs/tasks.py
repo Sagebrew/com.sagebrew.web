@@ -32,15 +32,15 @@ def send_email_task(to, subject, text_content, html_content):
 @shared_task()
 def finalize_citizen_creation(pleb, user):
     task_list = {}
-    task_data = {'object_data': {
+    task_data = {
+        'object_data': {
             'first_name': pleb.first_name,
             'last_name': pleb.last_name,
-            'full_name': str(pleb.first_name) + ' '
-                         + str(pleb.last_name),
+            'full_name': "%s %s" % (pleb.first_name, pleb.last_name),
             'pleb_email': pleb.email
             },
-                     'object_type': 'pleb'
-        }
+        'object_type': 'pleb'
+    }
     task_list["add_object_to_search_index"] = spawn_task(
         task_func=add_object_to_search_index,
         task_param=task_data)
@@ -59,11 +59,11 @@ def finalize_citizen_creation(pleb, user):
     }
     subject, to = "Sagebrew Email Verification", pleb.email
     text_content = get_template(
-        'email_templates/email_verification.txt').\
-        render(Context(template_dict))
+        'email_templates/email_verification.txt').render(
+        Context(template_dict))
     html_content = get_template(
-        'email_templates/email_verification.html').\
-        render(Context(template_dict))
+        'email_templates/email_verification.html').render(
+        Context(template_dict))
     task_dict = {
         "to": to, "subject": subject, "text_content": text_content,
         "html_content": html_content
@@ -77,6 +77,9 @@ def finalize_citizen_creation(pleb, user):
 @shared_task()
 def create_wall_task(pleb, user):
     try:
+        # TODO should probably check if wall already exists here too
+        # that way if CypherException occurred later on in the line we aren't
+        # replacing the wall
         wall = SBWall(wall_id=str(uuid1()))
         wall.save()
         wall.owner.connect(pleb)

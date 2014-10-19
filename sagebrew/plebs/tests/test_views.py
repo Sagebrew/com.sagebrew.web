@@ -2,8 +2,9 @@ import time
 from uuid import uuid1
 from rest_framework.test import APIRequestFactory
 from django.contrib.auth.models import User, AnonymousUser
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.core.management import call_command
+from django.core.urlresolvers import reverse
 
 from sb_comments.neo_models import SBComment
 from sb_posts.neo_models import SBPost
@@ -17,6 +18,7 @@ class ProfilePageTest(TestCase):
 
     def setUp(self):
         self.factory = APIRequestFactory()
+        self.client = Client()
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         while not res['task_id'].ready():
@@ -139,9 +141,10 @@ class ProfilePageTest(TestCase):
             post_array.append(test_post)
         request = self.factory.get('/%s' % self.email)
         request.user = self.user
-        print self.pleb.completed_profile_info
-        print self.pleb.email
-        response = profile_page(request, self.email)
+
+        response = self.client.get(reverse("profile_page", self.email),
+                                   follow=True)
+        print response.redirect_chain
         self.assertEqual(response.status_code, 200)
         for post in post_array:
             post.delete()

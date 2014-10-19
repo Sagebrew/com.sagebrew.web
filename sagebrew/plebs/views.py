@@ -39,7 +39,8 @@ def profile_page(request, pleb_email):
     :return:
     '''
     try:
-        citizen = Pleb.nodes.get(email=pleb_email)
+        citizen = Pleb.nodes.get(email=request.user.email)
+        page_user_pleb = Pleb.nodes.get(email=pleb_email)
     except Pleb.DoesNotExist:
         logger.critical("Pleb does not exist")
         redirect('404_Error')

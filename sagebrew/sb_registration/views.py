@@ -64,9 +64,12 @@ def signup_view_api(request):
                                        cleaned_data['email'],
                                        password=signup_form.
                                        cleaned_data['password'])
-                user = authenticate(username=res['username'],
-                                    password=signup_form.cleaned_data[
-                                        'password'])
+                if res and res is not None:
+                    user = authenticate(username=res['username'],
+                                        password=signup_form.cleaned_data[
+                                            'password'])
+                else:
+                    return Response({'detail': 'system error'}, status=500)
                 if user is not None:
                     if user.is_active:
                         login(request, user)

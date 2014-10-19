@@ -14,6 +14,8 @@ class Command(BaseCommand):
             try:
                 res = db.cypher_query(
                     "START n=node(*) OPTIONAL MATCH n-[r]-() DELETE r,n")
+                logger.critical({"function": "clear_neo_db", "response": res,
+                                 "response_type": type(res)})
             except CypherException:
                 sleep(3)
             except Exception:
@@ -22,7 +24,6 @@ class Command(BaseCommand):
                 sleep(3)
             else:
                 break
-        sleep(3)
         return True
 
     def handle(self, *args, **options):

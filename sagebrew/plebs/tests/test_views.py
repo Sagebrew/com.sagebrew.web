@@ -13,6 +13,7 @@ from plebs.neo_models import Pleb
 from plebs.views import (profile_page, friends_page, about_page,
                          reputation_page)
 from sb_registration.utils import create_user_util
+from plebs.tasks import create_wall_task
 
 
 class ProfilePageTest(TestCase):
@@ -27,8 +28,11 @@ class ProfilePageTest(TestCase):
                                self.username)
         while not res['task_id'].ready():
             time.sleep(1)
-        print res['task_id'].result
         self.assertTrue(res['task_id'].result)
+        wall_result = create_wall_task.AsyncResult(res['task_id'].result)
+        while not wall_result.ready():
+            time.sleep(1)
+        self.assertTrue(wall_result.result)
         while True:
             try:
                 self.pleb = Pleb.nodes.get(email=self.email)

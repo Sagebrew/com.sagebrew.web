@@ -33,8 +33,6 @@ def send_email_task(to, subject, text_content, html_content):
 
 @shared_task()
 def finalize_citizen_creation(pleb, user):
-    # TODO review with Tyler if token gne can go in here and why it was a global
-    # var before?
     token_gen = EmailAuthTokenGenerator()
     task_list = {}
     task_data = {

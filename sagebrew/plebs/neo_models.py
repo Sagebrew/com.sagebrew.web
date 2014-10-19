@@ -203,6 +203,7 @@ class Pleb(StructuredNode):
         temp_username = str(self.first_name).lower() + str(self.last_name).lower()
         try:
             pleb = Pleb.nodes.get(username=temp_username)
+            #TODO if first name and last name = the current one get a count of how many then add one
             self.username = shortuuid.ShortUUID()
             self.save()
         except Pleb.DoesNotExist:

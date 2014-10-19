@@ -93,10 +93,10 @@ def create_wall_task(pleb, user):
         # TODO should probably check if wall already exists here too
         # that way if CypherException occurred later on in the line we aren't
         # replacing the wall
-        if(len(pleb.wall.all()) == 1):
+        if len(pleb.wall.all()) == 1:
             return spawn_task(task_func=finalize_citizen_creation,
                               task_param={"pleb": pleb, "user": user})
-        elif(len(pleb.wall.all()) > 1):
+        elif len(pleb.wall.all()) > 1:
             logger.critical({"function": "create_wall_task",
                              "exception": "More than one wall found"})
             return False
@@ -141,7 +141,7 @@ def create_pleb_task(user_instance):
             task_info = spawn_task(task_func=create_wall_task,
                               task_param={"pleb": pleb, "user": user_instance})
             logger.critical({"function": create_pleb_task.__name__,
-                             "detail": task_info.task_id})
+                             "detail": task_info})
             return task_info
     except CypherException:
         raise create_pleb_task.retry(exc=CypherException, countdown=3,

@@ -15,7 +15,7 @@ from sb_wall.neo_models import SBWall
 from sb_registration.models import EmailAuthTokenGenerator
 
 logger = getLogger('loggly_logs')
-token_gen = EmailAuthTokenGenerator()
+
 
 @shared_task()
 def send_email_task(to, subject, text_content, html_content):
@@ -31,6 +31,8 @@ def send_email_task(to, subject, text_content, html_content):
 
 @shared_task()
 def create_pleb_task(user_instance):
+    # TODO review with Tyler
+    token_gen = EmailAuthTokenGenerator()
     try:
         try:
             test = Pleb.nodes.get(email=user_instance.email)
@@ -65,10 +67,12 @@ def create_pleb_task(user_instance):
                          'index': "full-search-user-specific-1"}
             spawn_task(task_func=add_user_to_custom_index,
                        task_param=task_data)
+            generated_token = token_gen.make_token(user_instance, pleb)
+
             template_dict = {
-                'full_name': pleb.first_name+' '+pleb.last_name,
-                'verification_url': settings.EMAIL_VERIFICATION_URL+
-                                    token_gen.make_token(user_instance)+'/'
+                'full_name': "%s %s" % (pleb.first_name, pleb.last_name),
+                'verification_url': "%s%s/" % (settings.EMAIL_VERIFICATION_URL,
+                                               generated_token)
             }
             subject, to = "Sagebrew Email Verification", pleb.email
             text_content = get_template(
@@ -83,6 +87,9 @@ def create_pleb_task(user_instance):
             }
             spawn_task(task_func=send_email_task, task_param=task_dict)
             return True
+    except DoesNotExist:
+        raise create_pleb_task.retry(exc=DoesNotExist, countdown=3,
+                                     max_retries=None)
     except CypherException:
         raise create_pleb_task.retry(exc=CypherException, countdown=3,
                                      max_retries=None)

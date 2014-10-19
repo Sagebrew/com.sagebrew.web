@@ -9,8 +9,9 @@ class EmailAuthTokenGenerator(object):
     '''
     This object is created for user email verification
     '''
-    def make_token(self, user):
-        return self._make_timestamp_token(user, self._num_days(self._today()))
+    def make_token(self, user, pleb):
+        return self._make_timestamp_token(user, self._num_days(self._today()),
+                                          pleb)
 
     def check_token(self, user, token):
         try:
@@ -33,21 +34,16 @@ class EmailAuthTokenGenerator(object):
 
         return True
 
-    def _make_timestamp_token(self, user, timestamp):
+    def _make_timestamp_token(self, user, timestamp, pleb):
         timestamp_base36 = int_to_base36(timestamp)
 
         key_salt = "sagebrew.sb_registration.models.EmailAuthTokenGenerator"
 
-        try:
-            pleb = Pleb.nodes.get(email=user.email)
-        except Pleb.DoesNotExist:
-            return False
-
         hash_val = user.username + user.first_name + user.last_name + \
                    user.email + str(pleb.completed_profile_info) + \
                    str(pleb.email_verified)
-        hash = salted_hmac(key_salt, hash_val).hexdigest()[::2]
-        return "%s-%s" % (timestamp_base36, hash)
+        created_hash = salted_hmac(key_salt, hash_val).hexdigest()[::2]
+        return "%s-%s" % (timestamp_base36, created_hash)
 
     def _num_days(self, dt):
         return (dt - date(2001, 1, 1)).days

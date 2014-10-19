@@ -37,6 +37,7 @@ class ProfilePageTest(TestCase):
             else:
                 break
         self.pleb.completed_profile_info = True
+        self.pleb.email_verified = True
         self.pleb.save()
 
     def tearDown(self):

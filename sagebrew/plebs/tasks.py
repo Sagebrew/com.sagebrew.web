@@ -78,7 +78,7 @@ def finalize_citizen_creation(pleb, user):
     }
     task_list["send_email_task"] = spawn_task(
         task_func=send_email_task, task_param=task_dict)
-    
+
     logger.critical({"function": finalize_citizen_creation.__name__,
                      "location": "end"})
     return task_list

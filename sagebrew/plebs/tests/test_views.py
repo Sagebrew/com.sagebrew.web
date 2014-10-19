@@ -25,7 +25,7 @@ class ProfilePageTest(TestCase):
         res = create_user_util("test", "test", self.email, self.password,
                                self.username)
         self.assertNotEqual(res, False)
-        test_wait_util(res['task_id'])
+        test_wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.completed_profile_info = True

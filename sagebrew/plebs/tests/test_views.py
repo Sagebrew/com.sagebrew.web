@@ -4,7 +4,6 @@ import shortuuid
 from rest_framework.test import APIRequestFactory
 from django.contrib.auth.models import User, AnonymousUser
 from django.test import TestCase, Client
-from django.core.management import call_command
 from django.core.urlresolvers import reverse
 
 from sb_comments.neo_models import SBComment

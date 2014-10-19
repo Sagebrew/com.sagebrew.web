@@ -3,9 +3,10 @@ from datetime import datetime
 import pytz
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty, db)
+                      BooleanProperty, FloatProperty, db, One)
 
-from sb_relationships.neo_models import FriendRelationship, UserWeightRelationship
+from sb_relationships.neo_models import (FriendRelationship,
+                                         UserWeightRelationship)
 from sb_posts.neo_models import RelationshipWeight
 from sb_search.neo_models import SearchCount
 
@@ -103,13 +104,16 @@ class Pleb(StructuredNode):
                                "HAS_REPRESENTATIVE")
     posts = RelationshipTo('sb_posts.neo_models.SBPost', 'OWNS_POST',
                            model=PostObjectCreated)
-    questions = RelationshipTo('sb_questions.neo_models.SBQuestion', 'OWNS_QUESTION',
+    questions = RelationshipTo('sb_questions.neo_models.SBQuestion',
+                               'OWNS_QUESTION',
                                model=PostObjectCreated)
     answers = RelationshipTo('sb_answers.neo_models.SBAnswer', 'OWNS_ANSWER',
                              model=PostObjectCreated)
-    comments = RelationshipTo('sb_comments.neo_models.SBComment', 'OWNS_COMMENT',
+    comments = RelationshipTo('sb_comments.neo_models.SBComment',
+                              'OWNS_COMMENT',
                               model=PostObjectCreated)
-    wall = RelationshipTo('sb_wall.neo_models.SBWall', 'OWNS_WALL')
+    wall = RelationshipTo('sb_wall.neo_models.SBWall', 'OWNS_WALL',
+                          cardinality=One)
     notifications = RelationshipTo(
         'sb_notifications.neo_models.NotificationBase', 'RECEIVED_A')
     friend_requests_sent = RelationshipTo(
@@ -200,7 +204,8 @@ class Pleb(StructuredNode):
 
 
     def generate_username(self):
-        temp_username = str(self.first_name).lower() + str(self.last_name).lower()
+        temp_username = str(self.first_name).lower() + \
+                        str(self.last_name).lower()
         try:
             pleb = Pleb.nodes.get(username=temp_username)
             #TODO if first name and last name = the current one get a count of how many then add one

@@ -103,7 +103,7 @@ def resend_email_verification(request):
 
     template_dict = {
         'full_name': request.user.first_name+' '+request.user.last_name,
-        'verification_url': settings.EMAIL_VERIFICATION_URL+token_gen.make_token(request.user)+'/'
+        'verification_url': settings.EMAIL_VERIFICATION_URL+token_gen.make_token(request.user, pleb)+'/'
     }
     subject, to = "Sagebrew Email Verification", request.user.email
     text_content = get_template('email_templates/email_verification.txt').render(Context(template_dict))

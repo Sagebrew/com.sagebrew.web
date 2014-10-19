@@ -37,6 +37,8 @@ def finalize_citizen_creation(pleb, user):
     # TODO do we have any indicator that an email has been sent and these
     # initial tasks have already been run and successful? If so we should check
     # that value prior to spawning new versions of the tasks.
+    logger.critical({"function": finalize_citizen_creation.__name__,
+                     "location": "start"})
     task_list = {}
     task_data = {
         'object_data': {
@@ -76,7 +78,9 @@ def finalize_citizen_creation(pleb, user):
     }
     task_list["send_email_task"] = spawn_task(
         task_func=send_email_task, task_param=task_dict)
-
+    
+    logger.critical({"function": finalize_citizen_creation.__name__,
+                     "location": "end"})
     return task_list
 
 

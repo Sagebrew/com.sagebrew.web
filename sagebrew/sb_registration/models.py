@@ -2,7 +2,6 @@ from datetime import date
 from django.conf import settings
 from django.utils.http import int_to_base36, base36_to_int
 from django.utils.crypto import constant_time_compare, salted_hmac
-from django.utils import six
 
 from plebs.neo_models import Pleb
 
@@ -49,7 +48,6 @@ class EmailAuthTokenGenerator(object):
                    str(pleb.email_verified)
         hash = salted_hmac(key_salt, hash_val).hexdigest()[::2]
         return "%s-%s" % (timestamp_base36, hash)
-
 
     def _num_days(self, dt):
         return (dt - date(2001, 1, 1)).days

@@ -103,6 +103,7 @@ class TestVoteComment(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertIsNotNone(res)
         while not res['task_id'].ready():
             time.sleep(1)
         self.assertTrue(res['task_id'].result)

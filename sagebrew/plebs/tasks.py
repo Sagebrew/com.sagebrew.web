@@ -27,6 +27,7 @@ def send_email_task(to, subject, text_content, html_content):
         raise send_email_task.retry(exc=Exception, countdown=3,
                                     max_retries=None)
 
+
 @shared_task()
 def create_pleb_task(user_instance):
     try:

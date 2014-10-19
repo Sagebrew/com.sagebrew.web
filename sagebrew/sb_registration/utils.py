@@ -11,7 +11,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from boto import connect_s3
 from boto.s3.key import Key
-from neomodel import DoesNotExist
+from neomodel import DoesNotExist, CypherException
 from api.utils import spawn_task
 from plebs.tasks import create_pleb_task
 from plebs.neo_models import TopicCategory, Pleb
@@ -301,13 +301,15 @@ def verify_completed_registration(user):
     '''
     try:
         pleb = Pleb.nodes.get(email=user.email)
-        if pleb.completed_profile_info:
-            logger.critical("Pleb has not completed profile_info")
-            return True
-        else:
-            return False
+        logger.critical({"complete_profile_info": pleb.completed_profile_info})
+        return pleb.completed_profile_info
     except (Pleb.DoesNotExist,DoesNotExist):
-        logger.critical("Pleb does not exist verify registration")
+        logger.critical({"exception": "Pleb does not exist",
+                         "function": "verify_completed_registration"})
+        return False
+    except CypherException:
+        logger.critical({"exception": "cypher exception",
+                         "function": "verify_completed_registration"})
         return False
 
 def verify_verified_email(user):

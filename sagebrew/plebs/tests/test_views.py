@@ -31,9 +31,6 @@ class ProfilePageTest(TestCase):
 
         while not res['task_id'].result.ready():
             time.sleep(1)
-        while not res['task_id'].result.result.ready():
-            time.sleep(1)
-        print res['task_id'].result.result.result
         while True:
             try:
                 self.pleb = Pleb.nodes.get(email=self.email)

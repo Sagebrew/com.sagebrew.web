@@ -110,10 +110,13 @@ def create_wall_task(pleb, user):
         # creation
         return spawn_task(task_func=finalize_citizen_creation,
                           task_param={"pleb": pleb, "user": user})
+    except TypeError:
+        raise create_wall_task.retry(exc=TypeError, countdown=3,
+                                     max_retries=None)
     except CypherException:
         logger.critical({"function": "create_wall_task",
                          "location": "CypherException"})
-        raise create_wall_task.retry(exc=CypherException, countdown=3,
+        raise create_wall_task.retry(exc=TypeError, countdown=3,
                                      max_retries=None)
     except Exception:
         logger.exception(dumps({"function": create_wall_task.__name__,

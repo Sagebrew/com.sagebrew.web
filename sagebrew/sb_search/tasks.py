@@ -142,6 +142,9 @@ def add_user_to_custom_index(pleb="", index="full-search-user-specific-1"):
     '''
     res =[]
     es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+    if not es.exists('full-search-base'):
+        es.create('full-search-base')
+
     scanres = es.search(index='full-search-base', search_type="scan",
                         scroll="10m", size=50, body={
         "query": {

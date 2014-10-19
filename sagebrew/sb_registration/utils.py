@@ -353,6 +353,7 @@ def sb_send_email(to_email, subject, text_content, html_content):
                         body=html_content,
                         to_addresses=[to_email],
                         format='html')
+        return True
     except SESMaxSendingRateExceededError as e:
         return e
     except Exception as e:

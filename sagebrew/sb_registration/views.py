@@ -15,6 +15,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from neomodel import DoesNotExist
 
+from api.utils import spawn_task
+from plebs.tasks import send_email_task
 from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
                     ProfilePictureForm, AddressChoiceForm, SignupForm,
@@ -108,7 +110,9 @@ def resend_email_verification(request):
     subject, to = "Sagebrew Email Verification", request.user.email
     text_content = get_template('email_templates/email_verification.txt').render(Context(template_dict))
     html_content = get_template('email_templates/email_verification.html').render(Context(template_dict))
-    sb_send_email(to, subject, text_content, html_content)
+    task_data = {'to': to, 'subject': subject, 'text_content': text_content,
+                 'html_content': html_content}
+    spawn_task(task_func=send_email_task, task_param=task_data)
     return redirect("confirm_view")
 
 

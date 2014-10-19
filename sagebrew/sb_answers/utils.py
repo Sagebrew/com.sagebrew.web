@@ -47,8 +47,11 @@ def save_answer_util(content="", current_pleb="", answer_uuid="",
         rel_to_pleb.save()
         answer.save()
         return answer
+    except CypherException:
+        return None
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception({"function": "save_answer_util", "exception":
+                          "Unhandled Exception"})
         return None
 
 def edit_answer_util(content="", current_pleb="", answer_uuid="", last_edited_on=""):

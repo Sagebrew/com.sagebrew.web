@@ -102,7 +102,7 @@ def add_failure_to_queue(message_info):
 
 def spawn_task(task_func, task_param, countdown=0, task_id=str(uuid1())):
     try:
-        task_func.apply_async(kwargs=task_param, countdown=countdown,
+        return task_func.apply_async(kwargs=task_param, countdown=countdown,
                               task_id=task_id)
     except socket_error:
         failure_uuid = str(uuid1())

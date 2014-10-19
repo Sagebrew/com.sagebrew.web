@@ -1,7 +1,7 @@
 import logging
 from uuid import uuid1
 from celery import shared_task
-
+from neomodel import DoesNotExist
 from sb_notifications.tasks import create_notification_comment_task
 from api.utils import spawn_task
 from .utils import (create_upvote_comment_util, create_downvote_comment_util,
@@ -59,8 +59,15 @@ def create_vote_comment(pleb="", comment_uuid=str(uuid1()), vote_type=""):
             Will return True if the vote is created
     '''
     try:
-        my_pleb = Pleb.nodes.get(email=pleb)
-        my_comment = SBComment.nodes.get(comment_id=comment_uuid)
+        try:
+            my_pleb = Pleb.nodes.get(email=pleb)
+        except Pleb.DoesNotExist:
+            return False
+        try:
+            my_comment = SBComment.nodes.get(comment_id=comment_uuid)
+        except SBComment.DoesNotExist:
+            raise create_vote_comment.retry(exc=SBComment.DoesNotExist,
+                                            countdown=3, max_retries=None)
         if my_comment.up_voted_by.is_connected(
                 my_pleb) or my_comment.down_voted_by.is_connected(my_pleb):
             return False
@@ -73,7 +80,7 @@ def create_vote_comment(pleb="", comment_uuid=str(uuid1()), vote_type=""):
                 elif res is None:
                     return False
                 else:
-                    raise Exception
+                    raise DoesNotExist
 
             elif vote_type == 'down':
                 res = create_downvote_comment_util(pleb=pleb,
@@ -83,21 +90,15 @@ def create_vote_comment(pleb="", comment_uuid=str(uuid1()), vote_type=""):
                 elif res is None:
                     return False
                 else:
-                    raise Exception
-    except Pleb.DoesNotExist:
-        logger.exception({"function": create_vote_comment.__name__,
-                          "exception": "DoesNotExist: "})
-        return False
-    except SBComment.DoesNotExist:
-        logger.exception({"function": create_vote_comment.__name__,
-                          "exception": "DoesNotExist: "})
+                    raise DoesNotExist
+    except DoesNotExist:
         raise create_vote_comment.retry(exc=Exception, countdown=3,
-                                                    max_retries=None)
+                                        max_retries=None)
     except Exception:
         logger.exception({"function": create_vote_comment.__name__,
                           "exception": "UnhandledException: "})
         raise create_vote_comment.retry(exc=Exception, countdown=3,
-                                                    max_retries=None)
+                                        max_retries=None)
 
 
 
@@ -119,8 +120,8 @@ def submit_comment_on_post(content="", pleb="", post_uuid=str(uuid1())):
         my_comment = save_comment_post(content, pleb, post_uuid)
         if my_comment is None:
             return False
-        elif my_comment==False:
-            raise Exception
+        elif not my_comment:
+            raise DoesNotExist
         else:
             from_pleb_email = my_comment.is_owned_by.all()[0].email
             post = my_comment.commented_on_post.all()[0]
@@ -131,6 +132,9 @@ def submit_comment_on_post(content="", pleb="", post_uuid=str(uuid1())):
             spawn_task(task_func=create_notification_comment_task,
             task_param=data)
             return True
+    except DoesNotExist:
+        raise submit_comment_on_post.retry(exc=DoesNotExist, countdown=5,
+                                     max_retries=None)
     except Exception:
         logger.exception({'function': submit_comment_on_post.__name__,
                     'exception': "UnhandledException: "})
@@ -158,16 +162,20 @@ def flag_comment_task(comment_uuid, current_user, flag_reason):
     :return:
     '''
     try:
-        result = flag_comment_util(comment_uuid=comment_uuid, current_user=current_user,
-                             flag_reason=flag_reason)
+        result = flag_comment_util(comment_uuid=comment_uuid,
+                                   current_user=current_user,
+                                   flag_reason=flag_reason)
         if not result:
             return False
         elif result is None:
-            raise Exception
+            raise DoesNotExist
         else:
             return True
+    except DoesNotExist:
+        raise flag_comment_task.retry(exc=DoesNotExist, countdown=5,
+                                      max_retries=None)
     except Exception:
         logger.exception({"function": flag_comment_task.__name__,
                           "exception": "UnhandledException"})
         raise flag_comment_task.retry(exc=Exception, countdown=5,
-                                         max_retries=None)
+                                      max_retries=None)

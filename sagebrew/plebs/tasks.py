@@ -1,4 +1,5 @@
 from uuid import uuid1
+from json import dumps
 from celery import shared_task
 from logging import getLogger
 from django.conf import settings
@@ -22,8 +23,8 @@ def send_email_task(to, subject, text_content, html_content):
     try:
         sb_send_email(to, subject, text_content, html_content)
     except Exception:
-        logger.exception({"function": send_email_task.__name__,
-                          "exception": "UnhandledException: "})
+        logger.exception(dumps({"function": send_email_task.__name__,
+                                "exception": "Unhandled Exception"}))
         raise send_email_task.retry(exc=Exception, countdown=3,
                                     max_retries=None)
 
@@ -33,6 +34,9 @@ def create_pleb_task(user_instance):
     try:
         try:
             test = Pleb.nodes.get(email=user_instance.email)
+            logger.critical({"function": "create_pleb_task",
+                             "pleb_email": test.email,
+                             "pleb": test})
             return False
         except (Pleb.DoesNotExist, DoesNotExist):
             pleb = Pleb(email=user_instance.email,
@@ -80,11 +84,11 @@ def create_pleb_task(user_instance):
             spawn_task(task_func=send_email_task, task_param=task_dict)
             return True
     except CypherException:
-        raise create_pleb_task.retry(exc=Exception, countdown=3,
+        raise create_pleb_task.retry(exc=CypherException, countdown=3,
                                      max_retries=None)
 
     except Exception:
-        logger.exception({"function": create_pleb_task.__name__,
-                          "exception": "UnhandledException: "})
+        logger.exception(dumps({"function": create_pleb_task.__name__,
+                                "exception": "Unhandled Exception"}))
         raise create_pleb_task.retry(exc=Exception, countdown=3,
                                      max_retries=None)

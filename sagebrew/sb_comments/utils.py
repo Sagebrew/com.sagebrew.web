@@ -192,9 +192,10 @@ def edit_comment_util(comment_uuid=str(uuid1()), content="",
                     DateTime which the util was called
     :return:
     '''
+    if last_edited_on is None:
+        return False
     try:
         my_comment = SBComment.nodes.get(comment_id=comment_uuid)
-
         if my_comment.last_edited_on > last_edited_on:
             return False
 
@@ -285,6 +286,7 @@ def flag_comment_util(comment_uuid, current_user, flag_reason):
             return False
         return True
     except Exception:
-        logger.exception('UnhandledException: ')
+        logger.exception({"function": edit_comment_util.__name__,
+                          'exception': "flag_comment_util: "})
         return None
 

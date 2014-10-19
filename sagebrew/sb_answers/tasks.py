@@ -2,10 +2,11 @@ import logging
 from uuid import uuid1
 from celery import shared_task
 
-from neomodel import DoesNotExist
+from neomodel import DoesNotExist, CypherException
 
 from sb_notifications.tasks import create_notification_post_task
 from api.utils import spawn_task
+
 from .neo_models import SBAnswer
 from plebs.neo_models import Pleb
 from .utils import (save_answer_util, edit_answer_util, upvote_answer_util,
@@ -36,9 +37,12 @@ def save_answer_task(content="", current_pleb="", question_uuid="", to_pleb=""):
         if res:
             return True
         elif res is None:
-            raise Exception
+            raise CypherException
         else:
             return False
+    except CypherException:
+        raise save_answer_task.retry(exc=CypherException, countdown=5,
+                                     max_retries=None)
     except Exception:
         logger.exception({"function": save_answer_task.__name__,
                           "exception": "UnhandledException"})
@@ -88,7 +92,8 @@ def edit_answer_task(content="", answer_uuid="", last_edited_on=None,
             raise Exception
 
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception({"function": edit_answer_task.__name__,
+                          "exception": "UnhandledException"})
         raise edit_answer_task.retry(exc=Exception, countdown=3,
                                      max_retries=None)
 
@@ -130,6 +135,7 @@ def vote_answer_task(answer_uuid="", current_pleb="", vote_type=""):
                 downvote_answer_util(answer_uuid, current_pleb)
                 return True
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception({"function": edit_answer_task.__name__,
+                          "exception": "vote_answer_task"})
         raise vote_answer_task.retry(exc=Exception, countdown=3,
                                      max_retries=None)

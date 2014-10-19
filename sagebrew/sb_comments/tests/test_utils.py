@@ -138,6 +138,8 @@ class TestEditComment(TestCase):
         self.assertFalse(edited_comment)
 
     def test_edit_comment_failure_same_content(self):
+        # TODO I Think this tests if there is no time passed not if there is the
+        # same content
         comment = SBComment(comment_id=str(uuid1()), content='test_comment')
         comment.save()
 

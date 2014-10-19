@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from boto import connect_s3
 from boto.s3.key import Key
 from neomodel import DoesNotExist
-
+from api.utils import spawn_task
 from plebs.tasks import create_pleb_task
 from plebs.neo_models import TopicCategory, Pleb
 from govtrack.neo_models import GTRole
@@ -351,7 +351,7 @@ def sb_send_email(to_email, subject, text_content, html_content):
 def create_user_util(first_name, last_name, email, password,
                      username=""):
     try:
-        if username=="":
+        if username == "":
             username = shortuuid.uuid()
         user = User.objects.create_user(first_name=first_name,
                                         last_name=last_name,
@@ -359,10 +359,8 @@ def create_user_util(first_name, last_name, email, password,
                                         password=password,
                                         username=username)
         user.save()
-        res = create_pleb_task.apply_async(kwargs={"user_instance": user})
+        res = spawn_task(create_pleb_task, {"user_instance": user})
         return {"task_id": res, "username": user.username}
-    except socket_error:
-        return None
     except Exception:
         logger.exception({"function": create_user_util.__name__,
                           "exception": "UnhandledException: "})

@@ -130,8 +130,6 @@ class ProfilePageTest(TestCase):
 
     def test_multiple_posts(self):
         post_array = []
-        print self.pleb.completed_profile_info
-        print self.pleb.email
         wall = self.pleb.wall.all()[0]
         for item in range(0, 50):
             test_post = SBPost(content='test', post_id=str(uuid1()))
@@ -144,6 +142,7 @@ class ProfilePageTest(TestCase):
             rel_from_pleb.save()
             post_array.append(test_post)
         self.client.login(username=self.username, password=self.password)
+        print reverse("profile_page", kwargs={"pleb_email": self.email})
         response = self.client.get(reverse("profile_page",
                                            kwargs={"pleb_email": self.email}),
                                    follow=True)

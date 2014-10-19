@@ -100,7 +100,9 @@ def add_failure_to_queue(message_info):
     my_queue.write(m)
 
 
-def spawn_task(task_func, task_param, countdown=0, task_id=str(uuid1())):
+def spawn_task(task_func, task_param, countdown=0, task_id=None):
+    if task_id is None:
+        task_id = str(uuid1())
     try:
         return task_func.apply_async(kwargs=task_param, countdown=countdown,
                                      task_id=task_id)

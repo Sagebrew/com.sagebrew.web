@@ -372,7 +372,10 @@ class TestMultipleTasks(TestCase):
         res = create_user_util("test", "test", self.email, "testpassword")
         while not res['task_id'].ready():
             time.sleep(1)
-        self.assertTrue(res['task_id'].result)
+
+        while not res['task_id'].result.ready():
+            time.sleep(1)
+
         while True:
             try:
                 self.pleb = Pleb.nodes.get(email=self.email)

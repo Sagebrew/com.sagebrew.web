@@ -33,6 +33,7 @@ def send_email_task(to, subject, text_content, html_content):
 
 @shared_task()
 def finalize_citizen_creation(pleb, user):
+    # TODO look into celery chaining and/or grouping
     token_gen = EmailAuthTokenGenerator()
     # TODO do we have any indicator that an email has been sent and these
     # initial tasks have already been run and successful? If so we should check

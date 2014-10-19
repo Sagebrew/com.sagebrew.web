@@ -34,7 +34,7 @@ class ProfilePageTest(TestCase):
         self.pleb.save()
 
     def tearDown(self):
-        call_command("clear_neo_db", interactive=True)
+        call_command("clear_neo_db", shell=True)
 
     def test_unauthenticated(self):
         request = self.factory.get('/%s' % self.email)

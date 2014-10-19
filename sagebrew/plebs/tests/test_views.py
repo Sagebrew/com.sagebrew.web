@@ -25,10 +25,8 @@ class ProfilePageTest(TestCase):
         res = create_user_util("test", "test", self.email, self.password,
                                self.username)
         self.assertNotEqual(res, False)
-        print res['task_id'].task_id
         while not res['task_id'].ready():
             time.sleep(1)
-        print res['task_id'].result
 
         while not res['task_id'].result.ready():
             time.sleep(1)

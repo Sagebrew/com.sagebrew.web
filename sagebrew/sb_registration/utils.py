@@ -361,7 +361,8 @@ def create_user_util(first_name, last_name, email, password,
                                         password=password,
                                         username=username)
         user.save()
-        res = spawn_task(create_pleb_task, {"user_instance": user})
+        res = spawn_task(task_func=create_pleb_task,
+                         task_param={"user_instance": user})
         if res is not None:
             return {"task_id": res, "username": user.username}
         else:

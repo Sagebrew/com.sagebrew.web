@@ -2,7 +2,7 @@ import logging
 from uuid import uuid1
 from textblob import TextBlob
 
-from neomodel import DoesNotExist, UniqueProperty
+from neomodel import DoesNotExist, UniqueProperty, CypherException
 from django.conf import settings
 from django.template.loader import render_to_string
 
@@ -67,6 +67,8 @@ def create_question_util(content="", current_pleb="", question_title="",
         spawn_task(task_func=add_auto_tags, task_param=tag_list)
         return my_question
     except UniqueProperty:
+        return False
+    except CypherException:
         return False
     except Exception:
         logger.exception({"function": create_question_util.__name__,
@@ -172,6 +174,7 @@ def get_question_by_uuid(question_uuid=str(uuid1()), current_pleb=""):
     :param current_pleb:
     :return:
     '''
+    # TODO is this function needed? Not used anywhere
     try:
         question = SBQuestion.nodes.get(question_id=question_uuid)
         response = prepare_get_question_dictionary(question, sort_by='uuid',
@@ -179,6 +182,8 @@ def get_question_by_uuid(question_uuid=str(uuid1()), current_pleb=""):
         return response
     except (SBQuestion.DoesNotExist, DoesNotExist):
         return {"detail": "There are no questions with that ID"}
+    except CypherException:
+        return {"detail": "A CypherException was thrown"}
     except Exception:
         logger.exception("UnhandledException: ")
         return {"detail": "Failure"}
@@ -264,6 +269,8 @@ def upvote_question_util(question_uuid="", current_pleb=""):
         my_question.up_voted_by.connect(pleb)
         my_question.save()
         return True
+    except CypherException:
+        return False
     except Exception:
         logger.exception({"function": upvote_question_util.__name__,
                           "exception:":"UnhandledException: "})
@@ -292,6 +299,8 @@ def downvote_question_util(question_uuid="", current_pleb=""):
         my_question.down_voted_by.connect(pleb)
         my_question.save()
         return True
+    except CypherException:
+        return False
     except Exception:
         logger.exception({"function": downvote_question_util.__name__,
                           "exception": "UnhandledException: "})
@@ -337,6 +346,8 @@ def edit_question_util(question_uuid="", content="", last_edited_on="",
         my_question.last_edited_on = last_edited_on
         my_question.save()
         return True
+    except CypherException:
+        return False
     except Exception:
         logger.exception({"function": edit_question_util.__name__,
                           "exception": "UnhandledException: "})
@@ -347,6 +358,8 @@ def prepare_question_search_html(question_uuid):
         try:
             my_question = SBQuestion.nodes.get(question_id=question_uuid)
         except (SBQuestion.DoesNotExist, DoesNotExist):
+            return False
+        except CypherException:
             return False
         owner = my_question.owned_by.all()
         owner = owner[0]

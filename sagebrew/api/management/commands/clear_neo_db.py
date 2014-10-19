@@ -16,14 +16,16 @@ class Command(BaseCommand):
                     "START n=node(*) OPTIONAL MATCH n-[r]-() DELETE r,n")
                 logger.critical({"function": "clear_neo_db", "response": res,
                                  "response_type": type(res)})
+                if res == ([], []):
+                    break
+                else:
+                    sleep(3)
             except CypherException:
                 sleep(3)
             except Exception:
                 logger.exception({"function": "clear_neo_db",
                                   "exception": "UnhandledException: "})
                 sleep(3)
-            else:
-                break
         return True
 
     def handle(self, *args, **options):

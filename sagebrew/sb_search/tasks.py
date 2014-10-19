@@ -119,11 +119,12 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
 
     except TypeError:
         return False
+    except CypherException:
+        raise update_weight_relationship.retry(exc=CypherException, countdown=3,
+                                               max_retries=None)
     except Exception:
-        logger.critical(dumps({"exception": "Unhandled Exception",
-                               "function":
-                                   update_weight_relationship.__name__}))
-        logger.exception("Unhandled Exception: ")
+        logger.exception({"exception": "Unhandled Exception", "function":
+            update_weight_relationship.__name__})
         raise update_weight_relationship.retry(exc=Exception, countdown=3,
                                                max_retries=None)
 

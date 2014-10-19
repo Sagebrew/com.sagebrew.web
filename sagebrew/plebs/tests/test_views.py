@@ -43,7 +43,7 @@ class ProfilePageTest(TestCase):
 
     def tearDown(self):
         print "teardown"
-        call_command("clear_neo_db")
+
 
     def test_unauthenticated(self):
         request = self.factory.get('/%s' % self.email)
@@ -132,6 +132,7 @@ class ProfilePageTest(TestCase):
         my_comment.delete()
 
     def test_multiple_posts(self):
+        print "test_multiple_posts"
         post_array = []
         wall = self.pleb.wall.all()[0]
         for item in range(0, 50):
@@ -153,6 +154,7 @@ class ProfilePageTest(TestCase):
             post.delete()
 
     def test_multiple_posts_friends(self):
+        print "test_multiple_posts_friends"
         wall = self.pleb.wall.all()[0]
         pleb_array = []
         post_array = []

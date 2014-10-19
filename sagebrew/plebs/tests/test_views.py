@@ -3,6 +3,7 @@ from uuid import uuid1
 from rest_framework.test import APIRequestFactory
 from django.contrib.auth.models import User, AnonymousUser
 from django.test import TestCase
+from django.core.management import call_command
 
 from sb_comments.neo_models import SBComment
 from sb_posts.neo_models import SBPost
@@ -10,12 +11,7 @@ from plebs.neo_models import Pleb
 from plebs.views import (profile_page, friends_page, about_page,
                          reputation_page)
 from sb_registration.utils import create_user_util
-from logging import getLogger
-from time import sleep
-from neomodel import db
-from neomodel.exception import CypherException
 
-logger = getLogger("loggly_logs")
 
 class ProfilePageTest(TestCase):
 
@@ -36,25 +32,12 @@ class ProfilePageTest(TestCase):
                 break
         self.pleb.completed_profile_info = True
         self.pleb.save()
+        print self.pleb.completed_profile_info
+        print self.pleb.email
+        
 
     def tearDown(self):
-        while(True):
-            try:
-                res = db.cypher_query(
-                    "START n=node(*) OPTIONAL MATCH n-[r]-() DELETE r,n")
-                logger.critical({"function": "clear_neo_db", "response": res,
-                                 "response_type": type(res)})
-                if res == ([], []):
-                    break
-                else:
-                    sleep(3)
-            except CypherException:
-                sleep(3)
-            except Exception:
-                logger.exception({"function": "clear_neo_db",
-                                  "exception": "UnhandledException: "})
-                sleep(3)
-        return True
+        call_command("clear_neo_db")
 
     def test_unauthenticated(self):
         request = self.factory.get('/%s' % self.email)

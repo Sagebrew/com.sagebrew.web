@@ -33,11 +33,11 @@ class Command(BaseCommand):
                                     os.environ.get("PROJECT_REPONAME", ""))
                 data = data.replace("{{PROJECT_USERNAME}}",
                                     os.environ.get("PROJECT_USERNAME", ""))
-                circle_branch = os.environ.get("DOCKER_ENV", "")
+                circle_branch = os.environ.get("DOCKER_ENV", "staging")
             data = data.replace('{{DOCKER_ENV}}', circle_branch)
             data = data.replace("{{PROJECT_NAME}}", "sagebrew")
             data = data.replace("{{CIRCLECI}}",
-                                os.environ.get("CIRCLECI", False))
+                                os.environ.get("CIRCLECI", ""))
             web_docker = data.replace('{{SUPER_TEMPLATE}}', "web")
             worker_docker = data.replace('{{SUPER_TEMPLATE}}', "worker")
 

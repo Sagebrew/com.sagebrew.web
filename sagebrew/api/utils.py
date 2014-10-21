@@ -133,23 +133,6 @@ def spawn_task(task_func, task_param, countdown=0, task_id=None):
         return None
 
 
-def get_post_data(request):
-    '''
-    used when dealing with data from an ajax call or from a regular post.
-    determines whether to get the data from request.DATA or request.body
-
-    :param request:
-    :return:
-    '''
-    post_info = loads(request.body)
-    if not post_info:
-        try:
-            post_info = request.DATA
-        except ValueError:
-            return {}
-    return post_info
-
-
 def language_filter(content):
     '''
     Filters harsh language from posts and comments using the bomberman
@@ -236,30 +219,9 @@ def execute_cypher_query(query):
         return {'detail': 'fail'}
 
 
-def clear_neodb():
-    try:
-        db.cypher_query("START n=node(*) MATCH n-[r?]-() DELETE r,n")
-    except CypherException:
-        pass
-
 def test_wait_util(async_res):
     while not async_res['task_id'].ready():
         time.sleep(1)
 
     while not async_res['task_id'].result.ready():
         time.sleep(1)
-
-def determine_id(sb_object, object_type):
-    try:
-        if object_type == 'post':
-            return sb_object.post_id
-        if object_type == 'comment':
-            return sb_object.comment_id
-        if object_type == 'question':
-            return sb_object.question_id
-        if object_type == 'answer':
-            return sb_object.answer_id
-        else:
-            return False
-    except AttributeError:
-        return False

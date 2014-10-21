@@ -2,6 +2,7 @@ import logging
 from uuid import uuid1
 from celery import shared_task
 from neomodel import DoesNotExist
+
 from sb_notifications.tasks import spawn_notifications
 from api.utils import spawn_task
 from .utils import (create_upvote_comment_util, create_downvote_comment_util,

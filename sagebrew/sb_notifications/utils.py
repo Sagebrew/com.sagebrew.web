@@ -1,14 +1,73 @@
 import logging
 from uuid import uuid1
+from json import dumps
 
-from neomodel import DoesNotExist
+from neomodel import DoesNotExist, CypherException, UniqueProperty
 
 from .neo_models import NotificationBase
+from api.utils import determine_id
 from sb_posts.neo_models import SBPost
 from sb_comments.neo_models import SBComment
 from plebs.neo_models import Pleb
 
 logger = logging.getLogger('loggly_logs')
+
+def create_notification_util(sb_object, object_type, from_pleb, to_pleb,
+                             notification_id):
+    '''
+    This function will check to see if there is already a notification
+    created about the combination of object, plebs, and action and will add
+    another person to the from or to pleb if there is another. Also it
+    will create the notification if one does not exist.
+
+    :param sb_object:
+    :param object_type:
+    :param from_pleb:
+    :param to_pleb:
+    :return:
+    '''
+
+    if type(to_pleb) != list:
+        if from_pleb == to_pleb:
+            return {"detail": True}
+    else:
+        if from_pleb in to_pleb:
+            to_pleb.remove(from_pleb)
+
+    object_id = determine_id(sb_object, object_type)
+    if not object_id:
+        return {"detail": False}
+    try:
+        try:
+            notification = NotificationBase.nodes.get(
+                notification_uuid=notification_id)
+            if notification.sent:
+                return {"detail": True}
+
+        except (NotificationBase.DoesNotExist, DoesNotExist):
+            notification = NotificationBase(notification_uuid=notification_id,
+                                            notification_about=object_type,
+                                            notification_about_id=object_id).\
+                save()
+
+        notification.notification_from.connect(from_pleb)
+        if type(to_pleb) == list:
+            for pleb in to_pleb:
+                notification.notification_to.connect(pleb)
+                pleb.notifications.connect(notification)
+        else:
+            notification.notification_to.connect(to_pleb)
+            to_pleb.notifications.connect(notification)
+        notification.sent=True
+        notification.save()
+        return {"detail": True}
+
+    except CypherException:
+        return {"detail": "retry"}
+    except Exception:
+        logger.exception(dumps({"function": create_notification_util.__name__,
+                                "exception": "UnhandledException: "}))
+        return {"detail": "retry"}
 
 def create_notification_post_util(post_uuid=str(uuid1()),
                                   from_pleb="", to_pleb=""):

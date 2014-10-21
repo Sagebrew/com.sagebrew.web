@@ -102,7 +102,6 @@ def resend_email_verification(request):
         logger.exception({'function': resend_email_verification.__name__,
                           'exception': 'DoesNotExist: '})
         return Response({'detail': 'pleb does not exist'}, status=400)
-
     template_dict = {
         'full_name': request.user.first_name+' '+request.user.last_name,
         'verification_url': settings.EMAIL_VERIFICATION_URL+token_gen.make_token(request.user, pleb)+'/'

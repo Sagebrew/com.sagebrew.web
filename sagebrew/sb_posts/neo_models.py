@@ -52,6 +52,9 @@ class SBBase(StructuredNode):
                                     'AUTO_TAGGED_AS')
     rel_weight = RelationshipTo('plebs.neo_models.Pleb', 'HAS_WEIGHT',
                                 model=RelationshipWeight)
+    notifications = RelationshipTo('sb_notifications.neo_models.NotificationBase',
+                                   'NOTIFICATIONS')
+
 
 
 class SBPost(SBBase):

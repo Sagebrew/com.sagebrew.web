@@ -3,7 +3,6 @@ from django.conf import settings
 from django.utils.http import int_to_base36, base36_to_int
 from django.utils.crypto import constant_time_compare, salted_hmac
 
-from plebs.neo_models import Pleb
 
 class EmailAuthTokenGenerator(object):
     '''
@@ -25,8 +24,7 @@ class EmailAuthTokenGenerator(object):
             timestamp = base36_to_int(timestamp_base36)
         except ValueError:
             return False
-        print self._make_timestamp_token(user, timestamp, pleb)
-        print token
+
         if not constant_time_compare(self._make_timestamp_token(user, timestamp, pleb),
                                      token):
             return False
@@ -41,11 +39,11 @@ class EmailAuthTokenGenerator(object):
         timestamp_base36 = int_to_base36(timestamp)
 
         key_salt = "sagebrew.sb_registration.models.EmailAuthTokenGenerator"
-        print user.username, user.first_name, user.last_name, user.email
-        print str(pleb.completed_profile_info), str(pleb.email_verified)
-        hash_val = user.username + user.first_name + user.last_name + \
-                   user.email + str(pleb.completed_profile_info) + \
-                   str(pleb.email_verified)
+        hash_val = "%s%s%s%s%s%s" % (user.username, user.first_name,
+                                     user.last_name, user.email,
+                                     pleb.completed_profile_info,
+                                     pleb.email_verified)
+
         created_hash = salted_hmac(key_salt, hash_val).hexdigest()[::2]
         return "%s-%s" % (timestamp_base36, created_hash)
 

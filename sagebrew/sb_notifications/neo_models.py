@@ -2,8 +2,8 @@ import pytz
 
 from datetime import datetime
 
-from neomodel import (StructuredNode, StringProperty, DateTimeProperty, RelationshipTo,
-                      BooleanProperty)
+from neomodel import (StructuredNode, StringProperty, DateTimeProperty,
+                      RelationshipTo, BooleanProperty)
 
 
 class NotificationBase(StructuredNode):
@@ -13,6 +13,7 @@ class NotificationBase(StructuredNode):
     time_seen = DateTimeProperty(default=None)
     notification_about = StringProperty()
     notification_about_id = StringProperty()
+    sent = BooleanProperty(default=False)
 
     # relationships
     notification_from = RelationshipTo('plebs.neo_models.Pleb',

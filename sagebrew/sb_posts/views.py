@@ -10,8 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
 
-from api.utils import (get_post_data, post_to_garbage,
-                       spawn_task)
+from api.utils import (post_to_garbage, spawn_task)
 from plebs.neo_models import Pleb
 from .neo_models import SBPost
 from .tasks import save_post_task, edit_post_info_task, flag_post_task

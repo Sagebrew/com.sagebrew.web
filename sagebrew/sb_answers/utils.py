@@ -124,18 +124,12 @@ def downvote_answer_util(answer_uuid="", current_pleb=""):
     try:
         try:
             pleb = Pleb.nodes.get(email=current_pleb)
-        except Pleb.DoesNotExist:
+        except (Pleb.DoesNotExist, DoesNotExist):
             return False
-        except DoesNotExist:
-            return False
+
         try:
             my_question = SBAnswer.nodes.get(answer_id=answer_uuid)
-        except SBAnswer.DoesNotExist:
-            data = {'question_uuid': answer_uuid, 'current_pleb': current_pleb,
-                'vote_type': 'down'}
-            spawn_task(task_func=vote_answer_task, task_param=data, countdown=1)
-            return False
-        except DoesNotExist:
+        except (SBAnswer.DoesNotExist, DoesNotExist):
             data = {'question_uuid': answer_uuid, 'current_pleb': current_pleb,
                 'vote_type': 'down'}
             spawn_task(task_func=vote_answer_task, task_param=data, countdown=1)

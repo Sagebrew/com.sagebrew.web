@@ -1,6 +1,6 @@
+import logging
 from uuid import uuid1
 from json import dumps
-import logging
 from celery import shared_task
 
 from .utils import create_notification_util

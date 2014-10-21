@@ -8,8 +8,7 @@ from .utils import (create_notification_post_util,
 
 logger = logging.getLogger('loggly_logs')
 
-#TODO Combine these functions into one super function which is usable for any
-#sort of notification
+
 @shared_task()
 def spawn_notifications(sb_object, object_type, from_pleb, to_pleb):
     '''

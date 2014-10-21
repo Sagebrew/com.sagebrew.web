@@ -32,6 +32,9 @@ class SBBase(StructuredNode):
     subjectivity = FloatProperty()
     flagged_as_spam_count = IntegerProperty(default=0)
     flagged_as_explicit_count = IntegerProperty(default=0)
+    flagged_as_changed = IntegerProperty(default=0)
+    flagged_as_unsupported = IntegerProperty(default=0)
+    flagged_as_duplicate = IntegerProperty(default=0)
     flagged_as_other_count = IntegerProperty(default=0)
     view_count = IntegerProperty(default=0)
 

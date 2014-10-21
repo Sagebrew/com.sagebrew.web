@@ -240,7 +240,8 @@ def update_search_query(pleb, query_param, keywords):
             spawn_task(task_func=create_keyword, task_param=keyword)
         return True
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": update_search_query.__name__,
+                                "exception": "UnhandledException: "}))
         raise update_search_query.retry(exc=Exception, countdown=3,
                                         max_retries=None)
 
@@ -281,7 +282,8 @@ def create_keyword(text, relevance, query_param):
         raise create_keyword.retry(exc=Exception, countdown=3,
                                    max_retries=None)
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": create_keyword.__name__,
+                                "exception": "UnhandledException: "}))
         raise create_keyword.retry(exc=Exception, countdown=3,
                                    max_retries=None)
 

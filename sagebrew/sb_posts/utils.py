@@ -1,6 +1,7 @@
 import pytz
 import logging
 from uuid import uuid1
+from json import dumps
 from datetime import datetime
 
 from neomodel import DoesNotExist
@@ -147,7 +148,8 @@ def edit_post_info(content="", post_uuid=str(uuid1()), last_edited_on=None,
     except (SBPost.DoesNotExist, DoesNotExist):
         return {'detail': 'post does not exist yet'}
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": edit_post_info.__name__,
+                                "excpetion": "UnhandledException: "}))
         return False
 
 

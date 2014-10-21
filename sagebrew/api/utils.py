@@ -230,8 +230,9 @@ def execute_cypher_query(query):
     except CypherException:
         logger.exception("CypherException: ")
         return {'detail': 'CypherException'}
-    except Exception, e:
-        logger.exception("UnhandledException: ")
+    except Exception:
+        logger.exception(dumps({"function": execute_cypher_query.__name__,
+                          "exception":"UnhandledException: "}))
         return {'detail': 'fail'}
 
 

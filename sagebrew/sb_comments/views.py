@@ -1,5 +1,6 @@
 import pytz
 import logging
+from json import dumps
 from urllib2 import HTTPError
 from datetime import datetime
 from requests import ConnectionError
@@ -163,7 +164,8 @@ def flag_comment(request):  # task
         else:
             return Response(status=400)
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": flag_comment.__name__,
+                                "excpetion": "UnhandledException: "}))
 
 
 @api_view(['POST'])

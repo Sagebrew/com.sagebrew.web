@@ -65,9 +65,6 @@ class TestNotificationTasks(TestCase):
         response = spawn_notifications.apply_async(kwargs=data)
         # while not response.ready():
         #    time.sleep(3)
-        # TODO This will currently keep retrying because it thinks the pleb
-        # or post will eventually be created and it will have something to
-        # link to. Need to discuss this process
         # self.assertFalse(response.result)
         self.assertTrue(True)
 

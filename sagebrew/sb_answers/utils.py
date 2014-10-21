@@ -1,4 +1,5 @@
 import logging
+from json import dumps
 
 from api.utils import spawn_task
 from plebs.neo_models import Pleb
@@ -84,7 +85,8 @@ def edit_answer_util(content="", current_pleb="", answer_uuid="", last_edited_on
     except CypherException:
         return None
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": edit_answer_util.__name__,
+                                "excpetion": "UnhandledException: "}))
         return False
 
 def upvote_answer_util(answer_uuid="", current_pleb=""):
@@ -113,7 +115,8 @@ def upvote_answer_util(answer_uuid="", current_pleb=""):
         my_question.save()
         return True
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": upvote_answer_util.__name__,
+                                "excpetion": "UnhandledException: "}))
         return False
 
 def downvote_answer_util(answer_uuid="", current_pleb=""):
@@ -142,5 +145,6 @@ def downvote_answer_util(answer_uuid="", current_pleb=""):
         my_question.save()
         return True
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": downvote_answer_util.__name__,
+                                "excpetion": "UnhandledException: "}))
         return False

@@ -1,4 +1,5 @@
 import logging
+from json import dumps
 from django.conf import settings
 from elasticsearch import Elasticsearch
 from neomodel.exception import UniqueProperty, DoesNotExist, CypherException
@@ -44,7 +45,8 @@ def create_tag_relations(tags):
         return False
 
     except Exception:
-        logger.exception("UnhandedException: ")
+        logger.exception(dumps({"function": create_tag_relations.__name__,
+                                "exception": "UnhandledException: "}))
         return False
 
 
@@ -148,7 +150,8 @@ def add_tag_util(object_type, object_uuid, tags):
             return None
 
         except Exception:
-            logger.exception("UnhandledException: ")
+            logger.exception(dumps({"function": add_tag_util.__name__,
+                                "exception": "UnhandledException: "}))
             return None
     else:
         return False

@@ -4,7 +4,6 @@ from celery import shared_task
 
 from neomodel import DoesNotExist, CypherException
 
-from sb_notifications.tasks import create_notification_post_task
 from api.utils import spawn_task
 
 from .neo_models import SBAnswer

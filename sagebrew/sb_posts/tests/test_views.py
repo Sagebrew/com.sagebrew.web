@@ -6,7 +6,6 @@ from django.core.management import call_command
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.conf import settings
-from neomodel.exception import CypherException
 
 from plebs.neo_models import Pleb
 from sb_posts.views import (save_post_view, edit_post, delete_post, vote_post,

@@ -4,7 +4,7 @@ from logging import getLogger
 
 from neomodel import DoesNotExist
 
-from sb_notifications.tasks import create_notification_post_task
+from sb_notifications.tasks import spawn_notifications
 from api.utils import spawn_task
 from .neo_models import SBPost
 from plebs.neo_models import Pleb
@@ -119,9 +119,9 @@ def save_post_task(content="", current_pleb="", wall_pleb="",
         if not my_post:
             return False
         elif my_post is not None:
-            notification_data={'post_uuid': my_post.post_id,
+            notification_data={'object_type': 'post', 'sb_object': my_post,
                                'from_pleb':current_pleb, 'to_pleb': wall_pleb}
-            spawn_task(task_func=create_notification_post_task,
+            spawn_task(task_func=spawn_notifications,
                        task_param=notification_data)
             return True
         raise Exception

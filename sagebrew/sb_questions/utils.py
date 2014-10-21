@@ -1,5 +1,6 @@
 import logging
 from uuid import uuid1
+from json import dumps
 from textblob import TextBlob
 
 from neomodel import DoesNotExist, UniqueProperty, CypherException
@@ -159,7 +160,8 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
                           'exception': e})
         return []
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": prepare_get_question_dictionary.__name__,
+                                "exception": "UnhandledException: "}))
         return []
 
 def get_question_by_uuid(question_uuid=str(uuid1()), current_pleb=""):
@@ -174,7 +176,6 @@ def get_question_by_uuid(question_uuid=str(uuid1()), current_pleb=""):
     :param current_pleb:
     :return:
     '''
-    # TODO is this function needed? Not used anywhere
     try:
         question = SBQuestion.nodes.get(question_id=question_uuid)
         response = prepare_get_question_dictionary(question, sort_by='uuid',
@@ -185,7 +186,8 @@ def get_question_by_uuid(question_uuid=str(uuid1()), current_pleb=""):
     except CypherException:
         return {"detail": "A CypherException was thrown"}
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": get_question_by_uuid.__name__,
+                                "exception": "UnhandledException: "}))
         return {"detail": "Failure"}
 
 def get_question_by_most_recent(range_start=0, range_end=5, current_pleb=""):
@@ -213,7 +215,8 @@ def get_question_by_most_recent(range_start=0, range_end=5, current_pleb=""):
                                                       current_pleb=current_pleb)
         return return_dict
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": get_question_by_most_recent.__name__,
+                                "exception": "UnhandledException: "}))
         return {"detail": "fail"}
 
 def get_question_by_least_recent(range_start=0, range_end=5, current_pleb=""):
@@ -241,7 +244,8 @@ def get_question_by_least_recent(range_start=0, range_end=5, current_pleb=""):
                                                       current_pleb=current_pleb)
         return return_dict
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": get_question_by_least_recent.__name__,
+                                "exception": "UnhandledException: "}))
         return {"detail": "fail"}
 
 
@@ -387,3 +391,6 @@ def prepare_question_search_html(question_uuid):
         logger.exception({"function": prepare_question_search_html.__name__,
                           "exception": "UnhandledException: "})
         return False
+
+def flag_question_util():
+    pass

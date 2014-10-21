@@ -230,8 +230,9 @@ def execute_cypher_query(query):
     except CypherException:
         logger.exception("CypherException: ")
         return {'detail': 'CypherException'}
-    except Exception, e:
-        logger.exception("UnhandledException: ")
+    except Exception:
+        logger.exception(dumps({"function": execute_cypher_query.__name__,
+                          "exception":"UnhandledException: "}))
         return {'detail': 'fail'}
 
 
@@ -247,3 +248,18 @@ def test_wait_util(async_res):
 
     while not async_res['task_id'].result.ready():
         time.sleep(1)
+
+def determine_id(sb_object, object_type):
+    try:
+        if object_type == 'post':
+            return sb_object.post_id
+        if object_type == 'comment':
+            return sb_object.comment_id
+        if object_type == 'question':
+            return sb_object.question_id
+        if object_type == 'answer':
+            return sb_object.answer_id
+        else:
+            return False
+    except AttributeError:
+        return False

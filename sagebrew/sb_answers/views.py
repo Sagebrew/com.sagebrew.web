@@ -1,18 +1,10 @@
 import pytz
 import logging
-from uuid import uuid1
+from json import dumps
 from datetime import datetime
-from urllib2 import HTTPError
-from requests import ConnectionError
-from django.shortcuts import render
-from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
-from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth.decorators import login_required
-from rest_framework.decorators import (api_view, permission_classes,
-                                       renderer_classes)
+from rest_framework.decorators import (api_view, permission_classes)
 
 from .forms import (SaveAnswerForm, EditAnswerForm, VoteAnswerForm,
                     GetAnswerForm)
@@ -105,6 +97,12 @@ def vote_answer_view(request):
         else:
             return Response({'detail': answer_form.errors}, status=400)
     except Exception, e:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": vote_answer_view.__name__,
+                                "exception": "UnhandledException: "}))
         return Response({"detail": "Vote could not be created!",
                          'exception': e})
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def flag_answer_view(request):
+    pass

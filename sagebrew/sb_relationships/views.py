@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from neomodel import DoesNotExist
 
-from api.utils import execute_cypher_query
+from api.utils import execute_cypher_query, spawn_task
 from .forms import (SubmitFriendRequestForm, GetFriendRequestForm,
                     RespondFriendRequestForm)
 from .neo_models import FriendRequest
@@ -43,7 +43,11 @@ def create_friend_request(request):
             return Response({'detail': 'attribute error'}, status=400)
 
         if request_form.is_valid():
-            create_friend_request_task.apply_async([request_form.cleaned_data, ])
+            task_data = {
+                "data": request_form.cleaned_data
+            }
+            spawn_task(task_func=create_friend_request_task,
+                       task_param=task_data)
             return Response({"action": True,
                          "friend_request_id": request_form.cleaned_data[
                              'friend_request_uuid']}, status=200)
@@ -64,6 +68,7 @@ def get_friend_requests(request):
     '''
     gets all friend requests attached to the user and returns
     a list of dictionaries of requests
+
     :param request:
     :return:
     '''

@@ -32,6 +32,9 @@ class SBBase(StructuredNode):
     subjectivity = FloatProperty()
     flagged_as_spam_count = IntegerProperty(default=0)
     flagged_as_explicit_count = IntegerProperty(default=0)
+    flagged_as_changed = IntegerProperty(default=0)
+    flagged_as_unsupported = IntegerProperty(default=0)
+    flagged_as_duplicate = IntegerProperty(default=0)
     flagged_as_other_count = IntegerProperty(default=0)
     view_count = IntegerProperty(default=0)
 
@@ -52,6 +55,9 @@ class SBBase(StructuredNode):
                                     'AUTO_TAGGED_AS')
     rel_weight = RelationshipTo('plebs.neo_models.Pleb', 'HAS_WEIGHT',
                                 model=RelationshipWeight)
+    notifications = RelationshipTo('sb_notifications.neo_models.NotificationBase',
+                                   'NOTIFICATIONS')
+
 
 
 class SBPost(SBBase):

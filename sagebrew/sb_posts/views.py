@@ -1,6 +1,7 @@
 import pytz
 import logging
 from uuid import uuid1
+from json import dumps
 from datetime import datetime
 from urllib2 import HTTPError
 from requests import ConnectionError
@@ -169,7 +170,8 @@ def vote_post(request):
         else:
             return Response({'detail': post_form.errors}, status=400)
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": vote_post.__name__,
+                                "exception": "UnhandledException: "}))
         return Response({"detail": "Vote could not be created!"})
 
 
@@ -197,5 +199,6 @@ def flag_post(request):
                             status=400)
 
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": flag_post.__name__,
+                                "exception": "UnhandledException: "}))
         return Response(status=400)

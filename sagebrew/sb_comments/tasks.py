@@ -2,7 +2,7 @@ import logging
 from uuid import uuid1
 from celery import shared_task
 from neomodel import DoesNotExist
-from sb_notifications.tasks import create_notification_comment_task
+from sb_notifications.tasks import spawn_notifications
 from api.utils import spawn_task
 from .utils import (create_upvote_comment_util, create_downvote_comment_util,
                     save_comment_post, edit_comment_util, flag_comment_util)
@@ -127,9 +127,8 @@ def submit_comment_on_post(content="", pleb="", post_uuid=str(uuid1())):
             post = my_comment.commented_on_post.all()[0]
             to_pleb_email = post.owned_by.all()[0].email
             data = {'from_pleb': from_pleb_email, 'to_pleb': to_pleb_email,
-                    'comment_on': 'post', 'comment_on_id': post.post_id,
-                    'comment_uuid': my_comment.comment_id}
-            spawn_task(task_func=create_notification_comment_task,
+                    'object_type': 'comment', 'sb_object': my_comment}
+            spawn_task(task_func=spawn_notifications,
             task_param=data)
             return True
     except DoesNotExist:

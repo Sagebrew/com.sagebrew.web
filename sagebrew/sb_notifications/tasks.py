@@ -3,8 +3,7 @@ from json import dumps
 import logging
 from celery import shared_task
 
-from .utils import (create_notification_post_util,
-                    create_notification_comment_util, create_notification_util)
+from .utils import create_notification_util
 
 logger = logging.getLogger('loggly_logs')
 

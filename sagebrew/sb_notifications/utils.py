@@ -1,14 +1,9 @@
 import logging
-from uuid import uuid1
 from json import dumps
 
-from neomodel import DoesNotExist, CypherException, UniqueProperty
+from neomodel import DoesNotExist, CypherException
 
 from .neo_models import NotificationBase
-from api.utils import determine_id
-from sb_posts.neo_models import SBPost
-from sb_comments.neo_models import SBComment
-from plebs.neo_models import Pleb
 
 logger = logging.getLogger('loggly_logs')
 

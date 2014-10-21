@@ -120,7 +120,8 @@ def save_post_task(content="", current_pleb="", wall_pleb="",
             return False
         elif my_post is not None:
             notification_data={'object_type': 'post', 'sb_object': my_post,
-                               'from_pleb':current_pleb, 'to_pleb': wall_pleb}
+                               'from_pleb':current_pleb,
+                               'to_plebs': [wall_pleb,]}
             spawn_task(task_func=spawn_notifications,
                        task_param=notification_data)
             return True

@@ -34,6 +34,8 @@ class Command(BaseCommand):
                 data = data.replace("{{PROJECT_USERNAME}}",
                                     os.environ.get("PROJECT_USERNAME", ""))
                 circle_branch = os.environ.get("DOCKER_ENV", "staging")
+            data = data.replace('{{APPLICATION_SECRET_KEY}}',
+                                os.environ.get("APPLICATION_SECRET_KEY", ""))
             data = data.replace('{{DOCKER_ENV}}', circle_branch)
             data = data.replace("{{PROJECT_NAME}}", "sagebrew")
             data = data.replace("{{CIRCLECI}}",

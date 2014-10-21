@@ -6,11 +6,10 @@ from django.test import TestCase
 from django.core.management import call_command
 
 from sb_comments.neo_models import SBComment
-from sb_notifications.utils import (create_notification_comment_util,
-                                    create_notification_post_util)
 from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util
+from sb_notifications.utils import create_notification_util
 
 class TestNotificationUtils(TestCase):
     def setUp(self):
@@ -48,36 +47,19 @@ class TestNotificationUtils(TestCase):
         post = SBPost(post_id=uuid1(), content='as;ldkfja;')
         post.save()
 
-        response = create_notification_post_util(post.post_id,
-                                                 self.pleb.email,
-                                                 self.pleb2.email)
+        response = create_notification_util(post, 'post', self.pleb,
+                                            [self.pleb2], str(uuid1()))
 
-        self.assertTrue(response)
+        self.assertTrue(response['detail'])
 
-    def test_create_post_notification_post_does_not_exist(self):
-        response = create_notification_post_util(str(uuid1()),
-                                                 self.pleb.email,
-                                                 self.pleb2.email)
-
-        self.assertFalse(response)
-
-    def test_create_post_notification_user_does_not_exist(self):
-        post = SBPost(post_id=uuid1(), content='as;ldkfja;')
-        post.save()
-        response = create_notification_post_util(post.post_id,
-                                                 self.pleb.email,
-                                                 'fake email')
-
-        self.assertFalse(response)
 
     def test_create_post_notification_user_is_same(self):
         post = SBPost(post_id=uuid1(), content='as;ldkfja;')
         post.save()
-        response = create_notification_post_util(post.post_id,
-                                                 self.pleb.email,
-                                                 self.pleb.email)
+        response = create_notification_util(post, 'post', self.pleb,
+                                            [self.pleb], str(uuid1()))
 
-        self.assertTrue(response)
+        self.assertTrue(response['detail'])
 
     def test_create_comment_notification(self):
         post = SBPost(post_id=uuid1(), content='as;ldkfja;')
@@ -85,36 +67,10 @@ class TestNotificationUtils(TestCase):
         comment = SBComment(comment_id=str(uuid1()), content='sdfasd')
         comment.save()
 
-        response = create_notification_comment_util(self.pleb.email,
-                                                    self.pleb2.email,
-                                                    comment.comment_id,
-                                                    'post',post.post_id)
+        response = create_notification_util(comment, 'comment', self.pleb,
+                                            [self.pleb2], str(uuid1()))
 
-        self.assertTrue(response)
-
-    def test_create_comment_notification_comment_does_not_exist(self):
-        post = SBPost(post_id=uuid1(), content='as;ldkfja;')
-        post.save()
-
-        response = create_notification_comment_util(self.pleb.email,
-                                                    self.pleb2.email,
-                                                    str(uuid1()),
-                                                    'post',post.post_id)
-
-        self.assertFalse(response)
-
-    def test_create_comment_notification_pleb_does_not_exist(self):
-        post = SBPost(post_id=uuid1(), content='as;ldkfja;')
-        post.save()
-        comment = SBComment(comment_id=str(uuid1()), content='sdfasd')
-        comment.save()
-
-        response = create_notification_comment_util('dfasdfasdf',
-                                                    self.pleb2.email,
-                                                    comment.comment_id,
-                                                    'post',post.post_id)
-
-        self.assertFalse(response)
+        self.assertTrue(response['detail'])
 
     def test_create_comment_notification_pleb_is_the_same(self):
         post = SBPost(post_id=uuid1(), content='as;ldkfja;')
@@ -122,10 +78,8 @@ class TestNotificationUtils(TestCase):
         comment = SBComment(comment_id=str(uuid1()), content='sdfasd')
         comment.save()
 
-        response = create_notification_comment_util(self.pleb2.email,
-                                                    self.pleb2.email,
-                                                    comment.comment_id,
-                                                    'post',post.post_id)
+        response = create_notification_util(comment, 'comment', self.pleb,
+                                            [self.pleb], str(uuid1()))
 
-        self.assertTrue(response)
+        self.assertTrue(response['detail'])
 

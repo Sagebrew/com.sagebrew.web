@@ -344,7 +344,6 @@ class TestLoginView(TestCase):
         self.assertTrue(res['task_id'].result)
         while not res['task_id'].result.ready():
             time.sleep(1)
-        print res['task_id'].result.result
         while True:
             try:
                 self.pleb = Pleb.nodes.get(email=self.email)

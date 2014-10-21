@@ -119,10 +119,7 @@ class ProfilePageTest(TestCase):
         my_comment.delete()
 
     def test_multiple_posts(self):
-        # TODO Review with Tyler
         post_array = []
-        # TODO does Cardinality work and if so could we use it to not have to
-        # execute that all call?
         wall = self.pleb.wall.all()[0]
         for item in range(0, 50):
             test_post = SBPost(content='test', post_id=str(uuid1()))

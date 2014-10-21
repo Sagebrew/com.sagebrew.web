@@ -98,7 +98,7 @@ def vote_answer_view(request):
             return Response({'detail': answer_form.errors}, status=400)
     except Exception, e:
         logger.exception(dumps({"function": vote_answer_view.__name__,
-                                "excpetion": "UnhandledException: "}))
+                                "exception": "UnhandledException: "}))
         return Response({"detail": "Vote could not be created!",
                          'exception': e})
 

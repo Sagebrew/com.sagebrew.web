@@ -63,7 +63,7 @@ def get_notifications(request):
             return Response(status=400)
     except Exception:
         logger.exception(dumps({"function": get_notifications.__name__,
-                                "excpetion": "UnhandledException: "}))
+                                "exception": "UnhandledException: "}))
         return Response(status=400)
 
 

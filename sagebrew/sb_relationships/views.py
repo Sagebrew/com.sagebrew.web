@@ -43,8 +43,11 @@ def create_friend_request(request):
             return Response({'detail': 'attribute error'}, status=400)
 
         if request_form.is_valid():
+            task_data = {
+                "data": request_form.cleaned_data
+            }
             spawn_task(task_func=create_friend_request_task,
-                       task_param=request_form.cleaned_data)
+                       task_param=task_data)
             return Response({"action": True,
                          "friend_request_id": request_form.cleaned_data[
                              'friend_request_uuid']}, status=200)
@@ -65,7 +68,7 @@ def get_friend_requests(request):
     '''
     gets all friend requests attached to the user and returns
     a list of dictionaries of requests
-    
+
     :param request:
     :return:
     '''

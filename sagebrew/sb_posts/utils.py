@@ -149,7 +149,7 @@ def edit_post_info(content="", post_uuid=str(uuid1()), last_edited_on=None,
         return {'detail': 'post does not exist yet'}
     except Exception:
         logger.exception(dumps({"function": edit_post_info.__name__,
-                                "excpetion": "UnhandledException: "}))
+                                "exception": "UnhandledException: "}))
         return False
 
 

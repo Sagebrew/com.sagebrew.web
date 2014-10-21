@@ -165,7 +165,7 @@ def flag_comment(request):  # task
             return Response(status=400)
     except Exception:
         logger.exception(dumps({"function": flag_comment.__name__,
-                                "excpetion": "UnhandledException: "}))
+                                "exception": "UnhandledException: "}))
 
 
 @api_view(['POST'])

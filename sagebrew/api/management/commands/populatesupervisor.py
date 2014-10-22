@@ -44,43 +44,43 @@ def populate_general_values(data, user, worker_count):
     data = data.replace("%(ENV_PROJECT_DIR)s", settings.PROJECT_DIR)
     data = data.replace("%(ENV_PROJECT_NAME)s", "sagebrew")
     data = data.replace("%(ENV_NUMBER_OF_WORKERS)s", worker_count)
-    data.replace("%(ENV_APPLICATION_SECRET_KEY)s",
+    data = data.replace("%(ENV_APPLICATION_SECRET_KEY)s",
                              environ.get("APPLICATION_SECRET_KEY", ""))
-    data.replace("%(ENV_NEO4J_REST_URL)s",
+    data = data.replace("%(ENV_NEO4J_REST_URL)s",
                              environ.get("NEO4J_REST_URL", ""))
-    data.replace("%(ENV_BOMBERMAN_API_KEY)s",
+    data = data.replace("%(ENV_BOMBERMAN_API_KEY)s",
                              environ.get("BOMBERMAN_API_KEY", ""))
-    data.replace("%(ENV_AWS_S3_BUCKET)s",
+    data = data.replace("%(ENV_AWS_S3_BUCKET)s",
                              environ.get("AWS_S3_BUCKET", ""))
-    data.replace("%(ENV_AWS_SECRET_ACCESS_KEY)s",
+    data = data.replace("%(ENV_AWS_SECRET_ACCESS_KEY)s",
                              environ.get("AWS_SECRET_ACCESS_KEY", ""))
-    data.replace("%(ENV_AWS_ACCESS_KEY_ID)s",
+    data = data.replace("%(ENV_AWS_ACCESS_KEY_ID)s",
                              environ.get("AWS_ACCESS_KEY_ID", ""))
-    data.replace("%(ENV_LOG_TOKEN)s",
+    data = data.replace("%(ENV_LOG_TOKEN)s",
                              environ.get("LOG_TOKEN", ""))
-    data.replace("%(ENV_LOG_ACCOUNT)s",
+    data = data.replace("%(ENV_LOG_ACCOUNT)s",
                              environ.get("LOG_ACCOUNT", ""))
-    data.replace("%(ENV_ALCHEMY_API_KEY)s",
+    data = data.replace("%(ENV_ALCHEMY_API_KEY)s",
                              environ.get("ALCHEMY_API_KEY", ""))
-    data.replace("%(ENV_ADDRESS_VALIDATION_ID)s",
+    data = data.replace("%(ENV_ADDRESS_VALIDATION_ID)s",
                              environ.get("ADDRESS_VALIDATION_ID", ""))
-    data.replace("%(ENV_ADDRESS_VALIDATION_TOKEN)s",
+    data = data.replace("%(ENV_ADDRESS_VALIDATION_TOKEN)s",
                              environ.get("ADDRESS_VALIDATION_TOKEN", ""))
-    data.replace("%(ENV_ELASTIC_SEARCH_HOST)s",
+    data = data.replace("%(ENV_ELASTIC_SEARCH_HOST)s",
                              environ.get("ELASTIC_SEARCH_HOST", ""))
-    data.replace("%(ENV_ELASTIC_SEARCH_PORT)s",
+    data = data.replace("%(ENV_ELASTIC_SEARCH_PORT)s",
                              environ.get("ELASTIC_SEARCH_PORT", ""))
-    data.replace("%(ENV_ELASTIC_SEARCH_USER)s",
+    data = data.replace("%(ENV_ELASTIC_SEARCH_USER)s",
                              environ.get("ELASTIC_SEARCH_USER", ""))
-    data.replace("%(ENV_ELASTIC_SEARCH_KEY)s",
+    data = data.replace("%(ENV_ELASTIC_SEARCH_KEY)s",
                              environ.get("ELASTIC_SEARCH_KEY", ""))
-    data.replace("%(ENV_REDIS_LOCATION)s",
+    data = data.replace("%(ENV_REDIS_LOCATION)s",
                              environ.get("REDIS_LOCATION", ""))
-    data.replace("%(ENV_QUEUE_USERNAME)s",
+    data = data.replace("%(ENV_QUEUE_USERNAME)s",
                              environ.get("QUEUE_USERNAME", ""))
-    data.replace("%(ENV_QUEUE_PASSWORD)s",
+    data = data.replace("%(ENV_QUEUE_PASSWORD)s",
                              environ.get("QUEUE_PASSWORD", ""))
-    data.replace("%(ENV_QUEUE_HOST)s", environ.get("QUEUE_HOST", ""))
-    data.replace("%(ENV_QUEUE_PORT)s", environ.get("QUEUE_PORT", ""))
+    data = data.replace("%(ENV_QUEUE_HOST)s", environ.get("QUEUE_HOST", ""))
+    data = data.replace("%(ENV_QUEUE_PORT)s", environ.get("QUEUE_PORT", ""))
 
     return data

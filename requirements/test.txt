@@ -1,1 +1,4 @@
 -r production.txt
+coverage
+coveralls
+pep8

@@ -11,8 +11,8 @@ logger = logging.getLogger('loggly_logs')
 
 class Command(BaseCommand):
     def populate_nginx(self, user):
-        hostname = socket.gethostname()
-        if('box' in hostname):
+        circle_branch = os.environ.get("CIRCLE_BRANCH", None)
+        if('dev' in circle_branch or circle_branch == "staging"):
             env = "development"
         else:
             env = "production"
@@ -68,7 +68,7 @@ class Command(BaseCommand):
         if os.path.isfile("/etc/nginx/sites-enabled/%s.conf" % env):
             logger.info({"Exception": "Nginx file exists and was removed",
                              "Location": "Initial Population",
-                             "Server": hostname,
+                             "Server": socket.gethostname(),
                              "Message": "This server's nginx file has already"
                                         "been populated. This should"
                                         "not happen and all nginx files should"

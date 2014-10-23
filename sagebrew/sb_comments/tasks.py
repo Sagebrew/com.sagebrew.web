@@ -124,13 +124,14 @@ def submit_comment_on_post(content="", pleb="", post_uuid=str(uuid1())):
         elif not my_comment:
             raise DoesNotExist
         else:
-            from_pleb_email = my_comment.is_owned_by.all()[0].email
+            # TODO Discuss with Tyler, made changes here, is this what it's
+            # supposed to be?
+            from_pleb = my_comment.is_owned_by.all()[0]
             post = my_comment.commented_on_post.all()[0]
-            to_pleb_email = post.owned_by.all()[0].email
-            data = {'from_pleb': from_pleb_email, 'to_pleb': to_pleb_email,
+            to_plebs = post.owned_by.all()
+            data = {'from_pleb': from_pleb, 'to_plebs': to_plebs,
                     'object_type': 'comment', 'sb_object': my_comment}
-            spawn_task(task_func=spawn_notifications,
-            task_param=data)
+            spawn_task(task_func=spawn_notifications, task_param=data)
             return True
     except DoesNotExist:
         raise submit_comment_on_post.retry(exc=DoesNotExist, countdown=5,

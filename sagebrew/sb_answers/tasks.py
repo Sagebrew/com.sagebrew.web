@@ -4,8 +4,6 @@ from celery import shared_task
 
 from neomodel import DoesNotExist, CypherException
 
-from api.utils import spawn_task
-
 from .neo_models import SBAnswer
 from plebs.neo_models import Pleb
 from .utils import (save_answer_util, edit_answer_util, upvote_answer_util,
@@ -14,14 +12,14 @@ from .utils import (save_answer_util, edit_answer_util, upvote_answer_util,
 logger = logging.getLogger('loggly_logs')
 
 @shared_task()
-def save_answer_task(content="", current_pleb="", question_uuid="", to_pleb=""):
-    #TODO Implement prepare notification for answering question
+def save_answer_task(content="", current_pleb="", question_uuid="",
+                     to_pleb=""):
     '''
     This task is spawned when a user submits an answer to question. It then
     calls the save_answer_util to create the answer and handle creating
     the relationships.
 
-    If the util fails the task gets called again
+    If the util fails the task retries
 
     :param content:
     :param current_pleb:
@@ -65,18 +63,18 @@ def edit_answer_task(content="", answer_uuid="", last_edited_on=None,
     try:
         try:
             my_pleb = Pleb.nodes.get(email=current_pleb)
-        except Pleb.DoesNotExist:
+        except (Pleb.DoesNotExist, DoesNotExist):
             return False
-        except DoesNotExist:
-            return False
+
         try:
             my_answer = SBAnswer.nodes.get(answer_id=answer_uuid)
-        except SBAnswer.DoesNotExist:
+        except (SBAnswer.DoesNotExist, DoesNotExist):
             return False
-        except DoesNotExist:
-            return False
-        edit_response = edit_answer_util(content=content, answer_uuid=answer_uuid,
-                            current_pleb=current_pleb, last_edited_on=last_edited_on)
+
+        edit_response = edit_answer_util(content=content,
+                                         answer_uuid=answer_uuid,
+                                         current_pleb=current_pleb,
+                                         last_edited_on=last_edited_on)
         if edit_response:
             return True
         if edit_response['detail'] == 'to be deleted':
@@ -113,16 +111,14 @@ def vote_answer_task(answer_uuid="", current_pleb="", vote_type=""):
     try:
         try:
             my_pleb = Pleb.nodes.get(email=current_pleb)
-        except Pleb.DoesNotExist:
+        except (Pleb.DoesNotExist, DoesNotExist):
             return False
-        except DoesNotExist:
-            return False
+
         try:
             my_answer = SBAnswer.nodes.get(answer_id = answer_uuid)
-        except SBAnswer.DoesNotExist:
+        except (SBAnswer.DoesNotExist, DoesNotExist):
             return False
-        except DoesNotExist:
-            return False
+
         if my_answer.up_voted_by.is_connected(
                 my_pleb) or my_answer.down_voted_by.is_connected(my_pleb):
             return False

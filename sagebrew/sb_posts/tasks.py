@@ -119,8 +119,14 @@ def save_post_task(content="", current_pleb="", wall_pleb="",
         if not my_post:
             return False
         elif my_post is not None:
+            # TODO maybe we should set the default inputs to None in this
+            # function rather than empty strings. And also pass the entire
+            # pleb rather than just the email, since just do another query in
+            # the util anyways and will need to do one for the notification
+
             notification_data={'object_type': 'post', 'sb_object': my_post,
-                               'from_pleb':current_pleb, 'to_pleb': wall_pleb}
+                               'from_pleb':Pleb.nodes.get(email=current_pleb),
+                               'to_plebs': [Pleb.nodes.get(email=wall_pleb),]}
             spawn_task(task_func=spawn_notifications,
                        task_param=notification_data)
             return True

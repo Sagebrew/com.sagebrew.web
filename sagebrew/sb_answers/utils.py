@@ -1,19 +1,21 @@
 import logging
 from json import dumps
 
+from neomodel import CypherException, DoesNotExist
+
 from api.utils import spawn_task
 from plebs.neo_models import Pleb
 from .neo_models import SBAnswer
 from sb_questions.neo_models import SBQuestion
-from neomodel import CypherException, DoesNotExist
+from sb_notifications.tasks import spawn_notifications
 
 logger = logging.getLogger('loggly_logs')
 
 def save_answer_util(content="", current_pleb="", answer_uuid="",
                      question_uuid=""):
     '''
-    This util creates an answer and saves it, it then connects it to the question,
-    and pleb
+    This util creates an answer and saves it, it then connects it to the
+    question, and pleb
 
     :param content:
     :param current_pleb:
@@ -26,16 +28,14 @@ def save_answer_util(content="", current_pleb="", answer_uuid="",
     try:
         try:
             my_pleb = Pleb.nodes.get(email=current_pleb)
-        except Pleb.DoesNotExist:
+        except (Pleb.DoesNotExist, DoesNotExist):
             return False
-        except DoesNotExist:
-            return False
+
         try:
             question = SBQuestion.nodes.get(question_id=question_uuid)
-        except SBQuestion.DoesNotExist:
+        except (SBQuestion.DoesNotExist, DoesNotExist):
             return None
-        except DoesNotExist:
-            return None
+
         answer = SBAnswer(content=content, answer_id=answer_uuid)
         answer.save()
         answer.answer_to.connect(question)
@@ -47,6 +47,11 @@ def save_answer_util(content="", current_pleb="", answer_uuid="",
         rel_to_pleb = answer.owned_by.connect(my_pleb)
         rel_to_pleb.save()
         answer.save()
+        task_data={
+            'sb_object': answer, 'object_type': 'answer', 'from_pleb': my_pleb,
+            'to_plebs': [question.owned_by.all()[0]]
+        }
+        spawn_task(task_func=spawn_notifications, task_param=task_data)
         return answer
     except CypherException:
         return None
@@ -55,14 +60,14 @@ def save_answer_util(content="", current_pleb="", answer_uuid="",
                           "Unhandled Exception"})
         return None
 
-def edit_answer_util(content="", current_pleb="", answer_uuid="", last_edited_on=""):
+def edit_answer_util(content="", current_pleb="", answer_uuid="",
+                     last_edited_on=""):
     try:
         try:
             my_answer = SBAnswer.nodes.get(answer_id=answer_uuid)
-        except SBAnswer.DoesNotExist:
+        except (SBAnswer.DoesNotExist, DoesNotExist):
             return None
-        except DoesNotExist:
-            return None
+
         if my_answer.to_be_deleted:
             return {'question': my_answer, 'detail': 'to be deleted'}
 
@@ -74,7 +79,8 @@ def edit_answer_util(content="", current_pleb="", answer_uuid="", last_edited_on
 
         try:
             if my_answer.last_edited_on > last_edited_on:
-                return{'question': my_answer, 'detail': 'last edit more recent'}
+                return{'question': my_answer,
+                       'detail': 'last edit more recent'}
         except:
             pass
 
@@ -94,22 +100,18 @@ def upvote_answer_util(answer_uuid="", current_pleb=""):
     try:
         try:
             pleb = Pleb.nodes.get(email=current_pleb)
-        except Pleb.DoesNotExist:
+        except (Pleb.DoesNotExist, DoesNotExist):
             return False
-        except DoesNotExist:
-            return False
+
         try:
             my_question = SBAnswer.nodes.get(answer_id=answer_uuid)
-        except SBAnswer.DoesNotExist:
+        except (SBAnswer.DoesNotExist, DoesNotExist):
             data = {'question_uuid': answer_uuid, 'current_pleb': current_pleb,
                     'vote_type': 'up'}
-            spawn_task(task_func=vote_answer_task, task_param=data, countdown=1)
+            spawn_task(task_func=vote_answer_task, task_param=data,
+                       countdown=1)
             return False
-        except DoesNotExist:
-            data = {'question_uuid': answer_uuid, 'current_pleb': current_pleb,
-                    'vote_type': 'up'}
-            spawn_task(task_func=vote_answer_task, task_param=data, countdown=1)
-            return False
+
         my_question.up_vote_number += 1
         my_question.up_voted_by.connect(pleb)
         my_question.save()

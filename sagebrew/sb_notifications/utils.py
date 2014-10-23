@@ -21,10 +21,10 @@ def create_notification_util(sb_object, object_type, from_pleb, to_plebs,
     :param to_pleb:
     :return:
     '''
-
+    # TODO what if from object is an application or an announcement rather than
+    # a pleb? Could we generalize to that level?
     if from_pleb in to_plebs:
         to_plebs.remove(from_pleb)
-
     try:
         try:
             notification = NotificationBase.nodes.get(

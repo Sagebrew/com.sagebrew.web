@@ -6,6 +6,7 @@ from neomodel.exception import UniqueProperty, DoesNotExist, CypherException
 
 from .neo_models import SBAutoTag, SBTag
 from sb_questions.neo_models import SBQuestion
+from sb_answers.neo_models import SBAnswer
 
 logger = logging.getLogger('loggly_logs')
 

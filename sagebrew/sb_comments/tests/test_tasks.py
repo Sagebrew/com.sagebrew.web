@@ -245,17 +245,10 @@ class TestVoteComment(TestCase):
             time.sleep(3)
         email = "bounce@simulator.amazonses.com"
         res = create_user_util("test", "test", email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
+        test_wait_util(res)
         self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                pleb2 = Pleb.nodes.get(email=email)
-                self.user2 = User.objects.get(email=email)
-            except Exception:
-                pass
-            else:
-                break
+        pleb2 = Pleb.nodes.get(email=email)
+        user2 = User.objects.get(email=email)
         vote_task_param['pleb'] = pleb2.email
         vote_task_param['vote_type'] = 'up'
         response2 = create_vote_comment.apply_async(kwargs=vote_task_param)
@@ -278,7 +271,6 @@ class TestFlagCommentTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
-        call_command('clear_neo_db')
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_flag_comment_success_spam(self):

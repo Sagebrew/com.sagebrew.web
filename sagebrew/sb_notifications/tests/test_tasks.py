@@ -5,6 +5,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.management import call_command
 
+from api.utils import test_wait_util
 from sb_notifications.tasks import (spawn_notifications)
 from sb_posts.neo_models import SBPost
 from sb_comments.neo_models import SBComment
@@ -15,30 +16,16 @@ class TestNotificationTasks(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.email2= "bounce@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email2, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb2 = Pleb.nodes.get(email=self.email2)
-                self.user2 = User.objects.get(email=self.email2)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb2 = Pleb.nodes.get(email=self.email2)
+        self.user2 = User.objects.get(email=self.email2)
         self.post_info_dict = {'content': 'test post',
                                'post_id': str(uuid1())}
         settings.CELERY_ALWAYS_EAGER = True

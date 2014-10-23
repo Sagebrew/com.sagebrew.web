@@ -7,6 +7,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.management import call_command
 
+from api.utils import test_wait_util
 from sb_posts.utils import save_post
 from sb_posts.tasks import save_post_task
 from sb_comments.utils import (save_comment_post, edit_comment_util,
@@ -23,17 +24,10 @@ class TestSaveComments(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -77,17 +71,10 @@ class TestSaveComments(TestCase):
             time.sleep(1)
         email = "bounce@simulator.amazonses.com"
         res = create_user_util("test", "test", email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                pleb2 = Pleb.nodes.get(email=email)
-                user2 = User.objects.get(email=email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        pleb2 = Pleb.nodes.get(email=email)
+        user2 = User.objects.get(email=email)
         my_comment = save_comment_post(content="test comment from diff user",
                                        pleb=pleb2.email,
                                        post_uuid=uuid)
@@ -100,17 +87,10 @@ class TestEditComment(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -174,17 +154,10 @@ class TestVoteComments(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def test_upvote_comment(self):
         uuid = str(uuid1())
@@ -230,17 +203,9 @@ class TestVoteComments(TestCase):
 
         email = "bounce@simulator.amazonses.com"
         res = create_user_util("test", "test", email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                pleb2 = Pleb.nodes.get(email=email)
-                self.user2 = User.objects.get(email=email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        pleb2 = Pleb.nodes.get(email=email)
         create_upvote_comment_util(pleb=self.user.email,
                                    comment_uuid=my_comment.comment_id)
         my_comment.refresh()
@@ -260,17 +225,9 @@ class TestVoteComments(TestCase):
                                        post_uuid=post.post_id)
         email = "bounce@simulator.amazonses.com"
         res = create_user_util("test", "test", email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                pleb2 = Pleb.nodes.get(email=email)
-                self.user2 = User.objects.get(email=email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        pleb2 = Pleb.nodes.get(email=email)
         create_downvote_comment_util(pleb=self.user.email,
                                      comment_uuid=my_comment.comment_id)
         my_comment.refresh()
@@ -284,17 +241,10 @@ class TestFlagComment(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -355,17 +305,10 @@ class TestGetPostComments(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.pleb.first_name = 'Tyler'
         self.pleb.last_name = 'Wiersing'
         self.pleb.save()

@@ -59,6 +59,8 @@ def populate_general_env(data):
     data = data.replace('{{APP_USER}}', os.environ.get("APP_USER", ""))
     data = data.replace('{{NEW_RELIC_LICENSE}}', os.environ.get(
         "NEW_RELIC_LICENSE", ""))
+    data = data.replace('{{CIRCLE_BRANCH}}', os.environ.get(
+        "CIRCLE_BRANCH", ""))
     data = data.replace('{{SSL_CERT_LOCATION}}', os.environ.get(
         "SSL_CERT_LOCATION", ""))
     data = data.replace('{{SSL_KEY_LOCATION}}', os.environ.get(

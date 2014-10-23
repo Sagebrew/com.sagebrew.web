@@ -11,8 +11,9 @@ logger = logging.getLogger('loggly_logs')
 
 class Command(BaseCommand):
     def populate_nginx(self, user):
-        hostname = socket.gethostname()
-        if('box' in hostname):
+        circle_branch = os.environ.get("CIRCLE_BRANCH", None)
+        
+        if('dev' in circle_branch or circle_branch == "staging"):
             env = "development"
         else:
             env = "production"

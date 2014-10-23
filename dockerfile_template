@@ -1,4 +1,4 @@
-FROM {{PROJECT_NAME}}/django.web.primary.base:v11
+FROM {{PROJECT_NAME}}/django.web.primary.base:v12
 
 MAINTAINER Devon Bleibtrey <devon@sagebrew.com>
 
@@ -58,6 +58,7 @@ RUN chown {{APP_USER}} /etc/rsyslog.d/
 RUN python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py logglypopulation {{LOG_ACCOUNT}} {{LOG_TOKEN}}
 RUN chown {{APP_USER}} /etc/nginx/
 RUN python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py populatenginx {{APP_USER}}
+RUN rm /etc/nginx/sites-enabled/default
 RUN chown root /etc/rsyslog.d/
 RUN chown root /etc/nginx/
 RUN service rsyslog restart

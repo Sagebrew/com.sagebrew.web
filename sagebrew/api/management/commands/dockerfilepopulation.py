@@ -13,10 +13,12 @@ class Command(BaseCommand):
             circle_branch = os.environ.get("CIRCLE_BRANCH", None)
             data = dockerfile.read()
             if(circle_branch is not None):
-                project_username = os.environ.get("CIRCLE_PROJECT_USERNAME", "")
-                project_reponame = os.environ.get("CIRCLE_PROJECT_REPONAME", "")
-                data = data.replace("{{PROJECT_REPONAME}}", project_reponame)
-                data = data.replace("{{PROJECT_USERNAME}}", project_username)
+                data = data.replace("{{PROJECT_REPONAME}}",
+                                    os.environ.get("CIRCLE_PROJECT_REPONAME",
+                                                   ""))
+                data = data.replace("{{PROJECT_USERNAME}}",
+                                    os.environ.get("CIRCLE_PROJECT_USERNAME",
+                                                   ""))
 
                 data = populate_general_env(data)
                 if(circle_branch == "staging"):

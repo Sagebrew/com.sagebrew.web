@@ -19,8 +19,6 @@ class Command(BaseCommand):
                 data = dockerfile.read()
 
                 data = populate_general_values(data, user, worker_count)
-                data.replace("%(ENV_REPO_NAME)s",
-                             environ.get("REPO_NAME", "sagebrew"))
             f = open("/etc/supervisor/conf.d/sagebrew.conf", "w")
             f.write(data)
             f.close()
@@ -41,6 +39,8 @@ class Command(BaseCommand):
 
 def populate_general_values(data, user, worker_count):
     data = data.replace("%(ENV_APP_USER)s", user)
+    data = data.replace("%(ENV_REPO_NAME)s",
+                        environ.get("REPO_NAME", "sagebrew"))
     data = data.replace("%(ENV_PROJECT_DIR)s", settings.PROJECT_DIR)
     data = data.replace("%(ENV_PROJECT_NAME)s", "sagebrew")
     data = data.replace("%(ENV_NUMBER_OF_WORKERS)s", worker_count)
@@ -74,6 +74,8 @@ def populate_general_values(data, user, worker_count):
                              environ.get("ELASTIC_SEARCH_USER", ""))
     data = data.replace("%(ENV_ELASTIC_SEARCH_KEY)s",
                              environ.get("ELASTIC_SEARCH_KEY", ""))
+    data = data.replace("%(ENV_REDIS_PORT)s",
+                             environ.get("REDIS_PORT", ""))
     data = data.replace("%(ENV_REDIS_LOCATION)s",
                              environ.get("REDIS_LOCATION", ""))
     data = data.replace("%(ENV_QUEUE_USERNAME)s",

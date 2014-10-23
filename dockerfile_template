@@ -57,18 +57,15 @@ ENV QUEUE_PORT {{QUEUE_PORT}}
 
 RUN chown {{APP_USER}} /etc/rsyslog.d/
 RUN python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py logglypopulation {{LOG_ACCOUNT}} {{LOG_TOKEN}}
-RUN chown {{APP_USER}} /etc/nginx/
-RUN python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py populatenginx {{APP_USER}}
+
 RUN rm /etc/nginx/sites-enabled/default
 RUN chown root /etc/rsyslog.d/
-RUN chown root /etc/nginx/
 RUN service rsyslog restart
 
-RUN chown {{APP_USER}} /etc/supervisor/conf.d/
-RUN python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py populatesupervisor {{SUPER_TEMPLATE}} {{APP_USER}}
-RUN chown root /etc/supervisor/conf.d/
+
 # nginx command must come first because running supervisor as a nodaemon means
 # it would never get to the && nginx if it were first. We might want to run
 # something else endlessly rather than run supervisor as a nodaemon. Not sure
 # the reprocutions of this.
-CMD nginx && supervisord -c /etc/supervisor/supervisord.conf --nodaemon
+
+CMD chown {{APP_USER}} /etc/supervisor/conf.d/ && python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py populatesupervisor {{SUPER_TEMPLATE}} {{APP_USER}} && chown root /etc/supervisor/conf.d/ && chown {{APP_USER}} /etc/nginx/ && python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py populatenginx {{APP_USER}} && chown root /etc/nginx/ && nginx && supervisord -c /etc/supervisor/supervisord.conf --nodaemon

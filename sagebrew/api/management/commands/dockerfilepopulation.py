@@ -30,7 +30,7 @@ class Command(BaseCommand):
             else:
                 data = data.replace('{{REQUIREMENTS_FILE}}',
                                     os.environ.get(
-                                        "REQUIREMENTS_FILE", "production"))
+                                        "REQUIREMENTS_FILE", "base"))
                 data = data.replace("{{PROJECT_REPONAME}}",
                                     os.environ.get("PROJECT_REPONAME", ""))
                 data = data.replace("{{PROJECT_USERNAME}}",
@@ -108,7 +108,7 @@ def populate_test_env(data):
     return data
 
 def populate_prod_env(data):
-    data = data.replace('{{REQUIREMENTS_FILE}}', "production")
+    data = data.replace('{{REQUIREMENTS_FILE}}', "base")
     data = data.replace('{{BOMBERMAN_API_KEY}}', os.environ.get(
         "BOMBERMAN_API_KEY_PROD", ""))
     data = data.replace('{{NEO4J_REST_URL}}',
@@ -145,7 +145,7 @@ def populate_prod_env(data):
     return data
 
 def populate_staging_env(data):
-    data = data.replace('{{REQUIREMENTS_FILE}}', "production")
+    data = data.replace('{{REQUIREMENTS_FILE}}', "base")
     data = data.replace('{{BOMBERMAN_API_KEY}}', os.environ.get(
         "BOMBERMAN_API_KEY_STAGING", ""))
     data = data.replace('{{NEO4J_REST_URL}}',

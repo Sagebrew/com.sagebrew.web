@@ -116,8 +116,7 @@ class TestEditComment(TestCase):
 
         edited_comment = edit_comment_util(comment_uuid=comment.comment_id,
                                            content="test_comment", pleb="",
-                                           last_edited_on=
-                                           datetime.now(pytz.utc))
+                                           last_edited_on=datetime.now(pytz.utc))
 
         self.assertFalse(edited_comment)
 

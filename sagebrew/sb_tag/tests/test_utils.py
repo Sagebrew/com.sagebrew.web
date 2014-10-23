@@ -83,13 +83,13 @@ class TestCreateAutoTagUtil(TestCase):
         question.save()
         util_dict = [{'object_type': 'question',
                       'object_uuid': question_id,
-                      'tags': {'relevance': '.9', 'text': 'test'}},
+                      'tags': {'relevance': '.9', 'text': 'test auto tag'}},
                      {'object_type': 'question',
                       'object_uuid': question_id,
-                      'tags': {'relevance': '.9', 'text': 'test'}},
+                      'tags': {'relevance': '.9', 'text': 'test fake tag'}},
                      {'object_type': 'question',
                       'object_uuid': question_id,
-                      'tags': {'relevance': '.9', 'text': 'test'}}]
+                      'tags': {'relevance': '.9', 'text': 'test auto tag'}}]
         res = add_auto_tags_util(util_dict)
 
         self.assertTrue(res)

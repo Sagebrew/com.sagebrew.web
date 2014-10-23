@@ -1,4 +1,5 @@
 import logging
+from uuid import uuid1
 from json import dumps
 
 from neomodel import CypherException, DoesNotExist
@@ -83,6 +84,7 @@ def edit_answer_util(content="", current_pleb="", answer_uuid="",
                        'detail': 'last edit more recent'}
         except:
             pass
+
 
         my_answer.content = content
         my_answer.last_edited_on = last_edited_on

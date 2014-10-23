@@ -82,6 +82,7 @@ class TestEditAnswerTask(TestCase):
         self.question_info_dict['question_id']=str(uuid1())
         question = SBQuestion(**self.question_info_dict)
         question.save()
+        question.owned_by.connect(self.pleb)
         self.answer_info_dict['question_uuid'] = question.question_id
         self.answer_info_dict.pop('to_pleb', None)
         self.answer_info_dict['answer_uuid'] = str(uuid1())
@@ -102,6 +103,7 @@ class TestEditAnswerTask(TestCase):
         self.question_info_dict['question_id']=str(uuid1())
         question = SBQuestion(**self.question_info_dict)
         question.save()
+        question.owned_by.connect(self.pleb)
         self.answer_info_dict['question_uuid'] = question.question_id
         self.answer_info_dict.pop('to_pleb', None)
         self.answer_info_dict['answer_uuid'] = str(uuid1())

@@ -21,6 +21,8 @@ worker_count = (multiprocessing.cpu_count() *2) + 1
 if worker_count > 12 and environ.get("CIRCLECI", False):
     worker_count = 12
 environ['WEB_WORKER_COUNT'] = str(worker_count)
+environ['PROJECT_PATH'] = PROJECT_DIR
+
 environ['HTTPS'] = "on"
 MANAGERS = ADMINS
 

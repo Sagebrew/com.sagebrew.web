@@ -40,7 +40,7 @@ server {
 		proxy_set_header X-Real-IP $remote_addr;
 		proxy_set_header X-Scheme $scheme;
 		proxy_read_timeout 1200;
-        proxy_pass  {{PROJECT_NAME}};
+        proxy_pass  http://{{PROJECT_NAME}};
     }
 	
     error_page 500 502 503 504 /500.html;

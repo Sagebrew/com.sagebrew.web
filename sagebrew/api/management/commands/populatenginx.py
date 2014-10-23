@@ -77,7 +77,6 @@ class Command(BaseCommand):
                                         "of this the file was removed and"
                                         "the latest template replaced it."})
             os.remove("/etc/nginx/sites-enabled/%s.conf" % env)
-            return False
         call("sudo ln -s /etc/nginx/sites-available/%s.conf" % (env) +
              " /etc/nginx/sites-enabled/%s.conf" % (env), shell=True)
         call("sudo chown -R root:root /etc/nginx/", shell=True)

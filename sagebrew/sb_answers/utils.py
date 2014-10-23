@@ -82,7 +82,7 @@ def edit_answer_util(content="", current_pleb="", answer_uuid="",
             if my_answer.last_edited_on > last_edited_on:
                 return{'question': my_answer,
                        'detail': 'last edit more recent'}
-        except:
+        except TypeError:
             pass
 
 
@@ -90,6 +90,7 @@ def edit_answer_util(content="", current_pleb="", answer_uuid="",
                                content=content).save()
         my_answer.edits.connect(edit_answer)
         edit_answer.edit_to.connect(my_answer)
+        #edit_answer.owned_by.connect(my_answer.owned_by.all()[0])
         my_answer.last_edited_on = edit_answer.date_created
         my_answer.save()
         return True

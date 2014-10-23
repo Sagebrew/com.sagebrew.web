@@ -102,7 +102,8 @@ class TestEditQuestionUtils(TestCase):
 
     def test_edit_question_util(self):
         self.question_info_dict['question_id']=str(uuid1())
-        question = SBQuestion(question_id=str(uuid1()), content="test")
+        question = SBQuestion(question_id=str(uuid1()), content="test",
+                              question_title='Test Title')
         question.save()
 
         edit_question_dict = {'current_pleb': self.question_info_dict['current_pleb'],
@@ -115,7 +116,8 @@ class TestEditQuestionUtils(TestCase):
 
     def test_edit_question_util_to_be_deleted(self):
         self.question_info_dict['question_id']=str(uuid1())
-        question = SBQuestion(question_id=str(uuid1()), content="test")
+        question = SBQuestion(question_id=str(uuid1()), content="test",
+                              question_title='Test Title')
         question.save()
         question.to_be_deleted = True
         question.save()

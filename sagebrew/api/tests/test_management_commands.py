@@ -18,14 +18,8 @@ class TestClearNeoDBCommand(TestCase):
         while not res['task_id'].ready():
             time.sleep(1)
         self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                pleb = Pleb.nodes.get(email= email)
-                user = User.objects.get(email=email)
-            except Exception:
-                pass
-            else:
-                break
+        pleb = Pleb.nodes.get(email= email)
+        user = User.objects.get(email=email)
         self.assertEqual(pleb.email, user.email)
         call_command("clear_neo_db")
         pleb = None

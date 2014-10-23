@@ -28,44 +28,11 @@ RUN newrelic-admin generate-config {{NEW_RELIC_LICENSE}} /home/apps/newrelic.ini
 RUN apt-get remove --auto-remove -y git
 RUN apt-get remove --auto-remove -y wget
 
-ENV CIRCLECI {{CIRCLECI}}
-ENV CIRCLE_BRANCH {{CIRCLE_BRANCH}}
-ENV APPLICATION_SECRET_KEY {{APPLICATION_SECRET_KEY}}
-ENV NEO4J_REST_URL {{NEO4J_REST_URL}}
-ENV BOMBERMAN_API_KEY {{BOMBERMAN_API_KEY}}
-ENV SSL_CERT_LOCATION {{SSL_CERT_LOCATION}}
-ENV SSL_KEY_LOCATION {{SSL_KEY_LOCATION}}
-ENV AWS_S3_BUCKET {{AWS_S3_BUCKET}}
-ENV AWS_SECRET_ACCESS_KEY {{AWS_SECRET_ACCESS_KEY}}
-ENV AWS_ACCESS_KEY_ID {{AWS_ACCESS_KEY_ID}}
-ENV LOG_TOKEN {{LOG_TOKEN}}
-ENV LOG_ACCOUNT {{LOG_ACCOUNT}}
-ENV ALCHEMY_API_KEY {{ALCHEMY_API_KEY}}
-ENV ADDRESS_VALIDATION_ID {{ADDRESS_VALIDATION_ID}}
-ENV ADDRESS_VALIDATION_TOKEN {{ADDRESS_VALIDATION_TOKEN}}
-ENV ELASTIC_SEARCH_HOST {{ELASTIC_SEARCH_HOST}}
-ENV ELASTIC_SEARCH_PORT {{ELASTIC_SEARCH_PORT}}
-ENV ELASTIC_SEARCH_USER {{ELASTIC_SEARCH_USER}}
-ENV ELASTIC_SEARCH_KEY {{ELASTIC_SEARCH_KEY}}
-ENV REDIS_LOCATION {{REDIS_LOCATION}}
-ENV REDIS_PORT {{REDIS_PORT}}
-ENV QUEUE_USERNAME {{QUEUE_USERNAME}}
-ENV QUEUE_PASSWORD {{QUEUE_PASSWORD}}
-ENV QUEUE_HOST {{QUEUE_HOST}}
-ENV QUEUE_PORT {{QUEUE_PORT}}
-
-
-RUN chown {{APP_USER}} /etc/rsyslog.d/
-RUN python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py logglypopulation {{LOG_ACCOUNT}} {{LOG_TOKEN}}
-
 RUN rm /etc/nginx/sites-enabled/default
-RUN chown root /etc/rsyslog.d/
-RUN service rsyslog restart
 
 
 # nginx command must come first because running supervisor as a nodaemon means
 # it would never get to the && nginx if it were first. We might want to run
 # something else endlessly rather than run supervisor as a nodaemon. Not sure
 # the reprocutions of this.
-
-CMD chown {{APP_USER}} /etc/supervisor/conf.d/ && python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py populatesupervisor {{SUPER_TEMPLATE}} {{APP_USER}} && chown root /etc/supervisor/conf.d/ && chown {{APP_USER}} /etc/nginx/ && python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py populatenginx {{APP_USER}} && chown root /etc/nginx/ && nginx && supervisord -c /etc/supervisor/supervisord.conf --nodaemon
+CMD chown {{APP_USER}} /etc/rsyslog.d/ && python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py logglypopulation {{LOG_ACCOUNT}} {{LOG_TOKEN}} && chown root /etc/rsyslog.d/ && service rsyslog restart && chown {{APP_USER}} /etc/supervisor/conf.d/ && python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py populatesupervisor {{SUPER_TEMPLATE}} {{APP_USER}} && chown root /etc/supervisor/conf.d/ && chown {{APP_USER}} /etc/nginx/ && python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py populatenginx {{APP_USER}} && chown root /etc/nginx/ && nginx && supervisord -c /etc/supervisor/supervisord.conf --nodaemon

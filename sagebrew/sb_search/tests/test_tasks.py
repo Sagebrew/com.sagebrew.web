@@ -747,7 +747,7 @@ class TestCreateKeywordTask(TestCase):
 
     def test_create_keyword_task_success_keyword_exists(self):
         from sb_search.neo_models import SearchQuery, KeyWord
-        query = SearchQuery(search_query="test query")
+        query = SearchQuery(search_query="test_query")
         query.save()
         keyword = KeyWord(keyword="test")
         keyword.save()

@@ -86,8 +86,11 @@ def edit_answer_util(content="", current_pleb="", answer_uuid="",
             pass
 
 
-        my_answer.content = content
-        my_answer.last_edited_on = last_edited_on
+        edit_answer = SBAnswer(answer_id=str(uuid1()), original=False,
+                               content=content).save()
+        my_answer.edits.connect(edit_answer)
+        edit_answer.edit_to.connect(my_answer)
+        my_answer.last_edited_on = edit_answer.date_created
         my_answer.save()
         return True
     except CypherException:

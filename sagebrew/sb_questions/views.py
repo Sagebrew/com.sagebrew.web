@@ -16,7 +16,8 @@ from api.utils import spawn_task
 from sb_registration.utils import verify_completed_registration
 from .utils import (get_question_by_most_recent, get_question_by_uuid,
                     get_question_by_least_recent, prepare_question_search_html)
-from .tasks import create_question_task, vote_question_task, edit_question_task
+from .tasks import (create_question_task, vote_question_task,
+                    edit_question_task, flag_question_task)
 from .forms import (SaveQuestionForm, EditQuestionForm, VoteQuestionForm,
                     FlagQuestionForm)
 
@@ -306,4 +307,5 @@ def flag_question_view(request):
             return Response({"detail": flag_form.errors}, status=400)
 
     except Exception:
-        logger.exception(dumps({}))
+        logger.exception(dumps({"function": flag_question_view.__name__,
+                                "exception": "UnhandledException: "}))

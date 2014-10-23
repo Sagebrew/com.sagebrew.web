@@ -399,5 +399,54 @@ def prepare_question_search_html(question_uuid):
                           "exception": "UnhandledException: "})
         return False
 
-def flag_question_util():
-    pass
+def flag_question_util(question_uuid, current_pleb, flag_reason):
+    '''
+    This function will increase the flag count on any of the reasons
+    that a question could be flagged and connect a user to the question
+    showing that they have flagged the question already in case they
+    attempt to flag it multiple times.
+
+    :param question_uuid:
+    :param current_pleb:
+    :param flag_reason:
+    :return:
+    '''
+    try:
+        try:
+            question = SBQuestion.nodes.get(question_id=question_uuid)
+        except (SBQuestion.DoesNotExist, DoesNotExist):
+            return False
+
+        try:
+            pleb = Pleb.nodes.get(email=current_pleb)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            return None
+
+        if question.flagged_by.is_connected(pleb):
+            return True
+
+        question.flagged_by.connect(pleb)
+        if flag_reason == 'spam':
+            question.flagged_as_spam_count += 1
+            question.save()
+        elif flag_reason == 'explicit':
+            question.flagged_as_explicit_count += 1
+            question.save()
+        elif flag_reason == 'other':
+            question.flagged_as_other_count += 1
+            question.save()
+        elif flag_reason == 'duplicate':
+            question.flagged_as_duplicate_count += 1
+            question.save()
+        elif flag_reason == 'changed':
+            question.flagged_as_changed_count += 1
+            question.save()
+        elif flag_reason == 'unsupported':
+            question.flagged_as_unsupported_count += 1
+            question.save()
+        else:
+            return False
+        return True
+    except Exception:
+        logger.exception(dumps({"function": flag_question_util.__name__,
+                                "exception": "UnhandledException: "}))

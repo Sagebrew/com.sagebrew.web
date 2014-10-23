@@ -266,6 +266,6 @@ def flag_post(post_uuid, current_user, flag_reason):
             return False
         return True
     except Exception:
-        logger.exception({"function": flag_post.__name__,
-                          'exception': "UnhandledException: "})
+        logger.exception(dumps({"function": flag_post.__name__,
+                          'exception': "UnhandledException: "}))
         return False

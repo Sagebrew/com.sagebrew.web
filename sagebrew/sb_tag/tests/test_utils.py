@@ -1,7 +1,5 @@
-import time
 from uuid import uuid1
 from django.contrib.auth.models import User
-from django.core.management import call_command
 from django.test import TestCase
 
 from api.utils import test_wait_util
@@ -21,9 +19,6 @@ class TestCreateTagUtil(TestCase):
         test_wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_create_tag_util_success(self):
         question = SBQuestion(question_id=uuid1())
@@ -71,9 +66,6 @@ class TestCreateAutoTagUtil(TestCase):
         test_wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_create_auto_tag_util_success(self):
         question = SBQuestion(question_id=uuid1())
@@ -138,9 +130,6 @@ class TestCreateAutoTagRelationships(TestCase):
         test_wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_create_auto_tag_relationship_success(self):
         tag_list = []

@@ -4,7 +4,6 @@ from uuid import uuid1
 from datetime import datetime
 from django.conf import settings
 from django.test import TestCase
-from django.core.management import call_command
 from django.contrib.auth.models import User
 
 from api.utils import test_wait_util
@@ -32,7 +31,6 @@ class TestSaveAnswerTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
-        call_command('clear_neo_db')
         settings.CELERY_ALWAYS_EAGER = False
 
 
@@ -78,7 +76,6 @@ class TestEditAnswerTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
-        call_command('clear_neo_db')
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_edit_answer_task(self):
@@ -137,7 +134,6 @@ class TestVoteAnswerTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
-        call_command('clear_neo_db')
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_vote_answer_task(self):

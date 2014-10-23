@@ -1,9 +1,7 @@
-import time
 import pytz
 from datetime import datetime, timedelta
 from uuid import uuid1
 from django.test import TestCase
-from django.core.management import call_command
 from django.contrib.auth.models import User
 
 from api.utils import test_wait_util
@@ -29,9 +27,6 @@ class TestCreateAnswerUtil(TestCase):
                                  'content': 'test answer',
                                  'answer_uuid': str(uuid1()),
                                  'current_pleb': self.user.email}
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
 
     def test_save_answer_util(self):
@@ -84,9 +79,6 @@ class TestEditAnswerUtil(TestCase):
                                  'content': 'test answer',
                                  'answer_uuid': str(uuid1()),
                                  'current_pleb': self.user.email}
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_edit_answer_util(self):
         answer = SBAnswer(content="test answer", answer_id=str(uuid1()))
@@ -179,9 +171,6 @@ class TestVoteAnswerUtil(TestCase):
                                  'content': 'test answer',
                                  'answer_uuid': str(uuid1()),
                                  'current_pleb': self.user.email}
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_upvote_answer_util(self):
         answer = SBAnswer(content="test answer", answer_id=str(uuid1()))

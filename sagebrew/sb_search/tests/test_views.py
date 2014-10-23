@@ -9,7 +9,6 @@ from rest_framework.test import APIRequestFactory, APIClient
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.conf import settings
-from django.core.management import call_command
 from django.core.urlresolvers import reverse
 
 from elasticsearch import Elasticsearch
@@ -31,9 +30,6 @@ class TestSearchResultView(TestCase):
         self.user = User.objects.get(email=self.email)
         self.pleb.completed_profile_info = True
         self.pleb.save()
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_search_result_view_success(self):
         request = self.factory.post('/search/q=test')
@@ -253,9 +249,6 @@ class TestSearchResultAPI(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
-    def tearDown(self):
-        call_command('clear_neo_db')
-
     def test_search_result_api_success(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         res_array = []
@@ -339,7 +332,6 @@ class TestSearchResultAPIReturns(TestCase):
                                             'into the atmosphere? '}
 
     def tearDown(self):
-        call_command('clear_neo_db')
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         es.delete_by_query('full-search-user-specific-1', 'question',
                            body={

@@ -1,10 +1,8 @@
 import pytz
-import time
 from datetime import datetime, timedelta
 from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
-from django.core.management import call_command
 
 from api.utils import test_wait_util
 from sb_questions.utils import (create_question_util, upvote_question_util,
@@ -26,9 +24,6 @@ class TestCreateQuestion(TestCase):
                                    'question_title': "Test question",
                                    'content': 'test post',
                                    'question_uuid': str(uuid1())}
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_save_question_util_success(self):
         response = create_question_util(**self.question_info_dict)
@@ -65,9 +60,6 @@ class TestPrepareQuestionDictUtil(TestCase):
                                    'question_title': "Test question",
                                    'content': 'test post',
                                    'question_uuid': str(uuid1())}
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_get_question_dict_by_uuid(self):
         self.question_info_dict.pop('question_uuid',None)
@@ -107,9 +99,6 @@ class TestEditQuestionUtils(TestCase):
                                    'question_title': "Test question",
                                    'content': 'test post',
                                    'question_uuid': str(uuid1())}
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_edit_question_util(self):
         self.question_info_dict['question_id']=str(uuid1())
@@ -207,9 +196,6 @@ class TestVoteQuestionUtil(TestCase):
                                    'question_title': "Test question",
                                    'content': 'test post',
                                    'question_uuid': str(uuid1())}
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_upvote_question_util(self):
         self.question_info_dict['question_id']=str(uuid1())

@@ -5,7 +5,6 @@ from datetime import datetime, timedelta
 from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
-from django.core.management import call_command
 
 from api.utils import test_wait_util
 from sb_posts.utils import save_post, edit_post_info, delete_post_info, \
@@ -25,9 +24,6 @@ class TestSavePost(TestCase):
         test_wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_save_post(self):
         uuid = str(uuid1())
@@ -144,9 +140,6 @@ class TestPostVotes(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
-    def tearDown(self):
-        call_command('clear_neo_db')
-
     def test_upvote_post(self):
         uuid = str(uuid1())
         task_data = {"post_uuid": uuid, "content": "test post",
@@ -206,9 +199,6 @@ class TestFlagPost(TestCase):
         test_wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_flag_success_spam(self):
         post = SBPost(post_id=uuid1())

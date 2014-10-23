@@ -5,7 +5,6 @@ from datetime import datetime
 from django.test import TestCase
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.management import call_command
 
 from elasticsearch import Elasticsearch
 
@@ -33,7 +32,6 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
-        call_command('clear_neo_db')
 
     def test_update_weight_relationship_task_success_seen_unconnected(self):
         data = {"document_id": str(uuid1()),
@@ -315,7 +313,6 @@ class TestUpdateWeightRelationshipTaskAnswer(TestCase):
         self.answer.save()
 
     def tearDown(self):
-        call_command('clear_neo_db')
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_update_weight_relationship_task_success_seen_unconnected(self):
@@ -553,7 +550,6 @@ class TestUpdateWeightRelationshipTaskPleb(TestCase):
         self.user = User.objects.get(email=self.email)
 
     def tearDown(self):
-        call_command('clear_neo_db')
         settings.CELERY_ALWAYS_EAGER = False
 
 class TestUpdateWeightRelationshipTaskPost(TestCase):
@@ -571,9 +567,6 @@ class TestUpdateWeightRelationshipTaskPost(TestCase):
         self.pleb2 = Pleb.nodes.get(email=self.email2)
         self.user2 = User.objects.get(email=self.email2)
 
-    def tearDown(self):
-        call_command('clear_neo_db')
-
 class TestAddUserToCustomIndexTask(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
@@ -585,7 +578,6 @@ class TestAddUserToCustomIndexTask(TestCase):
         self.user = User.objects.get(email=self.email)
 
     def tearDown(self):
-        call_command('clear_neo_db')
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_add_user_to_custom_index_success(self):
@@ -610,7 +602,6 @@ class TestUpdateUserIndices(TestCase):
         self.user = User.objects.get(email=self.email)
 
     def tearDown(self):
-        call_command('clear_neo_db')
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_update_user_indices_success(self):
@@ -646,7 +637,6 @@ class TestUpdateSearchQuery(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
-        call_command('clear_neo_db')
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_update_search_query_success_search_query_does_not_exist(self):
@@ -735,7 +725,6 @@ class TestCreateKeywordTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
-        call_command('clear_neo_db')
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_create_keyword_task_success_keyword_does_not_exist(self):

@@ -1,16 +1,13 @@
-import time
 import shortuuid
-from uuid import uuid1
 from json import loads
 from base64 import b64encode
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, authenticate
 from django.test import TestCase, RequestFactory
 from django.contrib.sessions.backends.db import SessionStore
-from django.core.management import call_command
-from rest_framework.test import APIRequestFactory, APIClient
+from rest_framework.test import APIRequestFactory
 
 from api.utils import test_wait_util
 from sb_registration.views import (profile_information, confirm_view,
@@ -63,9 +60,6 @@ class ProfileInfoTest(TestCase):
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
         self.pleb.save()
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_user_info_population_no_birthday(self):
         my_dict = {'date_of_birth': [u'']}
@@ -183,9 +177,6 @@ class TestSignupView(TestCase):
         self.pleb.email_verified = True
         self.pleb.save()
 
-    def tearDown(self):
-        call_command('clear_neo_db')
-
     def test_signup_view(self):
         request = self.factory.request()
         res = signup_view(request)
@@ -203,9 +194,6 @@ class TestSignupAPIView(TestCase):
         test_wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_signup_view_api_success(self):
         signup_dict = {
@@ -324,9 +312,6 @@ class TestLoginView(TestCase):
         self.pleb.email_verified = True
         self.pleb.save()
 
-    def tearDown(self):
-        call_command('clear_neo_db')
-
     def test_login_view_success(self):
         request = self.factory.request()
         res = login_view(request)
@@ -345,9 +330,6 @@ class TestLoginAPIView(TestCase):
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
         self.pleb.save()
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_login_api_view_success(self):
         login_data = {
@@ -480,9 +462,6 @@ class TestLogoutView(TestCase):
         self.pleb.email_verified = True
         self.pleb.save()
 
-    def tearDown(self):
-        call_command('clear_neo_db')
-
     def test_logout_view_success(self):
         user = authenticate(username=self.user.username,
                             password='testpass')
@@ -508,9 +487,6 @@ class TestEmailVerificationView(TestCase):
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = False
         self.pleb.save()
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_email_verification_view_success(self):
         user = authenticate(username=self.user.username,
@@ -570,9 +546,6 @@ class TestResendEmailVerificationView(TestCase):
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = False
         self.pleb.save()
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_resend_email_verification_view_success(self):
         user = authenticate(username=self.user.username,

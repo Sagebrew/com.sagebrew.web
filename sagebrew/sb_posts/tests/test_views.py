@@ -1,8 +1,6 @@
-import time
 from uuid import uuid1
 from base64 import b64encode
 from rest_framework.test import APIRequestFactory
-from django.core.management import call_command
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.conf import settings
@@ -23,9 +21,6 @@ class SavePostViewTests(TestCase):
         test_wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_save_post_view_correct_data(self):
         my_dict = {'content': 'aosdfhao',
@@ -105,9 +100,6 @@ class EditPostViewTests(TestCase):
         test_wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_edit_post_view_correct_data(self):
         my_dict = {'content': 'aosdfhao',
@@ -189,9 +181,6 @@ class DeletePostViewTests(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
-    def tearDown(self):
-        call_command('clear_neo_db')
-
     def test_delete_post_view_correct_data(self):
         my_dict = {'pleb': self.user.email,
                    'post_uuid': str(uuid1())}
@@ -269,9 +258,6 @@ class VotePostViewTests(TestCase):
         test_wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_vote_post_view_correct_data(self):
         my_dict = {'pleb': self.user.email,
@@ -351,9 +337,6 @@ class TestFlagPostView(TestCase):
         test_wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_flag_post_view_correct_data_spam(self):
         my_dict = {'current_user': self.user.email,

@@ -3,7 +3,6 @@ from uuid import uuid1
 from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
-from django.core.management import call_command
 
 from api.utils import test_wait_util
 from sb_notifications.tasks import (spawn_notifications)
@@ -31,7 +30,6 @@ class TestNotificationTasks(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
-        call_command('clear_neo_db')
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_create_notification_post_task(self):

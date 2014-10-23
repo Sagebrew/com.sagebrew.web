@@ -5,7 +5,6 @@ from datetime import datetime
 from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
-from django.core.management import call_command
 from celery.utils.serialization import UnpickleableExceptionWrapper
 
 from api.utils import test_wait_util
@@ -32,7 +31,6 @@ class TestSavePostTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
-        call_command('clear_neo_db')
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_save_post_task(self):
@@ -57,7 +55,6 @@ class TestDeletePostTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
-        call_command('clear_neo_db')
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_delete_post_task(self):
@@ -86,7 +83,6 @@ class TestEditPostTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
-        call_command('clear_neo_db')
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_edit_post_task_success(self):
@@ -183,7 +179,6 @@ class TestPostVoteTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
-        call_command('clear_neo_db')
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_upvote_post_success(self):
@@ -284,9 +279,6 @@ class TestPostTaskRaceConditions(TestCase):
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
                                'post_uuid': str(uuid1())}
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_race_condition_edit_delete_post_tasks(self):
         edit_post_dict = {'content': 'Post edited',
@@ -398,7 +390,6 @@ class TestFlagPostTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
-        call_command('clear_neo_db')
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_flag_post_task_success_spam(self):

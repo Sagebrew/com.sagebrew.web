@@ -1,6 +1,5 @@
 from base64 import b64encode
 from rest_framework.test import APIRequestFactory
-from django.core.management import call_command
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.conf import settings
@@ -19,9 +18,6 @@ class TestSaveAnswerView(TestCase):
         test_wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_save_answer_view_correct_data(self):
         my_dict = {'content': 'test answer', 'current_pleb': self.user.email,

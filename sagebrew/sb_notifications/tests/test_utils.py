@@ -1,9 +1,7 @@
-import time
 from uuid import uuid1
 
 from django.contrib.auth.models import User
 from django.test import TestCase
-from django.core.management import call_command
 
 from api.utils import test_wait_util
 from sb_comments.neo_models import SBComment
@@ -27,9 +25,6 @@ class TestNotificationUtils(TestCase):
         test_wait_util(res)
         self.pleb2 = Pleb.nodes.get(email=self.email2)
         self.user2 = User.objects.get(email=self.email2)
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_create_post_notification(self):
         post = SBPost(post_id=uuid1(), content='as;ldkfja;')

@@ -5,14 +5,12 @@ from datetime import datetime
 from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
-from django.core.management import call_command
 
 from api.utils import test_wait_util
 from sb_comments.neo_models import SBComment
 from sb_comments.utils import save_comment_post
 from sb_comments.tasks import (edit_comment_task, create_vote_comment,
                                submit_comment_on_post, flag_comment_task)
-from sb_posts.utils import save_post
 from sb_posts.tasks import save_post_task
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util
@@ -28,7 +26,6 @@ class TestSaveComment(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
-        call_command('clear_neo_db')
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_save_comment_on_post_task(self):
@@ -60,7 +57,6 @@ class TestEditComment(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
-        call_command('clear_neo_db')
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_edit_comment_success(self):
@@ -99,7 +95,6 @@ class TestVoteComment(TestCase):
 
 
     def tearDown(self):
-        call_command('clear_neo_db')
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_upvote_comment(self):

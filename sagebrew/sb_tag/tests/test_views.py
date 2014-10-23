@@ -1,10 +1,6 @@
-import time
-from uuid import uuid1
-
 from rest_framework.test import APIRequestFactory
 from django.contrib.auth.models import User
 from django.test import TestCase
-from django.core.management import call_command
 
 from api.utils import test_wait_util
 from plebs.neo_models import Pleb
@@ -20,9 +16,6 @@ class TestTagViews(TestCase):
         test_wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_get_tag_view_success(self):
         request = self.factory.get('/tags/get_tags/')

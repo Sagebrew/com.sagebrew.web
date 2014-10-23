@@ -1,9 +1,7 @@
-import time
 from json import loads
 from uuid import uuid1
 from base64 import b64encode
 from rest_framework.test import APIRequestFactory
-from django.core.management import call_command
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.conf import settings
@@ -30,9 +28,6 @@ class TestCreateFriendRequestView(TestCase):
         test_wait_util(res)
         self.pleb2 = Pleb.nodes.get(email=self.email2)
         self.user2 = User.objects.get(email=self.email2)
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_create_friend_request_view_success(self):
         data = {
@@ -142,9 +137,6 @@ class TestGetFriendRequestsView(TestCase):
         self.pleb2 = Pleb.nodes.get(email=self.email2)
         self.user2 = User.objects.get(email=self.email2)
 
-    def tearDown(self):
-        call_command('clear_neo_db')
-
     def test_get_friend_request_view_success(self):
         data = {'email': self.user.email}
         request = self.factory.post('/relationships/query_friend_requests/',
@@ -240,9 +232,6 @@ class TestRespondFriendRequestView(TestCase):
         test_wait_util(res)
         self.pleb2 = Pleb.nodes.get(email=self.email2)
         self.user2 = User.objects.get(email=self.email2)
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_respond_friend_request_view_success_accept(self):
         friend_request = FriendRequest(friend_request_uuid=str(uuid1()))

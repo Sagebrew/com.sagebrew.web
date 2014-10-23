@@ -20,9 +20,6 @@ class TestPrepareUserSearchHTML(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
-    def tearDown(self):
-        call_command('clear_neo_db')
-
     def test_prepare_user_search_html_success(self):
         res = prepare_user_search_html(self.user.email)
 

@@ -1,8 +1,6 @@
-import time
 from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
-from django.core.management import call_command
 
 from api.utils import test_wait_util
 from plebs.neo_models import Pleb
@@ -24,9 +22,6 @@ class TestCreateFriendRequestUtil(TestCase):
         test_wait_util(res)
         self.pleb2 = Pleb.nodes.get(email=self.email2)
         self.user2 = User.objects.get(email=self.email2)
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_create_friend_request_util_success(self):
         data = {'from_pleb': self.pleb1.email,

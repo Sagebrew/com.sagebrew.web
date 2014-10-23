@@ -1,9 +1,7 @@
-import time
 from uuid import uuid1
 from base64 import b64encode
 from rest_framework.test import APIRequestFactory
 from django.contrib.auth.models import User
-from django.core.management import call_command
 from django.test import TestCase
 from django.conf import settings
 
@@ -22,9 +20,6 @@ class TestSaveCommentView(TestCase):
         test_wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_save_comment_view_correct_data(self):
         my_dict = {'content': 'testastdat', 'post_uuid': str(uuid1()),
@@ -103,9 +98,6 @@ class TestEditCommentView(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
-    def tearDown(self):
-        call_command('clear_neo_db')
-
     def test_edit_comment_view_correct_data(self):
         my_dict = {'content': 'testastdat', 'comment_uuid': str(uuid1()),
                    'pleb': self.user.email}
@@ -183,9 +175,6 @@ class TestDeleteCommentView(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
-    def tearDown(self):
-        call_command('clear_neo_db')
-
     def test_delete_comment_view_correct_data(self):
         my_dict = {'comment_uuid': str(uuid1()),
                    'pleb': self.user.email}
@@ -261,9 +250,6 @@ class TestVoteCommentView(TestCase):
         test_wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_vote_comment_view_correct_data(self):
         my_dict = {'comment_uuid': str(uuid1()),
@@ -341,9 +327,6 @@ class TestFlagCommentView(TestCase):
         test_wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_flag_comment_view_correct_data_spam(self):
         my_dict = {'current_user': self.user.email,

@@ -5,7 +5,6 @@ from uuid import uuid1
 from datetime import datetime
 from django.test import TestCase
 from django.contrib.auth.models import User
-from django.core.management import call_command
 
 from api.utils import test_wait_util
 from sb_posts.utils import save_post
@@ -28,9 +27,6 @@ class TestSaveComments(TestCase):
         test_wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_save_comment(self):
         uuid = str(uuid1())
@@ -92,9 +88,6 @@ class TestEditComment(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
-    def tearDown(self):
-        call_command('clear_neo_db')
-
     def test_edit_comment_success(self):
         comment = SBComment(comment_id=str(uuid1()), content='test_comment')
         comment.save()
@@ -118,13 +111,13 @@ class TestEditComment(TestCase):
         self.assertFalse(edited_comment)
 
     def test_edit_comment_failure_same_content(self):
-        # TODO I Think this tests if there is no time passed not if there is the
-        # same content
         comment = SBComment(comment_id=str(uuid1()), content='test_comment')
         comment.save()
 
         edited_comment = edit_comment_util(comment_uuid=comment.comment_id,
-                                           content="test_comment", pleb="")
+                                           content="test_comment", pleb="",
+                                           last_edited_on=
+                                           datetime.now(pytz.utc))
 
         self.assertFalse(edited_comment)
 
@@ -246,9 +239,6 @@ class TestFlagComment(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
-    def tearDown(self):
-        call_command('clear_neo_db')
-
     def test_flag_comment_success_spam(self):
         comment = SBComment(comment_id=uuid1())
         comment.save()
@@ -312,10 +302,6 @@ class TestGetPostComments(TestCase):
         self.pleb.first_name = 'Tyler'
         self.pleb.last_name = 'Wiersing'
         self.pleb.save()
-
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_get_post_comments_success(self):
         from sb_posts.neo_models import SBPost

@@ -4,7 +4,6 @@ from uuid import uuid1
 from datetime import datetime
 from django.conf import settings
 from django.test import TestCase
-from django.core.management import call_command
 from django.contrib.auth.models import User
 from celery.utils.serialization import UnpickleableExceptionWrapper
 
@@ -30,7 +29,6 @@ class TestSaveQuestionTask(TestCase):
                                    'tags': "this,is,a,test"}
 
     def tearDown(self):
-        call_command('clear_neo_db')
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_save_question_task(self):
@@ -85,7 +83,6 @@ class TestEditQuestionTask(TestCase):
                                    'question_uuid': str(uuid1())}
 
     def tearDown(self):
-        call_command('clear_neo_db')
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_edit_question_task(self):
@@ -224,9 +221,6 @@ class TestQuestionTaskRaceConditions(TestCase):
                                    'content': 'test post',
                                    'question_uuid': str(uuid1())}
 
-    def tearDown(self):
-        call_command('clear_neo_db')
-
     def test_race_condition_edit_multiple_times(self):
         edit_array = []
         question = SBQuestion(**self.question_info_dict)
@@ -263,7 +257,6 @@ class TestVoteTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
-        call_command('clear_neo_db')
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_question_vote_task_up_success(self):
@@ -352,9 +345,6 @@ class TestMultipleTasks(TestCase):
                                    'question_title': "Test question",
                                    'content': 'test post',
                                    'question_uuid': str(uuid1())}
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_create_many_questions(self):
         response_array = []

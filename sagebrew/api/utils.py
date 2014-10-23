@@ -207,7 +207,6 @@ def create_auto_tags(content):
 
 
 def execute_cypher_query(query):
-
     try:
         return db.cypher_query(query)
     except CypherException:

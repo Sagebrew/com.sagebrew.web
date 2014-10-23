@@ -1,6 +1,7 @@
 import pytz
 import logging
 from uuid import uuid1
+from json import dumps
 from datetime import datetime
 from django.shortcuts import render
 from django.template import Context
@@ -11,12 +12,14 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.decorators import login_required, user_passes_test
 from rest_framework.decorators import (api_view, permission_classes)
 
-from api.utils import (spawn_task)#, post_to_api)
+from api.utils import spawn_task
 from sb_registration.utils import verify_completed_registration
 from .utils import (get_question_by_most_recent, get_question_by_uuid,
                     get_question_by_least_recent, prepare_question_search_html)
 from .tasks import create_question_task, vote_question_task, edit_question_task
-from .forms import SaveQuestionForm, EditQuestionForm, VoteQuestionForm
+from .forms import (SaveQuestionForm, EditQuestionForm, VoteQuestionForm,
+                    FlagQuestionForm)
+
 
 logger = logging.getLogger('loggly_logs')
 
@@ -285,3 +288,22 @@ def get_question_search_view(request, question_uuid=str(uuid1())):
         return Response({'html': response}, status=200)
     except:
         return []
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def flag_question_view(request):
+    try:
+        flag_data = request.DATA
+        if type(flag_data) != dict:
+            return Response({'detail': 'Please Provide a valid JSON Object'},
+                            status=400)
+        flag_form = FlagQuestionForm(flag_data)
+        if flag_form.is_valid():
+            spawn_task(task_func=flag_question_task,
+                       task_param=flag_form.cleaned_data)
+            return Response(status=200)
+        else:
+            return Response({"detail": flag_form.errors}, status=400)
+
+    except Exception:
+        logger.exception(dumps({}))

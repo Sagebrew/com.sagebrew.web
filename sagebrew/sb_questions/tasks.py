@@ -149,3 +149,8 @@ def vote_question_task(question_uuid="", current_pleb="", vote_type=""):
                           "exception": "UnhandledException: "})
         raise vote_question_task.retry(exc=Exception, countdown=3,
                                        max_retries=None)
+
+
+@shared_task()
+def flag_question_task(question_uuid, current_pleb, flag_reason):
+    pass

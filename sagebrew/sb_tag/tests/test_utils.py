@@ -68,11 +68,11 @@ class TestCreateAutoTagUtil(TestCase):
         self.user = User.objects.get(email=self.email)
 
     def test_create_auto_tag_util_success(self):
-        question = SBQuestion(question_id=uuid1())
+        question = SBQuestion(question_id=str(uuid1()))
         question.save()
         util_dict = [{'object_type': 'question',
                       'object_uuid': question.question_id,
-                      'tags': {'relevance': '.9', 'text': 'test'}}]
+                      'tags': {'relevance': '.9', 'text': 'test auto tag'}}]
         res = add_auto_tags_util(util_dict)
 
         self.assertTrue(res)

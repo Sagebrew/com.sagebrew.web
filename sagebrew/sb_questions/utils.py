@@ -37,20 +37,24 @@ def create_question_util(content="", current_pleb="", question_title="",
 
         content_blob = TextBlob(content)
         title_blob = TextBlob(question_title)
-        my_question = SBQuestion(content=content, question_title=question_title,
+        my_question = SBQuestion(content=content,
+                                 question_title=question_title,
                                  question_id=str(uuid1()))
         my_question.save()
         my_question.subjectivity = content_blob.subjectivity
         my_question.positivity = content_blob.polarity
         my_question.title_polarity = title_blob.polarity
         my_question.title_subjectivity = title_blob.subjectivity
-        search_dict = {'question_content': my_question.content, 'user': current_pleb,
-                       'question_title': my_question.question_title, 'tags': tags,
+        search_dict = {'question_content': my_question.content,
+                       'user': current_pleb,
+                       'question_title': my_question.question_title,
+                       'tags': tags,
                        'question_uuid': my_question.question_id,
                        'post_date': my_question.date_created,
                        'related_user': ''}
         search_data = {'object_type': 'question', 'object_data': search_dict}
-        spawn_task(task_func=add_object_to_search_index, task_param=search_data, countdown=1)
+        spawn_task(task_func=add_object_to_search_index,
+                   task_param=search_data, countdown=1)
         rel = my_question.owned_by.connect(poster)
         rel.save()
         rel_from_pleb = poster.questions.connect(my_question)
@@ -341,13 +345,16 @@ def edit_question_util(question_uuid="", content="", last_edited_on="",
 
         try:
             if my_question.last_edited_on > last_edited_on:
-                return{'question': my_question, 'detail': 'last edit more recent'}
-        except Exception:
-            logger.exception({"function": edit_question_util.__name__,
-                              "exception": "UnhandledException: "})
+                return {'question': my_question, 'detail': 'last edit more recent'}
+        except TypeError:
+            pass
 
-        my_question.content = content
-        my_question.last_edited_on = last_edited_on
+        edit_question = create_question_util(content=content, current_pleb=current_pleb,
+                                             question_title=my_question.question_title,
+                                             question_uuid = str(uuid1()))
+        my_question.edits.connect(edit_question)
+        edit_question.edit_to.connect(my_question)
+        my_question.last_edited_on = edit_question.date_created
         my_question.save()
         return True
     except CypherException:

@@ -691,7 +691,7 @@ class TestUpdateSearchQuery(TestCase):
 
     def test_update_search_query_success_search_query_exists_unconnected(self):
         from sb_search.neo_models import SearchQuery
-        test_query = SearchQuery(search_query="this is a test search")
+        test_query = SearchQuery(search_query="this is a test search query")
         test_query.save()
 
         task_data = {
@@ -747,7 +747,7 @@ class TestCreateKeywordTask(TestCase):
 
     def test_create_keyword_task_success_keyword_exists(self):
         from sb_search.neo_models import SearchQuery, KeyWord
-        query = SearchQuery(search_query="test query")
+        query = SearchQuery(search_query="test_query")
         query.save()
         keyword = KeyWord(keyword="test")
         keyword.save()

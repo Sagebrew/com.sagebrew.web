@@ -102,7 +102,8 @@ class TestEditQuestionUtils(TestCase):
 
     def test_edit_question_util(self):
         self.question_info_dict['question_id']=str(uuid1())
-        question = SBQuestion(question_id=str(uuid1()), content="test")
+        question = SBQuestion(question_id=str(uuid1()), content="test",
+                              question_title='Test Title')
         question.save()
 
         edit_question_dict = {'current_pleb': self.question_info_dict['current_pleb'],
@@ -115,7 +116,8 @@ class TestEditQuestionUtils(TestCase):
 
     def test_edit_question_util_to_be_deleted(self):
         self.question_info_dict['question_id']=str(uuid1())
-        question = SBQuestion(question_id=str(uuid1()), content="test")
+        question = SBQuestion(question_id=str(uuid1()), content="test",
+                              question_title='Test Title')
         question.save()
         question.to_be_deleted = True
         question.save()
@@ -144,7 +146,8 @@ class TestEditQuestionUtils(TestCase):
     def test_edit_question_util_same_timestamp(self):
         now = datetime.now(pytz.utc)
         self.question_info_dict['question_id']=str(uuid1())
-        question = SBQuestion(question_id=str(uuid1()), content="test")
+        question = SBQuestion(question_id=str(uuid1()), content="test",
+                              question_title='Test Title')
         question.save()
         question.last_edited_on = now
         question.save()
@@ -162,7 +165,8 @@ class TestEditQuestionUtils(TestCase):
         future_edit = now + timedelta(minutes=10)
 
         self.question_info_dict['question_id']=str(uuid1())
-        question = SBQuestion(question_id=str(uuid1()),content="test")
+        question = SBQuestion(question_id=str(uuid1()),content="test",
+                              question_title='Test Title')
         question.save()
         question.last_edited_on = future_edit
         question.save()

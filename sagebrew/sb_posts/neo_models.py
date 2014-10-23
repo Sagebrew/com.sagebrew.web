@@ -6,6 +6,8 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty)
 
+class EditRelationshipModel(StructuredRel):
+    time_edited = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
 class PostedOnRel(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
@@ -37,6 +39,7 @@ class SBBase(StructuredNode):
     flagged_as_duplicate = IntegerProperty(default=0)
     flagged_as_other_count = IntegerProperty(default=0)
     view_count = IntegerProperty(default=0)
+    original = BooleanProperty(default=True)
 
     # relationships
     auto_tags = RelationshipTo('sb_tag.neo_models.SBAutoTag',

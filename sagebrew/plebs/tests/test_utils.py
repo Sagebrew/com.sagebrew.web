@@ -1,7 +1,6 @@
 import shortuuid
 from django.test import TestCase
 from django.contrib.auth.models import User
-from django.core.management import call_command
 
 from api.utils import test_wait_util
 from plebs.neo_models import Pleb

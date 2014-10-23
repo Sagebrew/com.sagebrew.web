@@ -196,8 +196,11 @@ def edit_comment_util(comment_uuid=str(uuid1()), content="",
         return False
     try:
         my_comment = SBComment.nodes.get(comment_id=comment_uuid)
-        if my_comment.last_edited_on > last_edited_on:
-            return False
+        try:
+            if my_comment.last_edited_on > last_edited_on:
+                return False
+        except TypeError:
+            pass
 
         if my_comment.content == content:
             return False

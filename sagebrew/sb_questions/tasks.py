@@ -1,5 +1,6 @@
 import logging
 from uuid import uuid1
+from json import dumps
 from celery import shared_task
 from neomodel import DoesNotExist
 
@@ -7,7 +8,8 @@ from plebs.neo_models import Pleb
 from api.exceptions import DoesNotExistWrapper
 from .neo_models import SBQuestion
 from .utils import (create_question_util, upvote_question_util,
-                    downvote_question_util, edit_question_util)
+                    downvote_question_util, edit_question_util,
+                    flag_question_util)
 
 logger = logging.getLogger('loggly_logs')
 
@@ -148,4 +150,28 @@ def vote_question_task(question_uuid="", current_pleb="", vote_type=""):
         logger.exception({"function": vote_question_task.__name__,
                           "exception": "UnhandledException: "})
         raise vote_question_task.retry(exc=Exception, countdown=3,
+                                       max_retries=None)
+
+
+@shared_task()
+def flag_question_task(question_uuid, current_pleb, flag_reason):
+    try:
+        res = flag_question_util(question_uuid=question_uuid,
+                                 current_pleb=current_pleb,
+                                 flag_reason=flag_reason)
+        if res is None:
+            raise TypeError
+        elif res == True:
+            return True
+        else:
+            return False
+
+    except TypeError:
+        raise flag_question_task.retry(exc=TypeError, countdown=3,
+                                       max_retries=None)
+
+    except Exception:
+        logger.exception(dumps({"function": flag_question_task.__name__,
+                                "exception": "UnhandledException: "}))
+        raise flag_question_task.retyr(exc=Exception, countdown=3,
                                        max_retries=None)

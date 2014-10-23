@@ -31,3 +31,8 @@ class VoteQuestionForm(forms.Form):
     question_uuid = forms.CharField()
     current_pleb = forms.EmailField()
     vote_type = forms.CharField()
+
+class FlagQuestionForm(forms.Form):
+    question_uuid = forms.CharField()
+    current_pleb = forms.EmailField()
+    flag_reason = forms.CharField()

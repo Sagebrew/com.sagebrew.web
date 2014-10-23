@@ -75,6 +75,7 @@ def add_auto_tags_util(tag_list):
                 rel.save()
                 tag.questions.connect(question)
                 tag_array.append(tag)
+                print 1, tag.tag_name
             except (SBAutoTag.DoesNotExist, DoesNotExist):
                 try:
                     question =SBQuestion.nodes.get(question_id=tag['object_uuid'])
@@ -86,6 +87,7 @@ def add_auto_tags_util(tag_list):
                     rel.save()
                     tag.questions.connect(question)
                     tag_array.append(tag)
+                    print 2, tag.tag_name
                 except UniqueProperty:
                     logger.exception({'function': add_auto_tags_util.__name__,
                                       'exception': "UniqueProperty: "})

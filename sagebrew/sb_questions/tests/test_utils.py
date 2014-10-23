@@ -146,7 +146,8 @@ class TestEditQuestionUtils(TestCase):
     def test_edit_question_util_same_timestamp(self):
         now = datetime.now(pytz.utc)
         self.question_info_dict['question_id']=str(uuid1())
-        question = SBQuestion(question_id=str(uuid1()), content="test")
+        question = SBQuestion(question_id=str(uuid1()), content="test",
+                              question_title='Test Title')
         question.save()
         question.last_edited_on = now
         question.save()
@@ -164,7 +165,8 @@ class TestEditQuestionUtils(TestCase):
         future_edit = now + timedelta(minutes=10)
 
         self.question_info_dict['question_id']=str(uuid1())
-        question = SBQuestion(question_id=str(uuid1()),content="test")
+        question = SBQuestion(question_id=str(uuid1()),content="test",
+                              question_title='Test Title')
         question.save()
         question.last_edited_on = future_edit
         question.save()

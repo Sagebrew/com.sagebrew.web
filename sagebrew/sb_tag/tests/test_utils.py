@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.core.management import call_command
 from django.test import TestCase
 
+from api.utils import test_wait_util
 from sb_questions.neo_models import SBQuestion
 from sb_tag.utils import (add_tag_util, add_auto_tags_util,
                           create_tag_relations)
@@ -16,17 +17,10 @@ class TestCreateTagUtil(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -73,17 +67,10 @@ class TestCreateAutoTagUtil(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -147,17 +134,10 @@ class TestCreateAutoTagRelationships(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def tearDown(self):
         call_command('clear_neo_db')

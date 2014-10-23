@@ -12,6 +12,7 @@ from django.contrib.sessions.backends.db import SessionStore
 from django.core.management import call_command
 from rest_framework.test import APIRequestFactory, APIClient
 
+from api.utils import test_wait_util
 from sb_registration.views import (profile_information, confirm_view,
                                    signup_view_api, signup_view, logout_view,
                                    login_view, login_view_api,
@@ -56,17 +57,10 @@ class ProfileInfoTest(TestCase):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
         self.pleb.save()
 
@@ -182,17 +176,10 @@ class TestSignupView(TestCase):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
         self.pleb.save()
 
@@ -212,19 +199,10 @@ class TestSignupAPIView(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("Tyler", "Wiersing", self.email, "testpassword",
                                username=shortuuid.uuid())
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
-        self.pleb.email_verified = True
-        self.pleb.save()
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -339,19 +317,10 @@ class TestLoginView(TestCase):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while not res['task_id'].result.ready():
-            time.sleep(1)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
         self.pleb.save()
 
@@ -370,17 +339,10 @@ class TestLoginAPIView(TestCase):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpass")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
         self.pleb.save()
 
@@ -511,17 +473,10 @@ class TestLogoutView(TestCase):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpass")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
         self.pleb.save()
 
@@ -547,17 +502,10 @@ class TestEmailVerificationView(TestCase):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpass")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = False
         self.pleb.save()
 
@@ -616,17 +564,10 @@ class TestResendEmailVerificationView(TestCase):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpass")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = False
         self.pleb.save()
 

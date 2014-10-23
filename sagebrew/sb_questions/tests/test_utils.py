@@ -6,6 +6,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.management import call_command
 
+from api.utils import test_wait_util
 from sb_questions.utils import (create_question_util, upvote_question_util,
                                 downvote_question_util, edit_question_util,
                                 prepare_get_question_dictionary)
@@ -17,17 +18,10 @@ class TestCreateQuestion(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
                                    'content': 'test post',
@@ -63,17 +57,10 @@ class TestPrepareQuestionDictUtil(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
                                    'content': 'test post',
@@ -112,17 +99,10 @@ class TestEditQuestionUtils(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
                                    'content': 'test post',
@@ -219,17 +199,10 @@ class TestVoteQuestionUtil(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
                                    'content': 'test post',

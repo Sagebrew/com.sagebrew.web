@@ -14,6 +14,7 @@ from django.core.urlresolvers import reverse
 
 from elasticsearch import Elasticsearch
 
+from api.utils import test_wait_util
 from plebs.neo_models import Pleb
 from sb_search.views import search_result_api, search_result_view
 from sb_questions.neo_models import SBQuestion
@@ -24,17 +25,10 @@ class TestSearchResultView(TestCase):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.pleb.completed_profile_info = True
         self.pleb.save()
 
@@ -254,17 +248,10 @@ class TestSearchResultAPI(TestCase):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "password")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def tearDown(self):
         call_command('clear_neo_db')
@@ -306,17 +293,10 @@ class TestSearchResultAPIReturns(TestCase):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "password")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.pleb.first_name='Tyler'
         self.pleb.last_name='Wiersing'
         self.pleb.save()

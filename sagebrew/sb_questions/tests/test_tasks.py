@@ -8,6 +8,7 @@ from django.core.management import call_command
 from django.contrib.auth.models import User
 from celery.utils.serialization import UnpickleableExceptionWrapper
 
+from api.utils import test_wait_util
 from sb_questions.tasks import (create_question_task, edit_question_task,
                                 vote_question_task)
 from plebs.neo_models import Pleb
@@ -19,17 +20,10 @@ class TestSaveQuestionTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
                                    'content': 'test post',
@@ -81,17 +75,10 @@ class TestEditQuestionTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
                                    'content': 'test post',
@@ -228,17 +215,10 @@ class TestQuestionTaskRaceConditions(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.pleb.email,
                                    'question_title': "Test question",
                                    'content': 'test post',
@@ -272,17 +252,10 @@ class TestVoteTask(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
                                    'content': 'test post',
@@ -371,17 +344,10 @@ class TestMultipleTasks(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
-        while not res['task_id'].ready():
-            time.sleep(1)
-        self.assertTrue(res['task_id'].result)
-        while True:
-            try:
-                self.pleb = Pleb.nodes.get(email=self.email)
-                self.user = User.objects.get(email=self.email)
-            except Exception:
-                pass
-            else:
-                break
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.pleb.email,
                                    'question_title': "Test question",
                                    'content': 'test post',

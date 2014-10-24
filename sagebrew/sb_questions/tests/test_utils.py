@@ -11,7 +11,8 @@ from sb_questions.utils import (create_question_util, upvote_question_util,
                                 prepare_get_question_dictionary,
                                 get_question_by_uuid,
                                 get_question_by_least_recent,
-                                flag_question_util)
+                                flag_question_util,
+                                prepare_question_search_html)
 from sb_questions.neo_models import SBQuestion
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util
@@ -26,8 +27,7 @@ class TestCreateQuestion(TestCase):
         self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
-                                   'content': 'test post',
-                                   'question_uuid': str(uuid1())}
+                                   'content': 'test post'}
 
     def test_save_question_util_success(self):
         response = create_question_util(**self.question_info_dict)
@@ -52,6 +52,7 @@ class TestCreateQuestion(TestCase):
 
         self.assertIsNone(response)
 
+
 class TestPrepareQuestionDictUtil(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
@@ -62,8 +63,7 @@ class TestPrepareQuestionDictUtil(TestCase):
         self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
-                                   'content': 'test post',
-                                   'question_uuid': str(uuid1())}
+                                   'content': 'test post'}
 
     def test_get_question_dict_by_uuid(self):
         self.question_info_dict.pop('question_uuid',None)
@@ -120,8 +120,7 @@ class TestGetQuestionByUUID(TestCase):
         self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
-                                   'content': 'test post',
-                                   'question_uuid': str(uuid1())}
+                                   'content': 'test post'}
 
     def test_get_question_by_uuid_success(self):
         self.question_info_dict.pop('question_uuid',None)
@@ -163,8 +162,7 @@ class TestGetQuestionByLeastRecent(TestCase):
         self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
-                                   'content': 'test post',
-                                   'question_uuid': str(uuid1())}
+                                   'content': 'test post'}
 
     def test_get_questions_by_least_recent_success(self):
         question_array = []
@@ -448,3 +446,34 @@ class TestFlagQuestionUtil(TestCase):
 
         self.assertIsNone(res)
 
+
+class TestPrepareQuestionSearchHTML(TestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.question_info_dict = {'question_title': "Test question",
+                                   'content': 'test post',
+                                   'question_id': str(uuid1())}
+        self.pleb.first_name = "Tyler"
+        self.pleb.last_name = "Wiersing"
+        self.pleb.save()
+
+    def test_prepare_question_search_html_success(self):
+        self.question_info_dict['question_id'] = str(uuid1())
+        question = SBQuestion(**self.question_info_dict)
+        question.save()
+        question.owned_by.connect(self.pleb)
+        question.save()
+
+        res = prepare_question_search_html(question.question_id)
+
+        self.assertTrue(res)
+
+    def test_prepare_question_search_html_failure_question_does_not_exist(self):
+        res = prepare_question_search_html(str(uuid1()))
+
+        self.assertFalse(res)

@@ -75,7 +75,7 @@ def edit_answer_task(content="", answer_uuid="", last_edited_on=None,
                                          answer_uuid=answer_uuid,
                                          current_pleb=current_pleb,
                                          last_edited_on=last_edited_on)
-        if edit_response:
+        if edit_response == True:
             return True
         if edit_response['detail'] == 'to be deleted':
             return False

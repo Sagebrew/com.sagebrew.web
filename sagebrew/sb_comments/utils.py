@@ -195,7 +195,10 @@ def edit_comment_util(comment_uuid=str(uuid1()), content="",
     if last_edited_on is None:
         return False
     try:
-        my_comment = SBComment.nodes.get(comment_id=comment_uuid)
+        try:
+            my_comment = SBComment.nodes.get(comment_id=comment_uuid)
+        except (SBComment.DoesNotExist, DoesNotExist):
+            return {'detail': "retry"}
         try:
             if my_comment.last_edited_on > last_edited_on:
                 return False
@@ -215,10 +218,7 @@ def edit_comment_util(comment_uuid=str(uuid1()), content="",
         my_comment.last_edited_on = last_edited_on
         my_comment.save()
         return True
-    except SBComment.DoesNotExist:
-        return {'detail': "retry"}
-    except DoesNotExist:
-        return {'detail': 'retry'}
+
     except Exception:
         logger.exception({"function": edit_comment_util.__name__,
                           'exception': "UnhandledException: "})

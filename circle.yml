@@ -35,7 +35,8 @@ test:
     all:
       branch: /*/
         - coverage html
-    #    - pep8 --show-source --exclude='~/com.sagebrew.web/sagebrew/api/alchemyapi.py` --show-pep8 ~/com.sagebrew.web/sagebrew/
+        - coveralls --rcfile=$CIRCLE_ARTIFACTS
+        #- pep8 --show-source --exclude='~/com.sagebrew.web/sagebrew/api/alchemyapi.py` --show-pep8 ~/com.sagebrew.web/sagebrew/
         - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
         - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg
         - docker build --no-cache=$CLEAR_CACHE -t
@@ -110,7 +111,6 @@ checkout:
     - git submodule update --init
 
 deployment:
-  - coveralls --rcfile=$CIRCLE_ARTIFACTS
 #  production:
 #    branch: master
   staging:

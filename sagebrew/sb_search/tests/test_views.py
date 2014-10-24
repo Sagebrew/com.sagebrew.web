@@ -332,6 +332,7 @@ class TestSearchResultAPIReturns(TestCase):
                                             'into the atmosphere? '}
 
     def tearDown(self):
+        self.pleb.delete()
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         es.delete_by_query('full-search-user-specific-1', 'question',
                            body={
@@ -572,7 +573,9 @@ class TestSearchResultAPIReturns(TestCase):
                                                 'gas becoming more feasible '
                                                 'and popular, would it '
                                                 'be better for us to ban '
-                                                'use of fossil fuels?',
+                                                'use of fossil fuels? Also,'
+                                                'What could we use instead of'
+                                                'fossil fuels?',
                                )
         question2.save()
         es.index(index='full-search-user-specific-1',
@@ -587,6 +590,7 @@ class TestSearchResultAPIReturns(TestCase):
                                           kwargs={'query_param':'fossil fuels',
                                                   'page': '1'}))
         result_dict = loads(request.content)
+
         res1 = SBQuestion.nodes.get(question_id=result_dict['html'][0]['question_uuid'])
         res2 = SBQuestion.nodes.get(question_id=result_dict['html'][1]['question_uuid'])
         self.assertEqual(res1.question_title, question2.question_title)

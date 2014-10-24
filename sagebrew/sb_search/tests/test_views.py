@@ -541,7 +541,12 @@ class TestSearchResultAPIReturns(TestCase):
                       request.content)
 
     def test_search_result_api_similar_questions_and_query(self):
-        self.user.email = 'suppressionlist@simulator.amazonses.com'
+        email = 'suppressionlist@simulator.amazonses.com'
+        try:
+            pleb = Pleb.nodes.get(email=email)
+        except Pleb.DoesNotExist:
+            pleb = Pleb(email=email)
+        self.user.email = email
         self.user.save()
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(question_id=str(uuid1()),
@@ -553,7 +558,7 @@ class TestSearchResultAPIReturns(TestCase):
                                down_vote_number=0,
                                date_created=datetime.now(pytz.utc))
         question1.save()
-        question1.owned_by.connect(self.pleb)
+        question1.owned_by.connect(pleb)
         es.index(index='full-search-user-specific-1',
                  doc_type='question',
                  body={

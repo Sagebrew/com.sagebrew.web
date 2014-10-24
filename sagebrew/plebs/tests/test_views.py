@@ -294,13 +294,13 @@ class TestProfilePageReputationPage(TestCase):
     def test_profile_reputation_page_success(self):
         request = self.factory.get('/%s/reputation/' % self.email)
         request.user = self.user
-        response = about_page(request, self.email)
+        response = reputation_page(request, self.email)
         self.assertEqual(response.status_code, 200)
 
     def test_profile_reputation_page_unauthenticated(self):
         request = self.factory.get('/%s/reputation/' % self.email)
         request.user = AnonymousUser()
-        response = about_page(request, self.email)
+        response = reputation_page(request, self.email)
         self.assertEqual(response.status_code, 302)
 
 class TestProfilePageFriendPage(TestCase):
@@ -323,12 +323,12 @@ class TestProfilePageFriendPage(TestCase):
     def test_profile_friend_page_success(self):
         request = self.factory.get('/%s/friends/' % self.email)
         request.user = self.user
-        response = about_page(request, self.email)
+        response = friends_page(request, self.email)
         self.assertEqual(response.status_code, 200)
 
     def test_profile_friend_page_unauthenticated(self):
         request = self.factory.get('/%s/friends/' % self.email)
         request.user = AnonymousUser()
-        response = about_page(request, self.email)
+        response = friends_page(request, self.email)
         self.assertEqual(response.status_code, 302)
 

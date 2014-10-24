@@ -81,7 +81,6 @@ class TestPrepareQuestionDictUtil(TestCase):
     def test_get_questions(self):
         question_array = []
         for num in range(1,5):
-            self.question_info_dict['question_uuid'] = str(uuid1())
             response = create_question_util(**self.question_info_dict)
             question_array.append(response)
 
@@ -167,7 +166,6 @@ class TestGetQuestionByLeastRecent(TestCase):
     def test_get_questions_by_least_recent_success(self):
         question_array = []
         for num in range(1,5):
-            self.question_info_dict['question_uuid'] = str(uuid1())
             response = create_question_util(**self.question_info_dict)
             question_array.append(response)
 

@@ -452,3 +452,4 @@ def flag_question_util(question_uuid, current_pleb, flag_reason):
     except Exception:
         logger.exception(dumps({"function": flag_question_util.__name__,
                                 "exception": "UnhandledException: "}))
+        return False

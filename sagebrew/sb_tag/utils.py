@@ -39,12 +39,6 @@ def create_tag_relations(tags):
             temp_list = []
         return True
 
-    except IndexError:
-        return False
-
-    except AttributeError:
-        return False
-
     except Exception:
         logger.exception(dumps({"function": create_tag_relations.__name__,
                                 "exception": "UnhandledException: "}))

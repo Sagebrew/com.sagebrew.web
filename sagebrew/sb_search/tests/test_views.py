@@ -541,7 +541,7 @@ class TestSearchResultAPIReturns(TestCase):
                       request.content)
 
     def test_search_result_api_similar_questions_and_query(self):
-        email = str(uuid1()).strip('-')
+        email = '%s%s'%(str(uuid1()).replace("-", ""), '@gmail.com')
         pleb = Pleb(email=email)
         pleb.save()
         self.user.email = email
@@ -594,7 +594,7 @@ class TestSearchResultAPIReturns(TestCase):
                                           kwargs={'query_param':'fossil fuels',
                                                   'page': '1'}))
         result_dict = loads(request.content)
-
+        
         res1 = SBQuestion.nodes.get(question_id=result_dict['html'][0]['question_uuid'])
         res2 = SBQuestion.nodes.get(question_id=result_dict['html'][1]['question_uuid'])
         self.assertEqual(res1.question_title, question2.question_title)

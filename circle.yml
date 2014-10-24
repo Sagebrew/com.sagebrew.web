@@ -32,74 +32,77 @@ test:
     - coverage run --source='.' manage.py test sb_tag.tests.test_utils.TestCreateAutoTagUtil.test_create_auto_tag_util_success_tag_exists:
         timeout: 300
   post:
-    - coverage html
-#    - pep8 --show-source --exclude='~/com.sagebrew.web/sagebrew/api/alchemyapi.py` --show-pep8 ~/com.sagebrew.web/sagebrew/
-    - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
-    - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg
-    - docker build --no-cache=$CLEAR_CACHE -t
-        sagebrew/sb_worker:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/worker/
-    - docker build --no-cache=$CLEAR_CACHE -t
-        sagebrew/sb_web:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/web_app/
-    # DO NOT CHANGE GRAPHEN_NEO4J_REST_URL to NEO4J_REST_URL the NEO4J_REST_URL
-    # points to the local circle instance and the docker instance needs the
-    # graphen instance to work
-    - docker run -h box-worker --name worker_one
-        -e NEO4J_REST_URL=$GRAPHEN_NEO4J_REST_URL -e APP_USER=$APP_USER
-        -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME
-        -e LOG_ACCOUNT=$LOG_ACCOUNT -e LOG_TOKEN=$LOG_TOKEN
-        -e CIRCLECI=$CIRCLECI -e CIRCLE_BRANCH=$CIRCLE_BRANCH
-        -e APPLICATION_SECRET_KEY=$APPLICATION_SECRET_KEY
-        -e BOMBERMAN_API_KEY=$BOMBERMAN_API_KEY
-        -e SSL_CERT_LOCATION=$SSL_CERT_LOCATION
-        -e SSL_KEY_LOCATION=$SSL_KEY_LOCATION
-        -e AWS_S3_BUCKET=$AWS_S3_BUCKET
-        -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS
-        -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-        -e ALCHEMY_API_KEY=$ALCHEMY_API_KEY
-        -e ADDRESS_VALIDATION_ID=$ADDRESS_VALIDATION_ID
-        -e ADDRESS_VALIDATION_TOKEN=$ADDRESS_VALIDATION_TOKEN
-        -e ELASTIC_SEARCH_HOST=$ELASTIC_SEARCH_HOST
-        -e ELASTIC_SEARCH_PORT=$ELASTIC_SEARCH_PORT
-        -e ELASTIC_SEARCH_USER=$ELASTIC_SEARCH_USER
-        -e ELASTIC_SEARCH_KEY=$ELASTIC_SEARCH_KEY
-        -e REDIS_LOCATION=$REDIS_LOCATION
-        -e REDIS_PORT=$REDIS_PORT
-        -e QUEUE_USERNAME=$QUEUE_USERNAME
-        -e QUEUE_PASSWORD=$QUEUE_PASSWORD
-        -e QUEUE_HOST=$QUEUE_HOST
-        -e QUEUE_PORT=$QUEUE_PORT
-        -d -t sagebrew/sb_worker:$CIRCLE_SHA1
-    - docker run -h box-webapp --name web_app_one -p 443:443
-        -e NEO4J_REST_URL=$GRAPHEN_NEO4J_REST_URL -e APP_USER=$APP_USER
-        -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME
-        -e LOG_ACCOUNT=$LOG_ACCOUNT -e LOG_TOKEN=$LOG_TOKEN
-        -e CIRCLECI=$CIRCLECI -e CIRCLE_BRANCH=$CIRCLE_BRANCH
-        -e APPLICATION_SECRET_KEY=$APPLICATION_SECRET_KEY
-        -e BOMBERMAN_API_KEY=$BOMBERMAN_API_KEY
-        -e SSL_CERT_LOCATION=$SSL_CERT_LOCATION
-        -e SSL_KEY_LOCATION=$SSL_KEY_LOCATION
-        -e AWS_S3_BUCKET=$AWS_S3_BUCKET
-        -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS
-        -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-        -e ALCHEMY_API_KEY=$ALCHEMY_API_KEY
-        -e ADDRESS_VALIDATION_ID=$ADDRESS_VALIDATION_ID
-        -e ADDRESS_VALIDATION_TOKEN=$ADDRESS_VALIDATION_TOKEN
-        -e ELASTIC_SEARCH_HOST=$ELASTIC_SEARCH_HOST
-        -e ELASTIC_SEARCH_PORT=$ELASTIC_SEARCH_PORT
-        -e ELASTIC_SEARCH_USER=$ELASTIC_SEARCH_USER
-        -e ELASTIC_SEARCH_KEY=$ELASTIC_SEARCH_KEY
-        -e REDIS_LOCATION=$REDIS_LOCATION
-        -e REDIS_PORT=$REDIS_PORT
-        -e QUEUE_USERNAME=$QUEUE_USERNAME
-        -e QUEUE_PASSWORD=$QUEUE_PASSWORD
-        -e QUEUE_HOST=$QUEUE_HOST
-        -e QUEUE_PORT=$QUEUE_PORT
-        -d -t sagebrew/sb_web:$CIRCLE_SHA1
-    - sleep 5
-    - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/
-    branch: [staging, master]
-    commands:
-      - coverage --fail-under=95 html
+    all:
+      branch: /*/
+        - coverage html
+    #    - pep8 --show-source --exclude='~/com.sagebrew.web/sagebrew/api/alchemyapi.py` --show-pep8 ~/com.sagebrew.web/sagebrew/
+        - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
+        - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg
+        - docker build --no-cache=$CLEAR_CACHE -t
+            sagebrew/sb_worker:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/worker/
+        - docker build --no-cache=$CLEAR_CACHE -t
+            sagebrew/sb_web:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/web_app/
+        # DO NOT CHANGE GRAPHEN_NEO4J_REST_URL to NEO4J_REST_URL the NEO4J_REST_URL
+        # points to the local circle instance and the docker instance needs the
+        # graphen instance to work
+        - docker run -h box-worker --name worker_one
+            -e NEO4J_REST_URL=$GRAPHEN_NEO4J_REST_URL -e APP_USER=$APP_USER
+            -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME
+            -e LOG_ACCOUNT=$LOG_ACCOUNT -e LOG_TOKEN=$LOG_TOKEN
+            -e CIRCLECI=$CIRCLECI -e CIRCLE_BRANCH=$CIRCLE_BRANCH
+            -e APPLICATION_SECRET_KEY=$APPLICATION_SECRET_KEY
+            -e BOMBERMAN_API_KEY=$BOMBERMAN_API_KEY
+            -e SSL_CERT_LOCATION=$SSL_CERT_LOCATION
+            -e SSL_KEY_LOCATION=$SSL_KEY_LOCATION
+            -e AWS_S3_BUCKET=$AWS_S3_BUCKET
+            -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS
+            -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+            -e ALCHEMY_API_KEY=$ALCHEMY_API_KEY
+            -e ADDRESS_VALIDATION_ID=$ADDRESS_VALIDATION_ID
+            -e ADDRESS_VALIDATION_TOKEN=$ADDRESS_VALIDATION_TOKEN
+            -e ELASTIC_SEARCH_HOST=$ELASTIC_SEARCH_HOST
+            -e ELASTIC_SEARCH_PORT=$ELASTIC_SEARCH_PORT
+            -e ELASTIC_SEARCH_USER=$ELASTIC_SEARCH_USER
+            -e ELASTIC_SEARCH_KEY=$ELASTIC_SEARCH_KEY
+            -e REDIS_LOCATION=$REDIS_LOCATION
+            -e REDIS_PORT=$REDIS_PORT
+            -e QUEUE_USERNAME=$QUEUE_USERNAME
+            -e QUEUE_PASSWORD=$QUEUE_PASSWORD
+            -e QUEUE_HOST=$QUEUE_HOST
+            -e QUEUE_PORT=$QUEUE_PORT
+            -d -t sagebrew/sb_worker:$CIRCLE_SHA1
+        - docker run -h box-webapp --name web_app_one -p 443:443
+            -e NEO4J_REST_URL=$GRAPHEN_NEO4J_REST_URL -e APP_USER=$APP_USER
+            -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME
+            -e LOG_ACCOUNT=$LOG_ACCOUNT -e LOG_TOKEN=$LOG_TOKEN
+            -e CIRCLECI=$CIRCLECI -e CIRCLE_BRANCH=$CIRCLE_BRANCH
+            -e APPLICATION_SECRET_KEY=$APPLICATION_SECRET_KEY
+            -e BOMBERMAN_API_KEY=$BOMBERMAN_API_KEY
+            -e SSL_CERT_LOCATION=$SSL_CERT_LOCATION
+            -e SSL_KEY_LOCATION=$SSL_KEY_LOCATION
+            -e AWS_S3_BUCKET=$AWS_S3_BUCKET
+            -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS
+            -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+            -e ALCHEMY_API_KEY=$ALCHEMY_API_KEY
+            -e ADDRESS_VALIDATION_ID=$ADDRESS_VALIDATION_ID
+            -e ADDRESS_VALIDATION_TOKEN=$ADDRESS_VALIDATION_TOKEN
+            -e ELASTIC_SEARCH_HOST=$ELASTIC_SEARCH_HOST
+            -e ELASTIC_SEARCH_PORT=$ELASTIC_SEARCH_PORT
+            -e ELASTIC_SEARCH_USER=$ELASTIC_SEARCH_USER
+            -e ELASTIC_SEARCH_KEY=$ELASTIC_SEARCH_KEY
+            -e REDIS_LOCATION=$REDIS_LOCATION
+            -e REDIS_PORT=$REDIS_PORT
+            -e QUEUE_USERNAME=$QUEUE_USERNAME
+            -e QUEUE_PASSWORD=$QUEUE_PASSWORD
+            -e QUEUE_HOST=$QUEUE_HOST
+            -e QUEUE_PORT=$QUEUE_PORT
+            -d -t sagebrew/sb_web:$CIRCLE_SHA1
+        - sleep 5
+        - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/
+    production:
+      branch: [staging, master]
+      commands:
+        - coverage --fail-under=95 html
 
 checkout:
   post:

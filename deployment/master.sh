@@ -11,7 +11,7 @@ sed "s/<TAG>/$SHA1/;s/<PROJECT_NAME>/$PROJECT_NAME/;s/<BUCKET>/$CIRCLE_BRANCH/;s
 
 aws s3 cp $DOCKERRUN_FILE_WEB s3://$EB_BUCKET/$DOCKERRUN_FILE_WEB
 
-/home/ubuntu/AWS-ElasticBeanstalk-CLI-2.6.3/eb/linux/python2.7/eb
+#/home/ubuntu/AWS-ElasticBeanstalk-CLI-2.6.3/eb/linux/python2.7/eb
 
 aws elasticbeanstalk create-application-version --application-name production-web \
   --version-label $SHA1 --source-bundle S3Bucket=$EB_BUCKET,S3Key=$DOCKERRUN_FILE_WEB
@@ -24,7 +24,7 @@ aws elasticbeanstalk update-environment --environment-name production-web-env \
 
 aws s3 cp $DOCKERRUN_FILE_WORKER s3://$EB_BUCKET/$DOCKERRUN_WORKER
 
-/home/ubuntu/AWS-ElasticBeanstalk-CLI-2.6.3/eb/linux/python2.7/eb
+#/home/ubuntu/AWS-ElasticBeanstalk-CLI-2.6.3/eb/linux/python2.7/eb
 
 aws elasticbeanstalk create-application-version --application-name production-worker \
   --version-label $SHA1 --source-bundle S3Bucket=$EB_BUCKET,S3Key=$DOCKERRUN_FILE_WORKER

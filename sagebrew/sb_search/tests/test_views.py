@@ -541,12 +541,7 @@ class TestSearchResultAPIReturns(TestCase):
                       request.content)
 
     def test_search_result_api_similar_questions_and_query(self):
-        email = 'suppressionlist@simulator.amazonses.com'
-        try:
-            pleb = Pleb.nodes.get(email=email)
-            pleb.delete()
-        except Pleb.DoesNotExist:
-            pass
+        email = str(uuid1()).strip('-')
         pleb = Pleb(email=email)
         pleb.save()
         self.user.email = email

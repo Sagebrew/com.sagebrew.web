@@ -332,7 +332,6 @@ class TestSearchResultAPIReturns(TestCase):
                                             'into the atmosphere? '}
 
     def tearDown(self):
-        self.pleb.delete()
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         es.delete_by_query('full-search-user-specific-1', 'question',
                            body={
@@ -542,6 +541,8 @@ class TestSearchResultAPIReturns(TestCase):
                       request.content)
 
     def test_search_result_api_similar_questions_and_query(self):
+        self.user.email = 'suppressionlist@simulator.amazonses.com'
+        self.user.save()
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(question_id=str(uuid1()),
                                question_title=self.q1dict['question_title'],
@@ -573,7 +574,7 @@ class TestSearchResultAPIReturns(TestCase):
                                                 'gas becoming more feasible '
                                                 'and popular, would it '
                                                 'be better for us to ban '
-                                                'use of fossil fuels? Also,'
+                                                'use of fossil fuels? '
                                                 'What could we use instead of'
                                                 'fossil fuels?',
                                )

@@ -89,7 +89,7 @@ class TestEditComment(TestCase):
         response = edit_comment_task.apply_async(kwargs=edit_task_param)
         while not response.ready():
             time.sleep(3)
-        
+
         self.assertTrue(response.result)
 
 

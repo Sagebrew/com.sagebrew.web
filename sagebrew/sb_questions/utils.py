@@ -85,7 +85,6 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
             answers, meta = execute_cypher_query(query)
             answers = [SBAnswer.inflate(row[0]) for row in answers]
             for answer in answers:
-                print 'here'
                 answer_owner = answer.owned_by.all()[0]
                 answer_owner_name = answer_owner.first_name +' '+answer_owner.last_name
                 answer_owner_url = settings.WEB_ADDRESS+'/user/'+owner.email
@@ -136,9 +135,7 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
                             }
                 question_array.append(question_dict)
             return question_array
-    except IndexError, e:
-        logger.exception({"function": prepare_get_question_dictionary.__name__,
-                          'exception': e})
+    except IndexError:
         return []
     except Exception:
         logger.exception(dumps({"function": prepare_get_question_dictionary.__name__,
@@ -327,8 +324,7 @@ def edit_question_util(question_uuid="", content="", last_edited_on="",
             pass
 
         edit_question = create_question_util(content=content, current_pleb=current_pleb,
-                                             question_title=my_question.question_title,
-                                             question_uuid = str(uuid1()))
+                                             question_title=my_question.question_title)
         my_question.edits.connect(edit_question)
         edit_question.edit_to.connect(my_question)
         my_question.last_edited_on = edit_question.date_created
@@ -346,8 +342,6 @@ def prepare_question_search_html(question_uuid):
         try:
             my_question = SBQuestion.nodes.get(question_id=question_uuid)
         except (SBQuestion.DoesNotExist, DoesNotExist):
-            return False
-        except CypherException:
             return False
         owner = my_question.owned_by.all()[0]
         owner_name = owner.first_name + ' ' + owner.last_name

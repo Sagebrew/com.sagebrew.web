@@ -1,4 +1,5 @@
 import logging
+from json import dumps
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
@@ -91,7 +92,9 @@ def get_user_search_view(request, pleb_email=""):
     try:
         response = prepare_user_search_html(pleb_email)
         return Response({'html': response}, status=200)
-    except:
+    except Exception:
+        logger.exception(dumps({"function": get_user_search_view.__name__,
+                                "exception": "UnhandledException: "}))
         return Response({'html': []}, status=400)
 
 

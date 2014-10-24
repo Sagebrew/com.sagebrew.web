@@ -14,6 +14,38 @@ from .utils import (create_question_util, upvote_question_util,
 logger = logging.getLogger('loggly_logs')
 
 @shared_task()
+def add_tags_to_question_task(question, tags, auto_tags):
+    '''
+    This function will take a question object, a list of
+    tags and auto tags and manage the other tasks which attach them to
+    the question.
+
+    :param question:
+    :param tags:
+    :param auto_tags:
+    :return:
+    '''
+    if question.tags_added:
+        return True
+    else:
+        pass
+    pass
+
+@shared_task()
+def add_question_to_indices_task(question, tags):
+    '''
+    This function will take a question object and a string of tags which
+    the user has tagged the question as. It will then add the question
+    data to the elasticsearch base index.
+
+    :param question:
+    :param tags:
+    :return:
+    '''
+    pass
+
+
+@shared_task()
 def create_question_task(content="", current_pleb="", question_title="",
                          question_uuid=str(uuid1()), tags="", **kwargs):
     '''
@@ -56,6 +88,7 @@ def create_question_task(content="", current_pleb="", question_title="",
                           'exception': "UnhandledException: "})
         raise create_question_task.retry(exc=Exception, countdown=5,
                                          max_retries=None)
+
 
 @shared_task()
 def edit_question_task(question_uuid="", content="", current_pleb="",

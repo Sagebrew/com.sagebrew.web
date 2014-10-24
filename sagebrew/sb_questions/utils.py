@@ -17,7 +17,7 @@ from sb_tag.tasks import add_auto_tags, add_tags
 logger = logging.getLogger('loggly_logs')
 
 def create_question_util(content="", current_pleb="", question_title="",
-                         tags="", question_uuid=str(uuid1())):
+                         question_uuid=str(uuid1())):
     '''
     This util creates the question and attaches it to the user who asked it
 
@@ -49,6 +49,7 @@ def create_question_util(content="", current_pleb="", question_title="",
         rel.save()
         rel_from_pleb = poster.questions.connect(my_question)
         rel_from_pleb.save()
+        '''
         search_dict = {'question_content': my_question.content,
                        'user': current_pleb,
                        'question_title': my_question.question_title,
@@ -59,7 +60,6 @@ def create_question_util(content="", current_pleb="", question_title="",
         search_data = {'object_type': 'question', 'object_data': search_dict}
         spawn_task(task_func=add_object_to_search_index,
                    task_param=search_data, countdown=1)
-
         auto_tags = create_auto_tags(content)
         for tag in auto_tags['keywords']:
             task_data.append({
@@ -71,6 +71,7 @@ def create_question_util(content="", current_pleb="", question_title="",
         spawn_task(task_func=add_tags, task_param=tag_task_data)
         tag_list = {'tag_list': task_data}
         spawn_task(task_func=add_auto_tags, task_param=tag_list)
+        '''
         return my_question
     except UniqueProperty:
         return False

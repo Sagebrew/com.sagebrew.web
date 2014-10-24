@@ -1,11 +1,11 @@
 {
   "AWSEBDockerrunVersion": "1",
   "Authentication": {
-    "Bucket": "sagebrew/docker_config",
-    "Key": "mydockercfg"
+    "Bucket": "<PROJECT_NAME>/docker_config",
+    "Key": "dockercfg"
   },
   "Image": {
-    "Name": "sagebrew/sb_web:<TAG>",
+    "Name": "<PROJECT_NAME>/<IMAGE>:<TAG>",
     "Update": "true"
   },
   "Ports": [

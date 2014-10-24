@@ -544,8 +544,11 @@ class TestSearchResultAPIReturns(TestCase):
         email = 'suppressionlist@simulator.amazonses.com'
         try:
             pleb = Pleb.nodes.get(email=email)
+            pleb.delete()
         except Pleb.DoesNotExist:
-            pleb = Pleb(email=email)
+            pass
+        pleb = Pleb(email=email)
+        pleb.save()
         self.user.email = email
         self.user.save()
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)

@@ -1,4 +1,5 @@
 import time
+from django.conf import settings
 from django.test.testcases import TestCase
 from django.contrib.auth.models import User
 
@@ -16,6 +17,10 @@ class TestGarbageCanTask(TestCase):
         test_wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
+        settings.CELERY_ALWAYS_EAGER = True
+
+    def tearDown(self):
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_empty_garbage_can_exists(self):
         try:

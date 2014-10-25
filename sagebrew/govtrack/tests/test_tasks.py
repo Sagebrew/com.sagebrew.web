@@ -1,4 +1,5 @@
 import time
+from django.conf import settings
 from django.test.testcases import TestCase
 
 from govtrack.tasks import (populate_gt_role, populate_gt_person,
@@ -7,6 +8,10 @@ from govtrack.tasks import (populate_gt_role, populate_gt_person,
 class TestPopulateGTRoleTask(TestCase):
     def setUp(self):
         self.role_url = 'https://www.govtrack.us/api/v2/role'
+        settings.CELERY_ALWAYS_EAGER = True
+
+    def tearDown(self):
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_create_gt_role_success(self):
         res = populate_gt_role.apply_async(args=[self.role_url])
@@ -19,6 +24,10 @@ class TestPopulateGTRoleTask(TestCase):
 class TestPopulateGTPersonTask(TestCase):
     def setUp(self):
         self.person_url = 'https://www.govtrack.us/api/v2/person'
+        settings.CELERY_ALWAYS_EAGER = True
+
+    def tearDown(self):
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_create_gt_person_success(self):
         res = populate_gt_person.apply_async(args=[self.person_url])
@@ -31,6 +40,10 @@ class TestPopulateGTPersonTask(TestCase):
 class TestPopulateGTCommitteeTask(TestCase):
     def setUp(self):
         self.committee_url = 'https://www.govtrack.us/api/v2/committee'
+        settings.CELERY_ALWAYS_EAGER = True
+
+    def tearDown(self):
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_create_gt_committee_success(self):
         res = populate_gt_committee.apply_async(args=[self.committee_url])
@@ -42,6 +55,10 @@ class TestPopulateGTCommitteeTask(TestCase):
 class TestPopulateGTVotesTask(TestCase):
     def setUp(self):
         self.vote_url = 'https://www.govtrack.us/api/v2/vote'
+        settings.CELERY_ALWAYS_EAGER = True
+
+    def tearDown(self):
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_create_gt_vote_success(self):
         res = populate_gt_votes.apply_async(args=[self.vote_url])

@@ -38,5 +38,5 @@ class TestDeletePostUtil(TestCase):
 
     def test_delete_post_util_success(self):
         res = delete_posts_util(self.garbage)
-        
+
         self.assertTrue(res)

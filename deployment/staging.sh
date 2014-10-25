@@ -1,14 +1,33 @@
 #!/bin/sh
 
 SHA1=$1
-EB_BUCKET=$DOCKER_BUCKET
-DOCKERRUN_FILE=$SHA1-Dockerrun.aws.json
-sed "s/<TAG>/$SHA1/" < Dockerrun.aws.json.template > $DOCKERRUN_FILE
+docker push sagebrew/sb_web:$SHA1
+docker push sagebrew/sb_worker:$SHA1
+EB_BUCKET=sagebrew-$CIRCLE_BRANCH/$DOCKER_CONFIG_BUCKET
+DOCKERRUN_FILE_WEB=$SHA1-staging_Docker_web.aws.json
+DOCKERRUN_FILE_WORKER=$SHA1-staging_Docker_worker.aws.json
+sed "s/<TAG>/$SHA1/;s/<PROJECT_NAME>/$PROJECT_NAME/;s/<BUCKET>/$CIRCLE_BRANCH/;s/<IMAGE>/sb_worker/;" < ~/com.sagebrew.web/aws_templates/Dockerrun.aws.json.worker_template > $DOCKERRUN_FILE_WORKER
+sed "s/<TAG>/$SHA1/;s/<PROJECT_NAME>/$PROJECT_NAME/;s/<BUCKET>/$CIRCLE_BRANCH/;s/<IMAGE>/sb_web/;" < ~/com.sagebrew.web/aws_templates/Dockerrun.aws.json.web_template > $DOCKERRUN_FILE_WEB
 
-aws s3 cp $DOCKERRUN_FILE s3://$EB_BUCKET/$DOCKERRUN_FILE
-/home/ubuntu/AWS-ElasticBeanstalk-CLI-2.6.3/eb/linux/python2.7/eb
-aws elasticbeanstalk create-application-version --application-name staging \
+aws s3 cp $DOCKERRUN_FILE_WEB s3://$EB_BUCKET/$DOCKERRUN_FILE_WEB
+
+#/home/ubuntu/AWS-ElasticBeanstalk-CLI-2.6.3/eb/linux/python2.7/eb
+
+aws elasticbeanstalk create-application-version --application-name staging-web \
+  --version-label $SHA1 --source-bundle S3Bucket=$EB_BUCKET,S3Key=$DOCKERRUN_FILE_WEB
+
+aws elasticbeanstalk update-environment --environment-name staging-web-env \
+    --version-label $SHA1
+
+
+
+
+aws s3 cp $DOCKERRUN_FILE_WORKER s3://$EB_BUCKET/$DOCKERRUN_FILE_WORKER
+
+#/home/ubuntu/AWS-ElasticBeanstalk-CLI-2.6.3/eb/linux/python2.7/eb
+
+aws elasticbeanstalk create-application-version --application-name staging-worker \
   --version-label $SHA1 --source-bundle S3Bucket=$EB_BUCKET,S3Key=$DOCKERRUN_FILE
 
-aws elasticbeanstalk update-environment --environment-name staging-env \
+aws elasticbeanstalk update-environment --environment-name staging-worker-env \
     --version-label $SHA1

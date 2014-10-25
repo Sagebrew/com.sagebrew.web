@@ -12,4 +12,3 @@ class Command(BaseCommand):
         ROLE_URL = 'https://www.govtrack.us/api/v2/role?limit=600&offset' \
                    '=10000&current=True'
         populate_gt_role(ROLE_URL)
-        print "Role and Person objects populated for current senators"

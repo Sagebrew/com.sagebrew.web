@@ -8,9 +8,11 @@ def delete_posts_util(garbage_can):
     posts = garbage_can.posts.all()
     for post in posts:
         delete_post_info(post.post_id)
+    return True
 
 
 def delete_comments_util(garbage_can):
     comments = garbage_can.comments.all()
     for comment in comments:
         delete_comment_util(comment.comment_id)
+    return True

@@ -300,6 +300,23 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.assertEqual(
             self.pleb.obj_weight_relationship(self.question).weight, 200)
 
+    def test_update_weight_relationship_task_pleb_does_not_exist(self):
+        data = {"document_id": str(uuid1()),
+                'index': 'full-search-user-specific-1',
+                'object_type': 'question',
+                'object_uuid': self.question.question_id,
+                'current_pleb': str(uuid1()),
+                'modifier_type': 'answered'}
+        res = update_weight_relationship.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertFalse(res)
+
+    def test_update_weight_relationship_task_question_does_not_exist(self):
+        pass
+
 class TestUpdateWeightRelationshipTaskAnswer(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
@@ -552,6 +569,67 @@ class TestUpdateWeightRelationshipTaskPleb(TestCase):
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
 
+    def test_update_weight_relationship_task_success_seen_unconnected(self):
+        pleb2 = Pleb(email=str(uuid1())).save()
+        data = {"document_id": str(uuid1()),
+                'index': 'full-search-user-specific-1',
+                'object_type': 'pleb',
+                'object_uuid': self.pleb.email,
+                'current_pleb': pleb2.email,
+                'modifier_type': 'search_seen'}
+        res = update_weight_relationship.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.pleb.refresh()
+        pleb2.refresh()
+
+        self.assertTrue(pleb2.user_weight.is_connected(self.pleb))
+        self.assertTrue(res)
+
+        self.assertEqual(
+            pleb2.user_weight.relationship(self.pleb).weight, 150)
+
+    def test_update_weight_relationship_task_success_seen_connected(self):
+        pleb2 = Pleb(email=str(uuid1())).save()
+        data = {"document_id": str(uuid1()),
+                'index': 'full-search-user-specific-1',
+                'object_type': 'pleb',
+                'object_uuid': self.pleb.email,
+                'current_pleb': pleb2.email,
+                'modifier_type': 'search_seen'}
+        rel = pleb2.user_weight.connect(self.pleb)
+        rel.save()
+        res = update_weight_relationship.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.pleb.refresh()
+        pleb2.refresh()
+
+        self.assertTrue(pleb2.user_weight.is_connected(self.pleb))
+        self.assertTrue(res)
+
+        self.assertEqual(
+            pleb2.user_weight.relationship(self.pleb).weight, 160)
+
+    def test_update_weight_relationship_task_failure_pleb_does_not_exist(self):
+        data = {"document_id": str(uuid1()),
+                'index': 'full-search-user-specific-1',
+                'object_type': 'pleb',
+                'object_uuid': self.pleb.email,
+                'current_pleb': str(uuid1()),
+                'modifier_type': 'search_seen'}
+        res = update_weight_relationship.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertFalse(res)
+
+
 class TestUpdateWeightRelationshipTaskPost(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
@@ -713,6 +791,24 @@ class TestUpdateSearchQuery(TestCase):
 
         self.assertEqual(rel.times_searched, 1)
 
+    def test_update_search_query_success_pleb_does_not_exist(self):
+        from sb_search.neo_models import SearchQuery
+        test_query = SearchQuery(search_query="this is a test search query")
+        test_query.save()
+
+        task_data = {
+            "pleb": str(uuid1()), "query_param": test_query.search_query,
+            "keywords": ['fake', 'keywords']
+        }
+
+        res = update_search_query.apply_async(kwargs=task_data)
+
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertFalse(res)
+
 
 class TestCreateKeywordTask(TestCase):
     def setUp(self):
@@ -765,7 +861,6 @@ class TestCreateKeywordTask(TestCase):
 
         self.assertTrue(res)
 
-'''
     def test_create_keyword_task_failure_search_query_does_not_exist(self):
         from sb_search.neo_models import SearchQuery, KeyWord
         keyword = KeyWord(keyword="test")
@@ -773,7 +868,7 @@ class TestCreateKeywordTask(TestCase):
 
         data = {
             "text": "test", "relevance": ".9",
-            "query_param": "this does not exist"
+            "query_param": str(uuid1())
         }
 
         res = create_keyword.apply_async(kwargs=data)
@@ -783,4 +878,3 @@ class TestCreateKeywordTask(TestCase):
         res = res.result
 
         self.assertTrue(res)
-'''

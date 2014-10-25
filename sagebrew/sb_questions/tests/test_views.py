@@ -352,7 +352,7 @@ class TestGetQuestionView(TestCase):
         response = get_question_view(request)
         response = response.render()
 
-        self.assertIn('| Answers: 0 | Upvotes: 0 | Downvotes: 0 |',
+        self.assertIn('</h2>\\n<div style=\\"font-weight: bold\\">Content:',
                       response.content)
         self.assertEqual(response.status_code, 200)
 

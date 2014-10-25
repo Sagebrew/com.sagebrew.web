@@ -4,7 +4,7 @@ from logging import getLogger
 
 from neomodel import DoesNotExist
 
-from sb_notifications.tasks import create_notification_post_task
+from sb_notifications.tasks import spawn_notifications
 from api.utils import spawn_task
 from .neo_models import SBPost
 from plebs.neo_models import Pleb
@@ -44,7 +44,7 @@ def create_upvote_post(post_uuid=str(uuid1()), pleb=""):
         try:
             my_post = SBPost.nodes.get(post_id=post_uuid)
         except (SBPost.DoesNotExist, DoesNotExist):
-            raise create_upvote_post.retry(exc=Exception, countdown=3,
+            raise create_upvote_post.retry(exc=DoesNotExist, countdown=3,
                                        max_retries=None)
 
         try:
@@ -58,6 +58,8 @@ def create_upvote_post(post_uuid=str(uuid1()), pleb=""):
     except Exception:
         logger.exception({"function": create_upvote_post.__name__,
                           "exception": "UnhandledException: "})
+        raise create_downvote_post.retry(exc=Exception, countdown=3,
+                                         max_retries=None)
 
 @shared_task()
 def create_downvote_post(post_uuid=str(uuid1()), pleb=""):
@@ -75,7 +77,7 @@ def create_downvote_post(post_uuid=str(uuid1()), pleb=""):
         try:
             my_post = SBPost.nodes.get(post_id=post_uuid)
         except (SBPost.DoesNotExist, DoesNotExist):
-            raise create_downvote_post.retry(exc=Exception, countdown=3,
+            raise create_downvote_post.retry(exc=DoesNotExist, countdown=3,
                                          max_retries=None)
         try:
             my_pleb = Pleb.nodes.get(email=pleb)
@@ -88,6 +90,8 @@ def create_downvote_post(post_uuid=str(uuid1()), pleb=""):
     except Exception:
         logger.exception({'function': create_downvote_post.__name__,
                           'exception': 'UnhandledException: '})
+        raise create_downvote_post.retry(exc=Exception, countdown=3,
+                                         max_retries=None)
 
 
 
@@ -112,12 +116,18 @@ def save_post_task(content="", current_pleb="", wall_pleb="",
     try:
         my_post = save_post(post_uuid=post_uuid, content=content,
                             current_pleb=current_pleb, wall_pleb=wall_pleb)
-        if my_post==False:
+        if not my_post:
             return False
         elif my_post is not None:
-            notification_data={'post_uuid': my_post.post_id,
-                               'from_pleb':current_pleb, 'to_pleb': wall_pleb}
-            spawn_task(task_func=create_notification_post_task,
+            # TODO maybe we should set the default inputs to None in this
+            # function rather than empty strings. And also pass the entire
+            # pleb rather than just the email, since just do another query in
+            # the util anyways and will need to do one for the notification
+
+            notification_data={'object_type': 'post', 'sb_object': my_post,
+                               'from_pleb':Pleb.nodes.get(email=current_pleb),
+                               'to_plebs': [Pleb.nodes.get(email=wall_pleb),]}
+            spawn_task(task_func=spawn_notifications,
                        task_param=notification_data)
             return True
         raise Exception
@@ -182,8 +192,6 @@ def edit_post_info_task(content="", post_uuid=str(uuid1()),
     if edit_post_return == True:
         return True
     if edit_post_return['detail'] == 'post does not exist yet':
-        logger.exception({"function": edit_post_info_task.__name__,
-                          "exception": "DoesNotExist: "})
         raise edit_post_info_task.retry(exc=Exception, countdown=3,
                                         max_retries=None)
     if edit_post_return['detail'] == 'content is the same':

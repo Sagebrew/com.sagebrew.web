@@ -1,5 +1,6 @@
 import pytz
 import logging
+from json import dumps
 from urllib2 import HTTPError
 from datetime import datetime
 from requests import ConnectionError
@@ -8,7 +9,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from sb_posts.neo_models import SBPost
-from api.utils import get_post_data, comment_to_garbage, spawn_task
+from api.utils import comment_to_garbage, spawn_task
 from .tasks import (create_vote_comment, submit_comment_on_post,
                     edit_comment_task, flag_comment_task)
 from .utils import (get_post_comments)
@@ -163,7 +164,8 @@ def flag_comment(request):  # task
         else:
             return Response(status=400)
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": flag_comment.__name__,
+                                "exception": "UnhandledException: "}))
 
 
 @api_view(['POST'])

@@ -1,4 +1,5 @@
 import logging
+from json import dumps
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
@@ -39,10 +40,13 @@ def profile_page(request, pleb_email):
     :return:
     '''
     try:
-        citizen = Pleb.nodes.get(email=pleb_email)
+        citizen = Pleb.nodes.get(email=request.user.email)
+        page_user_pleb = Pleb.nodes.get(email=pleb_email)
     except Pleb.DoesNotExist:
+        logger.critical("Pleb does not exist")
         redirect('404_Error')
     except DoesNotExist:
+        logger.critical("Pleb does not exist D")
         redirect('404_Error')
     current_user = request.user
     page_user = User.objects.get(email=pleb_email)
@@ -54,7 +58,6 @@ def profile_page(request, pleb_email):
     elif citizen.friends.search(email=current_user.email):
         is_friend = True
 
-    # TODO check for index error
     # TODO deal with address and senator/rep in a util + task
     # TODO Create a cypher query to get addresses to replace traverse
     #address = citizen.traverse('address').run()[0]
@@ -89,7 +92,9 @@ def get_user_search_view(request, pleb_email=""):
     try:
         response = prepare_user_search_html(pleb_email)
         return Response({'html': response}, status=200)
-    except:
+    except Exception:
+        logger.exception(dumps({"function": get_user_search_view.__name__,
+                                "exception": "UnhandledException: "}))
         return Response({'html': []}, status=400)
 
 

@@ -73,16 +73,14 @@ def create_upvote_comment_util(pleb="", comment_uuid=str(uuid1())):
     try:
         try:
             my_comment = SBComment.nodes.get(comment_id=comment_uuid)
-        except SBComment.DoesNotExist:
+        except (SBComment.DoesNotExist, DoesNotExist):
             return False
-        except DoesNotExist:
-            return False
+
         try:
             my_pleb = Pleb.nodes.get(email=pleb)
-        except Pleb.DoesNotExist:
-            return False
-        except DoesNotExist:
-            return False
+        except (Pleb.DoesNotExist, DoesNotExist):
+            return None
+
         my_comment.up_vote_number += 1
         my_comment.up_voted_by.connect(my_pleb)
         my_comment.save()
@@ -94,7 +92,7 @@ def create_upvote_comment_util(pleb="", comment_uuid=str(uuid1())):
     except Exception:
         logger.exception({"function": create_downvote_comment_util.__name__,
                           "exception": "UnhandledException: "})
-        return None
+        return False
 
 
 def create_downvote_comment_util(pleb="", comment_uuid=str(uuid1())):
@@ -110,28 +108,24 @@ def create_downvote_comment_util(pleb="", comment_uuid=str(uuid1())):
     try:
         try:
             my_comment = SBComment.nodes.get(comment_id=comment_uuid)
-        except SBComment.DoesNotExist:
+        except (SBComment.DoesNotExist, DoesNotExist):
             return False
-        except DoesNotExist:
-            return False
+
         try:
             my_pleb = Pleb.nodes.get(email=pleb)
-        except Pleb.DoesNotExist:
-            return False
-        except DoesNotExist:
-            return False
+        except (Pleb.DoesNotExist, DoesNotExist):
+            return None
+
         my_comment.down_vote_number += 1
         my_comment.down_voted_by.connect(my_pleb)
         my_comment.save()
         return True
     except CypherException:
-        logger.exception({"function": create_downvote_comment_util.__name__,
-                          "exception": "CypherException: "})
         return False
     except Exception:
         logger.exception({"function": create_downvote_comment_util.__name__,
                           "exception": "UnhandledException: "})
-        return None
+        return False
 
 
 def save_comment_post(content="", pleb="", post_uuid=str(uuid1())):
@@ -149,16 +143,14 @@ def save_comment_post(content="", pleb="", post_uuid=str(uuid1())):
     try:
         try:
             my_citizen = Pleb.nodes.get(email=pleb)
-        except Pleb.DoesNotExist:
-            return False
-        except DoesNotExist:
-            return False
+        except (Pleb.DoesNotExist, DoesNotExist):
+            return None
+
         try:
             parent_object = SBPost.nodes.get(post_id=post_uuid)
-        except SBPost.DoesNotExist:
+        except (SBPost.DoesNotExist, DoesNotExist):
             return False
-        except DoesNotExist:
-            return False
+
         comment_uuid = str(uuid1())
         my_comment = SBComment(content=content, comment_id=comment_uuid)
         my_comment.save()
@@ -172,11 +164,11 @@ def save_comment_post(content="", pleb="", post_uuid=str(uuid1())):
         rel_from_post.save()
         return my_comment
     except CypherException:
-        logger.exception({"function": save_comment_post.__name__,
-                          "exception": "CypherException: "})
         return False
     except Exception:
-        return None
+        logger.exception({"function": save_comment_post.__name__,
+                          "exception": "UnhandledException: "})
+        return False
 
 def edit_comment_util(comment_uuid=str(uuid1()), content="",
                       last_edited_on=None, pleb=""):
@@ -194,16 +186,18 @@ def edit_comment_util(comment_uuid=str(uuid1()), content="",
                     DateTime which the util was called
     :return:
     '''
+    if last_edited_on is None:
+        return False
     try:
-        my_comment = SBComment.nodes.get(comment_id=comment_uuid)
-        if my_comment.last_edited_on is None:
-            my_comment.content = content
-            my_comment.last_edited_on = last_edited_on
-            my_comment.save()
-            return True
-
-        if my_comment.last_edited_on > last_edited_on:
-            return False
+        try:
+            my_comment = SBComment.nodes.get(comment_id=comment_uuid)
+        except (SBComment.DoesNotExist, DoesNotExist):
+            return {'detail': "retry"}
+        try:
+            if my_comment.last_edited_on > last_edited_on:
+                return False
+        except TypeError:
+            pass
 
         if my_comment.content == content:
             return False
@@ -218,12 +212,11 @@ def edit_comment_util(comment_uuid=str(uuid1()), content="",
         my_comment.last_edited_on = last_edited_on
         my_comment.save()
         return True
-    except SBComment.DoesNotExist:
-        return {'detail': "retry"}
-    except DoesNotExist:
+
+    except Exception:
+        logger.exception({"function": edit_comment_util.__name__,
+                          'exception': "UnhandledException: "})
         return {'detail': 'retry'}
-    except Exception, e:
-        return {'exception', e}
 
 def delete_comment_util(comment_uuid=str(uuid1())):
     '''
@@ -259,16 +252,12 @@ def flag_comment_util(comment_uuid, current_user, flag_reason):
     try:
         try:
             comment = SBComment.nodes.get(comment_id=comment_uuid)
-        except SBComment.DoesNotExist:
-            return None
-        except DoesNotExist:
+        except (SBComment.DoesNotExist, DoesNotExist):
             return None
 
         try:
             pleb = Pleb.nodes.get(email=current_user)
-        except Pleb.DoesNotExist:
-            return False
-        except DoesNotExist:
+        except (Pleb.DoesNotExist, DoesNotExist):
             return False
 
         if comment.flagged_by.is_connected(pleb):
@@ -290,6 +279,7 @@ def flag_comment_util(comment_uuid, current_user, flag_reason):
             return False
         return True
     except Exception:
-        logger.exception('UnhandledException: ')
+        logger.exception({"function": edit_comment_util.__name__,
+                          'exception': "flag_comment_util: "})
         return None
 

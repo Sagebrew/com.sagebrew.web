@@ -11,7 +11,6 @@ django-model-utils
 django-filter
 django-localflavor
 django-oauth2-provider
-django-allauth
 django-static-precompiler
 django-storages
 djangorestframework
@@ -26,7 +25,6 @@ celery
 python-memcached
 beautifulsoup4
 redis
-sendgrid-django
 bomberman-python
 elasticsearch
 textblob
@@ -35,5 +33,3 @@ nltk
 neomodel
 shortuuid
 gunicorn
-coverage
-coveralls

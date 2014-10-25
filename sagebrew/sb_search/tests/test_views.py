@@ -1,5 +1,6 @@
 import pytz
 import time
+import shortuuid
 from json import loads
 from datetime import datetime
 from uuid import uuid1
@@ -8,26 +9,27 @@ from rest_framework.test import APIRequestFactory, APIClient
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.conf import settings
-from django.core.management import call_command
 from django.core.urlresolvers import reverse
 
 from elasticsearch import Elasticsearch
 
+from api.utils import test_wait_util
 from plebs.neo_models import Pleb
 from sb_search.views import search_result_api, search_result_view
 from sb_questions.neo_models import SBQuestion
+from sb_registration.utils import create_user_util
 
 class TestSearchResultView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.pleb.completed_profile_info = True
         self.pleb.save()
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_search_result_view_success(self):
         request = self.factory.post('/search/q=test')
@@ -240,12 +242,12 @@ class TestSearchResultAPI(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com',
-            password='password')
-
-    def tearDown(self):
-        call_command('clear_neo_db')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "password")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def test_search_result_api_success(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
@@ -282,11 +284,12 @@ class TestSearchResultAPIReturns(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler',
-            email="tyler"+str(uuid1()).replace('-','')+'@gmail.com',
-            password='password')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "password")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.pleb.first_name='Tyler'
         self.pleb.last_name='Wiersing'
         self.pleb.save()
@@ -329,7 +332,15 @@ class TestSearchResultAPIReturns(TestCase):
                                             'into the atmosphere? '}
 
     def tearDown(self):
-        call_command('clear_neo_db')
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        es.delete_by_query('full-search-user-specific-1', 'question',
+                           body={
+                               'query': {
+                                   'query_string': {
+                                       'query': 'batter-powered'
+                                   }
+                               }
+                           })
 
     def test_search_result_api_returns_expected(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
@@ -394,7 +405,7 @@ class TestSearchResultAPIReturns(TestCase):
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':'battery-powered',
                                                   'page': '1'}))
-        self.assertEqual(len(loads(request.content)['html']), 1)
+        self.assertGreaterEqual(len(loads(request.content)['html']), 1)
         self.assertEqual(request.status_code, 200)
         self.assertIn('question_uuid', request.content)
 
@@ -439,6 +450,13 @@ class TestSearchResultAPIReturns(TestCase):
                       request.content)
 
     def test_search_result_api_returns_page_3(self):
+        email = "suppressionlist@simulator.amazonses.com"
+        pleb = Pleb(email=email)
+        pleb.first_name='Tyler'
+        pleb.last_name='Wiersing'
+        pleb.save()
+        user = User.objects.create_user(shortuuid.uuid(), email, 'password')
+
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(question_id=str(uuid1()),
                                question_title=self.q1dict['question_title'],
@@ -449,26 +467,27 @@ class TestSearchResultAPIReturns(TestCase):
                                down_vote_number=0,
                                date_created=datetime.now(pytz.utc))
         question1.save()
-        question1.owned_by.connect(self.pleb)
+        question1.owned_by.connect(pleb)
         es.index(index='full-search-user-specific-1',
                  doc_type='question',
                  body={
                      'question_uuid': question1.question_id,
                      'question_title': question1.question_title,
                      'question_content': question1.question_content,
-                     'related_user': self.user.email
+                     'related_user': user.email
                  })
-        for item in range(0,29):
+        for item in range(0,39):
             es.index(index='full-search-user-specific-1',
                      doc_type='question',
                      body={
                          'question_uuid': question1.question_id,
                          'question_title': question1.question_title,
                          'question_content': question1.question_content,
-                         'related_user': self.user.email
+                         'related_user': user.email
                      })
-        time.sleep(2)
-        self.client.login(username=self.user.username, password='password')
+        time.sleep(3)
+
+        self.client.login(username=user.username, password='password')
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':'battery-powered',
                                                   'page': '3'}))
@@ -478,7 +497,11 @@ class TestSearchResultAPIReturns(TestCase):
         self.assertIn('<h2><a href=\\"https://192.168.56.101/questions/',
                       request.content)
 
-    def test_search_result_api_result_user_as_no_results(self):
+    def test_search_result_api_result_user_has_no_results(self):
+        email = str(uuid1()).strip('-')+"@gmail.com"
+        pleb = Pleb(email=email)
+        pleb.save()
+        user = User.objects.create_user(shortuuid.uuid(), email, 'password')
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(question_id=str(uuid1()),
                                question_title=self.q1dict['question_title'],
@@ -496,7 +519,7 @@ class TestSearchResultAPIReturns(TestCase):
                      'question_uuid': question1.question_id,
                      'question_title': question1.question_title,
                      'question_content': question1.question_content,
-                     'related_user': self.user.email[:37]+'1231'
+                     'related_user': str(uuid1()).strip('-')
                  })
         for item in range(0,29):
             es.index(index='full-search-user-specific-1',
@@ -505,10 +528,10 @@ class TestSearchResultAPIReturns(TestCase):
                          'question_uuid': question1.question_id,
                          'question_title': question1.question_title,
                          'question_content': question1.question_content,
-                         'related_user': self.user.email[:37]+'1231'
+                         'related_user': str(uuid1()).strip('-')
                      })
         time.sleep(2)
-        self.client.login(username=self.user.username, password='password')
+        self.client.login(username=user.username, password='password')
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':'battery-powered',
                                                   'page': '1'}))
@@ -518,6 +541,11 @@ class TestSearchResultAPIReturns(TestCase):
                       request.content)
 
     def test_search_result_api_similar_questions_and_query(self):
+        email = '%s%s'%(str(uuid1()).replace("-", ""), '@gmail.com')
+        pleb = Pleb(email=email)
+        pleb.save()
+        self.user.email = email
+        self.user.save()
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(question_id=str(uuid1()),
                                question_title=self.q1dict['question_title'],
@@ -528,7 +556,7 @@ class TestSearchResultAPIReturns(TestCase):
                                down_vote_number=0,
                                date_created=datetime.now(pytz.utc))
         question1.save()
-        question1.owned_by.connect(self.pleb)
+        question1.owned_by.connect(pleb)
         es.index(index='full-search-user-specific-1',
                  doc_type='question',
                  body={
@@ -549,7 +577,9 @@ class TestSearchResultAPIReturns(TestCase):
                                                 'gas becoming more feasible '
                                                 'and popular, would it '
                                                 'be better for us to ban '
-                                                'use of fossil fuels?',
+                                                'use of fossil fuels? '
+                                                'What could we use instead of'
+                                                'fossil fuels?',
                                )
         question2.save()
         es.index(index='full-search-user-specific-1',
@@ -558,7 +588,7 @@ class TestSearchResultAPIReturns(TestCase):
                        'question_content': question2.question_content,
                        'question_title': question2.question_title,
                        'related_user': self.user.email})
-        time.sleep(2)
+        time.sleep(3)
         self.client.login(username=self.user.username, password='password')
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':'fossil fuels',

@@ -2,34 +2,43 @@ import pytz
 import time
 from uuid import uuid1
 from datetime import datetime
+from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
-from django.core.management import call_command
 
+from api.utils import test_wait_util
 from sb_comments.neo_models import SBComment
 from sb_comments.utils import save_comment_post
 from sb_comments.tasks import (edit_comment_task, create_vote_comment,
                                submit_comment_on_post, flag_comment_task)
-from sb_posts.utils import save_post
+from sb_posts.tasks import save_post_task
 from plebs.neo_models import Pleb
-
+from sb_registration.utils import create_user_util
 
 class TestSaveComment(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
-        call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_save_comment_on_post_task(self):
         uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.user.email,
-                         wall_pleb=self.user.email)
+        task_data = {"post_uuid": uuid, "content": "test post",
+                     "current_pleb": self.user.email,
+                     "wall_pleb": self.user.email}
+        res = save_post_task.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
         task_param = {'content': 'test comment',
                       'pleb': self.user.email,
-                      'post_uuid': post.post_id}
+                      'post_uuid': uuid}
         response = submit_comment_on_post.apply_async(kwargs=task_param)
         while not response.ready():
             time.sleep(1)
@@ -39,20 +48,29 @@ class TestSaveComment(TestCase):
 
 class TestEditComment(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
-        call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_edit_comment_success(self):
         uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.user.email,
-                         wall_pleb=self.user.email)
+        task_data = {"post_uuid": uuid, "content": "test post",
+                     "current_pleb": self.user.email,
+                     "wall_pleb": self.user.email}
+        res = save_post_task.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+
         task_param = {'content': 'test comment',
                       'pleb': self.user.email,
-                      'post_uuid': post.post_id}
+                      'post_uuid': uuid}
         my_comment = save_comment_post(**task_param)
         edit_task_param = {'comment_uuid': my_comment.comment_id,
                            'content': 'test edit',
@@ -63,15 +81,32 @@ class TestEditComment(TestCase):
             time.sleep(3)
         self.assertTrue(response.result)
 
+    def test_edit_comment_failure_comment_does_not_exist(self):
+        edit_task_param = {'comment_uuid': str(uuid1()),
+                           'content': 'test edit',
+                           'last_edited_on': datetime.now(pytz.utc),
+                           'pleb': self.user.email}
+        response = edit_comment_task.apply_async(kwargs=edit_task_param)
+        while not response.ready():
+            time.sleep(3)
+
+        self.assertTrue(response.result)
+
 
 class TestVoteComment(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertIsNotNone(res)
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        settings.CELERY_ALWAYS_EAGER = True
 
 
     def tearDown(self):
-        call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_upvote_comment(self):
         my_comment = SBComment(comment_id=str(uuid1()))
@@ -203,12 +238,15 @@ class TestVoteComment(TestCase):
 
     def test_upvote_from_other_user(self):
         uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.user.email,
-                         wall_pleb=self.user.email)
+        task_data = {"post_uuid": uuid, "content": "test post",
+                     "current_pleb": self.user.email,
+                     "wall_pleb": self.user.email}
+        res = save_post_task.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
         task_param = {'content': 'test comment',
                       'pleb': self.user.email,
-                      'post_uuid': post.post_id}
+                      'post_uuid': uuid}
         my_comment = save_comment_post(**task_param)
         vote_task_param = {'pleb': self.user.email,
                            'comment_uuid': my_comment.comment_id,
@@ -216,10 +254,12 @@ class TestVoteComment(TestCase):
         response = create_vote_comment.apply_async(kwargs=vote_task_param)
         while not response.ready():
             time.sleep(3)
-        user2 = User.objects.create_user(
-            username='Test' + str(uuid1())[:25],
-            email=str(uuid1())[:10] + "@gmail.com")
-        pleb2 = Pleb.nodes.get(email=user2.email)
+        email = "bounce@simulator.amazonses.com"
+        res = create_user_util("test", "test", email, "testpassword")
+        test_wait_util(res)
+        self.assertTrue(res['task_id'].result)
+        pleb2 = Pleb.nodes.get(email=email)
+        user2 = User.objects.get(email=email)
         vote_task_param['pleb'] = pleb2.email
         vote_task_param['vote_type'] = 'up'
         response2 = create_vote_comment.apply_async(kwargs=vote_task_param)
@@ -233,11 +273,16 @@ class TestVoteComment(TestCase):
 
 class TestFlagCommentTask(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
-        call_command('clear_neo_db')
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_flag_comment_success_spam(self):
         comment = SBComment(comment_id=uuid1())

@@ -5,38 +5,34 @@ from datetime import datetime, timedelta
 from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
-from django.core.management import call_command
 
+from api.utils import test_wait_util
 from sb_posts.utils import save_post, edit_post_info, delete_post_info, \
     create_post_vote, flag_post
+from sb_posts.tasks import save_post_task
 from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
+from sb_registration.utils import create_user_util
 
 logger = logging.getLogger('loggly_logs')
 
 class TestSavePost(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
-
-    def tearDown(self):
-        call_command('clear_neo_db')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def test_save_post(self):
-        poster = Pleb.nodes.get(email=self.pleb.email)
         uuid = str(uuid1())
         post = save_post(post_uuid=uuid, content="test post",
                          current_pleb=self.pleb.email,
                          wall_pleb=self.pleb.email)
-        wall = post.posted_on_wall.all()[0]
 
-        self.assertEqual(poster.email,
-                         post.owned_by.all()[0].email)
-        self.assertEqual(wall, self.pleb.wall.all()[0])
-        self.assertEqual("test post", post.content)
-        self.assertEqual(post.post_id, uuid)
-        post.delete()
+        self.assertIsNot(post, False)
+
 
     def test_post_already_exists(self):
         post_info_dict = {'current_pleb': self.pleb.email,
@@ -137,30 +133,35 @@ class TestSavePost(TestCase):
 
 class TestPostVotes(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
-
-    def tearDown(self):
-        call_command('clear_neo_db')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def test_upvote_post(self):
         uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.pleb.email,
-                         wall_pleb=self.pleb.email)
-        create_post_vote(pleb=self.pleb.email, post_uuid=post.post_id,
+        task_data = {"post_uuid": uuid, "content": "test post",
+                     "current_pleb": self.user.email,
+                     "wall_pleb": self.user.email}
+        res = save_post_task.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+        res = create_post_vote(pleb=self.pleb.email, post_uuid=uuid,
                          vote_type="up")
-        time.sleep(1)  # wait for task to finish
-        post.refresh()
+        self.assertTrue(res)
 
 
     def test_downvote_post(self):
         uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.pleb.email,
-                         wall_pleb=self.pleb.email)
-        res = create_post_vote(pleb=self.pleb.email, post_uuid=post.post_id,
+        task_data = {"post_uuid": uuid, "content": "test post",
+                     "current_pleb": self.user.email,
+                     "wall_pleb": self.user.email}
+        res = save_post_task.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+        res = create_post_vote(pleb=self.pleb.email, post_uuid=uuid,
                          vote_type="down")
 
         self.assertTrue(res)
@@ -192,12 +193,12 @@ class TestPostVotes(TestCase):
 
 class TestFlagPost(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
-
-    def tearDown(self):
-        call_command('clear_neo_db')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def test_flag_success_spam(self):
         post = SBPost(post_id=uuid1())

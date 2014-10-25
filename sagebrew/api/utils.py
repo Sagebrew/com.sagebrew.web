@@ -1,18 +1,14 @@
 import logging
-import requests
-from copy import copy
+import time
 from uuid import uuid1
 from socket import error as socket_error
 from json import loads, dumps
-from django.conf import settings
-from requests import post as request_post
-from django.contrib.auth.models import User
-from provider.oauth2.models import Client as OauthClient
 import boto.sqs
 from boto.sqs.message import Message
 from bomberman.client import Client
 from neomodel.exception import CypherException
 from neomodel import db
+from django.conf import settings
 
 from api.alchemyapi import AlchemyAPI
 from sb_comments.neo_models import SBComment
@@ -22,7 +18,9 @@ from sb_garbage.neo_models import SBGarbageCan
 
 logger = logging.getLogger('loggly_logs')
 
-
+'''
+# TOOD Add tagging process into git so that we can label point that we deleted
+this
 def post_to_api(api_url, data, headers=None):
     if headers is None:
         headers = {}
@@ -72,7 +70,7 @@ def get_oauth_access_token():
     return oauth_client['access_token']
 
 
-'''
+
 iron_mq = IronMQ(project_id=settings.IRON_PROJECT_ID,
                          token=settings.IRON_TOKEN)
         queue = iron_mq.queue('sb_failures')
@@ -99,10 +97,12 @@ def add_failure_to_queue(message_info):
     my_queue.write(m)
 
 
-def spawn_task(task_func, task_param, countdown=0, task_id=str(uuid1())):
+def spawn_task(task_func, task_param, countdown=0, task_id=None):
+    if task_id is None:
+        task_id = str(uuid1())
     try:
-        task_func.apply_async(kwargs=task_param, countdown=countdown,
-                              task_id=task_id)
+        return task_func.apply_async(kwargs=task_param, countdown=countdown,
+                                     task_id=task_id)
     except socket_error:
         failure_uuid = str(uuid1())
         failure_dict = {
@@ -116,6 +116,7 @@ def spawn_task(task_func, task_param, countdown=0, task_id=str(uuid1())):
              'exception': 'socket_error'}))
         logger.exception('Trace back from error: ')
         add_failure_to_queue(failure_dict)
+        return None
     except Exception:
         failure_uuid = str(uuid1())
         failure_dict = {
@@ -129,23 +130,7 @@ def spawn_task(task_func, task_param, countdown=0, task_id=str(uuid1())):
              'exception': 'unknown_error'}))
         logger.exception('Trace back from error: ')
         add_failure_to_queue(failure_dict)
-
-
-def get_post_data(request):
-    '''
-    used when dealing with data from an ajax call or from a regular post.
-    determines whether to get the data from request.DATA or request.body
-
-    :param request:
-    :return:
-    '''
-    post_info = loads(request.body)
-    if not post_info:
-        try:
-            post_info = request.DATA
-        except ValueError:
-            return {}
-    return post_info
+        return None
 
 
 def language_filter(content):
@@ -214,24 +199,28 @@ def comment_to_garbage(comment_id):
     except SBComment.DoesNotExist:
         pass
 
+
 def create_auto_tags(content):
     alchemyapi = AlchemyAPI()
     keywords = alchemyapi.keywords("text", content)
     return keywords
 
-def execute_cypher_query(query):
 
+def execute_cypher_query(query):
     try:
         return db.cypher_query(query)
     except CypherException:
         logger.exception("CypherException: ")
         return {'detail': 'CypherException'}
-    except Exception, e:
-        logger.exception("UnhandledException: ")
+    except Exception:
+        logger.exception(dumps({"function": execute_cypher_query.__name__,
+                          "exception":"UnhandledException: "}))
         return {'detail': 'fail'}
 
-def clear_neodb():
-    try:
-        db.cypher_query("START n=node(*) MATCH n-[r?]-() DELETE r,n")
-    except CypherException:
-        pass
+
+def test_wait_util(async_res):
+    while not async_res['task_id'].ready():
+        time.sleep(1)
+
+    while not async_res['task_id'].result.ready():
+        time.sleep(1)

@@ -1,33 +1,58 @@
-# Django settings for automated_test_client project.
 from base import *
+from os import environ
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
-ALLOWED_HOSTS = ['sagebrew.com']
+ALLOWED_HOSTS = ['beta.sagebrew.com', 'www.sagebrew.com', 'sagebrew.com']
+WEB_ADDRESS = "https://sagebrew.com"
+VERIFY_SECURE = True
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'sagebrew_prod_db',
-        'USER': 'admin',
-        'PASSWORD': 'admin',
-        'HOST': 'localhost',
-        'PORT': '',
+        'NAME': environ.get("RDS_DB_NAME", ""),
+        'USER': environ.get("RDS_USERNAME", ""),
+        'PASSWORD': environ.get("RDS_PASSWORD", ""),
+        'HOST': environ.get("RDS_HOSTNAME", ""),
+        'PORT': environ.get("RDS_PORT", ""),
     }
 }
 
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
+        'LOCATION': environ.get("CACHE_LOCATION", ""),
     }
 }
 
-AWS_UPLOAD_BUCKET_NAME = "sagebrew"
-AWS_UPLOAD_CLIENT_KEY = ""
-AWS_UPLOAD_CLIENT_SECRET_KEY = ""
+ELASTIC_SEARCH_HOST = [{'host': environ.get("ELASTIC_SEARCH_HOST", ""),
+                        'port': environ.get("ELASTIC_SEARCH_PORT", ""),
+                        'use_ssl': True,
+                        'http_auth': (environ.get("ELASTIC_SEARCH_USER", ""),
+                                      environ.get("ELASTIC_SEARCH_KEY", ""))
+                       }]
 
-SECRET_KEY = "5fd&2wkqx8r!h2y1)j!izqi!982$p87)sred(5#x0mtqa^cbx)"
+CELERY_RESULT_BACKEND = 'redis://%s:%s/0' % (environ.get("REDIS_LOCATION", ""),
+                                             environ.get("REDIS_PORT", ""))
+BROKER_URL = 'amqp://%s:%s@%s:%s//' % (environ.get("QUEUE_USERNAME", ""),
+                                       environ.get("QUEUE_PASSWORD", ""),
+                                       environ.get("QUEUE_HOST", ""),
+                                       environ.get("QUEUE_PORT", ""))
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+    'DEFAULT_MODEL_SERIALIZER_CLASS':
+        'rest_framework.serializers.HyperlinkedModelSerializer',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.OAuth2Authentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+}
+
+
+EMAIL_VERIFICATION_URL = "%s/registration/email_confirmation/" % WEB_ADDRESS
 
 LOGGING = {
     'version': 1,
@@ -51,11 +76,25 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False,
         },
+        'elasticsearch': {
+            'handlers': ['logging.handlers.SysLogHandler'],
+            'propagate': True,
+            'format': 'loggly: %(message)s',
+            'level': 'CRITICAL',
+            'token': LOG_TOKEN
+        },
         'loggly_logs': {
             'handlers': ['logging.handlers.SysLogHandler'],
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'ERROR',
+            'token': LOG_TOKEN
+        },
+        'elasticsearch.trace': {
+            'handlers': ['logging.handlers.SysLogHandler'],
+            'propagate': True,
+            'format': 'loggly: %(message)s',
+            'level': 'CRITICAL',
             'token': LOG_TOKEN
         },
         'django.request': {

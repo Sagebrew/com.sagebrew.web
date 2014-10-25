@@ -2,23 +2,24 @@ from uuid import uuid1
 from base64 import b64encode
 from rest_framework.test import APIRequestFactory
 from django.contrib.auth.models import User
-from django.core.management import call_command
 from django.test import TestCase
 from django.conf import settings
 
+from api.utils import test_wait_util
 from plebs.neo_models import Pleb
 from sb_comments.views import (save_comment_view, edit_comment, delete_comment,
                                vote_comment, flag_comment)
-
+from sb_registration.utils import create_user_util
 
 class TestSaveCommentView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-
-    def tearDown(self):
-        call_command('clear_neo_db')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def test_save_comment_view_correct_data(self):
         my_dict = {'content': 'testastdat', 'post_uuid': str(uuid1()),
@@ -90,11 +91,12 @@ class TestSaveCommentView(TestCase):
 class TestEditCommentView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-
-    def tearDown(self):
-        call_command('clear_neo_db')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def test_edit_comment_view_correct_data(self):
         my_dict = {'content': 'testastdat', 'comment_uuid': str(uuid1()),
@@ -166,11 +168,12 @@ class TestEditCommentView(TestCase):
 class TestDeleteCommentView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-
-    def tearDown(self):
-        call_command('clear_neo_db')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def test_delete_comment_view_correct_data(self):
         my_dict = {'comment_uuid': str(uuid1()),
@@ -241,11 +244,12 @@ class TestDeleteCommentView(TestCase):
 class TestVoteCommentView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-
-    def tearDown(self):
-        call_command('clear_neo_db')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def test_vote_comment_view_correct_data(self):
         my_dict = {'comment_uuid': str(uuid1()),
@@ -317,11 +321,12 @@ class TestVoteCommentView(TestCase):
 class TestFlagCommentView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-
-    def tearDown(self):
-        call_command('clear_neo_db')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def test_flag_comment_view_correct_data_spam(self):
         my_dict = {'current_user': self.user.email,

@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from neomodel import DoesNotExist
 
-from api.utils import execute_cypher_query
+from api.utils import execute_cypher_query, spawn_task
 from .forms import (SubmitFriendRequestForm, GetFriendRequestForm,
                     RespondFriendRequestForm)
 from .neo_models import FriendRequest
@@ -34,30 +34,33 @@ def create_friend_request(request):
     # request button
     try:
         friend_request_data = request.DATA
-        friend_request_data['friend_request_uuid'] = uuid1()
         try:
+            friend_request_data['friend_request_uuid'] = uuid1()
             request_form = SubmitFriendRequestForm(friend_request_data)
         except TypeError:
-            return Response(status=400)
+            return Response({'detail': 'type error'}, status=400)
+        except AttributeError:
+            return Response({'detail': 'attribute error'}, status=400)
 
         if request_form.is_valid():
-            create_friend_request_task.apply_async([request_form.cleaned_data, ])
+            task_data = {
+                "data": request_form.cleaned_data
+            }
+            spawn_task(task_func=create_friend_request_task,
+                       task_param=task_data)
             return Response({"action": True,
                          "friend_request_id": request_form.cleaned_data[
                              'friend_request_uuid']}, status=200)
         else:
             return Response({'detail': 'invalid form'}, status=400)
 
-    except KeyError:
-        return Response({'detail': 'key error'}, status=400)
-
     except(HTTPError, ConnectionError):
         return Response({"action": False}, status=408)
-
     except Exception:
         logger.exception({"function": create_friend_request.__name__,
                           "exception": "UnhandledException: "})
         return Response(status=400)
+
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
@@ -65,6 +68,7 @@ def get_friend_requests(request):
     '''
     gets all friend requests attached to the user and returns
     a list of dictionaries of requests
+
     :param request:
     :return:
     '''
@@ -73,7 +77,9 @@ def get_friend_requests(request):
         try:
             form = GetFriendRequestForm(request.DATA)
         except TypeError:
-            return Response(status=400)
+            return Response({'detail': 'type error'}, status=400)
+        except AttributeError:
+            return Response({'detail': 'attribute error'}, status=400)
 
         if form.is_valid():
             try:
@@ -92,16 +98,14 @@ def get_friend_requests(request):
                 request_id = friend_request.friend_request_uuid
                 request_sender = friend_request.request_from.all()[0]
                 request_dict = {
-                'from_name': request_sender.first_name + ' ' +
-                             request_sender.last_name,
-                'from_email': request_sender.email, 'request_id': request_id}
+                    'from_name': "%s %s" % (request_sender.first_name,
+                                            request_sender.last_name),
+                    'from_email': request_sender.email,
+                    'request_id': request_id}
                 requests.append(request_dict)
             return Response(requests, status=200)
         else:
             return Response({"detail": "invalid form"}, status=400)
-
-    except IndexError:
-        return Response(status=400)
 
     except Exception:
         logger.exception({"function": get_friend_requests.__name__,
@@ -129,7 +133,9 @@ def respond_friend_request(request):
         try:
             form = RespondFriendRequestForm(request.DATA)
         except TypeError:
-            return Response(status=400)
+            return Response({'detail': 'type error'}, status=400)
+        except AttributeError:
+            return Response({'detail': 'attribute error'}, status=400)
 
         if form.is_valid():
             try:

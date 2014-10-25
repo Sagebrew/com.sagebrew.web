@@ -1,12 +1,15 @@
 import logging
+from json import dumps
 from django.conf import settings
 from elasticsearch import Elasticsearch
 from neomodel.exception import UniqueProperty, DoesNotExist, CypherException
 
 from .neo_models import SBAutoTag, SBTag
 from sb_questions.neo_models import SBQuestion
+from sb_answers.neo_models import SBAnswer
 
 logger = logging.getLogger('loggly_logs')
+
 
 def create_tag_relations(tags):
     '''
@@ -31,17 +34,14 @@ def create_tag_relations(tags):
                 else:
                     rel = tag.frequently_auto_tagged_with.connect(item)
                     rel.save()
+            # TODO is this needed since temp_list is assigned to tags at the
+            # start of the for loop?
             temp_list = []
         return True
 
-    except IndexError:
-        return False
-
-    except AttributeError:
-        return False
-
     except Exception:
-        logger.exception("UnhandedException: ")
+        logger.exception(dumps({"function": create_tag_relations.__name__,
+                                "exception": "UnhandledException: "}))
         return False
 
 
@@ -82,7 +82,7 @@ def add_auto_tags_util(tag_list):
                     tag_array.append(tag)
                 except UniqueProperty:
                     logger.exception({'function': add_auto_tags_util.__name__,
-                                  'exception': "UniqueProperty: "})
+                                      'exception': "UniqueProperty: "})
                     return None
 
             except KeyError:
@@ -100,6 +100,7 @@ def add_auto_tags_util(tag_list):
 
     create_tag_relations(tag_array)
     return True
+
 
 def add_tag_util(object_type, object_uuid, tags):
     '''
@@ -144,7 +145,8 @@ def add_tag_util(object_type, object_uuid, tags):
             return None
 
         except Exception:
-            logger.exception("UnhandledException: ")
+            logger.exception(dumps({"function": add_tag_util.__name__,
+                                "exception": "UnhandledException: "}))
             return None
     else:
         return False

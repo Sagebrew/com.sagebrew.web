@@ -1,6 +1,7 @@
 import pytz
 import logging
 from uuid import uuid1
+from json import dumps
 from datetime import datetime
 from urllib2 import HTTPError
 from requests import ConnectionError
@@ -9,8 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
 
-from api.utils import (get_post_data, post_to_garbage,
-                       spawn_task)
+from api.utils import (post_to_garbage, spawn_task)
 from plebs.neo_models import Pleb
 from .neo_models import SBPost
 from .tasks import save_post_task, edit_post_info_task, flag_post_task
@@ -169,7 +169,8 @@ def vote_post(request):
         else:
             return Response({'detail': post_form.errors}, status=400)
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": vote_post.__name__,
+                                "exception": "UnhandledException: "}))
         return Response({"detail": "Vote could not be created!"})
 
 
@@ -197,5 +198,6 @@ def flag_post(request):
                             status=400)
 
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": flag_post.__name__,
+                                "exception": "UnhandledException: "}))
         return Response(status=400)

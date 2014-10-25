@@ -11,12 +11,15 @@ logger = logging.getLogger('loggly_logs')
 
 class Command(BaseCommand):
     def populate_nginx(self, user):
-        hostname = socket.gethostname()
-        if('box' in hostname):
+        circle_branch = os.environ.get("CIRCLE_BRANCH", None)
+        if('dev' in circle_branch or circle_branch == "staging"):
             env = "development"
         else:
             env = "production"
-        worker_count = str((multiprocessing.cpu_count() *2) + 1)
+        worker_count = (multiprocessing.cpu_count() *2) + 1
+        if worker_count > 12 and os.environ.get("CIRCLECI", False):
+            worker_count = 12
+        worker_count = str(worker_count)
         call("sudo chown -R %s:%s /etc/nginx/" % (user, user), shell=True)
         with open ("%s/nginx_templates/base.tmpl" % (
                 settings.REPO_DIR), "r") as nginx_file:
@@ -65,7 +68,7 @@ class Command(BaseCommand):
         if os.path.isfile("/etc/nginx/sites-enabled/%s.conf" % env):
             logger.info({"Exception": "Nginx file exists and was removed",
                              "Location": "Initial Population",
-                             "Server": hostname,
+                             "Server": socket.gethostname(),
                              "Message": "This server's nginx file has already"
                                         "been populated. This should"
                                         "not happen and all nginx files should"

@@ -1,8 +1,9 @@
 import logging
 from uuid import uuid1
+from json import dumps
 from textblob import TextBlob
 
-from neomodel import DoesNotExist
+from neomodel import DoesNotExist, UniqueProperty, CypherException
 from django.conf import settings
 from django.template.loader import render_to_string
 
@@ -15,8 +16,7 @@ from sb_tag.tasks import add_auto_tags, add_tags
 
 logger = logging.getLogger('loggly_logs')
 
-def create_question_util(content="", current_pleb="", question_title="",
-                         tags="", question_uuid=str(uuid1())):
+def create_question_util(content="", current_pleb="", question_title=""):
     '''
     This util creates the question and attaches it to the user who asked it
 
@@ -36,36 +36,21 @@ def create_question_util(content="", current_pleb="", question_title="",
 
         content_blob = TextBlob(content)
         title_blob = TextBlob(question_title)
-        my_question = SBQuestion(content=content, question_title=question_title,
+        my_question = SBQuestion(content=content,
+                                 question_title=question_title,
                                  question_id=str(uuid1()))
         my_question.save()
         my_question.subjectivity = content_blob.subjectivity
         my_question.positivity = content_blob.polarity
         my_question.title_polarity = title_blob.polarity
         my_question.title_subjectivity = title_blob.subjectivity
-        search_dict = {'question_content': my_question.content, 'user': current_pleb,
-                       'question_title': my_question.question_title, 'tags': tags,
-                       'question_uuid': my_question.question_id,
-                       'post_date': my_question.date_created,
-                       'related_user': ''}
-        search_data = {'object_type': 'question', 'object_data': search_dict}
-        spawn_task(task_func=add_object_to_search_index, task_param=search_data, countdown=1)
         rel = my_question.owned_by.connect(poster)
         rel.save()
         rel_from_pleb = poster.questions.connect(my_question)
         rel_from_pleb.save()
-        auto_tags = create_auto_tags(content)
-        for tag in auto_tags['keywords']:
-            task_data.append({
-                "tags": tag, "object_uuid": my_question.question_id,
-                "object_type": "question"
-            })
-        tag_task_data = {'object_uuid': my_question.question_id,
-                         'object_type': 'question', 'tags': tags}
-        spawn_task(task_func=add_tags, task_param=tag_task_data)
-        tag_list = {'tag_list': task_data}
-        spawn_task(task_func=add_auto_tags, task_param=tag_list)
         return my_question
+    except CypherException:
+        return False
     except Exception:
         logger.exception({"function": create_question_util.__name__,
                           'exception': "UnhandledException: "})
@@ -94,9 +79,9 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
             owner_profile_url = settings.WEB_ADDRESS + '/user/' + owner.email
             query = 'match (q:SBQuestion) where q.question_id="%s" ' \
                     'with q ' \
-                    'match (q)-[:possible_answer]-(a:SBAnswer) ' \
+                    'match (q)-[:POSSIBLE_ANSWER]-(a:SBAnswer) ' \
                     'where a.to_be_deleted=False ' \
-                    'return a ' % questions
+                    'return a ' % questions.question_id
             answers, meta = execute_cypher_query(query)
             answers = [SBAnswer.inflate(row[0]) for row in answers]
             for answer in answers:
@@ -150,12 +135,11 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
                             }
                 question_array.append(question_dict)
             return question_array
-    except IndexError, e:
-        logger.exception({"function": prepare_get_question_dictionary.__name__,
-                          'exception': e})
+    except IndexError:
         return []
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": prepare_get_question_dictionary.__name__,
+                                "exception": "UnhandledException: "}))
         return []
 
 def get_question_by_uuid(question_uuid=str(uuid1()), current_pleb=""):
@@ -177,8 +161,11 @@ def get_question_by_uuid(question_uuid=str(uuid1()), current_pleb=""):
         return response
     except (SBQuestion.DoesNotExist, DoesNotExist):
         return {"detail": "There are no questions with that ID"}
+    except CypherException:
+        return {"detail": "A CypherException was thrown"}
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": get_question_by_uuid.__name__,
+                                "exception": "UnhandledException: "}))
         return {"detail": "Failure"}
 
 def get_question_by_most_recent(range_start=0, range_end=5, current_pleb=""):
@@ -206,7 +193,8 @@ def get_question_by_most_recent(range_start=0, range_end=5, current_pleb=""):
                                                       current_pleb=current_pleb)
         return return_dict
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": get_question_by_most_recent.__name__,
+                                "exception": "UnhandledException: "}))
         return {"detail": "fail"}
 
 def get_question_by_least_recent(range_start=0, range_end=5, current_pleb=""):
@@ -234,7 +222,8 @@ def get_question_by_least_recent(range_start=0, range_end=5, current_pleb=""):
                                                       current_pleb=current_pleb)
         return return_dict
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": get_question_by_least_recent.__name__,
+                                "exception": "UnhandledException: "}))
         return {"detail": "fail"}
 
 
@@ -262,6 +251,8 @@ def upvote_question_util(question_uuid="", current_pleb=""):
         my_question.up_voted_by.connect(pleb)
         my_question.save()
         return True
+    except CypherException:
+        return False
     except Exception:
         logger.exception({"function": upvote_question_util.__name__,
                           "exception:":"UnhandledException: "})
@@ -290,6 +281,8 @@ def downvote_question_util(question_uuid="", current_pleb=""):
         my_question.down_voted_by.connect(pleb)
         my_question.save()
         return True
+    except CypherException:
+        return False
     except Exception:
         logger.exception({"function": downvote_question_util.__name__,
                           "exception": "UnhandledException: "})
@@ -326,15 +319,19 @@ def edit_question_util(question_uuid="", content="", last_edited_on="",
 
         try:
             if my_question.last_edited_on > last_edited_on:
-                return{'question': my_question, 'detail': 'last edit more recent'}
-        except Exception:
-            logger.exception({"function": edit_question_util.__name__,
-                              "exception": "UnhandledException: "})
+                return {'question': my_question, 'detail': 'last edit more recent'}
+        except TypeError:
+            pass
 
-        my_question.content = content
-        my_question.last_edited_on = last_edited_on
+        edit_question = create_question_util(content=content, current_pleb=current_pleb,
+                                             question_title=my_question.question_title)
+        my_question.edits.connect(edit_question)
+        edit_question.edit_to.connect(my_question)
+        my_question.last_edited_on = edit_question.date_created
         my_question.save()
         return True
+    except CypherException:
+        return False
     except Exception:
         logger.exception({"function": edit_question_util.__name__,
                           "exception": "UnhandledException: "})
@@ -346,8 +343,7 @@ def prepare_question_search_html(question_uuid):
             my_question = SBQuestion.nodes.get(question_id=question_uuid)
         except (SBQuestion.DoesNotExist, DoesNotExist):
             return False
-        owner = my_question.owned_by.all()
-        owner = owner[0]
+        owner = my_question.owned_by.all()[0]
         owner_name = owner.first_name + ' ' + owner.last_name
         owner_profile_url = settings.WEB_ADDRESS + '/user/' + owner.email
         question_dict = {"question_title": my_question.question_title,
@@ -364,12 +360,64 @@ def prepare_question_search_html(question_uuid):
                          "owner_email": owner.email}
         rendered = render_to_string('question_search.html', question_dict)
         return rendered
+
     except IndexError:
-        logger.exception({"function": prepare_question_search_html.__name__,
-                          "exception": "IndexError"})
         return False
 
     except Exception:
         logger.exception({"function": prepare_question_search_html.__name__,
                           "exception": "UnhandledException: "})
+        return False
+
+def flag_question_util(question_uuid, current_pleb, flag_reason):
+    '''
+    This function will increase the flag count on any of the reasons
+    that a question could be flagged and connect a user to the question
+    showing that they have flagged the question already in case they
+    attempt to flag it multiple times.
+
+    :param question_uuid:
+    :param current_pleb:
+    :param flag_reason:
+    :return:
+    '''
+    try:
+        try:
+            question = SBQuestion.nodes.get(question_id=question_uuid)
+        except (SBQuestion.DoesNotExist, DoesNotExist):
+            return False
+
+        try:
+            pleb = Pleb.nodes.get(email=current_pleb)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            return None
+
+        if question.flagged_by.is_connected(pleb):
+            return True
+
+        question.flagged_by.connect(pleb)
+        if flag_reason == 'spam':
+            question.flagged_as_spam_count += 1
+            question.save()
+        elif flag_reason == 'explicit':
+            question.flagged_as_explicit_count += 1
+            question.save()
+        elif flag_reason == 'other':
+            question.flagged_as_other_count += 1
+            question.save()
+        elif flag_reason == 'duplicate':
+            question.flagged_as_duplicate_count += 1
+            question.save()
+        elif flag_reason == 'changed':
+            question.flagged_as_changed_count += 1
+            question.save()
+        elif flag_reason == 'unsupported':
+            question.flagged_as_unsupported_count += 1
+            question.save()
+        else:
+            return False
+        return True
+    except Exception:
+        logger.exception(dumps({"function": flag_question_util.__name__,
+                                "exception": "UnhandledException: "}))
         return False

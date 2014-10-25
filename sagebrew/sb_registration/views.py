@@ -4,6 +4,7 @@ import hashlib
 from django.conf import settings
 from uuid import uuid1
 from django.core.urlresolvers import reverse
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
@@ -14,6 +15,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from neomodel import DoesNotExist
 
+from api.utils import spawn_task
+from plebs.tasks import send_email_task
 from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
                     ProfilePictureForm, AddressChoiceForm, SignupForm,
@@ -22,11 +25,12 @@ from .utils import (validate_address, generate_interests_tuple, upload_image,
                     compare_address, generate_address_tuple,
                     create_address_string,
                     create_address_long_hash, verify_completed_registration,
-                    verify_verified_email, calc_age, sb_send_email)
-from .models import EmailAuthTokenGenerator
+                    verify_verified_email, calc_age, sb_send_email,
+                    create_user_util)
+from .models import token_gen
 
 logger = logging.getLogger('loggly_logs')
-token_gen = EmailAuthTokenGenerator()
+
 
 @login_required()
 def confirm_view(request):
@@ -38,7 +42,10 @@ def signup_view(request):
 @api_view(['POST'])
 def signup_view_api(request):
     try:
-        signup_form = SignupForm(request.DATA)
+        try:
+            signup_form = SignupForm(request.DATA)
+        except TypeError:
+            return Response(status=400)
         if signup_form.is_valid():
             if signup_form.cleaned_data['password'] != \
                     signup_form.cleaned_data['password2']:
@@ -51,30 +58,23 @@ def signup_view_api(request):
                                      'A user with this email already exists!'},
                                 status=401)
             except User.DoesNotExist:
-                user = User.objects.create_user(first_name=signup_form.
-                                                cleaned_data['first_name'],
-                                                last_name=signup_form.
-                                                cleaned_data['last_name'],
-                                                email=signup_form.
-                                                cleaned_data['email'],
-                                                username=shortuuid.uuid(),
-                                                password=signup_form.
-                                                cleaned_data['password'])
-                user.save()
-                user = authenticate(username=user.username,
-                                    password=signup_form.cleaned_data[
-                                        'password'])
+                res = create_user_util(first_name=signup_form.
+                                       cleaned_data['first_name'],
+                                       last_name=signup_form.
+                                       cleaned_data['last_name'],
+                                       email=signup_form.
+                                       cleaned_data['email'],
+                                       password=signup_form.
+                                       cleaned_data['password'])
+                if res and res is not None:
+                    user = authenticate(username=res['username'],
+                                        password=signup_form.cleaned_data[
+                                            'password'])
+                else:
+                    return Response({'detail': 'system error'}, status=500)
                 if user is not None:
                     if user.is_active:
                         login(request, user)
-                        template_dict = {
-                            'full_name': request.user.first_name+' '+request.user.last_name,
-                            'verification_url': settings.EMAIL_VERIFICATION_URL+token_gen.make_token(user)+'/'
-                        }
-                        subject, to = "Sagebrew Email Verification", request.user.email
-                        text_content = get_template('email_templates/email_verification.txt').render(Context(template_dict))
-                        html_content = get_template('email_templates/email_verification.html').render(Context(template_dict))
-                        sb_send_email(to, subject, text_content, html_content)
                         return Response({'detail': 'success'}, status=200)
                     else:
                         return Response({'detail': 'account disabled'},
@@ -102,22 +102,26 @@ def resend_email_verification(request):
         logger.exception({'function': resend_email_verification.__name__,
                           'exception': 'DoesNotExist: '})
         return Response({'detail': 'pleb does not exist'}, status=400)
-
     template_dict = {
         'full_name': request.user.first_name+' '+request.user.last_name,
-        'verification_url': settings.EMAIL_VERIFICATION_URL+token_gen.make_token(request.user)+'/'
+        'verification_url': settings.EMAIL_VERIFICATION_URL+token_gen.make_token(request.user, pleb)+'/'
     }
     subject, to = "Sagebrew Email Verification", request.user.email
     text_content = get_template('email_templates/email_verification.txt').render(Context(template_dict))
     html_content = get_template('email_templates/email_verification.html').render(Context(template_dict))
-    sb_send_email(to, subject, text_content, html_content)
+    task_data = {'to': to, 'subject': subject, 'text_content': text_content,
+                 'html_content': html_content}
+    spawn_task(task_func=send_email_task, task_param=task_data)
     return redirect("confirm_view")
 
 
 @api_view(['POST'])
 def login_view_api(request):
     try:
-        login_form = LoginForm(request.DATA)
+        try:
+            login_form = LoginForm(request.DATA)
+        except TypeError:
+            return Response(status=400)
         if login_form.is_valid():
             try:
                 user = User.objects.get(email=login_form.cleaned_data['email'])
@@ -168,12 +172,13 @@ def logout_view(request):
 def email_verification(request, confirmation):
     try:
         pleb = Pleb.nodes.get(email=request.user.email)
-        if token_gen.check_token(request.user, confirmation):
+        if token_gen.check_token(request.user, confirmation, pleb):
             pleb.email_verified = True
             pleb.save()
             return redirect('profile_info')
         else:
-            return Response({"detail": "failed to authenticate"}, status=401)
+            # TODO Ensure to link up to a real redirect page
+            return HttpResponse('Unauthorized', status=401)
     except Pleb.DoesNotExist:
         return redirect('logout')
     except DoesNotExist:
@@ -335,7 +340,6 @@ def interests(request):
                         item != "specific_interests"):
                 try:
                     citizen = Pleb.nodes.get(email=request.user.email)
-                    # TODO profile page profile picture
                     if citizen.completed_profile_info:
                         return redirect('profile_picture')
                 except Pleb.DoesNotExist:

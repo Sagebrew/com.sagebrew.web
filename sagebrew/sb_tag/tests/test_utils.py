@@ -1,22 +1,24 @@
 from uuid import uuid1
 from django.contrib.auth.models import User
-from django.core.management import call_command
 from django.test import TestCase
 
-from plebs.neo_models import Pleb
-
+from api.utils import test_wait_util
 from sb_questions.neo_models import SBQuestion
 from sb_tag.utils import (add_tag_util, add_auto_tags_util,
                           create_tag_relations)
 from sb_tag.neo_models import SBAutoTag
+from plebs.neo_models import Pleb
+from sb_registration.utils import create_user_util
+
 
 class TestCreateTagUtil(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-
-    def tearDown(self):
-        call_command('clear_neo_db')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def test_create_tag_util_success(self):
         question = SBQuestion(question_id=uuid1())
@@ -58,34 +60,36 @@ class TestCreateTagUtil(TestCase):
 
 class TestCreateAutoTagUtil(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-
-    def tearDown(self):
-        call_command('clear_neo_db')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def test_create_auto_tag_util_success(self):
-        question = SBQuestion(question_id=uuid1())
+        question = SBQuestion(question_id=str(uuid1()))
         question.save()
         util_dict = [{'object_type': 'question',
                       'object_uuid': question.question_id,
-                      'tags': {'relevance': '.9', 'text': 'test'}}]
+                      'tags': {'relevance': '.9', 'text': 'test auto tag'}}]
         res = add_auto_tags_util(util_dict)
 
         self.assertTrue(res)
 
     def test_create_auto_tag_util_success_tag_exists(self):
-        question = SBQuestion(question_id=uuid1())
+        question_id = uuid1()
+        question = SBQuestion(question_id=question_id)
         question.save()
         util_dict = [{'object_type': 'question',
-                      'object_uuid': question.question_id,
-                      'tags': {'relevance': '.9', 'text': 'test'}},
+                      'object_uuid': question_id,
+                      'tags': {'relevance': '.9', 'text': 'test auto tag'}},
                      {'object_type': 'question',
-                      'object_uuid': question.question_id,
-                      'tags': {'relevance': '.9', 'text': 'test'}},
+                      'object_uuid': question_id,
+                      'tags': {'relevance': '.9', 'text': 'test fake tag'}},
                      {'object_type': 'question',
-                      'object_uuid': question.question_id,
-                      'tags': {'relevance': '.9', 'text': 'test'}}]
+                      'object_uuid': question_id,
+                      'tags': {'relevance': '.9', 'text': 'test auto tag'}}]
         res = add_auto_tags_util(util_dict)
 
         self.assertTrue(res)
@@ -120,11 +124,12 @@ class TestCreateAutoTagUtil(TestCase):
 
 class TestCreateAutoTagRelationships(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-
-    def tearDown(self):
-        call_command('clear_neo_db')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def test_create_auto_tag_relationship_success(self):
         tag_list = []
@@ -134,6 +139,17 @@ class TestCreateAutoTagRelationships(TestCase):
             tag_list.append(tag)
         res = create_tag_relations(tag_list)
 
+        self.assertTrue(res)
+
+    def test_create_auto_tag_relaitonship_fequently_tagged_with(self):
+        tag1 = SBAutoTag(tag_name=str(uuid1())).save()
+        tag2 = SBAutoTag(tag_name=str(uuid1())).save()
+        rel = tag1.frequently_auto_tagged_with.connect(tag2)
+        rel.save()
+        rel2 = tag2.frequently_auto_tagged_with.connect(tag1)
+        rel2.save()
+        tag_list = [tag1, tag2]
+        res = create_tag_relations(tag_list)
         self.assertTrue(res)
 
     def test_create_auto_tag_relationship_empty_list(self):

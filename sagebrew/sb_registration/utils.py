@@ -1,17 +1,24 @@
 import os
+import shortuuid
 import hashlib
 import json
 import urllib
 import boto.ses
+import logging
+from boto.ses.exceptions import SESMaxSendingRateExceededError
+from socket import error as socket_error
 from datetime import date
 from django.conf import settings
+from django.contrib.auth.models import User
 from boto import connect_s3
 from boto.s3.key import Key
-from neomodel import DoesNotExist
-
+from neomodel import DoesNotExist, CypherException
+from api.utils import spawn_task
+from plebs.tasks import create_pleb_task
 from plebs.neo_models import TopicCategory, Pleb
 from govtrack.neo_models import GTRole
 
+logger = logging.getLogger('loggly_logs')
 
 def generate_interests_tuple():
     cat_instance = TopicCategory.category()
@@ -295,11 +302,14 @@ def verify_completed_registration(user):
     '''
     try:
         pleb = Pleb.nodes.get(email=user.email)
-        if pleb.completed_profile_info:
-            return True
-        else:
-            return False
+        return pleb.completed_profile_info
     except (Pleb.DoesNotExist,DoesNotExist):
+        logger.critical({"exception": "Pleb does not exist",
+                         "function": "verify_completed_registration"})
+        return False
+    except CypherException:
+        logger.critical({"exception": "cypher exception",
+                         "function": "verify_completed_registration"})
         return False
 
 def verify_verified_email(user):
@@ -312,11 +322,12 @@ def verify_verified_email(user):
     '''
     try:
         pleb = Pleb.nodes.get(email=user.email)
-        if pleb.email_verified:
-            return True
-        else:
-            return False
+        return pleb.email_verified
     except (Pleb.DoesNotExist, DoesNotExist):
+        return False
+    except CypherException:
+        logger.critical({"exception": "cypher exception",
+                         "function": "verify_verified_email"})
         return False
 
 def sb_send_email(to_email, subject, text_content, html_content):
@@ -330,14 +341,46 @@ def sb_send_email(to_email, subject, text_content, html_content):
     :param html_content:
     :return:
     '''
-    conn = boto.ses.connect_to_region(
-        'us-east-1',
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-        aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
-    )
+    try:
+        conn = boto.ses.connect_to_region(
+            'us-east-1',
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
+        )
 
-    res = conn.send_email(source='devon@sagebrew.com',
-                          subject=subject,
-                          body=html_content,
-                          to_addresses=[to_email],
-                          format='html')
+        conn.send_email(source='devon@sagebrew.com',
+                        subject=subject,
+                        body=html_content,
+                        to_addresses=[to_email],
+                        format='html')
+        return True
+    except SESMaxSendingRateExceededError as e:
+        return e
+    except Exception as e:
+        logger.exception(json.dumps({"function": sb_send_email.__name__,
+                                     "exception": "UnhandledException: "}))
+        return e
+
+def create_user_util(first_name, last_name, email, password,
+                     username=""):
+    try:
+        if username == "":
+            username = shortuuid.uuid()
+        user = User.objects.create_user(first_name=first_name,
+                                        last_name=last_name,
+                                        email=email,
+                                        password=password,
+                                        username=username)
+        user.save()
+        res = spawn_task(task_func=create_pleb_task,
+                         task_param={"user_instance": user})
+        if res is not None:
+            return {"task_id": res, "username": user.username}
+        else:
+            logger.critical(json.dumps({"function": create_user_util.__name__,
+                          "exception": "res is None"}))
+            return False
+    except Exception:
+        logger.exception(json.dumps({"function": create_user_util.__name__,
+                          "exception": "UnhandledException: "}))
+        return False

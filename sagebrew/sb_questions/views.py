@@ -1,20 +1,26 @@
 import pytz
 import logging
 from uuid import uuid1
+from json import dumps
 from datetime import datetime
 from django.shortcuts import render
+from django.template import Context
+from django.template.loader import get_template
 from django.core.urlresolvers import reverse
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.decorators import login_required, user_passes_test
 from rest_framework.decorators import (api_view, permission_classes)
 
-from api.utils import (spawn_task, post_to_api)
+from api.utils import spawn_task
 from sb_registration.utils import verify_completed_registration
 from .utils import (get_question_by_most_recent, get_question_by_uuid,
                     get_question_by_least_recent, prepare_question_search_html)
-from .tasks import create_question_task, vote_question_task, edit_question_task
-from .forms import SaveQuestionForm, EditQuestionForm, VoteQuestionForm
+from .tasks import (create_question_task, vote_question_task,
+                    edit_question_task, flag_question_task)
+from .forms import (SaveQuestionForm, EditQuestionForm, VoteQuestionForm,
+                    FlagQuestionForm)
+
 
 logger = logging.getLogger('loggly_logs')
 
@@ -22,13 +28,6 @@ logger = logging.getLogger('loggly_logs')
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def submit_question_view_page(request):
-    '''
-    This is the view that creates the page which displays the html to create
-    a question
-
-    :param request:
-    :return:
-    '''
     current_user = request.user
     return render(request,'save_question.html',{
         'current_user': current_user.email,
@@ -56,13 +55,8 @@ def question_page(request, sort_by="most_recent"):
 
     :return:
     '''
-    current_user = request.user
-    post_data = {'current_pleb': current_user.email,
-                 'sort_by': sort_by}
-    headers = {'content-type': 'application/json'}
-    questions = post_to_api(reverse('get_questions'), data=post_data,
-                            headers=headers)
-    return render(request, 'question_sort_page.html', {'questions': questions})
+    return render(request, 'question_sort_page.html',
+                  {'email': request.user.email})
 
 @login_required()
 @user_passes_test(verify_completed_registration,
@@ -76,13 +70,13 @@ def question_detail_page(request, question_uuid=str(uuid1())):
     :return:
     '''
     current_user = request.user
-    post_data = {'current_pleb': current_user.email,
+    post_data = {'pleb': current_user.email,
                  'sort_by': 'uuid',
-                 'question_uuid': question_uuid}
-    headers = {'content-type': 'application/json'}
-    question = post_to_api(reverse('get_questions'), data=post_data,
-                           headers=headers)
-    return render(request, 'question_detail.html', {'question': question})
+                 'uuid': question_uuid}
+    #headers = {'content-type': 'application/json'}
+    #question = post_to_api(reverse('get_questions'), data=post_data,
+    #                       headers=headers)
+    return render(request, 'question_detail.html', post_data)
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
@@ -243,19 +237,39 @@ def get_question_view(request):
     :return:
     '''
     try:
+        html_array = []
         question_data = request.DATA
         if question_data['sort_by'] == 'most_recent':
-            response = get_question_by_most_recent(current_pleb=question_data['current_pleb'])
+            response = get_question_by_most_recent(
+                current_pleb=question_data['current_pleb'])
+            for question in response:
+                t = get_template("questions.html")
+                c = Context(question)
+                html_array.append(t.render(c))
+            return Response(html_array, status=200)
+
         elif question_data['sort_by'] == 'uuid':
-            response = get_question_by_uuid(question_data['question_uuid'],
-                                            question_data['current_pleb'])
+            response = get_question_by_uuid(
+                question_data['question_uuid'],
+                question_data['current_pleb'])
+            t = get_template("single_question.html")
+            c = Context(response)
+            return Response(t.render(c), status=200)
+
         elif question_data['sort_by'] == 'least_recent':
-            response = get_question_by_least_recent(current_pleb=question_data['current_pleb'])
+            response = get_question_by_least_recent(
+                current_pleb=question_data['current_pleb'])
+            for question in response:
+                t = get_template("questions.html")
+                c = Context(question)
+                html_array.append(t.render(c))
+            return Response(html_array, status=200)
+
         else:
             response = {"detail": "fail"}
             return Response(response, status=400)
-        return Response(response, status=200)
-    except Exception, e:
+
+    except Exception:
         return Response({'detail': 'fail'}, status=400)
 
 @api_view(['GET'])
@@ -273,5 +287,28 @@ def get_question_search_view(request, question_uuid=str(uuid1())):
     try:
         response = prepare_question_search_html(question_uuid)
         return Response({'html': response}, status=200)
-    except:
-        return []
+    except Exception:
+        logger.exception(dumps({"function": get_question_search_view.__name__,
+                                "exception": "UnhandledException: "}))
+        return Response({'html': []}, status=400)
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def flag_question_view(request):
+    try:
+        flag_data = request.DATA
+        if type(flag_data) != dict:
+            return Response({'detail': 'Please Provide a valid JSON Object'},
+                            status=400)
+        flag_form = FlagQuestionForm(flag_data)
+        if flag_form.is_valid():
+            spawn_task(task_func=flag_question_task,
+                       task_param=flag_form.cleaned_data)
+            return Response(status=200)
+        else:
+            return Response({"detail": flag_form.errors}, status=400)
+
+    except Exception:
+        logger.exception(dumps({"function": flag_question_view.__name__,
+                                "exception": "UnhandledException: "}))
+        return Response({'detail': 'fail'}, status=400)

@@ -1,21 +1,25 @@
-import time
 import pytz
 from datetime import datetime, timedelta
 from uuid import uuid1
 from django.test import TestCase
-from django.core.management import call_command
 from django.contrib.auth.models import User
 
-from sb_questions.utils import create_question_util
+from api.utils import test_wait_util
+from plebs.neo_models import Pleb
 from sb_answers.utils import (save_answer_util, edit_answer_util,
                               upvote_answer_util, downvote_answer_util)
 from sb_answers.neo_models import SBAnswer
 from sb_questions.neo_models import SBQuestion
+from sb_registration.utils import create_user_util
 
 class TestCreateAnswerUtil(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
                                    'content': 'test post'}
@@ -23,9 +27,6 @@ class TestCreateAnswerUtil(TestCase):
                                  'content': 'test answer',
                                  'answer_uuid': str(uuid1()),
                                  'current_pleb': self.user.email}
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
 
     def test_save_answer_util(self):
@@ -65,8 +66,12 @@ class TestCreateAnswerUtil(TestCase):
 
 class TestEditAnswerUtil(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
                                    'content': 'test post'}
@@ -74,9 +79,6 @@ class TestEditAnswerUtil(TestCase):
                                  'content': 'test answer',
                                  'answer_uuid': str(uuid1()),
                                  'current_pleb': self.user.email}
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_edit_answer_util(self):
         answer = SBAnswer(content="test answer", answer_id=str(uuid1()))
@@ -156,8 +158,12 @@ class TestEditAnswerUtil(TestCase):
 
 class TestVoteAnswerUtil(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
                                    'content': 'test post'}
@@ -165,9 +171,6 @@ class TestVoteAnswerUtil(TestCase):
                                  'content': 'test answer',
                                  'answer_uuid': str(uuid1()),
                                  'current_pleb': self.user.email}
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_upvote_answer_util(self):
         answer = SBAnswer(content="test answer", answer_id=str(uuid1()))

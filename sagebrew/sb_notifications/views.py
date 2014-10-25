@@ -1,4 +1,5 @@
 import logging
+from json import dumps
 from django.template.loader import render_to_string
 
 from rest_framework.permissions import IsAuthenticated
@@ -7,8 +8,7 @@ from rest_framework.response import Response
 
 from .neo_models import NotificationBase
 from .forms import GetNotificationForm
-from api.utils import get_post_data, execute_cypher_query
-from plebs.neo_models import Pleb
+from api.utils import execute_cypher_query
 
 logger = logging.getLogger('loggly_logs')
 
@@ -54,8 +54,7 @@ def get_notifications(request):
                 from_user = notification.notification_from.all()[0]
                 notification_dict = {'notification_about': notification.notification_about,
                         'time_sent': notification.time_sent,
-                        'from_user': from_user.first_name+' '+from_user.last_name,
-                        'notification_about_id': notification.notification_about_id}
+                        'from_user': from_user.first_name+' '+from_user.last_name}
                 notification_array.append(notification_dict)
                 notification_dict = {}
             html  = render_to_string('notifications.html', notification_array)
@@ -63,7 +62,8 @@ def get_notifications(request):
         else:
             return Response(status=400)
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": get_notifications.__name__,
+                                "exception": "UnhandledException: "}))
         return Response(status=400)
 
 

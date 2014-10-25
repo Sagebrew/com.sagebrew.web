@@ -6,6 +6,8 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty)
 
+class EditRelationshipModel(StructuredRel):
+    time_edited = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
 class PostedOnRel(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
@@ -32,8 +34,12 @@ class SBBase(StructuredNode):
     subjectivity = FloatProperty()
     flagged_as_spam_count = IntegerProperty(default=0)
     flagged_as_explicit_count = IntegerProperty(default=0)
+    flagged_as_changed_count = IntegerProperty(default=0)
+    flagged_as_unsupported_count = IntegerProperty(default=0)
+    flagged_as_duplicate_count = IntegerProperty(default=0)
     flagged_as_other_count = IntegerProperty(default=0)
     view_count = IntegerProperty(default=0)
+    original = BooleanProperty(default=True)
 
     # relationships
     auto_tags = RelationshipTo('sb_tag.neo_models.SBAutoTag',
@@ -52,6 +58,9 @@ class SBBase(StructuredNode):
                                     'AUTO_TAGGED_AS')
     rel_weight = RelationshipTo('plebs.neo_models.Pleb', 'HAS_WEIGHT',
                                 model=RelationshipWeight)
+    notifications = RelationshipTo('sb_notifications.neo_models.NotificationBase',
+                                   'NOTIFICATIONS')
+
 
 
 class SBPost(SBBase):

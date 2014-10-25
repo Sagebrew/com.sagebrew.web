@@ -1,24 +1,37 @@
+import time
 from uuid import uuid1
+import shortuuid
 from rest_framework.test import APIRequestFactory
 from django.contrib.auth.models import User, AnonymousUser
-from django.test import TestCase
+from django.test import TestCase, Client
+from django.core.urlresolvers import reverse
 
 from sb_comments.neo_models import SBComment
 from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
-from plebs.views import profile_page
+from plebs.views import (profile_page, friends_page, about_page,
+                         reputation_page)
+from sb_registration.utils import create_user_util
+from api.utils import test_wait_util
 
 
+#TODO test friend user, registered non-friend user getting the correct page
 class ProfilePageTest(TestCase):
-    fixtures = ["sagebrew/fixtures/initial_data.json"]
-    def setUp(self):
-        self.email = str(uuid1())+"@gmail.com"
 
+    def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler' + str(uuid1())[:25], email=self.email)
+        self.client = Client()
+        self.email = "success@simulator.amazonses.com"
+        self.username = shortuuid.uuid()
+        self.password = "testpassword"
+        res = create_user_util("test", "test", self.email, self.password,
+                               self.username)
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.pleb.completed_profile_info = True
+        self.pleb.email_verified = True
         self.pleb.save()
 
     def test_unauthenticated(self):
@@ -34,7 +47,7 @@ class ProfilePageTest(TestCase):
         response = profile_page(request, self.email)
         self.assertEqual(response.status_code, 200)
 
-    def test_post(self):
+    def test_with_post(self):
         test_post = SBPost(content='test', post_id=str(uuid1()))
         test_post.save()
         wall = self.pleb.wall.all()[0]
@@ -120,9 +133,10 @@ class ProfilePageTest(TestCase):
             rel_from_pleb = self.pleb.posts.connect(test_post)
             rel_from_pleb.save()
             post_array.append(test_post)
-        request = self.factory.get('/%s' % self.email)
-        request.user = self.user
-        response = profile_page(request, self.email)
+        self.client.login(username=self.username, password=self.password)
+        response = self.client.get(reverse("profile_page",
+                                           kwargs={"pleb_email": self.email}),
+                                   follow=True)
         self.assertEqual(response.status_code, 200)
         for post in post_array:
             post.delete()
@@ -229,5 +243,92 @@ class ProfilePageTest(TestCase):
             comment.delete()
         test_post.delete()
 
-#TODO test friend user, registered non-friend user getting the correct page
+
+class TestProfilePageAbout(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.client = Client()
+        self.email = "success@simulator.amazonses.com"
+        self.username = shortuuid.uuid()
+        self.password = "testpassword"
+        res = create_user_util("test", "test", self.email, self.password,
+                               self.username)
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.pleb.completed_profile_info = True
+        self.pleb.email_verified = True
+        self.pleb.save()
+
+    def test_profile_about_page_success(self):
+        request = self.factory.get('/%s/about/' % self.email)
+        request.user = self.user
+        response = about_page(request, self.email)
+        self.assertEqual(response.status_code, 200)
+
+    def test_profile_about_page_unauthenticated(self):
+        request = self.factory.get('/%s/about/' % self.email)
+        request.user = AnonymousUser()
+        response = about_page(request, self.email)
+        self.assertEqual(response.status_code, 302)
+
+
+class TestProfilePageReputationPage(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.client = Client()
+        self.email = "success@simulator.amazonses.com"
+        self.username = shortuuid.uuid()
+        self.password = "testpassword"
+        res = create_user_util("test", "test", self.email, self.password,
+                               self.username)
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.pleb.completed_profile_info = True
+        self.pleb.email_verified = True
+        self.pleb.save()
+
+    def test_profile_reputation_page_success(self):
+        request = self.factory.get('/%s/reputation/' % self.email)
+        request.user = self.user
+        response = reputation_page(request, self.email)
+        self.assertEqual(response.status_code, 200)
+
+    def test_profile_reputation_page_unauthenticated(self):
+        request = self.factory.get('/%s/reputation/' % self.email)
+        request.user = AnonymousUser()
+        response = reputation_page(request, self.email)
+        self.assertEqual(response.status_code, 302)
+
+class TestProfilePageFriendPage(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.client = Client()
+        self.email = "success@simulator.amazonses.com"
+        self.username = shortuuid.uuid()
+        self.password = "testpassword"
+        res = create_user_util("test", "test", self.email, self.password,
+                               self.username)
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.pleb.completed_profile_info = True
+        self.pleb.email_verified = True
+        self.pleb.save()
+
+    def test_profile_friend_page_success(self):
+        request = self.factory.get('/%s/friends/' % self.email)
+        request.user = self.user
+        response = friends_page(request, self.email)
+        self.assertEqual(response.status_code, 200)
+
+    def test_profile_friend_page_unauthenticated(self):
+        request = self.factory.get('/%s/friends/' % self.email)
+        request.user = AnonymousUser()
+        response = friends_page(request, self.email)
+        self.assertEqual(response.status_code, 302)
 

@@ -1,35 +1,14 @@
-# Django settings for automated_test_client project.
 from fnmatch import fnmatch
 
 from base import *
 
-
 DEBUG = True
-
 TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['*']
-
 WEB_ADDRESS = "https://192.168.56.101"
-
 API_PASSWORD = "admin"
-
 VERIFY_SECURE = False
-'''
-# TODO this makes it so we cannot run tests concurrently (parallel processing in
-# circle. This is because the test db gets created on this server and then
-# if another one starts running it fails. Might want to look into making a
-# separate test config again that uses a local psql db based on circles docs.
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'sagebrewdb',
-        'USER': 'sagedev',
-        'PASSWORD': 'thisisthesagebrewpassword',
-        'HOST': 'sagebrewdb.clkvngd3diph.us-west-2.rds.amazonaws.com',
-        'PORT': '5432',
-    }
-}
-'''
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -49,27 +28,25 @@ CACHES = {
     }
 }
 
-AWS_BUCKET_NAME = "sagebrew"
-AWS_ACCESS_KEY_ID = "AKIAJIWX3E2JPTBS6CRA"
-AWS_SECRET_ACCESS_KEY = "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"
-AWS_PROFILE_PICTURE_FOLDER_NAME = 'profile_pictures'
+CELERY_RESULT_BACKEND = 'redis://%s:%s/0' % (environ.get("REDIS_LOCATION", ""),
+                                             environ.get("REDIS_PORT", ""))
 
-SECRET_KEY = "5fd&2wkqx8r!h2y1)j!izqi!982$p87)sred(5#x0mtqa^cbx)"
+EMAIL_VERIFICATION_URL = "%s/registration/email_confirmation/" % WEB_ADDRESS
 
-INTERNAL_IPS = ('127.0.0.1', 'localhost', '0.0.0.0', '192.168.56.101',
-                '192.168.56.102')
+
+BROKER_URL = 'amqp://%s:%s@%s:%s//' % (environ.get("QUEUE_USERNAME", ""),
+                                       environ.get("QUEUE_PASSWORD", ""),
+                                       environ.get("QUEUE_HOST", ""),
+                                       environ.get("QUEUE_PORT", ""))
 
 REST_FRAMEWORK = {
-    # Use hyperlinked styles by default.
-    # Only used if the `serializer_class` attribute is not set on a view.
     'DEFAULT_MODEL_SERIALIZER_CLASS':
         'rest_framework.serializers.HyperlinkedModelSerializer',
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.OAuth2Authentication',
         'rest_framework.authentication.SessionAuthentication',
     )
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
 }
 
 DEBUG_TOOLBAR_PANELS = (
@@ -88,10 +65,11 @@ DEBUG_TOOLBAR_PANELS = (
     # 'cache_panel.panel.CacheDebugPanel',
 )
 
-ELASTIC_SEARCH_HOST = [{'host': 'dwalin-us-east-1.searchly.com',
-                        'port':443, 'use_ssl': True,
-                        'http_auth': ('site',
-                                      '6495ff8387e86cb755da1f45da88b475')
+ELASTIC_SEARCH_HOST = [{'host': environ.get("ELASTIC_SEARCH_HOST", ""),
+                        'port': environ.get("ELASTIC_SEARCH_PORT", ""),
+                        'use_ssl': True,
+                        'http_auth': (environ.get("ELASTIC_SEARCH_USER", ""),
+                                      environ.get("ELASTIC_SEARCH_KEY", ""))
                        }]
 
 
@@ -143,6 +121,20 @@ LOGGING = {
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'DEBUG',
+            'token': LOG_TOKEN
+        },
+        'elasticsearch': {
+            'handlers': ['logging.handlers.SysLogHandler'],
+            'propagate': True,
+            'format': 'loggly: %(message)s',
+            'level': 'CRITICAL',
+            'token': LOG_TOKEN
+        },
+        'elasticsearch.trace': {
+            'handlers': ['logging.handlers.SysLogHandler'],
+            'propagate': True,
+            'format': 'loggly: %(message)s',
+            'level': 'CRITICAL',
             'token': LOG_TOKEN
         },
         'django.request': {

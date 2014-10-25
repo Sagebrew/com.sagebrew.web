@@ -1,25 +1,26 @@
 from uuid import uuid1
 from base64 import b64encode
 from rest_framework.test import APIRequestFactory
-from django.core.management import call_command
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.conf import settings
-from neomodel.exception import CypherException
 
+from api.utils import test_wait_util
 from plebs.neo_models import Pleb
 from sb_posts.views import (save_post_view, edit_post, delete_post, vote_post,
                             flag_post)
+from sb_registration.utils import create_user_util
 
 
 class SavePostViewTests(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-
-    def tearDown(self):
-        call_command('clear_neo_db')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def test_save_post_view_correct_data(self):
         my_dict = {'content': 'aosdfhao',
@@ -93,11 +94,12 @@ class SavePostViewTests(TestCase):
 class EditPostViewTests(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-
-    def tearDown(self):
-        call_command('clear_neo_db')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def test_edit_post_view_correct_data(self):
         my_dict = {'content': 'aosdfhao',
@@ -172,11 +174,12 @@ class EditPostViewTests(TestCase):
 class DeletePostViewTests(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-
-    def tearDown(self):
-        call_command('clear_neo_db')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def test_delete_post_view_correct_data(self):
         my_dict = {'pleb': self.user.email,
@@ -249,11 +252,12 @@ class DeletePostViewTests(TestCase):
 class VotePostViewTests(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-
-    def tearDown(self):
-        call_command('clear_neo_db')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def test_vote_post_view_correct_data(self):
         my_dict = {'pleb': self.user.email,
@@ -327,11 +331,12 @@ class VotePostViewTests(TestCase):
 class TestFlagPostView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-
-    def tearDown(self):
-        call_command('clear_neo_db')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def test_flag_post_view_correct_data_spam(self):
         my_dict = {'current_user': self.user.email,

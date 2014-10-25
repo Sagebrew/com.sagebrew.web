@@ -1,4 +1,5 @@
 import logging
+from json import dumps
 from operator import itemgetter
 from django.conf import settings
 from multiprocessing import Pool
@@ -102,6 +103,7 @@ def search_result_api(request, query_param="", display_num=10, page=1,
         results=[]
         current_user_email = request.user.email
         current_user_email,current_user_address = current_user_email.split('@')
+
         try:
             es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
             #TODO benchmark getting the index from neo vs. getting from postgres
@@ -179,7 +181,8 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                 next_page_num = ""
             return Response({'html': results, 'next': next_page_num}, status=200)
         except Exception:
-            logger.exception("UnhandledException: ")
+            logger.exception(dumps({"function": search_result_api.__name__,
+                                "exception": "UnhandledException: "}))
             return Response({'detail': 'fail'}, status=400)
     else:
         return Response({'detail': 'invalid form'}, status=400)

@@ -1,4 +1,7 @@
 $( document ).ready(function() {
+    $(".sb_btn_skip").on('click', function(){
+        
+    });
     var existingdiv1 = document.getElementById( "sb_profile_photo" );
     $("input#profile_pic_upload").change(function() {
         $("#myModal").modal("show");
@@ -24,7 +27,7 @@ $( document ).ready(function() {
            aspectRatio: 150/150,
            bgColor: '#26424a',
            bgOpacity: 0.4,
-           setSelect: [ 60, 70, 540, 330 ],
+           setSelect: [ 60, 70, 540, 330 ]
         });
     });
 });

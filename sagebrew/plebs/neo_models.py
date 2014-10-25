@@ -1,18 +1,13 @@
 import shortuuid
-from uuid import uuid1
-from datetime import datetime, date
+from datetime import datetime
 import pytz
-from api.utils import spawn_task
-from api.tasks import add_object_to_search_index
-from django.contrib.auth.models import User
-from django.db.models.signals import post_save
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty)
+                      BooleanProperty, FloatProperty, db)
 
-from sb_relationships.neo_models import FriendRelationship, UserWeightRelationship
+from sb_relationships.neo_models import (FriendRelationship,
+                                         UserWeightRelationship)
 from sb_posts.neo_models import RelationshipWeight
-from sb_wall.neo_models import SBWall
 from sb_search.neo_models import SearchCount
 
 
@@ -91,6 +86,9 @@ class Pleb(StructuredNode):
     search_index = StringProperty()
     base_index_id = StringProperty()
     email_verified = BooleanProperty(default=False)
+    populated_es_index = BooleanProperty(default=False)
+    populated_personal_index = BooleanProperty(default=False)
+    initial_verification_email_sent = BooleanProperty(default=False)
 
     # Relationships
     home_town_address = RelationshipTo("Address", "GREW_UP_AT")
@@ -109,11 +107,13 @@ class Pleb(StructuredNode):
                                "HAS_REPRESENTATIVE")
     posts = RelationshipTo('sb_posts.neo_models.SBPost', 'OWNS_POST',
                            model=PostObjectCreated)
-    questions = RelationshipTo('sb_questions.neo_models.SBQuestion', 'OWNS_QUESTION',
+    questions = RelationshipTo('sb_questions.neo_models.SBQuestion',
+                               'OWNS_QUESTION',
                                model=PostObjectCreated)
     answers = RelationshipTo('sb_answers.neo_models.SBAnswer', 'OWNS_ANSWER',
                              model=PostObjectCreated)
-    comments = RelationshipTo('sb_comments.neo_models.SBComment', 'OWNS_COMMENT',
+    comments = RelationshipTo('sb_comments.neo_models.SBComment',
+                              'OWNS_COMMENT',
                               model=PostObjectCreated)
     wall = RelationshipTo('sb_wall.neo_models.SBWall', 'OWNS_WALL')
     notifications = RelationshipTo(
@@ -125,18 +125,93 @@ class Pleb(StructuredNode):
     user_weight = RelationshipTo('Pleb', 'WEIGHTED_USER',
                                  model=UserWeightRelationship)
     object_weight = RelationshipTo(['sb_questions.neo_models.SBQuestion',
-                                    'sb_answers.neo_models.SBAnswer'],
-                                     'OBJECT_WEIGHT',
-                                     model=RelationshipWeight)
+                                   'sb_answers.neo_models.SBAnswer'],
+                                   'OBJECT_WEIGHT',
+                                   model=RelationshipWeight)
     searches = RelationshipTo('sb_search.neo_models.SearchQuery', 'SEARCHED',
                               model=SearchCount)
     clicked_results = RelationshipTo('sb_search.neo_models.SearchResult',
                                      'CLICKED_RESULT')
 
+    def obj_weight_is_connected(self, obj):
+        from sb_questions.neo_models import SBQuestion
+        from sb_answers.neo_models import SBAnswer
+        if obj.__class__ == SBQuestion:
+            query = 'match (p:Pleb {email: "%s"})-[r:OBJECT_WEIGHT]->' \
+                    '(s:SBQuestion {question_id: "%s"}) ' \
+                    'return s' % (self.email, obj.question_id)
+            res, meta = db.cypher_query(query)
+            question = [SBQuestion.inflate(row[0]) for row in res]
+            try:
+                return question[0]
+            except IndexError:
+                return False
+
+        elif obj.__class__ == SBAnswer:
+            query = 'match (p:Pleb {email: "%s"})-[r:OBJECT_WEIGHT]->' \
+                    '(s:SBAnswer {answer_id: "%s"}) ' \
+                    'return s' % (self.email, obj.answer_id)
+            res, meta = db.cypher_query(query)
+            answer = [SBAnswer.inflate(row[0]) for row in res]
+            try:
+                return answer[0]
+            except IndexError:
+                return False
+
+    def obj_weight_connect(self, obj):
+        from sb_questions.neo_models import SBQuestion
+        from sb_answers.neo_models import SBAnswer
+        if obj.__class__ == SBQuestion:
+            query = 'match (p:Pleb) where p.email="%s" with p match ' \
+                    '(q:SBQuestion) where q.question_id="%s" ' \
+                    'with p,q merge (p)-[r:OBJECT_WEIGHT]-(q) return r' % \
+                    (self.email, obj.question_id)
+            res, meta = db.cypher_query(query)
+            rel = RelationshipWeight.inflate(res[0][0])
+            if rel:
+                return rel
+            else:
+                return False
+
+        elif obj.__class__ == SBAnswer:
+            query = 'match (p:Pleb) where p.email="%s" with p match ' \
+                    '(a:SBAnswer) where a.answer_id="%s" ' \
+                    'with p,a merge (p)-[r:OBJECT_WEIGHT]-(a) return r' % \
+                    (self.email, obj.answer_id)
+            res, meta = db.cypher_query(query)
+            rel = RelationshipWeight.inflate(res[0][0])
+            if res:
+                return rel
+            else:
+                return False
+
+    def obj_weight_relationship(self, obj):
+        from sb_questions.neo_models import SBQuestion
+        from sb_answers.neo_models import SBAnswer
+        if obj.__class__ == SBQuestion:
+            query = 'match (p:Pleb {email: "%s"})-[r:OBJECT_WEIGHT]->' \
+                    '(q:SBQuestion {question_id: "%s"}) return r' % \
+                    (self.email, obj.question_id)
+            res, meta = db.cypher_query(query)
+            rel = RelationshipWeight.inflate(res[0][0])
+            return rel
+
+        if obj.__class__ == SBAnswer:
+            query = 'match (p:Pleb {email: "%s"})-[r:OBJECT_WEIGHT]->' \
+                    '(a:SBAnswer {answer_id: "%s"}) return r' % \
+                    (self.email, obj.answer_id)
+            res, meta = db.cypher_query(query)
+            rel = RelationshipWeight.inflate(res[0][0])
+            return rel
+
+
     def generate_username(self):
-        temp_username = str(self.first_name).lower() + str(self.last_name).lower()
+        temp_username = str(self.first_name).lower() + \
+                        str(self.last_name).lower()
         try:
             pleb = Pleb.nodes.get(username=temp_username)
+            # TODO if first name and last name = the current one get a
+            # count of how many then add one
             self.username = shortuuid.ShortUUID()
             self.save()
         except Pleb.DoesNotExist:
@@ -170,50 +245,3 @@ class TopicCategory(StructuredNode):
 class SBTopic(StructuredNode):
     title = StringProperty(unique_index=True)
     description = StringProperty()
-
-
-def create_user_profile(sender, instance, created, **kwargs):
-    from sb_search.tasks import add_user_to_custom_index
-    if created:
-        # fixes test fails due to ghost plebs
-        if instance.email == "":
-            return None
-        try:
-            citizen = Pleb.nodes.get(email=instance.email)
-        except Pleb.DoesNotExist:
-            citizen = Pleb(email=instance.email,
-                           first_name=instance.first_name,
-                           last_name=instance.last_name)
-            citizen.save()
-            wall = SBWall(wall_id=uuid1())
-            wall.save()
-            wall.owner.connect(citizen)
-            citizen.wall.connect(wall)
-            wall.save()
-            citizen.save()
-            task_data = {'object_data': {
-                'first_name': citizen.first_name,
-                'last_name': citizen.last_name,
-                'full_name': str(citizen.first_name) + ' '
-                             + str(citizen.last_name),
-                'pleb_email': citizen.email
-                },
-                         'object_type': 'pleb'
-            }
-            spawn_task(task_func=add_object_to_search_index,
-                       task_param=task_data)
-            task_data = {'pleb': citizen.email,
-                         'index': "full-search-user-specific-1"}
-            spawn_task(task_func=add_user_to_custom_index,
-                       task_param=task_data)
-    else:
-        pass
-        # citizen = Pleb.nodes.get(instance.email)
-        # TODO may not be necessary but if we update an email or something
-        # we need to remember to update it in the pleb instance and the
-        # default django instance.
-        # citizen.first_name = instance.firstname
-        #citizen.last_name = instance.lastname
-
-
-post_save.connect(create_user_profile, sender=User)

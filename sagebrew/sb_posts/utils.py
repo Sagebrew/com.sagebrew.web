@@ -1,6 +1,7 @@
 import pytz
 import logging
 from uuid import uuid1
+from json import dumps
 from datetime import datetime
 
 from neomodel import DoesNotExist
@@ -65,6 +66,10 @@ def save_post(post_uuid=str(uuid1()), content="", current_pleb="",
     '''
     try:
         test_post = SBPost.nodes.get(post_id=post_uuid)
+        # TODO should we return True here or continue on with the function
+        # with test_post? Or do a check to see if links are already created?
+        # If they are we can return True and identify that connections were
+        # already created but they are there. Rather than failing out.
         return False
     except SBPost.DoesNotExist:
         try:
@@ -143,7 +148,8 @@ def edit_post_info(content="", post_uuid=str(uuid1()), last_edited_on=None,
     except (SBPost.DoesNotExist, DoesNotExist):
         return {'detail': 'post does not exist yet'}
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": edit_post_info.__name__,
+                                "exception": "UnhandledException: "}))
         return False
 
 
@@ -260,6 +266,6 @@ def flag_post(post_uuid, current_user, flag_reason):
             return False
         return True
     except Exception:
-        logger.exception({"function": flag_post.__name__,
-                          'exception': "UnhandledException: "})
+        logger.exception(dumps({"function": flag_post.__name__,
+                          'exception': "UnhandledException: "}))
         return False

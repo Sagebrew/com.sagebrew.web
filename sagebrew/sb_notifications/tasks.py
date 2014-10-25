@@ -1,62 +1,41 @@
-from uuid import uuid1
 import logging
+from uuid import uuid1
+from json import dumps
 from celery import shared_task
 
-from .utils import (create_notification_post_util,
-                    create_notification_comment_util)
+from .utils import create_notification_util
 
 logger = logging.getLogger('loggly_logs')
 
-#TODO Combine these functions into one super function which is usable for any
-#sort of notification
-@shared_task()
-def create_notification_post_task(post_uuid=str(uuid1()), from_pleb="",
-                                  to_pleb=""):
-    '''
-    This task attempts to create a notification, if it succeeds it returns True
-
-    if it fails it spawns another one of itself and tries again
-    :param data:
-    :return:
-    '''
-    try:
-        res = create_notification_post_util(post_uuid, from_pleb, to_pleb)
-        if res:
-            raise True
-        elif res is None:
-            return False
-        else:
-            raise Exception
-
-    except Exception:
-        raise create_notification_post_task.retry(exc=Exception, countdown=3,
-                                                  max_retries=None)
-
 
 @shared_task()
-def create_notification_comment_task(from_pleb="", to_pleb="", comment_on="",
-                                     comment_on_id="",
-                                     comment_uuid=str(uuid1())):
+def spawn_notifications(sb_object, object_type, from_pleb, to_plebs):
     '''
-    This task attempts to create a notification from a comment, if it
-    succeeds then it return True, if not it will retry.
+    This function will take an object(post,comment,answer,etc.), the type of
+    the object, from_pleb and a to_pleb. To pleb can be a list of people or
+    just a singular pleb and will create a notification about the object
 
+    :param sb_object:
+    :param object_type:
     :param from_pleb:
     :param to_pleb:
-    :param comment_on:
-    :param comment_on_id:
-    :param comment_uuid:
     :return:
     '''
     try:
-        res = create_notification_comment_util(from_pleb, to_pleb, comment_uuid,
-                                               comment_on, comment_on_id)
-        if res:
+        uuid = str(uuid1())
+        res = create_notification_util(sb_object, object_type, from_pleb,
+                                       to_plebs, uuid)
+        if res['detail'] == 'retry':
+            raise TypeError
+        elif res['detail'] == True:
             return True
-        elif res is None:
-            return False
-        else:
-            raise Exception
+
+    except TypeError:
+        raise spawn_notifications.retry(exc=TypeError, countdown=3,
+                                        max_retries=None)
     except Exception:
-        raise create_notification_post_task.retry(exc=Exception, countdown=3,
-                                                  max_retries=None)
+        logger.exception(dumps({"function": spawn_notifications.__name__,
+                                "exception": "UnhandledException: "}))
+        raise spawn_notifications.retry(exc=Exception, countdown=3,
+                                        max_retries=None)
+

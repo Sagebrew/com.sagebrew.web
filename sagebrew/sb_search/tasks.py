@@ -10,7 +10,8 @@ from neomodel import DoesNotExist, CypherException
 from elasticsearch import Elasticsearch
 
 from .neo_models import SearchQuery, KeyWord
-from .utils import update_search_index_doc_script, update_search_index_doc
+from .utils import (update_search_index_doc_script, update_search_index_doc,
+                    update_weight_relationship_values)
 from api.utils import spawn_task
 from plebs.neo_models import Pleb
 from sb_posts.neo_models import SBPost
@@ -41,6 +42,11 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
         "document_type" : object_type, "update_value": 0
     }
     try:
+        try:
+            pleb = Pleb.nodes.get(email=current_pleb)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            return False
+
         if object_type == 'question':
 
             try:
@@ -48,62 +54,40 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
             except (SBQuestion.DoesNotExist, DoesNotExist):
                 raise Exception
 
-            try:
-                pleb = Pleb.nodes.get(email=current_pleb)
-            except (Pleb.DoesNotExist, DoesNotExist):
-                return False
+            if pleb.obj_weight_is_connected(question):
+                rel = pleb.obj_weight_relationship(question)
 
-            if pleb.object_weight.is_connected(question):
-                rel = pleb.object_weight.relationship(question)
-
-                if rel.seen == 'seen' and modifier_type == 'search_seen':
-                    rel.weight += settings.OBJECT_SEARCH_MODIFIERS[
-                        'seen_search']
-                    rel.save()
-                    update_dict['update_value'] = rel.weight
-
-                if modifier_type == 'comment_on':
-                    rel.weight += settings.OBJECT_SEARCH_MODIFIERS[
-                        'comment_on']
-                    rel.status = 'commented_on'
-                    rel.save()
-                    update_dict['update_value'] = rel.weight
-
-                if modifier_type == 'flag_as_inappropriate':
-                    rel.weight += settings.OBJECT_SEARCH_MODIFIERS[
-                        'flag_as_inappropriate']
-                    rel.status = 'flagged_as_inappropriate'
-                    rel.save()
-                    update_dict['update_value'] = rel.weight
-
-                if modifier_type == 'flag_as_spam':
-                    rel.weight += settings.OBJECT_SEARCH_MODIFIERS[
-                        'flag_as_spam']
-                    rel.status = 'flagged_as_spam'
-                    rel.save()
-                    update_dict['update_value'] = rel.weight
-
-                if modifier_type == 'share':
-                    rel.weight += settings.OBJECT_SEARCH_MODIFIERS['share']
-                    rel.status = 'shared'
-                    rel.save()
-                    update_dict['update_value'] = rel.weight
-
-                if modifier_type == 'answered':
-                    rel.weight += settings.OBJECT_SEARCH_MODIFIERS['answered']
-                    rel.status = 'answered'
-                    rel.save()
-                    update_dict['update_value'] = rel.weight
+                update_dict['update_value'] = \
+                    update_weight_relationship_values(rel, modifier_type)
 
                 update_search_index_doc(**update_dict)
                 return True
             else:
-                rel = pleb.object_weight.connect(question)
+                rel = pleb.obj_weight_connect(question)
                 rel.save()
                 update_dict['update_value'] = rel.weight
                 update_search_index_doc(**update_dict)
                 return True
 
+        if object_type == 'answer':
+            try:
+                answer = SBAnswer.nodes.get(answer_id = object_uuid)
+            except (SBAnswer.DoesNotExist, DoesNotExist):
+                raise Exception
+
+            if pleb.obj_weight_is_connected(answer):
+                rel = pleb.obj_weight_relationship(answer)
+
+                update_dict['update_value'] = \
+                    update_weight_relationship_values(rel, modifier_type)
+                update_search_index_doc(**update_dict)
+                return True
+            else:
+                rel = pleb.obj_weight_connect(answer)
+                rel.save()
+                update_dict['update_value'] = rel.weight
+                update_search_index_doc(**update_dict)
+                return True
 
         if object_type == 'pleb':
 
@@ -126,30 +110,22 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
                 rel.save()
                 update_dict['update_value'] = rel.weight
                 update_search_index_doc(**update_dict)
+            return True
 
-        if object_type == 'post':
-            try:
-                post = SBPost.nodes.get(post_id=object_uuid)
-            except (SBPost.DoesNotExist, DoesNotExist):
-                raise Exception
-        if object_type == 'answer':
-            try:
-                answer = SBAnswer.nodes.get(answer_id = object_uuid)
-            except (SBAnswer.DoesNotExist, DoesNotExist):
-                raise Exception
     except TypeError:
         return False
+    except CypherException:
+        raise update_weight_relationship.retry(exc=CypherException, countdown=3,
+                                               max_retries=None)
     except Exception:
-        logger.critical(dumps({"exception": "Unhandled Exception",
-                               "function":
-                                   update_weight_relationship.__name__}))
-        logger.exception("Unhandled Exception: ")
+        logger.exception({"exception": "Unhandled Exception", "function":
+            update_weight_relationship.__name__})
         raise update_weight_relationship.retry(exc=Exception, countdown=3,
                                                max_retries=None)
 
 
 @shared_task()
-def add_user_to_custom_index(pleb="", index="full-search-user-specific-1"):
+def add_user_to_custom_index(pleb, index="full-search-user-specific-1"):
     '''
     This function is called when a user is created, it reindexes every document
     from the full-search-base index to the users assigned index with the
@@ -159,8 +135,12 @@ def add_user_to_custom_index(pleb="", index="full-search-user-specific-1"):
     :param index:
     :return:
     '''
-    res =[]
+    if pleb.populated_personal_index:
+        return True
     es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+    if not es.indices.exists('full-search-base'):
+        es.indices.create('full-search-base')
+
     scanres = es.search(index='full-search-base', search_type="scan",
                         scroll="10m", size=50, body={
         "query": {
@@ -173,7 +153,7 @@ def add_user_to_custom_index(pleb="", index="full-search-user-specific-1"):
     res = results['hits']['hits']
     try:
         for item in res:
-            item['_source']['related_user'] = pleb
+            item['_source']['related_user'] = pleb.email
             item['_source']['sb_score'] = 0
             if item['_type'] == 'question':
                 result = es.index(index=index, doc_type='question',
@@ -181,12 +161,16 @@ def add_user_to_custom_index(pleb="", index="full-search-user-specific-1"):
             if item['_type'] == 'pleb':
                 result = es.index(index=index, doc_type='pleb',
                                   body=item['_source'])
+        pleb.populated_personal_index = True
+        pleb.save()
         return True
     except Exception:
         logger.critical(dumps({"exception": "Unhandled Exception",
                                "function": add_user_to_custom_index.__name__}))
         logger.exception("Unhandled Exception: ")
-        return False
+        raise add_user_to_custom_index.retry(exc=Exception, countdown=3,
+                                             max_retries=None)
+
 
 
 @shared_task()
@@ -229,11 +213,17 @@ def update_search_query(pleb, query_param, keywords):
         except (Pleb.DoesNotExist, DoesNotExist):
             return False
         search_query = SearchQuery.nodes.get(search_query=query_param)
-        rel = pleb.searches.relationship(search_query)
-        rel.times_searched += 1
-        rel.last_searched = datetime.now(pytz.utc)
-        rel.save()
-
+        if pleb.searches.is_connected(search_query):
+            rel = pleb.searches.relationship(search_query)
+            rel.times_searched += 1
+            rel.last_searched = datetime.now(pytz.utc)
+            rel.save()
+            return True
+        else:
+            rel = pleb.searches.connect(search_query)
+            rel.save()
+            search_query.searched_by.connect(pleb)
+            return True
     except (SearchQuery.DoesNotExist, DoesNotExist):
         search_query = SearchQuery(search_query=query_param)
         search_query.save()
@@ -243,14 +233,17 @@ def update_search_query(pleb, query_param, keywords):
         for keyword in keywords:
             keyword['query_param'] = query_param
             spawn_task(task_func=create_keyword, task_param=keyword)
+        return True
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": update_search_query.__name__,
+                                "exception": "UnhandledException: "}))
         raise update_search_query.retry(exc=Exception, countdown=3,
                                         max_retries=None)
 
 @shared_task()
 def create_keyword(text, relevance, query_param):
     '''
+    This function takes
 
     :param keyword:
     :param relevance:
@@ -262,19 +255,30 @@ def create_keyword(text, relevance, query_param):
             search_query = SearchQuery.nodes.get(search_query=query_param)
         except (SearchQuery.DoesNotExist, DoesNotExist):
             raise Exception
-        keyword = KeyWord(keyword=text).save()
-        rel = search_query.keywords.connect(keyword)
-        rel.relevance = relevance
-        rel.save()
-        keyword.search_queries.connect(search_query)
-        search_query.save()
-        keyword.save()
-        return True
+        try:
+            keyword = KeyWord.nodes.get(keyword=text)
+            rel = search_query.keywords.connect(keyword)
+            rel.relevance = relevance
+            rel.save()
+            keyword.search_queries.connect(search_query)
+            search_query.save()
+            keyword.save()
+            return True
+        except (KeyWord.DoesNotExist, DoesNotExist):
+            keyword = KeyWord(keyword=text).save()
+            rel = search_query.keywords.connect(keyword)
+            rel.relevance = relevance
+            rel.save()
+            keyword.search_queries.connect(search_query)
+            search_query.save()
+            keyword.save()
+            return True
     except CypherException:
         raise create_keyword.retry(exc=Exception, countdown=3,
                                    max_retries=None)
     except Exception:
-        logger.exception("UnhandledException: ")
+        logger.exception(dumps({"function": create_keyword.__name__,
+                                "exception": "UnhandledException: "}))
         raise create_keyword.retry(exc=Exception, countdown=3,
                                    max_retries=None)
 

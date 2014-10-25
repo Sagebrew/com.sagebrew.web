@@ -1,22 +1,22 @@
 import shortuuid
-from uuid import uuid1
 from json import loads
 from base64 import b64encode
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, authenticate
 from django.test import TestCase, RequestFactory
 from django.contrib.sessions.backends.db import SessionStore
-from django.core.management import call_command
-from rest_framework.test import APIRequestFactory, APIClient
+from rest_framework.test import APIRequestFactory
 
+from api.utils import test_wait_util
 from sb_registration.views import (profile_information, confirm_view,
                                    signup_view_api, signup_view, logout_view,
                                    login_view, login_view_api,
                                    resend_email_verification,
                                    email_verification)
 from sb_registration.models import EmailAuthTokenGenerator
+from sb_registration.utils import create_user_util
 from plebs.neo_models import Pleb
 
 
@@ -52,14 +52,14 @@ class InterestsTest(TestCase):
 class ProfileInfoTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
         self.pleb.save()
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_user_info_population_no_birthday(self):
         my_dict = {'date_of_birth': [u'']}
@@ -168,14 +168,14 @@ class ProfileInfoTest(TestCase):
 class TestSignupView(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
         self.pleb.save()
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_signup_view(self):
         request = self.factory.request()
@@ -187,20 +187,19 @@ class TestSignupAPIView(TestCase):
     def setUp(self):
         self.store = SessionStore()
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
-        self.pleb.email_verified = True
-        self.pleb.save()
-
-    def tearDown(self):
-        call_command('clear_neo_db')
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("Tyler", "Wiersing", self.email, "testpassword",
+                               username=shortuuid.uuid())
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
     def test_signup_view_api_success(self):
         signup_dict = {
             'first_name': 'Tyler',
             'last_name': 'Wiersing',
-            'email': 'success@simulator.amazonses.com',
+            'email': 'ooto@simulator.amazonses.com',
             'password': 'testpass',
             'password2': 'testpass'
         }
@@ -214,17 +213,11 @@ class TestSignupAPIView(TestCase):
         self.assertEqual(res.status_code, 200)
 
     def test_signup_view_api_failure_user_exists(self):
-        user = User.objects.create_user(first_name='Tyler',
-                                        last_name='Wiersing',
-                                        email='success@simulator.amazonses.com',
-                                        username=shortuuid.uuid(),
-                                        password='testpass')
-        user.save()
 
         signup_dict = {
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'email': user.email,
+            'first_name': self.user.first_name,
+            'last_name': self.user.last_name,
+            'email': self.user.email,
             'password': 'testpass',
             'password2': 'testpass'
         }
@@ -310,14 +303,14 @@ class TestSignupAPIView(TestCase):
 class TestLoginView(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
         self.pleb.save()
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_login_view_success(self):
         request = self.factory.request()
@@ -329,15 +322,14 @@ class TestLoginAPIView(TestCase):
     def setUp(self):
         self.store = SessionStore()
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com',
-            password='testpass')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpass")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
         self.pleb.save()
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_login_api_view_success(self):
         login_data = {
@@ -461,15 +453,14 @@ class TestLoginAPIView(TestCase):
 class TestLogoutView(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com',
-            password='testpass')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpass")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
         self.pleb.save()
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_logout_view_success(self):
         user = authenticate(username=self.user.username,
@@ -488,15 +479,14 @@ class TestEmailVerificationView(TestCase):
     def setUp(self):
         self.token_gen = EmailAuthTokenGenerator()
         self.factory = RequestFactory()
-        self.user = User.objects.create_user(
-            username='Tyler', email=str(uuid1())+'@gmail.com',
-            password='testpass')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpass")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = False
         self.pleb.save()
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_email_verification_view_success(self):
         user = authenticate(username=self.user.username,
@@ -507,7 +497,8 @@ class TestEmailVerificationView(TestCase):
         request.session = s
         login(request, user)
         request.user = user
-        token = self.token_gen.make_token(user)
+        pleb = Pleb.nodes.get(email=user.email)
+        token = self.token_gen.make_token(user, pleb)
 
         res = email_verification(request, token)
 
@@ -522,7 +513,6 @@ class TestEmailVerificationView(TestCase):
         request.session = s
         login(request, user)
         request.user = user
-        token = self.token_gen.make_token(user)
 
         res = email_verification(request, 'this is a fake token')
 
@@ -538,7 +528,7 @@ class TestEmailVerificationView(TestCase):
         login(request, user)
         request.user = user
         request.user.email = "totallynotafakeuser@fake.com"
-        token = self.token_gen.make_token(user)
+        token = self.token_gen.make_token(user, None)
 
         res = email_verification(request, token)
 
@@ -548,16 +538,14 @@ class TestResendEmailVerificationView(TestCase):
     def setUp(self):
         self.token_gen = EmailAuthTokenGenerator()
         self.factory = RequestFactory()
-        self.user = User.objects.create_user(
-            first_name='Tyler', last_name='Wiersing',
-            username='Tyler', email='success@simulator.amazonses.com',
-            password='testpass')
-        self.pleb = Pleb.nodes.get(email=self.user.email)
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpass")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = False
         self.pleb.save()
-
-    def tearDown(self):
-        call_command('clear_neo_db')
 
     def test_resend_email_verification_view_success(self):
         user = authenticate(username=self.user.username,

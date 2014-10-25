@@ -1,17 +1,12 @@
-# Django settings for automated_test_client project.
-from fnmatch import fnmatch
-
 from base import *
+from os import environ
 
-
-DEBUG = True
+DEBUG = False
 
 TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['*']
 
 WEB_ADDRESS = "https://127.0.0.1:8080"
-
-API_PASSWORD = "admin"
 
 VERIFY_SECURE = False
 
@@ -37,65 +32,29 @@ CACHES = {
     }
 }
 
-AWS_BUCKET_NAME = "sagebrew"
-AWS_ACCESS_KEY_ID = "AKIAJIWX3E2JPTBS6CRA"
-AWS_SECRET_ACCESS_KEY = "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"
-AWS_PROFILE_PICTURE_FOLDER_NAME = 'profile_pictures'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 
-BROKER_URL = 'amqp://guest@localhost:5672//'
-SECRET_KEY = "5fd&2wkqx8r!h2y1)j!izqi!982$p87)sred(5#x0mtqa^cbx)"
+EMAIL_VERIFICATION_URL = "https://localhost/registration/email_confirmation/"
+BROKER_URL = 'amqp://%s@%s:%s//' % (environ.get("QUEUE_USERNAME", ""),
+                                    environ.get("QUEUE_HOST", ""),
+                                    environ.get("QUEUE_PORT", ""))
 
-INTERNAL_IPS = ('127.0.0.1', 'localhost', '0.0.0.0', '192.168.56.101',
-                '192.168.56.102')
 
 REST_FRAMEWORK = {
-    # Use hyperlinked styles by default.
-    # Only used if the `serializer_class` attribute is not set on a view.
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
     'DEFAULT_MODEL_SERIALIZER_CLASS':
         'rest_framework.serializers.HyperlinkedModelSerializer',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.OAuth2Authentication',
         'rest_framework.authentication.SessionAuthentication',
-    )
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
+    ),
 }
 
-DEBUG_TOOLBAR_PANELS = (
-    'debug_toolbar.panels.version.VersionDebugPanel',
-    'debug_toolbar.panels.timer.TimerDebugPanel',
-    'debug_toolbar.panels.settings_vars.SettingsVarsDebugPanel',
-    'debug_toolbar.panels.headers.HeaderDebugPanel',
-    # Commented out because it causes multiple saves/adds to occur
-    # 'debug_toolbar.panels.profiling.ProfilingDebugPanel',
-    'debug_toolbar.panels.request_vars.RequestVarsDebugPanel',
-    'debug_toolbar.panels.sql.SQLDebugPanel',
-    'debug_toolbar.panels.template.TemplateDebugPanel',
-    'debug_toolbar.panels.cache.CacheDebugPanel',
-    'debug_toolbar.panels.signals.SignalDebugPanel',
-    'debug_toolbar.panels.logger.LoggingPanel',
-    # 'cache_panel.panel.CacheDebugPanel',
-)
 
 ELASTIC_SEARCH_HOST = [{'host': '127.0.0.1'}]
 
-
-def custom_show_toolbar(request):
-    if (fnmatch(request.path.strip(), '/admin*')):
-        return False
-    elif (fnmatch(request.path.strip(), '/secret/*')):
-        return False
-    return True  # Always show toolbar, for example purposes only.
-
-
-DEBUG_TOOLBAR_CONFIG = {
-    'INTERCEPT_REDIRECTS': False,
-    'SHOW_TOOLBAR_CALLBACK': custom_show_toolbar,
-    'EXTRA_SIGNALS': [],
-    'HIDE_DJANGO_SQL': False,
-    'TAG': 'div',
-    'ENABLE_STACKTRACES': True,
-}
 
 #INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar', )
 # MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + (
@@ -128,6 +87,20 @@ LOGGING = {
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'DEBUG',
+            'token': LOG_TOKEN
+        },
+        'elasticsearch': {
+            'handlers': ['logging.handlers.SysLogHandler'],
+            'propagate': True,
+            'format': 'loggly: %(message)s',
+            'level': 'CRITICAL',
+            'token': LOG_TOKEN
+        },
+        'elasticsearch.trace': {
+            'handlers': ['logging.handlers.SysLogHandler'],
+            'propagate': True,
+            'format': 'loggly: %(message)s',
+            'level': 'CRITICAL',
             'token': LOG_TOKEN
         },
         'django.request': {

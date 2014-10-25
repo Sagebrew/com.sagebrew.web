@@ -1,15 +1,47 @@
 import logging
 from uuid import uuid1
+from json import dumps
 from celery import shared_task
 
 from neomodel import DoesNotExist, CypherException
 
+from api.utils import spawn_task
+from api.tasks import add_object_to_search_index
 from .neo_models import SBAnswer
 from plebs.neo_models import Pleb
 from .utils import (save_answer_util, edit_answer_util, upvote_answer_util,
                     downvote_answer_util)
 
 logger = logging.getLogger('loggly_logs')
+
+
+
+@shared_task()
+def add_answer_to_search_index(answer):
+    try:
+        if answer.added_to_search_index:
+            return True
+
+        search_dict = {'answer_content': answer.content,
+                       'user': answer.owned_by.all()[0].email,
+                       'question_uuid': answer.answer_id,
+                       'post_date': answer.date_created,
+                       'related_user': ''}
+        task_data = {"object_type": 'answer', 'object_data': search_dict,
+                     "object_added": answer}
+        spawn_task(task_func=add_object_to_search_index,
+                               task_param=task_data)
+        answer.added_to_search_index = True
+        answer.save()
+        return True
+    except IndexError:
+        raise add_answer_to_search_index.retry(exc=IndexError, countdown=3,
+                                               max_retries=None)
+    except Exception:
+        logger.exception(dumps({"function": add_answer_to_search_index.__name__,
+                                "exception": "UnhandledException: "}))
+        raise add_answer_to_search_index.retry(exc=Exception, countdown=3,
+                                               max_retries=None)
 
 @shared_task()
 def save_answer_task(content="", current_pleb="", question_uuid="",
@@ -32,7 +64,9 @@ def save_answer_task(content="", current_pleb="", question_uuid="",
                             question_uuid=question_uuid,
                             current_pleb=current_pleb)
         if res:
-            return True
+            task_data = {'answer': res}
+            return spawn_task(task_func=add_answer_to_search_index,
+                              task_param=task_data)
         elif res is None:
             raise TypeError
         else:
@@ -134,3 +168,16 @@ def vote_answer_task(answer_uuid="", current_pleb="", vote_type=""):
                           "exception": "vote_answer_task"})
         raise vote_answer_task.retry(exc=Exception, countdown=3,
                                      max_retries=None)
+
+@shared_task()
+def flag_answer_task(answer_uuid, current_pleb, flag_reason):
+    '''
+    This function will handle the calling of the util to add the flag
+    to an answer.
+
+    :param answer_uuid:
+    :param current_pleb:
+    :param flag_reason:
+    :return:
+    '''
+    pass

@@ -110,12 +110,7 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
                 rel.save()
                 update_dict['update_value'] = rel.weight
                 update_search_index_doc(**update_dict)
-
-        if object_type == 'post':
-            try:
-                post = SBPost.nodes.get(post_id=object_uuid)
-            except (SBPost.DoesNotExist, DoesNotExist):
-                raise Exception
+            return True
 
     except TypeError:
         return False

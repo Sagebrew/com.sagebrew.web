@@ -541,6 +541,11 @@ class TestSearchResultAPIReturns(TestCase):
                       request.content)
 
     def test_search_result_api_similar_questions_and_query(self):
+        email = '%s%s'%(str(uuid1()).replace("-", ""), '@gmail.com')
+        pleb = Pleb(email=email)
+        pleb.save()
+        self.user.email = email
+        self.user.save()
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(question_id=str(uuid1()),
                                question_title=self.q1dict['question_title'],
@@ -551,7 +556,7 @@ class TestSearchResultAPIReturns(TestCase):
                                down_vote_number=0,
                                date_created=datetime.now(pytz.utc))
         question1.save()
-        question1.owned_by.connect(self.pleb)
+        question1.owned_by.connect(pleb)
         es.index(index='full-search-user-specific-1',
                  doc_type='question',
                  body={
@@ -572,7 +577,9 @@ class TestSearchResultAPIReturns(TestCase):
                                                 'gas becoming more feasible '
                                                 'and popular, would it '
                                                 'be better for us to ban '
-                                                'use of fossil fuels?',
+                                                'use of fossil fuels? '
+                                                'What could we use instead of'
+                                                'fossil fuels?',
                                )
         question2.save()
         es.index(index='full-search-user-specific-1',
@@ -587,6 +594,7 @@ class TestSearchResultAPIReturns(TestCase):
                                           kwargs={'query_param':'fossil fuels',
                                                   'page': '1'}))
         result_dict = loads(request.content)
+
         res1 = SBQuestion.nodes.get(question_id=result_dict['html'][0]['question_uuid'])
         res2 = SBQuestion.nodes.get(question_id=result_dict['html'][1]['question_uuid'])
         self.assertEqual(res1.question_title, question2.question_title)

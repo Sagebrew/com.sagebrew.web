@@ -155,7 +155,7 @@ def edit_post_info(content="", post_uuid=str(uuid1()), last_edited_on=None,
 
 def delete_post_info(post_id=str(uuid1())):
     '''
-    deletes the post and all comments attached to it
+    Removes the personal content of the post and all comments attached to it
 
     :param post_info:
                     post_uuid = str(uuid1)

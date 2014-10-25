@@ -16,8 +16,7 @@ from sb_tag.tasks import add_auto_tags, add_tags
 
 logger = logging.getLogger('loggly_logs')
 
-def create_question_util(content="", current_pleb="", question_title="",
-                         tags="", question_uuid=str(uuid1())):
+def create_question_util(content="", current_pleb="", question_title=""):
     '''
     This util creates the question and attaches it to the user who asked it
 
@@ -45,34 +44,11 @@ def create_question_util(content="", current_pleb="", question_title="",
         my_question.positivity = content_blob.polarity
         my_question.title_polarity = title_blob.polarity
         my_question.title_subjectivity = title_blob.subjectivity
-        search_dict = {'question_content': my_question.content,
-                       'user': current_pleb,
-                       'question_title': my_question.question_title,
-                       'tags': tags,
-                       'question_uuid': my_question.question_id,
-                       'post_date': my_question.date_created,
-                       'related_user': ''}
-        search_data = {'object_type': 'question', 'object_data': search_dict}
-        spawn_task(task_func=add_object_to_search_index,
-                   task_param=search_data, countdown=1)
         rel = my_question.owned_by.connect(poster)
         rel.save()
         rel_from_pleb = poster.questions.connect(my_question)
         rel_from_pleb.save()
-        auto_tags = create_auto_tags(content)
-        for tag in auto_tags['keywords']:
-            task_data.append({
-                "tags": tag, "object_uuid": my_question.question_id,
-                "object_type": "question"
-            })
-        tag_task_data = {'object_uuid': my_question.question_id,
-                         'object_type': 'question', 'tags': tags}
-        spawn_task(task_func=add_tags, task_param=tag_task_data)
-        tag_list = {'tag_list': task_data}
-        spawn_task(task_func=add_auto_tags, task_param=tag_list)
         return my_question
-    except UniqueProperty:
-        return False
     except CypherException:
         return False
     except Exception:
@@ -103,9 +79,9 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
             owner_profile_url = settings.WEB_ADDRESS + '/user/' + owner.email
             query = 'match (q:SBQuestion) where q.question_id="%s" ' \
                     'with q ' \
-                    'match (q)-[:possible_answer]-(a:SBAnswer) ' \
+                    'match (q)-[:POSSIBLE_ANSWER]-(a:SBAnswer) ' \
                     'where a.to_be_deleted=False ' \
-                    'return a ' % questions
+                    'return a ' % questions.question_id
             answers, meta = execute_cypher_query(query)
             answers = [SBAnswer.inflate(row[0]) for row in answers]
             for answer in answers:
@@ -159,9 +135,7 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
                             }
                 question_array.append(question_dict)
             return question_array
-    except IndexError, e:
-        logger.exception({"function": prepare_get_question_dictionary.__name__,
-                          'exception': e})
+    except IndexError:
         return []
     except Exception:
         logger.exception(dumps({"function": prepare_get_question_dictionary.__name__,
@@ -350,8 +324,7 @@ def edit_question_util(question_uuid="", content="", last_edited_on="",
             pass
 
         edit_question = create_question_util(content=content, current_pleb=current_pleb,
-                                             question_title=my_question.question_title,
-                                             question_uuid = str(uuid1()))
+                                             question_title=my_question.question_title)
         my_question.edits.connect(edit_question)
         edit_question.edit_to.connect(my_question)
         my_question.last_edited_on = edit_question.date_created
@@ -370,10 +343,7 @@ def prepare_question_search_html(question_uuid):
             my_question = SBQuestion.nodes.get(question_id=question_uuid)
         except (SBQuestion.DoesNotExist, DoesNotExist):
             return False
-        except CypherException:
-            return False
-        owner = my_question.owned_by.all()
-        owner = owner[0]
+        owner = my_question.owned_by.all()[0]
         owner_name = owner.first_name + ' ' + owner.last_name
         owner_profile_url = settings.WEB_ADDRESS + '/user/' + owner.email
         question_dict = {"question_title": my_question.question_title,
@@ -450,3 +420,4 @@ def flag_question_util(question_uuid, current_pleb, flag_reason):
     except Exception:
         logger.exception(dumps({"function": flag_question_util.__name__,
                                 "exception": "UnhandledException: "}))
+        return False

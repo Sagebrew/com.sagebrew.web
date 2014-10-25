@@ -150,3 +150,17 @@ def downvote_answer_util(answer_uuid="", current_pleb=""):
         logger.exception(dumps({"function": downvote_answer_util.__name__,
                                 "exception": "UnhandledException: "}))
         return False
+
+def flag_answer_util(answer_uuid, current_pleb, flag_reason):
+    '''
+    This function will take the uuid of an answer, a pleb email, and a flag
+    reason and will connect the answer to the pleb with flagged_by then
+    increase the amount of flags for a particular reason supplied in
+    flag_reason.
+
+    :param answer:
+    :param pleb:
+    :param reason:
+    :return:
+    '''
+    pass

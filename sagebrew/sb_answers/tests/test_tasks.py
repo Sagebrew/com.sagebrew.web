@@ -119,6 +119,120 @@ class TestEditAnswerTask(TestCase):
 
         self.assertFalse(edit_response)
 
+    def test_edit_answer_task_failure_pleb_does_not_exist(self):
+        self.question_info_dict['question_id']=str(uuid1())
+        question = SBQuestion(**self.question_info_dict)
+        question.save()
+        question.owned_by.connect(self.pleb)
+        self.answer_info_dict['question_uuid'] = question.question_id
+        self.answer_info_dict.pop('to_pleb', None)
+        self.answer_info_dict['answer_uuid'] = str(uuid1())
+        save_ans_response = save_answer_util(**self.answer_info_dict)
+        edit_dict = {'content': "this is a test edit",
+                     'current_pleb': str(uuid1()),
+                     'last_edited_on': datetime.now(pytz.utc),
+                     'answer_uuid': save_ans_response.answer_id}
+
+        edit_response = edit_answer_task.apply_async(kwargs=edit_dict)
+        while not edit_response.ready():
+            time.sleep(1)
+        edit_response = edit_response.result
+
+        self.assertFalse(edit_response)
+
+    def test_edit_answer_task_failure_to_be_deleted(self):
+        self.question_info_dict['question_id']=str(uuid1())
+        question = SBQuestion(**self.question_info_dict)
+        question.save()
+        question.owned_by.connect(self.pleb)
+        self.answer_info_dict['question_uuid'] = question.question_id
+        self.answer_info_dict.pop('to_pleb', None)
+        self.answer_info_dict['answer_uuid'] = str(uuid1())
+        save_ans_response = save_answer_util(**self.answer_info_dict)
+        save_ans_response.to_be_deleted = True
+        save_ans_response.save()
+        edit_dict = {'content': "this is a test edit",
+                     'current_pleb': self.user.email,
+                     'last_edited_on': datetime.now(pytz.utc),
+                     'answer_uuid': save_ans_response.answer_id}
+
+        edit_response = edit_answer_task.apply_async(kwargs=edit_dict)
+        while not edit_response.ready():
+            time.sleep(1)
+        edit_response = edit_response.result
+
+        self.assertFalse(edit_response)
+
+    def test_edit_answer_task_failure_same_content(self):
+        self.question_info_dict['question_id']=str(uuid1())
+        question = SBQuestion(**self.question_info_dict)
+        question.save()
+        question.owned_by.connect(self.pleb)
+        self.answer_info_dict['question_uuid'] = question.question_id
+        self.answer_info_dict.pop('to_pleb', None)
+        self.answer_info_dict['answer_uuid'] = str(uuid1())
+        save_ans_response = save_answer_util(**self.answer_info_dict)
+        edit_dict = {'content': self.answer_info_dict['content'],
+                     'current_pleb': self.user.email,
+                     'last_edited_on': datetime.now(pytz.utc),
+                     'answer_uuid': save_ans_response.answer_id}
+
+        edit_response = edit_answer_task.apply_async(kwargs=edit_dict)
+        while not edit_response.ready():
+            time.sleep(1)
+        edit_response = edit_response.result
+
+        self.assertFalse(edit_response)
+
+    def test_edit_answer_task_failure_same_timestamp(self):
+        now = datetime.now(pytz.utc)
+        self.question_info_dict['question_id']=str(uuid1())
+        question = SBQuestion(**self.question_info_dict)
+        question.save()
+        question.owned_by.connect(self.pleb)
+        self.answer_info_dict['question_uuid'] = question.question_id
+        self.answer_info_dict.pop('to_pleb', None)
+        self.answer_info_dict['answer_uuid'] = str(uuid1())
+        save_ans_response = save_answer_util(**self.answer_info_dict)
+        save_ans_response.last_edited_on = now
+        save_ans_response.save()
+        edit_dict = {'content': "this is a test edit",
+                     'current_pleb': self.user.email,
+                     'last_edited_on': now,
+                     'answer_uuid': save_ans_response.answer_id}
+
+        edit_response = edit_answer_task.apply_async(kwargs=edit_dict)
+        while not edit_response.ready():
+            time.sleep(1)
+        edit_response = edit_response.result
+
+        self.assertFalse(edit_response)
+
+    def test_edit_answer_task_failure_last_edit_more_recent(self):
+        now = datetime.now(pytz.utc)
+        self.question_info_dict['question_id']=str(uuid1())
+        question = SBQuestion(**self.question_info_dict)
+        question.save()
+        question.owned_by.connect(self.pleb)
+        self.answer_info_dict['question_uuid'] = question.question_id
+        self.answer_info_dict.pop('to_pleb', None)
+        self.answer_info_dict['answer_uuid'] = str(uuid1())
+        save_ans_response = save_answer_util(**self.answer_info_dict)
+        save_ans_response.last_edited_on = datetime.now(pytz.utc)
+        save_ans_response.save()
+        edit_dict = {'content': "this is a test edit",
+                     'current_pleb': self.user.email,
+                     'last_edited_on': now,
+                     'answer_uuid': save_ans_response.answer_id}
+
+        edit_response = edit_answer_task.apply_async(kwargs=edit_dict)
+        while not edit_response.ready():
+            time.sleep(1)
+        edit_response = edit_response.result
+
+        self.assertFalse(edit_response)
+
+
 class TestVoteAnswerTask(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
@@ -138,10 +252,20 @@ class TestVoteAnswerTask(TestCase):
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
 
-    def test_vote_answer_task(self):
+    def test_vote_answer_task_success_up(self):
         answer = SBAnswer(answer_id=str(uuid1()), content="test answer")
         answer.save()
         my_dict = {'vote_type': 'up', 'current_pleb': self.user.email,
+                   'answer_uuid': answer.answer_id}
+        response = vote_answer_task.apply_async(kwargs=my_dict)
+        while not response.ready():
+            time.sleep(3)
+        self.assertTrue(response.result)
+
+    def test_vote_answer_task_success_down(self):
+        answer = SBAnswer(answer_id=str(uuid1()), content="test answer")
+        answer.save()
+        my_dict = {'vote_type': 'down', 'current_pleb': self.user.email,
                    'answer_uuid': answer.answer_id}
         response = vote_answer_task.apply_async(kwargs=my_dict)
         while not response.ready():
@@ -153,6 +277,27 @@ class TestVoteAnswerTask(TestCase):
         answer.save()
         my_dict = {'vote_type': 'up', 'current_pleb': self.user.email,
                    'answer_uuid': ''}
+        response = vote_answer_task.apply_async(kwargs=my_dict)
+        while not response.ready():
+            time.sleep(3)
+        self.assertFalse(response.result)
+
+    def test_vote_answer_task_failure_pleb_does_not_exist(self):
+        answer = SBAnswer(answer_id=str(uuid1()), content="test answer")
+        answer.save()
+        my_dict = {'vote_type': 'up', 'current_pleb': str(uuid1()),
+                   'answer_uuid': answer.answer_id}
+        response = vote_answer_task.apply_async(kwargs=my_dict)
+        while not response.ready():
+            time.sleep(3)
+        self.assertFalse(response.result)
+
+    def test_vote_answer_task_failure_pleb_already_voted(self):
+        answer = SBAnswer(answer_id=str(uuid1()), content="test answer")
+        answer.save()
+        answer.up_voted_by.connect(self.pleb)
+        my_dict = {'vote_type': 'up', 'current_pleb': self.user.email,
+                   'answer_uuid': answer.answer_id}
         response = vote_answer_task.apply_async(kwargs=my_dict)
         while not response.ready():
             time.sleep(3)

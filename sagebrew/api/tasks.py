@@ -7,6 +7,7 @@ from celery import shared_task
 from elasticsearch import Elasticsearch
 
 from sb_questions.neo_models import SBQuestion
+from sb_answers.neo_models import SBAnswer
 
 logger = logging.getLogger('loggly_logs')
 
@@ -38,6 +39,10 @@ def add_object_to_search_index(index="full-search-base", object_type="",
             question = SBQuestion.nodes.get(question_id=object_data['question_uuid'])
             question.search_id = res['_id']
             question.save()
+        if object_type=='answer':
+            answer = SBAnswer.nodes.get(answer_id=object_data['answer_uuid'])
+            answer.search_id = res['_id']
+            answer.save()
 
         spawn_task(task_func=update_user_indices, task_param=task_data)
         if object_added is not None:

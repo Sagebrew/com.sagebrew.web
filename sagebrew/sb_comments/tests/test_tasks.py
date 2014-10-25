@@ -81,6 +81,17 @@ class TestEditComment(TestCase):
             time.sleep(3)
         self.assertTrue(response.result)
 
+    def test_edit_comment_failure_comment_does_not_exist(self):
+        edit_task_param = {'comment_uuid': str(uuid1()),
+                           'content': 'test edit',
+                           'last_edited_on': datetime.now(pytz.utc),
+                           'pleb': self.user.email}
+        response = edit_comment_task.apply_async(kwargs=edit_task_param)
+        while not response.ready():
+            time.sleep(3)
+
+        self.assertTrue(response.result)
+
 
 class TestVoteComment(TestCase):
     def setUp(self):

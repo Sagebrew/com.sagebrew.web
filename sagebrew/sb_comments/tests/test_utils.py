@@ -138,7 +138,9 @@ class TestEditComment(TestCase):
         comment.save()
 
         edited_comment = edit_comment_util(comment_uuid=comment.comment_id,
-                                           content="asdfadsf", pleb="")
+                                           content=str(uuid1()), pleb="",
+                                           last_edited_on=datetime.now(
+                                               pytz.utc))
 
         self.assertFalse(edited_comment)
 

@@ -44,15 +44,6 @@ class TestNotificationTasks(TestCase):
             time.sleep(3)
         self.assertTrue(response.result)
 
-    def test_create_notification_post_task_post_fail(self):
-        data={'post_uuid': str(uuid1()), 'from_pleb': self.pleb,
-              'to_plebs': [self.pleb2,]}
-        response = spawn_notifications.apply_async(kwargs=data)
-        # while not response.ready():
-        #    time.sleep(3)
-        # self.assertFalse(response.result)
-        self.assertTrue(True)
-
     def test_create_notification_comment_task(self):
         post = SBPost(**self.post_info_dict)
         post.save()
@@ -66,13 +57,3 @@ class TestNotificationTasks(TestCase):
         while not response.ready():
             time.sleep(3)
         self.assertTrue(response.result)
-
-    def test_create_notification_comment_task_fail(self):
-        data = {'from_pleb':self.pleb, 'to_plebs': [self.pleb2,],
-                'comment_on': 'post', 'comment_on_id': str(uuid1()),
-                'comment_uuid': str(uuid1())}
-
-        response = spawn_notifications.apply_async(kwargs=data)
-        while not response.ready():
-            time.sleep(3)
-        self.assertEqual(True, True)

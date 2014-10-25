@@ -287,8 +287,10 @@ def get_question_search_view(request, question_uuid=str(uuid1())):
     try:
         response = prepare_question_search_html(question_uuid)
         return Response({'html': response}, status=200)
-    except:
-        return []
+    except Exception:
+        logger.exception(dumps({"function": get_question_search_view.__name__,
+                                "exception": "UnhandledException: "}))
+        return Response({'html': []}, status=400)
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
@@ -309,3 +311,4 @@ def flag_question_view(request):
     except Exception:
         logger.exception(dumps({"function": flag_question_view.__name__,
                                 "exception": "UnhandledException: "}))
+        return Response({'detail': 'fail'}, status=400)

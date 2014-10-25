@@ -1,5 +1,6 @@
 import logging
 from uuid import uuid1
+from json import dumps
 from celery import shared_task
 from neomodel import DoesNotExist
 
@@ -31,18 +32,21 @@ def edit_comment_task(comment_uuid=str(uuid1()), content="",
             Will return an exception if something else occurred while trying
             to edit
     '''
-    edit_response = edit_comment_util(comment_uuid, content, last_edited_on,
-                                      pleb)
-    if edit_response:
-        return True
-
-    elif edit_response['detail'] == 'retry':
+    try:
+        edit_response = edit_comment_util(comment_uuid, content, last_edited_on,
+                                          pleb)
+        if edit_response == True:
+            return True
+        elif edit_response['detail'] == 'retry':
+            raise edit_comment_task.retry(exc=Exception, countdown=3,
+                                          max_retries=None)
+        else:
+            return False
+    except Exception:
+        logger.exception(dumps({"function": edit_comment_task.__name__,
+                                "exception": Exception}))
         raise edit_comment_task.retry(exc=Exception, countdown=3,
                                       max_retries=None)
-
-    else:
-        logger.exception({"function": edit_comment_task.__name__,
-                          "exception": "UnhandledException: "})
 
 
 @shared_task()
@@ -124,8 +128,6 @@ def submit_comment_on_post(content="", pleb="", post_uuid=str(uuid1())):
         elif not my_comment:
             raise DoesNotExist
         else:
-            # TODO Discuss with Tyler, made changes here, is this what it's
-            # supposed to be?
             from_pleb = my_comment.is_owned_by.all()[0]
             post = my_comment.commented_on_post.all()[0]
             to_plebs = post.owned_by.all()

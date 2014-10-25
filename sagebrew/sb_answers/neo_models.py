@@ -6,6 +6,8 @@ from sb_posts.neo_models import SBBase
 
 class SBAnswer(SBBase):
     answer_id = StringProperty(unique_index=True)
+    added_to_search_index = BooleanProperty(default=False)
+    search_id = StringProperty()
 
     # relationships
     edits = RelationshipTo('sb_answers.neo_models.SBAnswer', 'EDIT')

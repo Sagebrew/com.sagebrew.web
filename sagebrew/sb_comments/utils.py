@@ -73,16 +73,14 @@ def create_upvote_comment_util(pleb="", comment_uuid=str(uuid1())):
     try:
         try:
             my_comment = SBComment.nodes.get(comment_id=comment_uuid)
-        except SBComment.DoesNotExist:
+        except (SBComment.DoesNotExist, DoesNotExist):
             return False
-        except DoesNotExist:
-            return False
+
         try:
             my_pleb = Pleb.nodes.get(email=pleb)
-        except Pleb.DoesNotExist:
+        except (Pleb.DoesNotExist, DoesNotExist):
             return None
-        except DoesNotExist:
-            return None
+
         my_comment.up_vote_number += 1
         my_comment.up_voted_by.connect(my_pleb)
         my_comment.save()
@@ -110,16 +108,14 @@ def create_downvote_comment_util(pleb="", comment_uuid=str(uuid1())):
     try:
         try:
             my_comment = SBComment.nodes.get(comment_id=comment_uuid)
-        except SBComment.DoesNotExist:
+        except (SBComment.DoesNotExist, DoesNotExist):
             return False
-        except DoesNotExist:
-            return False
+
         try:
             my_pleb = Pleb.nodes.get(email=pleb)
-        except Pleb.DoesNotExist:
+        except (Pleb.DoesNotExist, DoesNotExist):
             return None
-        except DoesNotExist:
-            return None
+
         my_comment.down_vote_number += 1
         my_comment.down_voted_by.connect(my_pleb)
         my_comment.save()
@@ -147,16 +143,14 @@ def save_comment_post(content="", pleb="", post_uuid=str(uuid1())):
     try:
         try:
             my_citizen = Pleb.nodes.get(email=pleb)
-        except Pleb.DoesNotExist:
+        except (Pleb.DoesNotExist, DoesNotExist):
             return None
-        except DoesNotExist:
-            return None
+
         try:
             parent_object = SBPost.nodes.get(post_id=post_uuid)
-        except SBPost.DoesNotExist:
+        except (SBPost.DoesNotExist, DoesNotExist):
             return False
-        except DoesNotExist:
-            return False
+
         comment_uuid = str(uuid1())
         my_comment = SBComment(content=content, comment_id=comment_uuid)
         my_comment.save()
@@ -258,16 +252,12 @@ def flag_comment_util(comment_uuid, current_user, flag_reason):
     try:
         try:
             comment = SBComment.nodes.get(comment_id=comment_uuid)
-        except SBComment.DoesNotExist:
-            return None
-        except DoesNotExist:
+        except (SBComment.DoesNotExist, DoesNotExist):
             return None
 
         try:
             pleb = Pleb.nodes.get(email=current_user)
-        except Pleb.DoesNotExist:
-            return False
-        except DoesNotExist:
+        except (Pleb.DoesNotExist, DoesNotExist):
             return False
 
         if comment.flagged_by.is_connected(pleb):

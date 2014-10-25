@@ -29,14 +29,13 @@ dependencies:
 
 test:
   override:
-    - python manage.py test sb_tag.tests.test_utils.TestCreateAutoTagUtil.test_create_auto_tag_util_success_tag_exists
-    #- coverage run --source='.' manage.py test --failfast:
-    #    timeout: 300
+    - coverage run --source='.' manage.py test --failfast:
+        timeout: 300
 
   post:
-    #- coverage html
-    #- coveralls --rcfile=$CIRCLE_ARTIFACTS
-#    - pep8 --show-source --exclude='~/com.sagebrew.web/sagebrew/api/alchemyapi.py` --show-pep8 ~/com.sagebrew.web/sagebrew/
+    - coverage html
+    - coveralls --rcfile=$CIRCLE_ARTIFACTS
+    - pep8 --show-source --exclude='~/com.sagebrew.web/sagebrew/api/alchemyapi.py` --show-pep8 ~/com.sagebrew.web/sagebrew/
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
     - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg
     - docker build --no-cache=$CLEAR_CACHE -t

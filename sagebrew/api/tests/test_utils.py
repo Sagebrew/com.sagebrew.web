@@ -84,5 +84,3 @@ class TestLanguageFilterUtil(TestCase):
 
         self.assertEqual(res, sentence)
 
-
-class

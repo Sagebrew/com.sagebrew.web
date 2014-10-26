@@ -81,11 +81,6 @@ iron_mq = IronMQ(project_id=settings.IRON_PROJECT_ID,
 #TODO if add_failure_to_queue fails store in postgress database in a meta field
 #allow for backup if Amazon goes down
 def add_failure_to_queue(message_info):
-    '''
-    try:
-        attempt_task.apply_async([info,], countdown=countdown, task_id=task_id)
-    except socket_error:
-    '''
     conn = boto.sqs.connect_to_region(
         "us-west-2",
         aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
@@ -114,7 +109,6 @@ def spawn_task(task_func, task_param, countdown=0, task_id=None):
         logger.error(dumps(
             {'failure_uuid': failure_uuid, 'function': task_func.__name__,
              'exception': 'socket_error'}))
-        logger.exception('Trace back from error: ')
         add_failure_to_queue(failure_dict)
         return None
     except Exception:
@@ -128,7 +122,6 @@ def spawn_task(task_func, task_param, countdown=0, task_id=None):
         logger.error(dumps(
             {'failure_uuid': failure_uuid, 'function': task_func.__name__,
              'exception': 'unknown_error'}))
-        logger.exception('Trace back from error: ')
         add_failure_to_queue(failure_dict)
         return None
 
@@ -168,6 +161,7 @@ def post_to_garbage(post_id):
         garbage_can.posts.connect(post)
         garbage_can.save()
         post.save()
+        return True
     except SBGarbageCan.DoesNotExist:
         post = SBPost.nodes.get(post_id=post_id)
         garbage_can = SBGarbageCan(garbage_can='garbage')
@@ -176,8 +170,9 @@ def post_to_garbage(post_id):
         garbage_can.posts.connect(post)
         garbage_can.save()
         post.save()
+        return True
     except SBPost.DoesNotExist:
-        pass
+        return True
 
 
 def comment_to_garbage(comment_id):
@@ -188,6 +183,7 @@ def comment_to_garbage(comment_id):
         garbage_can.comments.connect(comment)
         garbage_can.save()
         comment.save()
+        return True
     except SBGarbageCan.DoesNotExist:
         comment = SBComment.nodes.get(comment_id=comment_id)
         garbage_can = SBGarbageCan(garbage_can='garbage')
@@ -196,8 +192,9 @@ def comment_to_garbage(comment_id):
         garbage_can.comments.connect(comment)
         garbage_can.save()
         comment.save()
+        return True
     except SBComment.DoesNotExist:
-        pass
+        return True
 
 
 def create_auto_tags(content):
@@ -210,7 +207,6 @@ def execute_cypher_query(query):
     try:
         return db.cypher_query(query)
     except CypherException:
-        logger.exception("CypherException: ")
         return {'detail': 'CypherException'}
     except Exception:
         logger.exception(dumps({"function": execute_cypher_query.__name__,

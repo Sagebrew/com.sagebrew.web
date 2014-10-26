@@ -94,14 +94,9 @@ def login_view(request):
 def resend_email_verification(request):
     try:
         pleb = Pleb.nodes.get(email=request.user.email)
-    except Pleb.DoesNotExist:
-        logger.exception({'function': resend_email_verification.__name__,
-                          'exception': 'DoesNotExist: '})
+    except (Pleb.DoesNotExist, DoesNotExist):
         return Response({'detail': 'pleb does not exist'}, status=400)
-    except DoesNotExist:
-        logger.exception({'function': resend_email_verification.__name__,
-                          'exception': 'DoesNotExist: '})
-        return Response({'detail': 'pleb does not exist'}, status=400)
+
     template_dict = {
         'full_name': request.user.first_name+' '+request.user.last_name,
         'verification_url': settings.EMAIL_VERIFICATION_URL+token_gen.make_token(request.user, pleb)+'/'
@@ -136,12 +131,7 @@ def login_view_api(request):
                     login(request, user)
                     try:
                         pleb = Pleb.nodes.get(email=user.email)
-                    except Pleb.DoesNotExist:
-                        logger.exception({'function': login_view_api.__name__,
-                          'exception': 'Pleb.DoesNotExist'})
-                        return Response({'detail': 'cannot find user'},
-                                        status=400)
-                    except DoesNotExist:
+                    except (Pleb.DoesNotExist, DoesNotExist):
                         logger.exception({'function': login_view_api.__name__,
                           'exception': 'Pleb.DoesNotExist'})
                         return Response({'detail': 'cannot find user'},
@@ -179,9 +169,7 @@ def email_verification(request, confirmation):
         else:
             # TODO Ensure to link up to a real redirect page
             return HttpResponse('Unauthorized', status=401)
-    except Pleb.DoesNotExist:
-        return redirect('logout')
-    except DoesNotExist:
+    except (Pleb.DoesNotExist, DoesNotExist):
         return redirect('logout')
     except Exception:
         logger.exception({'function': email_verification.__name__,
@@ -218,7 +206,7 @@ def profile_information(request):
 
     try:
         citizen = Pleb.nodes.get(email=request.user.email)
-    except Pleb.DoesNotExist:
+    except (Pleb.DoesNotExist, DoesNotExist):
         return redirect("404_Error")
     if profile_information_form.is_valid():
         citizen.date_of_birth = profile_information_form.cleaned_data[
@@ -274,7 +262,7 @@ def profile_information(request):
         elif (addresses_returned > 1):
             # Choices need to be populated prior to is_valid call to ensure
             # that the form validates against the correct values
-            # We also are able ot keep this in the same location because
+            # We also are able to keep this in the same location because
             # we hid the other address form but it keeps the same values as
             # previously entered. This enables us to get the same results
             # back from smarty streets and validate those choices again then

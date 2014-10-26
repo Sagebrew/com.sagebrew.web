@@ -198,10 +198,14 @@ def comment_to_garbage(comment_id):
 
 
 def create_auto_tags(content):
-    alchemyapi = AlchemyAPI()
-    keywords = alchemyapi.keywords("text", content)
-    return keywords
-
+    try:
+        alchemyapi = AlchemyAPI()
+        keywords = alchemyapi.keywords("text", content)
+        return keywords
+    except Exception:
+        logger.exception(dumps({"function": create_auto_tags,
+                                "exception": "UnhandledException: "}))
+        return None
 
 def execute_cypher_query(query):
     try:

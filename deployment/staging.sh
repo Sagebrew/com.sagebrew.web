@@ -2,7 +2,7 @@
 
 SHA1=$1
 docker push sagebrew/sb_web:$SHA1
-docker push sagebrew/sb_worker:$SHA1
+#docker push sagebrew/sb_worker:$SHA1
 EB_BUCKET=sagebrew-$CIRCLE_BRANCH/$DOCKER_CONFIG_BUCKET
 DOCKERRUN_FILE_WEB=$SHA1-staging_Docker_web.aws.json
 DOCKERRUN_FILE_WORKER=$SHA1-staging_Docker_worker.aws.json
@@ -27,12 +27,12 @@ aws elasticbeanstalk update-environment --option-settings $DOCKERRUN_WEB_ENVIRON
 
 
 
-aws s3 cp $DOCKERRUN_FILE_WORKER s3://$EB_BUCKET/$DOCKERRUN_FILE_WORKER
+#aws s3 cp $DOCKERRUN_FILE_WORKER s3://$EB_BUCKET/$DOCKERRUN_FILE_WORKER
 
 #/home/ubuntu/AWS-ElasticBeanstalk-CLI-2.6.3/eb/linux/python2.7/eb
 
-aws elasticbeanstalk create-application-version --application-name sagebrew-staging-worker \
-  --version-label $SHA1 --source-bundle S3Bucket=$EB_BUCKET,S3Key=$DOCKERRUN_FILE_WORKER
+#aws elasticbeanstalk create-application-version --application-name sagebrew-staging-worker \
+#  --version-label $SHA1 --source-bundle S3Bucket=$EB_BUCKET,S3Key=$DOCKERRUN_FILE_WORKER
 
-aws elasticbeanstalk update-environment --option-settings $DOCKERRUN_WORKER_ENVIRONMENT --environment-name sagebrew-staging-worker \
-    --version-label $SHA1
+#aws elasticbeanstalk update-environment --option-settings $DOCKERRUN_WORKER_ENVIRONMENT --environment-name sagebrew-staging-worker \
+#    --version-label $SHA1

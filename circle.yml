@@ -29,6 +29,8 @@ dependencies:
         background: true
     - cd ~/com.sagebrew.web/sagebrew && ~/virtualenvs/venv-system/bin/celery -A sagebrew beat -l info:
         background: true
+    - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py populateenvconfig /home/ubuntu/com.sagebrew.web/$SHA1-staging_Docker_web_environment.txt /home/ubuntu/com.sagebrew.web/$SHA1-staging_Docker_worker_environment.txt
+
     - python ~/com.sagebrew.web/sagebrew/manage.py runserver 127.0.0.1:8080:
         background: true
 

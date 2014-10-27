@@ -12,7 +12,7 @@ DOCKERRUN_WORKER_ENVIRONMENT=$SHA1-staging_Docker_worker_environment.txt
 sed "s/<TAG>/$SHA1/;s/<PROJECT_NAME>/$PROJECT_NAME/;s/<BUCKET>/$CIRCLE_BRANCH/;s/<IMAGE>/sb_worker/;" < ~/com.sagebrew.web/aws_templates/Dockerrun.aws.json.worker_template > $DOCKERRUN_FILE_WORKER
 sed "s/<TAG>/$SHA1/;s/<PROJECT_NAME>/$PROJECT_NAME/;s/<BUCKET>/$CIRCLE_BRANCH/;s/<IMAGE>/sb_web/;" < ~/com.sagebrew.web/aws_templates/Dockerrun.aws.json.web_template > $DOCKERRUN_FILE_WEB
 ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py populateenvconfig
-cat $DOCKERRUN_FILE_WEB
+cat $DOCKERRUN_WEB_ENVIRONMENT
 
 aws s3 cp $DOCKERRUN_FILE_WEB s3://$EB_BUCKET/$DOCKERRUN_FILE_WEB
 
@@ -22,7 +22,7 @@ aws elasticbeanstalk create-application-version --application-name sagebrew-stag
   --version-label $SHA1 --source-bundle S3Bucket=$EB_BUCKET,S3Key=$DOCKERRUN_FILE_WEB
 
 aws elasticbeanstalk update-environment --environment-name sagebrew-staging-web \
-    --version-label $SHA1 -f $DOCKERRUN_WEB_ENVIRONMENT
+    --version-label $SHA1 --options-file $DOCKERRUN_WEB_ENVIRONMENT
 
 
 
@@ -35,4 +35,4 @@ aws elasticbeanstalk create-application-version --application-name sagebrew-stag
   --version-label $SHA1 --source-bundle S3Bucket=$EB_BUCKET,S3Key=$DOCKERRUN_FILE_WORKER
 
 aws elasticbeanstalk update-environment --environment-name sagebrew-staging-worker \
-    --version-label $SHA1 -f $DOCKERRUN_WORKER_ENVIRONMENT
+    --version-label $SHA1 --options-file $DOCKERRUN_WORKER_ENVIRONMENT

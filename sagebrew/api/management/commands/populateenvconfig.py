@@ -10,21 +10,15 @@ logger = logging.getLogger('loggly_logs')
 class Command(BaseCommand):
 
     def populate_config(self):
-        worker_count = (multiprocessing.cpu_count() *2) + 1
-        if worker_count > 12 and environ.get("CIRCLECI", False):
-            worker_count = 12
-        worker_count = str(worker_count)
         with open("%s/aws_environment_config/base.config" % (
                 settings.REPO_DIR), "r") as dockerfile:
             data = dockerfile.read()
 
             data = populate_general_values(data)
-        f = open("%s/%s" % (settings.REPO_DIR,
-                            environ.get("DOCKERRUN_WEB_ENVIRONMENT")), "w")
+        f = open("%s" % (environ.get("DOCKERRUN_WEB_ENVIRONMENT")), "w")
         f.write(data)
         f.close()
-        f = open("%s/%s" % (settings.REPO_DIR,
-                            environ.get("DOCKERRUN_WORKER_ENVIRONMENT")), "w")
+        f = open("%s" % (environ.get("DOCKERRUN_WORKER_ENVIRONMENT")), "w")
         f.write(data)
         f.close()
 

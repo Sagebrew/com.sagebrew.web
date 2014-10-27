@@ -6,6 +6,8 @@ machine:
 
 
 dependencies:
+  pre:
+    - pip install awscli
   cache_directories:
     - elasticsearch-1.3.2
     - AWS-ElasticBeanstalk-CLI-2.6.3
@@ -98,7 +100,7 @@ test:
         -e QUEUE_HOST=$QUEUE_HOST
         -e QUEUE_PORT=$QUEUE_PORT
         -d -t sagebrew/sb_web:$CIRCLE_SHA1
-    - sleep 5
+    - sleep 8
     - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/
 
 checkout:

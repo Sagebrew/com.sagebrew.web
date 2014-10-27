@@ -9,22 +9,22 @@ logger = logging.getLogger('loggly_logs')
 
 class Command(BaseCommand):
 
-    def populate_config(self):
+    def populate_config(self, web_env, worker_env):
         with open("%s/aws_environment_config/base.config" % (
                 settings.REPO_DIR), "r") as dockerfile:
             data = dockerfile.read()
 
             data = populate_general_values(data)
-        f = open("%s" % (environ.get("DOCKERRUN_WEB_ENVIRONMENT")), "w")
+        f = open("%s" % (web_env), "w")
         f.write(data)
         f.close()
-        f = open("%s" % (environ.get("DOCKERRUN_WORKER_ENVIRONMENT")), "w")
+        f = open("%s" % (worker_env), "w")
         f.write(data)
         f.close()
 
 
     def handle(self, *args, **options):
-        self.populate_config()
+        self.populate_config(args[0], args[1])
 
 
 def populate_general_values(data):

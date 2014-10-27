@@ -19,7 +19,7 @@ aws s3 cp $DOCKERRUN_FILE_WEB s3://$EB_BUCKET/$DOCKER_CONFIG_BUCKET/$DOCKERRUN_F
 #/home/ubuntu/AWS-ElasticBeanstalk-CLI-2.6.3/eb/linux/python2.7/eb
 
 aws elasticbeanstalk create-application-version --application-name sagebrew-staging-web \
-  --version-label $SHA1 --source-bundle S3Bucket=$EB_BUCKET,S3Key=$DOCKER_CONFIG_BUCKET/$DOCKERRUN_FILE_WEB
+  --version-label $SHA1 --source-bundle S3Bucket=$EB_BUCKET,S3Key=$DOCKER_CONFIG_BUCKET/$DOCKERRUN_FILE_WEB --auto-create-application
 
 aws elasticbeanstalk update-environment --option-settings file://$DOCKERRUN_WEB_ENVIRONMENT --environment-name sagebrew-staging-web \
     --version-label $SHA1

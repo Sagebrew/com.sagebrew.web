@@ -12,7 +12,7 @@ DOCKERRUN_WORKER_ENVIRONMENT=/home/ubuntu/com.sagebrew.web/$SHA1-staging_Docker_
 sed "s/<TAG>/$SHA1/;s/<PROJECT_NAME>/$PROJECT_NAME/;s/<BUCKET>/$CIRCLE_BRANCH/;s/<IMAGE>/sb_worker/;" < ~/com.sagebrew.web/aws_templates/Dockerrun.aws.json.worker_template > $DOCKERRUN_FILE_WORKER
 sed "s/<TAG>/$SHA1/;s/<PROJECT_NAME>/$PROJECT_NAME/;s/<BUCKET>/$CIRCLE_BRANCH/;s/<IMAGE>/sb_web/;" < ~/com.sagebrew.web/aws_templates/Dockerrun.aws.json.web_template > $DOCKERRUN_FILE_WEB
 ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py populateenvconfig $DOCKERRUN_WEB_ENVIRONMENT $DOCKERRUN_WORKER_ENVIRONMENT
-cat $DOCKERRUN_WEB_ENVIRONMENT
+
 
 aws s3 cp $DOCKERRUN_FILE_WEB s3://$EB_BUCKET/$DOCKERRUN_FILE_WEB
 
@@ -21,7 +21,7 @@ aws s3 cp $DOCKERRUN_FILE_WEB s3://$EB_BUCKET/$DOCKERRUN_FILE_WEB
 aws elasticbeanstalk create-application-version --application-name sagebrew-staging-web \
   --version-label $SHA1 --source-bundle S3Bucket=$EB_BUCKET,S3Key=$DOCKERRUN_FILE_WEB
 
-aws elasticbeanstalk update-environment --options-settings $DOCKERRUN_WEB_ENVIRONMENT --environment-name sagebrew-staging-web \
+aws elasticbeanstalk update-environment --option-settings $DOCKERRUN_WEB_ENVIRONMENT --environment-name sagebrew-staging-web \
     --version-label $SHA1
 
 
@@ -34,5 +34,5 @@ aws s3 cp $DOCKERRUN_FILE_WORKER s3://$EB_BUCKET/$DOCKERRUN_FILE_WORKER
 aws elasticbeanstalk create-application-version --application-name sagebrew-staging-worker \
   --version-label $SHA1 --source-bundle S3Bucket=$EB_BUCKET,S3Key=$DOCKERRUN_FILE_WORKER
 
-aws elasticbeanstalk update-environment --options-settings $DOCKERRUN_WORKER_ENVIRONMENT --environment-name sagebrew-staging-worker \
+aws elasticbeanstalk update-environment --option-settings $DOCKERRUN_WORKER_ENVIRONMENT --environment-name sagebrew-staging-worker \
     --version-label $SHA1

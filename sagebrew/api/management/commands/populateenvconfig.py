@@ -14,7 +14,7 @@ class Command(BaseCommand):
         if worker_count > 12 and environ.get("CIRCLECI", False):
             worker_count = 12
         worker_count = str(worker_count)
-        with open("%s/aws_environment_config/base.conf" % (
+        with open("%s/aws_environment_config/base.config" % (
                 settings.REPO_DIR), "r") as dockerfile:
             data = dockerfile.read()
 

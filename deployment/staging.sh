@@ -17,7 +17,9 @@ sed "s/<TAG>/$SHA1/;s/<PROJECT_NAME>/$PROJECT_NAME/;s/<BUCKET>/$CIRCLE_BRANCH/;s
 aws s3 cp $DOCKERRUN_FILE_WEB s3://$EB_BUCKET/$DOCKER_CONFIG_BUCKET/$DOCKERRUN_FILE_WEB
 
 #/home/ubuntu/AWS-ElasticBeanstalk-CLI-2.6.3/eb/linux/python2.7/eb
-
+# Applications are the high level container that hold multiple environments such
+# as a worker and a web instance.
+# Need to look into if need version-label for both the first create application and the second
 aws elasticbeanstalk create-application-version --application-name sagebrew-staging-web \
   --version-label $SHA1 --source-bundle S3Bucket=$EB_BUCKET,S3Key=$DOCKER_CONFIG_BUCKET/$DOCKERRUN_FILE_WEB --auto-create-application
 

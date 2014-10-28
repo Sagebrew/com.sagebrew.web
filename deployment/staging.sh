@@ -4,8 +4,8 @@ SHA1=$1
 docker push sagebrew/sb_web:$SHA1
 docker push sagebrew/sb_worker:$SHA1
 EB_BUCKET=sagebrew-$CIRCLE_BRANCH
-DOCKERRUN_FILE_WEB=$SHA1-staging_Docker_web.aws.json
-DOCKERRUN_FILE_WORKER=$SHA1-staging_Docker_worker.aws.json
+DOCKERRUN_FILE_WEB=$SHA1-staging_web.aws.json
+DOCKERRUN_FILE_WORKER=$SHA1-staging_worker.aws.json
 DOCKERRUN_WEB_ENVIRONMENT=/home/ubuntu/com.sagebrew.web/$SHA1-staging_Docker_web_environment.json
 DOCKERRUN_WORKER_ENVIRONMENT=/home/ubuntu/com.sagebrew.web/$SHA1-staging_Docker_worker_environment.json
 

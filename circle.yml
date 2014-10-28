@@ -23,11 +23,12 @@ dependencies:
     # Look into populating a supervisor script here and running that to maintain
     # the workers to create a real production environment rather than getting
     # some false fails that we only see due to supervisor not being there.
-    - cd ~/com.sagebrew.web/sagebrew && ~/virtualenvs/venv-system/bin/celery -A sagebrew worker -l info -n worker1 --concurrency=2:
-        background: true
-    - cd ~/com.sagebrew.web/sagebrew && ~/virtualenvs/venv-system/bin/celery -A sagebrew worker -l info -n worker2 --concurrency=2:
-        background: true
-    - cd ~/com.sagebrew.web/sagebrew && ~/virtualenvs/venv-system/bin/celery -A sagebrew beat -l info:
+    - sudo apt-get install supervisor
+    - sudo chown -R ubuntu /etc/supervisor/conf.d/
+    - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py populatesupervisor worker-test ubuntu
+    - sudo chown -R root /etc/supervisor/conf.d/
+    - sudo supervisorctl reread
+    - sudo supervisorctl reload:
         background: true
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py populateenvconfig /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-staging_web.json /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-staging_worker.json
 

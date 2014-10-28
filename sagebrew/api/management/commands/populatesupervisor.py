@@ -10,8 +10,8 @@ logger = logging.getLogger('loggly_logs')
 class Command(BaseCommand):
     def populate_supervisor(self, env, user):
         worker_count = (multiprocessing.cpu_count() *2) + 1
-        if worker_count > 12 and environ.get("CIRCLECI", False):
-            worker_count = 12
+        if(environ.get("CIRCLECI", False)):
+            worker_count = 2
         worker_count = str(worker_count)
         if(env == "web"):
             with open ("%s/supervisor_confs/web_template.conf" % (
@@ -24,6 +24,14 @@ class Command(BaseCommand):
             f.close()
         elif(env == "worker"):
             with open ("%s/supervisor_confs/worker_template.conf" % (
+                    settings.REPO_DIR), "r") as dockerfile:
+                data = dockerfile.read()
+                data = populate_general_values(data, user, worker_count)
+            f = open("/etc/supervisor/conf.d/sagebrew.conf", "w")
+            f.write(data)
+            f.close()
+        elif(env == "worker-test"):
+            with open ("%s/supervisor_confs/worker_template_circle.conf" % (
                     settings.REPO_DIR), "r") as dockerfile:
                 data = dockerfile.read()
                 data = populate_general_values(data, user, worker_count)

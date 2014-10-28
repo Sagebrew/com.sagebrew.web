@@ -47,8 +47,11 @@ class Command(BaseCommand):
 
 def populate_general_values(data, user, worker_count):
     data = data.replace("%(ENV_APP_USER)s", user)
+    data = data.replace("%(NUMBER_OF_WORKERS)s", worker_count)
     data = data.replace("%(ENV_REPO_NAME)s",
                         environ.get("REPO_NAME", "sagebrew"))
+    data = data.replace("%(ENV_CIRCLE_ARTIFACTS)s",
+                        environ.get("CIRCLE_ARTIFACTS", "/home/apps/logs/"))
     data = data.replace("%(ENV_PROJECT_DIR)s", settings.PROJECT_DIR)
     data = data.replace("%(ENV_PROJECT_NAME)s", "sagebrew")
     data = data.replace("%(ENV_NUMBER_OF_WORKERS)s", worker_count)

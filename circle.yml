@@ -23,6 +23,8 @@ dependencies:
     # Look into populating a supervisor script here and running that to maintain
     # the workers to create a real production environment rather than getting
     # some false fails that we only see due to supervisor not being there.
+    # Could change log location to $CIRCLE_ARTIFACTS so that artifacts are correctly
+    # stored
     - sudo apt-get install supervisor
     - sudo chown -R ubuntu /etc/supervisor/conf.d/
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py populatesupervisor worker-test ubuntu

@@ -29,18 +29,20 @@ dependencies:
         background: true
     - cd ~/com.sagebrew.web/sagebrew && ~/virtualenvs/venv-system/bin/celery -A sagebrew beat -l info:
         background: true
+    - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py populateenvconfig /home/ubuntu/com.sagebrew.web/$SHA1-staging_Docker_web_environment.json /home/ubuntu/com.sagebrew.web/$SHA1-staging_Docker_worker_environment.json
+
     - python ~/com.sagebrew.web/sagebrew/manage.py runserver 127.0.0.1:8080:
         background: true
 
 test:
   override:
-    - python manage.py test sb_tag.tests.test_utils.TestCreateAutoTagUtil.test_create_auto_tag_util_success_tag_exists
-    #- coverage run --source='.' manage.py test --failfast:
-    #    timeout: 300
+    #- python manage.py test sb_tag.tests.test_utils.TestCreateAutoTagUtil.test_create_auto_tag_util_success_tag_exists
+    - coverage run --source='.' manage.py test --failfast:
+        timeout: 300
 
   post:
-    #- coverage html
-    #- coveralls --rcfile=$CIRCLE_ARTIFACTS
+    - coverage html
+    - coveralls --rcfile=$CIRCLE_ARTIFACTS
 #    - pep8 --show-source --exclude='~/com.sagebrew.web/sagebrew/api/alchemyapi.py` --show-pep8 ~/com.sagebrew.web/sagebrew/
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
     - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg
@@ -103,7 +105,7 @@ test:
         -e QUEUE_HOST=$QUEUE_HOST
         -e QUEUE_PORT=$QUEUE_PORT
         -d -t sagebrew/sb_web:$CIRCLE_SHA1
-    - sleep 8
+    - sleep 10
     - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/
 
 checkout:

@@ -33,7 +33,6 @@ dependencies:
     - sudo supervisorctl reload:
         background: true
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py populateenvconfig /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-staging_web.json /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-staging_worker.json
-
     - python ~/com.sagebrew.web/sagebrew/manage.py runserver 127.0.0.1:8080:
         background: true
 

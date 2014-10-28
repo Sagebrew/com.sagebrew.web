@@ -14,7 +14,7 @@ from sb_registration.views import (profile_information, confirm_view,
                                    signup_view_api, signup_view, logout_view,
                                    login_view, login_view_api,
                                    resend_email_verification,
-                                   email_verification)
+                                   email_verification,)
 from sb_registration.models import EmailAuthTokenGenerator
 from sb_registration.utils import create_user_util
 from plebs.neo_models import Pleb
@@ -164,6 +164,34 @@ class ProfileInfoTest(TestCase):
         response = profile_information(request)
         self.assertIn(response.status_code, [200,302])
 
+    def test_profile_information_success(self):
+        my_dict = {"city": ["Walled Lake"], "home_town": [],
+                   "country": ["United States"],
+                   "address_additional": [], "employer": [],
+                   "state": "MI", "date_of_birth": ["06/04/94"],
+                   "college": [], "primary_address": ["125 Glenwood Dr"],
+                   "high_school": [], "postal_code": ["48390"]}
+        request = self.factory.post('/registration/profile_information',
+                                    data=my_dict)
+        request.user = self.user
+        response = profile_information(request)
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_profile_information_address_not_in_smartystreets(self):
+        my_dict = {"city": ["Walled Lake"], "home_town": [],
+                   "country": ["United States"],
+                   "address_additional": [], "employer": [],
+                   "state": "MI", "date_of_birth": ["06/04/94"],
+                   "college": [], "primary_address": ["125 Glenwood Dr"],
+                   "high_school": [], "postal_code": ["48390"]}
+        request = self.factory.post('/registration/profile_information',
+                                    data=my_dict)
+        request.user = self.user
+        response = profile_information(request)
+
+        print response.status_code
+        self.assertEqual(response.status_code, 302)
 
 class TestSignupView(TestCase):
     def setUp(self):

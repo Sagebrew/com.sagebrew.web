@@ -121,8 +121,6 @@ def login_view_api(request):
             try:
                 user = User.objects.get(email=login_form.cleaned_data['email'])
             except User.DoesNotExist:
-                logger.exception({'function': login_view_api.__name__,
-                                  'exception': 'User.DoesNotExist'})
                 return Response({'detail': 'cannot find user'}, status=400)
             user = authenticate(username=user.username,
                                 password=login_form.cleaned_data['password'])
@@ -132,8 +130,6 @@ def login_view_api(request):
                     try:
                         pleb = Pleb.nodes.get(email=user.email)
                     except (Pleb.DoesNotExist, DoesNotExist):
-                        logger.exception({'function': login_view_api.__name__,
-                          'exception': 'Pleb.DoesNotExist'})
                         return Response({'detail': 'cannot find user'},
                                         status=400)
                     pleb.generate_username()

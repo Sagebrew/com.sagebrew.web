@@ -30,7 +30,7 @@ aws elasticbeanstalk update-environment --option-settings file://$DOCKERRUN_WEB_
     --version-label $SHA1
 
 
-
+cat $SHA1-staging_Docker_worker.aws.json
 
 aws s3 cp $DOCKERRUN_FILE_WORKER s3://$EB_BUCKET/$DOCKER_CONFIG_BUCKET/$DOCKERRUN_FILE_WORKER
 

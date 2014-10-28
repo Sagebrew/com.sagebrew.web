@@ -250,11 +250,13 @@ def profile_information(request):
                 citizen.save()
                 return redirect('interests')
             else:
+                print 1
                 address_selection_form.fields[
                     'address_options'].choices = address_tuple
                 address_selection_form.fields[
                     'address_options'].required = True
                 address_selection = "selection"
+
         elif (addresses_returned > 1):
             # Choices need to be populated prior to is_valid call to ensure
             # that the form validates against the correct values
@@ -267,9 +269,11 @@ def profile_information(request):
                 'address_options'].choices = address_tuple
             address_selection_form.fields['address_options'].required = True
             address_selection = "selection"
+            print address_selection_form
 
         if (address_selection == "selection"):
             if (address_selection_form.is_valid()):
+                print address_selection_form
                 store_address = None
                 address_hash = address_selection_form.cleaned_data[
                     "address_options"]
@@ -294,7 +298,8 @@ def profile_information(request):
                     citizen.address.connect(address)
                     citizen.save()
                     return redirect('interests')
-
+    else:
+        print address_information_form.errors
     return render(request, 'profile_info.html',
                   {'profile_information_form': profile_information_form,
                    'address_information_form': address_information_form,

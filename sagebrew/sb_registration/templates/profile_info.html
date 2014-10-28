@@ -174,12 +174,14 @@
                                         {% if field.id_for_label == "id_primary_address" %}
                                             {% if field.value == None %}
                                                 <input type="text"
+                                                       id="sb_primary"
                                                        name="{{ field.html_name }}"
                                                        value=""
                                                        placeholder="Address Line 1"
                                                        class="form-control input-lg">
                                             {% else %}
                                                 <input type="text"
+                                                       id="sb_primary"
                                                        name="{{ field.html_name }}"
                                                        value="{{ field.value }}"
                                                        placeholder="Address Line 1"
@@ -188,12 +190,14 @@
                                         {% elif field.id_for_label == "id_street_additional" %}
                                             {% if field.value == None %}
                                                 <input type="text"
+                                                       id="sb_secondary"
                                                        name="{{ field.html_name }}"
                                                        value=""
                                                        placeholder="Apt, Building, etc"
                                                        class="form-control input-lg">
                                             {% else %}
                                                 <input type="text"
+                                                       id="sb_secondary"
                                                        name="{{ field.html_name }}"
                                                        value="{{ field.value }}"
                                                        placeholder="Apt, Building, etc"
@@ -223,12 +227,14 @@
                                                 {% if field.id_for_label == "id_city" %}
                                                     {% if field.value == None %}
                                                         <input type="text"
+                                                               id="sb_city"
                                                                name="{{ field.html_name }}"
                                                                value=""
                                                                placeholder="City*"
                                                                class="form-control input-lg">
                                                     {% else %}
                                                         <input type="text"
+                                                               id="sb_city"
                                                                name="{{ field.html_name }}"
                                                                value="{{ field.value }}"
                                                                placeholder="City*"
@@ -237,12 +243,14 @@
                                                 {% elif field.id_for_label == "id_state" %}
                                                     {% if field.value == None %}
                                                         <input type="text"
+                                                               id="sb_state"
                                                                name="{{ field.html_name }}"
                                                                value=""
                                                                placeholder="State*"
                                                                class="form-control input-lg">
                                                     {% else %}
                                                         <input type="text"
+                                                               id="sb_state"
                                                                name="{{ field.html_name }}"
                                                                value="{{ field.value }}"
                                                                placeholder="State*"
@@ -251,12 +259,14 @@
                                                 {% elif field.id_for_label == "id_postal_code" %}
                                                     {% if field.value == None %}
                                                         <input type="text"
+                                                               id="sb_zip"
                                                                name="{{ field.html_name }}"
                                                                value=""
                                                                placeholder="Zip Code*"
                                                                class="form-control input-lg sb_zip">
                                                     {% else %}
                                                         <input type="text"
+                                                               id="sb_zip"
                                                                name="{{ field.html_name }}"
                                                                value="{{ field.value }}"
                                                                placeholder="Zip Code*"
@@ -296,6 +306,19 @@
 {% block scripts %}
     {{ block.super }}
     <script src="{% static 'js/profile_information_form.js' %}"></script>
+    <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/2.4/jquery.liveaddress.min.js"></script>
+    <script>
+        var liveaddress = $.LiveAddress({
+            key: "2343579486386328520",
+            addresses: [{
+                street: "#sb_primary",
+                street2: "#sb_secondary",
+                city: "#sb_city",
+                state: "#sb_state",
+                zipcode: "#sb_zip"
+            }]
+        });
+    </script>
 {% endblock scripts %}
 
 {% comment%}

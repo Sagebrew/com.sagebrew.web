@@ -183,15 +183,42 @@ class ProfileInfoTest(TestCase):
                    "country": ["United States"],
                    "address_additional": [], "employer": [],
                    "state": "MI", "date_of_birth": ["06/04/94"],
-                   "college": [], "primary_address": ["125 Glenwood Dr"],
+                   "college": [], "primary_address": ["127 Glenwood Dr"],
                    "high_school": [], "postal_code": ["48390"]}
         request = self.factory.post('/registration/profile_information',
                                     data=my_dict)
         request.user = self.user
         response = profile_information(request)
 
-        print response.status_code
         self.assertEqual(response.status_code, 302)
+
+    def test_profile_information_address_has_no_suggestions(self):
+        my_dict = {"city": ["We"], "home_town": [],
+                   "country": ["United States"],
+                   "address_additional": [], "employer": [],
+                   "state": "MI", "date_of_birth": ["06/04/94"],
+                   "college": [], "primary_address": ["125 Glr"],
+                   "high_school": [], "postal_code": ["45890"]}
+        request = self.factory.post('/registration/profile_information',
+                                    data=my_dict)
+        request.user = self.user
+        response = profile_information(request)
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_profile_information_address_has_multiple_suggestions(self):
+        my_dict = {"city": ["Baltimore"], "home_town": [],
+                   "country": ["United States"],
+                   "address_additional": [], "employer": [],
+                   "state": "MD", "date_of_birth": ["06/04/94"],
+                   "college": [], "primary_address": ["1 rosedale"],
+                   "high_school": [], "postal_code": ["21229"]}
+        request = self.factory.post('/registration/profile_information',
+                                    data=my_dict)
+        request.user = self.user
+        response = profile_information(request)
+
+        self.assertEqual(response.status_code, 200)
 
 class TestSignupView(TestCase):
     def setUp(self):

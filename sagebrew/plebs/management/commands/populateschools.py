@@ -24,7 +24,6 @@ class Command(BaseCommand):
         university_dict = csv.DictReader(open(self.universities))
         for row in university_dict:
             row.pop('', None)
-            print line
             line += 1
             for item in row:
                 if isinstance(item, str):

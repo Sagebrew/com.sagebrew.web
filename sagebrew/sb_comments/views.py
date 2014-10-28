@@ -170,32 +170,26 @@ def flag_comment(request):  # task
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
-def share_comment(request):  # task
+def share_comment(request):
     '''
     Allow plebs to share comments with other plebs
 
     :param request:
     :return:
     '''
-    post_info = request.DATA
-    if (post_info["giraffe_contents"] == 3):
-        return Response({"comment": "hello"}, status=200)
-        # do stuff with post_info
+    pass
 
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
-def reference_comment(request):  # task
+def reference_comment(request):
     '''
     Allow users to reference comments in other comments/posts/questions/answers
 
     :param request:
     :return:
     '''
-    post_info = request.DATA
-    if (post_info["giraffe_contents"] == 3):
-        return Response({"comment": "hello"}, status=200)
-        # do stuff with post_info
+    pass
 
 
 # @permission_classes([IsAuthenticated, ])

@@ -304,12 +304,8 @@ def verify_completed_registration(user):
         pleb = Pleb.nodes.get(email=user.email)
         return pleb.completed_profile_info
     except (Pleb.DoesNotExist,DoesNotExist):
-        logger.critical({"exception": "Pleb does not exist",
-                         "function": "verify_completed_registration"})
         return False
     except CypherException:
-        logger.critical({"exception": "cypher exception",
-                         "function": "verify_completed_registration"})
         return False
 
 def verify_verified_email(user):

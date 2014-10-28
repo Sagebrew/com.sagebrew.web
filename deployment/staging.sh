@@ -2,7 +2,7 @@
 
 SHA1=$1
 docker push sagebrew/sb_web:$SHA1
-#docker push sagebrew/sb_worker:$SHA1
+docker push sagebrew/sb_worker:$SHA1
 EB_BUCKET=sagebrew-$CIRCLE_BRANCH
 DOCKERRUN_FILE_WEB=$SHA1-staging_Docker_web.aws.json
 DOCKERRUN_FILE_WORKER=$SHA1-staging_Docker_worker.aws.json
@@ -16,12 +16,15 @@ sed "s/<TAG>/$SHA1/;s/<PROJECT_NAME>/$PROJECT_NAME/;s/<BUCKET>/$CIRCLE_BRANCH/;s
 
 aws s3 cp $DOCKERRUN_FILE_WEB s3://$EB_BUCKET/$DOCKER_CONFIG_BUCKET/$DOCKERRUN_FILE_WEB
 
+# TODO look into removing eb as aws seems to have commands we need
 #/home/ubuntu/AWS-ElasticBeanstalk-CLI-2.6.3/eb/linux/python2.7/eb
 # Applications are the high level container that hold multiple environments such
 # as a worker and a web instance.
 # Need to look into if need version-label for both the first create application and the second
+# removed --auto-create-application but can use to spawn up an application in the case that one does not already exist
+# However have to go through process of creating an environment then as this will not do that for you.
 aws elasticbeanstalk create-application-version --application-name sagebrew-staging-web \
-  --version-label $SHA1 --source-bundle S3Bucket=$EB_BUCKET,S3Key=$DOCKER_CONFIG_BUCKET/$DOCKERRUN_FILE_WEB --auto-create-application
+  --version-label $SHA1 --source-bundle S3Bucket=$EB_BUCKET,S3Key=$DOCKER_CONFIG_BUCKET/$DOCKERRUN_FILE_WEB
 
 aws elasticbeanstalk update-environment --option-settings file://$DOCKERRUN_WEB_ENVIRONMENT --environment-name sagebrew-staging-web \
     --version-label $SHA1
@@ -29,12 +32,10 @@ aws elasticbeanstalk update-environment --option-settings file://$DOCKERRUN_WEB_
 
 
 
-#aws s3 cp $DOCKERRUN_FILE_WORKER s3://$EB_BUCKET/$DOCKERRUN_FILE_WORKER
+aws s3 cp $DOCKERRUN_FILE_WORKER s3://$EB_BUCKET/$DOCKER_CONFIG_BUCKET/$DOCKERRUN_FILE_WORKER
 
-#/home/ubuntu/AWS-ElasticBeanstalk-CLI-2.6.3/eb/linux/python2.7/eb
+aws elasticbeanstalk create-application-version --application-name sagebrew-staging-worker \
+  --version-label $SHA1 --source-bundle S3Bucket=$EB_BUCKET,S3Key=$DOCKER_CONFIG_BUCKET/$DOCKERRUN_FILE_WORKER
 
-#aws elasticbeanstalk create-application-version --application-name sagebrew-staging-worker \
-#  --version-label $SHA1 --source-bundle S3Bucket=$EB_BUCKET,S3Key=$DOCKERRUN_FILE_WORKER
-
-#aws elasticbeanstalk update-environment --option-settings $DOCKERRUN_WORKER_ENVIRONMENT --environment-name sagebrew-staging-worker \
-#    --version-label $SHA1
+aws elasticbeanstalk update-environment --option-settings file://$DOCKERRUN_WORKER_ENVIRONMENT --environment-name ssagebrew-staging-worker \
+    --version-label $SHA1

@@ -1,11 +1,12 @@
 import logging
 import time
+import boto.sqs
 from uuid import uuid1
 from socket import error as socket_error
 from json import loads, dumps
-import boto.sqs
+
 from boto.sqs.message import Message
-from bomberman.client import Client
+from bomberman.client import Client, RateLimitExceeded
 from neomodel.exception import CypherException
 from neomodel import db
 from django.conf import settings
@@ -135,12 +136,15 @@ def language_filter(content):
     :param content:
     :return:
     '''
-    bomberman = Client()
-    if bomberman.is_profane(content):
-        corrected_content = bomberman.censor(content)
-        return corrected_content
-    else:
-        return content
+    try:
+        bomberman = Client()
+        if bomberman.is_profane(content):
+            corrected_content = bomberman.censor(content)
+            return corrected_content
+        else:
+            return content
+    except RateLimitExceeded:
+        return False
 
 
 def post_to_garbage(post_id):

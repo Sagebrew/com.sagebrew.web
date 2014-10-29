@@ -33,3 +33,4 @@ nltk
 neomodel
 shortuuid
 gunicorn
+django-elasticache

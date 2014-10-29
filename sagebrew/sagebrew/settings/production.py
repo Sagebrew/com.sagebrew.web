@@ -20,7 +20,7 @@ DATABASES = {
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'BACKEND': 'django_elasticache.memcached.ElastiCache',
         'LOCATION': environ.get("CACHE_LOCATION", ""),
     }
 }
@@ -32,12 +32,15 @@ ELASTIC_SEARCH_HOST = [{'host': environ.get("ELASTIC_SEARCH_HOST", ""),
                                       environ.get("ELASTIC_SEARCH_KEY", ""))
                        }]
 
-CELERY_RESULT_BACKEND = 'redis://%s:%s/0' % (environ.get("REDIS_LOCATION", ""),
-                                             environ.get("REDIS_PORT", ""))
-BROKER_URL = 'amqp://%s:%s@%s:%s//' % (environ.get("QUEUE_USERNAME", ""),
-                                       environ.get("QUEUE_PASSWORD", ""),
-                                       environ.get("QUEUE_HOST", ""),
-                                       environ.get("QUEUE_PORT", ""))
+CELERY_RESULT_BACKEND = 'redis://%s:%s/0' % (
+    environ.get("REDIS_LOCATION", ""), environ.get("REDIS_PORT", ""))
+
+BROKER_URL = "sqs://%s:%s@" % (
+    environ.get("AWS_ACCESS_KEY_ID", environ.get("AWS_SECRET_ACCESS_KEY")))
+
+BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 43200,
+                            'queue_name_prefix': 'celery-prod-'}
+CELERY_DEFAULT_QUEUE = "%s" % environ.get("CELERY_QUEUE", "")
 
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (

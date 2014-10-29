@@ -20,12 +20,12 @@ server {
 
     location /static {
 	    autoindex on;
-        alias {{PROJECT_PATH}}/static/;
+        alias {{PROJECT_PATH}}/static;
     }
 
     location /media {
 	    autoindex on;
-        alias {{PROJECT_PATH}}/media/;
+        alias {{PROJECT_PATH}}/media;
     }
 	
     location / {
@@ -45,7 +45,7 @@ server {
 	
     error_page 500 502 503 504 /500.html;
     location = /500.html {
-        root {{PROJECT_PATH}}/static/;
+        root {{PROJECT_PATH}}/static;
     }
 }
 

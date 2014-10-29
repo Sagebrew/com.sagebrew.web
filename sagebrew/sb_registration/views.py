@@ -1,5 +1,5 @@
-import shortuuid
 import logging
+from json import dumps
 import hashlib
 from django.conf import settings
 from uuid import uuid1
@@ -37,6 +37,11 @@ def confirm_view(request):
     return render(request, 'verify_email.html')
 
 def signup_view(request):
+    # TODO Need to take the user somewhere and do something with the ajax
+    # from the api.
+    # Need to take them to a 500 error page or something.
+    # Otherwise they just sit at the sign up page
+    # with the button not taking them anywhere.
     return render(request, 'sign_up_page/index.html')
 
 @api_view(['POST'])
@@ -82,9 +87,10 @@ def signup_view_api(request):
                 else:
                     return Response({'detail': 'invalid login'},
                                     status=400)
+        # TODO add a handler for if the form is not valid
     except Exception:
-        logger.exception({'function': signup_view_api.__name__,
-                          'exception': 'UnhandledException: '})
+        logger.exception(dumps({'function': signup_view_api.__name__,
+                                'exception': 'UnhandledException'}))
         return Response({'detail': 'exception'}, status=400)
 
 def login_view(request):
@@ -145,8 +151,8 @@ def login_view_api(request):
             else:
                 return Response({'detail': 'invalid password'}, status=400)
     except Exception:
-        logger.exception({'function': login_view_api.__name__,
-                          'exception': 'UnhandledException: '})
+        logger.exception(dumps({'function': login_view_api.__name__,
+                                'exception': 'UnhandledException'}))
         return Response({'detail': 'unknown exception'}, status=400)
 
 @login_required()
@@ -168,8 +174,8 @@ def email_verification(request, confirmation):
     except (Pleb.DoesNotExist, DoesNotExist):
         return redirect('logout')
     except Exception:
-        logger.exception({'function': email_verification.__name__,
-                          'exception': 'UnhandledException: '})
+        logger.exception(dumps({'function': email_verification.__name__,
+                                'exception': 'UnhandledException'}))
         return redirect('confirm_view')
 
 @login_required

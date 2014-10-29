@@ -1,4 +1,5 @@
 from os import environ
+import socket
 from json import dumps
 import logging
 import multiprocessing

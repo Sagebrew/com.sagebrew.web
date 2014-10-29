@@ -1,4 +1,4 @@
-FROM {{PROJECT_NAME}}/django.web.primary.base:v12
+FROM {{PROJECT_NAME}}/django.web.primary.base:v13
 
 MAINTAINER Devon Bleibtrey <devon@sagebrew.com>
 
@@ -14,7 +14,6 @@ RUN chown -R {{APP_USER}}:{{APP_USER}} /home/apps/
 RUN mkdir /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/
 RUN rm -r /root/.ssh
 RUN apt-get remove --auto-remove -y openssh-client
-
 RUN pip install -r /home/apps/{{PROJECT_NAME}}/requirements/{{REQUIREMENTS_FILE}}.txt
 
 RUN apt-get -y install wget

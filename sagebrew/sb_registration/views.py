@@ -71,6 +71,20 @@ def signup_view_api(request):
                                        cleaned_data['email'],
                                        password=signup_form.
                                        cleaned_data['password'])
+                # TODO if this fails we might want to roll back the user creation
+                # Otherwise we end up creating a user and never actually moving
+                # the user forward. Then when they go to try again they get
+                # a user already exists error
+                # Also need to benchmark process in production/staging
+                # on local instance with docker after clicking sign up the
+                # user sits at the page for a couple seconds prior to being
+                # redirected. This makes it seem as though nothing happened on
+                # click. They click again and it results in an error being provided.
+                # We may have to do a loading greyed out screen while waiting
+                # for a response if the timing takes that long in prod.
+                # Or go over to a pure view implementation without the API.
+                # Just need to look into it when not going through so many
+                # different hops
                 if res and res is not None:
                     user = authenticate(username=res['username'],
                                         password=signup_form.cleaned_data[

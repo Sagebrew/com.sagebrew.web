@@ -144,9 +144,9 @@ class ProfileInfoForm(forms.Form):
     )
 
     home_town = forms.CharField(
-        label="Hometown*",
+        label="Hometown",
         max_length=40,
-        required=True,
+        required=False,
     )
 
     high_school = forms.CharField(

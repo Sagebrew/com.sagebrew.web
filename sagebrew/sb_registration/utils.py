@@ -145,6 +145,7 @@ def validate_address(address_request):
     QUERY_STRING = urllib.urlencode(address_request)
 
     URL = LOCATION + '?' + QUERY_STRING
+
     response = urllib.urlopen(URL).read()
     try:
         structure = json.loads(response)

@@ -1,11 +1,13 @@
 $( document ).ready(function() {
+    // TODO This fails after the first attempt and doesn't reset
+    // Should reset it in failure or come up with better process
     var password_match = false;
     var password_too_large = false;
     var password_too_small = false;
     $(".password2").on("keyup", function() {
         var password = $('.password').val();
         var password2 = $('.password2').val();
-        if (password.length > 6) {
+        if (password.length > 5) {
             if(password.length < 57) {
                 password_match = password === password2;
             } else {
@@ -26,7 +28,7 @@ $( document ).ready(function() {
             alert('Please enter an email address')
         }
         else if (password_too_small){
-            alert('Passwords must be greater than 6 characters long')
+            alert('Passwords must be at least 6 characters long')
         }
         else if (password_too_large){
             alert('Passwords must be no larger than 56 characters long')

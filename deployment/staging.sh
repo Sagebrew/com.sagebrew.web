@@ -26,18 +26,22 @@ aws s3 cp $DOCKERRUN_FILE_WEB s3://$EB_BUCKET/$DOCKER_CONFIG_BUCKET/$DOCKERRUN_F
 aws elasticbeanstalk create-application-version --application-name sagebrew-staging-web \
   --version-label $SHA1 --source-bundle S3Bucket=$EB_BUCKET,S3Key=$DOCKER_CONFIG_BUCKET/$DOCKERRUN_FILE_WEB
 
-aws elasticbeanstalk update-environment --option-settings file://$DOCKERRUN_WEB_ENVIRONMENT --environment-name sagebrew-staging-web \
-    --version-label $SHA1
+aws elasticbeanstalk create-environment --environment-name sagebrew-staging-web \
+  --version-label $SHA1 --template-name staging-web-conf --tier web --option-settings file://$DOCKERRUN_WEB_ENVIRONMENT
 
+
+#aws elasticbeanstalk update-environment --option-settings file://$DOCKERRUN_WEB_ENVIRONMENT --environment-name sagebrew-staging-web \
+#    --version-label $SHA1
+#
 
 # --environment-name sagebrew-staging-worker Note to self may want to change this
 # to sb-staging-worker when we automated the entire process. The limit on the naming
 # is 23 characters and to stay consistent with sb-production-worker we'll need to go
 # to sb-...
-aws s3 cp $DOCKERRUN_FILE_WORKER s3://$EB_BUCKET/$DOCKER_CONFIG_BUCKET/$DOCKERRUN_FILE_WORKER
-
-aws elasticbeanstalk create-application-version --application-name sagebrew-staging-worker \
-  --version-label $SHA1 --source-bundle S3Bucket=$EB_BUCKET,S3Key=$DOCKER_CONFIG_BUCKET/$DOCKERRUN_FILE_WORKER
-
-aws elasticbeanstalk update-environment --option-settings file://$DOCKERRUN_WORKER_ENVIRONMENT --environment-name sagebrew-staging-worker \
-    --version-label $SHA1
+#aws s3 cp $DOCKERRUN_FILE_WORKER s3://$EB_BUCKET/$DOCKER_CONFIG_BUCKET/$DOCKERRUN_FILE_WORKER
+#
+#aws elasticbeanstalk create-application-version --application-name sagebrew-staging-worker \
+#  --version-label $SHA1 --source-bundle S3Bucket=$EB_BUCKET,S3Key=$DOCKER_CONFIG_BUCKET/$DOCKERRUN_FILE_WORKER
+#
+#aws elasticbeanstalk update-environment --option-settings file://$DOCKERRUN_WORKER_ENVIRONMENT --environment-name sagebrew-staging-worker \
+#    --version-label $SHA1

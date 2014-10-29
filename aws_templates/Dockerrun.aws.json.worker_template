@@ -1,8 +1,8 @@
 {
   "AWSEBDockerrunVersion": "1",
   "Authentication": {
-    "Bucket": "<PROJECT_NAME>/docker_config",
-    "Key": "dockercfg"
+    "Bucket": "<PROJECT_NAME>",
+    "Key": "docker_config/dockercfg"
   },
   "Image": {
     "Name": "<PROJECT_NAME>/<IMAGE>:<TAG>",

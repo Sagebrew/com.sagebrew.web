@@ -76,7 +76,7 @@ test:
         -e QUEUE_HOST=$QUEUE_HOST
         -e QUEUE_PORT=$QUEUE_PORT
         -d -t sagebrew/sb_worker:$CIRCLE_SHA1
-    - docker run -h box-webapp --name web_app_one -p 443:443
+    - docker run -h box-webapp --name web_app_one -p 3000:3000
         -e NEO4J_REST_URL=$GRAPHEN_NEO4J_REST_URL -e APP_USER=$APP_USER
         -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME
         -e LOG_ACCOUNT=$LOG_ACCOUNT -e LOG_TOKEN=$LOG_TOKEN
@@ -103,7 +103,7 @@ test:
         -e QUEUE_PORT=$QUEUE_PORT
         -d -t sagebrew/sb_web:$CIRCLE_SHA1
     - sleep 10
-    - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/
+    - curl --retry 10 --retry-delay 5 --insecure -v https://localhost:3000
 
 checkout:
   post:

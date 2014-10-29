@@ -7,5 +7,6 @@
   "Image": {
     "Name": "<PROJECT_NAME>/<IMAGE>:<TAG>",
     "Update": "true"
-  }
+  },
+  "Logging": "/home/apps/logs/"
 }

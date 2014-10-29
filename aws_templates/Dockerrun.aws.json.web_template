@@ -12,5 +12,6 @@
     {
       "ContainerPort": "80"
     }
-  ]
+  ],
+  "Logging": "/home/apps/logs/"
 }

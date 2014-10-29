@@ -42,9 +42,7 @@ class Command(BaseCommand):
             f.close()
         else:
             pass
-        logger.critical(dumps({"environment_variables": environ.__dict__,
-                               "host": socket.gethostname(),
-                               "supervisor_conf": env}))
+
     def handle(self, *args, **options):
         self.populate_supervisor(args[0], args[1])
 

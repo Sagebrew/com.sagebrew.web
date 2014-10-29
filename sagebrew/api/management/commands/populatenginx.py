@@ -18,7 +18,7 @@ class Command(BaseCommand):
         # but once deployed to aws the production nginx config is used
         # This is due to the differences in SSL management. AWS handles it
         # for us but on circle we have to include it in our nginx files.
-        elif(circle_branch == "staging" and os.environ.get("CIRCLECI", False)):
+        elif(os.environ.get("CIRCLECI", False)):
             env = "development"
         else:
             env = "production"

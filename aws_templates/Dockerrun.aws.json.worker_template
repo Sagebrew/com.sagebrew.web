@@ -8,5 +8,10 @@
     "Name": "<PROJECT_NAME>/<IMAGE>:<TAG>",
     "Update": "true"
   },
+  "Ports": [
+    {
+      "ContainerPort": "8085"
+    }
+  ],
   "Logging": "/home/apps/logs/"
 }

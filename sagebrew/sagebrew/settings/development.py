@@ -15,7 +15,7 @@ DATABASES = {
         'NAME': 'sagebrew_db',
         'USER': 'admin',
         'PASSWORD': 'admin',
-        'HOST': 'localhost',
+        'HOST': '192.168.56.101',
         'PORT': '',
     }
 }

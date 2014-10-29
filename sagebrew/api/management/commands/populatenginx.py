@@ -14,6 +14,12 @@ class Command(BaseCommand):
         circle_branch = os.environ.get("CIRCLE_BRANCH", None)
         if('dev' in circle_branch):
             env = "development"
+        # This elif is there so that on Circle the dev nginx file is used
+        # but once deployed to aws the production nginx config is used
+        # This is due to the differences in SSL management. AWS handles it
+        # for us but on circle we have to include it in our nginx files.
+        elif(circle_branch == "staging" and os.environ.get("CIRCLECI"), False):
+            env = "development"
         else:
             env = "production"
         worker_count = (multiprocessing.cpu_count() *2) + 1

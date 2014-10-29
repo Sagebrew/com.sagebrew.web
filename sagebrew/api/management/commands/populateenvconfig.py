@@ -54,6 +54,8 @@ def populate_staging_values(data):
                         environ.get("APPLICATION_SECRET_KEY_STAGING", ""))
     data = data.replace("<REDIS_LOCATION>",
                         environ.get("REDIS_LOCATION_STAGING", ""))
+    data = data.replace("<CACHE_LOCATION>",
+                        environ.get("CACHE_LOCATION_STAGING", ""))
     data = data.replace("<RDS_DB_NAME>",
                         environ.get("RDS_DB_NAME_STAGING", ""))
     data = data.replace("<RDS_USERNAME>",

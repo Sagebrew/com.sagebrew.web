@@ -26,7 +26,7 @@ aws s3 cp $DOCKERRUN_FILE_WEB s3://$EB_BUCKET/$DOCKER_CONFIG_BUCKET/$DOCKERRUN_F
 aws elasticbeanstalk create-application-version --application-name sagebrew-staging-web \
   --version-label $SHA1 --source-bundle S3Bucket=$EB_BUCKET,S3Key=$DOCKER_CONFIG_BUCKET/$DOCKERRUN_FILE_WEB
 
-aws elasticbeanstalk create-environment --environment-name sagebrew-staging-web \
+aws elasticbeanstalk create-environment --application-name sagebrew-staging-web --environment-name sagebrew-staging-web \
   --version-label $SHA1 --template-name staging-web-conf --tier web --option-settings file://$DOCKERRUN_WEB_ENVIRONMENT
 
 

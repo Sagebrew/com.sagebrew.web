@@ -1,4 +1,5 @@
 from os import environ
+from json import dumps
 import logging
 import multiprocessing
 
@@ -40,7 +41,9 @@ class Command(BaseCommand):
             f.close()
         else:
             pass
-
+        logger.critical(dumps({"environment_variables": environ,
+                               "host": socket.gethostname(),
+                               "supervisor_conf": env}))
     def handle(self, *args, **options):
         self.populate_supervisor(args[0], args[1])
 

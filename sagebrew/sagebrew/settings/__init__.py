@@ -1,7 +1,7 @@
-from os import environ
+import os
 
-branch = environ.get("CIRCLE_BRANCH", None)
-circle_ci = environ.get("CIRCLECI", False)
+branch = os.environ.get("CIRCLE_BRANCH", None)
+circle_ci = os.environ.get("CIRCLECI", False)
 if circle_ci == "false":
     circle_ci = False
 if(circle_ci):

@@ -1,11 +1,15 @@
 import socket
+from os import environ
 
 hostname = socket.gethostname()
-if 'kepric' in hostname:
+branch = environ.get("CIRCLE_BRANCH", None)
+if branch is None:
+    from production import *
+elif "dev" in branch:
     from development import *
-elif hostname == 'staging-sagebrew':
+elif branch == "staging":
     from staging import *
-elif('box' in hostname):
-    from test import *
+elif branch == "master":
+    from production import *
 else:
     from production import *

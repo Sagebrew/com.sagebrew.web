@@ -48,9 +48,7 @@ class Command(BaseCommand):
         f = open("/etc/nginx/nginx.conf", "w")
         f.write(data)
         f.close()
-        logger.critical(dumps({"nginx_file": "nginx.conf",
-                               "data": data,
-                               "host": socket.gethostname()}))
+
         with open ("%s/nginx_templates/%s.tmpl" % (
                 settings.REPO_DIR, env), "r") as site_file:
             data = site_file.read()
@@ -92,9 +90,6 @@ class Command(BaseCommand):
         call("sudo ln -s /etc/nginx/sites-available/%s.conf" % (env) +
              " /etc/nginx/sites-enabled/%s.conf" % (env), shell=True)
         call("sudo chown -R root:root /etc/nginx/", shell=True)
-        logger.critical(dumps({"nginx_file": "site enabled.conf",
-                               "data": data,
-                               "host": socket.gethostname()}))
         return True
 
     def handle(self, *args, **options):

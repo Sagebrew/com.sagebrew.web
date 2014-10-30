@@ -38,8 +38,7 @@ CELERY_RESULT_BACKEND = 'redis://%s:%s/0' % (
 BROKER_URL = "sqs://%s:%s@" % (
     environ.get("AWS_ACCESS_KEY_ID", ""), environ.get("AWS_SECRET_ACCESS_KEY", ""))
 
-BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 43200,
-                            'queue_name_prefix': 'celery-prod-'}
+BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 43200}
 CELERY_DEFAULT_QUEUE = "%s" % environ.get("CELERY_QUEUE", "")
 
 REST_FRAMEWORK = {

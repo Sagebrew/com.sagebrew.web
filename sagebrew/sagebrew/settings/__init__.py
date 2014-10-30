@@ -3,7 +3,12 @@ from os import environ
 
 hostname = socket.gethostname()
 branch = environ.get("CIRCLE_BRANCH", None)
-if branch is None:
+circle_ci = environ.get("CIRCLECI", False)
+if circle_ci == "false":
+    circle_ci = False
+if(circle_ci):
+    from test import *
+elif branch is None:
     from production import *
 elif "dev" in branch:
     from development import *

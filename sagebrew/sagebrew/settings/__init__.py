@@ -1,7 +1,5 @@
-import socket
 from os import environ
 
-hostname = socket.gethostname()
 branch = environ.get("CIRCLE_BRANCH", None)
 circle_ci = environ.get("CIRCLECI", False)
 if circle_ci == "false":

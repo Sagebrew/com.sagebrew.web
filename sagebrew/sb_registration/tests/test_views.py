@@ -59,6 +59,7 @@ class TestProfileInfoView(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
+        self.pleb.completed_profile_info = False
         self.pleb.save()
         addresses = Address.nodes.all()
         for address in addresses:
@@ -73,6 +74,7 @@ class TestProfileInfoView(TestCase):
                                     data=my_dict)
         request.user = self.user
         response = profile_information(request)
+
         self.assertIn(response.status_code, [200,302])
 
     def test_user_info_population_incorrect_birthday(self):
@@ -178,7 +180,24 @@ class TestProfileInfoView(TestCase):
         request.user = self.user
         response = profile_information(request)
 
-        self.assertIn(response.status_code, [200,302])
+        self.assertEqual(response.status_code, 302)
+
+    def test_profile_information_success_invalid_original_selected(self):
+        my_dict = {"city": ["Walled Lake"], "home_town": [],
+                   "country": ["United States"],
+                   "address_additional": [], "employer": [],
+                   "state": "MI", "date_of_birth": ["06/04/94"],
+                   "college": [], "primary_address": ["125 Glenwood Dr"],
+                   "high_school": [], "postal_code": ["48390"],
+                   "valid": "invalid", "original_selected": True,
+                   "congressional_district": 11, "longitude": -83.4965,
+                   "latitude": 42.53202}
+        request = self.factory.post('/registration/profile_information',
+                                    data=my_dict)
+        request.user = self.user
+        response = profile_information(request)
+
+        self.assertEqual(response.status_code, 302)
 
     def test_profile_information_address_not_in_smartystreets(self):
         my_dict = {"city": ["Walled Lake"], "home_town": [],

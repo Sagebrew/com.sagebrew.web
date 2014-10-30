@@ -8,7 +8,7 @@ if circle_ci == "false":
 if circle_ci == "true":
     circle_ci = True
 
-if(circle_ci):
+if(circle_ci is True):
     from test import *
 elif branch is None:
     from production import *

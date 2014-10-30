@@ -52,7 +52,7 @@ def calc_age(birthday):
 
 def create_address_long_hash(address):
     if ("address2" in address):
-        address_string = "%s%s%s%s%s%s%f%f%s" % (address["street"],
+        address_string = "%s%s%s%s%s%s%f%f%s" % (address["primary_address"],
                                                  address["street_additional"],
                                                  address["city"],
                                                  address["state"],
@@ -63,7 +63,7 @@ def create_address_long_hash(address):
                                                  address[
                                                      "congressional_district"])
     else:
-        address_string = "%s%s%s%s%s%f%f%s" % (address["street"],
+        address_string = "%s%s%s%s%s%f%f%s" % (address["primary_address"],
                                                address["city"],
                                                address["state"],
                                                address["postal_code"],

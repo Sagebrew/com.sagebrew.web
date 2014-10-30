@@ -278,6 +278,9 @@
                                             </div>
                                         {% endif %}
                                     {% endfor %}
+                                    {% for hidden in address_information_form.hidden_fields %}
+                                        {{ hidden }}
+                                    {% endfor %}
                                     </div>
                                 </div>
                                 <div class="row">
@@ -288,6 +291,7 @@
                                             {% endif %}
                                             {{ address_choice }}
                                         {% endfor %}
+
                                     </div>
                                 </div>
                                 <div class="row sb_row_continue">
@@ -306,19 +310,8 @@
 {% block scripts %}
     {{ block.super }}
     <script src="{% static 'js/profile_information_form.js' %}"></script>
+    <script src="{% static 'js/address_validation.js' %}"></script>
     <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/2.4/jquery.liveaddress.min.js"></script>
-    <script>
-        var liveaddress = $.LiveAddress({
-            key: "2343579486386328520",
-            addresses: [{
-                street: "#sb_primary",
-                street2: "#sb_secondary",
-                city: "#sb_city",
-                state: "#sb_state",
-                zipcode: "#sb_zip"
-            }]
-        });
-    </script>
 {% endblock scripts %}
 
 {% comment%}

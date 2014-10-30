@@ -197,14 +197,32 @@ class AddressInfoForm(forms.Form):
         required=True,
     )
 
-
-class AddressChoiceForm(forms.Form):
-    address_options = forms.ChoiceField(
-        widget=forms.RadioSelect,
-        label="Do you live at",
-        choices=(),
-        required=False,
+    valid = forms.CharField(
+        required=True,
+        max_length=100,
+        widget=forms.HiddenInput()
     )
+
+    original_selected = forms.BooleanField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
+
+    congressional_district = forms.IntegerField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
+
+    latitude = forms.FloatField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
+
+    longitude = forms.FloatField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
+
 
 
 class ProfilePictureForm(forms.Form):

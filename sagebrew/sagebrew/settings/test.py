@@ -13,7 +13,7 @@ VERIFY_SECURE = False
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': environ.get("DB_NAME", 'circle_test'),
+        'NAME': environ.get("DB_DOCKER_NAME", 'circle_test'),
         'USER': environ.get("DB_USER", 'ubuntu'),
         'PASSWORD': environ.get("DB_PASSWORD", ''),
         'HOST': environ.get("DB_PORT_5432_TCP_ADDR", '127.0.0.1'),

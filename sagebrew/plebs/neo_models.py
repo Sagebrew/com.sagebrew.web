@@ -3,7 +3,7 @@ from datetime import datetime
 import pytz
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty, db)
+                      BooleanProperty, FloatProperty, db, ZeroOrOne)
 
 from sb_relationships.neo_models import (FriendRelationship,
                                          UserWeightRelationship)
@@ -97,8 +97,9 @@ class Pleb(StructuredNode):
     university = RelationshipTo("University", "ATTENDED_UNIV",
                                 model=ReceivedEducationRel)
     employer = RelationshipTo("Company", "WORKS_AT")
-    address = RelationshipTo("Address", "LIVES_AT")
+    address = RelationshipTo("Address", "LIVES_AT", cardinality=ZeroOrOne)
     topic_category = RelationshipTo("TopicCategory", "INTERESTED_IN")
+    interests = RelationshipTo("sb_tag.neo_models.SBTag", "INTERESTED_IN")
     sb_topics = RelationshipTo("SBTopic", "INTERESTED_IN")
     friends = RelationshipTo("Pleb", "FRIENDS_WITH", model=FriendRelationship)
     senator = RelationshipTo("govtrack.neo_models.GTRole",
@@ -224,7 +225,7 @@ class Address(StructuredNode):
     street_additional = StringProperty()
     city = StringProperty()
     state = StringProperty(index=True)
-    postal_code = StringProperty()
+    postal_code = StringProperty(index=True)
     country = StringProperty()
     latitude = FloatProperty()
     longitude = FloatProperty()

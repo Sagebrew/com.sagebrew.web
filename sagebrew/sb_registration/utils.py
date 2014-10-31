@@ -2,25 +2,29 @@ import os
 import shortuuid
 import hashlib
 import json
-import urllib
 import boto.ses
 import logging
 from boto.ses.exceptions import SESMaxSendingRateExceededError
-from socket import error as socket_error
 from datetime import date
 from django.conf import settings
 from django.contrib.auth.models import User
+
 from boto import connect_s3
 from boto.s3.key import Key
 from neomodel import DoesNotExist, CypherException
+
 from api.utils import spawn_task
 from plebs.tasks import create_pleb_task
 from plebs.neo_models import TopicCategory, Pleb
 from govtrack.neo_models import GTRole
+from sb_tag.neo_models import SBTag
 
 logger = logging.getLogger('loggly_logs')
 
 def generate_interests_tuple():
+    interests = SBTag.nodes.filter(base=True)
+    for tag in interests:
+        print tag
     cat_instance = TopicCategory.category()
     categories = cat_instance.instance.all()
     # For reasoning behind tuples here look at
@@ -52,7 +56,7 @@ def calc_age(birthday):
 
 def create_address_long_hash(address):
     if ("address2" in address):
-        address_string = "%s%s%s%s%s%s%f%f%s" % (address["street"],
+        address_string = "%s%s%s%s%s%s%f%f%s" % (address["primary_address"],
                                                  address["street_additional"],
                                                  address["city"],
                                                  address["state"],
@@ -63,7 +67,7 @@ def create_address_long_hash(address):
                                                  address[
                                                      "congressional_district"])
     else:
-        address_string = "%s%s%s%s%s%f%f%s" % (address["street"],
+        address_string = "%s%s%s%s%s%f%f%s" % (address["primary_address"],
                                                address["city"],
                                                address["state"],
                                                address["postal_code"],
@@ -76,7 +80,7 @@ def create_address_long_hash(address):
 
     return address_hash
 
-
+"""
 def create_address_string(address):
     if ("address2" in address):
         address_string = "%s, %s, %s, %s %s" % (address["street"],
@@ -155,10 +159,6 @@ def validate_address(address_request):
     return create_address_array(structure)
 
 
-def validate_school(school_name):
-    pass
-
-
 def create_address_array(structure):
     array_of_addresses = []
     for address in structure:
@@ -194,7 +194,10 @@ def compare_address(smarty_address, address_clean):
     temp_address.pop("auth-id", None)
 
     return temp_smarty == temp_address
+"""
 
+def validate_school(school_name):
+    pass
 
 def upload_image(folder_name, file_uuid):
     '''

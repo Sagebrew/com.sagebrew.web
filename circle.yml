@@ -49,8 +49,7 @@ test:
     # points to the local circle instance and the docker instance needs the
     # graphen instance to work
     - docker run -d --name db training/postgres
-    - docker run -h box-worker --name worker_one -P --link db:db
-        -e DB_USER=docker
+    - docker run -h box-worker --name worker_one
         -e NEO4J_REST_URL=$GRAPHEN_NEO4J_REST_URL -e APP_USER=$APP_USER
         -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME
         -e LOG_ACCOUNT=$LOG_ACCOUNT -e LOG_TOKEN=$LOG_TOKEN
@@ -76,7 +75,8 @@ test:
         -e QUEUE_HOST=$QUEUE_HOST
         -e QUEUE_PORT=$QUEUE_PORT
         -d -t sagebrew/sb_worker:$CIRCLE_SHA1
-    - docker run -h box-webapp --name web_app_one -p 443:443 -p 80:80
+    - docker run -h box-webapp --name web_app_one -P --link db:db
+        -e DB_USER=docker -p 443:443 -p 80:80
         -e NEO4J_REST_URL=$GRAPHEN_NEO4J_REST_URL -e APP_USER=$APP_USER
         -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME
         -e LOG_ACCOUNT=$LOG_ACCOUNT -e LOG_TOKEN=$LOG_TOKEN

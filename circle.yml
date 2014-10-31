@@ -100,7 +100,7 @@ test:
         -e QUEUE_HOST=$QUEUE_HOST
         -e QUEUE_PORT=$QUEUE_PORT
         -d -t sagebrew/sb_web:$CIRCLE_SHA1
-    - sleep 120
+    - sleep 30
     - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/
 
 checkout:

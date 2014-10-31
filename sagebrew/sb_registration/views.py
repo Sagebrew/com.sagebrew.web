@@ -1,6 +1,7 @@
 import logging
 from django.conf import settings
 from uuid import uuid1
+from json import dumps
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -33,6 +34,11 @@ def confirm_view(request):
     return render(request, 'verify_email.html')
 
 def signup_view(request):
+    # TODO Need to take the user somewhere and do something with the ajax
+    # from the api.
+    # Need to take them to a 500 error page or something.
+    # Otherwise they just sit at the sign up page
+    # with the button not taking them anywhere.
     return render(request, 'sign_up_page/index.html')
 
 @api_view(['POST'])
@@ -62,6 +68,20 @@ def signup_view_api(request):
                                        cleaned_data['email'],
                                        password=signup_form.
                                        cleaned_data['password'])
+                # TODO if this fails we might want to roll back the user creation
+                # Otherwise we end up creating a user and never actually moving
+                # the user forward. Then when they go to try again they get
+                # a user already exists error
+                # Also need to benchmark process in production/staging
+                # on local instance with docker after clicking sign up the
+                # user sits at the page for a couple seconds prior to being
+                # redirected. This makes it seem as though nothing happened on
+                # click. They click again and it results in an error being provided.
+                # We may have to do a loading greyed out screen while waiting
+                # for a response if the timing takes that long in prod.
+                # Or go over to a pure view implementation without the API.
+                # Just need to look into it when not going through so many
+                # different hops
                 if res and res is not None:
                     user = authenticate(username=res['username'],
                                         password=signup_form.cleaned_data[
@@ -78,9 +98,10 @@ def signup_view_api(request):
                 else:
                     return Response({'detail': 'invalid login'},
                                     status=400)
+        # TODO add a handler for if the form is not valid
     except Exception:
-        logger.exception({'function': signup_view_api.__name__,
-                          'exception': 'UnhandledException: '})
+        logger.exception(dumps({'function': signup_view_api.__name__,
+                                'exception': 'UnhandledException'}))
         return Response({'detail': 'exception'}, status=400)
 
 def login_view(request):
@@ -141,8 +162,8 @@ def login_view_api(request):
             else:
                 return Response({'detail': 'invalid password'}, status=400)
     except Exception:
-        logger.exception({'function': login_view_api.__name__,
-                          'exception': 'UnhandledException: '})
+        logger.exception(dumps({'function': login_view_api.__name__,
+                                'exception': 'UnhandledException'}))
         return Response({'detail': 'unknown exception'}, status=400)
 
 @login_required()
@@ -320,17 +341,17 @@ def profile_picture(request):
     :return:
     '''
     if request.method == 'POST':
-        print 1
         profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
         if profile_picture_form.is_valid():
             try:
                 citizen = Pleb.nodes.get(email=request.user.email)
+                # if citizen.completed_profile_info:
+                #    return redirect('profile_page')
             except Pleb.DoesNotExist:
                 return render(request, 'profile_picture.html',
                               {'profile_picture_form': profile_picture_form})
             image_uuid = uuid1()
             data = request.FILES['picture']
-            print data
             temp_file = '%s%s.jpeg' % (settings.TEMP_FILES, image_uuid)
             with open(temp_file, 'wb+') as destination:
                 for chunk in data.chunks():
@@ -339,7 +360,8 @@ def profile_picture(request):
                                                image_uuid)
             citizen.profile_pic_uuid = image_uuid
             citizen.save()
-            return redirect('profile_page', pleb_email=citizen.email)
+            return redirect('profile_page', pleb_email=citizen.email)  #
+            # citizen.first_name+'_'+citizen.last_name)
     else:
         profile_picture_form = ProfilePictureForm()
     return render(request, 'profile_picture.html',

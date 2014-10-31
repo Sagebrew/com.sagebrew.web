@@ -1,4 +1,5 @@
 import logging
+from json import dumps
 import socket
 import os
 import multiprocessing
@@ -12,12 +13,21 @@ logger = logging.getLogger('loggly_logs')
 class Command(BaseCommand):
     def populate_nginx(self, user):
         circle_branch = os.environ.get("CIRCLE_BRANCH", None)
-        if('dev' in circle_branch or circle_branch == "staging"):
+        circle_ci = os.environ.get("CIRCLECI", False)
+        if circle_ci == "false":
+            circle_ci = False
+        if('dev' in circle_branch):
+            env = "development"
+        # This elif is there so that on Circle the dev nginx file is used
+        # but once deployed to aws the production nginx config is used
+        # This is due to the differences in SSL management. AWS handles it
+        # for us but on circle we have to include it in our nginx files.
+        elif(circle_ci):
             env = "development"
         else:
             env = "production"
         worker_count = (multiprocessing.cpu_count() *2) + 1
-        if worker_count > 12 and os.environ.get("CIRCLECI", False):
+        if worker_count > 12 and circle_ci:
             worker_count = 12
         worker_count = str(worker_count)
         call("sudo chown -R %s:%s /etc/nginx/" % (user, user), shell=True)

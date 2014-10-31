@@ -65,11 +65,7 @@ DEBUG_TOOLBAR_PANELS = (
     # 'cache_panel.panel.CacheDebugPanel',
 )
 
-ELASTIC_SEARCH_HOST = [{'host': environ.get("ELASTIC_SEARCH_HOST", ""),
-                        'port': environ.get("ELASTIC_SEARCH_PORT", ""),
-                        'use_ssl': True,
-                        'http_auth': (environ.get("ELASTIC_SEARCH_USER", ""),
-                                      environ.get("ELASTIC_SEARCH_KEY", ""))
+ELASTIC_SEARCH_HOST = [{'host': environ.get("ELASTIC_SEARCH_HOST", "")
                        }]
 
 

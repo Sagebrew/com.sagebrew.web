@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block css %}
+    {{ block.super }}
+{% endblock css %}
+
+{% block content %}
+<h1>Sorry! We can't allow you to sign up if you're under 13 years of age.</h1>
+{% endblock %}

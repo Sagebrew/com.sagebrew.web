@@ -11,7 +11,7 @@ if circle_ci == "true":
 if(circle_ci is True):
     from test import *
 elif branch is None:
-    from production import *
+    from development import *
 elif "dev" in branch:
     from development import *
 elif branch == "staging":

@@ -15,9 +15,8 @@ from neomodel import DoesNotExist, CypherException
 
 from api.utils import spawn_task
 from plebs.tasks import create_pleb_task
-from plebs.neo_models import TopicCategory, Pleb
+from plebs.neo_models import Pleb
 from govtrack.neo_models import GTRole
-from sb_tag.neo_models import SBTag
 
 logger = logging.getLogger('loggly_logs')
 
@@ -30,7 +29,8 @@ def calc_age(birthday):
     :return:
     '''
     today = date.today()
-    return today.year - birthday.year - ((today.month, today.day) < (birthday.month - birthday.day))
+    return today.year - birthday.year - ((today.month, today.day)
+                                         < (birthday.month - birthday.day))
 
 def create_address_long_hash(address):
     if ("address2" in address):

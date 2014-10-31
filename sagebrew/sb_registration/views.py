@@ -34,6 +34,9 @@ logger = logging.getLogger('loggly_logs')
 def confirm_view(request):
     return render(request, 'verify_email.html')
 
+def age_restriction():
+    pass
+
 def signup_view(request):
     # TODO Need to take the user somewhere and do something with the ajax
     # from the api.
@@ -220,6 +223,8 @@ def profile_information(request):
     if citizen.completed_profile_info:
         return redirect("interests")
     if profile_information_form.is_valid():
+        if calc_age(profile_information_form.cleaned_data['date_of_birth'])<13:
+            return redirect("age_restriction_13.html")
         citizen.date_of_birth = profile_information_form.cleaned_data[
             "date_of_birth"]
         citizen.home_town = profile_information_form.cleaned_data["home_town"]
@@ -292,22 +297,28 @@ def interests(request):
     :param request:
     :return: HttpResponse
     '''
-    interest_form = InterestForm(request.POST or None)
-    if interest_form.is_valid():
-        try:
-            citizen = Pleb.nodes.get(email=request.user.email)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            redirect("404_Error")
-        for item in interest_form.cleaned_data:
-            if interest_form.cleaned_data[item]:
-                try:
-                    tag = SBTag.nodes.get(tag_name=item)
-                except (SBTag.DoesNotExist, DoesNotExist):
-                    redirect("404_Error")
-                citizen.interests.connect(tag)
-        return redirect('profile_picture')
+    try:
+        interest_form = InterestForm(request.POST or None)
+        if interest_form.is_valid():
+            try:
+                citizen = Pleb.nodes.get(email=request.user.email)
+            except (Pleb.DoesNotExist, DoesNotExist):
+                redirect("404_Error")
+            for item in interest_form.cleaned_data:
+                if interest_form.cleaned_data[item]:
+                    try:
+                        tag = SBTag.nodes.get(tag_name=item)
+                    except (SBTag.DoesNotExist, DoesNotExist):
+                        return redirect("404_Error")
+                    citizen.interests.connect(tag)
+            return redirect('profile_picture')
 
-    return render(request, 'interests.html', {'interest_form': interest_form})
+        return render(request, 'interests.html',
+                      {'interest_form': interest_form})
+    except Exception:
+        logger.exception(dumps({"function": interests.__name__,
+                                "exception": "UnhandledException: "}))
+        return redirect("404_Error")
 
 
 @login_required()

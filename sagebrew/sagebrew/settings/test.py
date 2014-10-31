@@ -10,13 +10,6 @@ WEB_ADDRESS = "https://127.0.0.1:8080"
 
 VERIFY_SECURE = False
 
-# TODO this makes it so we cannot run tests concurrently (parallel processing in
-# circle. This is because the test db gets created on this server and then
-# if another one starts running it fails. Might want to look into making a
-# separate test config again that uses a local psql db based on circles docs.
-# TODO make a dummy db in docker incase it doesn't have an external db for
-# testing. Should also log this someway so we ensure it doesn't default to
-# this in staging or production
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',

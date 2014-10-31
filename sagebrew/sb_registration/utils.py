@@ -211,7 +211,7 @@ def upload_image(folder_name, file_uuid):
     '''
     file_path = '%s%s.%s' % (settings.TEMP_FILES, file_uuid, 'jpeg')
 
-    bucket = settings.AWS_BUCKET_NAME
+    bucket = settings.AWS_STORAGE_BUCKET_NAME
     conn = connect_s3(settings.AWS_ACCESS_KEY_ID,
                       settings.AWS_SECRET_ACCESS_KEY)
     k = Key(conn.get_bucket(bucket))
@@ -223,7 +223,7 @@ def upload_image(folder_name, file_uuid):
     return image_uri
 
 def generate_profile_pic_url(image_uuid):
-    bucket = settings.AWS_BUCKET_NAME
+    bucket = settings.AWS_STORAGE_BUCKET_NAME
     conn = connect_s3(settings.AWS_ACCESS_KEY_ID,
                       settings.AWS_SECRET_ACCESS_KEY)
     k = Key(conn.get_bucket(bucket))

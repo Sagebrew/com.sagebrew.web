@@ -43,8 +43,8 @@ test:
     #- pep8 --show-source --exclude='~/com.sagebrew.web/sagebrew/api/alchemyapi.py` --show-pep8 ~/com.sagebrew.web/sagebrew/
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
     - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg
-    - docker build --no-cache -t sagebrew/sb_worker:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/worker/
-    - docker build --no-cache -t sagebrew/sb_web:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/web_app/
+    - docker build -t sagebrew/sb_worker:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/worker/
+    - docker build -t sagebrew/sb_web:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/web_app/
     # DO NOT CHANGE GRAPHEN_NEO4J_REST_URL to NEO4J_REST_URL the NEO4J_REST_URL
     # points to the local circle instance and the docker instance needs the
     # graphen instance to work

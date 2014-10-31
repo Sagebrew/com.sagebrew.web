@@ -62,10 +62,6 @@ MEDIA_URL = '/media/'
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/var/www/example.com/static/"
 
-# URL prefix for static files.
-# Example: "http://example.com/static/", "http://static.example.com/"
-STATIC_URL = '/static/'
-
 # Additional locations of static files
 STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
@@ -214,7 +210,11 @@ CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 CELERY_ALWAYS_EAGER = False
 CELERY_IGNORE_RESULT = False
 
-AWS_BUCKET_NAME = environ.get("AWS_S3_BUCKET", "")
+AWS_STORAGE_BUCKET_NAME = environ.get("AWS_S3_BUCKET", "")
+STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+S3_URL = 'http://%s.s3.amazonaws.com/' % AWS_STORAGE_BUCKET_NAME
+STATIC_URL = "%s%s" % (S3_URL, "/static/")
+
 AWS_ACCESS_KEY_ID = environ.get("AWS_ACCESS_KEY_ID", "")
 AWS_SECRET_ACCESS_KEY = environ.get("AWS_SECRET_ACCESS_KEY", "")
 AWS_PROFILE_PICTURE_FOLDER_NAME = 'profile_pictures'

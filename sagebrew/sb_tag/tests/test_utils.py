@@ -156,10 +156,3 @@ class TestCreateAutoTagRelationships(TestCase):
         res = create_tag_relations([])
 
         self.assertFalse(res)
-
-    def test_create_auto_tag_relationship_tag_does_not_exist(self):
-        tag_list = ['test', 'sending', 'string', 'instead', 'of', 'object']
-        res = create_tag_relations(tag_list)
-
-        self.assertFalse(res)
-

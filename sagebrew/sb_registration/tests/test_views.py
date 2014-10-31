@@ -1,3 +1,4 @@
+import time
 import shortuuid
 from uuid import uuid1
 from json import loads
@@ -8,6 +9,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
 from django.test import TestCase, RequestFactory
 from django.contrib.sessions.backends.db import SessionStore
+from django.core.management import call_command
 from rest_framework.test import APIRequestFactory
 
 from api.utils import test_wait_util
@@ -15,27 +17,65 @@ from sb_registration.views import (profile_information, confirm_view,
                                    signup_view_api, signup_view, logout_view,
                                    login_view, login_view_api,
                                    resend_email_verification,
-                                   email_verification,)
+                                   email_verification, interests)
 from sb_registration.models import EmailAuthTokenGenerator
 from sb_registration.utils import create_user_util
 from plebs.neo_models import Pleb, Address
 
 
 class InterestsTest(TestCase):
-    def setup(self):
-        self.user = User.objects.get(pk=2)
+    def setUp(self):
+        call_command("create_prepopulated_tags")
+        time.sleep(3)
+        self.factory = RequestFactory()
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.pleb.email_verified = True
+        self.pleb.completed_profile_info = True
+        self.pleb.save()
 
-    def test_no_categories_no_topics_selected(self):
-        pass
+    def test_no_topics_selected(self):
+        my_dict = {"fiscal": False, "education": False, "space": False,
+                   "drugs": False, "science": False, "energy": False,
+                   "environment": False, "defense": False, "health": False,
+                   "social": False, "foreign_policy": False,
+                   "agriculture": False}
+        request = self.factory.post('/registration/interests',
+                                    data=my_dict)
+        request.user = self.user
+        response = interests(request)
 
-    def test_all_categories_no_topics_selected(self):
-        pass
+        self.assertEqual(response.status_code, 302)
 
-    def test_all_topics_no_cat_selected(self):
-        pass
+    def test_all_topics_selected(self):
+        my_dict = {"fiscal": True, "education": True, "space": True,
+                   "drugs": True, "science": True, "energy": True,
+                   "environment": True, "defense": True, "health": True,
+                   "social": True, "foreign_policy": True,
+                   "agriculture": True}
+        request = self.factory.post('/registration/interests',
+                                    data=my_dict)
+        request.user = self.user
+        response = interests(request)
 
-    def test_all_categories_all_topics_selected(self):
-        pass
+        self.assertEqual(response.status_code, 302)
+
+    def test_some_topics_selected(self):
+        my_dict = {"fiscal": False, "education": True, "space": False,
+                   "drugs": True, "science": True, "energy": True,
+                   "environment": False, "defense": True, "health": False,
+                   "social": True, "foreign_policy": True,
+                   "agriculture": False}
+        request = self.factory.post('/registration/interests',
+                                    data=my_dict)
+        request.user = self.user
+        response = interests(request)
+
+        self.assertEqual(response.status_code, 302)
 
     def test_random_cat_selected_no_topics_selected(self):
         pass
@@ -47,7 +87,11 @@ class InterestsTest(TestCase):
         pass
 
     def test_get_request(self):
-        pass
+        request = self.factory.get('/registration/interests')
+        request.user = self.user
+        response = interests(request)
+
+        self.assertEqual(response.status_code, 200)
 
 
 class TestProfileInfoView(TestCase):

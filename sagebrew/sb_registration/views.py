@@ -292,22 +292,28 @@ def interests(request):
     :param request:
     :return: HttpResponse
     '''
-    interest_form = InterestForm(request.POST or None)
-    if interest_form.is_valid():
-        try:
-            citizen = Pleb.nodes.get(email=request.user.email)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            redirect("404_Error")
-        for item in interest_form.cleaned_data:
-            if interest_form.cleaned_data[item]:
-                try:
-                    tag = SBTag.nodes.get(tag_name=item)
-                except (SBTag.DoesNotExist, DoesNotExist):
-                    redirect("404_Error")
-                citizen.interests.connect(tag)
-        return redirect('profile_picture')
+    try:
+        interest_form = InterestForm(request.POST or None)
+        if interest_form.is_valid():
+            try:
+                citizen = Pleb.nodes.get(email=request.user.email)
+            except (Pleb.DoesNotExist, DoesNotExist):
+                redirect("404_Error")
+            for item in interest_form.cleaned_data:
+                if interest_form.cleaned_data[item]:
+                    try:
+                        tag = SBTag.nodes.get(tag_name=item)
+                    except (SBTag.DoesNotExist, DoesNotExist):
+                        return redirect("404_Error")
+                    citizen.interests.connect(tag)
+            return redirect('profile_picture')
 
-    return render(request, 'interests.html', {'interest_form': interest_form})
+        return render(request, 'interests.html',
+                      {'interest_form': interest_form})
+    except Exception:
+        logger.exception(dumps({"function": interests.__name__,
+                                "exception": "UnhandledException: "}))
+        return redirect("404_Error")
 
 
 @login_required()

@@ -264,7 +264,7 @@ OBJECT_SEARCH_MODIFIERS = {
     'seen_page': 20
 }
 
-BASE_TAGS = ["fiscal", "foreign policy", "social", "education", "science",
+BASE_TAGS = ["fiscal", "foreign_policy", "social", "education", "science",
              "environment", "drugs", "agriculture", "defense", "energy",
              "health", "space"]
 

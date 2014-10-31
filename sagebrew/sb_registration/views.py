@@ -14,13 +14,14 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from neomodel import DoesNotExist, AttemptedCardinalityViolation
 
+from sb_tag.neo_models import SBTag
 from api.utils import spawn_task
 from plebs.tasks import send_email_task
 from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm,
                     LoginForm)
-from .utils import (generate_interests_tuple, upload_image,
+from .utils import (upload_image,
                     create_address_long_hash, verify_completed_registration,
                     verify_verified_email, calc_age,
                     create_user_util)
@@ -292,34 +293,18 @@ def interests(request):
     :return: HttpResponse
     '''
     interest_form = InterestForm(request.POST or None)
-    choices_tuple = generate_interests_tuple()
-    interest_form.fields["specific_interests"].choices = choices_tuple
     if interest_form.is_valid():
+        try:
+            citizen = Pleb.nodes.get(email=request.user.email)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            redirect("404_Error")
         for item in interest_form.cleaned_data:
-            if (interest_form.cleaned_data[item] and
-                        item != "specific_interests"):
+            if interest_form.cleaned_data[item]:
                 try:
-                    citizen = Pleb.nodes.get(email=request.user.email)
-                    if citizen.completed_profile_info:
-                        return redirect('profile_picture')
-                except Pleb.DoesNotExist:
+                    tag = SBTag.nodes.get(tag_name=item)
+                except (SBTag.DoesNotExist, DoesNotExist):
                     redirect("404_Error")
-                try:
-                    category_object = TopicCategory.nodes.get(
-                        title=item.capitalize())
-                    for topic in category_object.sb_topics.all():
-                        # citizen.sb_topics.connect(topic)
-                        pass
-                        # citizen.topic_category.connect(category_object)
-                except TopicCategory.DoesNotExist:
-                    redirect("404_Error")
-
-        for topic in interest_form.cleaned_data["specific_interests"]:
-            try:
-                interest_object = SBTopic.nodes.get(title=topic)
-            except SBTopic.DoesNotExist:
-                redirect("404_Error")
-                # citizen.sb_topics.connect(interest_object)
+                citizen.interests.connect(tag)
         return redirect('profile_picture')
 
     return render(request, 'interests.html', {'interest_form': interest_form})

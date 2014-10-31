@@ -211,9 +211,10 @@ CELERY_ALWAYS_EAGER = False
 CELERY_IGNORE_RESULT = False
 
 AWS_STORAGE_BUCKET_NAME = environ.get("AWS_S3_BUCKET", "")
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-S3_URL = 'http://%s.s3.amazonaws.com/' % AWS_STORAGE_BUCKET_NAME
-STATIC_URL = "%s%s" % (S3_URL, "/static/")
+S3_URL = 'http://%s.s3.amazonaws.com/%s' % (AWS_STORAGE_BUCKET_NAME, "/static/")
+STATIC_URL = S3_URL
 
 AWS_ACCESS_KEY_ID = environ.get("AWS_ACCESS_KEY_ID", "")
 AWS_SECRET_ACCESS_KEY = environ.get("AWS_SECRET_ACCESS_KEY", "")

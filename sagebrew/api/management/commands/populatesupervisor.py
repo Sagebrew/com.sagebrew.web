@@ -52,6 +52,10 @@ def populate_general_values(data, user, worker_count):
     data = data.replace("%(NUMBER_OF_WORKERS)s", worker_count)
     data = data.replace("%(ENV_REPO_NAME)s",
                         environ.get("REPO_NAME", "sagebrew"))
+    data = data.replace("%(ENV_CIRCLECI)s",
+                        environ.get("CIRCLECI", "false"))
+    data = data.replace("%(ENV_CIRCLE_BRANCH)s",
+                        environ.get("CIRCLE_BRANCH", "master"))
     data = data.replace("%(ENV_CIRCLE_ARTIFACTS)s",
                         environ.get("CIRCLE_ARTIFACTS", "/home/apps/logs/"))
     data = data.replace("%(ENV_PROJECT_DIR)s", settings.PROJECT_DIR)

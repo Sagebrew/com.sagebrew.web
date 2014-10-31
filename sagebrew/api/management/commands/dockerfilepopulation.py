@@ -108,7 +108,7 @@ def populate_test_env(data):
     return data
 
 def populate_prod_env(data):
-    data = data.replace('{{REQUIREMENTS_FILE}}', "base")
+    data = data.replace('{{REQUIREMENTS_FILE}}', "production")
     data = data.replace('{{BOMBERMAN_API_KEY}}', os.environ.get(
         "BOMBERMAN_API_KEY_PROD", ""))
     data = data.replace('{{NEO4J_REST_URL}}',
@@ -145,7 +145,7 @@ def populate_prod_env(data):
     return data
 
 def populate_staging_env(data):
-    data = data.replace('{{REQUIREMENTS_FILE}}', "base")
+    data = data.replace('{{REQUIREMENTS_FILE}}', "production")
     data = data.replace('{{BOMBERMAN_API_KEY}}', os.environ.get(
         "BOMBERMAN_API_KEY_STAGING", ""))
     data = data.replace('{{NEO4J_REST_URL}}',

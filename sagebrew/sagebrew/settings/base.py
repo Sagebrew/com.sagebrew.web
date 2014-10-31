@@ -210,10 +210,12 @@ CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 CELERY_ALWAYS_EAGER = False
 CELERY_IGNORE_RESULT = False
 
-AWS_STORAGE_BUCKET_NAME = environ.get("AWS_S3_BUCKET", "")
+AWS_STORAGE_BUCKET_NAME = "%s%s" % (environ.get("AWS_S3_BUCKET", ""),
+                                    "/static")
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-S3_URL = 'http://%s.s3.amazonaws.com/%s' % (AWS_STORAGE_BUCKET_NAME, "/static/")
+
+S3_URL = 'http://s3.amazonaws.com/%s/' % (AWS_STORAGE_BUCKET_NAME)
 STATIC_URL = S3_URL
 
 AWS_ACCESS_KEY_ID = environ.get("AWS_ACCESS_KEY_ID", "")

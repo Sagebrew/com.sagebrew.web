@@ -8,8 +8,7 @@ import multiprocessing
 
 PROJECT_DIR = Path(__file__).ancestor(3)
 REPO_DIR = Path(__file__).ancestor(4)
-MEDIA_ROOT = PROJECT_DIR.child("media")
-STATIC_ROOT = PROJECT_DIR.child("static")
+
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -51,11 +50,6 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
-
-# URL that handles the media served from MEDIA_ROOT. Make sure to use a
-# trailing slash.
-# Examples: "http://example.com/media/", "http://media.example.com/"
-MEDIA_URL = '/media/'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
@@ -209,14 +203,14 @@ CELERY_DISABLE_RATE_LIMITS = True
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 CELERY_ALWAYS_EAGER = False
 CELERY_IGNORE_RESULT = False
+AWS_S3_SECURE_URLS = True
+AWS_STORAGE_BUCKET_NAME = environ.get("AWS_S3_BUCKET")
+DEFAULT_FILE_STORAGE = 'sagebrew.s3utils.MediaRootS3BotoStorage'
+STATICFILES_STORAGE = 'sagebrew.s3utils.StaticRootS3BotoStorage'
 
-AWS_STORAGE_BUCKET_NAME = "%s%s" % (environ.get("AWS_S3_BUCKET", ""),
-                                    "/static")
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-
-S3_URL = 'http://s3.amazonaws.com/%s/' % (AWS_STORAGE_BUCKET_NAME)
-STATIC_URL = S3_URL
+S3_URL = 'http://%s.s3.amazonaws.com/' % (AWS_STORAGE_BUCKET_NAME)
+STATIC_URL = "%s%s" % (S3_URL, "static/")
+MEDIA_URL = "%s%s" % (S3_URL, "media/")
 
 AWS_ACCESS_KEY_ID = environ.get("AWS_ACCESS_KEY_ID", "")
 AWS_SECRET_ACCESS_KEY = environ.get("AWS_SECRET_ACCESS_KEY", "")

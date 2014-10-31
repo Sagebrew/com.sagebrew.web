@@ -99,6 +99,7 @@ class Pleb(StructuredNode):
     employer = RelationshipTo("Company", "WORKS_AT")
     address = RelationshipTo("Address", "LIVES_AT", cardinality=ZeroOrOne)
     topic_category = RelationshipTo("TopicCategory", "INTERESTED_IN")
+    interests = RelationshipTo("sb_tag.neo_models.SBTag", "INTERESTED_IN")
     sb_topics = RelationshipTo("SBTopic", "INTERESTED_IN")
     friends = RelationshipTo("Pleb", "FRIENDS_WITH", model=FriendRelationship)
     senator = RelationshipTo("govtrack.neo_models.GTRole",

@@ -320,17 +320,17 @@ def profile_picture(request):
     :return:
     '''
     if request.method == 'POST':
+        print 1
         profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
         if profile_picture_form.is_valid():
             try:
                 citizen = Pleb.nodes.get(email=request.user.email)
-                # if citizen.completed_profile_info:
-                #    return redirect('profile_page')
             except Pleb.DoesNotExist:
                 return render(request, 'profile_picture.html',
                               {'profile_picture_form': profile_picture_form})
             image_uuid = uuid1()
             data = request.FILES['picture']
+            print data
             temp_file = '%s%s.jpeg' % (settings.TEMP_FILES, image_uuid)
             with open(temp_file, 'wb+') as destination:
                 for chunk in data.chunks():
@@ -339,8 +339,7 @@ def profile_picture(request):
                                                image_uuid)
             citizen.profile_pic_uuid = image_uuid
             citizen.save()
-            return redirect('profile_page', pleb_email=citizen.email)  #
-            # citizen.first_name+'_'+citizen.last_name)
+            return redirect('profile_page', pleb_email=citizen.email)
     else:
         profile_picture_form = ProfilePictureForm()
     return render(request, 'profile_picture.html',

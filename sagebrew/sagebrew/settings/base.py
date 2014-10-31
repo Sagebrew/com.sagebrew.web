@@ -267,6 +267,10 @@ OBJECT_SEARCH_MODIFIERS = {
     'seen_page': 20
 }
 
+BASE_TAGS = ["fiscal", "foreign policy", "social", "education", "science",
+             "environment", "drugs", "agriculture", "defense", "energy",
+             "health", "space"]
+
 # TODO When doing load testing and beta testing ensure that LOGGING of DB is on
 # and at w/e level we need to check response times. We might be able to
 # determine it from new relic but we should check into that prior to moving

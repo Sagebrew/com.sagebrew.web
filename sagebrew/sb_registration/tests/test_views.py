@@ -1,4 +1,5 @@
 import shortuuid
+from uuid import uuid1
 from json import loads
 from base64 import b64encode
 
@@ -63,7 +64,7 @@ class TestProfileInfoView(TestCase):
         self.pleb.save()
         addresses = Address.nodes.all()
         for address in addresses:
-            if address.address.is_connected(self.pleb):
+            if self.pleb.address.is_connected(address):
                 address.address.disconnect(self.pleb)
                 self.pleb.address.disconnect(address)
 
@@ -182,23 +183,6 @@ class TestProfileInfoView(TestCase):
 
         self.assertEqual(response.status_code, 302)
 
-    def test_profile_information_success_invalid_original_selected(self):
-        my_dict = {"city": ["Walled Lake"], "home_town": [],
-                   "country": ["United States"],
-                   "address_additional": [], "employer": [],
-                   "state": "MI", "date_of_birth": ["06/04/94"],
-                   "college": [], "primary_address": ["125 Glenwood Dr"],
-                   "high_school": [], "postal_code": ["48390"],
-                   "valid": "invalid", "original_selected": True,
-                   "congressional_district": 11, "longitude": -83.4965,
-                   "latitude": 42.53202}
-        request = self.factory.post('/registration/profile_information',
-                                    data=my_dict)
-        request.user = self.user
-        response = profile_information(request)
-
-        self.assertEqual(response.status_code, 302)
-
     def test_profile_information_address_not_in_smartystreets(self):
         my_dict = {"city": ["Walled Lake"], "home_town": [],
                    "country": ["United States"],
@@ -240,6 +224,60 @@ class TestProfileInfoView(TestCase):
         response = profile_information(request)
 
         self.assertIn(response.status_code, [200,302])
+
+    def test_profile_information_view_already_has_address_valid(self):
+        my_dict = {"city": ["Walled Lake"], "home_town": [],
+                   "country": ["United States"],
+                   "address_additional": [], "employer": [],
+                   "state": "MI", "date_of_birth": ["06/04/94"],
+                   "college": [], "primary_address": ["125 Glenwood Dr"],
+                   "high_school": [], "postal_code": ["48390"], "valid": "valid",
+                   "congressional_district": 11, "longitude": -83.4965,
+                   "latitude": 42.53202}
+        request = self.factory.post('/registration/profile_information',
+                                    data=my_dict)
+        address = Address(address_hash=str(uuid1())).save()
+        self.pleb.address.connect(address)
+        request.user = self.user
+        response = profile_information(request)
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_profile_information_view_already_has_address_invalid(self):
+        my_dict = {"city": ["Walled Lake"], "home_town": [],
+                   "country": ["United States"],
+                   "address_additional": [], "employer": [],
+                   "state": "MI", "date_of_birth": ["06/04/94"],
+                   "college": [], "primary_address": ["125 Glenwood Dr"],
+                   "high_school": [], "postal_code": ["48390"],
+                   "valid": "invalid", "original_selected": True,
+                   "congressional_district": 11, "longitude": -83.4965,
+                   "latitude": 42.53202}
+        request = self.factory.post('/registration/profile_information',
+                                    data=my_dict)
+        address = Address(address_hash=str(uuid1())).save()
+        self.pleb.address.connect(address)
+        request.user = self.user
+        response = profile_information(request)
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_profile_information_view_invalid_address(self):
+        my_dict = {"city": ["Walled Lake"], "home_town": [],
+                   "country": ["United States"],
+                   "address_additional": [], "employer": [],
+                   "state": "MI", "date_of_birth": ["06/04/94"],
+                   "college": [], "primary_address": ["125 Glenwood Dr"],
+                   "high_school": [], "postal_code": ["48390"],
+                   "valid": "invalid", "original_selected": True,
+                   "congressional_district": 11, "longitude": -83.4965,
+                   "latitude": 42.53202}
+        request = self.factory.post('/registration/profile_information',
+                                    data=my_dict)
+        request.user = self.user
+        response = profile_information(request)
+
+        self.assertEqual(response.status_code, 302)
 
 class TestSignupView(TestCase):
     def setUp(self):

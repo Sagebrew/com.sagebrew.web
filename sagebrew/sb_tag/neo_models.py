@@ -11,6 +11,7 @@ class FrequentTagModel(StructuredRel):
 class SBTag(StructuredNode):
     tag_name = StringProperty(unique_index=True)
     tag_used = IntegerProperty(default=0)
+    base = BooleanProperty(default=False)
     
     #relationships
     posts = RelationshipTo('sb_posts.neo_models.SBPost', 'POSTS_TAGGED')

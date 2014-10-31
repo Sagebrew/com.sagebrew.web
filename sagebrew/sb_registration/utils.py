@@ -17,10 +17,14 @@ from api.utils import spawn_task
 from plebs.tasks import create_pleb_task
 from plebs.neo_models import TopicCategory, Pleb
 from govtrack.neo_models import GTRole
+from sb_tag.neo_models import SBTag
 
 logger = logging.getLogger('loggly_logs')
 
 def generate_interests_tuple():
+    interests = SBTag.nodes.filter(base=True)
+    for tag in interests:
+        print tag
     cat_instance = TopicCategory.category()
     categories = cat_instance.instance.all()
     # For reasoning behind tuples here look at

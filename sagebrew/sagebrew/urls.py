@@ -38,11 +38,3 @@ urlpatterns = patterns('',
                        (r'^search/', include('sb_search.urls')),
                        (r'^tags/', include('sb_tag.urls')),
 )
-
-if settings.DEBUG:
-    urlpatterns += patterns('',
-                            (r'^media/(?P<path>.*)$',
-                             'django.views.static.serve',
-                             {'document_root': settings.MEDIA_ROOT,
-                              'show_indexes': True}),
-    )

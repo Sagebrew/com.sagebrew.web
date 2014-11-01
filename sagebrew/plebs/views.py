@@ -18,7 +18,7 @@ logger = logging.getLogger('loggly_logs')
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
-def profile_page(request, pleb_email):
+def profile_page(request, pleb_username=""):
     '''
     Displays the users profile_page. This is where we call the functions to
     determine
@@ -41,15 +41,11 @@ def profile_page(request, pleb_email):
     '''
     try:
         citizen = Pleb.nodes.get(email=request.user.email)
-        page_user_pleb = Pleb.nodes.get(email=pleb_email)
-    except Pleb.DoesNotExist:
-        logger.critical("Pleb does not exist")
-        redirect('404_Error')
-    except DoesNotExist:
-        logger.critical("Pleb does not exist D")
+        page_user_pleb = Pleb.nodes.get(username=pleb_username)
+    except (Pleb.DoesNotExist, DoesNotExist):
         redirect('404_Error')
     current_user = request.user
-    page_user = User.objects.get(email=pleb_email)
+    page_user = User.objects.get(email=page_user_pleb.email)
     is_owner = False
     is_friend = False
     friends_list = get_friends(citizen.email)
@@ -99,7 +95,7 @@ def get_user_search_view(request, pleb_email=""):
 
 
 @login_required()
-def about_page(request, pleb_email):
+def about_page(request, pleb_username):
     '''
     Displays the users profile_page. This is where we call the functions to
     determine
@@ -120,9 +116,12 @@ def about_page(request, pleb_email):
     :param request:
     :return:
     '''
-    citizen = Pleb.nodes.get(email=pleb_email)
+    try:
+        citizen = Pleb.nodes.get(username=pleb_username)
+    except (Pleb.DoesNotExist, DoesNotExist):
+        return redirect("404_Error")
     current_user = request.user
-    page_user = User.objects.get(email=pleb_email)
+    page_user = User.objects.get(email=citizen.email)
     is_owner = False
     is_friend = False
     friends_list = get_friends(citizen.email)
@@ -153,7 +152,7 @@ def about_page(request, pleb_email):
 
 
 @login_required()
-def reputation_page(request, pleb_email):
+def reputation_page(request, pleb_username):
     '''
     Displays the users profile_page. This is where we call the functions to
     determine
@@ -174,9 +173,12 @@ def reputation_page(request, pleb_email):
     :param request:
     :return:
     '''
-    citizen = Pleb.nodes.get(email=pleb_email)
+    try:
+        citizen = Pleb.nodes.get(username=pleb_username)
+    except (Pleb.DoesNotExist, DoesNotExist):
+        return redirect("404_Error")
     current_user = request.user
-    page_user = User.objects.get(email=pleb_email)
+    page_user = User.objects.get(email=citizen.email)
     is_owner = False
     is_friend = False
     friends_list = get_friends(citizen.email)
@@ -206,7 +208,7 @@ def reputation_page(request, pleb_email):
     })
 
 @login_required()
-def friends_page(request, pleb_email):
+def friends_page(request, pleb_username):
     '''
     Displays the users profile_page. This is where we call the functions to
     determine
@@ -227,9 +229,12 @@ def friends_page(request, pleb_email):
     :param request:
     :return:
     '''
-    citizen = Pleb.nodes.get(email=pleb_email)
+    try:
+        citizen = Pleb.nodes.get(username=pleb_username)
+    except (Pleb.DoesNotExist, DoesNotExist):
+        return redirect("404_Error")
     current_user = request.user
-    page_user = User.objects.get(email=pleb_email)
+    page_user = User.objects.get(email=citizen.email)
     is_owner = False
     is_friend = False
     friends_list = get_friends(citizen.email)

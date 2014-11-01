@@ -1,10 +1,13 @@
+import re
 import shortuuid
 from datetime import datetime
 import pytz
+
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, db, ZeroOrOne)
 
+from api.utils import execute_cypher_query
 from sb_relationships.neo_models import (FriendRelationship,
                                          UserWeightRelationship)
 from sb_posts.neo_models import RelationshipWeight
@@ -209,14 +212,18 @@ class Pleb(StructuredNode):
     def generate_username(self):
         temp_username = str(self.first_name).lower() + \
                         str(self.last_name).lower()
+        temp_username = re.sub('[^a-z0-9]+', '', temp_username)
         try:
             pleb = Pleb.nodes.get(username=temp_username)
-            # TODO if first name and last name = the current one get a
-            # count of how many then add one
-            self.username = shortuuid.ShortUUID()
+            query = 'match (p:Pleb) where p.first_name="%s" and ' \
+                    'p.last_name="%s" return p' % (self.first_name,
+                                                   self.last_name)
+            res = execute_cypher_query(query)
+            self.username = temp_username+str((len(res[0])+1))
             self.save()
         except Pleb.DoesNotExist:
             self.username = temp_username
+            self.save()
 
 
 

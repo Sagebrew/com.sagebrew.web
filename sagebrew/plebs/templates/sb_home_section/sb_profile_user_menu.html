@@ -6,19 +6,19 @@
     </div>
     <div class="col-lg-8 col-md-8 col-sm-8 hidden-xs">
     <div class="sb_profile_btn_menu_group btn-group">
-        <a href="{% url 'profile_page' pleb_info.email %}"
+        <a href="{% url 'profile_page' pleb_info.username %}"
            type="button"
            id="sb_btn_home"
            class="btn sb_profile_menu_btn">Home</a>
-        <a href="{% url 'about_page' pleb_info.email %}"
+        <a href="{% url 'about_page' pleb_info.username %}"
            type="button"
            id="sb_btn_about"
            class="btn sb_profile_menu_btn">About</a>
-        <a href="{% url 'reputation_page' pleb_info.email %}"
+        <a href="{% url 'reputation_page' pleb_info.username %}"
            type="button"
            id="sb_btn_reputation"
            class="btn sb_profile_menu_btn">Reputation</a>
-           <a href='{% url 'friends_page' pleb_info.email %}'
+           <a href='{% url 'friends_page' pleb_info.username %}'
            type="button"
            id="sb_btn_friends"
            class="btn sb_profile_menu_btn">Friends</a>

@@ -362,7 +362,6 @@ class TestSearchResultAPIReturns(TestCase):
                      'question_content': question1.question_content,
                      'related_user': self.user.email
                  })
-        print index_res
         self.assertTrue(index_res['created'])
         time.sleep(2)
         self.client.login(username=self.user.username, password='password')

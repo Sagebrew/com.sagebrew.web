@@ -1,9 +1,9 @@
 from django.conf.urls import patterns, url
 
 from .views import (profile_information, interests, profile_picture,
-                    signup_view, signup_view_api, login_view, logout_view,
+                    signup_view, signup_view_api,
                     login_view_api, email_verification, confirm_view,
-                    resend_email_verification)
+                    resend_email_verification, age_restriction)
 
 
 urlpatterns = patterns(
@@ -15,6 +15,7 @@ urlpatterns = patterns(
     url(r'^profile_information/$', profile_information, name="profile_info"),
     url(r'^interests/$', interests, name="interests"),
     url(r'^profile_picture/$', profile_picture, name="profile_picture"),
+    url(r'^age_restriction/$', age_restriction, name="age_restriction_13"),
     url(r'^email_confirmation/resend/$', resend_email_verification,
         name="resend_verification"),
     url(r'^email_confirmation/(?P<confirmation>[A-Za-z0-9.@_%+-]{24})/$',

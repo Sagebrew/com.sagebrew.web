@@ -1,5 +1,4 @@
 from django.conf.urls import include
-from django.conf import settings
 from django.http import HttpResponse
 from django.contrib import admin
 from django.views.generic.base import RedirectView, TemplateView
@@ -38,11 +37,3 @@ urlpatterns = patterns('',
                        (r'^search/', include('sb_search.urls')),
                        (r'^tags/', include('sb_tag.urls')),
 )
-
-if settings.DEBUG:
-    urlpatterns += patterns('',
-                            (r'^media/(?P<path>.*)$',
-                             'django.views.static.serve',
-                             {'document_root': settings.MEDIA_ROOT,
-                              'show_indexes': True}),
-    )

@@ -6,7 +6,6 @@ from neomodel.exception import UniqueProperty, DoesNotExist, CypherException
 
 from .neo_models import SBAutoTag, SBTag
 from sb_questions.neo_models import SBQuestion
-from sb_answers.neo_models import SBAnswer
 
 logger = logging.getLogger('loggly_logs')
 
@@ -34,9 +33,6 @@ def create_tag_relations(tags):
                 else:
                     rel = tag.frequently_auto_tagged_with.connect(item)
                     rel.save()
-            # TODO is this needed since temp_list is assigned to tags at the
-            # start of the for loop?
-            temp_list = []
         return True
 
     except Exception:
@@ -61,7 +57,7 @@ def add_auto_tags_util(tag_list):
                     question = SBQuestion.nodes.get(question_id=
                                                     tag['object_uuid'])
                 except (SBQuestion.DoesNotExist, DoesNotExist):
-                    return None
+                    return SBQuestion.DoesNotExist
                 relevance = tag['tags']['relevance']
                 tag = SBAutoTag.nodes.get(tag_name=tag['tags']['text'])
                 rel = question.auto_tags.connect(tag)
@@ -82,19 +78,19 @@ def add_auto_tags_util(tag_list):
                     tag_array.append(tag)
                 except UniqueProperty:
                     logger.exception({'function': add_auto_tags_util.__name__,
-                                      'exception': "UniqueProperty: "})
-                    return None
+                                      'exception': "UniqueProperty"})
+                    return UniqueProperty
 
             except KeyError:
-                return False
+                return KeyError
 
             except IndexError:
-                return False
+                return IndexError
 
             except Exception:
                 logger.exception({'function': add_auto_tags_util.__name__,
-                                  'exception': "UnhandledException: "})
-                return None
+                                  'exception': "UnhandledException"})
+                return Exception
         else:
             return False
 
@@ -133,7 +129,7 @@ def add_tag_util(object_type, object_uuid, tags):
             try:
                 question = SBQuestion.nodes.get(question_id=object_uuid)
             except (SBQuestion.DoesNotExist, DoesNotExist):
-                return None
+                return SBQuestion.DoesNotExist
             for tag in tag_array:
                 question.tags.connect(tag)
                 tag.questions.connect(question)
@@ -142,11 +138,11 @@ def add_tag_util(object_type, object_uuid, tags):
             return True
 
         except CypherException:
-            return None
+            return CypherException
 
         except Exception:
             logger.exception(dumps({"function": add_tag_util.__name__,
                                 "exception": "UnhandledException: "}))
-            return None
+            return Exception
     else:
         return False

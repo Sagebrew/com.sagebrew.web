@@ -170,8 +170,8 @@ def save_comment_post(content="", pleb="", post_uuid=str(uuid1())):
                           "exception": "UnhandledException: "})
         return False
 
-def edit_comment_util(comment_uuid=str(uuid1()), content="",
-                      last_edited_on=None, pleb=""):
+
+def edit_comment_util(comment_uuid=None, content="", last_edited_on=None):
     '''
     finds the comment with the given comment id then changes the content to the
     content which was passed. also changes the edited on date and time to the
@@ -186,18 +186,20 @@ def edit_comment_util(comment_uuid=str(uuid1()), content="",
                     DateTime which the util was called
     :return:
     '''
+    if comment_uuid is None:
+        comment_uuid = str(uuid1())
     if last_edited_on is None:
         return False
     try:
         try:
             my_comment = SBComment.nodes.get(comment_id=comment_uuid)
         except (SBComment.DoesNotExist, DoesNotExist):
-            return {'detail': "retry"}
+            return SBComment.DoesNotExist
         try:
             if my_comment.last_edited_on > last_edited_on:
                 return False
         except TypeError:
-            pass
+            return TypeError
 
         if my_comment.content == content:
             return False
@@ -216,7 +218,7 @@ def edit_comment_util(comment_uuid=str(uuid1()), content="",
     except Exception:
         logger.exception({"function": edit_comment_util.__name__,
                           'exception': "UnhandledException: "})
-        return {'detail': 'retry'}
+        return Exception
 
 def delete_comment_util(comment_uuid=str(uuid1())):
     '''

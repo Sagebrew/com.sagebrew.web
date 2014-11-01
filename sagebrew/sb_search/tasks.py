@@ -50,7 +50,7 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
         if object_type == 'question':
 
             try:
-                question = SBQuestion.nodes.get(question_id=object_uuid)
+                question = SBQuestion.nodes.get(sb_id=object_uuid)
             except (SBQuestion.DoesNotExist, DoesNotExist):
                 raise Exception
 
@@ -71,7 +71,7 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
 
         if object_type == 'answer':
             try:
-                answer = SBAnswer.nodes.get(answer_id = object_uuid)
+                answer = SBAnswer.nodes.get(sb_id = object_uuid)
             except (SBAnswer.DoesNotExist, DoesNotExist):
                 raise Exception
 

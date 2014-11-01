@@ -21,11 +21,11 @@ class TestCreateTagUtil(TestCase):
         self.user = User.objects.get(email=self.email)
 
     def test_create_tag_util_success(self):
-        question = SBQuestion(question_id=uuid1())
+        question = SBQuestion(sb_id=uuid1())
         question.save()
         tags = ['test','tag','please','do', 'not','fail','in', 'testing']
         res = add_tag_util(object_type='question',
-                           object_uuid=question.question_id,
+                           object_uuid=question.sb_id,
                            tags=tags)
 
         self.assertTrue(res)
@@ -39,21 +39,21 @@ class TestCreateTagUtil(TestCase):
         self.assertFalse(res)
 
     def test_create_tag_util_invalid_object(self):
-        question = SBQuestion(question_id=uuid1())
+        question = SBQuestion(sb_id=uuid1())
         question.save()
         tags = ['test','tag','please','do', 'not','fail','in', 'testing']
         res = add_tag_util(object_type='nothing',
-                           object_uuid=question.question_id,
+                           object_uuid=question.sb_id,
                            tags=tags)
 
         self.assertFalse(res)
 
     def test_create_tag_util_empty_tags(self):
-        question = SBQuestion(question_id=uuid1())
+        question = SBQuestion(sb_id=uuid1())
         question.save()
         tags = []
         res = add_tag_util(object_type='question',
-                           object_uuid=question.question_id,
+                           object_uuid=question.sb_id,
                            tags=tags)
 
         self.assertFalse(res)
@@ -68,27 +68,27 @@ class TestCreateAutoTagUtil(TestCase):
         self.user = User.objects.get(email=self.email)
 
     def test_create_auto_tag_util_success(self):
-        question = SBQuestion(question_id=str(uuid1()))
+        question = SBQuestion(sb_id=str(uuid1()))
         question.save()
         util_dict = [{'object_type': 'question',
-                      'object_uuid': question.question_id,
+                      'object_uuid': question.sb_id,
                       'tags': {'relevance': '.9', 'text': 'test auto tag'}}]
         res = add_auto_tags_util(util_dict)
 
         self.assertTrue(res)
 
     def test_create_auto_tag_util_success_tag_exists(self):
-        question_id = uuid1()
-        question = SBQuestion(question_id=question_id)
+        sb_id = uuid1()
+        question = SBQuestion(sb_id=sb_id)
         question.save()
         util_dict = [{'object_type': 'question',
-                      'object_uuid': question_id,
+                      'object_uuid': sb_id,
                       'tags': {'relevance': '.9', 'text': 'test auto tag'}},
                      {'object_type': 'question',
-                      'object_uuid': question_id,
+                      'object_uuid': sb_id,
                       'tags': {'relevance': '.9', 'text': 'test fake tag'}},
                      {'object_type': 'question',
-                      'object_uuid': question_id,
+                      'object_uuid': sb_id,
                       'tags': {'relevance': '.9', 'text': 'test auto tag'}}]
         res = add_auto_tags_util(util_dict)
 
@@ -104,20 +104,20 @@ class TestCreateAutoTagUtil(TestCase):
         self.assertFalse(res)
 
     def test_create_auto_tag_util_invalid_object(self):
-        question = SBQuestion(question_id=uuid1())
+        question = SBQuestion(sb_id=uuid1())
         question.save()
         util_dict = [{'object_type': 'nothing',
-                      'object_uuid': question.question_id,
+                      'object_uuid': question.sb_id,
                       'tags': {'relevance': '.9', 'text': 'test'}}]
         res = add_auto_tags_util(util_dict)
 
         self.assertFalse(res)
 
     def test_create_auto_tag_key_error(self):
-        question = SBQuestion(question_id=uuid1())
+        question = SBQuestion(sb_id=uuid1())
         question.save()
         util_dict = [{'object_type': 'nothing',
-                      'object_uuid': question.question_id}]
+                      'object_uuid': question.sb_id}]
         res = add_auto_tags_util(util_dict)
 
         self.assertFalse(res)

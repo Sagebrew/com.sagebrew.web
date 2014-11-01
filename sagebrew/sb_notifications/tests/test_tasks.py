@@ -26,7 +26,7 @@ class TestNotificationTasks(TestCase):
         self.pleb2 = Pleb.nodes.get(email=self.email2)
         self.user2 = User.objects.get(email=self.email2)
         self.post_info_dict = {'content': 'test post',
-                               'post_id': str(uuid1())}
+                               'sb_id': str(uuid1())}
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
@@ -47,7 +47,7 @@ class TestNotificationTasks(TestCase):
     def test_create_notification_comment_task(self):
         post = SBPost(**self.post_info_dict)
         post.save()
-        comment = SBComment(comment_id=str(uuid1()), content='sdfasd')
+        comment = SBComment(sb_id=str(uuid1()), content='sdfasd')
         comment.save()
 
         data = {'from_pleb':self.pleb, 'to_plebs': [self.pleb2,],

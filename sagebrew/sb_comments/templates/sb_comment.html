@@ -32,7 +32,7 @@
                             role="menu" aria-labelledby="dropdownMenu1">
                             {% if comment.comment_owner_email == comment.current_user %}
                              <li role="presentation"><a class="btn show_edit_comment_class"
-                                                        data-comment_uuid="{{ comment.comment_id }}"
+                                                        data-comment_uuid="{{ comment.sb_id }}"
                                                         type="submit">edit</a>
                             </li>
                             {% endif %}
@@ -40,28 +40,28 @@
                             <li role="presentation"><a class='btn flag_comment-action'
                                                        data-flag_reason='spam'
                                                        data-current_user="{{ comment.current_user }}"
-                                                       data-comment_uuid="{{ comment.comment_id }}">
+                                                       data-comment_uuid="{{ comment.sb_id }}">
                                                        flag as spam</a>
                             </li>
                             <li role="presentation" class="sb_divider divider"></li>
                             <li role="presentation"><a class='btn flag_comment-action'
                                                        data-flag_reason='explicit'
                                                        data-current_user="{{ comment.current_user }}"
-                                                       data-comment_uuid="{{ comment.comment_id }}">
+                                                       data-comment_uuid="{{ comment.sb_id }}">
                                                        flag as explicit</a>
                             </li>
                             <li role="presentation" class="sb_divider divider"></li>
                             <li role="presentation"><a class='btn flag_comment-action'
                                                        data-flag_reason='other'
                                                        data-current_user="{{ comment.current_user }}"
-                                                       data-comment_uuid="{{ comment.comment_id }}">
+                                                       data-comment_uuid="{{ comment.sb_id }}">
                                                        flag as other</a>
                             </li>
                             {% if comment.comment_owner_email == comment.current_user %}
                              <li role="presentation" class="sb_divider divider"></li>
                             <li role="presentation"><a class='btn delete_comment-action'
                                                        data-pleb="{{ comment.current_user }}"
-                                                       data-comment_uuid="{{ comment.comment_id }}">Delete</a>
+                                                       data-comment_uuid="{{ comment.sb_id }}">Delete</a>
                             </li>
                             {% endif %}
                         </ul>
@@ -79,7 +79,7 @@
                 <a class='btn vote_comment-action sb_btn_vote_icon'
                    data-vote_type='up'
                    data-pleb="{{ comment.current_user }}"
-                   data-comment_uuid="{{ comment.comment_id }}"><span class="sb_icon sb_icon_up_vote fui-check"></span>
+                   data-comment_uuid="{{ comment.sb_id }}"><span class="sb_icon sb_icon_up_vote fui-check"></span>
                 </a>
             </div>
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2 sb_vote_div">
@@ -89,7 +89,7 @@
                  <a class='btn vote_comment-action sb_btn_vote_icon'
                    data-vote_type='down'
                    data-pleb="{{ comment.current_user }}"
-                   data-comment_uuid="{{ comment.comment_id }}"><span class="sb_icon sb_icon_down_vote fui-cross"></span>
+                   data-comment_uuid="{{ comment.sb_id }}"><span class="sb_icon sb_icon_down_vote fui-cross"></span>
                  </a>
             </div>
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2 sb_vote_div">
@@ -100,26 +100,26 @@
     <div class="sb_comments_line"></div>
 </div>
 {% if comment.comment_owner_email == comment.current_user %}
-    <div id="comment_divid_{{ comment.comment_id }}"
+    <div id="comment_divid_{{ comment.sb_id }}"
          style="display:none">
         <textarea class="form-control"
-                  id="{{ comment.comment_id }}"
+                  id="{{ comment.sb_id }}"
                   name="edit_comment_input"
                   rows="1"
                   placeholder="Edit your comment..."></textarea>
         <a class='btn btn-primary edit_comment-action'
            id="edit_comment_button"
            data-pleb="{{ comment.current_user }}"
-           data-comment_uuid="{{ comment.comment_id }}">Submit</a>
+           data-comment_uuid="{{ comment.sb_id }}">Submit</a>
     </div>
 {% endif %}
 {% comment %}
     <a class='btn btn-primary vote-action'
        data-vote_type='up'
        data-pleb="{{ current_user }}"
-       data-comment_uuid="{{ comment.comment_id }}">Share Comment</a>
+       data-comment_uuid="{{ comment.sb_id }}">Share Comment</a>
     <a class='btn btn-primary vote-action'
        data-vote_type='up'
        data-pleb="{{ current_user }}"
-       data-comment_uuid="{{ comment.comment_id }}">Reference Comment</a>
+       data-comment_uuid="{{ comment.sb_id }}">Reference Comment</a>
 {% endcomment %}

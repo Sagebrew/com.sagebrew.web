@@ -1,7 +1,7 @@
 $( document ).ready(function() {
     $("a.show_edit_answer-action").click(function(event){
         var answer_uuid = $(this).data('answer_uuid');
-        $('#show_edit_answer_id_'+answer_uuid).fadeToggle();
+        $('#show_edit_sb_id_'+answer_uuid).fadeToggle();
     });
 
 	$("a.edit_answer-action").click(function(event){

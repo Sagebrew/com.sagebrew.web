@@ -24,7 +24,7 @@ def add_answer_to_search_index(answer):
 
         search_dict = {'answer_content': answer.content,
                        'user': answer.owned_by.all()[0].email,
-                       'question_uuid': answer.answer_id,
+                       'question_uuid': answer.sb_id,
                        'post_date': answer.date_created,
                        'related_user': ''}
         task_data = {"object_type": 'answer', 'object_data': search_dict,
@@ -101,7 +101,7 @@ def edit_answer_task(content="", answer_uuid="", last_edited_on=None,
             return False
 
         try:
-            my_answer = SBAnswer.nodes.get(answer_id=answer_uuid)
+            my_answer = SBAnswer.nodes.get(sb_id=answer_uuid)
         except (SBAnswer.DoesNotExist, DoesNotExist):
             return False
 
@@ -149,7 +149,7 @@ def vote_answer_task(answer_uuid="", current_pleb="", vote_type=""):
             return False
 
         try:
-            my_answer = SBAnswer.nodes.get(answer_id = answer_uuid)
+            my_answer = SBAnswer.nodes.get(sb_id = answer_uuid)
         except (SBAnswer.DoesNotExist, DoesNotExist):
             return False
 

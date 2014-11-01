@@ -38,7 +38,7 @@ def create_question_util(content="", current_pleb="", question_title=""):
         title_blob = TextBlob(question_title)
         my_question = SBQuestion(content=content,
                                  question_title=question_title,
-                                 question_id=str(uuid1()))
+                                 sb_id=str(uuid1()))
         my_question.save()
         my_question.subjectivity = content_blob.subjectivity
         my_question.positivity = content_blob.polarity
@@ -77,11 +77,11 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
             owner = owner[0]
             owner_name = owner.first_name + ' ' + owner.last_name
             owner_profile_url = settings.WEB_ADDRESS + '/user/' + owner.email
-            query = 'match (q:SBQuestion) where q.question_id="%s" ' \
+            query = 'match (q:SBQuestion) where q.sb_id="%s" ' \
                     'with q ' \
                     'match (q)-[:POSSIBLE_ANSWER]-(a:SBAnswer) ' \
                     'where a.to_be_deleted=False ' \
-                    'return a ' % questions.question_id
+                    'return a ' % questions.sb_id
             answers, meta = execute_cypher_query(query)
             answers = [SBAnswer.inflate(row[0]) for row in answers]
             for answer in answers:
@@ -90,7 +90,7 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
                 answer_owner_url = settings.WEB_ADDRESS+'/user/'+owner.email
                 answer_dict = {'answer_content': answer.content,
                                'current_pleb': current_pleb,
-                               'answer_uuid': answer.answer_id,
+                               'answer_uuid': answer.sb_id,
                                'last_edited_on': answer.last_edited_on,
                                'up_vote_number': answer.up_vote_number,
                                'down_vote_number': answer.down_vote_number,
@@ -101,7 +101,7 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
                 answer_array.append(answer_dict)
             question_dict = {'question_title': questions.question_title,
                              'question_content': questions.content,
-                             'question_uuid': questions.question_id,
+                             'question_uuid': questions.sb_id,
                              'is_closed': questions.is_closed,
                              'answer_number': questions.answer_number,
                              'last_edited_on': questions.last_edited_on,
@@ -130,7 +130,7 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
                                  'time_created': question.date_created,
                                  'question_url': settings.WEB_ADDRESS +
                                                  '/questions/' +
-                                                 question.question_id,
+                                                 question.sb_id,
                                  'current_pleb': current_pleb
                             }
                 question_array.append(question_dict)
@@ -155,7 +155,7 @@ def get_question_by_uuid(question_uuid=str(uuid1()), current_pleb=""):
     :return:
     '''
     try:
-        question = SBQuestion.nodes.get(question_id=question_uuid)
+        question = SBQuestion.nodes.get(sb_id=question_uuid)
         response = prepare_get_question_dictionary(question, sort_by='uuid',
                                                    current_pleb=current_pleb)
         return response
@@ -243,7 +243,7 @@ def upvote_question_util(question_uuid="", current_pleb=""):
         except (Pleb.DoesNotExist, DoesNotExist):
             return None
         try:
-            my_question = SBQuestion.nodes.get(question_id=question_uuid)
+            my_question = SBQuestion.nodes.get(sb_id=question_uuid)
         except (SBQuestion.DoesNotExist, DoesNotExist):
             return False
 
@@ -274,7 +274,7 @@ def downvote_question_util(question_uuid="", current_pleb=""):
         except (Pleb.DoesNotExist, DoesNotExist):
             return None
         try:
-            my_question = SBQuestion.nodes.get(question_id=question_uuid)
+            my_question = SBQuestion.nodes.get(sb_id=question_uuid)
         except (SBQuestion.DoesNotExist, DoesNotExist):
             return False
         my_question.down_vote_number += 1
@@ -305,7 +305,7 @@ def edit_question_util(question_uuid="", content="", last_edited_on="",
     '''
     try:
         try:
-            my_question = SBQuestion.nodes.get(question_id=question_uuid)
+            my_question = SBQuestion.nodes.get(sb_id=question_uuid)
         except (SBQuestion.DoesNotExist, DoesNotExist):
             return False
         if my_question.to_be_deleted:
@@ -340,7 +340,7 @@ def edit_question_util(question_uuid="", content="", last_edited_on="",
 def prepare_question_search_html(question_uuid):
     try:
         try:
-            my_question = SBQuestion.nodes.get(question_id=question_uuid)
+            my_question = SBQuestion.nodes.get(sb_id=question_uuid)
         except (SBQuestion.DoesNotExist, DoesNotExist):
             return False
         owner = my_question.owned_by.all()[0]
@@ -348,7 +348,7 @@ def prepare_question_search_html(question_uuid):
         owner_profile_url = settings.WEB_ADDRESS + '/user/' + owner.email
         question_dict = {"question_title": my_question.question_title,
                          "question_content": my_question.content,
-                         "question_uuid": my_question.question_id,
+                         "question_uuid": my_question.sb_id,
                          "is_closed": my_question.is_closed,
                          "answer_number": my_question.answer_number,
                          "last_edited_on": my_question.last_edited_on,
@@ -383,7 +383,7 @@ def flag_question_util(question_uuid, current_pleb, flag_reason):
     '''
     try:
         try:
-            question = SBQuestion.nodes.get(question_id=question_uuid)
+            question = SBQuestion.nodes.get(sb_id=question_uuid)
         except (SBQuestion.DoesNotExist, DoesNotExist):
             return False
 

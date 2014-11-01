@@ -1,7 +1,7 @@
 $(document).ready(function () {
     $("a.show_edit_post_class").click(function (event) {
-        var post_id = $(this).data('uuid');
-        $('#divid_' + post_id).fadeToggle();
+        var sb_id = $(this).data('uuid');
+        $('#divid_' + sb_id).fadeToggle();
     });
     $("a.edit_post-action").click(function (event) {
         event.preventDefault();

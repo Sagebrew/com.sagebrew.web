@@ -69,7 +69,7 @@ def create_vote_comment(pleb="", comment_uuid=str(uuid1()), vote_type=""):
         except Pleb.DoesNotExist:
             return False
         try:
-            my_comment = SBComment.nodes.get(comment_id=comment_uuid)
+            my_comment = SBComment.nodes.get(sb_id=comment_uuid)
         except SBComment.DoesNotExist:
             raise create_vote_comment.retry(exc=SBComment.DoesNotExist,
                                             countdown=3, max_retries=None)

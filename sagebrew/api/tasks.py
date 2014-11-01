@@ -36,11 +36,11 @@ def add_object_to_search_index(index="full-search-base", object_type="",
         }
 
         if object_type=='question':
-            question = SBQuestion.nodes.get(question_id=object_data['question_uuid'])
+            question = SBQuestion.nodes.get(sb_id=object_data['question_uuid'])
             question.search_id = res['_id']
             question.save()
         if object_type=='answer':
-            answer = SBAnswer.nodes.get(answer_id=object_data['answer_uuid'])
+            answer = SBAnswer.nodes.get(sb_id=object_data['answer_uuid'])
             answer.search_id = res['_id']
             answer.save()
 

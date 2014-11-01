@@ -16,6 +16,7 @@ class NotificationBase(StructuredNode):
     sent = BooleanProperty(default=False)
 
     # relationships
+
     notification_from = RelationshipTo('plebs.neo_models.Pleb',
                                        'NOTIFICATION_FROM')
     notification_to = RelationshipTo('plebs.neo_models.Pleb',

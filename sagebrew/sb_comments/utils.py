@@ -23,11 +23,11 @@ def get_post_comments(post_info):
     comment_array = []
     post_array = []
     for post in post_info:
-        query = 'MATCH (p:SBPost) WHERE p.post_id="%s" ' \
+        query = 'MATCH (p:SBPost) WHERE p.sb_id="%s" ' \
                 'WITH p MATCH (p) - [:HAS_A] - (c:SBComment) ' \
                 'WHERE c.to_be_deleted=False ' \
                 'WITH c ORDER BY c.created_on ' \
-                'RETURN c' % post.post_id
+                'RETURN c' % post.sb_id
         post_comments, meta = execute_cypher_query(query)
         post_comments = [SBComment.inflate(row[0]) for row in post_comments]
         post_owner = post.owned_by.all()[0]
@@ -37,7 +37,7 @@ def get_post_comments(post_info):
             comment_owner = comment.is_owned_by.all()[0]
             comment_dict = {'comment_content': comment.content,
                             'comment_up_vote_number': comment.up_vote_number,
-                            'comment_id': comment.comment_id,
+                            'sb_id': comment.sb_id,
                             'comment_down_vote_number':
                                 comment.down_vote_number,
                             'comment_last_edited_on': comment.last_edited_on,
@@ -47,7 +47,7 @@ def get_post_comments(post_info):
             comment.view_count += 1
             comment.save()
             comment_array.append(comment_dict)
-        post_dict = {'content': post.content, 'post_id': post.post_id,
+        post_dict = {'content': post.content, 'sb_id': post.sb_id,
                      'up_vote_number': post.up_vote_number,
                      'down_vote_number': post.down_vote_number,
                      'last_edited_on': post.last_edited_on,
@@ -72,7 +72,7 @@ def create_upvote_comment_util(pleb="", comment_uuid=str(uuid1())):
     '''
     try:
         try:
-            my_comment = SBComment.nodes.get(comment_id=comment_uuid)
+            my_comment = SBComment.nodes.get(sb_id=comment_uuid)
         except (SBComment.DoesNotExist, DoesNotExist):
             return False
 
@@ -107,7 +107,7 @@ def create_downvote_comment_util(pleb="", comment_uuid=str(uuid1())):
     '''
     try:
         try:
-            my_comment = SBComment.nodes.get(comment_id=comment_uuid)
+            my_comment = SBComment.nodes.get(sb_id=comment_uuid)
         except (SBComment.DoesNotExist, DoesNotExist):
             return False
 
@@ -147,12 +147,12 @@ def save_comment_post(content="", pleb="", post_uuid=str(uuid1())):
             return None
 
         try:
-            parent_object = SBPost.nodes.get(post_id=post_uuid)
+            parent_object = SBPost.nodes.get(sb_id=post_uuid)
         except (SBPost.DoesNotExist, DoesNotExist):
             return False
 
         comment_uuid = str(uuid1())
-        my_comment = SBComment(content=content, comment_id=comment_uuid)
+        my_comment = SBComment(content=content, sb_id=comment_uuid)
         my_comment.save()
         rel_to_pleb = my_comment.is_owned_by.connect(my_citizen)
         rel_to_pleb.save()
@@ -190,7 +190,7 @@ def edit_comment_util(comment_uuid=str(uuid1()), content="",
         return False
     try:
         try:
-            my_comment = SBComment.nodes.get(comment_id=comment_uuid)
+            my_comment = SBComment.nodes.get(sb_id=comment_uuid)
         except (SBComment.DoesNotExist, DoesNotExist):
             return {'detail': "retry"}
         try:
@@ -228,7 +228,7 @@ def delete_comment_util(comment_uuid=str(uuid1())):
     :return:
     '''
     try:
-        my_comment = SBComment.nodes.get(comment_id=comment_uuid)
+        my_comment = SBComment.nodes.get(sb_id=comment_uuid)
         if datetime.now(pytz.utc).day - my_comment.delete_time.day >= 1:
             my_comment.content=""
             my_comment.save()
@@ -253,7 +253,7 @@ def flag_comment_util(comment_uuid, current_user, flag_reason):
     '''
     try:
         try:
-            comment = SBComment.nodes.get(comment_id=comment_uuid)
+            comment = SBComment.nodes.get(sb_id=comment_uuid)
         except (SBComment.DoesNotExist, DoesNotExist):
             return None
 

@@ -1,4 +1,5 @@
 import pytz
+from uuid import uuid1
 
 from datetime import datetime
 
@@ -22,6 +23,7 @@ class RelationshipWeight(StructuredRel):
     seen = BooleanProperty(default=True)
 
 class SBBase(StructuredNode):
+    sb_id = StringProperty(unique_index=True, default=lambda: str(uuid1()))
     content = StringProperty()
     date_created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     up_vote_number = IntegerProperty(default=0)
@@ -64,8 +66,6 @@ class SBBase(StructuredNode):
 
 
 class SBPost(SBBase):
-    post_id = StringProperty(unique_index=True)
-
     # relationships
     posted_on_wall = RelationshipTo('sb_wall.neo_models.SBWall', 'POSTED_ON')
     #TODO Implement referenced_by_... relationships

@@ -72,7 +72,7 @@ class TestEditComment(TestCase):
                       'pleb': self.user.email,
                       'post_uuid': uuid}
         my_comment = save_comment_post(**task_param)
-        edit_task_param = {'comment_uuid': my_comment.comment_id,
+        edit_task_param = {'comment_uuid': my_comment.sb_id,
                            'content': 'test edit',
                            'last_edited_on': datetime.now(pytz.utc),
                            'pleb': self.user.email}
@@ -109,10 +109,10 @@ class TestVoteComment(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_upvote_comment(self):
-        my_comment = SBComment(comment_id=str(uuid1()))
+        my_comment = SBComment(sb_id=str(uuid1()))
         my_comment.save()
         vote_task_param = {'pleb': self.user.email,
-                           'comment_uuid': my_comment.comment_id,
+                           'comment_uuid': my_comment.sb_id,
                            'vote_type': 'up'}
         response = create_vote_comment.apply_async(kwargs=vote_task_param)
         while not response.ready():
@@ -125,10 +125,10 @@ class TestVoteComment(TestCase):
         self.assertTrue(response)
 
     def test_downvote_comment(self):
-        my_comment = SBComment(comment_id=str(uuid1()))
+        my_comment = SBComment(sb_id=str(uuid1()))
         my_comment.save()
         vote_task_param = {'pleb': self.user.email,
-                           'comment_uuid': my_comment.comment_id,
+                           'comment_uuid': my_comment.sb_id,
                            'vote_type': 'down'}
         response = create_vote_comment.apply_async(kwargs=vote_task_param)
         while not response.ready():
@@ -141,10 +141,10 @@ class TestVoteComment(TestCase):
         self.assertTrue(response)
 
     def test_upvote_comment_twice(self):
-        my_comment = SBComment(comment_id=str(uuid1()))
+        my_comment = SBComment(sb_id=str(uuid1()))
         my_comment.save()
         vote_task_param = {'pleb': self.user.email,
-                           'comment_uuid': my_comment.comment_id,
+                           'comment_uuid': my_comment.sb_id,
                            'vote_type': 'up'}
         response = create_vote_comment.apply_async(kwargs=vote_task_param)
         while not response.ready():
@@ -163,10 +163,10 @@ class TestVoteComment(TestCase):
         self.assertFalse(response2)
 
     def test_downvote_comment_twice(self):
-        my_comment = SBComment(comment_id=str(uuid1()))
+        my_comment = SBComment(sb_id=str(uuid1()))
         my_comment.save()
         vote_task_param = {'pleb': self.user.email,
-                           'comment_uuid': my_comment.comment_id,
+                           'comment_uuid': my_comment.sb_id,
                            'vote_type': 'down'}
         response = create_vote_comment.apply_async(kwargs=vote_task_param)
         while not response.ready():
@@ -185,10 +185,10 @@ class TestVoteComment(TestCase):
         self.assertFalse(response2)
 
     def test_upvote_then_downvote_comment(self):
-        my_comment = SBComment(comment_id=str(uuid1()))
+        my_comment = SBComment(sb_id=str(uuid1()))
         my_comment.save()
         vote_task_param = {'pleb': self.user.email,
-                           'comment_uuid': my_comment.comment_id,
+                           'comment_uuid': my_comment.sb_id,
                            'vote_type': 'up'}
 
         response = create_vote_comment.apply_async(kwargs=vote_task_param)
@@ -212,10 +212,10 @@ class TestVoteComment(TestCase):
         self.assertFalse(response2)
 
     def test_downvote_then_upvote_comment(self):
-        my_comment = SBComment(comment_id=str(uuid1()))
+        my_comment = SBComment(sb_id=str(uuid1()))
         my_comment.save()
         vote_task_param = {'pleb': self.user.email,
-                           'comment_uuid': my_comment.comment_id,
+                           'comment_uuid': my_comment.sb_id,
                            'vote_type': 'down'}
 
         response = create_vote_comment.apply_async(kwargs=vote_task_param)
@@ -249,7 +249,7 @@ class TestVoteComment(TestCase):
                       'post_uuid': uuid}
         my_comment = save_comment_post(**task_param)
         vote_task_param = {'pleb': self.user.email,
-                           'comment_uuid': my_comment.comment_id,
+                           'comment_uuid': my_comment.sb_id,
                            'vote_type': 'up'}
         response = create_vote_comment.apply_async(kwargs=vote_task_param)
         while not response.ready():
@@ -285,10 +285,10 @@ class TestFlagCommentTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_flag_comment_success_spam(self):
-        comment = SBComment(comment_id=uuid1())
+        comment = SBComment(sb_id=uuid1())
         comment.save()
         task_data = {
-            'comment_uuid': comment.comment_id,
+            'comment_uuid': comment.sb_id,
             'current_user': self.user.email,
             'flag_reason': 'spam'
         }
@@ -300,10 +300,10 @@ class TestFlagCommentTask(TestCase):
         self.assertTrue(res)
 
     def test_flag_comment_success_explicit(self):
-        comment = SBComment(comment_id=uuid1())
+        comment = SBComment(sb_id=uuid1())
         comment.save()
         task_data = {
-            'comment_uuid': comment.comment_id,
+            'comment_uuid': comment.sb_id,
             'current_user': self.user.email,
             'flag_reason': 'explicit'
         }
@@ -315,10 +315,10 @@ class TestFlagCommentTask(TestCase):
         self.assertTrue(res)
 
     def test_flag_comment_success_other(self):
-        comment = SBComment(comment_id=uuid1())
+        comment = SBComment(sb_id=uuid1())
         comment.save()
         task_data = {
-            'comment_uuid': comment.comment_id,
+            'comment_uuid': comment.sb_id,
             'current_user': self.user.email,
             'flag_reason': 'other'
         }
@@ -331,10 +331,10 @@ class TestFlagCommentTask(TestCase):
         self.assertTrue(res)
 
     def test_flag_comment_failure_incorrect_reason(self):
-        comment = SBComment(comment_id=uuid1())
+        comment = SBComment(sb_id=uuid1())
         comment.save()
         task_data = {
-            'comment_uuid': comment.comment_id,
+            'comment_uuid': comment.sb_id,
             'current_user': self.user.email,
             'flag_reason': 'dumb'
         }
@@ -355,10 +355,10 @@ class TestFlagCommentTask(TestCase):
         self.assertFalse(response.result)
 
     def test_flag_comment_failure_user_does_not_exist(self):
-        comment = SBComment(comment_id=uuid1())
+        comment = SBComment(sb_id=uuid1())
         comment.save()
         task_data = {
-            'comment_uuid': comment.comment_id,
+            'comment_uuid': comment.sb_id,
             'current_user': uuid1(),
             'flag_reason': 'other'
         }

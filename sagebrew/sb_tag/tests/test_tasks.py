@@ -24,10 +24,10 @@ class TestTagTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_add_tag_success(self):
-        question = SBQuestion(question_id=uuid1())
+        question = SBQuestion(sb_id=uuid1())
         question.save()
         tags = ['test','tag','please','do', 'not','fail','in', 'testing']
-        task_dict = {'object_uuid': question.question_id,
+        task_dict = {'object_uuid': question.sb_id,
                      'object_type': 'question',
                      'tags': tags}
         res = add_tags.apply_async(kwargs=task_dict)
@@ -37,7 +37,7 @@ class TestTagTask(TestCase):
         self.assertTrue(res)
 
     def test_add_tag_failure_object_does_not_exist(self):
-        question = SBQuestion(question_id=uuid1())
+        question = SBQuestion(sb_id=uuid1())
         question.save()
         tags = ['test','tag','please','do', 'not','fail','in', 'testing']
         task_dict = {'object_uuid': '1',
@@ -64,10 +64,10 @@ class TestAutoTagTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_add_auto_tag_success(self):
-        question = SBQuestion(question_id=uuid1())
+        question = SBQuestion(sb_id=uuid1())
         question.save()
         task_dict = {'tag_list': [{'object_type': 'question',
-                      'object_uuid': question.question_id,
+                      'object_uuid': question.sb_id,
                       'tags': {'relevance': '.9', 'text': 'test'}}]}
         res = add_auto_tags.apply_async(kwargs=task_dict)
         while not res.ready():
@@ -76,10 +76,10 @@ class TestAutoTagTask(TestCase):
         self.assertTrue(res)
 
     def test_add_auto_tag_wrong_object_type(self):
-        question = SBQuestion(question_id=uuid1())
+        question = SBQuestion(sb_id=uuid1())
         question.save()
         task_dict = {'tag_list': [{'object_type': 'nothing',
-                      'object_uuid': question.question_id,
+                      'object_uuid': question.sb_id,
                       'tags': {'relevance': '.9', 'text': 'test'}}]}
         res = add_auto_tags.apply_async(kwargs=task_dict)
         while not res.ready():

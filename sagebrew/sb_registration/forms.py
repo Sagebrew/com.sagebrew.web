@@ -144,9 +144,9 @@ class ProfileInfoForm(forms.Form):
     )
 
     home_town = forms.CharField(
-        label="Hometown*",
+        label="Hometown",
         max_length=40,
-        required=True,
+        required=False,
     )
 
     high_school = forms.CharField(
@@ -197,14 +197,32 @@ class AddressInfoForm(forms.Form):
         required=True,
     )
 
-
-class AddressChoiceForm(forms.Form):
-    address_options = forms.ChoiceField(
-        widget=forms.RadioSelect,
-        label="Do you live at",
-        choices=(),
-        required=False,
+    valid = forms.CharField(
+        required=True,
+        max_length=100,
+        widget=forms.HiddenInput()
     )
+
+    original_selected = forms.BooleanField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
+
+    congressional_district = forms.IntegerField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
+
+    latitude = forms.FloatField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
+
+    longitude = forms.FloatField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
+
 
 
 class ProfilePictureForm(forms.Form):
@@ -222,8 +240,8 @@ class SignupForm(forms.Form):
     first_name = forms.CharField(required=True, max_length=30, label="First Name")
     last_name = forms.CharField(required=True, max_length=30, label="Last Name")
     email = forms.EmailField(required=True, label="Email")
-    password = forms.CharField(required=True, max_length=30)
-    password2 = forms.CharField(required=True, max_length=30)
+    password = forms.CharField(required=True, min_length=6, max_length=56)
+    password2 = forms.CharField(required=True, min_length=6, max_length=56)
 
 class LoginForm(forms.Form):
     email = forms.EmailField(required=True)

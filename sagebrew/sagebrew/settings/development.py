@@ -15,7 +15,7 @@ DATABASES = {
         'NAME': 'sagebrew_db',
         'USER': 'admin',
         'PASSWORD': 'admin',
-        'HOST': 'localhost',
+        'HOST': '192.168.56.101',
         'PORT': '',
     }
 }
@@ -24,7 +24,7 @@ DATABASES = {
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
+        'LOCATION': '192.168.56.101:11211',
     }
 }
 
@@ -65,11 +65,7 @@ DEBUG_TOOLBAR_PANELS = (
     # 'cache_panel.panel.CacheDebugPanel',
 )
 
-ELASTIC_SEARCH_HOST = [{'host': environ.get("ELASTIC_SEARCH_HOST", ""),
-                        'port': environ.get("ELASTIC_SEARCH_PORT", ""),
-                        'use_ssl': True,
-                        'http_auth': (environ.get("ELASTIC_SEARCH_USER", ""),
-                                      environ.get("ELASTIC_SEARCH_KEY", ""))
+ELASTIC_SEARCH_HOST = [{'host': environ.get("ELASTIC_SEARCH_HOST", "")
                        }]
 
 
@@ -131,6 +127,13 @@ LOGGING = {
             'token': LOG_TOKEN
         },
         'elasticsearch.trace': {
+            'handlers': ['logging.handlers.SysLogHandler'],
+            'propagate': True,
+            'format': 'loggly: %(message)s',
+            'level': 'CRITICAL',
+            'token': LOG_TOKEN
+        },
+        'neomodel.properties': {
             'handlers': ['logging.handlers.SysLogHandler'],
             'propagate': True,
             'format': 'loggly: %(message)s',

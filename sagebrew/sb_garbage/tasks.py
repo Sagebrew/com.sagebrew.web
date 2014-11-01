@@ -10,15 +10,11 @@ def empty_garbage_can():
         garbage_can = SBGarbageCan.nodes.get(garbage_can='garbage')
         delete_posts_util(garbage_can)
         delete_comments_util(garbage_can)
-        #delete_plebs_util(garbage_can)
-        #delete_questions_util(garbage_can)
-        #delete_answers_util(garbage_can)
+        return True
         #delete_notifications_util(garbage_can)
     except SBGarbageCan.DoesNotExist:
         garbage_can = SBGarbageCan(garbage_can='garbage')
         garbage_can.save()
         empty_garbage_can()
-        #delete_plebs_util(garbage_can)
-        #delete_questions_util(garbage_can)
-        #delete_answers_util(garbage_can)
+        return True
         #delete_notifications_util(garbage_can)

@@ -23,7 +23,6 @@ class Command(BaseCommand):
         people_dict = csv.DictReader(open(self.historical_people))
         for row in people_dict:
             row.pop('', None)
-            print row
 
             try:
                 if row['gt_id'] != '':
@@ -43,4 +42,3 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.populate_historical_people()
-        print "Historical Person objects populated"

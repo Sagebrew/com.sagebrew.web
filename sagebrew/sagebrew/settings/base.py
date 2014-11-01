@@ -8,8 +8,7 @@ import multiprocessing
 
 PROJECT_DIR = Path(__file__).ancestor(3)
 REPO_DIR = Path(__file__).ancestor(4)
-MEDIA_ROOT = PROJECT_DIR.child("media")
-STATIC_ROOT = PROJECT_DIR.child("static")
+
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -21,6 +20,8 @@ worker_count = (multiprocessing.cpu_count() *2) + 1
 if worker_count > 12 and environ.get("CIRCLECI", False):
     worker_count = 12
 environ['WEB_WORKER_COUNT'] = str(worker_count)
+environ['PROJECT_PATH'] = PROJECT_DIR
+
 environ['HTTPS'] = "on"
 MANAGERS = ADMINS
 
@@ -50,19 +51,10 @@ USE_TZ = True
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
 
-# URL that handles the media served from MEDIA_ROOT. Make sure to use a
-# trailing slash.
-# Examples: "http://example.com/media/", "http://media.example.com/"
-MEDIA_URL = '/media/'
-
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/var/www/example.com/static/"
-
-# URL prefix for static files.
-# Example: "http://example.com/static/", "http://static.example.com/"
-STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
@@ -72,7 +64,7 @@ STATICFILES_DIRS = (
     '%s/sagebrew/static/' % PROJECT_DIR,
     '%s/plebs/static/' % PROJECT_DIR,
     '%s/sb_registration/static/' % PROJECT_DIR,
-    '%s/sb_comments/static/' % PROJECT_DIR,
+    #'%s/sb_comments/static/' % PROJECT_DIR,
     '%s/sb_posts/static/' % PROJECT_DIR,
     '%s/sb_relationships/static/' % PROJECT_DIR,
     '%s/sb_questions/static/' % PROJECT_DIR,
@@ -211,8 +203,15 @@ CELERY_DISABLE_RATE_LIMITS = True
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 CELERY_ALWAYS_EAGER = False
 CELERY_IGNORE_RESULT = False
+# AWS_S3_SECURE_URLS = True
+AWS_STORAGE_BUCKET_NAME = environ.get("AWS_S3_BUCKET")
+DEFAULT_FILE_STORAGE = 'sagebrew.s3utils.MediaRootS3BotoStorage'
+STATICFILES_STORAGE = 'sagebrew.s3utils.StaticRootS3BotoStorage'
 
-AWS_BUCKET_NAME = environ.get("AWS_S3_BUCKET", "")
+S3_URL = 'http://%s.s3.amazonaws.com/' % (AWS_STORAGE_BUCKET_NAME)
+STATIC_URL = "%s%s" % (S3_URL, "static/")
+MEDIA_URL = "%s%s" % (S3_URL, "media/")
+
 AWS_ACCESS_KEY_ID = environ.get("AWS_ACCESS_KEY_ID", "")
 AWS_SECRET_ACCESS_KEY = environ.get("AWS_SECRET_ACCESS_KEY", "")
 AWS_PROFILE_PICTURE_FOLDER_NAME = 'profile_pictures'
@@ -264,6 +263,10 @@ OBJECT_SEARCH_MODIFIERS = {
     'flag_as_other': -10, 'answered': 50, 'starred': 150, 'seen_search': 5,
     'seen_page': 20
 }
+
+BASE_TAGS = ["fiscal", "foreign_policy", "social", "education", "science",
+             "environment", "drugs", "agriculture", "defense", "energy",
+             "health", "space"]
 
 # TODO When doing load testing and beta testing ensure that LOGGING of DB is on
 # and at w/e level we need to check response times. We might be able to

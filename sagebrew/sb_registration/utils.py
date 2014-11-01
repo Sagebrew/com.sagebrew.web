@@ -2,42 +2,23 @@ import os
 import shortuuid
 import hashlib
 import json
-import urllib
 import boto.ses
 import logging
 from boto.ses.exceptions import SESMaxSendingRateExceededError
-from socket import error as socket_error
 from datetime import date
 from django.conf import settings
 from django.contrib.auth.models import User
+
 from boto import connect_s3
 from boto.s3.key import Key
 from neomodel import DoesNotExist, CypherException
+
 from api.utils import spawn_task
 from plebs.tasks import create_pleb_task
-from plebs.neo_models import TopicCategory, Pleb
+from plebs.neo_models import Pleb
 from govtrack.neo_models import GTRole
 
 logger = logging.getLogger('loggly_logs')
-
-def generate_interests_tuple():
-    cat_instance = TopicCategory.category()
-    categories = cat_instance.instance.all()
-    # For reasoning behind tuples here look at
-    # http://stackoverflow.com/questions/15210511/solved-django
-    # -modelchoicefield-optgroup-tag/17854288#17854288
-    # We are basically able to draw on django's built in categorization of
-    # choices rather then implementing a bunch of custom logic
-    sb_topic_choices = ()
-    choices_tuple = ()
-    for category in categories:
-        for item in category.sb_topics.all():
-            sb_topic_choices = sb_topic_choices + ((item.title, item.title),)
-        category_tuple = (category.title, sb_topic_choices)
-        sb_topic_choices = ()
-        choices_tuple = choices_tuple + (category_tuple,)
-
-    return choices_tuple
 
 def calc_age(birthday):
     '''
@@ -48,11 +29,12 @@ def calc_age(birthday):
     :return:
     '''
     today = date.today()
-    return today.year - birthday.year - ((today.month, today.day) < (birthday.month - birthday.day))
+    return today.year - birthday.year - ((today.month, today.day)
+                                         < (birthday.month - birthday.day))
 
 def create_address_long_hash(address):
     if ("address2" in address):
-        address_string = "%s%s%s%s%s%s%f%f%s" % (address["street"],
+        address_string = "%s%s%s%s%s%s%f%f%s" % (address["primary_address"],
                                                  address["street_additional"],
                                                  address["city"],
                                                  address["state"],
@@ -63,7 +45,7 @@ def create_address_long_hash(address):
                                                  address[
                                                      "congressional_district"])
     else:
-        address_string = "%s%s%s%s%s%f%f%s" % (address["street"],
+        address_string = "%s%s%s%s%s%f%f%s" % (address["primary_address"],
                                                address["city"],
                                                address["state"],
                                                address["postal_code"],
@@ -76,7 +58,7 @@ def create_address_long_hash(address):
 
     return address_hash
 
-
+"""
 def create_address_string(address):
     if ("address2" in address):
         address_string = "%s, %s, %s, %s %s" % (address["street"],
@@ -145,6 +127,7 @@ def validate_address(address_request):
     QUERY_STRING = urllib.urlencode(address_request)
 
     URL = LOCATION + '?' + QUERY_STRING
+
     response = urllib.urlopen(URL).read()
     try:
         structure = json.loads(response)
@@ -152,10 +135,6 @@ def validate_address(address_request):
         return False
 
     return create_address_array(structure)
-
-
-def validate_school(school_name):
-    pass
 
 
 def create_address_array(structure):
@@ -193,7 +172,10 @@ def compare_address(smarty_address, address_clean):
     temp_address.pop("auth-id", None)
 
     return temp_smarty == temp_address
+"""
 
+def validate_school(school_name):
+    pass
 
 def upload_image(folder_name, file_uuid):
     '''
@@ -207,7 +189,7 @@ def upload_image(folder_name, file_uuid):
     '''
     file_path = '%s%s.%s' % (settings.TEMP_FILES, file_uuid, 'jpeg')
 
-    bucket = settings.AWS_BUCKET_NAME
+    bucket = settings.AWS_STORAGE_BUCKET_NAME
     conn = connect_s3(settings.AWS_ACCESS_KEY_ID,
                       settings.AWS_SECRET_ACCESS_KEY)
     k = Key(conn.get_bucket(bucket))
@@ -219,7 +201,7 @@ def upload_image(folder_name, file_uuid):
     return image_uri
 
 def generate_profile_pic_url(image_uuid):
-    bucket = settings.AWS_BUCKET_NAME
+    bucket = settings.AWS_STORAGE_BUCKET_NAME
     conn = connect_s3(settings.AWS_ACCESS_KEY_ID,
                       settings.AWS_SECRET_ACCESS_KEY)
     k = Key(conn.get_bucket(bucket))
@@ -304,12 +286,8 @@ def verify_completed_registration(user):
         pleb = Pleb.nodes.get(email=user.email)
         return pleb.completed_profile_info
     except (Pleb.DoesNotExist,DoesNotExist):
-        logger.critical({"exception": "Pleb does not exist",
-                         "function": "verify_completed_registration"})
         return False
     except CypherException:
-        logger.critical({"exception": "cypher exception",
-                         "function": "verify_completed_registration"})
         return False
 
 def verify_verified_email(user):

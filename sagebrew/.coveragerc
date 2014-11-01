@@ -15,6 +15,10 @@ omit =
     */management/commands/populatenginx.py
     */management/commands/populatesupervisor.py
     */api/alchemyapi.py
+    */management/commands/populateschools.py
+    */management/commands/populatetopiccats.py
+    */management/commands/populateenvconfig.py
+    */management/commands/populatehistoricaldata.py
 
 [report]
 # Regexes for lines to exclude from consideration
@@ -29,6 +33,9 @@ exclude_lines =
     # Don't complain if tests don't hit defensive assertion code:
     raise AssertionError
     raise NotImplementedError
+    raise Exception
+
+    except Exception
 
     # Don't complain if non-runnable code isn't run:
     if 0:

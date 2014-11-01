@@ -10,18 +10,14 @@ WEB_ADDRESS = "https://127.0.0.1:8080"
 
 VERIFY_SECURE = False
 
-# TODO this makes it so we cannot run tests concurrently (parallel processing in
-# circle. This is because the test db gets created on this server and then
-# if another one starts running it fails. Might want to look into making a
-# separate test config again that uses a local psql db based on circles docs.
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'circle_test',
-        'USER': 'ubuntu',
-        'PASSWORD': '',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'NAME': environ.get("DB_DOCKER_NAME", 'circle_test'),
+        'USER': environ.get("DB_USER", 'ubuntu'),
+        'PASSWORD': environ.get("DB_PASSWORD", ''),
+        'HOST': environ.get("DB_PORT_5432_TCP_ADDR", '127.0.0.1'),
+        'PORT': environ.get("DB_PORT_5432_TCP_PORT", '5432')
     }
 }
 
@@ -90,6 +86,13 @@ LOGGING = {
             'token': LOG_TOKEN
         },
         'elasticsearch': {
+            'handlers': ['logging.handlers.SysLogHandler'],
+            'propagate': True,
+            'format': 'loggly: %(message)s',
+            'level': 'CRITICAL',
+            'token': LOG_TOKEN
+        },
+        'neomodel.properties': {
             'handlers': ['logging.handlers.SysLogHandler'],
             'propagate': True,
             'format': 'loggly: %(message)s',

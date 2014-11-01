@@ -1,8 +1,7 @@
-import shortuuid
 import logging
-import hashlib
 from django.conf import settings
 from uuid import uuid1
+from json import dumps
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -13,19 +12,18 @@ from django.template.loader import get_template
 from django.template import Context
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from neomodel import DoesNotExist
+from neomodel import DoesNotExist, AttemptedCardinalityViolation
 
+from sb_tag.neo_models import SBTag
 from api.utils import spawn_task
 from plebs.tasks import send_email_task
 from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
-                    ProfilePictureForm, AddressChoiceForm, SignupForm,
+                    ProfilePictureForm, SignupForm,
                     LoginForm)
-from .utils import (validate_address, generate_interests_tuple, upload_image,
-                    compare_address, generate_address_tuple,
-                    create_address_string,
+from .utils import (upload_image,
                     create_address_long_hash, verify_completed_registration,
-                    verify_verified_email, calc_age, sb_send_email,
+                    verify_verified_email, calc_age,
                     create_user_util)
 from .models import token_gen
 
@@ -36,7 +34,15 @@ logger = logging.getLogger('loggly_logs')
 def confirm_view(request):
     return render(request, 'verify_email.html')
 
+def age_restriction():
+    pass
+
 def signup_view(request):
+    # TODO Need to take the user somewhere and do something with the ajax
+    # from the api.
+    # Need to take them to a 500 error page or something.
+    # Otherwise they just sit at the sign up page
+    # with the button not taking them anywhere.
     return render(request, 'sign_up_page/index.html')
 
 @api_view(['POST'])
@@ -66,6 +72,20 @@ def signup_view_api(request):
                                        cleaned_data['email'],
                                        password=signup_form.
                                        cleaned_data['password'])
+                # TODO if this fails we might want to roll back the user creation
+                # Otherwise we end up creating a user and never actually moving
+                # the user forward. Then when they go to try again they get
+                # a user already exists error
+                # Also need to benchmark process in production/staging
+                # on local instance with docker after clicking sign up the
+                # user sits at the page for a couple seconds prior to being
+                # redirected. This makes it seem as though nothing happened on
+                # click. They click again and it results in an error being provided.
+                # We may have to do a loading greyed out screen while waiting
+                # for a response if the timing takes that long in prod.
+                # Or go over to a pure view implementation without the API.
+                # Just need to look into it when not going through so many
+                # different hops
                 if res and res is not None:
                     user = authenticate(username=res['username'],
                                         password=signup_form.cleaned_data[
@@ -82,9 +102,10 @@ def signup_view_api(request):
                 else:
                     return Response({'detail': 'invalid login'},
                                     status=400)
+        # TODO add a handler for if the form is not valid
     except Exception:
-        logger.exception({'function': signup_view_api.__name__,
-                          'exception': 'UnhandledException: '})
+        logger.exception(dumps({'function': signup_view_api.__name__,
+                                'exception': 'UnhandledException'}))
         return Response({'detail': 'exception'}, status=400)
 
 def login_view(request):
@@ -94,14 +115,9 @@ def login_view(request):
 def resend_email_verification(request):
     try:
         pleb = Pleb.nodes.get(email=request.user.email)
-    except Pleb.DoesNotExist:
-        logger.exception({'function': resend_email_verification.__name__,
-                          'exception': 'DoesNotExist: '})
+    except (Pleb.DoesNotExist, DoesNotExist):
         return Response({'detail': 'pleb does not exist'}, status=400)
-    except DoesNotExist:
-        logger.exception({'function': resend_email_verification.__name__,
-                          'exception': 'DoesNotExist: '})
-        return Response({'detail': 'pleb does not exist'}, status=400)
+
     template_dict = {
         'full_name': request.user.first_name+' '+request.user.last_name,
         'verification_url': settings.EMAIL_VERIFICATION_URL+token_gen.make_token(request.user, pleb)+'/'
@@ -126,8 +142,6 @@ def login_view_api(request):
             try:
                 user = User.objects.get(email=login_form.cleaned_data['email'])
             except User.DoesNotExist:
-                logger.exception({'function': login_view_api.__name__,
-                                  'exception': 'User.DoesNotExist'})
                 return Response({'detail': 'cannot find user'}, status=400)
             user = authenticate(username=user.username,
                                 password=login_form.cleaned_data['password'])
@@ -136,14 +150,7 @@ def login_view_api(request):
                     login(request, user)
                     try:
                         pleb = Pleb.nodes.get(email=user.email)
-                    except Pleb.DoesNotExist:
-                        logger.exception({'function': login_view_api.__name__,
-                          'exception': 'Pleb.DoesNotExist'})
-                        return Response({'detail': 'cannot find user'},
-                                        status=400)
-                    except DoesNotExist:
-                        logger.exception({'function': login_view_api.__name__,
-                          'exception': 'Pleb.DoesNotExist'})
+                    except (Pleb.DoesNotExist, DoesNotExist):
                         return Response({'detail': 'cannot find user'},
                                         status=400)
                     pleb.generate_username()
@@ -159,8 +166,8 @@ def login_view_api(request):
             else:
                 return Response({'detail': 'invalid password'}, status=400)
     except Exception:
-        logger.exception({'function': login_view_api.__name__,
-                          'exception': 'UnhandledException: '})
+        logger.exception(dumps({'function': login_view_api.__name__,
+                                'exception': 'UnhandledException'}))
         return Response({'detail': 'unknown exception'}, status=400)
 
 @login_required()
@@ -179,9 +186,7 @@ def email_verification(request, confirmation):
         else:
             # TODO Ensure to link up to a real redirect page
             return HttpResponse('Unauthorized', status=401)
-    except Pleb.DoesNotExist:
-        return redirect('logout')
-    except DoesNotExist:
+    except (Pleb.DoesNotExist, DoesNotExist):
         return redirect('logout')
     except Exception:
         logger.exception({'function': email_verification.__name__,
@@ -208,19 +213,18 @@ def profile_information(request):
     we provided the user previously based on the previous
     smarty streets ordering.
     '''
-    # TODO Add custom logic after State is submitted that checks if the
-    # entered value is within the 50 states
-    # if not return error indicating sorry we currently only support 50
     profile_information_form = ProfileInfoForm(request.POST or None)
     address_information_form = AddressInfoForm(request.POST or None)
-    address_selection_form = AddressChoiceForm(request.POST or None)
-    address_selection = "no_selection"
 
     try:
         citizen = Pleb.nodes.get(email=request.user.email)
-    except Pleb.DoesNotExist:
+    except (Pleb.DoesNotExist, DoesNotExist):
         return redirect("404_Error")
+    if citizen.completed_profile_info:
+        return redirect("interests")
     if profile_information_form.is_valid():
+        if calc_age(profile_information_form.cleaned_data['date_of_birth'])<13:
+            return redirect("age_restriction_13.html")
         citizen.date_of_birth = profile_information_form.cleaned_data[
             "date_of_birth"]
         citizen.home_town = profile_information_form.cleaned_data["home_town"]
@@ -230,92 +234,54 @@ def profile_information(request):
         citizen.save()
     if address_information_form.is_valid():
         address_clean = address_information_form.cleaned_data
-        address_info = validate_address(address_clean)
-        if not address_info:
-            address = Address(address_hash=str(uuid1()),
-                              street=address_clean['street'],
-                              street_additional=address_clean['street_additional'],
-                              city=address_clean['city'],
-                              state=address_clean['state'],
-                              postal_code=address_clean['zipCode'],
-                              validated=False)
-            address.save()
+        address_clean['country'] = 'USA'
+        if address_clean['valid']=="valid":
+            address_hash = create_address_long_hash(address_clean)
+            try:
+                address = Address.nodes.get(address_hash=address_hash)
+            except (Address.DoesNotExist, DoesNotExist):
+                address = Address(address_hash=address_hash,
+                                  street=address_clean['primary_address'],
+                                  street_aditional=address_clean['street_additional'],
+                                  city=address_clean['city'],
+                                  state=address_clean['state'],
+                                  postal_code=address_clean['postal_code'],
+                                  latitude=address_clean['latitude'],
+                                  longitude=address_clean['longitude'],
+                                  congressional_district=address_clean['congressional_district'])
+                address.save()
             address.address.connect(citizen)
-            citizen.address.connect(address)
+            try:
+                citizen.address.connect(address)
+            except AttemptedCardinalityViolation:
+                return redirect('interests')
             citizen.completed_profile_info = True
             citizen.save()
             return redirect('interests')
-        addresses_returned = len(address_info)
-        address_tuple = generate_address_tuple(address_info)
-
-        # Not doing 0 cause already done with address_information_form
-        if (addresses_returned == 1):
-            if compare_address(address_info[0], address_clean):
-                address_info[0]["country"] = "USA"
-                address_long_hash = create_address_long_hash(
-                    address_info[0])
-                try:
-                    address = Address.nodes.get(address_hash=address_long_hash)
-                except Address.DoesNotExist:
-                    address_info[0]["address_hash"] = address_long_hash
-                    address = Address(**address_info[0])
-                    address.save()
-                address.address.connect(citizen)
-                citizen.completed_profile_info = True
+        elif address_clean['valid']=="invalid" and address_clean['original_selected']:
+            address = Address(address_hash=str(uuid1()),
+                              street=address_clean['primary_address'],
+                              street_additional=address_clean['street_additional'],
+                              city=address_clean['city'],
+                              state=address_clean['state'],
+                              postal_code=address_clean['postal_code'],
+                              latitude=address_clean['latitude'],
+                              longitude=address_clean['longitude'],
+                              congressional_district=address_clean['congressional_district'],
+                              validated = False)
+            address.save()
+            address.address.connect(citizen)
+            try:
                 citizen.address.connect(address)
-                citizen.save()
+            except AttemptedCardinalityViolation:
                 return redirect('interests')
-            else:
-                address_selection_form.fields[
-                    'address_options'].choices = address_tuple
-                address_selection_form.fields[
-                    'address_options'].required = True
-                address_selection = "selection"
-        elif (addresses_returned > 1):
-            # Choices need to be populated prior to is_valid call to ensure
-            # that the form validates against the correct values
-            # We also are able ot keep this in the same location because
-            # we hid the other address form but it keeps the same values as
-            # previously entered. This enables us to get the same results
-            # back from smarty streets and validate those choices again then
-            # select the one that the user selected.
-            address_selection_form.fields[
-                'address_options'].choices = address_tuple
-            address_selection_form.fields['address_options'].required = True
-            address_selection = "selection"
-
-        if (address_selection == "selection"):
-            if (address_selection_form.is_valid()):
-                store_address = None
-                address_hash = address_selection_form.cleaned_data[
-                    "address_options"]
-                for optional_address in address_info:
-                    optional_address["country"] = "USA"
-                    address_string = create_address_string(optional_address)
-                    optional_hash = hashlib.sha224(address_string).hexdigest()
-                    if (address_hash == optional_hash):
-                        store_address = optional_address
-                        break
-                if (store_address is not None):
-                    address_long_hash = create_address_long_hash(store_address)
-                    try:
-                        address = Address.nodes.get(
-                            address_hash=address_long_hash)
-                    except Address.DoesNotExist:
-                        store_address["address_hash"] = address_long_hash
-                        address = Address(**store_address)
-                        address.save()
-                    address.address.connect(citizen)
-                    citizen.completed_profile_info = True
-                    citizen.address.connect(address)
-                    citizen.save()
-                    return redirect('interests')
+            citizen.completed_profile_info = True
+            citizen.save()
+            return redirect('interests')
 
     return render(request, 'profile_info.html',
                   {'profile_information_form': profile_information_form,
-                   'address_information_form': address_information_form,
-                   'address_selection': address_selection,
-                   'address_choice_form': address_selection_form})
+                   'address_information_form': address_information_form})
 
 
 @login_required()
@@ -331,38 +297,28 @@ def interests(request):
     :param request:
     :return: HttpResponse
     '''
-    interest_form = InterestForm(request.POST or None)
-    choices_tuple = generate_interests_tuple()
-    interest_form.fields["specific_interests"].choices = choices_tuple
-    if interest_form.is_valid():
-        for item in interest_form.cleaned_data:
-            if (interest_form.cleaned_data[item] and
-                        item != "specific_interests"):
-                try:
-                    citizen = Pleb.nodes.get(email=request.user.email)
-                    if citizen.completed_profile_info:
-                        return redirect('profile_picture')
-                except Pleb.DoesNotExist:
-                    redirect("404_Error")
-                try:
-                    category_object = TopicCategory.nodes.get(
-                        title=item.capitalize())
-                    for topic in category_object.sb_topics.all():
-                        # citizen.sb_topics.connect(topic)
-                        pass
-                        # citizen.topic_category.connect(category_object)
-                except TopicCategory.DoesNotExist:
-                    redirect("404_Error")
-
-        for topic in interest_form.cleaned_data["specific_interests"]:
+    try:
+        interest_form = InterestForm(request.POST or None)
+        if interest_form.is_valid():
             try:
-                interest_object = SBTopic.nodes.get(title=topic)
-            except SBTopic.DoesNotExist:
+                citizen = Pleb.nodes.get(email=request.user.email)
+            except (Pleb.DoesNotExist, DoesNotExist):
                 redirect("404_Error")
-                # citizen.sb_topics.connect(interest_object)
-        return redirect('profile_picture')
+            for item in interest_form.cleaned_data:
+                if interest_form.cleaned_data[item]:
+                    try:
+                        tag = SBTag.nodes.get(tag_name=item)
+                    except (SBTag.DoesNotExist, DoesNotExist):
+                        return redirect("404_Error")
+                    citizen.interests.connect(tag)
+            return redirect('profile_picture')
 
-    return render(request, 'interests.html', {'interest_form': interest_form})
+        return render(request, 'interests.html',
+                      {'interest_form': interest_form})
+    except Exception:
+        logger.exception(dumps({"function": interests.__name__,
+                                "exception": "UnhandledException: "}))
+        return redirect("404_Error")
 
 
 @login_required()

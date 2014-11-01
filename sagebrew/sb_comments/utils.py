@@ -220,7 +220,8 @@ def edit_comment_util(comment_uuid=str(uuid1()), content="",
 
 def delete_comment_util(comment_uuid=str(uuid1())):
     '''
-    deletes the comment which is tied to the id it is passed
+    Removes the personal content the comment which is tied to the id it is
+    passed
 
     :param comment_uuid:
                         id of the comment which will be deleted
@@ -229,7 +230,8 @@ def delete_comment_util(comment_uuid=str(uuid1())):
     try:
         my_comment = SBComment.nodes.get(comment_id=comment_uuid)
         if datetime.now(pytz.utc).day - my_comment.delete_time.day >= 1:
-            my_comment.delete()
+            my_comment.content=""
+            my_comment.save()
             return True
         else:
             return True

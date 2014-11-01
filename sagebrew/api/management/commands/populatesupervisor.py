@@ -1,4 +1,6 @@
 from os import environ
+import socket
+from json import dumps
 import logging
 import multiprocessing
 
@@ -10,8 +12,8 @@ logger = logging.getLogger('loggly_logs')
 class Command(BaseCommand):
     def populate_supervisor(self, env, user):
         worker_count = (multiprocessing.cpu_count() *2) + 1
-        if worker_count > 12 and environ.get("CIRCLECI", False):
-            worker_count = 12
+        if(environ.get("CIRCLECI", False)):
+            worker_count = 2
         worker_count = str(worker_count)
         if(env == "web"):
             with open ("%s/supervisor_confs/web_template.conf" % (
@@ -30,6 +32,14 @@ class Command(BaseCommand):
             f = open("/etc/supervisor/conf.d/sagebrew.conf", "w")
             f.write(data)
             f.close()
+        elif(env == "worker-test"):
+            with open ("%s/supervisor_confs/worker_template_circle.conf" % (
+                    settings.REPO_DIR), "r") as dockerfile:
+                data = dockerfile.read()
+                data = populate_general_values(data, user, worker_count)
+            f = open("/etc/supervisor/conf.d/sagebrew.conf", "w")
+            f.write(data)
+            f.close()
         else:
             pass
 
@@ -39,8 +49,15 @@ class Command(BaseCommand):
 
 def populate_general_values(data, user, worker_count):
     data = data.replace("%(ENV_APP_USER)s", user)
+    data = data.replace("%(NUMBER_OF_WORKERS)s", worker_count)
     data = data.replace("%(ENV_REPO_NAME)s",
                         environ.get("REPO_NAME", "sagebrew"))
+    data = data.replace("%(ENV_CIRCLECI)s",
+                        environ.get("CIRCLECI", "false"))
+    data = data.replace("%(ENV_CIRCLE_BRANCH)s",
+                        environ.get("CIRCLE_BRANCH", "master"))
+    data = data.replace("%(ENV_CIRCLE_ARTIFACTS)s",
+                        environ.get("CIRCLE_ARTIFACTS", "/home/apps/logs/"))
     data = data.replace("%(ENV_PROJECT_DIR)s", settings.PROJECT_DIR)
     data = data.replace("%(ENV_PROJECT_NAME)s", "sagebrew")
     data = data.replace("%(ENV_NUMBER_OF_WORKERS)s", worker_count)

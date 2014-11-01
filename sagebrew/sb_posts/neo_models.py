@@ -64,6 +64,7 @@ class SBBase(StructuredNode):
 
 
 class SBPost(SBBase):
+    sb_name = "post"
     post_id = StringProperty(unique_index=True)
 
     # relationships

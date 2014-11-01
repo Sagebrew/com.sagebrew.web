@@ -49,7 +49,7 @@ def save_answer_util(content="", current_pleb="", answer_uuid="",
         rel_to_pleb.save()
         answer.save()
         task_data={
-            'sb_object': answer, 'object_type': 'answer', 'from_pleb': my_pleb,
+            'sb_object': answer, 'from_pleb': my_pleb,
             'to_plebs': [question.owned_by.all()[0]]
         }
         spawn_task(task_func=spawn_notifications, task_param=task_data)

@@ -36,7 +36,7 @@ class TestNotificationTasks(TestCase):
         post = SBPost(**self.post_info_dict)
         post.save()
 
-        data={'sb_object': post, 'object_type': 'post',
+        data={'sb_object': post,
               'from_pleb': self.pleb,
               'to_plebs': [self.pleb2,]}
         response = spawn_notifications.apply_async(kwargs=data)
@@ -51,7 +51,7 @@ class TestNotificationTasks(TestCase):
         comment.save()
 
         data = {'from_pleb':self.pleb, 'to_plebs': [self.pleb2,],
-                'object_type': 'comment', 'sb_object': comment}
+                'sb_object': comment}
 
         response = spawn_notifications.apply_async(kwargs=data)
         while not response.ready():

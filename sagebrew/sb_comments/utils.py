@@ -1,6 +1,7 @@
 import pytz
 import logging
 from uuid import uuid1
+from json import dumps
 from datetime import datetime
 from neomodel import CypherException, DoesNotExist
 
@@ -10,6 +11,7 @@ from plebs.neo_models import Pleb
 from api.utils import execute_cypher_query
 
 logger = logging.getLogger('loggly_logs')
+
 
 def get_post_comments(post_info):
     '''
@@ -167,7 +169,7 @@ def save_comment_post(content="", pleb="", post_uuid=str(uuid1())):
         return False
     except Exception:
         logger.exception({"function": save_comment_post.__name__,
-                          "exception": "UnhandledException: "})
+                          "exception": "UnhandledException"})
         return False
 
 
@@ -214,8 +216,8 @@ def edit_comment_util(comment_uuid, content="", last_edited_on=None):
         return True
 
     except Exception:
-        logger.exception({"function": edit_comment_util.__name__,
-                          'exception': "UnhandledException: "})
+        logger.exception(dumps({"function": edit_comment_util.__name__,
+                                'exception': "UnhandledException"}))
         return Exception
 
 def delete_comment_util(comment_uuid=str(uuid1())):

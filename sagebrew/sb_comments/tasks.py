@@ -43,7 +43,7 @@ def edit_comment_task(comment_uuid, content="", last_edited_on=None):
             return False
     except Exception:
         logger.exception(dumps({"function": edit_comment_task.__name__,
-                                "exception": Exception.__name__}))
+                                "exception": "UnhandledException"}))
         raise edit_comment_task.retry(exc=Exception, countdown=3,
                                       max_retries=None)
 
@@ -131,17 +131,17 @@ def submit_comment_on_post(content="", pleb="", post_uuid=str(uuid1())):
             post = my_comment.commented_on_post.all()[0]
             to_plebs = post.owned_by.all()
             data = {'from_pleb': from_pleb, 'to_plebs': to_plebs,
-                    'object_type': 'comment', 'sb_object': my_comment}
+                    'sb_object': my_comment}
             spawn_task(task_func=spawn_notifications, task_param=data)
             return True
     except DoesNotExist:
         raise submit_comment_on_post.retry(exc=DoesNotExist, countdown=5,
-                                     max_retries=None)
+                                           max_retries=None)
     except Exception:
         logger.exception({'function': submit_comment_on_post.__name__,
-                    'exception': "UnhandledException: "})
+                          'exception': "UnhandledException"})
         raise submit_comment_on_post.retry(exc=Exception, countdown=5,
-                                     max_retries=None)
+                                           max_retries=None)
 
 
 @shared_task()

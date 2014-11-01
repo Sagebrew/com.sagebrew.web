@@ -124,7 +124,7 @@ def save_post_task(content="", current_pleb="", wall_pleb="",
             # pleb rather than just the email, since just do another query in
             # the util anyways and will need to do one for the notification
 
-            notification_data={'object_type': 'post', 'sb_object': my_post,
+            notification_data={'sb_object': my_post,
                                'from_pleb':Pleb.nodes.get(email=current_pleb),
                                'to_plebs': [Pleb.nodes.get(email=wall_pleb),]}
             spawn_task(task_func=spawn_notifications,
@@ -133,7 +133,7 @@ def save_post_task(content="", current_pleb="", wall_pleb="",
         raise Exception
     except Exception:
         logger.exception({"function": save_post_task.__name__,
-                          "exception": "UnhandledException: "})
+                          "exception": "UnhandledException"})
         raise save_post_task.retry(exc=Exception, countdown=3, max_retries=None)
 
 

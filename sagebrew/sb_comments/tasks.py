@@ -13,6 +13,7 @@ from plebs.neo_models import Pleb
 
 logger = logging.getLogger('loggly_logs')
 
+
 @shared_task()
 def edit_comment_task(comment_uuid=str(uuid1()), content="",
                       last_edited_on=None, pleb=""):
@@ -33,18 +34,18 @@ def edit_comment_task(comment_uuid=str(uuid1()), content="",
             to edit
     '''
     try:
-        edit_response = edit_comment_util(comment_uuid, content, last_edited_on,
+        response = edit_comment_util(comment_uuid, content, last_edited_on,
                                           pleb)
-        if edit_response == True:
+        if response is True:
             return True
-        elif edit_response['detail'] == 'retry':
-            raise edit_comment_task.retry(exc=Exception, countdown=3,
+        elif type(response) is type(Exception):
+            raise edit_comment_task.retry(exc=response, countdown=3,
                                           max_retries=None)
         else:
             return False
     except Exception:
         logger.exception(dumps({"function": edit_comment_task.__name__,
-                                "exception": Exception}))
+                                "exception": Exception.__name__}))
         raise edit_comment_task.retry(exc=Exception, countdown=3,
                                       max_retries=None)
 

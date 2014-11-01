@@ -1,6 +1,7 @@
 import logging
 import time
 import boto.sqs
+import ast
 from uuid import uuid1
 from socket import error as socket_error
 from json import loads, dumps
@@ -232,20 +233,24 @@ def test_wait_util(async_res):
         time.sleep(1)
 
 def get_object(object_type, object_uuid):
+    '''
+    DO NOT USE THIS FUNCTION ANYWHERE THAT DOES NOT HAVE A FORM
+    AND A CHOICE FIELD CLEARLY LAID OUT.
+
+    This function will take the id of an object and the objects class
+    name as a string: SBPost: "SBPost", etc. and return the object.
+    If the object is not found it will return False
+
+    :param object_type:
+    :param object_uuid:
+    :return:
+    '''
     try:
-        if object_type=='question':
-            return SBQuestion.nodes.get(sb_id=object_uuid)
-        elif object_type=='answer':
-            return SBAnswer.nodes.get(sb_id=object_uuid)
-        elif object_type=='comment':
-            return SBComment.nodes.get(sb_id=object_uuid)
-        elif object_type=='post':
-            return SBPost.nodes.get(sb_id=object_uuid)
-        else:
-            return False
-    except DoesNotExist:
+        return eval(object_type).nodes.get(sb_id=object_uuid)
+    except (eval(object_type).DoesNotExist, DoesNotExist):
         return False
     except NameError:
         logger.critial(dumps({"function": get_object.__name__,
-                              "exception": NameError.__name__}))
+                              "exception": NameError.__name__,
+                              "type": object_type}))
         return False

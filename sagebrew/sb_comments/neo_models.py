@@ -13,6 +13,7 @@ class CommentedOnRel(StructuredRel):
 
 
 class SBComment(StructuredNode):
+    allowed_flags = ["explicit", "spam", "other"]
     content = StringProperty()
     sb_id = StringProperty(unique_index=True, default=lambda: str(uuid1()))
     created_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))

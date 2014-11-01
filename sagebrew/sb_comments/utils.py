@@ -171,7 +171,7 @@ def save_comment_post(content="", pleb="", post_uuid=str(uuid1())):
         return False
 
 
-def edit_comment_util(comment_uuid=None, content="", last_edited_on=None):
+def edit_comment_util(comment_uuid, content="", last_edited_on=None):
     '''
     finds the comment with the given comment id then changes the content to the
     content which was passed. also changes the edited on date and time to the
@@ -186,8 +186,6 @@ def edit_comment_util(comment_uuid=None, content="", last_edited_on=None):
                     DateTime which the util was called
     :return:
     '''
-    if comment_uuid is None:
-        comment_uuid = str(uuid1())
     if last_edited_on is None:
         return False
     try:

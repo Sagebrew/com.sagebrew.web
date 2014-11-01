@@ -15,8 +15,7 @@ logger = logging.getLogger('loggly_logs')
 
 
 @shared_task()
-def edit_comment_task(comment_uuid=str(uuid1()), content="",
-                      last_edited_on=None, pleb=""):
+def edit_comment_task(comment_uuid, content="", last_edited_on=None):
     '''
     Task to edit a comment and update the last_edited_on value of the comment
 
@@ -34,8 +33,7 @@ def edit_comment_task(comment_uuid=str(uuid1()), content="",
             to edit
     '''
     try:
-        response = edit_comment_util(comment_uuid, content, last_edited_on,
-                                          pleb)
+        response = edit_comment_util(comment_uuid, content, last_edited_on)
         if response is True:
             return True
         elif type(response) is type(Exception):

@@ -74,8 +74,7 @@ class TestEditComment(TestCase):
         my_comment = save_comment_post(**task_param)
         edit_task_param = {'comment_uuid': my_comment.comment_id,
                            'content': 'test edit',
-                           'last_edited_on': datetime.now(pytz.utc),
-                           'pleb': self.user.email}
+                           'last_edited_on': datetime.now(pytz.utc)}
         response = edit_comment_task.apply_async(kwargs=edit_task_param)
         while not response.ready():
             time.sleep(3)
@@ -84,8 +83,7 @@ class TestEditComment(TestCase):
     def test_edit_comment_failure_comment_does_not_exist(self):
         edit_task_param = {'comment_uuid': str(uuid1()),
                            'content': 'test edit',
-                           'last_edited_on': datetime.now(pytz.utc),
-                           'pleb': self.user.email}
+                           'last_edited_on': datetime.now(pytz.utc)}
         response = edit_comment_task.apply_async(kwargs=edit_task_param)
         while not response.ready():
             time.sleep(3)

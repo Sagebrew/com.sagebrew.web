@@ -35,16 +35,16 @@ class ProfilePageTest(TestCase):
         self.pleb.save()
 
     def test_unauthenticated(self):
-        request = self.factory.get('/%s' % self.email)
+        request = self.factory.get('/%s' % self.pleb.username)
         request.user = AnonymousUser()
-        response = profile_page(request, self.email)
+        response = profile_page(request, self.pleb.username)
         self.assertEqual(response.status_code, 302)
 
     def test_without_post(self):
         wall = self.pleb.wall.all()[0]
-        request = self.factory.get('/%s' % self.email)
+        request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
-        response = profile_page(request, self.email)
+        response = profile_page(request, self.pleb.username)
         self.assertEqual(response.status_code, 200)
 
     def test_with_post(self):
@@ -57,9 +57,9 @@ class ProfilePageTest(TestCase):
         rel.save()
         rel_from_pleb = self.pleb.posts.connect(test_post)
         rel_from_pleb.save()
-        request = self.factory.get('/%s' % self.email)
+        request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
-        response = profile_page(request, self.email)
+        response = profile_page(request, self.pleb.username)
         self.assertEqual(response.status_code, 200)
         test_post.delete()
 
@@ -83,9 +83,9 @@ class ProfilePageTest(TestCase):
         rel_to_post.save()
         rel_from_post = test_post.comments.connect(my_comment)
         rel_from_post.save()
-        request = self.factory.get('/%s' % self.email)
+        request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
-        response = profile_page(request, self.email)
+        response = profile_page(request, self.pleb.username)
         self.assertEqual(response.status_code, 200)
         test_post.delete()
         my_comment.delete()
@@ -112,9 +112,9 @@ class ProfilePageTest(TestCase):
         rel_to_post.save()
         rel_from_post = test_post.comments.connect(my_comment)
         rel_from_post.save()
-        request = self.factory.get('/%s' % self.email)
+        request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
-        response = profile_page(request, self.email)
+        response = profile_page(request, self.pleb.username)
         self.assertEqual(response.status_code, 200)
         test_user.delete()
         test_post.delete()
@@ -135,7 +135,8 @@ class ProfilePageTest(TestCase):
             post_array.append(test_post)
         self.client.login(username=self.username, password=self.password)
         response = self.client.get(reverse("profile_page",
-                                           kwargs={"pleb_email": self.email}),
+                                           kwargs={"pleb_username":
+                                                       self.pleb.username}),
                                    follow=True)
         self.assertEqual(response.status_code, 200)
         for post in post_array:
@@ -167,9 +168,9 @@ class ProfilePageTest(TestCase):
         rel.save()
         rel_from_pleb = self.pleb.posts.connect(test_post)
         rel_from_pleb.save()
-        request = self.factory.get('/%s' % self.email)
+        request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
-        response = profile_page(request, self.email)
+        response = profile_page(request, self.pleb.username)
         self.assertEqual(response.status_code, 200)
         for item in pleb_array:
             item.delete()
@@ -231,9 +232,9 @@ class ProfilePageTest(TestCase):
         rel.save()
         rel_from_pleb = self.pleb.posts.connect(test_post)
         rel_from_pleb.save()
-        request = self.factory.get('/%s' % self.email)
+        request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
-        response = profile_page(request, self.email)
+        response = profile_page(request, self.pleb.username)
         self.assertEqual(response.status_code, 200)
         for item in pleb_array:
             item.delete()
@@ -262,15 +263,15 @@ class TestProfilePageAbout(TestCase):
         self.pleb.save()
 
     def test_profile_about_page_success(self):
-        request = self.factory.get('/%s/about/' % self.email)
+        request = self.factory.get('/%s/about/' % self.pleb.username)
         request.user = self.user
-        response = about_page(request, self.email)
+        response = about_page(request, self.pleb.username)
         self.assertEqual(response.status_code, 200)
 
     def test_profile_about_page_unauthenticated(self):
-        request = self.factory.get('/%s/about/' % self.email)
+        request = self.factory.get('/%s/about/' % self.pleb.username)
         request.user = AnonymousUser()
-        response = about_page(request, self.email)
+        response = about_page(request, self.pleb.username)
         self.assertEqual(response.status_code, 302)
 
 
@@ -292,15 +293,15 @@ class TestProfilePageReputationPage(TestCase):
         self.pleb.save()
 
     def test_profile_reputation_page_success(self):
-        request = self.factory.get('/%s/reputation/' % self.email)
+        request = self.factory.get('/%s/reputation/' % self.pleb.username)
         request.user = self.user
-        response = reputation_page(request, self.email)
+        response = reputation_page(request, self.pleb.username)
         self.assertEqual(response.status_code, 200)
 
     def test_profile_reputation_page_unauthenticated(self):
-        request = self.factory.get('/%s/reputation/' % self.email)
+        request = self.factory.get('/%s/reputation/' % self.pleb.username)
         request.user = AnonymousUser()
-        response = reputation_page(request, self.email)
+        response = reputation_page(request, self.pleb.username)
         self.assertEqual(response.status_code, 302)
 
 class TestProfilePageFriendPage(TestCase):
@@ -321,14 +322,14 @@ class TestProfilePageFriendPage(TestCase):
         self.pleb.save()
 
     def test_profile_friend_page_success(self):
-        request = self.factory.get('/%s/friends/' % self.email)
+        request = self.factory.get('/%s/friends/' % self.pleb.username)
         request.user = self.user
-        response = friends_page(request, self.email)
+        response = friends_page(request, self.pleb.username)
         self.assertEqual(response.status_code, 200)
 
     def test_profile_friend_page_unauthenticated(self):
-        request = self.factory.get('/%s/friends/' % self.email)
+        request = self.factory.get('/%s/friends/' % self.pleb.username)
         request.user = AnonymousUser()
-        response = friends_page(request, self.email)
+        response = friends_page(request, self.pleb.username)
         self.assertEqual(response.status_code, 302)
 

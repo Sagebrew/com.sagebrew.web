@@ -34,8 +34,8 @@ logger = logging.getLogger('loggly_logs')
 def confirm_view(request):
     return render(request, 'verify_email.html')
 
-def age_restriction():
-    pass
+def age_restriction(request):
+    return render(request, 'age_restriction_13.html')
 
 def signup_view(request):
     # TODO Need to take the user somewhere and do something with the ajax
@@ -224,7 +224,7 @@ def profile_information(request):
         return redirect("interests")
     if profile_information_form.is_valid():
         if calc_age(profile_information_form.cleaned_data['date_of_birth'])<13:
-            return redirect("age_restriction_13.html")
+            return redirect("age_restriction_13")
         citizen.date_of_birth = profile_information_form.cleaned_data[
             "date_of_birth"]
         citizen.home_town = profile_information_form.cleaned_data["home_town"]
@@ -341,8 +341,6 @@ def profile_picture(request):
         if profile_picture_form.is_valid():
             try:
                 citizen = Pleb.nodes.get(email=request.user.email)
-                # if citizen.completed_profile_info:
-                #    return redirect('profile_page')
             except Pleb.DoesNotExist:
                 return render(request, 'profile_picture.html',
                               {'profile_picture_form': profile_picture_form})
@@ -356,8 +354,7 @@ def profile_picture(request):
                                                image_uuid)
             citizen.profile_pic_uuid = image_uuid
             citizen.save()
-            return redirect('profile_page', pleb_email=citizen.email)  #
-            # citizen.first_name+'_'+citizen.last_name)
+            return redirect('profile_page', pleb_username=citizen.username)
     else:
         profile_picture_form = ProfilePictureForm()
     return render(request, 'profile_picture.html',

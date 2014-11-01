@@ -71,8 +71,8 @@ class GTRole(StructuredNode):
     title_long = StringProperty()
     website = StringProperty()
 
-    person = Relationship('GTPerson', "IS")
-    congress_numbers = Relationship('GTCongressNumbers', "PART_OF")
+    person = RelationshipTo('GTPerson', "IS")
+    congress_numbers = RelationshipTo('GTCongressNumbers', "PART_OF")
 
 
 class GTVoteOption(StructuredNode):
@@ -108,7 +108,7 @@ class GT_RCVotes(StructuredNode):
     vote_type = StringProperty(default="")
 
     # relationships
-    option = Relationship('GTVoteOption', 'HAS_A')
+    option = RelationshipTo('GTVoteOption', 'HAS_A')
 
 
 class GTCommittee(StructuredNode):
@@ -120,7 +120,7 @@ class GTCommittee(StructuredNode):
     role_label = StringProperty()
 
     # relationships
-    committee = Relationship('GTCommittee', 'HAS_A_SUB')
+    committee = RelationshipTo('GTCommittee', 'HAS_A_SUB')
 
 
 

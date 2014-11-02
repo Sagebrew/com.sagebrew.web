@@ -31,8 +31,8 @@ def create_question_util(content="", current_pleb="", question_title=""):
             return None
         try:
             poster = Pleb.nodes.get(email=current_pleb)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return None
+        except (Pleb.DoesNotExist, DoesNotExist) as e:
+            return e
 
         content_blob = TextBlob(content)
         title_blob = TextBlob(question_title)
@@ -49,12 +49,12 @@ def create_question_util(content="", current_pleb="", question_title=""):
         rel_from_pleb = poster.questions.connect(my_question)
         rel_from_pleb.save()
         return my_question
-    except CypherException:
-        return False
-    except Exception:
+    except CypherException as e:
+        return e
+    except Exception as e:
         logger.exception({"function": create_question_util.__name__,
                           'exception': "UnhandledException: "})
-        return False
+        return e
 
 def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
     '''
@@ -384,13 +384,13 @@ def flag_question_util(question_uuid, current_pleb, flag_reason):
     try:
         try:
             question = SBQuestion.nodes.get(sb_id=question_uuid)
-        except (SBQuestion.DoesNotExist, DoesNotExist):
-            return False
+        except (SBQuestion.DoesNotExist, DoesNotExist) as e:
+            return e
 
         try:
             pleb = Pleb.nodes.get(email=current_pleb)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return None
+        except (Pleb.DoesNotExist, DoesNotExist) as e:
+            return e
 
         if question.flagged_by.is_connected(pleb):
             return True
@@ -417,7 +417,7 @@ def flag_question_util(question_uuid, current_pleb, flag_reason):
         else:
             return False
         return True
-    except Exception:
+    except Exception as e:
         logger.exception(dumps({"function": flag_question_util.__name__,
                                 "exception": "UnhandledException: "}))
-        return False
+        return e

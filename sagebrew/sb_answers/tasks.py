@@ -67,17 +67,15 @@ def save_answer_task(content="", current_pleb="", question_uuid="",
             task_data = {'answer': res}
             return spawn_task(task_func=add_answer_to_search_index,
                               task_param=task_data)
-        elif res is None:
-            raise TypeError
-        else:
-            return False
-    except TypeError:
-        raise save_answer_task.retry(exc=CypherException, countdown=5,
+        elif isinstance(res, Exception):
+            raise save_answer_task.retry(exc=res, countdown=5,
                                      max_retries=None)
-    except Exception:
+        return res
+
+    except Exception as e:
         logger.exception({"function": save_answer_task.__name__,
                           "exception": "UnhandledException"})
-        raise save_answer_task.retry(exc=Exception, countdown=5,
+        raise save_answer_task.retry(exc=e, countdown=5,
                                      max_retries=None)
 
 @shared_task()
@@ -96,12 +94,12 @@ def edit_answer_task(content="", answer_uuid="", last_edited_on=None,
     '''
     try:
         try:
-            my_pleb = Pleb.nodes.get(email=current_pleb)
+            Pleb.nodes.get(email=current_pleb)
         except (Pleb.DoesNotExist, DoesNotExist):
             return False
 
         try:
-            my_answer = SBAnswer.nodes.get(sb_id=answer_uuid)
+            SBAnswer.nodes.get(sb_id=answer_uuid)
         except (SBAnswer.DoesNotExist, DoesNotExist):
             return False
 
@@ -109,7 +107,7 @@ def edit_answer_task(content="", answer_uuid="", last_edited_on=None,
                                          answer_uuid=answer_uuid,
                                          current_pleb=current_pleb,
                                          last_edited_on=last_edited_on)
-        if edit_response == True:
+        if edit_response is True:
             return True
         if edit_response['detail'] == 'to be deleted':
             return False
@@ -119,13 +117,14 @@ def edit_answer_task(content="", answer_uuid="", last_edited_on=None,
             return False
         elif edit_response['detail'] == 'last edit more recent':
             return False
-        elif edit_response is None:
-            raise Exception
+        elif isinstance(edit_response, Exception):
+            raise edit_answer_task.retry(exc=edit_response, countdown=3,
+                                         max_retries=None)
 
-    except Exception:
+    except Exception as e:
         logger.exception({"function": edit_answer_task.__name__,
                           "exception": "UnhandledException"})
-        raise edit_answer_task.retry(exc=Exception, countdown=3,
+        raise edit_answer_task.retry(exc=e, countdown=3,
                                      max_retries=None)
 
 

@@ -26,16 +26,16 @@ def spawn_notifications(sb_object, from_pleb, to_plebs, uuid=None):
             uuid = str(uuid1())
         response = create_notification_util(sb_object, from_pleb, to_plebs,
                                             uuid)
-        if type(response) is type(Exception):
+        if isinstance(response, Exception) is True:
             raise response
         return response
 
-    except TypeError:
-        raise spawn_notifications.retry(exc=TypeError, countdown=3,
+    except TypeError as e:
+        raise spawn_notifications.retry(exc=e, countdown=3,
                                         max_retries=None)
-    except Exception:
+    except Exception as e:
         logger.exception(dumps({"function": spawn_notifications.__name__,
                                 "exception": "UnhandledException"}))
-        raise spawn_notifications.retry(exc=Exception, countdown=3,
+        raise spawn_notifications.retry(exc=e, countdown=3,
                                         max_retries=None)
 

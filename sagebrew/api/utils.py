@@ -1,10 +1,10 @@
 import logging
 import time
 import boto.sqs
-import ast
+
 from uuid import uuid1
 from socket import error as socket_error
-from json import loads, dumps
+from json import dumps
 
 from boto.sqs.message import Message
 from bomberman.client import Client, RateLimitExceeded
@@ -15,8 +15,7 @@ from django.conf import settings
 from api.alchemyapi import AlchemyAPI
 from sb_comments.neo_models import SBComment
 from sb_posts.neo_models import SBPost
-from sb_answers.neo_models import SBAnswer
-from sb_questions.neo_models import SBQuestion
+
 from sb_garbage.neo_models import SBGarbageCan
 
 
@@ -110,7 +109,7 @@ def spawn_task(task_func, task_param, countdown=0, task_id=None):
             'task_info_kwargs': task_param,
             'failure_uuid': failure_uuid
         }
-        logger.error(dumps(
+        logger.exception(dumps(
             {'failure_uuid': failure_uuid, 'function': task_func.__name__,
              'exception': 'socket_error'}))
         add_failure_to_queue(failure_dict)
@@ -123,7 +122,7 @@ def spawn_task(task_func, task_param, countdown=0, task_id=None):
             'task_info_kwargs': task_param,
             'failure_uuid': failure_uuid
         }
-        logger.error(dumps(
+        logger.exception(dumps(
             {'failure_uuid': failure_uuid, 'function': task_func.__name__,
              'exception': 'unknown_error'}))
         add_failure_to_queue(failure_dict)

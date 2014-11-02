@@ -38,15 +38,15 @@ def edit_comment_task(comment_uuid, content="", last_edited_on=None):
         response = edit_comment_util(comment_uuid, content, last_edited_on)
         if response is True:
             return True
-        elif type(response) is type(Exception):
+        elif isinstance(response, Exception) is True:
             raise edit_comment_task.retry(exc=response, countdown=3,
                                           max_retries=None)
         else:
             return False
-    except Exception:
+    except Exception as e:
         logger.exception(dumps({"function": edit_comment_task.__name__,
                                 "exception": "UnhandledException"}))
-        raise edit_comment_task.retry(exc=Exception, countdown=3,
+        raise edit_comment_task.retry(exc=e, countdown=3,
                                       max_retries=None)
 
 
@@ -97,13 +97,13 @@ def create_vote_comment(pleb="", comment_uuid=str(uuid1()), vote_type=""):
                     return False
                 else:
                     raise DoesNotExist("Comment does not exist")
-    except DoesNotExist:
-        raise create_vote_comment.retry(exc=DoesNotExistWrapper, countdown=3,
+    except DoesNotExist as e:
+        raise create_vote_comment.retry(exc=e, countdown=3,
                                         max_retries=None)
-    except Exception:
+    except Exception as e:
         logger.exception({"function": create_vote_comment.__name__,
                           "exception": "UnhandledException: "})
-        raise create_vote_comment.retry(exc=Exception, countdown=3,
+        raise create_vote_comment.retry(exc=e, countdown=3,
                                         max_retries=None)
 
 
@@ -136,13 +136,13 @@ def submit_comment_on_post(content="", pleb="", post_uuid=str(uuid1())):
                     'sb_object': my_comment}
             spawn_task(task_func=spawn_notifications, task_param=data)
             return True
-    except DoesNotExist:
-        raise submit_comment_on_post.retry(exc=DoesNotExistWrapper, countdown=5,
+    except DoesNotExist as e:
+        raise submit_comment_on_post.retry(exc=e, countdown=5,
                                            max_retries=None)
-    except Exception:
+    except Exception as e:
         logger.exception({'function': submit_comment_on_post.__name__,
                           'exception': "UnhandledException"})
-        raise submit_comment_on_post.retry(exc=Exception, countdown=5,
+        raise submit_comment_on_post.retry(exc=e, countdown=5,
                                            max_retries=None)
 
 
@@ -175,11 +175,11 @@ def flag_comment_task(comment_uuid, current_user, flag_reason):
             raise DoesNotExist("Flag does not exist")
         else:
             return True
-    except DoesNotExist:
-        raise flag_comment_task.retry(exc=DoesNotExistWrapper, countdown=5,
+    except DoesNotExist as e:
+        raise flag_comment_task.retry(exc=e, countdown=5,
                                       max_retries=None)
-    except Exception:
+    except Exception as e:
         logger.exception({"function": flag_comment_task.__name__,
                           "exception": "UnhandledException"})
-        raise flag_comment_task.retry(exc=Exception, countdown=5,
+        raise flag_comment_task.retry(exc=e, countdown=5,
                                       max_retries=None)

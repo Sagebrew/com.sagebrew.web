@@ -196,7 +196,7 @@ def edit_comment_util(comment_uuid, content="", last_edited_on=None):
         try:
             my_comment = SBComment.nodes.get(sb_id=comment_uuid)
         except (SBComment.DoesNotExist, DoesNotExist):
-            return DoesNotExistWrapper
+            return SBComment.DoesNotExist("SBComment Does Not Exist")
         if my_comment.last_edited_on > last_edited_on:
             return False
 
@@ -218,10 +218,10 @@ def edit_comment_util(comment_uuid, content="", last_edited_on=None):
         my_comment.save()
         return True
 
-    except Exception:
+    except Exception as e:
         logger.exception(dumps({"function": edit_comment_util.__name__,
                                 'exception': "UnhandledException"}))
-        return Exception
+        return e
 
 def delete_comment_util(comment_uuid=str(uuid1())):
     '''

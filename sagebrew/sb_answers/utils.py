@@ -12,6 +12,7 @@ from sb_notifications.tasks import spawn_notifications
 
 logger = logging.getLogger('loggly_logs')
 
+
 def save_answer_util(content="", current_pleb="", answer_uuid="",
                      question_uuid=""):
     '''
@@ -63,6 +64,7 @@ def save_answer_util(content="", current_pleb="", answer_uuid="",
                           "Unhandled Exception"})
         return None
 
+
 def edit_answer_util(content="", current_pleb="", answer_uuid="",
                      last_edited_on=""):
     try:
@@ -103,6 +105,7 @@ def edit_answer_util(content="", current_pleb="", answer_uuid="",
                                 "exception": "UnhandledException: "}))
         return False
 
+
 def upvote_answer_util(answer_uuid="", current_pleb=""):
     from .tasks import vote_answer_task
     try:
@@ -129,6 +132,7 @@ def upvote_answer_util(answer_uuid="", current_pleb=""):
                                 "exception": "UnhandledException: "}))
         return False
 
+
 def downvote_answer_util(answer_uuid="", current_pleb=""):
     from .tasks import vote_answer_task
     try:
@@ -152,6 +156,7 @@ def downvote_answer_util(answer_uuid="", current_pleb=""):
         logger.exception(dumps({"function": downvote_answer_util.__name__,
                                 "exception": "UnhandledException: "}))
         return False
+
 
 def flag_answer_util(answer_uuid, current_pleb, flag_reason):
     '''

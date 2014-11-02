@@ -2,7 +2,7 @@ import logging
 from uuid import uuid1
 from json import dumps
 from celery import shared_task
-from neomodel import DoesNotExist
+from neomodel import DoesNotExist, CypherException
 
 from api.utils import spawn_task, create_auto_tags
 from api.tasks import add_object_to_search_index
@@ -49,14 +49,17 @@ def add_question_to_indices_task(question, tags):
             return True
 
     except IndexError:
-        raise add_tags_to_question_task.retry(exc=IndexError, countdown=3,
+        raise add_question_to_indices_task.retry(exc=IndexError, countdown=3,
                                               max_retries=None)
+    except CypherException:
+        raise add_question_to_indices_task.retry(exc=CypherException,
+                                                 countdown=3, max_retries=None)
     except Exception:
         logger.exception(dumps({"function":
                                     add_question_to_indices_task.__name__,
                                 "exception": "UnhandledException: "}))
-        raise add_tags_to_question_task.retry(exc=Exception, countdown=3,
-                                              max_retries=None)
+        raise add_question_to_indices_task.retry(exc=Exception, countdown=3,
+                                                 max_retries=None)
 
 @shared_task()
 def add_tags_to_question_task(question, tags):
@@ -95,6 +98,9 @@ def add_tags_to_question_task(question, tags):
             question.save()
             return spawn_task(task_func=add_tags_to_question_task,
                               task_param={'question': question, 'tags': tags})
+    except CypherException:
+        raise add_tags_to_question_task.retry(exc=CypherException, countdown=3,
+                                              max_retries=None)
     except Exception:
         logger.exception(dumps({"function": add_tags_to_question_task.__name__,
                                 "exception": "UnhandledException: "}))
@@ -125,12 +131,13 @@ def create_question_task(content="", current_pleb="", question_title="",
     '''
     tag_list = tags.split(',')
     try:
-        question = SBQuestion.nodes.get(sb_id=question_uuid)
-        return False
-    except (SBQuestion.DoesNotExist, DoesNotExist):
-        response = create_question_util(content=content,
-                                        current_pleb=current_pleb,
-                                        question_title=question_title)
+        try:
+            SBQuestion.nodes.get(sb_id=question_uuid)
+            return False
+        except (SBQuestion.DoesNotExist, DoesNotExist):
+            response = create_question_util(content=content,
+                                            current_pleb=current_pleb,
+                                            question_title=question_title)
         if not response:
             raise Exception
         elif response is None:
@@ -141,6 +148,9 @@ def create_question_task(content="", current_pleb="", question_title="",
                               task_param=task_data)
     except TypeError:
         raise create_question_task.retry(exc=TypeError, countdown=5,
+                                         max_retries=None)
+    except CypherException:
+        raise create_question_task.retry(exc=CypherException, countdown=3,
                                          max_retries=None)
     except Exception:
         logger.exception({'function': create_question_task.__name__,
@@ -164,14 +174,15 @@ def edit_question_task(question_uuid="", content="", current_pleb="",
     '''
     try:
         try:
-            my_pleb = Pleb.nodes.get(email=current_pleb)
+            Pleb.nodes.get(email=current_pleb)
         except (Pleb.DoesNotExist, DoesNotExist):
             return False
         try:
-            my_question = SBQuestion.nodes.get(sb_id=question_uuid)
+            SBQuestion.nodes.get(sb_id=question_uuid)
         except (SBQuestion.DoesNotExist, DoesNotExist):
-            raise edit_question_task.retry(exc=Exception, countdown=3,
-                                           max_retries=None)
+            raise edit_question_task.retry(
+                exc=SBQuestion.DoesNotExist("SBQuestion Does Not Exist"),
+                countdown=3, max_retries=None)
         edit_question_return = edit_question_util(question_uuid=question_uuid,
                                                   content=content,
                                                   current_pleb=current_pleb,
@@ -186,7 +197,9 @@ def edit_question_task(question_uuid="", content="", current_pleb="",
             return False
         elif edit_question_return['detail'] == 'last edit more recent':
             return False
-
+    except CypherException:
+        raise edit_question_task.retry(exc=CypherException, countdown=3,
+                                       max_retries=None)
     except Exception:
         logger.exception({"function": edit_question_task.__name__,
                           "exception": "UnhandledException: "})
@@ -214,7 +227,7 @@ def vote_question_task(question_uuid="", current_pleb="", vote_type=""):
         try:
             my_question = SBQuestion.nodes.get(sb_id=question_uuid)
         except (SBQuestion.DoesNotExist, DoesNotExist):
-            raise edit_question_task.retry(exc=DoesNotExistWrapper,
+            raise vote_question_task.retry(exc=DoesNotExistWrapper,
                                            countdown=3, max_retries=None)
         if my_question.up_voted_by.is_connected(
                 my_pleb) or my_question.down_voted_by.is_connected(my_pleb):
@@ -236,6 +249,9 @@ def vote_question_task(question_uuid="", current_pleb="", vote_type=""):
                     return False
                 else:
                     return True
+    except CypherException:
+        raise vote_question_task.retry(exc=CypherException, countdown=3,
+                                       max_retries=None)
     except Exception:
         # We must have this except because source_class.DoesNotExist gets
         # to this portion of code, as far as we know there's no work around.
@@ -253,7 +269,7 @@ def flag_question_task(question_uuid, current_pleb, flag_reason):
                                  flag_reason=flag_reason)
         if res is None:
             raise TypeError
-        elif res == True:
+        elif res is True:
             return True
         else:
             return False
@@ -261,7 +277,9 @@ def flag_question_task(question_uuid, current_pleb, flag_reason):
     except TypeError:
         raise flag_question_task.retry(exc=TypeError, countdown=3,
                                        max_retries=None)
-
+    except CypherException:
+        raise flag_question_task.retry(exc=CypherException, countdown=3,
+                                       max_retries=None)
     except Exception:
         logger.exception(dumps({"function": flag_question_task.__name__,
                                 "exception": "UnhandledException: "}))

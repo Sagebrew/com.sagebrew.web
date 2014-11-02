@@ -52,7 +52,7 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
             try:
                 question = SBQuestion.nodes.get(sb_id=object_uuid)
             except (SBQuestion.DoesNotExist, DoesNotExist):
-                raise Exception
+                raise SBQuestion.DoesNotExist("SBQuestion does not exist")
 
             if pleb.obj_weight_is_connected(question):
                 rel = pleb.obj_weight_relationship(question)
@@ -73,7 +73,7 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
             try:
                 answer = SBAnswer.nodes.get(sb_id = object_uuid)
             except (SBAnswer.DoesNotExist, DoesNotExist):
-                raise Exception
+                raise SBQuestion.DoesNotExist("SBQuestion does not exist")
 
             if pleb.obj_weight_is_connected(answer):
                 rel = pleb.obj_weight_relationship(answer)
@@ -111,9 +111,11 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
                 update_dict['update_value'] = rel.weight
                 update_search_index_doc(**update_dict)
             return True
-
     except TypeError:
         return False
+    except SBQuestion.DoesNotExist:
+        raise update_weight_relationship.retry(exc=SBQuestion.DoesNotExist,
+                                               countdown=3, max_retries=None)
     except CypherException:
         raise update_weight_relationship.retry(exc=CypherException, countdown=3,
                                                max_retries=None)

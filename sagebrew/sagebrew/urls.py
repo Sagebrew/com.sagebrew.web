@@ -38,4 +38,5 @@ urlpatterns = patterns('',
                        (r'^search/', include('sb_search.urls')),
                        (r'^tags/', include('sb_tag.urls')),
                        (r'^flag/', include('sb_flags.urls')),
+                       (r'^vote/', include('sb_votes.urls')),
 )

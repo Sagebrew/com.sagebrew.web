@@ -54,6 +54,8 @@ def save_answer_util(content="", current_pleb="", answer_uuid="",
         }
         spawn_task(task_func=spawn_notifications, task_param=task_data)
         return answer
+    except IndexError:
+        return None
     except CypherException:
         return None
     except Exception:

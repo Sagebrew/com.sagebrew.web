@@ -76,7 +76,7 @@ class TestNotificationUtils(TestCase):
     def test_create_comment_notification_pleb_is_the_same(self):
         post = SBPost(sb_id=uuid1(), content='as;ldkfja;')
         post.save()
-        comment = SBComment(commesb_iduuid1()), content='sdfasd')
+        comment = SBComment(sb_id=str(uuid1()), content='sdfasd')
         comment.save()
 
         response = create_notification_util(comment, self.pleb, [self.pleb],
@@ -85,7 +85,7 @@ class TestNotificationUtils(TestCase):
         self.assertTrue(response)
 
     def test_create_comment_notification_already_exists_sent(self):
-        comment = SBComment(comment_idsb_id()), content='sdfasd')
+        comment = SBComment(sb_id=str(uuid1()), content='sdfasd')
         comment.save()
         notification = NotificationBase(notification_uuid=str(uuid1()),
                                         sent=True).save()
@@ -96,7 +96,7 @@ class TestNotificationUtils(TestCase):
         self.assertTrue(response)
 
     def test_create_comment_notification_already_exists_not_sent(self):
-        comment = SBComment(comment_id=str(uuid1()), content='sdfasd')
+        comment = SBComment(sb_id=str(uuid1()), content='sdfasd')
         comment.save()
         notification = NotificationBase(notification_uuid=str(uuid1())).save()
         post = SBPost(sb_id=uuid1(), content='as;ldkfja;')

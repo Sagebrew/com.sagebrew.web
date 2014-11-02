@@ -153,9 +153,9 @@ def login_view_api(request):
                     except (Pleb.DoesNotExist, DoesNotExist):
                         return Response({'detail': 'cannot find user'},
                                         status=400)
-                    pleb.generate_username()
+
                     rev = reverse('profile_page',
-                                  kwargs={'pleb_email': pleb.email})
+                                  kwargs={'pleb_username': pleb.username})
                     profile_page_url = settings.WEB_ADDRESS+rev
                     return Response({'detail': 'success',
                                      'user': user.email,
@@ -165,6 +165,8 @@ def login_view_api(request):
                                     status=400)
             else:
                 return Response({'detail': 'invalid password'}, status=400)
+    except AttributeError:
+        return Response(status=400)
     except Exception:
         logger.exception(dumps({'function': login_view_api.__name__,
                                 'exception': 'UnhandledException'}))

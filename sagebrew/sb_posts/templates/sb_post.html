@@ -38,24 +38,27 @@
                             </li>
                             {% endif %}
                             <li role="presentation" class="sb_divider divider"></li>
-                            <li role="presentation"><a class='sb_post_dropdown_menu btn flag_post-action'
+                            <li role="presentation"><a class='sb_post_dropdown_menu btn flag_object-action'
                                                        data-flag_reason='spam'
                                                        data-current_user="{{ current_user }}"
-                                                       data-post_uuid="{{ sb_id }}">flag as spam
+                                                       data-object_uuid="{{ sb_id }}"
+                                                       data-object_type="SBPost">flag as spam
                                                        </a>
                             </li>
                             <li role="presentation" class="sb_divider divider"></li>
-                            <li role="presentation"><a class='sb_post_dropdown_menu btn flag_post-action'
+                            <li role="presentation"><a class='sb_post_dropdown_menu btn flag_object-action'
                                                        data-flag_reason='explicit'
                                                        data-current_user="{{ current_user }}"
-                                                       data-post_uuid="{{ sb_id }}">flag as explicit
+                                                       data-object_uuid="{{ sb_id }}"
+                                                       data-object_type="SBPost">flag as explicit
                                                        </a>
                             </li>
                             <li role="presentation" class="sb_divider divider"></li>
-                            <li role="presentation"><a class='sb_post_dropdown_menu btn flag_post-action'
+                            <li role="presentation"><a class='sb_post_dropdown_menu btn flag_object-action'
                                                        data-flag_reason='other'
                                                        data-current_user="{{ current_user }}"
-                                                       data-post_uuid="{{ sb_id }}">flag as other
+                                                       data-object_uuid="{{ sb_id }}"
+                                                       data-object_type="SBPost">flag as other
                                                        </a>
                             </li>
                             {% if post_owner_email == current_user %}

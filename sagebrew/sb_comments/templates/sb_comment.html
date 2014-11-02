@@ -37,24 +37,27 @@
                             </li>
                             {% endif %}
                              <li role="presentation" class="sb_divider divider"></li>
-                            <li role="presentation"><a class='btn flag_comment-action'
+                            <li role="presentation"><a class='btn flag_object-action'
                                                        data-flag_reason='spam'
                                                        data-current_user="{{ comment.current_user }}"
-                                                       data-comment_uuid="{{ comment.sb_id }}">
+                                                       data-object_uuid="{{ comment.sb_id }}"
+                                                       data-object_type="SBComment">
                                                        flag as spam</a>
                             </li>
                             <li role="presentation" class="sb_divider divider"></li>
-                            <li role="presentation"><a class='btn flag_comment-action'
+                            <li role="presentation"><a class='btn flag_object-action'
                                                        data-flag_reason='explicit'
                                                        data-current_user="{{ comment.current_user }}"
-                                                       data-comment_uuid="{{ comment.sb_id }}">
+                                                       data-object_uuid="{{ comment.sb_id }}"
+                                                       data-object_type="SBComment">
                                                        flag as explicit</a>
                             </li>
                             <li role="presentation" class="sb_divider divider"></li>
-                            <li role="presentation"><a class='btn flag_comment-action'
+                            <li role="presentation"><a class='btn flag_object-action'
                                                        data-flag_reason='other'
                                                        data-current_user="{{ comment.current_user }}"
-                                                       data-comment_uuid="{{ comment.sb_id }}">
+                                                       data-object_uuid="{{ comment.sb_id }}"
+                                                       data-object_type="SBComment">
                                                        flag as other</a>
                             </li>
                             {% if comment.comment_owner_email == comment.current_user %}

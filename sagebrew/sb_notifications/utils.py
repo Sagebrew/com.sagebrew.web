@@ -49,10 +49,10 @@ def create_notification_util(sb_object, from_pleb, to_plebs,
         notification.save()
         return True
 
-    except CypherException:
-        return CypherException
-    except Exception:
+    except CypherException as e:
+        return e
+    except Exception as e:
         logger.exception(dumps({"function": create_notification_util.__name__,
                                 "exception": "UnhandledException"}))
-        return Exception
+        return e
 

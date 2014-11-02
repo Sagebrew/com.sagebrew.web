@@ -96,4 +96,4 @@ class TestAutoTagTask(TestCase):
         while not res.ready():
             time.sleep(1)
         res = res.result
-        self.assertIs(type(res), type(Exception))
+        self.assertTrue(isinstance(res, Exception))

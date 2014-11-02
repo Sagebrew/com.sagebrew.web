@@ -35,8 +35,8 @@ def save_answer_util(content="", current_pleb="", answer_uuid="",
 
         try:
             question = SBQuestion.nodes.get(sb_id=question_uuid)
-        except (SBQuestion.DoesNotExist, DoesNotExist):
-            return None
+        except (SBQuestion.DoesNotExist, DoesNotExist) as e:
+            return e
 
         answer = SBAnswer(content=content, sb_id=answer_uuid)
         answer.save()
@@ -55,14 +55,14 @@ def save_answer_util(content="", current_pleb="", answer_uuid="",
         }
         spawn_task(task_func=spawn_notifications, task_param=task_data)
         return answer
-    except IndexError:
-        return None
-    except CypherException:
-        return None
-    except Exception:
+    except IndexError as e:
+        return e
+    except CypherException as e:
+        return e
+    except Exception as e:
         logger.exception({"function": "save_answer_util", "exception":
                           "Unhandled Exception"})
-        return None
+        return e
 
 
 def edit_answer_util(content="", current_pleb="", answer_uuid="",
@@ -98,12 +98,12 @@ def edit_answer_util(content="", current_pleb="", answer_uuid="",
         my_answer.last_edited_on = edit_answer.date_created
         my_answer.save()
         return True
-    except CypherException:
-        return None
-    except Exception:
+    except CypherException as e:
+        return e
+    except Exception as e:
         logger.exception(dumps({"function": edit_answer_util.__name__,
                                 "exception": "UnhandledException: "}))
-        return False
+        return e
 
 
 def upvote_answer_util(answer_uuid="", current_pleb=""):

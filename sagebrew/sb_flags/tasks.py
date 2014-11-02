@@ -18,7 +18,7 @@ def flag_object_task(current_pleb, sb_object, flag_reason):
                            flag_reason=flag_reason)
     if res is True:
         return True
-    elif type(res) is type(Exception):
+    elif isinstance(res, Exception) is True:
         raise flag_object_task.retry(exc=res, countdown=3, max_retries=None)
     else:
         return False

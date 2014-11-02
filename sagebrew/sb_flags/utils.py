@@ -41,7 +41,7 @@ def flag_object_util(current_pleb, sb_object, flag_reason):
         sb_object.save()
         return True
 
-    except Exception:
+    except Exception as e:
         logger.exception(dumps({"function": flag_object_util.__name__,
                                 "exception": "UnhandledException: "}))
-        return Exception
+        return e

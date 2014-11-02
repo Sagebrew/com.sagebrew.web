@@ -24,7 +24,7 @@ def save_answer_util(content="", current_pleb="", answer_uuid="",
     :param question_uuid:
     :return:
     '''
-    if content=='':
+    if content == '':
         return False
     try:
         try:

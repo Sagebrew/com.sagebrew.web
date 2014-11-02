@@ -69,7 +69,7 @@ def save_answer_task(content="", current_pleb="", question_uuid="",
                               task_param=task_data)
         elif isinstance(res, Exception) is True:
             raise save_answer_task.retry(exc=res, countdown=5,
-                                     max_retries=None)
+                                         max_retries=None)
         return res
 
     except Exception as e:

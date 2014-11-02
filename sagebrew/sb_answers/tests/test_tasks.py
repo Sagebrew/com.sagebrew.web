@@ -51,13 +51,14 @@ class TestSaveAnswerTask(TestCase):
     def test_save_answer_task_fail(self):
         question_response = SBQuestion(sb_id=str(uuid1()))
         question_response.save()
-        save_response = save_answer_task.apply_async(kwargs=self.answer_info_dict)
+        save_response = save_answer_task.apply_async(
+            kwargs=self.answer_info_dict)
 
         while not save_response.ready():
             time.sleep(1)
         save_response = save_response.result
 
-        self.assertTrue(isinstance(save_response, TypeError))
+        self.assertTrue(isinstance(save_response, Exception))
 
 class TestEditAnswerTask(TestCase):
     def setUp(self):

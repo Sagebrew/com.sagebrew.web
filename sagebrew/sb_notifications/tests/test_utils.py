@@ -30,8 +30,8 @@ class TestNotificationUtils(TestCase):
         post = SBPost(post_id=uuid1(), content='as;ldkfja;')
         post.save()
 
-        response = create_notification_util(post, 'post', self.pleb,
-                                            [self.pleb2], str(uuid1()))
+        response = create_notification_util(post, self.pleb, [self.pleb2],
+                                            str(uuid1()))
 
         self.assertTrue(response['detail'])
 
@@ -39,8 +39,8 @@ class TestNotificationUtils(TestCase):
     def test_create_post_notification_user_is_same(self):
         post = SBPost(post_id=uuid1(), content='as;ldkfja;')
         post.save()
-        response = create_notification_util(post, 'post', self.pleb,
-                                            [self.pleb], str(uuid1()))
+        response = create_notification_util(post, self.pleb, [self.pleb],
+                                            str(uuid1()))
 
         self.assertTrue(response['detail'])
 
@@ -49,8 +49,7 @@ class TestNotificationUtils(TestCase):
                                         sent=True).save()
         post = SBPost(post_id=uuid1(), content='as;ldkfja;')
         post.save()
-        response = create_notification_util(post, 'post', self.pleb,
-                                            [self.pleb2],
+        response = create_notification_util(post, self.pleb, [self.pleb2],
                                             notification.notification_uuid)
         self.assertTrue(response['detail'])
 
@@ -58,8 +57,7 @@ class TestNotificationUtils(TestCase):
         notification = NotificationBase(notification_uuid=str(uuid1())).save()
         post = SBPost(post_id=uuid1(), content='as;ldkfja;')
         post.save()
-        response = create_notification_util(post, 'post', self.pleb,
-                                            [self.pleb2],
+        response = create_notification_util(post, self.pleb, [self.pleb2],
                                             notification.notification_uuid)
 
         self.assertTrue(response['detail'])
@@ -70,8 +68,8 @@ class TestNotificationUtils(TestCase):
         comment = SBComment(comment_id=str(uuid1()), content='sdfasd')
         comment.save()
 
-        response = create_notification_util(comment, 'comment', self.pleb,
-                                            [self.pleb2], str(uuid1()))
+        response = create_notification_util(comment, self.pleb, [self.pleb2],
+                                            str(uuid1()))
 
         self.assertTrue(response['detail'])
 
@@ -81,8 +79,8 @@ class TestNotificationUtils(TestCase):
         comment = SBComment(comment_id=str(uuid1()), content='sdfasd')
         comment.save()
 
-        response = create_notification_util(comment, 'comment', self.pleb,
-                                            [self.pleb], str(uuid1()))
+        response = create_notification_util(comment, self.pleb, [self.pleb],
+                                            str(uuid1()))
 
         self.assertTrue(response['detail'])
 
@@ -93,8 +91,7 @@ class TestNotificationUtils(TestCase):
                                         sent=True).save()
         post = SBPost(post_id=uuid1(), content='as;ldkfja;')
         post.save()
-        response = create_notification_util(comment, 'comment', self.pleb,
-                                            [self.pleb2],
+        response = create_notification_util(comment, self.pleb, [self.pleb2],
                                             notification.notification_uuid)
         self.assertTrue(response['detail'])
 
@@ -104,7 +101,6 @@ class TestNotificationUtils(TestCase):
         notification = NotificationBase(notification_uuid=str(uuid1())).save()
         post = SBPost(post_id=uuid1(), content='as;ldkfja;')
         post.save()
-        response = create_notification_util(comment, 'comment', self.pleb,
-                                            [self.pleb2],
+        response = create_notification_util(comment, self.pleb, [self.pleb2],
                                             notification.notification_uuid)
         self.assertTrue(response['detail'])

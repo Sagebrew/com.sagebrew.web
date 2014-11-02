@@ -84,7 +84,7 @@ def create_vote_comment(pleb="", comment_uuid=str(uuid1()), vote_type=""):
                 elif res is None:
                     return False
                 else:
-                    raise DoesNotExist
+                    raise DoesNotExist("Comment does not exist")
 
             elif vote_type == 'down':
                 res = create_downvote_comment_util(pleb=pleb,
@@ -94,7 +94,7 @@ def create_vote_comment(pleb="", comment_uuid=str(uuid1()), vote_type=""):
                 elif res is None:
                     return False
                 else:
-                    raise DoesNotExist
+                    raise DoesNotExist("Comment does not exist")
     except DoesNotExist:
         raise create_vote_comment.retry(exc=Exception, countdown=3,
                                         max_retries=None)
@@ -125,7 +125,7 @@ def submit_comment_on_post(content="", pleb="", post_uuid=str(uuid1())):
         if my_comment is None:
             return False
         elif not my_comment:
-            raise DoesNotExist
+            raise DoesNotExist("Comment does not exist")
         else:
             from_pleb = my_comment.is_owned_by.all()[0]
             post = my_comment.commented_on_post.all()[0]
@@ -170,7 +170,7 @@ def flag_comment_task(comment_uuid, current_user, flag_reason):
         if not result:
             return False
         elif result is None:
-            raise DoesNotExist
+            raise DoesNotExist("Flag does not exist")
         else:
             return True
     except DoesNotExist:

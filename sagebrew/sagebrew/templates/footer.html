@@ -1,48 +1,41 @@
-<nav class="sb_nav_bottom_menu bottom-menu navbar-fixed-bottom  bottom-menu-large hidden-xs">
-    <div class="sb_bottom_nav_container container">
-        <div class="sb_bottom_container  row">
-            <div class="col-lg-2 col-md-2 col-sm-12 col-xs-6 col-xs-offset-3 col-sm-offset-0 col-md-offset-0 col-lg-offset-0 navbar-brand sb_nav_bottom_links">
-                <a id="sb_logo_bottom" href="">&#169;Sagebrew</a>
-            </div>
-            <div align="center">
-                <div class="col-lg-2 col-md-2 col-sm-6 hidden-xs">
-                    <h5 class="title"></h5>
-                    <ul class="bottom-links sb_nav_bottom_links">
-                        <li><a href="#fakelink">About</a></li>
-                        <li><a href="#fakelink">Reputation</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-2 col-md-2 col-sm-4  hidden-xs">
-                    <h5 class="title"></h5>
-                    <ul class="bottom-links sb_nav_bottom_links">
-                        <li><a href="#fakelink">Representatives</a></li>
-                        <li><a href="#fakelink">Discussion Etiquette</a></li>
-                    </ul>
-                </div>
-
-                <div class="col-lg-2 col-md-2 col-sm-6 hidden-xs">
-                    <h5 class="title"></h5>
-                    <ul class="bottom-links sb_nav_bottom_links">
-                        <li><a href="#fakelink">Developers</a></li>
-                        <li><a href="#fakelink">FAQ</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-2 col-md-2 col-sm-4  hidden-xs">
-                     <h5 class="title"></h5>
-                     <ul class="bottom-links sb_nav_bottom_links">
-                        <li><a href="#fakelink">Register</a></li>
-                        <li><a href="#fakelink">Find Friends</a></li>
-                     </ul>
-                </div>
-                <div class="col-lg-2 col-md-2 col-sm-4  hidden-xs">
-                     <h5 class="title"></h5>
-                     <ul class="bottom-links sb_nav_bottom_links">
-                        <li><a href="#fakelink">Help</a></li>
-                        <li><a href="#fakelink">Donate</a></li>
-                     </ul>
-                </div>
-            </div>
+{% load staticfiles %}
+    <footer id="sb_footer" class="sb_bottom_container">
+        <div class="row-fluid">
+        <div class="col-lg-2 col-md-2 col-sm-12 col-xs-6 ">
+            <a id="sb_logo_bottom" href="">&#169;Sagebrew</a>
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-6 hidden-xs">
+            <ul class="bottom-links sb_nav_bottom_links">
+                <li><a href="#fakelink">About</a></li>
+                <li><a href="#fakelink">Reputation</a></li>
+            </ul>
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-4  hidden-xs">
+            <ul class="bottom-links sb_nav_bottom_links">
+                <li><a href="#fakelink">Representatives</a></li>
+                <li><a href="#fakelink">Discussion Etiquette</a></li>
+            </ul>
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-6 hidden-xs">
+            <ul class="bottom-links sb_nav_bottom_links">
+                <li><a href="#fakelink">Developers</a></li>
+                <li><a href="#fakelink">FAQ</a></li>
+            </ul>
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-4  hidden-xs">
+             <ul class="bottom-links sb_nav_bottom_links">
+                <li><a href="#fakelink">Register</a></li>
+                <li><a href="#fakelink">Find Friends</a></li>
+             </ul>
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-4  hidden-xs">
+             <ul class="bottom-links sb_nav_bottom_links">
+                <li><a href="#fakelink">Help</a></li>
+                <li><a href="#fakelink">Donate</a></li>
+             </ul>
         </div>
     </div>
-</nav>
-
+    </footer>
+{% block scripts %}
+    <script src="{% static 'js/sb_footer.js' %}"></script>
+{% endblock scripts %}

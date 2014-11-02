@@ -1,4 +1,3 @@
-import time
 from uuid import uuid1
 import shortuuid
 from rest_framework.test import APIRequestFactory

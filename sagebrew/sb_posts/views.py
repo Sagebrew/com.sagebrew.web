@@ -1,7 +1,6 @@
 import pytz
 import logging
 from uuid import uuid1
-from json import dumps
 from datetime import datetime
 from urllib2 import HTTPError
 from requests import ConnectionError
@@ -13,10 +12,9 @@ from rest_framework.response import Response
 from api.utils import (post_to_garbage, spawn_task)
 from plebs.neo_models import Pleb
 from .neo_models import SBPost
-from .tasks import save_post_task, edit_post_info_task, flag_post_task
-from .utils import (get_pleb_posts, create_post_vote)
-from .forms import (SavePostForm, EditPostForm, DeletePostForm, VotePostForm,
-                    GetPostForm, FlagPostForm)
+from .tasks import save_post_task, edit_post_info_task
+from .utils import (get_pleb_posts)
+from .forms import (SavePostForm, EditPostForm, DeletePostForm, GetPostForm)
 
 logger = logging.getLogger('loggly_logs')
 

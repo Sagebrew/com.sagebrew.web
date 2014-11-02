@@ -61,8 +61,8 @@ def save_answer_task(content="", current_pleb="", question_uuid="",
     '''
     try:
         res = save_answer_util(content=content, answer_uuid=str(uuid1()),
-                            question_uuid=question_uuid,
-                            current_pleb=current_pleb)
+                               question_uuid=question_uuid,
+                               current_pleb=current_pleb)
         if res:
             task_data = {'answer': res}
             return spawn_task(task_func=add_answer_to_search_index,

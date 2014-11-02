@@ -57,7 +57,7 @@ class TestSaveAnswerTask(TestCase):
         while not save_response.ready():
             time.sleep(1)
         save_response = save_response.result
-
+        print save_response
         self.assertTrue(isinstance(save_response, Exception))
 
 class TestEditAnswerTask(TestCase):

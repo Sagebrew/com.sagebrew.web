@@ -94,7 +94,7 @@ class TestEditComment(TestCase):
         edited_time = datetime.now(pytz.utc)
         edited_comment = edit_comment_util(comment_uuid=comment.sb_id,
                                            last_edited_on=edited_time,
-                                           content="edited comment", pleb="")
+                                           content="edited comment")
 
         self.assertTrue(edited_comment)
 
@@ -106,7 +106,7 @@ class TestEditComment(TestCase):
 
         edited_comment = edit_comment_util(comment_uuid=comment.sb_id,
                                            last_edited_on=now,
-                                           content="edited comment", pleb="")
+                                           content="edited comment")
 
         self.assertFalse(edited_comment)
 
@@ -115,8 +115,9 @@ class TestEditComment(TestCase):
         comment.save()
 
         edited_comment = edit_comment_util(comment_uuid=comment.sb_id,
-                                           content="test_comment", pleb="",
-                                           last_edited_on=datetime.now(pytz.utc))
+                                           content="test_comment",
+                                           last_edited_on=datetime.now(
+                                               pytz.utc))
 
         self.assertFalse(edited_comment)
 
@@ -127,7 +128,7 @@ class TestEditComment(TestCase):
         comment.save()
 
         edited_comment = edit_comment_util(comment_uuid=comment.sb_id,
-                                           content="fasdf", pleb="",
+                                           content="fasdf",
                                            last_edited_on=now)
 
         self.assertFalse(edited_comment)
@@ -138,7 +139,7 @@ class TestEditComment(TestCase):
         comment.save()
 
         edited_comment = edit_comment_util(comment_uuid=comment.sb_id,
-                                           content=str(uuid1()), pleb="",
+                                           content=str(uuid1()),
                                            last_edited_on=datetime.now(
                                                pytz.utc))
 

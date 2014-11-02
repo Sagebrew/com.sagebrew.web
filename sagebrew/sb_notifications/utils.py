@@ -1,4 +1,5 @@
 import logging
+from uuid import uuid1
 from json import dumps
 
 from neomodel import DoesNotExist, CypherException
@@ -7,8 +8,9 @@ from .neo_models import NotificationBase
 
 logger = logging.getLogger('loggly_logs')
 
-def create_notification_util(sb_object, object_type, from_pleb, to_plebs,
-                             notification_id):
+
+def create_notification_util(sb_object, from_pleb, to_plebs,
+                             notification_id=None):
     '''
     This function will check to see if there is already a notification
     created about the combination of object, plebs, and action and will add
@@ -25,30 +27,32 @@ def create_notification_util(sb_object, object_type, from_pleb, to_plebs,
     # a pleb? Could we generalize to that level?
     if from_pleb in to_plebs:
         to_plebs.remove(from_pleb)
+    if notification_id is None:
+        notification_id = str(uuid1())
     try:
         try:
             notification = NotificationBase.nodes.get(
                 notification_uuid=notification_id)
-            if notification.sent:
-                return {"detail": True}
+            if notification.sent is True:
+                return True
 
         except (NotificationBase.DoesNotExist, DoesNotExist):
-            notification = NotificationBase(notification_uuid=notification_id,
-                                            notification_about=object_type).\
-                save()
+            notification = NotificationBase(
+                notification_uuid=notification_id,
+                notification_about=sb_object.__name__.lower()).save()
 
         notification.notification_from.connect(from_pleb)
         for pleb in to_plebs:
             notification.notification_to.connect(pleb)
             pleb.notifications.connect(notification)
-        notification.sent=True
+        notification.sent = True
         notification.save()
-        return {"detail": True}
+        return True
 
     except CypherException:
-        return {"detail": "retry"}
+        return CypherException
     except Exception:
         logger.exception(dumps({"function": create_notification_util.__name__,
-                                "exception": "UnhandledException: "}))
-        return {"detail": "retry"}
+                                "exception": "UnhandledException"}))
+        return Exception
 

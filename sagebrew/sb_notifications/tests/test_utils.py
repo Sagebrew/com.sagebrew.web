@@ -30,39 +30,37 @@ class TestNotificationUtils(TestCase):
         post = SBPost(sb_id=uuid1(), content='as;ldkfja;')
         post.save()
 
-        response = create_notification_util(post, 'post', self.pleb,
-                                            [self.pleb2], str(uuid1()))
+        response = create_notification_util(post, self.pleb, [self.pleb2],
+                                            str(uuid1()))
 
-        self.assertTrue(response['detail'])
+        self.assertTrue(response)
 
 
     def test_create_post_notification_user_is_same(self):
         post = SBPost(sb_id=uuid1(), content='as;ldkfja;')
         post.save()
-        response = create_notification_util(post, 'post', self.pleb,
-                                            [self.pleb], str(uuid1()))
+        response = create_notification_util(post, self.pleb, [self.pleb],
+                                            str(uuid1()))
 
-        self.assertTrue(response['detail'])
+        self.assertTrue(response)
 
     def test_create_post_notification_already_exists_sent(self):
         notification = NotificationBase(notification_uuid=str(uuid1()),
                                         sent=True).save()
         post = SBPost(sb_id=uuid1(), content='as;ldkfja;')
         post.save()
-        response = create_notification_util(post, 'post', self.pleb,
-                                            [self.pleb2],
+        response = create_notification_util(post, self.pleb, [self.pleb2],
                                             notification.notification_uuid)
-        self.assertTrue(response['detail'])
+        self.assertTrue(response)
 
     def test_create_post_notification_already_exists_not_sent(self):
         notification = NotificationBase(notification_uuid=str(uuid1())).save()
         post = SBPost(sb_id=uuid1(), content='as;ldkfja;')
         post.save()
-        response = create_notification_util(post, 'post', self.pleb,
-                                            [self.pleb2],
+        response = create_notification_util(post, self.pleb, [self.pleb2],
                                             notification.notification_uuid)
 
-        self.assertTrue(response['detail'])
+        self.assertTrue(response)
 
     def test_create_comment_notification(self):
         post = SBPost(sb_id=uuid1(), content='as;ldkfja;')
@@ -70,10 +68,10 @@ class TestNotificationUtils(TestCase):
         comment = SBComment(sb_id=str(uuid1()), content='sdfasd')
         comment.save()
 
-        response = create_notification_util(comment, 'comment', self.pleb,
-                                            [self.pleb2], str(uuid1()))
+        response = create_notification_util(comment, self.pleb, [self.pleb2],
+                                            str(uuid1()))
 
-        self.assertTrue(response['detail'])
+        self.assertTrue(response)
 
     def test_create_comment_notification_pleb_is_the_same(self):
         post = SBPost(sb_id=uuid1(), content='as;ldkfja;')
@@ -81,10 +79,10 @@ class TestNotificationUtils(TestCase):
         comment = SBComment(commesb_iduuid1()), content='sdfasd')
         comment.save()
 
-        response = create_notification_util(comment, 'comment', self.pleb,
-                                            [self.pleb], str(uuid1()))
+        response = create_notification_util(comment, self.pleb, [self.pleb],
+                                            str(uuid1()))
 
-        self.assertTrue(response['detail'])
+        self.assertTrue(response)
 
     def test_create_comment_notification_already_exists_sent(self):
         comment = SBComment(comment_idsb_id()), content='sdfasd')
@@ -93,10 +91,9 @@ class TestNotificationUtils(TestCase):
                                         sent=True).save()
         post = SBPost(sb_id=uuid1(), content='as;ldkfja;')
         post.save()
-        response = create_notification_util(comment, 'comment', self.pleb,
-                                            [self.pleb2],
+        response = create_notification_util(comment, self.pleb, [self.pleb2],
                                             notification.notification_uuid)
-        self.assertTrue(response['detail'])
+        self.assertTrue(response)
 
     def test_create_comment_notification_already_exists_not_sent(self):
         comment = SBComment(comment_id=str(uuid1()), content='sdfasd')
@@ -104,7 +101,6 @@ class TestNotificationUtils(TestCase):
         notification = NotificationBase(notification_uuid=str(uuid1())).save()
         post = SBPost(sb_id=uuid1(), content='as;ldkfja;')
         post.save()
-        response = create_notification_util(comment, 'comment', self.pleb,
-                                            [self.pleb2],
+        response = create_notification_util(comment, self.pleb, [self.pleb2],
                                             notification.notification_uuid)
-        self.assertTrue(response['detail'])
+        self.assertTrue(response)

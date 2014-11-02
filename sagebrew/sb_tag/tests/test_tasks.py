@@ -68,7 +68,8 @@ class TestAutoTagTask(TestCase):
         question.save()
         task_dict = {'tag_list': [{'object_type': 'question',
                       'object_uuid': question.sb_id,
-                      'tags': {'relevance': '.9', 'text': 'test'}}]}
+                      'tags': {'relevance': '.9',
+                               'text': 'test'}}]}
         res = add_auto_tags.apply_async(kwargs=task_dict)
         while not res.ready():
             time.sleep(1)
@@ -95,4 +96,4 @@ class TestAutoTagTask(TestCase):
         while not res.ready():
             time.sleep(1)
         res = res.result
-        self.assertEqual(type(res), Exception)
+        self.assertIs(type(res), type(Exception))

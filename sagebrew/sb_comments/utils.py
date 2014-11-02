@@ -1,6 +1,7 @@
 import pytz
 import logging
 from uuid import uuid1
+from json import dumps
 from datetime import datetime
 from neomodel import CypherException, DoesNotExist
 
@@ -10,6 +11,7 @@ from plebs.neo_models import Pleb
 from api.utils import execute_cypher_query
 
 logger = logging.getLogger('loggly_logs')
+
 
 def get_post_comments(post_info):
     '''
@@ -40,7 +42,8 @@ def get_post_comments(post_info):
                             'sb_id': comment.sb_id,
                             'comment_down_vote_number':
                                 comment.down_vote_number,
-                            'comment_last_edited_on': comment.last_edited_on,
+                            'comment_last_edited_on':
+                                str(comment.last_edited_on),
                             'comment_owner': comment_owner.first_name + ' '
                                              + comment_owner.last_name,
                             'comment_owner_email': comment_owner.email}
@@ -50,7 +53,7 @@ def get_post_comments(post_info):
         post_dict = {'content': post.content, 'sb_id': post.sb_id,
                      'up_vote_number': post.up_vote_number,
                      'down_vote_number': post.down_vote_number,
-                     'last_edited_on': post.last_edited_on,
+                     'last_edited_on': str(post.last_edited_on),
                      'post_owner': post_owner.first_name + ' ' +
                                    post_owner.last_name,
                      'post_owner_email': post_owner.email,
@@ -59,7 +62,7 @@ def get_post_comments(post_info):
         comment_array = []
     return post_array
 
-def create_upvote_comment_util(pleb="", comment_uuid=str(uuid1())):
+def create_upvote_comment_util(pleb="", comment_uuid=None):
     '''
     creates an upvote on a comment, this is called by a util or task which
     will regulate
@@ -71,6 +74,8 @@ def create_upvote_comment_util(pleb="", comment_uuid=str(uuid1())):
     :return:
     '''
     try:
+        if comment_uuid is None:
+            comment_uuid = str(uuid1())
         try:
             my_comment = SBComment.nodes.get(sb_id=comment_uuid)
         except (SBComment.DoesNotExist, DoesNotExist):
@@ -167,11 +172,11 @@ def save_comment_post(content="", pleb="", post_uuid=str(uuid1())):
         return False
     except Exception:
         logger.exception({"function": save_comment_post.__name__,
-                          "exception": "UnhandledException: "})
+                          "exception": "UnhandledException"})
         return False
 
-def edit_comment_util(comment_uuid=str(uuid1()), content="",
-                      last_edited_on=None, pleb=""):
+
+def edit_comment_util(comment_uuid, content="", last_edited_on=None):
     '''
     finds the comment with the given comment id then changes the content to the
     content which was passed. also changes the edited on date and time to the
@@ -192,12 +197,9 @@ def edit_comment_util(comment_uuid=str(uuid1()), content="",
         try:
             my_comment = SBComment.nodes.get(sb_id=comment_uuid)
         except (SBComment.DoesNotExist, DoesNotExist):
-            return {'detail': "retry"}
-        try:
-            if my_comment.last_edited_on > last_edited_on:
-                return False
-        except TypeError:
-            pass
+            return SBComment.DoesNotExist
+        if my_comment.last_edited_on > last_edited_on:
+            return False
 
         if my_comment.content == content:
             return False
@@ -210,13 +212,17 @@ def edit_comment_util(comment_uuid=str(uuid1()), content="",
 
         my_comment.content = content
         my_comment.last_edited_on = last_edited_on
+
+        if my_comment.edited is False:
+            my_comment.edited = True
+
         my_comment.save()
         return True
 
     except Exception:
-        logger.exception({"function": edit_comment_util.__name__,
-                          'exception': "UnhandledException: "})
-        return {'detail': 'retry'}
+        logger.exception(dumps({"function": edit_comment_util.__name__,
+                                'exception': "UnhandledException"}))
+        return Exception
 
 def delete_comment_util(comment_uuid=str(uuid1())):
     '''

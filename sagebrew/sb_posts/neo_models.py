@@ -67,7 +67,7 @@ class SBBase(StructuredNode):
 
 class SBPost(SBBase):
     allowed_flags = ["explicit", "spam","other"]
-    
+    sb_name = "post"
     # relationships
     posted_on_wall = RelationshipTo('sb_wall.neo_models.SBWall', 'POSTED_ON')
     #TODO Implement referenced_by_... relationships

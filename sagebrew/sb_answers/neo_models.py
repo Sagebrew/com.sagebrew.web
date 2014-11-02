@@ -7,6 +7,7 @@ from sb_posts.neo_models import SBBase
 class SBAnswer(SBBase):
     allowed_flags = ["explicit", "changed", "spam", "duplicate",
                      "unsupported", "other"]
+    sb_name = "answer"
     added_to_search_index = BooleanProperty(default=False)
     search_id = StringProperty()
 

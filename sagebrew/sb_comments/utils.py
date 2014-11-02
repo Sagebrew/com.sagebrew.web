@@ -42,7 +42,8 @@ def get_post_comments(post_info):
                             'comment_id': comment.comment_id,
                             'comment_down_vote_number':
                                 comment.down_vote_number,
-                            'comment_last_edited_on': comment.last_edited_on,
+                            'comment_last_edited_on':
+                                str(comment.last_edited_on),
                             'comment_owner': comment_owner.first_name + ' '
                                              + comment_owner.last_name,
                             'comment_owner_email': comment_owner.email}
@@ -52,7 +53,7 @@ def get_post_comments(post_info):
         post_dict = {'content': post.content, 'post_id': post.post_id,
                      'up_vote_number': post.up_vote_number,
                      'down_vote_number': post.down_vote_number,
-                     'last_edited_on': post.last_edited_on,
+                     'last_edited_on': str(post.last_edited_on),
                      'post_owner': post_owner.first_name + ' ' +
                                    post_owner.last_name,
                      'post_owner_email': post_owner.email,
@@ -61,7 +62,7 @@ def get_post_comments(post_info):
         comment_array = []
     return post_array
 
-def create_upvote_comment_util(pleb="", comment_uuid=str(uuid1())):
+def create_upvote_comment_util(pleb="", comment_uuid=None):
     '''
     creates an upvote on a comment, this is called by a util or task which
     will regulate
@@ -73,6 +74,8 @@ def create_upvote_comment_util(pleb="", comment_uuid=str(uuid1())):
     :return:
     '''
     try:
+        if comment_uuid is None:
+            comment_uuid = str(uuid1())
         try:
             my_comment = SBComment.nodes.get(comment_id=comment_uuid)
         except (SBComment.DoesNotExist, DoesNotExist):

@@ -39,7 +39,8 @@ class TestSaveAnswerTask(TestCase):
         question = SBQuestion(**self.question_info_dict)
         question.save()
         self.answer_info_dict['question_uuid'] = question.sb_id
-        save_response = save_answer_task.apply_async(kwargs=self.answer_info_dict)
+        save_response = save_answer_task.apply_async(
+            kwargs=self.answer_info_dict)
 
         while not save_response.ready():
             time.sleep(1)
@@ -48,9 +49,9 @@ class TestSaveAnswerTask(TestCase):
         self.assertIsNotNone(question)
         self.assertTrue(save_response)
 
-    def test_save_answer_task_fail(self):
-        question_response = SBQuestion(sb_id=str(uuid1()))
-        question_response.save()
+    def test_save_answer_task_fail_due_to_question_not_existing(self):
+        question_uuid = str(uuid1())
+        self.answer_info_dict["question_uuid"] = question_uuid
         save_response = save_answer_task.apply_async(
             kwargs=self.answer_info_dict)
 

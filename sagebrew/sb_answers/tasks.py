@@ -44,7 +44,7 @@ def add_answer_to_search_index(answer):
                                                max_retries=None)
 
 @shared_task()
-def save_answer_task(content="", current_pleb="", question_uuid="",
+def save_answer_task(content="", current_pleb="", question_uuid=None,
                      to_pleb=""):
     '''
     This task is spawned when a user submits an answer to question. It then
@@ -59,6 +59,11 @@ def save_answer_task(content="", current_pleb="", question_uuid="",
     :param to_pleb:
     :return:
     '''
+    self.answer_info_dict = {'current_pleb': self.user.email,
+                                 'content': 'test answer',
+                                 'to_pleb': self.user.email}
+    if question_uuid is None:
+        return False
     try:
         res = save_answer_util(content=content, answer_uuid=str(uuid1()),
                                question_uuid=question_uuid,

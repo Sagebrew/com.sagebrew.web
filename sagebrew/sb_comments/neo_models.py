@@ -18,7 +18,8 @@ class SBComment(StructuredNode):
     created_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     up_vote_number = IntegerProperty(default=0)
     down_vote_number = IntegerProperty(default=0)
-    last_edited_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc)) # TODO Shouldn't this be a datatime.now(pytz.utc))?
+    last_edited_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    edited = BooleanProperty(default=False)
     to_be_deleted = BooleanProperty(default=False)
     delete_time = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     flagged_as_spam_count = IntegerProperty(default=0)

@@ -212,6 +212,10 @@ def edit_comment_util(comment_uuid, content="", last_edited_on=None):
 
         my_comment.content = content
         my_comment.last_edited_on = last_edited_on
+
+        if my_comment.edited is False:
+            my_comment.edited = True
+
         my_comment.save()
         return True
 

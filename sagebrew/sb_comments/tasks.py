@@ -6,10 +6,12 @@ from neomodel import DoesNotExist
 
 from sb_notifications.tasks import spawn_notifications
 from api.utils import spawn_task
-from .utils import (create_upvote_comment_util, create_downvote_comment_util,
-                    save_comment_post, edit_comment_util, flag_comment_util)
+from api.exceptions import DoesNotExistWrapper
 from sb_comments.neo_models import SBComment
 from plebs.neo_models import Pleb
+
+from .utils import (create_upvote_comment_util, create_downvote_comment_util,
+                    save_comment_post, edit_comment_util, flag_comment_util)
 
 logger = logging.getLogger('loggly_logs')
 
@@ -96,7 +98,7 @@ def create_vote_comment(pleb="", comment_uuid=str(uuid1()), vote_type=""):
                 else:
                     raise DoesNotExist("Comment does not exist")
     except DoesNotExist:
-        raise create_vote_comment.retry(exc=Exception, countdown=3,
+        raise create_vote_comment.retry(exc=DoesNotExistWrapper, countdown=3,
                                         max_retries=None)
     except Exception:
         logger.exception({"function": create_vote_comment.__name__,
@@ -135,7 +137,7 @@ def submit_comment_on_post(content="", pleb="", post_uuid=str(uuid1())):
             spawn_task(task_func=spawn_notifications, task_param=data)
             return True
     except DoesNotExist:
-        raise submit_comment_on_post.retry(exc=DoesNotExist, countdown=5,
+        raise submit_comment_on_post.retry(exc=DoesNotExistWrapper, countdown=5,
                                            max_retries=None)
     except Exception:
         logger.exception({'function': submit_comment_on_post.__name__,
@@ -174,7 +176,7 @@ def flag_comment_task(comment_uuid, current_user, flag_reason):
         else:
             return True
     except DoesNotExist:
-        raise flag_comment_task.retry(exc=DoesNotExist, countdown=5,
+        raise flag_comment_task.retry(exc=DoesNotExistWrapper, countdown=5,
                                       max_retries=None)
     except Exception:
         logger.exception({"function": flag_comment_task.__name__,

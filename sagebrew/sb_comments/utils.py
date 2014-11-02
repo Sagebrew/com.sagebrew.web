@@ -9,6 +9,7 @@ from .neo_models import SBComment
 from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
 from api.utils import execute_cypher_query
+from api.exceptions import DoesNotExistWrapper
 
 logger = logging.getLogger('loggly_logs')
 
@@ -150,12 +151,10 @@ def save_comment_post(content="", pleb="", post_uuid=str(uuid1())):
             my_citizen = Pleb.nodes.get(email=pleb)
         except (Pleb.DoesNotExist, DoesNotExist):
             return None
-
         try:
             parent_object = SBPost.nodes.get(sb_id=post_uuid)
         except (SBPost.DoesNotExist, DoesNotExist):
             return False
-
         comment_uuid = str(uuid1())
         my_comment = SBComment(content=content, sb_id=comment_uuid)
         my_comment.save()
@@ -197,7 +196,7 @@ def edit_comment_util(comment_uuid, content="", last_edited_on=None):
         try:
             my_comment = SBComment.nodes.get(sb_id=comment_uuid)
         except (SBComment.DoesNotExist, DoesNotExist):
-            return SBComment.DoesNotExist("SBComment does not exist")
+            return DoesNotExistWrapper
         if my_comment.last_edited_on > last_edited_on:
             return False
 

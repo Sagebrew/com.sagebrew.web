@@ -1,9 +1,41 @@
 import logging
 from celery import shared_task
 
-from .utils import add_auto_tags_util, add_tag_util
+from api.utils import spawn_task
+from .utils import add_auto_tags_util, add_tag_util, create_tag_relations_util
 
 logger = logging.getLogger('loggly_logs')
+
+
+@shared_task()
+def add_tags(object_uuid, object_type, tags):
+    '''
+    This calls the util to add user generated tags to the object. It creates
+    the tags in the neo4j DB if they don't exist and if they do, it gets
+    them then creates the relationship between them.
+
+    :param object_uuid:
+    :param object_type:
+    :param tags:
+    :return:
+    '''
+    response = add_tag_util(object_type, object_uuid, tags)
+    if isinstance(response, Exception) is True:
+        raise add_auto_tags.retry(exc=response, countdown=3,
+                                  max_retries=None)
+    else:
+        return response
+
+
+@shared_task()
+def create_tag_relations(tag_array):
+    response = create_tag_relations_util(tag_array)
+    if isinstance(response, Exception) is True:
+        raise create_tag_relations.retry(exc=response, countdown=3,
+                                         max_retries=None)
+    else:
+        return response
+
 
 @shared_task()
 def add_auto_tags(tag_list):
@@ -22,36 +54,12 @@ def add_auto_tags(tag_list):
 
     response = add_auto_tags_util(tag_list)
 
-    if response:
-        return True
-    elif response is None:
+    if isinstance(response, Exception) is True:
         logger.exception({"function": add_auto_tags.__name__,
-                          "exception": "UnhandledException: "})
-        raise add_auto_tags.retry(exc=Exception, countdown=3,
+                          "exception": response.__name__})
+        raise add_auto_tags.retry(exc=response, countdown=3,
                                   max_retries=None)
     else:
-        return False
-
-
-@shared_task()
-def add_tags(object_uuid, object_type, tags):
-    '''
-    This calls the util to add user generated tags to the object. It creates
-    the tags in the neo4j DB if they don't exist and if they do, it gets
-    them then creates the relationship between them.
-
-    :param object_uuid:
-    :param object_type:
-    :param tags:
-    :return:
-    '''
-    res = add_tag_util(object_type, object_uuid, tags)
-    if res:
-        return True
-    elif res is None:
-        logger.exception({"function": add_tags.__name__,
-                          "exception": "UnhandledException: "})
-        raise add_auto_tags.retry(exc=Exception, countdown=3,
-                                  max_retries=None)
-    else:
-        return False
+        spawn_task(task_func=create_tag_relations,
+                   task_param={"tag_list": tag_list})
+        return response

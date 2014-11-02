@@ -12,6 +12,7 @@ from sb_notifications.tasks import spawn_notifications
 
 logger = logging.getLogger('loggly_logs')
 
+
 def save_answer_util(content="", current_pleb="", answer_uuid="",
                      question_uuid=""):
     '''
@@ -24,7 +25,7 @@ def save_answer_util(content="", current_pleb="", answer_uuid="",
     :param question_uuid:
     :return:
     '''
-    if content=='':
+    if content == '':
         return False
     try:
         try:
@@ -33,11 +34,11 @@ def save_answer_util(content="", current_pleb="", answer_uuid="",
             return False
 
         try:
-            question = SBQuestion.nodes.get(question_id=question_uuid)
-        except (SBQuestion.DoesNotExist, DoesNotExist):
-            return None
+            question = SBQuestion.nodes.get(sb_id=question_uuid)
+        except (SBQuestion.DoesNotExist, DoesNotExist) as e:
+            return e
 
-        answer = SBAnswer(content=content, answer_id=answer_uuid)
+        answer = SBAnswer(content=content, sb_id=answer_uuid)
         answer.save()
         answer.answer_to.connect(question)
         question.answer.connect(answer)
@@ -49,23 +50,26 @@ def save_answer_util(content="", current_pleb="", answer_uuid="",
         rel_to_pleb.save()
         answer.save()
         task_data={
-            'sb_object': answer, 'object_type': 'answer', 'from_pleb': my_pleb,
+            'sb_object': answer, 'from_pleb': my_pleb,
             'to_plebs': [question.owned_by.all()[0]]
         }
         spawn_task(task_func=spawn_notifications, task_param=task_data)
         return answer
-    except CypherException:
-        return None
-    except Exception:
+    except IndexError as e:
+        return e
+    except CypherException as e:
+        return e
+    except Exception as e:
         logger.exception({"function": "save_answer_util", "exception":
                           "Unhandled Exception"})
-        return None
+        return e
+
 
 def edit_answer_util(content="", current_pleb="", answer_uuid="",
                      last_edited_on=""):
     try:
         try:
-            my_answer = SBAnswer.nodes.get(answer_id=answer_uuid)
+            my_answer = SBAnswer.nodes.get(sb_id=answer_uuid)
         except (SBAnswer.DoesNotExist, DoesNotExist):
             return None
 
@@ -86,7 +90,7 @@ def edit_answer_util(content="", current_pleb="", answer_uuid="",
             pass
 
 
-        edit_answer = SBAnswer(answer_id=str(uuid1()), original=False,
+        edit_answer = SBAnswer(sb_id=str(uuid1()), original=False,
                                content=content).save()
         my_answer.edits.connect(edit_answer)
         edit_answer.edit_to.connect(my_answer)
@@ -94,12 +98,13 @@ def edit_answer_util(content="", current_pleb="", answer_uuid="",
         my_answer.last_edited_on = edit_answer.date_created
         my_answer.save()
         return True
-    except CypherException:
-        return None
-    except Exception:
+    except CypherException as e:
+        return e
+    except Exception as e:
         logger.exception(dumps({"function": edit_answer_util.__name__,
                                 "exception": "UnhandledException: "}))
-        return False
+        return e
+
 
 def upvote_answer_util(answer_uuid="", current_pleb=""):
     from .tasks import vote_answer_task
@@ -110,7 +115,7 @@ def upvote_answer_util(answer_uuid="", current_pleb=""):
             return False
 
         try:
-            my_question = SBAnswer.nodes.get(answer_id=answer_uuid)
+            my_question = SBAnswer.nodes.get(sb_id=answer_uuid)
         except (SBAnswer.DoesNotExist, DoesNotExist):
             data = {'question_uuid': answer_uuid, 'current_pleb': current_pleb,
                     'vote_type': 'up'}
@@ -127,6 +132,7 @@ def upvote_answer_util(answer_uuid="", current_pleb=""):
                                 "exception": "UnhandledException: "}))
         return False
 
+
 def downvote_answer_util(answer_uuid="", current_pleb=""):
     from .tasks import vote_answer_task
     try:
@@ -136,7 +142,7 @@ def downvote_answer_util(answer_uuid="", current_pleb=""):
             return False
 
         try:
-            my_question = SBAnswer.nodes.get(answer_id=answer_uuid)
+            my_question = SBAnswer.nodes.get(sb_id=answer_uuid)
         except (SBAnswer.DoesNotExist, DoesNotExist):
             data = {'question_uuid': answer_uuid, 'current_pleb': current_pleb,
                 'vote_type': 'down'}
@@ -150,6 +156,7 @@ def downvote_answer_util(answer_uuid="", current_pleb=""):
         logger.exception(dumps({"function": downvote_answer_util.__name__,
                                 "exception": "UnhandledException: "}))
         return False
+
 
 def flag_answer_util(answer_uuid, current_pleb, flag_reason):
     '''

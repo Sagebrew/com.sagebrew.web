@@ -39,6 +39,14 @@ BROKER_URL = "sqs://%s:%s@" % (
     environ.get("AWS_ACCESS_KEY_ID", ""),
     environ.get("AWS_SECRET_ACCESS_KEY", ""))
 
+
+DEFAULT_FILE_STORAGE = 'sagebrew.s3utils.MediaRootS3BotoStorage'
+STATICFILES_STORAGE = 'sagebrew.s3utils.StaticRootS3BotoStorage'
+
+S3_URL = 'http://%s.s3.amazonaws.com/' % (AWS_STORAGE_BUCKET_NAME)
+STATIC_URL = "%s%s" % (S3_URL, "static/")
+MEDIA_URL = "%s%s" % (S3_URL, "media/")
+
 BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 43200}
 CELERY_DEFAULT_QUEUE = "%s" % environ.get("CELERY_QUEUE", "")
 

@@ -53,7 +53,7 @@ class TestSaveComments(TestCase):
         my_comment = save_comment_post(content="test comment",
                                        pleb=self.user.email,
                                        post_uuid=uuid)
-        comment_deleted = delete_comment_util(my_comment.comment_id)
+        comment_deleted = delete_comment_util(my_comment.sb_id)
 
         self.assertEqual(comment_deleted, True)
 
@@ -89,56 +89,57 @@ class TestEditComment(TestCase):
         self.user = User.objects.get(email=self.email)
 
     def test_edit_comment_success(self):
-        comment = SBComment(comment_id=str(uuid1()), content='test_comment')
+        comment = SBComment(sb_id=str(uuid1()), content='test_comment')
         comment.save()
         edited_time = datetime.now(pytz.utc)
-        edited_comment = edit_comment_util(comment_uuid=comment.comment_id,
+        edited_comment = edit_comment_util(comment_uuid=comment.sb_id,
                                            last_edited_on=edited_time,
-                                           content="edited comment", pleb="")
+                                           content="edited comment")
 
         self.assertTrue(edited_comment)
 
     def test_edit_comment_failure_more_recent_edit(self):
         now = datetime.now(pytz.utc)
-        comment = SBComment(comment_id=str(uuid1()), content='test_comment')
+        comment = SBComment(sb_id=str(uuid1()), content='test_comment')
         comment.last_edited_on = datetime.now(pytz.utc)
         comment.save()
 
-        edited_comment = edit_comment_util(comment_uuid=comment.comment_id,
+        edited_comment = edit_comment_util(comment_uuid=comment.sb_id,
                                            last_edited_on=now,
-                                           content="edited comment", pleb="")
+                                           content="edited comment")
 
         self.assertFalse(edited_comment)
 
     def test_edit_comment_failure_same_content(self):
-        comment = SBComment(comment_id=str(uuid1()), content='test_comment')
+        comment = SBComment(sb_id=str(uuid1()), content='test_comment')
         comment.save()
 
-        edited_comment = edit_comment_util(comment_uuid=comment.comment_id,
-                                           content="test_comment", pleb="",
-                                           last_edited_on=datetime.now(pytz.utc))
+        edited_comment = edit_comment_util(comment_uuid=comment.sb_id,
+                                           content="test_comment",
+                                           last_edited_on=datetime.now(
+                                               pytz.utc))
 
         self.assertFalse(edited_comment)
 
     def test_edit_comment_failure_same_edit_timestamp(self):
         now = datetime.now(pytz.utc)
-        comment = SBComment(comment_id=str(uuid1()), content='test_comment')
+        comment = SBComment(sb_id=str(uuid1()), content='test_comment')
         comment.last_edited_on = now
         comment.save()
 
-        edited_comment = edit_comment_util(comment_uuid=comment.comment_id,
-                                           content="fasdf", pleb="",
+        edited_comment = edit_comment_util(comment_uuid=comment.sb_id,
+                                           content="fasdf",
                                            last_edited_on=now)
 
         self.assertFalse(edited_comment)
 
     def test_edit_comment_failure_to_be_deleted(self):
-        comment = SBComment(comment_id=str(uuid1()), content='test_comment')
+        comment = SBComment(sb_id=str(uuid1()), content='test_comment')
         comment.to_be_deleted = True
         comment.save()
 
-        edited_comment = edit_comment_util(comment_uuid=comment.comment_id,
-                                           content=str(uuid1()), pleb="",
+        edited_comment = edit_comment_util(comment_uuid=comment.sb_id,
+                                           content=str(uuid1()),
                                            last_edited_on=datetime.now(
                                                pytz.utc))
 
@@ -160,9 +161,9 @@ class TestVoteComments(TestCase):
                          wall_pleb=self.user.email)
         my_comment = save_comment_post(content="test comment",
                                        pleb=self.user.email,
-                                       post_uuid=post.post_id)
+                                       post_uuid=post.sb_id)
         create_upvote_comment_util(pleb=self.user.email,
-                                   comment_uuid=my_comment.comment_id)
+                                   comment_uuid=my_comment.sb_id)
         my_comment.refresh()
 
         self.assertEqual(my_comment.up_vote_number, 1)
@@ -175,7 +176,7 @@ class TestVoteComments(TestCase):
         res = save_post_task.apply_async(kwargs=task_data)
         while not res.ready():
             time.sleep(1)
-        my_comment = SBComment(comment_id=uuid)
+        my_comment = SBComment(sb_id=uuid)
         my_comment.save()
         res = create_downvote_comment_util(pleb=self.user.email,
                                            comment_uuid=uuid)
@@ -201,10 +202,10 @@ class TestVoteComments(TestCase):
         test_wait_util(res)
         pleb2 = Pleb.nodes.get(email=email)
         create_upvote_comment_util(pleb=self.user.email,
-                                   comment_uuid=my_comment.comment_id)
+                                   comment_uuid=my_comment.sb_id)
         my_comment.refresh()
         create_upvote_comment_util(pleb=pleb2.email,
-                                   comment_uuid=my_comment.comment_id)
+                                   comment_uuid=my_comment.sb_id)
         my_comment.refresh()
 
         self.assertEqual(my_comment.up_vote_number, 2)
@@ -216,17 +217,17 @@ class TestVoteComments(TestCase):
                          wall_pleb=self.user.email)
         my_comment = save_comment_post(content="test comment",
                                        pleb=self.user.email,
-                                       post_uuid=post.post_id)
+                                       post_uuid=post.sb_id)
         email = "bounce@simulator.amazonses.com"
         res = create_user_util("test", "test", email, "testpassword")
         self.assertNotEqual(res, False)
         test_wait_util(res)
         pleb2 = Pleb.nodes.get(email=email)
         create_downvote_comment_util(pleb=self.user.email,
-                                     comment_uuid=my_comment.comment_id)
+                                     comment_uuid=my_comment.sb_id)
         my_comment.refresh()
         create_downvote_comment_util(pleb=pleb2.email,
-                                     comment_uuid=my_comment.comment_id)
+                                     comment_uuid=my_comment.sb_id)
         my_comment.refresh()
 
         self.assertEqual(my_comment.down_vote_number, 2)
@@ -241,36 +242,36 @@ class TestFlagComment(TestCase):
         self.user = User.objects.get(email=self.email)
 
     def test_flag_comment_success_spam(self):
-        comment = SBComment(comment_id=uuid1())
+        comment = SBComment(sb_id=uuid1())
         comment.save()
-        res = flag_comment_util(comment_uuid=comment.comment_id,
+        res = flag_comment_util(comment_uuid=comment.sb_id,
                                 current_user=self.user.email,
                                 flag_reason='spam')
 
         self.assertTrue(res)
 
     def test_flag_comment_success_explicit(self):
-        comment = SBComment(comment_id=uuid1())
+        comment = SBComment(sb_id=uuid1())
         comment.save()
-        res = flag_comment_util(comment_uuid=comment.comment_id,
+        res = flag_comment_util(comment_uuid=comment.sb_id,
                                 current_user=self.user.email,
                                 flag_reason='explicit')
 
         self.assertTrue(res)
 
     def test_flag_comment_success_other(self):
-        comment = SBComment(comment_id=uuid1())
+        comment = SBComment(sb_id=uuid1())
         comment.save()
-        res = flag_comment_util(comment_uuid=comment.comment_id,
+        res = flag_comment_util(comment_uuid=comment.sb_id,
                                 current_user=self.user.email,
                                 flag_reason='other')
 
         self.assertTrue(res)
 
     def test_flag_comment_failure_incorrect_reason(self):
-        comment = SBComment(comment_id=uuid1())
+        comment = SBComment(sb_id=uuid1())
         comment.save()
-        res = flag_comment_util(comment_uuid=comment.comment_id,
+        res = flag_comment_util(comment_uuid=comment.sb_id,
                                 current_user=self.user.email,
                                 flag_reason='dumb')
 
@@ -284,9 +285,9 @@ class TestFlagComment(TestCase):
         self.assertEqual(res, None)
 
     def test_flag_comment_failure_user_does_not_exist(self):
-        comment = SBComment(comment_id=uuid1())
+        comment = SBComment(sb_id=uuid1())
         comment.save()
-        res = flag_comment_util(comment_uuid=comment.comment_id,
+        res = flag_comment_util(comment_uuid=comment.sb_id,
                                 current_user=uuid1(),
                                 flag_reason='other')
 
@@ -307,11 +308,11 @@ class TestGetPostComments(TestCase):
     def test_get_post_comments_success(self):
         from sb_posts.neo_models import SBPost
 
-        post = SBPost(post_id=str(uuid1()))
+        post = SBPost(sb_id=str(uuid1()))
         post.save()
 
         for num in range(0,4):
-            comment = SBComment(comment_id=str(uuid1()), content=str(uuid1()))
+            comment = SBComment(sb_id=str(uuid1()), content=str(uuid1()))
             comment.save()
             post.owned_by.connect(self.pleb)
             comment.is_owned_by.connect(self.pleb)
@@ -320,5 +321,5 @@ class TestGetPostComments(TestCase):
         res = get_post_comments([post])
 
         self.assertEqual(type(res), list)
-        self.assertIn(post.post_id, dumps(res))
+        self.assertIn(post.sb_id, dumps(res))
 

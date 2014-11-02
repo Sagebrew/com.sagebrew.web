@@ -1,6 +1,7 @@
 import pytz
 import logging
 from uuid import uuid1
+from json import dumps
 from datetime import datetime
 from neomodel import CypherException, DoesNotExist
 
@@ -8,8 +9,10 @@ from .neo_models import SBComment
 from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
 from api.utils import execute_cypher_query
+from api.exceptions import DoesNotExistWrapper
 
 logger = logging.getLogger('loggly_logs')
+
 
 def get_post_comments(post_info):
     '''
@@ -23,11 +26,11 @@ def get_post_comments(post_info):
     comment_array = []
     post_array = []
     for post in post_info:
-        query = 'MATCH (p:SBPost) WHERE p.post_id="%s" ' \
+        query = 'MATCH (p:SBPost) WHERE p.sb_id="%s" ' \
                 'WITH p MATCH (p) - [:HAS_A] - (c:SBComment) ' \
                 'WHERE c.to_be_deleted=False ' \
                 'WITH c ORDER BY c.created_on ' \
-                'RETURN c' % post.post_id
+                'RETURN c' % post.sb_id
         post_comments, meta = execute_cypher_query(query)
         post_comments = [SBComment.inflate(row[0]) for row in post_comments]
         post_owner = post.owned_by.all()[0]
@@ -37,20 +40,21 @@ def get_post_comments(post_info):
             comment_owner = comment.is_owned_by.all()[0]
             comment_dict = {'comment_content': comment.content,
                             'comment_up_vote_number': comment.up_vote_number,
-                            'comment_id': comment.comment_id,
+                            'sb_id': comment.sb_id,
                             'comment_down_vote_number':
                                 comment.down_vote_number,
-                            'comment_last_edited_on': comment.last_edited_on,
+                            'comment_last_edited_on':
+                                str(comment.last_edited_on),
                             'comment_owner': comment_owner.first_name + ' '
                                              + comment_owner.last_name,
                             'comment_owner_email': comment_owner.email}
             comment.view_count += 1
             comment.save()
             comment_array.append(comment_dict)
-        post_dict = {'content': post.content, 'post_id': post.post_id,
+        post_dict = {'content': post.content, 'sb_id': post.sb_id,
                      'up_vote_number': post.up_vote_number,
                      'down_vote_number': post.down_vote_number,
-                     'last_edited_on': post.last_edited_on,
+                     'last_edited_on': str(post.last_edited_on),
                      'post_owner': post_owner.first_name + ' ' +
                                    post_owner.last_name,
                      'post_owner_email': post_owner.email,
@@ -59,7 +63,7 @@ def get_post_comments(post_info):
         comment_array = []
     return post_array
 
-def create_upvote_comment_util(pleb="", comment_uuid=str(uuid1())):
+def create_upvote_comment_util(pleb="", comment_uuid=None):
     '''
     creates an upvote on a comment, this is called by a util or task which
     will regulate
@@ -71,8 +75,10 @@ def create_upvote_comment_util(pleb="", comment_uuid=str(uuid1())):
     :return:
     '''
     try:
+        if comment_uuid is None:
+            comment_uuid = str(uuid1())
         try:
-            my_comment = SBComment.nodes.get(comment_id=comment_uuid)
+            my_comment = SBComment.nodes.get(sb_id=comment_uuid)
         except (SBComment.DoesNotExist, DoesNotExist):
             return False
 
@@ -107,7 +113,7 @@ def create_downvote_comment_util(pleb="", comment_uuid=str(uuid1())):
     '''
     try:
         try:
-            my_comment = SBComment.nodes.get(comment_id=comment_uuid)
+            my_comment = SBComment.nodes.get(sb_id=comment_uuid)
         except (SBComment.DoesNotExist, DoesNotExist):
             return False
 
@@ -145,14 +151,12 @@ def save_comment_post(content="", pleb="", post_uuid=str(uuid1())):
             my_citizen = Pleb.nodes.get(email=pleb)
         except (Pleb.DoesNotExist, DoesNotExist):
             return None
-
         try:
-            parent_object = SBPost.nodes.get(post_id=post_uuid)
+            parent_object = SBPost.nodes.get(sb_id=post_uuid)
         except (SBPost.DoesNotExist, DoesNotExist):
             return False
-
         comment_uuid = str(uuid1())
-        my_comment = SBComment(content=content, comment_id=comment_uuid)
+        my_comment = SBComment(content=content, sb_id=comment_uuid)
         my_comment.save()
         rel_to_pleb = my_comment.is_owned_by.connect(my_citizen)
         rel_to_pleb.save()
@@ -167,11 +171,11 @@ def save_comment_post(content="", pleb="", post_uuid=str(uuid1())):
         return False
     except Exception:
         logger.exception({"function": save_comment_post.__name__,
-                          "exception": "UnhandledException: "})
+                          "exception": "UnhandledException"})
         return False
 
-def edit_comment_util(comment_uuid=str(uuid1()), content="",
-                      last_edited_on=None, pleb=""):
+
+def edit_comment_util(comment_uuid, content="", last_edited_on=None):
     '''
     finds the comment with the given comment id then changes the content to the
     content which was passed. also changes the edited on date and time to the
@@ -190,14 +194,11 @@ def edit_comment_util(comment_uuid=str(uuid1()), content="",
         return False
     try:
         try:
-            my_comment = SBComment.nodes.get(comment_id=comment_uuid)
+            my_comment = SBComment.nodes.get(sb_id=comment_uuid)
         except (SBComment.DoesNotExist, DoesNotExist):
-            return {'detail': "retry"}
-        try:
-            if my_comment.last_edited_on > last_edited_on:
-                return False
-        except TypeError:
-            pass
+            return SBComment.DoesNotExist("SBComment Does Not Exist")
+        if my_comment.last_edited_on > last_edited_on:
+            return False
 
         if my_comment.content == content:
             return False
@@ -210,13 +211,17 @@ def edit_comment_util(comment_uuid=str(uuid1()), content="",
 
         my_comment.content = content
         my_comment.last_edited_on = last_edited_on
+
+        if my_comment.edited is False:
+            my_comment.edited = True
+
         my_comment.save()
         return True
 
-    except Exception:
-        logger.exception({"function": edit_comment_util.__name__,
-                          'exception': "UnhandledException: "})
-        return {'detail': 'retry'}
+    except Exception as e:
+        logger.exception(dumps({"function": edit_comment_util.__name__,
+                                'exception': "UnhandledException"}))
+        return e
 
 def delete_comment_util(comment_uuid=str(uuid1())):
     '''
@@ -228,7 +233,7 @@ def delete_comment_util(comment_uuid=str(uuid1())):
     :return:
     '''
     try:
-        my_comment = SBComment.nodes.get(comment_id=comment_uuid)
+        my_comment = SBComment.nodes.get(sb_id=comment_uuid)
         if datetime.now(pytz.utc).day - my_comment.delete_time.day >= 1:
             my_comment.content=""
             my_comment.save()
@@ -253,7 +258,7 @@ def flag_comment_util(comment_uuid, current_user, flag_reason):
     '''
     try:
         try:
-            comment = SBComment.nodes.get(comment_id=comment_uuid)
+            comment = SBComment.nodes.get(sb_id=comment_uuid)
         except (SBComment.DoesNotExist, DoesNotExist):
             return None
 

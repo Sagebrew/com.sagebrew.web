@@ -8,6 +8,10 @@ ALLOWED_HOSTS = ['*']
 WEB_ADDRESS = "https://192.168.56.101"
 API_PASSWORD = "admin"
 VERIFY_SECURE = False
+MEDIA_ROOT = PROJECT_DIR.child("media")
+STATIC_ROOT = PROJECT_DIR.child("static")
+STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
 
 DATABASES = {
     'default': {

@@ -300,7 +300,7 @@ class TestGetQuestionView(TestCase):
 
     def test_get_question_view_success_most_recent(self):
         for item in range(0,5):
-            question = SBQuestion(question_id=str(uuid1()), content='test',
+            question = SBQuestion(sb_id=str(uuid1()), content='test',
                                   question_title='test title').save()
             question.owned_by.connect(self.pleb)
 
@@ -319,13 +319,13 @@ class TestGetQuestionView(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_get_question_view_success_uuid(self):
-        question = SBQuestion(question_id=str(uuid1()), content='test',
+        question = SBQuestion(sb_id=str(uuid1()), content='test',
                                   question_title='test title').save()
         question.owned_by.connect(self.pleb)
 
         my_dict = {'current_pleb': self.user.email,
                    'sort_by': 'uuid',
-                   'question_uuid': question.question_id}
+                   'question_uuid': question.sb_id}
         request = self.factory.post('/questions/query_questions_api/',
                                     data=my_dict,
                                     format='json')
@@ -339,7 +339,7 @@ class TestGetQuestionView(TestCase):
 
     def test_get_question_view_success_least_recent(self):
         for item in range(0,5):
-            question = SBQuestion(question_id=str(uuid1()), content='test',
+            question = SBQuestion(sb_id=str(uuid1()), content='test',
                                   question_title='test title').save()
             question.owned_by.connect(self.pleb)
 
@@ -450,11 +450,11 @@ class TestGetQuestionSearchView(TestCase):
         self.client.force_authenticate(user=self.user)
 
     def test_get_question_search_view_success(self):
-        question = SBQuestion(question_id=str(uuid1()), content='test',
+        question = SBQuestion(sb_id=str(uuid1()), content='test',
                               question_title='test title').save()
         question.owned_by.connect(self.pleb)
 
-        res = self.client.get('/questions/search/%s/'%question.question_id)
+        res = self.client.get('/questions/search/%s/'%question.sb_id)
         res = res.render()
 
         self.assertIn('| Answer: 0 | Upvotes: 0 | Downvotes: 0 |', res.content)
@@ -472,10 +472,10 @@ class TestFlagQuestionView(TestCase):
         self.pleb.first_name = 'Tyler'
         self.pleb.last_name = 'Wiersing'
         self.pleb.save()
-        self.question = SBQuestion(question_id=str(uuid1())).save()
+        self.question = SBQuestion(sb_id=str(uuid1())).save()
 
     def test_flag_question_view_success(self):
-        my_dict = {"question_uuid": self.question.question_id,
+        my_dict = {"question_uuid": self.question.sb_id,
                    "current_pleb": self.pleb.email,
                    "flag_reason": "spam"}
         request = self.factory.post('/questions/flag_questions_api/',
@@ -487,7 +487,7 @@ class TestFlagQuestionView(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_flag_question_view_missing_data(self):
-        my_dict = {"question_uuid": self.question.question_id,
+        my_dict = {"question_uuid": self.question.sb_id,
                    "flag_reason": "spam"}
         request = self.factory.post('/questions/flag_questions_api/',
                                     data=my_dict,

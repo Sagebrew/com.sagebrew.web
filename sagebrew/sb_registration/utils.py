@@ -16,7 +16,7 @@ from neomodel import DoesNotExist, CypherException
 from api.utils import spawn_task
 from plebs.tasks import create_pleb_task
 from plebs.neo_models import Pleb
-from govtrack.neo_models import GTRole
+#from govtrack.neo_models import GTRole
 
 logger = logging.getLogger('loggly_logs')
 
@@ -211,7 +211,7 @@ def generate_profile_pic_url(image_uuid):
     image_uri = k.generate_url(expires_in=259200)
     return image_uri
 
-
+"""
 def determine_senators(pleb_address):
     '''
     Search for senators who match the state of the pleb. Then return an
@@ -250,7 +250,7 @@ def determine_reps(pleb_address):
         for name in item:
             rep_name = name.name
     return rep_name
-
+"""
 
 def get_friends(email):
     '''

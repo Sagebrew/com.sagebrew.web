@@ -132,6 +132,7 @@ def create_pleb_task(user_instance):
                         first_name=user_instance.first_name,
                         last_name=user_instance.last_name)
             pleb.save()
+            pleb.generate_username()
             task_info = spawn_task(task_func=create_wall_task,
                               task_param={"pleb": pleb, "user": user_instance})
             return task_info

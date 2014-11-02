@@ -7,7 +7,7 @@ from neomodel import (StructuredNode, StringProperty, DateTimeProperty,
 
 
 class NotificationBase(StructuredNode):
-    notification_uuid = StringProperty(unique_index=True)
+    sb_id = StringProperty(unique_index=True)
     seen = BooleanProperty(default=False)
     time_sent = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     time_seen = DateTimeProperty(default=None)
@@ -16,6 +16,7 @@ class NotificationBase(StructuredNode):
     sent = BooleanProperty(default=False)
 
     # relationships
+
     notification_from = RelationshipTo('plebs.neo_models.Pleb',
                                        'NOTIFICATION_FROM')
     notification_to = RelationshipTo('plebs.neo_models.Pleb',

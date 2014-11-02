@@ -1,4 +1,5 @@
 import pytz
+from uuid import uuid1
 
 from datetime import datetime
 
@@ -6,8 +7,10 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty)
 
+
 class EditRelationshipModel(StructuredRel):
     time_edited = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+
 
 class PostedOnRel(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
@@ -16,17 +19,21 @@ class PostedOnRel(StructuredRel):
 class PostReceivedRel(StructuredRel):
     received = BooleanProperty()
 
+
 class RelationshipWeight(StructuredRel):
     weight = IntegerProperty(default=150)
     status = StringProperty(default='seen')
     seen = BooleanProperty(default=True)
 
+
 class SBBase(StructuredNode):
+    sb_id = StringProperty(unique_index=True, default=lambda: str(uuid1()))
     content = StringProperty()
     date_created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     up_vote_number = IntegerProperty(default=0)
     down_vote_number = IntegerProperty(default=0)
-    last_edited_on = DateTimeProperty(default=None)
+    last_edited_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    edited = BooleanProperty(default=False)
     to_be_deleted = BooleanProperty(default=False)
     delete_time = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     is_explicit = BooleanProperty(default=False)
@@ -62,10 +69,9 @@ class SBBase(StructuredNode):
                                    'NOTIFICATIONS')
 
 
-
 class SBPost(SBBase):
-    post_id = StringProperty(unique_index=True)
-
+    allowed_flags = ["explicit", "spam","other"]
+    sb_name = "post"
     # relationships
     posted_on_wall = RelationshipTo('sb_wall.neo_models.SBWall', 'POSTED_ON')
     #TODO Implement referenced_by_... relationships

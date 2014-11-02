@@ -37,12 +37,5 @@ urlpatterns = patterns('',
                        (r'^answers/', include('sb_answers.urls')),
                        (r'^search/', include('sb_search.urls')),
                        (r'^tags/', include('sb_tag.urls')),
+                       (r'^flag/', include('sb_flags.urls')),
 )
-
-if settings.DEBUG:
-    urlpatterns += patterns('',
-                            (r'^media/(?P<path>.*)$',
-                             'django.views.static.serve',
-                             {'document_root': settings.MEDIA_ROOT,
-                              'show_indexes': True}),
-    )

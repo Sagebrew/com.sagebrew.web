@@ -33,36 +33,39 @@
                             role="menu" aria-labelledby="dropdownMenu1">
                             {% if post_owner_email == current_user %}
                              <li role="presentation"><a class="sb_post_dropdown_menu btn show_edit_post_class"
-                                                       data-uuid="{{ post_id }}"
+                                                       data-uuid="{{ sb_id }}"
                                                        type="submit">Edit Post</a>
                             </li>
                             {% endif %}
                             <li role="presentation" class="sb_divider divider"></li>
-                            <li role="presentation"><a class='sb_post_dropdown_menu btn flag_post-action'
+                            <li role="presentation"><a class='sb_post_dropdown_menu btn flag_object-action'
                                                        data-flag_reason='spam'
                                                        data-current_user="{{ current_user }}"
-                                                       data-post_uuid="{{ post_id }}">flag as spam
+                                                       data-object_uuid="{{ sb_id }}"
+                                                       data-object_type="SBPost">flag as spam
                                                        </a>
                             </li>
                             <li role="presentation" class="sb_divider divider"></li>
-                            <li role="presentation"><a class='sb_post_dropdown_menu btn flag_post-action'
+                            <li role="presentation"><a class='sb_post_dropdown_menu btn flag_object-action'
                                                        data-flag_reason='explicit'
                                                        data-current_user="{{ current_user }}"
-                                                       data-post_uuid="{{ post_id }}">flag as explicit
+                                                       data-object_uuid="{{ sb_id }}"
+                                                       data-object_type="SBPost">flag as explicit
                                                        </a>
                             </li>
                             <li role="presentation" class="sb_divider divider"></li>
-                            <li role="presentation"><a class='sb_post_dropdown_menu btn flag_post-action'
+                            <li role="presentation"><a class='sb_post_dropdown_menu btn flag_object-action'
                                                        data-flag_reason='other'
                                                        data-current_user="{{ current_user }}"
-                                                       data-post_uuid="{{ post_id }}">flag as other
+                                                       data-object_uuid="{{ sb_id }}"
+                                                       data-object_type="SBPost">flag as other
                                                        </a>
                             </li>
                             {% if post_owner_email == current_user %}
                             <li role="presentation" class="sb_divider divider"></li>
                             <li role="presentation"> <a class='sb_post_dropdown_menu btn delete_post-action'
                                                        data-pleb="{{ current_user }}"
-                                                       data-post_uuid="{{ post_id }}">Delete Post</a>
+                                                       data-post_uuid="{{ sb_id }}">Delete Post</a>
                             </li>
                             {% endif %}
                         </ul>
@@ -80,7 +83,7 @@
                 <a class='btn vote-action sb_btn_vote_icon'
                    data-vote_type='up'
                    data-pleb="{{ current_user }}"
-                   data-post_uuid="{{ post_id }}"><span class="sb_icon sb_icon_up_vote fui-check"></span>
+                   data-post_uuid="{{ sb_id }}"><span class="sb_icon sb_icon_up_vote fui-check"></span>
                 </a>
             </div>
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2 sb_vote_div">
@@ -90,7 +93,7 @@
                  <a class='btn vote-action sb_btn_vote_icon'
                    data-vote_type='down'
                    data-pleb="{{ current_user }}"
-                   data-post_uuid="{{ post_id }}"><span class="sb_icon sb_icon_down_vote fui-cross"></span>
+                   data-post_uuid="{{ sb_id }}"><span class="sb_icon sb_icon_down_vote fui-cross"></span>
                  </a>
             </div>
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2 sb_vote_div">
@@ -104,26 +107,26 @@
     {% include "sb_comments.html" %}
     <div class="input-group sb_comment">
         <textarea class="input-group form-control sb_comment_input "
-                  id="post_comment_on_{{ post_id }}"
+                  id="post_comment_on_{{ sb_id }}"
                   rows="2"
                   placeholder="Write your comment..."></textarea>
         <a class=' sb_btn_comment_icon btn input-group-btn comment-action'
-           data-uuid="{{ post_id }}"
+           data-uuid="{{ sb_id }}"
            data-pleb="{{ current_user }}"
-           data-post_uuid="{{ post_id }}"><span class="fui-new"></span></a>
+           data-post_uuid="{{ sb_id }}"><span class="fui-new"></span></a>
     </div>
 
-            <div id="divid_{{ post_id }}"
+            <div id="divid_{{ sb_id }}"
                  style="display: none">
                 <textarea class="form-control edit_post_input_class"
-                          id="{{ post_id }}"
+                          id="{{ sb_id }}"
                           name="edit_post_input"
                           rows="1"
                           placeholder="Edit your post..."></textarea>
                 <a class='btn btn-primary edit_post-action'
                    id="edit_post_button_id"
                    data-pleb="{{ current_user }}"
-                   data-post_uuid="{{ post_id }}">Submit</a>
+                   data-post_uuid="{{ sb_id }}">Submit</a>
             </div>
 
 </div>
@@ -132,6 +135,6 @@
     <a class='btn btn-primary vote-action'
        data-vote_type='up'
        data-pleb="{{ post.current_user }}"
-       data-post_uuid="{{ post.post_id }}">Reference
+       data-post_uuid="{{ post.sb_id }}">Reference
         Post</a>
 {% endcomment %}

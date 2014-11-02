@@ -5,7 +5,7 @@ from datetime import datetime
 from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
-from celery.utils.serialization import UnpickleableExceptionWrapper
+from neomodel.exception import DoesNotExist
 
 from api.utils import test_wait_util
 from sb_questions.tasks import (create_question_task, edit_question_task,
@@ -49,16 +49,13 @@ class TestSaveQuestionTask(TestCase):
             time.sleep(3)
 
         result = response.result
-        if not result:
-            self.assertFalse(response.result)
-        elif type(result) is TypeError:
-            self.assertTrue(type(result) is TypeError)
+        self.assertTrue(isinstance(result, Exception))
 
     def test_save_question_task_question_exists(self):
-        question = SBQuestion(question_id=str(uuid1()))
+        question = SBQuestion(sb_id=str(uuid1()))
         question.save()
 
-        self.question_info_dict['question_uuid'] = question.question_id
+        self.question_info_dict['question_uuid'] = question.sb_id
 
         res = create_question_task.apply_async(kwargs=self.question_info_dict)
         while not res.ready():
@@ -88,10 +85,10 @@ class TestEditQuestionTask(TestCase):
     def test_edit_question_task(self):
         question = SBQuestion(content="test question from edit task test",
                               question_title="testquestiontitle from edit test",
-                              question_id=uuid1())
+                              sb_id=uuid1())
         question.save()
         edit_question_dict = {'content': 'question edited',
-                          'question_uuid': question.question_id,
+                          'question_uuid': question.sb_id,
                           'current_pleb': self.user.email,
                           'last_edited_on': datetime.now(pytz.utc)}
         edit_response = edit_question_task.apply_async(
@@ -102,12 +99,12 @@ class TestEditQuestionTask(TestCase):
         self.assertTrue(edit_response)
 
     def test_edit_question_task_failure_pleb_does_not_exist(self):
-        question = SBQuestion(question_id=str(uuid1()))
+        question = SBQuestion(sb_id=str(uuid1()))
         question.save()
 
         task_data = {
             'content': 'edit',
-            'question_uuid': question.question_id,
+            'question_uuid': question.sb_id,
             'current_pleb': str(uuid1())
         }
 
@@ -130,16 +127,16 @@ class TestEditQuestionTask(TestCase):
             time.sleep(1)
         res = res.result
 
-        self.assertEqual(type(res), UnpickleableExceptionWrapper)
+        self.assertTrue(isinstance(res, DoesNotExist))
 
     def test_edit_question_task_failure_to_be_deleted(self):
-        question = SBQuestion(question_id=str(uuid1()))
+        question = SBQuestion(sb_id=str(uuid1()))
         question.to_be_deleted = True
         question.save()
 
         task_data = {
             'content': 'edit',
-            'question_uuid': question.question_id,
+            'question_uuid': question.sb_id,
             'current_pleb': self.user.email
         }
 
@@ -151,12 +148,12 @@ class TestEditQuestionTask(TestCase):
         self.assertFalse(res)
 
     def test_edit_question_task_failure_same_content(self):
-        question = SBQuestion(question_id=str(uuid1()), content='edit')
+        question = SBQuestion(sb_id=str(uuid1()), content='edit')
         question.save()
 
         task_data = {
             'content': 'edit',
-            'question_uuid': question.question_id,
+            'question_uuid': question.sb_id,
             'current_pleb': self.user.email
         }
 
@@ -169,13 +166,13 @@ class TestEditQuestionTask(TestCase):
 
     def test_edit_question_task_failure_same_timestamp(self):
         now = datetime.now(pytz.utc)
-        question = SBQuestion(question_id=str(uuid1()), content='edit')
+        question = SBQuestion(sb_id=str(uuid1()), content='edit')
         question.last_edited_on = now
         question.save()
 
         task_data = {
             'content': 'edit',
-            'question_uuid': question.question_id,
+            'question_uuid': question.sb_id,
             'current_pleb': self.user.email,
             'last_edited_on': now
         }
@@ -189,13 +186,13 @@ class TestEditQuestionTask(TestCase):
 
     def test_edit_question_task_failure_more_recent_edit(self):
         now = datetime.now(pytz.utc)
-        question = SBQuestion(question_id=str(uuid1()), content='edit')
+        question = SBQuestion(sb_id=str(uuid1()), content='edit')
         question.last_edited_on = datetime.now(pytz.utc)
         question.save()
 
         task_data = {
             'content': 'edit',
-            'question_uuid': question.question_id,
+            'question_uuid': question.sb_id,
             'current_pleb': self.user.email,
             'last_edited_on': now
         }
@@ -227,7 +224,7 @@ class TestQuestionTaskRaceConditions(TestCase):
         question.save()
 
         edit_dict = {'content': "post edited",
-                     'question_uuid': question.question_id,
+                     'question_uuid': question.sb_id,
                      'current_pleb': self.user.email,
                      'last_edited_on': datetime.now(pytz.utc)}
         for num in range(1, 10):
@@ -262,10 +259,10 @@ class TestVoteTask(TestCase):
     def test_question_vote_task_up_success(self):
         question = SBQuestion(content="test question from vote task test",
                               question_title="testquestiontitle from votetest",
-                              question_id=uuid1())
+                              sb_id=uuid1())
         question.save()
         pleb = Pleb.nodes.get(email=self.user.email)
-        vote_info_dict = {"question_uuid": question.question_id,
+        vote_info_dict = {"question_uuid": question.sb_id,
                           "current_pleb": pleb.email, 'vote_type': 'up'}
         vote_response = vote_question_task.apply_async(kwargs=vote_info_dict)
         while not vote_response.ready():
@@ -276,10 +273,10 @@ class TestVoteTask(TestCase):
     def test_question_vote_task_down_success(self):
         question = SBQuestion(content="test question from vote task test",
                               question_title="testquestiontitle from votetest",
-                              question_id=uuid1())
+                              sb_id=uuid1())
         question.save()
         pleb = Pleb.nodes.get(email=self.user.email)
-        vote_info_dict = {"question_uuid": question.question_id,
+        vote_info_dict = {"question_uuid": question.sb_id,
                           "current_pleb": pleb.email, 'vote_type': 'down'}
         vote_response = vote_question_task.apply_async(kwargs=vote_info_dict)
         while not vote_response.ready():
@@ -290,10 +287,10 @@ class TestVoteTask(TestCase):
     def test_question_vote_task_pleb_does_not_exist(self):
         question = SBQuestion(content="test question from vote task test",
                               question_title="testquestiontitle from votetest",
-                              question_id=uuid1())
+                              sb_id=uuid1())
         question.save()
         pleb = Pleb.nodes.get(email=self.user.email)
-        vote_info_dict = {"question_uuid": question.question_id,
+        vote_info_dict = {"question_uuid": question.sb_id,
                           "current_pleb": str(uuid1()), 'vote_type': 'up'}
         vote_response = vote_question_task.apply_async(kwargs=vote_info_dict)
         while not vote_response.ready():
@@ -304,7 +301,7 @@ class TestVoteTask(TestCase):
     def test_question_vote_task_question_does_not_exist(self):
         question = SBQuestion(content="test question from vote task test",
                               question_title="testquestiontitle from votetest",
-                              question_id=uuid1())
+                              sb_id=uuid1())
         question.save()
         pleb = Pleb.nodes.get(email=self.user.email)
         vote_info_dict = {"question_uuid": str(uuid1()),
@@ -320,10 +317,10 @@ class TestVoteTask(TestCase):
     def test_question_vote_task_already_connected(self):
         question = SBQuestion(content="test question from vote task test",
                               question_title="testquestiontitle from votetest",
-                              question_id=uuid1())
+                              sb_id=uuid1())
         question.save()
         pleb = Pleb.nodes.get(email=self.user.email)
-        vote_info_dict = {"question_uuid": question.question_id,
+        vote_info_dict = {"question_uuid": question.sb_id,
                           "current_pleb": pleb.email, 'vote_type': 'up'}
         question.up_voted_by.connect(pleb)
         vote_response = vote_question_task.apply_async(kwargs=vote_info_dict)
@@ -361,12 +358,12 @@ class TestMultipleTasks(TestCase):
 
     def test_create_same_question_twice(self):
         question = SBQuestion(content="test question", question_title="title",
-                              question_id=str(uuid1()))
+                              sb_id=str(uuid1()))
         question.save()
         post_info_dict = {'current_pleb': self.pleb.email,
                           'question_title': 'Question Title',
                           'content': 'test question',
-                          'question_uuid': question.question_id}
+                          'question_uuid': question.sb_id}
         response2 = create_question_task.apply_async(kwargs=post_info_dict)
         while not response2.ready():
             time.sleep(1)

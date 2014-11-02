@@ -13,25 +13,25 @@ class TestPostToGarbageUtil(TestCase):
         except SBGarbageCan.DoesNotExist:
             self.garbage = SBGarbageCan(garbage_can='garbage').save()
 
-        self.post = SBPost(post_id=str(uuid1())).save()
+        self.post = SBPost(sb_id=str(uuid1())).save()
 
     def test_post_to_garbage_garbage_exists(self):
-        res = post_to_garbage(self.post.post_id)
+        res = post_to_garbage(self.post.sb_id)
 
         self.assertTrue(res)
 
     def test_post_to_garbage_garbage_does_not_exist(self):
         self.garbage.delete()
 
-        res = post_to_garbage(self.post.post_id)
+        res = post_to_garbage(self.post.sb_id)
 
         self.assertTrue(res)
 
     def test_post_to_garbage_post_has_comments(self):
-        comment = SBComment(comment_id=str(uuid1())).save()
+        comment = SBComment(sb_id=str(uuid1())).save()
         self.post.comments.connect(comment)
 
-        res = post_to_garbage(self.post.post_id)
+        res = post_to_garbage(self.post.sb_id)
 
         self.assertTrue(res)
 
@@ -48,17 +48,17 @@ class TestCommentToGarbageUtil(TestCase):
         except SBGarbageCan.DoesNotExist:
             self.garbage = SBGarbageCan(garbage_can='garbage').save()
 
-        self.comment = SBComment(comment_id=str(uuid1())).save()
+        self.comment = SBComment(sb_id=str(uuid1())).save()
 
     def test_comment_to_garbage_garbage_exists(self):
-        res = comment_to_garbage(self.comment.comment_id)
+        res = comment_to_garbage(self.comment.sb_id)
 
         self.assertTrue(res)
 
     def test_comment_to_garbage_garbage_does_not_exist(self):
         self.garbage.delete()
 
-        res = comment_to_garbage(self.comment.comment_id)
+        res = comment_to_garbage(self.comment.sb_id)
 
         self.assertTrue(res)
 

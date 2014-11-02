@@ -56,6 +56,7 @@ def populate_staging_values(data):
                         environ.get("REDIS_LOCATION_STAGING", ""))
     data = data.replace("<CACHE_LOCATION>",
                         environ.get("CACHE_LOCATION_STAGING", ""))
+    # Only populated in worker config (web gets these by default from aws)
     data = data.replace("<RDS_DB_NAME>",
                         environ.get("RDS_DB_NAME_STAGING", ""))
     data = data.replace("<RDS_USERNAME>",
@@ -85,6 +86,7 @@ def populate_production_values(data):
                         environ.get("CACHE_LOCATION_PROD", ""))
     data = data.replace("<REDIS_LOCATION>",
                         environ.get("REDIS_LOCATION_PROD", ""))
+    # Only populated in worker config (web gets these by default from aws)
     data = data.replace("<RDS_DB_NAME>",
                         environ.get("RDS_DB_NAME_PROD", ""))
     data = data.replace("<RDS_USERNAME>",

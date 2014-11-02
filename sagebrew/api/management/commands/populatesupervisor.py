@@ -101,5 +101,10 @@ def populate_general_values(data, user, worker_count):
                              environ.get("QUEUE_PASSWORD", ""))
     data = data.replace("%(ENV_QUEUE_HOST)s", environ.get("QUEUE_HOST", ""))
     data = data.replace("%(ENV_QUEUE_PORT)s", environ.get("QUEUE_PORT", ""))
+    data = data.replace("%(ENV_RDS_DB_NAME)s", environ.get("RDS_DB_NAME", ""))
+    data = data.replace("%(ENV_RDS_USERNAME)s", environ.get("RDS_USERNAME", ""))
+    data = data.replace("%(ENV_RDS_PASSWORD)s", environ.get("RDS_PASSWORD", ""))
+    data = data.replace("%(ENV_RDS_HOSTNAME)s", environ.get("RDS_HOSTNAME", ""))
+    data = data.replace("%(ENV_RDS_PORT)s", environ.get("RDS_PORT", ""))
 
     return data

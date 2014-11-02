@@ -1,4 +1,5 @@
 from uuid import uuid1
+from json import dumps
 from celery import shared_task
 from logging import getLogger
 
@@ -12,6 +13,7 @@ from .utils import (save_post, edit_post_info, delete_post_info, flag_post)
 
 logger = getLogger('loggly_logs')
 
+
 @shared_task()
 def delete_post_and_comments(post_info):
     '''
@@ -22,11 +24,13 @@ def delete_post_and_comments(post_info):
     :param post_info:
     :return:
     '''
-    if delete_post_info(post_info):
-        return True
-    else:
-        raise delete_post_and_comments.retry(exc=Exception, countdown=3,
+    response = delete_post_info(post_info)
+    if isinstance(response, Exception) is True:
+        raise delete_post_and_comments.retry(exc=response, countdown=3,
                                              max_retries=None)
+    else:
+        return response
+
 
 @shared_task()
 def create_upvote_post(post_uuid=str(uuid1()), pleb=""):
@@ -42,10 +46,9 @@ def create_upvote_post(post_uuid=str(uuid1()), pleb=""):
     '''
     try:
         try:
-            my_post = SBPost.nodes.get(post_id=post_uuid)
-        except (SBPost.DoesNotExist, DoesNotExist):
-            raise create_upvote_post.retry(exc=DoesNotExist, countdown=3,
-                                       max_retries=None)
+            my_post = SBPost.nodes.get(sb_id=post_uuid)
+        except (SBPost.DoesNotExist, DoesNotExist) as e:
+            raise create_upvote_post.retry(exc=e, countdown=3, max_retries=None)
 
         try:
             my_pleb = Pleb.nodes.get(email=pleb)
@@ -55,14 +58,13 @@ def create_upvote_post(post_uuid=str(uuid1()), pleb=""):
         my_post.up_voted_by.connect(my_pleb)
         my_post.save()
         return True
-    except Exception:
-        logger.exception({"function": create_upvote_post.__name__,
-                          "exception": "UnhandledException: "})
-        raise create_downvote_post.retry(exc=Exception, countdown=3,
-                                         max_retries=None)
+    except Exception as e:
+        logger.exception(dumps({"function": create_upvote_post.__name__,
+                                "exception": "UnhandledException"}))
+        raise create_downvote_post.retry(exc=e, countdown=3, max_retries=None)
 
 @shared_task()
-def create_downvote_post(post_uuid=str(uuid1()), pleb=""):
+def create_downvote_post(post_uuid, pleb=None):
     '''
     creates a downvote attached to a post
 
@@ -73,9 +75,11 @@ def create_downvote_post(post_uuid=str(uuid1()), pleb=""):
                     pleb = "" email
     :return:
     '''
+    if pleb is None:
+        return False
     try:
         try:
-            my_post = SBPost.nodes.get(post_id=post_uuid)
+            my_post = SBPost.nodes.get(sb_id=post_uuid)
         except (SBPost.DoesNotExist, DoesNotExist):
             raise create_downvote_post.retry(exc=DoesNotExist, countdown=3,
                                          max_retries=None)
@@ -87,17 +91,17 @@ def create_downvote_post(post_uuid=str(uuid1()), pleb=""):
         my_post.down_voted_by.connect(my_pleb)
         my_post.save()
         return True
-    except Exception:
+    except Exception as e:
         logger.exception({'function': create_downvote_post.__name__,
                           'exception': 'UnhandledException: '})
-        raise create_downvote_post.retry(exc=Exception, countdown=3,
+        raise create_downvote_post.retry(exc=e, countdown=3,
                                          max_retries=None)
 
 
 
 @shared_task()
 def save_post_task(content="", current_pleb="", wall_pleb="",
-                   post_uuid=str(uuid1())):
+                   post_uuid=None):
     '''
     Saves the post with the content sent to the task
 
@@ -113,6 +117,8 @@ def save_post_task(content="", current_pleb="", wall_pleb="",
         Returns True if the prepare_post_notification task is spawned and
         the post is successfully created
     '''
+    if post_uuid is None:
+        post_uuid = str(uuid1())
     try:
         my_post = save_post(post_uuid=post_uuid, content=content,
                             current_pleb=current_pleb, wall_pleb=wall_pleb)
@@ -124,7 +130,7 @@ def save_post_task(content="", current_pleb="", wall_pleb="",
             # pleb rather than just the email, since just do another query in
             # the util anyways and will need to do one for the notification
 
-            notification_data={'object_type': 'post', 'sb_object': my_post,
+            notification_data={'sb_object': my_post,
                                'from_pleb':Pleb.nodes.get(email=current_pleb),
                                'to_plebs': [Pleb.nodes.get(email=wall_pleb),]}
             spawn_task(task_func=spawn_notifications,
@@ -133,7 +139,7 @@ def save_post_task(content="", current_pleb="", wall_pleb="",
         raise Exception
     except Exception:
         logger.exception({"function": save_post_task.__name__,
-                          "exception": "UnhandledException: "})
+                          "exception": "UnhandledException"})
         raise save_post_task.retry(exc=Exception, countdown=3, max_retries=None)
 
 
@@ -189,7 +195,7 @@ def edit_post_info_task(content="", post_uuid=str(uuid1()),
     '''
     edit_post_return = edit_post_info(content, post_uuid, last_edited_on,
                                       current_pleb)
-    if edit_post_return == True:
+    if edit_post_return is True:
         return True
     if edit_post_return['detail'] == 'post does not exist yet':
         raise edit_post_info_task.retry(exc=Exception, countdown=3,
@@ -213,13 +219,10 @@ def flag_post_task(post_uuid, current_user, flag_reason):
     :param flag_reason:
     :return:
     '''
-    try:
-        if flag_post(post_uuid=post_uuid, current_user=current_user,
-                     flag_reason=flag_reason):
-            return True
-        raise Exception
-    except Exception:
-        logger.exception({"function": flag_post_task.__name__,
-                          "exception": "UnhandledException: "})
-        raise flag_post_task.retry(exc=Exception, countdown=3,
+    response = flag_post(post_uuid=post_uuid, current_user=current_user,
+                         flag_reason=flag_reason)
+    if isinstance(response, Exception):
+        raise flag_post_task.retry(exc=response, countdown=3,
                                    max_retries=None)
+    else:
+        return response

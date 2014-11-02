@@ -67,7 +67,7 @@ def save_answer_task(content="", current_pleb="", question_uuid="",
             task_data = {'answer': res}
             return spawn_task(task_func=add_answer_to_search_index,
                               task_param=task_data)
-        elif isinstance(res, Exception):
+        elif isinstance(res, Exception) is True:
             raise save_answer_task.retry(exc=res, countdown=5,
                                      max_retries=None)
         return res
@@ -117,7 +117,7 @@ def edit_answer_task(content="", answer_uuid="", last_edited_on=None,
             return False
         elif edit_response['detail'] == 'last edit more recent':
             return False
-        elif isinstance(edit_response, Exception):
+        elif isinstance(edit_response, Exception) is True:
             raise edit_answer_task.retry(exc=edit_response, countdown=3,
                                          max_retries=None)
 

@@ -140,7 +140,7 @@ def create_question_task(content="", current_pleb="", question_title="",
             response = create_question_util(content=content,
                                             current_pleb=current_pleb,
                                             question_title=question_title)
-        if isinstance(response, Exception):
+        if isinstance(response, Exception) is True:
             raise create_question_task.retry(exc=response, countdown=5,
                                              max_retries=None)
         elif response is None:
@@ -150,8 +150,7 @@ def create_question_task(content="", current_pleb="", question_title="",
             return spawn_task(task_func=add_tags_to_question_task,
                               task_param=task_data)
     except CypherException as e:
-        raise create_question_task.retry(exc=e, countdown=3,
-                                         max_retries=None)
+        raise create_question_task.retry(exc=e, countdown=3, max_retries=None)
     except Exception as e:
         logger.exception({'function': create_question_task.__name__,
                           'exception': "UnhandledException: "})
@@ -260,7 +259,7 @@ def flag_question_task(question_uuid, current_pleb, flag_reason):
         res = flag_question_util(question_uuid=question_uuid,
                                  current_pleb=current_pleb,
                                  flag_reason=flag_reason)
-        if isinstance(res, Exception):
+        if isinstance(res, Exception) is True:
             raise flag_question_task.retry(exc=res, countdown=3,
                                            max_retries=None)
         return res

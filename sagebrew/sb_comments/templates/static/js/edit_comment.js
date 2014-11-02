@@ -1,7 +1,7 @@
 $(document).ready(function () {
     $("a.show_edit_comment_class").click(function () {
-        var comment_id = $(this).data('comment_uuid');
-        $("#comment_divid_" + comment_id).fadeToggle();
+        var sb_id = $(this).data('comment_uuid');
+        $("#comment_divid_" + sb_id).fadeToggle();
     });
 
     $("button.edit_comment-action").click(function (event) {

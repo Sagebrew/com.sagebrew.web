@@ -59,7 +59,7 @@ class TestDeletePostTask(TestCase):
 
     def test_delete_post_task(self):
         post = SBPost(content=self.post_info_dict['content'],
-                      post_id=self.post_info_dict['post_uuid'])
+                      sb_id=self.post_info_dict['post_uuid'])
         post.save()
         delete_response = delete_post_and_comments.apply_async(
             [self.post_info_dict['post_uuid'], ])
@@ -86,11 +86,11 @@ class TestEditPostTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_edit_post_task_success(self):
-        post = SBPost(post_id=uuid1(), content="test post")
+        post = SBPost(sb_id=uuid1(), content="test post")
         post.last_edited_on = datetime.now(pytz.utc)
         post.save()
         edit_post_dict = {'content': 'Post edited',
-                          'post_uuid': post.post_id,
+                          'post_uuid': post.sb_id,
                           'current_pleb': self.pleb.email}
         edit_response = edit_post_info_task.apply_async(kwargs=edit_post_dict)
         while not edit_response.ready():
@@ -109,11 +109,11 @@ class TestEditPostTask(TestCase):
         self.assertEqual(type(edit_response), Exception)
 
     def test_edit_post_task_failure_content_is_the_same(self):
-        post = SBPost(post_id=uuid1(), content="test post")
+        post = SBPost(sb_id=uuid1(), content="test post")
         post.last_edited_on = datetime.now(pytz.utc)
         post.save()
         edit_post_dict = {'content': 'test post',
-                          'post_uuid': post.post_id,
+                          'post_uuid': post.sb_id,
                           'current_pleb': self.pleb.email}
         edit_response = edit_post_info_task.apply_async(kwargs=edit_post_dict)
         while not edit_response.ready():
@@ -122,12 +122,12 @@ class TestEditPostTask(TestCase):
         self.assertFalse(edit_response)
 
     def test_edit_post_task_failure_to_be_deleted(self):
-        post = SBPost(post_id=uuid1(), content="test post")
+        post = SBPost(sb_id=uuid1(), content="test post")
         post.last_edited_on = datetime.now(pytz.utc)
         post.to_be_deleted = True
         post.save()
         edit_post_dict = {'content': 'test edit',
-                          'post_uuid': post.post_id,
+                          'post_uuid': post.sb_id,
                           'current_pleb': self.pleb.email}
         edit_response = edit_post_info_task.apply_async(kwargs=edit_post_dict)
         while not edit_response.ready():
@@ -137,12 +137,12 @@ class TestEditPostTask(TestCase):
 
     def test_edit_post_task_failure_same_timestamp(self):
         now = datetime.now(pytz.utc)
-        post = SBPost(post_id=uuid1(), content="test post")
+        post = SBPost(sb_id=uuid1(), content="test post")
         post.last_edited_on = now
         post.to_be_deleted = True
         post.save()
         edit_post_dict = {'content': 'test edit',
-                          'post_uuid': post.post_id,
+                          'post_uuid': post.sb_id,
                           'current_pleb': self.pleb.email,
                           'last_edited_on': now}
         edit_response = edit_post_info_task.apply_async(kwargs=edit_post_dict)
@@ -153,12 +153,12 @@ class TestEditPostTask(TestCase):
 
     def test_edit_post_task_failure_last_edit_more_recent(self):
         now = datetime.now(pytz.utc)
-        post = SBPost(post_id=uuid1(), content="test post")
+        post = SBPost(sb_id=uuid1(), content="test post")
         post.last_edited_on = datetime.now(pytz.utc)
         post.to_be_deleted = True
         post.save()
         edit_post_dict = {'content': 'test edit',
-                          'post_uuid': post.post_id,
+                          'post_uuid': post.sb_id,
                           'current_pleb': self.pleb.email,
                           'last_edited_on': now}
         edit_response = edit_post_info_task.apply_async(kwargs=edit_post_dict)
@@ -182,11 +182,11 @@ class TestPostVoteTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_upvote_post_success(self):
-        post = SBPost(post_id=str(uuid1()))
+        post = SBPost(sb_id=str(uuid1()))
         post.save()
         task_data = {
             "pleb": self.pleb.email,
-            "post_uuid": post.post_id
+            "post_uuid": post.sb_id
         }
         res = create_upvote_post.apply_async(kwargs=task_data)
         while not res.ready():
@@ -196,7 +196,7 @@ class TestPostVoteTask(TestCase):
         self.assertTrue(res)
 
     def test_upvote_post_failure_post_does_not_exist(self):
-        post = SBPost(post_id=str(uuid1()))
+        post = SBPost(sb_id=str(uuid1()))
         post.save()
         task_data = {
             "pleb": self.pleb.email,
@@ -210,11 +210,11 @@ class TestPostVoteTask(TestCase):
         self.assertEqual(type(res), UnpickleableExceptionWrapper)
 
     def test_upvote_post_failure_pleb_does_not_exist(self):
-        post = SBPost(post_id=str(uuid1()))
+        post = SBPost(sb_id=str(uuid1()))
         post.save()
         task_data = {
             "pleb": str(uuid1()),
-            "post_uuid": post.post_id
+            "post_uuid": post.sb_id
         }
         res = create_upvote_post.apply_async(kwargs=task_data)
         while not res.ready():
@@ -224,11 +224,11 @@ class TestPostVoteTask(TestCase):
         self.assertFalse(res)
 
     def test_downvote_post_success(self):
-        post = SBPost(post_id=str(uuid1()))
+        post = SBPost(sb_id=str(uuid1()))
         post.save()
         task_data = {
             "pleb": self.pleb.email,
-            "post_uuid": post.post_id
+            "post_uuid": post.sb_id
         }
         res = create_downvote_post.apply_async(kwargs=task_data)
         while not res.ready():
@@ -238,7 +238,7 @@ class TestPostVoteTask(TestCase):
         self.assertTrue(res)
 
     def test_downvote_post_failure_post_does_not_exist(self):
-        post = SBPost(post_id=str(uuid1()))
+        post = SBPost(sb_id=str(uuid1()))
         post.save()
         task_data = {
             "pleb": self.pleb.email,
@@ -252,11 +252,11 @@ class TestPostVoteTask(TestCase):
         self.assertEqual(type(res), UnpickleableExceptionWrapper)
 
     def test_downvote_post_failure_pleb_does_not_exist(self):
-        post = SBPost(post_id=str(uuid1()))
+        post = SBPost(sb_id=str(uuid1()))
         post.save()
         task_data = {
             "pleb": str(uuid1()),
-            "post_uuid": post.post_id
+            "post_uuid": post.sb_id
         }
         res = create_downvote_post.apply_async(kwargs=task_data)
         while not res.ready():
@@ -308,7 +308,7 @@ class TestPostTaskRaceConditions(TestCase):
         post.save()
 
         edit_dict = {'content': "post edited",
-                     'post_uuid': post.post_id,
+                     'post_uuid': post.sb_id,
                      'current_pleb': self.pleb.email,
                      'last_edited_on': datetime.now(pytz.utc)}
         for num in range(1, 10):
@@ -393,9 +393,9 @@ class TestFlagPostTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_flag_post_task_success_spam(self):
-        post = SBPost(post_id=uuid1())
+        post = SBPost(sb_id=uuid1())
         post.save()
-        task_dict = {'post_uuid': post.post_id, 'current_user': self.pleb.email,
+        task_dict = {'post_uuid': post.sb_id, 'current_user': self.pleb.email,
                      'flag_reason': 'spam'}
 
         res = flag_post_task.apply_async(kwargs=task_dict)
@@ -406,9 +406,9 @@ class TestFlagPostTask(TestCase):
         self.assertTrue(res)
 
     def test_flag_post_task_success_explicit(self):
-        post = SBPost(post_id=uuid1())
+        post = SBPost(sb_id=uuid1())
         post.save()
-        task_dict = {'post_uuid': post.post_id, 'current_user': self.pleb.email,
+        task_dict = {'post_uuid': post.sb_id, 'current_user': self.pleb.email,
                      'flag_reason': 'explicit'}
 
         res = flag_post_task.apply_async(kwargs=task_dict)
@@ -418,9 +418,9 @@ class TestFlagPostTask(TestCase):
         self.assertTrue(res)
 
     def test_flag_post_task_success_other(self):
-        post = SBPost(post_id=uuid1())
+        post = SBPost(sb_id=uuid1())
         post.save()
-        task_dict = {'post_uuid': post.post_id, 'current_user': self.pleb.email,
+        task_dict = {'post_uuid': post.sb_id, 'current_user': self.pleb.email,
                      'flag_reason': 'other'}
 
         res = flag_post_task.apply_async(kwargs=task_dict)
@@ -430,9 +430,9 @@ class TestFlagPostTask(TestCase):
         self.assertTrue(res)
 
     def test_flag_post_task_failure_incorrect_reason(self):
-        post = SBPost(post_id=uuid1())
+        post = SBPost(sb_id=uuid1())
         post.save()
-        task_dict = {'post_uuid': post.post_id, 'current_user': self.pleb.email,
+        task_dict = {'post_uuid': post.sb_id, 'current_user': self.pleb.email,
                      'flag_reason': 'dumb'}
 
         res = flag_post_task.apply_async(kwargs=task_dict)
@@ -452,9 +452,9 @@ class TestFlagPostTask(TestCase):
         self.assertEqual(type(res), Exception)
 
     def test_flag_post_task_user_does_not_exist(self):
-        post = SBPost(post_id=uuid1())
+        post = SBPost(sb_id=uuid1())
         post.save()
-        task_dict = {'post_uuid': post.post_id, 'current_user': uuid1(),
+        task_dict = {'post_uuid': post.sb_id, 'current_user': uuid1(),
                      'flag_reason': 'other'}
 
         res = flag_post_task.apply_async(kwargs=task_dict)

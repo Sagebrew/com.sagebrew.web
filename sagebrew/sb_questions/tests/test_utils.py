@@ -67,8 +67,8 @@ class TestPrepareQuestionDictUtil(TestCase):
 
     def test_get_question_dict_by_uuid(self):
         self.question_info_dict.pop('question_uuid',None)
-        self.question_info_dict['question_id']=str(uuid1())
-        question = SBQuestion(question_id=str(uuid1()))
+        self.question_info_dict['sb_id']=str(uuid1())
+        question = SBQuestion(sb_id=str(uuid1()))
         question.save()
         question.owned_by.connect(self.pleb)
         question.save()
@@ -92,12 +92,12 @@ class TestPrepareQuestionDictUtil(TestCase):
 
     def test_get_question_with_answers(self):
         self.question_info_dict.pop('question_uuid',None)
-        self.question_info_dict['question_id']=str(uuid1())
-        question = SBQuestion(question_id=str(uuid1()))
+        self.question_info_dict['sb_id']=str(uuid1())
+        question = SBQuestion(sb_id=str(uuid1()))
         question.save()
         question.owned_by.connect(self.pleb)
         question.save()
-        answer = SBAnswer(answer_id=str(uuid1())).save()
+        answer = SBAnswer(sb_id=str(uuid1())).save()
         answer.owned_by.connect(self.pleb)
         answer.save()
         question.answer.connect(answer)
@@ -123,18 +123,18 @@ class TestGetQuestionByUUID(TestCase):
 
     def test_get_question_by_uuid_success(self):
         self.question_info_dict.pop('question_uuid',None)
-        self.question_info_dict['question_id']=str(uuid1())
-        question = SBQuestion(question_id=str(uuid1()))
+        self.question_info_dict['sb_id']=str(uuid1())
+        question = SBQuestion(sb_id=str(uuid1()))
         question.save()
         question.owned_by.connect(self.pleb)
         question.save()
-        answer = SBAnswer(answer_id=str(uuid1())).save()
+        answer = SBAnswer(sb_id=str(uuid1())).save()
         answer.owned_by.connect(self.pleb)
         answer.save()
         question.answer.connect(answer)
         question.save()
 
-        dict_response = get_question_by_uuid(question.question_id,
+        dict_response = get_question_by_uuid(question.sb_id,
                             current_pleb=self.question_info_dict
                             ['current_pleb'])
 
@@ -189,22 +189,22 @@ class TestEditQuestionUtils(TestCase):
                                    'question_uuid': str(uuid1())}
 
     def test_edit_question_util(self):
-        self.question_info_dict['question_id']=str(uuid1())
-        question = SBQuestion(question_id=str(uuid1()), content="test",
+        self.question_info_dict['sb_id']=str(uuid1())
+        question = SBQuestion(sb_id=str(uuid1()), content="test",
                               question_title='Test Title')
         question.save()
 
         edit_question_dict = {'current_pleb': self.question_info_dict['current_pleb'],
                               'content': 'edit content',
                               'last_edited_on': datetime.now(pytz.utc),
-                              'question_uuid': question.question_id}
+                              'question_uuid': question.sb_id}
         edit_response = edit_question_util(**edit_question_dict)
 
         self.assertTrue(edit_response)
 
     def test_edit_question_util_to_be_deleted(self):
-        self.question_info_dict['question_id']=str(uuid1())
-        question = SBQuestion(question_id=str(uuid1()), content="test",
+        self.question_info_dict['sb_id']=str(uuid1())
+        question = SBQuestion(sb_id=str(uuid1()), content="test",
                               question_title='Test Title')
         question.save()
         question.to_be_deleted = True
@@ -213,28 +213,28 @@ class TestEditQuestionUtils(TestCase):
         edit_question_dict = {'current_pleb': self.question_info_dict['current_pleb'],
                               'content': 'edit content',
                               'last_edited_on': datetime.now(pytz.utc),
-                              'question_uuid': question.question_id}
+                              'question_uuid': question.sb_id}
         edit_response = edit_question_util(**edit_question_dict)
 
         self.assertEqual(edit_response['detail'], 'to be deleted')
 
     def test_edit_question_util_same_content(self):
-        self.question_info_dict['question_id']=str(uuid1())
+        self.question_info_dict['sb_id']=str(uuid1())
         question = SBQuestion(**self.question_info_dict)
         question.save()
 
         edit_question_dict = {'current_pleb': self.question_info_dict['current_pleb'],
                               'content': 'test post',
                               'last_edited_on': datetime.now(pytz.utc),
-                              'question_uuid': question.question_id}
+                              'question_uuid': question.sb_id}
         edit_response = edit_question_util(**edit_question_dict)
 
         self.assertEqual(edit_response['detail'], 'same content')
 
     def test_edit_question_util_same_timestamp(self):
         now = datetime.now(pytz.utc)
-        self.question_info_dict['question_id']=str(uuid1())
-        question = SBQuestion(question_id=str(uuid1()), content="test",
+        self.question_info_dict['sb_id']=str(uuid1())
+        question = SBQuestion(sb_id=str(uuid1()), content="test",
                               question_title='Test Title')
         question.save()
         question.last_edited_on = now
@@ -243,7 +243,7 @@ class TestEditQuestionUtils(TestCase):
         edit_question_dict = {'current_pleb': self.question_info_dict['current_pleb'],
                               'content': 'test  question',
                               'last_edited_on': now,
-                              'question_uuid': question.question_id}
+                              'question_uuid': question.sb_id}
         edit_response = edit_question_util(**edit_question_dict)
 
         self.assertEqual(edit_response['detail'], 'same timestamp')
@@ -252,8 +252,8 @@ class TestEditQuestionUtils(TestCase):
         now = datetime.now(pytz.utc)
         future_edit = now + timedelta(minutes=10)
 
-        self.question_info_dict['question_id']=str(uuid1())
-        question = SBQuestion(question_id=str(uuid1()),content="test",
+        self.question_info_dict['sb_id']=str(uuid1())
+        question = SBQuestion(sb_id=str(uuid1()),content="test",
                               question_title='Test Title')
         question.save()
         question.last_edited_on = future_edit
@@ -262,7 +262,7 @@ class TestEditQuestionUtils(TestCase):
         edit_question_dict = {'current_pleb': self.question_info_dict['current_pleb'],
                               'content': 'test     question',
                               'last_edited_on': now,
-                              'question_uuid': question.question_id}
+                              'question_uuid': question.sb_id}
         edit_response = edit_question_util(**edit_question_dict)
 
         self.assertEqual(edit_response['detail'], 'last edit more recent')
@@ -290,19 +290,19 @@ class TestVoteQuestionUtil(TestCase):
                                    'question_uuid': str(uuid1())}
 
     def test_upvote_question_util(self):
-        self.question_info_dict['question_id']=str(uuid1())
+        self.question_info_dict['sb_id']=str(uuid1())
         question = SBQuestion(**self.question_info_dict)
         question.save()
-        vote_response = upvote_question_util(question.question_id,
+        vote_response = upvote_question_util(question.sb_id,
                                              self.question_info_dict['current_pleb'])
 
         self.assertTrue(vote_response)
 
     def test_downvote_question_util(self):
-        self.question_info_dict['question_id']=str(uuid1())
+        self.question_info_dict['sb_id']=str(uuid1())
         question = SBQuestion(**self.question_info_dict)
         question.save()
-        vote_response = downvote_question_util(question.question_id,
+        vote_response = downvote_question_util(question.sb_id,
                                              self.question_info_dict['current_pleb'])
 
         self.assertTrue(vote_response)
@@ -350,80 +350,80 @@ class TestFlagQuestionUtil(TestCase):
                                    'question_uuid': str(uuid1())}
 
     def test_flag_question_util_success_spam(self):
-        self.question_info_dict['question_id']=str(uuid1())
+        self.question_info_dict['sb_id']=str(uuid1())
         question = SBQuestion(**self.question_info_dict)
         question.save()
 
-        res = flag_question_util(question.question_id, self.pleb.email,
+        res = flag_question_util(question.sb_id, self.pleb.email,
                                  'spam')
 
         self.assertTrue(res)
 
     def test_flag_question_util_success_explicit(self):
-        self.question_info_dict['question_id']=str(uuid1())
+        self.question_info_dict['sb_id']=str(uuid1())
         question = SBQuestion(**self.question_info_dict)
         question.save()
 
-        res = flag_question_util(question.question_id, self.pleb.email,
+        res = flag_question_util(question.sb_id, self.pleb.email,
                                  'explicit')
 
         self.assertTrue(res)
 
     def test_flag_question_util_success_other(self):
-        self.question_info_dict['question_id']=str(uuid1())
+        self.question_info_dict['sb_id']=str(uuid1())
         question = SBQuestion(**self.question_info_dict)
         question.save()
 
-        res = flag_question_util(question.question_id, self.pleb.email,
+        res = flag_question_util(question.sb_id, self.pleb.email,
                                  'other')
 
         self.assertTrue(res)
 
     def test_flag_question_util_success_duplicate(self):
-        self.question_info_dict['question_id']=str(uuid1())
+        self.question_info_dict['sb_id']=str(uuid1())
         question = SBQuestion(**self.question_info_dict)
         question.save()
 
-        res = flag_question_util(question.question_id, self.pleb.email,
+        res = flag_question_util(question.sb_id, self.pleb.email,
                                  'duplicate')
 
         self.assertTrue(res)
 
     def test_flag_question_util_success_changed(self):
-        self.question_info_dict['question_id']=str(uuid1())
+        self.question_info_dict['sb_id']=str(uuid1())
         question = SBQuestion(**self.question_info_dict)
         question.save()
 
-        res = flag_question_util(question.question_id, self.pleb.email,
+        res = flag_question_util(question.sb_id, self.pleb.email,
                                  'changed')
 
         self.assertTrue(res)
 
     def test_flag_question_util_success_unsupported(self):
-        self.question_info_dict['question_id']=str(uuid1())
+        self.question_info_dict['sb_id']=str(uuid1())
         question = SBQuestion(**self.question_info_dict)
         question.save()
 
-        res = flag_question_util(question.question_id, self.pleb.email,
+        res = flag_question_util(question.sb_id, self.pleb.email,
                                  'unsupported')
 
         self.assertTrue(res)
 
     def test_flag_question_util_success_user_already_flagged(self):
-        self.question_info_dict['question_id']=str(uuid1())
+        self.question_info_dict['sb_id']=str(uuid1())
         question = SBQuestion(**self.question_info_dict)
         question.save()
         question.flagged_by.connect(self.pleb)
-        res = flag_question_util(question.question_id, self.pleb.email,
+        res = flag_question_util(question.sb_id, self.pleb.email,
                                  'unsupported')
 
         self.assertTrue(res)
 
     def test_flag_question_util_failure_invalid_reason(self):
-        self.question_info_dict['question_id']=str(uuid1())
+        self.question_info_dict['sb_id']=str(uuid1())
         question = SBQuestion(**self.question_info_dict)
         question.save()
-        res = flag_question_util(question.question_id, self.pleb.email,
+        res = flag_question_util(question.sb_id, self.pleb.email,
                                  'dumb')
 
         self.assertFalse(res)
@@ -435,11 +435,11 @@ class TestFlagQuestionUtil(TestCase):
         self.assertFalse(res)
 
     def test_flag_question_util_failure_pleb_does_not_exist(self):
-        self.question_info_dict['question_id']=str(uuid1())
+        self.question_info_dict['sb_id']=str(uuid1())
         question = SBQuestion(**self.question_info_dict)
         question.save()
 
-        res = flag_question_util(question.question_id, str(uuid1()),
+        res = flag_question_util(question.sb_id, str(uuid1()),
                                  'unsupported')
 
         self.assertIsNone(res)
@@ -455,19 +455,19 @@ class TestPrepareQuestionSearchHTML(TestCase):
         self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'question_title': "Test question",
                                    'content': 'test post',
-                                   'question_id': str(uuid1())}
+                                   'sb_id': str(uuid1())}
         self.pleb.first_name = "Tyler"
         self.pleb.last_name = "Wiersing"
         self.pleb.save()
 
     def test_prepare_question_search_html_success(self):
-        self.question_info_dict['question_id'] = str(uuid1())
+        self.question_info_dict['sb_id'] = str(uuid1())
         question = SBQuestion(**self.question_info_dict)
         question.save()
         question.owned_by.connect(self.pleb)
         question.save()
 
-        res = prepare_question_search_html(question.question_id)
+        res = prepare_question_search_html(question.sb_id)
 
         self.assertTrue(res)
 

@@ -1,4 +1,5 @@
 import pytz
+from uuid import uuid1
 
 from datetime import datetime, timedelta
 
@@ -13,8 +14,9 @@ class CommentedOnRel(StructuredRel):
 
 class SBComment(StructuredNode):
     sb_name = "comment"
+    allowed_flags = ["explicit", "spam", "other"]
     content = StringProperty()
-    comment_id = StringProperty(unique_index=True)
+    sb_id = StringProperty(unique_index=True, default=lambda: str(uuid1()))
     created_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     up_vote_number = IntegerProperty(default=0)
     down_vote_number = IntegerProperty(default=0)

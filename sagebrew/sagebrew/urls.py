@@ -1,4 +1,5 @@
 from django.conf.urls import include
+from django.conf import settings
 from django.http import HttpResponse
 from django.contrib import admin
 from django.views.generic.base import RedirectView, TemplateView
@@ -36,4 +37,5 @@ urlpatterns = patterns('',
                        (r'^answers/', include('sb_answers.urls')),
                        (r'^search/', include('sb_search.urls')),
                        (r'^tags/', include('sb_tag.urls')),
+                       (r'^flag/', include('sb_flags.urls')),
 )

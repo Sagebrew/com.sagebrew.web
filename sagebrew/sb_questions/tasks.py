@@ -37,7 +37,7 @@ def add_question_to_indices_task(question, tags):
                            'user': question.owned_by.all()[0].email,
                            'question_title': question.question_title,
                            'tags': tags,
-                           'question_uuid': question.question_id,
+                           'question_uuid': question.sb_id,
                            'post_date': question.date_created,
                            'related_user': ''}
             task_data = {"object_type": "question",
@@ -83,11 +83,11 @@ def add_tags_to_question_task(question, tags):
             task_data = []
             for tag in auto_tags['keywords']:
                 task_data.append({"tags": tag,
-                                  "object_uuid": question.question_id,
+                                  "object_uuid": question.sb_id,
                                   "object_type": "question"
                 })
             tag_list = {'tag_list': task_data}
-            tag_task_data = {"object_uuid": question.question_id,
+            tag_task_data = {"object_uuid": question.sb_id,
                              "object_type": "question", "tags": tags}
             spawn_task(task_func=add_tags, task_param=tag_task_data)
             spawn_task(task_func=add_auto_tags, task_param=tag_list)
@@ -125,7 +125,7 @@ def create_question_task(content="", current_pleb="", question_title="",
     '''
     tag_list = tags.split(',')
     try:
-        question = SBQuestion.nodes.get(question_id=question_uuid)
+        question = SBQuestion.nodes.get(sb_id=question_uuid)
         return False
     except (SBQuestion.DoesNotExist, DoesNotExist):
         response = create_question_util(content=content,
@@ -168,7 +168,7 @@ def edit_question_task(question_uuid="", content="", current_pleb="",
         except (Pleb.DoesNotExist, DoesNotExist):
             return False
         try:
-            my_question = SBQuestion.nodes.get(question_id=question_uuid)
+            my_question = SBQuestion.nodes.get(sb_id=question_uuid)
         except (SBQuestion.DoesNotExist, DoesNotExist):
             raise edit_question_task.retry(exc=Exception, countdown=3,
                                            max_retries=None)
@@ -212,7 +212,7 @@ def vote_question_task(question_uuid="", current_pleb="", vote_type=""):
         except (Pleb.DoesNotExist, DoesNotExist):
             return False
         try:
-            my_question = SBQuestion.nodes.get(question_id=question_uuid)
+            my_question = SBQuestion.nodes.get(sb_id=question_uuid)
         except (SBQuestion.DoesNotExist, DoesNotExist):
             raise edit_question_task.retry(exc=DoesNotExistWrapper,
                                            countdown=3, max_retries=None)

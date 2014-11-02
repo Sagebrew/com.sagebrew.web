@@ -203,6 +203,6 @@ def get_comments(request):
     :param request:
     :return:
     '''
-    my_post = SBPost.nodes.get(post_id=request.DATA['post_id'])
+    my_post = SBPost.nodes.get(sb_id=request.DATA['sb_id'])
     comments = get_post_comments(my_post)
     return Response(comments, status=200)

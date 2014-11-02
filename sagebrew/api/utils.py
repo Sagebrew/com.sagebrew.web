@@ -1,19 +1,22 @@
 import logging
 import time
 import boto.sqs
+import ast
 from uuid import uuid1
 from socket import error as socket_error
 from json import loads, dumps
 
 from boto.sqs.message import Message
 from bomberman.client import Client, RateLimitExceeded
-from neomodel.exception import CypherException
+from neomodel.exception import CypherException, DoesNotExist
 from neomodel import db
 from django.conf import settings
 
 from api.alchemyapi import AlchemyAPI
 from sb_comments.neo_models import SBComment
 from sb_posts.neo_models import SBPost
+from sb_answers.neo_models import SBAnswer
+from sb_questions.neo_models import SBQuestion
 from sb_garbage.neo_models import SBGarbageCan
 
 
@@ -147,14 +150,14 @@ def language_filter(content):
         return False
 
 
-def post_to_garbage(post_id):
+def post_to_garbage(sb_id):
     try:
-        post = SBPost.nodes.get(post_id=post_id)
-        query = 'MATCH (p:SBPost) WHERE p.post_id="%s" ' \
+        post = SBPost.nodes.get(sb_id=sb_id)
+        query = 'MATCH (p:SBPost) WHERE p.sb_id="%s" ' \
                 'WITH p MATCH (p) - [:HAS_A] - (c:SBComment) ' \
                 'WHERE c.to_be_deleted=False ' \
                 'WITH c ORDER BY c.created_on ' \
-                'RETURN c' % post.post_id
+                'RETURN c' % post.sb_id
         comments, meta = execute_cypher_query(query)
         comments = [SBComment.inflate(row[0]) for row in comments]
         for comment in comments:
@@ -167,7 +170,7 @@ def post_to_garbage(post_id):
         post.save()
         return True
     except SBGarbageCan.DoesNotExist:
-        post = SBPost.nodes.get(post_id=post_id)
+        post = SBPost.nodes.get(sb_id=sb_id)
         garbage_can = SBGarbageCan(garbage_can='garbage')
         garbage_can.save()
         post.to_be_deleted = True
@@ -179,9 +182,9 @@ def post_to_garbage(post_id):
         return True
 
 
-def comment_to_garbage(comment_id):
+def comment_to_garbage(sb_id):
     try:
-        comment = SBComment.nodes.get(comment_id=comment_id)
+        comment = SBComment.nodes.get(sb_id=sb_id)
         garbage_can = SBGarbageCan.nodes.get(garbage_can='garbage')
         comment.to_be_deleted = True
         garbage_can.comments.connect(comment)
@@ -189,7 +192,7 @@ def comment_to_garbage(comment_id):
         comment.save()
         return True
     except SBGarbageCan.DoesNotExist:
-        comment = SBComment.nodes.get(comment_id=comment_id)
+        comment = SBComment.nodes.get(sb_id=sb_id)
         garbage_can = SBGarbageCan(garbage_can='garbage')
         garbage_can.save()
         comment.to_be_deleted = True
@@ -228,3 +231,26 @@ def test_wait_util(async_res):
 
     while not async_res['task_id'].result.ready():
         time.sleep(1)
+
+def get_object(object_type, object_uuid):
+    '''
+    DO NOT USE THIS FUNCTION ANYWHERE THAT DOES NOT HAVE A FORM
+    AND A CHOICE FIELD CLEARLY LAID OUT.
+
+    This function will take the id of an object and the objects class
+    name as a string: SBPost: "SBPost", etc. and return the object.
+    If the object is not found it will return False
+
+    :param object_type:
+    :param object_uuid:
+    :return:
+    '''
+    try:
+        return eval(object_type).nodes.get(sb_id=object_uuid)
+    except (eval(object_type).DoesNotExist, DoesNotExist):
+        return False
+    except NameError:
+        logger.critial(dumps({"function": get_object.__name__,
+                              "exception": NameError.__name__,
+                              "type": object_type}))
+        return False

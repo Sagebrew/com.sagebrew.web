@@ -12,7 +12,7 @@ function ajax_security(xhr, settings) {
 
 function save_comment() {
     $("a.comment-action").click(function (event) {
-        var post_id = $(this).data('post_uuid');
+        var sb_id = $(this).data('post_uuid');
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -25,7 +25,7 @@ function save_comment() {
             type: "POST",
             url: "/comments/submit_comment/",
             data: JSON.stringify({
-                'content': $('textarea#post_comment_on_' + post_id).val(),
+                'content': $('textarea#post_comment_on_' + sb_id).val(),
                 'post_uuid': $(this).data('post_uuid'),
                 'pleb': $(this).data('pleb')
             }),
@@ -40,8 +40,8 @@ function save_comment() {
 
 function show_edit_post() {
     $("a.show_edit_post_class").click(function (event) {
-        var post_id = $(this).data('uuid');
-        $('#divid_' + post_id).fadeToggle();
+        var sb_id = $(this).data('uuid');
+        $('#divid_' + sb_id).fadeToggle();
     });
 }
 
@@ -164,8 +164,8 @@ function delete_comment() {
 
 function show_edit_comment() {
     $("a.show_edit_comment_class").click(function () {
-        var comment_id = $(this).data('comment_uuid');
-        $("#comment_divid_" + comment_id).fadeToggle();
+        var sb_id = $(this).data('comment_uuid');
+        $("#comment_divid_" + sb_id).fadeToggle();
     });
 }
 

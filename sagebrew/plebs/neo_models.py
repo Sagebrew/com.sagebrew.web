@@ -142,8 +142,8 @@ class Pleb(StructuredNode):
         from sb_answers.neo_models import SBAnswer
         if obj.__class__ == SBQuestion:
             query = 'match (p:Pleb {email: "%s"})-[r:OBJECT_WEIGHT]->' \
-                    '(s:SBQuestion {question_id: "%s"}) ' \
-                    'return s' % (self.email, obj.question_id)
+                    '(s:SBQuestion {sb_id: "%s"}) ' \
+                    'return s' % (self.email, obj.sb_id)
             res, meta = db.cypher_query(query)
             question = [SBQuestion.inflate(row[0]) for row in res]
             try:
@@ -153,8 +153,8 @@ class Pleb(StructuredNode):
 
         elif obj.__class__ == SBAnswer:
             query = 'match (p:Pleb {email: "%s"})-[r:OBJECT_WEIGHT]->' \
-                    '(s:SBAnswer {answer_id: "%s"}) ' \
-                    'return s' % (self.email, obj.answer_id)
+                    '(s:SBAnswer {sb_id: "%s"}) ' \
+                    'return s' % (self.email, obj.sb_id)
             res, meta = db.cypher_query(query)
             answer = [SBAnswer.inflate(row[0]) for row in res]
             try:
@@ -167,9 +167,9 @@ class Pleb(StructuredNode):
         from sb_answers.neo_models import SBAnswer
         if obj.__class__ == SBQuestion:
             query = 'match (p:Pleb) where p.email="%s" with p match ' \
-                    '(q:SBQuestion) where q.question_id="%s" ' \
+                    '(q:SBQuestion) where q.sb_id="%s" ' \
                     'with p,q merge (p)-[r:OBJECT_WEIGHT]-(q) return r' % \
-                    (self.email, obj.question_id)
+                    (self.email, obj.sb_id)
             res, meta = db.cypher_query(query)
             rel = RelationshipWeight.inflate(res[0][0])
             if rel:
@@ -179,9 +179,9 @@ class Pleb(StructuredNode):
 
         elif obj.__class__ == SBAnswer:
             query = 'match (p:Pleb) where p.email="%s" with p match ' \
-                    '(a:SBAnswer) where a.answer_id="%s" ' \
+                    '(a:SBAnswer) where a.sb_id="%s" ' \
                     'with p,a merge (p)-[r:OBJECT_WEIGHT]-(a) return r' % \
-                    (self.email, obj.answer_id)
+                    (self.email, obj.sb_id)
             res, meta = db.cypher_query(query)
             rel = RelationshipWeight.inflate(res[0][0])
             if res:
@@ -194,16 +194,16 @@ class Pleb(StructuredNode):
         from sb_answers.neo_models import SBAnswer
         if obj.__class__ == SBQuestion:
             query = 'match (p:Pleb {email: "%s"})-[r:OBJECT_WEIGHT]->' \
-                    '(q:SBQuestion {question_id: "%s"}) return r' % \
-                    (self.email, obj.question_id)
+                    '(q:SBQuestion {sb_id: "%s"}) return r' % \
+                    (self.email, obj.sb_id)
             res, meta = db.cypher_query(query)
             rel = RelationshipWeight.inflate(res[0][0])
             return rel
 
         if obj.__class__ == SBAnswer:
             query = 'match (p:Pleb {email: "%s"})-[r:OBJECT_WEIGHT]->' \
-                    '(a:SBAnswer {answer_id: "%s"}) return r' % \
-                    (self.email, obj.answer_id)
+                    '(a:SBAnswer {sb_id: "%s"}) return r' % \
+                    (self.email, obj.sb_id)
             res, meta = db.cypher_query(query)
             rel = RelationshipWeight.inflate(res[0][0])
             return rel

@@ -42,7 +42,7 @@ def create_upvote_post(post_uuid=str(uuid1()), pleb=""):
     '''
     try:
         try:
-            my_post = SBPost.nodes.get(post_id=post_uuid)
+            my_post = SBPost.nodes.get(sb_id=post_uuid)
         except (SBPost.DoesNotExist, DoesNotExist):
             raise create_upvote_post.retry(exc=DoesNotExist, countdown=3,
                                        max_retries=None)
@@ -75,7 +75,7 @@ def create_downvote_post(post_uuid=str(uuid1()), pleb=""):
     '''
     try:
         try:
-            my_post = SBPost.nodes.get(post_id=post_uuid)
+            my_post = SBPost.nodes.get(sb_id=post_uuid)
         except (SBPost.DoesNotExist, DoesNotExist):
             raise create_downvote_post.retry(exc=DoesNotExist, countdown=3,
                                          max_retries=None)

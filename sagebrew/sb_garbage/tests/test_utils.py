@@ -8,7 +8,7 @@ from sb_garbage.utils import delete_posts_util, delete_comments_util
 
 class TestDeleteCommentUtil(TestCase):
     def setUp(self):
-        self.comment = SBComment(comment_id=str(uuid1()),
+        self.comment = SBComment(sb_id=str(uuid1()),
                                  content=str(uuid1()), to_be_deleted=True)
         self.comment.save()
         try:
@@ -26,7 +26,7 @@ class TestDeleteCommentUtil(TestCase):
 
 class TestDeletePostUtil(TestCase):
     def setUp(self):
-        self.post = SBPost(post_id=str(uuid1()),
+        self.post = SBPost(sb_id=str(uuid1()),
                                  content=str(uuid1()), to_be_deleted=True)
         self.post.save()
         try:

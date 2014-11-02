@@ -54,7 +54,7 @@ def add_auto_tags_util(tag_list):
         if tag['object_type'] == 'question':
             try:
                 try:
-                    question = SBQuestion.nodes.get(question_id=
+                    question = SBQuestion.nodes.get(sb_id=
                                                     tag['object_uuid'])
                 except (SBQuestion.DoesNotExist, DoesNotExist):
                     return SBQuestion.DoesNotExist
@@ -67,7 +67,7 @@ def add_auto_tags_util(tag_list):
                 tag_array.append(tag)
             except (SBAutoTag.DoesNotExist, DoesNotExist):
                 try:
-                    question =SBQuestion.nodes.get(question_id=tag['object_uuid'])
+                    question =SBQuestion.nodes.get(sb_id=tag['object_uuid'])
                     relevance = tag['tags']['relevance']
                     tag = SBAutoTag(tag_name=tag['tags']['text'])
                     tag.save()
@@ -127,7 +127,7 @@ def add_tag_util(object_type, object_uuid, tags):
     if object_type == 'question':
         try:
             try:
-                question = SBQuestion.nodes.get(question_id=object_uuid)
+                question = SBQuestion.nodes.get(sb_id=object_uuid)
             except (SBQuestion.DoesNotExist, DoesNotExist):
                 return SBQuestion.DoesNotExist
             for tag in tag_array:

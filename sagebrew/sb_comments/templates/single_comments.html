@@ -5,33 +5,33 @@
         By: {{ comment.comment_owner }}</div>
     {% if comment.comment_owner_email == current_user %}
         <a class="btn btn-primary show_edit_comment_class"
-           data-comment_uuid="{{ comment.comment_id }}" type="submit">Edit
+           data-comment_uuid="{{ comment.sb_id }}" type="submit">Edit
             Comment</a>
-        <div id="comment_divid_{{ comment.comment_id }}">
-            <textarea class="form-control" id="{{ comment.comment_id }}"
+        <div id="comment_divid_{{ comment.sb_id }}">
+            <textarea class="form-control" id="{{ comment.sb_id }}"
                       name="edit_comment_input" rows="1"
                       placeholder="Edit your comment..."></textarea>
             <a class='btn btn-primary edit_comment-action'
                id="edit_comment_button" data-pleb="{{ current_user }}"
-               data-comment_uuid="{{ comment.comment_id }}">Submit</a>
+               data-comment_uuid="{{ comment.sb_id }}">Submit</a>
         </div>
         <a class='btn btn-primary delete_comment-action'
            data-pleb="{{ current_user }}"
-           data-comment_uuid="{{ comment.comment_id }}">Delete this
+           data-comment_uuid="{{ comment.sb_id }}">Delete this
             Comment</a>
     {% endif %}
     <a class='btn btn-primary vote_comment-action' data-vote_type='up'
        data-pleb="{{ current_user }}"
-       data-comment_uuid="{{ comment.comment_id }}">Upvote Comment</a>
+       data-comment_uuid="{{ comment.sb_id }}">Upvote Comment</a>
     <a class='btn btn-primary vote_comment-action' data-vote_type='down'
        data-pleb="{{ current_user }}"
-       data-comment_uuid="{{ comment.comment_id }}">Downvote Comment</a>
+       data-comment_uuid="{{ comment.sb_id }}">Downvote Comment</a>
     <a class='btn btn-primary vote-action' data-vote_type='up'
        data-pleb="{{ current_user }}"
-       data-comment_uuid="{{ comment.comment_id }}">Flag Comment</a>
+       data-comment_uuid="{{ comment.sb_id }}">Flag Comment</a>
     <a class='btn btn-primary vote-action' data-vote_type='up'
        data-pleb="{{ current_user }}"
-       data-comment_uuid="{{ comment.comment_id }}">Share Comment</a>
+       data-comment_uuid="{{ comment.sb_id }}">Share Comment</a>
     <a class='btn btn-primary vote-action' data-vote_type='up'
        data-pleb="{{ current_user }}"
-       data-comment_uuid="{{ comment.comment_id }}">Reference Comment</a>
+       data-comment_uuid="{{ comment.sb_id }}">Reference Comment</a>

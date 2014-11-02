@@ -5,8 +5,9 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
 from sb_posts.neo_models import SBBase
 
 class SBAnswer(SBBase):
+    allowed_flags = ["explicit", "changed", "spam", "duplicate",
+                     "unsupported", "other"]
     sb_name = "answer"
-    answer_id = StringProperty(unique_index=True)
     added_to_search_index = BooleanProperty(default=False)
     search_id = StringProperty()
 

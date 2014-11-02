@@ -7,9 +7,10 @@ from sb_tag.neo_models import TagRelevanceModel
 
 
 class SBQuestion(SBBase):
+    allowed_flags = ["explicit", "changed", "spam", "duplicate",
+                     "unsupported", "other"]
     answer_number = IntegerProperty(default=0)
     question_title = StringProperty()
-    question_id = StringProperty(unique_index=True)
     is_closed = BooleanProperty(default=False)
     closed_reason = StringProperty()
     is_private = BooleanProperty()

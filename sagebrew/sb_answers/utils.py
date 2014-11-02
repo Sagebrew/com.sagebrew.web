@@ -33,11 +33,11 @@ def save_answer_util(content="", current_pleb="", answer_uuid="",
             return False
 
         try:
-            question = SBQuestion.nodes.get(question_id=question_uuid)
+            question = SBQuestion.nodes.get(sb_id=question_uuid)
         except (SBQuestion.DoesNotExist, DoesNotExist):
             return None
 
-        answer = SBAnswer(content=content, answer_id=answer_uuid)
+        answer = SBAnswer(content=content, sb_id=answer_uuid)
         answer.save()
         answer.answer_to.connect(question)
         question.answer.connect(answer)
@@ -65,7 +65,7 @@ def edit_answer_util(content="", current_pleb="", answer_uuid="",
                      last_edited_on=""):
     try:
         try:
-            my_answer = SBAnswer.nodes.get(answer_id=answer_uuid)
+            my_answer = SBAnswer.nodes.get(sb_id=answer_uuid)
         except (SBAnswer.DoesNotExist, DoesNotExist):
             return None
 
@@ -86,7 +86,7 @@ def edit_answer_util(content="", current_pleb="", answer_uuid="",
             pass
 
 
-        edit_answer = SBAnswer(answer_id=str(uuid1()), original=False,
+        edit_answer = SBAnswer(sb_id=str(uuid1()), original=False,
                                content=content).save()
         my_answer.edits.connect(edit_answer)
         edit_answer.edit_to.connect(my_answer)
@@ -110,7 +110,7 @@ def upvote_answer_util(answer_uuid="", current_pleb=""):
             return False
 
         try:
-            my_question = SBAnswer.nodes.get(answer_id=answer_uuid)
+            my_question = SBAnswer.nodes.get(sb_id=answer_uuid)
         except (SBAnswer.DoesNotExist, DoesNotExist):
             data = {'question_uuid': answer_uuid, 'current_pleb': current_pleb,
                     'vote_type': 'up'}
@@ -136,7 +136,7 @@ def downvote_answer_util(answer_uuid="", current_pleb=""):
             return False
 
         try:
-            my_question = SBAnswer.nodes.get(answer_id=answer_uuid)
+            my_question = SBAnswer.nodes.get(sb_id=answer_uuid)
         except (SBAnswer.DoesNotExist, DoesNotExist):
             data = {'question_uuid': answer_uuid, 'current_pleb': current_pleb,
                 'vote_type': 'down'}

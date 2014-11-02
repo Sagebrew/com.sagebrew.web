@@ -65,7 +65,7 @@ def save_post(post_uuid=str(uuid1()), content="", current_pleb="",
             else returns SBPost object
     '''
     try:
-        test_post = SBPost.nodes.get(post_id=post_uuid)
+        test_post = SBPost.nodes.get(sb_id=post_uuid)
         # TODO should we return True here or continue on with the function
         # with test_post? Or do a check to see if links are already created?
         # If they are we can return True and identify that connections were
@@ -78,7 +78,7 @@ def save_post(post_uuid=str(uuid1()), content="", current_pleb="",
         except (Pleb.DoesNotExist, DoesNotExist):
             return None
 
-        my_post = SBPost(content=content, post_id=post_uuid)
+        my_post = SBPost(content=content, sb_id=post_uuid)
         my_post.save()
         wall = my_citizen.wall.all()[0]
         my_post.posted_on_wall.connect(wall)
@@ -123,7 +123,7 @@ def edit_post_info(content="", post_uuid=str(uuid1()), last_edited_on=None,
     '''
     # TODO create a function to determine if the object will be edited
     try:
-        my_post = SBPost.nodes.get(post_id=post_uuid)
+        my_post = SBPost.nodes.get(sb_id=post_uuid)
         if my_post.to_be_deleted:
             return {'post': my_post, 'detail': 'to be deleted'}
 
@@ -153,7 +153,7 @@ def edit_post_info(content="", post_uuid=str(uuid1()), last_edited_on=None,
         return False
 
 
-def delete_post_info(post_id=str(uuid1())):
+def delete_post_info(sb_id=str(uuid1())):
     '''
     Removes the personal content of the post and all comments attached to it
 
@@ -166,7 +166,7 @@ def delete_post_info(post_id=str(uuid1())):
     '''
     try:
         try:
-            my_post = SBPost.nodes.get(post_id=post_id)
+            my_post = SBPost.nodes.get(sb_id=sb_id)
         except (SBPost.DoesNotExist, DoesNotExist):
             return False
 
@@ -205,7 +205,7 @@ def create_post_vote(pleb="", post_uuid=str(uuid1()), vote_type=""):
         return False
 
     try:
-        my_post = SBPost.nodes.get(post_id=post_uuid)
+        my_post = SBPost.nodes.get(sb_id=post_uuid)
     except (SBPost.DoesNotExist, DoesNotExist):
         return False
 
@@ -238,7 +238,7 @@ def flag_post(post_uuid, current_user, flag_reason):
     '''
     try:
         try:
-            post = SBPost.nodes.get(post_id=post_uuid)
+            post = SBPost.nodes.get(sb_id=post_uuid)
         except (SBPost.DoesNotExist, DoesNotExist):
             return False
 

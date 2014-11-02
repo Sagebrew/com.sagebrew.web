@@ -209,12 +209,6 @@ CELERY_ALWAYS_EAGER = False
 CELERY_IGNORE_RESULT = False
 # AWS_S3_SECURE_URLS = True
 AWS_STORAGE_BUCKET_NAME = environ.get("AWS_S3_BUCKET")
-DEFAULT_FILE_STORAGE = 'sagebrew.s3utils.MediaRootS3BotoStorage'
-STATICFILES_STORAGE = 'sagebrew.s3utils.StaticRootS3BotoStorage'
-
-S3_URL = 'http://%s.s3.amazonaws.com/' % (AWS_STORAGE_BUCKET_NAME)
-STATIC_URL = "%s%s" % (S3_URL, "static/")
-MEDIA_URL = "%s%s" % (S3_URL, "media/")
 
 AWS_ACCESS_KEY_ID = environ.get("AWS_ACCESS_KEY_ID", "")
 AWS_SECRET_ACCESS_KEY = environ.get("AWS_SECRET_ACCESS_KEY", "")

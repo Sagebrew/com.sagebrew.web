@@ -3,16 +3,14 @@ from uuid import uuid1
 from json import dumps
 from textblob import TextBlob
 
-from neomodel import DoesNotExist, UniqueProperty, CypherException
+from neomodel import DoesNotExist, CypherException
 from django.conf import settings
 from django.template.loader import render_to_string
 
-from api.tasks import add_object_to_search_index
-from api.utils import spawn_task, create_auto_tags, execute_cypher_query
+from api.utils import execute_cypher_query
 from plebs.neo_models import Pleb
 from sb_answers.neo_models import SBAnswer
 from .neo_models import SBQuestion
-from sb_tag.tasks import add_auto_tags, add_tags
 
 logger = logging.getLogger('loggly_logs')
 

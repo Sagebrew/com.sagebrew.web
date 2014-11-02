@@ -3,7 +3,6 @@ from celery import shared_task
 from .utils import vote_object_util
 
 
-
 @shared_task()
 def vote_object_task(vote_type, current_pleb, sb_object):
     '''

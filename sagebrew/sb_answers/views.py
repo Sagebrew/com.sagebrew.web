@@ -39,6 +39,7 @@ def save_answer_view(request):
     else:
         return Response({'detail': 'failed to post an answer'}, status=400)
 
+
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def edit_answer_view(request):
@@ -69,40 +70,3 @@ def edit_answer_view(request):
                         status=200)
     else:
         return Response(answer_form.errors, status=400)
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def vote_answer_view(request):
-    '''
-    The api endpoint which takes a dictionary and allows users to upvote
-    or downvote an answer
-
-    :param request:
-
-                    dict = {'current_pleb': '', 'vote_type': '',
-                            'answer_uuid': ''}
-
-    :return:
-    '''
-    try:
-        post_data = request.DATA
-        if type(post_data) != dict:
-            return Response({"details": "Please Provide a JSON Object"},
-                            status=400)
-        answer_form = VoteAnswerForm(post_data)
-        if answer_form.is_valid():
-            spawn_task(task_func=vote_answer_task,
-                       task_param=answer_form.cleaned_data)
-            return Response({"detail": "Vote Created!"}, status=200)
-        else:
-            return Response({'detail': answer_form.errors}, status=400)
-    except Exception, e:
-        logger.exception(dumps({"function": vote_answer_view.__name__,
-                                "exception": "UnhandledException: "}))
-        return Response({"detail": "Vote could not be created!",
-                         'exception': e})
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def flag_answer_view(request):
-    pass

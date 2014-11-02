@@ -6,12 +6,8 @@ from neomodel import DoesNotExist
 
 from sb_notifications.tasks import spawn_notifications
 from api.utils import spawn_task
-from api.exceptions import DoesNotExistWrapper
-from sb_comments.neo_models import SBComment
-from plebs.neo_models import Pleb
 
-from .utils import (create_upvote_comment_util, create_downvote_comment_util,
-                    save_comment_post, edit_comment_util, flag_comment_util)
+from .utils import (save_comment_post, edit_comment_util)
 
 logger = logging.getLogger('loggly_logs')
 
@@ -51,64 +47,6 @@ def edit_comment_task(comment_uuid, content="", last_edited_on=None):
 
 
 @shared_task()
-def create_vote_comment(pleb="", comment_uuid=str(uuid1()), vote_type=""):
-    '''
-    The logic to determine if a person has voted on a comment, and if they
-    haven't then it creates the vote
-
-    :param pleb:
-    :param comment_uuid:
-    :param vote_type:
-    :return:
-            Will return False if the person has already voted
-
-            Will return True if the vote is created
-    '''
-    try:
-        try:
-            my_pleb = Pleb.nodes.get(email=pleb)
-        except Pleb.DoesNotExist:
-            return False
-        try:
-            my_comment = SBComment.nodes.get(sb_id=comment_uuid)
-        except SBComment.DoesNotExist:
-            raise create_vote_comment.retry(exc=SBComment.DoesNotExist,
-                                            countdown=3, max_retries=None)
-        if my_comment.up_voted_by.is_connected(
-                my_pleb) or my_comment.down_voted_by.is_connected(my_pleb):
-            return False
-        else:
-            if vote_type == 'up':
-                res = create_upvote_comment_util(pleb=pleb,
-                                                 comment_uuid=comment_uuid)
-                if res:
-                    return True
-                elif res is None:
-                    return False
-                else:
-                    raise DoesNotExist("Comment does not exist")
-
-            elif vote_type == 'down':
-                res = create_downvote_comment_util(pleb=pleb,
-                                                   comment_uuid=comment_uuid)
-                if res:
-                    return True
-                elif res is None:
-                    return False
-                else:
-                    raise DoesNotExist("Comment does not exist")
-    except DoesNotExist as e:
-        raise create_vote_comment.retry(exc=e, countdown=3,
-                                        max_retries=None)
-    except Exception as e:
-        logger.exception({"function": create_vote_comment.__name__,
-                          "exception": "UnhandledException: "})
-        raise create_vote_comment.retry(exc=e, countdown=3,
-                                        max_retries=None)
-
-
-
-@shared_task()
 def submit_comment_on_post(content="", pleb="", post_uuid=str(uuid1())):
     '''
     The task which creates a comment and attaches it to a post
@@ -122,6 +60,8 @@ def submit_comment_on_post(content="", pleb="", post_uuid=str(uuid1())):
 
             Will return false if the comment was not created
     '''
+    # TODO can't this be generalized to just create a comment on a given
+    # object?
     try:
         my_comment = save_comment_post(content, pleb, post_uuid)
         if my_comment is None:
@@ -154,32 +94,3 @@ def submit_comment_on_question(comment_info):
 @shared_task()
 def submit_comment_on_answer(comment_info):
     pass
-
-@shared_task()
-def flag_comment_task(comment_uuid, current_user, flag_reason):
-    '''
-    Calls the util to handle flagging the comment
-
-    :param comment_uuid:
-    :param current_user:
-    :param flag_reason:
-    :return:
-    '''
-    try:
-        result = flag_comment_util(comment_uuid=comment_uuid,
-                                   current_user=current_user,
-                                   flag_reason=flag_reason)
-        if not result:
-            return False
-        elif result is None:
-            raise DoesNotExist("Flag does not exist")
-        else:
-            return True
-    except DoesNotExist as e:
-        raise flag_comment_task.retry(exc=e, countdown=5,
-                                      max_retries=None)
-    except Exception as e:
-        logger.exception({"function": flag_comment_task.__name__,
-                          "exception": "UnhandledException"})
-        raise flag_comment_task.retry(exc=e, countdown=5,
-                                      max_retries=None)

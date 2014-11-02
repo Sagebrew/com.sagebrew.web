@@ -15,10 +15,12 @@ class FriendRelationship(StructuredRel):
     who_unfriended = StringProperty()
     #who_unfriended = RelationshipTo("Pleb", "")
 
+
 class UserWeightRelationship(StructuredRel):
     interaction = StringProperty(default='seen')
     page_view_count = IntegerProperty(default=0)
     weight = IntegerProperty(default=settings.USER_RELATIONSHIP_BASE['seen'])
+
 
 class FriendRequest(StructuredNode):
     friend_request_uuid = StringProperty(unique_index=True)

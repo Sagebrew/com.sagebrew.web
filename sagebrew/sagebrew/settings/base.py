@@ -254,6 +254,8 @@ OBJECT_RELATIONSHIP_BASE = {
     'seen': 20
 }
 
+
+# TODO revisit search modifiers
 OBJECT_SEARCH_MODIFIERS = {
     'post': 10, 'comment_on': 5, 'upvote': 3, 'downvote': -3,
     'time': -1, 'proximity_to_you': 10, 'proximity_to_interest': 10,
@@ -266,9 +268,12 @@ BASE_TAGS = ["fiscal", "foreign_policy", "social", "education", "science",
              "environment", "drugs", "agriculture", "defense", "energy",
              "health", "space"]
 
+# TODO convert value displayed to user to UUIDs
 KNOWN_TYPES = [
-    ("SBPost", "SBPost"), ("SBAnswer", "SBAnswer"),
-    ("SBQuestion", "SBQuestion"), ("SBComment", "SBComment")
+    ("sb_posts.neo_models.SBPost", "SBPost"),
+    ("sb_answers.neo_models.SBAnswer", "SBAnswer"),
+    ("sb_questions.neo_models.SBQuestion", "SBQuestion"),
+    ("sb_comments.neo_models.SBComment", "SBComment")
 ]
 
 # TODO When doing load testing and beta testing ensure that LOGGING of DB is on

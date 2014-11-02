@@ -17,6 +17,7 @@ from plebs.neo_models import Pleb
 
 logger = logging.getLogger('loggly_logs')
 
+
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def create_friend_request(request):

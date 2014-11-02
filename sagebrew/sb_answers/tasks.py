@@ -9,8 +9,7 @@ from api.utils import spawn_task
 from api.tasks import add_object_to_search_index
 from .neo_models import SBAnswer
 from plebs.neo_models import Pleb
-from .utils import (save_answer_util, edit_answer_util, upvote_answer_util,
-                    downvote_answer_util)
+from .utils import (save_answer_util, edit_answer_util)
 
 logger = logging.getLogger('loggly_logs')
 
@@ -59,9 +58,6 @@ def save_answer_task(content="", current_pleb="", question_uuid=None,
     :param to_pleb:
     :return:
     '''
-    self.answer_info_dict = {'current_pleb': self.user.email,
-                                 'content': 'test answer',
-                                 'to_pleb': self.user.email}
     if question_uuid is None:
         return False
     try:
@@ -131,57 +127,3 @@ def edit_answer_task(content="", answer_uuid="", last_edited_on=None,
                           "exception": "UnhandledException"})
         raise edit_answer_task.retry(exc=e, countdown=3,
                                      max_retries=None)
-
-
-
-@shared_task()
-def vote_answer_task(answer_uuid="", current_pleb="", vote_type=""):
-    '''
-    This task is spawned when a user attempts to upvote or downvote an answer,
-    It determines if they have already voted on this answer and if they haven't
-    it calls a util and creates the vote based on which vote_type is passed
-
-    :param answer_uuid:
-    :param current_pleb:
-    :param vote_type:
-    :return:
-    '''
-    try:
-        try:
-            my_pleb = Pleb.nodes.get(email=current_pleb)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return False
-
-        try:
-            my_answer = SBAnswer.nodes.get(sb_id = answer_uuid)
-        except (SBAnswer.DoesNotExist, DoesNotExist):
-            return False
-
-        if my_answer.up_voted_by.is_connected(
-                my_pleb) or my_answer.down_voted_by.is_connected(my_pleb):
-            return False
-        else:
-            if vote_type == 'up':
-                upvote_answer_util(answer_uuid, current_pleb)
-                return True
-            elif vote_type == 'down':
-                downvote_answer_util(answer_uuid, current_pleb)
-                return True
-    except Exception:
-        logger.exception({"function": edit_answer_task.__name__,
-                          "exception": "vote_answer_task"})
-        raise vote_answer_task.retry(exc=Exception, countdown=3,
-                                     max_retries=None)
-
-@shared_task()
-def flag_answer_task(answer_uuid, current_pleb, flag_reason):
-    '''
-    This function will handle the calling of the util to add the flag
-    to an answer.
-
-    :param answer_uuid:
-    :param current_pleb:
-    :param flag_reason:
-    :return:
-    '''
-    pass

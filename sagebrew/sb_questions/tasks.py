@@ -10,9 +10,7 @@ from plebs.neo_models import Pleb
 
 from sb_tag.tasks import add_auto_tags, add_tags
 from .neo_models import SBQuestion
-from .utils import (create_question_util, upvote_question_util,
-                    downvote_question_util, edit_question_util,
-                    flag_question_util)
+from .utils import (create_question_util, edit_question_util)
 
 logger = logging.getLogger('loggly_logs')
 
@@ -199,74 +197,3 @@ def edit_question_task(question_uuid="", content="", current_pleb="",
         logger.exception({"function": edit_question_task.__name__,
                           "exception": "UnhandledException: "})
         raise edit_question_task.retry(exc=e, countdown=3, max_retries=None)
-
-@shared_task()
-def vote_question_task(question_uuid="", current_pleb="", vote_type=""):
-    '''
-    This task is spawned to create ether an upvote or downvote on a question,
-    it determines if the user has already voted on this question and if they
-    have does not process the vote, if they haven't the utils are called
-    to create the correct type of vote
-
-    :param question_uuid:
-    :param current_pleb:
-    :param vote_type:
-    :return:
-    '''
-    try:
-        try:
-            my_pleb = Pleb.nodes.get(email=current_pleb)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return False
-        try:
-            my_question = SBQuestion.nodes.get(sb_id=question_uuid)
-        except (SBQuestion.DoesNotExist, DoesNotExist) as e:
-            raise vote_question_task.retry(exc=e, countdown=3, max_retries=None)
-        if my_question.up_voted_by.is_connected(
-                my_pleb) or my_question.down_voted_by.is_connected(my_pleb):
-            return False
-        else:
-            if vote_type == 'up':
-                res = upvote_question_util(question_uuid, current_pleb)
-                if not res:
-                    raise Exception
-                elif res is None:
-                    return False
-                else:
-                    return True
-            elif vote_type == 'down':
-                res = downvote_question_util(question_uuid, current_pleb)
-                if not res:
-                    raise Exception
-                elif res is None:
-                    return False
-                else:
-                    return True
-    except CypherException as e:
-        raise vote_question_task.retry(exc=e, countdown=3, max_retries=None)
-    except Exception as e:
-        # We must have this except because source_class.DoesNotExist gets
-        # to this portion of code, as far as we know there's no work around.
-        logger.exception({"function": vote_question_task.__name__,
-                          "exception": "UnhandledException: "})
-        raise vote_question_task.retry(exc=e, countdown=3, max_retries=None)
-
-
-@shared_task()
-def flag_question_task(question_uuid, current_pleb, flag_reason):
-    try:
-        res = flag_question_util(question_uuid=question_uuid,
-                                 current_pleb=current_pleb,
-                                 flag_reason=flag_reason)
-        if isinstance(res, Exception) is True:
-            raise flag_question_task.retry(exc=res, countdown=3,
-                                           max_retries=None)
-        return res
-    except CypherException as e:
-        raise flag_question_task.retry(exc=e, countdown=3,
-                                       max_retries=None)
-    except Exception as e:
-        logger.exception(dumps({"function": flag_question_task.__name__,
-                                "exception": "UnhandledException: "}))
-        raise flag_question_task.retyr(exc=e, countdown=3,
-                                       max_retries=None)

@@ -10,18 +10,18 @@ from neomodel import DoesNotExist, CypherException
 from elasticsearch import Elasticsearch
 
 from .neo_models import SearchQuery, KeyWord
-from .utils import (update_search_index_doc_script, update_search_index_doc,
-                    update_weight_relationship_values)
+from .utils import (update_search_index_doc, update_weight_relationship_values)
 from api.utils import spawn_task
 from plebs.neo_models import Pleb
-from sb_posts.neo_models import SBPost
 from sb_answers.neo_models import SBAnswer
 from sb_questions.neo_models import SBQuestion
 
 logger = logging.getLogger('loggly_logs')
 
+
 @shared_task()
-def update_weight_relationship(document_id, index, object_type="", object_uuid=str(uuid1()),
+def update_weight_relationship(document_id, index, object_type="",
+                               object_uuid=str(uuid1()),
                                current_pleb="", modifier_type=""):
     '''
     This task handles creating and updating the weight relationship between
@@ -37,6 +37,7 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
     :param modifier_type:
     :return:
     '''
+    # TODO update with dynamic object recognition
     update_dict = {
         "document_id" : document_id, "index": index, "field": "sb_score",
         "document_type" : object_type, "update_value": 0

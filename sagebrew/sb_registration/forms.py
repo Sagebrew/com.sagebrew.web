@@ -2,8 +2,8 @@ from django import forms
 from django.core.files.images import get_image_dimensions
 from localflavor.us.forms import USStateSelect, USZipCodeField, USStateField
 from localflavor.us.us_states import US_STATES
-
-from plebs.neo_models import Pleb
+# TODO do we need any of the localflavor that currently aren't being used
+# for checking addresses smarty streets can't validate?
 
 
 class InterestForm(forms.Form):
@@ -236,12 +236,14 @@ class ProfilePageForm(forms.Form):
         label='Profile Picture',
     )
 
+
 class SignupForm(forms.Form):
     first_name = forms.CharField(required=True, max_length=30, label="First Name")
     last_name = forms.CharField(required=True, max_length=30, label="Last Name")
     email = forms.EmailField(required=True, label="Email")
     password = forms.CharField(required=True, min_length=6, max_length=56)
     password2 = forms.CharField(required=True, min_length=6, max_length=56)
+
 
 class LoginForm(forms.Form):
     email = forms.EmailField(required=True)

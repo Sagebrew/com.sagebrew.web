@@ -7,12 +7,12 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 
 from api.utils import test_wait_util
-from sb_answers.neo_models import SBAnswer
 from sb_answers.utils import save_answer_util
-from sb_answers.tasks import save_answer_task, edit_answer_task, vote_answer_task
+from sb_answers.tasks import save_answer_task, edit_answer_task
 from sb_questions.neo_models import SBQuestion
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util
+
 
 class TestSaveAnswerTask(TestCase):
     def setUp(self):
@@ -59,6 +59,7 @@ class TestSaveAnswerTask(TestCase):
             time.sleep(1)
         save_response = save_response.result
         self.assertTrue(isinstance(save_response, Exception))
+
 
 class TestEditAnswerTask(TestCase):
     def setUp(self):
@@ -232,74 +233,3 @@ class TestEditAnswerTask(TestCase):
         edit_response = edit_response.result
 
         self.assertFalse(edit_response)
-
-
-class TestVoteAnswerTask(TestCase):
-    def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
-        self.assertNotEqual(res, False)
-        test_wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        self.question_info_dict = {'current_pleb': self.user.email,
-                                   'question_title': "Test question",
-                                   'content': 'test post',}
-        self.answer_info_dict = {'current_pleb': self.user.email,
-                                 'content': 'test answer',
-                                 'to_pleb': self.user.email}
-        settings.CELERY_ALWAYS_EAGER = True
-
-    def tearDown(self):
-        settings.CELERY_ALWAYS_EAGER = False
-
-    def test_vote_answer_task_success_up(self):
-        answer = SBAnswer(sb_id=str(uuid1()), content="test answer")
-        answer.save()
-        my_dict = {'vote_type': 'up', 'current_pleb': self.user.email,
-                   'answer_uuid': answer.sb_id}
-        response = vote_answer_task.apply_async(kwargs=my_dict)
-        while not response.ready():
-            time.sleep(3)
-        self.assertTrue(response.result)
-
-    def test_vote_answer_task_success_down(self):
-        answer = SBAnswer(sb_id=str(uuid1()), content="test answer")
-        answer.save()
-        my_dict = {'vote_type': 'down', 'current_pleb': self.user.email,
-                   'answer_uuid': answer.sb_id}
-        response = vote_answer_task.apply_async(kwargs=my_dict)
-        while not response.ready():
-            time.sleep(3)
-        self.assertTrue(response.result)
-
-    def test_vote_answer_task_missing_data(self):
-        answer = SBAnswer(sb_id=str(uuid1()), content="test answer")
-        answer.save()
-        my_dict = {'vote_type': 'up', 'current_pleb': self.user.email,
-                   'answer_uuid': ''}
-        response = vote_answer_task.apply_async(kwargs=my_dict)
-        while not response.ready():
-            time.sleep(3)
-        self.assertFalse(response.result)
-
-    def test_vote_answer_task_failure_pleb_does_not_exist(self):
-        answer = SBAnswer(sb_id=str(uuid1()), content="test answer")
-        answer.save()
-        my_dict = {'vote_type': 'up', 'current_pleb': str(uuid1()),
-                   'answer_uuid': answer.sb_id}
-        response = vote_answer_task.apply_async(kwargs=my_dict)
-        while not response.ready():
-            time.sleep(3)
-        self.assertFalse(response.result)
-
-    def test_vote_answer_task_failure_pleb_already_voted(self):
-        answer = SBAnswer(sb_id=str(uuid1()), content="test answer")
-        answer.save()
-        answer.up_voted_by.connect(self.pleb)
-        my_dict = {'vote_type': 'up', 'current_pleb': self.user.email,
-                   'answer_uuid': answer.sb_id}
-        response = vote_answer_task.apply_async(kwargs=my_dict)
-        while not response.ready():
-            time.sleep(3)
-        self.assertFalse(response.result)

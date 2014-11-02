@@ -6,15 +6,19 @@ from neomodel import (BooleanProperty, DateTimeProperty, StringProperty,
                       StructuredRel, JSONProperty, FloatProperty,
                       RelationshipTo)
 
+
 class ResultClickedRel(StructuredRel):
     date_clicked = DateTimeProperty()
+
 
 class KeyWordRel(StructuredRel):
     relevance = FloatProperty(default=0)
 
+
 class SearchCount(StructuredRel):
     times_searched = IntegerProperty(default=1)
     last_searched = DateTimeProperty(default=datetime.now(pytz.utc))
+
 
 class SearchResult(StructuredNode):
     result_id = StringProperty(unique_index=True)
@@ -34,6 +38,7 @@ class KeyWord(StructuredNode):
     #relationships
     search_queries = RelationshipTo('sb_search.neo_models.SearchQuery',
                                     'SEARCH_QUERY')
+
 
 class SearchQuery(StructuredNode):
     weight = IntegerProperty(default=0)

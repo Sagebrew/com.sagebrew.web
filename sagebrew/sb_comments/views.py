@@ -1,6 +1,5 @@
 import pytz
 import logging
-from json import dumps
 from urllib2 import HTTPError
 from datetime import datetime
 from requests import ConnectionError
@@ -10,13 +9,12 @@ from rest_framework.response import Response
 
 from sb_posts.neo_models import SBPost
 from api.utils import comment_to_garbage, spawn_task
-from .tasks import (create_vote_comment, submit_comment_on_post,
-                    edit_comment_task, flag_comment_task)
+from .tasks import (submit_comment_on_post, edit_comment_task)
 from .utils import (get_post_comments)
-from .forms import (SaveCommentForm, EditCommentForm, DeleteCommentForm,
-                    VoteCommentForm, FlagCommentForm)
+from .forms import (SaveCommentForm, EditCommentForm, DeleteCommentForm)
 
 logger = logging.getLogger('loggly_logs')
+
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
@@ -111,88 +109,6 @@ def delete_comment(request):  # task
         # do stuff with post_info
 
 
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def vote_comment(request):
-    '''
-    Allow plebs to up/down vote comments
-
-    :param request:
-    :return:
-    '''
-    try:
-        comment_info = request.DATA
-
-        if (type(comment_info) != dict):
-            return Response({"details": "Please Provide a JSON Object"},
-                            status=400)
-
-        comment_form = VoteCommentForm(comment_info)
-
-        if comment_form.is_valid():
-            spawn_task(task_func=create_vote_comment,
-                       task_param=comment_form.cleaned_data)
-            return Response({"detail": "Vote created"}, status=200)
-        else:
-            return Response({'detail': comment_form.errors}, status=400)
-    except Exception:
-        logger.exception('UnhandledException: ')
-        return Response(status=400)
-
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def flag_comment(request):  # task
-    '''
-    Spawns the task to handle creation of the flag on a comment
-
-    :param request:
-    :return:
-    '''
-    comment_info = request.DATA
-
-    if type(comment_info) != dict:
-        return Response({'detail': 'Please Provide a Valid JSON Object'},
-                        status=400)
-
-    try:
-        comment_form = FlagCommentForm(comment_info)
-        if comment_form.is_valid():
-            spawn_task(task_func=flag_comment_task, task_param=
-                       comment_form.cleaned_data)
-            return Response(status=200)
-        else:
-            return Response(status=400)
-    except Exception:
-        logger.exception(dumps({"function": flag_comment.__name__,
-                                "exception": "UnhandledException: "}))
-
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def share_comment(request):
-    '''
-    Allow plebs to share comments with other plebs
-
-    :param request:
-    :return:
-    '''
-    pass
-
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def reference_comment(request):
-    '''
-    Allow users to reference comments in other comments/posts/questions/answers
-
-    :param request:
-    :return:
-    '''
-    pass
-
-
-# @permission_classes([IsAuthenticated, ])
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def get_comments(request):

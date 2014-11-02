@@ -37,7 +37,7 @@ def create_tag_relations_util(tags):
 
     except Exception as e:
         logger.exception(dumps({"function": create_tag_relations_util.__name__,
-                                "exception": "UnhandledException: "}))
+                                "exception": "UnhandledException"}))
         return e
 
 

@@ -9,7 +9,6 @@ from .neo_models import SBComment
 from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
 from api.utils import execute_cypher_query
-from api.exceptions import DoesNotExistWrapper
 
 logger = logging.getLogger('loggly_logs')
 
@@ -62,76 +61,6 @@ def get_post_comments(post_info):
         post_array.append(post_dict)
         comment_array = []
     return post_array
-
-def create_upvote_comment_util(pleb="", comment_uuid=None):
-    '''
-    creates an upvote on a comment, this is called by a util or task which
-    will regulate
-    attempts to create multiple votes quickly
-
-    :param comment_info:
-                        pleb="" email of the user voting
-                        comment_uuid=str(uuid) id of the comment being voted on
-    :return:
-    '''
-    try:
-        if comment_uuid is None:
-            comment_uuid = str(uuid1())
-        try:
-            my_comment = SBComment.nodes.get(sb_id=comment_uuid)
-        except (SBComment.DoesNotExist, DoesNotExist):
-            return False
-
-        try:
-            my_pleb = Pleb.nodes.get(email=pleb)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return None
-
-        my_comment.up_vote_number += 1
-        my_comment.up_voted_by.connect(my_pleb)
-        my_comment.save()
-        return True
-    except CypherException:
-        logger.exception({"function": create_downvote_comment_util.__name__,
-                          "exception": "CypherException: "})
-        return False
-    except Exception:
-        logger.exception({"function": create_downvote_comment_util.__name__,
-                          "exception": "UnhandledException: "})
-        return False
-
-
-def create_downvote_comment_util(pleb="", comment_uuid=str(uuid1())):
-    '''
-    creates a downvote on a comment, this is called by a util or task which
-    will regulate
-    attempts to create multiple votes quickly
-    :param comment_info:
-                        pleb="" email of the user voting
-                        comment_uuid=str(uuid) id of the comment being voted on
-    :return:
-    '''
-    try:
-        try:
-            my_comment = SBComment.nodes.get(sb_id=comment_uuid)
-        except (SBComment.DoesNotExist, DoesNotExist):
-            return False
-
-        try:
-            my_pleb = Pleb.nodes.get(email=pleb)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return None
-
-        my_comment.down_vote_number += 1
-        my_comment.down_voted_by.connect(my_pleb)
-        my_comment.save()
-        return True
-    except CypherException:
-        return False
-    except Exception:
-        logger.exception({"function": create_downvote_comment_util.__name__,
-                          "exception": "UnhandledException: "})
-        return False
 
 
 def save_comment_post(content="", pleb="", post_uuid=str(uuid1())):
@@ -223,6 +152,7 @@ def edit_comment_util(comment_uuid, content="", last_edited_on=None):
                                 'exception': "UnhandledException"}))
         return e
 
+
 def delete_comment_util(comment_uuid=str(uuid1())):
     '''
     Removes the personal content the comment which is tied to the id it is
@@ -244,49 +174,3 @@ def delete_comment_util(comment_uuid=str(uuid1())):
         return False
     except DoesNotExist:
         return False
-
-def flag_comment_util(comment_uuid, current_user, flag_reason):
-    '''
-    Attempts to get the comment and user from the parameters then creates the
-    connection between them of having been flagged, also increases the number
-    of flags it has based on what reason was passed
-
-    :param comment_uuid:
-    :param current_user:
-    :param flag_reason:
-    :return:
-    '''
-    try:
-        try:
-            comment = SBComment.nodes.get(sb_id=comment_uuid)
-        except (SBComment.DoesNotExist, DoesNotExist):
-            return None
-
-        try:
-            pleb = Pleb.nodes.get(email=current_user)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return False
-
-        if comment.flagged_by.is_connected(pleb):
-            return False
-
-        if flag_reason=='spam':
-            comment.flagged_by.connect(pleb)
-            comment.flagged_as_spam_count += 1
-            comment.save()
-        elif flag_reason == 'explicit':
-            comment.flagged_by.connect(pleb)
-            comment.flagged_as_explicit_count += 1
-            comment.save()
-        elif flag_reason == 'other':
-            comment.flagged_by.connect(pleb)
-            comment.flagged_as_other_count += 1
-            comment.save()
-        else:
-            return False
-        return True
-    except Exception:
-        logger.exception({"function": edit_comment_util.__name__,
-                          'exception': "flag_comment_util: "})
-        return None
-

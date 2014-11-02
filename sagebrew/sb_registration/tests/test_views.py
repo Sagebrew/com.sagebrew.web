@@ -13,7 +13,7 @@ from django.core.management import call_command
 from rest_framework.test import APIRequestFactory
 
 from api.utils import test_wait_util
-from sb_registration.views import (profile_information, confirm_view,
+from sb_registration.views import (profile_information,
                                    signup_view_api, signup_view, logout_view,
                                    login_view, login_view_api,
                                    resend_email_verification,

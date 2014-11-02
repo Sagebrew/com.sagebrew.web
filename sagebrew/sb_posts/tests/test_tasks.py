@@ -453,6 +453,7 @@ class TestFlagPostTask(TestCase):
             time.sleep(1)
         res = res.result
         print res
+        print type(res)
         self.assertTrue(isinstance(res, Exception))
 
     def test_flag_post_task_user_does_not_exist(self):

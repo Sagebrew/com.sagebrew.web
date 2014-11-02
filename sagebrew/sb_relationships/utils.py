@@ -1,11 +1,12 @@
 import logging
-from neomodel import DoesNotExist
+from neomodel import DoesNotExist, CypherException
 
 from api.utils import execute_cypher_query
 from plebs.neo_models import Pleb
 from .neo_models import FriendRequest
 
 logger = logging.getLogger('loggly_logs')
+
 
 def create_friend_request_util(data):
     '''
@@ -18,7 +19,7 @@ def create_friend_request_util(data):
             from_citizen = Pleb.nodes.get(email=data['from_pleb'])
             to_citizen = Pleb.nodes.get(email=data['to_pleb'])
         except (Pleb.DoesNotExist, DoesNotExist):
-            return None
+            return False
 
         query = 'match (p:Pleb) where p.email="%s" ' \
                 'with p ' \
@@ -44,7 +45,9 @@ def create_friend_request_util(data):
         to_citizen.friend_requests_recieved.connect(friend_request)
         to_citizen.save()
         return True
-    except Exception:
+    except CypherException as e:
+        return e
+    except Exception as e:
         logger.exception({"function": create_friend_request_util.__name__,
-                          "exception": "UnhandledException: "})
-        return False
+                          "exception": "UnhandledException"})
+        return e

@@ -1,6 +1,7 @@
 import logging
 import time
 import boto.sqs
+import importlib
 
 from uuid import uuid1
 from socket import error as socket_error
@@ -17,7 +18,6 @@ from sb_comments.neo_models import SBComment
 from sb_posts.neo_models import SBPost
 
 from sb_garbage.neo_models import SBGarbageCan
-
 
 logger = logging.getLogger('loggly_logs')
 
@@ -80,6 +80,7 @@ iron_mq = IronMQ(project_id=settings.IRON_PROJECT_ID,
         info['action'] = attempt_task.__name__
         queue.post(dumps(info))
 '''
+
 
 #TODO if add_failure_to_queue fails store in postgress database in a meta field
 #allow for backup if Amazon goes down
@@ -213,6 +214,7 @@ def create_auto_tags(content):
                                 "exception": "UnhandledException: "}))
         return None
 
+
 def execute_cypher_query(query):
     try:
         return db.cypher_query(query)
@@ -231,6 +233,7 @@ def test_wait_util(async_res):
     while not async_res['task_id'].result.ready():
         time.sleep(1)
 
+
 def get_object(object_type, object_uuid):
     '''
     DO NOT USE THIS FUNCTION ANYWHERE THAT DOES NOT HAVE A FORM
@@ -245,9 +248,14 @@ def get_object(object_type, object_uuid):
     :return:
     '''
     try:
-        return eval(object_type).nodes.get(sb_id=object_uuid)
-    except (eval(object_type).DoesNotExist, DoesNotExist):
-        return False
+        cls = object_type
+        module_name, class_name = cls.rsplit(".", 1)
+        sb_module = importlib.import_module(module_name)
+        sb_object = getattr(sb_module, class_name)
+        try:
+            return sb_object.nodes.get(sb_id=object_uuid)
+        except (sb_object.DoesNotExist, DoesNotExist):
+            return False
     except NameError:
         logger.critial(dumps({"function": get_object.__name__,
                               "exception": NameError.__name__,

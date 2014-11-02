@@ -14,6 +14,7 @@ from .neo_models import SBQuestion
 
 logger = logging.getLogger('loggly_logs')
 
+
 def create_question_util(content="", current_pleb="", question_title=""):
     '''
     This util creates the question and attaches it to the user who asked it
@@ -53,6 +54,7 @@ def create_question_util(content="", current_pleb="", question_title=""):
         logger.exception({"function": create_question_util.__name__,
                           'exception': "UnhandledException: "})
         return e
+
 
 def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
     '''
@@ -140,6 +142,7 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
                                 "exception": "UnhandledException: "}))
         return []
 
+
 def get_question_by_uuid(question_uuid=str(uuid1()), current_pleb=""):
     '''
     Sorting util
@@ -165,6 +168,7 @@ def get_question_by_uuid(question_uuid=str(uuid1()), current_pleb=""):
         logger.exception(dumps({"function": get_question_by_uuid.__name__,
                                 "exception": "UnhandledException: "}))
         return {"detail": "Failure"}
+
 
 def get_question_by_most_recent(range_start=0, range_end=5, current_pleb=""):
     '''
@@ -195,6 +199,7 @@ def get_question_by_most_recent(range_start=0, range_end=5, current_pleb=""):
                                 "exception": "UnhandledException: "}))
         return {"detail": "fail"}
 
+
 def get_question_by_least_recent(range_start=0, range_end=5, current_pleb=""):
     '''
     Sorting util
@@ -224,67 +229,6 @@ def get_question_by_least_recent(range_start=0, range_end=5, current_pleb=""):
                                 "exception": "UnhandledException: "}))
         return {"detail": "fail"}
 
-
-def upvote_question_util(question_uuid="", current_pleb=""):
-    '''
-    This util creates an upvote attached to the user who upvoted and
-    the question that was upvoted
-
-    :param quesiton_uuid:
-    :param current_pleb:
-    :return:
-    '''
-    from sb_questions.tasks import vote_question_task
-    try:
-        try:
-            pleb = Pleb.nodes.get(email=current_pleb)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return None
-        try:
-            my_question = SBQuestion.nodes.get(sb_id=question_uuid)
-        except (SBQuestion.DoesNotExist, DoesNotExist):
-            return False
-
-        my_question.up_vote_number += 1
-        my_question.up_voted_by.connect(pleb)
-        my_question.save()
-        return True
-    except CypherException:
-        return False
-    except Exception:
-        logger.exception({"function": upvote_question_util.__name__,
-                          "exception:":"UnhandledException: "})
-        return False
-
-def downvote_question_util(question_uuid="", current_pleb=""):
-    '''
-    This util creates an downvote attached to the user who downvote and
-    the question that was downvote
-
-    :param quesiton_uuid:
-    :param current_pleb:
-    :return:
-    '''
-    from sb_questions.tasks import vote_question_task
-    try:
-        try:
-            pleb = Pleb.nodes.get(email=current_pleb)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return None
-        try:
-            my_question = SBQuestion.nodes.get(sb_id=question_uuid)
-        except (SBQuestion.DoesNotExist, DoesNotExist):
-            return False
-        my_question.down_vote_number += 1
-        my_question.down_voted_by.connect(pleb)
-        my_question.save()
-        return True
-    except CypherException:
-        return False
-    except Exception:
-        logger.exception({"function": downvote_question_util.__name__,
-                          "exception": "UnhandledException: "})
-        return False
 
 def edit_question_util(question_uuid="", content="", last_edited_on="",
                        current_pleb=""):
@@ -335,6 +279,7 @@ def edit_question_util(question_uuid="", content="", last_edited_on="",
                           "exception": "UnhandledException: "})
         return False
 
+
 def prepare_question_search_html(question_uuid):
     try:
         try:
@@ -366,56 +311,3 @@ def prepare_question_search_html(question_uuid):
         logger.exception({"function": prepare_question_search_html.__name__,
                           "exception": "UnhandledException: "})
         return False
-
-def flag_question_util(question_uuid, current_pleb, flag_reason):
-    '''
-    This function will increase the flag count on any of the reasons
-    that a question could be flagged and connect a user to the question
-    showing that they have flagged the question already in case they
-    attempt to flag it multiple times.
-
-    :param question_uuid:
-    :param current_pleb:
-    :param flag_reason:
-    :return:
-    '''
-    try:
-        try:
-            question = SBQuestion.nodes.get(sb_id=question_uuid)
-        except (SBQuestion.DoesNotExist, DoesNotExist) as e:
-            return e
-
-        try:
-            pleb = Pleb.nodes.get(email=current_pleb)
-        except (Pleb.DoesNotExist, DoesNotExist) as e:
-            return e
-
-        if question.flagged_by.is_connected(pleb):
-            return True
-
-        question.flagged_by.connect(pleb)
-        if flag_reason == 'spam':
-            question.flagged_as_spam_count += 1
-            question.save()
-        elif flag_reason == 'explicit':
-            question.flagged_as_explicit_count += 1
-            question.save()
-        elif flag_reason == 'other':
-            question.flagged_as_other_count += 1
-            question.save()
-        elif flag_reason == 'duplicate':
-            question.flagged_as_duplicate_count += 1
-            question.save()
-        elif flag_reason == 'changed':
-            question.flagged_as_changed_count += 1
-            question.save()
-        elif flag_reason == 'unsupported':
-            question.flagged_as_unsupported_count += 1
-            question.save()
-        else:
-            return False
-        return True
-    except Exception as e:
-        logger.exception(dumps({"function": flag_question_util.__name__,
-                                "exception": "UnhandledException: "}))
-        return e

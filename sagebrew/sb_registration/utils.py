@@ -16,9 +16,9 @@ from neomodel import DoesNotExist, CypherException
 from api.utils import spawn_task
 from plebs.tasks import create_pleb_task
 from plebs.neo_models import Pleb
-#from govtrack.neo_models import GTRole
 
 logger = logging.getLogger('loggly_logs')
+
 
 def calc_age(birthday):
     '''
@@ -31,6 +31,7 @@ def calc_age(birthday):
     today = date.today()
     return today.year - birthday.year - ((today.month, today.day)
                                          < (birthday.month - birthday.day))
+
 
 def create_address_long_hash(address):
     if ("address2" in address):
@@ -174,8 +175,10 @@ def compare_address(smarty_address, address_clean):
     return temp_smarty == temp_address
 """
 
+
 def validate_school(school_name):
     pass
+
 
 def upload_image(folder_name, file_uuid):
     '''
@@ -252,6 +255,7 @@ def determine_reps(pleb_address):
     return rep_name
 """
 
+
 def get_friends(email):
     '''
     Creates a list of dictionaries which hold data about the friends of the
@@ -274,6 +278,7 @@ def get_friends(email):
 
     return friends
 
+
 def verify_completed_registration(user):
     '''
     This function checks if the user has complete registration, it is used
@@ -289,6 +294,7 @@ def verify_completed_registration(user):
         return False
     except CypherException:
         return False
+
 
 def verify_verified_email(user):
     '''
@@ -307,6 +313,7 @@ def verify_verified_email(user):
         logger.critical({"exception": "cypher exception",
                          "function": "verify_verified_email"})
         return False
+
 
 def sb_send_email(to_email, subject, text_content, html_content):
     '''
@@ -338,6 +345,7 @@ def sb_send_email(to_email, subject, text_content, html_content):
         logger.exception(json.dumps({"function": sb_send_email.__name__,
                                      "exception": "UnhandledException: "}))
         return e
+
 
 def create_user_util(first_name, last_name, email, password,
                      username=""):

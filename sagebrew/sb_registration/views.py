@@ -34,8 +34,10 @@ logger = logging.getLogger('loggly_logs')
 def confirm_view(request):
     return render(request, 'verify_email.html')
 
+
 def age_restriction(request):
     return render(request, 'age_restriction_13.html')
+
 
 def signup_view(request):
     # TODO Need to take the user somewhere and do something with the ajax
@@ -44,6 +46,7 @@ def signup_view(request):
     # Otherwise they just sit at the sign up page
     # with the button not taking them anywhere.
     return render(request, 'sign_up_page/index.html')
+
 
 @api_view(['POST'])
 def signup_view_api(request):
@@ -108,8 +111,10 @@ def signup_view_api(request):
                                 'exception': 'UnhandledException'}))
         return Response({'detail': 'exception'}, status=400)
 
+
 def login_view(request):
     return render(request, 'login.html')
+
 
 @login_required()
 def resend_email_verification(request):
@@ -172,10 +177,12 @@ def login_view_api(request):
                                 'exception': 'UnhandledException'}))
         return Response({'detail': 'unknown exception'}, status=400)
 
+
 @login_required()
 def logout_view(request):
     logout(request)
     return redirect('login')
+
 
 @login_required()
 def email_verification(request, confirmation):
@@ -194,6 +201,7 @@ def email_verification(request, confirmation):
         logger.exception({'function': email_verification.__name__,
                           'exception': 'UnhandledException: '})
         return redirect('confirm_view')
+
 
 @login_required
 @user_passes_test(verify_verified_email,
@@ -305,7 +313,7 @@ def interests(request):
             try:
                 citizen = Pleb.nodes.get(email=request.user.email)
             except (Pleb.DoesNotExist, DoesNotExist):
-                redirect("404_Error")
+                return redirect("404_Error")
             for item in interest_form.cleaned_data:
                 if interest_form.cleaned_data[item]:
                     try:

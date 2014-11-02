@@ -9,14 +9,12 @@ logger = logging.getLogger("loggly_logs")
 def create_friend_request_task(data):
     try:
         res = create_friend_request_util(data)
-        if res:
-            return True
-        elif res is None:
-            return False
-        else:
-            raise Exception
-    except Exception:
+        if isinstance(res, Exception):
+            return create_friend_request_task.retry(exc=res, countdown=3,
+                                                    max_retries=None)
+        return res
+    except Exception as e:
         logger.exception({"function": create_friend_request_task.__name__,
-                          "exception": "UnhandledException:"})
-        raise create_friend_request_task.retry(exc=Exception, countdown=3,
+                          "exception": "UnhandledException"})
+        raise create_friend_request_task.retry(exc=e, countdown=3,
                                                max_retries=None)

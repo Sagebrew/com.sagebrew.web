@@ -6,7 +6,7 @@ from datetime import datetime
 from django.shortcuts import render
 from django.template import Context
 from django.template.loader import get_template
-from django.core.urlresolvers import reverse
+
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -16,13 +16,12 @@ from api.utils import spawn_task
 from sb_registration.utils import verify_completed_registration
 from .utils import (get_question_by_most_recent, get_question_by_uuid,
                     get_question_by_least_recent, prepare_question_search_html)
-from .tasks import (create_question_task, vote_question_task,
-                    edit_question_task, flag_question_task)
-from .forms import (SaveQuestionForm, EditQuestionForm, VoteQuestionForm,
-                    FlagQuestionForm)
+from .tasks import (create_question_task, edit_question_task)
+from .forms import (SaveQuestionForm, EditQuestionForm)
 
 
 logger = logging.getLogger('loggly_logs')
+
 
 @login_required()
 @user_passes_test(verify_completed_registration,
@@ -32,6 +31,7 @@ def submit_question_view_page(request):
     return render(request,'save_question.html',{
         'current_user': current_user.email,
     })
+
 
 @login_required()
 @user_passes_test(verify_completed_registration,
@@ -58,6 +58,7 @@ def question_page(request, sort_by="most_recent"):
     return render(request, 'question_sort_page.html',
                   {'email': request.user.email})
 
+
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
@@ -77,6 +78,7 @@ def question_detail_page(request, question_uuid=str(uuid1())):
     #question = post_to_api(reverse('get_questions'), data=post_data,
     #                       headers=headers)
     return render(request, 'question_detail.html', post_data)
+
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
@@ -107,6 +109,7 @@ def save_question_view(request):
                          "filtered_content": question_data}, status=200)
     else:
         return Response(question_form.errors, status=400)
+
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
@@ -142,6 +145,7 @@ def edit_question_view(request):
     else:
         return Response(question_form.errors, status=400)
 
+
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def close_question_view(request):
@@ -160,36 +164,6 @@ def close_question_view(request):
     '''
     pass
 
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def vote_question_view(request):
-    '''
-    The API view to allow the user to upvote/downvote question
-
-    :param request:
-
-            request.DATA/request.body = {
-                'question_uuid': str(uuid1()),
-                'vote_type': 'up' or 'down',
-                'current_pleb': 'example@email.com'
-
-    :return:
-    '''
-    try:
-        post_data = request.DATA
-        if type(post_data) != dict:
-            return Response({"details": "Please Provide a JSON Object"},
-                            status=400)
-        question_form = VoteQuestionForm(post_data)
-        if question_form.is_valid():
-            spawn_task(task_func=vote_question_task,
-                       task_param=question_form.cleaned_data)
-            return Response({"detail": "Vote Created!"}, status=200)
-        else:
-            return Response({'detail': question_form.errors}, status=400)
-    except Exception, e:
-        return Response({"detail": "Vote could not be created!",
-                         'exception': e})
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
@@ -272,6 +246,7 @@ def get_question_view(request):
     except Exception:
         return Response({'detail': 'fail'}, status=400)
 
+
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def get_question_search_view(request, question_uuid=str(uuid1())):
@@ -291,24 +266,3 @@ def get_question_search_view(request, question_uuid=str(uuid1())):
         logger.exception(dumps({"function": get_question_search_view.__name__,
                                 "exception": "UnhandledException: "}))
         return Response({'html': []}, status=400)
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def flag_question_view(request):
-    try:
-        flag_data = request.DATA
-        if type(flag_data) != dict:
-            return Response({'detail': 'Please Provide a valid JSON Object'},
-                            status=400)
-        flag_form = FlagQuestionForm(flag_data)
-        if flag_form.is_valid():
-            spawn_task(task_func=flag_question_task,
-                       task_param=flag_form.cleaned_data)
-            return Response(status=200)
-        else:
-            return Response({"detail": flag_form.errors}, status=400)
-
-    except Exception:
-        logger.exception(dumps({"function": flag_question_view.__name__,
-                                "exception": "UnhandledException: "}))
-        return Response({'detail': 'fail'}, status=400)

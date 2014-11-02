@@ -6,12 +6,13 @@ from datetime import datetime
 
 from neomodel import DoesNotExist
 
-from api.utils import spawn_task, execute_cypher_query
+from api.utils import execute_cypher_query
 from plebs.neo_models import Pleb
 from sb_comments.utils import get_post_comments
 from .neo_models import SBPost
 
 logger = logging.getLogger('loggly_logs')
+
 
 def get_pleb_posts(pleb_object, range_end, range_start):
     '''
@@ -184,87 +185,3 @@ def delete_post_info(sb_id=str(uuid1())):
                           "exception": "UnhandledException: "}))
         return e
 
-def create_post_vote(pleb="", post_uuid=str(uuid1()), vote_type=""):
-    '''
-    determines if the user has voted on this post yet, if not then it allows
-    the vote and creates it, if not it does not allow.
-
-    :param post_info:
-                    pleb = "tyler.wiersing@gmail.com"
-                    post_uuid = str(uuid1())
-                    vote_type = "" up/down
-    :return:
-
-    '''
-    # TODO This needs to allow to changing of vote
-    from sb_posts.tasks import create_downvote_post, create_upvote_post
-    try:
-        my_pleb = Pleb.nodes.get(email=pleb)
-    except (Pleb.DoesNotExist, DoesNotExist):
-        return False
-
-    try:
-        my_post = SBPost.nodes.get(sb_id=post_uuid)
-    except (SBPost.DoesNotExist, DoesNotExist):
-        return False
-
-    if my_post.up_voted_by.is_connected(
-            my_pleb) or my_post.down_voted_by.is_connected(my_pleb):
-        return False
-    else:
-        if vote_type == 'up':
-            task_param = {'post_uuid': post_uuid,
-                          'pleb': pleb}
-            spawn_task(task_func=create_upvote_post, task_param=task_param)
-            return True
-        elif vote_type == 'down':
-            task_param = {'post_uuid': post_uuid,
-                          'pleb': pleb}
-            spawn_task(task_func=create_downvote_post, task_param=task_param)
-            return True
-        else:
-            return False
-
-def flag_post(post_uuid, current_user, flag_reason):
-    '''
-    This util increases the flag count on a post and connects it to the
-    user who flagged it.
-
-    :param post_uuid:
-    :param current_user:
-    :param flag_reason:
-    :return:
-    '''
-    try:
-        try:
-            post = SBPost.nodes.get(sb_id=post_uuid)
-        except (SBPost.DoesNotExist, DoesNotExist):
-            return False
-
-        try:
-            pleb = Pleb.nodes.get(email=current_user)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return False
-
-        if post.flagged_by.is_connected(pleb):
-            return False
-
-        if flag_reason == 'spam':
-            post.flagged_by.connect(pleb)
-            post.flagged_as_spam_count += 1
-            post.save()
-        elif flag_reason == 'explicit':
-            post.flagged_by.connect(pleb)
-            post.flagged_as_explicit_count += 1
-            post.save()
-        elif flag_reason == 'other':
-            post.flagged_by.connect(pleb)
-            post.flagged_as_other_count += 1
-            post.save()
-        else:
-            return False
-        return True
-    except Exception as e:
-        logger.exception(dumps({"function": flag_post.__name__,
-                                'exception': "UnhandledException: "}))
-        return e

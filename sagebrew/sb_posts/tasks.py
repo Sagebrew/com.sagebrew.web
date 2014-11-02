@@ -1,15 +1,12 @@
 from uuid import uuid1
-from json import dumps
+
 from celery import shared_task
 from logging import getLogger
 
-from neomodel import DoesNotExist
-
 from sb_notifications.tasks import spawn_notifications
 from api.utils import spawn_task
-from .neo_models import SBPost
 from plebs.neo_models import Pleb
-from .utils import (save_post, edit_post_info, delete_post_info, flag_post)
+from .utils import (save_post, edit_post_info, delete_post_info)
 
 logger = getLogger('loggly_logs')
 
@@ -30,73 +27,6 @@ def delete_post_and_comments(post_info):
                                              max_retries=None)
     else:
         return response
-
-
-@shared_task()
-def create_upvote_post(post_uuid=str(uuid1()), pleb=""):
-    '''
-    creates an upvote attached to a post
-
-    Unless testing this should only be called from the create_post_vote
-    util
-    :param post_info:
-                    post_uuid = str(uuid)
-                    pleb = "" email
-    :return:
-    '''
-    try:
-        try:
-            my_post = SBPost.nodes.get(sb_id=post_uuid)
-        except (SBPost.DoesNotExist, DoesNotExist) as e:
-            raise create_upvote_post.retry(exc=e, countdown=3, max_retries=None)
-
-        try:
-            my_pleb = Pleb.nodes.get(email=pleb)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return False
-        my_post.up_vote_number += 1
-        my_post.up_voted_by.connect(my_pleb)
-        my_post.save()
-        return True
-    except Exception as e:
-        logger.exception(dumps({"function": create_upvote_post.__name__,
-                                "exception": "UnhandledException"}))
-        raise create_downvote_post.retry(exc=e, countdown=3, max_retries=None)
-
-@shared_task()
-def create_downvote_post(post_uuid, pleb=None):
-    '''
-    creates a downvote attached to a post
-
-    Unless testing this should only be called from the create_post_vote
-    util
-    :param post_info:
-                    post_uuid = str(uuid)
-                    pleb = "" email
-    :return:
-    '''
-    if pleb is None:
-        return False
-    try:
-        try:
-            my_post = SBPost.nodes.get(sb_id=post_uuid)
-        except (SBPost.DoesNotExist, DoesNotExist):
-            raise create_downvote_post.retry(exc=DoesNotExist, countdown=3,
-                                         max_retries=None)
-        try:
-            my_pleb = Pleb.nodes.get(email=pleb)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return False
-        my_post.down_vote_number += 1
-        my_post.down_voted_by.connect(my_pleb)
-        my_post.save()
-        return True
-    except Exception as e:
-        logger.exception({'function': create_downvote_post.__name__,
-                          'exception': 'UnhandledException: '})
-        raise create_downvote_post.retry(exc=e, countdown=3,
-                                         max_retries=None)
-
 
 
 @shared_task()
@@ -208,21 +138,3 @@ def edit_post_info_task(content="", post_uuid=str(uuid1()),
         return False
     if edit_post_return['detail'] == 'last edit more recent':
         return False
-
-@shared_task()
-def flag_post_task(post_uuid, current_user, flag_reason):
-    '''
-    This task calls the util to add a flag to a post
-
-    :param post_uuid:
-    :param current_user:
-    :param flag_reason:
-    :return:
-    '''
-    response = flag_post(post_uuid=post_uuid, current_user=current_user,
-                         flag_reason=flag_reason)
-    if isinstance(response, Exception):
-        raise flag_post_task.retry(exc=response, countdown=3,
-                                   max_retries=None)
-    else:
-        return response

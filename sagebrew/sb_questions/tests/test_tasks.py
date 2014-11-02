@@ -5,15 +5,14 @@ from datetime import datetime
 from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
-from celery.utils.serialization import UnpickleableExceptionWrapper
 from neomodel.exception import DoesNotExist
 
 from api.utils import test_wait_util
-from sb_questions.tasks import (create_question_task, edit_question_task,
-                                vote_question_task)
+from sb_questions.tasks import (create_question_task, edit_question_task)
 from plebs.neo_models import Pleb
 from sb_questions.neo_models import SBQuestion
 from sb_registration.utils import create_user_util
+
 
 class TestSaveQuestionTask(TestCase):
     def setUp(self):
@@ -238,97 +237,6 @@ class TestQuestionTaskRaceConditions(TestCase):
             edit_array.append(edit_response)
 
         self.assertNotIn(False, edit_array)
-
-
-class TestVoteTask(TestCase):
-    def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
-        self.assertNotEqual(res, False)
-        test_wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        self.question_info_dict = {'current_pleb': self.user.email,
-                                   'question_title': "Test question",
-                                   'content': 'test post',
-                                   'question_uuid': str(uuid1())}
-        settings.CELERY_ALWAYS_EAGER = True
-
-    def tearDown(self):
-        settings.CELERY_ALWAYS_EAGER = False
-
-    def test_question_vote_task_up_success(self):
-        question = SBQuestion(content="test question from vote task test",
-                              question_title="testquestiontitle from votetest",
-                              sb_id=uuid1())
-        question.save()
-        pleb = Pleb.nodes.get(email=self.user.email)
-        vote_info_dict = {"question_uuid": question.sb_id,
-                          "current_pleb": pleb.email, 'vote_type': 'up'}
-        vote_response = vote_question_task.apply_async(kwargs=vote_info_dict)
-        while not vote_response.ready():
-            time.sleep(1)
-        vote_response = vote_response.result
-        self.assertTrue(vote_response)
-
-    def test_question_vote_task_down_success(self):
-        question = SBQuestion(content="test question from vote task test",
-                              question_title="testquestiontitle from votetest",
-                              sb_id=uuid1())
-        question.save()
-        pleb = Pleb.nodes.get(email=self.user.email)
-        vote_info_dict = {"question_uuid": question.sb_id,
-                          "current_pleb": pleb.email, 'vote_type': 'down'}
-        vote_response = vote_question_task.apply_async(kwargs=vote_info_dict)
-        while not vote_response.ready():
-            time.sleep(1)
-        vote_response = vote_response.result
-        self.assertTrue(vote_response)
-
-    def test_question_vote_task_pleb_does_not_exist(self):
-        question = SBQuestion(content="test question from vote task test",
-                              question_title="testquestiontitle from votetest",
-                              sb_id=uuid1())
-        question.save()
-        pleb = Pleb.nodes.get(email=self.user.email)
-        vote_info_dict = {"question_uuid": question.sb_id,
-                          "current_pleb": str(uuid1()), 'vote_type': 'up'}
-        vote_response = vote_question_task.apply_async(kwargs=vote_info_dict)
-        while not vote_response.ready():
-            time.sleep(1)
-        vote_response = vote_response.result
-        self.assertFalse(vote_response)
-
-    def test_question_vote_task_question_does_not_exist(self):
-        question = SBQuestion(content="test question from vote task test",
-                              question_title="testquestiontitle from votetest",
-                              sb_id=uuid1())
-        question.save()
-        pleb = Pleb.nodes.get(email=self.user.email)
-        vote_info_dict = {"question_uuid": str(uuid1()),
-                          "current_pleb": pleb.email, 'vote_type': 'up'}
-        vote_response = vote_question_task.apply_async(kwargs=vote_info_dict)
-        while not vote_response.ready():
-            time.sleep(1)
-
-        vote_response = vote_response.result
-
-        self.assertEqual(type(vote_response), UnpickleableExceptionWrapper)
-
-    def test_question_vote_task_already_connected(self):
-        question = SBQuestion(content="test question from vote task test",
-                              question_title="testquestiontitle from votetest",
-                              sb_id=uuid1())
-        question.save()
-        pleb = Pleb.nodes.get(email=self.user.email)
-        vote_info_dict = {"question_uuid": question.sb_id,
-                          "current_pleb": pleb.email, 'vote_type': 'up'}
-        question.up_voted_by.connect(pleb)
-        vote_response = vote_question_task.apply_async(kwargs=vote_info_dict)
-        while not vote_response.ready():
-            time.sleep(1)
-        vote_response = vote_response.result
-        self.assertFalse(vote_response)
 
 
 class TestMultipleTasks(TestCase):

@@ -20,18 +20,8 @@ class DeletePostForm(forms.Form):
     post_uuid = forms.CharField()
 
 
-class VotePostForm(forms.Form):
-    pleb = forms.CharField()
-    post_uuid = forms.CharField()
-    vote_type = forms.CharField()
-
 class GetPostForm(forms.Form):
     current_user = forms.EmailField()
     email = forms.EmailField()
     range_end = forms.IntegerField()
     range_start = forms.IntegerField()
-
-class FlagPostForm(forms.Form):
-    current_user = forms.EmailField()
-    post_uuid = forms.CharField()
-    flag_reason = forms.CharField()

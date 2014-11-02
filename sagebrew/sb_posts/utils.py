@@ -75,8 +75,8 @@ def save_post(post_uuid=str(uuid1()), content="", current_pleb="",
         try:
             poster = Pleb.nodes.get(email=current_pleb)
             my_citizen = Pleb.nodes.get(email=wall_pleb)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return None
+        except (Pleb.DoesNotExist, DoesNotExist) as e:
+            return e
 
         my_post = SBPost(content=content, sb_id=post_uuid)
         my_post.save()
@@ -88,12 +88,12 @@ def save_post(post_uuid=str(uuid1()), content="", current_pleb="",
         rel_from_pleb = poster.posts.connect(my_post)
         rel_from_pleb.save()
         return my_post
-    except ValueError:
-        return None
-    except Exception:
+    except ValueError as e:
+        return e
+    except Exception as e:
         logger.exception({"function": save_post.__name__,
                           "exception": "UnhandledException: "})
-        return None
+        return e
 
 
 def edit_post_info(content="", post_uuid=str(uuid1()), last_edited_on=None,
@@ -135,22 +135,21 @@ def edit_post_info(content="", post_uuid=str(uuid1()), last_edited_on=None,
                 'post': my_post,
                 'detail': 'time stamp is the same'
             }
-        try:
-            if my_post.last_edited_on > last_edited_on:
-                return {'post': my_post, 'detail': 'last edit more recent'}
-        except TypeError:
-            pass
+        if my_post.last_edited_on > last_edited_on:
+            return {'post': my_post, 'detail': 'last edit more recent'}
 
+        if my_post.edited is False:
+            my_post.edited = True
         my_post.content = content
         my_post.last_edited_on = last_edited_on
         my_post.save()
         return True
-    except (SBPost.DoesNotExist, DoesNotExist):
-        return {'detail': 'post does not exist yet'}
-    except Exception:
+    except (SBPost.DoesNotExist, DoesNotExist) as e:
+        return e
+    except Exception as e:
         logger.exception(dumps({"function": edit_post_info.__name__,
-                                "exception": "UnhandledException: "}))
-        return False
+                                "exception": "UnhandledException"}))
+        return e
 
 
 def delete_post_info(sb_id=str(uuid1())):
@@ -167,8 +166,8 @@ def delete_post_info(sb_id=str(uuid1())):
     try:
         try:
             my_post = SBPost.nodes.get(sb_id=sb_id)
-        except (SBPost.DoesNotExist, DoesNotExist):
-            return False
+        except (SBPost.DoesNotExist, DoesNotExist) as e:
+            return e
 
         if datetime.now(pytz.utc).day - my_post.delete_time.day >=1:
             post_comments = my_post.comments.all()
@@ -180,10 +179,10 @@ def delete_post_info(sb_id=str(uuid1())):
             return True
         else:
             return True
-    except Exception:
-        logger.exception({'function': delete_post_info.__name__,
-                          "exception": "UnhandledException: "})
-        return False
+    except Exception as e:
+        logger.exception(dumps({'function': delete_post_info.__name__,
+                          "exception": "UnhandledException: "}))
+        return e
 
 def create_post_vote(pleb="", post_uuid=str(uuid1()), vote_type=""):
     '''
@@ -265,7 +264,7 @@ def flag_post(post_uuid, current_user, flag_reason):
         else:
             return False
         return True
-    except Exception:
+    except Exception as e:
         logger.exception(dumps({"function": flag_post.__name__,
-                          'exception': "UnhandledException: "}))
-        return False
+                                'exception': "UnhandledException: "}))
+        return e

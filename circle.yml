@@ -34,7 +34,7 @@ dependencies:
 test:
   override:
     #- python manage.py test sb_tag.tests.test_utils.TestCreateAutoTagUtil.test_create_auto_tag_util_success_tag_exists
-    - coverage run --source='.' manage.py test --failfast:
+    - coverage run --source='.' manage.py test:
         timeout: 300
 
   post:

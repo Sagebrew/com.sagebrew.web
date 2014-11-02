@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
+from neomodel.exception import DoesNotExist
 
 from api.utils import test_wait_util
 from plebs.neo_models import Pleb
@@ -52,7 +53,7 @@ class TestCreateAnswerUtil(TestCase):
         self.answer_info_dict['question_uuid'] = '246646156156615'
         response = save_answer_util(**self.answer_info_dict)
 
-        self.assertEqual(response, None)
+        self.assertTrue(isinstance(response, DoesNotExist))
 
     def test_save_answer_util_pleb_does_not_exist(self):
         self.question_info_dict['sb_id']=str(uuid1())

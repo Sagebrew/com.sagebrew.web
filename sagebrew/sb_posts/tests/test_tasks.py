@@ -6,6 +6,7 @@ from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 from celery.utils.serialization import UnpickleableExceptionWrapper
+from neomodel.exception import DoesNotExist
 
 from api.utils import test_wait_util
 from sb_posts.neo_models import SBPost
@@ -106,7 +107,7 @@ class TestEditPostTask(TestCase):
         while not edit_response.ready():
             time.sleep(1)
         edit_response = edit_response.result
-        self.assertEqual(type(edit_response), Exception)
+        self.assertTrue(isinstance(edit_response, DoesNotExist))
 
     def test_edit_post_task_failure_content_is_the_same(self):
         post = SBPost(sb_id=uuid1(), content="test post")
@@ -207,7 +208,7 @@ class TestPostVoteTask(TestCase):
             time.sleep(1)
         res = res.result
 
-        self.assertEqual(type(res), UnpickleableExceptionWrapper)
+        self.assertTrue(isinstance(res, DoesNotExist))
 
     def test_upvote_post_failure_pleb_does_not_exist(self):
         post = SBPost(sb_id=str(uuid1()))
@@ -249,7 +250,7 @@ class TestPostVoteTask(TestCase):
             time.sleep(1)
         res = res.result
 
-        self.assertEqual(type(res), UnpickleableExceptionWrapper)
+        self.assertTrue(isinstance(res, DoesNotExist))
 
     def test_downvote_post_failure_pleb_does_not_exist(self):
         post = SBPost(sb_id=str(uuid1()))
@@ -439,7 +440,7 @@ class TestFlagPostTask(TestCase):
         while not res.ready():
             time.sleep(1)
         res = res.result
-        self.assertEqual(type(res), Exception)
+        self.assertTrue(isinstance(res, Exception))
 
     def test_flag_post_task_post_does_not_exist(self):
         task_dict = {'post_uuid': uuid1(), 'current_user': self.pleb.email,
@@ -449,7 +450,7 @@ class TestFlagPostTask(TestCase):
         while not res.ready():
             time.sleep(1)
         res = res.result
-        self.assertEqual(type(res), Exception)
+        self.assertTrue(isinstance(res, Exception))
 
     def test_flag_post_task_user_does_not_exist(self):
         post = SBPost(sb_id=uuid1())
@@ -461,4 +462,4 @@ class TestFlagPostTask(TestCase):
         while not res.ready():
             time.sleep(1)
         res = res.result
-        self.assertEqual(type(res), Exception)
+        self.assertTrue(isinstance(res, Exception))

@@ -14,7 +14,7 @@ $(document).ready(function () {
                 'flag_reason': $(this).data('flag_reason'),
                 'current_pleb': $(this).data('pleb'),
                 'object_uuid': $(this).data('post_uuid'),
-                'object_type': $(this).data('object_type')
+                'object_type': [$(this).data('object_type')]
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json"

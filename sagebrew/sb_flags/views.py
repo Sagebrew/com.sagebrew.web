@@ -25,7 +25,8 @@ def flag_object_view(request):
             except (Pleb.DoesNotExist, DoesNotExist):
                 return Response({"detail": "pleb does not exist"}, status=401)
 
-            sb_object = get_object(flag_object_form.cleaned_data['object_type'],
+            sb_object = get_object(flag_object_form.cleaned_data
+                                   ['object_type'][0],
                                    flag_object_form.cleaned_data['object_uuid'])
             if not object:
                 return Response({"detail": "object does not exist"}, status=400)
@@ -39,7 +40,7 @@ def flag_object_view(request):
         else:
             return Response({"detail": "invalid form"}, status=400)
     except Exception:
-        logger.exception(dumps({"function": flag_object_view,
+        logger.exception(dumps({"function": flag_object_view.__name__,
                                 "exception": "UnhandledException: "}))
         return Response(status=400)
 

@@ -125,7 +125,7 @@ def spawn_task(task_func, task_param, countdown=0, task_id=None):
         }
         logger.exception(dumps(
             {'failure_uuid': failure_uuid, 'function': task_func.__name__,
-             'exception': 'unknown_error'}))
+             'exception': 'Unhandled Exception'}))
         add_failure_to_queue(failure_dict)
         return None
 
@@ -151,6 +151,7 @@ def language_filter(content):
 
 
 def post_to_garbage(sb_id):
+    # TODO update with dynamic object recognition
     try:
         post = SBPost.nodes.get(sb_id=sb_id)
         query = 'MATCH (p:SBPost) WHERE p.sb_id="%s" ' \
@@ -183,6 +184,7 @@ def post_to_garbage(sb_id):
 
 
 def comment_to_garbage(sb_id):
+    # TODO update with dynamic object recognition
     try:
         comment = SBComment.nodes.get(sb_id=sb_id)
         garbage_can = SBGarbageCan.nodes.get(garbage_can='garbage')
@@ -205,13 +207,14 @@ def comment_to_garbage(sb_id):
 
 
 def create_auto_tags(content):
+    # TODO Improve exception handling and change related functions accordingly
     try:
         alchemyapi = AlchemyAPI()
         keywords = alchemyapi.keywords("text", content)
         return keywords
     except Exception:
         logger.exception(dumps({"function": create_auto_tags,
-                                "exception": "UnhandledException: "}))
+                                "exception": "Unhandled Exception"}))
         return None
 
 
@@ -222,7 +225,7 @@ def execute_cypher_query(query):
         return {'detail': 'CypherException'}
     except Exception:
         logger.exception(dumps({"function": execute_cypher_query.__name__,
-                          "exception":"UnhandledException: "}))
+                                "exception":"Unhandled Exception"}))
         return {'detail': 'fail'}
 
 
@@ -257,7 +260,7 @@ def get_object(object_type, object_uuid):
         except (sb_object.DoesNotExist, DoesNotExist):
             return False
     except NameError:
-        logger.critial(dumps({"function": get_object.__name__,
-                              "exception": NameError.__name__,
-                              "type": object_type}))
+        logger.exception(dumps({"function": get_object.__name__,
+                                "exception": NameError.__name__,
+                                "type": object_type}))
         return False

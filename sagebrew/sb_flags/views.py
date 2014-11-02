@@ -42,7 +42,7 @@ def flag_object_view(request):
             return Response({"detail": "invalid form"}, status=400)
     except Exception:
         logger.exception(dumps({"function": flag_object_view.__name__,
-                                "exception": "UnhandledException: "}))
+                                "exception": "Unhandled Exception"}))
         return Response(status=400)
 
 

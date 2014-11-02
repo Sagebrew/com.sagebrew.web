@@ -1,5 +1,4 @@
 import logging
-from uuid import uuid1
 from json import dumps
 from celery import shared_task
 from neomodel import DoesNotExist, CypherException
@@ -28,7 +27,7 @@ def add_question_to_indices_task(question, tags):
     :return:
     '''
     try:
-        if question.added_to_search_index:
+        if question.added_to_search_index is True:
             return True
         else:
             search_dict = {'question_content': question.content,
@@ -43,7 +42,7 @@ def add_question_to_indices_task(question, tags):
             question.added_to_search_index = True
             question.save()
             spawn_task(task_func=add_object_to_search_index,
-                              task_param=task_data)
+                       task_param=task_data)
             return True
 
     except IndexError as e:
@@ -56,10 +55,11 @@ def add_question_to_indices_task(question, tags):
         logger.exception(dumps(
             {
                 "function": add_question_to_indices_task.__name__,
-                "exception": "UnhandledException"
+                "exception": "Unhandled Exception"
             }))
         raise add_question_to_indices_task.retry(exc=e, countdown=3,
                                                  max_retries=None)
+
 
 @shared_task()
 def add_tags_to_question_task(question, tags):
@@ -70,11 +70,10 @@ def add_tags_to_question_task(question, tags):
 
     :param question:
     :param tags:
-    :param auto_tags:
     :return:
     '''
     try:
-        if question.tags_added:
+        if question.tags_added is True:
             task_data = {
                 'question': question,
                 'tags': tags
@@ -82,6 +81,9 @@ def add_tags_to_question_task(question, tags):
             return spawn_task(task_func=add_question_to_indices_task,
                               task_param=task_data)
         else:
+            # TODO Switch Exception handling in create_auto_tags then
+            # figure out a way to repeat this task if an unhandled exception
+            # is thrown.
             auto_tags = create_auto_tags(question.content)
             task_data = []
             for tag in auto_tags['keywords']:
@@ -103,15 +105,14 @@ def add_tags_to_question_task(question, tags):
                                               max_retries=None)
     except Exception as e:
         logger.exception(dumps({"function": add_tags_to_question_task.__name__,
-                                "exception": "UnhandledException: "}))
+                                "exception": "Unhandled Exception"}))
         raise add_tags_to_question_task.retry(exc=e, countdown=3,
                                               max_retries=None)
 
 
-
 @shared_task()
-def create_question_task(content="", current_pleb="", question_title="",
-                         question_uuid=str(uuid1()), tags="", **kwargs):
+def create_question_task(content, current_pleb, question_title,
+                         tags, question_uuid=None):
     '''
     This task calls the util to create a question, if the util fails the
     task respawns itself.
@@ -129,7 +130,6 @@ def create_question_task(content="", current_pleb="", question_title="",
 
             if fail retries creating the task
     '''
-    tag_list = tags.split(',')
     try:
         try:
             SBQuestion.nodes.get(sb_id=question_uuid)
@@ -137,11 +137,12 @@ def create_question_task(content="", current_pleb="", question_title="",
         except (SBQuestion.DoesNotExist, DoesNotExist):
             response = create_question_util(content=content,
                                             current_pleb=current_pleb,
-                                            question_title=question_title)
+                                            question_title=question_title,
+                                            question_uuid=question_uuid)
         if isinstance(response, Exception) is True:
             raise create_question_task.retry(exc=response, countdown=5,
                                              max_retries=None)
-        elif response is None:
+        elif response is False:
             return False
         else:
             task_data = {"question": response, "tags": tags}
@@ -150,14 +151,13 @@ def create_question_task(content="", current_pleb="", question_title="",
     except CypherException as e:
         raise create_question_task.retry(exc=e, countdown=3, max_retries=None)
     except Exception as e:
-        logger.exception({'function': create_question_task.__name__,
-                          'exception': "UnhandledException: "})
+        logger.exception(dumps({'function': create_question_task.__name__,
+                                'exception': "Unhandled Exception"}))
         raise create_question_task.retry(exc=e, countdown=5, max_retries=None)
 
 
 @shared_task()
-def edit_question_task(question_uuid="", content="", current_pleb="",
-                       last_edited_on=""):
+def edit_question_task(question_uuid, content, current_pleb, last_edited_on):
     '''
     This task calls the util which determines if a question can be edited or not
     returns True and False based on how the util responds
@@ -168,6 +168,18 @@ def edit_question_task(question_uuid="", content="", current_pleb="",
     :param last_edited_on:
     :return:
     '''
+    # TODO can we generalize these functions for Editting a Versioned object
+    # and editing a non-versioned object? Same thing with creating and
+    # deleting?
+    # Then as we add additional Nodes we can just apply these functions
+    # to them. And if a change is made in logic it is dispursed across.
+    # Also reduces the amount of tests we have to write.
+    # Some of these have optional things that occur on a true response
+    # potentially could associate that with a function on each object
+    # editing_complete() or created_object(), etc. That could then spawn
+    # off tasks. Could create a base one on the parent classes that just
+    # shoots off notifications or w/e is needed and then it can be overwritten
+    # by the other children classes
     try:
         try:
             Pleb.nodes.get(email=current_pleb)
@@ -177,23 +189,18 @@ def edit_question_task(question_uuid="", content="", current_pleb="",
             SBQuestion.nodes.get(sb_id=question_uuid)
         except (SBQuestion.DoesNotExist, DoesNotExist) as e:
             raise edit_question_task.retry(exc=e, countdown=3, max_retries=None)
-        edit_question_return = edit_question_util(question_uuid=question_uuid,
-                                                  content=content,
-                                                  current_pleb=current_pleb,
-                                                  last_edited_on=last_edited_on)
-        if edit_question_return == True:
-            return True
-        if edit_question_return['detail'] == 'to be deleted':
-            return False
-        elif edit_question_return['detail'] == 'same content':
-            return False
-        elif edit_question_return['detail'] == 'same timestamp':
-            return False
-        elif edit_question_return['detail'] == 'last edit more recent':
-            return False
+        response = edit_question_util(question_uuid=question_uuid,
+                                      content=content,
+                                      current_pleb=current_pleb,
+                                      last_edited_on=last_edited_on)
+        if isinstance(response, Exception):
+            raise edit_question_task.retry(exc=response, countdown=3,
+                                           max_retries=None)
+        else:
+            return response
     except CypherException as e:
         raise edit_question_task.retry(exc=e, countdown=3, max_retries=None)
     except Exception as e:
-        logger.exception({"function": edit_question_task.__name__,
-                          "exception": "UnhandledException: "})
+        logger.exception(dumps({"function": edit_question_task.__name__,
+                                "exception": "Unhandled Exception"}))
         raise edit_question_task.retry(exc=e, countdown=3, max_retries=None)

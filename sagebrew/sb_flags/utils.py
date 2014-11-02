@@ -15,6 +15,14 @@ def flag_object_util(current_pleb, sb_object, flag_reason):
     :param flag_reason:
     :return:
     '''
+    # TODO can we move acceptable flag reasons to the actual object
+    # Example SBPost would have an array associated with the variable
+    # flags that we could iterate through here after gathering the actual
+    # object. Then up the count on the given counter.
+    # That way we have more flexibility over what things can get flagged for.
+    # Potentially could also have a standard list of flags associated with the
+    # base models and then if there are additional ones or ones that don't
+    # apply modify it in the model that rule is applicable to.
     try:
         if flag_reason not in sb_object.allowed_flags:
             return False
@@ -43,5 +51,5 @@ def flag_object_util(current_pleb, sb_object, flag_reason):
 
     except Exception as e:
         logger.exception(dumps({"function": flag_object_util.__name__,
-                                "exception": "UnhandledException: "}))
+                                "exception": "Unhandled Exception"}))
         return e

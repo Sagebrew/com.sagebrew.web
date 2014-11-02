@@ -264,5 +264,5 @@ def get_question_search_view(request, question_uuid=str(uuid1())):
         return Response({'html': response}, status=200)
     except Exception:
         logger.exception(dumps({"function": get_question_search_view.__name__,
-                                "exception": "UnhandledException: "}))
+                                "exception": "Unhandled Exception"}))
         return Response({'html': []}, status=400)

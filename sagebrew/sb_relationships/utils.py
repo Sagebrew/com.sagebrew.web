@@ -1,4 +1,5 @@
 import logging
+from json import dumps
 from neomodel import DoesNotExist, CypherException
 
 from api.utils import execute_cypher_query
@@ -48,6 +49,6 @@ def create_friend_request_util(data):
     except CypherException as e:
         return e
     except Exception as e:
-        logger.exception({"function": create_friend_request_util.__name__,
-                          "exception": "UnhandledException"})
+        logger.exception(dumps({"function": create_friend_request_util.__name__,
+                          "exception": "Unhandled Exception"}))
         return e

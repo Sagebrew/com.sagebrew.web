@@ -29,7 +29,7 @@ def create_gt_role(rep):
         return my_role
     except Exception:
         logger.exception(dumps({"function": create_gt_role.__name__,
-                                "exception": "UnhandledException: "}))
+                                "exception": "Unhandled Exception"}))
         return False
 
 
@@ -48,5 +48,5 @@ def create_gt_person(gt_person):
         return my_person
     except Exception:
         logger.exception(dumps({"function": create_gt_person.__name__,
-                                "exception": "UnhandledException: "}))
+                                "exception": "Unhandled Exception"}))
         return False

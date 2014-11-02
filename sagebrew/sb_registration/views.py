@@ -17,7 +17,7 @@ from neomodel import DoesNotExist, AttemptedCardinalityViolation
 from sb_tag.neo_models import SBTag
 from api.utils import spawn_task
 from plebs.tasks import send_email_task
-from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
+from plebs.neo_models import Pleb, Address
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm,
                     LoginForm)
@@ -108,7 +108,7 @@ def signup_view_api(request):
         # TODO add a handler for if the form is not valid
     except Exception:
         logger.exception(dumps({'function': signup_view_api.__name__,
-                                'exception': 'UnhandledException'}))
+                                'exception': 'Unhandled Exception'}))
         return Response({'detail': 'exception'}, status=400)
 
 
@@ -125,13 +125,18 @@ def resend_email_verification(request):
 
     template_dict = {
         'full_name': request.user.first_name+' '+request.user.last_name,
-        'verification_url': settings.EMAIL_VERIFICATION_URL+token_gen.make_token(request.user, pleb)+'/'
+        'verification_url': "%s%s%s" % (settings.EMAIL_VERIFICATION_URL,
+                                        token_gen.make_token(
+                                            request.user, pleb),
+                                        '/')
     }
     subject, to = "Sagebrew Email Verification", request.user.email
-    text_content = get_template('email_templates/email_verification.txt').render(Context(template_dict))
-    html_content = get_template('email_templates/email_verification.html').render(Context(template_dict))
-    task_data = {'to': to, 'subject': subject, 'text_content': text_content,
-                 'html_content': html_content}
+    # text_content = get_template(
+    # 'email_templates/email_verification.txt').render(Context(template_dict))
+    html_content = get_template(
+        'email_templates/email_verification.html').render(
+        Context(template_dict))
+    task_data = {'to': to, 'subject': subject, 'html_content': html_content}
     spawn_task(task_func=send_email_task, task_param=task_data)
     return redirect("confirm_view")
 
@@ -174,7 +179,7 @@ def login_view_api(request):
         return Response(status=400)
     except Exception:
         logger.exception(dumps({'function': login_view_api.__name__,
-                                'exception': 'UnhandledException'}))
+                                'exception': 'Unhandled Exception'}))
         return Response({'detail': 'unknown exception'}, status=400)
 
 
@@ -198,8 +203,8 @@ def email_verification(request, confirmation):
     except (Pleb.DoesNotExist, DoesNotExist):
         return redirect('logout')
     except Exception:
-        logger.exception({'function': email_verification.__name__,
-                          'exception': 'UnhandledException: '})
+        logger.exception(dumps({'function': email_verification.__name__,
+                                'exception': 'Unhandled Exception'}))
         return redirect('confirm_view')
 
 
@@ -327,7 +332,7 @@ def interests(request):
                       {'interest_form': interest_form})
     except Exception:
         logger.exception(dumps({"function": interests.__name__,
-                                "exception": "UnhandledException: "}))
+                                "exception": "Unhandled Exception"}))
         return redirect("404_Error")
 
 

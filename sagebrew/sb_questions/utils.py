@@ -15,7 +15,8 @@ from .neo_models import SBQuestion
 logger = logging.getLogger('loggly_logs')
 
 
-def create_question_util(content="", current_pleb="", question_title=""):
+def create_question_util(content, current_pleb, question_title,
+                         question_uuid=None):
     '''
     This util creates the question and attaches it to the user who asked it
 
@@ -24,20 +25,19 @@ def create_question_util(content="", current_pleb="", question_title=""):
     :param question_title:
     :return:
     '''
-    task_data = []
+    if question_uuid is None:
+        question_uuid = str(uuid1())
     try:
-        if content == "" or question_title == "":
-            return None
         try:
             poster = Pleb.nodes.get(email=current_pleb)
-        except (Pleb.DoesNotExist, DoesNotExist) as e:
-            return e
+        except (Pleb.DoesNotExist, DoesNotExist):
+            return False
 
         content_blob = TextBlob(content)
         title_blob = TextBlob(question_title)
         my_question = SBQuestion(content=content,
                                  question_title=question_title,
-                                 sb_id=str(uuid1()))
+                                 sb_id=question_uuid)
         my_question.save()
         my_question.subjectivity = content_blob.subjectivity
         my_question.positivity = content_blob.polarity
@@ -51,12 +51,12 @@ def create_question_util(content="", current_pleb="", question_title=""):
     except CypherException as e:
         return e
     except Exception as e:
-        logger.exception({"function": create_question_util.__name__,
-                          'exception': "UnhandledException: "})
+        logger.exception(dumps({"function": create_question_util.__name__,
+                                'exception': "Unhandled Exception"}))
         return e
 
 
-def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
+def prepare_get_question_dictionary(questions, sort_by, current_pleb):
     '''
     This util creates the dictionary responses which are returned to the html
     files. It is universal and will handle any sorting parameter
@@ -138,12 +138,13 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb=""):
     except IndexError:
         return []
     except Exception:
-        logger.exception(dumps({"function": prepare_get_question_dictionary.__name__,
-                                "exception": "UnhandledException: "}))
+        logger.exception(dumps(
+            {"function": prepare_get_question_dictionary.__name__,
+             "exception": "Unhandled Exception"}))
         return []
 
 
-def get_question_by_uuid(question_uuid=str(uuid1()), current_pleb=""):
+def get_question_by_uuid(question_uuid, current_pleb):
     '''
     Sorting util
 
@@ -166,11 +167,11 @@ def get_question_by_uuid(question_uuid=str(uuid1()), current_pleb=""):
         return {"detail": "A CypherException was thrown"}
     except Exception:
         logger.exception(dumps({"function": get_question_by_uuid.__name__,
-                                "exception": "UnhandledException: "}))
+                                "exception": "Unhandled Exception"}))
         return {"detail": "Failure"}
 
 
-def get_question_by_most_recent(range_start=0, range_end=5, current_pleb=""):
+def get_question_by_most_recent(current_pleb, range_start=0, range_end=5):
     '''
     Sorting util
 
@@ -196,11 +197,11 @@ def get_question_by_most_recent(range_start=0, range_end=5, current_pleb=""):
         return return_dict
     except Exception:
         logger.exception(dumps({"function": get_question_by_most_recent.__name__,
-                                "exception": "UnhandledException: "}))
+                                "exception": "Unhandled Exception"}))
         return {"detail": "fail"}
 
 
-def get_question_by_least_recent(range_start=0, range_end=5, current_pleb=""):
+def get_question_by_least_recent(current_pleb, range_start=0, range_end=5):
     '''
     Sorting util
 
@@ -225,13 +226,13 @@ def get_question_by_least_recent(range_start=0, range_end=5, current_pleb=""):
                                                       current_pleb=current_pleb)
         return return_dict
     except Exception:
-        logger.exception(dumps({"function": get_question_by_least_recent.__name__,
-                                "exception": "UnhandledException: "}))
+        logger.exception(dumps(
+            {"function": get_question_by_least_recent.__name__,
+             "exception": "Unhandled Exception"}))
         return {"detail": "fail"}
 
 
-def edit_question_util(question_uuid="", content="", last_edited_on="",
-                       current_pleb=""):
+def edit_question_util(question_uuid,  last_edited_on, content, current_pleb):
     '''
     This util handles the editing of a question. It does not edit the question
     if it is set to be deleted, the content it is trying to edit with is the
@@ -248,36 +249,32 @@ def edit_question_util(question_uuid="", content="", last_edited_on="",
     try:
         try:
             my_question = SBQuestion.nodes.get(sb_id=question_uuid)
-        except (SBQuestion.DoesNotExist, DoesNotExist):
+        except (SBQuestion.DoesNotExist, DoesNotExist) as e:
+            return e
+        if my_question.to_be_deleted is True:
             return False
-        if my_question.to_be_deleted:
-            return {'question': my_question, 'detail': 'to be deleted'}
-
         if my_question.content == content:
-            return {'question': my_question, 'detail': 'same content'}
-
+            return False
         if my_question.last_edited_on == last_edited_on:
-            return {'question': my_question, 'detail': 'same timestamp'}
-
-        try:
-            if my_question.last_edited_on > last_edited_on:
-                return {'question': my_question, 'detail': 'last edit more recent'}
-        except TypeError:
-            pass
-
-        edit_question = create_question_util(content=content, current_pleb=current_pleb,
-                                             question_title=my_question.question_title)
+            return False
+        if my_question.last_edited_on > last_edited_on:
+            # TODO in this instance we would still want to create the older
+            # edit and it'll just show up on the time line.
+            return False
+        edit_question = create_question_util(
+            content=content, current_pleb=current_pleb,
+            question_title=my_question.question_title)
         my_question.edits.connect(edit_question)
         edit_question.edit_to.connect(my_question)
         my_question.last_edited_on = edit_question.date_created
         my_question.save()
         return True
-    except CypherException:
-        return False
-    except Exception:
-        logger.exception({"function": edit_question_util.__name__,
-                          "exception": "UnhandledException: "})
-        return False
+    except CypherException as e:
+        return e
+    except Exception as e:
+        logger.exception(dumps({"function": edit_question_util.__name__,
+                          "exception": "Unhandled Exception"}))
+        return e
 
 
 def prepare_question_search_html(question_uuid):
@@ -285,6 +282,7 @@ def prepare_question_search_html(question_uuid):
         try:
             my_question = SBQuestion.nodes.get(sb_id=question_uuid)
         except (SBQuestion.DoesNotExist, DoesNotExist):
+            # TODO should this really be an exception so that it retries?
             return False
         owner = my_question.owned_by.all()[0]
         owner_name = owner.first_name + ' ' + owner.last_name
@@ -306,8 +304,8 @@ def prepare_question_search_html(question_uuid):
 
     except IndexError:
         return False
-
     except Exception:
-        logger.exception({"function": prepare_question_search_html.__name__,
-                          "exception": "UnhandledException: "})
+        logger.exception(dumps(
+            {"function": prepare_question_search_html.__name__,
+             "exception": "Unhandled Exception"}))
         return False

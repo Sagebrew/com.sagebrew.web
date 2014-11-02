@@ -204,7 +204,7 @@ class TestEditQuestionUtils(TestCase):
         self.assertTrue(edit_response)
 
     def test_edit_question_util_to_be_deleted(self):
-        self.question_info_dict['sb_id']=str(uuid1())
+        self.question_info_dict['sb_id'] = str(uuid1())
         question = SBQuestion(sb_id=str(uuid1()), content="test",
                               question_title='Test Title')
         question.save()

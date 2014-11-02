@@ -40,7 +40,7 @@ def populate_gt_role(requesturl):
         return True
     except Exception:
         logger.exception(dumps({"function": populate_gt_role.__name__,
-                                "exception": "UnhandledException"}))
+                                "exception": "Unhandled Exception"}))
         raise populate_gt_role.retry(exc=Exception, countdown=3,
                                      max_retries=None)
 
@@ -72,7 +72,7 @@ def populate_gt_person(requesturl):
         return True
     except Exception:
         logger.exception(dumps({"function": populate_gt_person.__name__,
-                                "exception": "UnhandledException"}))
+                                "exception": "Unhandled Exception"}))
         raise populate_gt_person.retry(exc=Exception, countdown=3,
                                      max_retries=None)
 
@@ -102,7 +102,7 @@ def populate_gt_committee(requesturl):
         return True
     except Exception:
         logger.exception(dumps({"function": populate_gt_committee.__name__,
-                                "exception": "UnhandledException"}))
+                                "exception": "Unhandled Exception"}))
         raise populate_gt_committee.retry(exc=Exception, countdown=3,
                                      max_retries=None)
 
@@ -149,7 +149,7 @@ def populate_gt_votes(requesturl):
         return True
     except Exception:
         logger.exception(dumps({"function": populate_gt_committee.__name__,
-                                "exception": "UnhandledException"}))
+                                "exception": "Unhandled Exception"}))
         raise populate_gt_committee.retry(exc=Exception, countdown=3,
                                      max_retries=None)
 

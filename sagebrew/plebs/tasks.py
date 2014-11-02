@@ -20,22 +20,19 @@ logger = getLogger('loggly_logs')
 
 
 @shared_task()
-def send_email_task(to, subject, text_content, html_content):
+def send_email_task(to, subject, html_content):
     from sb_registration.utils import sb_send_email
     try:
-        res = sb_send_email(to, subject, text_content, html_content)
-        if not res:
-            raise res
+        res = sb_send_email(to, subject, html_content)
+        if isinstance(res, Exception):
+            raise send_email_task.retry(exc=res, countdown=5, max_retries=None)
     except SESMaxSendingRateExceededError as e:
         raise send_email_task.retry(exc=e, countdown=5,
                                     max_retries=None)
-    except TypeError:
-        raise send_email_task.retry(exc=TypeError, countdown=3,
-                                    max_retries=None)
-    except Exception:
+    except Exception as e:
         logger.exception(dumps({"function": send_email_task.__name__,
                                 "exception": "Unhandled Exception"}))
-        raise send_email_task.retry(exc=Exception, countdown=3,
+        raise send_email_task.retry(exc=e, countdown=3,
                                     max_retries=None)
 
 
@@ -105,18 +102,16 @@ def create_wall_task(pleb, user):
         pleb.wall.connect(wall)
         return spawn_task(task_func=finalize_citizen_creation,
                           task_param={"pleb": pleb, "user": user})
-    except TypeError:
-        raise create_wall_task.retry(exc=TypeError, countdown=3,
+    except TypeError as e:
+        raise create_wall_task.retry(exc=e, countdown=3,
                                      max_retries=None)
-    except CypherException:
-        logger.critical(dumps({"function": "create_wall_task",
-                         "location": "CypherException"}))
-        raise create_wall_task.retry(exc=TypeError, countdown=3,
+    except CypherException as e:
+        raise create_wall_task.retry(exc=e, countdown=3,
                                      max_retries=None)
-    except Exception:
+    except Exception as e:
         logger.exception(dumps({"function": create_wall_task.__name__,
                                 "exception": "Unhandled Exception"}))
-        raise create_wall_task.retry(exc=Exception, countdown=3,
+        raise create_wall_task.retry(exc=e, countdown=3,
                                      max_retries=None)
 
 
@@ -136,11 +131,11 @@ def create_pleb_task(user_instance):
             task_info = spawn_task(task_func=create_wall_task,
                               task_param={"pleb": pleb, "user": user_instance})
             return task_info
-    except CypherException:
-        raise create_pleb_task.retry(exc=CypherException, countdown=3,
+    except CypherException as e:
+        raise create_pleb_task.retry(exc=e, countdown=3,
                                      max_retries=None)
-    except Exception:
+    except Exception as e:
         logger.exception(dumps({"function": create_pleb_task.__name__,
                                 "exception": "Unhandled Exception"}))
-        raise create_pleb_task.retry(exc=Exception, countdown=3,
+        raise create_pleb_task.retry(exc=e, countdown=3,
                                      max_retries=None)

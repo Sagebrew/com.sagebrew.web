@@ -1,4 +1,4 @@
-from uuid import uuid1
+from json import dumps
 
 from celery import shared_task
 from logging import getLogger
@@ -30,111 +30,57 @@ def delete_post_and_comments(post_info):
 
 
 @shared_task()
-def save_post_task(content="", current_pleb="", wall_pleb="",
-                   post_uuid=None):
+def save_post_task(content, current_pleb, wall_pleb, post_uuid=None):
     '''
     Saves the post with the content sent to the task
 
     If the task fails the failure_dict gets sent to the queue
-    :param post_info:
-                post_info = {
-                    'content': "this is a post",
-                    'current_pleb': "tyler.wiersing@gmail.com",
-                    'wall_pleb': "devon@sagebrew.com",
-                    'post_uuid': str(uuid1())
-                }
+    :param content: "this is a post",
+    :param current_pleb: "tyler.wiersing@gmail.com",
+    :param wall_pleb: "devon@sagebrew.com",
+    :param post_uuid: String version of a UUID
     :return:
         Returns True if the prepare_post_notification task is spawned and
         the post is successfully created
     '''
-    if post_uuid is None:
-        post_uuid = str(uuid1())
     try:
         my_post = save_post(post_uuid=post_uuid, content=content,
                             current_pleb=current_pleb, wall_pleb=wall_pleb)
-        if not my_post:
+        if isinstance(my_post, Exception) is True:
+            raise save_post_task.retry(exc=my_post, countdown=3,
+                                       max_retries=None)
+        elif my_post is False:
             return False
-        elif my_post is not None:
-            # TODO maybe we should set the default inputs to None in this
-            # function rather than empty strings. And also pass the entire
+
+        else:
+            # TODO maybe we should pass the entire
             # pleb rather than just the email, since just do another query in
             # the util anyways and will need to do one for the notification
-
             notification_data={'sb_object': my_post,
-                               'from_pleb':Pleb.nodes.get(email=current_pleb),
+                               'from_pleb': Pleb.nodes.get(email=current_pleb),
                                'to_plebs': [Pleb.nodes.get(email=wall_pleb),]}
             spawn_task(task_func=spawn_notifications,
                        task_param=notification_data)
             return True
-        raise Exception
-    except Exception:
-        logger.exception({"function": save_post_task.__name__,
-                          "exception": "UnhandledException"})
-        raise save_post_task.retry(exc=Exception, countdown=3, max_retries=None)
+    except Exception as e:
+        logger.exception(dumps({"function": save_post_task.__name__,
+                                "exception": "Unhandled Exception"}))
+        raise save_post_task.retry(exc=e, countdown=3, max_retries=None)
 
 
 @shared_task()
-def edit_post_info_task(content="", post_uuid=str(uuid1()),
-                        last_edited_on=None, current_pleb=""):
+def edit_post_info_task(last_edited_on, post_uuid, content):
     '''
     Edits the content of the post also updates the last_edited_on value
     if the task returns that it cannot find the post it retries
-    :param post_info:
+    :param last_edited_on:
+    :param post_uuid
+    :param content
     :return:
-        #TODO Log returns
-        Return Possibilities:
-            {'detail': 'post edited'}
-                Returns if there were not problems while attempting to edit
-                the post
-
-            {'detail': 'post does not exist yet'}
-                Returns if edit_post_info util cannot find the post,
-                causes the task to spawn another one of itself. This is here to
-                prevent a race condition of a post getting created then
-                instantly
-                edited causing the task to fail out
-
-            {'detail': 'to be deleted'}
-                Returns if the post that is trying to be edited is in the
-                garbage
-                can waiting to be deleted
-
-                If unexpected:
-                    check the posts to_be_deleted property, if it is set to
-                    True
-                    you will get this return
-
-            {'detail': 'content is the same'}
-                Returns if the content of the post is the same as what the user
-                attempted to edit it to
-
-            {'detail': 'edit time stamps are the same'}
-                Returns if the time that the post is attempted to edited is
-                the same as
-                the last_edited_on property of the post.
-
-                If you get this return:
-                    This is a very unlikely return, if you get this check to
-                    make sure your
-                    datetime generation is correct
-
-            {'detail': 'there was a more recent edit'}
-                Returns if the last_edited_on property of the post is more
-                recent than the
-                edit attempt timestamp
     '''
-    edit_post_return = edit_post_info(content, post_uuid, last_edited_on,
-                                      current_pleb)
-    if edit_post_return is True:
-        return True
-    if edit_post_return['detail'] == 'post does not exist yet':
-        raise edit_post_info_task.retry(exc=Exception, countdown=3,
+    edit_post_return = edit_post_info(content, post_uuid, last_edited_on)
+    if isinstance(edit_post_return, Exception):
+        raise edit_post_info_task.retry(exc=edit_post_return, countdown=3,
                                         max_retries=None)
-    if edit_post_return['detail'] == 'content is the same':
-        return False
-    if edit_post_return['detail'] == 'to be deleted':
-        return False
-    if edit_post_return['detail'] == 'time stamp is the same':
-        return False
-    if edit_post_return['detail'] == 'last edit more recent':
-        return False
+    else:
+        return edit_post_return

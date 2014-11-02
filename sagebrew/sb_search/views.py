@@ -185,7 +185,7 @@ def search_result_api(request, query_param="", display_num=10, page=1,
             return Response({'html': results, 'next': next_page_num}, status=200)
         except Exception:
             logger.exception(dumps({"function": search_result_api.__name__,
-                                    "exception": "UnhandledException"}))
+                                    "exception": "Unhandled Exception"}))
             return Response({'detail': 'fail'}, status=400)
     else:
         return Response({'detail': 'invalid form'}, status=400)

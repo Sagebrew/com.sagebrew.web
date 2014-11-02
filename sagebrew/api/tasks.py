@@ -1,5 +1,5 @@
 import logging
-from uuid import uuid1
+from json import dumps
 from django.conf import settings
 from api.utils import spawn_task
 
@@ -11,6 +11,7 @@ from sb_answers.neo_models import SBAnswer
 
 logger = logging.getLogger('loggly_logs')
 
+
 @shared_task()
 def add_object_to_search_index(index="full-search-base", object_type="",
                                object_data=None, object_added=None):
@@ -21,6 +22,7 @@ def add_object_to_search_index(index="full-search-base", object_type="",
     :param object_data:
     :return:
     '''
+    # TODO update with dynamic object recognition
     from sb_search.tasks import update_user_indices
     if object_added is not None:
         if object_added.populated_es_index:
@@ -49,8 +51,8 @@ def add_object_to_search_index(index="full-search-base", object_type="",
             object_added.populated_es_index = True
             object_added.save()
         return True
-    except Exception:
-        logger.exception({"function": add_object_to_search_index.__name__,
-                          "exception": "UnhandledException: "})
-        raise add_object_to_search_index.retry(exc=Exception, countdown=3,
+    except Exception as e:
+        logger.exception(dumps({"function": add_object_to_search_index.__name__,
+                          "exception": "Unhandled Exception"}))
+        raise add_object_to_search_index.retry(exc=e, countdown=3,
                                                max_retries=None)

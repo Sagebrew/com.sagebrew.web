@@ -37,7 +37,7 @@ def create_tag_relations_util(tags):
 
     except Exception as e:
         logger.exception(dumps({"function": create_tag_relations_util.__name__,
-                                "exception": "UnhandledException"}))
+                                "exception": "Unhandled Exception"}))
         return e
 
 
@@ -77,19 +77,14 @@ def add_auto_tags_util(tag_list):
                     tag.questions.connect(question)
                     tag_array.append(tag)
                 except UniqueProperty as e:
-                    logger.exception({'function': add_auto_tags_util.__name__,
-                                      'exception': "UniqueProperty"})
+                    logger.exception(dumps({'function': add_auto_tags_util.__name__,
+                                      'exception': "UniqueProperty"}))
                     return e
-
-            except KeyError as e:
+            except (KeyError, IndexError) as e:
                 return e
-
-            except IndexError as e:
-                return e
-
             except Exception as e:
-                logger.exception({'function': add_auto_tags_util.__name__,
-                                  'exception': "UnhandledException"})
+                logger.exception(dumps({'function': add_auto_tags_util.__name__,
+                                  'exception': "Unhandled Exception"}))
                 return e
         else:
             return False
@@ -141,7 +136,7 @@ def add_tag_util(object_type, object_uuid, tags):
 
         except Exception as e:
             logger.exception(dumps({"function": add_tag_util.__name__,
-                                    "exception": "UnhandledException"}))
+                                    "exception": "Unhandled Exception"}))
             return e
     else:
         return False

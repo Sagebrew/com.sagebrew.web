@@ -33,7 +33,7 @@ def get_tag_view(request):
     except (HTTPError, ConnectionError):
         return Response({'detail': 'connection error'}, status=400)
     except Exception:
-        logger.exception(dumps({"exception": 'UnhandledException',
+        logger.exception(dumps({"exception": 'Unhandled Exception',
                                 "function": get_tag_view.__name__}))
         return Response({'tags': []}, status=400)
 

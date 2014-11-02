@@ -1,5 +1,4 @@
 import logging
-from uuid import uuid1
 from json import dumps
 from celery import shared_task
 
@@ -14,11 +13,10 @@ from .utils import (save_answer_util, edit_answer_util)
 logger = logging.getLogger('loggly_logs')
 
 
-
 @shared_task()
 def add_answer_to_search_index(answer):
     try:
-        if answer.added_to_search_index:
+        if answer.added_to_search_index is True:
             return True
 
         search_dict = {'answer_content': answer.content,
@@ -28,23 +26,28 @@ def add_answer_to_search_index(answer):
                        'related_user': ''}
         task_data = {"object_type": 'answer', 'object_data': search_dict,
                      "object_added": answer}
-        spawn_task(task_func=add_object_to_search_index,
-                               task_param=task_data)
-        answer.added_to_search_index = True
-        answer.save()
-        return True
-    except IndexError:
-        raise add_answer_to_search_index.retry(exc=IndexError, countdown=3,
+        spawned_task = spawn_task(task_func=add_object_to_search_index,
+                                  task_param=task_data)
+        if spawned_task is not None:
+            answer.added_to_search_index = True
+            answer.save()
+            return True
+        else:
+            return False
+    except IndexError as e:
+        raise add_answer_to_search_index.retry(exc=e, countdown=3,
                                                max_retries=None)
-    except Exception:
+    except CypherException as e:
+        raise add_answer_to_search_index.retry(exc=e, countdown=3,
+                                               max_retries=None)
+    except Exception as e:
         logger.exception(dumps({"function": add_answer_to_search_index.__name__,
-                                "exception": "UnhandledException: "}))
-        raise add_answer_to_search_index.retry(exc=Exception, countdown=3,
+                                "exception": "Unhandled Exception"}))
+        raise add_answer_to_search_index.retry(exc=e, countdown=3,
                                                max_retries=None)
 
 @shared_task()
-def save_answer_task(content="", current_pleb="", question_uuid=None,
-                     to_pleb=""):
+def save_answer_task(current_pleb, question_uuid, content):
     '''
     This task is spawned when a user submits an answer to question. It then
     calls the save_answer_util to create the answer and handle creating
@@ -55,16 +58,12 @@ def save_answer_task(content="", current_pleb="", question_uuid=None,
     :param content:
     :param current_pleb:
     :param question_uuid:
-    :param to_pleb:
     :return:
     '''
-    if question_uuid is None:
-        return False
     try:
-        res = save_answer_util(content=content, answer_uuid=str(uuid1()),
-                               question_uuid=question_uuid,
+        res = save_answer_util(content=content, question_uuid=question_uuid,
                                current_pleb=current_pleb)
-        if res:
+        if res is True:
             task_data = {'answer': res}
             return spawn_task(task_func=add_answer_to_search_index,
                               task_param=task_data)
@@ -74,14 +73,14 @@ def save_answer_task(content="", current_pleb="", question_uuid=None,
         return res
 
     except Exception as e:
-        logger.exception({"function": save_answer_task.__name__,
-                          "exception": "UnhandledException"})
+        logger.exception(dumps({"function": save_answer_task.__name__,
+                                "exception": "Unhandled Exception"}))
         raise save_answer_task.retry(exc=e, countdown=5,
                                      max_retries=None)
 
+
 @shared_task()
-def edit_answer_task(content="", answer_uuid="", last_edited_on=None,
-                     current_pleb=""):
+def edit_answer_task(content, answer_uuid, last_edited_on, current_pleb):
     '''
     This task is spawned when a user attempts to edit an answer. It calls
     the edit_answer util to edit the answer and the return is based upon
@@ -93,37 +92,30 @@ def edit_answer_task(content="", answer_uuid="", last_edited_on=None,
     :param current_pleb:
     :return:
     '''
+    # TODO should we notify users if things they've commented on or voted on
+    # have been edited? So if the author edits their answer, notify anyone
+    # related such as commenters that the question they commented on has
+    # been changed or updated.
     try:
         try:
             Pleb.nodes.get(email=current_pleb)
         except (Pleb.DoesNotExist, DoesNotExist):
             return False
-
         try:
             SBAnswer.nodes.get(sb_id=answer_uuid)
-        except (SBAnswer.DoesNotExist, DoesNotExist):
-            return False
+        except (SBAnswer.DoesNotExist, DoesNotExist) as e:
+            raise edit_answer_task.retry(exc=e, countdown=3, max_retries=None)
 
         edit_response = edit_answer_util(content=content,
                                          answer_uuid=answer_uuid,
-                                         current_pleb=current_pleb,
                                          last_edited_on=last_edited_on)
-        if edit_response is True:
-            return True
-        if edit_response['detail'] == 'to be deleted':
-            return False
-        elif edit_response['detail'] == 'same content':
-            return False
-        elif edit_response['detail'] == 'same timestamp':
-            return False
-        elif edit_response['detail'] == 'last edit more recent':
-            return False
-        elif isinstance(edit_response, Exception) is True:
+        if isinstance(edit_response, Exception) is True:
             raise edit_answer_task.retry(exc=edit_response, countdown=3,
                                          max_retries=None)
+        else:
+            return edit_response
 
     except Exception as e:
-        logger.exception({"function": edit_answer_task.__name__,
-                          "exception": "UnhandledException"})
-        raise edit_answer_task.retry(exc=e, countdown=3,
-                                     max_retries=None)
+        logger.exception(dumps({"function": edit_answer_task.__name__,
+                                "exception": "Unhandled Exception"}))
+        raise edit_answer_task.retry(exc=e, countdown=3, max_retries=None)

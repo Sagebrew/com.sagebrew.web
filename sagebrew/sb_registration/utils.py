@@ -203,6 +203,7 @@ def upload_image(folder_name, file_uuid):
     os.remove(file_path)
     return image_uri
 
+
 def generate_profile_pic_url(image_uuid):
     bucket = settings.AWS_STORAGE_BUCKET_NAME
     conn = connect_s3(settings.AWS_ACCESS_KEY_ID,
@@ -315,14 +316,13 @@ def verify_verified_email(user):
         return False
 
 
-def sb_send_email(to_email, subject, text_content, html_content):
+def sb_send_email(to_email, subject, html_content):
     '''
     This function is used to send mail through the amazon ses service,
     we can use this for any emails we send just specify html content
 
     :param to_email:
     :param subject:
-    :param text_content:
     :param html_content:
     :return:
     '''
@@ -330,27 +330,24 @@ def sb_send_email(to_email, subject, text_content, html_content):
         conn = boto.ses.connect_to_region(
             'us-east-1',
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
         )
 
-        conn.send_email(source='devon@sagebrew.com',
-                        subject=subject,
-                        body=html_content,
-                        to_addresses=[to_email],
+        conn.send_email(source='devon@sagebrew.com', subject=subject,
+                        body=html_content, to_addresses=[to_email],
                         format='html')
         return True
     except SESMaxSendingRateExceededError as e:
         return e
     except Exception as e:
         logger.exception(json.dumps({"function": sb_send_email.__name__,
-                                     "exception": "UnhandledException: "}))
+                                     "exception": "Unhandled Exception"}))
         return e
 
 
-def create_user_util(first_name, last_name, email, password,
-                     username=""):
+def create_user_util(first_name, last_name, email, password, username=None):
     try:
-        if username == "":
+        if username is None:
             username = shortuuid.uuid()
         user = User.objects.create_user(first_name=first_name,
                                         last_name=last_name,
@@ -366,7 +363,9 @@ def create_user_util(first_name, last_name, email, password,
             logger.critical(json.dumps({"function": create_user_util.__name__,
                           "exception": "res is None"}))
             return False
-    except Exception:
+    except Exception as e:
         logger.exception(json.dumps({"function": create_user_util.__name__,
-                          "exception": "UnhandledException: "}))
+                                     "exception": "Unhandled Exception"}))
+        # TODO should this return the exception? Think most things rely on it
+        # being False if something goes wrong.
         return False

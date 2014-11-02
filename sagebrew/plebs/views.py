@@ -90,7 +90,7 @@ def get_user_search_view(request, pleb_email=""):
         return Response({'html': response}, status=200)
     except Exception:
         logger.exception(dumps({"function": get_user_search_view.__name__,
-                                "exception": "UnhandledException: "}))
+                                "exception": "Unhandled Exception"}))
         return Response({'html': []}, status=400)
 
 

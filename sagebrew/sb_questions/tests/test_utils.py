@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
+from neomodel.exception import DoesNotExist
 
 from api.utils import test_wait_util
 from sb_answers.neo_models import SBAnswer
@@ -442,7 +443,7 @@ class TestFlagQuestionUtil(TestCase):
         res = flag_question_util(question.sb_id, str(uuid1()),
                                  'unsupported')
 
-        self.assertIsNone(res)
+        self.assertTrue(isinstance(res, DoesNotExist))
 
 
 class TestPrepareQuestionSearchHTML(TestCase):

@@ -4,8 +4,7 @@ from django.test import TestCase
 
 from api.utils import test_wait_util
 from sb_questions.neo_models import SBQuestion
-from sb_tag.utils import (add_tag_util, add_auto_tags_util,
-                          create_tag_relations)
+from sb_tag.utils import (add_tag_util, add_auto_tags_util)
 from sb_tag.neo_models import SBAutoTag
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util

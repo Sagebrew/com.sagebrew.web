@@ -221,8 +221,7 @@ def vote_question_task(question_uuid="", current_pleb="", vote_type=""):
         try:
             my_question = SBQuestion.nodes.get(sb_id=question_uuid)
         except (SBQuestion.DoesNotExist, DoesNotExist) as e:
-            raise vote_question_task.retry(exc=e, countdown=3,
-                                           max_retries=None)
+            raise vote_question_task.retry(exc=e, countdown=3, max_retries=None)
         if my_question.up_voted_by.is_connected(
                 my_pleb) or my_question.down_voted_by.is_connected(my_pleb):
             return False

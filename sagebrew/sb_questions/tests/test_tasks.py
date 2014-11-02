@@ -5,6 +5,7 @@ from datetime import datetime
 from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
+from celery.utils.serialization import UnpickleableExceptionWrapper
 from neomodel.exception import DoesNotExist
 
 from api.utils import test_wait_util

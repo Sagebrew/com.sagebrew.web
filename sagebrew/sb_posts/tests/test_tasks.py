@@ -107,6 +107,7 @@ class TestEditPostTask(TestCase):
         while not edit_response.ready():
             time.sleep(1)
         edit_response = edit_response.result
+        print edit_response
         self.assertTrue(isinstance(edit_response, DoesNotExist))
 
     def test_edit_post_task_failure_content_is_the_same(self):
@@ -440,6 +441,7 @@ class TestFlagPostTask(TestCase):
         while not res.ready():
             time.sleep(1)
         res = res.result
+        print res
         self.assertTrue(isinstance(res, Exception))
 
     def test_flag_post_task_post_does_not_exist(self):
@@ -450,6 +452,7 @@ class TestFlagPostTask(TestCase):
         while not res.ready():
             time.sleep(1)
         res = res.result
+        print res
         self.assertTrue(isinstance(res, Exception))
 
     def test_flag_post_task_user_does_not_exist(self):
@@ -462,4 +465,5 @@ class TestFlagPostTask(TestCase):
         while not res.ready():
             time.sleep(1)
         res = res.result
+        print res
         self.assertTrue(isinstance(res, Exception))

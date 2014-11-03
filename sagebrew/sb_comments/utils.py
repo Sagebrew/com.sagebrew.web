@@ -120,9 +120,10 @@ def edit_comment_util(comment_uuid, last_edited_on, content):
             my_comment = SBComment.nodes.get(sb_id=comment_uuid)
         except (SBComment.DoesNotExist, DoesNotExist) as e:
             return e
-        logger.critical(dumps({"last_edited_on_type": type(last_edited_on),
-                               "mycomment_last_type":
-                                   type(my_comment.last_edited_on)}))
+        print type(last_edited_on)
+        print type(my_comment.last_edited_on)
+        print last_edited_on
+        print my_comment.last_edited_on
         if my_comment.last_edited_on >= last_edited_on:
             return False
         if my_comment.content == content:

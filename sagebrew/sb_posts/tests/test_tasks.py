@@ -120,7 +120,7 @@ class TestEditPostTask(TestCase):
         while not edit_response.ready():
             time.sleep(1)
         edit_response = edit_response.result
-        self.assertIsInstance(edit_response, UnpickleableExceptionWrapper)
+        self.assertFalse(edit_response)
 
     def test_edit_post_task_failure_to_be_deleted(self):
         post = SBPost(sb_id=uuid1(), content="test post")
@@ -134,7 +134,7 @@ class TestEditPostTask(TestCase):
         while not edit_response.ready():
             time.sleep(1)
         edit_response = edit_response.result
-        self.assertIsInstance(edit_response, UnpickleableExceptionWrapper)
+        self.assertFalse(edit_response)
 
     def test_edit_post_task_failure_same_timestamp(self):
         now = datetime.now(pytz.utc)
@@ -149,7 +149,7 @@ class TestEditPostTask(TestCase):
         while not edit_response.ready():
             time.sleep(1)
         edit_response = edit_response.result
-        self.assertIsInstance(edit_response, UnpickleableExceptionWrapper)
+        self.assertFalse(edit_response)
 
     def test_edit_post_task_failure_last_edit_more_recent(self):
         now = datetime.now(pytz.utc)
@@ -164,7 +164,7 @@ class TestEditPostTask(TestCase):
         while not edit_response.ready():
             time.sleep(1)
         edit_response = edit_response.result
-        self.assertIsInstance(edit_response, UnpickleableExceptionWrapper)
+        self.assertFalse(edit_response)
 
 
 class TestPostTaskRaceConditions(TestCase):

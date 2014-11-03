@@ -147,4 +147,4 @@ class TestCreateAutoTagRelationships(TestCase):
         while not res.ready():
             time.sleep(1)
         res = res.result
-        self.assertFalse(res)
+        self.assertIsInstance(res, TypeError)

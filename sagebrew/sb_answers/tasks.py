@@ -7,7 +7,7 @@ from neomodel import DoesNotExist, CypherException
 from api.utils import spawn_task
 from api.tasks import add_object_to_search_index
 from .neo_models import SBAnswer
-from plebs.neo_models import Pleb
+
 from .utils import (save_answer_util, edit_answer_util)
 
 logger = logging.getLogger('loggly_logs')
@@ -80,7 +80,7 @@ def save_answer_task(current_pleb, question_uuid, content):
 
 
 @shared_task()
-def edit_answer_task(content, answer_uuid, last_edited_on, current_pleb):
+def edit_answer_task(content, answer_uuid, last_edited_on):
     '''
     This task is spawned when a user attempts to edit an answer. It calls
     the edit_answer util to edit the answer and the return is based upon
@@ -89,7 +89,6 @@ def edit_answer_task(content, answer_uuid, last_edited_on, current_pleb):
     :param content:
     :param answer_uuid:
     :param last_edited_on:
-    :param current_pleb:
     :return:
     '''
     # TODO should we notify users if things they've commented on or voted on
@@ -97,10 +96,6 @@ def edit_answer_task(content, answer_uuid, last_edited_on, current_pleb):
     # related such as commenters that the question they commented on has
     # been changed or updated.
     try:
-        try:
-            Pleb.nodes.get(email=current_pleb)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return False
         try:
             SBAnswer.nodes.get(sb_id=answer_uuid)
         except (SBAnswer.DoesNotExist, DoesNotExist) as e:

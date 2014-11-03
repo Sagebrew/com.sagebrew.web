@@ -1,6 +1,7 @@
 from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
+from neomodel.exception import DoesNotExist
 
 from api.utils import test_wait_util
 from plebs.neo_models import Pleb
@@ -52,5 +53,5 @@ class TestCreateFriendRequestUtil(TestCase):
                 'friend_request_uuid': str(uuid1())}
         res = create_friend_request_util(data)
 
-        self.assertEqual(res, None)
+        self.assertIsInstance(res, DoesNotExist)
 

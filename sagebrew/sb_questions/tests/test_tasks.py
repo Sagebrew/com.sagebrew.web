@@ -49,7 +49,7 @@ class TestSaveQuestionTask(TestCase):
             time.sleep(3)
 
         result = response.result
-        self.assertTrue(isinstance(result, Exception))
+        self.assertIsInstance(result, Exception)
 
     def test_save_question_task_question_exists(self):
         question = SBQuestion(sb_id=str(uuid1()))
@@ -105,7 +105,8 @@ class TestEditQuestionTask(TestCase):
         task_data = {
             'content': 'edit',
             'question_uuid': question.sb_id,
-            'current_pleb': str(uuid1())
+            'current_pleb': str(uuid1()),
+            'last_edited_on': datetime.now(pytz.utc)
         }
 
         res = edit_question_task.apply_async(kwargs=task_data)
@@ -119,7 +120,8 @@ class TestEditQuestionTask(TestCase):
         task_data = {
             'content': 'edit',
             'question_uuid': str(uuid1()),
-            'current_pleb': self.user.email
+            'current_pleb': self.user.email,
+            'last_edited_on': datetime.now(pytz.utc)
         }
 
         res = edit_question_task.apply_async(kwargs=task_data)
@@ -127,7 +129,7 @@ class TestEditQuestionTask(TestCase):
             time.sleep(1)
         res = res.result
 
-        self.assertTrue(isinstance(res, DoesNotExist))
+        self.assertIsInstance(res, DoesNotExist)
 
     def test_edit_question_task_failure_to_be_deleted(self):
         question = SBQuestion(sb_id=str(uuid1()))
@@ -137,7 +139,8 @@ class TestEditQuestionTask(TestCase):
         task_data = {
             'content': 'edit',
             'question_uuid': question.sb_id,
-            'current_pleb': self.user.email
+            'current_pleb': self.user.email,
+            'last_edited_on': datetime.now(pytz.utc)
         }
 
         res = edit_question_task.apply_async(kwargs=task_data)
@@ -154,7 +157,8 @@ class TestEditQuestionTask(TestCase):
         task_data = {
             'content': 'edit',
             'question_uuid': question.sb_id,
-            'current_pleb': self.user.email
+            'current_pleb': self.user.email,
+            'last_edited_on': datetime.now(pytz.utc)
         }
 
         res = edit_question_task.apply_async(kwargs=task_data)
@@ -272,7 +276,7 @@ class TestMultipleTasks(TestCase):
         post_info_dict = {'current_pleb': self.pleb.email,
                           'question_title': 'Question Title',
                           'content': 'test question',
-                          'question_uuid': question.sb_id}
+                          'question_uuid': question.sb_id,}
         response2 = create_question_task.apply_async(kwargs=post_info_dict)
         while not response2.ready():
             time.sleep(1)

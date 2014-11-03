@@ -1,4 +1,3 @@
-import time
 import pytz
 import logging
 from datetime import datetime, timedelta
@@ -8,7 +7,6 @@ from django.contrib.auth.models import User
 
 from api.utils import test_wait_util
 from sb_posts.utils import save_post, edit_post_info, delete_post_info
-from sb_posts.tasks import save_post_task
 from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util
@@ -34,6 +32,8 @@ class TestSavePost(TestCase):
 
 
     def test_post_already_exists(self):
+        # TODO changed the response for an already existing post to True
+        # Does this screw any other functionality?
         post_info_dict = {'current_pleb': self.pleb.email,
                           'wall_pleb': self.pleb.email,
                           'content': 'test post',
@@ -45,7 +45,7 @@ class TestSavePost(TestCase):
                          content='test post',
                          current_pleb=self.pleb.email,
                          wall_pleb=self.pleb.email)
-        self.assertFalse(post)
+        self.assertTrue(post)
 
     def test_edit_post(self):
         uuid = str(uuid1())
@@ -55,7 +55,7 @@ class TestSavePost(TestCase):
                            wall_pleb=self.pleb.email)
         test_post.save()
         edited_post = edit_post_info(content='post edited', post_uuid=uuid,
-                                     current_pleb=self.pleb.email)
+                                     last_edited_on=datetime.now(pytz.utc))
 
         self.assertEqual(test_post.sb_id, uuid)
         self.assertTrue(edited_post)
@@ -82,7 +82,7 @@ class TestSavePost(TestCase):
 
         edited_post = edit_post_info(content='post edited',
                                      post_uuid=uuid,
-                                     current_pleb=self.pleb.email)
+                                     last_edited_on=datetime.now(pytz.utc))
 
         self.assertEqual(edited_post['detail'], 'to be deleted')
 
@@ -94,7 +94,7 @@ class TestSavePost(TestCase):
         test_post.save()
 
         edited_post = edit_post_info(content='test', post_uuid=uuid,
-                                     current_pleb=self.pleb.email)
+                                     last_edited_on=datetime.now(pytz.utc))
 
         self.assertEqual(edited_post['detail'], 'content is the same')
 
@@ -107,8 +107,7 @@ class TestSavePost(TestCase):
                            last_edited_on=edit_time)
         test_post.save()
         edited_post = edit_post_info(content='post edited', post_uuid=uuid,
-                                     last_edited_on=edit_time,
-                                     current_pleb=self.pleb.email)
+                                     last_edited_on=edit_time)
 
         self.assertEqual(edited_post['detail'], 'time stamp is the same')
 
@@ -124,7 +123,6 @@ class TestSavePost(TestCase):
 
         edited_post = edit_post_info(content='post edited',
                                      post_uuid=uuid,
-                                     last_edited_on=datetime.now(pytz.utc),
-                                     current_pleb=self.pleb.email)
+                                     last_edited_on=datetime.now(pytz.utc))
 
         self.assertEqual(edited_post['detail'], 'last edit more recent')

@@ -1,7 +1,7 @@
 from uuid import uuid1
 from django.contrib.auth.models import User
 from django.test import TestCase
-
+from neomodel.exception import DoesNotExist
 from api.utils import test_wait_util
 from sb_questions.neo_models import SBQuestion
 from sb_tag.utils import (add_tag_util, add_auto_tags_util)
@@ -35,7 +35,7 @@ class TestCreateTagUtil(TestCase):
                            object_uuid=uuid1(),
                            tags=tags)
 
-        self.assertFalse(res)
+        self.assertIsInstance(res, SBQuestion.DoesNotExist)
 
     def test_create_tag_util_invalid_object(self):
         question = SBQuestion(sb_id=uuid1())
@@ -100,7 +100,7 @@ class TestCreateAutoTagUtil(TestCase):
 
         res = add_auto_tags_util(util_dict)
 
-        self.assertFalse(res)
+        self.assertIsInstance(res, DoesNotExist)
 
     def test_create_auto_tag_util_invalid_object(self):
         question = SBQuestion(sb_id=uuid1())

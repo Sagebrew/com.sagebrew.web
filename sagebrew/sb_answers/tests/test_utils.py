@@ -45,14 +45,15 @@ class TestCreateAnswerUtil(TestCase):
         self.answer_info_dict['question_uuid'] = question.sb_id
         self.answer_info_dict['content'] = ''
         response = save_answer_util(**self.answer_info_dict)
-
-        self.assertFalse(response)
+        # TODO is this test need anymore? The forms should verify that ''
+        # is never passed as a valid content string.
+        self.assertIsInstance(response, IndexError)
 
     def test_save_answer_util_question_does_not_exist(self):
         self.answer_info_dict['question_uuid'] = '246646156156615'
         response = save_answer_util(**self.answer_info_dict)
 
-        self.assertTrue(isinstance(response, DoesNotExist))
+        self.assertIsInstance(response, DoesNotExist)
 
     def test_save_answer_util_pleb_does_not_exist(self):
         self.question_info_dict['sb_id']=str(uuid1())
@@ -97,10 +98,9 @@ class TestEditAnswerUtil(TestCase):
         answer.to_be_deleted = True
         answer.save()
 
-        edit_answer_dict = {'current_pleb': self.question_info_dict['current_pleb'],
-                              'content': 'edit content',
-                              'last_edited_on': datetime.now(pytz.utc),
-                              'answer_uuid': answer.sb_id}
+        edit_answer_dict = {'content': 'edit content',
+                            'last_edited_on': datetime.now(pytz.utc),
+                            'answer_uuid': answer.sb_id}
         edit_response = edit_answer_util(**edit_answer_dict)
 
         self.assertEqual(edit_response['detail'], 'to be deleted')
@@ -109,11 +109,9 @@ class TestEditAnswerUtil(TestCase):
         answer = SBAnswer(content="test answer", sb_id=str(uuid1()))
         answer.save()
 
-        edit_answer_dict = {'current_pleb': self.question_info_dict['current_pleb'],
-                              'content': 'test answer',
-                              'last_edited_on': datetime.now(
-                                  pytz.utc),
-                              'answer_uuid': answer.sb_id}
+        edit_answer_dict = {'content': 'test answer',
+                            'last_edited_on': datetime.now(pytz.utc),
+                            'answer_uuid': answer.sb_id}
         edit_response = edit_answer_util(**edit_answer_dict)
 
         self.assertEqual(edit_response['detail'], 'same content')
@@ -124,10 +122,9 @@ class TestEditAnswerUtil(TestCase):
         response.last_edited_on = now
         response.save()
 
-        edit_answer_dict = {'current_pleb': self.question_info_dict['current_pleb'],
-                              'content': 'test  question',
-                              'last_edited_on': now,
-                              'answer_uuid': response.sb_id}
+        edit_answer_dict = {'content': 'test  question',
+                            'last_edited_on': now,
+                            'answer_uuid': response.sb_id}
         edit_response = edit_answer_util(**edit_answer_dict)
 
         self.assertEqual(edit_response['detail'], 'same timestamp')
@@ -140,19 +137,17 @@ class TestEditAnswerUtil(TestCase):
         response.last_edited_on = future_edit
         response.save()
 
-        edit_answer_dict = {'current_pleb': self.question_info_dict['current_pleb'],
-                              'content': 'test     question',
-                              'last_edited_on': now,
-                              'answer_uuid': response.sb_id}
+        edit_answer_dict = {'content': 'test question',
+                            'last_edited_on': now,
+                            'answer_uuid': response.sb_id}
         edit_response = edit_answer_util(**edit_answer_dict)
 
         self.assertEqual(edit_response['detail'], 'last edit more recent')
 
     def test_edit_answer_util_question_does_not_exist(self):
-        edit_answer_dict = {'current_pleb': self.question_info_dict['current_pleb'],
-                              'content': 'test question',
-                              'last_edited_on': datetime.now(pytz.utc),
-                              'answer_uuid': str(uuid1())}
+        edit_answer_dict = {'content': 'test question',
+                            'last_edited_on': datetime.now(pytz.utc),
+                            'answer_uuid': str(uuid1())}
         edit_response = edit_answer_util(**edit_answer_dict)
 
         self.assertFalse(edit_response)

@@ -5,7 +5,6 @@ from neomodel import DoesNotExist, CypherException
 
 from api.utils import spawn_task, create_auto_tags
 from api.tasks import add_object_to_search_index
-from plebs.neo_models import Pleb
 
 from sb_tag.tasks import add_auto_tags, add_tags
 from .neo_models import SBQuestion
@@ -112,7 +111,7 @@ def add_tags_to_question_task(question, tags):
 
 @shared_task()
 def create_question_task(content, current_pleb, question_title,
-                         tags, question_uuid=None):
+                         tags=None, question_uuid=None):
     '''
     This task calls the util to create a question, if the util fails the
     task respawns itself.
@@ -181,10 +180,6 @@ def edit_question_task(question_uuid, content, current_pleb, last_edited_on):
     # shoots off notifications or w/e is needed and then it can be overwritten
     # by the other children classes
     try:
-        try:
-            Pleb.nodes.get(email=current_pleb)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return False
         try:
             SBQuestion.nodes.get(sb_id=question_uuid)
         except (SBQuestion.DoesNotExist, DoesNotExist) as e:

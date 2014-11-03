@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
+from neomodel.exception import DoesNotExist
 
 from api.utils import test_wait_util
 from sb_answers.neo_models import SBAnswer
@@ -33,23 +34,11 @@ class TestCreateQuestion(TestCase):
 
         self.assertIsNotNone(response)
 
-    def test_save_question_util_empty_content(self):
-        self.question_info_dict['content'] = ''
-        response = create_question_util(**self.question_info_dict)
-
-        self.assertIsNone(response)
-
-    def test_save_question_util_empty_title(self):
-        self.question_info_dict['question_title'] = ''
-        response = create_question_util(**self.question_info_dict)
-
-        self.assertIsNone(response)
-
     def test_save_question_util_pleb_does_not_exist(self):
         self.question_info_dict['current_pleb'] = 'adsfasdfasdfasdf@gmail.com'
         response = create_question_util(**self.question_info_dict)
 
-        self.assertIsNone(response)
+        self.assertFalse(response)
 
 
 class TestPrepareQuestionDictUtil(TestCase):
@@ -217,7 +206,7 @@ class TestEditQuestionUtils(TestCase):
                               'question_uuid': question.sb_id}
         edit_response = edit_question_util(**edit_question_dict)
 
-        self.assertEqual(edit_response['detail'], 'to be deleted')
+        self.assertFalse(edit_response)
 
     def test_edit_question_util_same_content(self):
         self.question_info_dict['sb_id']=str(uuid1())
@@ -230,7 +219,7 @@ class TestEditQuestionUtils(TestCase):
                               'question_uuid': question.sb_id}
         edit_response = edit_question_util(**edit_question_dict)
 
-        self.assertEqual(edit_response['detail'], 'same content')
+        self.assertFalse(edit_response)
 
     def test_edit_question_util_same_timestamp(self):
         now = datetime.now(pytz.utc)
@@ -247,7 +236,7 @@ class TestEditQuestionUtils(TestCase):
                               'question_uuid': question.sb_id}
         edit_response = edit_question_util(**edit_question_dict)
 
-        self.assertEqual(edit_response['detail'], 'same timestamp')
+        self.assertFalse(edit_response)
 
     def test_edit_question_util_more_recent_edit(self):
         now = datetime.now(pytz.utc)
@@ -266,7 +255,7 @@ class TestEditQuestionUtils(TestCase):
                               'question_uuid': question.sb_id}
         edit_response = edit_question_util(**edit_question_dict)
 
-        self.assertEqual(edit_response['detail'], 'last edit more recent')
+        self.assertFalse(edit_response)
 
     def test_edit_question_util_question_does_not_exist(self):
         edit_question_dict = {'current_pleb': self.question_info_dict['current_pleb'],
@@ -275,7 +264,7 @@ class TestEditQuestionUtils(TestCase):
                               'question_uuid': self.question_info_dict['question_uuid']}
         edit_response = edit_question_util(**edit_question_dict)
 
-        self.assertFalse(edit_response)
+        self.assertIsInstance(edit_response, DoesNotExist)
 
 
 class TestPrepareQuestionSearchHTML(TestCase):

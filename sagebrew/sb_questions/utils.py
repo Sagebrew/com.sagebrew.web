@@ -266,7 +266,7 @@ def edit_question_util(question_uuid,  last_edited_on, content, current_pleb):
             question_title=my_question.question_title)
         my_question.edits.connect(edit_question)
         edit_question.edit_to.connect(my_question)
-        my_question.last_edited_on = edit_question.date_created
+        my_question.last_edited_on = last_edited_on
         my_question.save()
         return True
     except CypherException as e:

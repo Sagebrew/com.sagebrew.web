@@ -173,5 +173,5 @@ def respond_friend_request(request):
 
     except Exception:
         logger.exception(dumps({"function": respond_friend_request.__name__,
-                                "exception": Exception}))
+                                "exception": "Unhandled Exception"}))
         return Response(status=400)

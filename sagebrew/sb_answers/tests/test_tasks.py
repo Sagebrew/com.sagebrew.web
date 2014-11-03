@@ -58,7 +58,7 @@ class TestSaveAnswerTask(TestCase):
         while not save_response.ready():
             time.sleep(1)
         save_response = save_response.result
-        self.assertTrue(isinstance(save_response, Exception))
+        self.assertIsInstance(save_response, Exception)
 
 
 class TestEditAnswerTask(TestCase):
@@ -100,26 +100,6 @@ class TestEditAnswerTask(TestCase):
         edit_response = edit_response.result
 
         self.assertTrue(edit_response)
-
-    def test_edit_answer_task_missing_data(self):
-        self.question_info_dict['sb_id']=str(uuid1())
-        question = SBQuestion(**self.question_info_dict)
-        question.save()
-        question.owned_by.connect(self.pleb)
-        self.answer_info_dict['question_uuid'] = question.sb_id
-        self.answer_info_dict.pop('to_pleb', None)
-        self.answer_info_dict['answer_uuid'] = str(uuid1())
-        save_ans_response = save_answer_util(**self.answer_info_dict)
-        edit_dict = {'content': "this is a test edit",
-                     'current_pleb': self.user.email,
-                     'last_edited_on': datetime.now(pytz.utc)}
-
-        edit_response = edit_answer_task.apply_async(kwargs=edit_dict)
-        while not edit_response.ready():
-            time.sleep(1)
-        edit_response = edit_response.result
-
-        self.assertFalse(edit_response)
 
     def test_edit_answer_task_failure_pleb_does_not_exist(self):
         self.question_info_dict['sb_id']=str(uuid1())

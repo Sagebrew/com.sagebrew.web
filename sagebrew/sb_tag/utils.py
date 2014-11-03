@@ -122,8 +122,8 @@ def add_tag_util(object_type, object_uuid, tags):
         try:
             try:
                 question = SBQuestion.nodes.get(sb_id=object_uuid)
-            except (SBQuestion.DoesNotExist, DoesNotExist):
-                return SBQuestion.DoesNotExist
+            except (SBQuestion.DoesNotExist, DoesNotExist) as e:
+                return e
             for tag in tag_array:
                 question.tags.connect(tag)
                 tag.questions.connect(question)

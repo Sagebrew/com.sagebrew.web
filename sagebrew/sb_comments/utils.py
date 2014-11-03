@@ -118,7 +118,7 @@ def edit_comment_util(comment_uuid, content, last_edited_on):
     try:
         try:
             my_comment = SBComment.nodes.get(sb_id=comment_uuid)
-        except (SBComment.DoesNotExist, DoesNotExist) as e:
+        except(SBComment.DoesNotExist) as e:
             return e
         if my_comment.last_edited_on >= last_edited_on:
             return False

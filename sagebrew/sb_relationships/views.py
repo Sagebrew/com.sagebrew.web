@@ -1,4 +1,5 @@
 import logging
+from json import dumps
 from uuid import uuid1
 from urllib2 import HTTPError
 from requests import ConnectionError
@@ -16,6 +17,7 @@ from .tasks import create_friend_request_task
 from plebs.neo_models import Pleb
 
 logger = logging.getLogger('loggly_logs')
+
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
@@ -57,8 +59,8 @@ def create_friend_request(request):
     except(HTTPError, ConnectionError):
         return Response({"action": False}, status=408)
     except Exception:
-        logger.exception({"function": create_friend_request.__name__,
-                          "exception": "UnhandledException: "})
+        logger.exception(dumps({"function": create_friend_request.__name__,
+                                "exception": "Unhandled Exception"}))
         return Response(status=400)
 
 
@@ -108,8 +110,8 @@ def get_friend_requests(request):
             return Response({"detail": "invalid form"}, status=400)
 
     except Exception:
-        logger.exception({"function": get_friend_requests.__name__,
-                          "exception": "UnhandledException: "})
+        logger.exception(dumps({"function": get_friend_requests.__name__,
+                                "exception": "Unhandled Exception"}))
         return Response(status=400)
 
 
@@ -170,6 +172,6 @@ def respond_friend_request(request):
         return Response(status=400)
 
     except Exception:
-        logger.exception({"function": respond_friend_request.__name__,
-                          "exception": Exception})
+        logger.exception(dumps({"function": respond_friend_request.__name__,
+                                "exception": "Unhandled Exception"}))
         return Response(status=400)

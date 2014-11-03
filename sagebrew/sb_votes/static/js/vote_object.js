@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    $("a.flag_object-action").click(function (event) {
+    $("a.vote_object-action").click(function (event) {
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -9,9 +9,9 @@ $(document).ready(function () {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
-            url: "/flag/flag_object_api/",
+            url: "/vote/vote_object_api/",
             data: JSON.stringify({
-                'flag_reason': $(this).data('flag_reason'),
+                'vote_type': $(this).data('vote_type'),
                 'current_pleb': $(this).data('current_user'),
                 'object_uuid': $(this).data('object_uuid'),
                 'object_type': $(this).data('object_type')

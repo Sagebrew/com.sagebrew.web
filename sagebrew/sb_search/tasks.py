@@ -1,7 +1,6 @@
 import pytz
 import logging
 from json import dumps
-from uuid import uuid1
 from datetime import datetime
 from django.conf import settings
 
@@ -10,19 +9,18 @@ from neomodel import DoesNotExist, CypherException
 from elasticsearch import Elasticsearch
 
 from .neo_models import SearchQuery, KeyWord
-from .utils import (update_search_index_doc_script, update_search_index_doc,
-                    update_weight_relationship_values)
+from .utils import (update_search_index_doc, update_weight_relationship_values)
 from api.utils import spawn_task
 from plebs.neo_models import Pleb
-from sb_posts.neo_models import SBPost
 from sb_answers.neo_models import SBAnswer
 from sb_questions.neo_models import SBQuestion
 
 logger = logging.getLogger('loggly_logs')
 
+
 @shared_task()
-def update_weight_relationship(document_id, index, object_type="", object_uuid=str(uuid1()),
-                               current_pleb="", modifier_type=""):
+def update_weight_relationship(document_id, index, object_type,
+                               object_uuid, current_pleb, modifier_type):
     '''
     This task handles creating and updating the weight relationship between
     users and: other users, questions, answers and posts. These relationships
@@ -37,6 +35,8 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
     :param modifier_type:
     :return:
     '''
+    # TODO update with dynamic object recognition
+
     update_dict = {
         "document_id" : document_id, "index": index, "field": "sb_score",
         "document_type" : object_type, "update_value": 0
@@ -112,17 +112,19 @@ def update_weight_relationship(document_id, index, object_type="", object_uuid=s
                 update_search_index_doc(**update_dict)
             return True
     except TypeError:
+        # TODO what is this portion used for?
         return False
-    except SBQuestion.DoesNotExist:
-        raise update_weight_relationship.retry(exc=SBQuestion.DoesNotExist,
+    except SBQuestion.DoesNotExist as e:
+        raise update_weight_relationship.retry(exc=e,
                                                countdown=3, max_retries=None)
-    except CypherException:
-        raise update_weight_relationship.retry(exc=CypherException, countdown=3,
+    except CypherException as e:
+        raise update_weight_relationship.retry(exc=e, countdown=3,
                                                max_retries=None)
-    except Exception:
-        logger.exception({"exception": "Unhandled Exception", "function":
-            update_weight_relationship.__name__})
-        raise update_weight_relationship.retry(exc=Exception, countdown=3,
+    except Exception as e:
+        logger.exception(dumps(
+            {"exception": "Unhandled Exception",
+             "function": update_weight_relationship.__name__}))
+        raise update_weight_relationship.retry(exc=e, countdown=3,
                                                max_retries=None)
 
 
@@ -166,11 +168,11 @@ def add_user_to_custom_index(pleb, index="full-search-user-specific-1"):
         pleb.populated_personal_index = True
         pleb.save()
         return True
-    except Exception:
+    except Exception as e:
         logger.critical(dumps({"exception": "Unhandled Exception",
                                "function": add_user_to_custom_index.__name__}))
-        logger.exception("Unhandled Exception: ")
-        raise add_user_to_custom_index.retry(exc=Exception, countdown=3,
+        logger.exception("Unhandled Exception")
+        raise add_user_to_custom_index.retry(exc=e, countdown=3,
                                              max_retries=None)
 
 
@@ -193,10 +195,11 @@ def update_user_indices(doc_type, doc_id):
     for pleb in plebs.instance.all():
         #TODO update this to get index name from the users assigned index
         res['_source']['related_user'] = pleb.email
-        result = es.index(index='full-search-user-specific-1', doc_type=doc_type,
-                          body=res['_source'])
+        result = es.index(index='full-search-user-specific-1',
+                          doc_type=doc_type, body=res['_source'])
 
     return True
+
 
 @shared_task()
 def update_search_query(pleb, query_param, keywords):
@@ -236,18 +239,18 @@ def update_search_query(pleb, query_param, keywords):
             keyword['query_param'] = query_param
             spawn_task(task_func=create_keyword, task_param=keyword)
         return True
-    except Exception:
+    except Exception as e:
         logger.exception(dumps({"function": update_search_query.__name__,
-                                "exception": "UnhandledException: "}))
-        raise update_search_query.retry(exc=Exception, countdown=3,
-                                        max_retries=None)
+                                "exception": "Unhandled Exception"}))
+        raise update_search_query.retry(exc=e, countdown=3, max_retries=None)
+
 
 @shared_task()
 def create_keyword(text, relevance, query_param):
     '''
     This function takes
 
-    :param keyword:
+    :param text:
     :param relevance:
     :param query_param:
     :return:
@@ -255,8 +258,8 @@ def create_keyword(text, relevance, query_param):
     try:
         try:
             search_query = SearchQuery.nodes.get(search_query=query_param)
-        except (SearchQuery.DoesNotExist, DoesNotExist):
-            raise Exception
+        except (SearchQuery.DoesNotExist, DoesNotExist) as e:
+            raise create_keyword.retry(exc=e, countdown=3, max_retries=None)
         try:
             keyword = KeyWord.nodes.get(keyword=text)
             rel = search_query.keywords.connect(keyword)
@@ -275,13 +278,11 @@ def create_keyword(text, relevance, query_param):
             search_query.save()
             keyword.save()
             return True
-    except CypherException:
-        raise create_keyword.retry(exc=Exception, countdown=3,
-                                   max_retries=None)
-    except Exception:
+    except CypherException as e:
+        raise create_keyword.retry(exc=e, countdown=3, max_retries=None)
+    except Exception as e:
         logger.exception(dumps({"function": create_keyword.__name__,
-                                "exception": "UnhandledException: "}))
-        raise create_keyword.retry(exc=Exception, countdown=3,
+                                "exception": "Unhandled Exception"}))
+        raise create_keyword.retry(exc=e, countdown=3,
                                    max_retries=None)
-
 

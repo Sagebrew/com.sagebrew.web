@@ -862,7 +862,7 @@ class TestCreateKeywordTask(TestCase):
         self.assertTrue(res)
 
     def test_create_keyword_task_failure_search_query_does_not_exist(self):
-        from sb_search.neo_models import SearchQuery, KeyWord
+        from sb_search.neo_models import KeyWord
         keyword = KeyWord(keyword="test")
         keyword.save()
 

@@ -1,7 +1,6 @@
 import pytz
 import logging
 from uuid import uuid1
-from json import dumps
 from datetime import datetime
 from urllib2 import HTTPError
 from requests import ConnectionError
@@ -13,10 +12,9 @@ from rest_framework.response import Response
 from api.utils import (post_to_garbage, spawn_task)
 from plebs.neo_models import Pleb
 from .neo_models import SBPost
-from .tasks import save_post_task, edit_post_info_task, flag_post_task
-from .utils import (get_pleb_posts, create_post_vote)
-from .forms import (SavePostForm, EditPostForm, DeletePostForm, VotePostForm,
-                    GetPostForm, FlagPostForm)
+from .tasks import save_post_task, edit_post_info_task
+from .utils import (get_pleb_posts)
+from .forms import (SavePostForm, EditPostForm, DeletePostForm, GetPostForm)
 
 logger = logging.getLogger('loggly_logs')
 
@@ -145,59 +143,3 @@ def delete_post(request):
             return Response({'detail': post_form.errors}, status=400)
     except SBPost.DoesNotExist:
         return Response({"detail": "Post could not be deleted!"}, status=400)
-
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def vote_post(request):
-    '''
-    Calls the util which determines what sort of vote will be created also
-    determines if the user is allowed to vote
-
-    :param request:
-    :return:
-    '''
-    try:
-        post_data = request.DATA
-        if type(post_data) != dict:
-            return Response({"details": "Please Provide a JSON Object"},
-                            status=400)
-        post_form = VotePostForm(post_data)
-        if post_form.is_valid():
-            create_post_vote(**post_form.cleaned_data)
-            return Response({"detail": "Vote Created!"}, status=200)
-        else:
-            return Response({'detail': post_form.errors}, status=400)
-    except Exception:
-        logger.exception(dumps({"function": vote_post.__name__,
-                                "exception": "UnhandledException: "}))
-        return Response({"detail": "Vote could not be created!"})
-
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def flag_post(request):
-    '''
-    Spawns the task which creates a flag on the post and increases its flag
-    count for the type of flag specified
-
-    :param request:
-    :return:
-    '''
-    try:
-        flag_data = request.DATA
-        if type(flag_data) != dict:
-            return Response({'detail': 'Please Provide a valid JSON Object'},
-                            status=400)
-        post_form = FlagPostForm(flag_data)
-        if post_form.is_valid():
-            spawn_task(task_func=flag_post_task, task_param=post_form.cleaned_data)
-            return Response(status=200)
-        else:
-            return Response({'detail': post_form.errors},
-                            status=400)
-
-    except Exception:
-        logger.exception(dumps({"function": flag_post.__name__,
-                                "exception": "UnhandledException: "}))
-        return Response(status=400)

@@ -72,7 +72,7 @@ STATICFILES_DIRS = (
     '%s/sb_search/static/' % PROJECT_DIR,
     '%s/sb_tag/static/' % PROJECT_DIR,
     '%s/sb_flags/static/' % PROJECT_DIR,
-    #'%s/sb_votes/static/' % PROJECT_DIR
+    '%s/sb_votes/static/' % PROJECT_DIR
 )
 
 # List of finder classes that know how to find static files in
@@ -254,6 +254,8 @@ OBJECT_RELATIONSHIP_BASE = {
     'seen': 20
 }
 
+
+# TODO revisit search modifiers
 OBJECT_SEARCH_MODIFIERS = {
     'post': 10, 'comment_on': 5, 'upvote': 3, 'downvote': -3,
     'time': -1, 'proximity_to_you': 10, 'proximity_to_interest': 10,
@@ -265,6 +267,14 @@ OBJECT_SEARCH_MODIFIERS = {
 BASE_TAGS = ["fiscal", "foreign_policy", "social", "education", "science",
              "environment", "drugs", "agriculture", "defense", "energy",
              "health", "space"]
+
+# TODO convert value displayed to user to UUIDs
+KNOWN_TYPES = [
+    ("sb_posts.neo_models.SBPost", "SBPost"),
+    ("sb_answers.neo_models.SBAnswer", "SBAnswer"),
+    ("sb_questions.neo_models.SBQuestion", "SBQuestion"),
+    ("sb_comments.neo_models.SBComment", "SBComment")
+]
 
 # TODO When doing load testing and beta testing ensure that LOGGING of DB is on
 # and at w/e level we need to check response times. We might be able to

@@ -1,7 +1,7 @@
 import pytz
 from uuid import uuid1
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,

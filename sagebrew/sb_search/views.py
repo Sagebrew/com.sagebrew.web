@@ -27,6 +27,7 @@ from sb_registration.utils import verify_completed_registration
 
 logger = logging.getLogger('loggly_logs')
 
+
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
@@ -42,8 +43,9 @@ def search_view(request):
     try:
         pleb = Pleb.nodes.get(email=request.user.email)
     except (Pleb.DoesNotExist, DoesNotExist):
-        redirect('404_error')
+        return redirect('404_error')
     return render(request, 'search_page.html', {"pleb_info": pleb})
+
 
 @login_required()
 @user_passes_test(verify_completed_registration,
@@ -73,6 +75,7 @@ def search_result_view(request, query_param, display_num=5, page=1,
                        'pleb_info': pleb}, status=200)
     else:
         return render(request, 'search_result.html', {'pleb_info': pleb},status=400)
+
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
@@ -182,7 +185,7 @@ def search_result_api(request, query_param="", display_num=10, page=1,
             return Response({'html': results, 'next': next_page_num}, status=200)
         except Exception:
             logger.exception(dumps({"function": search_result_api.__name__,
-                                "exception": "UnhandledException: "}))
+                                    "exception": "Unhandled Exception"}))
             return Response({'detail': 'fail'}, status=400)
     else:
         return Response({'detail': 'invalid form'}, status=400)

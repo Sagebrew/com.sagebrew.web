@@ -53,6 +53,6 @@ def create_notification_util(sb_object, from_pleb, to_plebs,
         return e
     except Exception as e:
         logger.exception(dumps({"function": create_notification_util.__name__,
-                                "exception": "UnhandledException"}))
+                                "exception": "Unhandled Exception"}))
         return e
 

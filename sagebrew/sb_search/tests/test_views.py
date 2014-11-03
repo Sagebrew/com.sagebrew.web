@@ -15,9 +15,10 @@ from elasticsearch import Elasticsearch
 
 from api.utils import test_wait_util
 from plebs.neo_models import Pleb
-from sb_search.views import search_result_api, search_result_view
+from sb_search.views import search_result_view
 from sb_questions.neo_models import SBQuestion
 from sb_registration.utils import create_user_util
+
 
 class TestSearchResultView(TestCase):
     def setUp(self):

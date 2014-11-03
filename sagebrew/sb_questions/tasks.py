@@ -97,7 +97,7 @@ def add_tags_to_question_task(question, tags):
             spawn_task(task_func=add_auto_tags, task_param=tag_list)
             question.tags_added = True
             question.save()
-            return spawn_task(task_func=add_tags_to_question_task,
+            return spawn_task(task_func=add_question_to_indices_task,
                               task_param={'question': question, 'tags': tags})
     except CypherException as e:
         raise add_tags_to_question_task.retry(exc=e, countdown=3,
@@ -129,6 +129,8 @@ def create_question_task(content, current_pleb, question_title,
 
             if fail retries creating the task
     '''
+    if tags is None:
+        tags = []
     try:
         try:
             SBQuestion.nodes.get(sb_id=question_uuid)

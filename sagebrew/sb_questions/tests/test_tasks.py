@@ -5,7 +5,9 @@ from datetime import datetime
 from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
+from celery.utils.serialization import UnpickleableExceptionWrapper
 from neomodel.exception import DoesNotExist
+
 
 from api.utils import test_wait_util
 from sb_questions.tasks import (create_question_task, edit_question_task)
@@ -114,7 +116,7 @@ class TestEditQuestionTask(TestCase):
             time.sleep(1)
         res = res.result
 
-        self.assertFalse(res)
+        self.assertIsInstance(res, DoesNotExist)
 
     def test_edit_question_task_failure_question_does_not_exist(self):
         task_data = {
@@ -129,7 +131,7 @@ class TestEditQuestionTask(TestCase):
             time.sleep(1)
         res = res.result
 
-        self.assertIsInstance(res, DoesNotExist)
+        self.assertIsInstance(res, UnpickleableExceptionWrapper)
 
     def test_edit_question_task_failure_to_be_deleted(self):
         question = SBQuestion(sb_id=str(uuid1()))

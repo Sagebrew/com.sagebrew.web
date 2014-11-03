@@ -111,7 +111,6 @@ class TestEditAnswerTask(TestCase):
         self.answer_info_dict['answer_uuid'] = str(uuid1())
         save_ans_response = save_answer_util(**self.answer_info_dict)
         edit_dict = {'content': "this is a test edit",
-                     'current_pleb': str(uuid1()),
                      'last_edited_on': datetime.now(pytz.utc),
                      'answer_uuid': save_ans_response.sb_id}
 
@@ -134,7 +133,6 @@ class TestEditAnswerTask(TestCase):
         save_ans_response.to_be_deleted = True
         save_ans_response.save()
         edit_dict = {'content': "this is a test edit",
-                     'current_pleb': self.user.email,
                      'last_edited_on': datetime.now(pytz.utc),
                      'answer_uuid': save_ans_response.sb_id}
 
@@ -155,7 +153,6 @@ class TestEditAnswerTask(TestCase):
         self.answer_info_dict['answer_uuid'] = str(uuid1())
         save_ans_response = save_answer_util(**self.answer_info_dict)
         edit_dict = {'content': self.answer_info_dict['content'],
-                     'current_pleb': self.user.email,
                      'last_edited_on': datetime.now(pytz.utc),
                      'answer_uuid': save_ans_response.sb_id}
 
@@ -179,7 +176,6 @@ class TestEditAnswerTask(TestCase):
         save_ans_response.last_edited_on = now
         save_ans_response.save()
         edit_dict = {'content': "this is a test edit",
-                     'current_pleb': self.user.email,
                      'last_edited_on': now,
                      'answer_uuid': save_ans_response.sb_id}
 
@@ -203,7 +199,6 @@ class TestEditAnswerTask(TestCase):
         save_ans_response.last_edited_on = datetime.now(pytz.utc)
         save_ans_response.save()
         edit_dict = {'content': "this is a test edit",
-                     'current_pleb': self.user.email,
                      'last_edited_on': now,
                      'answer_uuid': save_ans_response.sb_id}
 

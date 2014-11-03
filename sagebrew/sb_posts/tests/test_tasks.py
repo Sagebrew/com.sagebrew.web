@@ -93,7 +93,7 @@ class TestEditPostTask(TestCase):
         post.save()
         edit_post_dict = {'content': 'Post edited',
                           'post_uuid': post.sb_id,
-                          'current_pleb': self.pleb.email}
+                          'last_edited_on': datetime.now(pytz.utc)}
         edit_response = edit_post_info_task.apply_async(kwargs=edit_post_dict)
         while not edit_response.ready():
             time.sleep(1)
@@ -103,13 +103,13 @@ class TestEditPostTask(TestCase):
     def test_edit_post_task_failure_post_does_not_exist(self):
         edit_post_dict = {'content': 'Post edited',
                           'post_uuid': str(uuid1()),
-                          'current_pleb': self.pleb.email}
+                          'last_edited_on': datetime.now(pytz.utc)}
         edit_response = edit_post_info_task.apply_async(kwargs=edit_post_dict)
         while not edit_response.ready():
             time.sleep(1)
         edit_response = edit_response.result
         print edit_response
-        self.assertIsInstance(edit_response, DoesNotExist)
+        self.assertIsInstance(edit_response, TypeError)
 
     def test_edit_post_task_failure_content_is_the_same(self):
         post = SBPost(sb_id=uuid1(), content="test post")
@@ -117,7 +117,7 @@ class TestEditPostTask(TestCase):
         post.save()
         edit_post_dict = {'content': 'test post',
                           'post_uuid': post.sb_id,
-                          'current_pleb': self.pleb.email}
+                          'last_edited_on': datetime.now(pytz.utc)}
         edit_response = edit_post_info_task.apply_async(kwargs=edit_post_dict)
         while not edit_response.ready():
             time.sleep(1)
@@ -131,7 +131,7 @@ class TestEditPostTask(TestCase):
         post.save()
         edit_post_dict = {'content': 'test edit',
                           'post_uuid': post.sb_id,
-                          'current_pleb': self.pleb.email}
+                          'last_edited_on': datetime.now(pytz.utc)}
         edit_response = edit_post_info_task.apply_async(kwargs=edit_post_dict)
         while not edit_response.ready():
             time.sleep(1)
@@ -146,7 +146,6 @@ class TestEditPostTask(TestCase):
         post.save()
         edit_post_dict = {'content': 'test edit',
                           'post_uuid': post.sb_id,
-                          'current_pleb': self.pleb.email,
                           'last_edited_on': now}
         edit_response = edit_post_info_task.apply_async(kwargs=edit_post_dict)
         while not edit_response.ready():
@@ -162,7 +161,6 @@ class TestEditPostTask(TestCase):
         post.save()
         edit_post_dict = {'content': 'test edit',
                           'post_uuid': post.sb_id,
-                          'current_pleb': self.pleb.email,
                           'last_edited_on': now}
         edit_response = edit_post_info_task.apply_async(kwargs=edit_post_dict)
         while not edit_response.ready():

@@ -84,7 +84,7 @@ class TestSavePost(TestCase):
                                      post_uuid=uuid,
                                      last_edited_on=datetime.now(pytz.utc))
 
-        self.assertEqual(edited_post['detail'], 'to be deleted')
+        self.assertFalse(edited_post)
 
     def test_edit_post_same_content(self):
         uuid = str(uuid1())
@@ -96,7 +96,7 @@ class TestSavePost(TestCase):
         edited_post = edit_post_info(content='test', post_uuid=uuid,
                                      last_edited_on=datetime.now(pytz.utc))
 
-        self.assertEqual(edited_post['detail'], 'content is the same')
+        self.assertFalse(edited_post)
 
     def test_edit_post_same_timestamp(self):
         uuid = str(uuid1())
@@ -109,7 +109,7 @@ class TestSavePost(TestCase):
         edited_post = edit_post_info(content='post edited', post_uuid=uuid,
                                      last_edited_on=edit_time)
 
-        self.assertEqual(edited_post['detail'], 'time stamp is the same')
+        self.assertFalse(edited_post)
 
     def test_edit_post_with_earlier_time(self):
         uuid = str(uuid1())
@@ -125,4 +125,4 @@ class TestSavePost(TestCase):
                                      post_uuid=uuid,
                                      last_edited_on=datetime.now(pytz.utc))
 
-        self.assertEqual(edited_post['detail'], 'last edit more recent')
+        self.assertFalse(edited_post)

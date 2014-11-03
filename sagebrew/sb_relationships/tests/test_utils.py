@@ -53,5 +53,5 @@ class TestCreateFriendRequestUtil(TestCase):
                 'friend_request_uuid': str(uuid1())}
         res = create_friend_request_util(data)
 
-        self.assertIsInstance(res, DoesNotExist)
+        self.assertFalse(res)
 

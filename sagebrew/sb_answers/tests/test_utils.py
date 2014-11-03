@@ -85,8 +85,7 @@ class TestEditAnswerUtil(TestCase):
     def test_edit_answer_util(self):
         answer = SBAnswer(content="test answer", sb_id=str(uuid1()))
         answer.save()
-        edit_answer_dict = {'current_pleb': self.question_info_dict['current_pleb'],
-                            'content': 'edit content',
+        edit_answer_dict = {'content': 'edit content',
                             'last_edited_on': datetime.now(pytz.utc),
                             'answer_uuid': answer.sb_id}
         edit_response = edit_answer_util(**edit_answer_dict)
@@ -150,4 +149,4 @@ class TestEditAnswerUtil(TestCase):
                             'answer_uuid': str(uuid1())}
         edit_response = edit_answer_util(**edit_answer_dict)
 
-        self.assertFalse(edit_response)
+        self.assertIsInstance(edit_response, DoesNotExist)

@@ -103,7 +103,7 @@ class TestEditAnswerUtil(TestCase):
                             'answer_uuid': answer.sb_id}
         edit_response = edit_answer_util(**edit_answer_dict)
 
-        self.assertEqual(edit_response['detail'], 'to be deleted')
+        self.assertFalse(edit_response)
 
     def test_edit_answer_util_same_content(self):
         answer = SBAnswer(content="test answer", sb_id=str(uuid1()))
@@ -114,7 +114,7 @@ class TestEditAnswerUtil(TestCase):
                             'answer_uuid': answer.sb_id}
         edit_response = edit_answer_util(**edit_answer_dict)
 
-        self.assertEqual(edit_response['detail'], 'same content')
+        self.assertFalse(edit_response)
 
     def test_edit_answer_util_same_timestamp(self):
         now = datetime.now(pytz.utc)
@@ -127,7 +127,7 @@ class TestEditAnswerUtil(TestCase):
                             'answer_uuid': response.sb_id}
         edit_response = edit_answer_util(**edit_answer_dict)
 
-        self.assertEqual(edit_response['detail'], 'same timestamp')
+        self.assertFalse(edit_response)
 
     def test_edit_answer_util_more_recent_edit(self):
         now = datetime.now(pytz.utc)
@@ -142,7 +142,7 @@ class TestEditAnswerUtil(TestCase):
                             'answer_uuid': response.sb_id}
         edit_response = edit_answer_util(**edit_answer_dict)
 
-        self.assertEqual(edit_response['detail'], 'last edit more recent')
+        self.assertFalse(edit_response)
 
     def test_edit_answer_util_question_does_not_exist(self):
         edit_answer_dict = {'content': 'test question',

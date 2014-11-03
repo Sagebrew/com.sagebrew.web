@@ -1,18 +1,16 @@
 import pytz
 import logging
-from json import dumps
 from datetime import datetime
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
 
-from .forms import (SaveAnswerForm, EditAnswerForm, VoteAnswerForm,
-                    GetAnswerForm)
-from .tasks import (save_answer_task, edit_answer_task, vote_answer_task)
+from .forms import (SaveAnswerForm, EditAnswerForm)
+from .tasks import (save_answer_task, edit_answer_task)
 from api.utils import spawn_task
-from plebs.neo_models import Pleb
 
 logger = logging.getLogger('loggly_logs')
+
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))

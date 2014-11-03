@@ -69,7 +69,7 @@ def save_post_task(content, current_pleb, wall_pleb, post_uuid=None):
 
 
 @shared_task()
-def edit_post_info_task(last_edited_on, post_uuid, content):
+def edit_post_info_task(post_uuid, content, last_edited_on):
     '''
     Edits the content of the post also updates the last_edited_on value
     if the task returns that it cannot find the post it retries
@@ -78,7 +78,7 @@ def edit_post_info_task(last_edited_on, post_uuid, content):
     :param content
     :return:
     '''
-    edit_post_return = edit_post_info(content, post_uuid, last_edited_on)
+    edit_post_return = edit_post_info(post_uuid, content, last_edited_on)
     if isinstance(edit_post_return, Exception):
         raise edit_post_info_task.retry(exc=edit_post_return, countdown=3,
                                         max_retries=None)

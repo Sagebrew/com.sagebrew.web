@@ -13,7 +13,6 @@ from .utils import (create_question_util, edit_question_util)
 logger = logging.getLogger('loggly_logs')
 
 
-
 @shared_task()
 def add_question_to_indices_task(question, tags):
     '''

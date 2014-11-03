@@ -93,7 +93,7 @@ def save_post(current_pleb, wall_pleb, content, post_uuid=None):
         return e
 
 
-def edit_post_info(post_uuid, last_edited_on, content):
+def edit_post_info(post_uuid, content, last_edited_on):
     '''
     changes the content of the post linked to the id passed to the function
     to the content which was passed

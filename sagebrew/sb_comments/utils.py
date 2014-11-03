@@ -102,7 +102,7 @@ def save_comment_post(content, pleb, post_uuid):
         return e
 
 
-def edit_comment_util(comment_uuid, last_edited_on, content):
+def edit_comment_util(comment_uuid, content, last_edited_on):
     '''
     finds the comment with the given comment id then changes the content to the
     content which was passed. also changes the edited on date and time to the
@@ -120,10 +120,6 @@ def edit_comment_util(comment_uuid, last_edited_on, content):
             my_comment = SBComment.nodes.get(sb_id=comment_uuid)
         except (SBComment.DoesNotExist, DoesNotExist) as e:
             return e
-        print type(last_edited_on)
-        print type(my_comment.last_edited_on)
-        print last_edited_on
-        print my_comment.last_edited_on
         if my_comment.last_edited_on >= last_edited_on:
             return False
         if my_comment.content == content:

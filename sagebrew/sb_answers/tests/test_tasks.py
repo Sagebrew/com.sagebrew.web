@@ -102,6 +102,9 @@ class TestEditAnswerTask(TestCase):
         self.assertTrue(edit_response)
 
     def test_edit_answer_task_failure_pleb_does_not_exist(self):
+        # TODO this should probably still pass. If the pleb doesn't exist
+        # we won't be deleting the answer and the edit should still get applied
+        # even if the pleb has "deactivated" or deleted their account.
         self.question_info_dict['sb_id']=str(uuid1())
         question = SBQuestion(**self.question_info_dict)
         question.save()
@@ -119,7 +122,7 @@ class TestEditAnswerTask(TestCase):
             time.sleep(1)
         edit_response = edit_response.result
 
-        self.assertFalse(edit_response)
+        self.assertTrue(edit_response)
 
     def test_edit_answer_task_failure_to_be_deleted(self):
         self.question_info_dict['sb_id']=str(uuid1())

@@ -101,9 +101,10 @@ class TestEditQuestionTask(TestCase):
         self.assertTrue(edit_response)
 
     def test_edit_question_task_failure_pleb_does_not_exist(self):
+        # TODO this should still pass since we still want edits to go through
+        # if a user has been deactivated.
         question = SBQuestion(sb_id=str(uuid1()))
         question.save()
-
         task_data = {
             'content': 'edit',
             'question_uuid': question.sb_id,
@@ -116,7 +117,7 @@ class TestEditQuestionTask(TestCase):
             time.sleep(1)
         res = res.result
 
-        self.assertIsInstance(res, DoesNotExist)
+        self.assertTrue(res)
 
     def test_edit_question_task_failure_question_does_not_exist(self):
         task_data = {

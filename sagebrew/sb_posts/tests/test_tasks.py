@@ -5,8 +5,7 @@ from datetime import datetime
 from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
-
-from neomodel.exception import DoesNotExist
+from celery.utils.serialization import UnpickleableExceptionWrapper
 
 from api.utils import test_wait_util
 from sb_posts.neo_models import SBPost
@@ -109,7 +108,7 @@ class TestEditPostTask(TestCase):
             time.sleep(1)
         edit_response = edit_response.result
         print edit_response
-        self.assertIsInstance(edit_response, TypeError)
+        self.assertIsInstance(edit_response, UnpickleableExceptionWrapper)
 
     def test_edit_post_task_failure_content_is_the_same(self):
         post = SBPost(sb_id=uuid1(), content="test post")
@@ -122,7 +121,7 @@ class TestEditPostTask(TestCase):
         while not edit_response.ready():
             time.sleep(1)
         edit_response = edit_response.result
-        self.assertFalse(edit_response)
+        self.assertIsInstance(edit_response, UnpickleableExceptionWrapper)
 
     def test_edit_post_task_failure_to_be_deleted(self):
         post = SBPost(sb_id=uuid1(), content="test post")
@@ -136,7 +135,7 @@ class TestEditPostTask(TestCase):
         while not edit_response.ready():
             time.sleep(1)
         edit_response = edit_response.result
-        self.assertFalse(edit_response)
+        self.assertIsInstance(edit_response, UnpickleableExceptionWrapper)
 
     def test_edit_post_task_failure_same_timestamp(self):
         now = datetime.now(pytz.utc)
@@ -151,7 +150,7 @@ class TestEditPostTask(TestCase):
         while not edit_response.ready():
             time.sleep(1)
         edit_response = edit_response.result
-        self.assertFalse(edit_response)
+        self.assertIsInstance(edit_response, UnpickleableExceptionWrapper)
 
     def test_edit_post_task_failure_last_edit_more_recent(self):
         now = datetime.now(pytz.utc)
@@ -166,7 +165,7 @@ class TestEditPostTask(TestCase):
         while not edit_response.ready():
             time.sleep(1)
         edit_response = edit_response.result
-        self.assertFalse(edit_response)
+        self.assertIsInstance(edit_response, UnpickleableExceptionWrapper)
 
 
 class TestPostTaskRaceConditions(TestCase):

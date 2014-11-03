@@ -232,7 +232,7 @@ def get_question_by_least_recent(current_pleb, range_start=0, range_end=5):
         return {"detail": "fail"}
 
 
-def edit_question_util(question_uuid,  last_edited_on, content, current_pleb):
+def edit_question_util(question_uuid, last_edited_on, content, current_pleb):
     '''
     This util handles the editing of a question. It does not edit the question
     if it is set to be deleted, the content it is trying to edit with is the

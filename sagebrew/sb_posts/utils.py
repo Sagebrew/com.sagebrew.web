@@ -114,7 +114,16 @@ def edit_post_info(post_uuid, content, last_edited_on):
             if it is successful in editing it returns True
     '''
     try:
-        my_post = SBPost.nodes.get(sb_id=post_uuid)
+        try:
+            my_post = SBPost.nodes.get(sb_id=post_uuid)
+        except (SBPost.DoesNotExist) as e:
+            # TODO should we fail out here rather than retry?
+            # I think we should keep retrying since if we have gotten to
+            # edit the post must have been displayed to the user
+            # meaning it had been spawned for creation at some point
+            # and deletion only means the content will be whiped and it
+            # will be taken down from view.
+            return e
         if my_post.to_be_deleted:
             return False
         if my_post.content == content:
@@ -122,20 +131,14 @@ def edit_post_info(post_uuid, content, last_edited_on):
         if my_post.last_edited_on >= last_edited_on:
             return False
 
-        if my_post.edited is False:
-            my_post.edited = True
         my_post.content = content
         my_post.last_edited_on = last_edited_on
+        if my_post.edited is False:
+            my_post.edited = True
+
         my_post.save()
         return True
-    except (SBPost.DoesNotExist) as e:
-        # TODO should we fail out here rather than retry?
-        # I think we should keep retrying since if we have gotten to
-        # edit the post must have been displayed to the user
-        # meaning it had been spawned for creation at some point
-        # and deletion only means the content will be whiped and it
-        # will be taken down from view.
-        return e
+
     except Exception as e:
         logger.exception(dumps({"function": edit_post_info.__name__,
                                 "exception": "Unhandled Exception"}))

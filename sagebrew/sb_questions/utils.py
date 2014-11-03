@@ -249,7 +249,7 @@ def edit_question_util(question_uuid, last_edited_on, content, current_pleb):
     try:
         try:
             my_question = SBQuestion.nodes.get(sb_id=question_uuid)
-        except (SBQuestion.DoesNotExist, DoesNotExist) as e:
+        except (SBQuestion.DoesNotExist) as e:
             return e
         if my_question.to_be_deleted is True:
             return False

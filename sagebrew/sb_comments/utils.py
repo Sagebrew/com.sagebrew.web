@@ -63,7 +63,7 @@ def get_post_comments(post_info):
     return post_array
 
 
-def save_comment_post(content, pleb, post_uuid):
+def save_comment_post(content, pleb, post_uuid, comment_uuid=None):
     '''
     Creates a comment with the content passed to it. It also connects the
     comment
@@ -73,6 +73,8 @@ def save_comment_post(content, pleb, post_uuid):
     :param post_uuid = str(uuid) id of the post which the
     :return:
     '''
+    if comment_uuid is None:
+        comment_uuid = str(uuid1())
     try:
         try:
             my_citizen = Pleb.nodes.get(email=pleb)
@@ -82,7 +84,6 @@ def save_comment_post(content, pleb, post_uuid):
             parent_object = SBPost.nodes.get(sb_id=post_uuid)
         except (SBPost.DoesNotExist, DoesNotExist) as e:
             return e
-        comment_uuid = str(uuid1())
         my_comment = SBComment(content=content, sb_id=comment_uuid)
         my_comment.save()
         rel_to_pleb = my_comment.is_owned_by.connect(my_citizen)

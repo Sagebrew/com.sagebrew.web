@@ -27,6 +27,8 @@ def edit_comment_task(comment_uuid, content, last_edited_on):
             Will return an exception if something else occurred while trying
             to edit
     '''
+    # TODO can we generalize editing a versioned object and editing a
+    # non-versioned object?
     try:
         response = edit_comment_util(comment_uuid, content, last_edited_on)
         if response is True:

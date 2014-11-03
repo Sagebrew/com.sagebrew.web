@@ -122,9 +122,7 @@ def edit_comment_util(comment_uuid, last_edited_on, content):
             return e
         logger.critical(dumps({"last_edited_on_type": type(last_edited_on),
                                "mycomment_last_type":
-                                   type(my_comment.last_edited_on),
-                               "my_comment": my_comment.last_edited_on,
-                               "last_edited": last_edited_on}))
+                                   type(my_comment.last_edited_on)}))
         if my_comment.last_edited_on >= last_edited_on:
             return False
         if my_comment.content == content:

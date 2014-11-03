@@ -128,7 +128,7 @@ def edit_post_info(post_uuid, content, last_edited_on):
         my_post.last_edited_on = last_edited_on
         my_post.save()
         return True
-    except (SBPost.DoesNotExist, DoesNotExist) as e:
+    except (SBPost.DoesNotExist) as e:
         # TODO should we fail out here rather than retry?
         # I think we should keep retrying since if we have gotten to
         # edit the post must have been displayed to the user
@@ -155,7 +155,7 @@ def delete_post_info(sb_id):
     try:
         try:
             my_post = SBPost.nodes.get(sb_id=sb_id)
-        except (SBPost.DoesNotExist, DoesNotExist):
+        except (SBPost.DoesNotExist):
             return False
 
         if datetime.now(pytz.utc).day - my_post.delete_time.day >= 1:

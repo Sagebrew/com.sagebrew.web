@@ -38,6 +38,7 @@
 .sb_signup_input_group{
     width: 80%;
     margin-left: 10%;
+    margin-bottom: 0;
 }
 .sb_signup_input{
     width: 100%;
@@ -52,4 +53,32 @@
 }
 .sb_sign_up{
     color: #ffffff;
+}
+.sb_bottom_container{
+    background-color: #ffffff;
+    margin-bottom: 0;
+    opacity: .7;
+    height: 100px;
+}
+.sb_nav_bottom_links {
+    color: #7c7e80;
+    text-align: left;
+}
+.sb_nav_bottom_blank {
+    position: inherit;
+    margin-top: 80%;
+    margin-bottom: 0;
+}
+.footer{
+    position: absolute;
+    bottom: 0;
+    padding-top: 100px;
+    height: 100px;
+    margin-right: 15px;
+}
+.container{
+    padding: 60px 15px 0;
+}
+.navbar-fixed-bottom{
+    padding-top: 0%;
 }

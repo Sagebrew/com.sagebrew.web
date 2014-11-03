@@ -26,7 +26,6 @@
 }
 .sb_background {
     background-size: cover;
-    position: absolute;
     background-color: #b7bfbb;
 }
 .sb_deco_line{
@@ -102,28 +101,4 @@
 .sb_divider{
     color: #1ba39c;
 }
-.sb_bottom_container{
-    height: 40px;
-}
-/*
-.sb_nav_bottom_menu {
-    height: 100%;
-    margin-left: -15px;
-    margin-right: -15px;
-   opacity: .7;
-    background-color: #ffffff;
-}
-.sb_nav_bottom_links {
-    color: #7c7e80;
-    text-align: left;
-}
-.sb_nav_bottom_blank {
 
-}
-
-.sb_nav_bottom_blank {
-    position: inherit;
-    margin-top: 80%;
-    margin-bottom: 0;
-}
-*/

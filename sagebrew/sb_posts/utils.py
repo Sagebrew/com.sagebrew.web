@@ -129,6 +129,12 @@ def edit_post_info(post_uuid, content, last_edited_on):
         my_post.save()
         return True
     except (SBPost.DoesNotExist, DoesNotExist) as e:
+        # TODO should we fail out here rather than retry?
+        # I think we should keep retrying since if we have gotten to
+        # edit the post must have been displayed to the user
+        # meaning it had been spawned for creation at some point
+        # and deletion only means the content will be whiped and it
+        # will be taken down from view.
         return e
     except Exception as e:
         logger.exception(dumps({"function": edit_post_info.__name__,

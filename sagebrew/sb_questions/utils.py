@@ -255,9 +255,7 @@ def edit_question_util(question_uuid, last_edited_on, content, current_pleb):
             return False
         if my_question.content == content:
             return False
-        if my_question.last_edited_on == last_edited_on:
-            return False
-        if my_question.last_edited_on > last_edited_on:
+        if my_question.last_edited_on >= last_edited_on:
             # TODO in this instance we would still want to create the older
             # edit and it'll just show up on the time line.
             return False

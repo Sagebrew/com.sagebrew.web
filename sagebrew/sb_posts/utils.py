@@ -119,9 +119,7 @@ def edit_post_info(post_uuid, last_edited_on, content):
             return False
         if my_post.content == content:
             return False
-        if my_post.last_edited_on == last_edited_on:
-            return False
-        if my_post.last_edited_on > last_edited_on:
+        if my_post.last_edited_on >= last_edited_on:
             return False
 
         if my_post.edited is False:

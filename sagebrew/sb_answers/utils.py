@@ -74,9 +74,7 @@ def edit_answer_util(answer_uuid, last_edited_on, content):
             return False
         if my_answer.content == content:
             return False
-        if my_answer.last_edited_on == last_edited_on:
-            return False
-        if my_answer.last_edited_on > last_edited_on:
+        if my_answer.last_edited_on >= last_edited_on:
             return False
 
         edit_answer = SBAnswer(sb_id=str(uuid1()), original=False,

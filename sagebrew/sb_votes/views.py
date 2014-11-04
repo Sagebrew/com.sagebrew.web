@@ -1,5 +1,6 @@
 import logging
 from json import dumps
+from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -25,15 +26,13 @@ def vote_object_view(request):
                                       cleaned_data['current_pleb'])
             except (Pleb.DoesNotExist, DoesNotExist):
                 return Response({"detail": "pleb does not exist"}, status=401)
-
-            sb_object = get_object(vote_object_form.cleaned_data
-                                   ['object_type'][0],
-                                   vote_object_form.cleaned_data['object_uuid'])
-            if not object:
-                return Response({"detail": "object does not exist"}, status=400)
+            choice_dict = dict(settings.KNOWN_TYPES)
             task_data = {
-                "current_pleb": pleb, "sb_object": sb_object,
-                "flag_reason": vote_object_form.cleaned_data['flag_reason']
+                "current_pleb": pleb,
+                "object_type": choice_dict[
+                    vote_object_form.cleaned_data['object_type']],
+                "object_uuid": vote_object_form.cleaned_data['object_uuid'],
+                "vote_type": vote_object_form.cleaned_data['vote_type']
             }
             spawn_task(task_func=vote_object_task, task_param=task_data)
 

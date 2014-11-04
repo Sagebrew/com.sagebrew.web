@@ -2,9 +2,9 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty)
 
-from sb_posts.neo_models import SBBase
+from sb_posts.neo_models import SBVersioned
 
-class SBAnswer(SBBase):
+class SBAnswer(SBVersioned):
     allowed_flags = ["explicit", "changed", "spam", "duplicate",
                      "unsupported", "other"]
     sb_name = "answer"

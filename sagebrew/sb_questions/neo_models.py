@@ -2,11 +2,11 @@ from neomodel import (StringProperty, IntegerProperty,
                       RelationshipTo,
                       BooleanProperty, FloatProperty)
 
-from sb_posts.neo_models import SBBase
+from sb_posts.neo_models import SBVersioned
 from sb_tag.neo_models import TagRelevanceModel
 
 
-class SBQuestion(SBBase):
+class SBQuestion(SBVersioned):
     allowed_flags = ["explicit", "changed", "spam", "duplicate",
                      "unsupported", "other"]
     answer_number = IntegerProperty(default=0)

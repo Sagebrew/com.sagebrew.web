@@ -1,5 +1,6 @@
 $(document).ready(function () {
-    $("a.vote_object-action").click(function (event) {
+    $(".vote_object-action").click(function (event) {
+        console.log($(this).data('current_pleb'));
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -12,7 +13,7 @@ $(document).ready(function () {
             url: "/vote/vote_object_api/",
             data: JSON.stringify({
                 'vote_type': $(this).data('vote_type'),
-                'current_pleb': $(this).data('current_user'),
+                'current_pleb': $(this).data('current_pleb'),
                 'object_uuid': $(this).data('object_uuid'),
                 'object_type': $(this).data('object_type')
             }),

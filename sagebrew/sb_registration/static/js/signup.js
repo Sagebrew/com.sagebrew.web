@@ -56,8 +56,7 @@ $( document ).ready(function() {
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (data) {
-                    window.location.href = "https://192.168.56.101/" +
-                        "registration/signup/confirm/"
+                    window.location.href = "/registration/signup/confirm/"
                 }
             });
         }

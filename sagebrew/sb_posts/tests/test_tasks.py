@@ -107,7 +107,7 @@ class TestEditPostTask(TestCase):
         while not edit_response.ready():
             time.sleep(1)
         edit_response = edit_response.result
-        self.assertIsInstance(edit_response, UnpickleableExceptionWrapper)
+        self.assertIsInstance(edit_response, Exception)
 
     def test_edit_post_task_failure_content_is_the_same(self):
         post = SBPost(sb_id=uuid1(), content="test post")

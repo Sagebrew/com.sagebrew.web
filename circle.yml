@@ -13,7 +13,6 @@ dependencies:
     - AWS-ElasticBeanstalk-CLI-2.6.3
   post:
     - pip install -r ../requirements/test.txt
-    - pip install git+https:///github.com/bleib1dj/neomodel.git
     - if [[ ! -e AWS-ElasticBeanstalk-CLI-2.6.3 ]]; then wget https://s3.amazonaws.com/elasticbeanstalk/cli/AWS-ElasticBeanstalk-CLI-2.6.3.zip && unzip AWS-ElasticBeanstalk-CLI-2.6.3.zip && rm -r AWS-ElasticBeanstalk-CLI-2.6.3.zip; fi
     - sudo chown ubuntu /etc/rsyslog.d/
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py logglypopulation $LOG_ACCOUNT $LOG_TOKEN

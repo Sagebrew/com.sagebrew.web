@@ -51,7 +51,7 @@ test:
     # points to the local circle instance and the docker instance needs the
     # graphen instance to work
     - docker run -d --name db training/postgres
-    - docker run -h box-sys-util --name sys_util -P --link db:db
+    - docker run -h box-sys-util --name sb_sys_util -P --link db:db
         -e DB_USER=docker -e DB_DOCKER_NAME=docker
         -e NEO4J_REST_URL=$GRAPHEN_NEO4J_REST_URL -e APP_USER=$APP_USER
         -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME
@@ -78,7 +78,7 @@ test:
         -e QUEUE_HOST=$QUEUE_HOST
         -e QUEUE_PORT=$QUEUE_PORT
         -d -t sagebrew/sb_sys_util:$CIRCLE_SHA1
-    - docker run -h box-worker --name worker_one -P --link db:db
+    - docker run -h box-worker --name sb_worker -P --link db:db
         -e DB_USER=docker -e DB_DOCKER_NAME=docker
         -e NEO4J_REST_URL=$GRAPHEN_NEO4J_REST_URL -e APP_USER=$APP_USER
         -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME
@@ -106,7 +106,7 @@ test:
         -e QUEUE_PORT=$QUEUE_PORT
         -d -t sagebrew/sb_worker:$CIRCLE_SHA1
     # It appears if two migrations run at the same time they cause a
-    - docker run -h box-webapp --name web_app_one -P --link db:db
+    - docker run -h box-webapp --name sb_web -P --link db:db
         -e DB_USER=docker -e DB_DOCKER_NAME=docker -p 443:443 -p 80:80
         -e NEO4J_REST_URL=$GRAPHEN_NEO4J_REST_URL -e APP_USER=$APP_USER
         -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME
@@ -136,11 +136,11 @@ test:
     # Sleep time based on aws timeout counts. This insures it is possible
     # for the deployed code to be ready within the set amount of time
     # aws will give it.
-    - sleep 10
+    - sleep 20
     - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/
-    - docker logs sagebrew/sb_web:$CIRCLE_SHA1 >> $CIRCLE_ARTIFACTS/sb_web.log
-    - docker logs sagebrew/sb_worker:$CIRCLE_SHA1 >> $CIRCLE_ARTIFACTS/sb_worker.log
-    - docker logs sagebrew/sb_sys_util:$CIRCLE_SHA1 >> $CIRCLE_ARTIFACTS/sb_sys_util.log
+    - docker logs sb_web >> $CIRCLE_ARTIFACTS/sb_web.log
+    - docker logs sb_worker >> $CIRCLE_ARTIFACTS/sb_worker.log
+    - docker logs sb_sys_util >> $CIRCLE_ARTIFACTS/sb_sys_util.log
 
 checkout:
   post:
@@ -154,7 +154,7 @@ deployment:
     branch: staging
     commands:
       #- coverage report --fail-under=100
-      - docker run -h box-sys-util --name sys_util -P --link db:db
+      - docker run -h box-sys-util --name sb_sys_util_deploy -P --link db:db
         -e RDS_DB_NAME=$RDS_DB_NAME_STAGING -e RDS_USERNAME=$RDS_USERNAME
         -e RDS_PASSWORD=$RDS_PASSWORD_STAGING
         -e RDS_HOSTNAME=$RDS_HOSTNAME_STAGING
@@ -185,7 +185,7 @@ deployment:
         -e QUEUE_HOST=$QUEUE_HOST
         -e QUEUE_PORT=$QUEUE_PORT
         -d -t sagebrew/sb_sys_util_deploy:$CIRCLE_SHA1
-      - docker logs sagebrew/sb_sys_util_deploy:$CIRCLE_SHA1 >> $CIRCLE_ARTIFACTS/sb_sys_util_deploy.log
+      - docker logs sb_sys_util_deploy >> $CIRCLE_ARTIFACTS/sb_sys_util_deploy.log
       - bash -x ~/com.sagebrew.web/deployment/staging.sh $CIRCLE_SHA1
       - git checkout master
       - git merge --no-edit staging

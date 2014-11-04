@@ -18,3 +18,6 @@ class SBAnswer(SBVersioned):
                                'AUTO_TAGGED_AS')
     answer_to = RelationshipTo('sb_questions.neo_models.SBQuestion',
                                'POSSIBLE_ANSWER_TO')
+
+    def edit_content(self, content, pleb):
+        pass

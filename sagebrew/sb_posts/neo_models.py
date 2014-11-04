@@ -71,10 +71,19 @@ class SBVersioned(SBBase):
     #relationships
     tagged_as = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS')
 
+    def edit_content(self, content, pleb):
+        pass
+
 class SBNonVersioned(SBBase):
     #relationships
     auto_tagged_as = RelationshipTo('sb_tag.neo_models.SBTag',
                                     'AUTO_TAGGED_AS')
+
+    def edit_content(self, content):
+        self.content = content
+        self.last_edited_on = datetime.now(pytz.utc)
+        self.save()
+        return self
 
 class SBPost(SBNonVersioned):
     allowed_flags = ["explicit", "spam","other"]

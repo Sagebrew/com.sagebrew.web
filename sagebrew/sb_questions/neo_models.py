@@ -1,3 +1,5 @@
+import pytz
+from datetime import datetime
 from neomodel import (StringProperty, IntegerProperty,
                       RelationshipTo,
                       BooleanProperty, FloatProperty)
@@ -30,3 +32,16 @@ class SBQuestion(SBVersioned):
                                'AUTO_TAGGED_AS', model=TagRelevanceModel)
     closed_by = RelationshipTo('plebs.neo_models.Pleb', 'CLOSED_BY')
     answer = RelationshipTo('sb_answers.neo_models.SBAnswer', 'POSSIBLE_ANSWER')
+
+    def edit_content(self, content, pleb):
+        from sb_questions.utils import create_question_util
+        edit_question = create_question_util(content, pleb,
+                                             self.question_title)
+        if isinstance(edit_question, Exception) is True:
+            return edit_question
+
+        self.edits.connect(edit_question)
+        edit_question.edit_to.connect(self)
+        self.last_edited_on = datetime.now(pytz.utc)
+        self.save()
+        return edit_question

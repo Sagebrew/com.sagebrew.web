@@ -312,6 +312,7 @@ function vote_object() {
 
 function enable_post_functionality() {
     flag_object();
+    vote_object();
     vote_comment();
     vote_post();
     edit_comment();

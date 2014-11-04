@@ -23,7 +23,7 @@ DATABASES = {
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'BACKEND': 'django_elasticache.memcached.ElastiCache',
         'LOCATION': environ.get("TEST_CACHE", '127.0.0.1:11211'),
     }
 }

@@ -16,7 +16,7 @@ class Command(BaseCommand):
             worker_count = 2
         worker_count = str(worker_count)
         if(env == "web"):
-            with open ("%s/supervisor_confs/web_template.conf" % (
+            with open("%s/supervisor_confs/web_template.conf" % (
                     settings.REPO_DIR), "r") as dockerfile:
                 data = dockerfile.read()
 
@@ -25,7 +25,7 @@ class Command(BaseCommand):
             f.write(data)
             f.close()
         elif(env == "worker"):
-            with open ("%s/supervisor_confs/worker_template.conf" % (
+            with open("%s/supervisor_confs/worker_template.conf" % (
                     settings.REPO_DIR), "r") as dockerfile:
                 data = dockerfile.read()
                 data = populate_general_values(data, user, worker_count)
@@ -33,7 +33,7 @@ class Command(BaseCommand):
             f.write(data)
             f.close()
         elif(env == "worker-test"):
-            with open ("%s/supervisor_confs/worker_template_circle.conf" % (
+            with open("%s/supervisor_confs/worker_template_circle.conf" % (
                     settings.REPO_DIR), "r") as dockerfile:
                 data = dockerfile.read()
                 data = populate_general_values(data, user, worker_count)

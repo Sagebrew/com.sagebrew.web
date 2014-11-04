@@ -70,9 +70,8 @@ def save_post(current_pleb, wall_pleb, content, post_uuid=None):
         try:
             poster = Pleb.nodes.get(email=current_pleb)
             my_citizen = Pleb.nodes.get(email=wall_pleb)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return False
-
+        except (Pleb.DoesNotExist, DoesNotExist) as e:
+            return e
         my_post = SBPost(content=content, sb_id=post_uuid)
         my_post.save()
         wall = my_citizen.wall.all()[0]
@@ -123,7 +122,7 @@ def edit_post_info(post_uuid, content, last_edited_on):
             # meaning it had been spawned for creation at some point
             # and deletion only means the content will be whiped and it
             # will be taken down from view.
-            return DoesNotExist("SBPost does not exist")
+            return e
         if my_post.to_be_deleted:
             return False
         if my_post.content == content:
@@ -139,7 +138,7 @@ def edit_post_info(post_uuid, content, last_edited_on):
         my_post.save()
         return True
     except DoesNotExist:
-        return DoesNotExist("SBPost does not exist")
+        return ValueError("SBPost does not exist")
     except Exception as e:
         logger.exception(dumps({"function": edit_post_info.__name__,
                                 "exception": "Unhandled Exception"}))

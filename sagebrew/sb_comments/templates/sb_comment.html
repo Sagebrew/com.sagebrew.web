@@ -81,8 +81,9 @@
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2">
                 <a class='btn vote_comment-action sb_btn_vote_icon'
                    data-vote_type='up'
-                   data-pleb="{{ comment.current_user }}"
-                   data-comment_uuid="{{ comment.sb_id }}"><span class="sb_icon sb_icon_up_vote fui-check"></span>
+                   data-current_pleb="{{ comment.current_user }}"
+                   data-object_uuid="{{ comment.sb_id }}"
+                   data-object_type="SBComment"><span class="sb_icon sb_icon_up_vote fui-check"></span>
                 </a>
             </div>
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2 sb_vote_div">

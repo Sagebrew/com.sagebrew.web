@@ -1,7 +1,7 @@
 <h3>{{ answer.answer_content }}</h3>
 <div style="font-weight: bold">Upvotes: {{ answer.up_vote_number }} | Downvotes: {{ answer.down_vote_number }} | Written by: <a href="{{ answer.answer_owner_url }}">{{ answer.answer_owner_name }}</a> | Posted: {{ answer.time_created }} | Last edited: {{ answer.last_edited_on }}</div>
-<a class="btn btn-primary btn-sm vote_answer-action" data-answer_uuid="{{ answer.answer_uuid }}" data-current_pleb="{{ answer.current_pleb }}" data-vote_type="up">Upvote</a>
-<a class="btn btn-primary btn-sm vote_answer-action" data-answer_uuid="{{ answer.answer_uuid }}" data-current_pleb="{{ answer.current_pleb }}" data-vote_type="down">Downvote</a>
+<a class="btn btn-primary btn-sm vote_object-action" data-object_uuid="{{ answer.answer_uuid }}" data-current_pleb="{{ answer.current_pleb }}" data-vote_type="up" data-object_type="SBAnswer">Upvote</a>
+<a class="btn btn-primary btn-sm vote_object-action" data-object_uuid="{{ answer.answer_uuid }}" data-current_pleb="{{ answer.current_pleb }}" data-vote_type="down" data-object_type="SBAnswer">Downvote</a>
 {% if answer.current_pleb == answer.answer_owner_email %}
     <a class="btn btn-primary btn-sm show_edit_answer-action" data-answer_uuid="{{ answer.answer_uuid }}" data-current_pleb="{{ answer.current_pleb }}">Edit</a>
     <div style="display:none" id="show_edit_sb_id_{{ answer.answer_uuid }}">

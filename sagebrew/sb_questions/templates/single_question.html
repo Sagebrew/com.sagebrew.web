@@ -2,8 +2,8 @@
 <h1>{{ question_title }}</h1>
 <p>{{ question_content }}</p>
 <div style="font-weight: bold">Upvotes: {{ up_vote_number }} | Downvotes: {{ down_vote_number }} | Asked by: <a href="{{ owner_profile_url }}">{{ owner }}</a> | Posted: {{ time_created }} | Last edited: {{ last_edited_on }}</div>
-<a class="btn btn-primary brt-sm vote_question-action" data-question_uuid="{{ question_uuid }}" data-vote_type="up" data-current_pleb="{{ current_pleb }}">Upvote</a>
-<a class="btn btn-primary brt-sm vote_question-action" data-question_uuid="{{ question_uuid }}" data-vote_type="down" data-current_pleb="{{ current_pleb }}">Downvote</a>
+<a class="btn btn-primary brt-sm vote_object-action" data-object_uuid="{{ question_uuid }}" data-vote_type="up" data-current_pleb="{{ current_pleb }}" data-object_type="SBQuestion">Upvote</a>
+<a class="btn btn-primary brt-sm vote_object-action" data-object_uuid="{{ question_uuid }}" data-vote_type="down" data-current_pleb="{{ current_pleb }}" data-object_type="SBQuestion">Downvote</a>
 {% if owner_email == current_pleb %}
     <a class="btn btn-primary btn-sm show_edit_question-action" data-question_uuid="{{ question_uuid }}">Edit</a>
     <div id="edit_question_{{ question_uuid }}" style="display:none">

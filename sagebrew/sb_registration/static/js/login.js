@@ -23,7 +23,7 @@ $(document).ready(function(){
             dataType: "json",
             success: function (data) {
                 if (data['detail']==='success' && typeof next !=="undefined"){
-                    window.location.href = 'https://192.168.56.101'+next
+                    window.location.href = next
                 }
                 else if (data['detail']==='success'){
                     window.location.href = data['url']

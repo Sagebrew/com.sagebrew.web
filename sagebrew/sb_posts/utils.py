@@ -123,7 +123,7 @@ def edit_post_info(post_uuid, content, last_edited_on):
             # meaning it had been spawned for creation at some point
             # and deletion only means the content will be whiped and it
             # will be taken down from view.
-            return e
+            return DoesNotExist("SBPost does not exist")
         if my_post.to_be_deleted:
             return False
         if my_post.content == content:
@@ -138,7 +138,8 @@ def edit_post_info(post_uuid, content, last_edited_on):
 
         my_post.save()
         return True
-
+    except DoesNotExist:
+        return DoesNotExist("SBPost does not exist")
     except Exception as e:
         logger.exception(dumps({"function": edit_post_info.__name__,
                                 "exception": "Unhandled Exception"}))

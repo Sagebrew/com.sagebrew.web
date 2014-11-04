@@ -1,6 +1,10 @@
+import pytz
+from uuid import uuid1
+from datetime import datetime
+
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty)
+                      BooleanProperty, CypherException)
 
 from sb_posts.neo_models import SBVersioned
 
@@ -20,4 +24,16 @@ class SBAnswer(SBVersioned):
                                'POSSIBLE_ANSWER_TO')
 
     def edit_content(self, content, pleb):
-        pass
+        try:
+            edit_answer = SBAnswer(sb_id=str(uuid1()), original=False,
+                                   content=content).save()
+            self.edits.connect(edit_answer)
+            edit_answer.edit_to.connect(self)
+            self.last_edited_on = datetime.now(pytz.utc)
+            self.save()
+            return edit_answer
+        except CypherException as e:
+            return e
+        except Exception as e:
+            return e
+

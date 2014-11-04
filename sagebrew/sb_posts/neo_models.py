@@ -46,7 +46,7 @@ class SBBase(StructuredNode):
     flagged_as_duplicate_count = IntegerProperty(default=0)
     flagged_as_other_count = IntegerProperty(default=0)
     view_count = IntegerProperty(default=0)
-    original = BooleanProperty(default=True)
+
 
     # relationships
     auto_tags = RelationshipTo('sb_tag.neo_models.SBAutoTag',
@@ -68,6 +68,8 @@ class SBBase(StructuredNode):
                                    'NOTIFICATIONS')
 
 class SBVersioned(SBBase):
+    original = BooleanProperty(default=True)
+
     #relationships
     tagged_as = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS')
 

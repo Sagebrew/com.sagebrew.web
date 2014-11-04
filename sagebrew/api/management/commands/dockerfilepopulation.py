@@ -51,6 +51,9 @@ class Command(BaseCommand):
         f = open("%s/dockerfiles/worker/Dockerfile" % settings.REPO_DIR, "w")
         f.write(worker_docker)
         f.close()
+        f = open("%s/dockerfiles/sys_util/Dockerfile" % settings.REPO_DIR, "w")
+        f.write(worker_docker)
+        f.close()
 
     def handle(self, *args, **options):
         self.populate_dockerfiles()

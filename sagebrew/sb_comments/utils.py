@@ -135,7 +135,10 @@ def edit_comment_util(comment_uuid, content, last_edited_on):
 
         my_comment.save()
         return True
-
+    except DoesNotExist:
+        # DoesNotExist is not a Pickleable Exception so need to swap out
+        # exceptions for it.
+        return SBComment.DoesNotExist("SBComment does not exist")
     except Exception as e:
         logger.exception(dumps({"function": edit_comment_util.__name__,
                                 'exception': "Unhandled Exception"}))

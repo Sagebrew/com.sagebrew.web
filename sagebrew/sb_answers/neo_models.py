@@ -23,7 +23,7 @@ class SBAnswer(SBVersioned):
     answer_to = RelationshipTo('sb_questions.neo_models.SBQuestion',
                                'POSSIBLE_ANSWER_TO')
 
-    def edit_content(self, content, pleb):
+    def edit_content(self, content, pleb, question_title=None):
         try:
             edit_answer = SBAnswer(sb_id=str(uuid1()), original=False,
                                    content=content).save()

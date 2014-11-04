@@ -46,7 +46,8 @@ class SBQuestion(SBVersioned):
                 edit_question = create_question_util(content, pleb,
                                                      self.question_title)
             else:
-                edit_question = create_question_util(content, pleb, question_title)
+                edit_question = create_question_util(content, pleb,
+                                                     question_title)
 
             if isinstance(edit_question, Exception) is True:
                 return edit_question

@@ -119,8 +119,8 @@ def edit_comment_util(comment_uuid, content, last_edited_on):
     try:
         try:
             my_comment = SBComment.nodes.get(sb_id=comment_uuid)
-        except(SBComment.DoesNotExist) as e:
-            return e
+        except(SBComment.DoesNotExist):
+            return DoesNotExist("SBComment does not exist")
         if my_comment.last_edited_on >= last_edited_on:
             return False
         if my_comment.content == content:
@@ -135,7 +135,10 @@ def edit_comment_util(comment_uuid, content, last_edited_on):
 
         my_comment.save()
         return True
-
+    except DoesNotExist:
+        # DoesNotExist is not a Pickleable Exception so need to swap out
+        # exceptions for it.
+        return DoesNotExist("SBComment does not exist")
     except Exception as e:
         logger.exception(dumps({"function": edit_comment_util.__name__,
                                 'exception': "Unhandled Exception"}))

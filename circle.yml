@@ -45,11 +45,39 @@ test:
     - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg
     - docker build -t sagebrew/sb_worker:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/worker/
     - docker build -t sagebrew/sb_web:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/web_app/
+    - docker build -t sagebrew/sb_sys_util:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/sys_util/
     # DO NOT CHANGE GRAPHEN_NEO4J_REST_URL to NEO4J_REST_URL the NEO4J_REST_URL
     # points to the local circle instance and the docker instance needs the
     # graphen instance to work
     - docker run -d --name db training/postgres
-    - docker run -h box-worker --name worker_one -P --link db:db
+    - docker run -h box-sys-util --name sb_sys_util -P --link db:db
+        -e DB_USER=docker -e DB_DOCKER_NAME=docker
+        -e NEO4J_REST_URL=$GRAPHEN_NEO4J_REST_URL -e APP_USER=$APP_USER
+        -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME
+        -e LOG_ACCOUNT=$LOG_ACCOUNT -e LOG_TOKEN=$LOG_TOKEN
+        -e CIRCLECI=$CIRCLECI -e CIRCLE_BRANCH=$CIRCLE_BRANCH
+        -e APPLICATION_SECRET_KEY=$APPLICATION_SECRET_KEY
+        -e BOMBERMAN_API_KEY=$BOMBERMAN_API_KEY
+        -e SSL_CERT_LOCATION=$SSL_CERT_LOCATION
+        -e SSL_KEY_LOCATION=$SSL_KEY_LOCATION
+        -e AWS_S3_BUCKET=$AWS_S3_BUCKET
+        -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+        -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+        -e ALCHEMY_API_KEY=$ALCHEMY_API_KEY
+        -e ADDRESS_VALIDATION_ID=$ADDRESS_VALIDATION_ID
+        -e ADDRESS_VALIDATION_TOKEN=$ADDRESS_VALIDATION_TOKEN
+        -e ELASTIC_SEARCH_HOST=$ELASTIC_SEARCH_HOST
+        -e ELASTIC_SEARCH_PORT=$ELASTIC_SEARCH_PORT
+        -e ELASTIC_SEARCH_USER=$ELASTIC_SEARCH_USER
+        -e ELASTIC_SEARCH_KEY=$ELASTIC_SEARCH_KEY
+        -e REDIS_LOCATION=$REDIS_LOCATION
+        -e REDIS_PORT=$REDIS_PORT
+        -e QUEUE_USERNAME=$QUEUE_USERNAME
+        -e QUEUE_PASSWORD=$QUEUE_PASSWORD
+        -e QUEUE_HOST=$QUEUE_HOST
+        -e QUEUE_PORT=$QUEUE_PORT
+        -d -t sagebrew/sb_sys_util:$CIRCLE_SHA1
+    - docker run -h box-worker --name sb_worker -P --link db:db
         -e DB_USER=docker -e DB_DOCKER_NAME=docker
         -e NEO4J_REST_URL=$GRAPHEN_NEO4J_REST_URL -e APP_USER=$APP_USER
         -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME
@@ -77,8 +105,7 @@ test:
         -e QUEUE_PORT=$QUEUE_PORT
         -d -t sagebrew/sb_worker:$CIRCLE_SHA1
     # It appears if two migrations run at the same time they cause a
-    - sleep 15
-    - docker run -h box-webapp --name web_app_one -P --link db:db
+    - docker run -h box-webapp --name sb_web -P --link db:db
         -e DB_USER=docker -e DB_DOCKER_NAME=docker -p 443:443 -p 80:80
         -e NEO4J_REST_URL=$GRAPHEN_NEO4J_REST_URL -e APP_USER=$APP_USER
         -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME
@@ -108,9 +135,11 @@ test:
     # Sleep time based on aws timeout counts. This insures it is possible
     # for the deployed code to be ready within the set amount of time
     # aws will give it.
-    - sleep 65:
-        timeout: 70
+    - sleep 20
     - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/
+    - docker logs sb_web >> $CIRCLE_ARTIFACTS/sb_web.log
+    - docker logs sb_worker >> $CIRCLE_ARTIFACTS/sb_worker.log
+    - docker logs sb_sys_util >> $CIRCLE_ARTIFACTS/sb_sys_util.log
 
 checkout:
   post:
@@ -124,6 +153,38 @@ deployment:
     branch: staging
     commands:
       #- coverage report --fail-under=100
+      - docker run -h box-sys-util --name sb_sys_util_deploy -P --link db:db
+        -e RDS_DB_NAME=$RDS_DB_NAME_STAGING -e RDS_USERNAME=$RDS_USERNAME
+        -e RDS_PASSWORD=$RDS_PASSWORD_STAGING
+        -e RDS_HOSTNAME=$RDS_HOSTNAME_STAGING
+        -e CELERY_QUEUE=$CELERY_QUEUE_STAGING
+        -e NEO4J_REST_URL=$STAGING_NEO4J_REST_URL -e APP_USER=$APP_USER
+        -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME
+        -e LOG_ACCOUNT=$LOG_ACCOUNT -e LOG_TOKEN=$LOG_TOKEN
+        -e CIRCLECI=false -e CIRCLE_BRANCH=$CIRCLE_BRANCH
+        -e APPLICATION_SECRET_KEY=$APPLICATION_SECRET_KEY_STAGING
+        -e BOMBERMAN_API_KEY=$BOMBERMAN_API_KEY
+        -e SSL_CERT_LOCATION=$SSL_CERT_LOCATION
+        -e SSL_KEY_LOCATION=$SSL_KEY_LOCATION
+        -e AWS_S3_BUCKET=$AWS_S3_BUCKET_STAGING
+        -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_STAGING
+        -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID_STAGING
+        -e ALCHEMY_API_KEY=$ALCHEMY_API_KEY
+        -e ADDRESS_VALIDATION_ID=$ADDRESS_VALIDATION_ID
+        -e ADDRESS_VALIDATION_TOKEN=$ADDRESS_VALIDATION_TOKEN
+        -e ELASTIC_SEARCH_HOST=$ELASTIC_SEARCH_HOST
+        -e ELASTIC_SEARCH_PORT=$ELASTIC_SEARCH_PORT
+        -e ELASTIC_SEARCH_USER=$ELASTIC_SEARCH_USER
+        -e ELASTIC_SEARCH_KEY=$ELASTIC_SEARCH_KEY
+        -e REDIS_LOCATION=$REDIS_LOCATION_STAGING
+        -e CACHE_LOCATION=$CACHE_LOCATION_STAGING
+        -e REDIS_PORT=$REDIS_PORT
+        -e QUEUE_USERNAME=$QUEUE_USERNAME
+        -e QUEUE_PASSWORD=$QUEUE_PASSWORD
+        -e QUEUE_HOST=$QUEUE_HOST
+        -e QUEUE_PORT=$QUEUE_PORT
+        -d -t sagebrew/sb_sys_util:$CIRCLE_SHA1
+      - docker logs sb_sys_util_deploy >> $CIRCLE_ARTIFACTS/sb_sys_util_deploy.log
       - bash -x ~/com.sagebrew.web/deployment/staging.sh $CIRCLE_SHA1
       - git checkout master
       - git merge --no-edit staging

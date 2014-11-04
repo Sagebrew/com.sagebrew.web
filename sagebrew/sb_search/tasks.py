@@ -258,7 +258,7 @@ def create_keyword(text, relevance, query_param):
     try:
         try:
             search_query = SearchQuery.nodes.get(search_query=query_param)
-        except (SearchQuery.DoesNotExist, DoesNotExist) as e:
+        except (SearchQuery.DoesNotExist) as e:
             raise create_keyword.retry(exc=e, countdown=3, max_retries=None)
         try:
             keyword = KeyWord.nodes.get(keyword=text)

@@ -17,8 +17,4 @@ RUN pip install -r /home/apps/{{PROJECT_NAME}}/requirements/{{REQUIREMENTS_FILE}
 
 RUN apt-get remove --auto-remove -y git
 
-# nginx command must come first because running supervisor as a nodaemon means
-# it would never get to the && nginx if it were first. We might want to run
-# something else endlessly rather than run supervisor as a nodaemon. Not sure
-# the reprocutions of this.
 CMD chown {{APP_USER}} /etc/rsyslog.d/ && python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py logglypopulation {{LOG_ACCOUNT}} {{LOG_TOKEN}} && chown root /etc/rsyslog.d/ && service rsyslog restart && python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py collectstatic -c --noinput && python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py migrate --noinput --no-initial-data

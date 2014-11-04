@@ -51,8 +51,41 @@ class Command(BaseCommand):
         f = open("%s/dockerfiles/worker/Dockerfile" % settings.REPO_DIR, "w")
         f.write(worker_docker)
         f.close()
+        with open ("%s/docker_sys_util" % settings.REPO_DIR,
+                   "r") as dockerfile:
+            circle_branch = os.environ.get("CIRCLE_BRANCH", None)
+            data = dockerfile.read()
+            if(circle_branch is not None):
+                data = data.replace("{{PROJECT_REPONAME}}",
+                                    os.environ.get("CIRCLE_PROJECT_REPONAME",
+                                                   ""))
+                data = data.replace("{{PROJECT_USERNAME}}",
+                                    os.environ.get("CIRCLE_PROJECT_USERNAME",
+                                                   ""))
+                data = populate_general_env(data)
+                if(circle_branch == "staging"):
+                    data = populate_staging_env(data)
+                elif("dev" in circle_branch):
+                    data = populate_test_env(data)
+                elif(circle_branch == "master"):
+                    data = populate_prod_env(data)
+            else:
+                data = data.replace('{{REQUIREMENTS_FILE}}',
+                                    os.environ.get(
+                                        "REQUIREMENTS_FILE", "base"))
+                data = data.replace("{{PROJECT_REPONAME}}",
+                                    os.environ.get("PROJECT_REPONAME", ""))
+                data = data.replace("{{PROJECT_USERNAME}}",
+                                    os.environ.get("PROJECT_USERNAME", ""))
+                circle_branch = os.environ.get("DOCKER_ENV", "staging")
+            data = data.replace('{{APPLICATION_SECRET_KEY}}',
+                                os.environ.get("APPLICATION_SECRET_KEY", ""))
+            data = data.replace('{{DOCKER_ENV}}', circle_branch)
+            data = data.replace("{{PROJECT_NAME}}", "sagebrew")
+            sys_docker = data.replace("{{CIRCLECI}}",
+                                os.environ.get("CIRCLECI", ""))
         f = open("%s/dockerfiles/sys_util/Dockerfile" % settings.REPO_DIR, "w")
-        f.write(worker_docker)
+        f.write(sys_docker)
         f.close()
 
     def handle(self, *args, **options):

@@ -183,7 +183,7 @@ def edit_question_task(question_uuid, content, current_pleb, last_edited_on):
     try:
         try:
             SBQuestion.nodes.get(sb_id=question_uuid)
-        except (SBQuestion.DoesNotExist, DoesNotExist) as e:
+        except (SBQuestion.DoesNotExist) as e:
             raise edit_question_task.retry(exc=e, countdown=3, max_retries=None)
         response = edit_question_util(question_uuid=question_uuid,
                                       content=content,

@@ -50,6 +50,6 @@ def vote_object_util(vote_type, current_pleb, sb_object):
         return True
     except Exception as e:
         logger.exception(dumps({"function": vote_object_util.__name__,
-                                "exception": "UnhandledException: "}))
+                                "exception": "Unhandled Exception"}))
         return e
 

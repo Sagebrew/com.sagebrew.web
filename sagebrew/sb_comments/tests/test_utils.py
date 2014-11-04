@@ -7,13 +7,9 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 
 from api.utils import test_wait_util
-from sb_posts.utils import save_post
 from sb_posts.tasks import save_post_task
 from sb_comments.utils import (save_comment_post, edit_comment_util,
-                               delete_comment_util,
-                               create_downvote_comment_util,
-                               create_upvote_comment_util, flag_comment_util,
-                               get_post_comments)
+                               delete_comment_util, get_post_comments)
 from sb_comments.neo_models import SBComment
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util
@@ -145,153 +141,6 @@ class TestEditComment(TestCase):
 
         self.assertFalse(edited_comment)
 
-class TestVoteComments(TestCase):
-    def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
-        self.assertNotEqual(res, False)
-        test_wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-
-    def test_upvote_comment(self):
-        uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.user.email,
-                         wall_pleb=self.user.email)
-        my_comment = save_comment_post(content="test comment",
-                                       pleb=self.user.email,
-                                       post_uuid=post.sb_id)
-        create_upvote_comment_util(pleb=self.user.email,
-                                   comment_uuid=my_comment.sb_id)
-        my_comment.refresh()
-
-        self.assertEqual(my_comment.up_vote_number, 1)
-
-    def test_downvote_comment(self):
-        uuid = str(uuid1())
-        task_data = {"post_uuid": uuid, "content": "test post",
-                     "current_pleb": self.user.email,
-                     "wall_pleb": self.user.email}
-        res = save_post_task.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
-        my_comment = SBComment(sb_id=uuid)
-        my_comment.save()
-        res = create_downvote_comment_util(pleb=self.user.email,
-                                           comment_uuid=uuid)
-        my_comment.refresh()
-
-        self.assertEqual(my_comment.down_vote_number, 1)
-
-    def test_upvote_from_diff_user(self):
-        uuid = str(uuid1())
-        task_data = {"post_uuid": uuid, "content": "test post",
-                     "current_pleb": self.user.email,
-                     "wall_pleb": self.user.email}
-        res = save_post_task.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
-        my_comment = save_comment_post(content="test comment",
-                                       pleb=self.user.email,
-                                       post_uuid=uuid)
-
-        email = "bounce@simulator.amazonses.com"
-        res = create_user_util("test", "test", email, "testpassword")
-        self.assertNotEqual(res, False)
-        test_wait_util(res)
-        pleb2 = Pleb.nodes.get(email=email)
-        create_upvote_comment_util(pleb=self.user.email,
-                                   comment_uuid=my_comment.sb_id)
-        my_comment.refresh()
-        create_upvote_comment_util(pleb=pleb2.email,
-                                   comment_uuid=my_comment.sb_id)
-        my_comment.refresh()
-
-        self.assertEqual(my_comment.up_vote_number, 2)
-
-    def test_downvote_from_diff_user(self):
-        uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post",
-                         current_pleb=self.user.email,
-                         wall_pleb=self.user.email)
-        my_comment = save_comment_post(content="test comment",
-                                       pleb=self.user.email,
-                                       post_uuid=post.sb_id)
-        email = "bounce@simulator.amazonses.com"
-        res = create_user_util("test", "test", email, "testpassword")
-        self.assertNotEqual(res, False)
-        test_wait_util(res)
-        pleb2 = Pleb.nodes.get(email=email)
-        create_downvote_comment_util(pleb=self.user.email,
-                                     comment_uuid=my_comment.sb_id)
-        my_comment.refresh()
-        create_downvote_comment_util(pleb=pleb2.email,
-                                     comment_uuid=my_comment.sb_id)
-        my_comment.refresh()
-
-        self.assertEqual(my_comment.down_vote_number, 2)
-
-class TestFlagComment(TestCase):
-    def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
-        self.assertNotEqual(res, False)
-        test_wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-
-    def test_flag_comment_success_spam(self):
-        comment = SBComment(sb_id=uuid1())
-        comment.save()
-        res = flag_comment_util(comment_uuid=comment.sb_id,
-                                current_user=self.user.email,
-                                flag_reason='spam')
-
-        self.assertTrue(res)
-
-    def test_flag_comment_success_explicit(self):
-        comment = SBComment(sb_id=uuid1())
-        comment.save()
-        res = flag_comment_util(comment_uuid=comment.sb_id,
-                                current_user=self.user.email,
-                                flag_reason='explicit')
-
-        self.assertTrue(res)
-
-    def test_flag_comment_success_other(self):
-        comment = SBComment(sb_id=uuid1())
-        comment.save()
-        res = flag_comment_util(comment_uuid=comment.sb_id,
-                                current_user=self.user.email,
-                                flag_reason='other')
-
-        self.assertTrue(res)
-
-    def test_flag_comment_failure_incorrect_reason(self):
-        comment = SBComment(sb_id=uuid1())
-        comment.save()
-        res = flag_comment_util(comment_uuid=comment.sb_id,
-                                current_user=self.user.email,
-                                flag_reason='dumb')
-
-        self.assertFalse(res)
-
-    def test_flag_comment_failure_comment_does_not_exist(self):
-        res = flag_comment_util(comment_uuid=uuid1(),
-                                current_user=self.user.email,
-                                flag_reason='other')
-
-        self.assertEqual(res, None)
-
-    def test_flag_comment_failure_user_does_not_exist(self):
-        comment = SBComment(sb_id=uuid1())
-        comment.save()
-        res = flag_comment_util(comment_uuid=comment.sb_id,
-                                current_user=uuid1(),
-                                flag_reason='other')
-
-        self.assertFalse(res)
 
 class TestGetPostComments(TestCase):
     def setUp(self):

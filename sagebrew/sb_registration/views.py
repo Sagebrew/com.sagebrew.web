@@ -17,7 +17,7 @@ from neomodel import DoesNotExist, AttemptedCardinalityViolation
 from sb_tag.neo_models import SBTag
 from api.utils import spawn_task
 from plebs.tasks import send_email_task
-from plebs.neo_models import Pleb, TopicCategory, SBTopic, Address
+from plebs.neo_models import Pleb, Address
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm,
                     LoginForm)
@@ -34,8 +34,10 @@ logger = logging.getLogger('loggly_logs')
 def confirm_view(request):
     return render(request, 'verify_email.html')
 
+
 def age_restriction(request):
     return render(request, 'age_restriction_13.html')
+
 
 def signup_view(request):
     # TODO Need to take the user somewhere and do something with the ajax
@@ -44,6 +46,7 @@ def signup_view(request):
     # Otherwise they just sit at the sign up page
     # with the button not taking them anywhere.
     return render(request, 'sign_up_page/index.html')
+
 
 @api_view(['POST'])
 def signup_view_api(request):
@@ -105,11 +108,13 @@ def signup_view_api(request):
         # TODO add a handler for if the form is not valid
     except Exception:
         logger.exception(dumps({'function': signup_view_api.__name__,
-                                'exception': 'UnhandledException'}))
+                                'exception': 'Unhandled Exception'}))
         return Response({'detail': 'exception'}, status=400)
+
 
 def login_view(request):
     return render(request, 'login.html')
+
 
 @login_required()
 def resend_email_verification(request):
@@ -120,13 +125,18 @@ def resend_email_verification(request):
 
     template_dict = {
         'full_name': request.user.first_name+' '+request.user.last_name,
-        'verification_url': settings.EMAIL_VERIFICATION_URL+token_gen.make_token(request.user, pleb)+'/'
+        'verification_url': "%s%s%s" % (settings.EMAIL_VERIFICATION_URL,
+                                        token_gen.make_token(
+                                            request.user, pleb),
+                                        '/')
     }
     subject, to = "Sagebrew Email Verification", request.user.email
-    text_content = get_template('email_templates/email_verification.txt').render(Context(template_dict))
-    html_content = get_template('email_templates/email_verification.html').render(Context(template_dict))
-    task_data = {'to': to, 'subject': subject, 'text_content': text_content,
-                 'html_content': html_content}
+    # text_content = get_template(
+    # 'email_templates/email_verification.txt').render(Context(template_dict))
+    html_content = get_template(
+        'email_templates/email_verification.html').render(
+        Context(template_dict))
+    task_data = {'to': to, 'subject': subject, 'html_content': html_content}
     spawn_task(task_func=send_email_task, task_param=task_data)
     return redirect("confirm_view")
 
@@ -169,13 +179,15 @@ def login_view_api(request):
         return Response(status=400)
     except Exception:
         logger.exception(dumps({'function': login_view_api.__name__,
-                                'exception': 'UnhandledException'}))
+                                'exception': 'Unhandled Exception'}))
         return Response({'detail': 'unknown exception'}, status=400)
+
 
 @login_required()
 def logout_view(request):
     logout(request)
     return redirect('login')
+
 
 @login_required()
 def email_verification(request, confirmation):
@@ -191,9 +203,10 @@ def email_verification(request, confirmation):
     except (Pleb.DoesNotExist, DoesNotExist):
         return redirect('logout')
     except Exception:
-        logger.exception({'function': email_verification.__name__,
-                          'exception': 'UnhandledException: '})
+        logger.exception(dumps({'function': email_verification.__name__,
+                                'exception': 'Unhandled Exception'}))
         return redirect('confirm_view')
+
 
 @login_required
 @user_passes_test(verify_verified_email,
@@ -305,7 +318,7 @@ def interests(request):
             try:
                 citizen = Pleb.nodes.get(email=request.user.email)
             except (Pleb.DoesNotExist, DoesNotExist):
-                redirect("404_Error")
+                return redirect("404_Error")
             for item in interest_form.cleaned_data:
                 if interest_form.cleaned_data[item]:
                     try:
@@ -319,7 +332,7 @@ def interests(request):
                       {'interest_form': interest_form})
     except Exception:
         logger.exception(dumps({"function": interests.__name__,
-                                "exception": "UnhandledException: "}))
+                                "exception": "Unhandled Exception"}))
         return redirect("404_Error")
 
 

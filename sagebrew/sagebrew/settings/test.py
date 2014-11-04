@@ -30,6 +30,13 @@ CACHES = {
 
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 
+DEFAULT_FILE_STORAGE = 'sagebrew.s3utils.MediaRootS3BotoStorage'
+STATICFILES_STORAGE = 'sagebrew.s3utils.StaticRootS3BotoStorage'
+
+S3_URL = 'http://%s.s3.amazonaws.com/' % (AWS_STORAGE_BUCKET_NAME)
+STATIC_URL = "%s%s" % (S3_URL, "static/")
+MEDIA_URL = "%s%s" % (S3_URL, "media/")
+
 EMAIL_VERIFICATION_URL = "https://localhost/registration/email_confirmation/"
 BROKER_URL = 'amqp://%s@%s:%s//' % (environ.get("QUEUE_USERNAME", ""),
                                     environ.get("QUEUE_HOST", ""),

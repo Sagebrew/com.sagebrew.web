@@ -1,12 +1,11 @@
 from uuid import uuid1
 from django.contrib.auth.models import User
 from django.test import TestCase
-
+from neomodel.exception import DoesNotExist
 from api.utils import test_wait_util
 from sb_questions.neo_models import SBQuestion
-from sb_tag.utils import (add_tag_util, add_auto_tags_util,
-                          create_tag_relations)
-from sb_tag.neo_models import SBAutoTag
+from sb_tag.utils import (add_tag_util, add_auto_tags_util)
+
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util
 
@@ -36,7 +35,7 @@ class TestCreateTagUtil(TestCase):
                            object_uuid=uuid1(),
                            tags=tags)
 
-        self.assertFalse(res)
+        self.assertIsInstance(res, SBQuestion.DoesNotExist)
 
     def test_create_tag_util_invalid_object(self):
         question = SBQuestion(sb_id=uuid1())
@@ -101,7 +100,7 @@ class TestCreateAutoTagUtil(TestCase):
 
         res = add_auto_tags_util(util_dict)
 
-        self.assertFalse(res)
+        self.assertIsInstance(res, DoesNotExist)
 
     def test_create_auto_tag_util_invalid_object(self):
         question = SBQuestion(sb_id=uuid1())
@@ -119,40 +118,5 @@ class TestCreateAutoTagUtil(TestCase):
         util_dict = [{'object_type': 'nothing',
                       'object_uuid': question.sb_id}]
         res = add_auto_tags_util(util_dict)
-
-        self.assertFalse(res)
-
-class TestCreateAutoTagRelationships(TestCase):
-    def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
-        self.assertNotEqual(res, False)
-        test_wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-
-    def test_create_auto_tag_relationship_success(self):
-        tag_list = []
-        for item in range(0,9):
-            tag = SBAutoTag(tag_name='test_tag'+str(uuid1()))
-            tag.save()
-            tag_list.append(tag)
-        res = create_tag_relations(tag_list)
-
-        self.assertTrue(res)
-
-    def test_create_auto_tag_relaitonship_fequently_tagged_with(self):
-        tag1 = SBAutoTag(tag_name=str(uuid1())).save()
-        tag2 = SBAutoTag(tag_name=str(uuid1())).save()
-        rel = tag1.frequently_auto_tagged_with.connect(tag2)
-        rel.save()
-        rel2 = tag2.frequently_auto_tagged_with.connect(tag1)
-        rel2.save()
-        tag_list = [tag1, tag2]
-        res = create_tag_relations(tag_list)
-        self.assertTrue(res)
-
-    def test_create_auto_tag_relationship_empty_list(self):
-        res = create_tag_relations([])
 
         self.assertFalse(res)

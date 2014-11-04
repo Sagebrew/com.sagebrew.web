@@ -43,7 +43,7 @@ def profile_page(request, pleb_username=""):
         citizen = Pleb.nodes.get(email=request.user.email)
         page_user_pleb = Pleb.nodes.get(username=pleb_username)
     except (Pleb.DoesNotExist, DoesNotExist):
-        redirect('404_Error')
+        return redirect('404_Error')
     current_user = request.user
     page_user = User.objects.get(email=page_user_pleb.email)
     is_owner = False
@@ -82,7 +82,7 @@ def get_user_search_view(request, pleb_email=""):
     in a search.
 
     :param request:
-    :param pleb:
+    :param pleb_email:
     :return:
     '''
     try:
@@ -90,7 +90,7 @@ def get_user_search_view(request, pleb_email=""):
         return Response({'html': response}, status=200)
     except Exception:
         logger.exception(dumps({"function": get_user_search_view.__name__,
-                                "exception": "UnhandledException: "}))
+                                "exception": "Unhandled Exception"}))
         return Response({'html': []}, status=400)
 
 

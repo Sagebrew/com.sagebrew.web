@@ -3,7 +3,6 @@ from celery import shared_task
 from .utils import vote_object_util
 
 
-
 @shared_task()
 def vote_object_task(vote_type, current_pleb, sb_object):
     '''
@@ -19,9 +18,7 @@ def vote_object_task(vote_type, current_pleb, sb_object):
     '''
     res = vote_object_util(vote_type=vote_type, current_pleb=current_pleb,
                            sb_object=sb_object)
-    if res is True:
-        return True
-    elif isinstance(res, Exception) is True:
+    if isinstance(res, Exception) is True:
         raise vote_object_task.retry(exc=res, countdown=3, max_retries=None)
     else:
-        return False
+        return res

@@ -3,6 +3,7 @@ from django.conf import settings
 
 from .neo_models import Pleb
 
+
 def prepare_user_search_html(pleb=""):
     '''
     This utils returns a rendered to string html object used for when a user

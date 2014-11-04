@@ -7,9 +7,9 @@ from django.conf import settings
 
 from api.utils import test_wait_util
 from plebs.neo_models import Pleb
-from sb_comments.views import (save_comment_view, edit_comment, delete_comment,
-                               vote_comment, flag_comment)
+from sb_comments.views import (save_comment_view, edit_comment, delete_comment)
 from sb_registration.utils import create_user_util
+
 
 class TestSaveCommentView(TestCase):
     def setUp(self):
@@ -88,6 +88,7 @@ class TestSaveCommentView(TestCase):
 
         self.assertEqual(response.status_code, 400)
 
+
 class TestEditCommentView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
@@ -165,6 +166,7 @@ class TestEditCommentView(TestCase):
 
         self.assertEqual(response.status_code, 400)
 
+
 class TestDeleteCommentView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
@@ -238,183 +240,5 @@ class TestDeleteCommentView(TestCase):
                                     format='json')
         request.user = self.user
         response = delete_comment(request)
-
-        self.assertEqual(response.status_code, 400)
-
-class TestVoteCommentView(TestCase):
-    def setUp(self):
-        self.factory = APIRequestFactory()
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
-        self.assertNotEqual(res, False)
-        test_wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-
-    def test_vote_comment_view_correct_data(self):
-        my_dict = {'comment_uuid': str(uuid1()),
-                   'pleb': self.user.email, 'vote_type': 'up'}
-        request = self.factory.post('/comments/vote_comment/', data=my_dict,
-                                    format='json')
-        request.user = self.user
-        response = vote_comment(request)
-
-        self.assertEqual(response.status_code, 200)
-
-    def test_vote_comment_view_missing_data(self):
-        my_dict = {'vote_type': 'up'}
-        request = self.factory.post('/comments/vote_comment/', data=my_dict,
-                                    format='json')
-        request.user = self.user
-        response = vote_comment(request)
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_vote_comment_view_int_data(self):
-        request = self.factory.post('/comments/vote_comment/', data=123456789,
-                                    format='json')
-        request.user = self.user
-        response = vote_comment(request)
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_vote_comment_view_string_data(self):
-        my_dict = 'sdfasdfasdf'
-        request = self.factory.post('/posts/submit_post/', data=my_dict,
-                                    format='json')
-        request.user = self.user
-        response = vote_comment(request)
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_vote_comment_view_list_data(self):
-        my_dict = []
-        request = self.factory.post('/posts/submit_post/', data=my_dict,
-                                    format='json')
-        request.user = self.user
-        response = vote_comment(request)
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_vote_comment_view_float_data(self):
-        my_dict = 1.010101010
-        request = self.factory.post('/posts/submit_post/', data=my_dict,
-                                    format='json')
-        request.user = self.user
-        response = vote_comment(request)
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_vote_comment_view_image_data(self):
-        with open(settings.PROJECT_DIR + "/sb_posts/" +
-                  "tests/images/test_image.jpg", "rb") as image_file:
-            image = b64encode(image_file.read())
-
-        request = self.factory.post('/posts/submit_post/', data=image,
-                                    format='json')
-        request.user = self.user
-        response = vote_comment(request)
-
-        self.assertEqual(response.status_code, 400)
-
-
-class TestFlagCommentView(TestCase):
-    def setUp(self):
-        self.factory = APIRequestFactory()
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
-        self.assertNotEqual(res, False)
-        test_wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-
-    def test_flag_comment_view_correct_data_spam(self):
-        my_dict = {'current_user': self.user.email,
-                   'flag_reason': 'spam',
-                   'comment_uuid': str(uuid1())}
-        request = self.factory.post('/comments/flag_comment/', data=my_dict,
-                                    format='json')
-        request.user = self.user
-        response = flag_comment(request)
-
-        self.assertEqual(response.status_code, 200)
-
-    def test_flag_comment_view_correct_data_explicit(self):
-        my_dict = {'current_user': self.user.email,
-                   'flag_reason': 'explicit',
-                   'comment_uuid': str(uuid1())}
-        request = self.factory.post('/comments/flag_comment/', data=my_dict,
-                                    format='json')
-        request.user = self.user
-        response = flag_comment(request)
-
-        self.assertEqual(response.status_code, 200)
-
-    def test_flag_comment_view_correct_data_other(self):
-        my_dict = {'current_user': self.user.email,
-                   'flag_reason': 'other',
-                   'comment_uuid': str(uuid1())}
-        request = self.factory.post('/comments/flag_comment/', data=my_dict,
-                                    format='json')
-        request.user = self.user
-        response = flag_comment(request)
-
-        self.assertEqual(response.status_code, 200)
-
-    def test_flag_comment_view_missing_data(self):
-        my_dict = {'current_user': self.user.email,
-                   'flag_reason': 'spam'}
-        request = self.factory.post('/comments/flag_comment/', data=my_dict,
-                                    format='json')
-        request.user = self.user
-        response = flag_comment(request)
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_flag_comment_view_int_data(self):
-        my_dict = 98897965
-        request = self.factory.post('/comments/flag_comment/', data=my_dict,
-                                    format='json')
-        request.user = self.user
-        response = flag_comment(request)
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_flag_comment_view_string_data(self):
-        my_dict = 'sdfasdfasdf'
-        request = self.factory.post('/comments/flag_comment/', data=my_dict,
-                                    format='json')
-        request.user = self.user
-        response = flag_comment(request)
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_flag_comment_view_list_data(self):
-        my_dict = []
-        request = self.factory.post('/comments/flag_comment/', data=my_dict,
-                                    format='json')
-        request.user = self.user
-        response = flag_comment(request)
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_flag_comment_view_float_data(self):
-        my_dict = 1.010101010
-        request = self.factory.post('/comments/flag_comment/', data=my_dict,
-                                    format='json')
-        request.user = self.user
-        response = flag_comment(request)
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_flag_comment_view_image_data(self):
-        with open(settings.PROJECT_DIR + "/sb_posts/" +
-                  "tests/images/test_image.jpg", "rb") as image_file:
-            image = b64encode(image_file.read())
-
-        request = self.factory.post('/comments/flag_comment/', data=image,
-                                    format='json')
-        request.user = self.user
-        response = flag_comment(request)
 
         self.assertEqual(response.status_code, 400)

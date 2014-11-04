@@ -1,4 +1,5 @@
 import logging
+from json import dumps
 from django.conf import settings
 from urllib2 import HTTPError
 from requests import ConnectionError
@@ -9,6 +10,7 @@ from rest_framework.decorators import (api_view, permission_classes)
 from elasticsearch import Elasticsearch, helpers
 
 logger = logging.getLogger('loggly_logs')
+
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
@@ -23,14 +25,15 @@ def get_tag_view(request):
     try:
         tag_list = []
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        scanResp = helpers.scan(client=es, scroll='10m',
+        scan_resp = helpers.scan(client=es, scroll='10m',
                                 index='tags', doc_type='tag')
-        for resp in scanResp:
+        for resp in scan_resp:
             tag_list.append(resp['_source']['tag_name'])
         return Response({'tags': tag_list}, status=200)
     except (HTTPError, ConnectionError):
         return Response({'detail': 'connection error'}, status=400)
     except Exception:
-        logger.exception('UnhandledException: ')
+        logger.exception(dumps({"exception": 'Unhandled Exception',
+                                "function": get_tag_view.__name__}))
         return Response({'tags': []}, status=400)
 

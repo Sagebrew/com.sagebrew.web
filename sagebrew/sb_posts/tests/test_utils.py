@@ -1,4 +1,3 @@
-import time
 import pytz
 import logging
 from datetime import datetime, timedelta
@@ -7,9 +6,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 
 from api.utils import test_wait_util
-from sb_posts.utils import save_post, edit_post_info, delete_post_info, \
-    create_post_vote, flag_post
-from sb_posts.tasks import save_post_task
+from sb_posts.utils import save_post, edit_post_info, delete_post_info
 from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util
@@ -35,6 +32,8 @@ class TestSavePost(TestCase):
 
 
     def test_post_already_exists(self):
+        # TODO changed the response for an already existing post to True
+        # Does this screw any other functionality?
         post_info_dict = {'current_pleb': self.pleb.email,
                           'wall_pleb': self.pleb.email,
                           'content': 'test post',
@@ -46,7 +45,7 @@ class TestSavePost(TestCase):
                          content='test post',
                          current_pleb=self.pleb.email,
                          wall_pleb=self.pleb.email)
-        self.assertFalse(post)
+        self.assertTrue(post)
 
     def test_edit_post(self):
         uuid = str(uuid1())
@@ -56,7 +55,7 @@ class TestSavePost(TestCase):
                            wall_pleb=self.pleb.email)
         test_post.save()
         edited_post = edit_post_info(content='post edited', post_uuid=uuid,
-                                     current_pleb=self.pleb.email)
+                                     last_edited_on=datetime.now(pytz.utc))
 
         self.assertEqual(test_post.sb_id, uuid)
         self.assertTrue(edited_post)
@@ -83,9 +82,9 @@ class TestSavePost(TestCase):
 
         edited_post = edit_post_info(content='post edited',
                                      post_uuid=uuid,
-                                     current_pleb=self.pleb.email)
+                                     last_edited_on=datetime.now(pytz.utc))
 
-        self.assertEqual(edited_post['detail'], 'to be deleted')
+        self.assertFalse(edited_post)
 
     def test_edit_post_same_content(self):
         uuid = str(uuid1())
@@ -95,9 +94,9 @@ class TestSavePost(TestCase):
         test_post.save()
 
         edited_post = edit_post_info(content='test', post_uuid=uuid,
-                                     current_pleb=self.pleb.email)
+                                     last_edited_on=datetime.now(pytz.utc))
 
-        self.assertEqual(edited_post['detail'], 'content is the same')
+        self.assertFalse(edited_post)
 
     def test_edit_post_same_timestamp(self):
         uuid = str(uuid1())
@@ -108,10 +107,9 @@ class TestSavePost(TestCase):
                            last_edited_on=edit_time)
         test_post.save()
         edited_post = edit_post_info(content='post edited', post_uuid=uuid,
-                                     last_edited_on=edit_time,
-                                     current_pleb=self.pleb.email)
+                                     last_edited_on=edit_time)
 
-        self.assertEqual(edited_post['detail'], 'time stamp is the same')
+        self.assertFalse(edited_post)
 
     def test_edit_post_with_earlier_time(self):
         uuid = str(uuid1())
@@ -125,123 +123,6 @@ class TestSavePost(TestCase):
 
         edited_post = edit_post_info(content='post edited',
                                      post_uuid=uuid,
-                                     last_edited_on=datetime.now(pytz.utc),
-                                     current_pleb=self.pleb.email)
+                                     last_edited_on=datetime.now(pytz.utc))
 
-        self.assertEqual(edited_post['detail'], 'last edit more recent')
-
-
-class TestPostVotes(TestCase):
-    def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
-        self.assertNotEqual(res, False)
-        test_wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-
-    def test_upvote_post(self):
-        uuid = str(uuid1())
-        task_data = {"post_uuid": uuid, "content": "test post",
-                     "current_pleb": self.user.email,
-                     "wall_pleb": self.user.email}
-        res = save_post_task.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
-        res = create_post_vote(pleb=self.pleb.email, post_uuid=uuid,
-                         vote_type="up")
-        self.assertTrue(res)
-
-
-    def test_downvote_post(self):
-        uuid = str(uuid1())
-        task_data = {"post_uuid": uuid, "content": "test post",
-                     "current_pleb": self.user.email,
-                     "wall_pleb": self.user.email}
-        res = save_post_task.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
-        res = create_post_vote(pleb=self.pleb.email, post_uuid=uuid,
-                         vote_type="down")
-
-        self.assertTrue(res)
-
-
-    def test_downvote_twice(self):
-        uuid = str(uuid1())
-        post = SBPost(sb_id=uuid, content='test')
-        post.save()
-        pleb = Pleb.nodes.get(email=self.pleb.email)
-        post.down_voted_by.connect(pleb)
-        res = create_post_vote(pleb=self.pleb.email, post_uuid=post.sb_id,
-                         vote_type="down")
-
-        self.assertFalse(res)
-
-
-    def test_upvote_twice(self):
-        uuid = str(uuid1())
-        post = SBPost(sb_id=uuid, content='test')
-        post.save()
-        pleb = Pleb.nodes.get(email=self.pleb.email)
-        post.up_voted_by.connect(pleb)
-        res = create_post_vote(pleb=self.pleb.email, post_uuid=post.sb_id,
-                         vote_type="up")
-
-        self.assertFalse(res)
-
-
-class TestFlagPost(TestCase):
-    def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
-        self.assertNotEqual(res, False)
-        test_wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-
-    def test_flag_success_spam(self):
-        post = SBPost(sb_id=uuid1())
-        post.save()
-        res = flag_post(post_uuid=post.sb_id, current_user=self.pleb.email,
-                        flag_reason='spam')
-
-        self.assertTrue(res)
-
-    def test_flag_success_explicit(self):
-        post = SBPost(sb_id=uuid1())
-        post.save()
-        res = flag_post(post_uuid=post.sb_id, current_user=self.pleb.email,
-                        flag_reason='explicit')
-
-        self.assertTrue(res)
-
-    def test_flag_success_other(self):
-        post = SBPost(sb_id=uuid1())
-        post.save()
-        res = flag_post(post_uuid=post.sb_id, current_user=self.pleb.email,
-                        flag_reason='other')
-
-        self.assertTrue(res)
-
-    def test_flag_failure_wrong_data_incorrect_reason(self):
-        post = SBPost(sb_id=uuid1())
-        post.save()
-        res = flag_post(post_uuid=post.sb_id, current_user=self.pleb.email,
-                        flag_reason='dumb')
-
-        self.assertFalse(res)
-
-    def test_flag_failure_post_does_not_exist(self):
-        res = flag_post(post_uuid=uuid1(), current_user=self.pleb.email,
-                        flag_reason='other')
-
-        self.assertFalse(res)
-
-    def test_flag_failure_user_does_not_exist(self):
-        post = SBPost(sb_id=uuid1())
-        post.save()
-        res = flag_post(post_uuid=post.sb_id, current_user=uuid1(),
-                        flag_reason='other')
-
-        self.assertFalse(res)
+        self.assertFalse(edited_post)

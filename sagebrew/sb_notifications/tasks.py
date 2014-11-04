@@ -1,5 +1,4 @@
 import logging
-from uuid import uuid1
 from json import dumps
 from celery import shared_task
 
@@ -22,20 +21,14 @@ def spawn_notifications(sb_object, from_pleb, to_plebs, uuid=None):
     :return:
     '''
     try:
-        if uuid is None:
-            uuid = str(uuid1())
         response = create_notification_util(sb_object, from_pleb, to_plebs,
                                             uuid)
         if isinstance(response, Exception) is True:
             raise response
         return response
 
-    except TypeError as e:
-        raise spawn_notifications.retry(exc=e, countdown=3,
-                                        max_retries=None)
     except Exception as e:
         logger.exception(dumps({"function": spawn_notifications.__name__,
-                                "exception": "UnhandledException"}))
-        raise spawn_notifications.retry(exc=e, countdown=3,
-                                        max_retries=None)
+                                "exception": "Unhandled Exception"}))
+        raise spawn_notifications.retry(exc=e, countdown=3, max_retries=None)
 

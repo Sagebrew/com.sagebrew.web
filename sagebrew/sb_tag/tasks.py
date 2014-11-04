@@ -1,4 +1,5 @@
 import logging
+from json import dumps
 from celery import shared_task
 
 from api.utils import spawn_task
@@ -43,9 +44,7 @@ def add_auto_tags(tag_list):
     This function creates the auto generated tag nodes and connects them to the
     post from which they were tagged.
 
-    :param tag:
-    :param object_uuid:
-    :param object_type:
+    :param tag_list:
     :return:
     '''
     response_list = []
@@ -55,8 +54,8 @@ def add_auto_tags(tag_list):
     response = add_auto_tags_util(tag_list)
 
     if isinstance(response, Exception) is True:
-        logger.exception({"function": add_auto_tags.__name__,
-                          "exception": response.__name__})
+        logger.exception(dumps({"function": add_auto_tags.__name__,
+                                "exception": response.__name__}))
         raise add_auto_tags.retry(exc=response, countdown=3,
                                   max_retries=None)
     else:

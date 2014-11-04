@@ -183,7 +183,8 @@ deployment:
         -e QUEUE_PASSWORD=$QUEUE_PASSWORD
         -e QUEUE_HOST=$QUEUE_HOST
         -e QUEUE_PORT=$QUEUE_PORT
-        -d -t sagebrew/sb_worker:$CIRCLE_SHA1
+        -d -t sagebrew/sb_sys_util_deploy:$CIRCLE_SHA1
+      - docker logs sagebrew/sb_sys_util_deploy:$CIRCLE_SHA1 >> $CIRCLE_ARTIFACTS/sb_sys_util_deploy.log
       - bash -x ~/com.sagebrew.web/deployment/staging.sh $CIRCLE_SHA1
       - git checkout master
       - git merge --no-edit staging

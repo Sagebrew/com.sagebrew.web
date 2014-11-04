@@ -76,6 +76,8 @@ test:
         -e QUEUE_HOST=$QUEUE_HOST
         -e QUEUE_PORT=$QUEUE_PORT
         -d -t sagebrew/sb_worker:$CIRCLE_SHA1
+    # It appears if two migrations run at the same time they cause a
+    - sleep 15
     - docker run -h box-webapp --name web_app_one -P --link db:db
         -e DB_USER=docker -e DB_DOCKER_NAME=docker -p 443:443 -p 80:80
         -e NEO4J_REST_URL=$GRAPHEN_NEO4J_REST_URL -e APP_USER=$APP_USER

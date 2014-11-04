@@ -60,7 +60,6 @@ class SBBase(StructuredNode):
                                  model=PostReceivedRel)
     comments = RelationshipTo('sb_comments.neo_models.SBComment', 'HAS_A',
                               model=PostedOnRel)
-    tagged_as = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS')
     auto_tagged_as = RelationshipTo('sb_tag.neo_models.SBTag',
                                     'AUTO_TAGGED_AS')
     rel_weight = RelationshipTo('plebs.neo_models.Pleb', 'HAS_WEIGHT',
@@ -68,8 +67,16 @@ class SBBase(StructuredNode):
     notifications = RelationshipTo('sb_notifications.neo_models.NotificationBase',
                                    'NOTIFICATIONS')
 
+class SBVersioned(SBBase):
+    #relationships
+    tagged_as = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS')
 
-class SBPost(SBBase):
+class SBNonVersioned(SBBase):
+    #relationships
+    auto_tagged_as = RelationshipTo('sb_tag.neo_models.SBTag',
+                                    'AUTO_TAGGED_AS')
+
+class SBPost(SBNonVersioned):
     allowed_flags = ["explicit", "spam","other"]
     sb_name = "post"
     # relationships

@@ -299,7 +299,7 @@ function vote_object() {
             url: "/vote/vote_object_api/",
             data: JSON.stringify({
                 'vote_type': $(this).data('vote_type'),
-                'current_pleb': $(this).data('current_user'),
+                'current_pleb': $(this).data('current_pleb'),
                 'object_uuid': $(this).data('object_uuid'),
                 'object_type': $(this).data('object_type')
             }),
@@ -309,18 +309,43 @@ function vote_object() {
     });
 }
 
+function save_answer() {
+    $("a.submit_answer-action").click(function(event){
+		event.preventDefault();
+		$.ajaxSetup({
+		    beforeSend: function(xhr, settings) {
+				var csrftoken = $.cookie('csrftoken');
+		        if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
+		            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+		        }
+		    }
+		});
+	   	$.ajax({
+			xhrFields: {withCredentials: true},
+			type: "POST",
+			url: "/answers/submit_answer_api/",
+			data: JSON.stringify({
+			   'content': $('textarea#answer_content_id').val(),
+               'current_pleb': $(this).data('current_pleb'),
+               'question_uuid': $(this).data('question_uuid')
+			}),
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+            success: function (data) {
+            }
+		});
+	});
+}
 
 function enable_post_functionality() {
+    save_answer();
     flag_object();
-    vote_comment();
-    vote_post();
+    vote_object();
     edit_comment();
     save_comment();
     delete_comment();
     show_edit_post();
-    edit_post();
     show_edit_comment();
-    flag_comment();
     delete_post();
 }
 

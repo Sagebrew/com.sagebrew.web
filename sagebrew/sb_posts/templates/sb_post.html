@@ -42,7 +42,7 @@
                                                        data-flag_reason='spam'
                                                        data-current_user="{{ current_user }}"
                                                        data-object_uuid="{{ sb_id }}"
-                                                       data-object_type="SBPost">flag as spam
+                                                       data-object_type="01bb301a-644f-11e4-9ad9-080027242395">flag as spam
                                                        </a>
                             </li>
                             <li role="presentation" class="sb_divider divider"></li>
@@ -50,7 +50,7 @@
                                                        data-flag_reason='explicit'
                                                        data-current_user="{{ current_user }}"
                                                        data-object_uuid="{{ sb_id }}"
-                                                       data-object_type="SBPost">flag as explicit
+                                                       data-object_type="01bb301a-644f-11e4-9ad9-080027242395">flag as explicit
                                                        </a>
                             </li>
                             <li role="presentation" class="sb_divider divider"></li>
@@ -58,7 +58,7 @@
                                                        data-flag_reason='other'
                                                        data-current_user="{{ current_user }}"
                                                        data-object_uuid="{{ sb_id }}"
-                                                       data-object_type="SBPost">flag as other
+                                                       data-object_type="01bb301a-644f-11e4-9ad9-080027242395">flag as other
                                                        </a>
                             </li>
                             {% if post_owner_email == current_user %}
@@ -80,21 +80,23 @@
     <div class="sb_post_stats">
         <div class="row">
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2">
-                <a class='btn vote-action sb_btn_vote_icon'
+                <a class='btn vote_object-action sb_btn_vote_icon'
                    data-vote_type='up'
-                   data-pleb="{{ current_user }}"
-                   data-post_uuid="{{ sb_id }}"><span class="sb_icon sb_icon_up_vote fui-check"></span>
+                   data-current_pleb="{{ current_user }}"
+                   data-object_uuid="{{ sb_id }}"
+                   data-object_type="01bb301a-644f-11e4-9ad9-080027242395"><span class="sb_icon sb_icon_up_vote fui-check"></span>
                 </a>
             </div>
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2 sb_vote_div">
                <div class="sb_vote_count">{{ up_vote_number }}</div>
             </div>
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2">
-                 <a class='btn vote-action sb_btn_vote_icon'
+                 <a class='btn vote_object-action sb_btn_vote_icon'
                    data-vote_type='down'
-                   data-pleb="{{ current_user }}"
-                   data-post_uuid="{{ sb_id }}"><span class="sb_icon sb_icon_down_vote fui-cross"></span>
-                 </a>
+                   data-current_pleb="{{ current_user }}"
+                   data-object_uuid="{{ sb_id }}"
+                   data-object_type="01bb301a-644f-11e4-9ad9-080027242395"><span class="sb_icon sb_icon_down_vote fui-check"></span>
+                </a>
             </div>
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2 sb_vote_div">
                <div class="sb_vote_count">{{ down_vote_number }}</div>

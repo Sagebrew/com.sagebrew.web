@@ -268,12 +268,12 @@ BASE_TAGS = ["fiscal", "foreign_policy", "social", "education", "science",
              "environment", "drugs", "agriculture", "defense", "energy",
              "health", "space"]
 
-# TODO convert value displayed to user to UUIDs
+
 KNOWN_TYPES = [
-    ("sb_posts.neo_models.SBPost", "SBPost"),
-    ("sb_answers.neo_models.SBAnswer", "SBAnswer"),
-    ("sb_questions.neo_models.SBQuestion", "SBQuestion"),
-    ("sb_comments.neo_models.SBComment", "SBComment")
+    ("01bb301a-644f-11e4-9ad9-080027242395", "sb_posts.neo_models.SBPost"),
+    ("02241aee-644f-11e4-9ad9-080027242395", "sb_answers.neo_models.SBAnswer"),
+    ("0274a216-644f-11e4-9ad9-080027242395", "sb_questions.neo_models.SBQuestion"),
+    ("02ba1c88-644f-11e4-9ad9-080027242395", "sb_comments.neo_models.SBComment")
 ]
 
 # TODO When doing load testing and beta testing ensure that LOGGING of DB is on

@@ -5,8 +5,6 @@ class SaveAnswerForm(forms.Form):
     question_uuid = forms.CharField()
     current_pleb = forms.EmailField()
     content = forms.CharField()
-    to_pleb = forms.EmailField()
-
 
 class EditAnswerForm(forms.Form):
     answer_uuid = forms.CharField()

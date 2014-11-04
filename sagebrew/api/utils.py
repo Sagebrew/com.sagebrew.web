@@ -264,3 +264,11 @@ def get_object(object_type, object_uuid):
                                 "exception": NameError.__name__,
                                 "type": object_type}))
         return False
+    except CypherException as e:
+        return e
+    except Exception as e:
+        logger.exception(dumps({"function": get_object.__name__,
+                                "exception": "Unhandled Exception",
+                                "type": type(e)}))
+        return e
+

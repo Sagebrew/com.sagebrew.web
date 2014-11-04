@@ -17,7 +17,8 @@ $( document ).ready(function() {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
-            $("#single_question_wrapper").append(data)
+            $("#single_question_wrapper").append(data);
+            enable_post_functionality()
         }
     });
 	$("a.query_question_detail-action").click(function(event){
@@ -39,6 +40,7 @@ $( document ).ready(function() {
 			dataType: "json",
             success: function (data) {
                 alert(data['detail']);
+                enable_post_functionality()
             }
 		});
 	});

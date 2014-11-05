@@ -5,7 +5,7 @@ from datetime import datetime
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty)
+                      BooleanProperty, FloatProperty, CypherException)
 
 
 class EditRelationshipModel(StructuredRel):
@@ -46,7 +46,7 @@ class SBBase(StructuredNode):
     flagged_as_duplicate_count = IntegerProperty(default=0)
     flagged_as_other_count = IntegerProperty(default=0)
     view_count = IntegerProperty(default=0)
-    original = BooleanProperty(default=True)
+
 
     # relationships
     auto_tags = RelationshipTo('sb_tag.neo_models.SBAutoTag',
@@ -68,17 +68,34 @@ class SBBase(StructuredNode):
                                    'NOTIFICATIONS')
 
 class SBVersioned(SBBase):
+    original = BooleanProperty(default=True)
+
     #relationships
     tagged_as = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS')
+
+    def edit_content(self, content, pleb, question_title=None):
+        pass
 
 class SBNonVersioned(SBBase):
     #relationships
     auto_tagged_as = RelationshipTo('sb_tag.neo_models.SBTag',
                                     'AUTO_TAGGED_AS')
 
+    def edit_content(self, content, pleb, question_title=None):
+        try:
+            self.content = content
+            self.last_edited_on = datetime.now(pytz.utc)
+            self.save()
+            return self
+        except CypherException as e:
+            return e
+        except Exception as e:
+            return e
+
 class SBPost(SBNonVersioned):
     allowed_flags = ["explicit", "spam","other"]
     sb_name = "post"
+
     # relationships
     posted_on_wall = RelationshipTo('sb_wall.neo_models.SBWall', 'POSTED_ON')
     #TODO Implement referenced_by_... relationships

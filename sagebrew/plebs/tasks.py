@@ -20,7 +20,9 @@ logger = getLogger('loggly_logs')
 
 
 @shared_task()
-def send_email_task(to, subject, html_content):
+def send_email_task(to, subject, html_content, text_content=None):
+    # TODO do we need text content here?
+    # Also if not make sure to remove it from finalize_citizen_creation
     from sb_registration.utils import sb_send_email
     try:
         res = sb_send_email(to, subject, html_content)
@@ -67,16 +69,15 @@ def finalize_citizen_creation(pleb, user):
                                            generated_token)
         }
         subject, to = "Sagebrew Email Verification", pleb.email
-        #text_content = get_template(
-        #    'email_templates/email_verification.txt').render(
-        #    Context(template_dict))
+        text_content = get_template(
+            'email_templates/email_verification.txt').render(
+            Context(template_dict))
         html_content = get_template(
             'email_templates/email_verification.html').render(
             Context(template_dict))
         task_dict = {
-            "to": to, "subject": subject,
-            "html_content": html_content,
-            #"text_content": text_content,
+            "to": to, "subject": subject, "text_content": text_content,
+            "html_content": html_content
         }
         task_list["send_email_task"] = spawn_task(
             task_func=send_email_task, task_param=task_dict)

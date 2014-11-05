@@ -82,6 +82,16 @@ class Command(BaseCommand):
                                 os.environ.get("APPLICATION_SECRET_KEY", ""))
             data = data.replace('{{DOCKER_ENV}}', circle_branch)
             data = data.replace("{{PROJECT_NAME}}", "sagebrew")
+            if(circle_branch == "staging"):
+                data = data.replace("{{CREATE_SUPER}}",
+                                    " && django-admin /home/apps/{{PROJECT_NAME}}/"
+                                    "{{PROJECT_NAME}}/manage.py createsuperuser"
+                                    " --username %s --email %s" % (
+                                        os.environ.get("ADMIN_USER", ""),
+                                        os.environ.get("ADMIN_EMAIL", "")
+                                    ))
+            else:
+                data.replace("{{CREATE_SUPER}}", "")
             sys_docker = data.replace("{{CIRCLECI}}",
                                 os.environ.get("CIRCLECI", ""))
         f = open("%s/dockerfiles/sys_util/Dockerfile" % settings.REPO_DIR, "w")

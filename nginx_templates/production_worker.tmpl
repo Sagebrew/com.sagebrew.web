@@ -1,0 +1,15 @@
+server {
+
+    listen 8085;
+    access_log /home/apps/logs/{{PROJECT_NAME}}_nginx.access.log;
+	error_log /home/apps/logs/{{PROJECT_NAME}}_nginx.error.log;
+
+    client_max_body_size 4G;
+    server_name localhost;
+    keepalive_timeout 5;
+
+    location /worker.html {
+        alias /home/apps/sagebrew/worker_endpoint.html;
+    }
+
+}

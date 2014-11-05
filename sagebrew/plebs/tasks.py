@@ -20,7 +20,9 @@ logger = getLogger('loggly_logs')
 
 
 @shared_task()
-def send_email_task(to, subject, html_content):
+def send_email_task(to, subject, html_content, text_content=None):
+    # TODO do we need text content here?
+    # Also if not make sure to remove it from finalize_citizen_creation
     from sb_registration.utils import sb_send_email
     try:
         res = sb_send_email(to, subject, html_content)

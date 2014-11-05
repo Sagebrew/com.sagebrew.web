@@ -332,7 +332,7 @@ def sb_send_email(to_email, subject, html_content):
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
         )
-
+        # TODO swap out source with some service@sagebrew.com type of email
         conn.send_email(source='devon@sagebrew.com', subject=subject,
                         body=html_content, to_addresses=[to_email],
                         format='html')

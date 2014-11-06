@@ -90,8 +90,6 @@ def save_comment_post(content, pleb, post_uuid, comment_uuid=None):
         rel_to_pleb.save()
         rel_from_pleb = my_citizen.comments.connect(my_comment)
         rel_from_pleb.save()
-        rel_to_post = my_comment.commented_on_post.connect(parent_object)
-        rel_to_post.save()
         rel_from_post = parent_object.comments.connect(my_comment)
         rel_from_post.save()
         return my_comment

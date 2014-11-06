@@ -14,7 +14,7 @@ from plebs.neo_models import Pleb
 from .neo_models import SBPost
 from .tasks import save_post_task
 from .utils import (get_pleb_posts)
-from .forms import (SavePostForm, EditPostForm, DeletePostForm, GetPostForm)
+from .forms import (SavePostForm, DeletePostForm, GetPostForm)
 
 logger = logging.getLogger('loggly_logs')
 

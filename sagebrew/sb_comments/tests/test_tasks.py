@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 
 from api.utils import test_wait_util
 from sb_comments.utils import save_comment_post
-from sb_comments.tasks import (edit_comment_task, submit_comment_on_post)
+from sb_comments.tasks import (submit_comment_on_post)
 from sb_posts.tasks import save_post_task
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util
@@ -44,47 +44,3 @@ class TestSaveComment(TestCase):
         response = response.result
         self.assertTrue(response)
 
-
-class TestEditComment(TestCase):
-    def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
-        self.assertNotEqual(res, False)
-        test_wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        settings.CELERY_ALWAYS_EAGER = True
-
-    def tearDown(self):
-        settings.CELERY_ALWAYS_EAGER = False
-
-    def test_edit_comment_success(self):
-        uuid = str(uuid1())
-        task_data = {"post_uuid": uuid, "content": "test post",
-                     "current_pleb": self.user.email,
-                     "wall_pleb": self.user.email}
-        res = save_post_task.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
-
-        task_param = {'content': 'test comment',
-                      'pleb': self.user.email,
-                      'post_uuid': uuid}
-        my_comment = save_comment_post(**task_param)
-        edit_task_param = {'comment_uuid': my_comment.sb_id,
-                           'content': 'test edit',
-                           'last_edited_on': datetime.now(pytz.utc)}
-        response = edit_comment_task.apply_async(kwargs=edit_task_param)
-        while not response.ready():
-            time.sleep(3)
-        self.assertTrue(response.result)
-
-    def test_edit_comment_failure_comment_does_not_exist(self):
-        edit_task_param = {'comment_uuid': str(uuid1()),
-                           'content': 'test edit',
-                           'last_edited_on': datetime.now(pytz.utc)}
-        response = edit_comment_task.apply_async(kwargs=edit_task_param)
-        while not response.ready():
-            time.sleep(3)
-
-        self.assertTrue(response.result)

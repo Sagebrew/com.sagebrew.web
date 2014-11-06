@@ -9,7 +9,7 @@ from rest_framework.response import Response
 
 from sb_posts.neo_models import SBPost
 from api.utils import comment_to_garbage, spawn_task
-from .tasks import (submit_comment_on_post, edit_comment_task)
+from .tasks import submit_comment_on_post
 from .utils import (get_post_comments)
 from .forms import (SaveCommentForm, EditCommentForm, DeleteCommentForm)
 
@@ -49,40 +49,6 @@ def save_comment_view(request):
     except(HTTPError, ConnectionError):
         return Response({"detail": "Failed to create comment task"},
                         status=408)
-
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def edit_comment(request):  # task
-    '''
-    Allow plebs to edit their comment
-
-    :param request:
-    :return:
-    '''
-    try:
-        comment_info = request.DATA
-        try:
-            comment_info['last_edited_on'] = datetime.now(pytz.utc)
-        except TypeError:
-            comment_info = comment_info
-
-        if (type(comment_info) != dict):
-            return Response({"details": "Please Provide a JSON Object"},
-                            status=400)
-        comment_form = EditCommentForm(comment_info)
-        if comment_form.is_valid():
-            spawn_task(task_func=edit_comment_task,
-                       task_param=comment_form.cleaned_data)
-            return Response({"detail": "Comment succesfully edited"},
-                            status=200)
-        else:
-            return Response({'detail': comment_form.errors}, status=400)
-    except(HTTPError, ConnectionError):
-        return Response({'detail': 'Failed to edit comment'},
-                        status=408)
-        # do stuff with post_info
-
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))

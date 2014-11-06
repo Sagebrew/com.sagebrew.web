@@ -10,11 +10,6 @@ class SavePostForm(PostForm):
     wall_pleb = forms.EmailField()
 
 
-class EditPostForm(PostForm):
-    post_uuid = forms.CharField()
-    last_edited_on = forms.DateTimeField()
-
-
 class DeletePostForm(forms.Form):
     pleb = forms.CharField()
     post_uuid = forms.CharField()

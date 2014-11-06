@@ -6,12 +6,6 @@ class SaveQuestionForm(forms.Form):
     content = forms.CharField()
     tags = forms.CharField()
 
-class EditQuestionForm(forms.Form):
-    question_uuid = forms.CharField()
-    current_pleb = forms.EmailField()
-    content = forms.CharField()
-    last_edited_on = forms.DateTimeField()
-
 class DeleteQuestionForm(forms.Form):
     current_pleb = forms.EmailField()
     question_uuid = forms.CharField()

@@ -232,50 +232,6 @@ def get_question_by_least_recent(current_pleb, range_start=0, range_end=5):
              "exception": "Unhandled Exception"}))
         return {"detail": "fail"}
 
-
-def edit_question_util(question_uuid, last_edited_on, content, current_pleb):
-    '''
-    This util handles the editing of a question. It does not edit the question
-    if it is set to be deleted, the content it is trying to edit with is the
-    same as the current content, the last time it was edited is the same as the
-    current time, or if the last time is was edited was more recent than the
-    current time. Succeeds in editing on all other scenarios
-
-    :param question_uuid:
-    :param content:
-    :param last_edited_on:
-    :param current_pleb:
-    :return:
-    '''
-    try:
-        try:
-            my_question = SBQuestion.nodes.get(sb_id=question_uuid)
-        except (SBQuestion.DoesNotExist) as e:
-            return e
-        if my_question.to_be_deleted is True:
-            return False
-        if my_question.content == content:
-            return False
-        if my_question.last_edited_on >= last_edited_on:
-            # TODO in this instance we would still want to create the older
-            # edit and it'll just show up on the time line.
-            return False
-        edit_question = create_question_util(
-            content=content, current_pleb=current_pleb,
-            question_title=my_question.question_title)
-        my_question.edits.connect(edit_question)
-        edit_question.edit_to.connect(my_question)
-        my_question.last_edited_on = last_edited_on
-        my_question.save()
-        return True
-    except CypherException as e:
-        return e
-    except Exception as e:
-        logger.exception(dumps({"function": edit_question_util.__name__,
-                          "exception": "Unhandled Exception"}))
-        return e
-
-
 def prepare_question_search_html(question_uuid):
     try:
         try:

@@ -7,7 +7,7 @@ from neomodel.exception import DoesNotExist
 
 from api.utils import test_wait_util
 from sb_answers.neo_models import SBAnswer
-from sb_questions.utils import (create_question_util, edit_question_util,
+from sb_questions.utils import (create_question_util,
                                 prepare_get_question_dictionary,
                                 get_question_by_uuid,
                                 get_question_by_least_recent,
@@ -163,108 +163,6 @@ class TestGetQuestionByLeastRecent(TestCase):
                             ['current_pleb'])
 
         self.assertIsInstance(dict_response, list)
-
-
-class TestEditQuestionUtils(TestCase):
-    def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
-        self.assertNotEqual(res, False)
-        test_wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        self.question_info_dict = {'current_pleb': self.user.email,
-                                   'question_title': "Test question",
-                                   'content': 'test post',
-                                   'question_uuid': str(uuid1())}
-
-    def test_edit_question_util(self):
-        self.question_info_dict['sb_id']=str(uuid1())
-        question = SBQuestion(sb_id=str(uuid1()), content="test",
-                              question_title='Test Title')
-        question.save()
-
-        edit_question_dict = {'current_pleb': self.question_info_dict['current_pleb'],
-                              'content': 'edit content',
-                              'last_edited_on': datetime.now(pytz.utc),
-                              'question_uuid': question.sb_id}
-        edit_response = edit_question_util(**edit_question_dict)
-
-        self.assertTrue(edit_response)
-
-    def test_edit_question_util_to_be_deleted(self):
-        self.question_info_dict['sb_id'] = str(uuid1())
-        question = SBQuestion(sb_id=str(uuid1()), content="test",
-                              question_title='Test Title')
-        question.save()
-        question.to_be_deleted = True
-        question.save()
-
-        edit_question_dict = {'current_pleb': self.question_info_dict['current_pleb'],
-                              'content': 'edit content',
-                              'last_edited_on': datetime.now(pytz.utc),
-                              'question_uuid': question.sb_id}
-        edit_response = edit_question_util(**edit_question_dict)
-
-        self.assertFalse(edit_response)
-
-    def test_edit_question_util_same_content(self):
-        self.question_info_dict['sb_id']=str(uuid1())
-        question = SBQuestion(**self.question_info_dict)
-        question.save()
-
-        edit_question_dict = {'current_pleb': self.question_info_dict['current_pleb'],
-                              'content': 'test post',
-                              'last_edited_on': datetime.now(pytz.utc),
-                              'question_uuid': question.sb_id}
-        edit_response = edit_question_util(**edit_question_dict)
-
-        self.assertFalse(edit_response)
-
-    def test_edit_question_util_same_timestamp(self):
-        now = datetime.now(pytz.utc)
-        self.question_info_dict['sb_id']=str(uuid1())
-        question = SBQuestion(sb_id=str(uuid1()), content="test",
-                              question_title='Test Title')
-        question.save()
-        question.last_edited_on = now
-        question.save()
-
-        edit_question_dict = {'current_pleb': self.question_info_dict['current_pleb'],
-                              'content': 'test  question',
-                              'last_edited_on': now,
-                              'question_uuid': question.sb_id}
-        edit_response = edit_question_util(**edit_question_dict)
-
-        self.assertFalse(edit_response)
-
-    def test_edit_question_util_more_recent_edit(self):
-        now = datetime.now(pytz.utc)
-        future_edit = now + timedelta(minutes=10)
-
-        self.question_info_dict['sb_id']=str(uuid1())
-        question = SBQuestion(sb_id=str(uuid1()),content="test",
-                              question_title='Test Title')
-        question.save()
-        question.last_edited_on = future_edit
-        question.save()
-
-        edit_question_dict = {'current_pleb': self.question_info_dict['current_pleb'],
-                              'content': 'test     question',
-                              'last_edited_on': now,
-                              'question_uuid': question.sb_id}
-        edit_response = edit_question_util(**edit_question_dict)
-
-        self.assertFalse(edit_response)
-
-    def test_edit_question_util_question_does_not_exist(self):
-        edit_question_dict = {'current_pleb': self.question_info_dict['current_pleb'],
-                              'content': 'test question',
-                              'last_edited_on': datetime.now(pytz.utc),
-                              'question_uuid': self.question_info_dict['question_uuid']}
-        edit_response = edit_question_util(**edit_question_dict)
-
-        self.assertIsInstance(edit_response, DoesNotExist)
 
 
 class TestPrepareQuestionSearchHTML(TestCase):

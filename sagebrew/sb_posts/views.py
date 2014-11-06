@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from api.utils import (post_to_garbage, spawn_task)
 from plebs.neo_models import Pleb
 from .neo_models import SBPost
-from .tasks import save_post_task, edit_post_info_task
+from .tasks import save_post_task
 from .utils import (get_pleb_posts)
 from .forms import (SavePostForm, EditPostForm, DeletePostForm, GetPostForm)
 
@@ -72,50 +72,6 @@ def get_user_posts(request):
         return Response({'html': html_array}, status=200)
     else:
         return Response(status=400)
-
-
-# TODO Only allow users to edit their comment, unless they have admin status
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def edit_post(request):
-    '''
-    If the user edits a post this calls the util to edit the post
-
-    :param request:
-    :return:
-
-        Return Possibilities:
-            {'detail': 'edit task spawned'}, status=200
-                This will return most of the time, it means that the task has
-                been spawned
-
-            {'detail': 'form contains errors', 'errors': form.errors}
-                This returns if .is_valid() fails, review django docs
-                on form.is_valid() and the variables passed to this function
-
-    '''
-    try:
-        post_data = request.DATA
-        if type(post_data) != dict:
-            return Response({"details": "Please Provide a JSON Object"},
-                            status=400)
-        try:
-            post_data['last_edited_on'] = datetime.now(pytz.utc)
-        except TypeError:
-            post_data = post_data
-
-        post_form = EditPostForm(post_data)
-        if post_form.is_valid():
-            spawn_task(task_func=edit_post_info_task,
-                       task_param=post_form.cleaned_data)
-            return Response({'detail': 'edit task spawned'}, status=200)
-        else:
-            return Response(
-                {'detail': 'form contains errors', 'errors': post_form.errors},
-                status=400)
-
-    except (HTTPError, ConnectionError):
-        return Response({"detail": "Failed Editing"}, status=408)
 
 
 @api_view(['POST'])

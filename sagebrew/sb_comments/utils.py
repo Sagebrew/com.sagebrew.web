@@ -102,49 +102,6 @@ def save_comment_post(content, pleb, post_uuid, comment_uuid=None):
                                 "exception": "Unhandled Exception"}))
         return e
 
-
-def edit_comment_util(comment_uuid, content, last_edited_on):
-    '''
-    finds the comment with the given comment id then changes the content to the
-    content which was passed. also changes the edited on date and time to the
-    current time, it also checks to make sure that a comment wont get edited
-    if the time is earlier than the last time it was edited, this ensures
-    that
-    :param comment_uuid=str(uuid) id of the comment to be edited
-    :param content="" content which the comment should be
-                        changed to
-    :param last_edited_on: DateTime which the util was called
-    :return:
-    '''
-    try:
-        try:
-            my_comment = SBComment.nodes.get(sb_id=comment_uuid)
-        except(SBComment.DoesNotExist):
-            return DoesNotExist("SBComment does not exist")
-        if my_comment.last_edited_on >= last_edited_on:
-            return False
-        if my_comment.content == content:
-            return False
-        if my_comment.to_be_deleted:
-            return False
-
-        my_comment.content = content
-        my_comment.last_edited_on = last_edited_on
-        if my_comment.edited is False:
-            my_comment.edited = True
-
-        my_comment.save()
-        return True
-    except DoesNotExist:
-        # DoesNotExist is not a Pickleable Exception so need to swap out
-        # exceptions for it.
-        return DoesNotExist("SBComment does not exist")
-    except Exception as e:
-        logger.exception(dumps({"function": edit_comment_util.__name__,
-                                'exception': "Unhandled Exception"}))
-        return e
-
-
 def delete_comment_util(comment_uuid):
     '''
     Removes the personal content the comment which is tied to the id it is

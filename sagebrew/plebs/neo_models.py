@@ -226,7 +226,6 @@ class Pleb(StructuredNode):
             self.save()
 
 
-
 class Address(StructuredNode):
     street = StringProperty()
     street_additional = StringProperty()
@@ -243,13 +242,3 @@ class Address(StructuredNode):
     # Relationships
     address = RelationshipTo("Pleb", 'LIVES_IN')
 
-
-class TopicCategory(StructuredNode):
-    title = StringProperty(unique_index=True)
-    description = StringProperty()
-    sb_topics = RelationshipTo("SBTopic", "CONTAINS")
-
-
-class SBTopic(StructuredNode):
-    title = StringProperty(unique_index=True)
-    description = StringProperty()

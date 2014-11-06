@@ -43,6 +43,7 @@ def create_question_util(content, current_pleb, question_title,
         my_question.positivity = content_blob.polarity
         my_question.title_polarity = title_blob.polarity
         my_question.title_subjectivity = title_blob.subjectivity
+        my_question.save()
         rel = my_question.owned_by.connect(poster)
         rel.save()
         rel_from_pleb = poster.questions.connect(my_question)

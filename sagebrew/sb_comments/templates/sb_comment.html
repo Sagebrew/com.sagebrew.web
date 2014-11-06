@@ -112,10 +112,11 @@
                   name="edit_comment_input"
                   rows="1"
                   placeholder="Edit your comment..."></textarea>
-        <a class='btn btn-primary edit_comment-action'
+        <a class='btn btn-primary edit_object-action'
            id="edit_comment_button"
-           data-pleb="{{ comment.current_user }}"
-           data-comment_uuid="{{ comment.sb_id }}">Submit</a>
+           data-object_type="02ba1c88-644f-11e4-9ad9-080027242395"
+           data-current_pleb="{{ comment.current_user }}"
+           data-object_uuid="{{ comment.sb_id }}">Submit</a>
     </div>
 {% endif %}
 {% comment %}

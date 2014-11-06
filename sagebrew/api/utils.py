@@ -257,14 +257,10 @@ def get_object(object_type, object_uuid):
         sb_object = getattr(sb_module, class_name)
         try:
             return sb_object.nodes.get(sb_id=object_uuid)
-        except (sb_object.DoesNotExist, DoesNotExist):
-            return False
-    except NameError:
-        logger.exception(dumps({"function": get_object.__name__,
-                                "exception": NameError.__name__,
-                                "type": object_type}))
-        return False
-    except CypherException as e:
+        except (sb_object.DoesNotExist, DoesNotExist) as e:
+            return TypeError("%s.DoesNotExist"%object_type)
+    except (CypherException, NameError) as e:
+        print 2
         return e
     except Exception as e:
         logger.exception(dumps({"function": get_object.__name__,

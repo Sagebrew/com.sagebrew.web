@@ -67,13 +67,21 @@ class SBBase(StructuredNode):
     notifications = RelationshipTo('sb_notifications.neo_models.NotificationBase',
                                    'NOTIFICATIONS')
 
+    def comment_on(self, content, pleb):
+        #TODO look into passing a comment object instead of creating it here
+        from sb_comments.neo_models import SBComment
+        comment = SBComment(content=content).save()
+        self.comments.connect(comment)
+
+
+
 class SBVersioned(SBBase):
     original = BooleanProperty(default=True)
 
     #relationships
     tagged_as = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS')
 
-    def edit_content(self, content, pleb, question_title=None):
+    def edit_content(self, content, pleb):
         pass
 
 class SBNonVersioned(SBBase):
@@ -81,7 +89,7 @@ class SBNonVersioned(SBBase):
     auto_tagged_as = RelationshipTo('sb_tag.neo_models.SBTag',
                                     'AUTO_TAGGED_AS')
 
-    def edit_content(self, content, pleb, question_title=None):
+    def edit_content(self, content, pleb):
         try:
             self.content = content
             self.last_edited_on = datetime.now(pytz.utc)

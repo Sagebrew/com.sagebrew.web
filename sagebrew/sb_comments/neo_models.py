@@ -29,3 +29,6 @@ class SBComment(SBNonVersioned):
                                  model=CommentedOnRel)
     #TODO Implement the user_referenced, post_referenced, etc. relationships
     #TODO Implement referenced_by_users, referenced_by_post, etc. relationships
+
+    def comment_on(self, content, pleb):
+        pass

@@ -204,9 +204,6 @@ class ProfilePageTest(TestCase):
                     rel_to_pleb.save()
                     rel_from_pleb = test_pleb.comments.connect(my_comment)
                     rel_from_pleb.save()
-                    rel_to_post = my_comment.commented_on_post.connect(
-                        test_post)
-                    rel_to_post.save()
                     rel_from_post = test_post.comments.connect(my_comment)
                     rel_from_post.save()
                     comment_array.append(my_comment)
@@ -217,9 +214,6 @@ class ProfilePageTest(TestCase):
                     rel_to_pleb.save()
                     rel_from_pleb = self.pleb.comments.connect(my_comment)
                     rel_from_pleb.save()
-                    rel_to_post = my_comment.commented_on_post.connect(
-                        test_post)
-                    rel_to_post.save()
                     rel_from_post = test_post.comments.connect(my_comment)
                     rel_from_post.save()
                     comment_array.append(my_comment)

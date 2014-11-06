@@ -2,9 +2,7 @@ from django import forms
 
 
 class CommentForm(forms.Form):
-    pleb = forms.EmailField(
-        required=True
-    )
+    pleb = forms.EmailField(required=True)
 
 
 class SaveCommentForm(CommentForm):

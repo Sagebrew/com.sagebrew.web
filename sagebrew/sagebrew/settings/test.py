@@ -59,10 +59,6 @@ REST_FRAMEWORK = {
 ELASTIC_SEARCH_HOST = [{'host': '127.0.0.1'}]
 
 
-#INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar', )
-# MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + (
-# 'debug_toolbar.middleware.DebugToolbarMiddleware',)
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

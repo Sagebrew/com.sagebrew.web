@@ -1,7 +1,5 @@
-import pytz
 import logging
 from urllib2 import HTTPError
-from datetime import datetime
 from requests import ConnectionError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
@@ -11,7 +9,7 @@ from sb_posts.neo_models import SBPost
 from api.utils import comment_to_garbage, spawn_task
 from .tasks import submit_comment_on_post
 from .utils import (get_post_comments)
-from .forms import (SaveCommentForm, EditCommentForm, DeleteCommentForm)
+from .forms import (SaveCommentForm, DeleteCommentForm)
 
 logger = logging.getLogger('loggly_logs')
 

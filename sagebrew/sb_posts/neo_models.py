@@ -84,6 +84,9 @@ class SBVersioned(SBBase):
     def edit_content(self, content, pleb):
         pass
 
+    def get_name(self):
+        return self.__class__.__name__
+
 class SBNonVersioned(SBBase):
     #relationships
     auto_tagged_as = RelationshipTo('sb_tag.neo_models.SBTag',

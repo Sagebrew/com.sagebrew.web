@@ -137,6 +137,7 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb):
                 question_array.append(question_dict)
             return question_array
     except IndexError:
+        print "HERE"
         return []
     except Exception:
         logger.exception(dumps(
@@ -220,8 +221,10 @@ def get_question_by_least_recent(current_pleb, range_start=0, range_end=5):
                 'with q order by q.date_created ' \
                 'with q skip %s limit %s ' \
                 'return q' % (range_start, range_end)
+        print query
         questions, meta = execute_cypher_query(query)
         questions = [SBQuestion.inflate(row[0]) for row in questions]
+        print questions
         return_dict = prepare_get_question_dictionary(questions,
                                                       sort_by='most recent',
                                                       current_pleb=current_pleb)

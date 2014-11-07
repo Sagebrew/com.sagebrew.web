@@ -7,7 +7,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 
 from api.utils import test_wait_util
-from sb_comments.utils import save_comment_post
+from sb_comments.utils import save_comment
 from sb_comments.tasks import (submit_comment_on_post)
 from sb_posts.tasks import save_post_task
 from plebs.neo_models import Pleb

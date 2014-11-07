@@ -65,12 +65,12 @@ class SBContent(StructuredNode):
                                 model=RelationshipWeight)
     notifications = RelationshipTo('sb_notifications.neo_models.NotificationBase',
                                    'NOTIFICATIONS')
+    votes = RelationshipTo('sb_votes.neo_models.SBVote', "VOTES")
 
-    def comment_on(self, content, pleb):
-        #TODO look into passing a comment object instead of creating it here
-        from sb_comments.neo_models import SBComment
-        comment = SBComment(content=content).save()
-        self.comments.connect(comment)
+    def comment_on(self, comment):
+        rel = self.comments.connect(comment)
+        rel.save()
+        return rel
 
 
 

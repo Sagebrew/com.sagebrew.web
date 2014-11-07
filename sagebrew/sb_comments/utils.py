@@ -63,7 +63,7 @@ def get_post_comments(post_info):
     return post_array
 
 
-def save_comment_post(content, pleb, post_uuid, comment_uuid=None):
+def save_comment(content, pleb, post_uuid, comment_uuid=None):
     '''
     Creates a comment with the content passed to it. It also connects the
     comment
@@ -86,17 +86,11 @@ def save_comment_post(content, pleb, post_uuid, comment_uuid=None):
             return e
         my_comment = SBComment(content=content, sb_id=comment_uuid)
         my_comment.save()
-        rel_to_pleb = my_comment.is_owned_by.connect(my_citizen)
-        rel_to_pleb.save()
-        rel_from_pleb = my_citizen.comments.connect(my_comment)
-        rel_from_pleb.save()
-        rel_from_post = parent_object.comments.connect(my_comment)
-        rel_from_post.save()
         return my_comment
     except CypherException as e:
         return e
     except Exception as e:
-        logger.exception(dumps({"function": save_comment_post.__name__,
+        logger.exception(dumps({"function": save_comment.__name__,
                                 "exception": "Unhandled Exception"}))
         return e
 

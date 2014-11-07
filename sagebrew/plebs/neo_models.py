@@ -94,6 +94,7 @@ class Pleb(StructuredNode):
     initial_verification_email_sent = BooleanProperty(default=False)
 
     # Relationships
+    votes = RelationshipTo('sb_votes.neo_models.SBVote', 'VOTES')
     home_town_address = RelationshipTo("Address", "GREW_UP_AT")
     high_school = RelationshipTo("HighSchool", "ATTENDED_HS",
                                  model=ReceivedEducationRel)
@@ -222,6 +223,12 @@ class Pleb(StructuredNode):
         except Pleb.DoesNotExist:
             self.username = temp_username
             self.save()
+
+    def relate_comment(self, comment):
+        rel_to_pleb = comment.is_owned_by.connect(self)
+        rel_to_pleb.save()
+        rel_from_pleb = self.comments.connect(comment)
+        rel_from_pleb.save()
 
 
 class Address(StructuredNode):

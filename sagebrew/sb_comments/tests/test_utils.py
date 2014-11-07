@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 
 from api.utils import test_wait_util
 from sb_posts.tasks import save_post_task
-from sb_comments.utils import (save_comment_post,
+from sb_comments.utils import (save_comment,
                                delete_comment_util, get_post_comments)
 from sb_comments.neo_models import SBComment
 from plebs.neo_models import Pleb
@@ -32,7 +32,7 @@ class TestSaveComments(TestCase):
         res = save_post_task.apply_async(kwargs=task_data)
         while not res.ready():
             time.sleep(1)
-        my_comment = save_comment_post(content="test comment",
+        my_comment = save_comment(content="test comment",
                                        pleb=self.user.email,
                                        post_uuid=uuid)
 
@@ -46,7 +46,7 @@ class TestSaveComments(TestCase):
         res = save_post_task.apply_async(kwargs=task_data)
         while not res.ready():
             time.sleep(1)
-        my_comment = save_comment_post(content="test comment",
+        my_comment = save_comment(content="test comment",
                                        pleb=self.user.email,
                                        post_uuid=uuid)
         comment_deleted = delete_comment_util(my_comment.sb_id)
@@ -67,7 +67,7 @@ class TestSaveComments(TestCase):
         test_wait_util(res)
         pleb2 = Pleb.nodes.get(email=email)
         user2 = User.objects.get(email=email)
-        my_comment = save_comment_post(content="test comment from diff user",
+        my_comment = save_comment(content="test comment from diff user",
                                        pleb=pleb2.email,
                                        post_uuid=uuid)
 

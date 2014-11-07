@@ -5,7 +5,7 @@ from celery import shared_task
 from sb_notifications.tasks import spawn_notifications
 from api.utils import spawn_task
 
-from .utils import save_comment_post
+from .utils import save_comment
 
 logger = logging.getLogger('loggly_logs')
 
@@ -27,7 +27,7 @@ def submit_comment_on_post(content, pleb, post_uuid):
     # TODO can't this be generalized to just create a comment on a given
     # object?
     try:
-        my_comment = save_comment_post(content, pleb, post_uuid)
+        my_comment = save_comment(content, pleb, post_uuid)
         if isinstance(my_comment, Exception) is True:
             raise submit_comment_on_post.retry(exc=my_comment, countdown=5,
                                                max_retries=None)

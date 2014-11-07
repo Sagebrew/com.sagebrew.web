@@ -194,7 +194,6 @@ def get_question_view(request):
             return Response(t.render(c), status=200)
 
         elif question_data['sort_by'] == 'least_recent':
-            print 1
             response = get_question_by_least_recent(
                 current_pleb=question_data['current_pleb'])
             for question in response:

@@ -111,9 +111,7 @@ def delete_comment_util(comment_uuid):
     '''
     try:
         my_comment = SBComment.nodes.get(sb_id=comment_uuid)
-        if datetime.now(pytz.utc).day - my_comment.delete_time.day >= 1:
-            my_comment.content = ""
-            my_comment.save()
-        return True
+        my_comment.content = ""
+        my_comment.save()
     except (SBComment.DoesNotExist, DoesNotExist) as e:
         return e

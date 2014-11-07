@@ -1,3 +1,4 @@
+import datetime
 from uuid import uuid1
 from json import loads
 from base64 import b64encode
@@ -169,7 +170,10 @@ class TestGetQuestionView(TestCase):
     def test_get_question_view_success_least_recent(self):
         for item in range(0,5):
             question = SBQuestion(sb_id=str(uuid1()), content='test',
-                                  question_title='test title').save()
+                                  question_title='test title',
+                                  date_created=datetime.datetime.now()-
+                                               datetime.timedelta(days=3*365))\
+                .save()
             question.owned_by.connect(self.pleb)
 
         my_dict = {'current_pleb': self.pleb.email,

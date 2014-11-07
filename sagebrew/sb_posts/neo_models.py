@@ -26,7 +26,7 @@ class RelationshipWeight(StructuredRel):
     seen = BooleanProperty(default=True)
 
 
-class SBBase(StructuredNode):
+class SBContent(StructuredNode):
     sb_id = StringProperty(unique_index=True, default=lambda: str(uuid1()))
     content = StringProperty()
     date_created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
@@ -35,7 +35,6 @@ class SBBase(StructuredNode):
     last_edited_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     edited = BooleanProperty(default=False)
     to_be_deleted = BooleanProperty(default=False)
-    delete_time = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     is_explicit = BooleanProperty(default=False)
     polarity = FloatProperty()
     subjectivity = FloatProperty()
@@ -75,7 +74,7 @@ class SBBase(StructuredNode):
 
 
 
-class SBVersioned(SBBase):
+class SBVersioned(SBContent):
     original = BooleanProperty(default=True)
 
     #relationships
@@ -87,7 +86,7 @@ class SBVersioned(SBBase):
     def get_name(self):
         return self.__class__.__name__
 
-class SBNonVersioned(SBBase):
+class SBNonVersioned(SBContent):
     #relationships
     auto_tagged_as = RelationshipTo('sb_tag.neo_models.SBTag',
                                     'AUTO_TAGGED_AS')

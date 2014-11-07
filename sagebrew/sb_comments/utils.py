@@ -113,5 +113,6 @@ def delete_comment_util(comment_uuid):
         my_comment = SBComment.nodes.get(sb_id=comment_uuid)
         my_comment.content = ""
         my_comment.save()
+        return True
     except (SBComment.DoesNotExist, DoesNotExist) as e:
         return e

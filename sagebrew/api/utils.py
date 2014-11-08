@@ -17,8 +17,6 @@ from api.alchemyapi import AlchemyAPI
 from sb_comments.neo_models import SBComment
 from sb_posts.neo_models import SBPost
 
-from sb_garbage.neo_models import SBGarbageCan
-
 logger = logging.getLogger('loggly_logs')
 
 '''
@@ -148,62 +146,6 @@ def language_filter(content):
             return content
     except RateLimitExceeded:
         return False
-
-
-def post_to_garbage(sb_id):
-    # TODO update with dynamic object recognition
-    try:
-        post = SBPost.nodes.get(sb_id=sb_id)
-        query = 'MATCH (p:SBPost) WHERE p.sb_id="%s" ' \
-                'WITH p MATCH (p) - [:HAS_A] - (c:SBComment) ' \
-                'WHERE c.to_be_deleted=False ' \
-                'WITH c ORDER BY c.created_on ' \
-                'RETURN c' % post.sb_id
-        comments, meta = execute_cypher_query(query)
-        comments = [SBComment.inflate(row[0]) for row in comments]
-        for comment in comments:
-            comment.to_be_deleted = True
-            comment.save()
-        garbage_can = SBGarbageCan.nodes.get(garbage_can='garbage')
-        post.to_be_deleted = True
-        garbage_can.posts.connect(post)
-        garbage_can.save()
-        post.save()
-        return True
-    except SBGarbageCan.DoesNotExist:
-        post = SBPost.nodes.get(sb_id=sb_id)
-        garbage_can = SBGarbageCan(garbage_can='garbage')
-        garbage_can.save()
-        post.to_be_deleted = True
-        garbage_can.posts.connect(post)
-        garbage_can.save()
-        post.save()
-        return True
-    except SBPost.DoesNotExist:
-        return True
-
-
-def comment_to_garbage(sb_id):
-    # TODO update with dynamic object recognition
-    try:
-        comment = SBComment.nodes.get(sb_id=sb_id)
-        garbage_can = SBGarbageCan.nodes.get(garbage_can='garbage')
-        comment.to_be_deleted = True
-        garbage_can.comments.connect(comment)
-        garbage_can.save()
-        comment.save()
-        return True
-    except SBGarbageCan.DoesNotExist:
-        comment = SBComment.nodes.get(sb_id=sb_id)
-        garbage_can = SBGarbageCan(garbage_can='garbage')
-        garbage_can.save()
-        comment.to_be_deleted = True
-        garbage_can.comments.connect(comment)
-        garbage_can.save()
-        comment.save()
-        return True
-    except SBComment.DoesNotExist:
-        return True
 
 
 def create_auto_tags(content):

@@ -47,7 +47,11 @@ class SBVoteableContent(StructuredNode):
 
     #methods
     def vote_content(self, vote_type, pleb):
+        from sb_votes.neo_models import SBVote
         try:
+            vote = SBVote(vote_type=vote_type).save()
+            vote.from_pleb.connect(pleb)
+            pleb.votes.connect(vote)
             if vote_type=="up":
                 if self.up_voted_by.is_connected(pleb):
                     self.up_voted_by.disconnect(pleb)
@@ -83,6 +87,9 @@ class SBVoteableContent(StructuredNode):
                                     "exception": "Unhandled Exception"}))
             return e
 
+    def get_vote_count(self):
+        return len(self.up_voted_by.all()) - len(self.down_voted_by.all())
+
 
 class SBContent(SBVoteableContent):
     up_vote_number = IntegerProperty(default=0)
@@ -93,12 +100,6 @@ class SBContent(SBVoteableContent):
     is_explicit = BooleanProperty(default=False)
     polarity = FloatProperty()
     subjectivity = FloatProperty()
-    flagged_as_spam_count = IntegerProperty(default=0)
-    flagged_as_explicit_count = IntegerProperty(default=0)
-    flagged_as_changed_count = IntegerProperty(default=0)
-    flagged_as_unsupported_count = IntegerProperty(default=0)
-    flagged_as_duplicate_count = IntegerProperty(default=0)
-    flagged_as_other_count = IntegerProperty(default=0)
     view_count = IntegerProperty(default=0)
 
 

@@ -12,10 +12,10 @@ from .neo_models import SearchQuery, KeyWord
 from .utils import (update_search_index_doc, update_weight_relationship_values)
 from api.utils import spawn_task, get_object
 from plebs.neo_models import Pleb
-from sb_answers.neo_models import SBAnswer
 from sb_questions.neo_models import SBQuestion
 
 logger = logging.getLogger('loggly_logs')
+
 
 
 @shared_task()
@@ -35,8 +35,6 @@ def update_weight_relationship(document_id, index, object_type,
     :param modifier_type:
     :return:
     '''
-    # TODO update with dynamic object recognition
-
     update_dict = {
         "document_id" : document_id, "index": index, "field": "sb_score",
         "document_type" : object_type, "update_value": 0
@@ -47,50 +45,7 @@ def update_weight_relationship(document_id, index, object_type,
         except (Pleb.DoesNotExist, DoesNotExist):
             return False
 
-        if object_type == 'question':
-
-            try:
-                question = SBQuestion.nodes.get(sb_id=object_uuid)
-            except (SBQuestion.DoesNotExist, DoesNotExist):
-                raise SBQuestion.DoesNotExist("SBQuestion does not exist")
-
-            if pleb.obj_weight_is_connected(question):
-                rel = pleb.obj_weight_relationship(question)
-
-                update_dict['update_value'] = \
-                    update_weight_relationship_values(rel, modifier_type)
-
-                update_search_index_doc(**update_dict)
-                return True
-            else:
-                rel = pleb.obj_weight_connect(question)
-                rel.save()
-                update_dict['update_value'] = rel.weight
-                update_search_index_doc(**update_dict)
-                return True
-
-        if object_type == 'answer':
-            try:
-                answer = SBAnswer.nodes.get(sb_id = object_uuid)
-            except (SBAnswer.DoesNotExist, DoesNotExist):
-                raise SBQuestion.DoesNotExist("SBQuestion does not exist")
-
-            if pleb.obj_weight_is_connected(answer):
-                rel = pleb.obj_weight_relationship(answer)
-
-                update_dict['update_value'] = \
-                    update_weight_relationship_values(rel, modifier_type)
-                update_search_index_doc(**update_dict)
-                return True
-            else:
-                rel = pleb.obj_weight_connect(answer)
-                rel.save()
-                update_dict['update_value'] = rel.weight
-                update_search_index_doc(**update_dict)
-                return True
-
         if object_type == 'pleb':
-
             try:
                 pleb = Pleb.nodes.get(email=object_uuid)
                 c_pleb = Pleb.nodes.get(email=current_pleb)
@@ -111,6 +66,27 @@ def update_weight_relationship(document_id, index, object_type,
                 update_dict['update_value'] = rel.weight
                 update_search_index_doc(**update_dict)
             return True
+
+        sb_object = get_object(object_type, object_uuid)
+        if isinstance(sb_object, Exception) is True:
+            return sb_object
+
+        if pleb.obj_weight_is_connected(sb_object):
+            rel = pleb.obj_weight_relationship(sb_object)
+
+            update_dict['update_value'] = \
+                update_weight_relationship_values(rel, modifier_type)
+
+            update_search_index_doc(**update_dict)
+            return True
+        else:
+            rel = pleb.obj_weight_connect(sb_object)
+            rel.save()
+            update_dict['update_value'] = rel.weight
+            update_search_index_doc(**update_dict)
+            return True
+
+
     except TypeError:
         # TODO what is this portion used for?
         return False
@@ -159,7 +135,7 @@ def add_user_to_custom_index(pleb, index="full-search-user-specific-1"):
         for item in res:
             item['_source']['related_user'] = pleb.email
             item['_source']['sb_score'] = 0
-            if item['_type'] == 'question':
+            if item['_type'] == 'SBQuestion':
                 result = es.index(index=index, doc_type='question',
                                   body=item['_source'])
             if item['_type'] == 'pleb':

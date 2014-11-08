@@ -35,7 +35,7 @@ def add_question_to_indices_task(question, tags):
                            'question_uuid': question.sb_id,
                            'post_date': question.date_created,
                            'related_user': ''}
-            task_data = {"object_type": "question",
+            task_data = {"object_type": "SBQuestion",
                          "object_data": search_dict}
             question.added_to_search_index = True
             question.save()

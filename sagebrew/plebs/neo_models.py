@@ -1,11 +1,14 @@
 import re
-import shortuuid
-from datetime import datetime
 import pytz
+import logging
+from json import dumps
+from datetime import datetime
+
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty, db, ZeroOrOne)
+                      BooleanProperty, FloatProperty, db, ZeroOrOne,
+                      CypherException)
 
 from api.utils import execute_cypher_query
 from sb_relationships.neo_models import (FriendRelationship,
@@ -13,6 +16,8 @@ from sb_relationships.neo_models import (FriendRelationship,
 from sb_posts.neo_models import RelationshipWeight
 from sb_search.neo_models import SearchCount
 
+
+logger = logging.getLogger("loggly_logs")
 
 class PostObjectCreated(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
@@ -94,6 +99,7 @@ class Pleb(StructuredNode):
     initial_verification_email_sent = BooleanProperty(default=False)
 
     # Relationships
+    votes = RelationshipTo('sb_votes.neo_models.SBVote', 'VOTES')
     home_town_address = RelationshipTo("Address", "GREW_UP_AT")
     high_school = RelationshipTo("HighSchool", "ATTENDED_HS",
                                  model=ReceivedEducationRel)
@@ -101,9 +107,7 @@ class Pleb(StructuredNode):
                                 model=ReceivedEducationRel)
     employer = RelationshipTo("Company", "WORKS_AT")
     address = RelationshipTo("Address", "LIVES_AT", cardinality=ZeroOrOne)
-    topic_category = RelationshipTo("TopicCategory", "INTERESTED_IN")
     interests = RelationshipTo("sb_tag.neo_models.SBTag", "INTERESTED_IN")
-    sb_topics = RelationshipTo("SBTopic", "INTERESTED_IN")
     friends = RelationshipTo("Pleb", "FRIENDS_WITH", model=FriendRelationship)
     senator = RelationshipTo("govtrack.neo_models.GTRole",
                              "HAS_SENATOR")
@@ -225,6 +229,19 @@ class Pleb(StructuredNode):
             self.username = temp_username
             self.save()
 
+    def relate_comment(self, comment):
+        try:
+            rel_to_pleb = comment.is_owned_by.connect(self)
+            rel_to_pleb.save()
+            rel_from_pleb = self.comments.connect(comment)
+            rel_from_pleb.save()
+            return True
+        except CypherException as e:
+            return e
+        except Exception as e:
+            logger.exception(dumps({"function": Pleb.relate_comment.__name__,
+                                    "exception": "Unhandled Exception:"}))
+            return e
 
 
 class Address(StructuredNode):
@@ -243,13 +260,3 @@ class Address(StructuredNode):
     # Relationships
     address = RelationshipTo("Pleb", 'LIVES_IN')
 
-
-class TopicCategory(StructuredNode):
-    title = StringProperty(unique_index=True)
-    description = StringProperty()
-    sb_topics = RelationshipTo("SBTopic", "CONTAINS")
-
-
-class SBTopic(StructuredNode):
-    title = StringProperty(unique_index=True)
-    description = StringProperty()

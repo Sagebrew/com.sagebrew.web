@@ -3,50 +3,15 @@ from json import dumps
 from celery import shared_task
 
 from sb_notifications.tasks import spawn_notifications
-from api.utils import spawn_task
+from api.utils import spawn_task, get_object
 
-from .utils import (save_comment_post, edit_comment_util)
+from .utils import save_comment, comment_relations
 
 logger = logging.getLogger('loggly_logs')
 
 
 @shared_task()
-def edit_comment_task(comment_uuid, content, last_edited_on):
-    '''
-    Task to edit a comment and update the last_edited_on value of the comment
-
-
-    :param comment_uuid:
-    :param content:
-    :param last_edited_on:
-    :return:
-            Will return True if the comment was succesfully edited
-
-            Will return False if the task failed and spawns another task
-
-            Will return an exception if something else occurred while trying
-            to edit
-    '''
-    # TODO can we generalize editing a versioned object and editing a
-    # non-versioned object?
-    try:
-        response = edit_comment_util(comment_uuid, content, last_edited_on)
-        if response is True:
-            return True
-        elif isinstance(response, Exception) is True:
-            raise edit_comment_task.retry(exc=response, countdown=3,
-                                          max_retries=None)
-        else:
-            return False
-    except Exception as e:
-        logger.exception(dumps({"function": edit_comment_task.__name__,
-                                "exception": "Unhandled Exception"}))
-        raise edit_comment_task.retry(exc=e, countdown=3,
-                                      max_retries=None)
-
-
-@shared_task()
-def submit_comment_on_post(content, pleb, post_uuid):
+def save_comment_on_object(content, current_pleb, object_uuid, object_type):
     '''
     The task which creates a comment and attaches it to a post
 
@@ -59,36 +24,43 @@ def submit_comment_on_post(content, pleb, post_uuid):
 
             Will return false if the comment was not created
     '''
-    # TODO can't this be generalized to just create a comment on a given
-    # object?
     try:
-        my_comment = save_comment_post(content, pleb, post_uuid)
+        sb_object = get_object(object_type, object_uuid)
+        my_comment = save_comment(content)
         if isinstance(my_comment, Exception) is True:
-            raise submit_comment_on_post.retry(exc=my_comment, countdown=5,
+            raise save_comment_on_object.retry(exc=my_comment, countdown=5,
                                                max_retries=None)
         elif my_comment is False:
             return False
         else:
-            from_pleb = my_comment.is_owned_by.all()[0]
-            post = my_comment.commented_on_post.all()[0]
-            to_plebs = post.owned_by.all()
-            data = {'from_pleb': from_pleb, 'to_plebs': to_plebs,
-                    'sb_object': my_comment}
-            spawn_task(task_func=spawn_notifications, task_param=data)
+            task_data = {"current_pleb": current_pleb, "comment": my_comment,
+                         "sb_object": sb_object}
+            spawn_task(task_func=create_comment_relations,
+                       task_param=task_data)
             return True
     except IndexError as e:
-        raise submit_comment_on_post.retry(exc=e, countdown=5, max_retries=None)
+        raise save_comment_on_object.retry(exc=e, countdown=5, max_retries=None)
     except Exception as e:
-        logger.exception(dumps({'function': submit_comment_on_post.__name__,
+        logger.exception(dumps({'function': save_comment_on_object.__name__,
                                 'exception': "Unhandled Exception"}))
-        raise submit_comment_on_post.retry(exc=e, countdown=5, max_retries=None)
-
-
-@shared_task()
-def submit_comment_on_question(comment_info):
-    pass
-
+        raise save_comment_on_object.retry(exc=e, countdown=5, max_retries=None)
 
 @shared_task()
-def submit_comment_on_answer(comment_info):
-    pass
+def create_comment_relations(current_pleb, comment, sb_object):
+    try:
+        res = comment_relations(current_pleb, comment, sb_object)
+
+        if isinstance(res, Exception) is True:
+            raise create_comment_relations.retry(exc=res, countdown=3,
+                                                 max_retries=None)
+
+        to_plebs = sb_object.owned_by.all()
+        data = {'from_pleb': current_pleb, 'to_plebs': to_plebs,
+                'sb_object': comment}
+        spawn_task(task_func=spawn_notifications, task_param=data)
+        return True
+    except Exception as e:
+        logger.exception(dumps({"function": create_comment_relations.__name__,
+                                "exception": "Unhandled Exception"}))
+        raise create_comment_relations.retry(exc=e, countdown=3,
+                                             max_retries=None)

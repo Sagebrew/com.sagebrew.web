@@ -252,23 +252,18 @@ def get_object(object_type, object_uuid):
     '''
     try:
         cls = object_type
+        print cls
         module_name, class_name = cls.rsplit(".", 1)
         sb_module = importlib.import_module(module_name)
         sb_object = getattr(sb_module, class_name)
         try:
             return sb_object.nodes.get(sb_id=object_uuid)
-        except (sb_object.DoesNotExist, DoesNotExist):
-            return False
-    except NameError:
-        logger.exception(dumps({"function": get_object.__name__,
-                                "exception": NameError.__name__,
-                                "type": object_type}))
-        return False
-    except CypherException as e:
+        except (sb_object.DoesNotExist, DoesNotExist) as e:
+            return TypeError("%s.DoesNotExist"%object_type)
+    except (CypherException, NameError) as e:
         return e
     except Exception as e:
         logger.exception(dumps({"function": get_object.__name__,
-                                "exception": "Unhandled Exception",
-                                "type": type(e)}))
+                                "exception": "Unhandled Exception"}))
         return e
 

@@ -6,7 +6,7 @@ from logging import getLogger
 from sb_notifications.tasks import spawn_notifications
 from api.utils import spawn_task
 from plebs.neo_models import Pleb
-from .utils import (save_post, edit_post_info, delete_post_info)
+from .utils import (save_post, delete_post_info)
 
 logger = getLogger('loggly_logs')
 
@@ -66,21 +66,3 @@ def save_post_task(content, current_pleb, wall_pleb, post_uuid=None):
         logger.exception(dumps({"function": save_post_task.__name__,
                                 "exception": "Unhandled Exception"}))
         raise save_post_task.retry(exc=e, countdown=3, max_retries=None)
-
-
-@shared_task()
-def edit_post_info_task(post_uuid, content, last_edited_on):
-    '''
-    Edits the content of the post also updates the last_edited_on value
-    if the task returns that it cannot find the post it retries
-    :param last_edited_on:
-    :param post_uuid
-    :param content
-    :return:
-    '''
-    edit_post_return = edit_post_info(post_uuid, content, last_edited_on)
-    if isinstance(edit_post_return, Exception):
-        raise edit_post_info_task.retry(exc=edit_post_return, countdown=3,
-                                        max_retries=None)
-    else:
-        return edit_post_return

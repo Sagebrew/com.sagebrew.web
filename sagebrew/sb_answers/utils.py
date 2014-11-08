@@ -63,33 +63,3 @@ def save_answer_util(content, current_pleb, question_uuid, answer_uuid=None):
                                 "exception": "Unhandled Exception"}))
         return e
 
-
-def edit_answer_util(answer_uuid, last_edited_on, content):
-    try:
-        try:
-            my_answer = SBAnswer.nodes.get(sb_id=answer_uuid)
-        except (SBAnswer.DoesNotExist, DoesNotExist) as e:
-            return e
-        if my_answer.to_be_deleted:
-            return False
-        if my_answer.content == content:
-            return False
-        if my_answer.last_edited_on >= last_edited_on:
-            return False
-
-        edit_answer = SBAnswer(sb_id=str(uuid1()), original=False,
-                               content=content).save()
-        my_answer.edits.connect(edit_answer)
-        edit_answer.edit_to.connect(my_answer)
-        #edit_answer.owned_by.connect(my_answer.owned_by.all()[0])
-        # TODO do we need last edited on anymore?
-        # TODO Should we create a new base model for Versioned Objects?
-        my_answer.last_edited_on = edit_answer.date_created
-        my_answer.save()
-        return True
-    except CypherException as e:
-        return e
-    except Exception as e:
-        logger.exception(dumps({"function": edit_answer_util.__name__,
-                                "exception": "Unhandled Exception"}))
-        return e

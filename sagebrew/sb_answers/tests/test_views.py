@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.conf import settings
 
 from api.utils import test_wait_util
-from sb_answers.views import (save_answer_view, edit_answer_view)
+from sb_answers.views import save_answer_view
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util
 
@@ -93,88 +93,3 @@ class TestSaveAnswerView(TestCase):
 
         self.assertEqual(response.status_code, 400)
 
-
-class TestEditAnswerView(TestCase):
-    def setUp(self):
-        self.factory = APIRequestFactory()
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
-        self.assertNotEqual(res, False)
-        test_wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-
-    def test_edit_answer_view_success(self):
-        my_dict = {"answer_uuid": str(uuid1()),
-                   'current_pleb': self.pleb.email,
-                   'content': 'this is test edit content'}
-        request = self.factory.post('/answers/edit_answer_api/', data=my_dict,
-                                    format='json')
-        request.user = self.user
-
-        response = edit_answer_view(request)
-
-        self.assertEqual(response.status_code, 200)
-
-    def test_edit_answer_view_missing_data(self):
-        my_dict = {"answer_uuid": str(uuid1()),
-                   'current_pleb': self.pleb.email}
-        request = self.factory.post('/answers/edit_answer_api/', data=my_dict,
-                                    format='json')
-        request.user = self.user
-
-        response = edit_answer_view(request)
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_edit_answer_view_int_data(self):
-        my_dict = 1241241231
-        request = self.factory.post('/answers/edit_answer_api/', data=my_dict,
-                                    format='json')
-        request.user = self.user
-
-        response = edit_answer_view(request)
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_edit_answer_view_string_data(self):
-        my_dict = 'sadfasdfasdfasd'
-        request = self.factory.post('/answers/edit_answer_api/', data=my_dict,
-                                    format='json')
-        request.user = self.user
-
-        response = edit_answer_view(request)
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_edit_answer_view_float_data(self):
-        my_dict = 1.101010101
-        request = self.factory.post('/answers/edit_answer_api/', data=my_dict,
-                                    format='json')
-        request.user = self.user
-
-        response = edit_answer_view(request)
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_edit_answer_view_list_data(self):
-        my_dict = []
-        request = self.factory.post('/answers/edit_answer_api/', data=my_dict,
-                                    format='json')
-        request.user = self.user
-
-        response = edit_answer_view(request)
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_edit_answer_view_image_data(self):
-        with open(settings.PROJECT_DIR + "/sb_posts/" +
-                  "tests/images/test_image.jpg", "rb") as image_file:
-            image = b64encode(image_file.read())
-        request = self.factory.post('/answers/edit_answer_api/', data=image,
-                                    format='json')
-        request.user = self.user
-
-        response = edit_answer_view(request)
-
-        self.assertEqual(response.status_code, 400)

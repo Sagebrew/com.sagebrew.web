@@ -1,4 +1,6 @@
 import pytz
+import logging
+from json import dumps
 from uuid import uuid1
 
 from datetime import datetime
@@ -6,6 +8,8 @@ from datetime import datetime
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, CypherException)
+
+logger = logging.getLogger("loggly_logs")
 
 
 class EditRelationshipModel(StructuredRel):
@@ -26,7 +30,7 @@ class RelationshipWeight(StructuredRel):
     seen = BooleanProperty(default=True)
 
 
-class SBBase(StructuredNode):
+class SBContent(StructuredNode):
     sb_id = StringProperty(unique_index=True, default=lambda: str(uuid1()))
     content = StringProperty()
     date_created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
@@ -35,7 +39,6 @@ class SBBase(StructuredNode):
     last_edited_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     edited = BooleanProperty(default=False)
     to_be_deleted = BooleanProperty(default=False)
-    delete_time = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     is_explicit = BooleanProperty(default=False)
     polarity = FloatProperty()
     subjectivity = FloatProperty()
@@ -66,22 +69,38 @@ class SBBase(StructuredNode):
                                 model=RelationshipWeight)
     notifications = RelationshipTo('sb_notifications.neo_models.NotificationBase',
                                    'NOTIFICATIONS')
+    votes = RelationshipTo('sb_votes.neo_models.SBVote', "VOTES")
 
-class SBVersioned(SBBase):
+    def comment_on(self, comment):
+        try:
+            rel = self.comments.connect(comment)
+            rel.save()
+            return rel
+        except CypherException as e:
+            return e
+        except Exception as e:
+            logger.exception(dumps({"function": SBContent.comment_on.__name__,
+                                    "exception": "Unhandled Exception"}))
+
+
+class SBVersioned(SBContent):
     original = BooleanProperty(default=True)
 
     #relationships
     tagged_as = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS')
 
-    def edit_content(self, content, pleb, question_title=None):
+    def edit_content(self, content, pleb):
         pass
 
-class SBNonVersioned(SBBase):
+    def get_name(self):
+        return self.__class__.__name__
+
+class SBNonVersioned(SBContent):
     #relationships
     auto_tagged_as = RelationshipTo('sb_tag.neo_models.SBTag',
                                     'AUTO_TAGGED_AS')
 
-    def edit_content(self, content, pleb, question_title=None):
+    def edit_content(self, content, pleb):
         try:
             self.content = content
             self.last_edited_on = datetime.now(pytz.utc)

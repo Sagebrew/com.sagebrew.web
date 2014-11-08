@@ -72,7 +72,8 @@ STATICFILES_DIRS = (
     '%s/sb_search/static/' % PROJECT_DIR,
     '%s/sb_tag/static/' % PROJECT_DIR,
     '%s/sb_flags/static/' % PROJECT_DIR,
-    '%s/sb_votes/static/' % PROJECT_DIR
+    '%s/sb_votes/static/' % PROJECT_DIR,
+    '%s/sb_edits/static/' % PROJECT_DIR
 )
 
 # List of finder classes that know how to find static files in
@@ -161,7 +162,6 @@ INSTALLED_APPS = (
     'sb_wall',
     'sb_notifications',
     'sb_relationships',
-    'sb_garbage',
     'sb_tag',
     'sb_questions',
     'sb_answers',
@@ -169,6 +169,8 @@ INSTALLED_APPS = (
     'sb_search',
     'sb_votes',
     'sb_flags',
+    'sb_edits',
+    'sb_deletes',
     'elasticsearch',
     'textblob',
 )
@@ -268,12 +270,12 @@ BASE_TAGS = ["fiscal", "foreign_policy", "social", "education", "science",
              "environment", "drugs", "agriculture", "defense", "energy",
              "health", "space"]
 
-# TODO convert value displayed to user to UUIDs
+
 KNOWN_TYPES = [
-    ("sb_posts.neo_models.SBPost", "SBPost"),
-    ("sb_answers.neo_models.SBAnswer", "SBAnswer"),
-    ("sb_questions.neo_models.SBQuestion", "SBQuestion"),
-    ("sb_comments.neo_models.SBComment", "SBComment")
+    ("01bb301a-644f-11e4-9ad9-080027242395", "sb_posts.neo_models.SBPost"),
+    ("02241aee-644f-11e4-9ad9-080027242395", "sb_answers.neo_models.SBAnswer"),
+    ("0274a216-644f-11e4-9ad9-080027242395", "sb_questions.neo_models.SBQuestion"),
+    ("02ba1c88-644f-11e4-9ad9-080027242395", "sb_comments.neo_models.SBComment")
 ]
 
 # TODO When doing load testing and beta testing ensure that LOGGING of DB is on

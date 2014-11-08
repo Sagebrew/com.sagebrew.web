@@ -8,10 +8,9 @@ from api.tasks import add_object_to_search_index
 
 from sb_tag.tasks import add_auto_tags, add_tags
 from .neo_models import SBQuestion
-from .utils import (create_question_util, edit_question_util)
+from .utils import create_question_util
 
 logger = logging.getLogger('loggly_logs')
-
 
 
 @shared_task()
@@ -156,48 +155,3 @@ def create_question_task(content, current_pleb, question_title,
                                 'exception': "Unhandled Exception"}))
         raise create_question_task.retry(exc=e, countdown=5, max_retries=None)
 
-
-@shared_task()
-def edit_question_task(question_uuid, content, current_pleb, last_edited_on):
-    '''
-    This task calls the util which determines if a question can be edited or not
-    returns True and False based on how the util responds
-
-    :param question_uuid:
-    :param content:
-    :param current_pleb:
-    :param last_edited_on:
-    :return:
-    '''
-    # TODO can we generalize these functions for Editting a Versioned object
-    # and editing a non-versioned object? Same thing with creating and
-    # deleting?
-    # Then as we add additional Nodes we can just apply these functions
-    # to them. And if a change is made in logic it is dispursed across.
-    # Also reduces the amount of tests we have to write.
-    # Some of these have optional things that occur on a true response
-    # potentially could associate that with a function on each object
-    # editing_complete() or created_object(), etc. That could then spawn
-    # off tasks. Could create a base one on the parent classes that just
-    # shoots off notifications or w/e is needed and then it can be overwritten
-    # by the other children classes
-    try:
-        try:
-            SBQuestion.nodes.get(sb_id=question_uuid)
-        except (SBQuestion.DoesNotExist, DoesNotExist) as e:
-            raise edit_question_task.retry(exc=e, countdown=3, max_retries=None)
-        response = edit_question_util(question_uuid=question_uuid,
-                                      content=content,
-                                      current_pleb=current_pleb,
-                                      last_edited_on=last_edited_on)
-        if isinstance(response, Exception):
-            raise edit_question_task.retry(exc=response, countdown=3,
-                                           max_retries=None)
-        else:
-            return response
-    except CypherException as e:
-        raise edit_question_task.retry(exc=e, countdown=3, max_retries=None)
-    except Exception as e:
-        logger.exception(dumps({"function": edit_question_task.__name__,
-                                "exception": "Unhandled Exception"}))
-        raise edit_question_task.retry(exc=e, countdown=3, max_retries=None)

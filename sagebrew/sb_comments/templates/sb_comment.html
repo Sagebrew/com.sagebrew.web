@@ -41,7 +41,7 @@
                                                        data-flag_reason='spam'
                                                        data-current_user="{{ comment.current_user }}"
                                                        data-object_uuid="{{ comment.sb_id }}"
-                                                       data-object_type="SBComment">
+                                                       data-object_type="02ba1c88-644f-11e4-9ad9-080027242395">
                                                        flag as spam</a>
                             </li>
                             <li role="presentation" class="sb_divider divider"></li>
@@ -49,7 +49,7 @@
                                                        data-flag_reason='explicit'
                                                        data-current_user="{{ comment.current_user }}"
                                                        data-object_uuid="{{ comment.sb_id }}"
-                                                       data-object_type="SBComment">
+                                                       data-object_type="02ba1c88-644f-11e4-9ad9-080027242395">
                                                        flag as explicit</a>
                             </li>
                             <li role="presentation" class="sb_divider divider"></li>
@@ -57,14 +57,15 @@
                                                        data-flag_reason='other'
                                                        data-current_user="{{ comment.current_user }}"
                                                        data-object_uuid="{{ comment.sb_id }}"
-                                                       data-object_type="SBComment">
+                                                       data-object_type="02ba1c88-644f-11e4-9ad9-080027242395">
                                                        flag as other</a>
                             </li>
                             {% if comment.comment_owner_email == comment.current_user %}
                              <li role="presentation" class="sb_divider divider"></li>
-                            <li role="presentation"><a class='btn delete_comment-action'
-                                                       data-pleb="{{ comment.current_user }}"
-                                                       data-comment_uuid="{{ comment.sb_id }}">Delete</a>
+                            <li role="presentation"><a class='btn delete_object-action'
+                                                       data-current_pleb="{{ comment.current_user }}"
+                                                       data-object_uuid="{{ comment.sb_id }}"
+                                                       data-object_type="02ba1c88-644f-11e4-9ad9-080027242395">Delete</a>
                             </li>
                             {% endif %}
                         </ul>
@@ -79,20 +80,22 @@
 
         <div class="row">
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2">
-                <a class='btn vote_comment-action sb_btn_vote_icon'
+                <a class='btn vote_object-action sb_btn_vote_icon'
                    data-vote_type='up'
-                   data-pleb="{{ comment.current_user }}"
-                   data-comment_uuid="{{ comment.sb_id }}"><span class="sb_icon sb_icon_up_vote fui-check"></span>
+                   data-current_pleb="{{ comment.current_user }}"
+                   data-object_uuid="{{ comment.sb_id }}"
+                   data-object_type="02ba1c88-644f-11e4-9ad9-080027242395"><span class="sb_icon sb_icon_up_vote fui-check"></span>
                 </a>
             </div>
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2 sb_vote_div">
                <div class="sb_vote_count">{{ comment.comment_up_vote_number }}</div>
             </div>
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2">
-                 <a class='btn vote_comment-action sb_btn_vote_icon'
+                 <a class='btn vote_object-action sb_btn_vote_icon'
                    data-vote_type='down'
-                   data-pleb="{{ comment.current_user }}"
-                   data-comment_uuid="{{ comment.sb_id }}"><span class="sb_icon sb_icon_down_vote fui-cross"></span>
+                   data-current_pleb="{{ comment.current_user }}"
+                   data-object_uuid="{{ comment.sb_id }}"
+                   data-object_type="02ba1c88-644f-11e4-9ad9-080027242395"><span class="sb_icon sb_icon_down_vote fui-cross"></span>
                  </a>
             </div>
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2 sb_vote_div">
@@ -110,10 +113,11 @@
                   name="edit_comment_input"
                   rows="1"
                   placeholder="Edit your comment..."></textarea>
-        <a class='btn btn-primary edit_comment-action'
+        <a class='btn btn-primary edit_object-action'
            id="edit_comment_button"
-           data-pleb="{{ comment.current_user }}"
-           data-comment_uuid="{{ comment.sb_id }}">Submit</a>
+           data-object_type="02ba1c88-644f-11e4-9ad9-080027242395"
+           data-current_pleb="{{ comment.current_user }}"
+           data-object_uuid="{{ comment.sb_id }}">Submit</a>
     </div>
 {% endif %}
 {% comment %}

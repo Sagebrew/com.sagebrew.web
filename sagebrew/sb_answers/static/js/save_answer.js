@@ -16,8 +16,7 @@ $( document ).ready(function() {
 			data: JSON.stringify({
 			   'content': $('textarea#answer_content_id').val(),
                'current_pleb': $(this).data('current_pleb'),
-               'question_uuid': $(this).data('question_uuid'),
-               'to_pleb': $(this).data('to_pleb')
+               'question_uuid': $(this).data('question_uuid')
 			}),
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",

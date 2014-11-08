@@ -31,7 +31,6 @@ aws elasticbeanstalk create-application-version --application-name sagebrew-stag
 aws elasticbeanstalk update-environment --option-settings file://$DOCKERRUN_WEB_ENVIRONMENT --environment-name sb-staging-web \
     --version-label $SHA1
 
-
 # --environment-name sagebrew-staging-worker Note to self may want to change this
 # to sb-staging-worker when we automated the entire process. The limit on the naming
 # is 23 characters and to stay consistent with sb-production-worker we'll need to go

@@ -1,17 +1,19 @@
-import pytz
 import logging
+from json import dumps
 from urllib2 import HTTPError
-from datetime import datetime
 from requests import ConnectionError
+from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from neomodel import DoesNotExist
 
+from plebs.neo_models import Pleb
 from sb_posts.neo_models import SBPost
-from api.utils import comment_to_garbage, spawn_task
-from .tasks import (submit_comment_on_post, edit_comment_task)
+from api.utils import spawn_task
+from .tasks import save_comment_on_object
 from .utils import (get_post_comments)
-from .forms import (SaveCommentForm, EditCommentForm, DeleteCommentForm)
+from .forms import (SaveCommentForm)
 
 logger = logging.getLogger('loggly_logs')
 
@@ -34,79 +36,36 @@ def save_comment_view(request):
     :return:
     '''
     try:
-        comment_info = request.DATA
-        if (type(comment_info) != dict):
+        if (type(request.DATA) != dict):
             return Response({"details": "Please Provide a JSON Object"},
                             status=400)
-        comment_form = SaveCommentForm(comment_info)
+        comment_form = SaveCommentForm(request.DATA)
         if comment_form.is_valid():
-            spawn_task(task_func=submit_comment_on_post,
-                       task_param=comment_form.cleaned_data)
-            return Response({"here": "Comment succesfully created"},
+            try:
+                pleb = Pleb.nodes.get(email=comment_form.
+                                      cleaned_data['current_pleb'])
+            except (Pleb.DoesNotExist, DoesNotExist):
+                return Response({'detail': 'pleb does not exist'}, status=400)
+            choice_dict = dict(settings.KNOWN_TYPES)
+            task_data = {
+                "current_pleb": pleb,
+                "object_uuid": comment_form.cleaned_data['object_uuid'],
+                "object_type": choice_dict
+                    [comment_form.cleaned_data['object_type']],
+                "content": comment_form.cleaned_data['content']
+            }
+            spawn_task(task_func=save_comment_on_object,
+                       task_param=task_data)
+            return Response({"detail": "Comment succesfully created"},
                             status=200)
         else:
-            return Response({'detail': comment_form.errors}, status=400)
+            return Response({'detail': "invalid form"}, status=400)
     except(HTTPError, ConnectionError):
         return Response({"detail": "Failed to create comment task"},
                         status=408)
-
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def edit_comment(request):  # task
-    '''
-    Allow plebs to edit their comment
-
-    :param request:
-    :return:
-    '''
-    try:
-        comment_info = request.DATA
-        try:
-            comment_info['last_edited_on'] = datetime.now(pytz.utc)
-        except TypeError:
-            comment_info = comment_info
-
-        if (type(comment_info) != dict):
-            return Response({"details": "Please Provide a JSON Object"},
-                            status=400)
-        comment_form = EditCommentForm(comment_info)
-        if comment_form.is_valid():
-            spawn_task(task_func=edit_comment_task,
-                       task_param=comment_form.cleaned_data)
-            return Response({"detail": "Comment succesfully edited"},
-                            status=200)
-        else:
-            return Response({'detail': comment_form.errors}, status=400)
-    except(HTTPError, ConnectionError):
-        return Response({'detail': 'Failed to edit comment'},
-                        status=408)
-        # do stuff with post_info
-
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def delete_comment(request):  # task
-    '''
-    Allow plebs to delete their comment
-
-    :param request:
-    :return:
-    '''
-    try:
-        comment_info = request.DATA
-        if (type(comment_info) != dict):
-            return Response({"details": "Please Provide a JSON Object"},
-                            status=400)
-        comment_form = DeleteCommentForm(comment_info)
-        if comment_form.is_valid():
-            comment_to_garbage(comment_form.cleaned_data['comment_uuid'])
-            return Response({"detail": "Comment deleted"}, status=200)
-        else:
-            return Response({"detail": comment_form.errors}, status=400)
-    except(HTTPError, ConnectionError):
-        return Response({"detail": "Failed to delete comment"})
-        # do stuff with post_info
+    except Exception:
+        logger.exception(dumps({"function": save_comment_view.__name__,
+                                "exception": "Unhandled Exception"}))
 
 
 @api_view(['POST'])
@@ -119,6 +78,9 @@ def get_comments(request):
     :param request:
     :return:
     '''
-    my_post = SBPost.nodes.get(sb_id=request.DATA['sb_id'])
+    try:
+        my_post = SBPost.nodes.get(sb_id=request.DATA['sb_id'])
+    except (SBPost.DoesNotExist, DoesNotExist):
+        return Response(status=400)
     comments = get_post_comments(my_post)
     return Response(comments, status=200)

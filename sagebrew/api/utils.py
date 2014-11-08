@@ -17,8 +17,6 @@ from api.alchemyapi import AlchemyAPI
 from sb_comments.neo_models import SBComment
 from sb_posts.neo_models import SBPost
 
-from sb_garbage.neo_models import SBGarbageCan
-
 logger = logging.getLogger('loggly_logs')
 
 '''
@@ -150,62 +148,6 @@ def language_filter(content):
         return False
 
 
-def post_to_garbage(sb_id):
-    # TODO update with dynamic object recognition
-    try:
-        post = SBPost.nodes.get(sb_id=sb_id)
-        query = 'MATCH (p:SBPost) WHERE p.sb_id="%s" ' \
-                'WITH p MATCH (p) - [:HAS_A] - (c:SBComment) ' \
-                'WHERE c.to_be_deleted=False ' \
-                'WITH c ORDER BY c.created_on ' \
-                'RETURN c' % post.sb_id
-        comments, meta = execute_cypher_query(query)
-        comments = [SBComment.inflate(row[0]) for row in comments]
-        for comment in comments:
-            comment.to_be_deleted = True
-            comment.save()
-        garbage_can = SBGarbageCan.nodes.get(garbage_can='garbage')
-        post.to_be_deleted = True
-        garbage_can.posts.connect(post)
-        garbage_can.save()
-        post.save()
-        return True
-    except SBGarbageCan.DoesNotExist:
-        post = SBPost.nodes.get(sb_id=sb_id)
-        garbage_can = SBGarbageCan(garbage_can='garbage')
-        garbage_can.save()
-        post.to_be_deleted = True
-        garbage_can.posts.connect(post)
-        garbage_can.save()
-        post.save()
-        return True
-    except SBPost.DoesNotExist:
-        return True
-
-
-def comment_to_garbage(sb_id):
-    # TODO update with dynamic object recognition
-    try:
-        comment = SBComment.nodes.get(sb_id=sb_id)
-        garbage_can = SBGarbageCan.nodes.get(garbage_can='garbage')
-        comment.to_be_deleted = True
-        garbage_can.comments.connect(comment)
-        garbage_can.save()
-        comment.save()
-        return True
-    except SBGarbageCan.DoesNotExist:
-        comment = SBComment.nodes.get(sb_id=sb_id)
-        garbage_can = SBGarbageCan(garbage_can='garbage')
-        garbage_can.save()
-        comment.to_be_deleted = True
-        garbage_can.comments.connect(comment)
-        garbage_can.save()
-        comment.save()
-        return True
-    except SBComment.DoesNotExist:
-        return True
-
-
 def create_auto_tags(content):
     # TODO Improve exception handling and change related functions accordingly
     try:
@@ -252,15 +194,18 @@ def get_object(object_type, object_uuid):
     '''
     try:
         cls = object_type
+        print cls
         module_name, class_name = cls.rsplit(".", 1)
         sb_module = importlib.import_module(module_name)
         sb_object = getattr(sb_module, class_name)
         try:
             return sb_object.nodes.get(sb_id=object_uuid)
-        except (sb_object.DoesNotExist, DoesNotExist):
-            return False
-    except NameError:
+        except (sb_object.DoesNotExist, DoesNotExist) as e:
+            return TypeError("%s.DoesNotExist"%object_type)
+    except (CypherException, NameError) as e:
+        return e
+    except Exception as e:
         logger.exception(dumps({"function": get_object.__name__,
-                                "exception": NameError.__name__,
-                                "type": object_type}))
-        return False
+                                "exception": "Unhandled Exception"}))
+        return e
+

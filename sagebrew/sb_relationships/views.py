@@ -132,14 +132,9 @@ def respond_friend_request(request):
     :return:
     '''
     try:
-        try:
-            form = RespondFriendRequestForm(request.DATA)
-        except TypeError:
-            return Response({'detail': 'type error'}, status=400)
-        except AttributeError:
-            return Response({'detail': 'attribute error'}, status=400)
+        form = RespondFriendRequestForm(request.DATA)
 
-        if form.is_valid():
+        if form.is_valid() is True:
             try:
                 friend_request = FriendRequest.nodes.get(
                     friend_request_uuid=form.cleaned_data['request_id'])
@@ -167,10 +162,12 @@ def respond_friend_request(request):
                 return Response(status=200)
         else:
             return Response({"detail": "invalid form"}, status=400)
-
+    except TypeError:
+            return Response({'detail': 'type error'}, status=400)
+    except AttributeError:
+            return Response({'detail': 'attribute error'}, status=400)
     except IndexError:
         return Response(status=400)
-
     except Exception:
         logger.exception(dumps({"function": respond_friend_request.__name__,
                                 "exception": "Unhandled Exception"}))

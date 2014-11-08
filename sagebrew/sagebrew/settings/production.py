@@ -20,7 +20,7 @@ DATABASES = {
 
 CACHES = {
     'default': {
-        'BACKEND': 'django_elasticache.memcached.ElastiCache',
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
         'LOCATION': environ.get("CACHE_LOCATION", "127.0.0.1:11211"),
     }
 }
@@ -47,7 +47,9 @@ S3_URL = 'http://%s.s3.amazonaws.com/' % (AWS_STORAGE_BUCKET_NAME)
 STATIC_URL = "%s%s" % (S3_URL, "static/")
 MEDIA_URL = "%s%s" % (S3_URL, "media/")
 
-BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 43200}
+BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 43200,
+                            'polling_interval': 1}
+
 CELERY_DEFAULT_QUEUE = "%s" % environ.get("CELERY_QUEUE", "")
 
 REST_FRAMEWORK = {

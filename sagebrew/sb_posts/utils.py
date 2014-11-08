@@ -1,8 +1,6 @@
-import pytz
 import logging
 from uuid import uuid1
 from json import dumps
-from datetime import datetime
 
 from neomodel import DoesNotExist
 
@@ -70,9 +68,8 @@ def save_post(current_pleb, wall_pleb, content, post_uuid=None):
         try:
             poster = Pleb.nodes.get(email=current_pleb)
             my_citizen = Pleb.nodes.get(email=wall_pleb)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return False
-
+        except (Pleb.DoesNotExist, DoesNotExist) as e:
+            return e
         my_post = SBPost(content=content, sb_id=post_uuid)
         my_post.save()
         wall = my_citizen.wall.all()[0]
@@ -92,77 +89,3 @@ def save_post(current_pleb, wall_pleb, content, post_uuid=None):
                                 "exception": "Unhandled Exception"}))
         return e
 
-
-def edit_post_info(post_uuid, last_edited_on, content):
-    '''
-    changes the content of the post linked to the id passed to the function
-    to the content which was passed
-
-    :param content: "test post",
-    :param post_uuid: str(uuid)[:36]
-    :param last_edited_on: datetime.now(pytz.utc)
-    :return:
-            if the post's value to_be_deleted is True it returns the detail
-            to be deleted
-
-            if the content of the edit is the same as the content already in
-            the post it returns the detail content is the same
-
-            if the timestamp of the edit is the same it returns the
-            detail last edit more recent
-
-            if it is successful in editing it returns True
-    '''
-    try:
-        my_post = SBPost.nodes.get(sb_id=post_uuid)
-        if my_post.to_be_deleted:
-            return False
-        if my_post.content == content:
-            return False
-        if my_post.last_edited_on >= last_edited_on:
-            return False
-
-        if my_post.edited is False:
-            my_post.edited = True
-        my_post.content = content
-        my_post.last_edited_on = last_edited_on
-        my_post.save()
-        return True
-    except (SBPost.DoesNotExist, DoesNotExist) as e:
-        return e
-    except Exception as e:
-        logger.exception(dumps({"function": edit_post_info.__name__,
-                                "exception": "Unhandled Exception"}))
-        return e
-
-
-def delete_post_info(sb_id):
-    '''
-    Removes the personal content of the post and all comments attached to it
-
-    :param sb_id = String representing a UUID
-    :return:
-            if the post and comments are successfully deleted it returns True
-
-            if it cant find the post it returns False
-    '''
-    try:
-        try:
-            my_post = SBPost.nodes.get(sb_id=sb_id)
-        except (SBPost.DoesNotExist, DoesNotExist):
-            return False
-
-        if datetime.now(pytz.utc).day - my_post.delete_time.day >= 1:
-            post_comments = my_post.comments.all()
-            for comment in post_comments:
-                comment.content = ""
-                comment.save()
-            my_post.content = ""
-            my_post.save()
-            return True
-        else:
-            return True
-    except Exception as e:
-        logger.exception(dumps({'function': delete_post_info.__name__,
-                                "exception": "Unhandled Exception"}))
-        return e

@@ -1,16 +1,12 @@
-import pytz
 import time
 from uuid import uuid1
-from datetime import datetime
 from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
-from celery.utils.serialization import UnpickleableExceptionWrapper
-from neomodel.exception import DoesNotExist
 
 
 from api.utils import test_wait_util
-from sb_questions.tasks import (create_question_task, edit_question_task)
+from sb_questions.tasks import create_question_task
 from plebs.neo_models import Pleb
 from sb_questions.neo_models import SBQuestion
 from sb_registration.utils import create_user_util
@@ -67,150 +63,6 @@ class TestSaveQuestionTask(TestCase):
         self.assertFalse(res)
 
 
-class TestEditQuestionTask(TestCase):
-    def setUp(self):
-        settings.CELERY_ALWAYS_EAGER = True
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
-        self.assertNotEqual(res, False)
-        test_wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        self.question_info_dict = {'current_pleb': self.user.email,
-                                   'question_title': "Test question",
-                                   'content': 'test post',
-                                   'question_uuid': str(uuid1())}
-
-    def tearDown(self):
-        settings.CELERY_ALWAYS_EAGER = False
-
-    def test_edit_question_task(self):
-        question = SBQuestion(content="test question from edit task test",
-                              question_title="testquestiontitle from edit test",
-                              sb_id=uuid1())
-        question.save()
-        edit_question_dict = {'content': 'question edited',
-                          'question_uuid': question.sb_id,
-                          'current_pleb': self.user.email,
-                          'last_edited_on': datetime.now(pytz.utc)}
-        edit_response = edit_question_task.apply_async(
-            kwargs=edit_question_dict)
-        while not edit_response.ready():
-            time.sleep(1)
-        edit_response = edit_response.result
-        self.assertTrue(edit_response)
-
-    def test_edit_question_task_failure_pleb_does_not_exist(self):
-        # TODO this should still pass since we still want edits to go through
-        # if a user has been deactivated.
-        question = SBQuestion(sb_id=str(uuid1()))
-        question.save()
-        task_data = {
-            'content': 'edit',
-            'question_uuid': question.sb_id,
-            'current_pleb': str(uuid1()),
-            'last_edited_on': datetime.now(pytz.utc)
-        }
-
-        res = edit_question_task.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.assertTrue(res)
-
-    def test_edit_question_task_failure_question_does_not_exist(self):
-        task_data = {
-            'content': 'edit',
-            'question_uuid': str(uuid1()),
-            'current_pleb': self.user.email,
-            'last_edited_on': datetime.now(pytz.utc)
-        }
-
-        res = edit_question_task.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.assertIsInstance(res, UnpickleableExceptionWrapper)
-
-    def test_edit_question_task_failure_to_be_deleted(self):
-        question = SBQuestion(sb_id=str(uuid1()))
-        question.to_be_deleted = True
-        question.save()
-
-        task_data = {
-            'content': 'edit',
-            'question_uuid': question.sb_id,
-            'current_pleb': self.user.email,
-            'last_edited_on': datetime.now(pytz.utc)
-        }
-
-        res = edit_question_task.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.assertFalse(res)
-
-    def test_edit_question_task_failure_same_content(self):
-        question = SBQuestion(sb_id=str(uuid1()), content='edit')
-        question.save()
-
-        task_data = {
-            'content': 'edit',
-            'question_uuid': question.sb_id,
-            'current_pleb': self.user.email,
-            'last_edited_on': datetime.now(pytz.utc)
-        }
-
-        res = edit_question_task.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.assertFalse(res)
-
-    def test_edit_question_task_failure_same_timestamp(self):
-        now = datetime.now(pytz.utc)
-        question = SBQuestion(sb_id=str(uuid1()), content='edit')
-        question.last_edited_on = now
-        question.save()
-
-        task_data = {
-            'content': 'edit',
-            'question_uuid': question.sb_id,
-            'current_pleb': self.user.email,
-            'last_edited_on': now
-        }
-
-        res = edit_question_task.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.assertFalse(res)
-
-    def test_edit_question_task_failure_more_recent_edit(self):
-        now = datetime.now(pytz.utc)
-        question = SBQuestion(sb_id=str(uuid1()), content='edit')
-        question.last_edited_on = datetime.now(pytz.utc)
-        question.save()
-
-        task_data = {
-            'content': 'edit',
-            'question_uuid': question.sb_id,
-            'current_pleb': self.user.email,
-            'last_edited_on': now
-        }
-
-        res = edit_question_task.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.assertFalse(res)
-
 
 class TestQuestionTaskRaceConditions(TestCase):
     def setUp(self):
@@ -224,26 +76,6 @@ class TestQuestionTaskRaceConditions(TestCase):
                                    'question_title': "Test question",
                                    'content': 'test post',
                                    'question_uuid': str(uuid1())}
-
-    def test_race_condition_edit_multiple_times(self):
-        edit_array = []
-        question = SBQuestion(**self.question_info_dict)
-        question.save()
-
-        edit_dict = {'content': "post edited",
-                     'question_uuid': question.sb_id,
-                     'current_pleb': self.user.email,
-                     'last_edited_on': datetime.now(pytz.utc)}
-        for num in range(1, 10):
-            edit_dict['content'] = "post edited" + str(uuid1())
-            edit_dict['last_edited_on'] = datetime.now(pytz.utc)
-            edit_response = edit_question_task.apply_async(kwargs=edit_dict)
-            while not edit_response.ready():
-                time.sleep(3)
-            edit_response = edit_response.result
-            edit_array.append(edit_response)
-
-        self.assertNotIn(False, edit_array)
 
 
 class TestMultipleTasks(TestCase):

@@ -15,7 +15,8 @@ $( document ).ready(function() {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
-            $("#question_wrapper").append(data)
+            $("#question_wrapper").append(data);
+            enable_post_functionality()
         }
     });
 	$("a.query_questions-action").click(function(event){
@@ -37,7 +38,8 @@ $( document ).ready(function() {
 			dataType: "json",
             success: function (data) {
                 $("#question_wrapper").empty();
-                $("#question_wrapper").append(data)
+                $("#question_wrapper").append(data);
+                enable_post_functionality()
             }
 		});
 	});

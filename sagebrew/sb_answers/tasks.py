@@ -8,7 +8,7 @@ from api.utils import spawn_task
 from api.tasks import add_object_to_search_index
 from .neo_models import SBAnswer
 
-from .utils import (save_answer_util, edit_answer_util)
+from .utils import (save_answer_util)
 
 logger = logging.getLogger('loggly_logs')
 
@@ -78,39 +78,3 @@ def save_answer_task(current_pleb, question_uuid, content):
         raise save_answer_task.retry(exc=e, countdown=5,
                                      max_retries=None)
 
-
-@shared_task()
-def edit_answer_task(content, answer_uuid, last_edited_on):
-    '''
-    This task is spawned when a user attempts to edit an answer. It calls
-    the edit_answer util to edit the answer and the return is based upon
-    what the util returns
-
-    :param content:
-    :param answer_uuid:
-    :param last_edited_on:
-    :return:
-    '''
-    # TODO should we notify users if things they've commented on or voted on
-    # have been edited? So if the author edits their answer, notify anyone
-    # related such as commenters that the question they commented on has
-    # been changed or updated.
-    try:
-        try:
-            SBAnswer.nodes.get(sb_id=answer_uuid)
-        except (SBAnswer.DoesNotExist, DoesNotExist) as e:
-            raise edit_answer_task.retry(exc=e, countdown=3, max_retries=None)
-
-        edit_response = edit_answer_util(content=content,
-                                         answer_uuid=answer_uuid,
-                                         last_edited_on=last_edited_on)
-        if isinstance(edit_response, Exception) is True:
-            raise edit_answer_task.retry(exc=edit_response, countdown=3,
-                                         max_retries=None)
-        else:
-            return edit_response
-
-    except Exception as e:
-        logger.exception(dumps({"function": edit_answer_task.__name__,
-                                "exception": "Unhandled Exception"}))
-        raise edit_answer_task.retry(exc=e, countdown=3, max_retries=None)

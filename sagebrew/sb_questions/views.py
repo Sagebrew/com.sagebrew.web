@@ -1,8 +1,6 @@
-import pytz
 import logging
 from uuid import uuid1
 from json import dumps
-from datetime import datetime
 from django.shortcuts import render
 from django.template import Context
 from django.template.loader import get_template
@@ -16,8 +14,8 @@ from api.utils import spawn_task
 from sb_registration.utils import verify_completed_registration
 from .utils import (get_question_by_most_recent, get_question_by_uuid,
                     get_question_by_least_recent, prepare_question_search_html)
-from .tasks import (create_question_task, edit_question_task)
-from .forms import (SaveQuestionForm, EditQuestionForm)
+from .tasks import (create_question_task)
+from .forms import (SaveQuestionForm)
 
 
 logger = logging.getLogger('loggly_logs')
@@ -107,41 +105,6 @@ def save_question_view(request):
                    task_param=question_form.cleaned_data)
         return Response({"detail": "filtered",
                          "filtered_content": question_data}, status=200)
-    else:
-        return Response(question_form.errors, status=400)
-
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def edit_question_view(request):
-    '''
-   The API view to allow a user to edit their question
-
-    :param request:
-
-            request.DATA/request.body = {
-                'question_uuid': str(uuid1())
-                'content': '',
-                'current_pleb': 'example@email.com',
-                'last_edited_on': datetime
-            }
-
-    :return:
-    '''
-    question_data = request.DATA
-    if type(question_data) != dict:
-        return Response({"details": "Please provide a valid JSON object"},
-                        status=400)
-    try:
-        question_data['last_edited_on'] = datetime.now(pytz.utc)
-    except TypeError:
-        question_data = question_data
-    question_form = EditQuestionForm(question_data)
-    if question_form.is_valid():
-        spawn_task(task_func=edit_question_task,
-                   task_param=question_form.cleaned_data)
-        return Response({"detail": "edit question task spawned"},
-                        status=200)
     else:
         return Response(question_form.errors, status=400)
 

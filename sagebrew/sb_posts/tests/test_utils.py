@@ -1,12 +1,10 @@
-import pytz
 import logging
-from datetime import datetime, timedelta
 from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
 
 from api.utils import test_wait_util
-from sb_posts.utils import save_post, edit_post_info, delete_post_info
+from sb_posts.utils import save_post
 from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util
@@ -46,83 +44,3 @@ class TestSavePost(TestCase):
                          current_pleb=self.pleb.email,
                          wall_pleb=self.pleb.email)
         self.assertTrue(post)
-
-    def test_edit_post(self):
-        uuid = str(uuid1())
-        test_post = SBPost(content='test', sb_id=uuid,
-                           last_edited_on=datetime.now(pytz.utc),
-                           current_pleb=self.pleb.email,
-                           wall_pleb=self.pleb.email)
-        test_post.save()
-        edited_post = edit_post_info(content='post edited', post_uuid=uuid,
-                                     last_edited_on=datetime.now(pytz.utc))
-
-        self.assertEqual(test_post.sb_id, uuid)
-        self.assertTrue(edited_post)
-
-    def test_delete_post(self):
-        uuid = str(uuid1())
-        test_post = SBPost(content='test', sb_id=uuid,
-                           current_pleb=self.pleb.email,
-                           wall_pleb=self.pleb.email)
-        test_post.save()
-        if delete_post_info(uuid):
-            try:
-                post = SBPost.nodes.get(sb_id=uuid)
-            except SBPost.DoesNotExist:
-                return
-
-    def test_edit_post_to_be_deleted(self):
-        uuid = str(uuid1())
-        test_post = SBPost(content='test', sb_id=uuid,
-                           current_pleb=self.pleb.email,
-                           wall_pleb=self.pleb.email,
-                           to_be_deleted=True)
-        test_post.save()
-
-        edited_post = edit_post_info(content='post edited',
-                                     post_uuid=uuid,
-                                     last_edited_on=datetime.now(pytz.utc))
-
-        self.assertFalse(edited_post)
-
-    def test_edit_post_same_content(self):
-        uuid = str(uuid1())
-        test_post = SBPost(content='test', sb_id=uuid,
-                           current_pleb=self.pleb.email,
-                           wall_pleb=self.pleb.email)
-        test_post.save()
-
-        edited_post = edit_post_info(content='test', post_uuid=uuid,
-                                     last_edited_on=datetime.now(pytz.utc))
-
-        self.assertFalse(edited_post)
-
-    def test_edit_post_same_timestamp(self):
-        uuid = str(uuid1())
-        edit_time = datetime.now(pytz.UTC)
-        test_post = SBPost(content='test', sb_id=uuid,
-                           current_pleb=self.pleb.email,
-                           wall_pleb=self.pleb.email,
-                           last_edited_on=edit_time)
-        test_post.save()
-        edited_post = edit_post_info(content='post edited', post_uuid=uuid,
-                                     last_edited_on=edit_time)
-
-        self.assertFalse(edited_post)
-
-    def test_edit_post_with_earlier_time(self):
-        uuid = str(uuid1())
-        now = datetime.now(pytz.utc)
-        future_edit = now + timedelta(minutes=10)
-        test_post = SBPost(content='test', sb_id=uuid,
-                           current_pleb=self.pleb.email,
-                           wall_pleb=self.pleb.email,
-                           last_edited_on=future_edit)
-        test_post.save()
-
-        edited_post = edit_post_info(content='post edited',
-                                     post_uuid=uuid,
-                                     last_edited_on=datetime.now(pytz.utc))
-
-        self.assertFalse(edited_post)

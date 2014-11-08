@@ -11,7 +11,7 @@ logger = logging.getLogger('loggly_logs')
 
 
 class Command(BaseCommand):
-    def populate_nginx(self, user):
+    def populate_nginx(self, user, worker="web"):
         circle_branch = os.environ.get("CIRCLE_BRANCH", None)
         circle_ci = os.environ.get("CIRCLECI", False)
         if circle_ci == "false":
@@ -26,6 +26,8 @@ class Command(BaseCommand):
             env = "development"
         else:
             env = "production"
+            if worker == "worker":
+                env = "production_worker"
         worker_count = (multiprocessing.cpu_count() *2) + 1
         if worker_count > 12 and circle_ci:
             worker_count = 12
@@ -93,4 +95,4 @@ class Command(BaseCommand):
         return True
 
     def handle(self, *args, **options):
-        self.populate_nginx(args[0])
+        self.populate_nginx(args[0], args[1])

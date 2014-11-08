@@ -6,7 +6,7 @@ from logging import getLogger
 from sb_notifications.tasks import spawn_notifications
 from api.utils import spawn_task
 from plebs.neo_models import Pleb
-from .utils import (save_post, delete_post_info)
+from .utils import (save_post)
 
 logger = getLogger('loggly_logs')
 

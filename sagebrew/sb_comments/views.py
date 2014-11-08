@@ -9,10 +9,10 @@ from neomodel import DoesNotExist
 
 from plebs.neo_models import Pleb
 from sb_posts.neo_models import SBPost
-from api.utils import comment_to_garbage, spawn_task
+from api.utils import spawn_task
 from .tasks import save_comment_on_object
 from .utils import (get_post_comments)
-from .forms import (SaveCommentForm, DeleteCommentForm)
+from .forms import (SaveCommentForm)
 
 logger = logging.getLogger('loggly_logs')
 

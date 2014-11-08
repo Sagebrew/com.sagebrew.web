@@ -9,7 +9,6 @@ from rest_framework.response import Response
 
 from api.utils import (spawn_task)
 from plebs.neo_models import Pleb
-from .neo_models import SBPost
 from .tasks import save_post_task
 from .utils import (get_pleb_posts)
 from .forms import (SavePostForm, GetPostForm)

@@ -81,6 +81,7 @@ class SBContent(StructuredNode):
         except Exception as e:
             logger.exception(dumps({"function": SBContent.comment_on.__name__,
                                     "exception": "Unhandled Exception"}))
+            return e
 
     def delete_content(self, pleb):
         try:

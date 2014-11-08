@@ -1,19 +1,7 @@
 .body {
     height: 100%;
 }
-#wrap{
-  min-height: 100%;
-  height: auto;
-  margin: -190px;
-}
-.sb_nav_input{
-    border-width: 1px;
-}
-.sb_nav_input:hover,
-.sb_nav_input:active,
-.sb_nav_input:focus{
-    border-color: #b7bfbb;
-}
+
 #sb_logo_bottom {
     margin-left: 30px;
 }

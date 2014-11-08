@@ -4,72 +4,77 @@
     {{ block.super }}
 {% endblock css %}
 {% block content %}
-    <div class="sb_signup_input_group">
-    <div class="row sb_title_signup" align="center">
-        <h2 class="sb_sign_up">Sign Up</h2>
-    </div>
-        <div class="row-fluid">
-            <div class="col-lg-3 col-sm-4 col-xs-12 col-lg-offset-3 col-sm-offset-2">
-                <input type="text"
-                       value=""
-                       placeholder="First Name"
-                       class="sb_signup_input sb_signup_input_name form-control input-lg f_name">
+    <div class="sb_content_sign_up">
+        <div class="sb_signup_input_group">
+            <div class="row sb_title_signup" align="center">
+                <h2 class="sb_sign_up">Sign Up</h2>
             </div>
-            <div class="col-lg-3 col-sm-4 col-xs-12">
-                <input type="text"
-                       value=""
-                       placeholder="Last Name"
-                       class="sb_signup_input sb_signup_input_name form-control input-lg l_name">
+            <div class="row-fluid">
+                <div class="col-lg-3 col-sm-4 col-xs-12 col-lg-offset-3 col-sm-offset-2">
+                    <input type="text"
+                           value=""
+                           placeholder="First Name"
+                           class="sb_signup_input sb_signup_input_name form-control input-lg f_name">
+                </div>
+                <div class="col-lg-3 col-sm-4 col-xs-12">
+                    <input type="text"
+                           value=""
+                           placeholder="Last Name"
+                           class="sb_signup_input sb_signup_input_name form-control input-lg l_name">
+                </div>
             </div>
-        </div>
-        <div class="row-fluid">
-            <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2">
-                <input type="text"
-                       value=""
-                       placeholder="Email"
-                       class="sb_signup_input sb_signup_input_email form-control input-lg email">
+            <div class="row-fluid">
+                <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2">
+                    <input type="text"
+                           value=""
+                           placeholder="Email"
+                           class="sb_signup_input sb_signup_input_email form-control input-lg email">
+                </div>
             </div>
-        </div>
-        <div class="row-fluid">
-            <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2">
-                <input type="password"
-                       value=""
-                       placeholder="Password"
-                       class="sb_signup_input sb_signup_input_password form-control input-lg password">
+            <div class="row-fluid">
+                <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2">
+                    <input type="password"
+                           value=""
+                           placeholder="Password"
+                           class="sb_signup_input sb_signup_input_password form-control input-lg password">
+                </div>
             </div>
-        </div>
-        <div class="row-fluid">
-            <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2">
-                <input type="password"
-                       value=""
-                       placeholder="Re-enter Password"
-                       class="sb_signup_input sb_signup_input_password form-control input-lg password2">
+            <div class="row-fluid">
+                <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2">
+                    <input type="password"
+                           value=""
+                           placeholder="Re-enter Password"
+                           class="sb_signup_input sb_signup_input_password form-control input-lg password2">
+                </div>
             </div>
-        </div>
-        <div class="row-fluid">
-            <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2">
-                <a class="sb_btn sb_btn_signup btn btn-embossed btn-primary submit_signup">
-                    Sign Up
-                </a>
-            </div>
-        </div>
-        <div class="row-fluid">
-            <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2">
-                <div style="font-size: 11pt">
-                    Already have an account? Login
-                    <a href="http://192.168.56.101/registration/login/" style="
-                    font-size: 11pt">
-                        here
+            <div class="row-fluid">
+                <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2">
+                    <a class="sb_btn sb_btn_signup btn btn-embossed btn-primary submit_signup">
+                        Sign Up
                     </a>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2">
+                    <div style="font-size: 11pt">
+                        Already have an account? Login
+                        <a href="http://192.168.56.101/registration/login/" style="
+                        font-size: 11pt">
+                            here
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    {% include "footer.html" %}
     {{ block.super }}
 {% endblock content %}
-
+{% block footer %}
+      <div class="sb_content_sign_up_footer">
+        {% include "footer.html" %}
+    </div>
+{% endblock footer %}
 {% block scripts %}
     {{ block.super }}
     <script src="{% static 'js/signup.js' %}"></script>

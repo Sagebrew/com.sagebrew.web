@@ -137,8 +137,11 @@
     border-right: none;
     border-bottom: none;
 }
-.sb_bottom_menu{
-    background: #ebedef;
-    color: #bcc3ca;
-    padding: 39px 0 42px;
+.sb_nav_input{
+    border-width: 1px;
+}
+.sb_nav_input:hover,
+.sb_nav_input:active,
+.sb_nav_input:focus{
+    border-color: #b7bfbb;
 }

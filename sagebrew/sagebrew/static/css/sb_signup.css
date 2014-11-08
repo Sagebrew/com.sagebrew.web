@@ -26,7 +26,7 @@
     background-color: #1ba39c;
 }
 .sb_btn_signup{
-    margin-bottom: 85px;
+    margin-bottom: 15px;
 }
 .sb_signup_input:focus,
 .sb_signup_input:active,
@@ -54,31 +54,8 @@
 .sb_sign_up{
     color: #ffffff;
 }
-.sb_bottom_container{
-    background-color: #ffffff;
-    margin-bottom: 0;
-    opacity: .7;
-    height: 100px;
-}
-.sb_nav_bottom_links {
-    color: #7c7e80;
-    text-align: left;
-}
-.sb_nav_bottom_blank {
-    position: inherit;
-    margin-top: 80%;
-    margin-bottom: 0;
-}
-.footer{
+.sb_content_sign_up{
+    height: 500px;
+    width: 100%;
     position: absolute;
-    bottom: 0;
-    padding-top: 100px;
-    height: 100px;
-    margin-right: 15px;
-}
-.container{
-    padding: 60px 15px 0;
-}
-.navbar-fixed-bottom{
-    padding-top: 0%;
 }

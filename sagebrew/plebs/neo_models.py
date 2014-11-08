@@ -243,6 +243,8 @@ class Pleb(StructuredNode):
                                     "exception": "Unhandled Exception:"}))
             return e
 
+    def get_available_flags(self):
+        pass
 
 class Address(StructuredNode):
     street = StringProperty()

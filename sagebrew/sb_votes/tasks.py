@@ -21,8 +21,8 @@ def vote_object_task(vote_type, current_pleb, object_type, object_uuid):
     if isinstance(sb_object, Exception) is True:
         raise vote_object_task.retry(exc=sb_object, countdown=3,
                                      max_retries=None)
-    res = vote_object_util(vote_type=vote_type, current_pleb=current_pleb,
-                           sb_object=sb_object)
+    res = sb_object.vote_content(vote_type, current_pleb)
+
     if isinstance(res, Exception) is True:
         raise vote_object_task.retry(exc=res, countdown=3, max_retries=None)
     else:

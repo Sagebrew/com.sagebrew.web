@@ -33,8 +33,6 @@ class SBQuestion(SBVersioned):
     added_to_search_index = BooleanProperty(default=False)
 
     # relationships
-    edits = RelationshipTo('sb_questions.neo_models.SBQuestion', 'EDIT')
-    edit_to = RelationshipTo('sb_questions.neo_models.SBQuestion', 'EDIT_TO')
     tags = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS')
     auto_tags = RelationshipTo('sb_tag.neo_models.SBAutoTag',
                                'AUTO_TAGGED_AS', model=TagRelevanceModel)

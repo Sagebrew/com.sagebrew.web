@@ -171,6 +171,7 @@ INSTALLED_APPS = (
     'sb_votes',
     'sb_flags',
     'sb_edits',
+    'sb_deletes',
     'elasticsearch',
     'textblob',
 )

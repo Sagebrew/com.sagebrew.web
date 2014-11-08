@@ -58,8 +58,7 @@ def save_comment_view(request):
             return Response({"detail": "Comment succesfully created"},
                             status=200)
         else:
-            print comment_form.errors
-            return Response({'detail': comment_form.errors}, status=400)
+            return Response({'detail': "invalid form"}, status=400)
     except(HTTPError, ConnectionError):
         return Response({"detail": "Failed to create comment task"},
                         status=408)

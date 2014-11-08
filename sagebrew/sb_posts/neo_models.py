@@ -82,6 +82,19 @@ class SBContent(StructuredNode):
             logger.exception(dumps({"function": SBContent.comment_on.__name__,
                                     "exception": "Unhandled Exception"}))
 
+    def delete_content(self, pleb):
+        try:
+            self.content=""
+            self.to_be_deleted = True
+            self.save()
+        except CypherException as e:
+            return e
+        except Exception as e:
+            logger.exception(dumps({"function":
+                                        SBContent.delete_content.__name__,
+                                    "exception": "Unhandled Exception"}))
+            return e
+
 
 class SBVersioned(SBContent):
     original = BooleanProperty(default=True)
@@ -94,6 +107,7 @@ class SBVersioned(SBContent):
 
     def get_name(self):
         return self.__class__.__name__
+
 
 class SBNonVersioned(SBContent):
     #relationships

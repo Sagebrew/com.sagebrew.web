@@ -1,5 +1,6 @@
 import pytz
-import traceback
+import logging
+from json import dumps
 from datetime import datetime
 from neomodel import (StringProperty, IntegerProperty,
                       RelationshipTo,
@@ -7,6 +8,9 @@ from neomodel import (StringProperty, IntegerProperty,
 
 from sb_posts.neo_models import SBVersioned
 from sb_tag.neo_models import TagRelevanceModel
+
+
+logger = logging.getLogger("loggly_logs")
 
 
 class SBQuestion(SBVersioned):
@@ -77,4 +81,18 @@ class SBQuestion(SBVersioned):
         except CypherException as e:
             return e
         except Exception as e:
+            return e
+
+    def delete_content(self, pleb):
+        try:
+            self.content = ""
+            self.question_title = ""
+            self.to_be_deleted = True
+            self.save()
+        except CypherException as e:
+            return e
+        except Exception as e:
+            logger.exception(dumps(
+                {"function": SBQuestion.delete_content.__name__,
+                "exception": "Unhandled Exception"}))
             return e

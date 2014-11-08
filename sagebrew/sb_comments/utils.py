@@ -1,13 +1,9 @@
-import pytz
 import logging
 from uuid import uuid1
 from json import dumps
-from datetime import datetime
-from neomodel import CypherException, DoesNotExist
+from neomodel import CypherException
 
 from .neo_models import SBComment
-from sb_posts.neo_models import SBPost
-from plebs.neo_models import Pleb
 from api.utils import execute_cypher_query
 
 logger = logging.getLogger('loggly_logs')
@@ -100,21 +96,4 @@ def comment_relations(pleb, comment, sb_object):
     except Exception as e:
         logger.exception(dumps({"function": comment_relations.__name__,
                                 "exception": "Unhandled Exception:"}))
-        return e
-
-def delete_comment_util(comment_uuid):
-    '''
-    Removes the personal content the comment which is tied to the id it is
-    passed
-
-    :param comment_uuid:
-                        id of the comment which will be deleted
-    :return:
-    '''
-    try:
-        my_comment = SBComment.nodes.get(sb_id=comment_uuid)
-        my_comment.content = ""
-        my_comment.save()
-        return True
-    except (SBComment.DoesNotExist, DoesNotExist) as e:
         return e

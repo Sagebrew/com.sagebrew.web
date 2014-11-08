@@ -13,6 +13,8 @@ class CommentedOnRel(StructuredRel):
 
 
 class SBComment(SBNonVersioned):
+    up_vote_adjustment = 2
+    down_vote_adjustment = 1
     sb_name = "comment"
     allowed_flags = ["explicit", "spam", "other"]
     created_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))

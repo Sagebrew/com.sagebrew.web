@@ -90,8 +90,8 @@
     border-radius: 0 0 2px 2px;
     border-top-color: #838c92;
 }
-.navbar-form.navbar-right:last-child {
-    width:auto;
+.navbar-form.navbar-right:last-child {xx
+    width: auto;
     padding-top: 6px;
 }
 .navbar-form .form-control {
@@ -136,4 +136,12 @@
     border-left: none;
     border-right: none;
     border-bottom: none;
+}
+.sb_nav_input{
+    border-width: 1px;
+}
+.sb_nav_input:hover,
+.sb_nav_input:active,
+.sb_nav_input:focus{
+    border-color: #b7bfbb;
 }

@@ -1,7 +1,5 @@
-import pytz
 import logging
 from uuid import uuid1
-from datetime import datetime
 from urllib2 import HTTPError
 from requests import ConnectionError
 from django.template.loader import render_to_string
@@ -9,12 +7,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
 
-from api.utils import (post_to_garbage, spawn_task)
+from api.utils import (spawn_task)
 from plebs.neo_models import Pleb
-from .neo_models import SBPost
 from .tasks import save_post_task
 from .utils import (get_pleb_posts)
-from .forms import (SavePostForm, DeletePostForm, GetPostForm)
+from .forms import (SavePostForm, GetPostForm)
 
 logger = logging.getLogger('loggly_logs')
 
@@ -72,30 +69,3 @@ def get_user_posts(request):
         return Response({'html': html_array}, status=200)
     else:
         return Response(status=400)
-
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def delete_post(request):
-    '''
-    calls the util which attaches the post and all the comments attached to
-    said
-    post to the garbage can to be deleted when the garbage can task is run
-
-    :param request:
-    :return:
-    '''
-    try:
-        post_data = request.DATA
-        if type(post_data) != dict:
-            return Response({"details": "Please Provide a JSON Object"},
-                            status=400)
-        post_form = DeletePostForm(post_data)
-        if post_form.is_valid():
-            post_to_garbage(post_form.cleaned_data['post_uuid'])
-            return Response({"detail": "Post scheduled to be deleted!"},
-                            status=200)
-        else:
-            return Response({'detail': post_form.errors}, status=400)
-    except SBPost.DoesNotExist:
-        return Response({"detail": "Post could not be deleted!"}, status=400)

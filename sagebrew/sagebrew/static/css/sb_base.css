@@ -1,21 +1,7 @@
 .body {
     height: 100%;
-    padding-bottom: 80px;
 }
-#wrap{
-  min-height: 100%;
-  height: auto;
-  margin: 0 auto -190px;
-  padding: 0 0 190px;
-}
-.sb_nav_input{
-    border-width: 1px;
-}
-.sb_nav_input:hover,
-.sb_nav_input:active,
-.sb_nav_input:focus{
-    border-color: #b7bfbb;
-}
+
 #sb_logo_bottom {
     margin-left: 30px;
 }
@@ -28,9 +14,6 @@
 }
 .sb_background {
     background-size: cover;
-    position: inherit;
-    margin-top:0;
-    padding-bottom: -25px;
     background-color: #b7bfbb;
 }
 .sb_deco_line{
@@ -57,7 +40,6 @@
     width: 100%;
     height: 100%;
 }
-
 .sb_btn_photo_modal_select {
     width: 150px;
     background-color: #1ba39c;
@@ -101,48 +83,10 @@
     border-bottom-width: 5pt;
     border-bottom-color: #838c92;
 }
-.sb_nav_bottom_blank {
-    position: inherit;
-    margin-top: 80%;
-    margin-bottom: 0;
-}
 .sb_btn_group{
     border-radius: 0;
-}
-.sb_nav_bottom_menu {
-    height: 220px;
-    margin-top: auto;
-    padding-top: 2em;
-    margin-bottom: 0;
-    margin-left: -15px;
-    margin-right: -15px;
-   opacity: .7;
-}
-.sb_nav_bottom_links {
-    color: #7c7e80;
-    text-align: left;
-}
-.sb_nav_bottom_blank {
-
-}
-.sb_thumbnail_xs {
-    height: 40px;
-    width: 40px;
-    border-width: 1px;
-    border-color: #b7bfbb;
-}
-.sb_thumbnail_md {
-    height: 80px;
-    width:  80px;
-    border-width: 1px;
-    border-radius: 2px;
-    background-color: transparent;
-    border-color: transparent;
-    margin-left: 0px;
 }
 .sb_divider{
     color: #1ba39c;
 }
-.sb_bottom_container{
-    margin-bottom: 40px;
-}
+

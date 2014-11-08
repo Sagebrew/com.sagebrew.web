@@ -1,9 +1,9 @@
 .sb_image_background {
-    position:fixed;
-    margin: 0;
-    padding: 0;
-    margin-left: -15px;
-    min-width: 100%;
+    position:absolute;
+    height: 100%;
+    width: 100%;
+    margin-top: -40px;
+
 }
 
 .sb_title_signup {
@@ -27,7 +27,7 @@
     background-color: #1ba39c;
 }
 .sb_btn_signup{
-    margin-bottom: 85px;
+    margin-bottom: 15px;
 }
 .sb_signup_input:focus,
 .sb_signup_input:active,
@@ -39,6 +39,7 @@
 .sb_signup_input_group{
     width: 80%;
     margin-left: 10%;
+    margin-bottom: 0;
 }
 .sb_signup_input{
     width: 100%;
@@ -53,4 +54,9 @@
 }
 .sb_sign_up{
     color: #ffffff;
+}
+.sb_content_sign_up{
+    height: 500px;
+    width: 100%;
+    position: absolute;
 }

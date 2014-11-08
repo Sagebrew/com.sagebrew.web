@@ -1,4 +1,3 @@
-from uuid import uuid1
 from base64 import b64encode
 from rest_framework.test import APIRequestFactory
 from django.contrib.auth.models import User

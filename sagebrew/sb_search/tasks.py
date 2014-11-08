@@ -10,7 +10,7 @@ from elasticsearch import Elasticsearch
 
 from .neo_models import SearchQuery, KeyWord
 from .utils import (update_search_index_doc, update_weight_relationship_values)
-from api.utils import spawn_task
+from api.utils import spawn_task, get_object
 from plebs.neo_models import Pleb
 from sb_answers.neo_models import SBAnswer
 from sb_questions.neo_models import SBQuestion

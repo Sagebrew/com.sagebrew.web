@@ -1,8 +1,6 @@
-import pytz
 import logging
 from uuid import uuid1
 from json import dumps
-from datetime import datetime
 
 from neomodel import DoesNotExist
 
@@ -91,31 +89,3 @@ def save_post(current_pleb, wall_pleb, content, post_uuid=None):
                                 "exception": "Unhandled Exception"}))
         return e
 
-
-def delete_post_info(sb_id):
-    '''
-    Removes the personal content of the post and all comments attached to it
-
-    :param sb_id = String representing a UUID
-    :return:
-            if the post and comments are successfully deleted it returns True
-
-            if it cant find the post it returns False
-    '''
-    try:
-        try:
-            my_post = SBPost.nodes.get(sb_id=sb_id)
-        except (SBPost.DoesNotExist):
-            return False
-
-        post_comments = my_post.comments.all()
-        for comment in post_comments:
-            comment.content = ""
-            comment.save()
-        my_post.content = ""
-        my_post.save()
-        return True
-    except Exception as e:
-        logger.exception(dumps({'function': delete_post_info.__name__,
-                                "exception": "Unhandled Exception"}))
-        return e

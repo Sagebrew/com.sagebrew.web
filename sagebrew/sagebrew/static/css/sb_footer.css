@@ -1,0 +1,31 @@
+
+.sb_bottom_container{
+    background-color: #ffffff;
+    margin-bottom: 0;
+    opacity: .7;
+    height: 150px;
+    padding-top: 15px;
+}
+.sb_nav_bottom_links {
+    color: #7c7e80;
+    text-align: left;
+    margin-left: -20px;
+}
+.sb_nav_bottom_blank {
+    position: inherit;
+    margin-top: 80%;
+    margin-bottom: 0;
+}
+
+}.sb_bottom_menu{
+    background: #ebedef;
+    color: #bcc3ca;
+    padding: 39px 0 42px;
+}
+.sb_nav_bottom_links {
+    color: #7c7e80;
+    text-align: left;
+}
+.sb_footer{
+    margin-top: 500px;
+}

@@ -1,5 +1,6 @@
 import pytz
-import traceback
+import logging
+from json import dumps
 from datetime import datetime
 from neomodel import (StringProperty, IntegerProperty,
                       RelationshipTo,
@@ -9,7 +10,12 @@ from sb_posts.neo_models import SBVersioned
 from sb_tag.neo_models import TagRelevanceModel
 
 
+logger = logging.getLogger("loggly_logs")
+
+
 class SBQuestion(SBVersioned):
+    up_vote_adjustment = 5
+    down_vote_adjustment = 2
     allowed_flags = ["explicit", "changed", "spam", "duplicate",
                      "unsupported", "other"]
 
@@ -29,8 +35,6 @@ class SBQuestion(SBVersioned):
     added_to_search_index = BooleanProperty(default=False)
 
     # relationships
-    edits = RelationshipTo('sb_questions.neo_models.SBQuestion', 'EDIT')
-    edit_to = RelationshipTo('sb_questions.neo_models.SBQuestion', 'EDIT_TO')
     tags = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS')
     auto_tags = RelationshipTo('sb_tag.neo_models.SBAutoTag',
                                'AUTO_TAGGED_AS', model=TagRelevanceModel)
@@ -77,4 +81,18 @@ class SBQuestion(SBVersioned):
         except CypherException as e:
             return e
         except Exception as e:
+            return e
+
+    def delete_content(self, pleb):
+        try:
+            self.content = ""
+            self.question_title = ""
+            self.to_be_deleted = True
+            self.save()
+        except CypherException as e:
+            return e
+        except Exception as e:
+            logger.exception(dumps(
+                {"function": SBQuestion.delete_content.__name__,
+                "exception": "Unhandled Exception"}))
             return e

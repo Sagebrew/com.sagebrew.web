@@ -1,4 +1,5 @@
 import logging
+from json import dumps
 from urllib2 import HTTPError
 from requests import ConnectionError
 from django.conf import settings
@@ -9,10 +10,10 @@ from neomodel import DoesNotExist
 
 from plebs.neo_models import Pleb
 from sb_posts.neo_models import SBPost
-from api.utils import comment_to_garbage, spawn_task
+from api.utils import spawn_task
 from .tasks import save_comment_on_object
 from .utils import (get_post_comments)
-from .forms import (SaveCommentForm, DeleteCommentForm)
+from .forms import (SaveCommentForm)
 
 logger = logging.getLogger('loggly_logs')
 
@@ -58,35 +59,13 @@ def save_comment_view(request):
             return Response({"detail": "Comment succesfully created"},
                             status=200)
         else:
-            print comment_form.errors
-            return Response({'detail': comment_form.errors}, status=400)
+            return Response({'detail': "invalid form"}, status=400)
     except(HTTPError, ConnectionError):
         return Response({"detail": "Failed to create comment task"},
                         status=408)
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def delete_comment(request):
-    '''
-    Allow plebs to delete their comment
-
-    :param request:
-    :return:
-    '''
-    try:
-        comment_info = request.DATA
-        if (type(comment_info) != dict):
-            return Response({"details": "Please Provide a JSON Object"},
-                            status=400)
-        comment_form = DeleteCommentForm(comment_info)
-        if comment_form.is_valid():
-            comment_to_garbage(comment_form.cleaned_data['comment_uuid'])
-            return Response({"detail": "Comment deleted"}, status=200)
-        else:
-            return Response({"detail": comment_form.errors}, status=400)
-    except(HTTPError, ConnectionError):
-        return Response({"detail": "Failed to delete comment"})
-        # do stuff with post_info
+    except Exception:
+        logger.exception(dumps({"function": save_comment_view.__name__,
+                                "exception": "Unhandled Exception"}))
 
 
 @api_view(['POST'])

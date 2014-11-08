@@ -20,13 +20,14 @@
         <link href="{% static 'css/sb_profile_rep_stats.css' %}" rel="stylesheet"/>
         <link href="{% static 'css/sb_friend_request.css' %}" rel="stylesheet"/>
         <link href="{% static 'css/sb_user_about.css' %}" rel="stylesheet"/>
+        <link href="{% static 'css/sb_footer.css' %}" rel="stylesheet"/>
         <!-- <link href="{% static 'css/navigation.css' %}" rel="stylesheet"/> -->
     {% endblock css %}
     {% block page-javascript %}
     {% endblock page-javascript %}
 
 </head>
-<body class="container-fluid sb_background" id="sb-body">
+<body class="container-fluid sb_background body" id="sb-body">
         <div class="sb_nav_container">
                 <nav class="sb_navbar navbar navbar-lg" role="navigation">
                     <div class="col-lg-12">
@@ -36,8 +37,8 @@
                     </div>
                 </nav>
         </div>
-    {% block content %}
-    {% endblock %}
+            {% block content %}
+            {% endblock %}
     {% block footer %}
     {% endblock footer %}
 {% block scripts %}

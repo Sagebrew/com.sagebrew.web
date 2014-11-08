@@ -351,14 +351,14 @@ def profile_picture(request):
     :param request:
     :return:
     '''
+    try:
+        citizen = Pleb.nodes.get(email=request.user.email)
+    except Pleb.DoesNotExist:
+        return render(request, 'login.html')
     if request.method == 'POST':
         profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
         if profile_picture_form.is_valid():
-            try:
-                citizen = Pleb.nodes.get(email=request.user.email)
-            except Pleb.DoesNotExist:
-                return render(request, 'profile_picture.html',
-                              {'profile_picture_form': profile_picture_form})
+
             image_uuid = uuid1()
             data = request.FILES['picture']
             temp_file = '%s%s.jpeg' % (settings.TEMP_FILES, image_uuid)
@@ -373,5 +373,6 @@ def profile_picture(request):
     else:
         profile_picture_form = ProfilePictureForm()
     return render(request, 'profile_picture.html',
-                  {'profile_picture_form': profile_picture_form})
+                  {'profile_picture_form': profile_picture_form,
+                   'pleb': citizen})
 

@@ -1,13 +1,9 @@
-import pytz
 import logging
 from uuid import uuid1
 from json import dumps
-from datetime import datetime
-from neomodel import CypherException, DoesNotExist
+from neomodel import CypherException
 
 from .neo_models import SBComment
-from sb_posts.neo_models import SBPost
-from plebs.neo_models import Pleb
 from api.utils import execute_cypher_query
 
 logger = logging.getLogger('loggly_logs')
@@ -63,7 +59,7 @@ def get_post_comments(post_info):
     return post_array
 
 
-def save_comment_post(content, pleb, post_uuid, comment_uuid=None):
+def save_comment(content, comment_uuid=None):
     '''
     Creates a comment with the content passed to it. It also connects the
     comment
@@ -76,89 +72,28 @@ def save_comment_post(content, pleb, post_uuid, comment_uuid=None):
     if comment_uuid is None:
         comment_uuid = str(uuid1())
     try:
-        try:
-            my_citizen = Pleb.nodes.get(email=pleb)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return False
-        try:
-            parent_object = SBPost.nodes.get(sb_id=post_uuid)
-        except (SBPost.DoesNotExist, DoesNotExist) as e:
-            return e
         my_comment = SBComment(content=content, sb_id=comment_uuid)
         my_comment.save()
-        rel_to_pleb = my_comment.is_owned_by.connect(my_citizen)
-        rel_to_pleb.save()
-        rel_from_pleb = my_citizen.comments.connect(my_comment)
-        rel_from_pleb.save()
-        rel_to_post = my_comment.commented_on_post.connect(parent_object)
-        rel_to_post.save()
-        rel_from_post = parent_object.comments.connect(my_comment)
-        rel_from_post.save()
         return my_comment
     except CypherException as e:
         return e
     except Exception as e:
-        logger.exception(dumps({"function": save_comment_post.__name__,
+        logger.exception(dumps({"function": save_comment.__name__,
                                 "exception": "Unhandled Exception"}))
         return e
 
-
-def edit_comment_util(comment_uuid, content, last_edited_on):
-    '''
-    finds the comment with the given comment id then changes the content to the
-    content which was passed. also changes the edited on date and time to the
-    current time, it also checks to make sure that a comment wont get edited
-    if the time is earlier than the last time it was edited, this ensures
-    that
-    :param comment_uuid=str(uuid) id of the comment to be edited
-    :param content="" content which the comment should be
-                        changed to
-    :param last_edited_on: DateTime which the util was called
-    :return:
-    '''
+def comment_relations(pleb, comment, sb_object):
     try:
-        try:
-            my_comment = SBComment.nodes.get(sb_id=comment_uuid)
-        except(SBComment.DoesNotExist):
-            return DoesNotExist("SBComment does not exist")
-        if my_comment.last_edited_on >= last_edited_on:
-            return False
-        if my_comment.content == content:
-            return False
-        if my_comment.to_be_deleted:
-            return False
+        comment_add_res = sb_object.comment_on(comment)
+        if isinstance(comment_add_res, Exception) is True:
+            return comment_add_res
 
-        my_comment.content = content
-        my_comment.last_edited_on = last_edited_on
-        if my_comment.edited is False:
-            my_comment.edited = True
+        pleb_res = pleb.relate_comment(comment)
+        if isinstance(pleb_res, Exception) is True:
+            return pleb_res
 
-        my_comment.save()
         return True
-    except DoesNotExist:
-        # DoesNotExist is not a Pickleable Exception so need to swap out
-        # exceptions for it.
-        return DoesNotExist("SBComment does not exist")
     except Exception as e:
-        logger.exception(dumps({"function": edit_comment_util.__name__,
-                                'exception': "Unhandled Exception"}))
-        return e
-
-
-def delete_comment_util(comment_uuid):
-    '''
-    Removes the personal content the comment which is tied to the id it is
-    passed
-
-    :param comment_uuid:
-                        id of the comment which will be deleted
-    :return:
-    '''
-    try:
-        my_comment = SBComment.nodes.get(sb_id=comment_uuid)
-        if datetime.now(pytz.utc).day - my_comment.delete_time.day >= 1:
-            my_comment.content = ""
-            my_comment.save()
-        return True
-    except (SBComment.DoesNotExist, DoesNotExist) as e:
+        logger.exception(dumps({"function": comment_relations.__name__,
+                                "exception": "Unhandled Exception:"}))
         return e

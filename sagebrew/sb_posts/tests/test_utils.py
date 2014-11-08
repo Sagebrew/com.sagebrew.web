@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 
 from api.utils import test_wait_util
-from sb_posts.utils import save_post, delete_post_info
+from sb_posts.utils import save_post
 from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util
@@ -44,15 +44,3 @@ class TestSavePost(TestCase):
                          current_pleb=self.pleb.email,
                          wall_pleb=self.pleb.email)
         self.assertTrue(post)
-
-    def test_delete_post(self):
-        uuid = str(uuid1())
-        test_post = SBPost(content='test', sb_id=uuid,
-                           current_pleb=self.pleb.email,
-                           wall_pleb=self.pleb.email)
-        test_post.save()
-        if delete_post_info(uuid):
-            try:
-                post = SBPost.nodes.get(sb_id=uuid)
-            except SBPost.DoesNotExist:
-                return

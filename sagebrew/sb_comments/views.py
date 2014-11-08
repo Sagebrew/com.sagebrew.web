@@ -63,30 +63,6 @@ def save_comment_view(request):
         return Response({"detail": "Failed to create comment task"},
                         status=408)
 
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def delete_comment(request):
-    '''
-    Allow plebs to delete their comment
-
-    :param request:
-    :return:
-    '''
-    try:
-        comment_info = request.DATA
-        if (type(comment_info) != dict):
-            return Response({"details": "Please Provide a JSON Object"},
-                            status=400)
-        comment_form = DeleteCommentForm(comment_info)
-        if comment_form.is_valid():
-            comment_to_garbage(comment_form.cleaned_data['comment_uuid'])
-            return Response({"detail": "Comment deleted"}, status=200)
-        else:
-            return Response({"detail": comment_form.errors}, status=400)
-    except(HTTPError, ConnectionError):
-        return Response({"detail": "Failed to delete comment"})
-        # do stuff with post_info
-
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))

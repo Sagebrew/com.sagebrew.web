@@ -400,6 +400,29 @@ function show_edit_answer() {
     });
 }
 
+function delete_object() {
+    $("a.delete_object-action").click(function (event) {
+        event.preventDefault();
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "POST",
+            url: "/delete/delete_object_api/",
+            data: JSON.stringify({
+                'current_pleb': $(this).data('current_pleb'),
+                'object_uuid': $(this).data('object_uuid'),
+                'object_type': $(this).data('object_type')
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json"
+        });
+    });
+}
+
 
 function enable_post_functionality() {
     save_answer();
@@ -414,6 +437,7 @@ function enable_post_functionality() {
     show_edit_comment();
     show_edit_answer();
     delete_post();
+    delete_object();
 }
 
 function getUrlParameter(sParam)

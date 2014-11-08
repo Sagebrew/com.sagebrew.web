@@ -35,6 +35,9 @@ def delete_object_view(request):
             }
             spawn_task(task_func=delete_object_task, task_param=task_data)
             return Response(status=200)
+        else:
+            print delete_object_form.errors
+            return Response({"detail": "invalid form"}, status=400)
     except Exception:
         logger.exception(dumps({"function": delete_object_view.__name__,
                                 "exception": "Unhandled Exception"}))

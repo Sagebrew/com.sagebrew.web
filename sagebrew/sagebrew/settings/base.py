@@ -162,7 +162,6 @@ INSTALLED_APPS = (
     'sb_wall',
     'sb_notifications',
     'sb_relationships',
-    'sb_garbage',
     'sb_tag',
     'sb_questions',
     'sb_answers',

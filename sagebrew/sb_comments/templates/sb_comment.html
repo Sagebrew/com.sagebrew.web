@@ -62,9 +62,10 @@
                             </li>
                             {% if comment.comment_owner_email == comment.current_user %}
                              <li role="presentation" class="sb_divider divider"></li>
-                            <li role="presentation"><a class='btn delete_comment-action'
-                                                       data-pleb="{{ comment.current_user }}"
-                                                       data-comment_uuid="{{ comment.sb_id }}">Delete</a>
+                            <li role="presentation"><a class='btn delete_object-action'
+                                                       data-current_pleb="{{ comment.current_user }}"
+                                                       data-object_uuid="{{ comment.sb_id }}"
+                                                       data-object_type="02ba1c88-644f-11e4-9ad9-080027242395">Delete</a>
                             </li>
                             {% endif %}
                         </ul>

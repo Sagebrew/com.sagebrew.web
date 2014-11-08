@@ -1,9 +1,6 @@
-import pytz
-from datetime import datetime, timedelta
 from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
-from neomodel.exception import DoesNotExist
 
 from api.utils import test_wait_util
 from sb_answers.neo_models import SBAnswer

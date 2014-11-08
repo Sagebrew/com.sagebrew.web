@@ -39,4 +39,5 @@ urlpatterns = patterns('',
                        (r'^flag/', include('sb_flags.urls')),
                        (r'^vote/', include('sb_votes.urls')),
                        (r'^edit/', include('sb_edits.urls')),
+                       (r'^delete/', include('sb_deletes.urls')),
 )

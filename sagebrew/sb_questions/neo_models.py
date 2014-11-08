@@ -14,6 +14,8 @@ logger = logging.getLogger("loggly_logs")
 
 
 class SBQuestion(SBVersioned):
+    up_vote_adjustment = 5
+    down_vote_adjustment = 2
     allowed_flags = ["explicit", "changed", "spam", "duplicate",
                      "unsupported", "other"]
 

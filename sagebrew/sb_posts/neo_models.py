@@ -218,9 +218,4 @@ class SBPost(SBNonVersioned):
     #TODO Implement ..._referenced relationships
 
 
-'''
-@receiver(post_save, sender=SBPost)
-def create_notification_post(sender, instance, **kwargs):
-    from sb_notifications.tasks import prepare_post_notification_data
-'''
 

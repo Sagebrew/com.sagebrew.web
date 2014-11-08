@@ -9,6 +9,9 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
 from sb_posts.neo_models import SBVersioned
 
 class SBAnswer(SBVersioned):
+    up_vote_adjustment = 10
+    down_vote_adjustment = 10
+    down_vote_cost = 2
     allowed_flags = ["explicit", "changed", "spam", "duplicate",
                      "unsupported", "other"]
     sb_name = "answer"

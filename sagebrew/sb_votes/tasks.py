@@ -1,7 +1,6 @@
 from celery import shared_task
 
 from api.utils import get_object
-from .utils import vote_object_util
 
 
 @shared_task()
@@ -9,7 +8,7 @@ def vote_object_task(vote_type, current_pleb, object_type, object_uuid):
     '''
     This function takes a pleb object, an
     sb_object(SBAnswer, SBQuestion, SBComment, SBPost), and a
-    vote_type("up", "down") it will then call a util to hanlde the vote
+    vote_type("up", "down") it will then call a method to handle the vote
     operations on the sb_object.
 
     :param vote_type:

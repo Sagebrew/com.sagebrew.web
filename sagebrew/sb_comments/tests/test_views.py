@@ -23,7 +23,7 @@ class TestSaveCommentView(TestCase):
 
     def test_save_comment_view_correct_data(self):
         my_dict = {'content': 'testastdat', 'object_uuid': str(uuid1()),
-                   'object_type': str(uuid1()),
+                   'object_type': '01bb301a-644f-11e4-9ad9-080027242395',
                    'current_pleb': self.user.email}
         request = self.factory.post('/comments/submit_comment/', data=my_dict,
                                     format='json')

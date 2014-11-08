@@ -1,4 +1,5 @@
 import logging
+from json import dumps
 from urllib2 import HTTPError
 from requests import ConnectionError
 from django.conf import settings
@@ -62,6 +63,9 @@ def save_comment_view(request):
     except(HTTPError, ConnectionError):
         return Response({"detail": "Failed to create comment task"},
                         status=408)
+    except Exception:
+        logger.exception(dumps({"function": save_comment_view.__name__,
+                                "exception": "Unhandled Exception"}))
 
 
 @api_view(['POST'])

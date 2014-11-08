@@ -1,11 +1,14 @@
 import re
-import shortuuid
-from datetime import datetime
 import pytz
+import logging
+from json import dumps
+from datetime import datetime
+
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty, db, ZeroOrOne)
+                      BooleanProperty, FloatProperty, db, ZeroOrOne,
+                      CypherException)
 
 from api.utils import execute_cypher_query
 from sb_relationships.neo_models import (FriendRelationship,
@@ -13,6 +16,8 @@ from sb_relationships.neo_models import (FriendRelationship,
 from sb_posts.neo_models import RelationshipWeight
 from sb_search.neo_models import SearchCount
 
+
+logger = logging.getLogger("loggly_logs")
 
 class PostObjectCreated(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
@@ -225,10 +230,18 @@ class Pleb(StructuredNode):
             self.save()
 
     def relate_comment(self, comment):
-        rel_to_pleb = comment.is_owned_by.connect(self)
-        rel_to_pleb.save()
-        rel_from_pleb = self.comments.connect(comment)
-        rel_from_pleb.save()
+        try:
+            rel_to_pleb = comment.is_owned_by.connect(self)
+            rel_to_pleb.save()
+            rel_from_pleb = self.comments.connect(comment)
+            rel_from_pleb.save()
+            return True
+        except CypherException as e:
+            return e
+        except Exception as e:
+            logger.exception(dumps({"function": Pleb.relate_comment.__name__,
+                                    "exception": "Unhandled Exception:"}))
+            return e
 
 
 class Address(StructuredNode):

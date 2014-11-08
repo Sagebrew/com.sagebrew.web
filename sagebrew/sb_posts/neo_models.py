@@ -1,4 +1,6 @@
 import pytz
+import logging
+from json import dumps
 from uuid import uuid1
 
 from datetime import datetime
@@ -6,6 +8,8 @@ from datetime import datetime
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, CypherException)
+
+logger = logging.getLogger("loggly_logs")
 
 
 class EditRelationshipModel(StructuredRel):
@@ -68,10 +72,15 @@ class SBContent(StructuredNode):
     votes = RelationshipTo('sb_votes.neo_models.SBVote', "VOTES")
 
     def comment_on(self, comment):
-        rel = self.comments.connect(comment)
-        rel.save()
-        return rel
-
+        try:
+            rel = self.comments.connect(comment)
+            rel.save()
+            return rel
+        except CypherException as e:
+            return e
+        except Exception as e:
+            logger.exception(dumps({"function": SBContent.comment_on.__name__,
+                                    "exception": "Unhandled Exception"}))
 
 
 class SBVersioned(SBContent):

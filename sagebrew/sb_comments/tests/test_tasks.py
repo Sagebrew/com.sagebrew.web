@@ -1,14 +1,11 @@
-import pytz
 import time
 from uuid import uuid1
-from datetime import datetime
 from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 
 from api.utils import test_wait_util
-from sb_comments.utils import save_comment
-from sb_comments.tasks import (submit_comment_on_post)
+from sb_comments.tasks import (save_comment_on_object)
 from sb_posts.tasks import save_post_task
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util
@@ -38,7 +35,7 @@ class TestSaveComment(TestCase):
         task_param = {'content': 'test comment',
                       'pleb': self.user.email,
                       'post_uuid': uuid}
-        response = submit_comment_on_post.apply_async(kwargs=task_param)
+        response = save_comment_on_object.apply_async(kwargs=task_param)
         while not response.ready():
             time.sleep(1)
         response = response.result

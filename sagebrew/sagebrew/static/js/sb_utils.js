@@ -12,7 +12,7 @@ function ajax_security(xhr, settings) {
 
 function save_comment() {
     $("a.comment-action").click(function (event) {
-        var sb_id = $(this).data('post_uuid');
+        var sb_id = $(this).data('object_uuid');
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -26,13 +26,13 @@ function save_comment() {
             url: "/comments/submit_comment/",
             data: JSON.stringify({
                 'content': $('textarea#post_comment_on_' + sb_id).val(),
-                'post_uuid': $(this).data('post_uuid'),
-                'pleb': $(this).data('pleb')
+                'object_uuid': $(this).data('object_uuid'),
+                'object_type': $(this).data('object_type'),
+                'current_pleb': $(this).data('current_pleb')
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-
             }
         });
     });

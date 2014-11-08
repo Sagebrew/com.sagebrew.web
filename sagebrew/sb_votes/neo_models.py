@@ -6,7 +6,6 @@ from neomodel import (StructuredNode, BooleanProperty, StringProperty,
 
 class SBVote(StructuredNode):
     vote_id = StringProperty(unique_index=True, default=lambda: str(uuid1()))
-    reputation_adjustment = IntegerProperty()
     vote_type = BooleanProperty() # True is up and False is down
 
     #relationships

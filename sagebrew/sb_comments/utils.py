@@ -63,7 +63,7 @@ def get_post_comments(post_info):
     return post_array
 
 
-def save_comment(content, pleb, post_uuid, comment_uuid=None):
+def save_comment(content, comment_uuid=None):
     '''
     Creates a comment with the content passed to it. It also connects the
     comment
@@ -76,14 +76,6 @@ def save_comment(content, pleb, post_uuid, comment_uuid=None):
     if comment_uuid is None:
         comment_uuid = str(uuid1())
     try:
-        try:
-            my_citizen = Pleb.nodes.get(email=pleb)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return False
-        try:
-            parent_object = SBPost.nodes.get(sb_id=post_uuid)
-        except (SBPost.DoesNotExist, DoesNotExist) as e:
-            return e
         my_comment = SBComment(content=content, sb_id=comment_uuid)
         my_comment.save()
         return my_comment
@@ -92,6 +84,22 @@ def save_comment(content, pleb, post_uuid, comment_uuid=None):
     except Exception as e:
         logger.exception(dumps({"function": save_comment.__name__,
                                 "exception": "Unhandled Exception"}))
+        return e
+
+def comment_relations(pleb, comment, sb_object):
+    try:
+        comment_add_res = sb_object.comment_on(comment)
+        if isinstance(comment_add_res, Exception) is True:
+            return comment_add_res
+
+        pleb_res = pleb.relate_comment(comment)
+        if isinstance(pleb_res, Exception) is True:
+            return pleb_res
+
+        return True
+    except Exception as e:
+        logger.exception(dumps({"function": comment_relations.__name__,
+                                "exception": "Unhandled Exception:"}))
         return e
 
 def delete_comment_util(comment_uuid):

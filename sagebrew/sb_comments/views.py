@@ -4,10 +4,12 @@ from requests import ConnectionError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from neomodel import DoesNotExist
 
+from plebs.neo_models import Pleb
 from sb_posts.neo_models import SBPost
 from api.utils import comment_to_garbage, spawn_task
-from .tasks import submit_comment_on_post
+from .tasks import save_comment_on_object
 from .utils import (get_post_comments)
 from .forms import (SaveCommentForm, DeleteCommentForm)
 
@@ -38,9 +40,20 @@ def save_comment_view(request):
                             status=400)
         comment_form = SaveCommentForm(comment_info)
         if comment_form.is_valid():
-            spawn_task(task_func=submit_comment_on_post,
-                       task_param=comment_form.cleaned_data)
-            return Response({"here": "Comment succesfully created"},
+            try:
+                pleb = Pleb.nodes.get(email=comment_form.
+                                      cleaned_data['current_pleb'])
+            except (Pleb.DoesNotExist, DoesNotExist):
+                return Response({'detail': 'pleb does not exist'}, status=400)
+            task_data = {
+                "current_pleb": pleb,
+                "object_uuid": comment_form.cleaned_data['object_uuid'],
+                "object_type": comment_form.cleaned_data['object_type'],
+                "content": comment_form.cleaned_data['content']
+            }
+            spawn_task(task_func=save_comment_on_object,
+                       task_param=task_data)
+            return Response({"detail": "Comment succesfully created"},
                             status=200)
         else:
             return Response({'detail': comment_form.errors}, status=400)
@@ -50,7 +63,7 @@ def save_comment_view(request):
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
-def delete_comment(request):  # task
+def delete_comment(request):
     '''
     Allow plebs to delete their comment
 
@@ -83,6 +96,9 @@ def get_comments(request):
     :param request:
     :return:
     '''
-    my_post = SBPost.nodes.get(sb_id=request.DATA['sb_id'])
+    try:
+        my_post = SBPost.nodes.get(sb_id=request.DATA['sb_id'])
+    except (SBPost.DoesNotExist, DoesNotExist):
+        return Response(status=400)
     comments = get_post_comments(my_post)
     return Response(comments, status=200)

@@ -4,8 +4,10 @@
     By: {{ post.post_owner }}</div>
 <textarea class="form-control" id="post_comment_on_{{ post.sb_id }}"
           rows="2" placeholder="Write your comment..."></textarea>
-<a class='btn btn-primary comment-action' data-uuid="{{ post.sb_id }}"
-   data-pleb="{{ current_user }}" data-post_uuid="{{ post.sb_id }}">Attach
+<a class='btn btn-primary comment-action'
+   data-object_uuid="{{ post.sb_id }}"
+   data-current_pleb="{{ current_user }}"
+   data-object_type="">Attach
     Comment</a>
 {% if post.post_owner_email == current_user %}
     <a class="btn btn-primary show_edit_post_class"

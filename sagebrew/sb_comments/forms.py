@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 
 
 class CommentForm(forms.Form):
@@ -8,7 +9,7 @@ class CommentForm(forms.Form):
 class SaveCommentForm(CommentForm):
     content = forms.CharField(min_length=10)
     object_uuid = forms.CharField()
-    object_type = forms.CharField()
+    object_type = forms.ChoiceField(choices=settings.KNOWN_TYPES)
 
 class DeleteCommentForm(CommentForm):
     comment_uuid = forms.CharField()

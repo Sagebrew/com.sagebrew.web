@@ -1,6 +1,7 @@
 import logging
 from urllib2 import HTTPError
 from requests import ConnectionError
+from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -34,21 +35,22 @@ def save_comment_view(request):
     :return:
     '''
     try:
-        comment_info = request.DATA
-        if (type(comment_info) != dict):
+        if (type(request.DATA) != dict):
             return Response({"details": "Please Provide a JSON Object"},
                             status=400)
-        comment_form = SaveCommentForm(comment_info)
+        comment_form = SaveCommentForm(request.DATA)
         if comment_form.is_valid():
             try:
                 pleb = Pleb.nodes.get(email=comment_form.
                                       cleaned_data['current_pleb'])
             except (Pleb.DoesNotExist, DoesNotExist):
                 return Response({'detail': 'pleb does not exist'}, status=400)
+            choice_dict = dict(settings.KNOWN_TYPES)
             task_data = {
                 "current_pleb": pleb,
                 "object_uuid": comment_form.cleaned_data['object_uuid'],
-                "object_type": comment_form.cleaned_data['object_type'],
+                "object_type": choice_dict
+                    [comment_form.cleaned_data['object_type']],
                 "content": comment_form.cleaned_data['content']
             }
             spawn_task(task_func=save_comment_on_object,
@@ -56,6 +58,7 @@ def save_comment_view(request):
             return Response({"detail": "Comment succesfully created"},
                             status=200)
         else:
+            print comment_form.errors
             return Response({'detail': comment_form.errors}, status=400)
     except(HTTPError, ConnectionError):
         return Response({"detail": "Failed to create comment task"},

@@ -69,7 +69,7 @@ class SBBase(StructuredNode):
 
 class SBVersioned(SBBase):
     #relationships
-    tagged_as = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS')
+    tagged_as = RelationshipTo(lambda self: self, 'TAGGED_AS')
 
 class SBNonVersioned(SBBase):
     #relationships

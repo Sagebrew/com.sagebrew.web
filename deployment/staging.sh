@@ -13,7 +13,7 @@ sed "s/<TAG>/$SHA1/;s/<PROJECT_NAME>/$PROJECT_NAME/;s/<BUCKET>/$CIRCLE_BRANCH/;s
 sed "s/<TAG>/$SHA1/;s/<PROJECT_NAME>/$PROJECT_NAME/;s/<BUCKET>/$CIRCLE_BRANCH/;s/<IMAGE>/sb_web/;" < ~/com.sagebrew.web/aws_templates/Dockerrun.aws.json.web_template > $DOCKERRUN_FILE_WEB
 
 
-
+# TODO Make sure to set AWS_DEFAULT_REGION to us-east-1 https://pypi.python.org/pypi/awscli
 # Applications are the high level container that hold multiple environments such
 # as a worker and a web instance.
 # Need to look into if need version-label for both the first create application and the second

@@ -356,9 +356,9 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(self.pleb)
         index_res = es.index(index='full-search-user-specific-1',
-                 doc_type='question',
+                 doc_type='sb_questions.neo_models.SBQuestion',
                  body={
-                     'question_uuid': question1.sb_id,
+                     'object_uuid': question1.sb_id,
                      'question_title': question1.question_title,
                      'question_content': question1.question_content,
                      'related_user': self.user.email
@@ -385,18 +385,18 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(self.pleb)
         es.index(index='full-search-user-specific-1',
-                 doc_type='question',
+                 doc_type='sb_questions.neo_models.SBQuestion',
                  body={
-                     'question_uuid': question1.sb_id,
+                     'object_uuid': question1.sb_id,
                      'question_title': question1.question_title,
                      'question_content': question1.question_content,
                      'related_user': self.user.email
                  })
         for item in range(0,9):
             es.index(index='full-search-user-specific-1',
-                     doc_type='question',
+                     doc_type='sb_questions.neo_models.SBQuestion',
                      body={
-                         'question_uuid': question1.sb_id,
+                         'object_uuid': question1.sb_id,
                          'question_title': question1.question_title,
                          'question_content': question1.question_content,
                          'related_user': self.user.email[:37]+str(item)+'@gmail.com'
@@ -423,18 +423,18 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(self.pleb)
         es.index(index='full-search-user-specific-1',
-                 doc_type='question',
+                 doc_type='sb_questions.neo_models.SBQuestion',
                  body={
-                     'question_uuid': question1.sb_id,
+                     'object_uuid': question1.sb_id,
                      'question_title': question1.question_title,
                      'question_content': question1.question_content,
                      'related_user': self.user.email
                  })
         for item in range(0,19):
             es.index(index='full-search-user-specific-1',
-                     doc_type='question',
+                     doc_type='sb_questions.neo_models.SBQuestion',
                      body={
-                         'question_uuid': question1.sb_id,
+                         'object_uuid': question1.sb_id,
                          'question_title': question1.question_title,
                          'question_content': question1.question_content,
                          'related_user': self.user.email
@@ -469,18 +469,18 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(pleb)
         es.index(index='full-search-user-specific-1',
-                 doc_type='question',
+                 doc_type='sb_questions.neo_models.SBQuestion',
                  body={
-                     'question_uuid': question1.sb_id,
+                     'object_uuid': question1.sb_id,
                      'question_title': question1.question_title,
                      'question_content': question1.question_content,
                      'related_user': user.email
                  })
         for item in range(0,39):
             es.index(index='full-search-user-specific-1',
-                     doc_type='question',
+                     doc_type='sb_questions.neo_models.SBQuestion',
                      body={
-                         'question_uuid': question1.sb_id,
+                         'object_uuid': question1.sb_id,
                          'question_title': question1.question_title,
                          'question_content': question1.question_content,
                          'related_user': user.email
@@ -513,18 +513,18 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(self.pleb)
         es.index(index='full-search-user-specific-1',
-                 doc_type='question',
+                 doc_type='sb_questions.neo_models.SBQuestion',
                  body={
-                     'question_uuid': question1.sb_id,
+                     'object_uuid': question1.sb_id,
                      'question_title': question1.question_title,
                      'question_content': question1.question_content,
                      'related_user': str(uuid1()).strip('-')
                  })
         for item in range(0,29):
             es.index(index='full-search-user-specific-1',
-                     doc_type='question',
+                     doc_type='sb_questions.neo_models.SBQuestion',
                      body={
-                         'question_uuid': question1.sb_id,
+                         'object_uuid': question1.sb_id,
                          'question_title': question1.question_title,
                          'question_content': question1.question_content,
                          'related_user': str(uuid1()).strip('-')
@@ -557,9 +557,9 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(pleb)
         es.index(index='full-search-user-specific-1',
-                 doc_type='question',
+                 doc_type='sb_questions.neo_models.SBQuestion',
                  body={
-                     'question_uuid': question1.sb_id,
+                     'object_uuid': question1.sb_id,
                      'question_title': question1.question_title,
                      'question_content': question1.question_content,
                      'related_user': self.user.email
@@ -582,8 +582,8 @@ class TestSearchResultAPIReturns(TestCase):
                                )
         question2.save()
         es.index(index='full-search-user-specific-1',
-                 doc_type='question',
-                 body={'question_uuid': question2.sb_id,
+                 doc_type='sb_questions.neo_models.SBQuestion',
+                 body={'object_uuid': question2.sb_id,
                        'question_content': question2.question_content,
                        'question_title': question2.question_title,
                        'related_user': self.user.email})

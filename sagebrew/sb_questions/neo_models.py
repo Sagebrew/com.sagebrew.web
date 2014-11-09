@@ -6,7 +6,7 @@ from neomodel import (StringProperty, IntegerProperty,
                       RelationshipTo,
                       BooleanProperty, FloatProperty, CypherException)
 
-from sb_posts.neo_models import SBVersioned
+from sb_base.neo_models import SBVersioned
 from sb_tag.neo_models import TagRelevanceModel
 
 

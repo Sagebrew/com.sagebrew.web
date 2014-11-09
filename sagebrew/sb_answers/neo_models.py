@@ -6,7 +6,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, CypherException)
 
-from sb_posts.neo_models import SBVersioned
+from sb_base.neo_models import SBVersioned
 
 class SBAnswer(SBVersioned):
     up_vote_adjustment = 10

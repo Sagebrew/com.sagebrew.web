@@ -128,7 +128,7 @@ class SBContent(SBVoteableContent):
         except CypherException as e:
             return e
         except Exception as e:
-            logger.exception(dumps({"function": SBContent.comment_on.__name__,
+            logger.exception(dumps({"function": 'SBContent.comment_on',
                                     "exception": "Unhandled Exception"}))
             return e
 

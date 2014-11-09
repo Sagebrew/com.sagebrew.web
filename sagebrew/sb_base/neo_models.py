@@ -82,7 +82,7 @@ class SBVoteableContent(StructuredNode):
             self.save()
             return True
         except Exception as e:
-            logger.exception(dumps({"function": SBVoteableContent.vote_content.__name__,
+            logger.exception(dumps({"function": 'SBVoteableContent.vote_content',
                                     "exception": "Unhandled Exception"}))
             return e
 
@@ -124,6 +124,7 @@ class SBContent(SBVoteableContent):
         try:
             rel = self.comments.connect(comment)
             rel.save()
+            print rel
             return rel
         except CypherException as e:
             return e
@@ -141,7 +142,7 @@ class SBContent(SBVoteableContent):
             return e
         except Exception as e:
             logger.exception(dumps({"function":
-                                        SBContent.delete_content.__name__,
+                                        'SBContent.delete_content',
                                     "exception": "Unhandled Exception"}))
             return e
 
@@ -164,7 +165,7 @@ class SBContent(SBVoteableContent):
             return self
 
         except Exception as e:
-            logger.exception(dumps({"function": SBContent.flag_content.__name__,
+            logger.exception(dumps({"function": 'SBContent.flag_content',
                                     "exception": "Unhandled Exception"}))
             return e
 

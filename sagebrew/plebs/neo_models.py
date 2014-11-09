@@ -235,11 +235,12 @@ class Pleb(StructuredNode):
             rel_to_pleb.save()
             rel_from_pleb = self.comments.connect(comment)
             rel_from_pleb.save()
+            print 'here'
             return True
         except CypherException as e:
             return e
         except Exception as e:
-            logger.exception(dumps({"function": Pleb.relate_comment.__name__,
+            logger.exception(dumps({"function": 'Pleb.relate_comment',
                                     "exception": "Unhandled Exception:"}))
             return e
 

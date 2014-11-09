@@ -28,6 +28,8 @@ class RelationshipWeight(StructuredRel):
     status = StringProperty(default='seen')
     seen = BooleanProperty(default=True)
 
+
+
 class SBVoteableContent(StructuredNode):
     up_vote_adjustment = 0
     down_vote_adjustment = 0
@@ -82,7 +84,7 @@ class SBVoteableContent(StructuredNode):
             self.save()
             return True
         except Exception as e:
-            logger.exception(dumps({"function": 'SBVoteableContent.vote_content',
+            logger.exception(dumps({"function": SBVoteableContent.vote_content.__name__,
                                     "exception": "Unhandled Exception"}))
             return e
 
@@ -124,12 +126,12 @@ class SBContent(SBVoteableContent):
         try:
             rel = self.comments.connect(comment)
             rel.save()
-            print rel
+
             return rel
         except CypherException as e:
             return e
         except Exception as e:
-            logger.exception(dumps({"function": 'SBContent.comment_on',
+            logger.exception(dumps({"function": SBContent.comment_on.__name__,
                                     "exception": "Unhandled Exception"}))
             return e
 
@@ -142,7 +144,7 @@ class SBContent(SBVoteableContent):
             return e
         except Exception as e:
             logger.exception(dumps({"function":
-                                        'SBContent.delete_content',
+                                        SBContent.delete_content.__name__,
                                     "exception": "Unhandled Exception"}))
             return e
 
@@ -165,7 +167,7 @@ class SBContent(SBVoteableContent):
             return self
 
         except Exception as e:
-            logger.exception(dumps({"function": 'SBContent.flag_content',
+            logger.exception(dumps({"function": SBContent.flag_content.__name__,
                                     "exception": "Unhandled Exception"}))
             return e
 

@@ -240,7 +240,7 @@ class Pleb(StructuredNode):
         except CypherException as e:
             return e
         except Exception as e:
-            logger.exception(dumps({"function": 'Pleb.relate_comment',
+            logger.exception(dumps({"function": Pleb.relate_comment.__name__,
                                     "exception": "Unhandled Exception:"}))
             return e
 

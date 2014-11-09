@@ -32,10 +32,10 @@ def add_question_to_indices_task(question, tags):
                            'user': question.owned_by.all()[0].email,
                            'question_title': question.question_title,
                            'tags': tags,
-                           'question_uuid': question.sb_id,
+                           'object_uuid': question.sb_id,
                            'post_date': question.date_created,
                            'related_user': ''}
-            task_data = {"object_type": "SBQuestion",
+            task_data = {"object_type": "sb_questions.neo_models.SBQuestion",
                          "object_data": search_dict}
             question.added_to_search_index = True
             question.save()
@@ -91,7 +91,9 @@ def add_tags_to_question_task(question, tags):
                 })
             tag_list = {'tag_list': task_data}
             tag_task_data = {"object_uuid": question.sb_id,
-                             "object_type": "question", "tags": tags}
+                             "object_type": "sb_questions.neo_models."
+                                            "SBQuestion",
+                             "tags": tags}
             spawn_task(task_func=add_tags, task_param=tag_task_data)
             spawn_task(task_func=add_auto_tags, task_param=tag_list)
             question.tags_added = True

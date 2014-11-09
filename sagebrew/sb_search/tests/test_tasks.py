@@ -36,7 +36,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
     def test_update_weight_relationship_task_success_seen_unconnected(self):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'SBQuestion',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
                 'modifier_type': 'search_seen'}
@@ -57,7 +57,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
     def test_update_weight_relationship_task_success_comment_on_unconnected(self):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'SBQuestion',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
                 'modifier_type': 'comment_on'}
@@ -78,7 +78,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
     def test_update_weight_relationship_task_success_flag_as_inappropriate_unconnected(self):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'SBQuestion',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
                 'modifier_type': 'flag_as_inappropriate'}
@@ -99,7 +99,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
     def test_update_weight_relationship_task_success_flag_as_spam_unconnected(self):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'SBQuestion',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
                 'modifier_type': 'flag_as_spam'}
@@ -120,7 +120,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
     def test_update_weight_relationship_task_success_share_unconnected(self):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'SBQuestion',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
                 'modifier_type': 'share'}
@@ -141,7 +141,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
     def test_update_weight_relationship_task_success_answered_unconnected(self):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'SBQuestion',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
                 'modifier_type': 'answered'}
@@ -163,7 +163,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
 
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'SBQuestion',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
                 'modifier_type': 'search_seen'}
@@ -187,7 +187,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
 
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'SBQuestion',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
                 'modifier_type': 'comment_on'}
@@ -211,7 +211,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
 
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'SBQuestion',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
                 'modifier_type': 'flag_as_inappropriate'}
@@ -235,7 +235,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
 
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'SBQuestion',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
                 'modifier_type': 'flag_as_spam'}
@@ -259,7 +259,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
 
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'SBQuestion',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
                 'modifier_type': 'share'}
@@ -283,7 +283,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
 
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'SBQuestion',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
                 'modifier_type': 'answered'}
@@ -303,7 +303,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
     def test_update_weight_relationship_task_pleb_does_not_exist(self):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'SBQuestion',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': str(uuid1()),
                 'modifier_type': 'answered'}

@@ -21,10 +21,11 @@ def add_answer_to_search_index(answer):
 
         search_dict = {'answer_content': answer.content,
                        'user': answer.owned_by.all()[0].email,
-                       'question_uuid': answer.sb_id,
+                       'object_uuid': answer.sb_id,
                        'post_date': answer.date_created,
                        'related_user': ''}
-        task_data = {"object_type": 'answer', 'object_data': search_dict,
+        task_data = {"object_type": 'sb_answers.neo_models.SBAnswer',
+                     'object_data': search_dict,
                      "object_added": answer}
         spawned_task = spawn_task(task_func=add_object_to_search_index,
                                   task_param=task_data)

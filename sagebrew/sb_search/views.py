@@ -149,6 +149,7 @@ def search_result_api(request, query_param="", display_num=10, page=1,
             if current_page == 1:
                 pool = Pool(3)
                 results = pool.map(process_search_result, page.object_list)
+                print results
                 results = sorted(results, key=itemgetter('temp_score'),
                                  reverse=True)
             elif current_page > 1:

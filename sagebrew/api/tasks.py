@@ -36,6 +36,9 @@ def add_object_to_search_index(index="full-search-base", object_type="",
             "doc_id": res['_id'],
             "doc_type": res['_type']
         }
+        if object_added is not None:
+            return True
+        
         sb_object = get_object(object_type, object_data['object_uuid'])
         if isinstance(sb_object, Exception) is True:
             raise sb_object

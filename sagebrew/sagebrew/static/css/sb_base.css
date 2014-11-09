@@ -1,7 +1,17 @@
-.body {
+html, .body {
     height: 100%;
 }
-
+body {
+    margin: 0px;
+    padding: 0px;
+}
+div#sb_wrapper{
+       width: 100%;
+       min-height: 100%;
+       height: auto;
+       height: 100%;
+       margin: 0px 0px -100px 0px;
+}
 #sb_logo_bottom {
     margin-left: 30px;
 }

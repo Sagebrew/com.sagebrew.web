@@ -154,7 +154,7 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                                  reverse=True)
             elif current_page > 1:
                 for item in page.object_list:
-                    if item['_type'] == 'SBQuestion':
+                    if item['_type'] == 'sb_questions.neo_models.SBQuestion':
                         results.append(prepare_question_search_html(
                             item['_source']['question_uuid']))
                         spawn_task(update_weight_relationship,

@@ -106,6 +106,8 @@ def signup_view_api(request):
                     return Response({'detail': 'invalid login'},
                                     status=400)
         # TODO add a handler for if the form is not valid
+    except AttributeError:
+        return Response(status=400)
     except Exception:
         logger.exception(dumps({'function': signup_view_api.__name__,
                                 'exception': 'Unhandled Exception'}))

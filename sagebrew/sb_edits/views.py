@@ -38,7 +38,6 @@ def edit_object_view(request):
 
             return Response({"detail": "success"}, status=200)
         else:
-            print edit_object_form.errors
             return Response({"detail": "invalid form"}, status=400)
     except Exception:
         logger.exception(dumps({"function": edit_object_view.__name__,

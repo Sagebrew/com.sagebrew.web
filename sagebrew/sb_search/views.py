@@ -132,7 +132,6 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                                 }
                             })
             res = res['hits']['hits']
-            print res
             task_param = {"pleb": request.user.email, "query_param":
                 search_form.cleaned_data['query_param'],
                           "keywords": response['keywords']}
@@ -150,7 +149,6 @@ def search_result_api(request, query_param="", display_num=10, page=1,
             if current_page == 1:
                 pool = Pool(3)
                 results = pool.map(process_search_result, page.object_list)
-                print results
                 results = sorted(results, key=itemgetter('temp_score'),
                                  reverse=True)
             elif current_page > 1:
@@ -190,5 +188,4 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                                     "exception": "Unhandled Exception"}))
             return Response({'detail': 'fail'}, status=400)
     else:
-        print search_form.errors
         return Response({'detail': 'invalid form'}, status=400)

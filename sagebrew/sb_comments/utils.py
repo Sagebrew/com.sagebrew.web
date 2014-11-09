@@ -84,7 +84,6 @@ def save_comment(content, comment_uuid=None):
 
 def comment_relations(pleb, comment, sb_object):
     try:
-        print sb_object
         comment_add_res = sb_object.comment_on(comment)
         if isinstance(comment_add_res, Exception) is True:
             return comment_add_res

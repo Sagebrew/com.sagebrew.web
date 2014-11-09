@@ -22,7 +22,6 @@ def add_object_to_search_index(index="full-search-base", object_type="",
     :param object_data:
     :return:
     '''
-    print object_data, object_added
     from sb_search.tasks import update_user_indices
     if object_added is not None:
         if object_added.populated_es_index:

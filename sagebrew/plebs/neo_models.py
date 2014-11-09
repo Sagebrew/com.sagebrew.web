@@ -235,7 +235,6 @@ class Pleb(StructuredNode):
             rel_to_pleb.save()
             rel_from_pleb = self.comments.connect(comment)
             rel_from_pleb.save()
-            print 'here'
             return True
         except CypherException as e:
             return e

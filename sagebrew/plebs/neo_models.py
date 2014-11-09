@@ -13,7 +13,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
 from api.utils import execute_cypher_query
 from sb_relationships.neo_models import (FriendRelationship,
                                          UserWeightRelationship)
-from sb_posts.neo_models import RelationshipWeight
+from sb_base.neo_models import RelationshipWeight
 from sb_search.neo_models import SearchCount
 
 

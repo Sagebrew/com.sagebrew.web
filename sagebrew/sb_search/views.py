@@ -132,6 +132,7 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                                 }
                             })
             res = res['hits']['hits']
+            print res
             task_param = {"pleb": request.user.email, "query_param":
                 search_form.cleaned_data['query_param'],
                           "keywords": response['keywords']}

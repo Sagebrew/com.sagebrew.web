@@ -31,7 +31,7 @@ div#sb_content_wrapper {
 .sb_link {
     color: #7c7e80;
 }
-.sb_link:hover;
+.sb_link:hover,
 .sb_link:active{
     color: #1ba39c;
 }

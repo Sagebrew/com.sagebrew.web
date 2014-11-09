@@ -86,7 +86,7 @@ def process_search_result(item):
     try:
         if 'sb_score' not in item['_source']:
                 item['_source']['sb_score'] = 0
-        if item['_type'] == 'question':
+        if item['_type'] == 'sb_questions.neo_models.SBQuestion':
             spawn_task(update_weight_relationship,
                        task_param=
                        {'index': item['_index'],

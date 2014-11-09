@@ -157,13 +157,13 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                 for item in page.object_list:
                     if item['_type'] == 'sb_questions.neo_models.SBQuestion':
                         results.append(prepare_question_search_html(
-                            item['_source']['question_uuid']))
+                            item['_source']['object_uuid']))
                         spawn_task(update_weight_relationship,
                                    task_param=
                                    {'index': item['_index'],
                                     'document_id': item['_id'],
                                     'object_uuid': item['_source'][
-                                        'question_uuid'],
+                                        'object_uuid'],
                                     'object_type': 'question',
                                     'current_pleb': item['_source'][
                                         'related_user'],

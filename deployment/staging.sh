@@ -24,4 +24,4 @@ aws s3 cp $DOCKERRUN_FILE_WEB s3://$EB_BUCKET/$DOCKER_CONFIG_BUCKET/$DOCKERRUN_F
 aws s3 cp $DOCKERRUN_FILE_WORKER s3://$EB_BUCKET/$DOCKER_CONFIG_BUCKET/$DOCKERRUN_FILE_WORKER
 aws s3 cp $DOCKERRUN_FILE_SYS s3://$EB_BUCKET/$DOCKER_CONFIG_BUCKET/$DOCKERRUN_FILE_SYS
 
-~/virtualenvs/venv-system/bin/python ~/sagebrew/deployment/deployment.py staging
+~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/deployment/deployment.py staging

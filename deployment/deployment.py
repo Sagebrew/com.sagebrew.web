@@ -51,8 +51,8 @@ def create_sys_util_env(sys_util, sys_util_name, branch_key, stalk, sha_key,
                         bean_bucket):
     bean_key = "%s/%s-%s_%s.aws.json" % (environ.get(
         "DOCKER_CONFIG_BUCKET", ""), sha_key, branch_key, sys_util_name)
-    aws_env = "/home/ubuntu/%s/%s-%s_%s.json" % (environ.get("REPO_NAME", ""),
-                                                 sha_key, branch_key, "worker")
+    aws_env = "/home/ubuntu/%s/aws_templates/%s-%s_%s.json" % (
+        environ.get("REPO_NAME", ""), sha_key, branch_key, "worker")
     option_tuple = populate_options(aws_env)
     stalk.create_application_version(application_name=sys_util,
                                      version_label=sha_key,
@@ -86,7 +86,7 @@ def create_app_version_update_env(branch_key, stalk, sha_key, bean_bucket,
                                   app_type, app_name, env_name):
     bean_key = "%s/%s-%s_%s.aws.json" % (environ.get(
         "DOCKER_CONFIG_BUCKET", ""), sha_key, branch_key, app_type)
-    aws_env = "/home/ubuntu/%s/%s-%s_%s.json" % (environ.get("REPO_NAME", ""),
+    aws_env = "/home/ubuntu/%s/aws_templates/%s-%s_%s.json" % (environ.get("REPO_NAME", ""),
                                                  sha_key, branch_key, app_type)
     option_tuple = populate_options(aws_env)
     stalk.create_application_version(application_name=app_name,

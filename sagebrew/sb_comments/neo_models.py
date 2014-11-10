@@ -6,7 +6,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty)
 
-from sb_posts.neo_models import SBNonVersioned
+from sb_base.neo_models import SBNonVersioned
 
 class CommentedOnRel(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))

@@ -194,7 +194,6 @@ def get_object(object_type, object_uuid):
     '''
     try:
         cls = object_type
-        print cls
         module_name, class_name = cls.rsplit(".", 1)
         sb_module = importlib.import_module(module_name)
         sb_object = getattr(sb_module, class_name)

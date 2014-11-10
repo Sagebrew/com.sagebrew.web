@@ -1,11 +1,11 @@
 import logging
 from json import dumps
 from django.conf import settings
-from api.utils import spawn_task
 
 from celery import shared_task
 from elasticsearch import Elasticsearch
 
+from api.utils import spawn_task, get_object
 from sb_questions.neo_models import SBQuestion
 from sb_answers.neo_models import SBAnswer
 
@@ -22,7 +22,6 @@ def add_object_to_search_index(index="full-search-base", object_type="",
     :param object_data:
     :return:
     '''
-    # TODO update with dynamic object recognition
     from sb_search.tasks import update_user_indices
     if object_added is not None:
         if object_added.populated_es_index:
@@ -36,15 +35,14 @@ def add_object_to_search_index(index="full-search-base", object_type="",
             "doc_id": res['_id'],
             "doc_type": res['_type']
         }
+        if object_added is not None:
+            return True
 
-        if object_type=='question':
-            question = SBQuestion.nodes.get(sb_id=object_data['question_uuid'])
-            question.search_id = res['_id']
-            question.save()
-        if object_type=='answer':
-            answer = SBAnswer.nodes.get(sb_id=object_data['answer_uuid'])
-            answer.search_id = res['_id']
-            answer.save()
+        sb_object = get_object(object_type, object_data['object_uuid'])
+        if isinstance(sb_object, Exception) is True:
+            raise sb_object
+        sb_object.search_id = res['_id']
+        sb_object.save()
 
         spawn_task(task_func=update_user_indices, task_param=task_data)
         if object_added is not None:

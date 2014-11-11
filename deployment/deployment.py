@@ -17,9 +17,10 @@ def deployment(stalk, branch_key):
                         bean_bucket)
     create_app_version_update_env(branch_key, stalk, sha_key, bean_bucket,
                                   "web", "sagebrew-staging-web",
-                                  "sagebrew-staging-web")
+                                  "sb-staging-web")
     create_app_version_update_env(branch_key, stalk, sha_key, bean_bucket,
-                                  "worker", "sb-staging-web", "sb-staging-web")
+                                  "worker", "sagebrew-staging-worker",
+                                  "sb-staging-worker")
 
     if environ.get("AUTO_TERMINATE", "false") == "true":
         sleep(15)

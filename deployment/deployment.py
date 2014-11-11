@@ -27,7 +27,6 @@ def deployment(stalk, branch_key):
         terminate_sys_util_env(sys_util, stalk)
 
 
-
 def terminate_sys_util_env(sys_util, stalk):
     sys_env = stalk.terminate_environment(environment_name=sys_util)
 

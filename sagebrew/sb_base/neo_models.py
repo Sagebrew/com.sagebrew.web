@@ -53,7 +53,7 @@ class SBVoteableContent(StructuredNode):
             vote = SBVote(vote_type=vote_type).save()
             vote.from_pleb.connect(pleb)
             pleb.votes.connect(vote)
-            if vote_type=="up":
+            if vote_type is True:
                 if self.up_voted_by.is_connected(pleb):
                     self.up_voted_by.disconnect(pleb)
                     self.up_vote_number -= 1
@@ -66,7 +66,7 @@ class SBVoteableContent(StructuredNode):
                     self.up_voted_by.connect(pleb)
                     self.up_vote_number += 1
 
-            elif vote_type=="down":
+            elif vote_type is False:
                 if self.down_voted_by.is_connected(pleb):
                     self.down_voted_by.disconnect(pleb)
                     self.down_vote_number -= 1
@@ -88,8 +88,14 @@ class SBVoteableContent(StructuredNode):
                                     "exception": "Unhandled Exception"}))
             return e
 
+    def get_upvote_count(self):
+        return len(self.up_voted_by.all())
+
+    def get_downvote_count(self):
+        return len(self.down_voted_by.all())
+
     def get_vote_count(self):
-        return len(self.up_voted_by.all()) - len(self.down_voted_by.all())
+        return self.get_upvote_count() - self.get_downvote_count()
 
 
 class SBContent(SBVoteableContent):

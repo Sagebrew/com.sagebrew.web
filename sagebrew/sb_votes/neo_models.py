@@ -8,7 +8,7 @@ from neomodel import (StructuredNode, BooleanProperty, StringProperty,
 
 class SBVote(StructuredNode):
     vote_id = StringProperty(unique_index=True, default=lambda: str(uuid1()))
-    vote_type = StringProperty()
+    vote_type = BooleanProperty()#True is up False is down
     date_created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
     #relationships

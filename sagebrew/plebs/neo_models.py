@@ -99,7 +99,7 @@ class Pleb(StructuredNode):
     initial_verification_email_sent = BooleanProperty(default=False)
 
     # Relationships
-    votes = RelationshipTo('sb_votes.neo_models.SBVote', 'VOTES')
+    voted_on = RelationshipTo('sb_base.neo_models.SBVoteableContent', 'VOTES')
     home_town_address = RelationshipTo("Address", "GREW_UP_AT")
     high_school = RelationshipTo("HighSchool", "ATTENDED_HS",
                                  model=ReceivedEducationRel)
@@ -244,6 +244,9 @@ class Pleb(StructuredNode):
             return e
 
     def get_available_flags(self):
+        pass
+
+    def vote_on_content(self, content):
         pass
 
 class Address(StructuredNode):

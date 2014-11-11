@@ -87,6 +87,16 @@ class SBVoteableContent(StructuredNode):
             logger.exception(dumps({"function": SBVoteableContent.vote_content.__name__,
                                     "exception": "Unhandled Exception"}))
             return e
+    def down_vote(self, pleb):
+        self.down_voted_by.connect(pleb)
+        pleb.votes.connect(self)
+
+    def up_vote(self, pleb):
+        self.up_voted_by.connect(pleb)
+        pleb.votes.connect(self)
+
+    def remove_vote(self, pleb):
+        pleb.votes
 
     def get_upvote_count(self):
         return len(self.up_voted_by.all())

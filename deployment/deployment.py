@@ -36,7 +36,8 @@ def terminate_sys_util_env(sys_util, stalk):
     while sys_env[u"Status"] != u"Terminated":
         sleep(30)
         sys_env = stalk.describe_environments(application_name=sys_util,
-                                              environment_names=[sys_util,])
+                                              environment_names=[sys_util,],
+                                              terminate_resources=False)
         sys_env_app = sys_env["DescribeEnvironmentsResponse"][
             "DescribeEnvironmentsResult"]["Environments"]
         sys_env = sys_env_app[0]
@@ -61,12 +62,9 @@ def create_sys_util_env(sys_util, sys_util_name, branch_key, stalk, sha_key,
                                      s3_key=bean_key)
     # Need to create a template by manually creating the env first then
     # save the conf, then destroy
-    sys_env = stalk.create_environment(environment_name=sys_util,
-                                       application_name=sys_util,
+    sys_env = stalk.update_environment(environment_name=sys_util,
                                        version_label=sha_key,
-                                       option_settings=option_tuple,
-                                       tier_name="WebServer",
-                                       template_name='sys-util-conf')
+                                       option_settings=option_tuple)
     sys_env = sys_env["CreateEnvironmentResponse"]["CreateEnvironmentResult"]
     while sys_env[u"Status"] != u"Ready":
         sleep(30)

@@ -46,7 +46,9 @@ class Command(BaseCommand):
             else:
                 data_worker = populate_test_values(data_worker)
             data_worker = populate_general_values(data_worker)
-        sys_env = "/home/ubuntu/com.sagebrew.web/%s-staging_sys_util.json"
+        sys_env = "/home/ubuntu/com.sagebrew.web/%s-staging_sys_util.json" % (
+            environ.get("CIRCLE_SHA1", "")
+        )
         f = open("%s" % (sys_env), "w")
         f.write(data_worker)
         f.close()

@@ -11,7 +11,7 @@ def deployment(stalk, branch_key):
     bean_bucket = "sagebrew-%s" % environ.get("CIRCLE_BRANCH", "")
 
     sys_util_name = "sys-util"
-    sys_util = "%s-%s" % (branch_key, sys_util_name)
+    sys_util = "sb-%s-%s" % (branch_key, sys_util_name)
 
     create_sys_util_env(sys_util, sys_util_name, branch_key, stalk, sha_key,
                         bean_bucket)

@@ -30,6 +30,7 @@ class RelationshipWeight(StructuredRel):
     seen = BooleanProperty(default=True)
 
 class VoteRelationship(StructuredRel):
+    active = BooleanProperty(default=True)
     vote_type = BooleanProperty() # True is up False is down None is undecided
     date_created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
@@ -43,7 +44,7 @@ class SBVoteableContent(StructuredNode):
     #relationships
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'OWNED_BY',
                               model=PostedOnRel)
-    pleb_votes = RelationshipFrom('plebs.neo_models.Pleb', 'PLEB_VOTES',
+    votes = RelationshipFrom('plebs.neo_models.Pleb', 'PLEB_VOTES',
                                 model=VoteRelationship)
     #votes = RelationshipTo('sb_votes.neo_models.SBVote', 'VOTES')
     #counsel_vote = RelationshipTo('sb_counsel.neo_models.SBCounselVote',
@@ -53,15 +54,17 @@ class SBVoteableContent(StructuredNode):
     #methods
     def vote_content(self, vote_type, pleb):
         try:
-            if self.pleb_votes.is_connectd(pleb):
-                rel = self.pleb_votes.relationship(pleb)
-                if vote_type == rel.vote_type:
+            if self.votes.is_connected(pleb):
+                rel = self.votes.relationship(pleb)
+                if vote_type is rel.vote_type:
                     return self.remove_vote(rel)
                 rel.vote_type = vote_type
+                rel.active = True
                 rel.save()
             else:
-                rel = self.pleb_votes.connect(pleb)
+                rel = self.votes.connect(pleb)
                 rel.vote_type = vote_type
+                rel.active = True
                 rel.save()
             return rel
 
@@ -71,22 +74,27 @@ class SBVoteableContent(StructuredNode):
             return e
 
     def remove_vote(self, rel):
-        rel.vote_type = None
+        rel.active = False
         rel.save()
         return rel
 
     def get_upvote_count(self):
-        query = 'start s=node({self}) match self-[r:PLEB_VOTES]-(p:Pleb) ' \
-                'where r.vote_type=true return r'
+        query = 'start s=node({self}) match s-[r:PLEB_VOTES]-(p:Pleb) ' \
+                'where r.vote_type=true and r.active=true return r'
         try:
-            res, col = db.cypher_query(query)
-            print res, col
+            res, col = self.cypher(query)
             return len(res)
         except CypherException as e:
             return e
 
     def get_downvote_count(self):
-        return len(self.down_voted_by.all())
+        query = 'start s=node({self}) match s-[r:PLEB_VOTES]-(p:Pleb) ' \
+                'where r.vote_type=false and r.active=true return r'
+        try:
+            res, col = self.cypher(query)
+            return len(res)
+        except CypherException as e:
+            return e
 
     def get_vote_count(self):
         return self.get_upvote_count() - self.get_downvote_count()
@@ -119,7 +127,6 @@ class SBContent(SBVoteableContent):
                                 model=RelationshipWeight)
     notifications = RelationshipTo('sb_notifications.neo_models.NotificationBase',
                                    'NOTIFICATIONS')
-    votes = RelationshipTo('sb_votes.neo_models.SBVote', "VOTES")
 
 
     def comment_on(self, comment):
@@ -180,6 +187,7 @@ class SBVersioned(SBContent):
     __abstract_node__ = True
     edit = lambda self: self.__class__.__name__
     original = BooleanProperty(default=True)
+    draft = BooleanProperty(default=False)
 
     #relationships
     tagged_as = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS')

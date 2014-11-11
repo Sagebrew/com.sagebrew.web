@@ -1,5 +1,6 @@
 import logging
 from uuid import uuid1
+from json import dumps
 from urllib2 import HTTPError
 from requests import ConnectionError
 from django.template.loader import render_to_string
@@ -54,18 +55,23 @@ def get_user_posts(request):
     :param request:
     :return:
     '''
-    html_array = []
-    post_data = request.DATA
-    post_form = GetPostForm(post_data)
-    if post_form.is_valid():
-        citizen = Pleb.nodes.get(email=post_form.cleaned_data['email'])
-        posts = get_pleb_posts(citizen, post_form.cleaned_data['range_end'],
-                           post_form.cleaned_data['range_start'])
-        for post in posts:
-            post['current_user'] = post_form.cleaned_data['current_user']
-            for comment in post['comments']:
-                comment['current_user'] = post_form.cleaned_data['current_user']
-            html_array.append(render_to_string('sb_post.html', post))
-        return Response({'html': html_array}, status=200)
-    else:
+    try:
+        html_array = []
+        post_data = request.DATA
+        post_form = GetPostForm(post_data)
+        if post_form.is_valid():
+            citizen = Pleb.nodes.get(email=post_form.cleaned_data['email'])
+            posts = get_pleb_posts(citizen, post_form.cleaned_data['range_end'],
+                               post_form.cleaned_data['range_start'])
+            for post in posts:
+                post['current_user'] = post_form.cleaned_data['current_user']
+                for comment in post['comments']:
+                    comment['current_user'] = post_form.cleaned_data['current_user']
+                html_array.append(render_to_string('sb_post.html', post))
+            return Response({'html': html_array}, status=200)
+        else:
+            return Response(status=400)
+    except Exception:
+        logger.exception(dumps({'function': get_user_posts.__name__,
+                                'exception': "Unhandled Exception"}))
         return Response(status=400)

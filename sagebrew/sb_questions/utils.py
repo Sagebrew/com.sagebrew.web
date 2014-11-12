@@ -1,4 +1,5 @@
 import logging
+import traceback
 from uuid import uuid1
 from json import dumps
 from textblob import TextBlob
@@ -7,7 +8,8 @@ from neomodel import DoesNotExist, CypherException
 from django.conf import settings
 from django.template.loader import render_to_string
 
-from api.utils import execute_cypher_query
+from api.utils import execute_cypher_query, spawn_task
+from sb_base.tasks import create_object_relations_task
 from plebs.neo_models import Pleb
 from sb_answers.neo_models import SBAnswer
 from .neo_models import SBQuestion
@@ -44,10 +46,9 @@ def create_question_util(content, current_pleb, question_title,
         my_question.title_polarity = title_blob.polarity
         my_question.title_subjectivity = title_blob.subjectivity
         my_question.save()
-        rel = my_question.owned_by.connect(poster)
-        rel.save()
-        rel_from_pleb = poster.questions.connect(my_question)
-        rel_from_pleb.save()
+        relations_data = {'sb_object': my_question, 'current_pleb': poster}
+        spawn_task(task_func=create_object_relations_task,
+                   task_param=relations_data)
         return my_question
     except CypherException as e:
         return e
@@ -138,7 +139,8 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb):
                             }
                 question_array.append(question_dict)
             return question_array
-    except IndexError:
+    except IndexError as e:
+        traceback.print_exc()
         return []
     except Exception:
         logger.exception(dumps(
@@ -194,6 +196,7 @@ def get_question_by_most_recent(current_pleb, range_start=0, range_end=5):
                 'return q' % (range_start, range_end)
         questions, meta = execute_cypher_query(query)
         questions = [SBQuestion.inflate(row[0]) for row in questions]
+        print questions
         return_dict = prepare_get_question_dictionary(questions,
                                                       sort_by='most recent',
                                                       current_pleb=current_pleb)

@@ -6,27 +6,10 @@ from logging import getLogger
 from sb_notifications.tasks import spawn_notifications
 from api.utils import spawn_task
 from plebs.neo_models import Pleb
+from sb_base.tasks import create_object_relations_task
 from .utils import (save_post)
 
 logger = getLogger('loggly_logs')
-
-
-@shared_task()
-def delete_post_and_comments(post_info):
-    '''
-    called by the garbage can to delete each post (and all comments attached
-    to post)
-    in the can
-
-    :param post_info:
-    :return:
-    '''
-    response = delete_post_info(post_info)
-    if isinstance(response, Exception) is True:
-        raise delete_post_and_comments.retry(exc=response, countdown=3,
-                                             max_retries=None)
-    else:
-        return response
 
 
 @shared_task()
@@ -56,9 +39,11 @@ def save_post_task(content, current_pleb, wall_pleb, post_uuid=None):
             # TODO maybe we should pass the entire
             # pleb rather than just the email, since just do another query in
             # the util anyways and will need to do one for the notification
+            current_pleb = Pleb.nodes.get(email=current_pleb)
+            wall_pleb = Pleb.nodes.get(email=wall_pleb)
             notification_data={'sb_object': my_post,
-                               'from_pleb': Pleb.nodes.get(email=current_pleb),
-                               'to_plebs': [Pleb.nodes.get(email=wall_pleb),]}
+                               'from_pleb': current_pleb,
+                               'to_plebs': [wall_pleb,]}
             spawn_task(task_func=spawn_notifications,
                        task_param=notification_data)
             return True
@@ -66,3 +51,4 @@ def save_post_task(content, current_pleb, wall_pleb, post_uuid=None):
         logger.exception(dumps({"function": save_post_task.__name__,
                                 "exception": "Unhandled Exception"}))
         raise save_post_task.retry(exc=e, countdown=3, max_retries=None)
+

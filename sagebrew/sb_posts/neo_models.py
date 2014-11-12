@@ -24,5 +24,16 @@ class SBPost(SBNonVersioned):
     #TODO Implement referenced_by_... relationships
     #TODO Implement ..._referenced relationships
 
-
-
+    def create_relations(self, pleb, question=None, wall=None):
+        try:
+            self.posted_on_wall.connect(wall)
+            wall.post.connect(self)
+            rel = self.owned_by.connect(pleb)
+            rel.save()
+            rel_from_pleb = pleb.posts.connect(self)
+            rel_from_pleb.save()
+        except Exception as e:
+            logger.exception(dumps({"function":
+                                        SBPost.create_relations.__name__,
+                                    "exception": "Unhandled Exception"}))
+            return e

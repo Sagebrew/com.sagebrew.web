@@ -1,10 +1,15 @@
 import pytz
+import logging
 from uuid import uuid1
+from json import dumps
 from datetime import datetime
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, CypherException)
+
+logger = logging.getLogger('loggly_logs')
+
 
 from sb_base.neo_models import SBVersioned
 
@@ -23,6 +28,23 @@ class SBAnswer(SBVersioned):
                                'AUTO_TAGGED_AS')
     answer_to = RelationshipTo('sb_questions.neo_models.SBQuestion',
                                'POSSIBLE_ANSWER_TO')
+
+    def create_relations(self, pleb, question=None, wall=None):
+        try:
+            self.answer_to.connect(question)
+            question.answer.connect(self)
+            question.answer_number += 1
+            question.save()
+            rel_from_pleb = pleb.answers.connect(self)
+            rel_from_pleb.save()
+            rel_to_pleb = self.owned_by.connect(pleb)
+            rel_to_pleb.save()
+            self.save()
+        except Exception as e:
+            logger.exception(dumps({"function":
+                                        SBAnswer.create_relations.__name__,
+                                    "exception": "Unhandled Exception"}))
+            return e
 
     def edit_content(self, content, pleb):
         try:

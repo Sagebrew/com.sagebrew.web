@@ -46,7 +46,6 @@ class SBVoteableContent(StructuredNode):
                               model=PostedOnRel)
     votes = RelationshipFrom('plebs.neo_models.Pleb', 'PLEB_VOTES',
                                 model=VoteRelationship)
-    #votes = RelationshipTo('sb_votes.neo_models.SBVote', 'VOTES')
     #counsel_vote = RelationshipTo('sb_counsel.neo_models.SBCounselVote',
     #                              'VOTE')
     #views = RelationshipTo('sb_views.neo_models.SBView', 'VIEWS')
@@ -128,6 +127,13 @@ class SBContent(SBVoteableContent):
     notifications = RelationshipTo('sb_notifications.neo_models.NotificationBase',
                                    'NOTIFICATIONS')
 
+    @classmethod
+    def get_model_name(cls):
+        return cls.__name__
+
+    def create_relations(self, pleb, question=None, wall=None):
+        self.owned_by.connect(pleb)
+        return self
 
     def comment_on(self, comment):
         try:
@@ -178,9 +184,13 @@ class SBContent(SBVoteableContent):
                                     "exception": "Unhandled Exception"}))
             return e
 
-    @classmethod
-    def get_model_name(cls):
-        return cls.__name__
+    def render_search(self):
+        pass
+
+    def render_single(self):
+        pass
+
+
 
 
 class SBVersioned(SBContent):

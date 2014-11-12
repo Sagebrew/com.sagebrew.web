@@ -42,6 +42,18 @@ class SBQuestion(SBVersioned):
     answer = RelationshipTo('sb_answers.neo_models.SBAnswer',
                             'POSSIBLE_ANSWER')
 
+    def create_relations(self, pleb, question=None, wall=None):
+        try:
+            rel = self.owned_by.connect(pleb)
+            rel.save()
+            rel_from_pleb = pleb.questions.connect(self)
+            rel_from_pleb.save()
+        except Exception as e:
+            logger.exception(dumps({"function":
+                                        SBQuestion.create_relations.__name__,
+                                    "exception": "Unhandled Exception"}))
+            return e
+
     def edit_content(self, pleb, content):
         from sb_questions.utils import create_question_util
         try:
@@ -96,3 +108,9 @@ class SBQuestion(SBVersioned):
                 {"function": SBQuestion.delete_content.__name__,
                 "exception": "Unhandled Exception"}))
             return e
+
+    def render_search(self):
+        pass
+
+    def render_single(self):
+        pass

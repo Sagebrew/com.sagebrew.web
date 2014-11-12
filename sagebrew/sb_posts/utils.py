@@ -4,7 +4,8 @@ from json import dumps
 
 from neomodel import DoesNotExist
 
-from api.utils import execute_cypher_query
+from api.utils import execute_cypher_query, spawn_task
+from sb_base.tasks import create_object_relations_task
 from plebs.neo_models import Pleb
 from sb_comments.utils import get_post_comments
 from .neo_models import SBPost
@@ -72,13 +73,11 @@ def save_post(current_pleb, wall_pleb, content, post_uuid=None):
             return e
         my_post = SBPost(content=content, sb_id=post_uuid)
         my_post.save()
-        wall = my_citizen.wall.all()[0]
-        my_post.posted_on_wall.connect(wall)
-        wall.post.connect(my_post)
-        rel = my_post.owned_by.connect(poster)
-        rel.save()
-        rel_from_pleb = poster.posts.connect(my_post)
-        rel_from_pleb.save()
+        relation_data = {'sb_object': my_post,
+                         'current_pleb': current_pleb,
+                         'wall': wall_pleb.wall.all()[0]}
+        spawn_task(task_func=create_object_relations_task,
+                       task_param=relation_data)
         return my_post
     except ValueError as e:
         return e

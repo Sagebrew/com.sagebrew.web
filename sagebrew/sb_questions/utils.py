@@ -196,7 +196,6 @@ def get_question_by_most_recent(current_pleb, range_start=0, range_end=5):
                 'return q' % (range_start, range_end)
         questions, meta = execute_cypher_query(query)
         questions = [SBQuestion.inflate(row[0]) for row in questions]
-        print questions
         return_dict = prepare_get_question_dictionary(questions,
                                                       sort_by='most recent',
                                                       current_pleb=current_pleb)

@@ -179,7 +179,6 @@ def get_question_view(request):
         if question_data['sort_by'] == 'most_recent':
             response = get_question_by_most_recent(
                 current_pleb=question_data['current_pleb'])
-            print response
             for question in response:
                 t = get_template("questions.html")
                 c = Context(question)
@@ -197,7 +196,6 @@ def get_question_view(request):
         elif question_data['sort_by'] == 'least_recent':
             response = get_question_by_least_recent(
                 current_pleb=question_data['current_pleb'])
-            print response
             for question in response:
                 t = get_template("questions.html")
                 c = Context(question)

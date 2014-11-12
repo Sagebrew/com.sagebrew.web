@@ -2,6 +2,9 @@ import pytz
 import logging
 from json import dumps
 from datetime import datetime
+from django.conf import settings
+from django.template.loader import render_to_string
+
 from neomodel import (StringProperty, IntegerProperty,
                       RelationshipTo,
                       BooleanProperty, FloatProperty, CypherException)
@@ -110,7 +113,23 @@ class SBQuestion(SBVersioned):
             return e
 
     def render_search(self):
-        pass
+        owner = self.owned_by.all()[0]
+        owner_name = owner.first_name + ' ' + owner.last_name
+        owner_profile_url = settings.WEB_ADDRESS + '/user/' + owner.email
+        question_dict = {"question_title": self.question_title,
+                         "question_content": self.content,
+                         "question_uuid": self.sb_id,
+                         "is_closed": self.is_closed,
+                         "answer_number": self.answer_number,
+                         "last_edited_on": self.last_edited_on,
+                         "up_vote_number": self.up_vote_number,
+                         "down_vote_number": self.down_vote_number,
+                         "owner": owner_name,
+                         "owner_profile_url": owner_profile_url,
+                         "time_created": self.date_created,
+                         "owner_email": owner.email}
+        rendered = render_to_string('question_search.html', question_dict)
+        return rendered
 
     def render_single(self):
         pass

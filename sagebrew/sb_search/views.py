@@ -114,8 +114,6 @@ def search_result_api(request, query_param="", display_num=10, page=1,
             #if what they have searched is an email address or a name so that
             #the first search result is that user
             #TODO implement filtering on auto generated keywords from alchemyapi
-            #TODO change using the current_user_email to the users
-            #username
             res = es.search(index='full-search-user-specific-1', size=50,
                             body=
                             {

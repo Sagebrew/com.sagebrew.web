@@ -6,7 +6,8 @@ from datetime import datetime
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty, CypherException)
+                      BooleanProperty, FloatProperty, CypherException,
+                      RelationshipFrom, db)
 
 logger = logging.getLogger("loggly_logs")
 
@@ -28,7 +29,10 @@ class RelationshipWeight(StructuredRel):
     status = StringProperty(default='seen')
     seen = BooleanProperty(default=True)
 
-
+class VoteRelationship(StructuredRel):
+    active = BooleanProperty(default=True)
+    vote_type = BooleanProperty() # True is up False is down None is undecided
+    date_created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
 class SBVoteableContent(StructuredNode):
     up_vote_adjustment = 0
@@ -40,56 +44,60 @@ class SBVoteableContent(StructuredNode):
     #relationships
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'OWNED_BY',
                               model=PostedOnRel)
-    up_voted_by = RelationshipTo('plebs.neo_models.Pleb', 'UP_VOTED_BY')
-    down_voted_by = RelationshipTo('plebs.neo_models.Pleb', 'DOWN_VOTED_BY')
+    votes = RelationshipFrom('plebs.neo_models.Pleb', 'PLEB_VOTES',
+                                model=VoteRelationship)
+    #votes = RelationshipTo('sb_votes.neo_models.SBVote', 'VOTES')
     #counsel_vote = RelationshipTo('sb_counsel.neo_models.SBCounselVote',
     #                              'VOTE')
     #views = RelationshipTo('sb_views.neo_models.SBView', 'VIEWS')
 
     #methods
     def vote_content(self, vote_type, pleb):
-        from sb_votes.neo_models import SBVote
         try:
-            vote = SBVote(vote_type=vote_type).save()
-            vote.from_pleb.connect(pleb)
-            pleb.votes.connect(vote)
-            if vote_type=="up":
-                if self.up_voted_by.is_connected(pleb):
-                    self.up_voted_by.disconnect(pleb)
-                    self.up_vote_number -= 1
-                elif self.down_voted_by.is_connected(pleb):
-                    self.down_voted_by.disconnect(pleb)
-                    self.up_voted_by.connect(pleb)
-                    self.down_vote_number -= 1
-                    self.up_vote_number += 1
-                else:
-                    self.up_voted_by.connect(pleb)
-                    self.up_vote_number += 1
-
-            elif vote_type=="down":
-                if self.down_voted_by.is_connected(pleb):
-                    self.down_voted_by.disconnect(pleb)
-                    self.down_vote_number -= 1
-                elif self.up_voted_by.is_connected(pleb):
-                    self.up_voted_by.disconnect(pleb)
-                    self.down_voted_by.connect(pleb)
-                    self.down_vote_number += 1
-                    self.up_vote_number -= 1
-                else:
-                    self.down_voted_by.connect(pleb)
-                    self.down_vote_number += 1
-
+            if self.votes.is_connected(pleb):
+                rel = self.votes.relationship(pleb)
+                if vote_type is rel.vote_type:
+                    return self.remove_vote(rel)
+                rel.vote_type = vote_type
+                rel.active = True
+                rel.save()
             else:
-                return False
-            self.save()
-            return True
+                rel = self.votes.connect(pleb)
+                rel.vote_type = vote_type
+                rel.active = True
+                rel.save()
+            return rel
+
         except Exception as e:
             logger.exception(dumps({"function": SBVoteableContent.vote_content.__name__,
                                     "exception": "Unhandled Exception"}))
             return e
 
+    def remove_vote(self, rel):
+        rel.active = False
+        rel.save()
+        return rel
+
+    def get_upvote_count(self):
+        query = 'start s=node({self}) match s-[r:PLEB_VOTES]-(p:Pleb) ' \
+                'where r.vote_type=true and r.active=true return r'
+        try:
+            res, col = self.cypher(query)
+            return len(res)
+        except CypherException as e:
+            return e
+
+    def get_downvote_count(self):
+        query = 'start s=node({self}) match s-[r:PLEB_VOTES]-(p:Pleb) ' \
+                'where r.vote_type=false and r.active=true return r'
+        try:
+            res, col = self.cypher(query)
+            return len(res)
+        except CypherException as e:
+            return e
+
     def get_vote_count(self):
-        return len(self.up_voted_by.all()) - len(self.down_voted_by.all())
+        return self.get_upvote_count() - self.get_downvote_count()
 
 
 class SBContent(SBVoteableContent):
@@ -119,7 +127,6 @@ class SBContent(SBVoteableContent):
                                 model=RelationshipWeight)
     notifications = RelationshipTo('sb_notifications.neo_models.NotificationBase',
                                    'NOTIFICATIONS')
-    votes = RelationshipTo('sb_votes.neo_models.SBVote', "VOTES")
 
 
     def comment_on(self, comment):
@@ -180,6 +187,7 @@ class SBVersioned(SBContent):
     __abstract_node__ = True
     edit = lambda self: self.__class__.__name__
     original = BooleanProperty(default=True)
+    draft = BooleanProperty(default=False)
 
     #relationships
     tagged_as = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS')

@@ -34,10 +34,11 @@ def get_post_comments(post_info):
         for comment in post_comments:
             comment_owner = comment.is_owned_by.all()[0]
             comment_dict = {'comment_content': comment.content,
-                            'comment_up_vote_number': comment.up_vote_number,
+                            'comment_up_vote_number': comment.get_upvote_count(),
+                            'vote_count': comment.get_vote_count(),
                             'sb_id': comment.sb_id,
                             'comment_down_vote_number':
-                                comment.down_vote_number,
+                                comment.get_downvote_count(),
                             'comment_last_edited_on':
                                 str(comment.last_edited_on),
                             'comment_owner': comment_owner.first_name + ' '
@@ -47,8 +48,9 @@ def get_post_comments(post_info):
             comment.save()
             comment_array.append(comment_dict)
         post_dict = {'content': post.content, 'sb_id': post.sb_id,
-                     'up_vote_number': post.up_vote_number,
-                     'down_vote_number': post.down_vote_number,
+                     'vote_count': post.get_vote_count(),
+                     'up_vote_number': post.get_upvote_count(),
+                     'down_vote_number': post.get_downvote_count(),
                      'last_edited_on': str(post.last_edited_on),
                      'post_owner': post_owner.first_name + ' ' +
                                    post_owner.last_name,

@@ -180,26 +180,23 @@ def get_question_view(request):
             response = get_question_by_most_recent(
                 current_pleb=question_data['current_pleb'])
             for question in response:
-                t = get_template("questions.html")
-                c = Context(question)
-                html_array.append(t.render(c))
+                html_array.append(
+                    question.render_question_page(question_data
+                    ['current_pleb']))
             return Response(html_array, status=200)
 
         elif question_data['sort_by'] == 'uuid':
-            response = get_question_by_uuid(
+            return Response(get_question_by_uuid(
                 question_data['question_uuid'],
-                question_data['current_pleb'])
-            t = get_template("single_question.html")
-            c = Context(response)
-            return Response(t.render(c), status=200)
+                question_data['current_pleb']), status=200)
 
         elif question_data['sort_by'] == 'least_recent':
             response = get_question_by_least_recent(
                 current_pleb=question_data['current_pleb'])
             for question in response:
-                t = get_template("questions.html")
-                c = Context(question)
-                html_array.append(t.render(c))
+                html_array.append(
+                    question.render_question_page(question_data
+                    ['current_pleb']))
             return Response(html_array, status=200)
 
         else:

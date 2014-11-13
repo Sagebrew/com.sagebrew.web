@@ -3,6 +3,7 @@ import logging
 from json import dumps
 from uuid import uuid1
 from datetime import datetime
+from django.conf import settings
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
@@ -187,7 +188,7 @@ class SBContent(SBVoteableContent):
     def render_search(self):
         pass
 
-    def render_single(self):
+    def render_single(self, pleb):
         pass
 
 

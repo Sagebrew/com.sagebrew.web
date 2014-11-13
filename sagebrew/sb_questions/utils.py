@@ -63,7 +63,7 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb):
     This util creates the dictionary responses which are returned to the html
     files. It is universal and will handle any sorting parameter
 
-    Returns dictionaries containing the data .html files require to render
+    Returns dictionaries containing the data html files require to render
     questions and, if it is a single question page, all the answers to the question
 
     :param questions:
@@ -140,7 +140,6 @@ def prepare_get_question_dictionary(questions, sort_by, current_pleb):
                 question_array.append(question_dict)
             return question_array
     except IndexError as e:
-        traceback.print_exc()
         return []
     except Exception:
         logger.exception(dumps(
@@ -165,7 +164,7 @@ def get_question_by_uuid(question_uuid, current_pleb):
         question = SBQuestion.nodes.get(sb_id=question_uuid)
         response = prepare_get_question_dictionary(question, sort_by='uuid',
                                                    current_pleb=current_pleb)
-        return response
+        return question.render_single(current_pleb)
     except (SBQuestion.DoesNotExist, DoesNotExist):
         return {"detail": "There are no questions with that ID"}
     except CypherException:
@@ -196,10 +195,7 @@ def get_question_by_most_recent(current_pleb, range_start=0, range_end=5):
                 'return q' % (range_start, range_end)
         questions, meta = execute_cypher_query(query)
         questions = [SBQuestion.inflate(row[0]) for row in questions]
-        return_dict = prepare_get_question_dictionary(questions,
-                                                      sort_by='most recent',
-                                                      current_pleb=current_pleb)
-        return return_dict
+        return questions
     except Exception:
         logger.exception(dumps({"function": get_question_by_most_recent.__name__,
                                 "exception": "Unhandled Exception"}))
@@ -226,10 +222,7 @@ def get_question_by_least_recent(current_pleb, range_start=0, range_end=5):
                 'return q' % (range_start, range_end)
         questions, meta = execute_cypher_query(query)
         questions = [SBQuestion.inflate(row[0]) for row in questions]
-        return_dict = prepare_get_question_dictionary(questions,
-                                                      sort_by='most recent',
-                                                      current_pleb=current_pleb)
-        return return_dict
+        return questions
     except Exception:
         logger.exception(dumps(
             {"function": get_question_by_least_recent.__name__,

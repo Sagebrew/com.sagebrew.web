@@ -3,6 +3,7 @@ import logging
 from uuid import uuid1
 from json import dumps
 from datetime import datetime
+from django.conf import settings
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
@@ -59,4 +60,21 @@ class SBAnswer(SBVersioned):
             return e
         except Exception as e:
             return e
+
+    def get_single_answer_dict(self, pleb):
+        answer_owner = self.owned_by.all()[0]
+        answer_owner_name = answer_owner.first_name +' '+answer_owner.last_name
+        answer_owner_url = settings.WEB_ADDRESS+'/user/'+answer_owner.username
+        answer_dict = {'answer_content': self.content,
+                       'current_pleb': pleb,
+                       'answer_uuid': self.sb_id,
+                       'last_edited_on': self.last_edited_on,
+                       'up_vote_number': self.get_upvote_count(),
+                       'down_vote_number': self.get_downvote_count(),
+                       'vote_score': self.get_vote_count(),
+                       'answer_owner_name': answer_owner_name,
+                       'answer_owner_url': answer_owner_url,
+                       'time_created': self.date_created,
+                       'answer_owner_email': answer_owner.email}
+        return answer_dict
 

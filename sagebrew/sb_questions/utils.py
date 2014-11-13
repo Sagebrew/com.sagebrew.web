@@ -58,96 +58,6 @@ def create_question_util(content, current_pleb, question_title,
         return e
 
 
-def prepare_get_question_dictionary(questions, sort_by, current_pleb):
-    '''
-    This util creates the dictionary responses which are returned to the html
-    files. It is universal and will handle any sorting parameter
-
-    Returns dictionaries containing the data html files require to render
-    questions and, if it is a single question page, all the answers to the question
-
-    :param questions:
-    :param sort_by:
-    :param current_pleb:
-    :return:
-    '''
-    question_array = []
-    answer_array = []
-    try:
-        if sort_by == 'uuid':
-            owner = questions.owned_by.all()
-            owner = owner[0]
-            owner_name = owner.first_name + ' ' + owner.last_name
-            owner_profile_url = settings.WEB_ADDRESS + '/user/' + owner.email
-            query = 'match (q:SBQuestion) where q.sb_id="%s" ' \
-                    'with q ' \
-                    'match (q)-[:POSSIBLE_ANSWER]-(a:SBAnswer) ' \
-                    'where a.to_be_deleted=False ' \
-                    'return a ' % questions.sb_id
-            answers, meta = execute_cypher_query(query)
-            answers = [SBAnswer.inflate(row[0]) for row in answers]
-            for answer in answers:
-                answer_owner = answer.owned_by.all()[0]
-                answer_owner_name = answer_owner.first_name +' '+answer_owner.last_name
-                answer_owner_url = settings.WEB_ADDRESS+'/user/'+owner.email
-                answer_dict = {'answer_content': answer.content,
-                               'current_pleb': current_pleb,
-                               'answer_uuid': answer.sb_id,
-                               'last_edited_on': answer.last_edited_on,
-                               'up_vote_number': answer.get_upvote_count(),
-                               'down_vote_number': answer.get_downvote_count(),
-                               'vote_score': answer.get_vote_count(),
-                               'answer_owner_name': answer_owner_name,
-                               'answer_owner_url': answer_owner_url,
-                               'time_created': answer.date_created,
-                               'answer_owner_email': answer_owner.email}
-                answer_array.append(answer_dict)
-            question_dict = {'question_title': questions.question_title,
-                             'question_content': questions.content,
-                             'question_uuid': questions.sb_id,
-                             'is_closed': questions.is_closed,
-                             'answer_number': questions.answer_number,
-                             'last_edited_on': questions.last_edited_on,
-                             'up_vote_number': questions.get_upvote_count(),
-                             'down_vote_number': questions.get_downvote_count(),
-                             'vote_score': questions.get_vote_count(),
-                             'owner': owner_name,
-                             'owner_profile_url': owner_profile_url,
-                             'time_created': questions.date_created,
-                             'answers': answer_array,
-                             'current_pleb': current_pleb,
-                             'owner_email': owner.email}
-            return question_dict
-        else:
-            for question in questions:
-                owner = question.owned_by.all()
-                owner = owner[0]
-                owner = owner.first_name + ' ' + owner.last_name
-                question_dict = {'question_title': question.question_title,
-                                 'question_content': question.content[:50]+'...',
-                                 'is_closed': question.is_closed,
-                                 'answer_number': question.answer_number,
-                                 'last_edited_on': question.last_edited_on,
-                                 'up_vote_number': question.up_vote_number,
-                                 'down_vote_number': question.down_vote_number,
-                                 'owner': owner,
-                                 'time_created': question.date_created,
-                                 'question_url': settings.WEB_ADDRESS +
-                                                 '/questions/' +
-                                                 question.sb_id,
-                                 'current_pleb': current_pleb
-                            }
-                question_array.append(question_dict)
-            return question_array
-    except IndexError as e:
-        return []
-    except Exception:
-        logger.exception(dumps(
-            {"function": prepare_get_question_dictionary.__name__,
-             "exception": "Unhandled Exception"}))
-        return []
-
-
 def get_question_by_uuid(question_uuid, current_pleb):
     '''
     Sorting util
@@ -162,8 +72,6 @@ def get_question_by_uuid(question_uuid, current_pleb):
     '''
     try:
         question = SBQuestion.nodes.get(sb_id=question_uuid)
-        response = prepare_get_question_dictionary(question, sort_by='uuid',
-                                                   current_pleb=current_pleb)
         return question.render_single(current_pleb)
     except (SBQuestion.DoesNotExist, DoesNotExist):
         return {"detail": "There are no questions with that ID"}
@@ -235,7 +143,7 @@ def prepare_question_search_html(question_uuid):
             my_question = SBQuestion.nodes.get(sb_id=question_uuid)
         except (SBQuestion.DoesNotExist, DoesNotExist):
             return False
-        
+
         return my_question.render_search()
 
     except IndexError:

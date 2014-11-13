@@ -74,7 +74,7 @@ def save_post(current_pleb, wall_pleb, content, post_uuid=None):
         my_post.save()
         relation_data = {'sb_object': my_post,
                          'current_pleb': current_pleb,
-                         'wall': wall_pleb.wall.all()[0]}
+                         'wall': my_citizen.wall.all()[0]}
         spawn_task(task_func=create_object_relations_task,
                        task_param=relation_data)
         return my_post

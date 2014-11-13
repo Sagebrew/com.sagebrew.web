@@ -9,10 +9,8 @@ from rest_framework.response import Response
 from neomodel import DoesNotExist
 
 from plebs.neo_models import Pleb
-from sb_posts.neo_models import SBPost
 from api.utils import spawn_task
 from .tasks import save_comment_on_object
-from .utils import (get_post_comments)
 from .forms import (SaveCommentForm)
 
 logger = logging.getLogger('loggly_logs')
@@ -66,21 +64,3 @@ def save_comment_view(request):
     except Exception:
         logger.exception(dumps({"function": save_comment_view.__name__,
                                 "exception": "Unhandled Exception"}))
-
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def get_comments(request):
-    '''
-    Use to return the most recent/top comments, used as a filter
-    to show comments on profile page
-
-    :param request:
-    :return:
-    '''
-    try:
-        my_post = SBPost.nodes.get(sb_id=request.DATA['sb_id'])
-    except (SBPost.DoesNotExist, DoesNotExist):
-        return Response(status=400)
-    comments = get_post_comments(my_post)
-    return Response(comments, status=200)

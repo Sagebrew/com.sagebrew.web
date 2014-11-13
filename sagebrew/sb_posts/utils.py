@@ -7,7 +7,6 @@ from neomodel import DoesNotExist
 from api.utils import execute_cypher_query, spawn_task
 from sb_base.tasks import create_object_relations_task
 from plebs.neo_models import Pleb
-from sb_comments.utils import get_post_comments
 from .neo_models import SBPost
 
 logger = logging.getLogger('loggly_logs')
@@ -37,7 +36,7 @@ def get_pleb_posts(pleb_object, range_end, range_start):
                      % (pleb_object.email, str(0), str(range_end))
         pleb_posts, meta = execute_cypher_query(post_query)
         posts = [SBPost.inflate(row[0]) for row in pleb_posts]
-        return get_post_comments(posts)
+        return posts
     except IndexError:
         return {'details': 'something broke'}
     except Exception:

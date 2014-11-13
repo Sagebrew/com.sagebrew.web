@@ -6,8 +6,7 @@ from django.contrib.auth.models import User
 
 from api.utils import test_wait_util
 from sb_posts.tasks import save_post_task
-from sb_comments.utils import (save_comment,
-                               get_post_comments)
+from sb_comments.utils import (save_comment)
 from sb_comments.neo_models import SBComment
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util
@@ -34,35 +33,4 @@ class TestSaveComments(TestCase):
 
         self.assertEqual(my_comment.content, "test comment")
 
-
-
-class TestGetPostComments(TestCase):
-    def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
-        self.assertNotEqual(res, False)
-        test_wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        self.pleb.first_name = 'Tyler'
-        self.pleb.last_name = 'Wiersing'
-        self.pleb.save()
-
-    def test_get_post_comments_success(self):
-        from sb_posts.neo_models import SBPost
-
-        post = SBPost(sb_id=str(uuid1()))
-        post.save()
-
-        for num in range(0,4):
-            comment = SBComment(sb_id=str(uuid1()), content=str(uuid1()))
-            comment.save()
-            post.owned_by.connect(self.pleb)
-            comment.is_owned_by.connect(self.pleb)
-            post.comments.connect(comment)
-
-        res = get_post_comments([post])
-
-        self.assertEqual(type(res), list)
-        self.assertIn(post.sb_id, dumps(res))
 

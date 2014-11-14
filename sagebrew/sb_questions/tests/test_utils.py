@@ -67,7 +67,7 @@ class TestGetQuestionByUUID(TestCase):
                             current_pleb=self.question_info_dict
                             ['current_pleb'])
 
-        self.assertIsInstance(dict_response, dict)
+        self.assertIsInstance(dict_response, str)
 
     def test_get_question_by_uuid_failure_question_does_not_exist(self):
 

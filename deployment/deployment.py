@@ -16,11 +16,11 @@ def deployment(stalk, branch_key):
     create_sys_util_env(sys_util, sys_util_name, branch_key, stalk, sha_key,
                         bean_bucket)
     create_app_version_update_env(branch_key, stalk, sha_key, bean_bucket,
-                                  "web", "sagebrew-staging-web",
-                                  "sb-staging-web")
+                                  "web", "sagebrew-%s-web" % branch_key,
+                                  "sb-%s-web" % branch_key)
     create_app_version_update_env(branch_key, stalk, sha_key, bean_bucket,
-                                  "worker", "sagebrew-staging-worker",
-                                  "sb-staging-worker")
+                                  "worker", "sagebrew-%s-worker" % branch_key,
+                                  "sb-%s-worker" % branch_key)
 
     if environ.get("AUTO_TERMINATE", "false") == "true":
         sleep(15)

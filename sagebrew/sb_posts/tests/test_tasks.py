@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 
 from api.utils import test_wait_util
 from sb_posts.neo_models import SBPost
-from sb_posts.tasks import (delete_post_and_comments, save_post_task)
+from sb_posts.tasks import (save_post_task)
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util
 

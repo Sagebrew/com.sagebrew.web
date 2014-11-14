@@ -180,26 +180,32 @@ class SBQuestion(SBVersioned):
             return e
 
     def render_question_page(self, pleb):
-        owner = self.owned_by.all()
-        owner = owner[0]
-        owner = owner.first_name + ' ' + owner.last_name
-        question_dict = {'question_title': self.question_title,
-                         'question_content': self.content[:50]+'...',
-                         'is_closed': self.is_closed,
-                         'answer_number': self.answer_number,
-                         'last_edited_on': self.last_edited_on,
-                         'up_vote_number': self.up_vote_number,
-                         'down_vote_number': self.down_vote_number,
-                         'owner': owner,
-                         'time_created': self.date_created,
-                         'question_url': settings.WEB_ADDRESS +
-                                         '/questions/' +
-                                         self.sb_id,
-                         'current_pleb': pleb
-                    }
-        t = get_template("questions.html")
-        c = Context(question_dict)
-        return t.render(c)
+        try:
+            owner = self.owned_by.all()
+            owner = owner[0]
+            owner = owner.first_name + ' ' + owner.last_name
+            question_dict = {'question_title': self.question_title,
+                             'question_content': self.content[:50]+'...',
+                             'is_closed': self.is_closed,
+                             'answer_number': self.answer_number,
+                             'last_edited_on': self.last_edited_on,
+                             'up_vote_number': self.up_vote_number,
+                             'down_vote_number': self.down_vote_number,
+                             'owner': owner,
+                             'time_created': self.date_created,
+                             'question_url': settings.WEB_ADDRESS +
+                                             '/questions/' +
+                                             self.sb_id,
+                             'current_pleb': pleb
+                        }
+            t = get_template("questions.html")
+            c = Context(question_dict)
+            return t.render(c)
+        except Exception:
+            logger.exception(dumps({'function':
+                                        SBQuestion.render_question_page.__name__,
+                                    'exception': "Unhandled Exception"}))
+            return ''
 
     def render_search(self):
         try:

@@ -39,6 +39,8 @@ def edit_object_view(request):
             return Response({"detail": "success"}, status=200)
         else:
             return Response({"detail": "invalid form"}, status=400)
+    except AttributeError:
+        return Response(status=400)
     except Exception:
         logger.exception(dumps({"function": edit_object_view.__name__,
                                 "exception": "Unhandled Exception"}))
@@ -67,8 +69,9 @@ def edit_question_title_view(request):
 
             return Response({"detail": "success"}, status=200)
         else:
-
             return Response({"detail": "invalid form"}, status=400)
+    except AttributeError:
+        return Response(status=400)
     except Exception:
         logger.exception(dumps({"function": edit_object_view.__name__,
                                 "exception": "Unhandled Exception"}))

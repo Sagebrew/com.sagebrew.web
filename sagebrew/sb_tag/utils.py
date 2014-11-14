@@ -125,7 +125,7 @@ def add_tag_util(object_type, object_uuid, tags):
                 return e
             for tag in tag_array:
                 question.tags.connect(tag)
-                tag.questions.connect(question)
+                tag.content.connect(question)
                 tag.tag_used += 1
                 tag.save()
             return True

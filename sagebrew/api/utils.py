@@ -14,8 +14,6 @@ from neomodel import db
 from django.conf import settings
 
 from api.alchemyapi import AlchemyAPI
-from sb_comments.neo_models import SBComment
-from sb_posts.neo_models import SBPost
 
 logger = logging.getLogger('loggly_logs')
 

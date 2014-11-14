@@ -64,10 +64,8 @@ def get_user_posts(request):
             posts = get_pleb_posts(citizen, post_form.cleaned_data['range_end'],
                                post_form.cleaned_data['range_start'])
             for post in posts:
-                post['current_user'] = post_form.cleaned_data['current_user']
-                for comment in post['comments']:
-                    comment['current_user'] = post_form.cleaned_data['current_user']
-                html_array.append(render_to_string('sb_post.html', post))
+                html_array.append(post.render_post_wall_html(
+                    post_form.cleaned_data['current_user']))
             return Response({'html': html_array}, status=200)
         else:
             return Response(status=400)

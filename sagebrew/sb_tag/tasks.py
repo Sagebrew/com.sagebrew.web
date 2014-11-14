@@ -60,5 +60,5 @@ def add_auto_tags(tag_list):
                                   max_retries=None)
     else:
         spawn_task(task_func=create_tag_relations,
-                   task_param={"tag_list": tag_list})
+                   task_param={"tag_array": tag_list})
         return response

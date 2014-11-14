@@ -9,6 +9,7 @@ from plebs.neo_models import Pleb
 from .neo_models import SBAnswer
 from sb_questions.neo_models import SBQuestion
 from sb_notifications.tasks import spawn_notifications
+from sb_base.tasks import create_object_relations_task
 
 logger = logging.getLogger('loggly_logs')
 
@@ -39,15 +40,10 @@ def save_answer_util(content, current_pleb, question_uuid, answer_uuid=None):
 
         answer = SBAnswer(content=content, sb_id=answer_uuid)
         answer.save()
-        answer.answer_to.connect(question)
-        question.answer.connect(answer)
-        question.answer_number += 1
-        question.save()
-        rel_from_pleb = my_pleb.answers.connect(answer)
-        rel_from_pleb.save()
-        rel_to_pleb = answer.owned_by.connect(my_pleb)
-        rel_to_pleb.save()
-        answer.save()
+        relation_data = {"sb_object": answer, "current_pleb": my_pleb,
+                         "question": question}
+        spawn_task(task_func=create_object_relations_task,
+                   task_param=relation_data)
         task_data={
             'sb_object': answer, 'from_pleb': my_pleb,
             'to_plebs': [question.owned_by.all()[0]]

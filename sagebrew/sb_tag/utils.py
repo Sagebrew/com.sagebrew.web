@@ -63,7 +63,7 @@ def add_auto_tags_util(tag_list):
                 rel = question.auto_tags.connect(tag)
                 rel.relevance = relevance
                 rel.save()
-                tag.questions.connect(question)
+                tag.content.connect(question)
                 tag_array.append(tag)
             except (SBAutoTag.DoesNotExist, DoesNotExist):
                 try:
@@ -74,7 +74,7 @@ def add_auto_tags_util(tag_list):
                     rel = question.auto_tags.connect(tag)
                     rel.relevance = relevance
                     rel.save()
-                    tag.questions.connect(question)
+                    tag.content.connect(question)
                     tag_array.append(tag)
                 except UniqueProperty as e:
                     logger.exception(dumps({'function': add_auto_tags_util.__name__,
@@ -104,7 +104,6 @@ def add_tag_util(object_type, object_uuid, tags):
     '''
     tag_array = []
     es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-
     if not tags:
         return False
 

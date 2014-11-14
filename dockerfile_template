@@ -15,10 +15,11 @@ RUN mkdir /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/
 RUN rm -r /root/.ssh
 RUN apt-get remove --auto-remove -y openssh-client
 
-USER {{APP_USER}}
+
 RUN apt-get install -y nodejs
 RUN ln -s /usr/bin/nodejs /usr/bin/node
 RUN  apt-get install -y npm
+USER {{APP_USER}}
 RUN npm install -g bower
 RUN npm install -g grunt
 RUN npm install -g grunt-cli

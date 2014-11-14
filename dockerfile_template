@@ -23,6 +23,9 @@ RUN npm install -g bower
 RUN npm install -g grunt
 RUN npm install -g grunt-cli
 RUN npm install -g less
+WORKDIR /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/
+RUN npm install
+RUN bower install --config.interactive=false
 WORKDIR /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/flat_ui_31/
 RUN npm install
 RUN bower install --config.interactive=false

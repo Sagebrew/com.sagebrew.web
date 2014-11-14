@@ -12,7 +12,7 @@ from sb_registration.utils import create_user_util
 from sb_flags.views import flag_object_view
 
 
-class TestFlatObjectView(TestCase):
+class TestFlagObjectView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"

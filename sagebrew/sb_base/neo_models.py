@@ -66,7 +66,7 @@ class SBVoteableContent(StructuredNode):
                 rel.vote_type = vote_type
                 rel.active = True
                 rel.save()
-            return rel
+            return self
 
         except Exception as e:
             logger.exception(dumps({"function": SBVoteableContent.vote_content.__name__,

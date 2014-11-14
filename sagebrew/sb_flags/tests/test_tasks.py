@@ -11,7 +11,7 @@ from sb_registration.utils import create_user_util
 from sb_flags.tasks import flag_object_task
 
 
-class TestEditObjectTask(TestCase):
+class TestFlagObjectTask(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")

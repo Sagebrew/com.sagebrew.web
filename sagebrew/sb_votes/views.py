@@ -10,7 +10,7 @@ from neomodel import DoesNotExist
 from .forms import VoteObjectForm
 from .tasks import vote_object_task
 from plebs.neo_models import Pleb
-from api.utils import get_object, spawn_task
+from api.utils import spawn_task
 
 logger = logging.getLogger('loggly_logs')
 
@@ -19,7 +19,6 @@ logger = logging.getLogger('loggly_logs')
 @permission_classes((IsAuthenticated,))
 def vote_object_view(request):
     try:
-        print request.DATA
         vote_object_form = VoteObjectForm(request.DATA)
         if vote_object_form.is_valid():
             try:
@@ -40,6 +39,8 @@ def vote_object_view(request):
             return Response({"detail": "success"}, status=200)
         else:
             return Response({"detail": "invalid form"}, status=400)
+    except AttributeError:
+        return Response(status=400)
     except Exception:
         logger.exception(dumps({"function": vote_object_view.__name__,
                                 "exception": "Unhandled Exception"}))

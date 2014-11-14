@@ -23,4 +23,13 @@ class TestEditQuestionView(TestCase):
         self.user = User.objects.get(email=self.email)
 
     def test_edit_question_view_success(self):
-        pass
+        test_data = {'content': 'test contentasdfas', 'current_pleb': self.email,
+                     'object_type': '01bb301a-644f-11e4-9ad9-080027242395',
+                     'object_uuid': str(uuid1())}
+        request = self.factory.post('/edit/edit_object_content_api/',
+                                    data=test_data,
+                                    format='json')
+        request.user = self.user
+        res = edit_object_view(request)
+
+        self.assertEqual(res.status_code, 200)

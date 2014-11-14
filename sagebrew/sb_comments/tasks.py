@@ -13,7 +13,9 @@ logger = logging.getLogger('loggly_logs')
 @shared_task()
 def save_comment_on_object(content, current_pleb, object_uuid, object_type):
     '''
-    The task which creates a comment and attaches it to a post
+    The task which creates a comment and attaches it to an object.
+
+    The objects can be: SBPost, SBAnswer, SBQuestion.
 
     :param content:
     :param pleb:
@@ -26,7 +28,12 @@ def save_comment_on_object(content, current_pleb, object_uuid, object_type):
     '''
     try:
         sb_object = get_object(object_type, object_uuid)
+        if isinstance(sb_object, Exception) is True:
+            raise save_comment_on_object.retry(exc=sb_object, countdown=5,
+                                               max_retries=None)
+
         my_comment = save_comment(content)
+
         if isinstance(my_comment, Exception) is True:
             raise save_comment_on_object.retry(exc=my_comment, countdown=5,
                                                max_retries=None)
@@ -38,8 +45,6 @@ def save_comment_on_object(content, current_pleb, object_uuid, object_type):
             spawn_task(task_func=create_comment_relations,
                        task_param=task_data)
             return True
-    except IndexError as e:
-        raise save_comment_on_object.retry(exc=e, countdown=5, max_retries=None)
     except Exception as e:
         logger.exception(dumps({'function': save_comment_on_object.__name__,
                                 'exception': "Unhandled Exception"}))

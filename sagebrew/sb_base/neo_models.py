@@ -101,6 +101,7 @@ class SBVoteableContent(StructuredNode):
 
 
 class SBContent(SBVoteableContent):
+    allowed_flags = []
     up_vote_number = IntegerProperty(default=0)
     down_vote_number = IntegerProperty(default=0)
     last_edited_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))

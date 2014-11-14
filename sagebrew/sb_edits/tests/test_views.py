@@ -12,7 +12,7 @@ from sb_registration.utils import create_user_util
 from sb_edits.views import edit_question_title_view, edit_object_view
 
 
-class TestEditQuestionView(TestCase):
+class TestEditObjectView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"

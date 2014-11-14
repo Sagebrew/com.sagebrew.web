@@ -19,14 +19,13 @@ RUN apt-get remove --auto-remove -y openssh-client
 RUN apt-get install -y nodejs
 RUN ln -s /usr/bin/nodejs /usr/bin/node
 RUN  apt-get install -y npm
-USER {{APP_USER}}
 RUN npm install -g bower
 RUN npm install -g grunt
 RUN npm install -g grunt-cli
 RUN npm install -g less
 WORKDIR /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/
 
-
+USER {{APP_USER}}
 RUN bower install --config.interactive=false
 WORKDIR /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/bower_components/flatui/
 RUN npm install

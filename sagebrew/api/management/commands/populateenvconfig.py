@@ -1,6 +1,5 @@
 from os import environ
 import logging
-import multiprocessing
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
@@ -37,6 +36,22 @@ class Command(BaseCommand):
         f = open("%s" % (worker_env), "w")
         f.write(data_worker)
         f.close()
+        with open("%s/aws_environment_config/sys_util.config" % (
+            settings.REPO_DIR), "r") as docker_sys:
+            data_worker = docker_sys.read()
+            if(cur_branch == "staging"):
+                data_worker = populate_staging_values(data_worker)
+            elif(cur_branch == "master"):
+                data_worker = populate_production_values(data_worker)
+            else:
+                data_worker = populate_test_values(data_worker)
+            data_worker = populate_general_values(data_worker)
+        sys_env = "/home/ubuntu/com.sagebrew.web/%s-%s_sys_util.json" % (
+            environ.get("CIRCLE_BRANCH", ""), environ.get("CIRCLE_SHA1", "")
+        )
+        f = open(sys_env, "w")
+        f.write(data_worker)
+        f.close()
 
 
     def handle(self, *args, **options):
@@ -67,6 +82,8 @@ def populate_staging_values(data):
                         environ.get("RDS_HOSTNAME_STAGING", ""))
     data = data.replace("<CELERY_QUEUE>",
                         environ.get("CELERY_QUEUE_STAGING", ""))
+    data = data.replace("<WEB_SECURITY_GROUP>",
+                        environ.get("WEB_SECURITY_GROUP_STAGING", ""))
     return data
 
 
@@ -95,6 +112,8 @@ def populate_production_values(data):
                         environ.get("RDS_HOSTNAME_PROD", ""))
     data = data.replace("<CELERY_QUEUE>",
                         environ.get("CELERY_QUEUE_PROD", ""))
+    data = data.replace("<WEB_SECURITY_GROUP>",
+                        environ.get("WEB_SECURITY_GROUP_PROD", ""))
     return data
 
 def populate_test_values(data):

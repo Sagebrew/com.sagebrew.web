@@ -1,6 +1,7 @@
 from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.utils.safestring import SafeText
 
 from api.utils import test_wait_util
 from sb_answers.neo_models import SBAnswer
@@ -63,11 +64,11 @@ class TestGetQuestionByUUID(TestCase):
         question.answer.connect(answer)
         question.save()
 
-        dict_response = get_question_by_uuid(question.sb_id,
+        response = get_question_by_uuid(question.sb_id,
                             current_pleb=self.question_info_dict
                             ['current_pleb'])
-        print type(dict_response)
-        self.assertIsInstance(dict_response, str)
+
+        self.assertIsInstance(response, SafeText)
 
     def test_get_question_by_uuid_failure_question_does_not_exist(self):
 

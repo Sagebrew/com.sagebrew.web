@@ -25,7 +25,7 @@ def delete_object_view(request):
                 current_pleb = Pleb.nodes.get(email=delete_object_form.
                                               cleaned_data['current_pleb'])
             except (Pleb.DoesNotExist, DoesNotExist):
-                return Response({"detail": "pleb does not exist"}, status=400)
+                return Response({"detail": "pleb does not exist"}, status=401)
             choice_dict = dict(settings.KNOWN_TYPES)
             task_data = {
                 "current_pleb": current_pleb,
@@ -37,6 +37,8 @@ def delete_object_view(request):
             return Response(status=200)
         else:
             return Response({"detail": "invalid form"}, status=400)
+    except AttributeError:
+        return Response(status=400)
     except Exception:
         logger.exception(dumps({"function": delete_object_view.__name__,
                                 "exception": "Unhandled Exception"}))

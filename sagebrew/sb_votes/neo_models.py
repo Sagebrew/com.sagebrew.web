@@ -1,3 +1,4 @@
+'''
 import pytz
 from uuid import uuid1
 from datetime import datetime
@@ -19,3 +20,4 @@ class SBVote(StructuredNode):
         self.vote_type = vote_type
         self.save()
         return self
+'''

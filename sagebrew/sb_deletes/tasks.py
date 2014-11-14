@@ -14,13 +14,13 @@ def delete_object_task(object_type, object_uuid, current_pleb):
         if isinstance(sb_object, Exception) is True:
             raise delete_object_task.retry(exc=sb_object, countdown=3,
                                            max_retries=None)
-
+        
         res = sb_object.delete_content(current_pleb)
 
         if isinstance(res, Exception) is True:
             raise delete_object_task.retry(exc=res, countdown=3, max_retries=None)
-
-        return True
+        else:
+            return res
     except Exception as e:
         logger.exception(dumps({"function": delete_object_task.__name__,
                                 "exception": "Unhandled Exception"}))

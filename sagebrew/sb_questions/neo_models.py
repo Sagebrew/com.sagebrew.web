@@ -61,10 +61,9 @@ class SBQuestion(SBVersioned):
 
     def edit_content(self, pleb, content):
         from sb_questions.utils import create_question_util
-        print pleb.email
         try:
             edit_question = create_question_util(content, pleb.email,
-                                                     self.question_title)
+                                                 self.question_title)
 
             if isinstance(edit_question, Exception) is True:
                 return edit_question
@@ -112,6 +111,7 @@ class SBQuestion(SBVersioned):
             self.question_title = ""
             self.to_be_deleted = True
             self.save()
+            return self
         except CypherException as e:
             return e
         except Exception as e:

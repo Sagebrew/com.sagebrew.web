@@ -154,6 +154,7 @@ class SBContent(SBVoteableContent):
             self.content=""
             self.to_be_deleted = True
             self.save()
+            return self
         except CypherException as e:
             return e
         except Exception as e:

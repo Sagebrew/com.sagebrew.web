@@ -204,6 +204,8 @@ def get_question_view(request):
             return Response(response, status=400)
 
     except Exception:
+        logger.exception(dumps({'function': get_question_view.__name__,
+                                'exception': 'Unhandled Exception'}))
         return Response({'detail': 'fail'}, status=400)
 
 

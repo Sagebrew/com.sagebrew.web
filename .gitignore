@@ -74,3 +74,5 @@ coverage.xml
 docs/_build/
 
 logs/*
+bower_components/
+node_modules/

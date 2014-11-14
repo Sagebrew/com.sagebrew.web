@@ -20,10 +20,13 @@ RUN sudo apt-get install -y nodejs
 RUN ln -s /usr/bin/nodejs /usr/bin/node
 RUN sudo apt-get install -y npm
 RUN npm install -g bower
+RUN npm install -g grunt
+RUN npm install -g grunt-cli
 RUN npm install -g less
-WORKDIR /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/flat_ui_31
+WORKDIR /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/flat_ui_31/
 RUN npm install
 RUN bower install --config.interactive=false
+RUN grunt dist
 RUN pip install -r /home/apps/{{PROJECT_NAME}}/requirements/{{REQUIREMENTS_FILE}}.txt
 
 RUN apt-get -y install wget
@@ -45,4 +48,5 @@ RUN rm /etc/nginx/sites-enabled/default
 # it would never get to the && nginx if it were first. We might want to run
 # something else endlessly rather than run supervisor as a nodaemon. Not sure
 # the reprocutions of this.
-CMD chown {{APP_USER}} /etc/rsyslog.d/ && python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py logglypopulation {{LOG_ACCOUNT}} {{LOG_TOKEN}} && chown root /etc/rsyslog.d/ && service rsyslog restart && chown {{APP_USER}} /etc/supervisor/conf.d/ && python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py populatesupervisor {{SUPER_TEMPLATE}} {{APP_USER}} && chown root /etc/supervisor/conf.d/ && chown {{APP_USER}} /etc/nginx/ && python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py populatenginx {{APP_USER}} {{SUPER_TEMPLATE}} && chown root /etc/nginx/ && nginx && supervisord -c /etc/supervisor/supervisord.conf --nodaemon
+WORKDIR /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/
+CMD chown {{APP_USER}} /etc/rsyslog.d/ && python manage.py logglypopulation {{LOG_ACCOUNT}} {{LOG_TOKEN}} && chown root /etc/rsyslog.d/ && service rsyslog restart && chown {{APP_USER}} /etc/supervisor/conf.d/ && python manage.py populatesupervisor {{SUPER_TEMPLATE}} {{APP_USER}} && chown root /etc/supervisor/conf.d/ && chown {{APP_USER}} /etc/nginx/ && python manage.py populatenginx {{APP_USER}} {{SUPER_TEMPLATE}} && chown root /etc/nginx/ && nginx && supervisord -c /etc/supervisor/supervisord.conf --nodaemon

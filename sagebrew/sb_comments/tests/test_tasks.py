@@ -10,6 +10,7 @@ from sb_comments.tasks import (save_comment_on_object,
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util
 from sb_questions.neo_models import SBQuestion
+from sb_comments.neo_models import SBComment
 
 
 class TestSaveCommentTask(TestCase):
@@ -62,3 +63,32 @@ class TestCreateCommentRelationsTask(TestCase):
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
 
+    def test_create_comment_relations_task_success(self):
+        question = SBQuestion(sb_id=str(uuid1())).save()
+        comment = SBComment(sb_id=str(uuid1())).save()
+        task_data = {
+            'current_pleb': self.pleb,
+            'comment': comment,
+            'sb_object': question
+        }
+
+        res = create_comment_relations.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertTrue(res.result)
+
+    def test_create_comment_relations_task_failure(self):
+        question = SBQuestion(sb_id=str(uuid1())).save()
+        comment = SBComment(sb_id=str(uuid1())).save()
+        task_data = {
+            'current_pleb': self.pleb.email,
+            'comment': comment,
+            'sb_object': question
+        }
+
+        res = create_comment_relations.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertIsInstance(res.result, Exception)

@@ -1,3 +1,4 @@
+import time
 from uuid import uuid1
 from base64 import b64encode
 from rest_framework.test import APIRequestFactory
@@ -102,11 +103,11 @@ class TestGetUserPosts(TestCase):
         self.user = User.objects.get(email=self.email)
 
     def test_get_user_posts(self):
-        for item in range(0,2):
+        for item in range(0,3):
             post = SBPost(content='test', sb_id=str(uuid1())).save()
             rel = post.owned_by.connect(self.pleb)
             rel.save()
-            
+        time.sleep(4)
         data = {'current_user': self.pleb.email,
                 'email': self.pleb.email,
                 'range_end': 1,

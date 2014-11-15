@@ -101,4 +101,37 @@ class TestGetUserPosts(TestCase):
         self.user = User.objects.get(email=self.email)
 
     def test_get_user_posts(self):
-        pass
+        data = {'current_user': self.pleb.email,
+                'email': self.pleb.email,
+                'range_end': 5,
+                'range_start': 0}
+        request = self.factory.post('/posts/query_posts/', data=data,
+                                    format='json')
+        request.user = self.user
+        res = get_user_posts(request)
+
+        self.assertEqual(res.status_code, 200)
+
+    def test_get_user_posts_invalid_form(self):
+        data = {'curreasdfnt_user': self.pleb.email,
+                'email': self.pleb.email,
+                'range_end': 5,
+                'range_start': 0}
+        request = self.factory.post('/posts/query_posts/', data=data,
+                                    format='json')
+        request.user = self.user
+        res = get_user_posts(request)
+
+        self.assertEqual(res.status_code, 400)
+
+    def test_get_user_posts_pleb_does_not_exist(self):
+        data = {'current_user': self.pleb.email,
+                'email': 'fakeemail@fake.com',
+                'range_end': 5,
+                'range_start': 0}
+        request = self.factory.post('/posts/query_posts/', data=data,
+                                    format='json')
+        request.user = self.user
+        res = get_user_posts(request)
+
+        self.assertEqual(res.status_code, 401)

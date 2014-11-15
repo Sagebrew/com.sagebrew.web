@@ -1,4 +1,7 @@
+import time
+import pytz
 from uuid import uuid1
+from datetime import datetime, timedelta
 from base64 import b64encode
 from rest_framework.test import APIRequestFactory
 from django.contrib.auth.models import User
@@ -102,11 +105,14 @@ class TestGetUserPosts(TestCase):
         self.user = User.objects.get(email=self.email)
 
     def test_get_user_posts(self):
-        for item in range(0,2):
-            post = SBPost(content='test', sb_id=str(uuid1())).save()
+        for item in range(0,3):
+            post = SBPost(content='test', sb_id=str(uuid1()),
+                          date_created=
+                          (datetime.now(pytz.utc)+timedelta(hours=10))).save()
             rel = post.owned_by.connect(self.pleb)
             rel.save()
-            
+            self.pleb.wall.all()[0].post.connect(post)
+
         data = {'current_user': self.pleb.email,
                 'email': self.pleb.email,
                 'range_end': 1,

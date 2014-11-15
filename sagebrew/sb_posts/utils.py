@@ -14,7 +14,7 @@ logger = logging.getLogger('loggly_logs')
 
 def get_pleb_posts(pleb_object, range_end, range_start=0):
     '''
-    Gets all the posts which are attached to the page users wall aswell as the
+    Gets all the posts which are attached to the page users wall as well as the
     comments associated with the posts
 
     :param pleb_object:

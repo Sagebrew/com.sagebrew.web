@@ -66,7 +66,7 @@ class SBVoteableContent(StructuredNode):
                 rel.vote_type = vote_type
                 rel.active = True
                 rel.save()
-            return rel
+            return self
 
         except Exception as e:
             logger.exception(dumps({"function": SBVoteableContent.vote_content.__name__,
@@ -101,6 +101,7 @@ class SBVoteableContent(StructuredNode):
 
 
 class SBContent(SBVoteableContent):
+    allowed_flags = []
     up_vote_number = IntegerProperty(default=0)
     down_vote_number = IntegerProperty(default=0)
     last_edited_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
@@ -154,6 +155,7 @@ class SBContent(SBVoteableContent):
             self.content=""
             self.to_be_deleted = True
             self.save()
+            return self
         except CypherException as e:
             return e
         except Exception as e:

@@ -10,7 +10,7 @@ from neomodel import DoesNotExist
 from .forms import FlagObjectForm
 from .tasks import flag_object_task
 from plebs.neo_models import Pleb
-from api.utils import get_object, spawn_task
+from api.utils import spawn_task
 
 logger = logging.getLogger("loggly_logs")
 

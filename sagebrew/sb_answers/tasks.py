@@ -27,18 +27,13 @@ def add_answer_to_search_index(answer):
         task_data = {"object_type": 'sb_answers.neo_models.SBAnswer',
                      'object_data': search_dict,
                      "object_added": answer}
-        spawned_task = spawn_task(task_func=add_object_to_search_index,
+        spawn_task(task_func=add_object_to_search_index,
                                   task_param=task_data)
-        if spawned_task is not None:
-            answer.added_to_search_index = True
-            answer.save()
-            return True
-        else:
-            return False
-    except IndexError as e:
-        raise add_answer_to_search_index.retry(exc=e, countdown=3,
-                                               max_retries=None)
-    except CypherException as e:
+
+        answer.added_to_search_index = True
+        answer.save()
+        return True
+    except (IndexError, CypherException) as e:
         raise add_answer_to_search_index.retry(exc=e, countdown=3,
                                                max_retries=None)
     except Exception as e:

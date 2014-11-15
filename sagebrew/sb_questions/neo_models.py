@@ -21,7 +21,7 @@ logger = logging.getLogger("loggly_logs")
 class SBQuestion(SBVersioned):
     up_vote_adjustment = 5
     down_vote_adjustment = 2
-    allowed_flags = ["explicit", "changed", "spam", "duplicate",
+    allowed_flags = ["explicit", "spam", "duplicate",
                      "unsupported", "other"]
 
     answer_number = IntegerProperty(default=0)
@@ -63,7 +63,7 @@ class SBQuestion(SBVersioned):
         from sb_questions.utils import create_question_util
         try:
             edit_question = create_question_util(content, pleb.email,
-                                                     self.question_title)
+                                                 self.question_title)
 
             if isinstance(edit_question, Exception) is True:
                 return edit_question
@@ -75,15 +75,18 @@ class SBQuestion(SBVersioned):
             self.last_edited_on = datetime.now(pytz.utc)
             self.save()
             return edit_question
-        except CypherException as e:
+        except (CypherException, AttributeError) as e:
             return e
         except Exception as e:
+            logger.exception(dumps({"function":
+                                        SBQuestion.edit_content.__name__,
+                                    "exception": "Unhandled Exception"}))
             return e
 
     def edit_title(self, pleb, title):
         from sb_questions.utils import create_question_util
         try:
-            edit_question = create_question_util(self.content, pleb,
+            edit_question = create_question_util(self.content, pleb.email,
                                                  title)
 
             if isinstance(edit_question, Exception) is True:
@@ -98,6 +101,8 @@ class SBQuestion(SBVersioned):
         except CypherException as e:
             return e
         except Exception as e:
+            logger.exception(dumps({'function': SBQuestion.edit_title.__name__,
+                                    'exception': 'Unhandled Exception'}))
             return e
 
     def delete_content(self, pleb):
@@ -106,6 +111,7 @@ class SBQuestion(SBVersioned):
             self.question_title = ""
             self.to_be_deleted = True
             self.save()
+            return self
         except CypherException as e:
             return e
         except Exception as e:

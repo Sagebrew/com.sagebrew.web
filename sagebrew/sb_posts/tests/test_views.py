@@ -111,7 +111,7 @@ class TestGetUserPosts(TestCase):
                           (datetime.now(pytz.utc)+timedelta(hours=10))).save()
             rel = post.owned_by.connect(self.pleb)
             rel.save()
-            post.posted_on_wall.connect(self.pleb.wall.all()[0])
+            self.pleb.wall.all()[0].post.connect(post)
 
         data = {'current_user': self.pleb.email,
                 'email': self.pleb.email,

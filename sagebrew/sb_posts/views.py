@@ -7,6 +7,7 @@ from django.template.loader import render_to_string
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
+from neomodel import DoesNotExist
 
 from api.utils import (spawn_task)
 from plebs.neo_models import Pleb
@@ -60,7 +61,10 @@ def get_user_posts(request):
         post_data = request.DATA
         post_form = GetPostForm(post_data)
         if post_form.is_valid():
-            citizen = Pleb.nodes.get(email=post_form.cleaned_data['email'])
+            try:
+                citizen = Pleb.nodes.get(email=post_form.cleaned_data['email'])
+            except (Pleb.DoesNotExist, DoesNotExist):
+                return Response(status=401)
             posts = get_pleb_posts(citizen, post_form.cleaned_data['range_end'],
                                post_form.cleaned_data['range_start'])
             for post in posts:

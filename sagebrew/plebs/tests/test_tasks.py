@@ -34,6 +34,7 @@ class TestCreatePlebTask(TestCase):
             self.fake_user.save()
 
     def tearDown(self):
+        self.fake_user.delete()
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_create_pleb_task_success_pleb_does_not_exist(self):
@@ -89,6 +90,8 @@ class TestCreateWallTask(TestCase):
         self.fake_pleb = Pleb(email=self.fake_user.email).save()
 
     def tearDown(self):
+        self.fake_pleb.delete()
+        self.fake_user.delete()
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_create_wall_task_success(self):
@@ -161,6 +164,8 @@ class TestFinalizeCitizenCreationTask(TestCase):
                               last_name=self.fake_user.last_name).save()
 
     def tearDown(self):
+        self.fake_pleb.delete()
+        self.fake_user.delete()
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_finalize_citizen_creation_email_not_sent(self):
@@ -214,6 +219,8 @@ class TestSendEmailTask(TestCase):
                               last_name=self.fake_user.last_name).save()
 
     def tearDown(self):
+        self.fake_pleb.delete()
+        self.fake_user.delete()
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_send_email_task(self):

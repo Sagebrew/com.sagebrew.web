@@ -34,6 +34,7 @@ class SBPost(SBNonVersioned):
             rel.save()
             rel_from_pleb = pleb.posts.connect(self)
             rel_from_pleb.save()
+            return True
         except Exception as e:
             logger.exception(dumps({"function":
                                         SBPost.create_relations.__name__,
@@ -55,17 +56,16 @@ class SBPost(SBNonVersioned):
         self.save()
         for comment in post_comments:
             comment_array.append(comment.get_comment_dict(pleb))
-        post_dict = {'content': self.content, 'sb_id': self.sb_id,
-                     'vote_count': self.get_vote_count(),
-                     'up_vote_number': self.get_upvote_count(),
-                     'down_vote_number': self.get_downvote_count(),
-                     'last_edited_on': str(self.last_edited_on),
-                     'post_owner': post_owner.first_name + ' ' +
-                                   post_owner.last_name,
-                     'post_owner_email': post_owner.email,
-                     'comments': comment_array,
-                     'current_user': pleb}
-        return post_dict
+        return {'content': self.content, 'sb_id': self.sb_id,
+                'vote_count': self.get_vote_count(),
+                'up_vote_number': self.get_upvote_count(),
+                'down_vote_number': self.get_downvote_count(),
+                'last_edited_on': str(self.last_edited_on),
+                'post_owner': post_owner.first_name + ' ' +
+                              post_owner.last_name,
+                'post_owner_email': post_owner.email,
+                'comments': comment_array,
+                'current_user': pleb}
 
     def render_post_wall_html(self, pleb):
         return render_to_string('sb_post.html', self.get_post_dictionary(pleb))

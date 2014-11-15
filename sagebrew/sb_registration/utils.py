@@ -4,6 +4,7 @@ import hashlib
 import json
 import boto.ses
 import logging
+from json import dumps
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from datetime import date
 from django.conf import settings
@@ -291,9 +292,7 @@ def verify_completed_registration(user):
     try:
         pleb = Pleb.nodes.get(email=user.email)
         return pleb.completed_profile_info
-    except (Pleb.DoesNotExist,DoesNotExist):
-        return False
-    except CypherException:
+    except (Pleb.DoesNotExist,DoesNotExist,CypherException):
         return False
 
 
@@ -311,8 +310,8 @@ def verify_verified_email(user):
     except (Pleb.DoesNotExist, DoesNotExist):
         return False
     except CypherException:
-        logger.critical({"exception": "cypher exception",
-                         "function": "verify_verified_email"})
+        logger.exception(dumps({"exception": "cypher exception",
+                         "function": "verify_verified_email"}))
         return False
 
 

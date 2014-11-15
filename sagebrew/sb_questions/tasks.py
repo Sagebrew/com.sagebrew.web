@@ -43,12 +43,9 @@ def add_question_to_indices_task(question, tags):
                        task_param=task_data)
             return True
 
-    except IndexError as e:
+    except (CypherException, IndexError) as e:
         raise add_question_to_indices_task.retry(exc=e, countdown=3,
                                                  max_retries=None)
-    except CypherException as e:
-        raise add_question_to_indices_task.retry(exc=e,
-                                                 countdown=3, max_retries=None)
     except Exception as e:
         logger.exception(dumps(
             {

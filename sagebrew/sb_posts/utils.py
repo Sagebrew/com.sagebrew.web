@@ -12,7 +12,7 @@ from .neo_models import SBPost
 logger = logging.getLogger('loggly_logs')
 
 
-def get_pleb_posts(pleb_object, range_end, range_start):
+def get_pleb_posts(pleb_object, range_end, range_start='0'):
     '''
     Gets all the posts which are attached to the page users wall aswell as the
     comments associated with the posts
@@ -22,7 +22,6 @@ def get_pleb_posts(pleb_object, range_end, range_start):
     :return:
     '''
     try:
-        # TODO is range start needed anymore? Should it go where str(0) is?
         post_query = 'MATCH (pleb:Pleb) WHERE pleb.email="%s" ' \
                      'WITH pleb ' \
                      'MATCH (pleb)-[:OWNS_WALL]-(wall) ' \
@@ -33,16 +32,16 @@ def get_pleb_posts(pleb_object, range_end, range_start):
                      'ORDER BY posts.date_created DESC ' \
                      'SKIP %s LIMIT %s ' \
                      'RETURN posts'\
-                     % (pleb_object.email, str(0), str(range_end))
+                     % (pleb_object.email, range_start, str(range_end))
         pleb_posts, meta = execute_cypher_query(post_query)
         posts = [SBPost.inflate(row[0]) for row in pleb_posts]
         return posts
-    except IndexError:
-        return {'details': 'something broke'}
-    except Exception:
+    except IndexError as e:
+        return e
+    except Exception as e:
         logger.exception(dumps({"function": get_pleb_posts.__name__,
                                 "exception": "Unhandled Exception"}))
-        return {"details": "You have no posts!"}
+        return e
 
 
 def save_post(current_pleb, wall_pleb, content, post_uuid=None):
@@ -78,9 +77,7 @@ def save_post(current_pleb, wall_pleb, content, post_uuid=None):
         spawn_task(task_func=create_object_relations_task,
                        task_param=relation_data)
         return my_post
-    except ValueError as e:
-        return e
-    except IndexError as e:
+    except (ValueError, IndexError) as e:
         return e
     except Exception as e:
         logger.exception(dumps({"function": save_post.__name__,

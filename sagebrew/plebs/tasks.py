@@ -104,10 +104,7 @@ def create_wall_task(pleb, user):
         pleb.wall.connect(wall)
         return spawn_task(task_func=finalize_citizen_creation,
                           task_param={"pleb": pleb, "user": user})
-    except TypeError as e:
-        raise create_wall_task.retry(exc=e, countdown=3,
-                                     max_retries=None)
-    except CypherException as e:
+    except (TypeError, CypherException) as e:
         raise create_wall_task.retry(exc=e, countdown=3,
                                      max_retries=None)
     except Exception as e:

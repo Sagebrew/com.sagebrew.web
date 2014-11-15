@@ -7,7 +7,7 @@ from django.conf import settings
 
 from api.utils import test_wait_util
 from plebs.neo_models import Pleb
-from sb_posts.views import (save_post_view)
+from sb_posts.views import (save_post_view, get_user_posts)
 from sb_registration.utils import create_user_util
 
 
@@ -89,3 +89,16 @@ class SavePostViewTests(TestCase):
         response = save_post_view(request)
 
         self.assertEqual(response.status_code, 400)
+
+class TestGetUserPosts(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+
+    def test_get_user_posts(self):
+        pass

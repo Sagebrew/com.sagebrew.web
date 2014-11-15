@@ -50,9 +50,7 @@ def save_answer_util(content, current_pleb, question_uuid, answer_uuid=None):
         }
         spawn_task(task_func=spawn_notifications, task_param=task_data)
         return answer
-    except IndexError as e:
-        return e
-    except CypherException as e:
+    except (IndexError, CypherException) as e:
         return e
     except Exception as e:
         logger.exception(dumps({"function": "save_answer_util",

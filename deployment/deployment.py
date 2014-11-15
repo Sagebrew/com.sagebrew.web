@@ -87,7 +87,7 @@ def create_app_version_update_env(branch_key, stalk, sha_key, bean_bucket,
                                   app_type, app_name, env_name):
     bean_key = "%s/%s-%s_%s.aws.json" % (environ.get(
         "DOCKER_CONFIG_BUCKET", ""), sha_key, branch_key, app_type)
-    aws_env = "/home/ubuntu/%s/%s-%s_%s.json" % ("com.sagebrew.web",
+    aws_env = "/home/ubuntu/%s/%s-%s-%s.json" % ("com.sagebrew.web",
                                                  sha_key, branch_key, app_type)
     option_tuple = populate_options(aws_env)
     stalk.create_application_version(application_name=app_name,

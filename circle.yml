@@ -25,7 +25,7 @@ dependencies:
     - sudo supervisorctl reread
     - sudo supervisorctl reload:
         background: true
-    - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py populateenvconfig /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-$CIRCLE_BRANCH_web.json /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-$CIRCLE_BRANCH_worker.json
+    - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py populateenvconfig /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-$CIRCLE_BRANCH-web.json /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-$CIRCLE_BRANCH-worker.json
     - python ~/com.sagebrew.web/sagebrew/manage.py runserver 127.0.0.1:8080:
         background: true
 

@@ -60,3 +60,19 @@ class TestCreateFriendRequestTask(TestCase):
 
         self.assertFalse(res)
 
+    def test_create_friend_request_task_failure_missing_key(self):
+        data = {'data':
+                    {
+                        'from_pleb': self.pleb1.email,
+                        'to_pleb': self.pleb2.email
+                    }
+        }
+        res = create_friend_request_task.apply_async(kwargs=data)
+
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertIsInstance(res, Exception)
+
+

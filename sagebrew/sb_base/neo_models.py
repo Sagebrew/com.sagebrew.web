@@ -76,7 +76,7 @@ class SBVoteableContent(StructuredNode):
     def remove_vote(self, rel):
         rel.active = False
         rel.save()
-        return rel
+        return self
 
     def get_upvote_count(self):
         query = 'start s=node({self}) match s-[r:PLEB_VOTES]-(p:Pleb) ' \
@@ -165,7 +165,6 @@ class SBContent(SBVoteableContent):
             return e
 
     def reputation_adjust(self):
-        owner = self.owned_by.all()[0]
         pass
 
     def flag_content(self, flag_reason, current_pleb, description=""):

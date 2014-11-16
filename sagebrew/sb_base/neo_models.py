@@ -165,7 +165,6 @@ class SBContent(SBVoteableContent):
             return e
 
     def reputation_adjust(self):
-        owner = self.owned_by.all()[0]
         pass
 
     def flag_content(self, flag_reason, current_pleb, description=""):

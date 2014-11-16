@@ -75,6 +75,13 @@ class ReceivedEducationRel(StructuredRel):
 
 
 class Pleb(StructuredNode):
+    search_modifiers = {
+        'post': 10, 'comment_on': 5, 'upvote': 3, 'downvote': -3,
+        'time': -1, 'proximity_to_you': 10, 'proximity_to_interest': 10,
+        'share': 7, 'flag_as_inappropriate': -5, 'flag_as_spam': -100,
+        'flag_as_other': -10, 'answered': 50, 'starred': 150, 'seen_search': 5,
+        'seen_page': 20
+    }
     username = StringProperty(unique_index=True)
     first_name = StringProperty()
     last_name = StringProperty()
@@ -132,8 +139,7 @@ class Pleb(StructuredNode):
         'sb_relationships.neo_models.FriendRequest', 'RECEIVED_A_REQUEST')
     user_weight = RelationshipTo('Pleb', 'WEIGHTED_USER',
                                  model=UserWeightRelationship)
-    object_weight = RelationshipTo(['sb_questions.neo_models.SBQuestion',
-                                   'sb_answers.neo_models.SBAnswer'],
+    object_weight = RelationshipTo('sb_base.neo_models.SBContent',
                                    'OBJECT_WEIGHT',
                                    model=RelationshipWeight)
     searches = RelationshipTo('sb_search.neo_models.SearchQuery', 'SEARCHED',
@@ -242,6 +248,13 @@ class Pleb(StructuredNode):
             logger.exception(dumps({"function": Pleb.relate_comment.__name__,
                                     "exception": "Unhandled Exception:"}))
             return e
+
+    def update_weight_relationship(self, sb_object, modifier_type):
+        rel = self.object_weight.relationship(sb_object)
+        if modifier_type in self.search_modifiers.keys():
+            rel.weight += self.search_modifiers[modifier_type]
+            rel.status = modifier_type
+            return rel.weight
 
     def get_available_flags(self):
         pass

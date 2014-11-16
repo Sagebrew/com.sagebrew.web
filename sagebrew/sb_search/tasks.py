@@ -71,11 +71,10 @@ def update_weight_relationship(document_id, index, object_type,
         if isinstance(sb_object, Exception) is True:
             return sb_object
 
-        if pleb.obj_weight_is_connected(sb_object):
-            rel = pleb.obj_weight_relationship(sb_object)
+        if pleb.object_weight.is_connected(sb_object):
 
             update_dict['update_value'] = \
-                update_weight_relationship_values(rel, modifier_type)
+                pleb.update_weight_relationship(sb_object, modifier_type)
 
             update_search_index_doc(**update_dict)
             return True

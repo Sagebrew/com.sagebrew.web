@@ -21,4 +21,65 @@ class TestSBVoteableContentNeoModel(TestCase):
         self.post.owned_by.connect(self.pleb)
 
     def test_vote_content(self):
-        pass
+        res = self.post.vote_content(True, self.pleb)
+
+        self.assertIsInstance(res, SBPost)
+
+    def test_vote_content_already_voted(self):
+        rel = self.post.votes.connect(self.pleb)
+        rel.vote_type = True
+        rel.save()
+
+        res = self.post.vote_content(True, self.pleb)
+
+        self.assertIsInstance(res, SBPost)
+
+    def test_vote_content_change_vote(self):
+        rel = self.post.votes.connect(self.pleb)
+        rel.vote_type = False
+        rel.save()
+
+        res = self.post.vote_content(True, self.pleb)
+
+        self.assertIsInstance(res, SBPost)
+
+    def test_remove_content(self):
+        rel = self.post.votes.connect(self.pleb)
+        rel.vote_type = False
+        rel.save()
+
+        res = self.post.remove_vote(rel)
+
+        self.assertIsInstance(res, SBPost)
+
+    def test_upvote_count(self):
+        rel = self.post.votes.connect(self.pleb)
+        rel.vote_type = True
+        rel.save()
+
+        res = self.post.get_upvote_count()
+
+        self.assertEqual(res, 1)
+
+    def test_downvote_count(self):
+        rel = self.post.votes.connect(self.pleb)
+        rel.vote_type = False
+        rel.save()
+
+        res = self.post.get_downvote_count()
+
+        self.assertEqual(res, 1)
+
+    def test_get_vote_count(self):
+        rel = self.post.votes.connect(self.pleb)
+        rel.vote_type = True
+        rel.save()
+
+        pleb = Pleb(email=str(uuid1())).save()
+        rel2 = self.post.votes.connect(pleb)
+        rel2.vote_type = True
+        rel2.save()
+
+        res = self.post.get_vote_count()
+        
+        self.assertEqual(res, 2)

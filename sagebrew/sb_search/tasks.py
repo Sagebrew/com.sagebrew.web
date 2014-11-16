@@ -79,16 +79,12 @@ def update_weight_relationship(document_id, index, object_type,
             update_search_index_doc(**update_dict)
             return True
         else:
-            rel = pleb.obj_weight_connect(sb_object)
+            rel = pleb.object_weight.connect(sb_object)
             rel.save()
             update_dict['update_value'] = rel.weight
             update_search_index_doc(**update_dict)
             return True
 
-
-    except TypeError:
-        # TODO what is this portion used for?
-        return False
     except SBQuestion.DoesNotExist as e:
         raise update_weight_relationship.retry(exc=e,
                                                countdown=3, max_retries=None)

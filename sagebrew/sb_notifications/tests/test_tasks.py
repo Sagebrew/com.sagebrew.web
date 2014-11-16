@@ -57,3 +57,16 @@ class TestNotificationTasks(TestCase):
         while not response.ready():
             time.sleep(3)
         self.assertTrue(response.result)
+
+    def test_create_notification_task_failure(self):
+        post = SBPost(**self.post_info_dict)
+        post.save()
+
+        data={'sb_object': post,
+              'from_pleb': self.pleb,
+              'to_plebs': [self.pleb2,'fakeemail1@fake.com']}
+        response = spawn_notifications.apply_async(kwargs=data)
+        while not response.ready():
+            time.sleep(1)
+
+        self.assertIsInstance(response.result, Exception)

@@ -23,6 +23,7 @@ def spawn_notifications(sb_object, from_pleb, to_plebs, uuid=None):
     try:
         response = create_notification_util(sb_object, from_pleb, to_plebs,
                                             uuid)
+        
         if isinstance(response, Exception) is True:
             raise response
         return response

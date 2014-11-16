@@ -24,6 +24,15 @@ DATABASES = {
     }
 }
 
+INSTALLED_APPS += ('django_nose', )
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+NOSE_ARGS = [
+    '--with-coverage',
+    '--cover-html',
+    '--stop',
+    '--cover-html-dir=%s' % (environ.get("CIRCLE_ARTIFACTS", ""))
+]
+
 
 CACHES = {
     'default': {

@@ -176,8 +176,6 @@ INSTALLED_APPS = (
     'textblob',
 )
 
-TEST_RUNNER = 'django.test.runner.DiscoverRunner'
-
 EMAIL_VERIFICATION_TIMEOUT_DAYS = 1
 
 SERVER_EMAIL = "service@sagebrew.com"

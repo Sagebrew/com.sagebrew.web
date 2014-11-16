@@ -22,7 +22,13 @@ RUN npm install -g grunt
 RUN npm install -g grunt-cli
 RUN npm install -g less
 WORKDIR /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/
+RUN bower install --config.interactive=false --allow-root
 
+WORKDIR /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/bower_components/flat-ui/
+RUN npm install
+RUN bower install --config.interactive=false --allow-root
+
+WORKDIR /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/bower_components/bootstrapvalidator/
 RUN bower install --config.interactive=false --allow-root
 
 RUN pip install -r /home/apps/{{PROJECT_NAME}}/requirements/{{REQUIREMENTS_FILE}}.txt

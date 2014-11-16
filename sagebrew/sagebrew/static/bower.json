@@ -17,7 +17,9 @@
   ],
   "dependencies": {
     "bootstrapvalidator": "~0.5.3",
-    "flatui": "*",
-    "jquery-cookie": "~1.4.1"
+    "flat-ui": "~2.2.1",
+    "jquery-cookie": "~1.4.1",
+    "jquery-ui": "~1.11.2",
+    "bootstrap": "~3.3.1"
   }
 }

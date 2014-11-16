@@ -35,7 +35,7 @@ def calc_age(birthday):
 
 
 def create_address_long_hash(address):
-    if ("address2" in address):
+    if "street_additional" in address:
         address_string = "%s%s%s%s%s%s%f%f%s" % (address["primary_address"],
                                                  address["street_additional"],
                                                  address["city"],
@@ -181,7 +181,7 @@ def validate_school(school_name):
     pass
 
 
-def upload_image(folder_name, file_uuid):
+def upload_image(folder_name, file_uuid, file_location=None):
     '''
     Creates a connection to the s3 service then uploads the file which was
     passed
@@ -191,13 +191,16 @@ def upload_image(folder_name, file_uuid):
     :param file_uuid:
     :return:
     '''
-    file_path = '%s%s.%s' % (settings.TEMP_FILES, file_uuid, 'jpeg')
+    if file_location is None:
+        file_path = '%s%s.%s' % (settings.TEMP_FILES, file_uuid, 'jpg')
+    else:
+        file_path = '%s%s.%s' % (file_location, file_uuid, 'jpg')
 
     bucket = settings.AWS_STORAGE_BUCKET_NAME
     conn = connect_s3(settings.AWS_ACCESS_KEY_ID,
                       settings.AWS_SECRET_ACCESS_KEY)
     k = Key(conn.get_bucket(bucket))
-    key_string = "%s/%s.%s" % (folder_name, file_uuid, "jpeg")
+    key_string = "%s/%s.%s" % (folder_name, file_uuid, "jpg")
     k.key = key_string
     k.set_contents_from_filename(file_path)
     image_uri = k.generate_url(expires_in=259200)

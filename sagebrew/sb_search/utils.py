@@ -10,7 +10,7 @@ from api.utils import spawn_task
 
 logger = logging.getLogger('loggly_logs')
 
-
+"""
 def update_search_index_doc_script(document_id, index, field, update_value,
                                    document_type):
     '''
@@ -37,7 +37,7 @@ def update_search_index_doc_script(document_id, index, field, update_value,
     res = es.update(index=index, fields=["_source"], doc_type=document_type,
                     id=document_id, body=body)
     return True
-
+"""
 
 def update_search_index_doc(document_id, index, field, update_value,
                             document_type):

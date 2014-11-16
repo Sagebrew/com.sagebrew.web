@@ -101,6 +101,13 @@ class SBVoteableContent(StructuredNode):
 
 
 class SBContent(SBVoteableContent):
+    search_modifiers = {
+        'post': 10, 'comment_on': 5, 'upvote': 3, 'downvote': -3,
+        'time': -1, 'proximity_to_you': 10, 'proximity_to_interest': 10,
+        'share': 7, 'flag_as_inappropriate': -5, 'flag_as_spam': -100,
+        'flag_as_other': -10, 'answered': 50, 'starred': 150, 'seen_search': 5,
+        'seen_page': 20
+    }
     allowed_flags = []
     up_vote_number = IntegerProperty(default=0)
     down_vote_number = IntegerProperty(default=0)
@@ -192,7 +199,12 @@ class SBContent(SBVoteableContent):
     def render_single(self, pleb):
         pass
 
-
+    def update_weight_relationship(self, pleb, modifier_type):
+        rel = self.rel_weight.relationship(pleb)
+        if modifier_type in self.search_modifiers.keys():
+            rel.weight += self.search_modifiers[modifier_type]
+            rel.status = modifier_type
+            return self
 
 
 class SBVersioned(SBContent):

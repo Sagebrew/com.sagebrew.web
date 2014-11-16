@@ -76,9 +76,6 @@ def add_tags_to_question_task(question, tags):
             return spawn_task(task_func=add_question_to_indices_task,
                               task_param=task_data)
         else:
-            # TODO Switch Exception handling in create_auto_tags then
-            # figure out a way to repeat this task if an unhandled exception
-            # is thrown.
             auto_tags = create_auto_tags(question.content)
             task_data = []
             for tag in auto_tags['keywords']:

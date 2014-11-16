@@ -6,7 +6,9 @@ from django.contrib.auth.models import User
 
 
 from api.utils import test_wait_util
-from sb_questions.tasks import create_question_task
+from sb_questions.tasks import (create_question_task,
+                                add_question_to_indices_task,
+                                add_tags_to_question_task)
 from plebs.neo_models import Pleb
 from sb_questions.neo_models import SBQuestion
 from sb_registration.utils import create_user_util
@@ -37,6 +39,24 @@ class TestSaveQuestionTask(TestCase):
 
         self.assertTrue(response.result)
 
+    def test_create_question_task_tags_is_none(self):
+        self.question_info_dict['tags'] = None
+        response = create_question_task.apply_async(
+            kwargs=self.question_info_dict)
+        while not response.ready():
+            time.sleep(1)
+
+        self.assertTrue(response.result)
+
+    def test_create_question_task_pleb_does_not_exist(self):
+        self.question_info_dict['current_pleb'] = str(uuid1())
+        response = create_question_task.apply_async(
+            kwargs=self.question_info_dict)
+        while not response.ready():
+            time.sleep(1)
+
+        self.assertFalse(response.result)
+
     def test_save_question_task_fail(self):
         question_info = {'current_pleb': self.user.email,
                          'question_title': "Test question",
@@ -63,19 +83,88 @@ class TestSaveQuestionTask(TestCase):
         self.assertFalse(res)
 
 
-
-class TestQuestionTaskRaceConditions(TestCase):
+class TestAddQuestionToIndicesTask(TestCase):
     def setUp(self):
+        settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
         test_wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question_info_dict = {'current_pleb': self.pleb.email,
-                                   'question_title': "Test question",
-                                   'content': 'test post',
-                                   'question_uuid': str(uuid1())}
+        self.question = SBQuestion(content="fake content",
+                                   question_title="fake title",
+                                   sb_id=str(uuid1())).save()
+        self.question.owned_by.connect(self.pleb)
+
+    def tearDown(self):
+        settings.CELERY_ALWAYS_EAGER = False
+
+    def test_add_question_to_indices_task(self):
+        task_data = {
+            'question': self.question,
+            'tags': ['fake', 'tags']
+        }
+        res = add_question_to_indices_task.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertFalse(isinstance(res.result, Exception))
+
+    def test_add_question_to_indices_task_added_already(self):
+        self.question.added_to_search_index = True
+        self.question.save()
+        task_data = {
+            'question': self.question,
+            'tags': ['fake', 'tags']
+        }
+        res = add_question_to_indices_task.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertFalse(isinstance(res.result, Exception))
+
+
+class TestAddTagsToQuestionTask(TestCase):
+    def setUp(self):
+        settings.CELERY_ALWAYS_EAGER = True
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        test_wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.question = SBQuestion(content="fake content",
+                                   question_title="fake title",
+                                   sb_id=str(uuid1())).save()
+        self.question.owned_by.connect(self.pleb)
+
+    def tearDown(self):
+        settings.CELERY_ALWAYS_EAGER = False
+
+    def test_add_tags_to_question_task(self):
+        task_data = {
+            'question': self.question,
+            'tags': ['fake', 'tags']
+        }
+        res = add_tags_to_question_task.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertFalse(isinstance(res.result, Exception))
+
+    def test_add_tags_to_question_tags_added(self):
+        self.question.tags_added = True
+        self.question.save()
+        task_data = {
+            'question': self.question,
+            'tags': ['fake', 'tags']
+        }
+        res = add_tags_to_question_task.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertFalse(isinstance(res.result, Exception))
 
 
 class TestMultipleTasks(TestCase):

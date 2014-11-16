@@ -11,7 +11,6 @@ from elasticsearch import Elasticsearch
 from api.utils import test_wait_util
 from plebs.neo_models import Pleb
 from api.alchemyapi import AlchemyAPI
-from sb_answers.neo_models import SBAnswer
 from sb_questions.neo_models import SBQuestion
 from sb_search.tasks import (update_weight_relationship,
                              add_user_to_custom_index, update_user_indices,

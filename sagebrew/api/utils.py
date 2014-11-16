@@ -90,6 +90,7 @@ def add_failure_to_queue(message_info):
     m = Message()
     m.set_body(dumps(message_info))
     my_queue.write(m)
+    return True
 
 
 def spawn_task(task_func, task_param, countdown=0, task_id=None):
@@ -163,10 +164,6 @@ def execute_cypher_query(query):
         return db.cypher_query(query)
     except CypherException:
         return {'detail': 'CypherException'}
-    except Exception:
-        logger.exception(dumps({"function": execute_cypher_query.__name__,
-                                "exception":"Unhandled Exception"}))
-        return {'detail': 'fail'}
 
 
 def test_wait_util(async_res):

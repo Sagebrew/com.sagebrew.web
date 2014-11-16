@@ -9,7 +9,7 @@ from neomodel import DoesNotExist, CypherException
 from elasticsearch import Elasticsearch
 
 from .neo_models import SearchQuery, KeyWord
-from .utils import (update_search_index_doc, update_weight_relationship_values)
+from .utils import (update_search_index_doc)
 from api.utils import spawn_task, get_object
 from plebs.neo_models import Pleb
 from sb_questions.neo_models import SBQuestion

@@ -5,7 +5,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 
 
-from api.utils import test_wait_util
+from api.utils import wait_util
 from sb_questions.tasks import create_question_task
 from plebs.neo_models import Pleb
 from sb_questions.neo_models import SBQuestion
@@ -18,7 +18,7 @@ class TestSaveQuestionTask(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.user.email,
@@ -69,7 +69,7 @@ class TestQuestionTaskRaceConditions(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.pleb.email,
@@ -83,7 +83,7 @@ class TestMultipleTasks(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.pleb.email,

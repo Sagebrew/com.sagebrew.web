@@ -5,7 +5,7 @@ from django.test import TestCase
 from django.conf import settings
 
 from plebs.neo_models import Pleb
-from api.utils import test_wait_util
+from api.utils import wait_util
 from sb_questions.neo_models import SBQuestion
 from sb_registration.utils import create_user_util
 from sb_edits.tasks import edit_question_task, edit_object_task
@@ -16,7 +16,7 @@ class TestEditObjectTask(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
@@ -80,7 +80,7 @@ class TestEditQuestionTitleTask(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True

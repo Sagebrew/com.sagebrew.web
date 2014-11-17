@@ -33,8 +33,7 @@ NOSE_ARGS = [
     '--with-coverage',
     '--cover-html',
     '--stop',
-    '--cover-html-dir=%s' % environ.get("CIRCLE_ARTIFACTS", ""),
-    '-w ~/com.sagebrew.web/sagebrew/'
+    '--cover-html-dir=%s' % environ.get("CIRCLE_ARTIFACTS", "")
 ]
 
 

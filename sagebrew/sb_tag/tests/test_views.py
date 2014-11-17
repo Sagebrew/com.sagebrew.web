@@ -2,7 +2,7 @@ from rest_framework.test import APIRequestFactory
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from api.utils import test_wait_util
+from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_tag.views import get_tag_view
 from sb_registration.utils import create_user_util
@@ -13,7 +13,7 @@ class TestTagViews(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 

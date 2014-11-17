@@ -169,7 +169,7 @@ def execute_cypher_query(query):
         return {'detail': 'fail'}
 
 
-def test_wait_util(async_res):
+def wait_util(async_res):
     while not async_res['task_id'].ready():
         time.sleep(1)
 

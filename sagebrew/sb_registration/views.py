@@ -61,11 +61,10 @@ def signup_view_api(request):
                 return Response({'detail': 'Passwords do not match!'},
                                 status=401)
             try:
-                test_user = User.objects.get(email=signup_form.
-                                             cleaned_data['email'])
-                return Response({'detail':
-                                     'A user with this email already exists!'},
-                                status=401)
+                User.objects.get(email=signup_form.cleaned_data['email'])
+                return Response(
+                    {'detail': 'A user with this email already exists!'},
+                    status=401)
             except User.DoesNotExist:
                 res = create_user_util(first_name=signup_form.
                                        cleaned_data['first_name'],

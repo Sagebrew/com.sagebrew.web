@@ -18,27 +18,43 @@ class TestDefensiveExceptionUtil(TestCase):
         self.user = User.objects.get(email=self.email)
 
     def test_exception_return_redirect(self):
-        exception = Exception("This is my exception")
-        res = defensive_exception("test_exception", exception,
-                                  redirect("404_Error"))
+        try:
+            raise Exception("This is my exception", "testing")
+        except Exception as e:
+            res = defensive_exception("test_exception", e,
+                                      redirect("404_Error"))
 
         self.assertIsInstance(res, HttpResponseRedirect)
 
     def test_exception_return_boolean(self):
-        exception = Exception("This is my exception")
-        res = defensive_exception("test_exception", exception, False)
+        try:
+            raise Exception("This is my exception", "testing")
+        except Exception as e:
+            res = defensive_exception("test_exception", e, False)
 
         self.assertFalse(res)
 
     def test_exception_return_dict(self):
-        exception = Exception("This is my exception")
-        test_dict = {"hello": "world"}
-        res = defensive_exception("test_exception", exception, test_dict)
+        try:
+            raise Exception("This is my exception", "testing")
+        except Exception as e:
+            test_dict = {"hello": "world"}
+            res = defensive_exception("test_exception", e, test_dict)
 
         self.assertEqual(res, test_dict)
 
     def test_exception_return_object(self):
-        exception = Exception("This is my exception")
-        res = defensive_exception("test_exception", exception, self.pleb)
+        try:
+            raise Exception("This is my exception", "testing")
+        except Exception as e:
+            res = defensive_exception("test_exception", e, self.pleb)
 
         self.assertEqual(self.pleb.email, res.email)
+
+    def test_defensive_exception(self):
+        try:
+            raise TypeError("Hello", "there")
+        except TypeError as e:
+            test_defense = defensive_exception("this_test", e, True)
+
+        self.assertTrue(test_defense)

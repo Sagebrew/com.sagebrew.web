@@ -31,7 +31,7 @@ dependencies:
 
 test:
   override:
-    - coverage run --source='.' manage.py test:
+    - coverage run --source='.' manage.py test --failfast:
         timeout: 300
   post:
     - coverage html

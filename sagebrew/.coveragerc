@@ -34,6 +34,27 @@ exclude_lines =
     except Exception as e:
     if 0:
     if __name__ == .__main__.:
+omit =
+    */tests*
+    */migrations/*
+    *__init__.py*
+    */settings/*
+    *wsgi.py*
+    *admin.py*
+    # Management commands should be included usually but these are tested
+    # in a different way than running unit tests. The build will fail if
+    # these fail when docker attempts to run.
+    */management/commands/dockerfilepopulation.py
+    */management/commands/logglypopulation.py
+    */management/commands/populatenginx.py
+    */management/commands/populatesupervisor.py
+    */api/alchemyapi.py
+    */management/commands/populateschools.py
+    */management/commands/populatetopiccats.py
+    */management/commands/populateenvconfig.py
+    */management/commands/populatehistoricaldata.py
+    */virtualenvs/*
+    */venv/*
 
 [html]
 directory = $CIRCLE_ARTIFACTS

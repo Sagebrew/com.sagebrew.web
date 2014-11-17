@@ -34,6 +34,7 @@ NOSE_ARGS = [
     '--cover-html',
     '--stop',
     '--config=nose.cfg'
+    '--exclude='
 ]
 
 

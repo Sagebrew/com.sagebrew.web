@@ -194,7 +194,6 @@ class SBContent(SBVoteableContent):
 
 
 
-
 class SBVersioned(SBContent):
     __abstract_node__ = True
     edit = lambda self: self.__class__.__name__

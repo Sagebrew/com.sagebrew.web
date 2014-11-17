@@ -9,7 +9,7 @@ from neomodel import DoesNotExist, CypherException
 from elasticsearch import Elasticsearch
 
 from .neo_models import SearchQuery, KeyWord
-from .utils import (update_search_index_doc, update_weight_relationship_values)
+from .utils import (update_search_index_doc)
 from api.utils import spawn_task, get_object
 from plebs.neo_models import Pleb
 from sb_questions.neo_models import SBQuestion
@@ -71,25 +71,20 @@ def update_weight_relationship(document_id, index, object_type,
         if isinstance(sb_object, Exception) is True:
             return sb_object
 
-        if pleb.obj_weight_is_connected(sb_object):
-            rel = pleb.obj_weight_relationship(sb_object)
+        if pleb.object_weight.is_connected(sb_object):
 
             update_dict['update_value'] = \
-                update_weight_relationship_values(rel, modifier_type)
+                pleb.update_weight_relationship(sb_object, modifier_type)
 
             update_search_index_doc(**update_dict)
             return True
         else:
-            rel = pleb.obj_weight_connect(sb_object)
+            rel = pleb.object_weight.connect(sb_object)
             rel.save()
             update_dict['update_value'] = rel.weight
             update_search_index_doc(**update_dict)
             return True
 
-
-    except TypeError:
-        # TODO what is this portion used for?
-        return False
     except SBQuestion.DoesNotExist as e:
         raise update_weight_relationship.retry(exc=e,
                                                countdown=3, max_retries=None)

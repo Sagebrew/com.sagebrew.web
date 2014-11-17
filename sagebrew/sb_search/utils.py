@@ -10,7 +10,7 @@ from api.utils import spawn_task
 
 logger = logging.getLogger('loggly_logs')
 
-
+"""
 def update_search_index_doc_script(document_id, index, field, update_value,
                                    document_type):
     '''
@@ -37,7 +37,7 @@ def update_search_index_doc_script(document_id, index, field, update_value,
     res = es.update(index=index, fields=["_source"], doc_type=document_type,
                     id=document_id, body=body)
     return True
-
+"""
 
 def update_search_index_doc(document_id, index, field, update_value,
                             document_type):
@@ -129,42 +129,3 @@ def process_search_result(item):
 # nothing and it determines what to do with it.
 # Primary goal is to not have to modify this function every time we have a new
 # search object.
-def update_weight_relationship_values(rel, modifier_type):
-    if rel.seen is True and modifier_type == 'search_seen':
-        rel.weight += settings.OBJECT_SEARCH_MODIFIERS[
-            'seen_search']
-        rel.save()
-        return rel.weight
-
-    if modifier_type == 'comment_on':
-        rel.weight += settings.OBJECT_SEARCH_MODIFIERS[
-            'comment_on']
-        rel.status = 'commented_on'
-        rel.save()
-        return rel.weight
-
-    if modifier_type == 'flag_as_inappropriate':
-        rel.weight += settings.OBJECT_SEARCH_MODIFIERS[
-            'flag_as_inappropriate']
-        rel.status = 'flagged_as_inappropriate'
-        rel.save()
-        return rel.weight
-
-    if modifier_type == 'flag_as_spam':
-        rel.weight += settings.OBJECT_SEARCH_MODIFIERS[
-            'flag_as_spam']
-        rel.status = 'flagged_as_spam'
-        rel.save()
-        return rel.weight
-
-    if modifier_type == 'share':
-        rel.weight += settings.OBJECT_SEARCH_MODIFIERS['share']
-        rel.status = 'shared'
-        rel.save()
-        return rel.weight
-
-    if modifier_type == 'answered':
-        rel.weight += settings.OBJECT_SEARCH_MODIFIERS['answered']
-        rel.status = 'answered'
-        rel.save()
-        return rel.weight

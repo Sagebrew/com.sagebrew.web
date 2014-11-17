@@ -33,7 +33,7 @@ NOSE_ARGS = [
     '--with-coverage',
     '--cover-html',
     '--stop',
-    '--config=setup.cfg'
+    '--config=nose.cfg'
 ]
 
 

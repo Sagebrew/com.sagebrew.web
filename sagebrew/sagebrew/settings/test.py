@@ -30,7 +30,7 @@ CACHES = {
 INSTALLED_APPS += ('django_nose', )
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 NOSE_ARGS = [
-    '-w /home/ubuntu/com.sagebrew.web/sagebrew '
+    '--where=/home/ubuntu/com.sagebrew.web/sagebrew',
     '--with-coverage',
     '--cover-html',
     '--stop',

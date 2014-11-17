@@ -24,13 +24,6 @@ DATABASES = {
     }
 }
 
-INSTALLED_APPS += ('django_nose', )
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-NOSE_ARGS = [
-    '--stop',
-]
-
-
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',

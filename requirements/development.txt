@@ -1,5 +1,3 @@
 -r base.txt
 django-debug-toolbar
-nose
-django-nose
 pep8

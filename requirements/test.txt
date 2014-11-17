@@ -1,5 +1,3 @@
 -r base.txt
 coveralls
 pep8
-nose
-django-nose

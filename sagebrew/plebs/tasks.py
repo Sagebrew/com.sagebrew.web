@@ -1,8 +1,6 @@
 from uuid import uuid1
-from json import dumps
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from celery import shared_task
-from logging import getLogger
 from django.conf import settings
 from django.template.loader import get_template
 from django.template import Context
@@ -16,9 +14,6 @@ from sb_wall.neo_models import SBWall
 from sb_registration.models import token_gen
 
 from .neo_models import Pleb
-
-logger = getLogger('loggly_logs')
-
 
 @shared_task()
 def send_email_task(to, subject, html_content, text_content=None):

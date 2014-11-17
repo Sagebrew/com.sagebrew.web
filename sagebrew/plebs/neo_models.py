@@ -1,13 +1,11 @@
 import re
 import pytz
-import logging
-from json import dumps
 from datetime import datetime
 
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty, db, ZeroOrOne,
+                      BooleanProperty, FloatProperty, ZeroOrOne,
                       CypherException)
 
 from api.utils import execute_cypher_query
@@ -17,8 +15,6 @@ from sb_base.neo_models import RelationshipWeight
 from sb_base.utils import defensive_exception
 from sb_search.neo_models import SearchCount
 
-
-logger = logging.getLogger("loggly_logs")
 
 class PostObjectCreated(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))

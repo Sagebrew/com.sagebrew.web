@@ -1,4 +1,3 @@
-import logging
 from django.template.loader import render_to_string
 
 from rest_framework.permissions import IsAuthenticated
@@ -10,8 +9,6 @@ from api.utils import execute_cypher_query
 
 from .neo_models import NotificationBase
 from .forms import GetNotificationForm
-
-logger = logging.getLogger('loggly_logs')
 
 
 @api_view(['POST'])

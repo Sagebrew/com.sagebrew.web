@@ -109,8 +109,8 @@ class TestCreateFriendRequestView(TestCase):
         self.assertEqual(res.status_code, 400)
 
     def test_create_friend_request_view_incorrect_data_image(self):
-        with open(settings.PROJECT_DIR + "/sb_posts/" +
-                  "tests/images/test_image.jpg", "rb") as image_file:
+        with open("%s/sb_posts/tests/images/test_image.jpg" % (
+                settings.PROJECT_DIR), "rb") as image_file:
             image = b64encode(image_file.read())
 
         request = self.factory.post('/relationships/create_friend_request',

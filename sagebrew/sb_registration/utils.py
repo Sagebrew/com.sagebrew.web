@@ -204,7 +204,13 @@ def upload_image(folder_name, file_uuid, file_location=None):
     k.key = key_string
     k.set_contents_from_filename(file_path)
     image_uri = k.generate_url(expires_in=259200)
-    os.remove(file_path)
+    # TODO This should be reviewed and updated. It is a quick fix for
+    # not deleting the test file in sb_posts/tests/images when running
+    # through tests. We should also be looking into just storing the image
+    # in memory or directly in s3 rather than bringing it locally onto the
+    # system.
+    if os.environ.get("CIRCLE_CI", "false") == "false":
+        os.remove(file_path)
     return image_uri
 
 

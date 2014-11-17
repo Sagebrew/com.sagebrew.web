@@ -51,10 +51,16 @@ class TestDefensiveExceptionUtil(TestCase):
 
         self.assertEqual(self.pleb.email, res.email)
 
-    def test_defensive_exception(self):
+    def test_type_error(self):
         try:
             raise TypeError("Hello", "there")
         except TypeError as e:
             test_defense = defensive_exception("this_test", e, True)
+
+        self.assertTrue(test_defense)
+
+    def test_without_raise(self):
+        exception = TypeError("Hello", "there")
+        test_defense = defensive_exception("this_test", exception, True)
 
         self.assertTrue(test_defense)

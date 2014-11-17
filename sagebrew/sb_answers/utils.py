@@ -1,17 +1,15 @@
-import logging
 from uuid import uuid1
-from json import dumps
 
 from neomodel import CypherException, DoesNotExist
 
 from api.utils import spawn_task
 from plebs.neo_models import Pleb
-from .neo_models import SBAnswer
+from sb_base.utils import defensive_exception
 from sb_questions.neo_models import SBQuestion
 from sb_notifications.tasks import spawn_notifications
 from sb_base.tasks import create_object_relations_task
 
-logger = logging.getLogger('loggly_logs')
+from .neo_models import SBAnswer
 
 
 def save_answer_util(content, current_pleb, question_uuid, answer_uuid=None):
@@ -53,7 +51,5 @@ def save_answer_util(content, current_pleb, question_uuid, answer_uuid=None):
     except (IndexError, CypherException) as e:
         return e
     except Exception as e:
-        logger.exception(dumps({"function": "save_answer_util",
-                                "exception": "Unhandled Exception"}))
-        return e
+        return defensive_exception(save_answer_util.__name__, e, e)
 

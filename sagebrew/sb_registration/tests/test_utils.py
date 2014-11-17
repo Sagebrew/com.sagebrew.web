@@ -36,9 +36,10 @@ class TestCreateAddressLongHash(TestCase):
 
         self.assertTrue(create_address_long_hash(address))
 
+
 class TestUploadImageUtil(TestCase):
     def test_upload_image_util(self):
         location = '%s/sb_posts/tests/images/' % settings.PROJECT_DIR
         res = upload_image('profile_pictures', 'test_image', location)
-
+        # TODO grab res and delete image from S3
         self.assertIsInstance(res, str)

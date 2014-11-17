@@ -36,7 +36,6 @@ NOSE_ARGS = [
     '--stop',
     '--config=nose.cfg',
     '--where=%s' % (PROJECT_DIR),
-    '--exclude='
 ]
 
 

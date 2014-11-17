@@ -209,7 +209,7 @@ def upload_image(folder_name, file_uuid, file_location=None):
     # through tests. We should also be looking into just storing the image
     # in memory or directly in s3 rather than bringing it locally onto the
     # system.
-    if os.environ.get("CIRCLE_CI", "false") == "false":
+    if os.environ.get("CIRCLECI", "false") == "false":
         os.remove(file_path)
     return image_uri
 

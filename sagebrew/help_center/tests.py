@@ -16,7 +16,7 @@ class HelpGoodQuestionTests(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
-    def test_save_post_view_correct_data(self):
+    def test_good_question_helper(self):
         response = self.client.get('/help/good_question/')
         # TODO is it possible to check if spelling is correct
         # in response.content?

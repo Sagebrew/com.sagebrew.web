@@ -51,7 +51,7 @@ class Command(BaseCommand):
         f = open("%s/dockerfiles/worker/Dockerfile" % settings.REPO_DIR, "w")
         f.write(worker_docker)
         f.close()
-        with open ("%s/docker_sys_util" % settings.REPO_DIR,
+        with open("%s/docker_sys_util" % settings.REPO_DIR,
                    "r") as dockerfile:
             circle_branch = os.environ.get("CIRCLE_BRANCH", None)
             data = dockerfile.read()

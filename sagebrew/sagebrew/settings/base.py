@@ -174,6 +174,7 @@ INSTALLED_APPS = (
     'sb_deletes',
     'elasticsearch',
     'textblob',
+    'help_center',
 )
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 

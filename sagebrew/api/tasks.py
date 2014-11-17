@@ -6,8 +6,6 @@ from celery import shared_task
 from elasticsearch import Elasticsearch
 
 from api.utils import spawn_task, get_object
-from sb_questions.neo_models import SBQuestion
-from sb_answers.neo_models import SBAnswer
 
 logger = logging.getLogger('loggly_logs')
 

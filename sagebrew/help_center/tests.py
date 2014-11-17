@@ -20,4 +20,4 @@ class HelpGoodQuestionTests(TestCase):
         response = self.client.get('/help/good_question/')
         # TODO is it possible to check if spelling is correct
         # in response.content?
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 404)

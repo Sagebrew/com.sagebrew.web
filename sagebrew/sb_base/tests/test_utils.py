@@ -59,6 +59,22 @@ class TestDefensiveExceptionUtil(TestCase):
 
         self.assertTrue(test_defense)
 
+    def test_type_error_with_message(self):
+        try:
+            raise TypeError("Hello", "there")
+        except TypeError as e:
+            test_defense = defensive_exception("this_test", e, True,
+                                               "type error reached")
+        self.assertTrue(test_defense)
+
+    def test_type_error_with_dict_message(self):
+        try:
+            raise TypeError("Hello", "there")
+        except TypeError as e:
+            test_defense = defensive_exception("this_test", e, True,
+                                               {"exception thrower": "tester"})
+        self.assertTrue(test_defense)
+
     def test_without_raise(self):
         exception = TypeError("Hello", "there")
         test_defense = defensive_exception("this_test", exception, True)

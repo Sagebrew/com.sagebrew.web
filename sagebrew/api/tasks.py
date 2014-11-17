@@ -5,7 +5,6 @@ from celery import shared_task
 from elasticsearch import Elasticsearch
 
 from sb_base.utils import defensive_exception
-
 from api.utils import spawn_task, get_object
 
 logger = logging.getLogger('loggly_logs')

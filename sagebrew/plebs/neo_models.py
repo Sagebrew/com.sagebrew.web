@@ -14,6 +14,7 @@ from api.utils import execute_cypher_query
 from sb_relationships.neo_models import (FriendRelationship,
                                          UserWeightRelationship)
 from sb_base.neo_models import RelationshipWeight
+from sb_base.utils import defensive_exception
 from sb_search.neo_models import SearchCount
 
 
@@ -147,7 +148,6 @@ class Pleb(StructuredNode):
     clicked_results = RelationshipTo('sb_search.neo_models.SearchResult',
                                      'CLICKED_RESULT')
 
-
     def generate_username(self):
         temp_username = str(self.first_name).lower() + \
                         str(self.last_name).lower()
@@ -158,7 +158,7 @@ class Pleb(StructuredNode):
                     'p.last_name="%s" return p' % (self.first_name,
                                                    self.last_name)
             res = execute_cypher_query(query)
-            self.username = temp_username+str((len(res[0])+1))
+            self.username = temp_username + str((len(res[0])+1))
             self.save()
         except Pleb.DoesNotExist:
             self.username = temp_username
@@ -174,9 +174,7 @@ class Pleb(StructuredNode):
         except CypherException as e:
             return e
         except Exception as e:
-            logger.exception(dumps({"function": Pleb.relate_comment.__name__,
-                                    "exception": "Unhandled Exception:"}))
-            return e
+            return defensive_exception(Pleb.relate_comment.__name__, e, e)
 
     def update_weight_relationship(self, sb_object, modifier_type):
         rel = self.object_weight.relationship(sb_object)

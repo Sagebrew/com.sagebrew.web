@@ -13,6 +13,8 @@ from neomodel.exception import CypherException, DoesNotExist
 from neomodel import db
 from django.conf import settings
 
+from sb_base.utils import defensive_exception
+
 from api.alchemyapi import AlchemyAPI
 
 logger = logging.getLogger('loggly_logs')
@@ -99,7 +101,7 @@ def spawn_task(task_func, task_param, countdown=0, task_id=None):
     try:
         return task_func.apply_async(kwargs=task_param, countdown=countdown,
                                      task_id=task_id)
-    except socket_error:
+    except (socket_error, Exception) as e:
         failure_uuid = str(uuid1())
         failure_dict = {
             'action': 'failed_task',
@@ -107,24 +109,9 @@ def spawn_task(task_func, task_param, countdown=0, task_id=None):
             'task_info_kwargs': task_param,
             'failure_uuid': failure_uuid
         }
-        logger.exception(dumps(
-            {'failure_uuid': failure_uuid, 'function': task_func.__name__,
-             'exception': 'socket_error'}))
         add_failure_to_queue(failure_dict)
-        return None
-    except Exception:
-        failure_uuid = str(uuid1())
-        failure_dict = {
-            'action': 'failed_task',
-            'attempted_task': task_func.__name__,
-            'task_info_kwargs': task_param,
-            'failure_uuid': failure_uuid
-        }
-        logger.exception(dumps(
-            {'failure_uuid': failure_uuid, 'function': task_func.__name__,
-             'exception': 'Unhandled Exception'}))
-        add_failure_to_queue(failure_dict)
-        return None
+        return defensive_exception(spawn_task.__name__, e, None,
+            {"failure_uuid": failure_uuid, "failure": "Unhandled Exception"})
 
 
 def language_filter(content):
@@ -153,13 +140,14 @@ def create_auto_tags(content):
         alchemyapi = AlchemyAPI()
         keywords = alchemyapi.keywords("text", content)
         return keywords
-    except Exception:
-        logger.exception(dumps({"function": create_auto_tags,
-                                "exception": "Unhandled Exception"}))
-        return None
+    except Exception as e:
+        return defensive_exception(create_auto_tags.__name__, e, None)
 
 
 def execute_cypher_query(query):
+    # TODO either return the exception and retry or none and retry but make
+    # sure all functions that call this check to ensure that the query was
+    # successful
     try:
         return db.cypher_query(query)
     except CypherException:
@@ -195,11 +183,9 @@ def get_object(object_type, object_uuid):
         try:
             return sb_object.nodes.get(sb_id=object_uuid)
         except (sb_object.DoesNotExist, DoesNotExist) as e:
-            return TypeError("%s.DoesNotExist"%object_type)
+            return TypeError("%s.DoesNotExist" % object_type)
     except (CypherException, NameError, ValueError) as e:
         return e
     except Exception as e:
-        logger.exception(dumps({"function": get_object.__name__,
-                                "exception": "Unhandled Exception"}))
-        return e
+        return defensive_exception(get_object.__name__, e, e)
 

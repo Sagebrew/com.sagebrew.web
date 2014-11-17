@@ -19,6 +19,7 @@ omit =
     */management/commands/populatetopiccats.py
     */management/commands/populateenvconfig.py
     */management/commands/populatehistoricaldata.py
+    */management/commands/create_prepopulated_tags.py
 
 [report]
 # Regexes for lines to exclude from consideration
@@ -32,6 +33,7 @@ exclude_lines =
     except Exception as e:
     if 0:
     if __name__ == .__main__.:
+
 omit =
     */tests*
     */migrations/*
@@ -46,6 +48,7 @@ omit =
     */management/commands/logglypopulation.py
     */management/commands/populatenginx.py
     */management/commands/populatesupervisor.py
+    */management/commands/create_prepopulated_tags.py
     */api/alchemyapi.py
     */management/commands/populateschools.py
     */management/commands/populatetopiccats.py

@@ -36,6 +36,6 @@ def flag_object_view(request):
         else:
             return Response({"detail": "invalid form"}, status=400)
     except Exception as e:
-        return defensive_exception(flag_object_view, e, Response(status=400))
+        return defensive_exception(flag_object_view.__name__, e, Response(status=400))
 
 

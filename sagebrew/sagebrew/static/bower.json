@@ -1,0 +1,25 @@
+{
+  "name": "sagebrew",
+  "version": "0.0.1",
+  "homepage": "https://github.com/Sagebrew/com.sagebrew.web",
+  "authors": [
+    "Devon Bleibtrey <bleib1dj@gmail.com>"
+  ],
+  "description": "base sagebrew frontend dependencies",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrapvalidator": "~0.5.3",
+    "flat-ui": "~2.2.1",
+    "jquery-cookie": "~1.4.1",
+    "jquery-ui": "~1.11.2",
+    "bootstrap": "~3.3.1"
+  }
+}

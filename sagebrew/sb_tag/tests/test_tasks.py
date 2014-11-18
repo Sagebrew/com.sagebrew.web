@@ -4,7 +4,7 @@ from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from api.utils import test_wait_util
+from api.utils import wait_util
 from sb_questions.neo_models import SBQuestion
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util
@@ -18,7 +18,7 @@ class TestTagTask(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
@@ -58,7 +58,7 @@ class TestAutoTagTask(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
@@ -107,7 +107,7 @@ class TestCreateAutoTagRelationships(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True

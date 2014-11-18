@@ -11,7 +11,7 @@ from plebs.neo_models import Pleb
 from plebs.views import (profile_page, friends_page, about_page,
                          reputation_page)
 from sb_registration.utils import create_user_util
-from api.utils import test_wait_util
+from api.utils import wait_util
 
 
 #TODO test friend user, registered non-friend user getting the correct page
@@ -26,7 +26,7 @@ class ProfilePageTest(TestCase):
         res = create_user_util("test", "test", self.email, self.password,
                                self.username)
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.completed_profile_info = True
@@ -244,7 +244,7 @@ class TestProfilePageAbout(TestCase):
         res = create_user_util("test", "test", self.email, self.password,
                                self.username)
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.completed_profile_info = True
@@ -274,7 +274,7 @@ class TestProfilePageReputationPage(TestCase):
         res = create_user_util("test", "test", self.email, self.password,
                                self.username)
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.completed_profile_info = True
@@ -303,7 +303,7 @@ class TestProfilePageFriendPage(TestCase):
         res = create_user_util("test", "test", self.email, self.password,
                                self.username)
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.completed_profile_info = True

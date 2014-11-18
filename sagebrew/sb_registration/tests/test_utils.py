@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from api.utils import test_wait_util
+from api.utils import wait_util
 from sb_registration.utils import create_user_util
 from plebs.neo_models import Pleb, Address
 from sb_registration.utils import create_address_long_hash, upload_image
@@ -19,7 +19,7 @@ class TestCreateAddressLongHash(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
@@ -36,9 +36,10 @@ class TestCreateAddressLongHash(TestCase):
 
         self.assertTrue(create_address_long_hash(address))
 
+
 class TestUploadImageUtil(TestCase):
     def test_upload_image_util(self):
         location = '%s/sb_posts/tests/images/' % settings.PROJECT_DIR
         res = upload_image('profile_pictures', 'test_image', location)
-
+        # TODO grab res and delete image from S3
         self.assertIsInstance(res, str)

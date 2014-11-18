@@ -1,25 +1,23 @@
-from rest_framework.test import APIRequestFactory
+from django.test import TestCase, Client
 from django.contrib.auth.models import User
-from django.test import TestCase
 
 from api.utils import wait_util
 from plebs.neo_models import Pleb
-from sb_tag.views import get_tag_view
 from sb_registration.utils import create_user_util
 
-class TestTagViews(TestCase):
+
+class HelpGoodQuestionTests(TestCase):
     def setUp(self):
-        self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
+        self.client = Client()
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
-    def test_get_tag_view_success(self):
-        request = self.factory.get('/tags/get_tags/')
-        request.user = self.user
-        response = get_tag_view(request)
-
-        self.assertEqual(response.status_code, 200)
+    def test_good_question_helper(self):
+        response = self.client.get('/help/good_question/')
+        # TODO is it possible to check if spelling is correct
+        # in response.content?
+        self.assertEqual(response.status_code, 404)

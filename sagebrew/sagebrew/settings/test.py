@@ -27,6 +27,13 @@ CACHES = {
         'LOCATION': '127.0.0.1:11211',
     }
 }
+INSTALLED_APPS += ('django_nose', )
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+NOSE_ARGS = [
+    '--with-coverage',
+    '--stop',
+]
+
 
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 

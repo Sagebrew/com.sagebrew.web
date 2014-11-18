@@ -7,7 +7,6 @@ docker push sagebrew/sys_util:$SHA1
 EB_BUCKET=sagebrew-$CIRCLE_BRANCH
 DOCKERRUN_FILE_WEB=$SHA1-staging_web.aws.json
 DOCKERRUN_FILE_WORKER=$SHA1-staging_worker.aws.json
-DOCKERRUN_WEB_ENVIRONMENT=/home/ubuntu/com.sagebrew.web/$SHA1-staging_web.json
 DOCKERRUN_WORKER_ENVIRONMENT=/home/ubuntu/com.sagebrew.web/$SHA1-staging_worker.json
 DOCKERRUN_FILE_SYS=$SHA1-staging_sys-util.aws.json
 

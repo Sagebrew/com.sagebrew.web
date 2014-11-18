@@ -8,25 +8,30 @@ RUN mkdir /home/apps/
 RUN mkdir /home/apps/logs
 
 
-
 RUN git clone -b {{DOCKER_ENV}} git@github.com:{{PROJECT_USERNAME}}/{{PROJECT_REPONAME}}.git /home/apps/{{PROJECT_NAME}}/
 RUN chown -R {{APP_USER}}:{{APP_USER}} /home/apps/
 RUN mkdir /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/
 RUN rm -r /root/.ssh
 RUN apt-get remove --auto-remove -y openssh-client
 
-
-RUN sudo apt-get install -y nodejs
+RUN apt-get install -y nodejs
 RUN ln -s /usr/bin/nodejs /usr/bin/node
-RUN sudo apt-get install -y npm
+RUN  apt-get install -y npm
 RUN npm install -g bower
 RUN npm install -g grunt
 RUN npm install -g grunt-cli
 RUN npm install -g less
-WORKDIR /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/flat_ui_31/
+WORKDIR /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/
+RUN bower install --config.interactive=false --allow-root
+
+WORKDIR /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/flat-ui/
 RUN npm install
-RUN bower install --config.interactive=false
-RUN grunt dist
+RUN bower install --config.interactive=false --allow-root
+
+WORKDIR /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/bower_components/bootstrapvalidator/
+RUN bower install --config.interactive=false --allow-root
+
+
 RUN pip install -r /home/apps/{{PROJECT_NAME}}/requirements/{{REQUIREMENTS_FILE}}.txt
 
 RUN apt-get -y install wget

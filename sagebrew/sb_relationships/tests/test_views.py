@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.conf import settings
 
-from api.utils import test_wait_util
+from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_relationships.neo_models import FriendRequest
 from sb_relationships.views import (create_friend_request, get_friend_requests,
@@ -19,13 +19,13 @@ class TestCreateFriendRequestView(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.email2= "bounce@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email2, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb2 = Pleb.nodes.get(email=self.email2)
         self.user2 = User.objects.get(email=self.email2)
 
@@ -109,8 +109,8 @@ class TestCreateFriendRequestView(TestCase):
         self.assertEqual(res.status_code, 400)
 
     def test_create_friend_request_view_incorrect_data_image(self):
-        with open(settings.PROJECT_DIR + "/sb_posts/" +
-                  "tests/images/test_image.jpg", "rb") as image_file:
+        with open("%s/sb_posts/tests/images/test_image.jpg" % (
+                settings.PROJECT_DIR), "rb") as image_file:
             image = b64encode(image_file.read())
 
         request = self.factory.post('/relationships/create_friend_request',
@@ -127,13 +127,13 @@ class TestGetFriendRequestsView(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.email2= "bounce@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email2, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb2 = Pleb.nodes.get(email=self.email2)
         self.user2 = User.objects.get(email=self.email2)
 
@@ -223,13 +223,13 @@ class TestRespondFriendRequestView(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.email2= "bounce@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email2, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb2 = Pleb.nodes.get(email=self.email2)
         self.user2 = User.objects.get(email=self.email2)
 

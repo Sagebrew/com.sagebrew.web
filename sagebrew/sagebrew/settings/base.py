@@ -130,6 +130,7 @@ TEMPLATE_DIRS = (
     '%s/sb_questions/templates/' % PROJECT_DIR,
     '%s/sb_answers/templates/' % PROJECT_DIR,
     '%s/sb_search/templates/' % PROJECT_DIR,
+    '%s/help_center/templates/' % PROJECT_DIR,
 )
 
 FIXTURE_DIRS = (
@@ -173,8 +174,8 @@ INSTALLED_APPS = (
     'sb_deletes',
     'elasticsearch',
     'textblob',
+    'help_center',
 )
-
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 EMAIL_VERIFICATION_TIMEOUT_DAYS = 1

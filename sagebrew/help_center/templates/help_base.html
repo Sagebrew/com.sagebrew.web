@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block css %}
+    {{ block.super }}
+    <link href="{% static 'css/sb_registration.css' %}" rel="stylesheet"/>
+{% endblock css %}
+{% block navigation %}
+    {% include "registration_nav.html" %}
+{% endblock %}
+<!-- TODO add a column for navigation around the help center we can hopefully
+     do a for loop over all of the urls and pull out all the names, then
+     use those for the url population. Need to see if there is a way to include
+     a description as well that we can use to populate their headings/titles-->
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock footer %}

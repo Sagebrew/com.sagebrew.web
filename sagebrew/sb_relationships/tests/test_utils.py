@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from neomodel.exception import DoesNotExist
 
-from api.utils import test_wait_util
+from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_relationships.neo_models import FriendRequest
 from sb_relationships.utils import create_friend_request_util
@@ -14,13 +14,13 @@ class TestCreateFriendRequestUtil(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb1 = Pleb.nodes.get(email=self.email)
         self.user1 = User.objects.get(email=self.email)
         self.email2= "bounce@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email2, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb2 = Pleb.nodes.get(email=self.email2)
         self.user2 = User.objects.get(email=self.email2)
 

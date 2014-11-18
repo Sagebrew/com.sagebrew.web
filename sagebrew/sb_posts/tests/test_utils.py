@@ -3,7 +3,7 @@ from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from api.utils import test_wait_util
+from api.utils import wait_util
 from sb_posts.utils import save_post, get_pleb_posts
 from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
@@ -16,7 +16,7 @@ class TestSavePost(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
@@ -61,7 +61,7 @@ class TestGetPlebPostsUtil(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 

@@ -69,6 +69,12 @@ class Command(BaseCommand):
             data = data.replace("{{PROJECT_DIRECTORY}}", settings.REPO_DIR)
             data = data.replace("{{DOMAINS_PIPE}}", domains_pipe)
             data = data.replace("{{DOMAINS_SPACE}}", domains_space)
+            data = data.replace("{{STATIC_URL}}", settings.STATIC_URL)
+            if circle_branch == "master":
+                robot_file = "robots"
+            else:
+                robot_file = "robots_staging"
+            data = data.replace("{{ROBOT_FILE}}", robot_file)
             data = data.replace("{{SSL_CERT_LOCATION}}",
                                 os.environ.get("SSL_CERT_LOCATION", ""))
             data = data.replace("{{SSL_KEY_LOCATION}}",

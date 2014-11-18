@@ -1,4 +1,3 @@
-import time
 import pytz
 from uuid import uuid1
 from datetime import datetime, timedelta
@@ -8,7 +7,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.conf import settings
 
-from api.utils import test_wait_util
+from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_posts.views import (save_post_view, get_user_posts)
 from sb_registration.utils import create_user_util
@@ -21,7 +20,7 @@ class SavePostViewTests(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
@@ -100,7 +99,7 @@ class TestGetUserPosts(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 

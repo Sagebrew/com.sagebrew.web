@@ -20,6 +20,8 @@ def edit_object_task(object_uuid, object_type, current_pleb, content):
     if isinstance(sb_object, Exception) is True:
         raise edit_object_task.retry(exc=sb_object, countdown=3,
                                      max_retries=None)
+    elif sb_object is False:
+        return sb_object
     res = sb_object.edit_content(content=content, pleb=current_pleb)
 
     if isinstance(res, Exception) is True:
@@ -33,6 +35,8 @@ def edit_question_task(object_uuid, object_type, current_pleb, question_title):
     if isinstance(sb_object, Exception) is True:
         raise edit_question_task.retry(exc=sb_object, countdown=3,
                                        max_retries=None)
+    elif sb_object is False:
+        return sb_object
 
     res = sb_object.edit_title(pleb=current_pleb, title=question_title)
 

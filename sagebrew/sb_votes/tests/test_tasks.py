@@ -50,7 +50,7 @@ class TestVoteObjectTask(TestCase):
         while not res.ready():
             time.sleep(1)
 
-        self.assertIsInstance(res.result, Exception)
+        self.assertFalse(res.result)
 
     def test_vote_object_task_vote_method_failure(self):
         question = SBQuestion(sb_id=str(uuid1())).save()

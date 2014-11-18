@@ -56,7 +56,7 @@ class TestEditObjectTask(TestCase):
         while not res.ready():
             time.sleep(1)
 
-        self.assertIsInstance(res.result, Exception)
+        self.assertFalse(res.result)
 
     def test_edit_object_task_edit_content_fail(self):
         question = SBQuestion(question_title='test title for edit',
@@ -120,7 +120,7 @@ class TestEditQuestionTitleTask(TestCase):
         while not res.ready():
             time.sleep(1)
 
-        self.assertIsInstance(res.result, Exception)
+        self.assertFalse(res.result)
 
     def test_edit_question_title_edit_title_failure(self):
         question = SBQuestion(question_title='test title for edit',

@@ -44,6 +44,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.populate_supervisor(args[0], args[1])
+        self.stdout.write("Supervisor population complete")
 
 
 def populate_general_values(data, user, worker_count):

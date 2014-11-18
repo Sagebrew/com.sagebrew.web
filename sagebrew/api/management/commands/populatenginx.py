@@ -82,6 +82,7 @@ class Command(BaseCommand):
         f = open("/etc/nginx/sites-available/%s.conf" % env, "w")
         f.write(data)
         f.close()
+        self.stdout.write(data)
         if os.path.isfile("/etc/nginx/sites-enabled/%s.conf" % env):
             logger.info({"Exception": "Nginx file exists and was removed",
                              "Location": "Initial Population",
@@ -101,3 +102,4 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.populate_nginx(args[0], args[1])
+        self.stdout.write("NGINX Files populated")

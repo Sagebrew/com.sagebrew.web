@@ -175,6 +175,9 @@ def get_object(object_type, object_uuid):
     :param object_uuid:
     :return:
     '''
+    # TODO if this raises a NameError or ValueError should we return false
+    # and not retry? Feel like if that happens something incorrect was
+    # passed to the function?
     try:
         cls = object_type
         module_name, class_name = cls.rsplit(".", 1)

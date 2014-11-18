@@ -1,5 +1,6 @@
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 
 from api.utils import wait_util
 from plebs.neo_models import Pleb
@@ -17,7 +18,7 @@ class HelpGoodQuestionTests(TestCase):
         self.user = User.objects.get(email=self.email)
 
     def test_good_question_helper(self):
-        response = self.client.get('/help/good_question/')
+        response = self.client.get(reverse('good_question'), follow=True)
         # TODO is it possible to check if spelling is correct
         # in response.content?
         self.assertEqual(response.status_code, 404)

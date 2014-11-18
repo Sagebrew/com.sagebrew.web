@@ -1,13 +1,10 @@
-import logging
-from json import dumps
 from celery import shared_task
 
 from sb_notifications.tasks import spawn_notifications
 from api.utils import spawn_task, get_object
+from sb_base.utils import defensive_exception
 
 from .utils import save_comment, comment_relations
-
-logger = logging.getLogger('loggly_logs')
 
 
 @shared_task()
@@ -18,8 +15,9 @@ def save_comment_on_object(content, current_pleb, object_uuid, object_type):
     The objects can be: SBPost, SBAnswer, SBQuestion.
 
     :param content:
-    :param pleb:
-    :param post_uuid:
+    :param current_pleb:
+    :param object_uuid:
+    :param object_type:
     :return:
             Will return True if the comment was made and the task to spawn a
             notification was created
@@ -37,8 +35,6 @@ def save_comment_on_object(content, current_pleb, object_uuid, object_type):
         if isinstance(my_comment, Exception) is True:
             raise save_comment_on_object.retry(exc=my_comment, countdown=5,
                                                max_retries=None)
-        elif my_comment is False:
-            return False
         else:
             task_data = {"current_pleb": current_pleb, "comment": my_comment,
                          "sb_object": sb_object}
@@ -46,9 +42,10 @@ def save_comment_on_object(content, current_pleb, object_uuid, object_type):
                        task_param=task_data)
             return True
     except Exception as e:
-        logger.exception(dumps({'function': save_comment_on_object.__name__,
-                                'exception': "Unhandled Exception"}))
-        raise save_comment_on_object.retry(exc=e, countdown=5, max_retries=None)
+        raise defensive_exception(save_comment_on_object.__name__, e,
+                                  save_comment_on_object.retry(
+                                      exc=e, countdown=5, max_retries=None))
+
 
 @shared_task()
 def create_comment_relations(current_pleb, comment, sb_object):
@@ -65,7 +62,6 @@ def create_comment_relations(current_pleb, comment, sb_object):
         spawn_task(task_func=spawn_notifications, task_param=data)
         return True
     except Exception as e:
-        logger.exception(dumps({"function": create_comment_relations.__name__,
-                                "exception": "Unhandled Exception"}))
-        raise create_comment_relations.retry(exc=e, countdown=3,
-                                             max_retries=None)
+        raise defensive_exception(create_comment_relations.__name__, e,
+                                  create_comment_relations.retry(
+                                      exc=e, countdown=3, max_retries=None))

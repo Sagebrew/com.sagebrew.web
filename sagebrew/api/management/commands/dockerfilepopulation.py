@@ -94,6 +94,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.populate_dockerfiles()
+        self.stdout.write("Dockerfiles populated")
 
 def populate_general_env(data):
     data = data.replace('{{APP_USER}}', os.environ.get("APP_USER", ""))

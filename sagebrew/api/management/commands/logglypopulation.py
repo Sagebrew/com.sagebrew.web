@@ -19,3 +19,4 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.populate_rsys_log(args[0], args[1])
+        self.stdout.write("Populate RSYS Log completed")

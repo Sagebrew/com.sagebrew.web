@@ -1,4 +1,4 @@
-FROM {{PROJECT_NAME}}/django.web.primary.base:v13
+FROM {{PROJECT_NAME}}/django.web.primary.{{IMAGE_TYPE}}:v{{VERSION}}
 
 MAINTAINER Devon Bleibtrey <devon@sagebrew.com>
 
@@ -12,14 +12,6 @@ RUN chown -R {{APP_USER}}:{{APP_USER}} /home/apps/
 RUN mkdir /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/
 RUN rm -r /root/.ssh
 RUN apt-get remove --auto-remove -y openssh-client
-
-RUN apt-get install -y nodejs
-RUN ln -s /usr/bin/nodejs /usr/bin/node
-RUN  apt-get install -y npm
-RUN npm install -g bower
-RUN npm install -g grunt
-RUN npm install -g grunt-cli
-RUN npm install -g less
 
 RUN pip install -r /home/apps/{{PROJECT_NAME}}/requirements/{{REQUIREMENTS_FILE}}.txt
 

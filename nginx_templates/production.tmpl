@@ -12,26 +12,6 @@ server {
     client_max_body_size 4G;
     server_name {{DOMAINS_SPACE}};
     keepalive_timeout 5;
-
-    location /static {
-	    autoindex on;
-        alias {{PROJECT_PATH}}/static;
-    }
-
-    location /media {
-	    autoindex on;
-        alias {{PROJECT_PATH}}/media;
-    }
-
-    location /favicon.ico {
-        autoindex on;
-        alias {{STATIC_URL}}images/favicon.ico;
-    }
-
-    location /robots.txt {
-        autoindex on;
-        alias {{STATIC_URL}}{{ROBOT_FILE}}.txt;
-    }
 	
     location / {
         # checks for static file, if not found proxy to app

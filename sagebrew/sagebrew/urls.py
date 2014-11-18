@@ -1,13 +1,17 @@
+from os import environ
+
 from django.conf.urls import include
 from django.conf import settings
 from django.contrib import admin
-from django.views.generic.base import TemplateView
+from django.views.generic.base import TemplateView, RedirectView
 from django.conf.urls import patterns, url
 
 from sb_registration.views import login_view, logout_view
 
 urlpatterns = patterns(
     '',
+    (r'^favicon.ico$', RedirectView.as_view(url="%sfavicon.ico" % (
+        settings.STATIC_URL))),
     (r'^$', include('sb_registration.urls')),
     url(r'^login/$', login_view, name="login"),
     url(r'^logout/$', logout_view, name="logout"),
@@ -36,4 +40,17 @@ if settings.DEBUG is True:
     urlpatterns += patterns(
         (r'^admin/', include('admin_honeypot.urls')),
         (r'^secret/', include(admin.site.urls))
+    )
+
+if environ.get("CIRCLE_BRANCH", "") == "staging":
+    urlpatterns += patterns(
+        (r'^admin/', include('admin_honeypot.urls')),
+        (r'^secret/', include(admin.site.urls)),
+        (r'^robots.txt$', RedirectView.as_view(url="%srobots_staging.txt" % (
+            settings.STATIC_URL))),
+    )
+else:
+    urlpatterns += patterns(
+        (r'^robots.txt$', RedirectView.as_view(url="%srobots.txt" % (
+            settings.STATIC_URL))),
     )

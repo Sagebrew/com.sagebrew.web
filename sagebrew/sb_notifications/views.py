@@ -13,11 +13,6 @@ from .forms import GetNotificationForm
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
-def create_notification(request):
-    pass
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
 def get_notifications(request):
     '''
     When this api is hit it will take a users email address and a number,

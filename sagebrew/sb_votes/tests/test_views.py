@@ -49,20 +49,6 @@ class TestVoteObjectView(TestCase):
 
         self.assertEqual(res.status_code, 400)
 
-    def test_vote_object_view_pleb_does_not_exist(self):
-        data = {
-            'object_type': '0274a216-644f-11e4-9ad9-080027242395',
-            'object_uuid': str(uuid1()),
-            'current_pleb': 'fakeemail@fake.com',
-            'vote_type': False
-        }
-        request = self.factory.post('/vote/vote_object_api/', data=data,
-                                    format='json')
-        request.user = self.user
-        res = vote_object_view(request)
-
-        self.assertEqual(res.status_code, 401)
-
     def test_vote_object_view_invalid_data_type(self):
         data = 123151
         request = self.factory.post('/vote/vote_object_api/', data=data,

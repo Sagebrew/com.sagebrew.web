@@ -52,21 +52,6 @@ class TestFlagObjectView(TestCase):
 
         self.assertEqual(res.status_code, 400)
 
-    def test_flag_object_view_pleb_does_not_exist(self):
-        data = {
-            'current_pleb': 'fakeemail@fake.com',
-            'object_type': '0274a216-644f-11e4-9ad9-080027242395',
-            'object_uuid': str(uuid1()),
-            'flag_reason': 'spam'
-        }
-        request = self.factory.post('/flag/flag_object_api/', data=data,
-                                    format="json")
-        request.user = self.user
-
-        res = flag_object_view(request)
-
-        self.assertEqual(res.status_code, 401)
-
     def test_flag_object_view_invalid_data_type(self):
         data = 12315123
         request = self.factory.post('/flag/flag_object_api/', data=data,

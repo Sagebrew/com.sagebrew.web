@@ -17,9 +17,13 @@ def get_pleb_task(email, task_func, task_param):
             pleb = Pleb.nodes.get(email=email)
         except (Pleb.DoesNotExist, DoesNotExist) as e:
             raise get_pleb_task.retry(exc=e, countdown=3, max_retries=None)
+        task_param['current_pleb'] = pleb
         spawn_task(task_func=task_func, task_param=task_param)
     except Exception as e:
-        pass
+        raise defensive_exception(get_pleb_task.__name__, e,
+                                  get_pleb_task.retry(exc=e,
+                                                      countdown=3,
+                                                      max_retries=None))
 
 
 @shared_task()

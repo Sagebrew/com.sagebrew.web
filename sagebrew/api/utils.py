@@ -151,7 +151,7 @@ def execute_cypher_query(query):
     try:
         return db.cypher_query(query)
     except CypherException:
-        return {'detail': 'CypherException'}
+        return False
 
 
 def wait_util(async_res):

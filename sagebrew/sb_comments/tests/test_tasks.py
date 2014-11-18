@@ -48,7 +48,7 @@ class TestSaveCommentTask(TestCase):
         while not response.ready():
             time.sleep(1)
 
-        self.assertIsInstance(response.result, Exception)
+        self.assertFalse(response.result)
 
 class TestCreateCommentRelationsTask(TestCase):
     def setUp(self):

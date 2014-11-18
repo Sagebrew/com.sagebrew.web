@@ -14,6 +14,7 @@ from plebs.neo_models import Pleb
 from .tasks import save_post_task
 from .utils import (get_pleb_posts)
 from .forms import (SavePostForm, GetPostForm)
+from sb_base.utils import defensive_exception
 
 logger = logging.getLogger('loggly_logs')
 
@@ -73,7 +74,6 @@ def get_user_posts(request):
             return Response({'html': html_array}, status=200)
         else:
             return Response(status=400)
-    except Exception:
-        logger.exception(dumps({'function': get_user_posts.__name__,
-                                'exception': "Unhandled Exception"}))
-        return Response(status=400)
+    except Exception as e:
+        return defensive_exception(get_user_posts.__name__, e,
+                                   Response(status=400))

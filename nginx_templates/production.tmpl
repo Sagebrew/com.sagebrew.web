@@ -25,12 +25,12 @@ server {
 
     location /favicon.ico {
         autoindex on;
-        alias {{STATIC_URL}}/images/favicon.ico
+        alias {{STATIC_URL}}/images/favicon.ico;
     }
 
     location /robots.txt {
         autoindex on;
-        alias {{STATIC_URL}}/{{ROBOT_FILE}}.txt
+        alias {{STATIC_URL}}/{{ROBOT_FILE}}.txt;
     }
 	
     location / {

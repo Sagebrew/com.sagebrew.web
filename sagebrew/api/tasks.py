@@ -4,10 +4,25 @@ from django.conf import settings
 
 from celery import shared_task
 from elasticsearch import Elasticsearch
+from neomodel import DoesNotExist
 
 from api.utils import spawn_task, get_object
+from plebs.neo_models import Pleb
+
 
 logger = logging.getLogger('loggly_logs')
+
+
+@shared_task()
+def get_pleb_task(email, task_func, task_param):
+    try:
+        try:
+            pleb = Pleb.nodes.get(email=email)
+        except (Pleb.DoesNotExist, DoesNotExist) as e:
+            raise get_pleb_task.retry(exc=e, countdown=3, max_retries=None)
+        spawn_task(task_func=task_func, task_param=task_param)
+    except Exception as e:
+        pass
 
 
 @shared_task()

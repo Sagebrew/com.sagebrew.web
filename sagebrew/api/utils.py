@@ -187,7 +187,7 @@ def get_object(object_type, object_uuid):
             return sb_object.nodes.get(sb_id=object_uuid)
         except (sb_object.DoesNotExist, DoesNotExist) as e:
             return TypeError("%s.DoesNotExist" % object_type)
-    except (CypherException, NameError, ValueError) as e:
+    except (CypherException) as e:
             return TypeError("%s.DoesNotExist"%object_type)
     except (NameError, ValueError):
         return False

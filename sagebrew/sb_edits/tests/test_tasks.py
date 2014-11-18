@@ -41,7 +41,7 @@ class TestEditObjectTask(TestCase):
 
         self.assertIsInstance(res.result, SBQuestion)
 
-    def test_edit_object_task_sb_object_fail(self):
+    def test_edit_object_task_get_object_fail(self):
         question = SBQuestion(question_title='test title for edit',
                               content='this is before edit',
                               sb_id=str(uuid1())).save()

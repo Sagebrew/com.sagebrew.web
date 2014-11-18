@@ -1,5 +1,3 @@
-import logging
-from json import dumps
 from urllib2 import HTTPError
 from requests import ConnectionError
 from django.conf import settings
@@ -8,12 +6,11 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from neomodel import DoesNotExist
 
+from sb_base.utils import defensive_exception
 from plebs.neo_models import Pleb
 from api.utils import spawn_task
 from .tasks import save_comment_on_object
 from .forms import (SaveCommentForm)
-
-logger = logging.getLogger('loggly_logs')
 
 
 @api_view(['POST'])
@@ -40,6 +37,11 @@ def save_comment_view(request):
         comment_form = SaveCommentForm(request.DATA)
         if comment_form.is_valid():
             try:
+                # TODO shouldn't need to pass current_pleb in the form
+                # should be accessible through request.user.email
+                # might also want to wait to try and access the pleb?
+                # That way we don't get a cypher exception while attempting
+                # to query it. Could wait until the task?
                 pleb = Pleb.nodes.get(email=comment_form.
                                       cleaned_data['current_pleb'])
             except (Pleb.DoesNotExist, DoesNotExist):
@@ -52,15 +54,14 @@ def save_comment_view(request):
                     [comment_form.cleaned_data['object_type']],
                 "content": comment_form.cleaned_data['content']
             }
-            spawn_task(task_func=save_comment_on_object,
-                       task_param=task_data)
-            return Response({"detail": "Comment succesfully created"},
+            spawn_task(task_func=save_comment_on_object, task_param=task_data)
+            return Response({"detail": "Comment successfully created"},
                             status=200)
         else:
             return Response({'detail': "invalid form"}, status=400)
     except(HTTPError, ConnectionError):
-        return Response({"detail": "Failed to create comment task"},
-                        status=408)
-    except Exception:
-        logger.exception(dumps({"function": save_comment_view.__name__,
-                                "exception": "Unhandled Exception"}))
+        return Response({"detail": "Failed to create comment task"}, status=408)
+    except Exception as e:
+        return defensive_exception(save_comment_view.__name__, e,
+                                   Response({"detail": "Internal Server Error"},
+                                            status=500))

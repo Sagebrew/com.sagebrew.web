@@ -1,7 +1,6 @@
 import logging
 from django.conf import settings
 from uuid import uuid1
-from json import dumps
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -18,6 +17,8 @@ from sb_tag.neo_models import SBTag
 from api.utils import spawn_task
 from plebs.tasks import send_email_task
 from plebs.neo_models import Pleb, Address
+from sb_base.utils import defensive_exception
+
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm,
                     LoginForm)
@@ -61,11 +62,10 @@ def signup_view_api(request):
                 return Response({'detail': 'Passwords do not match!'},
                                 status=401)
             try:
-                test_user = User.objects.get(email=signup_form.
-                                             cleaned_data['email'])
-                return Response({'detail':
-                                     'A user with this email already exists!'},
-                                status=401)
+                User.objects.get(email=signup_form.cleaned_data['email'])
+                return Response(
+                    {'detail': 'A user with this email already exists!'},
+                    status=401)
             except User.DoesNotExist:
                 res = create_user_util(first_name=signup_form.
                                        cleaned_data['first_name'],
@@ -108,10 +108,10 @@ def signup_view_api(request):
         # TODO add a handler for if the form is not valid
     except AttributeError:
         return Response(status=400)
-    except Exception:
-        logger.exception(dumps({'function': signup_view_api.__name__,
-                                'exception': 'Unhandled Exception'}))
-        return Response({'detail': 'exception'}, status=400)
+    except Exception as e:
+        return defensive_exception(signup_view_api.__name__, e,
+                                   Response({'detail': 'exception'},
+                                            status=400))
 
 
 def login_view(request):
@@ -179,10 +179,10 @@ def login_view_api(request):
                 return Response({'detail': 'invalid password'}, status=400)
     except AttributeError:
         return Response(status=400)
-    except Exception:
-        logger.exception(dumps({'function': login_view_api.__name__,
-                                'exception': 'Unhandled Exception'}))
-        return Response({'detail': 'unknown exception'}, status=400)
+    except Exception as e:
+        return defensive_exception(login_view_api.__name__, e,
+                                   Response({'detail': 'exception'},
+                                            status=400))
 
 
 @login_required()
@@ -204,10 +204,9 @@ def email_verification(request, confirmation):
             return HttpResponse('Unauthorized', status=401)
     except (Pleb.DoesNotExist, DoesNotExist):
         return redirect('logout')
-    except Exception:
-        logger.exception(dumps({'function': email_verification.__name__,
-                                'exception': 'Unhandled Exception'}))
-        return redirect('confirm_view')
+    except Exception as e:
+        return defensive_exception(email_verification.__name__, e,
+                                   redirect('confirm_view'))
 
 
 @login_required
@@ -332,10 +331,9 @@ def interests(request):
 
         return render(request, 'interests.html',
                       {'interest_form': interest_form})
-    except Exception:
-        logger.exception(dumps({"function": interests.__name__,
-                                "exception": "Unhandled Exception"}))
-        return redirect("404_Error")
+    except Exception as e:
+        return defensive_exception(login_view_api.__name__, e,
+                                   redirect("404_Error"))
 
 
 @login_required()
@@ -377,4 +375,3 @@ def profile_picture(request):
     return render(request, 'profile_picture.html',
                   {'profile_picture_form': profile_picture_form,
                    'pleb': citizen})
-

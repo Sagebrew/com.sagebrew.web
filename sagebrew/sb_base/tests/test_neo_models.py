@@ -1,6 +1,4 @@
-import time
 from uuid import uuid1
-from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 
@@ -9,6 +7,7 @@ from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util
 from sb_posts.neo_models import SBPost
 from sb_base.neo_models import SBContent
+
 
 class TestSBVoteableContentNeoModel(TestCase):
     def setUp(self):

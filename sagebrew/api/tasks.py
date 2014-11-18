@@ -1,16 +1,13 @@
-import logging
-from json import dumps
 from django.conf import settings
 
 from celery import shared_task
 from elasticsearch import Elasticsearch
 from neomodel import DoesNotExist
 
+from sb_base.utils import defensive_exception
 from api.utils import spawn_task, get_object
 from plebs.neo_models import Pleb
 
-
-logger = logging.getLogger('loggly_logs')
 
 
 @shared_task()
@@ -63,7 +60,6 @@ def add_object_to_search_index(index="full-search-base", object_type="",
             object_added.save()
         return True
     except Exception as e:
-        logger.exception(dumps({"function": add_object_to_search_index.__name__,
-                          "exception": "Unhandled Exception"}))
-        raise add_object_to_search_index.retry(exc=e, countdown=3,
-                                               max_retries=None)
+        raise defensive_exception(add_object_to_search_index.__name__, e,
+                            add_object_to_search_index.retry(exc=e, countdown=3,
+                                               max_retries=None))

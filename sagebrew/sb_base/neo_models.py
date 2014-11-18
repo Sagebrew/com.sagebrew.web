@@ -1,16 +1,13 @@
 import pytz
-import logging
-from json import dumps
 from uuid import uuid1
 from datetime import datetime
-from django.conf import settings
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, CypherException,
-                      RelationshipFrom, db)
+                      RelationshipFrom)
 
-logger = logging.getLogger("loggly_logs")
+from sb_base.utils import defensive_exception
 
 
 
@@ -69,9 +66,8 @@ class SBVoteableContent(StructuredNode):
             return self
 
         except Exception as e:
-            logger.exception(dumps({"function": SBVoteableContent.vote_content.__name__,
-                                    "exception": "Unhandled Exception"}))
-            return e
+            return defensive_exception(SBVoteableContent.vote_content.__name__,
+                                       e, e)
 
     def remove_vote(self, rel):
         rel.active = False
@@ -146,9 +142,7 @@ class SBContent(SBVoteableContent):
         except CypherException as e:
             return e
         except Exception as e:
-            logger.exception(dumps({"function": SBContent.comment_on.__name__,
-                                    "exception": "Unhandled Exception"}))
-            return e
+            return defensive_exception(SBContent.comment_on.__name__, e, e)
 
     def delete_content(self, pleb):
         try:
@@ -159,10 +153,7 @@ class SBContent(SBVoteableContent):
         except CypherException as e:
             return e
         except Exception as e:
-            logger.exception(dumps({"function":
-                                        SBContent.delete_content.__name__,
-                                    "exception": "Unhandled Exception"}))
-            return e
+            return defensive_exception(SBContent.delete_content.__name__, e, e)
 
     def reputation_adjust(self):
         pass
@@ -182,9 +173,7 @@ class SBContent(SBVoteableContent):
             return self
 
         except Exception as e:
-            logger.exception(dumps({"function": SBContent.flag_content.__name__,
-                                    "exception": "Unhandled Exception"}))
-            return e
+            return defensive_exception(SBContent.flag_content.__name__, e, e)
 
     def render_search(self):
         pass

@@ -237,7 +237,6 @@ class ProfilePageTest(TestCase):
 class TestProfilePageAbout(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.client = Client()
         self.email = "success@simulator.amazonses.com"
         self.username = shortuuid.uuid()
         self.password = "testpassword"
@@ -267,7 +266,6 @@ class TestProfilePageAbout(TestCase):
 class TestProfilePageReputationPage(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.client = Client()
         self.email = "success@simulator.amazonses.com"
         self.username = shortuuid.uuid()
         self.password = "testpassword"
@@ -296,7 +294,6 @@ class TestProfilePageReputationPage(TestCase):
 class TestProfilePageFriendPage(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.client = Client()
         self.email = "success@simulator.amazonses.com"
         self.username = shortuuid.uuid()
         self.password = "testpassword"

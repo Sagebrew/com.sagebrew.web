@@ -367,7 +367,6 @@ class TestSignupAPIView(TestCase):
         s.save()
         request.session = s
         res = signup_view_api(request)
-
         self.assertEqual(res.status_code, 200)
 
     def test_signup_view_api_failure_user_exists(self):

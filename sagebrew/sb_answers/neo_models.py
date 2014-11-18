@@ -1,15 +1,13 @@
 import pytz
-import logging
 from uuid import uuid1
-from json import dumps
 from datetime import datetime
 from django.conf import settings
 
-from neomodel import (StructuredNode, StringProperty, IntegerProperty,
-                      DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, CypherException)
+from neomodel import (StringProperty, RelationshipTo, BooleanProperty,
+                      CypherException)
 
-logger = logging.getLogger('loggly_logs')
+from sb_base.utils import defensive_exception
+
 
 
 from sb_base.neo_models import SBVersioned
@@ -42,10 +40,7 @@ class SBAnswer(SBVersioned):
             rel_to_pleb.save()
             self.save()
         except Exception as e:
-            logger.exception(dumps({"function":
-                                        SBAnswer.create_relations.__name__,
-                                    "exception": "Unhandled Exception"}))
-            return e
+            return defensive_exception(SBAnswer.create_relations.__name__, e, e)
 
     def edit_content(self, content, pleb):
         try:

@@ -1,11 +1,8 @@
-import logging
 from uuid import uuid1
-from json import dumps
 from neomodel import CypherException
 
+from sb_base.utils import defensive_exception
 from .neo_models import SBComment
-
-logger = logging.getLogger('loggly_logs')
 
 
 def save_comment(content, comment_uuid=None):
@@ -14,8 +11,7 @@ def save_comment(content, comment_uuid=None):
     comment
     to the post it was attached to and the user which posted it
     :param content="" the content of the comment
-    :param pleb="" email of the person submitting the comment
-    :param post_uuid = str(uuid) id of the post which the
+    :param comment_uuid = str(uuid) id of the post which the
     :return:
     '''
     if comment_uuid is None:
@@ -27,9 +23,8 @@ def save_comment(content, comment_uuid=None):
     except CypherException as e:
         return e
     except Exception as e:
-        logger.exception(dumps({"function": save_comment.__name__,
-                                "exception": "Unhandled Exception"}))
-        return e
+        return defensive_exception(save_comment.__name__, e, e)
+
 
 def comment_relations(pleb, comment, sb_object):
     try:
@@ -43,6 +38,4 @@ def comment_relations(pleb, comment, sb_object):
 
         return True
     except Exception as e:
-        logger.exception(dumps({"function": comment_relations.__name__,
-                                "exception": "Unhandled Exception:"}))
-        return e
+        return defensive_exception(comment_relations.__name__, e, e)

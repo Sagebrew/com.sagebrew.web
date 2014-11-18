@@ -30,6 +30,9 @@ dependencies:
         background: true
 
 test:
+  override:
+    - coverage run --source='.' manage.py test --failfast:
+        timeout: 300
   post:
     - coverage html
     - coveralls --rcfile=$CIRCLE_ARTIFACTS

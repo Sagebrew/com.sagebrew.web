@@ -1,23 +1,19 @@
 from uuid import uuid1
-from json import dumps
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from celery import shared_task
-from logging import getLogger
 from django.conf import settings
 from django.template.loader import get_template
 from django.template import Context
 from neomodel import DoesNotExist, CypherException
 
-from .neo_models import Pleb
 from api.utils import spawn_task
 from api.tasks import add_object_to_search_index
+from sb_base.utils import defensive_exception
 from sb_search.tasks import add_user_to_custom_index
 from sb_wall.neo_models import SBWall
 from sb_registration.models import token_gen
 
-
-logger = getLogger('loggly_logs')
-
+from .neo_models import Pleb
 
 @shared_task()
 def send_email_task(to, subject, html_content, text_content=None):
@@ -32,10 +28,9 @@ def send_email_task(to, subject, html_content, text_content=None):
         raise send_email_task.retry(exc=e, countdown=5,
                                     max_retries=None)
     except Exception as e:
-        logger.exception(dumps({"function": send_email_task.__name__,
-                                "exception": "Unhandled Exception"}))
-        raise send_email_task.retry(exc=e, countdown=3,
-                                    max_retries=None)
+        raise defensive_exception(send_email_task.__name__, e,
+                                  send_email_task.retry(exc=e, countdown=3,
+                                                        max_retries=None))
 
 
 @shared_task()
@@ -108,10 +103,9 @@ def create_wall_task(pleb, user):
         raise create_wall_task.retry(exc=e, countdown=3,
                                      max_retries=None)
     except Exception as e:
-        logger.exception(dumps({"function": create_wall_task.__name__,
-                                "exception": "Unhandled Exception"}))
-        raise create_wall_task.retry(exc=e, countdown=3,
-                                     max_retries=None)
+        raise defensive_exception(create_wall_task.__name__, e,
+                                  create_wall_task.retry(exc=e, countdown=3,
+                                                         max_retries=None))
 
 
 @shared_task()
@@ -134,7 +128,6 @@ def create_pleb_task(user_instance):
         raise create_pleb_task.retry(exc=e, countdown=3,
                                      max_retries=None)
     except Exception as e:
-        logger.exception(dumps({"function": create_pleb_task.__name__,
-                                "exception": "Unhandled Exception"}))
-        raise create_pleb_task.retry(exc=e, countdown=3,
-                                     max_retries=None)
+        raise defensive_exception(create_pleb_task.__name__, e,
+                                  create_pleb_task.retry(exc=e, countdown=3,
+                                                         max_retries=None))

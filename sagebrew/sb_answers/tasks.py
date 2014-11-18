@@ -1,16 +1,12 @@
-import logging
-from json import dumps
 from celery import shared_task
 
-from neomodel import DoesNotExist, CypherException
+from neomodel import CypherException
 
 from api.utils import spawn_task
 from api.tasks import add_object_to_search_index
-from .neo_models import SBAnswer
+from sb_base.utils import defensive_exception
 
 from .utils import (save_answer_util)
-
-logger = logging.getLogger('loggly_logs')
 
 
 @shared_task()
@@ -37,10 +33,10 @@ def add_answer_to_search_index(answer):
         raise add_answer_to_search_index.retry(exc=e, countdown=3,
                                                max_retries=None)
     except Exception as e:
-        logger.exception(dumps({"function": add_answer_to_search_index.__name__,
-                                "exception": "Unhandled Exception"}))
-        raise add_answer_to_search_index.retry(exc=e, countdown=3,
-                                               max_retries=None)
+        raise defensive_exception(add_answer_to_search_index.__name__, e,
+                                  add_answer_to_search_index.retry(
+                                      exc=e, countdown=3, max_retries=None))
+
 
 @shared_task()
 def save_answer_task(current_pleb, question_uuid, content):
@@ -69,8 +65,6 @@ def save_answer_task(current_pleb, question_uuid, content):
         return res
 
     except Exception as e:
-        logger.exception(dumps({"function": save_answer_task.__name__,
-                                "exception": "Unhandled Exception"}))
-        raise save_answer_task.retry(exc=e, countdown=5,
-                                     max_retries=None)
-
+        raise defensive_exception(save_answer_task.__name__, e,
+                                  save_answer_task.retry(exc=e, countdown=5,
+                                                         max_retries=None))

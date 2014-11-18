@@ -1,16 +1,15 @@
-import logging
-from json import dumps
 from django.template.loader import render_to_string
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-from .neo_models import NotificationBase
-from .forms import GetNotificationForm
+from sb_base.utils import defensive_exception
 from api.utils import execute_cypher_query
 
-logger = logging.getLogger('loggly_logs')
+from .neo_models import NotificationBase
+from .forms import GetNotificationForm
+
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
@@ -44,9 +43,9 @@ def get_notifications(request):
                 'with p, n ' \
                 'order by n.time_sent desc ' \
                 'with n skip %s limit %s return n' % (
-            notification_form.cleaned_data['email'],
-            str(notification_form.cleaned_data['range_start']),
-            str(notification_form.cleaned_data['range_end']))
+                notification_form.cleaned_data['email'],
+                str(notification_form.cleaned_data['range_start']),
+                str(notification_form.cleaned_data['range_end']))
 
             notifications, meta = execute_cypher_query(query)
             notifications = [NotificationBase.inflate(row[0]) for row in notifications]
@@ -57,14 +56,13 @@ def get_notifications(request):
                         'from_user': from_user.first_name+' '+from_user.last_name}
                 notification_array.append(notification_dict)
                 notification_dict = {}
-            html  = render_to_string('notifications.html', notification_array)
+            html = render_to_string('notifications.html', notification_array)
             return Response({'html': html}, status=200)
         else:
             return Response(status=400)
-    except Exception:
-        logger.exception(dumps({"function": get_notifications.__name__,
-                                "exception": "Unhandled Exception"}))
-        return Response(status=400)
+    except Exception as e:
+        return defensive_exception(get_notifications.__name__, e,
+                                   Response(status=400))
 
 
 

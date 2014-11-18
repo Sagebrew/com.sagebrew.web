@@ -1,10 +1,10 @@
 import logging
 from uuid import uuid1
-from json import dumps
 
 from neomodel import DoesNotExist, CypherException
 
 from .neo_models import NotificationBase
+from sb_base.utils import defensive_exception
 
 logger = logging.getLogger('loggly_logs')
 
@@ -52,7 +52,5 @@ def create_notification_util(sb_object, from_pleb, to_plebs,
     except CypherException as e:
         return e
     except Exception as e:
-        logger.exception(dumps({"function": create_notification_util.__name__,
-                                "exception": "Unhandled Exception"}))
-        return e
+        return defensive_exception(create_notification_util.__name__, e, e)
 

@@ -15,6 +15,7 @@ from .forms import (SubmitFriendRequestForm, GetFriendRequestForm,
 from .neo_models import FriendRequest
 from .tasks import create_friend_request_task
 from plebs.neo_models import Pleb
+from sb_base.utils import defensive_exception
 
 logger = logging.getLogger('loggly_logs')
 
@@ -58,10 +59,9 @@ def create_friend_request(request):
 
     except(HTTPError, ConnectionError):
         return Response({"action": False}, status=408)
-    except Exception:
-        logger.exception(dumps({"function": create_friend_request.__name__,
-                                "exception": "Unhandled Exception"}))
-        return Response(status=400)
+    except Exception as e:
+        return defensive_exception(create_friend_request.__name__, e,
+                                   Response(status=400))
 
 
 @api_view(['POST'])
@@ -109,11 +109,9 @@ def get_friend_requests(request):
         else:
             return Response({"detail": "invalid form"}, status=400)
 
-    except Exception:
-        logger.exception(dumps({"function": get_friend_requests.__name__,
-                                "exception": "Unhandled Exception"}))
-        return Response(status=400)
-
+    except Exception as e:
+        return defensive_exception(get_friend_requests.__name__, e,
+                                   Response(status=400))
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
@@ -162,13 +160,8 @@ def respond_friend_request(request):
                 return Response(status=200)
         else:
             return Response({"detail": "invalid form"}, status=400)
-    except TypeError:
-            return Response({'detail': 'type error'}, status=400)
-    except AttributeError:
-            return Response({'detail': 'attribute error'}, status=400)
-    except IndexError:
-        return Response(status=400)
-    except Exception:
-        logger.exception(dumps({"function": respond_friend_request.__name__,
-                                "exception": "Unhandled Exception"}))
-        return Response(status=400)
+    except (TypeError, AttributeError, IndexError):
+            return Response(status=400)
+    except Exception as e:
+        return defensive_exception(respond_friend_request.__name__, e,
+                                   Response(status=400))

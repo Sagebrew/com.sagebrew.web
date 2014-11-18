@@ -8,6 +8,7 @@ from api.utils import execute_cypher_query, spawn_task
 from sb_base.tasks import create_object_relations_task
 from plebs.neo_models import Pleb
 from .neo_models import SBPost
+from sb_base.utils import defensive_exception
 
 logger = logging.getLogger('loggly_logs')
 
@@ -39,9 +40,7 @@ def get_pleb_posts(pleb_object, range_end, range_start=0):
     except IndexError as e:
         return e
     except Exception as e:
-        logger.exception(dumps({"function": get_pleb_posts.__name__,
-                                "exception": "Unhandled Exception"}))
-        return e
+        return defensive_exception(get_pleb_posts.__name__, e, e)
 
 
 def save_post(current_pleb, wall_pleb, content, post_uuid=None):
@@ -80,7 +79,5 @@ def save_post(current_pleb, wall_pleb, content, post_uuid=None):
     except (ValueError, IndexError) as e:
         return e
     except Exception as e:
-        logger.exception(dumps({"function": save_post.__name__,
-                                "exception": "Unhandled Exception"}))
-        return e
+        return defensive_exception(save_post.__name__, e, e)
 

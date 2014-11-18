@@ -1,15 +1,11 @@
 import logging
-from json import dumps
 from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-from neomodel import DoesNotExist
-
 from .forms import DeleteObjectForm
 from .tasks import delete_object_task
-from plebs.neo_models import Pleb
 from api.utils import spawn_task
 from api.tasks import get_pleb_task
 from sb_base.utils import defensive_exception

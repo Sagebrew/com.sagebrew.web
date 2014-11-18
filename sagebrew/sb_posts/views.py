@@ -1,9 +1,7 @@
 import logging
 from uuid import uuid1
-from json import dumps
 from urllib2 import HTTPError
 from requests import ConnectionError
-from django.template.loader import render_to_string
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response

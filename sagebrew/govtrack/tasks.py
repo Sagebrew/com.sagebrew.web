@@ -7,6 +7,7 @@ from datetime import datetime
 from .utils import create_gt_role
 from govtrack.neo_models import (GTPerson, GTCommittee,
                                  GT_RCVotes, GTVoteOption, GTCongressNumbers)
+from sb_base.utils import defensive_exception
 
 logger = getLogger('loggly_logs')
 
@@ -38,11 +39,11 @@ def populate_gt_role(requesturl):
                 my_role.congress_numbers.connect(item)
             congress_number_object = []
         return True
-    except Exception:
-        logger.exception(dumps({"function": populate_gt_role.__name__,
-                                "exception": "Unhandled Exception"}))
-        raise populate_gt_role.retry(exc=Exception, countdown=3,
-                                     max_retries=None)
+    except Exception as e:
+        raise defensive_exception(populate_gt_role.__name__, e,
+                                  populate_gt_role.retry(
+                                      exc=e, countdown=3,
+                                     max_retries=None))
 
 
 @shared_task()
@@ -70,11 +71,11 @@ def populate_gt_person(requesturl):
                 my_person = GTPerson(**person)
                 my_person.save()
         return True
-    except Exception:
-        logger.exception(dumps({"function": populate_gt_person.__name__,
-                                "exception": "Unhandled Exception"}))
-        raise populate_gt_person.retry(exc=Exception, countdown=3,
-                                     max_retries=None)
+    except Exception as e:
+        raise defensive_exception(populate_gt_person.__name__,e,
+                                  populate_gt_person.retry(
+                                      exc=e, countdown=3,
+                                     max_retries=None))
 
 @shared_task()
 def populate_gt_committee(requesturl):
@@ -100,11 +101,11 @@ def populate_gt_committee(requesturl):
                 my_committee = GTCommittee(**committee)
                 my_committee.save()
         return True
-    except Exception:
-        logger.exception(dumps({"function": populate_gt_committee.__name__,
-                                "exception": "Unhandled Exception"}))
-        raise populate_gt_committee.retry(exc=Exception, countdown=3,
-                                     max_retries=None)
+    except Exception as e:
+        raise defensive_exception(populate_gt_committee.__name__, e,
+                                  populate_gt_committee.retry(
+                                      exc=e, countdown=3,
+                                     max_retries=None))
 
 
 @shared_task()
@@ -147,9 +148,8 @@ def populate_gt_votes(requesturl):
                     my_vote.option.connect(item)
                 my_votes = []
         return True
-    except Exception:
-        logger.exception(dumps({"function": populate_gt_committee.__name__,
-                                "exception": "Unhandled Exception"}))
-        raise populate_gt_committee.retry(exc=Exception, countdown=3,
-                                     max_retries=None)
+    except Exception as e:
+        raise defensive_exception(populate_gt_votes.__name__, e,
+                                  populate_gt_votes.retry(exc=e, countdown=3,
+                                     max_retries=None))
 

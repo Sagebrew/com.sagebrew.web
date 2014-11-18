@@ -17,6 +17,7 @@ from neomodel import DoesNotExist, CypherException
 from api.utils import spawn_task
 from plebs.tasks import create_pleb_task
 from plebs.neo_models import Pleb
+from sb_base.utils import defensive_exception
 
 logger = logging.getLogger('loggly_logs')
 
@@ -318,10 +319,9 @@ def verify_verified_email(user):
         return pleb.email_verified
     except (Pleb.DoesNotExist, DoesNotExist):
         return False
-    except CypherException:
-        logger.exception(dumps({"exception": "cypher exception",
-                         "function": "verify_verified_email"}))
-        return False
+    except CypherException as e:
+        return defensive_exception(verify_verified_email.__name__, e,
+                                   False)
 
 
 def sb_send_email(to_email, subject, html_content):
@@ -348,9 +348,7 @@ def sb_send_email(to_email, subject, html_content):
     except SESMaxSendingRateExceededError as e:
         return e
     except Exception as e:
-        logger.exception(json.dumps({"function": sb_send_email.__name__,
-                                     "exception": "Unhandled Exception"}))
-        return e
+        return defensive_exception(sb_send_email.__name__, e, e)
 
 
 def create_user_util(first_name, last_name, email, password, username=None):

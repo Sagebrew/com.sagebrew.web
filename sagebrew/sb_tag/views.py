@@ -9,6 +9,8 @@ from rest_framework.decorators import (api_view, permission_classes)
 
 from elasticsearch import Elasticsearch, helpers
 
+from sb_base.utils import defensive_exception
+
 logger = logging.getLogger('loggly_logs')
 
 
@@ -32,8 +34,7 @@ def get_tag_view(request):
         return Response({'tags': tag_list}, status=200)
     except (HTTPError, ConnectionError):
         return Response({'detail': 'connection error'}, status=400)
-    except Exception:
-        logger.exception(dumps({"exception": 'Unhandled Exception',
-                                "function": get_tag_view.__name__}))
-        return Response({'tags': []}, status=400)
+    except Exception as e:
+        return defensive_exception(get_tag_view.__name__, e, Response(
+            {'tags': []}, status=400))
 

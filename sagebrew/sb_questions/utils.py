@@ -1,18 +1,15 @@
 import logging
-import traceback
 from uuid import uuid1
 from json import dumps
 from textblob import TextBlob
 
 from neomodel import DoesNotExist, CypherException
-from django.conf import settings
-from django.template.loader import render_to_string
 
 from api.utils import execute_cypher_query, spawn_task
 from sb_base.tasks import create_object_relations_task
 from plebs.neo_models import Pleb
-from sb_answers.neo_models import SBAnswer
 from .neo_models import SBQuestion
+from sb_base.utils import defensive_exception
 
 logger = logging.getLogger('loggly_logs')
 
@@ -53,9 +50,7 @@ def create_question_util(content, current_pleb, question_title,
     except CypherException as e:
         return e
     except Exception as e:
-        logger.exception(dumps({"function": create_question_util.__name__,
-                                'exception': "Unhandled Exception"}))
-        return e
+        return defensive_exception(create_question_util.__name__, e, e)
 
 
 def get_question_by_uuid(question_uuid, current_pleb):
@@ -77,10 +72,9 @@ def get_question_by_uuid(question_uuid, current_pleb):
         return {"detail": "There are no questions with that ID"}
     except CypherException:
         return {"detail": "A CypherException was thrown"}
-    except Exception:
-        logger.exception(dumps({"function": get_question_by_uuid.__name__,
-                                "exception": "Unhandled Exception"}))
-        return {"detail": "Failure"}
+    except Exception as e:
+        return defensive_exception(get_question_by_uuid.__name__, e,
+                                   {"detail": "Failure"})
 
 
 def get_question_by_most_recent(current_pleb, range_start=0, range_end=5):
@@ -104,10 +98,9 @@ def get_question_by_most_recent(current_pleb, range_start=0, range_end=5):
         questions, meta = execute_cypher_query(query)
         questions = [SBQuestion.inflate(row[0]) for row in questions]
         return questions
-    except Exception:
-        logger.exception(dumps({"function": get_question_by_most_recent.__name__,
-                                "exception": "Unhandled Exception"}))
-        return {"detail": "fail"}
+    except Exception as e:
+        return defensive_exception(get_question_by_most_recent.__name__, e,
+                                   {"detail": "fail"})
 
 
 def get_question_by_least_recent(current_pleb, range_start=0, range_end=5):
@@ -132,10 +125,8 @@ def get_question_by_least_recent(current_pleb, range_start=0, range_end=5):
         questions = [SBQuestion.inflate(row[0]) for row in questions]
         return questions
     except Exception:
-        logger.exception(dumps(
-            {"function": get_question_by_least_recent.__name__,
-             "exception": "Unhandled Exception"}))
-        return {"detail": "fail"}
+        return defensive_exception(get_question_by_least_recent.__name__, e,
+                                   {"detail": "fail"})
 
 def prepare_question_search_html(question_uuid):
     try:
@@ -148,8 +139,6 @@ def prepare_question_search_html(question_uuid):
 
     except IndexError:
         return False
-    except Exception:
-        logger.exception(dumps(
-            {"function": prepare_question_search_html.__name__,
-             "exception": "Unhandled Exception"}))
-        return False
+    except Exception as e:
+        return defensive_exception(prepare_question_search_html.__name__, e,
+                                   False)

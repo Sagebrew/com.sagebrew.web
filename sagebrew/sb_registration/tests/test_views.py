@@ -333,7 +333,7 @@ class TestSignupView(TestCase):
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email, username="test_signup")
+        self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
         self.pleb.save()
 

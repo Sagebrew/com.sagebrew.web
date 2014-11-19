@@ -341,7 +341,7 @@ class TestSignupView(TestCase):
         self.client.logout()
         response = self.client.get(reverse('signup'), follow=True)
 
-        self.assertIn(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_logged_in_user(self):
         self.client.login(username=self.user.username, password='testpass')
@@ -786,7 +786,7 @@ class TestAgeRestrictionView(TestCase):
         self.client.logout()
         response = self.client.get(reverse('age_restriction_13'), follow=True)
 
-        self.assertIn(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_logged_in_user(self):
         self.client.login(username=self.user.username, password='testpass')

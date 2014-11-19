@@ -7,6 +7,7 @@ from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import TransportError
 
 from api.utils import spawn_task
+from sb_base.utils import defensive_exception
 
 logger = logging.getLogger('loggly_logs')
 
@@ -112,20 +113,6 @@ def process_search_result(item):
                            "type": "pleb",
                            "temp_score": item['_score']*item['_source']['sb_score'],
                            "score": item['_score']}
-    except Exception:
-        logger.exception(dumps({"function": process_search_result.__name__,
-                                "exception": "Unhandled Exception"}))
-        return {}
-
-# TODO can we pass the actual object or the string of the object, get it
-# and store the modifier in the object itself as a variable rather than
-# in a dict in settings? That way when we add additional objects that
-# create modifiers to the weight we just store the value in say
-# search_weight_modifier on the object and when passed here it knows what to do
-# with it
-# Flagging seems to be the only one with multiple options but maybe we could
-# turn it into a function that takes some attributes associated with the model
-# such as get_search_modifier_weight(*args) where we can pass it a reason or
-# nothing and it determines what to do with it.
-# Primary goal is to not have to modify this function every time we have a new
-# search object.
+    except Exception as e:
+        return defensive_exception(process_search_result.__name__, e,
+                                   {})

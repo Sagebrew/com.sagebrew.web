@@ -54,4 +54,4 @@ class TestFlagObjectTask(TestCase):
         while not res.ready():
             time.sleep(1)
 
-        self.assertIsInstance(res.result, Exception)
+        self.assertFalse(res.result)

@@ -29,6 +29,8 @@ def save_comment_on_object(content, current_pleb, object_uuid, object_type):
         if isinstance(sb_object, Exception) is True:
             raise save_comment_on_object.retry(exc=sb_object, countdown=5,
                                                max_retries=None)
+        elif sb_object is False:
+            return sb_object
 
         my_comment = save_comment(content)
 

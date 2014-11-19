@@ -20,6 +20,8 @@ def vote_object_task(vote_type, current_pleb, object_type, object_uuid):
     if isinstance(sb_object, Exception) is True:
         raise vote_object_task.retry(exc=sb_object, countdown=3,
                                      max_retries=None)
+    elif sb_object is False:
+        return sb_object
 
     res = sb_object.vote_content(vote_type, current_pleb)
 

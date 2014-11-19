@@ -1,10 +1,7 @@
-import logging
-from json import dumps
 from celery import shared_task
 
 from .utils import create_friend_request_util
-
-logger = logging.getLogger("loggly_logs")
+from sb_base.utils import defensive_exception
 
 
 @shared_task()
@@ -16,7 +13,8 @@ def create_friend_request_task(data):
                                                     max_retries=None)
         return res
     except Exception as e:
-        logger.exception(dumps({"function": create_friend_request_task.__name__,
-                                "exception": "Unhandled Exception"}))
-        raise create_friend_request_task.retry(exc=e, countdown=3,
-                                               max_retries=None)
+        raise defensive_exception(create_friend_request_task.__name__,
+                                  e,
+                                  create_friend_request_task.retry(exc=e,
+                                                                   countdown=3,
+                                                            max_retries=None))

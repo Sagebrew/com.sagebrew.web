@@ -46,19 +46,6 @@ class TestEditObjectView(TestCase):
 
         self.assertEqual(res.status_code, 400)
 
-    def test_edit_view_pleb_does_not_exist(self):
-        test_data = {'content': 'test contentasdfas',
-                     'current_pleb': 'fakeemail@fake.com',
-                     'object_type': '01bb301a-644f-11e4-9ad9-080027242395',
-                     'object_uuid': str(uuid1())}
-        request = self.factory.post('/edit/edit_object_content_api/',
-                                    data=test_data,
-                                    format='json')
-        request.user = self.user
-        res = edit_object_view(request)
-
-        self.assertEqual(res.status_code, 401)
-
     def test_edit_view_invalid_data_type(self):
         test_data = 123123123
         request = self.factory.post('/edit/edit_object_content_api/',
@@ -108,21 +95,6 @@ class TestEditQuestionTitleView(TestCase):
         res = edit_question_title_view(request)
 
         self.assertEqual(res.status_code, 400)
-
-    def test_edit_question_title_pleb_does_not_exist(self):
-        data = {
-            'question_title': 'testquestiontitleedit',
-            'current_pleb': 'fakeemail@fake.com',
-            'object_type': '0274a216-644f-11e4-9ad9-080027242395',
-            'object_uuid': str(uuid1())
-        }
-        request = self.factory.post('/edit/edit_question_title_api/',
-                                    data=data,
-                                    format='json')
-        request.user = self.user
-        res = edit_question_title_view(request)
-
-        self.assertEqual(res.status_code, 401)
 
     def test_edit_question_title_invalid_data_type(self):
         data = 1231243151

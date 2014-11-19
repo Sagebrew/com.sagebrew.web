@@ -13,6 +13,7 @@ from .utils import (update_search_index_doc)
 from api.utils import spawn_task, get_object
 from plebs.neo_models import Pleb
 from sb_questions.neo_models import SBQuestion
+from sb_base.utils import defensive_exception
 
 logger = logging.getLogger('loggly_logs')
 
@@ -84,19 +85,14 @@ def update_weight_relationship(document_id, index, object_type,
             update_dict['update_value'] = rel.weight
             update_search_index_doc(**update_dict)
             return True
-
-    except SBQuestion.DoesNotExist as e:
-        raise update_weight_relationship.retry(exc=e,
-                                               countdown=3, max_retries=None)
     except CypherException as e:
         raise update_weight_relationship.retry(exc=e, countdown=3,
                                                max_retries=None)
     except Exception as e:
-        logger.exception(dumps(
-            {"exception": "Unhandled Exception",
-             "function": update_weight_relationship.__name__}))
-        raise update_weight_relationship.retry(exc=e, countdown=3,
-                                               max_retries=None)
+        raise defensive_exception(update_weight_relationship.__name__, e,
+                                  update_weight_relationship.retry(exc=e,
+                                                                   countdown=3,
+                                                             max_retries=None))
 
 
 @shared_task()
@@ -140,11 +136,10 @@ def add_user_to_custom_index(pleb, index="full-search-user-specific-1"):
         pleb.save()
         return True
     except Exception as e:
-        logger.critical(dumps({"exception": "Unhandled Exception",
-                               "function": add_user_to_custom_index.__name__}))
-        logger.exception("Unhandled Exception")
-        raise add_user_to_custom_index.retry(exc=e, countdown=3,
-                                             max_retries=None)
+        raise defensive_exception(add_user_to_custom_index.__name__, e,
+                                  add_user_to_custom_index.retry(exc=e,
+                                                                 countdown=3,
+                                                            max_retries=None))
 
 
 
@@ -211,9 +206,9 @@ def update_search_query(pleb, query_param, keywords):
             spawn_task(task_func=create_keyword, task_param=keyword)
         return True
     except Exception as e:
-        logger.exception(dumps({"function": update_search_query.__name__,
-                                "exception": "Unhandled Exception"}))
-        raise update_search_query.retry(exc=e, countdown=3, max_retries=None)
+        raise defensive_exception(update_search_query.__name__, e,
+                                  update_search_query.retry(exc=e, countdown=3,
+                                                            max_retries=None))
 
 
 @shared_task()
@@ -252,8 +247,6 @@ def create_keyword(text, relevance, query_param):
     except CypherException as e:
         raise create_keyword.retry(exc=e, countdown=3, max_retries=None)
     except Exception as e:
-        logger.exception(dumps({"function": create_keyword.__name__,
-                                "exception": "Unhandled Exception"}))
-        raise create_keyword.retry(exc=e, countdown=3,
-                                   max_retries=None)
-
+        raise defensive_exception(create_keyword.__name__, e,
+                                  create_keyword.retry(exc=e, countdown=3,
+                                   max_retries=None))

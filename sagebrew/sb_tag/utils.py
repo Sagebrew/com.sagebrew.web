@@ -6,6 +6,7 @@ from neomodel.exception import UniqueProperty, DoesNotExist, CypherException
 
 from .neo_models import SBAutoTag, SBTag
 from sb_questions.neo_models import SBQuestion
+from sb_base.utils import defensive_exception
 
 logger = logging.getLogger('loggly_logs')
 
@@ -36,9 +37,7 @@ def create_tag_relations_util(tags):
         return True
 
     except Exception as e:
-        logger.exception(dumps({"function": create_tag_relations_util.__name__,
-                                "exception": "Unhandled Exception"}))
-        return e
+        return defensive_exception(create_tag_relations_util, e, e)
 
 
 def add_auto_tags_util(tag_list):
@@ -83,9 +82,7 @@ def add_auto_tags_util(tag_list):
             except (KeyError, IndexError) as e:
                 return e
             except Exception as e:
-                logger.exception(dumps({'function': add_auto_tags_util.__name__,
-                                  'exception': "Unhandled Exception"}))
-                return e
+                return defensive_exception(add_auto_tags_util.__name__, e, e)
         else:
             return False
 
@@ -134,8 +131,6 @@ def add_tag_util(object_type, object_uuid, tags):
             return e
 
         except Exception as e:
-            logger.exception(dumps({"function": add_tag_util.__name__,
-                                    "exception": "Unhandled Exception"}))
-            return e
+            return defensive_exception(add_tag_util.__name__, e, e)
     else:
         return False

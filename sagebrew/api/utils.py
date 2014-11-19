@@ -151,7 +151,7 @@ def execute_cypher_query(query):
     try:
         return db.cypher_query(query)
     except CypherException:
-        return {'detail': 'CypherException'}
+        return False
 
 
 def wait_util(async_res):
@@ -187,7 +187,11 @@ def get_object(object_type, object_uuid):
             return sb_object.nodes.get(sb_id=object_uuid)
         except (sb_object.DoesNotExist, DoesNotExist) as e:
             return TypeError("%s.DoesNotExist" % object_type)
-    except (CypherException, NameError, ValueError) as e:
+    except (CypherException) as e:
+            return TypeError("%s.DoesNotExist"%object_type)
+    except (NameError, ValueError):
+        return False
+    except CypherException as e:
         return e
     except Exception as e:
         return defensive_exception(get_object.__name__, e, e)

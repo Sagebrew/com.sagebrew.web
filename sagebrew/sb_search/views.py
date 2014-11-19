@@ -20,6 +20,7 @@ from .forms import SearchForm, SearchFormApi
 from api.alchemyapi import AlchemyAPI
 from api.utils import (spawn_task)
 from plebs.neo_models import Pleb
+from sb_base.utils import defensive_exception
 from plebs.utils import prepare_user_search_html
 from sb_search.tasks import update_weight_relationship
 from sb_questions.utils import prepare_question_search_html
@@ -181,9 +182,8 @@ def search_result_api(request, query_param="", display_num=10, page=1,
             except EmptyPage:
                 next_page_num = ""
             return Response({'html': results, 'next': next_page_num}, status=200)
-        except Exception:
-            logger.exception(dumps({"function": search_result_api.__name__,
-                                    "exception": "Unhandled Exception"}))
-            return Response({'detail': 'fail'}, status=400)
+        except Exception as e:
+            return defensive_exception(search_result_api.__name__, e,
+                                       Response({'detail':'fail'}, status=400))
     else:
         return Response({'detail': 'invalid form'}, status=400)

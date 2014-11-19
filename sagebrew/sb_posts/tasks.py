@@ -6,8 +6,8 @@ from logging import getLogger
 from sb_notifications.tasks import spawn_notifications
 from api.utils import spawn_task
 from plebs.neo_models import Pleb
-from sb_base.tasks import create_object_relations_task
 from .utils import (save_post)
+from sb_base.utils import defensive_exception
 
 logger = getLogger('loggly_logs')
 
@@ -36,9 +36,6 @@ def save_post_task(content, current_pleb, wall_pleb, post_uuid=None):
             return False
 
         else:
-            # TODO maybe we should pass the entire
-            # pleb rather than just the email, since just do another query in
-            # the util anyways and will need to do one for the notification
             current_pleb = Pleb.nodes.get(email=current_pleb)
             wall_pleb = Pleb.nodes.get(email=wall_pleb)
             notification_data={'sb_object': my_post,
@@ -48,7 +45,6 @@ def save_post_task(content, current_pleb, wall_pleb, post_uuid=None):
                        task_param=notification_data)
             return True
     except Exception as e:
-        logger.exception(dumps({"function": save_post_task.__name__,
-                                "exception": "Unhandled Exception"}))
-        raise save_post_task.retry(exc=e, countdown=3, max_retries=None)
-
+        raise defensive_exception(save_post_task.__name__, e,
+                                  save_post_task.retry(exc=e, countdown=3,
+                                                       max_retries=None))

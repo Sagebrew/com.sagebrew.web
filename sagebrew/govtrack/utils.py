@@ -3,6 +3,7 @@ from logging import getLogger
 from datetime import datetime
 
 from govtrack.neo_models import (GTPerson, GTRole)
+from sb_base.utils import defensive_exception
 
 logger = getLogger('loggly_logs')
 
@@ -27,10 +28,9 @@ def create_gt_role(rep):
             my_role.person.connect(my_person)
 
         return my_role
-    except Exception:
-        logger.exception(dumps({"function": create_gt_role.__name__,
-                                "exception": "Unhandled Exception"}))
-        return False
+    except Exception as e:
+        return defensive_exception(create_gt_role.__name__, e,
+                                   False)
 
 
 def create_gt_person(gt_person):
@@ -46,7 +46,5 @@ def create_gt_person(gt_person):
             my_person.save()
 
         return my_person
-    except Exception:
-        logger.exception(dumps({"function": create_gt_person.__name__,
-                                "exception": "Unhandled Exception"}))
-        return False
+    except Exception as e:
+        return defensive_exception(create_gt_person.__name__, e, False)

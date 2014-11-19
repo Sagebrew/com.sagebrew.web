@@ -9,6 +9,7 @@ from api.tasks import add_object_to_search_index
 from sb_tag.tasks import add_auto_tags, add_tags
 from .neo_models import SBQuestion
 from .utils import create_question_util
+from sb_base.utils import defensive_exception
 
 logger = logging.getLogger('loggly_logs')
 
@@ -47,13 +48,9 @@ def add_question_to_indices_task(question, tags):
         raise add_question_to_indices_task.retry(exc=e, countdown=3,
                                                  max_retries=None)
     except Exception as e:
-        logger.exception(dumps(
-            {
-                "function": add_question_to_indices_task.__name__,
-                "exception": "Unhandled Exception"
-            }))
-        raise add_question_to_indices_task.retry(exc=e, countdown=3,
-                                                 max_retries=None)
+        raise defensive_exception(add_tags_to_question_task.__name__, e,
+                                  add_question_to_indices_task.retry(
+                                      exc=e, countdown=3,max_retries=None))
 
 
 @shared_task()
@@ -98,10 +95,10 @@ def add_tags_to_question_task(question, tags):
         raise add_tags_to_question_task.retry(exc=e, countdown=3,
                                               max_retries=None)
     except Exception as e:
-        logger.exception(dumps({"function": add_tags_to_question_task.__name__,
-                                "exception": "Unhandled Exception"}))
-        raise add_tags_to_question_task.retry(exc=e, countdown=3,
-                                              max_retries=None)
+        raise defensive_exception(add_tags_to_question_task.__name__, e,
+                                  add_tags_to_question_task.retry(exc=e,
+                                                                  countdown=3,
+                                                            max_retries=None))
 
 
 @shared_task()
@@ -147,7 +144,8 @@ def create_question_task(content, current_pleb, question_title,
     except CypherException as e:
         raise create_question_task.retry(exc=e, countdown=3, max_retries=None)
     except Exception as e:
-        logger.exception(dumps({'function': create_question_task.__name__,
-                                'exception': "Unhandled Exception"}))
-        raise create_question_task.retry(exc=e, countdown=5, max_retries=None)
+        raise defensive_exception(create_question_task.__name__, e,
+                                  create_question_task.retry(exc=e,
+                                                             countdown=5,
+                                                             max_retries=None))
 

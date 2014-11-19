@@ -16,6 +16,7 @@ from .utils import (get_question_by_most_recent, get_question_by_uuid,
                     get_question_by_least_recent, prepare_question_search_html)
 from .tasks import (create_question_task)
 from .forms import (SaveQuestionForm)
+from sb_base.utils import defensive_exception
 
 
 logger = logging.getLogger('loggly_logs')
@@ -203,10 +204,9 @@ def get_question_view(request):
             response = {"detail": "fail"}
             return Response(response, status=400)
 
-    except Exception:
-        logger.exception(dumps({'function': get_question_view.__name__,
-                                'exception': 'Unhandled Exception'}))
-        return Response({'detail': 'fail'}, status=400)
+    except Exception as e:
+        return defensive_exception(get_question_view.__name__, e,
+                                   Response(status=400))
 
 
 @api_view(['GET'])
@@ -224,7 +224,6 @@ def get_question_search_view(request, question_uuid=str(uuid1())):
     try:
         response = prepare_question_search_html(question_uuid)
         return Response({'html': response}, status=200)
-    except Exception:
-        logger.exception(dumps({"function": get_question_search_view.__name__,
-                                "exception": "Unhandled Exception"}))
-        return Response({'html': []}, status=400)
+    except Exception as e:
+        return defensive_exception(get_question_search_view.__name__, e,
+                                   Response({'html': []},status=400))

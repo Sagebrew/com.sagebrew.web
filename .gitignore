@@ -1,3 +1,4 @@
+dockerfiles/sys_util/Dockerfile
 dockerfiles/web_app/Dockerfile
 dockerfiles/worker/Dockerfile
 kepric_core

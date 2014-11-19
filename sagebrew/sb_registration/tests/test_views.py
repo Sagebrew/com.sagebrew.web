@@ -339,13 +339,13 @@ class TestSignupView(TestCase):
 
     def test_anon_user(self):
         self.client.logout()
-        response = self.client.get(reverse('signup'), follow=True)
+        response = self.client.get(reverse('signup'))
 
         self.assertEqual(response.status_code, 200)
 
     def test_logged_in_user(self):
         self.client.login(username=self.user.username, password='testpass')
-        response = self.client.get(reverse('signup'), follow=True)
+        response = self.client.get(reverse('signup'))
 
         self.assertEqual(response.status_code, 200)
         self.client.logout()
@@ -762,7 +762,7 @@ class TestConfirmView(TestCase):
         self.client.logout()
         response = self.client.get(reverse('confirm_view'))
         print response.status_code
-        self.assertIn(response.status_code, [401, 403])
+        self.assertIn(response.status_code, 302)
 
     def test_logged_in_user(self):
         self.client.login(username=self.user.username, password='testpass')

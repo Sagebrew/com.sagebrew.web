@@ -8,7 +8,6 @@ from .views import (profile_information, interests, profile_picture,
 
 urlpatterns = patterns(
     'sb_registration.views',
-    url(r'^$', signup_view, name="signup"),
     url(r'^signup/$', signup_view_api, name="signup_api"),
     url(r'^signup/confirm/$', confirm_view, name="confirm_view"),
     url(r'^login/api/$', login_view_api, name="login_api"),

@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.views.generic.base import TemplateView, RedirectView
 from django.conf.urls import patterns, url
 
-from sb_registration.views import login_view, logout_view
+from sb_registration.views import login_view, logout_view, signup_view
 
 urlpatterns = patterns(
     '',
@@ -33,6 +33,7 @@ urlpatterns = patterns(
     (r'^vote/', include('sb_votes.urls')),
     (r'^edit/', include('sb_edits.urls')),
     (r'^delete/', include('sb_deletes.urls')),
+    url(r'^$', signup_view, name="signup"),
 )
 
 if settings.DEBUG is True:

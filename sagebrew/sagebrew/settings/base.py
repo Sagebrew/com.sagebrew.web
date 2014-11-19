@@ -276,7 +276,8 @@ BASE_TAGS = ["fiscal", "foreign_policy", "social", "education", "science",
 KNOWN_TYPES = [
     ("01bb301a-644f-11e4-9ad9-080027242395", "sb_posts.neo_models.SBPost"),
     ("02241aee-644f-11e4-9ad9-080027242395", "sb_answers.neo_models.SBAnswer"),
-    ("0274a216-644f-11e4-9ad9-080027242395", "sb_questions.neo_models.SBQuestion"),
+    ("0274a216-644f-11e4-9ad9-080027242395",
+     "sb_questions.neo_models.SBQuestion"),
     ("02ba1c88-644f-11e4-9ad9-080027242395", "sb_comments.neo_models.SBComment")
 ]
 

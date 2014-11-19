@@ -185,10 +185,8 @@ def get_object(object_type, object_uuid):
         sb_object = getattr(sb_module, class_name)
         try:
             return sb_object.nodes.get(sb_id=object_uuid)
-        except (sb_object.DoesNotExist, DoesNotExist) as e:
+        except (sb_object.DoesNotExist, DoesNotExist):
             return TypeError("%s.DoesNotExist" % object_type)
-    except (CypherException) as e:
-            return TypeError("%s.DoesNotExist"%object_type)
     except (NameError, ValueError):
         return False
     except CypherException as e:

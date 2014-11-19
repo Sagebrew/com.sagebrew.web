@@ -1,6 +1,4 @@
 import pytz
-import logging
-from json import dumps
 from datetime import datetime
 from api.utils import execute_cypher_query
 from django.conf import settings
@@ -8,14 +6,12 @@ from django.template import Context
 from django.template.loader import render_to_string, get_template
 
 from neomodel import (StringProperty, IntegerProperty,
-                      RelationshipTo, db,
-                      BooleanProperty, FloatProperty, CypherException)
+                      RelationshipTo,  BooleanProperty, FloatProperty,
+                      CypherException)
 
 from sb_base.neo_models import SBVersioned
+from sb_base.utils import defensive_exception
 from sb_tag.neo_models import TagRelevanceModel
-
-
-logger = logging.getLogger("loggly_logs")
 
 
 class SBQuestion(SBVersioned):
@@ -54,10 +50,8 @@ class SBQuestion(SBVersioned):
             rel_from_pleb = pleb.questions.connect(self)
             rel_from_pleb.save()
         except Exception as e:
-            logger.exception(dumps({"function":
-                                        SBQuestion.create_relations.__name__,
-                                    "exception": "Unhandled Exception"}))
-            return e
+            return defensive_exception(SBQuestion.create_relations.__name__, e,
+                                       e)
 
     def edit_content(self, pleb, content):
         from sb_questions.utils import create_question_util
@@ -78,10 +72,7 @@ class SBQuestion(SBVersioned):
         except (CypherException, AttributeError) as e:
             return e
         except Exception as e:
-            logger.exception(dumps({"function":
-                                        SBQuestion.edit_content.__name__,
-                                    "exception": "Unhandled Exception"}))
-            return e
+            return defensive_exception(SBQuestion.edit_content.__name__, e, e)
 
     def edit_title(self, pleb, title):
         from sb_questions.utils import create_question_util
@@ -101,9 +92,7 @@ class SBQuestion(SBVersioned):
         except CypherException as e:
             return e
         except Exception as e:
-            logger.exception(dumps({'function': SBQuestion.edit_title.__name__,
-                                    'exception': 'Unhandled Exception'}))
-            return e
+            return defensive_exception(SBQuestion.edit_title.__name__, e, e)
 
     def delete_content(self, pleb):
         try:
@@ -115,10 +104,7 @@ class SBQuestion(SBVersioned):
         except CypherException as e:
             return e
         except Exception as e:
-            logger.exception(dumps(
-                {"function": SBQuestion.delete_content.__name__,
-                "exception": "Unhandled Exception"}))
-            return e
+            return defensive_exception(SBQuestion.delete_content.__name__, e, e)
 
     def get_single_question_dict(self, pleb):
         from sb_answers.neo_models import SBAnswer
@@ -154,10 +140,8 @@ class SBQuestion(SBVersioned):
                              'owner_email': owner.email}
             return question_dict
         except Exception as e:
-            logger.exception(dumps({'function':
-                                        SBQuestion.get_single_question_dict.__name__,
-                                    'exception': 'Unhandled Exception'}))
-            return e
+            return defensive_exception(
+                SBQuestion.get_single_question_dict.__name__, e, e)
 
     def get_multiple_question_dict(self, pleb):
         try:
@@ -180,10 +164,8 @@ class SBQuestion(SBVersioned):
                         }
             return question_dict
         except Exception as e:
-            logger.exception(dumps({'function':
-                                        SBQuestion.get_multiple_question_dict.__name__,
-                                    'exception': 'Unhandled Exception'}))
-            return e
+            return defensive_exception(
+                SBQuestion.get_multiple_question_dict.__name__, e, e)
 
     def render_question_page(self, pleb):
         try:
@@ -207,11 +189,11 @@ class SBQuestion(SBVersioned):
             t = get_template("questions.html")
             c = Context(question_dict)
             return t.render(c)
-        except Exception:
-            logger.exception(dumps({'function':
-                                        SBQuestion.render_question_page.__name__,
-                                    'exception': "Unhandled Exception"}))
-            return ''
+        except Exception as e:
+            # TODO Do we really want to be returning an empty string here or
+            # should we redirect to an exception?
+            return defensive_exception(
+                SBQuestion.render_question_page.__name__, e, "")
 
     def render_search(self):
         try:
@@ -233,9 +215,8 @@ class SBQuestion(SBVersioned):
             rendered = render_to_string('question_search.html', question_dict)
             return rendered
         except Exception as e:
-            logger.exception(dumps({'function': SBQuestion.render_search.__name__,
-                                    'exception': 'Unhandled Exception'}))
-            return e
+            return defensive_exception(
+                SBQuestion.render_search.__name__, e, e)
 
     def render_single(self, pleb):
         try:
@@ -243,9 +224,8 @@ class SBQuestion(SBVersioned):
             c = Context(self.get_single_question_dict(pleb))
             return t.render(c)
         except Exception as e:
-            logger.exception(dumps({'function': SBQuestion.render_single.__name__,
-                                    'exception': 'Unhandled Exception'}))
-            return e
+            return defensive_exception(
+                SBQuestion.render_single.__name__, e, e)
 
     def render_multiple(self, pleb):
         pass

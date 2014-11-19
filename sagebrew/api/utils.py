@@ -1,4 +1,3 @@
-import logging
 import time
 import boto.sqs
 import importlib
@@ -17,7 +16,6 @@ from sb_base.utils import defensive_exception
 
 from api.alchemyapi import AlchemyAPI
 
-logger = logging.getLogger('loggly_logs')
 
 '''
 # TOOD Add tagging process into git so that we can label point that we deleted

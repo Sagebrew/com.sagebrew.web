@@ -1,4 +1,3 @@
-import logging
 from django.conf import settings
 from uuid import uuid1
 from django.core.urlresolvers import reverse
@@ -27,26 +26,6 @@ from .utils import (upload_image,
                     verify_verified_email, calc_age,
                     create_user_util)
 from .models import token_gen
-
-logger = logging.getLogger('loggly_logs')
-
-
-@login_required()
-def confirm_view(request):
-    return render(request, 'verify_email.html')
-
-
-def age_restriction(request):
-    return render(request, 'age_restriction_13.html')
-
-
-def signup_view(request):
-    # TODO Need to take the user somewhere and do something with the ajax
-    # from the api.
-    # Need to take them to a 500 error page or something.
-    # Otherwise they just sit at the sign up page
-    # with the button not taking them anywhere.
-    return render(request, 'sign_up_page/index.html')
 
 
 @api_view(['POST'])

@@ -12,7 +12,6 @@ urlpatterns = patterns(
     '',
     (r'^favicon.ico$', RedirectView.as_view(url="%sfavicon.ico" % (
         settings.STATIC_URL))),
-    (r'^$', include('sb_registration.urls')),
     url(r'^login/$', login_view, name="login"),
     url(r'^logout/$', logout_view, name="logout"),
     url(r'^404/$', TemplateView.as_view(template_name="404.html"),
@@ -20,6 +19,7 @@ urlpatterns = patterns(
     (r'^contact_us/$', TemplateView.as_view(template_name="contact_us.html")),
     (r'^oauth2/', include('provider.oauth2.urls', namespace='oauth2')),
     (r'^registration/', include('sb_registration.urls')),
+    (r'^help/', include('help_center.urls')),
     (r'^comments/', include('sb_comments.urls')),
     (r'^posts/', include('sb_posts.urls')),
     (r'^notifications/', include('sb_notifications.urls')),
@@ -33,7 +33,8 @@ urlpatterns = patterns(
     (r'^vote/', include('sb_votes.urls')),
     (r'^edit/', include('sb_edits.urls')),
     (r'^delete/', include('sb_deletes.urls')),
-    (r'^help/', include('help_center.urls')),
+    url(r'^$', TemplateView.as_view(template_name='sign_up_page/index.html'),
+        name="signup"),
 )
 
 if settings.DEBUG is True:

@@ -1,4 +1,3 @@
-import logging
 import time
 import boto.sqs
 import importlib
@@ -17,7 +16,6 @@ from sb_base.utils import defensive_exception
 
 from api.alchemyapi import AlchemyAPI
 
-logger = logging.getLogger('loggly_logs')
 
 '''
 # TOOD Add tagging process into git so that we can label point that we deleted
@@ -185,11 +183,9 @@ def get_object(object_type, object_uuid):
         sb_object = getattr(sb_module, class_name)
         try:
             return sb_object.nodes.get(sb_id=object_uuid)
-        except (sb_object.DoesNotExist, DoesNotExist) as e:
+        except (sb_object.DoesNotExist, DoesNotExist):
             return TypeError("%s.DoesNotExist" % object_type)
-    except (CypherException) as e:
-            return TypeError("%s.DoesNotExist"%object_type)
-    except (NameError, ValueError):
+    except (NameError, ValueError, ImportError, AttributeError):
         return False
     except CypherException as e:
         return e

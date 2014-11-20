@@ -57,7 +57,6 @@
 
     &.no-label {
       padding-left: 0;
-      margin-right: -9px;
     }
   }
   .selected-row {
@@ -114,16 +113,10 @@
     > tr {
       &:nth-child(odd),
       &.selected-row {
-        > td,
-        > th {
-          background-color: @table-bg-accent;
-        }
+        background-color: @table-bg-accent;
       }
       &:nth-child(even) {
-        > td,
-        > th {
-          background-color: transparent;
-        }
+        background-color: transparent;
       }
     }
   }
@@ -135,10 +128,7 @@
 
 .table-hover {
   > tbody > tr:hover {
-    > td,
-    > th {
-      background-color: @table-bg-hover;
-    }
+    background-color: @table-bg-hover;
   }
 }
 

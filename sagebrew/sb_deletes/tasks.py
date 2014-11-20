@@ -1,10 +1,7 @@
-import logging
 from celery import shared_task
 
 from api.utils import get_object
 from sb_base.utils import defensive_exception
-
-logger = logging.getLogger("loggly_logs")
 
 
 @shared_task()
@@ -20,7 +17,8 @@ def delete_object_task(object_type, object_uuid, current_pleb):
         res = sb_object.delete_content(current_pleb)
 
         if isinstance(res, Exception) is True:
-            raise delete_object_task.retry(exc=res, countdown=3, max_retries=None)
+            raise delete_object_task.retry(exc=res, countdown=3,
+                                           max_retries=None)
         else:
             return res
     except Exception as e:

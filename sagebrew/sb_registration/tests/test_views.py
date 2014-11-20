@@ -7,14 +7,15 @@ from base64 import b64encode
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
-from django.test import TestCase, RequestFactory
+from django.test import TestCase, RequestFactory, Client
 from django.contrib.sessions.backends.db import SessionStore
 from django.core.management import call_command
+from django.core.urlresolvers import reverse
 from rest_framework.test import APIRequestFactory
 
 from api.utils import wait_util
 from sb_registration.views import (profile_information,
-                                   signup_view_api, signup_view, logout_view,
+                                   signup_view_api, logout_view,
                                    login_view, login_view_api,
                                    resend_email_verification,
                                    email_verification, interests)
@@ -323,6 +324,7 @@ class TestProfileInfoView(TestCase):
 
         self.assertEqual(response.status_code, 302)
 
+
 class TestSignupView(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
@@ -335,11 +337,19 @@ class TestSignupView(TestCase):
         self.pleb.email_verified = True
         self.pleb.save()
 
-    def test_signup_view(self):
-        request = self.factory.request()
-        res = signup_view(request)
+    def test_anon_user(self):
+        self.client.logout()
+        response = self.client.get(reverse('signup'))
 
-        self.assertEqual(res.status_code, 200)
+        self.assertEqual(response.status_code, 200)
+
+    def test_logged_in_user(self):
+        self.client.login(username=self.user.username, password='testpass')
+        response = self.client.get(reverse('signup'))
+
+        self.assertEqual(response.status_code, 200)
+        self.client.logout()
+
 
 class TestSignupAPIView(TestCase):
     def setUp(self):
@@ -457,6 +467,7 @@ class TestSignupAPIView(TestCase):
 
         self.assertEqual(res.status_code, 400)
 
+
 class TestLoginView(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
@@ -474,6 +485,7 @@ class TestLoginView(TestCase):
         res = login_view(request)
 
         self.assertEqual(res.status_code, 200)
+
 
 class TestLoginAPIView(TestCase):
     def setUp(self):
@@ -607,6 +619,7 @@ class TestLoginAPIView(TestCase):
 
         self.assertEqual(res.status_code, 400)
 
+
 class TestLogoutView(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
@@ -631,6 +644,7 @@ class TestLogoutView(TestCase):
         res = logout_view(request)
 
         self.assertEqual(res.status_code, 302)
+
 
 class TestEmailVerificationView(TestCase):
     def setUp(self):
@@ -691,6 +705,7 @@ class TestEmailVerificationView(TestCase):
 
         self.assertEqual(res.status_code, 302)
 
+
 class TestResendEmailVerificationView(TestCase):
     def setUp(self):
         self.token_gen = EmailAuthTokenGenerator()
@@ -733,4 +748,48 @@ class TestResendEmailVerificationView(TestCase):
         self.assertEqual(res.status_code, 400)
 
 
+class TestConfirmView(TestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        self.client = Client()
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
 
+    def test_anon_user(self):
+        self.client.logout()
+        response = self.client.get(reverse('confirm_view'))
+        self.assertEqual(response.status_code, 302)
+
+    def test_logged_in_user(self):
+        self.client.login(username=self.user.username, password='testpass')
+        response = self.client.get(reverse('confirm_view'), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.client.logout()
+
+
+class TestAgeRestrictionView(TestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        self.client = Client()
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+
+    def test_anon_user(self):
+        self.client.logout()
+        response = self.client.get(reverse('age_restriction_13'), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_logged_in_user(self):
+        self.client.login(username=self.user.username, password='testpass')
+        response = self.client.get(reverse('age_restriction_13'), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.client.logout()

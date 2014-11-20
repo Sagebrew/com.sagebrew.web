@@ -21,4 +21,4 @@ class HelpGoodQuestionTests(TestCase):
         response = self.client.get(reverse('good_question'), follow=True)
         # TODO is it possible to check if spelling is correct
         # in response.content?
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 200)

@@ -19,6 +19,7 @@ def get_pleb_task(email, task_func, task_param):
             raise get_pleb_task.retry(exc=e, countdown=3, max_retries=None)
         task_param['current_pleb'] = pleb
         spawn_task(task_func=task_func, task_param=task_param)
+        return True
     except Exception as e:
         raise defensive_exception(get_pleb_task.__name__, e,
                                   get_pleb_task.retry(exc=e,

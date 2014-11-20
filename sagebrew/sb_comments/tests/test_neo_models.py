@@ -25,4 +25,3 @@ class TestSBCommentsNeoModel(TestCase):
         res = self.comment.get_comment_dict(self.pleb)
 
         self.assertIsInstance(res, dict)
-        

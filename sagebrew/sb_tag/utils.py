@@ -76,8 +76,6 @@ def add_auto_tags_util(tag_list):
                     tag.content.connect(question)
                     tag_array.append(tag)
                 except UniqueProperty as e:
-                    logger.exception(dumps({'function': add_auto_tags_util.__name__,
-                                      'exception': "UniqueProperty"}))
                     return e
             except (KeyError, IndexError) as e:
                 return e

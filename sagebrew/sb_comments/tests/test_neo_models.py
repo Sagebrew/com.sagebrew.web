@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util
-from sb_posts.neo_models import SBPost
 from sb_comments.neo_models import SBComment
 
 

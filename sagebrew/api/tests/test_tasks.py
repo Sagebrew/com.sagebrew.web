@@ -106,4 +106,4 @@ class TestAddObjectToSearchIndex(TestCase):
 
         self.assertFalse(res.result)
 
-   
+

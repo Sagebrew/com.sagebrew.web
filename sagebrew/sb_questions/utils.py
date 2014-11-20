@@ -137,8 +137,6 @@ def prepare_question_search_html(question_uuid):
 
         return my_question.render_search()
 
-    except IndexError:
-        return False
     except Exception as e:
         return defensive_exception(prepare_question_search_html.__name__, e,
                                    False)

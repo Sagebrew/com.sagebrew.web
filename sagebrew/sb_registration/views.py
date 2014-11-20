@@ -363,8 +363,9 @@ def profile_picture(request):
         return render(request, 'login.html')
     if request.method == 'POST':
         profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
+        print profile_picture_form
         if profile_picture_form.is_valid():
-
+            print profile_picture_form.cleaned_data
             image_uuid = uuid1()
             data = request.FILES['picture']
             temp_file = '%s%s.jpeg' % (settings.TEMP_FILES, image_uuid)

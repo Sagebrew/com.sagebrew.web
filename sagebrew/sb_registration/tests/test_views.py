@@ -19,7 +19,8 @@ from sb_registration.views import (profile_information,
                                    signup_view_api, logout_view,
                                    login_view, login_view_api,
                                    resend_email_verification,
-                                   email_verification, interests)
+                                   email_verification, interests,
+                                   profile_picture)
 from sb_registration.models import EmailAuthTokenGenerator
 from sb_registration.utils import create_user_util
 from plebs.neo_models import Pleb, Address
@@ -74,6 +75,20 @@ class InterestsTest(TestCase):
                    "agriculture": False}
         request = self.factory.post('/registration/interests',
                                     data=my_dict)
+        request.user = self.user
+        response = interests(request)
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_interests_pleb_does_not_exist(self):
+        my_dict = {"fiscal": False, "education": True, "space": False,
+                   "drugs": True, "science": True, "energy": True,
+                   "environment": False, "defense": True, "health": False,
+                   "social": True, "foreign_policy": True,
+                   "agriculture": False}
+        request = self.factory.post('/registration/interests',
+                                    data=my_dict)
+        self.user.email = 'fakeemail@fake.com'
         request.user = self.user
         response = interests(request)
 
@@ -850,3 +865,25 @@ class TestAgeRestrictionView(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.client.logout()
+
+class TestProfilePictureView(TestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        self.client = Client()
+        res = create_user_util("test", "test", self.email, "testpassword")
+        self.assertNotEqual(res, False)
+        wait_util(res)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.pleb.completed_profile_info = True
+        self.pleb.save()
+'''
+    def test_profile_picture_view(self):
+        self.client.login(username=self.user.username, password='testpassword')
+        with open(settings.PROJECT_DIR + "/sb_posts/" +
+                  "tests/images/test_image.jpg", "rb") as image_file:
+            response = self.client.post(reverse('profile_picture'),
+                                    data={'picture': image_file})
+
+        self.assertEqual(response.status_code, 302)
+'''

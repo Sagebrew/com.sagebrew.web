@@ -70,16 +70,18 @@
 //** Global textual link color.
 @link-color:                @green-sea;
 @link-hover-color:          @turquoise;
+//** Link hover decoration.
+@link-hover-decoration:     none;
 
 
 //== Typography
 //
 //## Font, line-height for body text, headings, and more.
 
-@font-family-base:          "Lato", Helvetica, Arial, sans-serif;
-@font-family-demo:          "Helvetica Neue", Helvetica, Arial, sans-serif;
-@font-family-monospace:     Monaco, Menlo, Consolas, "Courier New", monospace;
-@font-size-base:            18px;
+@font-family-base:              "Lato", Helvetica, Arial, sans-serif;
+@font-family-demo:              "Helvetica Neue", Helvetica, Arial, sans-serif;
+@font-family-monospace:          Monaco, Menlo, Consolas, "Courier New", monospace;
+@font-size-base:                 18px;
 
 @local-font-path:               "../fonts/lato/";
 @local-font-name:               "lato-regular";
@@ -231,6 +233,7 @@
 
 @btn-link-disabled-color:    @gray-light;
 
+
 //== Forms
 //
 //##
@@ -258,6 +261,9 @@
 @input-height-hg:          53px;
 
 @input-border-radius:      @border-radius-large;
+
+//** Disabled cursor for form controls and buttons.
+@cursor-disabled:          not-allowed;
 
 @legend-color:             inherit;
 
@@ -297,7 +303,7 @@
 @timepicker-hover-bg:         @brand-secondary;
 @timepicker-border:           @brand-secondary;
 @timepicker-link-color:       fade(@text-color, 90%);
-@zindex-timepicker:           1000;
+@zindex-timepicker:           1050;
 
 
 //== Spinner
@@ -328,12 +334,12 @@
 //##
 
 @tagsinput-container-bg:                    @inverse;
-@tagsinput-container-border-color:          mix(@inverse, @brand-primary, 90%);;
+@tagsinput-container-border-color:          mix(@inverse, @brand-primary, 90%);
 @tagsinput-container-border-radius:         @border-radius-large;
 
 @tagsinput-input-color:                     @brand-primary;
 
-@tagsinput-tag-bg:                          mix(@inverse, @brand-primary, 90%);;
+@tagsinput-tag-bg:                          mix(@inverse, @brand-primary, 90%);
 @tagsinput-tag-color:                       mix(@brand-primary, @inverse, 65%);
 @tagsinput-tag-hover-bg:                    mix(@brand-secondary, black, 85%);
 @tagsinput-tag-hover-color:                 @inverse;
@@ -710,7 +716,7 @@
 @modal-footer-padding:        19px 22px 20px;
 
 //** Padding applied to the modal title
-@modal-title-padding:         17px 19px 15px 24px;
+@modal-title-padding-each:    17px 19px 15px 24px;
 //** Modal title line-height
 @modal-title-line-height:     30px;
 
@@ -881,7 +887,7 @@
 @thumbnail-caption-padding:   9px;
 
 
-//== Todo list
+//== Tiles
 //
 //##
 
@@ -1046,7 +1052,7 @@
 @pre-border-radius:           @border-radius-large;
 
 
-//== Type
+//== Form states and alerts
 //
 //##
 

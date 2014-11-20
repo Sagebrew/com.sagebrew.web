@@ -3,8 +3,6 @@ import shortuuid
 import hashlib
 import json
 import boto.ses
-import logging
-from json import dumps
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from datetime import date
 from django.conf import settings
@@ -19,7 +17,6 @@ from plebs.tasks import create_pleb_task
 from plebs.neo_models import Pleb
 from sb_base.utils import defensive_exception
 
-logger = logging.getLogger('loggly_logs')
 
 
 def calc_age(birthday):
@@ -366,12 +363,6 @@ def create_user_util(first_name, last_name, email, password, username=None):
         if res is not None:
             return {"task_id": res, "username": user.username}
         else:
-            logger.critical(json.dumps({"function": create_user_util.__name__,
-                          "exception": "res is None"}))
             return False
     except Exception as e:
-        logger.exception(json.dumps({"function": create_user_util.__name__,
-                                     "exception": "Unhandled Exception"}))
-        # TODO should this return the exception? Think most things rely on it
-        # being False if something goes wrong.
-        return False
+        return defensive_exception(create_user_util.__name__, e, False)

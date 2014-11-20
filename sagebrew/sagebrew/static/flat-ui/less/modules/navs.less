@@ -18,13 +18,23 @@
         border-radius: 0 @nav-border-radius @nav-border-radius 0;
       }
     }
-    &.active {
+    &.active,
+    &.open {
       > a,
       > a:hover {
         background-color: @btn-primary-active-bg;
       }
     }
 
+    // Open dropdowns
+    &.open > a {
+      &,
+      &:hover,
+      &:focus {
+        background-color: @btn-primary-active-bg;
+        border-color: @btn-primary-active-bg;
+      }
+    }
 
     @media (max-width: @screen-xs-max) {
       float: none;
@@ -348,6 +358,7 @@
       > a:hover,
       > a:focus {
         opacity:0.6;
+        cursor: @cursor-disabled;
       }
     }
 

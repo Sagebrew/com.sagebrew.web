@@ -1,4 +1,4 @@
-Flat UI Pro 1.3.1
+Flat UI Pro 1.3.2
 =======
 
 Flat UI Pro

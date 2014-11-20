@@ -30,6 +30,15 @@ from .models import token_gen
 
 @api_view(['POST'])
 def signup_view_api(request):
+    # TODO discuss potential to store off initial user into dynamo or just in
+    # postgres until confirmation email is verified. If it is then store
+    # user into neo.
+    # That way if we get a flood of bots trying to sign up we aren't DDoSing
+    # Neo and will have an automated routine that removes the user from the
+    # document store after a day and potentially sets them as flagged for
+    # suspicious activity if more than say a week passes and no one activates
+    # their email. Should be able to perform the hashing process on the
+    # data stored in dynamo or psql the same way we do with the Pleb currently.
     try:
         try:
             signup_form = SignupForm(request.DATA)

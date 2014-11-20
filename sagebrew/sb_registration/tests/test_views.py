@@ -761,7 +761,6 @@ class TestConfirmView(TestCase):
     def test_anon_user(self):
         self.client.logout()
         response = self.client.get(reverse('confirm_view'))
-        print response.status_code
         self.assertEqual(response.status_code, 302)
 
     def test_logged_in_user(self):

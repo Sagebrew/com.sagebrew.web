@@ -7,11 +7,10 @@ from api.utils import execute_cypher_query, spawn_task
 from sb_base.tasks import create_object_relations_task
 from plebs.neo_models import Pleb
 from .neo_models import SBQuestion
-from sb_base.utils import defensive_exception
 from sb_base.decorators import apply_defense
 
 
-@apply_defense(None, True, "hello")
+@apply_defense
 def create_question_util(content, current_pleb, question_title,
                          question_uuid=None):
     '''
@@ -49,6 +48,7 @@ def create_question_util(content, current_pleb, question_title,
         return e
 
 
+@apply_defense(return_value={"detail": "Failure"})
 def get_question_by_uuid(question_uuid, current_pleb):
     '''
     Sorting util
@@ -68,11 +68,9 @@ def get_question_by_uuid(question_uuid, current_pleb):
         return {"detail": "There are no questions with that ID"}
     except CypherException:
         return {"detail": "A CypherException was thrown"}
-    except Exception as e:
-        return defensive_exception(get_question_by_uuid.__name__, e,
-                                   {"detail": "Failure"})
 
 
+@apply_defense(return_value={"detail": "fail"})
 def get_question_by_most_recent(range_start=0, range_end=5):
     '''
     Sorting util
@@ -85,19 +83,16 @@ def get_question_by_most_recent(range_start=0, range_end=5):
     :param range_end:
     :return:
     '''
-    try:
-        query = 'match (q:SBQuestion) where q.to_be_deleted=False ' \
-                'with q order by q.date_created desc ' \
-                'with q skip %s limit %s ' \
-                'return q' % (range_start, range_end)
-        questions, meta = execute_cypher_query(query)
-        questions = [SBQuestion.inflate(row[0]) for row in questions]
-        return questions
-    except Exception as e:
-        return defensive_exception(get_question_by_most_recent.__name__, e,
-                                   {"detail": "fail"})
+    query = 'match (q:SBQuestion) where q.to_be_deleted=False ' \
+            'with q order by q.date_created desc ' \
+            'with q skip %s limit %s ' \
+            'return q' % (range_start, range_end)
+    questions, meta = execute_cypher_query(query)
+    questions = [SBQuestion.inflate(row[0]) for row in questions]
+    return questions
 
 
+@apply_defense(return_value={"detail": "fail"})
 def get_question_by_least_recent(range_start=0, range_end=5):
     '''
     Sorting util
@@ -110,28 +105,20 @@ def get_question_by_least_recent(range_start=0, range_end=5):
     :param range_end:
     :return:
     '''
-    try:
-        query = 'match (q:SBQuestion) where q.to_be_deleted=False ' \
-                'with q order by q.date_created ' \
-                'with q skip %s limit %s ' \
-                'return q' % (range_start, range_end)
-        questions, meta = execute_cypher_query(query)
-        questions = [SBQuestion.inflate(row[0]) for row in questions]
-        return questions
-    except Exception as e:
-        return defensive_exception(get_question_by_least_recent.__name__, e,
-                                   {"detail": "fail"})
+    query = 'match (q:SBQuestion) where q.to_be_deleted=False ' \
+            'with q order by q.date_created ' \
+            'with q skip %s limit %s ' \
+            'return q' % (range_start, range_end)
+    questions, meta = execute_cypher_query(query)
+    questions = [SBQuestion.inflate(row[0]) for row in questions]
+    return questions
 
 
+@apply_defense(return_value=False)
 def prepare_question_search_html(question_uuid):
     try:
-        try:
-            my_question = SBQuestion.nodes.get(sb_id=question_uuid)
-        except (SBQuestion.DoesNotExist, DoesNotExist):
-            return False
+        my_question = SBQuestion.nodes.get(sb_id=question_uuid)
+    except (SBQuestion.DoesNotExist, DoesNotExist):
+        return False
 
-        return my_question.render_search()
-
-    except Exception as e:
-        return defensive_exception(prepare_question_search_html.__name__, e,
-                                   False)
+    return my_question.render_search()

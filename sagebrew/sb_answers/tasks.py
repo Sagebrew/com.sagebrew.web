@@ -4,7 +4,6 @@ from neomodel import CypherException
 
 from api.utils import spawn_task
 from api.tasks import add_object_to_search_index
-from sb_base.utils import defensive_exception
 
 from .utils import (save_answer_util)
 
@@ -12,6 +11,9 @@ from .utils import (save_answer_util)
 @shared_task()
 def add_answer_to_search_index(answer):
     try:
+        # TODO remove added_to_search_index attribute and just query on uuid
+        # to reduce the likelihood of out of sync errors occurring and not
+        # needing to open up a connection with neo and es in the same task.
         if answer.added_to_search_index is True:
             return True
 
@@ -23,19 +25,21 @@ def add_answer_to_search_index(answer):
         task_data = {"object_type": 'sb_answers.neo_models.SBAnswer',
                      'object_data': search_dict,
                      "object_added": answer}
-        spawn_task(task_func=add_object_to_search_index,
-                                  task_param=task_data)
+        spawned = spawn_task(task_func=add_object_to_search_index,
+                             task_param=task_data)
+        if isinstance(spawned, Exception) is True:
+            raise add_answer_to_search_index.retry(exc=spawned, countdown=3,
+                                                   max_retries=None)
 
         answer.added_to_search_index = True
         answer.save()
         return True
     except (IndexError, CypherException) as e:
+        # TODO in the case of a CypherException there is a chance for a
+        # duplicate search index object to get created. Need to resolve how
+        # to stop this
         raise add_answer_to_search_index.retry(exc=e, countdown=3,
                                                max_retries=None)
-    except Exception as e:
-        raise defensive_exception(add_answer_to_search_index.__name__, e,
-                                  add_answer_to_search_index.retry(
-                                      exc=e, countdown=3, max_retries=None))
 
 
 @shared_task()
@@ -52,19 +56,20 @@ def save_answer_task(current_pleb, question_uuid, content):
     :param question_uuid:
     :return:
     '''
-    try:
-        res = save_answer_util(content=content, question_uuid=question_uuid,
-                               current_pleb=current_pleb)
-        if res is True:
-            task_data = {'answer': res}
-            return spawn_task(task_func=add_answer_to_search_index,
-                              task_param=task_data)
-        elif isinstance(res, Exception) is True:
-            raise save_answer_task.retry(exc=res, countdown=5,
-                                         max_retries=None)
-        return res
-
-    except Exception as e:
-        raise defensive_exception(save_answer_task.__name__, e,
-                                  save_answer_task.retry(exc=e, countdown=5,
-                                                         max_retries=None))
+    # TODO we should pass a uuid to this task for the answer. That way
+    # we can check if that version of the answer has already been created
+    # and return from the util if so. Then we don't run the risk of
+    # recreating the answer on the off chance that the search index update
+    # task fails to spawn.
+    res = save_answer_util(content=content, question_uuid=question_uuid,
+                           current_pleb=current_pleb)
+    if isinstance(res, Exception) is True:
+        raise save_answer_task.retry(exc=res, countdown=5,
+                                     max_retries=None)
+    task_data = {'answer': res}
+    spawned = spawn_task(task_func=add_answer_to_search_index,
+                         task_param=task_data)
+    if isinstance(spawned, Exception) is True:
+        raise save_answer_task.retry(exc=spawned, countdown=3,
+                                     max_retries=None)
+    return res

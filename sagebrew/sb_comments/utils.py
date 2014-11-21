@@ -14,6 +14,8 @@ def save_comment(content, comment_uuid=None):
     :param comment_uuid = str(uuid) id of the post which the
     :return:
     '''
+    # TODO should require a comment uuid so that we are making duplicate
+    # comment nodes. All edits should be to the same one
     if comment_uuid is None:
         comment_uuid = str(uuid1())
     try:

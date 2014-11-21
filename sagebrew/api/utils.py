@@ -13,6 +13,7 @@ from neomodel import db
 from django.conf import settings
 
 from sb_base.utils import defensive_exception
+from sb_base.decorators import apply_defense
 
 from api.alchemyapi import AlchemyAPI
 
@@ -108,7 +109,7 @@ def spawn_task(task_func, task_param, countdown=0, task_id=None):
             'failure_uuid': failure_uuid
         }
         add_failure_to_queue(failure_dict)
-        return defensive_exception(spawn_task.__name__, e, None,
+        return defensive_exception(spawn_task.__name__, e, e,
             {"failure_uuid": failure_uuid, "failure": "Unhandled Exception"})
 
 
@@ -159,7 +160,7 @@ def wait_util(async_res):
     while not async_res['task_id'].result.ready():
         time.sleep(1)
 
-
+@apply_defense
 def get_object(object_type, object_uuid):
     '''
     DO NOT USE THIS FUNCTION ANYWHERE THAT DOES NOT HAVE A FORM
@@ -186,6 +187,4 @@ def get_object(object_type, object_uuid):
         return False
     except CypherException as e:
         return e
-    except Exception as e:
-        return defensive_exception(get_object.__name__, e, e)
 

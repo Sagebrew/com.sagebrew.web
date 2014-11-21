@@ -1,18 +1,20 @@
 import pytz
 import logging
-from json import dumps
+
 from datetime import datetime
 from django.conf import settings
 
 from celery import shared_task
 from neomodel import DoesNotExist, CypherException
 from elasticsearch import Elasticsearch
+from elasticsearch.exceptions import (ElasticsearchException, TransportError,
+                                      ConnectionError, RequestError)
 
 from .neo_models import SearchQuery, KeyWord
 from .utils import (update_search_index_doc)
 from api.utils import spawn_task, get_object
 from plebs.neo_models import Pleb
-from sb_questions.neo_models import SBQuestion
+
 from sb_base.utils import defensive_exception
 
 logger = logging.getLogger('loggly_logs')
@@ -137,9 +139,8 @@ def add_user_to_custom_index(pleb, index="full-search-user-specific-1"):
         return True
     except Exception as e:
         raise defensive_exception(add_user_to_custom_index.__name__, e,
-                                  add_user_to_custom_index.retry(exc=e,
-                                                                 countdown=3,
-                                                            max_retries=None))
+                                  add_user_to_custom_index.retry(
+                                      exc=e, countdown=3, max_retries=None))
 
 
 
@@ -155,14 +156,37 @@ def update_user_indices(doc_type, doc_id):
     :param doc_id:
     :return:
     '''
-    es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-    res = es.get(index='full-search-base', doc_type=doc_type, id=doc_id)
-    plebs = Pleb.category()
-    for pleb in plebs.instance.all():
-        #TODO update this to get index name from the users assigned index
-        res['_source']['related_user'] = pleb.email
-        result = es.index(index='full-search-user-specific-1',
-                          doc_type=doc_type, body=res['_source'])
+    try:
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        res = es.get(index='full-search-base', doc_type=doc_type, id=doc_id)
+    except (ElasticsearchException, TransportError, ConnectionError,
+            RequestError) as e:
+        raise update_user_indices.retry(exc=e, countdown=3, max_retries=None)
+    # TODO what do we want to do if there is a ConflictError
+    # TODO what do we want to do if there is a ImproperlyConfigured
+    # TODO should we have logic in the case that 'full-search-base' is not found
+    try:
+        plebs = Pleb.category()
+        for pleb in plebs.instance.all():
+            #TODO update this to get index name from the users assigned index
+            res['_source']['related_user'] = pleb.email
+            result = es.index(index='full-search-user-specific-1',
+                              doc_type=doc_type, body=res['_source'])
+    except CypherException as e:
+        raise update_user_indices.retry(exc=e, countdown=3, max_retries=None)
+    except (ElasticsearchException, TransportError, ConnectionError,
+            RequestError) as e:
+        raise update_user_indices.retry(exc=e, countdown=3, max_retries=None)
+    # TODO what do we want to do if there is a ConflictError
+    # TODO what do we want to do if there is a ImproperlyConfigured
+    # TODO should we have logic in the case that 'full-search-base' is not found
+    # TODO what should we do if half way through we fail out?
+    # TODO break this out to multiple tasks that are responsible for populating
+    # the index with a certain range of users. That way it's less of a strain
+    # on neo, we can stagger the tasks out to reduce the strain on the two
+    # systems and wipe portions if it fails and retry. This should reduce the
+    # likely hood of duplicate entries occurring or losing entire chunks of
+    # users.
 
     return True
 

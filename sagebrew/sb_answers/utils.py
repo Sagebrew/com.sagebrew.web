@@ -28,8 +28,8 @@ def save_answer_util(content, current_pleb, question_uuid, answer_uuid=None):
     try:
         try:
             my_pleb = Pleb.nodes.get(email=current_pleb)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return False
+        except (Pleb.DoesNotExist, DoesNotExist) as e:
+            return e
 
         try:
             question = SBQuestion.nodes.get(sb_id=question_uuid)

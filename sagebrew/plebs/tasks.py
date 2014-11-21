@@ -35,6 +35,8 @@ def send_email_task(to, subject, html_content, text_content=None):
 
 @shared_task()
 def finalize_citizen_creation(pleb, user):
+    # TODO need to create retry strategy if spawn_task fails, not just return
+    # it.
     # TODO look into celery chaining and/or grouping
     task_list = {}
     task_data = {
@@ -113,8 +115,11 @@ def create_pleb_task(user_instance):
     try:
         try:
             test = Pleb.nodes.get(email=user_instance.email)
-            return spawn_task(create_wall_task,
-                              task_param={'pleb': test, 'user': user_instance})
+            task_info = spawn_task(create_wall_task, task_param={
+                'pleb': test, 'user': user_instance})
+            if isinstance(task_info, Exception) is True:
+                raise create_pleb_task.retry(exc=task_info, countdown=3,
+                                             max_retries=None)
         except (Pleb.DoesNotExist, DoesNotExist):
             pleb = Pleb(email=user_instance.email,
                         first_name=user_instance.first_name,
@@ -123,6 +128,9 @@ def create_pleb_task(user_instance):
             pleb.generate_username()
             task_info = spawn_task(task_func=create_wall_task,
                               task_param={"pleb": pleb, "user": user_instance})
+            if isinstance(task_info, Exception) is True:
+                raise create_pleb_task.retry(exc=task_info, countdown=3,
+                                             max_retries=None)
             return task_info
     except CypherException as e:
         raise create_pleb_task.retry(exc=e, countdown=3,

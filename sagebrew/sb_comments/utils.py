@@ -1,5 +1,5 @@
 from uuid import uuid1
-from neomodel import CypherException
+from neomodel import CypherException, DoesNotExist
 
 from sb_base.utils import defensive_exception
 from .neo_models import SBComment
@@ -14,6 +14,11 @@ def save_comment(content, comment_uuid):
     :param comment_uuid = str(uuid) id of the post which the
     :return:
     '''
+    try:
+        my_comment = SBComment.nodes.get(sb_id=comment_uuid)
+        return my_comment
+    except (SBComment.DoesNotExist, DoesNotExist):
+        pass
     try:
         my_comment = SBComment(content=content, sb_id=comment_uuid)
         my_comment.save()

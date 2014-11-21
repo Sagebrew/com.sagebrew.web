@@ -64,6 +64,7 @@ def add_tags_to_question_task(question, tags):
     :param tags:
     :return:
     '''
+    print tags
     try:
         if question.tags_added is True:
             task_data = {
@@ -80,6 +81,8 @@ def add_tags_to_question_task(question, tags):
                                   "object_uuid": question.sb_id,
                                   "object_type": "question"
                 })
+            auto_tag_data = {'question': question,
+                             'tag_list':}
             tag_list = {'tag_list': task_data}
             tag_task_data = {"object_uuid": question.sb_id,
                              "object_type": "sb_questions.neo_models."

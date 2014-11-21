@@ -1,11 +1,13 @@
 import pytz
 from uuid import uuid1
 from datetime import datetime
+from django.conf import settings
+from elasticsearch import Elasticsearch
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, CypherException,
-                      RelationshipFrom)
+                      RelationshipFrom, DoesNotExist)
 
 from sb_base.utils import defensive_exception
 
@@ -110,8 +112,6 @@ class SBContent(SBVoteableContent):
 
 
     # relationships
-    auto_tags = RelationshipTo('sb_tag.neo_models.SBAutoTag',
-                               'AUTO_TAGGED_AS')
     flagged_by = RelationshipTo('plebs.neo_models.Pleb', 'FLAGGED_BY')
     flags = RelationshipTo('sb_flags.neo_models.SBFlag', 'HAS_FLAG')
     received_by = RelationshipTo('plebs.neo_models.Pleb', 'RECEIVED',
@@ -218,3 +218,66 @@ class SBNonVersioned(SBContent):
             return e
         except Exception as e:
             return e
+
+
+class SBTagContent(StructuredNode):
+    #relationships
+    tagged_as = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS')
+    auto_tags = RelationshipTo('sb_tag.neo_models.SBAutoTag',
+                               'AUTO_TAGGED_AS')
+
+    #methods
+    def add_tags(self, tags):
+        from sb_tag.neo_models import SBTag
+        tag_array = []
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        if not tags:
+            return False
+
+        for tag in tags:
+            try:
+                tag_object = SBTag.nodes.get(tag_name=tag)
+                tag_array.append(tag_object)
+            except (SBTag.DoesNotExist, DoesNotExist):
+                es.index(index='tags', doc_type='tag',
+                         body={'tag_name': tag})
+                tag_object = SBTag(tag_name=tag).save()
+                tag_array.append(tag_object)
+            try:
+                for tag in tag_array:
+                    self.tags.connect(tag)
+                    tag.tag_used += 1
+                    tag.save()
+                return True
+
+            except CypherException as e:
+                return e
+
+            except Exception as e:
+                return defensive_exception(SBTagContent.add_tags.__name__,
+                                           e, e)
+        else:
+            return False
+
+    def add_auto_tags(self, tag_list):
+        from sb_tag.neo_models import SBAutoTag
+        tag_array = []
+        try:
+            for tag in tag_list:
+                try:
+                    tag = SBAutoTag.nodes.get(tag_name=tag['tags']['text'])
+                except (SBAutoTag.DoesNotExist, DoesNotExist):
+                    tag = SBAutoTag(tag_name=tag['tags']['text']).save()
+
+                rel = self.auto_tags.connect(tag)
+                rel.relevance = tag['tags']['relevance']
+                rel.save()
+                tag_array.append(tag)
+                return True
+        except KeyError as e:
+            return e
+        except Exception as e:
+            return defensive_exception(self.add_auto_tags.__name__, e, e)
+
+
+

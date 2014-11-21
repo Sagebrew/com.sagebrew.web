@@ -62,7 +62,6 @@ def add_auto_tags_util(tag_list):
                 rel = question.auto_tags.connect(tag)
                 rel.relevance = relevance
                 rel.save()
-                tag.content.connect(question)
                 tag_array.append(tag)
             except (SBAutoTag.DoesNotExist, DoesNotExist):
                 try:
@@ -73,7 +72,6 @@ def add_auto_tags_util(tag_list):
                     rel = question.auto_tags.connect(tag)
                     rel.relevance = relevance
                     rel.save()
-                    tag.content.connect(question)
                     tag_array.append(tag)
                 except UniqueProperty as e:
                     return e

@@ -14,7 +14,6 @@ class SBTag(StructuredNode):
     base = BooleanProperty(default=False)
     
     #relationships
-    content = RelationshipTo('sb_base.neo_models.SBContent', 'CONTENT_TAGGED')
 
 class SBAutoTag(SBTag):
     generated_from = StringProperty(default='alchemyapi')

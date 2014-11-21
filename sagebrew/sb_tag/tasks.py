@@ -53,7 +53,7 @@ def add_auto_tags(tag_list):
     if isinstance(response, Exception) is True:
         raise add_auto_tags.retry(exc=response, countdown=3,
                                   max_retries=None)
-    else:
-        spawn_task(task_func=create_tag_relations,
-                   task_param={"tag_array": tag_list})
-        return response
+
+    spawn_task(task_func=create_tag_relations,
+               task_param={"tag_array": tag_list})
+    return response

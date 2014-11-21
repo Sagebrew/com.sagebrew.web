@@ -31,7 +31,7 @@ dependencies:
 
 test:
   override:
-    - py.test --cov-config .coveragerc --cov-report html -x:
+    - py.test --cov-config .coveragerc --cov-report html -x
   post:
     - coveralls --rcfile=$CIRCLE_ARTIFACTS
     #- pep8 --show-source --exclude='~/com.sagebrew.web/sagebrew/api/alchemyapi.py` --show-pep8 ~/com.sagebrew.web/sagebrew/

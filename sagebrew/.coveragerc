@@ -29,10 +29,10 @@ exclude_lines =
     if self.debug:
     raise AssertionError
     raise NotImplementedError
-    except Exception:
-    except Exception as e:
-    *defensive_exception*
-    *defensive_exception*
+    (.*)except Exception:(.*)
+    (.*)except Exception as e:(.*)
+    (.*)defensive_exception(.*)
+    (.*)defensive_exception(.*)
     if 0:
     if __name__ == .__main__.:
 

@@ -1,6 +1,4 @@
-import logging
 from uuid import uuid1
-from json import dumps
 from textblob import TextBlob
 
 from neomodel import DoesNotExist, CypherException
@@ -10,8 +8,6 @@ from sb_base.tasks import create_object_relations_task
 from plebs.neo_models import Pleb
 from .neo_models import SBQuestion
 from sb_base.utils import defensive_exception
-
-logger = logging.getLogger('loggly_logs')
 
 
 def create_question_util(content, current_pleb, question_title,
@@ -77,7 +73,7 @@ def get_question_by_uuid(question_uuid, current_pleb):
                                    {"detail": "Failure"})
 
 
-def get_question_by_most_recent(current_pleb, range_start=0, range_end=5):
+def get_question_by_most_recent(range_start=0, range_end=5):
     '''
     Sorting util
 
@@ -87,7 +83,6 @@ def get_question_by_most_recent(current_pleb, range_start=0, range_end=5):
 
     :param range_start:
     :param range_end:
-    :param current_pleb:
     :return:
     '''
     try:
@@ -103,7 +98,7 @@ def get_question_by_most_recent(current_pleb, range_start=0, range_end=5):
                                    {"detail": "fail"})
 
 
-def get_question_by_least_recent(current_pleb, range_start=0, range_end=5):
+def get_question_by_least_recent(range_start=0, range_end=5):
     '''
     Sorting util
 
@@ -113,7 +108,6 @@ def get_question_by_least_recent(current_pleb, range_start=0, range_end=5):
 
     :param range_start:
     :param range_end:
-    :param current_pleb:
     :return:
     '''
     try:
@@ -124,9 +118,10 @@ def get_question_by_least_recent(current_pleb, range_start=0, range_end=5):
         questions, meta = execute_cypher_query(query)
         questions = [SBQuestion.inflate(row[0]) for row in questions]
         return questions
-    except Exception:
+    except Exception as e:
         return defensive_exception(get_question_by_least_recent.__name__, e,
                                    {"detail": "fail"})
+
 
 def prepare_question_search_html(question_uuid):
     try:

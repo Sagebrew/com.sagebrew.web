@@ -1,11 +1,8 @@
-import logging
-from json import dumps
 from celery import shared_task
 
 from api.utils import spawn_task
 from .utils import add_auto_tags_util, add_tag_util, create_tag_relations_util
 
-logger = logging.getLogger('loggly_logs')
 
 
 @shared_task()
@@ -54,8 +51,6 @@ def add_auto_tags(tag_list):
     response = add_auto_tags_util(tag_list)
 
     if isinstance(response, Exception) is True:
-        logger.exception(dumps({"function": add_auto_tags.__name__,
-                                "exception": response.__name__}))
         raise add_auto_tags.retry(exc=response, countdown=3,
                                   max_retries=None)
     else:

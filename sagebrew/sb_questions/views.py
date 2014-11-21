@@ -178,8 +178,7 @@ def get_question_view(request):
         html_array = []
         question_data = request.DATA
         if question_data['sort_by'] == 'most_recent':
-            response = get_question_by_most_recent(
-                current_pleb=question_data['current_pleb'])
+            response = get_question_by_most_recent()
             for question in response:
                 html_array.append(
                     question.render_question_page(question_data
@@ -192,8 +191,7 @@ def get_question_view(request):
                 question_data['current_pleb']), status=200)
 
         elif question_data['sort_by'] == 'least_recent':
-            response = get_question_by_least_recent(
-                current_pleb=question_data['current_pleb'])
+            response = get_question_by_least_recent()
             for question in response:
                 html_array.append(
                     question.render_question_page(question_data

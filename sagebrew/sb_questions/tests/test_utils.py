@@ -95,13 +95,11 @@ class TestGetQuestionByLeastRecent(TestCase):
 
     def test_get_questions_by_least_recent_success(self):
         question_array = []
-        for num in range(1,5):
+        for num in range(1, 5):
             response = create_question_util(**self.question_info_dict)
             question_array.append(response)
 
-        dict_response = get_question_by_least_recent(
-                            current_pleb=self.question_info_dict
-                            ['current_pleb'])
+        dict_response = get_question_by_least_recent()
 
         self.assertIsInstance(dict_response, list)
 

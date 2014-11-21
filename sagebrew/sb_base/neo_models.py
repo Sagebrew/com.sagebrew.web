@@ -233,7 +233,7 @@ class SBTagContent(StructuredNode):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         if not tags:
             return False
-
+        tags = tags.split(',')
         for tag in tags:
             try:
                 tag_object = SBTag.nodes.get(tag_name=tag)
@@ -243,21 +243,12 @@ class SBTagContent(StructuredNode):
                          body={'tag_name': tag})
                 tag_object = SBTag(tag_name=tag).save()
                 tag_array.append(tag_object)
-            try:
-                for tag in tag_array:
-                    self.tags.connect(tag)
-                    tag.tag_used += 1
-                    tag.save()
-                return True
+        for item in tag_array:
+            self.tagged_as.connect(item)
+            item.tag_used += 1
+            item.save()
+        return True
 
-            except CypherException as e:
-                return e
-
-            except Exception as e:
-                return defensive_exception(SBTagContent.add_tags.__name__,
-                                           e, e)
-        else:
-            return False
 
     def add_auto_tags(self, tag_list):
         from sb_tag.neo_models import SBAutoTag
@@ -265,15 +256,15 @@ class SBTagContent(StructuredNode):
         try:
             for tag in tag_list:
                 try:
-                    tag = SBAutoTag.nodes.get(tag_name=tag['tags']['text'])
+                    tag_object = SBAutoTag.nodes.get(tag_name=tag['tags']['text'])
                 except (SBAutoTag.DoesNotExist, DoesNotExist):
-                    tag = SBAutoTag(tag_name=tag['tags']['text']).save()
+                    tag_object = SBAutoTag(tag_name=tag['tags']['text']).save()
 
-                rel = self.auto_tags.connect(tag)
+                rel = self.auto_tags.connect(tag_object)
                 rel.relevance = tag['tags']['relevance']
                 rel.save()
-                tag_array.append(tag)
-                return True
+                tag_array.append(tag_object)
+            return tag_array
         except KeyError as e:
             return e
         except Exception as e:

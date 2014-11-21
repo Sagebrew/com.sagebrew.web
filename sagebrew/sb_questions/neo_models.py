@@ -9,12 +9,12 @@ from neomodel import (StringProperty, IntegerProperty,
                       RelationshipTo,  BooleanProperty, FloatProperty,
                       CypherException)
 
-from sb_base.neo_models import SBVersioned
+from sb_base.neo_models import SBVersioned, SBTagContent
 from sb_base.utils import defensive_exception
 from sb_tag.neo_models import TagRelevanceModel
 
 
-class SBQuestion(SBVersioned):
+class SBQuestion(SBVersioned, SBTagContent):
     up_vote_adjustment = 5
     down_vote_adjustment = 2
     allowed_flags = ["explicit", "spam", "duplicate",

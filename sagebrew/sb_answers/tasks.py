@@ -1,6 +1,11 @@
 from uuid import uuid1
 from celery import shared_task
+from django.conf import settings
 
+from elasticsearch import Elasticsearch
+from elasticsearch.exceptions import (ElasticsearchException, TransportError,
+                                      ConnectionError, RequestError,
+                                      NotFoundError)
 from neomodel import CypherException
 
 from api.utils import spawn_task
@@ -12,11 +17,18 @@ from .utils import (save_answer_util)
 @shared_task()
 def add_answer_to_search_index(answer):
     try:
-        # TODO remove added_to_search_index attribute and just query on uuid
-        # to reduce the likelihood of out of sync errors occurring and not
-        # needing to open up a connection with neo and es in the same task.
-        if answer.added_to_search_index is True:
+        try:
+            es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+            res = es.get(index='full-search-base',
+                         doc_type='sb_answers.neo_models.SBAnswer',
+                         id=answer.sb_id)
             return True
+        except NotFoundError:
+            pass
+        except (ElasticsearchException, TransportError, ConnectionError,
+                RequestError) as e:
+            raise add_answer_to_search_index.retry(exc=e, countdown=3,
+                                                   max_retries=None)
 
         search_dict = {'answer_content': answer.content,
                        'user': answer.owned_by.all()[0].email,
@@ -57,11 +69,6 @@ def save_answer_task(current_pleb, question_uuid, content, answer_uuid):
     :param question_uuid:
     :return:
     '''
-    # TODO we should pass a uuid to this task for the answer. That way
-    # we can check if that version of the answer has already been created
-    # and return from the util if so. Then we don't run the risk of
-    # recreating the answer on the off chance that the search index update
-    # task fails to spawn.
     res = save_answer_util(content=content, question_uuid=question_uuid,
                            current_pleb=current_pleb, answer_uuid=answer_uuid)
     if isinstance(res, Exception) is True:

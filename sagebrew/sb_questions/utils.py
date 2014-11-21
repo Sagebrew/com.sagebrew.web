@@ -8,8 +8,10 @@ from sb_base.tasks import create_object_relations_task
 from plebs.neo_models import Pleb
 from .neo_models import SBQuestion
 from sb_base.utils import defensive_exception
+from sb_base.decorators import apply_defense
 
 
+@apply_defense(None, True, "hello")
 def create_question_util(content, current_pleb, question_title,
                          question_uuid=None):
     '''
@@ -45,8 +47,6 @@ def create_question_util(content, current_pleb, question_title,
         return my_question
     except CypherException as e:
         return e
-    except Exception as e:
-        return defensive_exception(create_question_util.__name__, e, e)
 
 
 def get_question_by_uuid(question_uuid, current_pleb):

@@ -29,15 +29,15 @@ exclude_lines =
     if self.debug:
     raise AssertionError
     raise NotImplementedError
-    ^(.*)except Exception:(.*)$
-    ^(.*)except Exception as e:(.*)$
-    ^(.*)except CypherException:(.*)$
-    ^(.*)except CypherException as e:(.*)$
+    (.*)except Exception:(.*)
+    except Exception as e:
+    (.*)except CypherException:(.*)
+    (.*)except CypherException as e:(.*)
     ^(.*)defensive_exception(.*)$
-    ^(.*)if isinstance((.*), Exception) is True:(.*)$
+    (.*)if isinstance((.*), Exception) is True:(.*)
     if 0:
     if __name__ == .__main__.:
-
+ignore_errors = True
 
 [html]
 directory = $CIRCLE_ARTIFACTS

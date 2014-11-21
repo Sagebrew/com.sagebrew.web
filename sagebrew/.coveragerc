@@ -1,5 +1,5 @@
 [run]
-branch = False
+branch = True
 omit =
     */tests*
     */migrations/*
@@ -31,8 +31,8 @@ exclude_lines =
     raise NotImplementedError
     except Exception:
     except Exception as e:
-    return defensive_exception(*
-    raise defensive_exception(*
+    *defensive_exception*
+    *defensive_exception*
     if 0:
     if __name__ == .__main__.:
 

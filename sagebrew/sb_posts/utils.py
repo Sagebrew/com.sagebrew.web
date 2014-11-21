@@ -1,18 +1,15 @@
 import logging
-from uuid import uuid1
-from json import dumps
 
-from neomodel import DoesNotExist
+from neomodel.exception import CypherException, DoesNotExist
 
-from api.utils import execute_cypher_query, spawn_task
-from sb_base.tasks import create_object_relations_task
-from plebs.neo_models import Pleb
+from api.utils import execute_cypher_query
 from .neo_models import SBPost
-from sb_base.utils import defensive_exception
+from sb_base.decorators import apply_defense
 
 logger = logging.getLogger('loggly_logs')
 
 
+@apply_defense()
 def get_pleb_posts(pleb_object, range_end, range_start=0):
     '''
     Gets all the posts which are attached to the page users wall as well as the
@@ -39,11 +36,10 @@ def get_pleb_posts(pleb_object, range_end, range_start=0):
         return posts
     except IndexError as e:
         return e
-    except Exception as e:
-        return defensive_exception(get_pleb_posts.__name__, e, e)
 
 
-def save_post(current_pleb, wall_pleb, content, post_uuid):
+@apply_defense()
+def save_post(content, post_uuid):
     '''
     saves a post and creates the relationships between the wall
     and the poster of the comment
@@ -58,24 +54,13 @@ def save_post(current_pleb, wall_pleb, content, post_uuid):
             else returns SBPost object
     '''
     try:
-        SBPost.nodes.get(sb_id=post_uuid)
-        return True
-    except SBPost.DoesNotExist:
+        sb_post = SBPost.nodes.get(sb_id=post_uuid)
+    except(SBPost.DoesNotExist, DoesNotExist):
         try:
-            poster = Pleb.nodes.get(email=current_pleb)
-            my_citizen = Pleb.nodes.get(email=wall_pleb)
-        except (Pleb.DoesNotExist, DoesNotExist) as e:
+            sb_post = SBPost(content=content, sb_id=post_uuid)
+            sb_post.save()
+        except CypherException as e:
             return e
-        my_post = SBPost(content=content, sb_id=post_uuid)
-        my_post.save()
-        relation_data = {'sb_object': my_post,
-                         'current_pleb': current_pleb,
-                         'wall': my_citizen.wall.all()[0]}
-        spawn_task(task_func=create_object_relations_task,
-                       task_param=relation_data)
-        return my_post
-    except (ValueError, IndexError) as e:
+    except CypherException as e:
         return e
-    except Exception as e:
-        return defensive_exception(save_post.__name__, e, e)
-
+    return sb_post

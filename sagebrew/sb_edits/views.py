@@ -35,7 +35,9 @@ def edit_object_view(request):
                 'task_func': edit_object_task,
                 'task_param': task_data
             }
-            spawn_task(task_func=get_pleb_task, task_param=pleb_data)
+            spawned = spawn_task(task_func=get_pleb_task, task_param=pleb_data)
+            if isinstance(spawned, Exception):
+                return Response({"detail": "server error"}, status=500)
             return Response({"detail": "success"}, status=200)
         else:
             return Response({"detail": "invalid form"}, status=400)
@@ -63,7 +65,9 @@ def edit_question_title_view(request):
                 'task_func': edit_question_task,
                 'task_param': task_data
             }
-            spawn_task(task_func=get_pleb_task, task_param=pleb_data)
+            spawned = spawn_task(task_func=get_pleb_task, task_param=pleb_data)
+            if isinstance(spawned, Exception):
+                return Response({"detail": "invalid form"}, status=500)
 
             return Response({"detail": "success"}, status=200)
         else:

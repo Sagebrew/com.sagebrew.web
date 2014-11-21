@@ -1,11 +1,12 @@
-from uuid import uuid1
 from celery import shared_task
 
-from neomodel import CypherException
+from neomodel import CypherException, DoesNotExist
 
 from api.utils import spawn_task
 from api.tasks import add_object_to_search_index
-
+from sb_notifications.tasks import spawn_notifications
+from sb_base.tasks import create_object_relations_task
+from sb_questions.neo_models import SBQuestion
 from .utils import (save_answer_util)
 
 
@@ -57,20 +58,35 @@ def save_answer_task(current_pleb, question_uuid, content, answer_uuid):
     :param question_uuid:
     :return:
     '''
-    # TODO we should pass a uuid to this task for the answer. That way
-    # we can check if that version of the answer has already been created
-    # and return from the util if so. Then we don't run the risk of
-    # recreating the answer on the off chance that the search index update
-    # task fails to spawn.
-    res = save_answer_util(content=content, question_uuid=question_uuid,
-                           current_pleb=current_pleb, answer_uuid=answer_uuid)
-    if isinstance(res, Exception) is True:
-        raise save_answer_task.retry(exc=res, countdown=5,
-                                     max_retries=None)
-    task_data = {'answer': res}
+    answer = save_answer_util(content=content, answer_uuid=answer_uuid)
+    if isinstance(answer, Exception) is True:
+        raise save_answer_task.retry(exc=answer, countdown=5, max_retries=None)
+
+    relation_data = {"sb_object": answer, "current_pleb": current_pleb,
+                     "question": question_uuid}
+    spawned = spawn_task(task_func=create_object_relations_task,
+                         task_param=relation_data)
+    if isinstance(spawned, Exception):
+        raise save_answer_task.retry(exc=spawned, countdown=3, max_retries=None)
+
+    task_data = {'answer': answer}
     spawned = spawn_task(task_func=add_answer_to_search_index,
                          task_param=task_data)
     if isinstance(spawned, Exception) is True:
-        raise save_answer_task.retry(exc=spawned, countdown=3,
-                                     max_retries=None)
-    return res
+        raise save_answer_task.retry(exc=spawned, countdown=3, max_retries=None)
+
+    try:
+        question = SBQuestion.nodes.get(sb_id=question_uuid)
+    except(CypherException, SBQuestion.DoesNotExist, DoesNotExist):
+        raise save_answer_task.retry(exc=spawned, countdown=3, max_retries=None)
+    try:
+        to_pleb = question.owned_by.all()[0].sb_id
+    except IndexError as e:
+        raise save_answer_task.retry(exc=e, countdown=3, max_retries=None)
+
+    task_data={'sb_object': answer, 'from_pleb': current_pleb,
+               'to_plebs': to_pleb}
+    spawn_task(task_func=spawn_notifications, task_param=task_data)
+    if isinstance(spawned, Exception) is True:
+        raise save_answer_task.retry(exc=spawned, countdown=3, max_retries=None)
+    return answer

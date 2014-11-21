@@ -1,4 +1,3 @@
-from uuid import uuid1
 from neomodel import CypherException
 
 from sb_base.utils import defensive_exception
@@ -30,10 +29,7 @@ def comment_relations(pleb, comment, sb_object):
         if isinstance(comment_add_res, Exception) is True:
             return comment_add_res
 
-        pleb_res = pleb.relate_comment(comment)
-        if isinstance(pleb_res, Exception) is True:
-            return pleb_res
+        return pleb.relate_comment(comment)
 
-        return True
     except Exception as e:
         return defensive_exception(comment_relations.__name__, e, e)

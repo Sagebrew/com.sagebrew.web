@@ -39,6 +39,7 @@ class SBAnswer(SBVersioned):
             rel_to_pleb = self.owned_by.connect(pleb)
             rel_to_pleb.save()
             self.save()
+            return True
         except Exception as e:
             return defensive_exception(SBAnswer.create_relations.__name__, e, e)
 

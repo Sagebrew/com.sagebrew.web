@@ -30,7 +30,10 @@ def delete_object_view(request):
                 'task_func': delete_object_task,
                 'task_param': task_data
             }
-            spawn_task(task_func=get_pleb_task, task_param=pleb_task_data)
+            spawned = spawn_task(task_func=get_pleb_task,
+                                 task_param=pleb_task_data)
+            if isinstance(spawned, Exception):
+                return Response(status=500)
             return Response(status=200)
         else:
             return Response({"detail": "invalid form"}, status=400)

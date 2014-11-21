@@ -20,8 +20,7 @@ class TestSavePostTask(TestCase):
         self.user = User.objects.get(email=self.email)
         self.post_info_dict = {'current_pleb': self.pleb.email,
                                'wall_pleb': self.pleb.email,
-                               'content': 'test post',
-                               'post_uuid': str(uuid1())}
+                               'content': 'test post'}
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
@@ -34,19 +33,6 @@ class TestSavePostTask(TestCase):
         response = response.result
         self.assertTrue(response)
 
-class TestPostTaskRaceConditions(TestCase):
-    def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        self.post_info_dict = {'current_pleb': self.pleb.email,
-                               'wall_pleb': self.pleb.email,
-                               'content': 'test post',
-                               'post_uuid': str(uuid1())}
-
 
 class TestMultipleTasks(TestCase):
     def setUp(self):
@@ -58,8 +44,7 @@ class TestMultipleTasks(TestCase):
         self.user = User.objects.get(email=self.email)
         self.post_info_dict = {'current_pleb': self.pleb.email,
                                'wall_pleb': self.pleb.email,
-                               'content': 'test post',
-                               'post_uuid': str(uuid1())}
+                               'content': 'test post'}
 
     def test_create_many_posts(self):
         response_array = []

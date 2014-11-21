@@ -1,4 +1,4 @@
-from json import dumps
+from uuid import uuid1
 
 from celery import shared_task
 from logging import getLogger
@@ -13,7 +13,7 @@ logger = getLogger('loggly_logs')
 
 
 @shared_task()
-def save_post_task(content, current_pleb, wall_pleb, post_uuid=None):
+def save_post_task(content, current_pleb, wall_pleb, post_uuid):
     '''
     Saves the post with the content sent to the task
 

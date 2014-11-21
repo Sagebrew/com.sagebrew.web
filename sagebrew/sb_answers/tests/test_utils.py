@@ -35,17 +35,6 @@ class TestCreateAnswerUtil(TestCase):
 
         self.assertIsNot(response, False)
 
-    def test_save_answer_util_empty_content(self):
-        self.question_info_dict['sb_id']=str(uuid1())
-        question = SBQuestion(**self.question_info_dict)
-        question.save()
-        self.answer_info_dict['question_uuid'] = question.sb_id
-        self.answer_info_dict['content'] = ''
-        response = save_answer_util(**self.answer_info_dict)
-        # TODO is this test need anymore? The forms should verify that ''
-        # is never passed as a valid content string.
-        self.assertIsInstance(response, IndexError)
-
     def test_save_answer_util_question_does_not_exist(self):
         self.answer_info_dict['question_uuid'] = '246646156156615'
         response = save_answer_util(**self.answer_info_dict)

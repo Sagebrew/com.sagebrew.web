@@ -102,6 +102,7 @@ def save_question_view(request):
     #question_data['content'] = language_filter(question_data['content'])
     question_form = SaveQuestionForm(question_data)
     if question_form.is_valid():
+        question_form.cleaned_data['question_uuid'] = str(uuid1())
         spawn_task(task_func=create_question_task,
                    task_param=question_form.cleaned_data)
         return Response({"detail": "filtered",

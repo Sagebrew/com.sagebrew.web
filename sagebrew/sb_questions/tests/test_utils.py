@@ -24,7 +24,8 @@ class TestCreateQuestion(TestCase):
         self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
-                                   'content': 'test post'}
+                                   'content': 'test post',
+                                   'question_uuid': str(uuid1())}
 
     def test_save_question_util_success(self):
         response = create_question_util(**self.question_info_dict)

@@ -1,3 +1,4 @@
+from uuid import uuid1
 from celery import shared_task
 
 from neomodel import CypherException
@@ -43,7 +44,7 @@ def add_answer_to_search_index(answer):
 
 
 @shared_task()
-def save_answer_task(current_pleb, question_uuid, content):
+def save_answer_task(current_pleb, question_uuid, content, answer_uuid):
     '''
     This task is spawned when a user submits an answer to question. It then
     calls the save_answer_util to create the answer and handle creating
@@ -62,7 +63,7 @@ def save_answer_task(current_pleb, question_uuid, content):
     # recreating the answer on the off chance that the search index update
     # task fails to spawn.
     res = save_answer_util(content=content, question_uuid=question_uuid,
-                           current_pleb=current_pleb)
+                           current_pleb=current_pleb, answer_uuid=answer_uuid)
     if isinstance(res, Exception) is True:
         raise save_answer_task.retry(exc=res, countdown=5,
                                      max_retries=None)

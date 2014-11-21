@@ -1,3 +1,4 @@
+from uuid import uuid1
 from urllib2 import HTTPError
 from requests import ConnectionError
 from django.conf import settings
@@ -42,7 +43,8 @@ def save_comment_view(request):
                 "object_uuid": comment_form.cleaned_data['object_uuid'],
                 "object_type": choice_dict
                     [comment_form.cleaned_data['object_type']],
-                "content": comment_form.cleaned_data['content']
+                "content": comment_form.cleaned_data['content'],
+                'comment_uuid': str(uuid1())
             }
             pleb_task_data = {
                 'email': request.user.email,

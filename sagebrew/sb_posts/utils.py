@@ -43,7 +43,7 @@ def get_pleb_posts(pleb_object, range_end, range_start=0):
         return defensive_exception(get_pleb_posts.__name__, e, e)
 
 
-def save_post(current_pleb, wall_pleb, content, post_uuid=None):
+def save_post(current_pleb, wall_pleb, content, post_uuid):
     '''
     saves a post and creates the relationships between the wall
     and the poster of the comment
@@ -57,8 +57,6 @@ def save_post(current_pleb, wall_pleb, content, post_uuid=None):
             if post exists returns None
             else returns SBPost object
     '''
-    if post_uuid is None:
-        post_uuid = str(uuid1())
     try:
         SBPost.nodes.get(sb_id=post_uuid)
         return True

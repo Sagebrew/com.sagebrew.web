@@ -1,3 +1,4 @@
+from uuid import uuid1
 from celery import shared_task
 
 from sb_notifications.tasks import spawn_notifications
@@ -8,7 +9,8 @@ from .utils import save_comment, comment_relations
 
 
 @shared_task()
-def save_comment_on_object(content, current_pleb, object_uuid, object_type):
+def save_comment_on_object(content, current_pleb, object_uuid, object_type,
+                           comment_uuid):
     '''
     The task which creates a comment and attaches it to an object.
 
@@ -24,8 +26,6 @@ def save_comment_on_object(content, current_pleb, object_uuid, object_type):
 
             Will return false if the comment was not created
     '''
-    # TODO pass comment uuid so that we are always editting or creating
-    # the same one and not making multiple nodes off in limbo
     sb_object = get_object(object_type, object_uuid)
     if isinstance(sb_object, Exception) is True:
         raise save_comment_on_object.retry(exc=sb_object, countdown=5,
@@ -33,7 +33,7 @@ def save_comment_on_object(content, current_pleb, object_uuid, object_type):
     elif sb_object is False:
         return sb_object
 
-    my_comment = save_comment(content)
+    my_comment = save_comment(content, comment_uuid)
 
     if isinstance(my_comment, Exception) is True:
         raise save_comment_on_object.retry(exc=my_comment, countdown=5,

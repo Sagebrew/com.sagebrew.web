@@ -31,7 +31,8 @@ class TestSaveCommentTask(TestCase):
         task_param = {'content': 'test comment',
                       'current_pleb': self.pleb,
                       'object_uuid': question.sb_id,
-                      'object_type': 'sb_questions.neo_models.SBQuestion'}
+                      'object_type': 'sb_questions.neo_models.SBQuestion',
+                      'comment_uuid': str(uuid1())}
         response = save_comment_on_object.apply_async(kwargs=task_param)
         while not response.ready():
             time.sleep(1)
@@ -43,7 +44,8 @@ class TestSaveCommentTask(TestCase):
         task_param = {'content': 'test comment',
                       'current_pleb': self.pleb,
                       'object_uuid': question.sb_id,
-                      'object_type': 'SBQuestion'}
+                      'object_type': 'SBQuestion',
+                      'comment_uuid': str(uuid1())}
         response = save_comment_on_object.apply_async(kwargs=task_param)
         while not response.ready():
             time.sleep(1)

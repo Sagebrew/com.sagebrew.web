@@ -12,7 +12,7 @@ from sb_base.tasks import create_object_relations_task
 from .neo_models import SBAnswer
 
 
-def save_answer_util(content, current_pleb, question_uuid, answer_uuid=None):
+def save_answer_util(content, current_pleb, question_uuid, answer_uuid):
     '''
     This util creates an answer and saves it, it then connects it to the
     question, and pleb
@@ -23,8 +23,6 @@ def save_answer_util(content, current_pleb, question_uuid, answer_uuid=None):
     :param question_uuid:
     :return:
     '''
-    if answer_uuid is None:
-        answer_uuid = str(uuid1())
     try:
         try:
             my_pleb = Pleb.nodes.get(email=current_pleb)

@@ -99,7 +99,7 @@ def add_tags_to_question_task(question, tags):
 
 @shared_task()
 def create_question_task(content, current_pleb, question_title,
-                         tags=None, question_uuid=None):
+                         question_uuid, tags=None):
     '''
     This task calls the util to create a question, if the util fails the
     task respawns itself.

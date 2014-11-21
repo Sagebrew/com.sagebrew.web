@@ -12,7 +12,7 @@ from sb_base.decorators import apply_defense
 
 @apply_defense
 def create_question_util(content, current_pleb, question_title,
-                         question_uuid=None):
+                         question_uuid):
     '''
     This util creates the question and attaches it to the user who asked it
 
@@ -21,8 +21,6 @@ def create_question_util(content, current_pleb, question_title,
     :param question_title:
     :return:
     '''
-    if question_uuid is None:
-        question_uuid = str(uuid1())
     try:
         try:
             poster = Pleb.nodes.get(email=current_pleb)

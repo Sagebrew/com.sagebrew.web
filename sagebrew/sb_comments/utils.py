@@ -5,7 +5,7 @@ from sb_base.utils import defensive_exception
 from .neo_models import SBComment
 
 
-def save_comment(content, comment_uuid=None):
+def save_comment(content, comment_uuid):
     '''
     Creates a comment with the content passed to it. It also connects the
     comment
@@ -14,10 +14,6 @@ def save_comment(content, comment_uuid=None):
     :param comment_uuid = str(uuid) id of the post which the
     :return:
     '''
-    # TODO should require a comment uuid so that we are making duplicate
-    # comment nodes. All edits should be to the same one
-    if comment_uuid is None:
-        comment_uuid = str(uuid1())
     try:
         my_comment = SBComment(content=content, sb_id=comment_uuid)
         my_comment.save()

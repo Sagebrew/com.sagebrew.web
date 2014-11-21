@@ -26,7 +26,8 @@ class TestSaveQuestionTask(TestCase):
         self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
                                    'content': 'test post',
-                                   'tags': "this,is,a,test"}
+                                   'tags': "this,is,a,test",
+                                   'question_uuid': str(uuid1())}
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False

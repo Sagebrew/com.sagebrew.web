@@ -1,4 +1,4 @@
-import logging
+from uuid import uuid1
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
@@ -7,7 +7,6 @@ from .forms import (SaveAnswerForm)
 from .tasks import (save_answer_task)
 from api.utils import spawn_task
 
-logger = logging.getLogger('loggly_logs')
 
 
 @api_view(['POST'])
@@ -30,6 +29,7 @@ def save_answer_view(request):
 
     answer_form = SaveAnswerForm(answer_data)
     if answer_form.is_valid():
+        answer_form.cleaned_data['answer_uuid'] = str(uuid1())
         spawn_task(task_func=save_answer_task, task_param=answer_form.cleaned_data)
         return Response({'detail': 'successfully posted an answer'}, status=200)
     else:

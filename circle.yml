@@ -31,10 +31,8 @@ dependencies:
 
 test:
   override:
-    - coverage run --source='.' manage.py test --failfast:
-        timeout: 300
+    - py.test --cov-config .coveragerc --cov-report html -x:
   post:
-    - coverage html
     - coveralls --rcfile=$CIRCLE_ARTIFACTS
     #- pep8 --show-source --exclude='~/com.sagebrew.web/sagebrew/api/alchemyapi.py` --show-pep8 ~/com.sagebrew.web/sagebrew/
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation

@@ -64,7 +64,6 @@ def add_tags_to_question_task(question, tags):
     :param tags:
     :return:
     '''
-    print tags
     try:
         if question.tags_added is True:
             task_data = {
@@ -77,19 +76,13 @@ def add_tags_to_question_task(question, tags):
             auto_tags = create_auto_tags(question.content)
             task_data = []
             for tag in auto_tags['keywords']:
-                task_data.append({"tags": tag,
-                                  "object_uuid": question.sb_id,
-                                  "object_type": "question"
-                })
+                task_data.append({"tags": tag})
             auto_tag_data = {'question': question,
-                             'tag_list':'asdfas'}
-            tag_list = {'tag_list': task_data}
-            tag_task_data = {"object_uuid": question.sb_id,
-                             "object_type": "sb_questions.neo_models."
-                                            "SBQuestion",
+                             'tag_list': task_data}
+            tag_task_data = {'question': question,
                              "tags": tags}
             spawn_task(task_func=add_tags, task_param=tag_task_data)
-            spawn_task(task_func=add_auto_tags, task_param=tag_list)
+            spawn_task(task_func=add_auto_tags, task_param=auto_tag_data)
             question.tags_added = True
             question.save()
             return spawn_task(task_func=add_question_to_indices_task,

@@ -16,11 +16,22 @@ class TestSBQuestionNeoModel(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question = SBQuestion(content='test content', sb_id=str(uuid1())).\
-            save()
+        self.question = SBQuestion(content='test content',
+                                   sb_id=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
 
     def test_get_multiple_question_dict(self):
         res = self.question.get_multiple_question_dict(self.pleb)
 
         self.assertIsInstance(res, dict)
+
+    def test_add_tags(self):
+        res = self.question.add_tags('thisisatesttag1,thisisatesttag2')
+
+        self.assertTrue(res)
+
+    def test_add_auto_tags(self):
+        auto_tags = [{'tags': {'text': 'testautotag', 'relevance': 0.10201}}]
+        res = self.question.add_auto_tags(auto_tags)
+
+        self.assertIsInstance(res, list)

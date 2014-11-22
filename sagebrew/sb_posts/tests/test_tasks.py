@@ -20,7 +20,8 @@ class TestSavePostTask(TestCase):
         self.user = User.objects.get(email=self.email)
         self.post_info_dict = {'current_pleb': self.pleb.email,
                                'wall_pleb': self.pleb.email,
-                               'content': 'test post'}
+                               'content': 'test post',
+                               'post_uuid': str(uuid1())}
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):

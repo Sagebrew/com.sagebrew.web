@@ -10,7 +10,7 @@ from .neo_models import SBQuestion
 from sb_base.decorators import apply_defense
 
 
-@apply_defense
+@apply_defense(None, None)
 def create_question_util(content, current_pleb, question_title,
                          question_uuid):
     '''

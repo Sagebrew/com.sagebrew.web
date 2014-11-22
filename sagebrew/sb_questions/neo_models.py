@@ -245,6 +245,8 @@ class SBQuestion(SBVersioned, SBTagContent):
         results, columns = self.cypher('start q=node({self}) '
                                       'match q-[:EDIT]-(n:SBQuestion) '
                                       'with n '
-                                      'ORDER_BY n.date_created DESC return n')
+                                      'ORDER BY n.date_created DESC return n')
         edits = [self.inflate(row[0]) for row in results]
+        if not edits:
+            return self
         return edits[0]

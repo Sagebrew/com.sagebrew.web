@@ -452,10 +452,12 @@ class TestSearchResultAPIReturns(TestCase):
     def test_search_result_api_returns_page_3(self):
         email = "suppressionlist@simulator.amazonses.com"
         pleb = Pleb(email=email)
-        pleb.first_name='Tyler'
-        pleb.last_name='Wiersing'
+        pleb.first_name = 'Tyler'
+        pleb.last_name = 'Wiersing'
+        username = str(shortuuid.uuid())
+        pleb.username = username
         pleb.save()
-        user = User.objects.create_user(shortuuid.uuid(), email, 'password')
+        user = User.objects.create_user(username, email, 'password')
 
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(sb_id=str(uuid1()),
@@ -480,7 +482,7 @@ class TestSearchResultAPIReturns(TestCase):
             es.index(index='full-search-user-specific-1',
                      doc_type='sb_questions.neo_models.SBQuestion',
                      body={
-                         'object_uuid': question1.sb_id,
+                         'object_uuid': str(uuid1()),
                          'question_title': question1.question_title,
                          'question_content': question1.question_content,
                          'related_user': user.email

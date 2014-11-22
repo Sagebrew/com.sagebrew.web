@@ -23,6 +23,12 @@ def create_question_util(content, current_pleb, question_title,
     '''
     try:
         try:
+            question = SBQuestion.nodes.get(sb_id=question_uuid)
+            return question
+        except (SBQuestion.DoesNotExist, DoesNotExist):
+            pass
+
+        try:
             poster = Pleb.nodes.get(email=current_pleb)
         except (Pleb.DoesNotExist, DoesNotExist):
             return False

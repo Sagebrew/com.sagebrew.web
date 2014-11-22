@@ -1,11 +1,15 @@
 import logging
-from json import dumps
+from django.conf import settings
+
 from celery import shared_task
 from neomodel import DoesNotExist, CypherException
+from elasticsearch import Elasticsearch
+from elasticsearch.exceptions import (ElasticsearchException, TransportError,
+                                      ConnectionError, RequestError,
+                                      NotFoundError)
 
 from api.utils import spawn_task, create_auto_tags
 from api.tasks import add_object_to_search_index
-
 from sb_tag.tasks import add_auto_tags, add_tags
 from .neo_models import SBQuestion
 from .utils import create_question_util
@@ -26,27 +30,37 @@ def add_question_to_indices_task(question, tags):
     :return:
     '''
     try:
-        if question.added_to_search_index is True:
+        try:
+            es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+            res = es.get(index='full-search-base',
+                         doc_type='sb_questions.neo_models.SBQuestion',
+                         id=question.sb_id)
             return True
-        else:
-            search_dict = {'question_content': question.content,
-                           'user': question.owned_by.all()[0].email,
-                           'question_title': question.question_title,
-                           'tags': tags,
-                           'object_uuid': question.sb_id,
-                           'post_date': question.date_created,
-                           'related_user': ''}
-            task_data = {"object_type": "sb_questions.neo_models.SBQuestion",
-                         "object_data": search_dict}
-            question.added_to_search_index = True
-            question.save()
-            spawned = spawn_task(task_func=add_object_to_search_index,
+        except NotFoundError:
+            pass
+        except (ElasticsearchException, TransportError, ConnectionError,
+                RequestError) as e:
+            raise add_question_to_indices_task.retry(exc=e, countdown=3,
+                                                   max_retries=None)
+
+        search_dict = {'question_content': question.content,
+                       'user': question.owned_by.all()[0].email,
+                       'question_title': question.question_title,
+                       'tags': tags,
+                       'object_uuid': question.sb_id,
+                       'post_date': question.date_created,
+                       'related_user': ''}
+        task_data = {"object_type": "sb_questions.neo_models.SBQuestion",
+                     "object_data": search_dict}
+        question.added_to_search_index = True
+        question.save()
+        spawned = spawn_task(task_func=add_object_to_search_index,
                                  task_param=task_data)
-            if isinstance(spawned, Exception) is True:
-                raise add_question_to_indices_task.retry(exc=spawned,
-                                                         countdown=3,
-                                                         max_retries=None)
-            return True
+        if isinstance(spawned, Exception) is True:
+            raise add_question_to_indices_task.retry(exc=spawned,
+                                                     countdown=3,
+                                                     max_retries=None)
+        return True
 
     except (CypherException, IndexError) as e:
         raise add_question_to_indices_task.retry(exc=e, countdown=3,

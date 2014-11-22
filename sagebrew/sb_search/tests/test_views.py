@@ -454,10 +454,9 @@ class TestSearchResultAPIReturns(TestCase):
         pleb = Pleb(email=email)
         pleb.first_name = 'Tyler'
         pleb.last_name = 'Wiersing'
-        username = str(shortuuid.uuid())
-        pleb.username = username
+        pleb.username = str(shortuuid.uuid())
         pleb.save()
-        user = User.objects.create_user(username, email, 'password')
+        user = User.objects.create_user(pleb.username, email, 'password')
 
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(sb_id=str(uuid1()),
@@ -482,7 +481,7 @@ class TestSearchResultAPIReturns(TestCase):
             es.index(index='full-search-user-specific-1',
                      doc_type='sb_questions.neo_models.SBQuestion',
                      body={
-                         'object_uuid': str(uuid1()),
+                         'object_uuid': question1.sb_id,
                          'question_title': question1.question_title,
                          'question_content': question1.question_content,
                          'related_user': user.email

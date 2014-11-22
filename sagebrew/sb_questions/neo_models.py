@@ -11,7 +11,6 @@ from neomodel import (StringProperty, IntegerProperty,
                       CypherException)
 
 from sb_base.neo_models import SBVersioned, SBTagContent
-from sb_base.utils import defensive_exception
 from sb_tag.neo_models import TagRelevanceModel
 from sb_base.decorators import apply_defense
 

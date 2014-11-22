@@ -28,9 +28,7 @@ def save_post_task(content, current_pleb, wall_pleb, post_uuid):
         the post is successfully created
     '''
     try:
-        my_post = save_post(post_uuid=post_uuid, content=content,
-                            current_pleb=current_pleb,
-                            wall_pleb=wall_pleb)
+        my_post = save_post(post_uuid=post_uuid, content=content)
         if isinstance(my_post, Exception) is True:
             raise save_post_task.retry(exc=my_post, countdown=3,
                                        max_retries=None)

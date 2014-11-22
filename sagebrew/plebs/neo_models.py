@@ -79,7 +79,7 @@ class Pleb(StructuredNode):
         'flag_as_other': -10, 'answered': 50, 'starred': 150, 'seen_search': 5,
         'seen_page': 20
     }
-    username = StringProperty(unique_index=True)
+    username = StringProperty(unique_index=True, default=None)
     first_name = StringProperty()
     last_name = StringProperty()
     age = IntegerProperty()

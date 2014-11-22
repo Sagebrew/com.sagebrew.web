@@ -8,7 +8,7 @@ class Command(BaseCommand):
     args = 'None.'
 
     def populate_dockerfiles(self):
-        with open ("%s/dockerfile_template" % settings.REPO_DIR,
+        with open("%s/dockerfile_template" % settings.REPO_DIR,
                    "r") as dockerfile:
             circle_branch = os.environ.get("CIRCLE_BRANCH", None)
             data = dockerfile.read()
@@ -56,7 +56,7 @@ class Command(BaseCommand):
         f.write(worker_docker)
         f.close()
         with open("%s/docker_sys_util" % settings.REPO_DIR,
-                   "r") as dockerfile:
+                  "r") as dockerfile:
             circle_branch = os.environ.get("CIRCLE_BRANCH", None)
             data = dockerfile.read()
             if(circle_branch is not None):
@@ -87,7 +87,7 @@ class Command(BaseCommand):
             data = data.replace('{{DOCKER_ENV}}', circle_branch)
             data = data.replace("{{PROJECT_NAME}}", "sagebrew")
             sys_docker = data.replace("{{CIRCLECI}}",
-                                os.environ.get("CIRCLECI", ""))
+                                      os.environ.get("CIRCLECI", ""))
         f = open("%s/dockerfiles/sys_util/Dockerfile" % settings.REPO_DIR, "w")
         f.write(sys_docker)
         f.close()
@@ -95,6 +95,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.populate_dockerfiles()
         self.stdout.write("Dockerfiles populated")
+
 
 def populate_general_env(data):
     data = data.replace('{{APP_USER}}', os.environ.get("APP_USER", ""))
@@ -109,6 +110,7 @@ def populate_general_env(data):
     data = data.replace("{{LOG_ACCOUNT}}", os.environ.get("LOG_ACCOUNT", ""))
     data = data.replace("{{LOG_TOKEN}}", os.environ.get("LOG_TOKEN", ""))
     return data
+
 
 def populate_test_env(data):
     data = data.replace('{{REQUIREMENTS_FILE}}', "test")
@@ -148,6 +150,7 @@ def populate_test_env(data):
 
     return data
 
+
 def populate_prod_env(data):
     data = data.replace('{{REQUIREMENTS_FILE}}', "production")
     data = data.replace('{{BOMBERMAN_API_KEY}}', os.environ.get(
@@ -184,6 +187,7 @@ def populate_prod_env(data):
     data = data.replace("{{QUEUE_HOST}}", os.environ.get("QUEUE_HOST_PROD", ""))
     data = data.replace("{{QUEUE_PORT}}", os.environ.get("QUEUE_PORT_PROD", ""))
     return data
+
 
 def populate_staging_env(data):
     data = data.replace('{{REQUIREMENTS_FILE}}', "production")

@@ -114,14 +114,14 @@ def spawn_task(task_func, task_param, countdown=0, task_id=None):
 
 
 def language_filter(content):
-    '''
+    """
     Filters harsh language from posts and comments using the bomberman
     client which
     is initialized each time the function is called.
 
     :param content:
     :return:
-    '''
+    """
     try:
         bomberman = Client()
         if bomberman.is_profane(content):
@@ -163,7 +163,7 @@ def wait_util(async_res):
 
 @apply_defense
 def get_object(object_type, object_uuid):
-    '''
+    """
     DO NOT USE THIS FUNCTION ANYWHERE THAT DOES NOT HAVE A FORM
     AND A CHOICE FIELD CLEARLY LAID OUT.
 
@@ -174,7 +174,7 @@ def get_object(object_type, object_uuid):
     :param object_type:
     :param object_uuid:
     :return:
-    '''
+    """
     try:
         cls = object_type
         module_name, class_name = cls.rsplit(".", 1)

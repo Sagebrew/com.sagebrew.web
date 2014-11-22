@@ -31,13 +31,13 @@ def get_pleb_task(email, task_func, task_param):
 @shared_task()
 def add_object_to_search_index(index="full-search-base", object_type="",
                                object_data=None, object_added=None):
-    '''
+    """
     This adds the an object to the index specified.
     :param index:
     :param object_type:
     :param object_data:
     :return:
-    '''
+    """
     if object_added is not None:
         if object_added.populated_es_index:
             return True

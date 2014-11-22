@@ -203,5 +203,5 @@ class TestMultipleTasks(TestCase):
                           'content': 'test question',
                           'question_uuid': question.sb_id,}
         response2 = create_question_task.apply_async(kwargs=post_info_dict)
-        same_question = wait_util(response2)
+        same_question = wait_util({"task_id": response2})
         self.assertTrue(same_question)

@@ -98,7 +98,7 @@ class TestSBContentNeoModel(TestCase):
     def test_create_relations(self):
         res = self.content.create_relations(self.pleb)
 
-        self.assertIsInstance(res, SBContent)
+        self.assertTrue(res)
 
     def test_delete_content(self):
         res = self.content.delete_content(self.pleb)

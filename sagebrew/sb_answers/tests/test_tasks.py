@@ -70,7 +70,7 @@ class TestSaveAnswerTask(TestCase):
             time.sleep(1)
         save_response = save_response.result
 
-        self.assertFalse(save_response)
+        self.assertIsInstance(save_response, SBAnswer)
 
 
 class TestAddAnswerToSearchIndexTask(TestCase):

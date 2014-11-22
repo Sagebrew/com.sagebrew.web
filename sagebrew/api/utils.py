@@ -140,7 +140,7 @@ def create_auto_tags(content):
         keywords = alchemyapi.keywords("text", content)
         return keywords
     except Exception as e:
-        return defensive_exception(create_auto_tags.__name__, e, None)
+        return defensive_exception(create_auto_tags.__name__, e, e)
 
 
 def execute_cypher_query(query):

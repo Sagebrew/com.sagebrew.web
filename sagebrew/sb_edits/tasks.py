@@ -1,5 +1,5 @@
 import logging
-from json import dumps
+
 from celery import shared_task
 
 from api.utils import get_object

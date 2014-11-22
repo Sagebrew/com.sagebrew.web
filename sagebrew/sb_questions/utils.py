@@ -1,18 +1,14 @@
-from uuid import uuid1
 from textblob import TextBlob
 
 from neomodel import DoesNotExist, CypherException
 
-from api.utils import execute_cypher_query, spawn_task
-from sb_base.tasks import create_object_relations_task
-from plebs.neo_models import Pleb
+from api.utils import execute_cypher_query
 from .neo_models import SBQuestion
 from sb_base.decorators import apply_defense
 
 
 @apply_defense
-def create_question_util(content, current_pleb, question_title,
-                         question_uuid):
+def create_question_util(content, question_title, question_uuid):
     '''
     This util creates the question and attaches it to the user who asked it
 
@@ -22,34 +18,21 @@ def create_question_util(content, current_pleb, question_title,
     :return:
     '''
     try:
-        try:
-            question = SBQuestion.nodes.get(sb_id=question_uuid)
-            return question
-        except (SBQuestion.DoesNotExist, DoesNotExist):
-            pass
-
-        try:
-            poster = Pleb.nodes.get(email=current_pleb)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return False
-
+        question = SBQuestion.nodes.get(sb_id=question_uuid)
+    except (SBQuestion.DoesNotExist, DoesNotExist):
         content_blob = TextBlob(content)
         title_blob = TextBlob(question_title)
-        my_question = SBQuestion(content=content,
-                                 question_title=question_title,
-                                 sb_id=question_uuid)
-        my_question.save()
-        my_question.subjectivity = content_blob.subjectivity
-        my_question.positivity = content_blob.polarity
-        my_question.title_polarity = title_blob.polarity
-        my_question.title_subjectivity = title_blob.subjectivity
-        my_question.save()
-        relations_data = {'sb_object': my_question, 'current_pleb': poster}
-        spawn_task(task_func=create_object_relations_task,
-                   task_param=relations_data)
-        return my_question
+        question = SBQuestion(content=content,
+                              question_title=question_title,
+                              sb_id=question_uuid)
+        question.subjectivity = content_blob.subjectivity
+        question.positivity = content_blob.polarity
+        question.title_polarity = title_blob.polarity
+        question.title_subjectivity = title_blob.subjectivity
+        question.save()
     except CypherException as e:
         return e
+    return question
 
 
 @apply_defense(return_value={"detail": "Failure"})

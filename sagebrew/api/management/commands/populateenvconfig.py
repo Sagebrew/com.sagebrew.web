@@ -173,5 +173,5 @@ def populate_general_values(data):
     # TODO Can setup specific logs for each environment, should do that if
     # staying with LOGENT
     data = data.replace("<LOGENT_TOKEN>", environ.get("LOGENT_TOKEN", ""))
-
+    data = data.replace("<SYS_LOG_TOKEN>", environ.get("SYS_LOG_TOKEN", ""))
     return data

@@ -34,8 +34,11 @@ def save_post_view(request):
         if post_form.is_valid():
             #post_data['content'] = language_filter(post_data['content'])
             post_form.cleaned_data['post_uuid'] = str(uuid1())
-            spawn_task(task_func=save_post_task,
-                       task_param=post_form.cleaned_data)
+            spawned = spawn_task(task_func=save_post_task,
+                                 task_param=post_form.cleaned_data)
+            if isinstance(spawned, Exception):
+                return Response({"detail": "Failed to create post"},
+                                status=500)
             return Response(
                 {"action": "filtered", "filtered_content": post_data},
                 status=200)

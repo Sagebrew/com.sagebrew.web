@@ -5,10 +5,8 @@ from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from neomodel import DoesNotExist
 
 from sb_base.utils import defensive_exception
-from plebs.neo_models import Pleb
 from api.utils import spawn_task
 from api.tasks import get_pleb_task
 from .tasks import save_comment_on_object
@@ -51,7 +49,11 @@ def save_comment_view(request):
                 'task_func': save_comment_on_object,
                 'task_param': task_data
             }
-            spawn_task(task_func=get_pleb_task, task_param=pleb_task_data)
+            spawned = spawn_task(task_func=get_pleb_task,
+                                 task_param=pleb_task_data)
+            if isinstance(spawned, Exception):
+                return Response({"detail": "Failed to create comment task"},
+                                status=500)
             return Response({"detail": "Comment successfully created"},
                             status=200)
         else:

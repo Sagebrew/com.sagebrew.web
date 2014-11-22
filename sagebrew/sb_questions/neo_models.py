@@ -49,6 +49,7 @@ class SBQuestion(SBVersioned, SBTagContent):
             rel.save()
             rel_from_pleb = pleb.questions.connect(self)
             rel_from_pleb.save()
+            return True
         except Exception as e:
             return defensive_exception(SBQuestion.create_relations.__name__, e,
                                        e)

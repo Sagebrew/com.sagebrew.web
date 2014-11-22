@@ -1,9 +1,9 @@
-from uuid import uuid1
 from celery import shared_task
+
+from neomodel.exception import CypherException
 
 from sb_notifications.tasks import spawn_notifications
 from api.utils import spawn_task, get_object
-from sb_base.utils import defensive_exception
 
 from .utils import save_comment, comment_relations
 
@@ -38,33 +38,33 @@ def save_comment_on_object(content, current_pleb, object_uuid, object_type,
     if isinstance(my_comment, Exception) is True:
         raise save_comment_on_object.retry(exc=my_comment, countdown=5,
                                            max_retries=None)
-    else:
-        task_data = {"current_pleb": current_pleb, "comment": my_comment,
-                     "sb_object": sb_object}
-        spawned = spawn_task(task_func=create_comment_relations,
-                   task_param=task_data)
-        if isinstance(spawned, Exception) is True:
-            raise save_comment_on_object.retry(exc=spawned, countdown=5,
-                                               max_retries=None)
-        return spawned
+    task_data = {"current_pleb": current_pleb, "comment": my_comment,
+                 "sb_object": sb_object}
+    spawned = spawn_task(task_func=create_comment_relations,
+                         task_param=task_data)
+    if isinstance(spawned, Exception) is True:
+        raise save_comment_on_object.retry(exc=spawned, countdown=5,
+                                           max_retries=None)
+    return spawned
 
 
 
 @shared_task()
 def create_comment_relations(current_pleb, comment, sb_object):
-    try:
         res = comment_relations(current_pleb, comment, sb_object)
 
         if isinstance(res, Exception) is True:
             raise create_comment_relations.retry(exc=res, countdown=3,
                                                  max_retries=None)
-        
-        to_plebs = sb_object.owned_by.all()
+        try:
+            to_plebs = sb_object.owned_by.all()
+        except CypherException:
+            raise create_comment_relations.retry(exc=res, countdown=3,
+                                                 max_retries=None)
         data = {'from_pleb': current_pleb, 'to_plebs': to_plebs,
                 'sb_object': comment}
-        spawn_task(task_func=spawn_notifications, task_param=data)
+        spawned = spawn_task(task_func=spawn_notifications, task_param=data)
+        if isinstance(spawned, Exception) is True:
+            raise create_comment_relations.retry(exc=res, countdown=3,
+                                                 max_retries=None)
         return True
-    except Exception as e:
-        raise defensive_exception(create_comment_relations.__name__, e,
-                                  create_comment_relations.retry(
-                                      exc=e, countdown=3, max_retries=None))

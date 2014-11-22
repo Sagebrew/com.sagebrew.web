@@ -54,8 +54,12 @@ def add_question_to_indices_task(question, tags):
                      "object_data": search_dict}
         question.added_to_search_index = True
         question.save()
-        spawn_task(task_func=add_object_to_search_index,
-                   task_param=task_data)
+        spawned = spawn_task(task_func=add_object_to_search_index,
+                                 task_param=task_data)
+        if isinstance(spawned, Exception) is True:
+            raise add_question_to_indices_task.retry(exc=spawned,
+                                                     countdown=3,
+                                                     max_retries=None)
         return True
 
     except (CypherException, IndexError) as e:

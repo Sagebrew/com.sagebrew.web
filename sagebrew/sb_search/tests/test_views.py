@@ -270,7 +270,7 @@ class TestSearchResultAPI(TestCase):
         res_array = []
         for item in range(0,9):
             res = es.index(index='full-search-user-specific-1',
-                           doc_type='sb_test',
+                           doc_type='pleb',
                            body={'content': 'test content'})
             res_array.append(res)
 
@@ -334,7 +334,8 @@ class TestSearchResultAPIReturns(TestCase):
 
     def tearDown(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        es.delete_by_query('full-search-user-specific-1', 'question',
+        es.delete_by_query('full-search-user-specific-1',
+                           'sb_questions.neo_models.SBQuestion',
                            body={
                                'query': {
                                    'query_string': {

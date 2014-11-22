@@ -112,8 +112,7 @@ def create_wall_task(pleb, user):
     spawned = spawn_task(task_func=finalize_citizen_creation,
                          task_param={"pleb": pleb, "user": user})
     if isinstance(spawned, Exception) is True:
-        raise create_wall_task.retry(exc=spawned, countdown=3,
-                                         max_retries=None)
+        raise create_wall_task.retry(exc=spawned, countdown=3, max_retries=None)
     return spawned
 
 
@@ -126,16 +125,15 @@ def create_pleb_task(user_instance):
             pleb = Pleb(email=user_instance.email,
                         first_name=user_instance.first_name,
                         last_name=user_instance.last_name)
-            pleb.save()
-            generated = pleb.generate_username()
-            if isinstance(generated, Exception):
-                raise create_pleb_task.retry(exc=generated, countdown=3,
-                                             max_retries=None)
         except CypherException as e:
             raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
     except CypherException as e:
         raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
-
+    if pleb.username is None:
+        generated = pleb.generate_username()
+        if isinstance(generated, Exception):
+            raise create_pleb_task.retry(exc=generated, countdown=3,
+                                             max_retries=None)
     task_info = spawn_task(task_func=create_wall_task,
                            task_param={"pleb": pleb, "user": user_instance})
     if isinstance(task_info, Exception) is True:

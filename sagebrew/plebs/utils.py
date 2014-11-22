@@ -15,7 +15,7 @@ def prepare_user_search_html(pleb=""):
     pleb = Pleb.nodes.get(email=pleb)
     pleb_data = {
         'full_name': pleb.first_name + ' ' + pleb.last_name,
-        'reputation': 0, 'pleb_url': settings.WEB_ADDRESS+'/user/'+pleb.email,
+        'reputation': 0, 'username': pleb.username,
         'mutual_friends': 0
     }
     html = render_to_string('sb_search_section/pleb_search.html', pleb_data)

@@ -1,7 +1,8 @@
 {% block content %}
 <h1>{{ question_title }}</h1>
 <p>{{ question_content }}</p>
-<div style="font-weight: bold">Upvotes: {{ up_vote_number }} | Downvotes: {{ down_vote_number }} | Asked by: <a href="{{ owner_profile_url }}">{{ owner }}</a> | Posted: {{ time_created }} | Last edited: {{ last_edited_on }}</div>
+{% url "profile_page" pleb_username=owner_profile_url as the_url %}
+<div style="font-weight: bold">Upvotes: {{ up_vote_number }} | Downvotes: {{ down_vote_number }} | Asked by: <a href="{{ the_url }}">{{ owner }}</a> | Posted: {{ time_created }} | Last edited: {{ last_edited_on }}</div>
 <a class="btn btn-primary brt-sm vote_object-action"
    data-object_uuid="{{ question_uuid }}"
    data-vote_type=true

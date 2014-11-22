@@ -63,7 +63,7 @@ class SBAnswer(SBVersioned):
         try:
             answer_owner = self.owned_by.all()[0]
             answer_owner_name = answer_owner.first_name +' '+answer_owner.last_name
-            answer_owner_url = settings.WEB_ADDRESS+'/user/'+answer_owner.username
+            answer_owner_url = answer_owner.username
             answer_dict = {'answer_content': self.content,
                            'current_pleb': pleb,
                            'answer_uuid': self.sb_id,
@@ -72,7 +72,7 @@ class SBAnswer(SBVersioned):
                            'down_vote_number': self.get_downvote_count(),
                            'vote_score': self.get_vote_count(),
                            'answer_owner_name': answer_owner_name,
-                           'answer_owner_url': answer_owner_url,
+                           'answer_owner_url': answer_owner.username,
                            'time_created': self.date_created,
                            'answer_owner_email': answer_owner.email}
             return answer_dict

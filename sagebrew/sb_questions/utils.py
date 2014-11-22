@@ -1,3 +1,4 @@
+from uuid import uuid1
 from textblob import TextBlob
 
 from neomodel import DoesNotExist, CypherException
@@ -35,7 +36,7 @@ def create_question_util(content, question_title, question_uuid):
     return question
 
 
-@apply_defense(return_value={"detail": "Failure"})
+@apply_defense
 def get_question_by_uuid(question_uuid, current_pleb):
     '''
     Sorting util
@@ -57,7 +58,7 @@ def get_question_by_uuid(question_uuid, current_pleb):
         return {"detail": "A CypherException was thrown"}
 
 
-@apply_defense(return_value={"detail": "fail"})
+@apply_defense
 def get_question_by_most_recent(range_start=0, range_end=5):
     '''
     Sorting util
@@ -79,7 +80,7 @@ def get_question_by_most_recent(range_start=0, range_end=5):
     return questions
 
 
-@apply_defense(return_value={"detail": "fail"})
+@apply_defense
 def get_question_by_least_recent(range_start=0, range_end=5):
     '''
     Sorting util
@@ -101,7 +102,7 @@ def get_question_by_least_recent(range_start=0, range_end=5):
     return questions
 
 
-@apply_defense(return_value=False)
+@apply_defense
 def prepare_question_search_html(question_uuid):
     try:
         my_question = SBQuestion.nodes.get(sb_id=question_uuid)

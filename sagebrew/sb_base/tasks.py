@@ -13,9 +13,9 @@ logger = logging.getLogger("loggly_logs")
 def create_object_relations_task(sb_object, current_pleb, question=None,
                                  wall_pleb=None):
     try:
-        current_pleb = Pleb.nodes.get(sb_id=current_pleb)
+        current_pleb = Pleb.nodes.get(email=current_pleb)
         if wall_pleb is not None:
-            wall_pleb = Pleb.nodes.get(sb_id=wall_pleb)
+            wall_pleb = Pleb.nodes.get(email=wall_pleb)
             wall = wall_pleb.wall.all()[0]
         else:
             wall = None

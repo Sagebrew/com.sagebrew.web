@@ -26,14 +26,3 @@ def defensive_exception(function_name, exception, return_value, message=None):
     logger.exception("defensive exception handler: ")
 
     return return_value
-
-
-def apply_defense_util(fxn_name, unhandled_exception, return_value=None,
-                       return_statement=True, message=None):
-    if return_value is None:
-        return_value = unhandled_exception
-    else:
-        return_value = return_value
-    if return_statement is True:
-        return defensive_exception(fxn_name, unhandled_exception, return_value,
-                                   message)

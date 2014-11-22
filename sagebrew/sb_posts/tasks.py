@@ -50,6 +50,7 @@ def save_post_task(content, current_pleb, wall_pleb, post_uuid):
             raise save_post_task.retry(exc=spawned, countdown=3,
                                        max_retries=None)
         return True
+    # TODO review this exception
     except Exception as e:
         raise defensive_exception(save_post_task.__name__, e,
                                   save_post_task.retry(exc=e, countdown=3,

@@ -5,11 +5,11 @@ from neomodel import DoesNotExist, CypherException
 from api.utils import execute_cypher_query
 from plebs.neo_models import Pleb
 from .neo_models import FriendRequest
-from sb_base.utils import defensive_exception
+from sb_base.decorators import apply_defense
 
 logger = logging.getLogger('loggly_logs')
 
-
+@apply_defense
 def create_friend_request_util(data):
     '''
     If the function cant find either the to or from pleb it ends, if
@@ -49,5 +49,3 @@ def create_friend_request_util(data):
         return True
     except (CypherException, KeyError) as e:
         return e
-    except Exception as e:
-        return defensive_exception(create_friend_request_util.__name__, e, e)

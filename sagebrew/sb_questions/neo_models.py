@@ -1,4 +1,5 @@
 import pytz
+from uuid import uuid1
 from datetime import datetime
 from api.utils import execute_cypher_query
 from django.conf import settings
@@ -10,8 +11,8 @@ from neomodel import (StringProperty, IntegerProperty,
                       CypherException)
 
 from sb_base.neo_models import SBVersioned, SBTagContent
-from sb_base.utils import defensive_exception
 from sb_tag.neo_models import TagRelevanceModel
+from sb_base.decorators import apply_defense
 
 
 class SBQuestion(SBVersioned, SBTagContent):
@@ -43,6 +44,7 @@ class SBQuestion(SBVersioned, SBTagContent):
     answer = RelationshipTo('sb_answers.neo_models.SBAnswer',
                             'POSSIBLE_ANSWER')
 
+    @apply_defense
     def create_relations(self, pleb, question=None, wall=None):
         try:
             rel = self.owned_by.connect(pleb)
@@ -50,20 +52,18 @@ class SBQuestion(SBVersioned, SBTagContent):
             rel_from_pleb = pleb.questions.connect(self)
             rel_from_pleb.save()
             return True
-        except Exception as e:
-            return defensive_exception(SBQuestion.create_relations.__name__, e,
-                                       e)
+        except CypherException as e:
+            return e
 
+    @apply_defense
     def edit_content(self, pleb, content):
         from sb_questions.utils import create_question_util
         try:
             edit_question = create_question_util(content, self.question_title,
-                                                 pleb.email)
+                                                 str(uuid1()))
 
             if isinstance(edit_question, Exception) is True:
                 return edit_question
-            print self
-            print edit_question
             
             edit_question.original = False
             edit_question.save()
@@ -74,14 +74,13 @@ class SBQuestion(SBVersioned, SBTagContent):
             return edit_question
         except (CypherException, AttributeError) as e:
             return e
-        except Exception as e:
-            return defensive_exception(SBQuestion.edit_content.__name__, e, e)
 
+    @apply_defense
     def edit_title(self, pleb, title):
         from sb_questions.utils import create_question_util
         try:
-            edit_question = create_question_util(self.content, pleb.email,
-                                                 title)
+            edit_question = create_question_util(self.content, title,
+                                                 str(uuid1()))
 
             if isinstance(edit_question, Exception) is True:
                 return edit_question
@@ -94,9 +93,8 @@ class SBQuestion(SBVersioned, SBTagContent):
             return edit_question
         except CypherException as e:
             return e
-        except Exception as e:
-            return defensive_exception(SBQuestion.edit_title.__name__, e, e)
 
+    @apply_defense
     def delete_content(self, pleb):
         try:
             self.content = ""
@@ -106,9 +104,8 @@ class SBQuestion(SBVersioned, SBTagContent):
             return self
         except CypherException as e:
             return e
-        except Exception as e:
-            return defensive_exception(SBQuestion.delete_content.__name__, e, e)
 
+    @apply_defense
     def get_single_question_dict(self, pleb):
         from sb_answers.neo_models import SBAnswer
         try:
@@ -144,10 +141,10 @@ class SBQuestion(SBVersioned, SBTagContent):
                              'current_pleb': pleb,
                              'owner_email': owner.email}
             return question_dict
-        except Exception as e:
-            return defensive_exception(
-                SBQuestion.get_single_question_dict.__name__, e, e)
+        except CypherException as e:
+            return e
 
+    @apply_defense
     def get_multiple_question_dict(self, pleb):
         try:
             owner = self.owned_by.all()
@@ -169,10 +166,10 @@ class SBQuestion(SBVersioned, SBTagContent):
                              'current_pleb': pleb
                         }
             return question_dict
-        except Exception as e:
-            return defensive_exception(
-                SBQuestion.get_multiple_question_dict.__name__, e, e)
+        except CypherException as e:
+            return e
 
+    @apply_defense
     def render_question_page(self, pleb):
         try:
             owner = self.owned_by.all()
@@ -197,12 +194,10 @@ class SBQuestion(SBVersioned, SBTagContent):
             t = get_template("questions.html")
             c = Context(question_dict)
             return t.render(c)
-        except Exception as e:
-            # TODO Do we really want to be returning an empty string here or
-            # should we redirect to an exception?
-            return defensive_exception(
-                SBQuestion.render_question_page.__name__, e, "")
+        except CypherException as e:
+            return e
 
+    @apply_defense
     def render_search(self):
         try:
             owner = self.owned_by.all()[0]
@@ -224,33 +219,40 @@ class SBQuestion(SBVersioned, SBTagContent):
                              "owner_email": owner.email}
             rendered = render_to_string('question_search.html', question_dict)
             return rendered
-        except Exception as e:
-            return defensive_exception(
-                SBQuestion.render_search.__name__, e, e)
+        except CypherException as e:
+            return e
 
+    @apply_defense
     def render_single(self, pleb):
         try:
             t = get_template("single_question.html")
             c = Context(self.get_single_question_dict(pleb))
             return t.render(c)
-        except Exception as e:
-            return defensive_exception(
-                SBQuestion.render_single.__name__, e, e)
+        except CypherException as e:
+            return e
 
     def render_multiple(self, pleb):
         pass
 
+    @apply_defense
     def get_original(self):
-        if self.original is True:
-            return self
-        return self.edit_to.search(original=True)
+        try:
+            if self.original is True:
+                return self
+            return self.edit_to.search(original=True)
+        except CypherException as e:
+            return e
 
+    @apply_defense
     def get_most_recent_edit(self):
-        results, columns = self.cypher('start q=node({self}) '
-                                      'match q-[:EDIT]-(n:SBQuestion) '
-                                      'with n '
-                                      'ORDER BY n.date_created DESC return n')
-        edits = [self.inflate(row[0]) for row in results]
-        if not edits:
-            return self
-        return edits[0]
+        try:
+            results, columns = self.cypher('start q=node({self}) '
+                                          'match q-[:EDIT]-(n:SBQuestion) '
+                                          'with n '
+                                          'ORDER BY n.date_created DESC return n')
+            edits = [self.inflate(row[0]) for row in results]
+            if not edits:
+                return self
+            return edits[0]
+        except CypherException as e:
+            return e

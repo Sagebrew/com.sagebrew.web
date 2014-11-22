@@ -9,7 +9,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       BooleanProperty, FloatProperty, CypherException,
                       RelationshipFrom, DoesNotExist)
 
-from sb_base.utils import defensive_exception
+from sb_base.decorators import apply_defense
 
 
 
@@ -51,6 +51,7 @@ class SBVoteableContent(StructuredNode):
     #views = RelationshipTo('sb_views.neo_models.SBView', 'VIEWS')
 
     #methods
+    @apply_defense
     def vote_content(self, vote_type, pleb):
         try:
             if self.votes.is_connected(pleb):
@@ -66,16 +67,19 @@ class SBVoteableContent(StructuredNode):
                 rel.active = True
                 rel.save()
             return self
+        except CypherException as e:
+            return e
 
-        except Exception as e:
-            return defensive_exception(SBVoteableContent.vote_content.__name__,
-                                       e, e)
-
+    @apply_defense
     def remove_vote(self, rel):
-        rel.active = False
-        rel.save()
-        return self
+        try:
+            rel.active = False
+            rel.save()
+            return self
+        except CypherException as e:
+            return e
 
+    @apply_defense
     def get_upvote_count(self):
         query = 'start s=node({self}) match s-[r:PLEB_VOTES]-(p:Pleb) ' \
                 'where r.vote_type=true and r.active=true return r'
@@ -85,6 +89,7 @@ class SBVoteableContent(StructuredNode):
         except CypherException as e:
             return e
 
+    @apply_defense
     def get_downvote_count(self):
         query = 'start s=node({self}) match s-[r:PLEB_VOTES]-(p:Pleb) ' \
                 'where r.vote_type=false and r.active=true return r'
@@ -94,8 +99,12 @@ class SBVoteableContent(StructuredNode):
         except CypherException as e:
             return e
 
+    @apply_defense
     def get_vote_count(self):
-        return self.get_upvote_count() - self.get_downvote_count()
+        try:
+            return self.get_upvote_count() - self.get_downvote_count()
+        except CypherException as e:
+            return e
 
 
 class SBContent(SBVoteableContent):
@@ -130,9 +139,13 @@ class SBContent(SBVoteableContent):
         return cls.__name__
 
     def create_relations(self, pleb, question=None, wall=None):
-        self.owned_by.connect(pleb)
-        return self
+        try:
+            self.owned_by.connect(pleb)
+            return self
+        except CypherException as e:
+            return e
 
+    @apply_defense
     def comment_on(self, comment):
         try:
             rel = self.comments.connect(comment)
@@ -141,9 +154,8 @@ class SBContent(SBVoteableContent):
             return rel
         except CypherException as e:
             return e
-        except Exception as e:
-            return defensive_exception(SBContent.comment_on.__name__, e, e)
 
+    @apply_defense
     def delete_content(self, pleb):
         try:
             self.content=""
@@ -152,12 +164,11 @@ class SBContent(SBVoteableContent):
             return self
         except CypherException as e:
             return e
-        except Exception as e:
-            return defensive_exception(SBContent.delete_content.__name__, e, e)
 
     def reputation_adjust(self):
         pass
 
+    @apply_defense
     def flag_content(self, flag_reason, current_pleb, description=""):
         from sb_flags.neo_models import SBFlag
         try:
@@ -172,8 +183,8 @@ class SBContent(SBVoteableContent):
             self.flagged_by.connect(current_pleb)
             return self
 
-        except Exception as e:
-            return defensive_exception(SBContent.flag_content.__name__, e, e)
+        except CypherException as e:
+            return e
 
     def render_search(self):
         pass
@@ -208,6 +219,7 @@ class SBNonVersioned(SBContent):
     auto_tagged_as = RelationshipTo('sb_tag.neo_models.SBTag',
                                     'AUTO_TAGGED_AS')
 
+    @apply_defense
     def edit_content(self, content, pleb):
         try:
             self.content = content
@@ -215,8 +227,6 @@ class SBNonVersioned(SBContent):
             self.save()
             return self
         except CypherException as e:
-            return e
-        except Exception as e:
             return e
 
 
@@ -227,27 +237,31 @@ class SBTagContent(StructuredNode):
                                'AUTO_TAGGED_AS')
 
     #methods
+    @apply_defense
     def add_tags(self, tags):
         from sb_tag.neo_models import SBTag
-        tag_array = []
-        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        if not tags:
-            return False
-        tags = tags.split(',')
-        for tag in tags:
-            try:
-                tag_object = SBTag.nodes.get(tag_name=tag)
-                tag_array.append(tag_object)
-            except (SBTag.DoesNotExist, DoesNotExist):
-                es.index(index='tags', doc_type='tag',
-                         body={'tag_name': tag})
-                tag_object = SBTag(tag_name=tag).save()
-                tag_array.append(tag_object)
-        for item in tag_array:
-            self.tagged_as.connect(item)
-            item.tag_used += 1
-            item.save()
-        return True
+        try:
+            tag_array = []
+            es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+            if not tags:
+                return False
+            tags = tags.split(',')
+            for tag in tags:
+                try:
+                    tag_object = SBTag.nodes.get(tag_name=tag)
+                    tag_array.append(tag_object)
+                except (SBTag.DoesNotExist, DoesNotExist):
+                    es.index(index='tags', doc_type='tag',
+                             body={'tag_name': tag})
+                    tag_object = SBTag(tag_name=tag).save()
+                    tag_array.append(tag_object)
+            for item in tag_array:
+                self.tagged_as.connect(item)
+                item.tag_used += 1
+                item.save()
+            return True
+        except CypherException as e:
+            return e
 
 
     def add_auto_tags(self, tag_list):

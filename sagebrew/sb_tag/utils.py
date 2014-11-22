@@ -1,16 +1,11 @@
 import logging
-from json import dumps
-from django.conf import settings
-from elasticsearch import Elasticsearch
-from neomodel.exception import UniqueProperty, DoesNotExist, CypherException
+from neomodel.exception import CypherException
 
-from .neo_models import SBAutoTag, SBTag
-from sb_questions.neo_models import SBQuestion
-from sb_base.utils import defensive_exception
+from sb_base.decorators import apply_defense
 
 logger = logging.getLogger('loggly_logs')
 
-
+@apply_defense
 def create_tag_relations_util(tags):
     '''
     This function creates and manages the relationships between tags, such as
@@ -36,7 +31,7 @@ def create_tag_relations_util(tags):
                     rel.save()
         return True
 
-    except Exception as e:
-        return defensive_exception(create_tag_relations_util, e, e)
+    except CypherException as e:
+        return e
 
 

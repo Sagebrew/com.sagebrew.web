@@ -15,7 +15,7 @@ from neomodel import DoesNotExist, CypherException
 from api.utils import spawn_task
 from plebs.tasks import create_pleb_task
 from plebs.neo_models import Pleb
-from sb_base.utils import defensive_exception
+from sb_base.decorators import apply_defense
 
 
 
@@ -317,10 +317,9 @@ def verify_verified_email(user):
     except (Pleb.DoesNotExist, DoesNotExist):
         return False
     except CypherException as e:
-        return defensive_exception(verify_verified_email.__name__, e,
-                                   False)
+        return e
 
-
+@apply_defense
 def sb_send_email(to_email, subject, html_content):
     '''
     This function is used to send mail through the amazon ses service,
@@ -344,25 +343,20 @@ def sb_send_email(to_email, subject, html_content):
         return True
     except SESMaxSendingRateExceededError as e:
         return e
-    except Exception as e:
-        return defensive_exception(sb_send_email.__name__, e, e)
 
-
+@apply_defense
 def create_user_util(first_name, last_name, email, password, username=None):
-    try:
-        if username is None:
-            username = shortuuid.uuid()
-        user = User.objects.create_user(first_name=first_name,
-                                        last_name=last_name,
-                                        email=email,
-                                        password=password,
-                                        username=username)
-        user.save()
-        res = spawn_task(task_func=create_pleb_task,
-                         task_param={"user_instance": user})
-        if isinstance(res, Exception) is True:
-            return res
-        else:
-            return {"task_id": res, "username": user.username}
-    except Exception as e:
-        return defensive_exception(create_user_util.__name__, e, e)
+    if username is None:
+        username = shortuuid.uuid()
+    user = User.objects.create_user(first_name=first_name,
+                                    last_name=last_name,
+                                    email=email,
+                                    password=password,
+                                    username=username)
+    user.save()
+    res = spawn_task(task_func=create_pleb_task,
+                     task_param={"user_instance": user})
+    if isinstance(res, Exception) is True:
+        return res
+    else:
+        return {"task_id": res, "username": user.username}

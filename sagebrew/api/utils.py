@@ -140,7 +140,7 @@ def create_auto_tags(content):
         keywords = alchemyapi.keywords("text", content)
         return keywords
     except Exception as e:
-        return defensive_exception(create_auto_tags.__name__, e, None)
+        return defensive_exception(create_auto_tags.__name__, e, e)
 
 
 def execute_cypher_query(query):
@@ -160,7 +160,7 @@ def wait_util(async_res):
     while not async_res['task_id'].result.ready():
         time.sleep(1)
 
-@apply_defense(None, None)
+@apply_defense
 def get_object(object_type, object_uuid):
     '''
     DO NOT USE THIS FUNCTION ANYWHERE THAT DOES NOT HAVE A FORM

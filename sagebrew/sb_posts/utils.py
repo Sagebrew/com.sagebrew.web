@@ -9,7 +9,7 @@ from sb_base.decorators import apply_defense
 logger = logging.getLogger('loggly_logs')
 
 
-@apply_defense()
+@apply_defense
 def get_pleb_posts(pleb_object, range_end, range_start=0):
     '''
     Gets all the posts which are attached to the page users wall as well as the
@@ -38,7 +38,7 @@ def get_pleb_posts(pleb_object, range_end, range_start=0):
         return e
 
 
-@apply_defense()
+@apply_defense
 def save_post(content, post_uuid):
     '''
     saves a post and creates the relationships between the wall

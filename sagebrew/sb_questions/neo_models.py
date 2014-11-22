@@ -57,12 +57,14 @@ class SBQuestion(SBVersioned, SBTagContent):
     def edit_content(self, pleb, content):
         from sb_questions.utils import create_question_util
         try:
-            edit_question = create_question_util(content, pleb.email,
-                                                 self.question_title)
+            edit_question = create_question_util(content, self.question_title,
+                                                 pleb.email)
 
             if isinstance(edit_question, Exception) is True:
                 return edit_question
-
+            print self
+            print edit_question
+            
             edit_question.original = False
             edit_question.save()
             self.edits.connect(edit_question)
@@ -114,7 +116,7 @@ class SBQuestion(SBVersioned, SBTagContent):
             owner = self.owned_by.all()
             owner = owner[0]
             owner_name = owner.first_name + ' ' + owner.last_name
-            owner_profile_url = settings.WEB_ADDRESS + '/user/' + owner.email
+            owner_profile_url = settings.WEB_ADDRESS + '/user/' + owner.username
             query = 'match (q:SBQuestion) where q.sb_id="%s" ' \
                     'with q ' \
                     'match (q)-[:POSSIBLE_ANSWER]-(a:SBAnswer) ' \
@@ -124,8 +126,10 @@ class SBQuestion(SBVersioned, SBTagContent):
             answers = [SBAnswer.inflate(row[0]) for row in answers]
             for answer in answers:
                 answer_array.append(answer.get_single_answer_dict(pleb))
-            question_dict = {'question_title': self.question_title,
-                             'question_content': self.content,
+            edit = self.get_most_recent_edit()
+
+            question_dict = {'question_title': edit.question_title,
+                             'question_content': edit.content,
                              'question_uuid': self.sb_id,
                              'is_closed': self.is_closed,
                              'answer_number': self.answer_number,
@@ -203,7 +207,7 @@ class SBQuestion(SBVersioned, SBTagContent):
         try:
             owner = self.owned_by.all()[0]
             owner_name = owner.first_name + ' ' + owner.last_name
-            owner_profile_url = settings.WEB_ADDRESS + '/user/' + owner.email
+            owner_profile_url = settings.WEB_ADDRESS + '/user/' + owner.username
             question_dict = {"question_title": self.
                                  get_most_recent_edit().question_title,
                              "question_content": self.

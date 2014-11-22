@@ -207,9 +207,9 @@ def get_question_view(request):
         else:
             response = {"detail": "fail"}
             return Response(response, status=400)
-
+    except KeyError:
+        return Response(status=400)
     except Exception as e:
-        traceback.print_exc()
         return defensive_exception(get_question_view.__name__, e,
                                    Response(status=400))
 

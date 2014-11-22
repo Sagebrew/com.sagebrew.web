@@ -46,7 +46,6 @@ class TestCreateAnswerUtil(TestCase):
         question = SBQuestion(**self.question_info_dict)
         question.save()
         self.answer_info_dict['question_uuid'] = question.sb_id
-        self.answer_info_dict['current_pleb'] = 'adsfasd152fasdfasdf@gmail.com'
         response = save_answer_util(**self.answer_info_dict)
 
         self.assertFalse(response)

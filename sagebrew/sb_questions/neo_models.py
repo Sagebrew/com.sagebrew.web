@@ -241,8 +241,6 @@ class SBQuestion(SBVersioned, SBTagContent):
         return self.edit_to.search(original=True)
 
     def get_most_recent_edit(self):
-        if self.original is True:
-            return self
         results, columns = self.cypher('start q=node({self}) '
                                       'match q-[:EDIT]-(n:SBQuestion) '
                                       'with n '

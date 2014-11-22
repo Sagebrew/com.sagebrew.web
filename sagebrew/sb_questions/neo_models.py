@@ -154,8 +154,9 @@ class SBQuestion(SBVersioned, SBTagContent):
                              'is_closed': self.is_closed,
                              'answer_number': self.answer_number,
                              'last_edited_on': self.last_edited_on,
-                             'up_vote_number': self.up_vote_number,
-                             'down_vote_number': self.down_vote_number,
+                             'up_vote_number': self.get_upvote_count(),
+                             'down_vote_number': self.get_downvote_count(),
+                             'vote_count': self.get_vote_count(),
                              'owner': owner,
                              'time_created': self.date_created,
                              'question_url': settings.WEB_ADDRESS +
@@ -173,8 +174,10 @@ class SBQuestion(SBVersioned, SBTagContent):
             owner = self.owned_by.all()
             owner = owner[0]
             owner = owner.first_name + ' ' + owner.last_name
-            question_dict = {'question_title': self.question_title,
-                             'question_content': self.content[:50]+'...',
+            question_dict = {'question_title': self.
+                                get_most_recent_edit().question_title,
+                             'question_content': self.
+                                get_most_recent_edit().content[:50]+'...',
                              'is_closed': self.is_closed,
                              'answer_number': self.answer_number,
                              'last_edited_on': self.last_edited_on,
@@ -201,8 +204,10 @@ class SBQuestion(SBVersioned, SBTagContent):
             owner = self.owned_by.all()[0]
             owner_name = owner.first_name + ' ' + owner.last_name
             owner_profile_url = settings.WEB_ADDRESS + '/user/' + owner.email
-            question_dict = {"question_title": self.question_title,
-                             "question_content": self.content,
+            question_dict = {"question_title": self.
+                                 get_most_recent_edit().question_title,
+                             "question_content": self.
+                                 get_most_recent_edit().content,
                              "question_uuid": self.sb_id,
                              "is_closed": self.is_closed,
                              "answer_number": self.answer_number,
@@ -230,3 +235,18 @@ class SBQuestion(SBVersioned, SBTagContent):
 
     def render_multiple(self, pleb):
         pass
+
+    def get_original(self):
+        if self.original is True:
+            return self
+        return self.edit_to.search(original=True)
+
+    def get_most_recent_edit(self):
+        results, columns = self.cypher('start q=node({self}) '
+                                      'match q-[:EDIT]-(n:SBQuestion) '
+                                      'with n '
+                                      'ORDER BY n.date_created DESC return n')
+        edits = [self.inflate(row[0]) for row in results]
+        if not edits:
+            return self
+        return edits[0]

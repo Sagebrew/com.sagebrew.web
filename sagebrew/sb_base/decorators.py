@@ -1,7 +1,7 @@
 from .utils import apply_defense_util
 
 
-class apply_defense(object):
+class apply_defense():
     '''
     apply_defense is the class that should used to cover any function that
     it is feared there may be exceptions that are unhandled. DO NOT put in

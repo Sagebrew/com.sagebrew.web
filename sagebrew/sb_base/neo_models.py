@@ -102,7 +102,7 @@ class SBContent(SBVoteableContent):
     allowed_flags = []
     up_vote_number = IntegerProperty(default=0)
     down_vote_number = IntegerProperty(default=0)
-    last_edited_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    last_edited_on = DateTimeProperty()
     edited = BooleanProperty(default=False)
     to_be_deleted = BooleanProperty(default=False)
     is_explicit = BooleanProperty(default=False)

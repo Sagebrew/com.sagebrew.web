@@ -29,6 +29,8 @@ class SBAnswer(SBVersioned):
 
     @apply_defense
     def create_relations(self, pleb, question=None, wall=None):
+        if question is None:
+            return False
         try:
             self.answer_to.connect(question)
             question.answer.connect(self)

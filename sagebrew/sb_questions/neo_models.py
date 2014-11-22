@@ -246,7 +246,7 @@ class SBQuestion(SBVersioned, SBTagContent):
         try:
             if self.original is True:
                 return self
-            return self.edit_to.search(original=True)
+            return self.edit_to.all()[0]
         except CypherException as e:
             return e
 

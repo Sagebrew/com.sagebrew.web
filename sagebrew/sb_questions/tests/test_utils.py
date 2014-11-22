@@ -92,9 +92,9 @@ class TestGetQuestionByLeastRecent(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question_info_dict = {'current_pleb': self.user.email,
-                                   'question_title': "Test question",
-                                   'content': 'test post'}
+        self.question_info_dict = {'question_title': "Test question",
+                                   'content': 'test post',
+                                   'question_uuid': str(uuid1())}
 
     def test_get_questions_by_least_recent_success(self):
         question_array = []

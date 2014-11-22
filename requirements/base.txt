@@ -33,4 +33,4 @@ nltk
 neomodel
 shortuuid
 gunicorn
-logentries==0.2
+logentries

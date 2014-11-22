@@ -121,20 +121,3 @@ class TestEditQuestionTitleTask(TestCase):
             time.sleep(1)
 
         self.assertFalse(res.result)
-
-    def test_edit_question_title_edit_title_failure(self):
-        question = SBQuestion(question_title='test title for edit',
-                              content='this is before edit',
-                              sb_id=str(uuid1())).save()
-        task_data = {
-            'object_uuid': question.sb_id,
-            'object_type': 'sb_questions.neo_models.SBQuestion',
-            'current_pleb': self.pleb.email,
-            'question_title': 'this is post edit content'
-        }
-
-        res = edit_question_task.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
-
-        self.assertIsInstance(res.result, Exception)

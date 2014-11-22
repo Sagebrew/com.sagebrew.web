@@ -30,10 +30,8 @@ def create_object_relations_task(sb_object, current_pleb, question=None,
         except(CypherException, DoesNotExist, SBQuestion.DoesNotExist) as e:
             raise create_object_relations_task.retry(exc=e, countdown=3,
                                                      max_retries=None)
-        res = sb_object.create_relations(current_pleb, question, wall)
-        if isinstance(res, Exception) is True:
-            raise create_object_relations_task.retry(exc=res, countdown=3,
-                                                     max_retries=None)
-        return True
-    # TODO is there anything that should happen if question is None?
-    # We shoud at least be returning something
+    res = sb_object.create_relations(current_pleb, question, wall)
+    if isinstance(res, Exception) is True:
+        raise create_object_relations_task.retry(exc=res, countdown=3,
+                                                 max_retries=None)
+    return res

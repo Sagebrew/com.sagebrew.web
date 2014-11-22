@@ -141,7 +141,7 @@ class SBContent(SBVoteableContent):
     def create_relations(self, pleb, question=None, wall=None):
         try:
             self.owned_by.connect(pleb)
-            return self
+            return True
         except CypherException as e:
             return e
 

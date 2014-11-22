@@ -76,7 +76,7 @@ class SBQuestion(SBVersioned, SBTagContent):
             return e
 
     @apply_defense
-    def edit_title(self, pleb, title):
+    def edit_title(self, title):
         from sb_questions.utils import create_question_util
         try:
             edit_question = create_question_util(self.content, title,

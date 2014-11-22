@@ -38,7 +38,7 @@ def edit_question_task(object_uuid, object_type, current_pleb, question_title):
     elif sb_object is False:
         return sb_object
 
-    res = sb_object.edit_title(pleb=current_pleb, title=question_title)
+    res = sb_object.edit_title(title=question_title)
 
     if isinstance(res, Exception) is True:
         raise edit_question_task.retry(exc=res, countdown=3, max_retries=None)

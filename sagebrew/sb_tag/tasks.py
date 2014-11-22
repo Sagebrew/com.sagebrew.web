@@ -46,13 +46,16 @@ def add_auto_tags(question, tag_list):
     '''
     if len(tag_list) < 1:
         return True
-
+    # TODO review and ensure that this is idempotent
     response = question.add_auto_tags(tag_list)
 
     if isinstance(response, Exception) is True:
         raise add_auto_tags.retry(exc=response, countdown=3,
                                   max_retries=None)
 
-    spawn_task(task_func=create_tag_relations,
-               task_param={"tag_array": response})
+    spawned = spawn_task(task_func=create_tag_relations,
+                         task_param={"tag_array": response})
+    if isinstance(spawned, Exception) is True:
+        raise add_auto_tags.retry(exc=response, countdown=3,
+                                  max_retries=None)
     return response

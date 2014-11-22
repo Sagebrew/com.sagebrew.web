@@ -202,6 +202,7 @@ def update_search_query(pleb, query_param, keywords):
     :param keywords:
     :return:
     '''
+    # TODO Need to catch CypherExceptions and insure this is idempotent
     try:
         try:
             pleb = Pleb.nodes.get(email=pleb)
@@ -227,7 +228,9 @@ def update_search_query(pleb, query_param, keywords):
         rel.save()
         for keyword in keywords:
             keyword['query_param'] = query_param
-            spawn_task(task_func=create_keyword, task_param=keyword)
+            spawned = spawn_task(task_func=create_keyword, task_param=keyword)
+            if isinstance(spawned, Exception) is True:
+                return spawned
         return True
     except Exception as e:
         raise defensive_exception(update_search_query.__name__, e,

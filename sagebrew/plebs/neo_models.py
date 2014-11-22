@@ -149,16 +149,18 @@ class Pleb(StructuredNode):
                         str(self.last_name).lower()
         temp_username = re.sub('[^a-z0-9]+', '', temp_username)
         try:
-            pleb = Pleb.nodes.get(username=temp_username)
             query = 'match (p:Pleb) where p.first_name="%s" and ' \
                     'p.last_name="%s" return p' % (self.first_name,
                                                    self.last_name)
             res = execute_cypher_query(query)
+            if isinstance(res, Exception):
+                return res
             self.username = temp_username + str((len(res[0])+1))
             self.save()
         except Pleb.DoesNotExist:
             self.username = temp_username
             self.save()
+        return True
 
     def relate_comment(self, comment):
         try:

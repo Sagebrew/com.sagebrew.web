@@ -55,7 +55,7 @@ class TestAddObjectToSearchIndex(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
-        self.assertNotEqual(res, False)
+        self.assertFalse(isinstance(res, Exception))
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)

@@ -103,8 +103,10 @@ def save_question_view(request):
     question_form = SaveQuestionForm(question_data)
     if question_form.is_valid():
         question_form.cleaned_data['question_uuid'] = str(uuid1())
-        spawn_task(task_func=create_question_task,
-                   task_param=question_form.cleaned_data)
+        spawned = spawn_task(task_func=create_question_task,
+                             task_param=question_form.cleaned_data)
+        if isinstance(spawned, Exception) is True:
+            return Response({"detail": "server error"}, status=500)
         return Response({"detail": "filtered",
                          "filtered_content": question_data}, status=200)
     else:

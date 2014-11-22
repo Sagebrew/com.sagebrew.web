@@ -83,36 +83,37 @@ def process_search_result(item):
     :param item:
     :return:
     '''
+    # TODO handle spawn task correctly and ensure this is idempotent
     from sb_search.tasks import update_weight_relationship
     try:
         if 'sb_score' not in item['_source']:
                 item['_source']['sb_score'] = 0
         if item['_type'] == 'sb_questions.neo_models.SBQuestion':
-            spawn_task(update_weight_relationship,
-                       task_param=
-                       {'index': item['_index'],
-                        'document_id': item['_id'],
-                        'object_uuid': item['_source']['object_uuid'],
-                        'object_type': 'question',
-                        'current_pleb': item['_source']['related_user'],
-                        'modifier_type': 'seen'})
+            spawned = spawn_task(
+                update_weight_relationship, task_param=
+                {'index': item['_index'],
+                 'document_id': item['_id'],
+                 'object_uuid': item['_source']['object_uuid'],
+                 'object_type': 'question',
+                 'current_pleb': item['_source']['related_user'],
+                 'modifier_type': 'seen'})
+
             return {"question_uuid": item['_source']['object_uuid'],
                            "type": "question",
                            "temp_score": item['_score']*item['_source']['sb_score'],
                            "score": item['_score']}
         if item['_type'] == 'pleb':
-            spawn_task(update_weight_relationship,
-                       task_param={'index': item['_index'],
-                                   'document_id': item['_id'],
-                                   'object_uuid':
-                                       item['_source']['pleb_email'],
-                                   'object_type': 'pleb',
-                                   'current_pleb': item['_source']['related_user'],
-                                   'modifier_type': 'seen'})
+            spawned = spawn_task(
+                update_weight_relationship,
+                task_param={'index': item['_index'],
+                            'document_id': item['_id'],
+                            'object_uuid': item['_source']['pleb_email'],
+                            'object_type': 'pleb',
+                            'current_pleb': item['_source']['related_user'],
+                            'modifier_type': 'seen'})
             return {"pleb_email": item['_source']['pleb_email'],
-                           "type": "pleb",
-                           "temp_score": item['_score']*item['_source']['sb_score'],
-                           "score": item['_score']}
+                    "type": "pleb",
+                    "temp_score": item['_score']*item['_source']['sb_score'],
+                    "score": item['_score']}
     except Exception as e:
-        return defensive_exception(process_search_result.__name__, e,
-                                   {})
+        return defensive_exception(process_search_result.__name__, e, {})

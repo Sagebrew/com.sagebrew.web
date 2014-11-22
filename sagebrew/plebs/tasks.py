@@ -38,6 +38,7 @@ def finalize_citizen_creation(pleb, user):
     # TODO need to create retry strategy if spawn_task fails, not just return
     # it.
     # TODO look into celery chaining and/or grouping
+    # TODO ensure this is idempotent
     task_list = {}
     task_data = {
         'object_added': pleb,
@@ -91,19 +92,24 @@ def finalize_citizen_creation(pleb, user):
 @shared_task()
 def create_wall_task(pleb, user):
     try:
-        if len(pleb.wall.all()) == 1:
-            return spawn_task(task_func=finalize_citizen_creation,
-                              task_param={"pleb": pleb, "user": user})
-        elif len(pleb.wall.all()) > 1:
+        if len(pleb.wall.all()) > 1:
+            # TODO log something here, need to delete one otherwise stuff will
+            # break
             return False
-        wall = SBWall(wall_id=str(uuid1())).save()
-        wall.owner.connect(pleb)
-        pleb.wall.connect(wall)
-        return spawn_task(task_func=finalize_citizen_creation,
-                          task_param={"pleb": pleb, "user": user})
+        elif len(pleb.wall.all()) == 1:
+            pass
+        else:
+            wall = SBWall(wall_id=str(uuid1())).save()
+            wall.owner.connect(pleb)
+            pleb.wall.connect(wall)
+        spawned = spawn_task(task_func=finalize_citizen_creation,
+                             task_param={"pleb": pleb, "user": user})
+        if isinstance(spawned, Exception) is True:
+            raise create_wall_task.retry(exc=spawned, countdown=3,
+                                             max_retries=None)
+        return spawned
     except (TypeError, CypherException) as e:
-        raise create_wall_task.retry(exc=e, countdown=3,
-                                     max_retries=None)
+        raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
     except Exception as e:
         raise defensive_exception(create_wall_task.__name__, e,
                                   create_wall_task.retry(exc=e, countdown=3,
@@ -113,29 +119,25 @@ def create_wall_task(pleb, user):
 @shared_task()
 def create_pleb_task(user_instance):
     try:
+        pleb = Pleb.nodes.get(email=user_instance.email)
+    except (Pleb.DoesNotExist, DoesNotExist):
         try:
-            test = Pleb.nodes.get(email=user_instance.email)
-            task_info = spawn_task(create_wall_task, task_param={
-                'pleb': test, 'user': user_instance})
-            if isinstance(task_info, Exception) is True:
-                raise create_pleb_task.retry(exc=task_info, countdown=3,
-                                             max_retries=None)
-        except (Pleb.DoesNotExist, DoesNotExist):
             pleb = Pleb(email=user_instance.email,
                         first_name=user_instance.first_name,
                         last_name=user_instance.last_name)
             pleb.save()
-            pleb.generate_username()
-            task_info = spawn_task(task_func=create_wall_task,
-                              task_param={"pleb": pleb, "user": user_instance})
-            if isinstance(task_info, Exception) is True:
-                raise create_pleb_task.retry(exc=task_info, countdown=3,
+            generated = pleb.generate_username()
+            if isinstance(generated, Exception):
+                raise create_pleb_task.retry(exc=generated, countdown=3,
                                              max_retries=None)
-            return task_info
+        except CypherException as e:
+            raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
     except CypherException as e:
-        raise create_pleb_task.retry(exc=e, countdown=3,
+        raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
+
+    task_info = spawn_task(task_func=create_wall_task,
+                           task_param={"pleb": pleb, "user": user_instance})
+    if isinstance(task_info, Exception) is True:
+        raise create_pleb_task.retry(exc=task_info, countdown=3,
                                      max_retries=None)
-    except Exception as e:
-        raise defensive_exception(create_pleb_task.__name__, e,
-                                  create_pleb_task.retry(exc=e, countdown=3,
-                                                         max_retries=None))
+    return task_info

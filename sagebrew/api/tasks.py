@@ -42,35 +42,33 @@ def add_object_to_search_index(index="full-search-base", object_type="",
     if object_added is not None:
         if object_added.populated_es_index:
             return True
-        if object_data is None:
-            return False
-        try:
-            es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-            res = es.index(index=index, doc_type=object_type,
-                           id=object_data['object_uuid'], body=object_data)
-        except (ElasticsearchException, TransportError, ConnectionError,
-                RequestError) as e:
-            raise add_object_to_search_index.retry(exc=e, countdown=3,
-                                                   max_retries=None)
-        except Exception as e:
-            raise defensive_exception(add_object_to_search_index.__name__, e,
-                                      add_object_to_search_index.retry(
-                                      exc=e, countdown=3, max_retries=None))
-        # TODO what do we want to do if there is a ConflictError
-        # TODO what do we want to do if there is a ImproperlyConfigured
-
-        search_id_data = {"search_data": res, "object_type": object_type,
-                          "object_data": object_data,
-                          "object_added": object_added}
-        save_id = spawn_task(task_func=save_search_id,
-                             task_param=search_id_data)
-        if isinstance(save_id, Exception) is True:
-            raise add_object_to_search_index.retry(exc=save_id, countdown=3,
-                                                   max_retries=None)
-
-        return save_id
-    else:
+    if object_data is None:
         return False
+    try:
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        res = es.index(index=index, doc_type=object_type,
+                       id=object_data['object_uuid'], body=object_data)
+    except (ElasticsearchException, TransportError, ConnectionError,
+            RequestError) as e:
+        raise add_object_to_search_index.retry(exc=e, countdown=3,
+                                               max_retries=None)
+    except Exception as e:
+        raise defensive_exception(add_object_to_search_index.__name__, e,
+                                  add_object_to_search_index.retry(
+                                  exc=e, countdown=3, max_retries=None))
+    # TODO what do we want to do if there is a ConflictError
+    # TODO what do we want to do if there is a ImproperlyConfigured
+
+    search_id_data = {"search_data": res, "object_type": object_type,
+                      "object_data": object_data,
+                      "object_added": object_added}
+    save_id = spawn_task(task_func=save_search_id,
+                         task_param=search_id_data)
+    if isinstance(save_id, Exception) is True:
+        raise add_object_to_search_index.retry(exc=save_id, countdown=3,
+                                               max_retries=None)
+
+    return save_id
 
 
 @shared_task

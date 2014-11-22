@@ -113,7 +113,7 @@ class SBQuestion(SBVersioned, SBTagContent):
             owner = self.owned_by.all()
             owner = owner[0]
             owner_name = owner.first_name + ' ' + owner.last_name
-            owner_profile_url = settings.WEB_ADDRESS + '/user/' + owner.username
+            owner_profile_url = owner.username
             query = 'match (q:SBQuestion) where q.sb_id="%s" ' \
                     'with q ' \
                     'match (q)-[:POSSIBLE_ANSWER]-(a:SBAnswer) ' \
@@ -191,9 +191,7 @@ class SBQuestion(SBVersioned, SBTagContent):
                              'down_vote_number': self.down_vote_number,
                              'owner': owner,
                              'time_created': self.date_created,
-                             'question_url': settings.WEB_ADDRESS +
-                                             '/questions/' +
-                                             self.sb_id,
+                             'question_url': self.sb_id,
                              'current_pleb': pleb
                         }
             t = get_template("questions.html")
@@ -212,7 +210,7 @@ class SBQuestion(SBVersioned, SBTagContent):
             owner_name = "%s %s" % (owner.first_name, owner.last_name)
             # TODO Do we need the WEB_ADDRESS can't we just use the absolute
             # path?
-            owner_profile_url = settings.WEB_ADDRESS + '/user/' + owner.username
+            owner_profile_url = owner.username
             question_dict = {
                 "question_title": self.get_most_recent_edit().question_title,
                 "question_content": self.get_most_recent_edit().content,

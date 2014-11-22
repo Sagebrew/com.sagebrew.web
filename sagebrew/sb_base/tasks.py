@@ -4,8 +4,6 @@ from neomodel.exception import CypherException, DoesNotExist
 from plebs.neo_models import Pleb
 from sb_questions.neo_models import SBQuestion
 
-from .utils import defensive_exception
-
 logger = logging.getLogger("loggly_logs")
 
 
@@ -37,3 +35,5 @@ def create_object_relations_task(sb_object, current_pleb, question=None,
             raise create_object_relations_task.retry(exc=res, countdown=3,
                                                      max_retries=None)
         return True
+    # TODO is there anything that should happen if question is None?
+    # We shoud at least be returning something

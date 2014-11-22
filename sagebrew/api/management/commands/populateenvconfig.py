@@ -170,5 +170,8 @@ def populate_general_values(data):
     data = data.replace("<QUEUE_PASSWORD>", environ.get("QUEUE_PASSWORD", ""))
     data = data.replace("<QUEUE_HOST>", environ.get("QUEUE_HOST", ""))
     data = data.replace("<QUEUE_PORT>", environ.get("QUEUE_PORT", ""))
+    # TODO Can setup specific logs for each environment, should do that if
+    # staying with LOGENT
+    data = data.replace("<LOGENT_TOKEN>", environ.get("LOGENT_TOKEN", ""))
 
     return data

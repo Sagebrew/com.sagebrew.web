@@ -1,4 +1,5 @@
 import pytz
+from uuid import uuid1
 from datetime import datetime
 from api.utils import execute_cypher_query
 from django.conf import settings
@@ -58,12 +59,10 @@ class SBQuestion(SBVersioned, SBTagContent):
         from sb_questions.utils import create_question_util
         try:
             edit_question = create_question_util(content, self.question_title,
-                                                 pleb.email)
+                                                 str(uuid1()))
 
             if isinstance(edit_question, Exception) is True:
                 return edit_question
-            print self
-            print edit_question
             
             edit_question.original = False
             edit_question.save()
@@ -80,8 +79,8 @@ class SBQuestion(SBVersioned, SBTagContent):
     def edit_title(self, pleb, title):
         from sb_questions.utils import create_question_util
         try:
-            edit_question = create_question_util(self.content, pleb.email,
-                                                 title)
+            edit_question = create_question_util(self.content, title,
+                                                 str(uuid1()))
 
             if isinstance(edit_question, Exception) is True:
                 return edit_question

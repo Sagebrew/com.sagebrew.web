@@ -4,11 +4,11 @@ from uuid import uuid1
 from neomodel import DoesNotExist, CypherException
 
 from .neo_models import NotificationBase
-from sb_base.utils import defensive_exception
+from sb_base.decorators import apply_defense
 
 logger = logging.getLogger('loggly_logs')
 
-
+@apply_defense
 def create_notification_util(sb_object, from_pleb, to_plebs,
                              notification_id=None):
     '''
@@ -51,6 +51,4 @@ def create_notification_util(sb_object, from_pleb, to_plebs,
 
     except CypherException as e:
         return e
-    except Exception as e:
-        return defensive_exception(create_notification_util.__name__, e, e)
 

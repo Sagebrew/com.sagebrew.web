@@ -32,13 +32,8 @@ def create_object_relations_task(sb_object, current_pleb, question=None,
         except(CypherException, DoesNotExist, SBQuestion.DoesNotExist) as e:
             raise create_object_relations_task.retry(exc=e, countdown=3,
                                                      max_retries=None)
-    try:
         res = sb_object.create_relations(current_pleb, question, wall)
         if isinstance(res, Exception) is True:
             raise create_object_relations_task.retry(exc=res, countdown=3,
                                                      max_retries=None)
         return True
-    except Exception as e:
-        raise defensive_exception(create_object_relations_task.__name__, e,
-                                  create_object_relations_task.retry(
-                                      exc=e, countdown=3, max_retries=None))

@@ -27,6 +27,7 @@ def send_email_task(to, subject, html_content, text_content=None):
     except SESMaxSendingRateExceededError as e:
         raise send_email_task.retry(exc=e, countdown=5,
                                     max_retries=None)
+    # TODO investigate possible SES exceptions
     except Exception as e:
         raise defensive_exception(send_email_task.__name__, e,
                                   send_email_task.retry(exc=e, countdown=3,
@@ -92,28 +93,28 @@ def finalize_citizen_creation(pleb, user):
 @shared_task()
 def create_wall_task(pleb, user):
     try:
-        if len(pleb.wall.all()) > 1:
-            # TODO log something here, need to delete one otherwise stuff will
-            # break
-            return False
-        elif len(pleb.wall.all()) == 1:
-            pass
-        else:
+        wall_list = pleb.wall.all()
+    except CypherException as e:
+        raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
+    if len(wall_list) > 1:
+        # TODO log something here, need to delete one otherwise stuff will
+        # break
+        return False
+    elif len(wall_list) == 1:
+        pass
+    else:
+        try:
             wall = SBWall(wall_id=str(uuid1())).save()
             wall.owner.connect(pleb)
             pleb.wall.connect(wall)
-        spawned = spawn_task(task_func=finalize_citizen_creation,
-                             task_param={"pleb": pleb, "user": user})
-        if isinstance(spawned, Exception) is True:
-            raise create_wall_task.retry(exc=spawned, countdown=3,
-                                             max_retries=None)
-        return spawned
-    except (TypeError, CypherException) as e:
-        raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
-    except Exception as e:
-        raise defensive_exception(create_wall_task.__name__, e,
-                                  create_wall_task.retry(exc=e, countdown=3,
-                                                         max_retries=None))
+        except CypherException as e:
+            raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
+    spawned = spawn_task(task_func=finalize_citizen_creation,
+                         task_param={"pleb": pleb, "user": user})
+    if isinstance(spawned, Exception) is True:
+        raise create_wall_task.retry(exc=spawned, countdown=3,
+                                         max_retries=None)
+    return spawned
 
 
 @shared_task()

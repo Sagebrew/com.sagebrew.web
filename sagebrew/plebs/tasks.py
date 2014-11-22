@@ -94,7 +94,6 @@ def finalize_citizen_creation(pleb, user):
 def create_wall_task(pleb, user):
     try:
         wall_list = pleb.wall.all()
-        print type(wall_list)
     except CypherException as e:
         raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
     if len(wall_list) > 1:

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block css %}
+    {{ block.super }}
+{% endblock css %}
+{% block content %}
+    <div>
+    <img class="sb_image_background" src="{% static 'images/sb_beta_page-02' %}">
+        <div class="sb_beta_input_group">
+            <div class="row sb_title_signup" align="center">
+                <h1 class="sb_beta_headline">Sagebrew</h1>
+            </div>
+            <div class="row-fluid">
+                <div class="col-lg-6 col-sm-6 col-xs-12 col-lg-offset-3 col-sm-offset-2">
+                    <input type="text"
+                           value=""
+                           placeholder="First Name"
+                           class="sb_signup_input form-control input-lg">
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block footer %}
+{% endblock footer %}

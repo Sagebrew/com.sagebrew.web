@@ -1,0 +1,20 @@
+.sb_beta_input:focus,
+.sb_beta_input:active,
+.sb_beta_input:hover{
+    border: solid;
+    border-color: #1ba39c;
+    border-width: 1px;
+}
+.sb_beta_input_group{
+    width: 80%;
+    margin-left: 10%;
+    margin-bottom: 0;
+}
+.sb_beta_input{
+    width: 100%;
+    margin-bottom: 15px;
+    border-width: 1px;
+}
+.sb_beta_headline{
+    color: #eeeeee;
+}

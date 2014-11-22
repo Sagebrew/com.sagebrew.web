@@ -62,6 +62,7 @@ class TestSaveAnswerTask(TestCase):
         question.owned_by.connect(self.pleb)
         self.answer_info_dict['question_uuid'] = question.sb_id
         self.answer_info_dict['current_pleb'] = str(uuid1())
+        self.answer_info_dict['answer_uuid'] = str(uuid1())
         save_response = save_answer_task.apply_async(
             kwargs=self.answer_info_dict)
 

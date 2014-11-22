@@ -1,7 +1,6 @@
 import os
 import shortuuid
 import hashlib
-import json
 import boto.ses
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from datetime import date

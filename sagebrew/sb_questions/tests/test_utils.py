@@ -22,22 +22,24 @@ class TestCreateQuestion(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question_info_dict = {'current_pleb': self.user.email,
-                                   'question_title': "Test question",
+        self.uuid = str(uuid1())
+        self.question_info_dict = {'question_title': "Test question",
                                    'content': 'test post',
-                                   'question_uuid': str(uuid1())}
+                                   'question_uuid': self.uuid}
 
     def test_save_question_util_success(self):
         response = create_question_util(**self.question_info_dict)
 
         self.assertIsNotNone(response)
 
-    def test_save_question_util_pleb_does_not_exist(self):
-        self.question_info_dict['current_pleb'] = 'adsfasdfasdfasdf@gmail.com'
+    def test_save_question_twice(self):
+        # TODO may want to also check that connections are made correctly
+        question = SBQuestion(question_title="Test question",
+                              content="test post", sb_id=self.uuid)
+        question.save()
         response = create_question_util(**self.question_info_dict)
 
-        self.assertFalse(response)
-
+        self.assertEqual(response.sb_id, question.sb_id)
 
 
 class TestGetQuestionByUUID(TestCase):

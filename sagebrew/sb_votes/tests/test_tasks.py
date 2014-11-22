@@ -51,17 +51,3 @@ class TestVoteObjectTask(TestCase):
             time.sleep(1)
 
         self.assertFalse(res.result)
-
-    def test_vote_object_task_vote_method_failure(self):
-        question = SBQuestion(sb_id=str(uuid1())).save()
-        task_data = {
-            'object_type': 'sb_questions.neo_models.SBQuestion',
-            'object_uuid': question.sb_id,
-            'current_pleb': self.email,
-            'vote_type': True
-        }
-        res = vote_object_task.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
-
-        self.assertIsInstance(res.result, Exception)

@@ -95,6 +95,10 @@ def search_result_api(request, query_param="", display_num=10, page=1,
     :param filter_param:
     :return:
     '''
+    # TODO Make sure calling function knows what to do with a 500 status
+    # TODO can we move any of this into a util?
+    # TODO need to surround Alchemy with exception handling
+    # TODO need to surround es with proper exception handling
     data = {'query_param': query_param, 'display_num': display_num,
             'page': int(page),
             'filter_type': filter_type, 'filter_param': filter_param}
@@ -134,7 +138,10 @@ def search_result_api(request, query_param="", display_num=10, page=1,
             task_param = {"pleb": request.user.email, "query_param":
                 search_form.cleaned_data['query_param'],
                           "keywords": response['keywords']}
-            spawn_task(task_func=update_search_query, task_param=task_param)
+            spawned = spawn_task(task_func=update_search_query,
+                                 task_param=task_param)
+            if isinstance(spawned, Exception) is True:
+                return Response({'detail': "server error"}, status=500)
             if not res:
                 html = render_to_string('search_result_empty.html')
                 return Response({'html': html}, status=200)
@@ -155,26 +162,26 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                     if item['_type'] == 'sb_questions.neo_models.SBQuestion':
                         results.append(prepare_question_search_html(
                             item['_source']['object_uuid']))
-                        spawn_task(update_weight_relationship,
-                                   task_param=
-                                   {'index': item['_index'],
-                                    'document_id': item['_id'],
-                                    'object_uuid': item['_source'][
-                                        'object_uuid'],
-                                    'object_type': 'question',
-                                    'current_pleb': item['_source'][
-                                        'related_user'],
-                                    'modifier_type': 'search_seen'})
+                        spawned = spawn_task(
+                            update_weight_relationship,
+                            task_param=
+                            {'index': item['_index'],
+                             'document_id': item['_id'],
+                             'object_uuid': item['_source']['object_uuid'],
+                             'object_type': 'question',
+                             'current_pleb': item['_source']['related_user'],
+                             'modifier_type': 'search_seen'})
                     if item['_type'] == 'pleb':
-                        spawn_task(update_weight_relationship,
+                        spawned = spawn_task(
+                            update_weight_relationship,
                             task_param={'index': item['_index'],
-                                   'document_id': item['_id'],
-                                   'object_uuid':
-                                       item['_source']['pleb_email'],
-                                   'object_type': 'pleb',
-                                   'current_pleb': item['_source'][
-                                       'related_user'],
-                                   'modifier_type': 'search_seen'})
+                                        'document_id': item['_id'],
+                                        'object_uuid':
+                                        item['_source']['pleb_email'],
+                                        'object_type': 'pleb',
+                                        'current_pleb': item['_source'][
+                                        'related_user'],
+                                        'modifier_type': 'search_seen'})
                         results.append(prepare_user_search_html(
                             item['_source']['pleb_email']))
             try:

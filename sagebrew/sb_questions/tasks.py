@@ -178,8 +178,6 @@ def create_question_task(content, current_pleb, question_title, question_uuid,
     relations_data = {'sb_object': question, 'current_pleb': current_pleb}
     spawned = spawn_task(task_func=create_object_relations_task,
                          task_param=relations_data)
-    if isinstance(spawned, Exception):
-        return spawned
     return spawned
 
 

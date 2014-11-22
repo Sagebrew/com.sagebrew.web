@@ -49,8 +49,10 @@ def create_friend_request(request):
             task_data = {
                 "data": request_form.cleaned_data
             }
-            spawn_task(task_func=create_friend_request_task,
-                       task_param=task_data)
+            spawned = spawn_task(task_func=create_friend_request_task,
+                                 task_param=task_data)
+            if isinstance(spawned, Exception) is True:
+                return Response({'detail': 'server error'}, status=500)
             return Response({"action": True,
                          "friend_request_id": request_form.cleaned_data[
                              'friend_request_uuid']}, status=200)

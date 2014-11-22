@@ -25,6 +25,10 @@ class TestNotificationTasks(TestCase):
         wait_util(res)
         self.pleb2 = Pleb.nodes.get(email=self.email2)
         self.user2 = User.objects.get(email=self.email2)
+
+        self.email3= "bounce@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email3, "testpassword")
+
         self.post_info_dict = {'content': 'test post',
                                'sb_id': str(uuid1())}
         settings.CELERY_ALWAYS_EAGER = True

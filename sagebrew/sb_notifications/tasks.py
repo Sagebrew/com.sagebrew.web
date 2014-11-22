@@ -24,13 +24,13 @@ def spawn_notifications(sb_object, from_pleb, to_plebs, uuid=None):
     '''
     plebeians = []
     try:
-        from_pleb = Pleb.nodes.get(sb_id=from_pleb)
+        from_pleb = Pleb.nodes.get(email=from_pleb)
     except(CypherException, Pleb.DoesNotExist, DoesNotExist) as e:
         raise spawn_notifications.retry(exc=e, countdown=3, max_retries=None)
 
     for plebeian in to_plebs:
         try:
-            to_pleb = Pleb.nodes.get(sb_id=plebeian)
+            to_pleb = Pleb.nodes.get(email=plebeian)
             plebeians.append(to_pleb)
         except(CypherException, Pleb.DoesNotExist, DoesNotExist) as e:
             raise spawn_notifications.retry(exc=e, countdown=3,

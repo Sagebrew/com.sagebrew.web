@@ -18,8 +18,7 @@ def defensive_exception(function_name, exception, return_value, message=None):
     :return: return_value
     """
     error_dict = {'function': function_name,
-                  'exception': 'Unhandled Exception',
-                  'exception_dict': exception.__dict__}
+                  'exception': 'Unhandled Exception'}
     if message is not None:
         error_dict["message"] = message
     logger.critical(dumps(error_dict))

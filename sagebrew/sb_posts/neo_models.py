@@ -29,6 +29,8 @@ class SBPost(SBNonVersioned):
 
     @apply_defense
     def create_relations(self, pleb, question=None, wall=None):
+        if wall is None:
+            return False
         try:
             self.posted_on_wall.connect(wall)
             wall.post.connect(self)

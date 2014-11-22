@@ -4,7 +4,8 @@ from os import environ, path, makedirs
 from unipath import Path
 from datetime import timedelta
 import multiprocessing
-
+from logentries import LogentriesHandler
+import logging
 
 PROJECT_DIR = Path(__file__).ancestor(3)
 REPO_DIR = Path(__file__).ancestor(4)
@@ -220,6 +221,7 @@ AWS_PROFILE_PICTURE_FOLDER_NAME = 'profile_pictures'
 SECRET_KEY = environ.get("APPLICATION_SECRET_KEY", "")
 BOMBERMAN_API_KEY = environ.get("BOMBERMAN_API_KEY", "")
 LOG_TOKEN = environ.get("LOG_TOKEN", "")
+LOGENT_TOKEN = environ.get("LOGENT_TOKEN", "")
 ALCHEMY_API_KEY = environ.get("ALCHEMY_API_KEY", '')
 ADDRESS_VALIDATION_ID = environ.get("ADDRESS_VALIDATION_ID", '')
 ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN", '')

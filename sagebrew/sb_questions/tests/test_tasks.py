@@ -49,27 +49,6 @@ class TestSaveQuestionTask(TestCase):
 
         self.assertTrue(response.result)
 
-    def test_create_question_task_pleb_does_not_exist(self):
-        self.question_info_dict['current_pleb'] = str(uuid1())
-        response = create_question_task.apply_async(
-            kwargs=self.question_info_dict)
-        while not response.ready():
-            time.sleep(1)
-
-        self.assertFalse(response.result)
-
-    def test_save_question_task_fail(self):
-        question_info = {'current_pleb': self.user.email,
-                         'question_title': "Test question",
-                         'tags': "this,is,a,test"}
-        response = create_question_task.apply_async(kwargs=question_info)
-
-        while not response.ready():
-            time.sleep(3)
-
-        result = response.result
-        self.assertIsInstance(result, Exception)
-
     def test_save_question_task_question_exists(self):
         question = SBQuestion(sb_id=str(uuid1()))
         question.save()
@@ -81,7 +60,7 @@ class TestSaveQuestionTask(TestCase):
             time.sleep(1)
         res = res.result
 
-        self.assertFalse(res)
+        self.assertTrue(res)
 
 
 class TestAddQuestionToIndicesTask(TestCase):

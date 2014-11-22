@@ -173,8 +173,12 @@ class SBQuestion(SBVersioned, SBTagContent):
     def render_question_page(self, pleb):
         try:
             owner = self.owned_by.all()
-            owner = owner[0]
-            owner = owner.first_name + ' ' + owner.last_name
+            try:
+                owner = owner[0]
+            except IndexError as e:
+                # TODO Should we fail out here?
+                return e
+            owner = "%s %s" % (owner.first_name, owner.last_name)
             question_dict = {'question_title': self.
                                 get_most_recent_edit().question_title,
                              'question_content': self.

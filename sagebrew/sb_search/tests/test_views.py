@@ -261,7 +261,7 @@ class TestSearchResultAPI(TestCase):
 
         self.client.login(username=self.user.username, password='password')
         request = self.client.get(reverse('search_result_api',kwargs={
-            'query_param':'test', 'page': '1'}))
+            'query_param': 'test', 'page': '1'}))
 
         self.assertEqual(request.status_code, 200)
 

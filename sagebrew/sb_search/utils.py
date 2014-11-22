@@ -72,7 +72,8 @@ def update_search_index_doc(document_id, index, field, update_value,
     except TransportError:
         return False
 
-@apply_defense
+# TODO Looke into Can't pickle <type 'function'>: attribute lokup __builtin__.function
+# failed
 def process_search_result(item):
     '''
     This util is called to process the search results returned from

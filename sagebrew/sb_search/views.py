@@ -136,7 +136,7 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                             })
             res = res['hits']['hits']
             task_param = {"pleb": request.user.email, "query_param":
-                search_form.cleaned_data['query_param'],
+                          search_form.cleaned_data['query_param'],
                           "keywords": response['keywords']}
             spawned = spawn_task(task_func=update_search_query,
                                  task_param=task_param)
@@ -159,6 +159,7 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                                  reverse=True)
             elif current_page > 1:
                 for item in page.object_list:
+                    # TODO Can we generalize this any further?
                     if item['_type'] == 'sb_questions.neo_models.SBQuestion':
                         results.append(prepare_question_search_html(
                             item['_source']['object_uuid']))
@@ -188,9 +189,10 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                 next_page_num = page.next_page_number()
             except EmptyPage:
                 next_page_num = ""
-            return Response({'html': results, 'next': next_page_num}, status=200)
+            return Response({'html': results, 'next': next_page_num},
+                            status=200)
         except Exception as e:
             return defensive_exception(search_result_api.__name__, e,
-                                       Response({'detail':'fail'}, status=400))
+                                       Response({'detail': 'fail'}, status=400))
     else:
         return Response({'detail': 'invalid form'}, status=400)

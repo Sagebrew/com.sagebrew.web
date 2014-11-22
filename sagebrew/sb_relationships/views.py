@@ -54,7 +54,7 @@ def create_friend_request(request):
             if isinstance(spawned, Exception) is True:
                 return Response({'detail': 'server error'}, status=500)
             return Response({"action": True,
-                         "friend_request_id": request_form.cleaned_data[
+                             "friend_request_id": request_form.cleaned_data[
                              'friend_request_uuid']}, status=200)
         else:
             return Response({'detail': 'invalid form'}, status=400)
@@ -82,10 +82,12 @@ def get_friend_requests(request):
             form = GetFriendRequestForm(request.DATA)
         except TypeError:
             return Response({'detail': 'type error'}, status=400)
+        try:
+            valid_form = form.is_valid()
         except AttributeError:
             return Response({'detail': 'attribute error'}, status=400)
 
-        if form.is_valid():
+        if valid_form:
             try:
                 citizen = Pleb.nodes.get(email=form.cleaned_data['email'])
             except (Pleb.DoesNotExist, DoesNotExist):

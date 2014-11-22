@@ -180,6 +180,8 @@ def get_question_view(request):
     try:
         html_array = []
         question_data = request.DATA
+        if isinstance(question_data, dict) is False:
+            return Response({"please pass a valid JSON Object"}, status=400)
         if question_data['sort_by'] == 'most_recent':
             response = get_question_by_most_recent()
             for question in response:

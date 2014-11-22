@@ -255,7 +255,7 @@ class TestSearchResultAPI(TestCase):
         res_array = []
         for item in range(0,9):
             res = es.index(index='full-search-user-specific-1',
-                           doc_type='sb_test',
+                           doc_type='pleb',
                            body={'content': 'test content'})
             res_array.append(res)
 

@@ -86,6 +86,7 @@ def process_search_result(item):
     '''
     # TODO handle spawn task correctly and ensure this is idempotent
     from sb_search.tasks import update_weight_relationship
+    print item['_type']
     if 'sb_score' not in item['_source']:
             item['_source']['sb_score'] = 0
     if item['_type'] == 'sb_questions.neo_models.SBQuestion':

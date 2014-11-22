@@ -1,5 +1,4 @@
 import logging
-import traceback
 from uuid import uuid1
 from json import dumps
 from django.shortcuts import render

@@ -1,16 +1,10 @@
-import time
-import shortuuid
-from uuid import uuid1
-from json import loads
-from base64 import b64encode
-
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 
 from api.utils import wait_util
 from sb_registration.utils import create_user_util
-from plebs.neo_models import Pleb, Address
+from plebs.neo_models import Pleb
 from sb_registration.utils import create_address_long_hash, upload_image
 
 

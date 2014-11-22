@@ -8,9 +8,10 @@ from django.conf import settings
 
 logger = logging.getLogger('loggly_logs')
 
+
 class Command(BaseCommand):
     def populate_supervisor(self, env, user):
-        worker_count = (multiprocessing.cpu_count() *2) + 1
+        worker_count = (multiprocessing.cpu_count() * 2) + 1
         if(environ.get("CIRCLECI", False)):
             worker_count = 2
         worker_count = str(worker_count)

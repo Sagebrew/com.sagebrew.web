@@ -12,6 +12,7 @@ from sb_questions.neo_models import SBQuestion
 from sb_registration.utils import create_user_util
 from api.tasks import get_pleb_task, add_object_to_search_index
 
+
 class TestGetPlebTask(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True

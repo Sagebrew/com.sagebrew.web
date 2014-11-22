@@ -6,8 +6,8 @@ from django.conf import settings
 
 logger = logging.getLogger('loggly_logs')
 
-class Command(BaseCommand):
 
+class Command(BaseCommand):
     def populate_config(self, web_env, worker_env):
         cur_branch = environ.get("CIRCLE_BRANCH", "")
         with open("%s/aws_environment_config/base.config" % (
@@ -21,7 +21,7 @@ class Command(BaseCommand):
                 data = populate_test_values(data)
             data = populate_general_values(data)
         with open("%s/aws_environment_config/base_worker.config" % (
-            settings.REPO_DIR), "r") as docker_worker:
+                settings.REPO_DIR), "r") as docker_worker:
             data_worker = docker_worker.read()
             if(cur_branch == "staging"):
                 data_worker = populate_staging_values(data_worker)
@@ -37,7 +37,7 @@ class Command(BaseCommand):
         f.write(data_worker)
         f.close()
         with open("%s/aws_environment_config/sys_util.config" % (
-            settings.REPO_DIR), "r") as docker_sys:
+                settings.REPO_DIR), "r") as docker_sys:
             data_worker = docker_sys.read()
             if(cur_branch == "staging"):
                 data_worker = populate_staging_values(data_worker)
@@ -53,16 +53,17 @@ class Command(BaseCommand):
         f.write(data_worker)
         f.close()
 
-
     def handle(self, *args, **options):
         self.populate_config(args[0], args[1])
 
+
 def populate_staging_values(data):
     data = data.replace("<NEO4J_REST_URL>",
-                             environ.get("STAGING_NEO4J_REST_URL", ""))
+                        environ.get("STAGING_NEO4J_REST_URL", ""))
     data = data.replace("<AWS_ACCESS_KEY_ID>",
                         environ.get("AWS_ACCESS_KEY_ID_STAGING", ""))
-    data = data.replace("<AWS_S3_BUCKET>", environ.get("AWS_S3_BUCKET_STAGING", ""))
+    data = data.replace("<AWS_S3_BUCKET>", environ.get("AWS_S3_BUCKET_STAGING",
+                                                       ""))
     data = data.replace("<AWS_SECRET_ACCESS_KEY>",
                         environ.get("AWS_SECRET_ACCESS_KEY_STAGING", ""))
     data = data.replace("<APPLICATION_SECRET_KEY>",
@@ -89,10 +90,11 @@ def populate_staging_values(data):
 
 def populate_production_values(data):
     data = data.replace("<NEO4J_REST_URL>",
-                             environ.get("NEO4J_REST_URL_PROD", ""))
+                        environ.get("NEO4J_REST_URL_PROD", ""))
     data = data.replace("<AWS_ACCESS_KEY_ID>",
                         environ.get("AWS_ACCESS_KEY_ID_PROD", ""))
-    data = data.replace("<AWS_S3_BUCKET>", environ.get("AWS_S3_BUCKET_PROD", ""))
+    data = data.replace("<AWS_S3_BUCKET>",
+                        environ.get("AWS_S3_BUCKET_PROD", ""))
     data = data.replace("<AWS_SECRET_ACCESS_KEY>",
                         environ.get("AWS_SECRET_ACCESS_KEY_PROD", ""))
     data = data.replace("<APPLICATION_SECRET_KEY>",
@@ -116,9 +118,10 @@ def populate_production_values(data):
                         environ.get("WEB_SECURITY_GROUP_PROD", ""))
     return data
 
+
 def populate_test_values(data):
     data = data.replace("<NEO4J_REST_URL>",
-                             environ.get("GRAPHEN_NEO4J_REST_URL", ""))
+                        environ.get("GRAPHEN_NEO4J_REST_URL", ""))
     data = data.replace("<AWS_ACCESS_KEY_ID>",
                         environ.get("AWS_ACCESS_KEY_ID", ""))
     data = data.replace("<AWS_S3_BUCKET>", environ.get("AWS_S3_BUCKET", ""))

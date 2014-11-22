@@ -8,7 +8,7 @@ class Command(BaseCommand):
     args = 'None.'
 
     def populate_rsys_log(self, account, token_value):
-        with open ("%s/rsyslog_template.conf" % settings.REPO_DIR,
+        with open("%s/rsyslog_template.conf" % settings.REPO_DIR,
                    "r") as rsys_log:
             data = rsys_log.read().replace('{{LOG_ACCOUNT}}', account)
             data = data.replace('{{TOKEN}}', token_value)

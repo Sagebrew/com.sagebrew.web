@@ -5,7 +5,6 @@ from sb_questions.neo_models import SBQuestion
 from api.utils import (language_filter, add_failure_to_queue, get_object)
 
 
-
 class TestLanguageFilterUtil(TestCase):
     def setUp(self):
         self.vulgar_words = 'anal anus ballsack blowjob blow job boner'

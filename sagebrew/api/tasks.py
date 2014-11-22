@@ -11,7 +11,6 @@ from api.utils import spawn_task, get_object
 from plebs.neo_models import Pleb
 
 
-
 @shared_task()
 def get_pleb_task(email, task_func, task_param):
     try:

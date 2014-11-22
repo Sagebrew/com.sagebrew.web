@@ -160,6 +160,7 @@ def wait_util(async_res):
     while not async_res['task_id'].result.ready():
         time.sleep(1)
 
+
 @apply_defense
 def get_object(object_type, object_uuid):
     '''

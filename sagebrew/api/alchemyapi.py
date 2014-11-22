@@ -177,7 +177,7 @@ class AlchemyAPI:
         except Exception as e:
             print(e)
 
-    def entities(self, flavor, data, options={}):
+    def entities(self, flavor, data, options=None):
         """
         Extracts the entities for text, a URL or HTML.
         For an overview, please refer to: http://www.alchemyapi.com/products/features/entity-extraction/ 
@@ -202,6 +202,8 @@ class AlchemyAPI:
         """
 
         # Make sure this request supports this flavor
+        if options is None:
+            options = {}
         if flavor not in AlchemyAPI.ENDPOINTS['entities']:
             return {'status': 'ERROR', 'statusInfo': 'entity extraction for ' + flavor + ' not available'}
 
@@ -209,7 +211,7 @@ class AlchemyAPI:
         options[flavor] = data
         return self.__analyze(AlchemyAPI.ENDPOINTS['entities'][flavor], {}, options)
 
-    def keywords(self, flavor, data, options={}):
+    def keywords(self, flavor, data, options=None):
         """
         Extracts the keywords from text, a URL or HTML.
         For an overview, please refer to: http://www.alchemyapi.com/products/features/keyword-extraction/
@@ -231,6 +233,8 @@ class AlchemyAPI:
         """
 
         # Make sure this request supports this flavor
+        if options is None:
+            options = {}
         if flavor not in AlchemyAPI.ENDPOINTS['keywords']:
             return {'status': 'ERROR', 'statusInfo': 'keyword extraction for ' + flavor + ' not available'}
 

@@ -51,11 +51,11 @@ def get_question_by_uuid(question_uuid, current_pleb):
     '''
     try:
         question = SBQuestion.nodes.get(sb_id=question_uuid)
-        return question.render_single(current_pleb)
     except (SBQuestion.DoesNotExist, DoesNotExist):
         return False
     except CypherException as e:
         return e
+    return question.render_single(current_pleb)
 
 
 @apply_defense

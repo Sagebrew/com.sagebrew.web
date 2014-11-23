@@ -191,6 +191,7 @@ class TestGetQuestionView(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_get_question_view_failure_incorrect_filter(self):
+        # TODO modify form to catch the fake filters
         my_dict = {'current_pleb': self.pleb.email,
                    'sort_by': 'fake_filter'}
         request = self.factory.post('/questions/query_questions_api/',

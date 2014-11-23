@@ -31,7 +31,7 @@ class TestPrepareUserSearchHTML(TestCase):
         self.assertFalse(res)
 
     def test_cypher_exception(self):
-        stopped = check_call("sudo service neo4j stop", shell=True)
+        stopped = check_call("sudo service neo4j-service stop", shell=True)
         print stopped
         res = prepare_user_search_html(self.user.email)
         check_call("sudo service neo4j start", shell=True)

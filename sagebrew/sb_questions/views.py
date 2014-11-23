@@ -1,9 +1,6 @@
 import logging
 from uuid import uuid1
-from json import dumps
 from django.shortcuts import render
-from django.template import Context
-from django.template.loader import get_template
 
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -26,9 +23,8 @@ logger = logging.getLogger('loggly_logs')
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def submit_question_view_page(request):
-    current_user = request.user
     return render(request,'save_question.html',{
-        'current_user': current_user.email,
+        'current_user': request.user.email,
     })
 
 
@@ -100,8 +96,12 @@ def save_question_view(request):
         return Response({"details": "Please provide a valid JSON object"},
                         status=400)
     #question_data['content'] = language_filter(question_data['content'])
-    question_form = SaveQuestionForm(question_data)
-    if question_form.is_valid():
+    try:
+        question_form = SaveQuestionForm(question_data)
+        valid_form = question_form.is_valid()
+    except AttributeError:
+        return Response(status=404)
+    if valid_form:
         question_form.cleaned_data['question_uuid'] = str(uuid1())
         spawned = spawn_task(task_func=create_question_task,
                              task_param=question_form.cleaned_data)
@@ -177,40 +177,34 @@ def get_question_view(request):
 
     :return:
     '''
-    try:
-        html_array = []
-        question_data = request.DATA
-        if isinstance(question_data, dict) is False:
-            return Response({"please pass a valid JSON Object"}, status=400)
-        if question_data['sort_by'] == 'most_recent':
-            response = get_question_by_most_recent()
-            for question in response:
-                html_array.append(
-                    question.render_question_page(question_data
-                    ['current_pleb']))
-            return Response(html_array, status=200)
+    html_array = []
+    question_data = request.DATA
+    if isinstance(question_data, dict) is False:
+        return Response({"please pass a valid JSON Object"}, status=400)
+    if question_data['sort_by'] == 'most_recent':
+        response = get_question_by_most_recent()
+        for question in response:
+            html_array.append(
+                question.render_question_page(question_data
+                ['current_pleb']))
+        return Response(html_array, status=200)
 
-        elif question_data['sort_by'] == 'uuid':
-            return Response(get_question_by_uuid(
-                question_data['question_uuid'],
-                question_data['current_pleb']), status=200)
+    elif question_data['sort_by'] == 'uuid':
+        return Response(get_question_by_uuid(
+            question_data['question_uuid'],
+            question_data['current_pleb']), status=200)
 
-        elif question_data['sort_by'] == 'least_recent':
-            response = get_question_by_least_recent()
-            for question in response:
-                html_array.append(
-                    question.render_question_page(question_data
-                    ['current_pleb']))
-            return Response(html_array, status=200)
+    elif question_data['sort_by'] == 'least_recent':
+        response = get_question_by_least_recent()
+        for question in response:
+            html_array.append(
+                question.render_question_page(question_data
+                ['current_pleb']))
+        return Response(html_array, status=200)
 
-        else:
-            response = {"detail": "fail"}
-            return Response(response, status=400)
-    except KeyError:
-        return Response(status=400)
-    except Exception as e:
-        return defensive_exception(get_question_view.__name__, e,
-                                   Response(status=400))
+    else:
+        response = {"detail": "fail"}
+        return Response(response, status=400)
 
 
 @api_view(['GET'])
@@ -225,9 +219,9 @@ def get_question_search_view(request, question_uuid=str(uuid1())):
     :param request:
     :return:
     '''
-    try:
-        response = prepare_question_search_html(question_uuid)
-        return Response({'html': response}, status=200)
-    except Exception as e:
-        return defensive_exception(get_question_search_view.__name__, e,
-                                   Response({'html': []},status=400))
+    response = prepare_question_search_html(question_uuid)
+    if response is None:
+        return Response(status=500)
+    elif response is False:
+        return Response(status=404)
+    return Response({'html': response}, status=200)

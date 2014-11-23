@@ -133,7 +133,7 @@ def create_pleb_task(user_instance):
         generated = pleb.generate_username()
         if isinstance(generated, Exception):
             raise create_pleb_task.retry(exc=generated, countdown=3,
-                                             max_retries=None)
+                                         max_retries=None)
     task_info = spawn_task(task_func=create_wall_task,
                            task_param={"pleb": pleb, "user": user_instance})
     if isinstance(task_info, Exception) is True:

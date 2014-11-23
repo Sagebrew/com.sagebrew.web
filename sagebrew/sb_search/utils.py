@@ -1,5 +1,4 @@
 import logging
-from json import dumps
 from urllib2 import HTTPError
 from django.conf import settings
 
@@ -7,7 +6,6 @@ from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import TransportError
 
 from api.utils import spawn_task
-from sb_base.decorators import apply_defense
 
 logger = logging.getLogger('loggly_logs')
 
@@ -40,6 +38,7 @@ def update_search_index_doc_script(document_id, index, field, update_value,
     return True
 """
 
+
 def update_search_index_doc(document_id, index, field, update_value,
                             document_type):
     '''
@@ -71,6 +70,7 @@ def update_search_index_doc(document_id, index, field, update_value,
         return False
     except TransportError:
         return False
+
 
 # TODO Looke into Can't pickle <type 'function'>: attribute lokup __builtin__.function
 # failed

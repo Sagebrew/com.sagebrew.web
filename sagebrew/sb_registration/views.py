@@ -17,7 +17,6 @@ from sb_tag.neo_models import SBTag
 from api.utils import spawn_task
 from plebs.tasks import send_email_task
 from plebs.neo_models import Pleb, Address
-from sb_base.utils import defensive_exception
 
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm,

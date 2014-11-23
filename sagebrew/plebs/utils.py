@@ -12,7 +12,6 @@ def prepare_user_search_html(pleb=""):
     :param pleb:
     :return:
     '''
-    print environ.get("NEO4J_REST_URL", "")
     try:
         pleb = Pleb.nodes.get(email=pleb)
     except(Pleb.DoesNotExist, DoesNotExist):

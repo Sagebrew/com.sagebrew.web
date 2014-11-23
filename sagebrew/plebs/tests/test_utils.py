@@ -1,5 +1,5 @@
 import shortuuid
-from os import environ
+from subprocess import check_call
 from django.test import TestCase
 from django.contrib.auth.models import User
 
@@ -31,9 +31,8 @@ class TestPrepareUserSearchHTML(TestCase):
         self.assertFalse(res)
 
     def test_cypher_exception(self):
-        temp_neo = environ['NEO4J_REST_URL']
-        environ['NEO4J_REST_URL'] = "http://sagebrew.com:7474/db/data/"
+        stopped = check_call("sudo service neo4j stop", shell=True)
+        print stopped
         res = prepare_user_search_html(self.user.email)
-        environ["NEO4J_REST_URL"] = temp_neo
-        
+        check_call("sudo service neo4j start", shell=True)
         self.assertIsNone(res)

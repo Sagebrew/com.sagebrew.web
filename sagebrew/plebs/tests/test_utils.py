@@ -11,7 +11,7 @@ from sb_registration.utils import create_user_util
 class TestPrepareUserSearchHTML(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        self.username = shortuuid.uuid()
+        self.username = str(shortuuid.uuid())
         self.password = "testpassword"
         res = create_user_util("test", "test", self.email, self.password,
                                self.username)

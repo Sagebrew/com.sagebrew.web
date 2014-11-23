@@ -343,7 +343,7 @@ def sb_send_email(to_email, subject, html_content):
     except SESMaxSendingRateExceededError as e:
         return e
 
-
+@apply_defense
 def create_user_util(first_name, last_name, email, password, username=None):
     if username is None:
         username = str(shortuuid.uuid())

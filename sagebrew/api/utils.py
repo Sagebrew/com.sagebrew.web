@@ -1,7 +1,7 @@
 import time
 import boto.sqs
 import importlib
-
+import traceback
 from uuid import uuid1
 from json import dumps
 
@@ -156,7 +156,7 @@ def wait_util(async_res):
     while not async_res['task_id'].ready():
         time.sleep(1)
     if isinstance(async_res['task_id'].result, Exception):
-        print async_res['task_id'].result.__traceback__
+        traceback.print_stack()
 
     while not async_res['task_id'].result.ready():
         time.sleep(1)

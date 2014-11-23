@@ -187,20 +187,38 @@ def get_question_view(request):
         # the available search types as acceptable values?
         if question_data['sort_by'] == 'most_recent':
             response = get_question_by_most_recent()
+            if isinstance(response, Exception):
+                # TODO Might want to handle this differently
+                return Response(status=500)
             for question in response:
                 html_array.append(
                     question.render_question_page(request.user.email))
             return Response(html_array, status=200)
 
         elif question_data['sort_by'] == 'uuid':
-            return Response(get_question_by_uuid(
-                question_data['question_uuid'], request.user.email), status=200)
+            question_by_uuid = get_question_by_uuid(
+                question_data['question_uuid'], request.user.email)
+            if isinstance(question_by_uuid, Exception):
+                # TODO ensure we have pages that will render certain things
+                # for server error and does not exist errors for questions
+                # TODO do we have tests for the above?
+                # TODO Might want to handle this differently
+                return Response(status=500)
+            elif question_by_uuid is False:
+                # TODO Might want to handle this differently
+                return Response({"detail": "question does not exist"},
+                                status=400)
+            else:
+                return Response(question_by_uuid, status=200)
 
         elif question_data['sort_by'] == 'least_recent':
             response = get_question_by_least_recent()
+            if isinstance(response, Exception):
+                return Response(status=500)
             for question in response:
                 html_array.append(
                     question.render_question_page(request.user.email))
+            # TODO if question is empty we should be returning a 404
             return Response(html_array, status=200)
         # TODO if cannot perform the above TODOs need to at least add
         # an additional else or remove the bottom else specifier and just

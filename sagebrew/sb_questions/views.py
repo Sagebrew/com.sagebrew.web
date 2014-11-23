@@ -1,4 +1,3 @@
-import logging
 from uuid import uuid1
 from django.shortcuts import render
 
@@ -12,11 +11,7 @@ from sb_registration.utils import verify_completed_registration
 from .utils import (get_question_by_most_recent, get_question_by_uuid,
                     get_question_by_least_recent, prepare_question_search_html)
 from .tasks import (create_question_task)
-from .forms import (SaveQuestionForm)
-from sb_base.utils import defensive_exception
-
-
-logger = logging.getLogger('loggly_logs')
+from .forms import (SaveQuestionForm, GetQuestionForm)
 
 
 @login_required()
@@ -177,34 +172,42 @@ def get_question_view(request):
 
     :return:
     '''
-    html_array = []
     question_data = request.DATA
     if isinstance(question_data, dict) is False:
         return Response({"please pass a valid JSON Object"}, status=400)
-    if question_data['sort_by'] == 'most_recent':
-        response = get_question_by_most_recent()
-        for question in response:
-            html_array.append(
-                question.render_question_page(question_data
-                ['current_pleb']))
-        return Response(html_array, status=200)
+    try:
+        question_form = GetQuestionForm(question_data)
+        valid_form = question_form.is_valid()
+    except AttributeError:
+        return Response(status=400)
+    if valid_form is True:
+        html_array = []
+        # TODO Can we generalize this so that we don't need the ifs?
+        # TODO Can we also make the form a choice form that only allows
+        # the available search types as acceptable values?
+        if question_data['sort_by'] == 'most_recent':
+            response = get_question_by_most_recent()
+            for question in response:
+                html_array.append(
+                    question.render_question_page(question_data
+                    ['current_pleb']))
+            return Response(html_array, status=200)
 
-    elif question_data['sort_by'] == 'uuid':
-        return Response(get_question_by_uuid(
-            question_data['question_uuid'],
-            question_data['current_pleb']), status=200)
+        elif question_data['sort_by'] == 'uuid':
+            return Response(get_question_by_uuid(
+                question_data['question_uuid'],
+                question_data['current_pleb']), status=200)
 
-    elif question_data['sort_by'] == 'least_recent':
-        response = get_question_by_least_recent()
-        for question in response:
-            html_array.append(
-                question.render_question_page(question_data
-                ['current_pleb']))
-        return Response(html_array, status=200)
+        elif question_data['sort_by'] == 'least_recent':
+            response = get_question_by_least_recent()
+            for question in response:
+                html_array.append(
+                    question.render_question_page(question_data
+                    ['current_pleb']))
+            return Response(html_array, status=200)
 
     else:
-        response = {"detail": "fail"}
-        return Response(response, status=400)
+        return Response({"detail": "fail"}, status=400)
 
 
 @api_view(['GET'])

@@ -193,7 +193,7 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                 if item['_type'] == 'sb_questions.neo_models.SBQuestion':
                     results.append(prepare_question_search_html(
                         item['_source']['object_uuid']))
-                if item['_type'] == 'pleb':
+                elif item['_type'] == 'pleb':
                     results.append(prepare_user_search_html(
                         item['_source']['pleb_email']))
         try:

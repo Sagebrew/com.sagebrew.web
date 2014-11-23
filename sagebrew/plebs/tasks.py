@@ -5,7 +5,6 @@ from django.conf import settings
 from django.template.loader import get_template
 from django.template import Context
 from neomodel import DoesNotExist, CypherException
-from py2neo.exceptions import ClientError, ServerError, BatchError, CypherError
 
 from api.utils import spawn_task
 from api.tasks import add_object_to_search_index
@@ -94,8 +93,7 @@ def finalize_citizen_creation(pleb, user):
 def create_wall_task(pleb, user):
     try:
         wall_list = pleb.wall.all()
-    except(CypherException, IOError, ClientError, ServerError, BatchError,
-           CypherError) as e:
+    except(CypherException, IOError) as e:
         raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
     if len(wall_list) > 1:
         # TODO log something here, need to delete one otherwise stuff will
@@ -108,8 +106,7 @@ def create_wall_task(pleb, user):
             wall = SBWall(wall_id=str(uuid1())).save()
             wall.owner.connect(pleb)
             pleb.wall.connect(wall)
-        except(CypherException, IOError, ClientError, ServerError, BatchError,
-               CypherError) as e:
+        except(CypherException, IOError) as e:
             raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
     spawned = spawn_task(task_func=finalize_citizen_creation,
                          task_param={"pleb": pleb, "user": user})

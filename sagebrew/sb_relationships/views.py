@@ -74,26 +74,20 @@ def get_friend_requests(request):
     except AttributeError:
         return Response({'detail': 'attribute error'}, status=400)
 
-    if valid_form:
-        try:
-            citizen = Pleb.nodes.get(email=form.cleaned_data['email'])
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return Response({"detail": "pleb does not exist"}, status=400)
-
+    if valid_form is True:
         query = 'match (p:Pleb) where p.email ="%s" ' \
                 'with p ' \
                 'match (p)-[:RECEIVED_A_REQUEST]-(r:FriendRequest) ' \
                 'where r.seen=False ' \
                 'return r' % request.DATA['email']
         friend_requests, meta = execute_cypher_query(query)
-        friend_requests = [FriendRequest.inflate(row[0]) for row in friend_requests]
+        friend_requests = [FriendRequest.inflate(row[0])
+                           for row in friend_requests]
         for friend_request in friend_requests:
             request_id = friend_request.friend_request_uuid
-            request_sender = friend_request.request_from.all()[0]
             request_dict = {
-                'from_name': "%s %s" % (request_sender.first_name,
-                                        request_sender.last_name),
-                'from_email': request_sender.email,
+                'from_name': request.user.get_full_name(),
+                'from_email': request.user.email,
                 'request_id': request_id}
             requests.append(request_dict)
         return Response(requests, status=200)
@@ -128,7 +122,8 @@ def respond_friend_request(request):
                 friend_request_uuid=form.cleaned_data['request_id'])
             to_pleb = friend_request.request_to.all()[0]
             from_pleb = friend_request.request_from.all()[0]
-        except (FriendRequest.DoesNotExist, Pleb.DoesNotExist):
+        except (FriendRequest.DoesNotExist, Pleb.DoesNotExist, IndexError):
+            # TODO should we be doing something different for an index error?
             return Response(status=408)
 
         if form.cleaned_data['response'] == 'accept':

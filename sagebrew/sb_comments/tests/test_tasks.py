@@ -80,17 +80,3 @@ class TestCreateCommentRelationsTask(TestCase):
 
         self.assertTrue(res.result)
 
-    def test_create_comment_relations_task_failure(self):
-        question = SBQuestion(sb_id=str(uuid1())).save()
-        comment = SBComment(sb_id=str(uuid1())).save()
-        task_data = {
-            'current_pleb': self.pleb.email,
-            'comment': comment,
-            'sb_object': question
-        }
-
-        res = create_comment_relations.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
-
-        self.assertIsInstance(res.result, Exception)

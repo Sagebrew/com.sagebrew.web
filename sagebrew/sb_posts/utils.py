@@ -1,12 +1,8 @@
-import logging
-
 from neomodel.exception import CypherException, DoesNotExist
 
 from api.utils import execute_cypher_query
 from .neo_models import SBPost
 from sb_base.decorators import apply_defense
-
-logger = logging.getLogger('loggly_logs')
 
 
 @apply_defense
@@ -56,11 +52,11 @@ def save_post(content, post_uuid):
     try:
         sb_post = SBPost.nodes.get(sb_id=post_uuid)
     except(SBPost.DoesNotExist, DoesNotExist):
+        sb_post = SBPost(content=content, sb_id=post_uuid)
         try:
-            sb_post = SBPost(content=content, sb_id=post_uuid)
             sb_post.save()
-        except CypherException as e:
+        except(CypherException, IOError) as e:
             return e
-    except CypherException as e:
+    except(CypherException, IOError) as e:
         return e
     return sb_post

@@ -262,7 +262,6 @@ OBJECT_RELATIONSHIP_BASE = {
 }
 
 
-# TODO revisit search modifiers
 OBJECT_SEARCH_MODIFIERS = {
     'post': 10, 'comment_on': 5, 'upvote': 3, 'downvote': -3,
     'time': -1, 'proximity_to_you': 10, 'proximity_to_interest': 10,
@@ -283,8 +282,3 @@ KNOWN_TYPES = [
      "sb_questions.neo_models.SBQuestion"),
     ("02ba1c88-644f-11e4-9ad9-080027242395", "sb_comments.neo_models.SBComment")
 ]
-
-# TODO When doing load testing and beta testing ensure that LOGGING of DB is on
-# and at w/e level we need to check response times. We might be able to
-# determine it from new relic but we should check into that prior to moving
-# forward

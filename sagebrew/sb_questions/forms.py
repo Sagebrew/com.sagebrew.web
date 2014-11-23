@@ -6,14 +6,17 @@ class SaveQuestionForm(forms.Form):
     content = forms.CharField()
     tags = forms.CharField()
 
+
 class DeleteQuestionForm(forms.Form):
     current_pleb = forms.EmailField()
     question_uuid = forms.CharField()
+
 
 class CloseQuestionForm(forms.Form):
     current_pleb = forms.EmailField()
     question_uuid = forms.CharField()
     reason = forms.CharField()
+
 
 class GetQuestionForm(forms.Form):
     choices = (
@@ -21,7 +24,5 @@ class GetQuestionForm(forms.Form):
         ('least_recent', 'least_recent'),
         ('uuid', 'uuid')
     )
-    sort_by = forms.ChoiceField()
-    user = forms.EmailField()
-    current_pleb = forms.EmailField()
-    question_uuid = forms.CharField()
+    sort_by = forms.ChoiceField(choices=choices)
+    question_uuid = forms.CharField(required=False)

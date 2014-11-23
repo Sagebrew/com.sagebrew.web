@@ -17,17 +17,13 @@ from .neo_models import Pleb
 
 @shared_task()
 def send_email_task(to, subject, html_content, text_content=None):
-    # TODO do we need text content here?
-    # Also if not make sure to remove it from finalize_citizen_creation
     from sb_registration.utils import sb_send_email
     try:
         res = sb_send_email(to, subject, html_content)
         if isinstance(res, Exception):
             raise send_email_task.retry(exc=res, countdown=5, max_retries=None)
     except SESMaxSendingRateExceededError as e:
-        raise send_email_task.retry(exc=e, countdown=5,
-                                    max_retries=None)
-    # TODO investigate possible SES exceptions
+        raise send_email_task.retry(exc=e, countdown=5, max_retries=None)
     except Exception as e:
         raise defensive_exception(send_email_task.__name__, e,
                                   send_email_task.retry(exc=e, countdown=3,
@@ -36,10 +32,7 @@ def send_email_task(to, subject, html_content, text_content=None):
 
 @shared_task()
 def finalize_citizen_creation(pleb, user):
-    # TODO need to create retry strategy if spawn_task fails, not just return
-    # it.
     # TODO look into celery chaining and/or grouping
-    # TODO ensure this is idempotent
     task_list = {}
     task_data = {
         'object_added': pleb,
@@ -94,11 +87,9 @@ def finalize_citizen_creation(pleb, user):
 def create_wall_task(pleb, user):
     try:
         wall_list = pleb.wall.all()
-    except CypherException as e:
+    except(CypherException, IOError) as e:
         raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
     if len(wall_list) > 1:
-        # TODO log something here, need to delete one otherwise stuff will
-        # break
         return False
     elif len(wall_list) == 1:
         pass
@@ -107,7 +98,7 @@ def create_wall_task(pleb, user):
             wall = SBWall(wall_id=str(uuid1())).save()
             wall.owner.connect(pleb)
             pleb.wall.connect(wall)
-        except CypherException as e:
+        except(CypherException, IOError) as e:
             raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
     spawned = spawn_task(task_func=finalize_citizen_creation,
                          task_param={"pleb": pleb, "user": user})
@@ -125,15 +116,15 @@ def create_pleb_task(user_instance):
             pleb = Pleb(email=user_instance.email,
                         first_name=user_instance.first_name,
                         last_name=user_instance.last_name)
-        except CypherException as e:
+        except(CypherException, IOError) as e:
             raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
-    except CypherException as e:
+    except(CypherException, IOError) as e:
         raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
     if pleb.username is None:
         generated = pleb.generate_username()
         if isinstance(generated, Exception):
             raise create_pleb_task.retry(exc=generated, countdown=3,
-                                             max_retries=None)
+                                         max_retries=None)
     task_info = spawn_task(task_func=create_wall_task,
                            task_param={"pleb": pleb, "user": user_instance})
     if isinstance(task_info, Exception) is True:

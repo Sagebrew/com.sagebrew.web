@@ -59,8 +59,7 @@ def add_object_to_search_index(index="full-search-base", object_type="",
         raise defensive_exception(add_object_to_search_index.__name__, e,
                                   add_object_to_search_index.retry(
                                   exc=e, countdown=3, max_retries=None))
-    # TODO what do we want to do if there is a ConflictError
-    # TODO what do we want to do if there is a ImproperlyConfigured
+
 
     search_id_data = {"search_data": res, "object_type": object_type,
                       "object_data": object_data,

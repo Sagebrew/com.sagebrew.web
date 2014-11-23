@@ -57,9 +57,6 @@ class TestSaveAnswerTask(TestCase):
         self.assertIsInstance(save_response, Exception)
 
     def test_save_answer_task_pleb_does_not_exist(self):
-        # TODO This should return an answer but should also not contain
-        # any connections between the answer and the pleb and potentially
-        # anything else. We need to add the logic for that
         self.question_info_dict['sb_id']=str(uuid1())
         question = SBQuestion(**self.question_info_dict).save()
         question.owned_by.connect(self.pleb)

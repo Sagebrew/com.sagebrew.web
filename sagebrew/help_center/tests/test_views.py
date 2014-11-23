@@ -19,6 +19,4 @@ class HelpGoodQuestionTests(TestCase):
 
     def test_good_question_helper(self):
         response = self.client.get(reverse('good_question'), follow=True)
-        # TODO is it possible to check if spelling is correct
-        # in response.content?
         self.assertEqual(response.status_code, 200)

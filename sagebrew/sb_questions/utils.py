@@ -51,11 +51,11 @@ def get_question_by_uuid(question_uuid, current_pleb):
     '''
     try:
         question = SBQuestion.nodes.get(sb_id=question_uuid)
-        return question.render_single(current_pleb)
     except (SBQuestion.DoesNotExist, DoesNotExist):
-        return {"detail": "There are no questions with that ID"}
-    except CypherException:
-        return {"detail": "A CypherException was thrown"}
+        return False
+    except CypherException as e:
+        return e
+    return question.render_single(current_pleb)
 
 
 @apply_defense
@@ -98,6 +98,11 @@ def get_question_by_least_recent(range_start=0, range_end=5):
             'with q skip %s limit %s ' \
             'return q' % (range_start, range_end)
     questions, meta = execute_cypher_query(query)
+    if isinstance(questions, Exception):
+        # TODO might want to handle differently
+        return questions
+    # TODO couldn't questions be None or empty here? do we have a handler
+    # for that?
     questions = [SBQuestion.inflate(row[0]) for row in questions]
     return questions
 
@@ -108,5 +113,7 @@ def prepare_question_search_html(question_uuid):
         my_question = SBQuestion.nodes.get(sb_id=question_uuid)
     except (SBQuestion.DoesNotExist, DoesNotExist):
         return False
+    except CypherException:
+        return None
 
     return my_question.render_search()

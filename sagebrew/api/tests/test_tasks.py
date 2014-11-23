@@ -79,6 +79,22 @@ class TestAddObjectToSearchIndex(TestCase):
 
         self.assertTrue(res.result)
 
+    def test_add_object_to_disconnected_search_index(self):
+        temp_es = settings.ELASTIC_SEARCH_HOST
+        settings.ELASTIC_SEARCH_HOST = [{'host': 'sagebrew.com'}]
+        task_data = {
+            'object_type': 'sb_questions.neo_models.SBQuestion',
+            'object_data': {'content': 'fake',
+                            'object_uuid': self.question.sb_id}
+        }
+
+        res = add_object_to_search_index.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+        settings.ELASTIC_SEARCH_HOST = temp_es
+        self.assertIsInstance(res.result, Exception)
+
+
     def test_add_object_to_search_index_pleb_already_populated(self):
         task_data = {
             'object_type': 'pleb',

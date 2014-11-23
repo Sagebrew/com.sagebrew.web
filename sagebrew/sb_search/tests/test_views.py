@@ -357,18 +357,19 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(self.pleb)
         index_res = es.index(index='full-search-user-specific-1',
-                 doc_type='sb_questions.neo_models.SBQuestion',
-                 body={
-                     'object_uuid': question1.sb_id,
-                     'question_title': question1.question_title,
-                     'question_content': question1.question_content,
-                     'related_user': self.user.email
-                 })
+                             doc_type='sb_questions.neo_models.SBQuestion',
+                             body={
+                                 'object_uuid': question1.sb_id,
+                                 'question_title': question1.question_title,
+                                 'question_content': question1.question_content,
+                                 'related_user': self.user.email
+                             })
         self.assertTrue(index_res['created'])
         time.sleep(2)
         self.client.login(username=self.user.username, password='password')
         request = self.client.get(reverse('search_result_api',
-                                          kwargs={'query_param':'battery-powered',
+                                          kwargs={'query_param':
+                                                      'battery-powered',
                                                   'page': '1'}))
         self.assertEqual(request.status_code, 200)
         self.assertIn('question_uuid', request.content)
@@ -400,12 +401,15 @@ class TestSearchResultAPIReturns(TestCase):
                          'object_uuid': question1.sb_id,
                          'question_title': question1.question_title,
                          'question_content': question1.question_content,
-                         'related_user': self.user.email[:37]+str(item)+'@gmail.com'
+                         # TODO is this valid still?
+                         'related_user':
+                             self.user.email[:37]+str(item)+'@gmail.com'
                      })
         time.sleep(2)
         self.client.login(username=self.user.username, password='password')
         request = self.client.get(reverse('search_result_api',
-                                          kwargs={'query_param':'battery-powered',
+                                          kwargs={'query_param':
+                                                      'battery-powered',
                                                   'page': '1'}))
         self.assertGreaterEqual(len(loads(request.content)['html']), 1)
         self.assertEqual(request.status_code, 200)
@@ -491,7 +495,8 @@ class TestSearchResultAPIReturns(TestCase):
 
         self.client.login(username=user.username, password='password')
         request = self.client.get(reverse('search_result_api',
-                                          kwargs={'query_param':'battery-powered',
+                                          kwargs={'query_param':
+                                                      'battery-powered',
                                                   'page': '3'}))
 
         self.assertEqual(len(loads(request.content)['html']), 10)
@@ -534,7 +539,8 @@ class TestSearchResultAPIReturns(TestCase):
         time.sleep(2)
         self.client.login(username=user.username, password='password')
         request = self.client.get(reverse('search_result_api',
-                                          kwargs={'query_param':'battery-powered',
+                                          kwargs={'query_param':
+                                                      'battery-powered',
                                                   'page': '1'}))
 
         self.assertEqual(request.status_code, 200)

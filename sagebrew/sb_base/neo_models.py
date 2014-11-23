@@ -12,7 +12,6 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
 from sb_base.decorators import apply_defense
 
 
-
 class EditRelationshipModel(StructuredRel):
     time_edited = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
@@ -24,15 +23,18 @@ class PostedOnRel(StructuredRel):
 class PostReceivedRel(StructuredRel):
     received = BooleanProperty()
 
+
 class RelationshipWeight(StructuredRel):
     weight = IntegerProperty(default=150)
     status = StringProperty(default='seen')
     seen = BooleanProperty(default=True)
 
+
 class VoteRelationship(StructuredRel):
     active = BooleanProperty(default=True)
     vote_type = BooleanProperty() # True is up False is down
     date_created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+
 
 class SBVoteableContent(StructuredNode):
     up_vote_adjustment = 0
@@ -239,30 +241,37 @@ class SBTagContent(StructuredNode):
     #methods
     @apply_defense
     def add_tags(self, tags):
+        """
+        :param tags: String that contains a list of the tags being added with
+                     a , representing the splitting point
+        :return:
+        """
         from sb_tag.neo_models import SBTag
-        try:
-            tag_array = []
-            es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-            if not tags:
-                return False
-            tags = tags.split(',')
-            for tag in tags:
-                try:
-                    tag_object = SBTag.nodes.get(tag_name=tag)
-                    tag_array.append(tag_object)
-                except (SBTag.DoesNotExist, DoesNotExist):
-                    es.index(index='tags', doc_type='tag',
-                             body={'tag_name': tag})
-                    tag_object = SBTag(tag_name=tag).save()
-                    tag_array.append(tag_object)
-            for item in tag_array:
+        tag_array = []
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        if not tags:
+            return False
+
+        tags = tags.split(',')
+        for tag in tags:
+            try:
+                tag_object = SBTag.nodes.get(tag_name=tag)
+                tag_array.append(tag_object)
+            except (SBTag.DoesNotExist, DoesNotExist):
+                es.index(index='tags', doc_type='tag',
+                         body={'tag_name': tag})
+                tag_object = SBTag(tag_name=tag).save()
+                tag_array.append(tag_object)
+            except CypherException as e:
+                return e
+        for item in tag_array:
+            try:
                 self.tagged_as.connect(item)
                 item.tag_used += 1
                 item.save()
-            return True
-        except CypherException as e:
-            return e
-
+            except CypherException as e:
+                return e
+        return True
 
     def add_auto_tags(self, tag_list):
         from sb_tag.neo_models import SBAutoTag

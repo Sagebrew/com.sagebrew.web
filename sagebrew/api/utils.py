@@ -1,9 +1,7 @@
 import time
 import boto.sqs
 import importlib
-
 from uuid import uuid1
-from socket import error as socket_error
 from json import dumps
 
 from boto.sqs.message import Message
@@ -79,8 +77,6 @@ iron_mq = IronMQ(project_id=settings.IRON_PROJECT_ID,
 '''
 
 
-#TODO if add_failure_to_queue fails store in postgress database in a meta field
-#allow for backup if Amazon goes down
 def add_failure_to_queue(message_info):
     conn = boto.sqs.connect_to_region(
         "us-west-2",
@@ -100,7 +96,7 @@ def spawn_task(task_func, task_param, countdown=0, task_id=None):
     try:
         return task_func.apply_async(kwargs=task_param, countdown=countdown,
                                      task_id=task_id)
-    except (socket_error, Exception) as e:
+    except (IOError, Exception) as e:
         failure_uuid = str(uuid1())
         failure_dict = {
             'action': 'failed_task',
@@ -134,7 +130,6 @@ def language_filter(content):
 
 
 def create_auto_tags(content):
-    # TODO Improve exception handling and change related functions accordingly
     try:
         alchemyapi = AlchemyAPI()
         keywords = alchemyapi.keywords("text", content)
@@ -144,22 +139,22 @@ def create_auto_tags(content):
 
 
 def execute_cypher_query(query):
-    # TODO either return the exception and retry or none and retry but make
-    # sure all functions that call this check to ensure that the query was
-    # successful
     try:
         return db.cypher_query(query)
-    except CypherException as e:
+    except(CypherException, IOError) as e:
         return e
 
 
 def wait_util(async_res):
     while not async_res['task_id'].ready():
         time.sleep(1)
+    if isinstance(async_res['task_id'].result, Exception):
+        print async_res['task_id'].result
 
     while not async_res['task_id'].result.ready():
         time.sleep(1)
     return async_res['task_id'].result.result
+
 
 @apply_defense
 def get_object(object_type, object_uuid):

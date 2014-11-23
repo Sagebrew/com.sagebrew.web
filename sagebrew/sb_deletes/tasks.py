@@ -9,7 +9,6 @@ def delete_object_task(object_type, object_uuid, current_pleb):
     if isinstance(sb_object, Exception) is True:
         raise delete_object_task.retry(exc=sb_object, countdown=3,
                                        max_retries=None)
-    # TODO make sure all get_objects handle this possibility
     elif sb_object is False:
         return sb_object
 

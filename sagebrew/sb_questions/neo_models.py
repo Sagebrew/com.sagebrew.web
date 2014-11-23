@@ -171,33 +171,43 @@ class SBQuestion(SBVersioned, SBTagContent):
             return e
 
     @apply_defense
-    def render_question_page(self, pleb):
+    def render_question_page(self, user_email):
         try:
             owner = self.owned_by.all()
             try:
                 owner = owner[0]
             except IndexError as e:
-                # TODO Should we fail out here?
                 return e
             owner = "%s %s" % (owner.first_name, owner.last_name)
-            question_dict = {'question_title': self.
-                                get_most_recent_edit().question_title,
-                             'question_content':
-                                 self.get_most_recent_edit().content[:50]+'...',
-                             'is_closed': self.is_closed,
-                             'answer_number': self.answer_number,
-                             'last_edited_on': self.last_edited_on,
-                             'up_vote_number': self.up_vote_number,
-                             'down_vote_number': self.down_vote_number,
-                             'owner': owner,
-                             'time_created': self.date_created,
-                             'question_url': self.sb_id,
-                             'current_pleb': pleb
-                        }
+            most_recent = self.get_most_recent_edit()
+            if isinstance(most_recent, Exception):
+                return most_recent
+            if most_recent is not None:
+                most_recent_content = most_recent.content
+                if most_recent_content is not None:
+                    if len(most_recent_content) > 50:
+                        most_recent_content = most_recent_content[:50] + '...'
+                    question_dict = {
+                        'question_title': most_recent.question_title,
+                        'question_content': most_recent_content,
+                        'is_closed': self.is_closed,
+                        'answer_number': self.answer_number,
+                        'last_edited_on': self.last_edited_on,
+                        'up_vote_number': self.up_vote_number,
+                        'down_vote_number': self.down_vote_number,
+                        'owner': owner,
+                        'time_created': self.date_created,
+                        'question_url': self.sb_id,
+                        'current_pleb': user_email
+                    }
+                else:
+                    question_dict = {"detail": "failed"}
+            else:
+                question_dict = {"detail": "failed"}
             t = get_template("questions.html")
             c = Context(question_dict)
             return t.render(c)
-        except CypherException as e:
+        except (CypherException, IOError) as e:
             return e
 
     @apply_defense
@@ -208,8 +218,6 @@ class SBQuestion(SBVersioned, SBTagContent):
             except IndexError as e:
                 return e
             owner_name = "%s %s" % (owner.first_name, owner.last_name)
-            # TODO Do we need the WEB_ADDRESS can't we just use the absolute
-            # path?
             owner_profile_url = owner.username
             question_dict = {
                 "question_title": self.get_most_recent_edit().question_title,
@@ -254,9 +262,10 @@ class SBQuestion(SBVersioned, SBTagContent):
     def get_most_recent_edit(self):
         try:
             results, columns = self.cypher('start q=node({self}) '
-                                          'match q-[:EDIT]-(n:SBQuestion) '
-                                          'with n '
-                                          'ORDER BY n.date_created DESC return n')
+                                           'match q-[:EDIT]-(n:SBQuestion) '
+                                           'with n '
+                                           'ORDER BY n.date_created DESC'
+                                           ' return n')
             edits = [self.inflate(row[0]) for row in results]
             if not edits:
                 return self

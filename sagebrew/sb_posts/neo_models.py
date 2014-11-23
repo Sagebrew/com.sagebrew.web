@@ -1,20 +1,10 @@
-import pytz
-import logging
-from json import dumps
-from uuid import uuid1
-from datetime import datetime
 from django.template.loader import render_to_string
 
-from neomodel import (StructuredNode, StringProperty, IntegerProperty,
-                      DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty, CypherException)
+from neomodel import (RelationshipTo, CypherException)
 
 from api.utils import execute_cypher_query
 from sb_base.neo_models import SBNonVersioned
 from sb_base.decorators import apply_defense
-
-logger = logging.getLogger("loggly_logs")
-
 
 
 

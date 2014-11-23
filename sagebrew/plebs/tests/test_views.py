@@ -14,7 +14,6 @@ from sb_registration.utils import create_user_util
 from api.utils import wait_util
 
 
-#TODO test friend user, registered non-friend user getting the correct page
 class ProfilePageTest(TestCase):
 
     def setUp(self):

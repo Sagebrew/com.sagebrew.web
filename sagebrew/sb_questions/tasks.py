@@ -1,8 +1,7 @@
-import logging
 from django.conf import settings
 
 from celery import shared_task
-from neomodel import DoesNotExist, CypherException
+from neomodel import CypherException
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import (ElasticsearchException, TransportError,
                                       ConnectionError, RequestError,
@@ -13,9 +12,6 @@ from api.tasks import add_object_to_search_index
 from sb_tag.tasks import add_auto_tags, add_tags
 from sb_base.tasks import create_object_relations_task
 from .utils import create_question_util
-from sb_base.utils import defensive_exception
-
-logger = logging.getLogger('loggly_logs')
 
 
 @shared_task()
@@ -78,7 +74,6 @@ def add_tags_to_question_task(question, tags):
     :param tags:
     :return:
     '''
-    #TODO review and make sure this is idempotent
     if question.tags_added is True:
         task_data = {
             'question': question,

@@ -17,7 +17,6 @@ from sb_tag.neo_models import SBTag
 from api.utils import spawn_task
 from plebs.tasks import send_email_task
 from plebs.neo_models import Pleb, Address
-from sb_base.utils import defensive_exception
 
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm,
@@ -94,7 +93,8 @@ def signup_view_api(request):
             else:
                 return Response({'detail': 'invalid login'},
                                 status=400)
-    # TODO add a handler for if the form is not valid
+    else:
+        return Response({'detail': "invalid form"}, status=400)
 
 
 def login_view(request):
@@ -106,6 +106,9 @@ def resend_email_verification(request):
     try:
         pleb = Pleb.nodes.get(email=request.user.email)
     except (Pleb.DoesNotExist, DoesNotExist):
+        # TODO When we switch over to storing a user in postgres before
+        # storing them in neo, we will want to check that they exist in
+        # postgres, not neo.
         return Response({'detail': 'pleb does not exist'}, status=400)
 
     template_dict = {

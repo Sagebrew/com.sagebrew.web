@@ -33,7 +33,6 @@ class TestCreateQuestion(TestCase):
         self.assertIsNotNone(response)
 
     def test_save_question_twice(self):
-        # TODO may want to also check that connections are made correctly
         question = SBQuestion(question_title="Test question",
                               content="test post", sb_id=self.uuid)
         question.save()
@@ -67,21 +66,17 @@ class TestGetQuestionByUUID(TestCase):
         question.answer.connect(answer)
         question.save()
 
-        response = get_question_by_uuid(question.sb_id,
-                            current_pleb=self.question_info_dict
-                            ['current_pleb'])
+        response = get_question_by_uuid(
+            question.sb_id, current_pleb=self.question_info_dict['current_pleb'])
 
         self.assertIsInstance(response, SafeText)
 
     def test_get_question_by_uuid_failure_question_does_not_exist(self):
 
-        dict_response = get_question_by_uuid(str(uuid1()),
-                            current_pleb=self.question_info_dict
-                            ['current_pleb'])
+        question_uuid = get_question_by_uuid(
+            str(uuid1()), current_pleb=self.question_info_dict['current_pleb'])
 
-        self.assertIsInstance(dict_response, dict)
-        self.assertEqual(dict_response['detail'],
-                         'There are no questions with that ID')
+        self.assertFalse(question_uuid, False)
 
 
 class TestGetQuestionByLeastRecent(TestCase):

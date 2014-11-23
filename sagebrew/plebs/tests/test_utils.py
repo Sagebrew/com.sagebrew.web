@@ -30,7 +30,7 @@ class TestPrepareUserSearchHTML(TestCase):
         res = prepare_user_search_html("fake_email@fakegoogle.com")
         self.assertFalse(res)
 
-    def test_cypher_exception(self):
+    def test_connection_refused(self):
         stopped = check_call("sudo service neo4j-service stop", shell=True)
         print stopped
         res = prepare_user_search_html(self.user.email)

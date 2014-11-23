@@ -185,24 +185,28 @@ class SBQuestion(SBVersioned, SBTagContent):
                 return most_recent
             if most_recent is not None:
                 most_recent_content = most_recent.content
-                # TODO need tests for this, should probably also define a
-                # summary length that we put in settings or in the models
-                # rather than a hardcoded value
-                if len(most_recent_content) > 50:
-                    most_recent_content = most_recent_content[:50] + '...'
-                question_dict = {
-                    'question_title': most_recent.question_title,
-                    'question_content': most_recent_content,
-                    'is_closed': self.is_closed,
-                    'answer_number': self.answer_number,
-                    'last_edited_on': self.last_edited_on,
-                    'up_vote_number': self.up_vote_number,
-                    'down_vote_number': self.down_vote_number,
-                    'owner': owner,
-                    'time_created': self.date_created,
-                    'question_url': self.sb_id,
-                    'current_pleb': user_email
-                }
+                if most_recent_content is not None:
+                    # TODO need tests for this, should probably also define a
+                    # summary length that we put in settings or in the models
+                    # rather than a hardcoded value
+                    if len(most_recent_content) > 50:
+                        most_recent_content = most_recent_content[:50] + '...'
+                    question_dict = {
+                        'question_title': most_recent.question_title,
+                        'question_content': most_recent_content,
+                        'is_closed': self.is_closed,
+                        'answer_number': self.answer_number,
+                        'last_edited_on': self.last_edited_on,
+                        'up_vote_number': self.up_vote_number,
+                        'down_vote_number': self.down_vote_number,
+                        'owner': owner,
+                        'time_created': self.date_created,
+                        'question_url': self.sb_id,
+                        'current_pleb': user_email
+                    }
+                else:
+                    # TODO What should we really be doing here?
+                    question_dict = {"detail": "failed"}
             else:
                 question_dict = {"detail": "failed"}
             t = get_template("questions.html")

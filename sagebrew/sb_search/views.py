@@ -114,7 +114,9 @@ def search_result_api(request, query_param="", display_num=10, page=1,
     except AttributeError:
         # TODO Return something relevant
         return Response(status=400)
-    if valid_form:
+    if valid_form is True:
+        # TODO surround alchemy calls with appropriate try catches, assuming
+        # there are potential connectivity issues.
         alchemyapi = AlchemyAPI()
         response = alchemyapi.keywords("text", search_form.cleaned_data[
                                       'query_param'])
@@ -165,7 +167,11 @@ def search_result_api(request, query_param="", display_num=10, page=1,
             page = paginator.page(paginator.num_pages)
         if current_page == 1:
             pool = Pool(3)
-            results = pool.map(process_search_result, page.object_list)
+            try:
+                results = pool.map(process_search_result, page.object_list)
+            except RuntimeError:
+                # TODO Might want to return something different here
+                return Response({'detail': "server error"}, status=500)
             results = sorted(results, key=itemgetter('temp_score'),
                              reverse=True)
         elif current_page > 1:

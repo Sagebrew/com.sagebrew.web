@@ -16,7 +16,12 @@ class CloseQuestionForm(forms.Form):
     reason = forms.CharField()
 
 class GetQuestionForm(forms.Form):
-    sort_by = forms.CharField()
+    choices = (
+        ('most_recent', 'most_recent'),
+        ('least_recent', 'least_recent'),
+        ('uuid', 'uuid')
+    )
+    sort_by = forms.ChoiceField()
     user = forms.EmailField()
     current_pleb = forms.EmailField()
     question_uuid = forms.CharField()

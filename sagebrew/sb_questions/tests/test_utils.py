@@ -33,7 +33,6 @@ class TestCreateQuestion(TestCase):
         self.assertIsNotNone(response)
 
     def test_save_question_twice(self):
-        # TODO may want to also check that connections are made correctly
         question = SBQuestion(question_title="Test question",
                               content="test post", sb_id=self.uuid)
         question.save()

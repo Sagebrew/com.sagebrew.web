@@ -177,7 +177,6 @@ class SBQuestion(SBVersioned, SBTagContent):
             try:
                 owner = owner[0]
             except IndexError as e:
-                # TODO Should we fail out here?
                 return e
             owner = "%s %s" % (owner.first_name, owner.last_name)
             most_recent = self.get_most_recent_edit()
@@ -186,9 +185,6 @@ class SBQuestion(SBVersioned, SBTagContent):
             if most_recent is not None:
                 most_recent_content = most_recent.content
                 if most_recent_content is not None:
-                    # TODO need tests for this, should probably also define a
-                    # summary length that we put in settings or in the models
-                    # rather than a hardcoded value
                     if len(most_recent_content) > 50:
                         most_recent_content = most_recent_content[:50] + '...'
                     question_dict = {
@@ -205,14 +201,13 @@ class SBQuestion(SBVersioned, SBTagContent):
                         'current_pleb': user_email
                     }
                 else:
-                    # TODO What should we really be doing here?
                     question_dict = {"detail": "failed"}
             else:
                 question_dict = {"detail": "failed"}
             t = get_template("questions.html")
             c = Context(question_dict)
             return t.render(c)
-        except CypherException as e:
+        except (CypherException, IOError) as e:
             return e
 
     @apply_defense
@@ -223,8 +218,6 @@ class SBQuestion(SBVersioned, SBTagContent):
             except IndexError as e:
                 return e
             owner_name = "%s %s" % (owner.first_name, owner.last_name)
-            # TODO Do we need the WEB_ADDRESS can't we just use the absolute
-            # path?
             owner_profile_url = owner.username
             question_dict = {
                 "question_title": self.get_most_recent_edit().question_title,
@@ -269,12 +262,11 @@ class SBQuestion(SBVersioned, SBTagContent):
     def get_most_recent_edit(self):
         try:
             results, columns = self.cypher('start q=node({self}) '
-                                          'match q-[:EDIT]-(n:SBQuestion) '
-                                          'with n '
-                                          'ORDER BY n.date_created DESC return n')
+                                           'match q-[:EDIT]-(n:SBQuestion) '
+                                           'with n '
+                                           'ORDER BY n.date_created DESC'
+                                           ' return n')
             edits = [self.inflate(row[0]) for row in results]
-            # TODO This has the potential to return None according to logs
-            # Are we handling it everywhere?
             if not edits:
                 return self
             return edits[0]

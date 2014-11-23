@@ -248,7 +248,6 @@ class SBTagContent(StructuredNode):
         """
         from sb_tag.neo_models import SBTag
         tag_array = []
-        # TODO Surround es calls with proper exceptions and handle accordingly
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         if not tags:
             return False

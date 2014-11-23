@@ -17,11 +17,8 @@ def populate_gt_role(requesturl):
     saves it
     to the neo4j server.
     '''
-    # TODO Surround get with relevant exceptions such as Timeout or
-    # connection error
     role_request = get(requesturl)
-    # TODO Surround json call with relevant exceptions such as not
-    # serializable
+
     role_data_dict = role_request.json()
     congress_number_object = []
     for rep in role_data_dict['objects']:

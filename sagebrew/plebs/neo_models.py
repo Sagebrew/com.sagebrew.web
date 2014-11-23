@@ -147,7 +147,6 @@ class Pleb(StructuredNode):
     def generate_username(self):
         temp_username = "%s_%s" % (str(self.first_name).lower(),
                                    str(self.last_name).lower())
-        # TODO what does this regex do?
         # temp_username = re.sub('[^a-z0-9]+', '', temp_username)
         query = 'match (p:Pleb) where p.first_name="%s" and ' \
                 'p.last_name="%s" return p' % (self.first_name,
@@ -155,8 +154,6 @@ class Pleb(StructuredNode):
         res = execute_cypher_query(query)
         if isinstance(res, Exception):
             return res
-        # TODO should check to make sure res will always be an array here
-        # and if not handle what it can be
         try:
             existing_users = res[0]
         except IndexError:

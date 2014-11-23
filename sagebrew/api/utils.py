@@ -1,7 +1,6 @@
 import time
 import boto.sqs
 import importlib
-import traceback
 from uuid import uuid1
 from json import dumps
 
@@ -78,8 +77,6 @@ iron_mq = IronMQ(project_id=settings.IRON_PROJECT_ID,
 '''
 
 
-#TODO if add_failure_to_queue fails store in postgress database in a meta field
-#allow for backup if Amazon goes down
 def add_failure_to_queue(message_info):
     conn = boto.sqs.connect_to_region(
         "us-west-2",
@@ -133,7 +130,6 @@ def language_filter(content):
 
 
 def create_auto_tags(content):
-    # TODO Improve exception handling and change related functions accordingly
     try:
         alchemyapi = AlchemyAPI()
         keywords = alchemyapi.keywords("text", content)
@@ -143,9 +139,6 @@ def create_auto_tags(content):
 
 
 def execute_cypher_query(query):
-    # TODO either return the exception and retry or none and retry but make
-    # sure all functions that call this check to ensure that the query was
-    # successful
     try:
         return db.cypher_query(query)
     except(CypherException, IOError) as e:

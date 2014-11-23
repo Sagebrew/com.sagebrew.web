@@ -49,9 +49,6 @@ def add_answer_to_search_index(answer):
         answer.save()
         return True
     except (IndexError, CypherException) as e:
-        # TODO in the case of a CypherException there is a chance for a
-        # duplicate search index object to get created. Need to resolve how
-        # to stop this
         raise add_answer_to_search_index.retry(exc=e, countdown=3,
                                                max_retries=None)
 

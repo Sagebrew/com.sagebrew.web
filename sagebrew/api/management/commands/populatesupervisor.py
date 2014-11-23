@@ -62,7 +62,6 @@ def populate_general_values(data, user, worker_count):
     data = data.replace("%(ENV_PROJECT_DIR)s", settings.PROJECT_DIR)
     data = data.replace("%(ENV_PROJECT_NAME)s", "sagebrew")
     data = data.replace("%(ENV_NUMBER_OF_WORKERS)s", worker_count)
-    # TODO Setup multiple environments
     data = data.replace("%(ENV_LOGENT_TOKEN)s",
                         environ.get("LOGENT_TOKEN", ""))
     data = data.replace("%(ENV_APPLICATION_SECRET_KEY)s",

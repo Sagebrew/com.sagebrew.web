@@ -17,8 +17,6 @@ from .neo_models import Pleb
 
 @shared_task()
 def send_email_task(to, subject, html_content, text_content=None):
-    # TODO do we need text content here?
-    # Also if not make sure to remove it from finalize_citizen_creation
     from sb_registration.utils import sb_send_email
     try:
         res = sb_send_email(to, subject, html_content)
@@ -26,7 +24,6 @@ def send_email_task(to, subject, html_content, text_content=None):
             raise send_email_task.retry(exc=res, countdown=5, max_retries=None)
     except SESMaxSendingRateExceededError as e:
         raise send_email_task.retry(exc=e, countdown=5, max_retries=None)
-    # TODO investigate possible SES exceptions
     except Exception as e:
         raise defensive_exception(send_email_task.__name__, e,
                                   send_email_task.retry(exc=e, countdown=3,
@@ -35,10 +32,7 @@ def send_email_task(to, subject, html_content, text_content=None):
 
 @shared_task()
 def finalize_citizen_creation(pleb, user):
-    # TODO need to create retry strategy if spawn_task fails, not just return
-    # it.
     # TODO look into celery chaining and/or grouping
-    # TODO ensure this is idempotent
     task_list = {}
     task_data = {
         'object_added': pleb,
@@ -96,8 +90,6 @@ def create_wall_task(pleb, user):
     except(CypherException, IOError) as e:
         raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
     if len(wall_list) > 1:
-        # TODO log something here, need to delete one otherwise stuff will
-        # break
         return False
     elif len(wall_list) == 1:
         pass

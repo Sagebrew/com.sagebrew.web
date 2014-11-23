@@ -74,7 +74,6 @@ def add_tags_to_question_task(question, tags):
     :param tags:
     :return:
     '''
-    #TODO review and make sure this is idempotent
     if question.tags_added is True:
         task_data = {
             'question': question,

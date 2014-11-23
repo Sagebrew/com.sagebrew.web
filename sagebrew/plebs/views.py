@@ -85,8 +85,6 @@ def get_user_search_view(request, pleb_email=""):
     :param pleb_email:
     :return:
     '''
-    # TODO we need a form for this view and to make sure errors are pointing
-    # to actual pages
     response = prepare_user_search_html(pleb_email)
     if response is None:
         return HttpResponse('Server Error', status=500)

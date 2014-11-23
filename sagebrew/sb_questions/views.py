@@ -206,8 +206,7 @@ def get_question_view(request):
         # an additional else or remove the bottom else specifier and just
         # return the Response anytime it reaches that area
 
-    else:
-        return Response({"detail": "fail"}, status=400)
+    return Response({"detail": "fail"}, status=400)
 
 
 @api_view(['GET'])

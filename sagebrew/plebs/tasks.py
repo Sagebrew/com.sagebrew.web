@@ -118,9 +118,11 @@ def create_wall_task(pleb, user):
 @shared_task()
 def create_pleb_task(user_instance):
     try:
+        print "check on pleb"
         pleb = Pleb.nodes.get(email=user_instance.email)
     except (Pleb.DoesNotExist, DoesNotExist):
         try:
+            print "create pleb"
             pleb = Pleb(email=user_instance.email,
                         first_name=user_instance.first_name,
                         last_name=user_instance.last_name)
@@ -129,8 +131,10 @@ def create_pleb_task(user_instance):
     except(CypherException, IOError) as e:
         raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
     if pleb.username is None:
+        print "generate username"
         generated = pleb.generate_username()
         if isinstance(generated, Exception):
+            print "generated username fail"
             raise create_pleb_task.retry(exc=generated, countdown=3,
                                          max_retries=None)
     task_info = spawn_task(task_func=create_wall_task,

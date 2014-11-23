@@ -205,6 +205,9 @@ def get_question_view(request):
                     question.render_question_page(question_data
                     ['current_pleb']))
             return Response(html_array, status=200)
+        # TODO if cannot perform the above TODOs need to at least add
+        # an additional else or remove the bottom else specifier and just
+        # return the Response anytime it reaches that area
 
     else:
         return Response({"detail": "fail"}, status=400)

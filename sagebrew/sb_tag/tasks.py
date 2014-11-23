@@ -19,8 +19,7 @@ def add_tags(question, tags):
     '''
     response = question.add_tags(tags)
     if isinstance(response, Exception) is True:
-        raise add_auto_tags.retry(exc=response, countdown=3,
-                                  max_retries=None)
+        raise add_auto_tags.retry(exc=response, countdown=3, max_retries=None)
 
     return response
 

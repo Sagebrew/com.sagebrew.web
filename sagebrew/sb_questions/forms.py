@@ -6,14 +6,17 @@ class SaveQuestionForm(forms.Form):
     content = forms.CharField()
     tags = forms.CharField()
 
+
 class DeleteQuestionForm(forms.Form):
     current_pleb = forms.EmailField()
     question_uuid = forms.CharField()
+
 
 class CloseQuestionForm(forms.Form):
     current_pleb = forms.EmailField()
     question_uuid = forms.CharField()
     reason = forms.CharField()
+
 
 class GetQuestionForm(forms.Form):
     sort_by = forms.CharField()

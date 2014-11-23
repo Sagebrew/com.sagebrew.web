@@ -25,8 +25,7 @@ def send_email_task(to, subject, html_content, text_content=None):
         if isinstance(res, Exception):
             raise send_email_task.retry(exc=res, countdown=5, max_retries=None)
     except SESMaxSendingRateExceededError as e:
-        raise send_email_task.retry(exc=e, countdown=5,
-                                    max_retries=None)
+        raise send_email_task.retry(exc=e, countdown=5, max_retries=None)
     # TODO investigate possible SES exceptions
     except Exception as e:
         raise defensive_exception(send_email_task.__name__, e,

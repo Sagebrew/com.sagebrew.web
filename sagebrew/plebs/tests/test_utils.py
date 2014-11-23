@@ -34,5 +34,5 @@ class TestPrepareUserSearchHTML(TestCase):
         stopped = check_call("sudo service neo4j-service stop", shell=True)
         print stopped
         res = prepare_user_search_html(self.user.email)
-        check_call("sudo service neo4j start", shell=True)
+        check_call("sudo service neo4j-service start", shell=True)
         self.assertIsNone(res)

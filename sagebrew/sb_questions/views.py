@@ -189,21 +189,18 @@ def get_question_view(request):
             response = get_question_by_most_recent()
             for question in response:
                 html_array.append(
-                    question.render_question_page(question_data
-                    ['current_pleb']))
+                    question.render_question_page(request.user.email))
             return Response(html_array, status=200)
 
         elif question_data['sort_by'] == 'uuid':
             return Response(get_question_by_uuid(
-                question_data['question_uuid'],
-                question_data['current_pleb']), status=200)
+                question_data['question_uuid'], request.user.email), status=200)
 
         elif question_data['sort_by'] == 'least_recent':
             response = get_question_by_least_recent()
             for question in response:
                 html_array.append(
-                    question.render_question_page(question_data
-                    ['current_pleb']))
+                    question.render_question_page(request.user.email))
             return Response(html_array, status=200)
         # TODO if cannot perform the above TODOs need to at least add
         # an additional else or remove the bottom else specifier and just

@@ -20,6 +20,4 @@ class CloseQuestionForm(forms.Form):
 
 class GetQuestionForm(forms.Form):
     sort_by = forms.CharField()
-    user = forms.EmailField()
-    current_pleb = forms.EmailField()
-    question_uuid = forms.CharField()
+    question_uuid = forms.CharField(required=False)

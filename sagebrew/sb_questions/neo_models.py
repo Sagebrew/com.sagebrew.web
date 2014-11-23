@@ -171,7 +171,7 @@ class SBQuestion(SBVersioned, SBTagContent):
             return e
 
     @apply_defense
-    def render_question_page(self, pleb):
+    def render_question_page(self, user_email):
         try:
             owner = self.owned_by.all()
             try:
@@ -201,7 +201,7 @@ class SBQuestion(SBVersioned, SBTagContent):
                     'owner': owner,
                     'time_created': self.date_created,
                     'question_url': self.sb_id,
-                    'current_pleb': pleb
+                    'current_pleb': user_email
                 }
             else:
                 question_dict = {"detail": "failed"}

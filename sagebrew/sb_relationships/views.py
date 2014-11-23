@@ -34,7 +34,7 @@ def create_friend_request(request):
         # TODO Think we're moving this kind of stuff out to the JS system
         # But until then needs to come after the form since it can cause
         # Type errors if someone passes something other than a dict
-        friend_request_uuid = uuid1()
+        friend_request_uuid = str(uuid1())
         valid_form = request_form.is_valid()
     except AttributeError:
         return Response({'detail': 'attribute error'}, status=400)

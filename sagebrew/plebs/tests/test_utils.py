@@ -8,6 +8,7 @@ from plebs.neo_models import Pleb
 from plebs.utils import prepare_user_search_html
 from sb_registration.utils import create_user_util
 
+
 class TestPrepareUserSearchHTML(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"

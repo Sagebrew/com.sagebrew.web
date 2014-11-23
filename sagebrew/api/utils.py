@@ -155,6 +155,8 @@ def execute_cypher_query(query):
 def wait_util(async_res):
     while not async_res['task_id'].ready():
         time.sleep(1)
+    if isinstance(async_res['task_id'].result, Exception):
+        print async_res['task_id'].result.__traceback__
 
     while not async_res['task_id'].result.ready():
         time.sleep(1)

@@ -601,7 +601,7 @@ class TestSearchResultAPIReturns(TestCase):
                                           kwargs={'query_param':'fossil fuels',
                                                   'page': '1'}))
         result_dict = loads(request.content)
-
+        print result_dict
         res1 = SBQuestion.nodes.get(sb_id=result_dict['html'][0]['question_uuid'])
         res2 = SBQuestion.nodes.get(sb_id=result_dict['html'][1]['question_uuid'])
         self.assertEqual(res1.question_title, question2.question_title)

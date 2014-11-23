@@ -171,6 +171,11 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                 results = pool.map(process_search_result, page.object_list)
             except RuntimeError:
                 # TODO Might want to return something different here
+                # Also if this is likely reocurring issue we might want to
+                # look at an alternative process for it.
+                # This seems to just be spawning off tasks too, could that
+                # be spawned into a task of itself that manages spawning off
+                # multiple tasks rather than Pool?
                 return Response({'detail': "server error"}, status=500)
             results = sorted(results, key=itemgetter('temp_score'),
                              reverse=True)

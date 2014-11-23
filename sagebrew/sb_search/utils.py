@@ -72,7 +72,7 @@ def update_search_index_doc(document_id, index, field, update_value,
         return False
 
 
-# TODO Looke into Can't pickle <type 'function'>: attribute lokup __builtin__.function
+# TODO Look into Can't pickle <type 'function'>: attribute lokup __builtin__.function
 # failed
 def process_search_result(item):
     '''

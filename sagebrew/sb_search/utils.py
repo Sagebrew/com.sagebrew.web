@@ -95,36 +95,10 @@ def process_search_result(item):
                        "type": "question",
                        "temp_score": item['_score']*item['_source']['sb_score'],
                        "score": item['_score']}
-    if item['_type'] == 'pleb':
+    elif item['_type'] == 'pleb':
         return {"pleb_email": item['_source']['pleb_email'],
                 "type": "pleb",
                 "temp_score": item['_score']*item['_source']['sb_score'],
                 "score": item['_score']}
-
-@apply_defense
-def spawn_update_weight_relationship(search_items):
-    from sb_search.tasks import update_weight_relationship
-    for item in search_items:
-        if item['_type'] == 'sb_questions.neo_models.SBQuestion':
-            spawned = spawn_task(
-            update_weight_relationship, task_param=
-            {'index': item['_index'],
-             'document_id': item['_id'],
-             'object_uuid': item['_source']['object_uuid'],
-             'object_type': 'question',
-             'current_pleb': item['_source']['related_user'],
-             'modifier_type': 'seen'})
-            if isinstance(spawned, Exception) is True:
-                return spawned
-        if item['_type'] == 'pleb':
-            spawned = spawn_task(
-            update_weight_relationship,
-            task_param={'index': item['_index'],
-                        'document_id': item['_id'],
-                        'object_uuid': item['_source']['pleb_email'],
-                        'object_type': 'pleb',
-                        'current_pleb': item['_source']['related_user'],
-                        'modifier_type': 'seen'})
-            if isinstance(spawned, Exception) is True:
-                return spawned
-    return True
+    else:
+        return {'temp_score': 0}

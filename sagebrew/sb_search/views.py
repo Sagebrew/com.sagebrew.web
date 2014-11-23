@@ -19,8 +19,7 @@ from api.alchemyapi import AlchemyAPI
 from api.utils import (spawn_task)
 from plebs.neo_models import Pleb
 from plebs.utils import prepare_user_search_html
-from sb_search.tasks import (update_weight_relationship,
-                             spawn_weight_relationships)
+from sb_search.tasks import (spawn_weight_relationships)
 from sb_questions.utils import prepare_question_search_html
 from sb_registration.utils import verify_completed_registration
 

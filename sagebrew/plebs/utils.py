@@ -1,3 +1,4 @@
+from os import environ
 from django.template.loader import render_to_string
 from neomodel import DoesNotExist, CypherException
 from .neo_models import Pleb
@@ -11,6 +12,7 @@ def prepare_user_search_html(pleb=""):
     :param pleb:
     :return:
     '''
+    print environ.get("NEO4J_REST_URL", "")
     try:
         pleb = Pleb.nodes.get(email=pleb)
     except(Pleb.DoesNotExist, DoesNotExist):

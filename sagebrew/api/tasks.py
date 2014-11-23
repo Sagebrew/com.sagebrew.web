@@ -45,8 +45,12 @@ def add_object_to_search_index(index="full-search-base", object_type="",
         return False
     try:
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        res = es.index(index=index, doc_type=object_type,
-                       id=object_data['object_uuid'], body=object_data)
+        try:
+            res = es.index(index=index, doc_type=object_type,
+                           id=object_data['object_uuid'], body=object_data)
+        except KeyError:
+            res = es.index(index=index, doc_type=object_type,
+                           id=object_data['pleb_email'], body=object_data)
     except (ElasticsearchException, TransportError, ConnectionError,
             RequestError) as e:
         raise add_object_to_search_index.retry(exc=e, countdown=3,

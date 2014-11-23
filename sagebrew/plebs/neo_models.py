@@ -147,7 +147,7 @@ class Pleb(StructuredNode):
     def generate_username(self):
         temp_username = "%s_%s" % (str(self.first_name).lower(),
                                    str(self.last_name).lower())
-        # temp_username = re.sub('[^a-z0-9]+', '', temp_username)
+        temp_username = re.sub('[^a-z]+', '', temp_username)
         query = 'match (p:Pleb) where p.first_name="%s" and ' \
                 'p.last_name="%s" return p' % (self.first_name,
                                                self.last_name)

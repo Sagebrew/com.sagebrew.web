@@ -33,12 +33,17 @@ def create_friend_request(request):
     # request button
     friend_request_data = request.DATA
     try:
-        friend_request_data['friend_request_uuid'] = uuid1()
         request_form = SubmitFriendRequestForm(friend_request_data)
+        # TODO Think we're moving this kind of stuff out to the JS system
+        # But until then needs to come after the form since it can cause
+        # Type errors if someone passes something other than a dict
+        friend_request_uuid = uuid1()
+        valid_form = request_form.is_valid()
     except AttributeError:
         return Response({'detail': 'attribute error'}, status=400)
 
-    if request_form.is_valid():
+    if valid_form is True:
+        request_form.cleaned_data["friend_request_uuid"] = friend_request_uuid
         task_data = {
             "data": request_form.cleaned_data
         }
@@ -47,8 +52,7 @@ def create_friend_request(request):
         if isinstance(spawned, Exception) is True:
             return Response({'detail': 'server error'}, status=500)
         return Response({"action": True,
-                         "friend_request_id": request_form.cleaned_data[
-                         'friend_request_uuid']}, status=200)
+                         "friend_request_id": friend_request_uuid}, status=200)
     else:
         return Response({'detail': 'invalid form'}, status=400)
 

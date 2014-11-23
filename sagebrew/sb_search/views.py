@@ -155,6 +155,8 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                              task_param=task_param)
         if isinstance(spawned, Exception) is True:
             return Response({'detail': "server error"}, status=500)
+        # TODO is this the correct way to check if res is empty? Seems to be
+        # getting by this and attempting stuff further on down with no results
         if not res:
             html = render_to_string('search_result_empty.html')
             return Response({'html': html}, status=200)

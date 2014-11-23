@@ -20,6 +20,32 @@ from sb_base.utils import defensive_exception
 logger = logging.getLogger('loggly_logs')
 
 
+@shared_task()
+def spawn_weight_relationships(search_items):
+    for item in search_items:
+        if item['_type'] == 'sb_questions.neo_models.SBQuestion':
+            spawned = spawn_task(
+            update_weight_relationship, task_param=
+            {'index': item['_index'],
+             'document_id': item['_id'],
+             'object_uuid': item['_source']['object_uuid'],
+             'object_type': 'question',
+             'current_pleb': item['_source']['related_user'],
+             'modifier_type': 'seen'})
+            if isinstance(spawned, Exception) is True:
+                return spawned
+        if item['_type'] == 'pleb':
+            spawned = spawn_task(
+            update_weight_relationship,
+            task_param={'index': item['_index'],
+                        'document_id': item['_id'],
+                        'object_uuid': item['_source']['pleb_email'],
+                        'object_type': 'pleb',
+                        'current_pleb': item['_source']['related_user'],
+                        'modifier_type': 'seen'})
+            if isinstance(spawned, Exception) is True:
+                return spawned
+    return True
 
 @shared_task()
 def update_weight_relationship(document_id, index, object_type,

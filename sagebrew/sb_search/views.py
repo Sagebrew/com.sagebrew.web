@@ -18,9 +18,8 @@ from .forms import SearchForm, SearchFormApi
 from api.alchemyapi import AlchemyAPI
 from api.utils import (spawn_task)
 from plebs.neo_models import Pleb
-from sb_base.utils import defensive_exception
 from plebs.utils import prepare_user_search_html
-from sb_search.tasks import update_weight_relationship
+from sb_search.tasks import (spawn_weight_relationships)
 from sb_questions.utils import prepare_question_search_html
 from sb_registration.utils import verify_completed_registration
 
@@ -162,8 +161,14 @@ def search_result_api(request, query_param="", display_num=10, page=1,
             page = paginator.page(1)
         except EmptyPage:
             page = paginator.page(paginator.num_pages)
+        res = spawn_task(task_func=spawn_weight_relationships,
+                         task_param={'search_items': page.object_list})
+        if isinstance(res, Exception) is True:
+            # TODO Probably want to handle this differently
+            return Response({'detail': 'server error'}, status=500)
         if current_page == 1:
             pool = Pool(3)
+
             try:
                 results = pool.map(process_search_result, page.object_list)
             except RuntimeError:
@@ -183,26 +188,7 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                 if item['_type'] == 'sb_questions.neo_models.SBQuestion':
                     results.append(prepare_question_search_html(
                         item['_source']['object_uuid']))
-                    spawned = spawn_task(
-                        update_weight_relationship,
-                        task_param=
-                        {'index': item['_index'],
-                         'document_id': item['_id'],
-                         'object_uuid': item['_source']['object_uuid'],
-                         'object_type': 'question',
-                         'current_pleb': item['_source']['related_user'],
-                         'modifier_type': 'search_seen'})
-                if item['_type'] == 'pleb':
-                    spawned = spawn_task(
-                        update_weight_relationship,
-                        task_param={'index': item['_index'],
-                                    'document_id': item['_id'],
-                                    'object_uuid':
-                                    item['_source']['pleb_email'],
-                                    'object_type': 'pleb',
-                                    'current_pleb': item['_source'][
-                                    'related_user'],
-                                    'modifier_type': 'search_seen'})
+                elif item['_type'] == 'pleb':
                     results.append(prepare_user_search_html(
                         item['_source']['pleb_email']))
         try:

@@ -348,7 +348,7 @@ class TestSearchResultAPIReturns(TestCase):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(sb_id=str(uuid1()),
                                question_title=self.q1dict['question_title'],
-                               question_content=self.q1dict['question_content'],
+                               content=self.q1dict['question_content'],
                                is_closed=False, answer_number=0,
                                last_edited_on=datetime.now(pytz.utc),
                                up_vote_number=0,
@@ -361,7 +361,7 @@ class TestSearchResultAPIReturns(TestCase):
                              body={
                                  'object_uuid': question1.sb_id,
                                  'question_title': question1.question_title,
-                                 'question_content': question1.question_content,
+                                 'question_content': question1.content,
                                  'related_user': self.user.email
                              })
         self.assertTrue(index_res['created'])
@@ -378,7 +378,7 @@ class TestSearchResultAPIReturns(TestCase):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(sb_id=str(uuid1()),
                                question_title=self.q1dict['question_title'],
-                               question_content=self.q1dict['question_content'],
+                               content=self.q1dict['question_content'],
                                is_closed=False, answer_number=0,
                                last_edited_on=datetime.now(pytz.utc),
                                up_vote_number=0,
@@ -391,7 +391,7 @@ class TestSearchResultAPIReturns(TestCase):
                  body={
                      'object_uuid': question1.sb_id,
                      'question_title': question1.question_title,
-                     'question_content': question1.question_content,
+                     'question_content': question1.content,
                      'related_user': self.user.email
                  })
         for item in range(0,9):
@@ -400,7 +400,7 @@ class TestSearchResultAPIReturns(TestCase):
                      body={
                          'object_uuid': question1.sb_id,
                          'question_title': question1.question_title,
-                         'question_content': question1.question_content,
+                         'question_content': question1.content,
                          'related_user': self.user.email
                      })
         time.sleep(2)
@@ -417,7 +417,7 @@ class TestSearchResultAPIReturns(TestCase):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(sb_id=str(uuid1()),
                                question_title=self.q1dict['question_title'],
-                               question_content=self.q1dict['question_content'],
+                               content=self.q1dict['question_content'],
                                is_closed=False, answer_number=0,
                                last_edited_on=datetime.now(pytz.utc),
                                up_vote_number=0,
@@ -430,7 +430,7 @@ class TestSearchResultAPIReturns(TestCase):
                  body={
                      'object_uuid': question1.sb_id,
                      'question_title': question1.question_title,
-                     'question_content': question1.question_content,
+                     'question_content': question1.content,
                      'related_user': self.user.email
                  })
         for item in range(0,19):
@@ -439,7 +439,7 @@ class TestSearchResultAPIReturns(TestCase):
                      body={
                          'object_uuid': question1.sb_id,
                          'question_title': question1.question_title,
-                         'question_content': question1.question_content,
+                         'question_content': question1.content,
                          'related_user': self.user.email
                      })
         time.sleep(2)
@@ -554,7 +554,7 @@ class TestSearchResultAPIReturns(TestCase):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(sb_id=str(uuid1()),
                                question_title=self.q1dict['question_title'],
-                               question_content=self.q1dict['question_content'],
+                               content=self.q1dict['question_content'],
                                is_closed=False, answer_number=0,
                                last_edited_on=datetime.now(pytz.utc),
                                up_vote_number=0,
@@ -567,14 +567,14 @@ class TestSearchResultAPIReturns(TestCase):
                  body={
                      'object_uuid': question1.sb_id,
                      'question_title': question1.question_title,
-                     'question_content': question1.question_content,
+                     'question_content': question1.content,
                      'related_user': self.user.email
                  })
 
         question2 = SBQuestion(sb_id=str(uuid1()),
                                question_title='Should we ban the use '
                                               'of fossil fuels?',
-                               question_content='With battery-powered cars '
+                               content='With battery-powered cars '
                                                 'becoming more and more '
                                                 'efficient and affordable'
                                                 'and home energy solutions '
@@ -590,7 +590,7 @@ class TestSearchResultAPIReturns(TestCase):
         es.index(index='full-search-user-specific-1',
                  doc_type='sb_questions.neo_models.SBQuestion',
                  body={'object_uuid': question2.sb_id,
-                       'question_content': question2.question_content,
+                       'question_content': question2.content,
                        'question_title': question2.question_title,
                        'related_user': self.user.email})
         time.sleep(3)
@@ -599,7 +599,7 @@ class TestSearchResultAPIReturns(TestCase):
                                           kwargs={'query_param':'fossil fuels',
                                                   'page': '1'}))
         result_dict = loads(request.content)
-        print result_dict
+
         res1 = SBQuestion.nodes.get(sb_id=result_dict['html'][0]['question_uuid'])
         res2 = SBQuestion.nodes.get(sb_id=result_dict['html'][1]['question_uuid'])
         self.assertEqual(res1.question_title, question2.question_title)

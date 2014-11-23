@@ -1,11 +1,9 @@
 from uuid import uuid1
-from urllib2 import HTTPError
-from requests import ConnectionError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-from neomodel import DoesNotExist
+from neomodel import CypherException
 
 from api.utils import execute_cypher_query, spawn_task
 from .forms import (SubmitFriendRequestForm, GetFriendRequestForm,
@@ -13,7 +11,6 @@ from .forms import (SubmitFriendRequestForm, GetFriendRequestForm,
 from .neo_models import FriendRequest
 from .tasks import create_friend_request_task
 from plebs.neo_models import Pleb
-from sb_base.utils import defensive_exception
 
 
 @api_view(['POST'])
@@ -124,7 +121,10 @@ def respond_friend_request(request):
             from_pleb = friend_request.request_from.all()[0]
         except (FriendRequest.DoesNotExist, Pleb.DoesNotExist, IndexError):
             # TODO should we be doing something different for an index error?
+            # Also should this be a 404?
             return Response(status=408)
+        except CypherException:
+            return Response(status=500)
 
         if form.cleaned_data['response'] == 'accept':
             rel1 = to_pleb.friends.connect(from_pleb)

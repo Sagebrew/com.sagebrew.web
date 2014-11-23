@@ -93,7 +93,7 @@ def finalize_citizen_creation(pleb, user):
 def create_wall_task(pleb, user):
     try:
         wall_list = pleb.wall.all()
-    except CypherException as e:
+    except(CypherException, IOError) as e:
         raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
     if len(wall_list) > 1:
         # TODO log something here, need to delete one otherwise stuff will
@@ -106,7 +106,7 @@ def create_wall_task(pleb, user):
             wall = SBWall(wall_id=str(uuid1())).save()
             wall.owner.connect(pleb)
             pleb.wall.connect(wall)
-        except CypherException as e:
+        except(CypherException, IOError) as e:
             raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
     spawned = spawn_task(task_func=finalize_citizen_creation,
                          task_param={"pleb": pleb, "user": user})
@@ -136,6 +136,8 @@ def create_pleb_task(user_instance):
     task_info = spawn_task(task_func=create_wall_task,
                            task_param={"pleb": pleb, "user": user_instance})
     if isinstance(task_info, Exception) is True:
+        print "spawn task failed"
         raise create_pleb_task.retry(exc=task_info, countdown=3,
                                      max_retries=None)
+    print "returning task info"
     return task_info

@@ -356,6 +356,8 @@ def create_user_util(first_name, last_name, email, password, username=None):
     res = spawn_task(task_func=create_pleb_task,
                      task_param={"user_instance": user})
     if isinstance(res, Exception) is True:
+        print "spawn create pleb failed"
         return res
     else:
+        print type(res)
         return {"task_id": res, "username": user.username}

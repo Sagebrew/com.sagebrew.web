@@ -162,9 +162,6 @@ def update_user_indices(doc_type, doc_id):
     except (ElasticsearchException, TransportError, ConnectionError,
             RequestError) as e:
         raise update_user_indices.retry(exc=e, countdown=3, max_retries=None)
-    # TODO what do we want to do if there is a ConflictError
-    # TODO what do we want to do if there is a ImproperlyConfigured
-    # TODO should we have logic in the case that 'full-search-base' is not found
     try:
         plebs = Pleb.category()
         for pleb in plebs.instance.all():
@@ -172,21 +169,12 @@ def update_user_indices(doc_type, doc_id):
             res['_source']['related_user'] = pleb.email
             result = es.index(index='full-search-user-specific-1',
                               doc_type=doc_type, body=res['_source'])
-    except CypherException as e:
+    except (CypherException, IOError) as e:
         raise update_user_indices.retry(exc=e, countdown=3, max_retries=None)
     except (ElasticsearchException, TransportError, ConnectionError,
             RequestError) as e:
         raise update_user_indices.retry(exc=e, countdown=3, max_retries=None)
-    # TODO what do we want to do if there is a ConflictError
-    # TODO what do we want to do if there is a ImproperlyConfigured
-    # TODO should we have logic in the case that 'full-search-base' is not found
-    # TODO what should we do if half way through we fail out?
-    # TODO break this out to multiple tasks that are responsible for populating
-    # the index with a certain range of users. That way it's less of a strain
-    # on neo, we can stagger the tasks out to reduce the strain on the two
-    # systems and wipe portions if it fails and retry. This should reduce the
-    # likely hood of duplicate entries occurring or losing entire chunks of
-    # users.
+
 
     return True
 
@@ -202,12 +190,13 @@ def update_search_query(pleb, query_param, keywords):
     :param keywords:
     :return:
     '''
-    # TODO Need to catch CypherExceptions and insure this is idempotent
     try:
         try:
             pleb = Pleb.nodes.get(email=pleb)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return False
+        except (Pleb.DoesNotExist, DoesNotExist) as e:
+            return e
+        except(CypherException, IOError) as e:
+            return e
         search_query = SearchQuery.nodes.get(search_query=query_param)
         if pleb.searches.is_connected(search_query):
             rel = pleb.searches.relationship(search_query)

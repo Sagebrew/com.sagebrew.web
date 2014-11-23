@@ -1,13 +1,9 @@
 from django.conf import settings
-from urllib2 import HTTPError
-from requests import ConnectionError
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
 
 from elasticsearch import Elasticsearch, helpers
-
-from sb_base.utils import defensive_exception
 
 
 @api_view(['GET'])
@@ -21,7 +17,6 @@ def get_tag_view(request):
     :return:
     '''
     tag_list = []
-    # TODO Surround ES with proper exceptions and handle accordingly
     es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
     scan_resp = helpers.scan(client=es, scroll='10m',
                             index='tags', doc_type='tag')

@@ -103,8 +103,6 @@ def search_result_api(request, query_param="", display_num=10, page=1,
     '''
     # TODO Make sure calling function knows what to do with a 500 status
     # TODO can we move any of this into a util?
-    # TODO need to surround Alchemy with exception handling
-    # TODO need to surround es with proper exception handling
     data = {'query_param': query_param, 'display_num': display_num,
             'page': int(page),
             'filter_type': filter_type, 'filter_param': filter_param}
@@ -115,8 +113,6 @@ def search_result_api(request, query_param="", display_num=10, page=1,
         # TODO Return something relevant
         return Response(status=400)
     if valid_form is True:
-        # TODO surround alchemy calls with appropriate try catches, assuming
-        # there are potential connectivity issues.
         alchemyapi = AlchemyAPI()
         response = alchemyapi.keywords("text", search_form.cleaned_data[
                                       'query_param'])
@@ -127,7 +123,6 @@ def search_result_api(request, query_param="", display_num=10, page=1,
         # TODO surround ES query with proper exception handling and ensure
         # each one is handled correctly
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        #TODO benchmark getting the index from neo vs. getting from postgres
         #TODO run query_param through natural language processor, determine
         #if what they have searched is an email address or a name so that
         #the first search result is that user

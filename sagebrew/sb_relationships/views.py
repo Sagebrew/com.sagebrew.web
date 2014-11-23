@@ -121,8 +121,7 @@ def respond_friend_request(request):
             from_pleb = friend_request.request_from.all()[0]
         except (FriendRequest.DoesNotExist, Pleb.DoesNotExist, IndexError):
             # TODO should we be doing something different for an index error?
-            # Also should this be a 404?
-            return Response(status=408)
+            return Response(status=404)
         except CypherException:
             return Response(status=500)
 

@@ -3,7 +3,6 @@ import boto.sqs
 import importlib
 
 from uuid import uuid1
-from socket import error as socket_error
 from json import dumps
 
 from boto.sqs.message import Message
@@ -100,7 +99,7 @@ def spawn_task(task_func, task_param, countdown=0, task_id=None):
     try:
         return task_func.apply_async(kwargs=task_param, countdown=countdown,
                                      task_id=task_id)
-    except (socket_error, Exception) as e:
+    except (IOError, Exception) as e:
         failure_uuid = str(uuid1())
         failure_dict = {
             'action': 'failed_task',
@@ -149,7 +148,7 @@ def execute_cypher_query(query):
     # successful
     try:
         return db.cypher_query(query)
-    except CypherException as e:
+    except(CypherException, IOError) as e:
         return e
 
 
@@ -160,6 +159,7 @@ def wait_util(async_res):
     while not async_res['task_id'].result.ready():
         time.sleep(1)
     return async_res['task_id'].result.result
+
 
 @apply_defense
 def get_object(object_type, object_uuid):

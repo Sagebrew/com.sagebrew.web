@@ -145,21 +145,32 @@ class Pleb(StructuredNode):
                                      'CLICKED_RESULT')
 
     def generate_username(self):
-        temp_username = str(self.first_name).lower() + \
-                        str(self.last_name).lower()
-        temp_username = re.sub('[^a-z0-9]+', '', temp_username)
+        temp_username = "%s_%s" % (str(self.first_name).lower(),
+                                   str(self.last_name).lower())
+        # TODO what does this regex do?
+        # temp_username = re.sub('[^a-z0-9]+', '', temp_username)
+        query = 'match (p:Pleb) where p.first_name="%s" and ' \
+                'p.last_name="%s" return p' % (self.first_name,
+                                               self.last_name)
+        res = execute_cypher_query(query)
+        if isinstance(res, Exception):
+            return res
+        # TODO should check to make sure res will always be an array here
+        # and if not handle what it can be
         try:
-            query = 'match (p:Pleb) where p.first_name="%s" and ' \
-                    'p.last_name="%s" return p' % (self.first_name,
-                                                   self.last_name)
-            res = execute_cypher_query(query)
-            if isinstance(res, Exception):
-                return res
-            self.username = temp_username + str((len(res[0])+1))
-            self.save()
-        except Pleb.DoesNotExist:
+            existing_users = res[0]
+        except IndexError:
+            existing_users = None
+
+        if existing_users is None:
             self.username = temp_username
+        else:
+            self.username = temp_username + str((len(res[0])+1))
+
+        try:
             self.save()
+        except(CypherException, IOError) as e:
+            return e
         return True
 
     def relate_comment(self, comment):

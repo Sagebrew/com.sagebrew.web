@@ -124,9 +124,9 @@ def create_pleb_task(user_instance):
             pleb = Pleb(email=user_instance.email,
                         first_name=user_instance.first_name,
                         last_name=user_instance.last_name)
-        except CypherException as e:
+        except(CypherException, IOError) as e:
             raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
-    except CypherException as e:
+    except(CypherException, IOError) as e:
         raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
     if pleb.username is None:
         generated = pleb.generate_username()

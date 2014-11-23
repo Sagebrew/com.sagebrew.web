@@ -1,7 +1,6 @@
 import pytz
 from uuid import uuid1
 from datetime import datetime
-from django.conf import settings
 
 from neomodel import (StringProperty, RelationshipTo, BooleanProperty,
                       CypherException)
@@ -10,6 +9,7 @@ from sb_base.decorators import apply_defense
 
 
 from sb_base.neo_models import SBVersioned
+
 
 class SBAnswer(SBVersioned):
     up_vote_adjustment = 10

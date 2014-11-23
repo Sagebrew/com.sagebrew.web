@@ -171,8 +171,6 @@ class Pleb(StructuredNode):
             return True
         except CypherException as e:
             return e
-        except Exception as e:
-            return defensive_exception(Pleb.relate_comment.__name__, e, e)
 
     def update_weight_relationship(self, sb_object, modifier_type):
         rel = self.object_weight.relationship(sb_object)

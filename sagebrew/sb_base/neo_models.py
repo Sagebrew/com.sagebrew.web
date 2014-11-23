@@ -243,7 +243,7 @@ class SBTagContent(StructuredNode):
     def add_tags(self, tags):
         """
         :param tags: String that contains a list of the tags being added with
-                     a space representing the splitting point
+                     a , representing the splitting point
         :return:
         """
         from sb_tag.neo_models import SBTag

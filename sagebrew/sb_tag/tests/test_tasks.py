@@ -29,7 +29,7 @@ class TestTagTask(TestCase):
     def test_add_tag_success(self):
         question = SBQuestion(sb_id=uuid1())
         question.save()
-        tags = 'test tag please do not fail in testing'
+        tags = 'test,tag,please,do,not,fail,in,testing'
         task_dict = {'question': question,
                      'tags': tags}
         res = add_tags.apply_async(kwargs=task_dict)

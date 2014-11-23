@@ -129,7 +129,7 @@ class TestAddTagsToQuestionTask(TestCase):
     def test_add_tags_to_question_task(self):
         task_data = {
             'question': self.question,
-            'tags': 'fake tags'
+            'tags': 'fake,tags'
         }
         res = add_tags_to_question_task.apply_async(kwargs=task_data)
         while not res.ready():
@@ -142,7 +142,7 @@ class TestAddTagsToQuestionTask(TestCase):
         self.question.save()
         task_data = {
             'question': self.question,
-            'tags': 'fake tags'
+            'tags': 'fake,tags'
         }
         res = add_tags_to_question_task.apply_async(kwargs=task_data)
         while not res.ready():

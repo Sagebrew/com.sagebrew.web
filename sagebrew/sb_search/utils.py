@@ -6,6 +6,7 @@ from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import TransportError
 
 from api.utils import spawn_task
+from sb_base.decorators import apply_defense
 
 logger = logging.getLogger('loggly_logs')
 
@@ -72,7 +73,8 @@ def update_search_index_doc(document_id, index, field, update_value,
         return False
 
 
-# TODO Look into Can't pickle <type 'function'>: attribute lokup __builtin__.function
+# TODO Look into Can't pickle <type 'function'>: attribute
+# lookup __builtin__.function
 # failed
 def process_search_result(item):
     '''
@@ -89,7 +91,22 @@ def process_search_result(item):
     if 'sb_score' not in item['_source']:
             item['_source']['sb_score'] = 0
     if item['_type'] == 'sb_questions.neo_models.SBQuestion':
-        spawned = spawn_task(
+        return {"question_uuid": item['_source']['object_uuid'],
+                       "type": "question",
+                       "temp_score": item['_score']*item['_source']['sb_score'],
+                       "score": item['_score']}
+    if item['_type'] == 'pleb':
+        return {"pleb_email": item['_source']['pleb_email'],
+                "type": "pleb",
+                "temp_score": item['_score']*item['_source']['sb_score'],
+                "score": item['_score']}
+
+@apply_defense
+def spawn_update_weight_relationship(search_items):
+    from sb_search.tasks import update_weight_relationship
+    for item in search_items:
+        if item['_type'] == 'sb_questions.neo_models.SBQuestion':
+            spawned = spawn_task(
             update_weight_relationship, task_param=
             {'index': item['_index'],
              'document_id': item['_id'],
@@ -97,13 +114,10 @@ def process_search_result(item):
              'object_type': 'question',
              'current_pleb': item['_source']['related_user'],
              'modifier_type': 'seen'})
-
-        return {"question_uuid": item['_source']['object_uuid'],
-                       "type": "question",
-                       "temp_score": item['_score']*item['_source']['sb_score'],
-                       "score": item['_score']}
-    if item['_type'] == 'pleb':
-        spawned = spawn_task(
+            if isinstance(spawned, Exception) is True:
+                return spawned
+        if item['_type'] == 'pleb':
+            spawned = spawn_task(
             update_weight_relationship,
             task_param={'index': item['_index'],
                         'document_id': item['_id'],
@@ -111,7 +125,6 @@ def process_search_result(item):
                         'object_type': 'pleb',
                         'current_pleb': item['_source']['related_user'],
                         'modifier_type': 'seen'})
-        return {"pleb_email": item['_source']['pleb_email'],
-                "type": "pleb",
-                "temp_score": item['_score']*item['_source']['sb_score'],
-                "score": item['_score']}
+            if isinstance(spawned, Exception) is True:
+                return spawned
+    return True

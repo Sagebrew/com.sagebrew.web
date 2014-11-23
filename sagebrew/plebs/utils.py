@@ -1,4 +1,3 @@
-from socket import error as socket_error
 from django.template.loader import render_to_string
 from neomodel import DoesNotExist, CypherException
 from .neo_models import Pleb
@@ -16,7 +15,7 @@ def prepare_user_search_html(pleb=""):
         pleb = Pleb.nodes.get(email=pleb)
     except(Pleb.DoesNotExist, DoesNotExist):
         return False
-    except(CypherException, socket_error):
+    except(CypherException, IOError):
         return None
     pleb_data = {
         'full_name': pleb.first_name + ' ' + pleb.last_name,

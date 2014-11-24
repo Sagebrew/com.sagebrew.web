@@ -7,12 +7,12 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, ZeroOrOne,
                       CypherException)
+from neomodel.exception import DoesNotExist
 
 from api.utils import execute_cypher_query
 from sb_relationships.neo_models import (FriendRelationship,
                                          UserWeightRelationship)
 from sb_base.neo_models import RelationshipWeight
-from sb_base.utils import defensive_exception
 from sb_search.neo_models import SearchCount
 
 
@@ -193,6 +193,7 @@ class Pleb(StructuredNode):
 
     def vote_on_content(self, content):
         pass
+
 
 class Address(StructuredNode):
     street = StringProperty()

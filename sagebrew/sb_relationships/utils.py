@@ -17,7 +17,7 @@ def create_friend_request_util(data):
         try:
             from_citizen = Pleb.nodes.get(email=data['from_pleb'])
             to_citizen = Pleb.nodes.get(email=data['to_pleb'])
-        except(DoesNotExist) as e:
+        except(Pleb.DoesNotExist, DoesNotExist) as e:
             return e
         except(CypherException, IOError) as e:
             return e

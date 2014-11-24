@@ -46,5 +46,5 @@ def create_friend_request_util(data):
         to_citizen.friend_requests_recieved.connect(friend_request)
         to_citizen.save()
         return True
-    except (CypherException, KeyError) as e:
+    except(CypherException, KeyError) as e:
         return e

@@ -116,6 +116,9 @@ def create_pleb_task(user_instance):
             pleb = Pleb(email=user_instance.email,
                         first_name=user_instance.first_name,
                         last_name=user_instance.last_name)
+            # TODO do we need this save or can we use the one in
+            # generate_username?
+            pleb.save()
         except(CypherException, IOError) as e:
             raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
     except(CypherException, IOError) as e:

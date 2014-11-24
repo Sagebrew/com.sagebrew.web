@@ -82,7 +82,7 @@ def login_view(request):
 def resend_email_verification(request):
     try:
         pleb = Pleb.nodes.get(email=request.user.email)
-    except (Pleb.DoesNotExist, DoesNotExist):
+    except(DoesNotExist):
         return Response({'detail': 'pleb does not exist'}, status=400)
 
     template_dict = {

@@ -174,6 +174,7 @@ INSTALLED_APPS = (
     'sb_flags',
     'sb_edits',
     'sb_deletes',
+    'sb_docstore',
     'elasticsearch',
     'textblob',
     'help_center',

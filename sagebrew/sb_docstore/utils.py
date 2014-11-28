@@ -16,6 +16,7 @@ def create_table():
 
     users = Table.create('users', schema=[
         HashKey('email', data_type=STRING),
+        RangeKey('last_name', data_type=STRING),
     ],  throughput={
         'read': 5,
         'write': 15,
@@ -35,13 +36,13 @@ def create_table():
         ])
     ], connection=conn)
     '''
-    friends = Table('users', connection=conn)
-    print friends.describe()
     print users.describe()
-    friends.put_item(data={
+    users.put_item(data={
         'email': 'tyler.wiersing@gmail.com',
+        'last_name': 'Wiersing',
         'other': 'this is some other information'
     }, overwrite=True)
 
-    me = users.get_item(email='tyler.wiersing@gmail.com')
-    print me.items()
+    me = users.query_2(email__eq='tyler.wiersing@gmail.com')
+    for item in me:
+        print item['email']

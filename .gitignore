@@ -9,6 +9,7 @@ redis-stable.tar.gz
 redis-stable/
 static/*
 sagebrew/static/*
+sagebrew/temp_files/dynamo_table.js
 .idea/workspace.xml
 .vagrant
 *.log

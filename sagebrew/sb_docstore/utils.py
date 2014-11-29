@@ -64,5 +64,18 @@ def build_question_page(question_uuid, question_table, solution_table):
         solutions = Table(table_name=solution_table)
     except JSONResponseError:
         return False # TODO review this return
+    question = SBQuestion.nodes.get(sb_id=question_uuid)
+    question_dict = question.get_single_question_dict()
+    answer_dicts = question_dict.pop('answers', None)
+    question_dict['object_uuid'] = question_dict.pop('question_uuid', None)
+    questions.put_item(data=question_dict)
+    for answer in answer_dicts:
+        answer['parent_object'] = question_dict['object_uuid']
+        answer['object_uuid'] = answer.pop('answer_uuid', None)
+        solutions.put_item(data=answer)
+
+    
+
+
 
 

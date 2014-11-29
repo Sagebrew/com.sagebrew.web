@@ -27,7 +27,7 @@ def add_object_to_table(table_name, object_data):
     try:
         table = Table(table_name=table_name, connection=conn)
     except JSONResponseError:
-        return False # TODO review this return
+        return False #TODO review this return
     table.put_item(data=object_data)
     return True
 
@@ -36,7 +36,7 @@ def get_object(table_name, hash_key, range_key=None):
     try:
         table = Table(table_name=table_name)
     except JSONResponseError:
-        return False # TODO review this return
+        return False #TODO review this return
     table.get_item()
 
 @apply_defense
@@ -57,24 +57,21 @@ def build_question_page(question_uuid, question_table, solution_table):
     :param solution_table:
     :return:
     '''
-    try:
-        questions = Table(table_name=question_table)
-        comments = Table(table_name='comments')
-        votes = Table(table_name='votes')
-        solutions = Table(table_name=solution_table)
-    except JSONResponseError:
-        return False # TODO review this return
+    #TODO should we store rendered html of the page in the docstore?
+    #this would cut down on cpu time of rendering pages since we would only
+    #have to render the page once and only render when it gets updated
+    #TODO implement comments for questions and solutions
     question = SBQuestion.nodes.get(sb_id=question_uuid)
     question_dict = question.get_single_question_dict()
     answer_dicts = question_dict.pop('answers', None)
     question_dict['object_uuid'] = question_dict.pop('question_uuid', None)
-    questions.put_item(data=question_dict)
+    add_object_to_table(table_name=question_table, object_data=question_dict)
     for answer in answer_dicts:
         answer['parent_object'] = question_dict['object_uuid']
         answer['object_uuid'] = answer.pop('answer_uuid', None)
-        solutions.put_item(data=answer)
+        add_object_to_table(table_name=solution_table, object_data=answer)
 
-    
+
 
 
 

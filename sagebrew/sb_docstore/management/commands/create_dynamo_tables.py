@@ -6,6 +6,7 @@ from boto.dynamodb2.layer1 import DynamoDBConnection
 from boto.dynamodb2.fields import HashKey, RangeKey, KeysOnlyIndex, AllIndex
 from boto.dynamodb2.table import Table
 from boto.dynamodb2.types import STRING, NUMBER
+from boto.dynamodb2.exceptions import JSONResponseError
 
 conn = DynamoDBConnection(
     host='192.168.1.136',
@@ -24,35 +25,43 @@ class Command(BaseCommand):
                   'r') as data_file:
             data = loads(data_file.read())
             for item in data:
-                if 'range_key' and 'local_index' in item.keys():
-                    Table.create(item['table_name'], schema=[
-                        HashKey(item['hash_key'], data_type=STRING),
-                        RangeKey(item['range_key']),
-                    ], indexes=[
-                        AllIndex('district_index', parts=[
-                            HashKey(item['hash_key']),
-                            RangeKey(item['local_index'], STRING),
+                try:
+                    table = Table(table_name=item['table_name'], connection=conn)
+                    table.describe()
+                    table.delete()
+                except JSONResponseError:
+                    print 'The table %s does not exist'%item['table_name']
+                try:
+                    if 'range_key' and 'local_index' in item.keys():
+                        Table.create(item['table_name'], schema=[
+                            HashKey(item['hash_key'], data_type=STRING),
                             RangeKey(item['range_key']),
-                        ])
-                    ],throughput={
-                        'read': 15,
-                        'write': 15
-                    }, connection=conn)
-                elif 'range_key' in item.keys():
-                    Table.create(item['table_name'], schema=[
-                        HashKey(item['hash_key'], data_type=STRING),
-                        RangeKey(item['range_key']),
-                    ], throughput={
-                        'read': 15,
-                        'write': 15
-                    }, connection=conn)
-                else:
-                    Table.create(item['table_name'], schema=[
-                        HashKey(item['hash_key'], data_type=STRING),
-                    ], throughput={
-                        'read': 15,
-                        'write': 15
-                    }, connection=conn)
+                        ], indexes=[
+                            AllIndex('district_index', parts=[
+                                HashKey(item['hash_key']),
+                                RangeKey(item['range_key']),
+                            ])
+                        ],throughput={
+                            'read': 15,
+                            'write': 15
+                        }, connection=conn)
+                    elif 'range_key' in item.keys():
+                        Table.create(item['table_name'], schema=[
+                            HashKey(item['hash_key'], data_type=STRING),
+                            RangeKey(item['range_key']),
+                        ], throughput={
+                            'read': 15,
+                            'write': 15
+                        }, connection=conn)
+                    else:
+                        Table.create(item['table_name'], schema=[
+                            HashKey(item['hash_key'], data_type=STRING),
+                        ], throughput={
+                            'read': 15,
+                            'write': 15
+                        }, connection=conn)
+                except JSONResponseError:
+                    print 'Table %s already exists' % item['table_name']
         '''
         users = Table.create('users-full', schema=[
             HashKey('email', data_type=STRING),

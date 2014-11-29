@@ -1,7 +1,11 @@
 from boto.dynamodb2.layer1 import DynamoDBConnection
-from boto.dynamodb2.fields import HashKey, RangeKey, KeysOnlyIndex, AllIndex
 from boto.dynamodb2.table import Table
-from boto.dynamodb2.types import STRING, NUMBER
+from boto.dynamodb2.exceptions import JSONResponseError
+
+from sb_base.decorators import apply_defense
+from sb_answers.neo_models import SBAnswer
+from sb_questions.neo_models import SBQuestion
+from sb_comments.neo_models import SBComment
 
 conn = DynamoDBConnection(
     host='192.168.1.136',
@@ -10,39 +14,55 @@ conn = DynamoDBConnection(
     is_secure=False
 )
 
-def create_table():
-    users = Table('users', connection=conn)
-    users.delete()
-
-    users = Table.create('users', schema=[
-        HashKey('email', data_type=STRING),
-        RangeKey('last_name', data_type=STRING),
-    ],  throughput={
-        'read': 5,
-        'write': 15,
-    },
-    connection=conn)
+@apply_defense
+def add_object_to_table(table_name, object_data):
     '''
-    friends = Table.create('friends', schema=[
-        HashKey('account_type', data_type=NUMBER),
-        RangeKey('last_name'),
-    ], throughput={
-        'read': 5,
-        'write': 15
-    }, indexes=[
-        AllIndex('EverythingIndex', parts=[
-            HashKey('account_type', data_type=NUMBER),
-            RangeKey('last_name')
-        ])
-    ], connection=conn)
+    This function will attempt to add an object to a table, this will be
+    used to build each table and build the docstore. This is a generalized
+    function and will work for every table
+    :param table_name:
+    :param object_data:
+    :return:
     '''
-    print users.describe()
-    users.put_item(data={
-        'email': 'tyler.wiersing@gmail.com',
-        'last_name': 'Wiersing',
-        'other': 'this is some other information'
-    }, overwrite=True)
+    try:
+        table = Table(table_name=table_name, connection=conn)
+    except JSONResponseError:
+        return False # TODO review this return
+    table.put_item(data=object_data)
+    return True
 
-    me = users.query_2(email__eq='tyler.wiersing@gmail.com')
-    for item in me:
-        print item['email']
+@apply_defense
+def get_object(table_name, hash_key, range_key=None):
+    try:
+        table = Table(table_name=table_name)
+    except JSONResponseError:
+        return False # TODO review this return
+    table.get_item()
+
+@apply_defense
+def build_question_page(question_uuid, question_table, solution_table):
+    '''
+    This function will build a question page, it will take the question table
+    and solution table which will be:
+    'private_questions'
+    'private_solutions'
+    'public_questions'
+    'public_solutions'
+    Then it will build the page into the docstore.
+    This includes getting the question object, all the comments associated
+    with it and all the solutions associated with it.
+
+    :param question_uuid:
+    :param question_table:
+    :param solution_table:
+    :return:
+    '''
+    try:
+        questions = Table(table_name=question_table)
+        comments = Table(table_name='comments')
+        votes = Table(table_name='votes')
+        solutions = Table(table_name=solution_table)
+    except JSONResponseError:
+        return False # TODO review this return
+
+

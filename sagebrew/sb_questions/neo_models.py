@@ -106,10 +106,11 @@ class SBQuestion(SBVersioned, SBTagContent):
             return e
 
     @apply_defense
-    def get_single_question_dict(self, pleb):
+    def get_single_question_dict(self, pleb=None):
         from sb_answers.neo_models import SBAnswer
         try:
             answer_array = []
+            comment_array = []
             owner = self.owned_by.all()
             owner = owner[0]
             owner_name = owner.first_name + ' ' + owner.last_name
@@ -124,6 +125,8 @@ class SBQuestion(SBVersioned, SBTagContent):
             for answer in answers:
                 answer_array.append(answer.get_single_answer_dict(pleb))
             edit = self.get_most_recent_edit()
+            for comment in self.comments.all():
+                comment_array.append(comment.get_comment_dict())
 
             question_dict = {'question_title': edit.question_title,
                              'question_content': edit.content,
@@ -138,6 +141,7 @@ class SBQuestion(SBVersioned, SBTagContent):
                              'owner_profile_url': owner_profile_url,
                              'time_created': self.date_created,
                              'answers': answer_array,
+                             'comments': comment_array,
                              'current_pleb': pleb,
                              'owner_email': owner.email}
             return question_dict

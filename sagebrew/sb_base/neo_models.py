@@ -290,8 +290,6 @@ class SBTagContent(StructuredNode):
             return tag_array
         except KeyError as e:
             return e
-        except Exception as e:
-            return defensive_exception(self.add_auto_tags.__name__, e, e)
 
 
 

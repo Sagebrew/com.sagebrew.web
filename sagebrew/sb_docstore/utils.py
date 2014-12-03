@@ -1,6 +1,7 @@
 from boto.dynamodb2.layer1 import DynamoDBConnection
 from boto.dynamodb2.table import Table
-from boto.dynamodb2.exceptions import JSONResponseError
+from boto.dynamodb2.exceptions import JSONResponseError, ItemNotFound
+from neomodel import DoesNotExist
 
 from sb_base.decorators import apply_defense
 from sb_answers.neo_models import SBAnswer
@@ -40,10 +41,37 @@ def get_object(table_name, hash_key, range_key=None):
     table.get_item()
 
 @apply_defense
+def get_question_doc(question_uuid, question_table, solution_table):
+    answer_list = []
+    try:
+        questions = Table(table_name=question_table, connection=conn)
+        solutions = Table(table_name=solution_table, connection=conn)
+    except JSONResponseError as e:
+        return e #TODO review this return
+    try:
+        question = questions.get_item(
+            object_uuid=question_uuid
+        )
+    except ItemNotFound:
+        return {}
+    answers = solutions.query_2(
+        parent_object__eq=question_uuid
+    )
+    question = dict(question)
+    question['question_uuid'] = question.pop('object_uuid', None)
+    for answer in answers:
+        answer = dict(answer)
+        print answer
+        answer['answer_uuid'] = answer.pop('object_uuid', None)
+        answer_list.append(answer)
+    question['answers'] = answer_list
+    return question
+
+@apply_defense
 def build_question_page(question_uuid, question_table, solution_table):
     '''
-    This function will build a question page, it will take the question table
-    and solution table which will be:
+    This function will build a question page in the docstore,
+    it will take the question table and solution table which will be:
     'private_questions'
     'private_solutions'
     'public_questions'
@@ -57,18 +85,32 @@ def build_question_page(question_uuid, question_table, solution_table):
     :param solution_table:
     :return:
     '''
-    #TODO should we store rendered html of the page in the docstore?
-    #this would cut down on cpu time of rendering pages since we would only
-    #have to render the page once and only render when it gets updated
-    #TODO implement comments for questions and solutions
-    question = SBQuestion.nodes.get(sb_id=question_uuid)
+    try:
+        question = SBQuestion.nodes.get(sb_id=question_uuid)
+    except (SBQuestion.DoesNotExist, DoesNotExist) as e:
+        return e
     question_dict = question.get_single_question_dict()
     answer_dicts = question_dict.pop('answers', None)
+    question_dict['time_created'] = \
+        question_dict['time_created'].strftime("%Y-%m-%d %H:%M:%S")
+    try:
+        question_dict['last_edited_on'] = \
+            question_dict['last_edited_on'].strftime("%Y-%m-%d %H:%M:%S")
+    except AttributeError:
+        pass
     question_dict['object_uuid'] = question_dict.pop('question_uuid', None)
     add_object_to_table(table_name=question_table, object_data=question_dict)
     for answer in answer_dicts:
+        answer['time_created'] = \
+            answer['time_created'].strftime("%Y-%m-%d %H:%M:%S")
+        try:
+            answer['last_edited_on'] = \
+                answer['last_edited_on'].strftime("%Y-%m-%d %H:%M:%S")
+        except AttributeError:
+            pass
         answer['parent_object'] = question_dict['object_uuid']
         answer['object_uuid'] = answer.pop('answer_uuid', None)
+        print answer
         add_object_to_table(table_name=solution_table, object_data=answer)
 
 

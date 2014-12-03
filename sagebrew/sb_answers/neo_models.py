@@ -61,9 +61,12 @@ class SBAnswer(SBVersioned):
     @apply_defense
     def get_single_answer_dict(self, pleb):
         try:
+            comment_array = []
             answer_owner = self.owned_by.all()[0]
             answer_owner_name = answer_owner.first_name +' '+answer_owner.last_name
             answer_owner_url = answer_owner.username
+            for comment in self.comments.all():
+                comment_array.append(comment.get_comment_dict())
             answer_dict = {'answer_content': self.content,
                            'current_pleb': pleb,
                            'answer_uuid': self.sb_id,
@@ -74,6 +77,7 @@ class SBAnswer(SBVersioned):
                            'answer_owner_name': answer_owner_name,
                            'answer_owner_url': answer_owner.username,
                            'time_created': self.date_created,
+                           'comments': comment_array,
                            'answer_owner_email': answer_owner.email}
             return answer_dict
         except CypherException as e:

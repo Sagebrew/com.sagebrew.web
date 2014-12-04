@@ -17,4 +17,3 @@ def add_object_to_table_task(object_data, table):
         raise add_object_to_table_task.retry(exc=res, countdown=3,
                                              max_retries=None)
     return True
-

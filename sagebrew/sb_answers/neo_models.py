@@ -12,6 +12,7 @@ from sb_base.neo_models import SBVersioned
 
 
 class SBAnswer(SBVersioned):
+    table = 'public_solutions'
     up_vote_adjustment = 10
     down_vote_adjustment = 10
     down_vote_cost = 2
@@ -59,27 +60,29 @@ class SBAnswer(SBVersioned):
             return e
 
     @apply_defense
-    def get_single_answer_dict(self, pleb):
+    def get_single_dict(self, pleb=None):
         try:
             comment_array = []
             answer_owner = self.owned_by.all()[0]
             answer_owner_name = answer_owner.first_name +' '+answer_owner.last_name
             answer_owner_url = answer_owner.username
             for comment in self.comments.all():
-                comment_array.append(comment.get_comment_dict())
+                comment_array.append(comment.get_single_dict())
             answer_dict = {'answer_content': self.content,
                            'current_pleb': pleb,
-                           'answer_uuid': self.sb_id,
-                           'last_edited_on': self.last_edited_on,
+                           'object_uuid': self.sb_id,
+                           'last_edited_on': unicode(self.last_edited_on),
                            'up_vote_number': self.get_upvote_count(),
                            'down_vote_number': self.get_downvote_count(),
                            'vote_score': self.get_vote_count(),
                            'answer_owner_name': answer_owner_name,
                            'answer_owner_url': answer_owner.username,
-                           'time_created': self.date_created,
+                           'time_created': unicode(self.date_created),
                            'comments': comment_array,
-                           'answer_owner_email': answer_owner.email}
+                           'answer_owner_email': answer_owner.email,
+                           'edits': []}
             return answer_dict
         except CypherException as e:
             return e
+
 

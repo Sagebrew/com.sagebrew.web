@@ -1,6 +1,7 @@
 from boto.dynamodb2.layer1 import DynamoDBConnection
 from boto.dynamodb2.table import Table
-from boto.dynamodb2.exceptions import JSONResponseError, ItemNotFound
+from boto.dynamodb2.exceptions import (JSONResponseError, ItemNotFound,
+                                       ConditionalCheckFailedException)
 from neomodel import DoesNotExist
 
 from sb_base.decorators import apply_defense
@@ -29,7 +30,10 @@ def add_object_to_table(table_name, object_data):
         table = Table(table_name=table_name, connection=conn)
     except JSONResponseError:
         return False #TODO review this return
-    table.put_item(data=object_data)
+    try:
+        table.put_item(data=object_data)
+    except ConditionalCheckFailedException as e:
+        return e
     return True
 
 @apply_defense
@@ -58,11 +62,8 @@ def get_question_doc(question_uuid, question_table, solution_table):
         parent_object__eq=question_uuid
     )
     question = dict(question)
-    question['question_uuid'] = question.pop('object_uuid', None)
     for answer in answers:
         answer = dict(answer)
-        print answer
-        answer['answer_uuid'] = answer.pop('object_uuid', None)
         answer_list.append(answer)
     question['answers'] = answer_list
     return question
@@ -89,29 +90,15 @@ def build_question_page(question_uuid, question_table, solution_table):
         question = SBQuestion.nodes.get(sb_id=question_uuid)
     except (SBQuestion.DoesNotExist, DoesNotExist) as e:
         return e
-    question_dict = question.get_single_question_dict()
+    question_dict = question.get_single_dict()
     answer_dicts = question_dict.pop('answers', None)
-    question_dict['time_created'] = \
-        question_dict['time_created'].strftime("%Y-%m-%d %H:%M:%S")
-    try:
-        question_dict['last_edited_on'] = \
-            question_dict['last_edited_on'].strftime("%Y-%m-%d %H:%M:%S")
-    except AttributeError:
-        pass
-    question_dict['object_uuid'] = question_dict.pop('question_uuid', None)
     add_object_to_table(table_name=question_table, object_data=question_dict)
     for answer in answer_dicts:
-        answer['time_created'] = \
-            answer['time_created'].strftime("%Y-%m-%d %H:%M:%S")
-        try:
-            answer['last_edited_on'] = \
-                answer['last_edited_on'].strftime("%Y-%m-%d %H:%M:%S")
-        except AttributeError:
-            pass
         answer['parent_object'] = question_dict['object_uuid']
-        answer['object_uuid'] = answer.pop('answer_uuid', None)
-        print answer
         add_object_to_table(table_name=solution_table, object_data=answer)
+
+
+
 
 
 

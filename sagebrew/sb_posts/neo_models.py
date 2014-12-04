@@ -11,7 +11,7 @@ from sb_base.decorators import apply_defense
 class SBPost(SBNonVersioned):
     allowed_flags = ["explicit", "spam","other"]
     sb_name = "post"
-
+    table = 'posts'
     # relationships
     posted_on_wall = RelationshipTo('sb_wall.neo_models.SBWall', 'POSTED_ON')
     #TODO Implement referenced_by_... relationships
@@ -48,7 +48,7 @@ class SBPost(SBNonVersioned):
             self.view_count += 1
             self.save()
             for comment in post_comments:
-                comment_array.append(comment.get_comment_dict(pleb))
+                comment_array.append(comment.get_single_dict(pleb))
             return {'content': self.content, 'sb_id': self.sb_id,
                     'vote_count': self.get_vote_count(),
                     'up_vote_number': self.get_upvote_count(),

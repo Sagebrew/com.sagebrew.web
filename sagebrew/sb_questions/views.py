@@ -202,8 +202,6 @@ def get_question_view(request):
         elif question_data['sort_by'] == 'uuid':
             res = get_question_doc(question_data['question_uuid'],
                                    'public_questions', 'public_solutions')
-            print res
-
             if res == {}:
                 question_by_uuid = get_question_by_uuid(
                 question_data['question_uuid'], request.user.email)
@@ -226,6 +224,7 @@ def get_question_view(request):
                 else:
                     return Response(question_by_uuid, status=200)
             else:
+                print res
                 t = get_template("single_question.html")
                 c = Context(res)
                 return Response(t.render(c), status=200)

@@ -20,7 +20,7 @@ class TestSBCommentsNeoModel(TestCase):
             save()
         self.comment.is_owned_by.connect(self.pleb)
 
-    def test_get_comment_dict(self):
-        res = self.comment.get_comment_dict(self.pleb)
+    def test_get_single_dict(self):
+        res = self.comment.get_single_dict(self.pleb)
 
         self.assertIsInstance(res, dict)

@@ -119,7 +119,7 @@ function save_answer() {
 			data: JSON.stringify({
 			   'content': $('textarea#answer_content_id').val(),
                'current_pleb': $(this).data('current_pleb'),
-               'question_uuid': $(this).data('question_uuid')
+               'question_uuid': $(this).data('object_uuid')
 			}),
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
@@ -180,14 +180,14 @@ function edit_question_title() {
 
 function show_edit_question() {
     $("a.show_edit_question-action").click(function(event){
-        var question_uuid = $(this).data('question_uuid');
+        var question_uuid = $(this).data('object_uuid');
         $('#edit_question_'+question_uuid).fadeToggle();
     });
 }
 
 function show_edit_answer() {
     $("a.show_edit_answer-action").click(function(event){
-        var answer_uuid = $(this).data('answer_uuid');
+        var answer_uuid = $(this).data('object_uuid');
         $('#show_edit_sb_id_'+answer_uuid).fadeToggle();
     });
 }

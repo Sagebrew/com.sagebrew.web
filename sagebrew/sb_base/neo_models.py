@@ -110,6 +110,7 @@ class SBVoteableContent(StructuredNode):
 
 
 class SBContent(SBVoteableContent):
+    table = ''
     allowed_flags = []
     up_vote_number = IntegerProperty(default=0)
     down_vote_number = IntegerProperty(default=0)
@@ -193,6 +194,10 @@ class SBContent(SBVoteableContent):
 
     def render_single(self, pleb):
         pass
+
+    @apply_defense
+    def get_table(self):
+        return self.table
 
 
 
@@ -290,8 +295,6 @@ class SBTagContent(StructuredNode):
             return tag_array
         except KeyError as e:
             return e
-        except Exception as e:
-            return defensive_exception(self.add_auto_tags.__name__, e, e)
 
 
 

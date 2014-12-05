@@ -14,6 +14,7 @@ class CommentedOnRel(StructuredRel):
 
 
 class SBComment(SBNonVersioned):
+    table = 'comments'
     up_vote_adjustment = 2
     down_vote_adjustment = 1
     sb_name = "comment"
@@ -37,7 +38,7 @@ class SBComment(SBNonVersioned):
         pass
 
     @apply_defense
-    def get_comment_dict(self, pleb):
+    def get_single_dict(self, pleb):
         try:
             comment_owner = self.is_owned_by.all()[0]
             comment_dict = {'comment_content': self.content,
@@ -51,7 +52,8 @@ class SBComment(SBNonVersioned):
                             'comment_owner': comment_owner.first_name + ' '
                                              + comment_owner.last_name,
                             'comment_owner_email': comment_owner.email,
-                            'current_user': pleb}
+                            'current_user': pleb,
+                            'edits': []}
             self.view_count += 1
             self.save()
             return comment_dict

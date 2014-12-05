@@ -7,9 +7,11 @@ from elasticsearch.exceptions import (ElasticsearchException, TransportError,
                                       NotFoundError)
 from neomodel import CypherException, DoesNotExist
 
+
 from api.utils import spawn_task
 from api.tasks import add_object_to_search_index
 from sb_notifications.tasks import spawn_notifications
+from sb_docstore.tasks import add_object_to_table_task
 from sb_base.tasks import create_object_relations_task
 from sb_questions.neo_models import SBQuestion
 from .utils import (save_answer_util)
@@ -98,4 +100,5 @@ def save_answer_task(current_pleb, question_uuid, content, answer_uuid):
     spawn_task(task_func=spawn_notifications, task_param=task_data)
     if isinstance(spawned, Exception) is True:
         raise save_answer_task.retry(exc=spawned, countdown=3, max_retries=None)
+
     return answer

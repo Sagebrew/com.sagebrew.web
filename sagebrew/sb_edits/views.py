@@ -9,6 +9,7 @@ from .tasks import edit_object_task, edit_question_task
 
 from api.utils import spawn_task
 from api.tasks import get_pleb_task
+from sb_docstore.tasks import add_object_to_table_task
 
 logger = logging.getLogger('loggly_logs')
 

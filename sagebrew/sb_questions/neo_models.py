@@ -16,6 +16,7 @@ from sb_base.decorators import apply_defense
 
 
 class SBQuestion(SBVersioned, SBTagContent):
+    table = 'public_questions'
     up_vote_adjustment = 5
     down_vote_adjustment = 2
     allowed_flags = ["explicit", "spam", "duplicate",
@@ -106,10 +107,11 @@ class SBQuestion(SBVersioned, SBTagContent):
             return e
 
     @apply_defense
-    def get_single_question_dict(self, pleb):
+    def get_single_dict(self, pleb=None):
         from sb_answers.neo_models import SBAnswer
         try:
             answer_array = []
+            comment_array = []
             owner = self.owned_by.all()
             owner = owner[0]
             owner_name = owner.first_name + ' ' + owner.last_name
@@ -122,24 +124,28 @@ class SBQuestion(SBVersioned, SBTagContent):
             answers, meta = execute_cypher_query(query)
             answers = [SBAnswer.inflate(row[0]) for row in answers]
             for answer in answers:
-                answer_array.append(answer.get_single_answer_dict(pleb))
+                answer_array.append(answer.get_single_dict(pleb))
             edit = self.get_most_recent_edit()
+            for comment in self.comments.all():
+                comment_array.append(comment.get_single_dict())
 
             question_dict = {'question_title': edit.question_title,
                              'question_content': edit.content,
-                             'question_uuid': self.sb_id,
+                             'object_uuid': self.sb_id,
                              'is_closed': self.is_closed,
                              'answer_number': self.answer_number,
-                             'last_edited_on': self.last_edited_on,
+                             'last_edited_on': unicode(self.last_edited_on),
                              'up_vote_number': self.get_upvote_count(),
                              'down_vote_number': self.get_downvote_count(),
                              'vote_score': self.get_vote_count(),
                              'owner': owner_name,
                              'owner_profile_url': owner_profile_url,
-                             'time_created': self.date_created,
+                             'time_created': unicode(self.date_created),
                              'answers': answer_array,
+                             'comments': comment_array,
                              'current_pleb': pleb,
-                             'owner_email': owner.email}
+                             'owner_email': owner.email,
+                             'edits': []}
             return question_dict
         except CypherException as e:
             return e
@@ -241,7 +247,7 @@ class SBQuestion(SBVersioned, SBTagContent):
     def render_single(self, pleb):
         try:
             t = get_template("single_question.html")
-            c = Context(self.get_single_question_dict(pleb))
+            c = Context(self.get_single_dict(pleb))
             return t.render(c)
         except CypherException as e:
             return e

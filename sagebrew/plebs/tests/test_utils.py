@@ -1,5 +1,6 @@
 import shortuuid
 from subprocess import check_call
+import pickle
 from django.test import TestCase
 from django.contrib.auth.models import User
 
@@ -37,3 +38,13 @@ class TestPrepareUserSearchHTML(TestCase):
         #check_call("service neo4j-service start", shell=True)
         #self.assertIsNone(res)
         pass
+
+
+class TestPleb(TestCase):
+    def test_pickle_does_not_exist(self):
+        try:
+            from_citizen = Pleb.nodes.get(email="notanemail@example.com")
+        except Pleb.DoesNotExist as e:
+            pickle_instance = pickle.dumps(e)
+            self.assertTrue(pickle_instance)
+            self.assertTrue(pickle.loads(pickle_instance))

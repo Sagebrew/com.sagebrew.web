@@ -6,7 +6,7 @@ from datetime import datetime
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, ZeroOrOne,
-                      CypherException)
+                      CypherException, DoesNotExist)
 
 from api.utils import execute_cypher_query
 from sb_relationships.neo_models import (FriendRelationship,

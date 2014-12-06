@@ -283,3 +283,10 @@ KNOWN_TYPES = [
      "sb_questions.neo_models.SBQuestion"),
     ("02ba1c88-644f-11e4-9ad9-080027242395", "sb_comments.neo_models.SBComment")
 ]
+
+KNOWN_TABLES = {
+    "01bb301a-644f-11e4-9ad9-080027242395": "posts",
+    "02241aee-644f-11e4-9ad9-080027242395": "public_solutions",
+    "0274a216-644f-11e4-9ad9-080027242395": "public_questions",
+    "02ba1c88-644f-11e4-9ad9-080027242395": "comments"
+}

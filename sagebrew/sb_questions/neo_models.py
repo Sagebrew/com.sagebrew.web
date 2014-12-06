@@ -130,7 +130,7 @@ class SBQuestion(SBVersioned, SBTagContent):
                 comment_array.append(comment.get_single_dict())
 
             question_dict = {'question_title': edit.question_title,
-                             'question_content': edit.content,
+                             'content': edit.content,
                              'object_uuid': self.sb_id,
                              'is_closed': self.is_closed,
                              'answer_number': self.answer_number,

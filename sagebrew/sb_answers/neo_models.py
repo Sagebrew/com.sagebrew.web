@@ -68,8 +68,9 @@ class SBAnswer(SBVersioned):
             answer_owner_url = answer_owner.username
             for comment in self.comments.all():
                 comment_array.append(comment.get_single_dict())
-            answer_dict = {'answer_content': self.content,
+            answer_dict = {'content': self.content,
                            'current_pleb': pleb,
+                           'parent_object': self.answer_to.all()[0].sb_id,
                            'object_uuid': self.sb_id,
                            'last_edited_on': unicode(self.last_edited_on),
                            'up_vote_number': self.get_upvote_count(),

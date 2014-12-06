@@ -1,4 +1,6 @@
 import logging
+import pytz
+from datetime import datetime
 from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
@@ -9,6 +11,7 @@ from .tasks import edit_object_task, edit_question_task
 
 from api.utils import spawn_task
 from api.tasks import get_pleb_task
+from sb_docstore.utils import add_object_to_table, update_doc
 from sb_docstore.tasks import add_object_to_table_task
 
 logger = logging.getLogger('loggly_logs')
@@ -18,11 +21,13 @@ logger = logging.getLogger('loggly_logs')
 @permission_classes((IsAuthenticated,))
 def edit_object_view(request):
     try:
+        request.DATA['current_pleb'] = request.user.email
         edit_object_form = EditObjectForm(request.DATA)
         valid_form = edit_object_form.is_valid()
     except AttributeError:
         return Response(status=400)
     if valid_form:
+        current_datetime = unicode(datetime.now(pytz.utc))
         choice_dict = dict(settings.KNOWN_TYPES)
         task_data = {
             "object_type": choice_dict[
@@ -38,6 +43,29 @@ def edit_object_view(request):
         spawned = spawn_task(task_func=get_pleb_task, task_param=pleb_data)
         if isinstance(spawned, Exception):
             return Response({"detail": "server error"}, status=500)
+
+        dynamo_data = {
+                'parent_object': edit_object_form.cleaned_data['object_uuid'],
+                'datetime': current_datetime,
+                'content': edit_object_form.cleaned_data['content']
+            }
+        updates = [
+            {'update_key': 'content',
+             'update_value': edit_object_form.cleaned_data['content']},
+            {'update_key': 'last_edited_on',
+             'update_value': current_datetime}
+        ]
+        table = settings.KNOWN_TABLES[
+                             edit_object_form.cleaned_data['object_type']]
+        res = update_doc(table,
+                         edit_object_form.cleaned_data['object_uuid'],
+                         updates,
+                         edit_object_form.cleaned_data['parent_object'])
+        if isinstance(res, Exception) is True:
+            return Response({"detail": "server error"}, status=500)
+        res = add_object_to_table('edits', dynamo_data)
+        if isinstance(res, Exception) is True:
+            return Response({"detail": "server error"}, status=500)
         return Response({"detail": "success"}, status=200)
     else:
         return Response({"detail": "invalid form"}, status=400)
@@ -49,6 +77,7 @@ def edit_object_view(request):
 def edit_question_title_view(request):
     try:
         edit_question_form = EditQuestionForm(request.DATA)
+        edit_question_form['current_pleb'] = request.user.email
         valid_form = edit_question_form.is_valid()
     except AttributeError:
         return Response(status=400)
@@ -67,7 +96,19 @@ def edit_question_title_view(request):
         }
         spawned = spawn_task(task_func=get_pleb_task, task_param=pleb_data)
         if isinstance(spawned, Exception):
-            return Response({"detail": "invalid form"}, status=500)
+            return Response({"detail": "server error"}, status=500)
+        dynamo_data = {
+            'table': 'edits', 'object_data':
+            {
+                'parent_object': edit_question_form.cleaned_data['object_uuid'],
+                'datetime': unicode(datetime.now(pytz.utc)),
+                'question_title': edit_question_form.cleaned_data['question_title']
+            }
+        }
+        res = spawn_task(task_func=add_object_to_table_task,
+                         task_param=dynamo_data)
+        if isinstance(res, Exception):
+            return Response({'detail': 'server error'}, status=500)
 
         return Response({"detail": "success"}, status=200)
     else:

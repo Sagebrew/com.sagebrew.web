@@ -1,6 +1,6 @@
 {% block content %}
 <h1>{{ question_title }}</h1>
-<p>{{ question_content }}</p>
+<p>{{ content }}</p>
 {% url "profile_page" pleb_username=owner_profile_url as the_url %}
 <div style="font-weight: bold">Upvotes: {{ up_vote_number }} | Downvotes: {{ down_vote_number }} | Asked by: <a href="{{ the_url }}">{{ owner }}</a> | Posted: {{ time_created }} | Last edited: {{ last_edited_on }}</div>
 <a class="btn btn-primary brt-sm vote_object-action"
@@ -13,22 +13,20 @@
    data-vote_type=false
    data-current_pleb="{{ current_pleb }}"
    data-object_type="0274a216-644f-11e4-9ad9-080027242395">Downvote</a>
-{% if owner_email == current_pleb %}
-    <a class="btn btn-primary btn-sm delete_object-action"
-       data-object_type="0274a216-644f-11e4-9ad9-080027242395"
+<a class="btn btn-primary btn-sm delete_object-action"
+   data-object_type="0274a216-644f-11e4-9ad9-080027242395"
+   data-object_uuid="{{ object_uuid }}"
+   data-current_pleb="{{ current_pleb }}"
+   >Delete</a>
+<a class="btn btn-primary btn-sm show_edit_question-action"
+   data-object_uuid="{{ object_uuid }}">Edit</a>
+<div id="edit_question_{{ object_uuid }}" style="display:none">
+    <textarea class="form-control" id="{{ object_uuid }}" name="edit_question_input" rows="1" placeholder="Edit your question..."></textarea>
+    <a class="btn btn-primary btn-sm edit_object-action"
        data-object_uuid="{{ object_uuid }}"
        data-current_pleb="{{ current_pleb }}"
-       >Delete</a>
-    <a class="btn btn-primary btn-sm show_edit_question-action"
-       data-object_uuid="{{ object_uuid }}">Edit</a>
-    <div id="edit_question_{{ object_uuid }}" style="display:none">
-        <textarea class="form-control" id="{{ object_uuid }}" name="edit_question_input" rows="1" placeholder="Edit your question..."></textarea>
-        <a class="btn btn-primary btn-sm edit_object-action"
-           data-object_uuid="{{ object_uuid }}"
-           data-current_pleb="{{ current_pleb }}"
-           data-object_type="0274a216-644f-11e4-9ad9-080027242395">Submit</a>
-    </div>
-{% endif %}
+       data-object_type="0274a216-644f-11e4-9ad9-080027242395">Submit</a>
+</div>
 
 <textarea class="form-control" id="answer_content_id" name="answer_content"
           cols="40" rows="2" placeholder="Write your answer..."></textarea>

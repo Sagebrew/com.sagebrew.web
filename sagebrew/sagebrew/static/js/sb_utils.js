@@ -144,7 +144,7 @@ function edit_object() {
             url: "/edit/edit_object_content_api/",
             data: JSON.stringify({
                 'content': $('textarea#'+uuid).val(),
-                'current_pleb': $(this).data('current_pleb'),
+                'parent_object': $(this).data('parent_object'),
                 'object_uuid': uuid,
                 'object_type': $(this).data('object_type')
             }),

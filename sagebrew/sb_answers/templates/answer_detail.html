@@ -1,4 +1,4 @@
-<h3>{{ answer.answer_content }}</h3>
+<h3>{{ answer.content }}</h3>
 {% url "profile_page" pleb_username=answer.answer_owner_url as owner_url %}
 <div style="font-weight: bold">Upvotes: {{ answer.up_vote_number }} | Downvotes: {{ answer.down_vote_number }} | Written by: <a href="{{ owner_url }}">{{ answer.answer_owner_name }}</a> | Posted: {{ answer.time_created }} | Last edited: {{ answer.last_edited_on }}</div>
 <a class="btn btn-primary btn-sm vote_object-action"
@@ -11,19 +11,17 @@
    data-current_pleb="{{ answer.current_pleb }}"
    data-vote_type=false
    data-object_type="02241aee-644f-11e4-9ad9-080027242395">Downvote</a>
-{% if answer.current_pleb == answer.answer_owner_email %}
-    <a class="btn btn-primary btn-sm delete_object-action"
-       data-object_uuid="{{ answer.object_uuid }}"
+<a class="btn btn-primary btn-sm delete_object-action"
+   data-object_uuid="{{ answer.object_uuid }}"
+   data-object_type="02241aee-644f-11e4-9ad9-080027242395"
+   data-current_pleb="{{ answer.current_pleb }}">Delete</a>
+<a class="btn btn-primary btn-sm show_edit_answer-action"
+   data-object_uuid="{{ answer.object_uuid }}"
+   data-parent_object="{{ answer.parent_object }}">Edit</a>
+<div style="display:none" id="show_edit_sb_id_{{ answer.object_uuid }}">
+    <textarea class="form-control" id="{{ answer.object_uuid }}" placeholder="Edit your answer..."></textarea>
+    <a class="btn btn-primary btn-sm edit_object-action"
        data-object_type="02241aee-644f-11e4-9ad9-080027242395"
-       data-current_pleb="{{ answer.current_pleb }}">Delete</a>
-    <a class="btn btn-primary btn-sm show_edit_answer-action"
        data-object_uuid="{{ answer.object_uuid }}"
-       data-current_pleb="{{ answer.current_pleb }}">Edit</a>
-    <div style="display:none" id="show_edit_sb_id_{{ answer.object_uuid }}">
-        <textarea class="form-control" id="{{ answer.object_uuid }}" placeholder="Edit your answer..."></textarea>
-        <a class="btn btn-primary btn-sm edit_object-action"
-           data-object_type="02241aee-644f-11e4-9ad9-080027242395"
-           data-object_uuid="{{ answer.object_uuid }}"
-           data-current_pleb="{{ answer.current_pleb }}">Submit Edit</a>
-    </div>
-{% endif %}
+       data-parent_object="{{ answer.parent_object }}">Submit Edit</a>
+</div>

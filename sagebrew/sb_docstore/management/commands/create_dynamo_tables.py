@@ -3,7 +3,8 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 
 from boto.dynamodb2.layer1 import DynamoDBConnection
-from boto.dynamodb2.fields import HashKey, RangeKey, KeysOnlyIndex, AllIndex
+from boto.dynamodb2.fields import (HashKey, RangeKey, KeysOnlyIndex,
+                                   AllIndex, GlobalAllIndex)
 from boto.dynamodb2.table import Table
 from boto.dynamodb2.types import STRING, NUMBER
 from boto.dynamodb2.exceptions import JSONResponseError
@@ -37,9 +38,9 @@ class Command(BaseCommand):
                             HashKey(item['hash_key'], data_type=STRING),
                             RangeKey(item['range_key']),
                         ], indexes=[
-                            AllIndex('district_index', parts=[
+                            AllIndex(item['local_index_name'], parts=[
                                 HashKey(item['hash_key']),
-                                RangeKey(item['range_key']),
+                                RangeKey(item['local_index']),
                             ])
                         ],throughput={
                             'read': 15,

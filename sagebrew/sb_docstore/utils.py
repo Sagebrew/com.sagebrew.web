@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from boto.dynamodb2.layer1 import DynamoDBConnection
 from boto.dynamodb2.table import Table
 from boto.dynamodb2.exceptions import (JSONResponseError, ItemNotFound,
@@ -45,6 +47,41 @@ def get_object(table_name, hash_key, range_key=None):
     table.get_item()
 
 @apply_defense
+def get_object_edits(object_uuid, get_all=False):
+    try:
+        edits = Table(table_name='edits', connection=conn)
+    except JSONResponseError as e:
+        return e
+    res = edits.query_2(
+        parent_object__eq=object_uuid,
+        datetime__gte='0',
+        reverse=True
+    )
+    if get_all:
+        return list(res)
+    try:
+        return dict(list(res)[0])
+    except IndexError:
+        return False
+
+@apply_defense
+def update_doc(table, object_uuid, update_data, parent_object=""):
+    try:
+        db_table = Table(table_name=table, connection=conn)
+    except JSONResponseError as e:
+        return e
+    if parent_object!="":
+        res = db_table.get_item(parent_object=parent_object,
+                                object_uuid=object_uuid)
+    else:
+        res = db_table.get_item(object_uuid=object_uuid)
+
+    for item in update_data:
+        res[item['update_key']] = item['update_value']
+    res.partial_save()
+    return res
+
+@apply_defense
 def get_question_doc(question_uuid, question_table, solution_table):
     answer_list = []
     try:
@@ -62,8 +99,16 @@ def get_question_doc(question_uuid, question_table, solution_table):
         parent_object__eq=question_uuid
     )
     question = dict(question)
+    question['up_vote_number'] = get_vote_count(question['object_uuid'],
+                                                '1')
+    question['down_vote_number'] = get_vote_count(question['object_uuid'],
+                                                  '0')
     for answer in answers:
         answer = dict(answer)
+        answer['up_vote_number'] = get_vote_count(answer['object_uuid'],
+                                                  '1')
+        answer['down_vote_number'] = get_vote_count(answer['object_uuid'],
+                                                    '0')
         answer_list.append(answer)
     question['answers'] = answer_list
     return question
@@ -97,10 +142,52 @@ def build_question_page(question_uuid, question_table, solution_table):
         answer['parent_object'] = question_dict['object_uuid']
         add_object_to_table(table_name=solution_table, object_data=answer)
 
+@apply_defense
+def get_vote(object_uuid, user):
+    try:
+        votes_table = Table(table_name='votes', connection=conn)
+    except JSONResponseError as e:
+        return e
+    try:
+        vote = votes_table.get_item(
+            parent_object=object_uuid,
+            user=user
+        )
+        return vote
+    except ItemNotFound:
+        return False
 
+@apply_defense
+def update_vote(object_uuid, user, vote_type, time):
+    try:
+        votes_table = Table(table_name='votes', connection=conn)
+    except JSONResponseError as e:
+        return e
+    try:
+        vote = votes_table.get_item(
+            parent_object=object_uuid,
+            user=user
+        )
+    except ItemNotFound as e:
+        return e
+    if vote['status'] == vote_type:
+        vote['status'] = "undecided"
+    else:
+        vote['status'] = vote_type
+    vote['time'] = time
+    vote.partial_save()
+    return vote
 
-
-
+@apply_defense
+def get_vote_count(object_uuid, vote_type):
+    try:
+        votes_table = Table(table_name='votes', connection=conn)
+    except JSONResponseError as e:
+        return e
+    votes = votes_table.query_2(parent_object__eq=object_uuid,
+                                status__eq=vote_type,
+                                index="VoteStatusIndex")
+    return len(list(votes))
 
 
 

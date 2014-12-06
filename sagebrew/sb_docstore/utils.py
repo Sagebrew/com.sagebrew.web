@@ -100,15 +100,15 @@ def get_question_doc(question_uuid, question_table, solution_table):
     )
     question = dict(question)
     question['up_vote_number'] = get_vote_count(question['object_uuid'],
-                                                '1')
+                                                1)
     question['down_vote_number'] = get_vote_count(question['object_uuid'],
-                                                  '0')
+                                                  0)
     for answer in answers:
         answer = dict(answer)
         answer['up_vote_number'] = get_vote_count(answer['object_uuid'],
-                                                  '1')
+                                                  1)
         answer['down_vote_number'] = get_vote_count(answer['object_uuid'],
-                                                    '0')
+                                                    0)
         answer_list.append(answer)
     question['answers'] = answer_list
     return question
@@ -171,7 +171,7 @@ def update_vote(object_uuid, user, vote_type, time):
     except ItemNotFound as e:
         return e
     if vote['status'] == vote_type:
-        vote['status'] = "undecided"
+        vote['status'] = 2
     else:
         vote['status'] = vote_type
     vote['time'] = time
@@ -187,6 +187,7 @@ def get_vote_count(object_uuid, vote_type):
     votes = votes_table.query_2(parent_object__eq=object_uuid,
                                 status__eq=vote_type,
                                 index="VoteStatusIndex")
+
     return len(list(votes))
 
 

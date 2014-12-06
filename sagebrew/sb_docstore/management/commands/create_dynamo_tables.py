@@ -40,7 +40,8 @@ class Command(BaseCommand):
                         ], indexes=[
                             AllIndex(item['local_index_name'], parts=[
                                 HashKey(item['hash_key']),
-                                RangeKey(item['local_index']),
+                                RangeKey(item['local_index'],
+                                         data_type=item['type']),
                             ])
                         ],throughput={
                             'read': 15,

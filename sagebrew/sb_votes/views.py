@@ -45,10 +45,11 @@ def vote_object_view(request):
         if isinstance(spawned, Exception) is True:
             return Response({"detail": "server error"}, status=500)
         '''
+        status = int(vote_object_form.cleaned_data['vote_type'])
         vote_data = {
                  "parent_object": vote_object_form.cleaned_data['object_uuid'],
                  "user": request.user.email,
-                 "status": vote_object_form.cleaned_data['vote_type'],
+                 "status": status,
                  "time": now
                  }
         res = get_vote(vote_object_form.cleaned_data['object_uuid'],
@@ -62,8 +63,7 @@ def vote_object_view(request):
         else:
             update = update_vote(vote_object_form.cleaned_data['object_uuid'],
                                  request.user.email,
-                                 vote_object_form.cleaned_data['vote_type'],
-                                 now)
+                                 status, now)
             if isinstance(update, Exception) is True:
                 return Response({"detail": "server error"}, status=500)
         version_add = add_object_to_table("vote_versions", vote_data)

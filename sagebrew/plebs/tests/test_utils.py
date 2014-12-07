@@ -34,9 +34,9 @@ class TestPrepareUserSearchHTML(TestCase):
         self.assertFalse(res)
 
     def test_connection_refused(self):
-        check_call("service neo4j-service stop", shell=True)
+        check_call("sudo service neo4j-service stop", shell=True)
         res = prepare_user_search_html(self.user.email)
-        check_call("nohup service neo4j-service start &", shell=True)
+        check_call("sudo nohup service neo4j-service start &", shell=True)
         self.assertIsNone(res)
 
 

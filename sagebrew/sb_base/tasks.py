@@ -20,10 +20,7 @@ def create_object_relations_task(sb_object, current_pleb, question=None,
             wall = wall_pleb.wall.all()[0]
         else:
             wall = None
-    except (CypherException, DoesNotExist, Pleb.DoesNotExist) as e:
-        raise create_object_relations_task.retry(exc=e, countdown=3,
-                                                 max_retries=None)
-    except IndexError as e:
+    except (CypherException, DoesNotExist, Pleb.DoesNotExist, IndexError) as e:
         raise create_object_relations_task.retry(exc=e, countdown=3,
                                                  max_retries=None)
 

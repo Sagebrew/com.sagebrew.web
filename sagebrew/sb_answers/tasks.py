@@ -92,8 +92,8 @@ def save_answer_task(current_pleb, question_uuid, content, answer_uuid):
 
     try:
         question = SBQuestion.nodes.get(sb_id=question_uuid)
-    except(CypherException, SBQuestion.DoesNotExist, DoesNotExist):
-        raise save_answer_task.retry(exc=spawned, countdown=3, max_retries=None)
+    except(CypherException, SBQuestion.DoesNotExist, DoesNotExist) as e:
+        raise save_answer_task.retry(exc=e, countdown=3, max_retries=None)
     try:
         to_pleb = question.owned_by.all()[0].email
     except IndexError as e:

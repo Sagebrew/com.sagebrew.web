@@ -32,9 +32,13 @@ def add_answer_to_search_index(answer):
                 RequestError) as e:
             raise add_answer_to_search_index.retry(exc=e, countdown=3,
                                                    max_retries=None)
-
+        try:
+            answer_owner = answer.owned_by.all()[0].email
+        except IndexError as e:
+            raise add_answer_to_search_index.retry(exc=e, countdown=3,
+                                                   max_retries=None)
         search_dict = {'answer_content': answer.content,
-                       'user': answer.owned_by.all()[0].email,
+                       'user': answer_owner,
                        'object_uuid': answer.sb_id,
                        'post_date': answer.date_created,
                        'related_user': ''}
@@ -50,7 +54,7 @@ def add_answer_to_search_index(answer):
         answer.added_to_search_index = True
         answer.save()
         return True
-    except (IndexError, CypherException) as e:
+    except (CypherException) as e:
         raise add_answer_to_search_index.retry(exc=e, countdown=3,
                                                max_retries=None)
 

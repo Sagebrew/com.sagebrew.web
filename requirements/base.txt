@@ -30,7 +30,6 @@ elasticsearch
 textblob
 newrelic
 nltk
-neomodel
 shortuuid
 gunicorn
 logentries

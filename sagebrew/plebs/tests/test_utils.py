@@ -1,4 +1,5 @@
 import shortuuid
+from os import environ
 from subprocess import check_call
 import pickle
 from django.test import TestCase
@@ -36,7 +37,10 @@ class TestPrepareUserSearchHTML(TestCase):
     def test_connection_refused(self):
         check_call("sudo service neo4j-service stop", shell=True)
         res = prepare_user_search_html(self.user.email)
-        check_call("sudo nohup service neo4j-service start &", shell=True)
+        check_call("sudo nohup service neo4j-service start > "
+                   "%s/neo4j_logs.log &" % environ.get("CIRCLE_ARTIFACTS",
+                                                       "/home/ubuntu/"),
+                   shell=True)
         self.assertIsNone(res)
 
 

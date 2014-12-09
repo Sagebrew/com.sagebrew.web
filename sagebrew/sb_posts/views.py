@@ -1,5 +1,6 @@
 import logging
 from uuid import uuid1
+from django.template.loader import render_to_string
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
@@ -7,6 +8,8 @@ from neomodel import DoesNotExist, CypherException
 
 from api.utils import (spawn_task)
 from plebs.neo_models import Pleb
+from sb_docstore.utils import get_wall_docs
+from sb_docstore.tasks import build_wall_task
 from .tasks import save_post_task
 from .utils import (get_pleb_posts)
 from .forms import (SavePostForm, GetPostForm)
@@ -67,11 +70,22 @@ def get_user_posts(request):
             return Response(status=401)
         except(CypherException):
             return Response(status=500)
-        posts = get_pleb_posts(citizen, post_form.cleaned_data['range_end'],
+        posts = get_wall_docs(citizen.username)
+        print posts
+        if not posts:
+            posts = get_pleb_posts(citizen, post_form.cleaned_data['range_end'],
                                post_form.cleaned_data['range_start'])
-        for post in posts:
-            html_array.append(post.render_post_wall_html(
-                post_form.cleaned_data['current_user']))
+            for post in posts:
+                html_array.append(post.render_post_wall_html(
+                    post_form.cleaned_data['current_user']))
+            task_dict = {'pleb': citizen}
+            res = spawn_task(task_func=build_wall_task, task_param=task_dict)
+        else:
+            for post in posts:
+                print dict(post)
+                html = render_to_string('sb_post.html', dict(post))
+                html_array.append(html)
+
         return Response({'html': html_array}, status=200)
     else:
         return Response(status=400)

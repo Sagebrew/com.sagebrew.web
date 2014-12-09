@@ -38,13 +38,13 @@ class SBComment(SBNonVersioned):
         pass
 
     @apply_defense
-    def get_single_dict(self, pleb):
+    def get_single_dict(self, pleb=None):
         try:
             comment_owner = self.is_owned_by.all()[0]
             comment_dict = {'comment_content': self.content,
                             'comment_up_vote_number': self.get_upvote_count(),
                             'vote_count': self.get_vote_count(),
-                            'sb_id': self.sb_id,
+                            'object_uuid': self.sb_id,
                             'comment_down_vote_number':
                                 self.get_downvote_count(),
                             'comment_last_edited_on':
@@ -53,6 +53,7 @@ class SBComment(SBNonVersioned):
                                              + comment_owner.last_name,
                             'comment_owner_email': comment_owner.email,
                             'current_user': pleb,
+                            'datetime': unicode(self.date_created),
                             'edits': []}
             self.view_count += 1
             self.save()

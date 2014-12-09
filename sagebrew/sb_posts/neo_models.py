@@ -33,7 +33,7 @@ class SBPost(SBNonVersioned):
             return e
 
     @apply_defense
-    def get_post_dictionary(self, pleb):
+    def get_single_dict(self, pleb=None):
         from sb_comments.neo_models import SBComment
         try:
             comment_array = []
@@ -49,16 +49,19 @@ class SBPost(SBNonVersioned):
             self.save()
             for comment in post_comments:
                 comment_array.append(comment.get_single_dict(pleb))
-            return {'content': self.content, 'sb_id': self.sb_id,
+            return {'content': self.content, 'object_uuid': self.sb_id,
+                    'parent_object': self.posted_on_wall.all()[0].
+                        owner.all()[0].username,
                     'vote_count': self.get_vote_count(),
                     'up_vote_number': self.get_upvote_count(),
                     'down_vote_number': self.get_downvote_count(),
-                    'last_edited_on': str(self.last_edited_on),
+                    'last_edited_on': unicode(self.last_edited_on),
                     'post_owner': post_owner.first_name + ' ' +
                                   post_owner.last_name,
                     'post_owner_email': post_owner.email,
                     'comments': comment_array,
-                    'current_user': pleb}
+                    'current_user': pleb,
+                    'datetime': unicode(self.date_created)}
         except CypherException as e:
             return e
 
@@ -66,6 +69,6 @@ class SBPost(SBNonVersioned):
     def render_post_wall_html(self, pleb):
         try:
             return render_to_string('sb_post.html',
-                                    self.get_post_dictionary(pleb))
+                                    self.get_single_dict(pleb))
         except CypherException as e:
             return e

@@ -1,4 +1,6 @@
+import pytz
 import logging
+from datetime import datetime
 from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
@@ -8,13 +10,16 @@ from .forms import FlagObjectForm
 from .tasks import flag_object_task
 from api.utils import spawn_task
 from api.tasks import get_pleb_task
+from sb_docstore.utils import add_object_to_table
 
 logger = logging.getLogger("loggly_logs")
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def flag_object_view(request):
+    now = unicode(datetime.now(pytz.utc))
     try:
+        request.DATA['current_pleb'] = request.user.email
         flag_object_form = FlagObjectForm(request.DATA)
         valid_form = flag_object_form.is_valid()
     except AttributeError:
@@ -33,7 +38,16 @@ def flag_object_view(request):
             'task_param': task_data
         }
         spawned = spawn_task(task_func=get_pleb_task, task_param=pleb_data)
+        dynamo_data = {
+            'parent_object': flag_object_form.cleaned_data['object_uuid'],
+            'user': request.user.email,
+            'flag_type': flag_object_form.cleaned_data['flag_reason'],
+            'time': now
+        }
         if isinstance(spawned, Exception):
+            return Response({"detail": "server error"}, status=500)
+        res = add_object_to_table(table_name="flags", object_data=dynamo_data)
+        if isinstance(res, Exception):
             return Response({"detail": "server error"}, status=500)
 
         return Response({"detail": "success"}, status=200)

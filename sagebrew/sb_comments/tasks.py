@@ -6,6 +6,7 @@ from sb_notifications.tasks import spawn_notifications
 from api.utils import spawn_task, get_object
 
 from .utils import save_comment, comment_relations
+from sb_docstore.utils import add_object_to_table
 
 
 @shared_task()
@@ -54,6 +55,13 @@ def create_comment_relations(current_pleb, comment, sb_object):
         res = comment_relations(current_pleb, comment, sb_object)
 
         if isinstance(res, Exception) is True:
+            raise create_comment_relations.retry(exc=res, countdown=3,
+                                                 max_retries=None)
+        dynamo_data = comment.get_single_dict()
+        dynamo_data['parent_object'] = sb_object.sb_id
+        res = add_object_to_table(table_name='comments',
+                                  object_data=dynamo_data)
+        if isinstance(res, Exception):
             raise create_comment_relations.retry(exc=res, countdown=3,
                                                  max_retries=None)
         try:

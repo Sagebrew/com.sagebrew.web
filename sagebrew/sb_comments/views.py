@@ -6,11 +6,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-from sb_base.utils import defensive_exception
 from api.utils import spawn_task
 from api.tasks import get_pleb_task
 from .tasks import save_comment_on_object
 from .forms import (SaveCommentForm)
+from sb_docstore.utils import add_object_to_table
 
 
 @api_view(['POST'])
@@ -34,6 +34,7 @@ def save_comment_view(request):
         return Response({"details": "Please Provide a JSON Object"},
                         status=400)
     try:
+        request.DATA['current_pleb'] = request.user.email
         comment_form = SaveCommentForm(request.DATA)
         valid_form = comment_form.is_valid()
     except AttributeError:

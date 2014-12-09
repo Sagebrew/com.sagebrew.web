@@ -47,9 +47,9 @@ def get_object(table_name, hash_key, range_key=None):
     table.get_item()
 
 @apply_defense
-def get_object_edits(object_uuid, get_all=False):
+def query_parent_object_table(object_uuid, get_all=False, table_name='edits'):
     try:
-        edits = Table(table_name='edits', connection=conn)
+        edits = Table(table_name=table_name, connection=conn)
     except JSONResponseError as e:
         return e
     res = edits.query_2(
@@ -190,6 +190,57 @@ def get_vote_count(object_uuid, vote_type):
 
     return len(list(votes))
 
+@apply_defense
+def get_wall_docs(parent_object):
+    post_list = []
+    try:
+        posts_table = Table(table_name='posts', connection=conn)
+        comments_table = Table(table_name='comments', connection=conn)
+    except JSONResponseError as e:
+        return e
+    posts = posts_table.query_2(
+        parent_object__eq=parent_object,
+        datetime__gte='0',
+        reverse=True
+    )
+    posts = list(posts)
+    if len(posts) == 0:
+        return False
+    for post in posts:
+        comment_list = []
+        post = dict(post)
+        post['up_vote_number'] = get_vote_count(post['object_uuid'], 1)
+        post['down_vote_number'] = get_vote_count(post['object_uuid'], 0)
+        comments = comments_table.query_2(
+            parent_object__eq=post['object_uuid'],
+            datetime__gte='0',
+            reverse=True)
+        comments = list(comments)
+        for comment in comments:
+            comment = dict(comment)
+            comment['up_vote_number'] = get_vote_count(
+                comment['object_uuid'], 1)
+            comment['down_vote_number'] = get_vote_count(
+                comment['object_uuid'], 0)
+            comment_list.append(comment)
+        post['comments'] = comment_list
+        post_list.append(post)
+    return post_list
 
+@apply_defense
+def build_wall_docs(pleb):
+    try:
+        post_table = Table(table_name='posts', connection=conn)
+        comment_table = Table(table_name='comments', connection=conn)
+    except JSONResponseError as e:
+        return e
+    posts = pleb.wall.all()[0].post.all()
+    for post in posts:
+        post_data = post.get_single_dict()
+        comments = post_data.pop('comments', None)
+        post_table.put_item(post_data)
+        for comment in comments:
+            comment['parent_object'] = post.sb_id
+            comment_table.put_item(comment)
 
-
+    return True

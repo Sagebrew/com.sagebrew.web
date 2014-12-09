@@ -42,10 +42,10 @@ class SBComment(SBNonVersioned):
         try:
             comment_owner = self.is_owned_by.all()[0]
             comment_dict = {'comment_content': self.content,
-                            'comment_up_vote_number': self.get_upvote_count(),
+                            'up_vote_number': self.get_upvote_count(),
                             'vote_count': self.get_vote_count(),
                             'object_uuid': self.sb_id,
-                            'comment_down_vote_number':
+                            'down_vote_number':
                                 self.get_downvote_count(),
                             'comment_last_edited_on':
                                 str(self.last_edited_on),

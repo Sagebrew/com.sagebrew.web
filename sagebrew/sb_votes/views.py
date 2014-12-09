@@ -52,6 +52,7 @@ def vote_object_view(request):
                  "status": status,
                  "time": now
                  }
+        print vote_data
         res = get_vote(vote_object_form.cleaned_data['object_uuid'],
                        user=request.user.email)
         if isinstance(res, Exception) is True:

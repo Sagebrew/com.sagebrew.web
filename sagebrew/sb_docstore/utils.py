@@ -187,7 +187,6 @@ def get_vote_count(object_uuid, vote_type):
     votes = votes_table.query_2(parent_object__eq=object_uuid,
                                 status__eq=vote_type,
                                 index="VoteStatusIndex")
-
     return len(list(votes))
 
 @apply_defense
@@ -213,8 +212,7 @@ def get_wall_docs(parent_object):
         post['down_vote_number'] = get_vote_count(post['object_uuid'], 0)
         comments = comments_table.query_2(
             parent_object__eq=post['object_uuid'],
-            datetime__gte='0',
-            reverse=True)
+            datetime__gte='0')
         comments = list(comments)
         for comment in comments:
             comment = dict(comment)

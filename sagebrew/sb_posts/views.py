@@ -71,7 +71,6 @@ def get_user_posts(request):
         except(CypherException):
             return Response(status=500)
         posts = get_wall_docs(citizen.username)
-        print posts
         if not posts:
             posts = get_pleb_posts(citizen, post_form.cleaned_data['range_end'],
                                post_form.cleaned_data['range_start'])
@@ -79,7 +78,7 @@ def get_user_posts(request):
                 html_array.append(post.render_post_wall_html(
                     post_form.cleaned_data['current_user']))
             task_dict = {'pleb': citizen}
-            res = spawn_task(task_func=build_wall_task, task_param=task_dict)
+            spawn_task(task_func=build_wall_task, task_param=task_dict)
         else:
             for post in posts:
                 print dict(post)

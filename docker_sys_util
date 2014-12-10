@@ -26,7 +26,6 @@ RUN bower install --config.interactive=false --allow-root
 WORKDIR /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/bower_components/bootstrapvalidator/
 RUN bower install --config.interactive=false --allow-root
 
-
 RUN apt-get remove --auto-remove -y git
 
 CMD chown {{APP_USER}} /etc/rsyslog.d/ && python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py logglypopulation && chown root /etc/rsyslog.d/ && service rsyslog restart && python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py collectstatic -c --noinput && python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py migrate --noinput --no-initial-data

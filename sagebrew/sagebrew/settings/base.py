@@ -229,12 +229,7 @@ ADDRESS_VALIDATION_ID = environ.get("ADDRESS_VALIDATION_ID", '')
 ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN", '')
 
 
-CELERYBEAT_SCHEDULE = {
-    'empty-garbage-can-minute': {
-        'task': 'sb_garbage.tasks.empty_garbage_can',
-        'schedule': timedelta(minutes=30),
-    }
-}
+CELERYBEAT_SCHEDULE = {}
 CELERY_TIMEZONE = 'UTC'
 
 

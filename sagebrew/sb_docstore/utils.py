@@ -244,3 +244,22 @@ def build_wall_docs(pleb):
             comment_table.put_item(comment)
 
     return True
+
+@apply_defense
+def get_user_updates(username, object_uuid, table_name):
+    try:
+        table = Table(table_name=table_name, connection=conn)
+    except JSONResponseError as e:
+        return e
+    if table_name=='edits':
+        res = table.query_2(
+            parent_object__eq=object_uuid,
+            user__eq=username,
+            index='UserIndex'
+        )
+    else:
+        res = table.query_2(
+            parent_object__eq=object_uuid,
+            user__eq=username
+        )
+    return list(res)

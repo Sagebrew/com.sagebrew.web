@@ -18,6 +18,7 @@ class SBComment(SBNonVersioned):
     up_vote_adjustment = 2
     down_vote_adjustment = 1
     sb_name = "comment"
+    object_type = "02ba1c88-644f-11e4-9ad9-080027242395"
     allowed_flags = ["explicit", "spam", "other"]
     created_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     up_vote_number = IntegerProperty(default=0)
@@ -54,7 +55,8 @@ class SBComment(SBNonVersioned):
                             'comment_owner_email': comment_owner.email,
                             'current_user': pleb,
                             'datetime': unicode(self.date_created),
-                            'edits': []}
+                            'edits': [],
+                            'object_type': self.object_type}
             self.view_count += 1
             self.save()
             return comment_dict

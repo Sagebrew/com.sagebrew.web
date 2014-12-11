@@ -58,6 +58,8 @@ class SBVoteableContent(StructuredNode):
         try:
             if self.votes.is_connected(pleb):
                 rel = self.votes.relationship(pleb)
+                if vote_type==2:
+                    return self.remove_vote(rel)
                 if vote_type is rel.vote_type:
                     return self.remove_vote(rel)
                 rel.vote_type = vote_type
@@ -67,6 +69,8 @@ class SBVoteableContent(StructuredNode):
                 rel = self.votes.connect(pleb)
                 rel.vote_type = vote_type
                 rel.active = True
+                if vote_type == 2:
+                    rel.active = False
                 rel.save()
             return self
         except CypherException as e:

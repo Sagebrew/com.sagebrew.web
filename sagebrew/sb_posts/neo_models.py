@@ -12,6 +12,7 @@ class SBPost(SBNonVersioned):
     allowed_flags = ["explicit", "spam","other"]
     sb_name = "post"
     table = 'posts'
+    object_type = "01bb301a-644f-11e4-9ad9-080027242395"
     # relationships
     posted_on_wall = RelationshipTo('sb_wall.neo_models.SBWall', 'POSTED_ON')
     #TODO Implement referenced_by_... relationships
@@ -61,7 +62,8 @@ class SBPost(SBNonVersioned):
                     'post_owner_email': post_owner.email,
                     'comments': comment_array,
                     'current_user': pleb,
-                    'datetime': unicode(self.date_created)}
+                    'datetime': unicode(self.date_created),
+                    'object_type': self.object_type}
         except CypherException as e:
             return e
 

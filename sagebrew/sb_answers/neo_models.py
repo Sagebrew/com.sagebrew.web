@@ -12,6 +12,7 @@ from sb_base.neo_models import SBVersioned
 
 
 class SBAnswer(SBVersioned):
+    object_type = "02241aee-644f-11e4-9ad9-080027242395"
     table = 'public_solutions'
     up_vote_adjustment = 10
     down_vote_adjustment = 10
@@ -81,7 +82,8 @@ class SBAnswer(SBVersioned):
                            'time_created': unicode(self.date_created),
                            'comments': comment_array,
                            'answer_owner_email': answer_owner.email,
-                           'edits': []}
+                           'edits': [],
+                           'object_type': self.object_type}
             return answer_dict
         except CypherException as e:
             return e

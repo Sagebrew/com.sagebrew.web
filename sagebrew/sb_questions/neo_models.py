@@ -19,6 +19,7 @@ class SBQuestion(SBVersioned, SBTagContent):
     table = 'public_questions'
     up_vote_adjustment = 5
     down_vote_adjustment = 2
+    object_type = "0274a216-644f-11e4-9ad9-080027242395"
     allowed_flags = ["explicit", "spam", "duplicate",
                      "unsupported", "other"]
 
@@ -145,7 +146,8 @@ class SBQuestion(SBVersioned, SBTagContent):
                              'comments': comment_array,
                              'current_pleb': pleb,
                              'owner_email': owner.email,
-                             'edits': []}
+                             'edits': [],
+                             'object_type': self.object_type}
             return question_dict
         except CypherException as e:
             return e

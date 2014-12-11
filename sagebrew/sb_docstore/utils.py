@@ -65,12 +65,16 @@ def query_parent_object_table(object_uuid, get_all=False, table_name='edits'):
         return False
 
 @apply_defense
-def update_doc(table, object_uuid, update_data, parent_object=""):
+def update_doc(table, object_uuid, update_data, parent_object="", datetime=""):
     try:
         db_table = Table(table_name=table, connection=conn)
     except JSONResponseError as e:
         return e
-    if parent_object!="":
+    if datetime != "" and parent_object!="":
+        res = db_table.get_item(parent_object=parent_object,
+                                datetime=datetime)
+        print dict(res)
+    elif parent_object!="":
         res = db_table.get_item(parent_object=parent_object,
                                 object_uuid=object_uuid)
     else:

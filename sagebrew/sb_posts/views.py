@@ -81,7 +81,6 @@ def get_user_posts(request):
             spawn_task(task_func=build_wall_task, task_param=task_dict)
         else:
             for post in posts:
-                print dict(post)
                 html = render_to_string('sb_post.html', dict(post))
                 html_array.append(html)
 

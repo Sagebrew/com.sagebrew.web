@@ -6,6 +6,7 @@ class EditObjectForm(forms.Form):
     current_pleb = forms.EmailField()
     object_type = forms.CharField()
     object_uuid = forms.CharField()
+    datetime = forms.CharField(initial=None, required=False)
     parent_object = forms.CharField(initial=None, required=False)
 
 class EditQuestionForm(forms.Form):

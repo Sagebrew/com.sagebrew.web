@@ -41,13 +41,13 @@ class SBComment(SBNonVersioned):
     def get_single_dict(self, pleb=None):
         try:
             comment_owner = self.is_owned_by.all()[0]
-            comment_dict = {'comment_content': self.content,
+            comment_dict = {'content': self.content,
                             'up_vote_number': self.get_upvote_count(),
                             'vote_count': self.get_vote_count(),
                             'object_uuid': self.sb_id,
                             'down_vote_number':
                                 self.get_downvote_count(),
-                            'comment_last_edited_on':
+                            'last_edited_on':
                                 str(self.last_edited_on),
                             'comment_owner': comment_owner.first_name + ' '
                                              + comment_owner.last_name,

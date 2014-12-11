@@ -74,7 +74,7 @@
         </div>
     </div>
     <div class="sb_comment_body">
-        {{ comment.comment_content }}
+        {{ comment.content }}
     </div>
     <div class="sb_comment_stats">
 
@@ -105,7 +105,6 @@
     </div>
     <div class="sb_comments_line"></div>
 </div>
-{% if comment.comment_owner_email == comment.current_user %}
     <div id="comment_divid_{{ comment.object_uuid }}"
          style="display:none">
         <textarea class="form-control"
@@ -117,9 +116,9 @@
            id="edit_comment_button"
            data-object_type="02ba1c88-644f-11e4-9ad9-080027242395"
            data-current_pleb="{{ comment.current_user }}"
-           data-object_uuid="{{ comment.object_uuid }}">Submit</a>
+           data-object_uuid="{{ comment.object_uuid }}"
+           data-datetime="{{ comment.datetime }}">Submit</a>
     </div>
-{% endif %}
 {% comment %}
     <a class='btn btn-primary vote-action'
        data-vote_type='up'

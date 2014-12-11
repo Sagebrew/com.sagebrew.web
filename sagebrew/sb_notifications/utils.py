@@ -2,6 +2,7 @@ from uuid import uuid1
 
 from neomodel import DoesNotExist, CypherException
 
+from sb_docstore.utils import add_object_to_table
 from .neo_models import NotificationBase
 from sb_base.decorators import apply_defense
 
@@ -41,8 +42,15 @@ def create_notification_util(sb_object, from_pleb, to_plebs,
         for pleb in to_plebs:
             notification.notification_to.connect(pleb)
             pleb.notifications.connect(notification)
+            notification_data = {'email': pleb.email,
+                                 'from_pleb': from_pleb.email,
+                                 'notification_about': sb_object.sb_name,
+                                 'notification_about_id': sb_object.sb_id,
+                                 'notification_id': notification_id}
+            add_object_to_table('notifications', notification_data)
         notification.sent = True
         notification.save()
+
         return True
 
     except CypherException as e:

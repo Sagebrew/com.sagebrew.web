@@ -146,7 +146,8 @@ function edit_object() {
                 'content': $('textarea#'+uuid).val(),
                 'parent_object': $(this).data('parent_object'),
                 'object_uuid': uuid,
-                'object_type': $(this).data('object_type')
+                'object_type': $(this).data('object_type'),
+                'datetime': $(this).data('datetime')
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json"

@@ -11,6 +11,7 @@ from api.tasks import add_object_to_search_index
 from sb_base.utils import defensive_exception
 from sb_search.tasks import add_user_to_custom_index
 from sb_wall.neo_models import SBWall
+from sb_docstore.tasks import add_object_to_table
 from sb_registration.models import token_gen
 
 from .neo_models import Pleb
@@ -52,7 +53,13 @@ def finalize_citizen_creation(pleb, user):
     task_list["add_user_to_custom_index"] = spawn_task(
         task_func=add_user_to_custom_index,
         task_param=task_data)
-
+    dynamo_data = {'table': 'users_barebones', 'object_data':
+        {'email': pleb.email,
+         'first_name': pleb.first_name,
+         'last_name': pleb.last_name,
+         'username': pleb.username,
+         'type': 'standard'}}
+    res = spawn_task(task_func=add_object_to_table, task_param=dynamo_data)
     if not pleb.initial_verification_email_sent:
         generated_token = token_gen.make_token(user, pleb)
         template_dict = {

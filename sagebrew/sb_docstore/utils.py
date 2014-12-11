@@ -7,9 +7,7 @@ from boto.dynamodb2.exceptions import (JSONResponseError, ItemNotFound,
 from neomodel import DoesNotExist
 
 from sb_base.decorators import apply_defense
-from sb_answers.neo_models import SBAnswer
 from sb_questions.neo_models import SBQuestion
-from sb_comments.neo_models import SBComment
 
 conn = DynamoDBConnection(
     host='192.168.1.136',

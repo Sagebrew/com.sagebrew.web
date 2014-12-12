@@ -33,6 +33,7 @@ urlpatterns = patterns(
     (r'^vote/', include('sb_votes.urls')),
     (r'^edit/', include('sb_edits.urls')),
     (r'^delete/', include('sb_deletes.urls')),
+    (r'^docstore/', include('sb_docstore.urls')),
     url(r'^$', TemplateView.as_view(template_name='sign_up_page/index.html'),
         name="signup"),
 )

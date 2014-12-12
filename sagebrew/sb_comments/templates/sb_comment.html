@@ -77,7 +77,8 @@
         {{ comment.content }}
     </div>
     <div class="sb_comment_stats">
-
+    <div class="sb_id" data-object_uuid="{{ comment.object_uuid }}"
+         style="display: None"></div>
         <div class="row">
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2">
                 <a class='btn vote_object-action sb_btn_vote_icon'
@@ -88,7 +89,7 @@
                 </a>
             </div>
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2 sb_vote_div">
-               <div class="sb_vote_count">{{ comment.up_vote_number }}</div>
+               <div class="sb_upvote_count{{ comment.object_uuid }}">{{ comment.up_vote_number }}</div>
             </div>
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2">
                  <a class='btn vote_object-action sb_btn_vote_icon'
@@ -99,7 +100,7 @@
                  </a>
             </div>
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2 sb_vote_div">
-               <div class="sb_vote_count">{{ comment.down_vote_number }}</div>
+               <div class="sb_downvote_count{{ comment.object_uuid }}">{{ comment.down_vote_number }}</div>
             </div>
         </div>
     </div>

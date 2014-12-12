@@ -58,9 +58,7 @@ class SBVoteableContent(StructuredNode):
         try:
             if self.votes.is_connected(pleb):
                 rel = self.votes.relationship(pleb)
-                if vote_type==2:
-                    return self.remove_vote(rel)
-                if vote_type is rel.vote_type:
+                if vote_type == 2:
                     return self.remove_vote(rel)
                 rel.vote_type = vote_type
                 rel.active = True
@@ -207,6 +205,8 @@ class SBContent(SBVoteableContent):
 
 class SBVersioned(SBContent):
     __abstract_node__ = True
+    allowed_flags = ["explicit", "spam", "duplicate",
+                     "unsupported", "other"]
     edit = lambda self: self.__class__.__name__
     original = BooleanProperty(default=True)
     draft = BooleanProperty(default=False)
@@ -226,6 +226,7 @@ class SBVersioned(SBContent):
 
 
 class SBNonVersioned(SBContent):
+    allowed_flags = ["explicit", "spam", "other"]
     #relationships
     auto_tagged_as = RelationshipTo('sb_tag.neo_models.SBTag',
                                     'AUTO_TAGGED_AS')

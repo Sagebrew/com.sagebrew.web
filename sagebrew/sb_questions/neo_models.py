@@ -20,8 +20,6 @@ class SBQuestion(SBVersioned, SBTagContent):
     up_vote_adjustment = 5
     down_vote_adjustment = 2
     object_type = "0274a216-644f-11e4-9ad9-080027242395"
-    allowed_flags = ["explicit", "spam", "duplicate",
-                     "unsupported", "other"]
 
     answer_number = IntegerProperty(default=0)
     question_title = StringProperty()

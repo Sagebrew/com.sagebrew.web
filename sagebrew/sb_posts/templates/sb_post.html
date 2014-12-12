@@ -1,4 +1,6 @@
 <div>
+    <div class="sb_id" data-object_uuid="{{ object_uuid }}"
+         style="display: None"></div>
     <div class="sb_post_content">
         <div class="sb_post_header">
             <div class="row">
@@ -79,7 +81,7 @@
     <div class="sb_post_stats">
         <div class="row">
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2">
-                <a class='btn vote_object-action sb_btn_vote_icon'
+                <a class='btn vote_object-action sb_btn_vote_icon up_vote'
                    data-vote_type=true
                    data-current_pleb="{{ current_user }}"
                    data-object_uuid="{{ object_uuid }}"
@@ -88,7 +90,7 @@
                 </a>
             </div>
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2 sb_vote_div">
-               <div class="sb_vote_count">{{ up_vote_number }}</div>
+               <div class="sb_upvote_count{{ object_uuid }}">{{ up_vote_number }}</div>
             </div>
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2">
                  <a class='btn vote_object-action sb_btn_vote_icon'
@@ -100,7 +102,7 @@
                 </a>
             </div>
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2 sb_vote_div">
-               <div class="sb_vote_count">{{ down_vote_number }}</div>
+               <div class="sb_downvote_count{{ object_uuid }}">{{ down_vote_number }}</div>
             </div>
         </div>
         <div class="col-lg-1 col-md-1 col-sm-1">

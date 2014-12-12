@@ -17,8 +17,6 @@ class SBAnswer(SBVersioned):
     up_vote_adjustment = 10
     down_vote_adjustment = 10
     down_vote_cost = 2
-    allowed_flags = ["explicit", "spam", "duplicate",
-                     "unsupported", "other"]
     sb_name = "answer"
     added_to_search_index = BooleanProperty(default=False)
     search_id = StringProperty()

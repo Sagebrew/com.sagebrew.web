@@ -9,7 +9,6 @@ from sb_base.decorators import apply_defense
 
 
 class SBPost(SBNonVersioned):
-    allowed_flags = ["explicit", "spam","other"]
     sb_name = "post"
     table = 'posts'
     object_type = "01bb301a-644f-11e4-9ad9-080027242395"

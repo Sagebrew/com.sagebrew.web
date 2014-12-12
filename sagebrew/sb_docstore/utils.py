@@ -258,8 +258,9 @@ def get_user_updates(username, object_uuid, table_name):
             index='UserIndex'
         )
     else:
-        res = table.query_2(
-            parent_object__eq=object_uuid,
-            user__eq=username
+        res = table.get_item(
+            parent_object=object_uuid,
+            user=username
         )
+        return dict(res)
     return list(res)

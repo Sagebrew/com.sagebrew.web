@@ -1,11 +1,15 @@
 <h3>{{ answer.content }}</h3>
+<div class="sb_id" data-object_uuid="{{ object_uuid }}"
+         style="display: None"></div>
 {% url "profile_page" pleb_username=answer.answer_owner_url as owner_url %}
-<div style="font-weight: bold">Upvotes: {{ answer.up_vote_number }} | Downvotes: {{ answer.down_vote_number }} | Written by: <a href="{{ owner_url }}">{{ answer.answer_owner_name }}</a> | Posted: {{ answer.time_created }} | Last edited: {{ answer.last_edited_on }}</div>
+<div style="font-weight: bold">Written by: <a href="{{ owner_url }}">{{ answer.answer_owner_name }}</a> | Posted: {{ answer.time_created }} | Last edited: {{ answer.last_edited_on }}</div>
+<div class="sb_upvote_count{{ answer.object_uuid }}">{{ answer.up_vote_number }}</div>
 <a class="btn btn-primary btn-sm vote_object-action"
    data-object_uuid="{{ answer.object_uuid }}"
    data-current_pleb="{{ answer.current_pleb }}"
    data-vote_type=true
    data-object_type="02241aee-644f-11e4-9ad9-080027242395">Upvote</a>
+<div class="sb_downvote_count{{ answer.object_uuid }}">{{ answer.down_vote_number }}</div>
 <a class="btn btn-primary btn-sm vote_object-action"
    data-object_uuid="{{ answer.object_uuid }}"
    data-current_pleb="{{ answer.current_pleb }}"

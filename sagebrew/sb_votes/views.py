@@ -22,14 +22,15 @@ logger = logging.getLogger('loggly_logs')
 def vote_object_view(request):
     now = unicode(datetime.now(pytz.utc))
     try:
+        print request.DATA
         request.DATA['current_pleb'] = request.user.email
         vote_object_form = VoteObjectForm(request.DATA)
         valid_form = vote_object_form.is_valid()
     except AttributeError:
         return Response(status=400)
     if valid_form:
-        '''
         choice_dict = dict(settings.KNOWN_TYPES)
+        '''
         task_data = {
             "object_type": choice_dict[
                 vote_object_form.cleaned_data['object_type']],
@@ -45,14 +46,17 @@ def vote_object_view(request):
         if isinstance(spawned, Exception) is True:
             return Response({"detail": "server error"}, status=500)
         '''
+        upvote_value = vote_object_form.cleaned_data['upvote_count']
+        downvote_value = vote_object_form.cleaned_data['downvote_count']
         status = int(vote_object_form.cleaned_data['vote_type'])
         vote_data = {
+                 "object_type": choice_dict[
+                    vote_object_form.cleaned_data['object_type']],
                  "parent_object": vote_object_form.cleaned_data['object_uuid'],
                  "user": request.user.email,
                  "status": status,
                  "time": now
                  }
-        print vote_data
         res = get_vote(vote_object_form.cleaned_data['object_uuid'],
                        user=request.user.email)
         if isinstance(res, Exception) is True:
@@ -61,15 +65,41 @@ def vote_object_view(request):
             add_res = add_object_to_table('votes', vote_data)
             if isinstance(add_res, Exception) is True:
                 return Response({"detail": "server error"}, status=500)
+            if status == 1:
+                upvote_value += 1
+            else:
+                downvote_value += 1
         else:
+            prev_vote = dict(res)
             update = update_vote(vote_object_form.cleaned_data['object_uuid'],
                                  request.user.email,
                                  status, now)
             if isinstance(update, Exception) is True:
                 return Response({"detail": "server error"}, status=500)
+            print upvote_value, downvote_value
+            print "previous vote", int(prev_vote['status']), type(prev_vote['status'])
+            print "update vote", int(update['status']), type(update['status'])
+            if update['status']==2 and int(prev_vote['status'])==1:
+                upvote_value -= 1
+            elif update['status']==2 and int(prev_vote['status'])==0:
+                downvote_value -= 1
+            elif update['status']==1 and int(prev_vote['status'])==0:
+                downvote_value -= 1
+                upvote_value += 1
+            elif update['status']==0 and int(prev_vote['status'])==1:
+                downvote_value += 1
+                upvote_value -= 1
+            elif update['status']==1 and int(prev_vote['status'])==2:
+                upvote_value += 1
+            elif update['status']==0 and int(prev_vote['status'])==2:
+                downvote_value += 1
+            print upvote_value, downvote_value
+
         version_add = add_object_to_table("vote_versions", vote_data)
         if isinstance(version_add, Exception) is True:
             return Response({"detail": "server error"}, status=500)
-        return Response({"detail": "success"}, status=200)
+        return Response({"detail": "success", "upvote_value": upvote_value,
+                         "downvote_value": downvote_value}, status=200)
     else:
+        print vote_object_form.errors
         return Response({"detail": "invalid form"}, status=400)

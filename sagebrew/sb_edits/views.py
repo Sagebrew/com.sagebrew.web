@@ -47,7 +47,10 @@ def edit_object_view(request):
         dynamo_data = {
                 'parent_object': edit_object_form.cleaned_data['object_uuid'],
                 'datetime': current_datetime,
-                'content': edit_object_form.cleaned_data['content']
+                'content': edit_object_form.cleaned_data['content'],
+                'user': request.user.email,
+                'object_type':
+                    choice_dict[edit_object_form.cleaned_data['object_type']]
             }
         updates = [
             {'update_key': 'content',

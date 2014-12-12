@@ -19,7 +19,6 @@ class SBComment(SBNonVersioned):
     down_vote_adjustment = 1
     sb_name = "comment"
     object_type = "02ba1c88-644f-11e4-9ad9-080027242395"
-    allowed_flags = ["explicit", "spam", "other"]
     created_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     up_vote_number = IntegerProperty(default=0)
     down_vote_number = IntegerProperty(default=0)

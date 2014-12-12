@@ -16,6 +16,7 @@ from plebs.neo_models import Pleb
 def get_updates_from_dynamo(request):
     edit_res = []
     vote_res = []
+    print request.DATA
     try:
         request.DATA['current_pleb'] = request.user.email
         update_form = UpdateNeoForm(request.DATA)
@@ -24,28 +25,27 @@ def get_updates_from_dynamo(request):
     if update_form.is_valid():
         clean = update_form.cleaned_data
         try:
-            pleb = Pleb.nodes.get(email = clean['current_pleb'])
+            pleb = Pleb.nodes.get(email=clean['current_pleb'])
         except CypherException:
             return Response(status=500)
         for object_uuid in request.DATA['object_uuids']:
-            edit_res.append(get_user_updates(username=pleb.username,
+            edit_res.append(get_user_updates(username=pleb.email,
                                             object_uuid=object_uuid,
                                             table_name='edits'))
-            vote_res.append(get_user_updates(username=pleb.username,
+            vote_res.append(get_user_updates(username=pleb.email,
                                             object_uuid=object_uuid,
                                             table_name='votes'))
         for item in edit_res:
-            task_data = {
-                'object_uuid': item['parent_object'],
-                'object_type': item['object_type'],
-                'current_pleb': pleb,
-                'content': item['content']
-            }
-            spawn_task(task_func=edit_object_task, task_param=task_data)
-
+            for edit in item:
+                task_data = {
+                    'object_uuid': edit['parent_object'],
+                    'object_type': edit['object_type'],
+                    'current_pleb': pleb,
+                    'content': edit['content']
+                }
+                spawn_task(task_func=edit_object_task, task_param=task_data)
         for item in vote_res:
-            if item['status'] != 2:
-                item['status'] = bool(item['status'])
+            item['status'] = int(item['status'])
             task_data = {
                 'vote_type': item['status'],
                 'current_pleb': pleb,
@@ -56,5 +56,5 @@ def get_updates_from_dynamo(request):
         return Response({'detail': 'success'}, status=200)
     else:
         return Response({"detail": "invalid form"}, status=400)
-    
+
 

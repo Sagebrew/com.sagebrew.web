@@ -18,8 +18,10 @@ dependencies:
     - sudo service rsyslog restart
     - if [[ ! -e elasticsearch-1.3.2 ]]; then wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.3.2.tar.gz && tar -xvf elasticsearch-1.3.2.tar.gz; fi
     - if [[ ! -e dynamodb_local_latest ]]; then wget http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest.tar.gz && tar -xvf dynamodb_local_latest.tar.gz; fi
-    - java -Djava.library.path=dynamodb_local_latest/DynamoDBLocal_lib -jar DynamoDBLocal.jar: {background: true}
-    - elasticsearch-1.3.2/bin/elasticsearch: {background: true}
+    - java -Djava.library.path=dynamodb_local_latest/DynamoDBLocal_lib -jar DynamoDBLocal.jar:
+        background: true
+    - elasticsearch-1.3.2/bin/elasticsearch:
+        background: true
     - sudo apt-get install supervisor
     - sudo chown -R ubuntu /etc/supervisor/conf.d/
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py populatesupervisor worker-test ubuntu
@@ -28,6 +30,7 @@ dependencies:
     - sudo supervisorctl reload:
         background: true
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py populateenvconfig /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-$CIRCLE_BRANCH-web.json /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-$CIRCLE_BRANCH-worker.json
+    - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py create_dynamo_tables
     - python ~/com.sagebrew.web/sagebrew/manage.py runserver 127.0.0.1:8080:
         background: true
 

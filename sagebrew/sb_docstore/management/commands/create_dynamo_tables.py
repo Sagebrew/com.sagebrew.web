@@ -22,7 +22,8 @@ class Command(BaseCommand):
     help = 'Creates the required DynamoDB tables.'
 
     def create_dynamo_tables(self):
-        with open('%s/temp_files/dynamo_table.js'%settings.PROJECT_DIR,
+        with open('%s/sb_docstore/management/commands'
+                  '/dynamo_table.js'%settings.PROJECT_DIR,
                   'r') as data_file:
             data = loads(data_file.read())
             for item in data:

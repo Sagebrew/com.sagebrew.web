@@ -1,24 +1,37 @@
-from decimal import Decimal
-
 from boto.dynamodb2.layer1 import DynamoDBConnection
 from boto.dynamodb2.table import Table
 from boto.dynamodb2.exceptions import (JSONResponseError, ItemNotFound,
                                        ConditionalCheckFailedException)
+
 from neomodel import DoesNotExist
 
 from sb_base.decorators import apply_defense
 from sb_questions.neo_models import SBQuestion
 
 
-@apply_defense
 def connect_to_dynamo():
-    conn = DynamoDBConnection(
-    host='192.168.1.136',
-    port=8000,
-    aws_secret_access_key='anything',
-    is_secure=False
-    )
-    return conn
+    '''
+    This function gets the connection to dynamodb.
+
+    The only possibly exception it will throw is IOError and there is not
+    a lot we can do to handle it because dynamo has scaling retry times
+    and in the case that dynamo goes down we will have bigger things to worry
+    about. This is currently not an issue. We discussed serving pages
+    directly from neo in the case that dynamo is down but because we currently
+    use AWS for a lot of our services, if dynamo is down AWS will most likely
+    be down. Also there will be three instances of dynamo on our AWS cloud.
+    :return:
+    '''
+    try:
+        conn = DynamoDBConnection(
+            host='192.168.1.136',
+            port=8000,
+            aws_secret_access_key='anything',
+            is_secure=False
+        )
+        return conn
+    except IOError as e:
+        return e
 
 @apply_defense
 def add_object_to_table(table_name, object_data):
@@ -30,8 +43,11 @@ def add_object_to_table(table_name, object_data):
     :param object_data:
     :return:
     '''
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
     try:
-        table = Table(table_name=table_name, connection=connect_to_dynamo())
+        table = Table(table_name=table_name, connection=conn)
     except JSONResponseError:
         return False #TODO review this return
     try:
@@ -42,8 +58,11 @@ def add_object_to_table(table_name, object_data):
 
 @apply_defense
 def query_parent_object_table(object_uuid, get_all=False, table_name='edits'):
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
     try:
-        edits = Table(table_name=table_name, connection=connect_to_dynamo())
+        edits = Table(table_name=table_name, connection=conn)
     except JSONResponseError as e:
         return e
     res = edits.query_2(
@@ -60,14 +79,16 @@ def query_parent_object_table(object_uuid, get_all=False, table_name='edits'):
 
 @apply_defense
 def update_doc(table, object_uuid, update_data, parent_object="", datetime=""):
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
     try:
-        db_table = Table(table_name=table, connection=connect_to_dynamo())
+        db_table = Table(table_name=table, connection=conn)
     except JSONResponseError as e:
         return e
     if datetime != "" and parent_object!="":
         res = db_table.get_item(parent_object=parent_object,
                                 datetime=datetime)
-        print dict(res)
     elif parent_object!="":
         res = db_table.get_item(parent_object=parent_object,
                                 object_uuid=object_uuid)
@@ -81,12 +102,13 @@ def update_doc(table, object_uuid, update_data, parent_object="", datetime=""):
 
 @apply_defense
 def get_question_doc(question_uuid, question_table, solution_table):
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
     answer_list = []
     try:
-        questions = Table(table_name=question_table,
-                          connection=connect_to_dynamo())
-        solutions = Table(table_name=solution_table,
-                          connection=connect_to_dynamo())
+        questions = Table(table_name=question_table, connection=conn)
+        solutions = Table(table_name=solution_table, connection=conn)
     except JSONResponseError as e:
         return e #TODO review this return
     try:
@@ -144,8 +166,11 @@ def build_question_page(question_uuid, question_table, solution_table):
 
 @apply_defense
 def get_vote(object_uuid, user):
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
     try:
-        votes_table = Table(table_name='votes', connection=connect_to_dynamo())
+        votes_table = Table(table_name='votes', connection=conn)
     except JSONResponseError as e:
         return e
     try:
@@ -159,8 +184,11 @@ def get_vote(object_uuid, user):
 
 @apply_defense
 def update_vote(object_uuid, user, vote_type, time):
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
     try:
-        votes_table = Table(table_name='votes', connection=connect_to_dynamo())
+        votes_table = Table(table_name='votes', connection=conn)
     except JSONResponseError as e:
         return e
     try:
@@ -180,8 +208,11 @@ def update_vote(object_uuid, user, vote_type, time):
 
 @apply_defense
 def get_vote_count(object_uuid, vote_type):
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
     try:
-        votes_table = Table(table_name='votes', connection=connect_to_dynamo())
+        votes_table = Table(table_name='votes', connection=conn)
     except JSONResponseError as e:
         return e
     votes = votes_table.query_2(parent_object__eq=object_uuid,
@@ -191,10 +222,13 @@ def get_vote_count(object_uuid, vote_type):
 
 @apply_defense
 def get_wall_docs(parent_object):
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
     post_list = []
     try:
-        posts_table = Table(table_name='posts', connection=connect_to_dynamo())
-        comments_table = Table(table_name='comments', connection=connect_to_dynamo())
+        posts_table = Table(table_name='posts', connection=conn)
+        comments_table = Table(table_name='comments', connection=conn)
     except JSONResponseError as e:
         return e
     posts = posts_table.query_2(
@@ -227,10 +261,12 @@ def get_wall_docs(parent_object):
 
 @apply_defense
 def build_wall_docs(pleb):
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
     try:
-        post_table = Table(table_name='posts', connection=connect_to_dynamo())
-        comment_table = Table(table_name='comments',
-                              connection=connect_to_dynamo())
+        post_table = Table(table_name='posts', connection=conn)
+        comment_table = Table(table_name='comments', connection=conn)
     except JSONResponseError as e:
         return e
     posts = pleb.wall.all()[0].post.all()
@@ -246,8 +282,11 @@ def build_wall_docs(pleb):
 
 @apply_defense
 def get_user_updates(username, object_uuid, table_name):
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
     try:
-        table = Table(table_name=table_name, connection=connect_to_dynamo())
+        table = Table(table_name=table_name, connection=conn)
     except JSONResponseError as e:
         return e
     if table_name=='edits':

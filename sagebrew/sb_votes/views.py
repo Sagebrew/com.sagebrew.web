@@ -22,7 +22,6 @@ logger = logging.getLogger('loggly_logs')
 def vote_object_view(request):
     now = unicode(datetime.now(pytz.utc))
     try:
-        print request.DATA
         request.DATA['current_pleb'] = request.user.email
         vote_object_form = VoteObjectForm(request.DATA)
         valid_form = vote_object_form.is_valid()
@@ -30,22 +29,6 @@ def vote_object_view(request):
         return Response(status=400)
     if valid_form:
         choice_dict = dict(settings.KNOWN_TYPES)
-        '''
-        task_data = {
-            "object_type": choice_dict[
-                vote_object_form.cleaned_data['object_type']],
-            "object_uuid": vote_object_form.cleaned_data['object_uuid'],
-            "vote_type": vote_object_form.cleaned_data['vote_type']
-        }
-        pleb_data = {
-            'email': request.user.email,
-            'task_func': vote_object_task,
-            'task_param': task_data
-        }
-        spawned = spawn_task(task_func=get_pleb_task, task_param=pleb_data)
-        if isinstance(spawned, Exception) is True:
-            return Response({"detail": "server error"}, status=500)
-        '''
         upvote_value = vote_object_form.cleaned_data['upvote_count']
         downvote_value = vote_object_form.cleaned_data['downvote_count']
         status = int(vote_object_form.cleaned_data['vote_type'])
@@ -77,20 +60,20 @@ def vote_object_view(request):
             if isinstance(update, Exception) is True:
                 return Response({"detail": "server error"}, status=500)
             prev_status = int(prev_vote['status'])
-
-            if update['status']==2 and prev_status==1:
+            update_status = update['status']
+            if update_status==2 and prev_status==1:
                 upvote_value -= 1
-            elif update['status']==2 and prev_status==0:
+            elif update_status==2 and prev_status==0:
                 downvote_value -= 1
-            elif update['status']==1 and prev_status==0:
+            elif update_status==1 and prev_status==0:
                 downvote_value -= 1
                 upvote_value += 1
-            elif update['status']==0 and prev_status==1:
+            elif update_status==0 and prev_status==1:
                 downvote_value += 1
                 upvote_value -= 1
-            elif update['status']==1 and prev_status==2:
+            elif update_status==1 and prev_status==2:
                 upvote_value += 1
-            elif update['status']==0 and prev_status==2:
+            elif update_status==0 and prev_status==2:
                 downvote_value += 1
 
         version_add = add_object_to_table("vote_versions", vote_data)
@@ -99,5 +82,4 @@ def vote_object_view(request):
         return Response({"detail": "success", "upvote_value": upvote_value,
                          "downvote_value": downvote_value}, status=200)
     else:
-        print vote_object_form.errors
         return Response({"detail": "invalid form"}, status=400)

@@ -16,7 +16,6 @@ from plebs.neo_models import Pleb
 def get_updates_from_dynamo(request):
     edit_res = []
     vote_res = []
-    print request.DATA
     try:
         request.DATA['current_pleb'] = request.user.email
         update_form = UpdateNeoForm(request.DATA)

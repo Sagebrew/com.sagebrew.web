@@ -9,18 +9,36 @@ from neomodel import DoesNotExist
 from sb_base.decorators import apply_defense
 from sb_questions.neo_models import SBQuestion
 
-if settings.DYNAMO_IP is None:
-    conn = DynamoDBConnection(
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID
-    )
-else:
-    conn = DynamoDBConnection(
-        host=settings.DYNAMO_IP,
-        port=8000,
-        aws_secret_access_key='anything',
-        is_secure=False
-    )
+
+def connect_to_dynamo():
+    '''
+    This function gets the connection to dynamodb.
+
+    The only possibly exception it will throw is IOError and there is not
+    a lot we can do to handle it because dynamo has scaling retry times
+    and in the case that dynamo goes down we will have bigger things to worry
+    about. This is currently not an issue. We discussed serving pages
+    directly from neo in the case that dynamo is down but because we currently
+    use AWS for a lot of our services, if dynamo is down AWS will most likely
+    be down. Also there will be three instances of dynamo on our AWS cloud.
+    :return:
+    '''
+    try:
+        if settings.DYNAMO_IP is None:
+            conn = DynamoDBConnection(
+                aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+                aws_access_key_id=settings.AWS_ACCESS_KEY_ID
+            )
+        else:
+            conn = DynamoDBConnection(
+                host=settings.DYNAMO_IP,
+                port=8000,
+                aws_secret_access_key='anything',
+                is_secure=False
+            )
+        return conn
+    except IOError as e:
+        return e
 
 @apply_defense
 def add_object_to_table(table_name, object_data):
@@ -32,6 +50,7 @@ def add_object_to_table(table_name, object_data):
     :param object_data:
     :return:
     '''
+    conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
     try:
@@ -46,6 +65,7 @@ def add_object_to_table(table_name, object_data):
 
 @apply_defense
 def query_parent_object_table(object_uuid, get_all=False, table_name='edits'):
+    conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
     try:
@@ -66,6 +86,7 @@ def query_parent_object_table(object_uuid, get_all=False, table_name='edits'):
 
 @apply_defense
 def update_doc(table, object_uuid, update_data, parent_object="", datetime=""):
+    conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
     try:
@@ -88,6 +109,7 @@ def update_doc(table, object_uuid, update_data, parent_object="", datetime=""):
 
 @apply_defense
 def get_question_doc(question_uuid, question_table, solution_table):
+    conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
     answer_list = []
@@ -151,6 +173,7 @@ def build_question_page(question_uuid, question_table, solution_table):
 
 @apply_defense
 def get_vote(object_uuid, user):
+    conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
     try:
@@ -168,6 +191,7 @@ def get_vote(object_uuid, user):
 
 @apply_defense
 def update_vote(object_uuid, user, vote_type, time):
+    conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
     try:
@@ -191,6 +215,7 @@ def update_vote(object_uuid, user, vote_type, time):
 
 @apply_defense
 def get_vote_count(object_uuid, vote_type):
+    conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
     try:
@@ -204,6 +229,7 @@ def get_vote_count(object_uuid, vote_type):
 
 @apply_defense
 def get_wall_docs(parent_object):
+    conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
     post_list = []
@@ -242,10 +268,9 @@ def get_wall_docs(parent_object):
 
 @apply_defense
 def build_wall_docs(pleb):
+    conn = connect_to_dynamo()
     if isinstance(conn, Exception):
-
         return conn
-    print 'here', conn
     try:
         post_table = Table(table_name='posts', connection=conn)
         comment_table = Table(table_name='comments', connection=conn)
@@ -265,6 +290,7 @@ def build_wall_docs(pleb):
 
 @apply_defense
 def get_user_updates(username, object_uuid, table_name):
+    conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
     try:

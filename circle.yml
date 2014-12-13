@@ -10,6 +10,7 @@ dependencies:
     - pip install awscli
   cache_directories:
     - elasticsearch-1.3.2
+    - dynamodb_local_latest
   post:
     - pip install -r ../requirements/test.txt
     - sudo chown ubuntu /etc/rsyslog.d/

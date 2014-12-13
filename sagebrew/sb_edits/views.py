@@ -29,21 +29,6 @@ def edit_object_view(request):
     if valid_form:
         current_datetime = unicode(datetime.now(pytz.utc))
         choice_dict = dict(settings.KNOWN_TYPES)
-        task_data = {
-            "object_type": choice_dict[
-                edit_object_form.cleaned_data['object_type']],
-            "object_uuid": edit_object_form.cleaned_data['object_uuid'],
-            "content": edit_object_form.cleaned_data['content']
-        }
-        pleb_data = {
-            'email': request.user.email,
-            'task_func': edit_object_task,
-            'task_param': task_data
-        }
-        spawned = spawn_task(task_func=get_pleb_task, task_param=pleb_data)
-        if isinstance(spawned, Exception):
-            return Response({"detail": "server error"}, status=500)
-
         dynamo_data = {
                 'parent_object': edit_object_form.cleaned_data['object_uuid'],
                 'datetime': current_datetime,

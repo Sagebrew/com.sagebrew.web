@@ -68,12 +68,13 @@ def get_user_posts(request):
             citizen = Pleb.nodes.get(email=post_form.cleaned_data['email'])
         except (Pleb.DoesNotExist, DoesNotExist):
             return Response(status=401)
-        except(CypherException):
+        except CypherException:
             return Response(status=500)
         posts = get_wall_docs(citizen.username)
         if not posts:
-            posts = get_pleb_posts(citizen, post_form.cleaned_data['range_end'],
-                               post_form.cleaned_data['range_start'])
+            posts = get_pleb_posts(citizen,
+                                   post_form.cleaned_data['range_end'],
+                                   post_form.cleaned_data['range_start'])
             for post in posts:
                 html_array.append(post.render_post_wall_html(
                     post_form.cleaned_data['current_user']))

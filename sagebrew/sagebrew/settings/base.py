@@ -159,22 +159,23 @@ INSTALLED_APPS = (
     'api',
     'govtrack',
     'neomodel',
-    'sb_registration',
-    'sb_comments',
-    'sb_posts',
-    'sb_wall',
-    'sb_notifications',
-    'sb_relationships',
-    'sb_tag',
-    'sb_questions',
     'sb_answers',
-    'sb_trends',
-    'sb_search',
-    'sb_votes',
-    'sb_flags',
-    'sb_edits',
+    'sb_base',
+    'sb_comments',
     'sb_deletes',
     'sb_docstore',
+    'sb_edits',
+    'sb_flags',
+    'sb_notifications',
+    'sb_posts',
+    'sb_questions',
+    'sb_registration',
+    'sb_relationships',
+    'sb_search',
+    'sb_tag',
+    'sb_trends',
+    'sb_votes',
+    'sb_wall',
     'elasticsearch',
     'textblob',
     'help_center',
@@ -230,7 +231,6 @@ ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN", '')
 
 DYNAMO_IP = environ.get("DYNAMO_IP", None)
 
-CELERYBEAT_SCHEDULE = {}
 CELERY_TIMEZONE = 'UTC'
 
 

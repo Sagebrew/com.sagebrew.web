@@ -1,14 +1,9 @@
-import logging
 from urllib2 import HTTPError
 from django.conf import settings
 
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import TransportError
 
-from api.utils import spawn_task
-from sb_base.decorators import apply_defense
-
-logger = logging.getLogger('loggly_logs')
 
 """
 def update_search_index_doc_script(document_id, index, field, update_value,
@@ -73,9 +68,6 @@ def update_search_index_doc(document_id, index, field, update_value,
         return False
 
 
-# TODO Look into Can't pickle <type 'function'>: attribute
-# lookup __builtin__.function
-# failed
 def process_search_result(item):
     '''
     This util is called to process the search results returned from
@@ -86,7 +78,6 @@ def process_search_result(item):
     :param item:
     :return:
     '''
-    # TODO handle spawn task correctly and ensure this is idempotent
     from sb_search.tasks import update_weight_relationship
     if 'sb_score' not in item['_source']:
             item['_source']['sb_score'] = 0

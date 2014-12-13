@@ -1,9 +1,5 @@
 from django import forms
-from django.core.files.images import get_image_dimensions
-from localflavor.us.forms import USStateSelect, USZipCodeField, USStateField
-from localflavor.us.us_states import US_STATES
-# TODO do we need any of the localflavor that currently aren't being used
-# for checking addresses smarty streets can't validate?
+from localflavor.us.forms import  USZipCodeField, USStateField
 
 
 class InterestForm(forms.Form):

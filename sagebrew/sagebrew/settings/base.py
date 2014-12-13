@@ -230,12 +230,7 @@ ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN", '')
 
 DYNAMO_IP = environ.get("DYNAMO_IP", None)
 
-CELERYBEAT_SCHEDULE = {
-    'empty-garbage-can-minute': {
-        'task': 'sb_garbage.tasks.empty_garbage_can',
-        'schedule': timedelta(minutes=30),
-    }
-}
+CELERYBEAT_SCHEDULE = {}
 CELERY_TIMEZONE = 'UTC'
 
 

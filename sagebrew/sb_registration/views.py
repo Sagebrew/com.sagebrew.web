@@ -30,15 +30,6 @@ from .models import token_gen
 
 @api_view(['POST'])
 def signup_view_api(request):
-    # TODO discuss potential to store off initial user into dynamo or just in
-    # postgres until confirmation email is verified. If it is then store
-    # user into neo.
-    # That way if we get a flood of bots trying to sign up we aren't DDoSing
-    # Neo and will have an automated routine that removes the user from the
-    # document store after a day and potentially sets them as flagged for
-    # suspicious activity if more than say a week passes and no one activates
-    # their email. Should be able to perform the hashing process on the
-    # data stored in dynamo or psql the same way we do with the Pleb currently.
     try:
         signup_form = SignupForm(request.DATA)
         valid_form = signup_form.is_valid()
@@ -63,20 +54,6 @@ def signup_view_api(request):
                                    cleaned_data['email'],
                                    password=signup_form.
                                    cleaned_data['password'])
-            # TODO if this fails we might want to roll back the user creation
-            # Otherwise we end up creating a user and never actually moving
-            # the user forward. Then when they go to try again they get
-            # a user already exists error
-            # Also need to benchmark process in production/staging
-            # on local instance with docker after clicking sign up the
-            # user sits at the page for a couple seconds prior to being
-            # redirected. This makes it seem as though nothing happened on
-            # click. They click again and it results in an error being provided.
-            # We may have to do a loading greyed out screen while waiting
-            # for a response if the timing takes that long in prod.
-            # Or go over to a pure view implementation without the API.
-            # Just need to look into it when not going through so many
-            # different hops
             if res and res is not None:
                 user = authenticate(username=res['username'],
                                     password=signup_form.cleaned_data[
@@ -105,14 +82,11 @@ def login_view(request):
 def resend_email_verification(request):
     try:
         pleb = Pleb.nodes.get(email=request.user.email)
-    except (Pleb.DoesNotExist, DoesNotExist):
-        # TODO When we switch over to storing a user in postgres before
-        # storing them in neo, we will want to check that they exist in
-        # postgres, not neo.
+    except(DoesNotExist):
         return Response({'detail': 'pleb does not exist'}, status=400)
 
     template_dict = {
-        'full_name': request.user.first_name+' '+request.user.last_name,
+        'full_name': request.user.get_full_name(),
         'verification_url': "%s%s%s" % (settings.EMAIL_VERIFICATION_URL,
                                         token_gen.make_token(
                                             request.user, pleb),
@@ -350,7 +324,8 @@ def profile_picture(request):
     # Then spawn a task to connect the profile pic? We'll want to save the image
     # as quickly as possible so it's available but maybe we do that with the
     # new document store, save it into the pleb's document quickly and then
-    # spawn off a task for storing the url in neo.
+    # spawn off a task for storing the url in neo and working with blitline to
+    # get different versions of the image.
     try:
         citizen = Pleb.nodes.get(email=request.user.email)
     except(Pleb.DoesNotExist, DoesNotExist):
@@ -367,8 +342,8 @@ def profile_picture(request):
             with open(temp_file, 'wb+') as destination:
                 for chunk in data.chunks():
                     destination.write(chunk)
-            citizen.profile_pic = upload_image(settings.AWS_PROFILE_PICTURE_FOLDER_NAME,
-                                               image_uuid)
+            citizen.profile_pic = upload_image(
+                settings.AWS_PROFILE_PICTURE_FOLDER_NAME, image_uuid)
             citizen.profile_pic_uuid = image_uuid
             citizen.save()
             return redirect('profile_page', pleb_username=citizen.username)

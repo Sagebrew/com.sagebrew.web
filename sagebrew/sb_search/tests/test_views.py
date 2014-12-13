@@ -401,9 +401,7 @@ class TestSearchResultAPIReturns(TestCase):
                          'object_uuid': question1.sb_id,
                          'question_title': question1.question_title,
                          'question_content': question1.content,
-                         # TODO is this valid still?
-                         'related_user':
-                             self.user.email[:37]+str(item)+'@gmail.com'
+                         'related_user': self.user.email
                      })
         time.sleep(2)
         self.client.login(username=self.user.username, password='password')

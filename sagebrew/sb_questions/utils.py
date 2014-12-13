@@ -99,10 +99,7 @@ def get_question_by_least_recent(range_start=0, range_end=5):
             'return q' % (range_start, range_end)
     questions, meta = execute_cypher_query(query)
     if isinstance(questions, Exception):
-        # TODO might want to handle differently
         return questions
-    # TODO couldn't questions be None or empty here? do we have a handler
-    # for that?
     questions = [SBQuestion.inflate(row[0]) for row in questions]
     return questions
 

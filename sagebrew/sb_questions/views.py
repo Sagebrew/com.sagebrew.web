@@ -233,6 +233,8 @@ def get_question_view(request):
             response = get_question_by_least_recent()
             if isinstance(response, Exception):
                 return Response(status=500)
+            # is there any potential for get_question_by_least_recent to be
+            # None?
             for question in response:
                 html_array.append(
                     question.render_question_page(request.user.email))

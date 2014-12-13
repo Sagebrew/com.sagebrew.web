@@ -12,9 +12,9 @@ RUN git clone -b {{DOCKER_ENV}} git@github.com:{{PROJECT_USERNAME}}/{{PROJECT_RE
 RUN chown -R {{APP_USER}}:{{APP_USER}} /home/apps/
 RUN mkdir /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/
 RUN rm -r /root/.ssh
-RUN apt-get remove --auto-remove -y openssh-client
 
 RUN pip install -r /home/apps/{{PROJECT_NAME}}/requirements/{{REQUIREMENTS_FILE}}.txt
+RUN apt-get remove --auto-remove -y openssh-client
 
 WORKDIR /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/
 RUN bower install --config.interactive=false --allow-root
@@ -25,7 +25,6 @@ RUN bower install --config.interactive=false --allow-root
 
 WORKDIR /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/bower_components/bootstrapvalidator/
 RUN bower install --config.interactive=false --allow-root
-
 
 RUN apt-get remove --auto-remove -y git
 

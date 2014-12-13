@@ -1,7 +1,10 @@
 import shortuuid
+from os import environ
 from subprocess import check_call
+import pickle
 from django.test import TestCase
 from django.contrib.auth.models import User
+from neomodel.exception import DoesNotExist
 
 from api.utils import wait_util
 from plebs.neo_models import Pleb
@@ -32,8 +35,20 @@ class TestPrepareUserSearchHTML(TestCase):
         self.assertFalse(res)
 
     def test_connection_refused(self):
-        #check_call("service neo4j-service stop", shell=True)
-        #res = prepare_user_search_html(self.user.email)
-        #check_call("service neo4j-service start", shell=True)
-        #self.assertIsNone(res)
-        pass
+        check_call("sudo service neo4j-service stop", shell=True)
+        res = prepare_user_search_html(self.user.email)
+        check_call("sudo nohup service neo4j-service start > "
+                   "%s/neo4j_logs.log &" % environ.get("CIRCLE_ARTIFACTS",
+                                                       "/home/ubuntu/"),
+                   shell=True)
+        self.assertIsNone(res)
+
+
+class TestPleb(TestCase):
+    def test_pickle_does_not_exist(self):
+        try:
+            from_citizen = Pleb.nodes.get(email="notanemail@example.com")
+        except(Pleb.DoesNotExist, DoesNotExist) as e:
+            pickle_instance = pickle.dumps(e)
+            self.assertTrue(pickle_instance)
+            self.assertTrue(pickle.loads(pickle_instance))

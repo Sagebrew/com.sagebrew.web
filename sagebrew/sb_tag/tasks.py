@@ -4,7 +4,6 @@ from api.utils import spawn_task
 from .utils import create_tag_relations_util
 
 
-
 @shared_task()
 def add_tags(question, tags):
     '''
@@ -45,7 +44,6 @@ def add_auto_tags(question, tag_list):
     '''
     if len(tag_list) < 1:
         return True
-    # TODO review and ensure that this is idempotent
     response = question.add_auto_tags(tag_list)
 
     if isinstance(response, Exception) is True:

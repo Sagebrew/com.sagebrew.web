@@ -9,12 +9,9 @@ from boto.dynamodb2.table import Table
 from boto.dynamodb2.types import STRING, NUMBER
 from boto.dynamodb2.exceptions import JSONResponseError
 
-conn = DynamoDBConnection(
-    host='192.168.1.136',
-    port=8000,
-    aws_secret_access_key='anything',
-    is_secure=False
-)
+from sb_docstore.utils import connect_to_dynamo
+
+
 
 
 class Command(BaseCommand):
@@ -26,9 +23,11 @@ class Command(BaseCommand):
                   '/dynamo_table.js'%settings.PROJECT_DIR,
                   'r') as data_file:
             data = loads(data_file.read())
+            conn = connect_to_dynamo()
             for item in data:
                 try:
-                    table = Table(table_name=item['table_name'], connection=conn)
+                    table = Table(table_name=item['table_name'],
+                                  connection=conn)
                     table.describe()
                     table.delete()
                 except JSONResponseError:

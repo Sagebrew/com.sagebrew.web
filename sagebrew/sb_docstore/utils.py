@@ -1,3 +1,4 @@
+from django.conf import settings
 from boto.dynamodb2.layer1 import DynamoDBConnection
 from boto.dynamodb2.table import Table
 from boto.dynamodb2.exceptions import (JSONResponseError, ItemNotFound,
@@ -23,12 +24,18 @@ def connect_to_dynamo():
     :return:
     '''
     try:
-        conn = DynamoDBConnection(
-            host='192.168.1.136',
-            port=8000,
-            aws_secret_access_key='anything',
-            is_secure=False
-        )
+        if settings.DYNAMO_IP is None:
+            conn = DynamoDBConnection(
+                aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+                aws_access_key_id=settings.AWS_ACCESS_KEY_ID
+            )
+        else:
+            conn = DynamoDBConnection(
+                host=settings.DYNAMO_IP,
+                port=8000,
+                aws_secret_access_key='anything',
+                is_secure=False
+            )
         return conn
     except IOError as e:
         return e

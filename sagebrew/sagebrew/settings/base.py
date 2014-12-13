@@ -228,6 +228,7 @@ ALCHEMY_API_KEY = environ.get("ALCHEMY_API_KEY", '')
 ADDRESS_VALIDATION_ID = environ.get("ADDRESS_VALIDATION_ID", '')
 ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN", '')
 
+DYNAMO_IP = environ.get("DYNAMO_IP", None)
 
 CELERYBEAT_SCHEDULE = {
     'empty-garbage-can-minute': {

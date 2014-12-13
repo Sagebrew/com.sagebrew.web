@@ -109,5 +109,6 @@ def populate_general_values(data, user, worker_count):
     data = data.replace("%(ENV_RDS_PASSWORD)s", environ.get("RDS_PASSWORD", ""))
     data = data.replace("%(ENV_RDS_HOSTNAME)s", environ.get("RDS_HOSTNAME", ""))
     data = data.replace("%(ENV_RDS_PORT)s", environ.get("RDS_PORT", ""))
+    data = data.replace("%(ENV_DYNAMO_IP)s", environ.get("DYNAMO_IP", ""))
 
     return data

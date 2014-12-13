@@ -20,7 +20,7 @@ class Command(BaseCommand):
 
     def create_dynamo_tables(self):
         with open('%s/sb_docstore/management/commands'
-                  '/dynamo_table.js'%settings.PROJECT_DIR,
+                  '/dynamo_table.json'%settings.PROJECT_DIR,
                   'r') as data_file:
             data = loads(data_file.read())
             conn = connect_to_dynamo()

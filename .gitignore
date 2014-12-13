@@ -1,3 +1,8 @@
+*.db
+*.jar
+*.tar
+DynamoDBLocal_lib/*
+elasticsearch-1.3.2/*
 dockerfiles/sys_util/Dockerfile
 dockerfiles/web_app/Dockerfile
 dockerfiles/worker/Dockerfile
@@ -9,7 +14,7 @@ redis-stable.tar.gz
 redis-stable/
 static/*
 sagebrew/static/*
-sagebrew/temp_files/dynamo_table.js
+sagebrew/temp_files/dynamo_table.json
 .idea/workspace.xml
 .vagrant
 *.log

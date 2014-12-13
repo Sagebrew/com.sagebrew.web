@@ -1,3 +1,4 @@
 -r base.txt
 django-debug-toolbar
 pep8
+ipython

@@ -76,24 +76,22 @@ def vote_object_view(request):
                                  status, now)
             if isinstance(update, Exception) is True:
                 return Response({"detail": "server error"}, status=500)
-            print upvote_value, downvote_value
-            print "previous vote", int(prev_vote['status']), type(prev_vote['status'])
-            print "update vote", int(update['status']), type(update['status'])
-            if update['status']==2 and int(prev_vote['status'])==1:
+            prev_status = int(prev_vote['status'])
+
+            if update['status']==2 and prev_status==1:
                 upvote_value -= 1
-            elif update['status']==2 and int(prev_vote['status'])==0:
+            elif update['status']==2 and prev_status==0:
                 downvote_value -= 1
-            elif update['status']==1 and int(prev_vote['status'])==0:
+            elif update['status']==1 and prev_status==0:
                 downvote_value -= 1
                 upvote_value += 1
-            elif update['status']==0 and int(prev_vote['status'])==1:
+            elif update['status']==0 and prev_status==1:
                 downvote_value += 1
                 upvote_value -= 1
-            elif update['status']==1 and int(prev_vote['status'])==2:
+            elif update['status']==1 and prev_status==2:
                 upvote_value += 1
-            elif update['status']==0 and int(prev_vote['status'])==2:
+            elif update['status']==0 and prev_status==2:
                 downvote_value += 1
-            print upvote_value, downvote_value
 
         version_add = add_object_to_table("vote_versions", vote_data)
         if isinstance(version_add, Exception) is True:

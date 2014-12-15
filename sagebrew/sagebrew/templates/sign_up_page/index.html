@@ -5,9 +5,12 @@
 {% endblock css %}
 {% block content %}
     <div>
+        <img class="sb_image_background"
+             src="{% static 'images/sign_up_mock_4.jpg' %}">
         <div class="sb_signup_input_group">
-            <div class="row sb_title_signup" align="center">
-                <h2 class="sb_sign_up">Sign Up</h2>
+            <div class="row sb_signup_headline_containter"
+                 align="center">
+                <h2 class="sb_signup_headline">Sign Up</h2>
             </div>
             <div class="row-fluid">
                 <div class="col-lg-3 col-sm-4 col-xs-12 col-lg-offset-3 col-sm-offset-2">
@@ -49,26 +52,30 @@
             </div>
             <div class="row-fluid">
                 <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2">
+                    <div class="form-group">
+                      <div class=" input-group">
+                        <span class="input-group-btn">
+                          <button class="btn sb_date_picker_btn"
+                                  type="button"><span
+                                  class="fui-calendar"></span></button>
+                        </span>
+                        <input type="text"
+                               class="sb_date_picker input-lg sb_signup_input form-control"
+                               value="Date of Birth"
+                               id="datepicker-01" />
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2">
                     <a class="sb_btn sb_btn_signup btn btn-embossed btn-primary submit_signup">
                         Sign Up
                     </a>
                 </div>
             </div>
-            <div class="row-fluid">
-                <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2">
-                    <div style="font-size: 11pt">
-                        Already have an account? Login
-                        <a href="/registration/login/" style="
-                        font-size: 11pt">
-                            here
-                        </a>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
-
-    {{ block.super }}
 {% endblock content %}
 {% block footer %}
       <div class="sb_content_sign_up_footer">
@@ -78,4 +85,5 @@
 {% block scripts %}
     {{ block.super }}
     <script src="{% static 'js/signup.js' %}"></script>
+    <script src="{% static 'js/profile_information_form.js' %}"></script>
 {% endblock %}

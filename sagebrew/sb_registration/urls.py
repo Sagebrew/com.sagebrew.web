@@ -26,5 +26,6 @@ urlpatterns = patterns(
         name="resend_verification"),
 
     url(r'^email_confirmation/(?P<confirmation>[A-Za-z0-9.@_%+-]{24})/$',
-        email_verification, name="email_verification")
+        email_verification, name="email_verification"),
+    url(r'^beta/$', TemplateView.as_view(template_name="sb_beta.html"))
 )

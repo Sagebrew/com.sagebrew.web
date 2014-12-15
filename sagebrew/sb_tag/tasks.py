@@ -1,15 +1,12 @@
-import logging
-from json import dumps
 from celery import shared_task
 
 from api.utils import spawn_task
-from .utils import add_auto_tags_util, add_tag_util, create_tag_relations_util
+from .utils import create_tag_relations_util
 
-logger = logging.getLogger('loggly_logs')
 
 
 @shared_task()
-def add_tags(object_uuid, object_type, tags):
+def add_tags(question, tags):
     '''
     This calls the util to add user generated tags to the object. It creates
     the tags in the neo4j DB if they don't exist and if they do, it gets
@@ -20,12 +17,12 @@ def add_tags(object_uuid, object_type, tags):
     :param tags:
     :return:
     '''
-    response = add_tag_util(object_type, object_uuid, tags)
+    response = question.add_tags(tags)
     if isinstance(response, Exception) is True:
         raise add_auto_tags.retry(exc=response, countdown=3,
                                   max_retries=None)
-    else:
-        return response
+
+    return response
 
 
 @shared_task()
@@ -39,7 +36,7 @@ def create_tag_relations(tag_array):
 
 
 @shared_task()
-def add_auto_tags(tag_list):
+def add_auto_tags(question, tag_list):
     '''
     This function creates the auto generated tag nodes and connects them to the
     post from which they were tagged.
@@ -47,18 +44,18 @@ def add_auto_tags(tag_list):
     :param tag_list:
     :return:
     '''
-    response_list = []
     if len(tag_list) < 1:
         return True
-
-    response = add_auto_tags_util(tag_list)
+    # TODO review and ensure that this is idempotent
+    response = question.add_auto_tags(tag_list)
 
     if isinstance(response, Exception) is True:
-        logger.exception(dumps({"function": add_auto_tags.__name__,
-                                "exception": response.__name__}))
         raise add_auto_tags.retry(exc=response, countdown=3,
                                   max_retries=None)
-    else:
-        spawn_task(task_func=create_tag_relations,
-                   task_param={"tag_list": tag_list})
-        return response
+
+    spawned = spawn_task(task_func=create_tag_relations,
+                         task_param={"tag_array": response})
+    if isinstance(spawned, Exception) is True:
+        raise add_auto_tags.retry(exc=response, countdown=3,
+                                  max_retries=None)
+    return response

@@ -1,23 +1,19 @@
 from uuid import uuid1
-from json import dumps
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from celery import shared_task
-from logging import getLogger
 from django.conf import settings
 from django.template.loader import get_template
 from django.template import Context
 from neomodel import DoesNotExist, CypherException
 
-from .neo_models import Pleb
 from api.utils import spawn_task
 from api.tasks import add_object_to_search_index
+from sb_base.utils import defensive_exception
 from sb_search.tasks import add_user_to_custom_index
 from sb_wall.neo_models import SBWall
 from sb_registration.models import token_gen
 
-
-logger = getLogger('loggly_logs')
-
+from .neo_models import Pleb
 
 @shared_task()
 def send_email_task(to, subject, html_content, text_content=None):
@@ -31,16 +27,19 @@ def send_email_task(to, subject, html_content, text_content=None):
     except SESMaxSendingRateExceededError as e:
         raise send_email_task.retry(exc=e, countdown=5,
                                     max_retries=None)
+    # TODO investigate possible SES exceptions
     except Exception as e:
-        logger.exception(dumps({"function": send_email_task.__name__,
-                                "exception": "Unhandled Exception"}))
-        raise send_email_task.retry(exc=e, countdown=3,
-                                    max_retries=None)
+        raise defensive_exception(send_email_task.__name__, e,
+                                  send_email_task.retry(exc=e, countdown=3,
+                                                        max_retries=None))
 
 
 @shared_task()
 def finalize_citizen_creation(pleb, user):
+    # TODO need to create retry strategy if spawn_task fails, not just return
+    # it.
     # TODO look into celery chaining and/or grouping
+    # TODO ensure this is idempotent
     task_list = {}
     task_data = {
         'object_added': pleb,
@@ -94,50 +93,52 @@ def finalize_citizen_creation(pleb, user):
 @shared_task()
 def create_wall_task(pleb, user):
     try:
-        if len(pleb.wall.all()) == 1:
-            return spawn_task(task_func=finalize_citizen_creation,
-                              task_param={"pleb": pleb, "user": user})
-        elif len(pleb.wall.all()) > 1:
-            return False
-        wall = SBWall(wall_id=str(uuid1())).save()
-        wall.owner.connect(pleb)
-        pleb.wall.connect(wall)
-        return spawn_task(task_func=finalize_citizen_creation,
-                          task_param={"pleb": pleb, "user": user})
-    except TypeError as e:
-        raise create_wall_task.retry(exc=e, countdown=3,
-                                     max_retries=None)
+        wall_list = pleb.wall.all()
     except CypherException as e:
-        raise create_wall_task.retry(exc=e, countdown=3,
-                                     max_retries=None)
-    except Exception as e:
-        logger.exception(dumps({"function": create_wall_task.__name__,
-                                "exception": "Unhandled Exception"}))
-        raise create_wall_task.retry(exc=e, countdown=3,
-                                     max_retries=None)
+        raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
+    if len(wall_list) > 1:
+        # TODO log something here, need to delete one otherwise stuff will
+        # break
+        return False
+    elif len(wall_list) == 1:
+        pass
+    else:
+        try:
+            wall = SBWall(wall_id=str(uuid1())).save()
+            wall.owner.connect(pleb)
+            pleb.wall.connect(wall)
+        except CypherException as e:
+            raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
+    spawned = spawn_task(task_func=finalize_citizen_creation,
+                         task_param={"pleb": pleb, "user": user})
+    if isinstance(spawned, Exception) is True:
+        raise create_wall_task.retry(exc=spawned, countdown=3,
+                                         max_retries=None)
+    return spawned
 
 
 @shared_task()
 def create_pleb_task(user_instance):
     try:
+        pleb = Pleb.nodes.get(email=user_instance.email)
+    except (Pleb.DoesNotExist, DoesNotExist):
         try:
-            test = Pleb.nodes.get(email=user_instance.email)
-            return spawn_task(create_wall_task,
-                              task_param={'pleb': test, 'user': user_instance})
-        except (Pleb.DoesNotExist, DoesNotExist):
             pleb = Pleb(email=user_instance.email,
                         first_name=user_instance.first_name,
                         last_name=user_instance.last_name)
             pleb.save()
-            pleb.generate_username()
-            task_info = spawn_task(task_func=create_wall_task,
-                              task_param={"pleb": pleb, "user": user_instance})
-            return task_info
+            generated = pleb.generate_username()
+            if isinstance(generated, Exception):
+                raise create_pleb_task.retry(exc=generated, countdown=3,
+                                             max_retries=None)
+        except CypherException as e:
+            raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
     except CypherException as e:
-        raise create_pleb_task.retry(exc=e, countdown=3,
+        raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
+
+    task_info = spawn_task(task_func=create_wall_task,
+                           task_param={"pleb": pleb, "user": user_instance})
+    if isinstance(task_info, Exception) is True:
+        raise create_pleb_task.retry(exc=task_info, countdown=3,
                                      max_retries=None)
-    except Exception as e:
-        logger.exception(dumps({"function": create_pleb_task.__name__,
-                                "exception": "Unhandled Exception"}))
-        raise create_pleb_task.retry(exc=e, countdown=3,
-                                     max_retries=None)
+    return task_info

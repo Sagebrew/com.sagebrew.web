@@ -1,4 +1,3 @@
-import logging
 import time
 import boto.sqs
 import importlib
@@ -13,11 +12,11 @@ from neomodel.exception import CypherException, DoesNotExist
 from neomodel import db
 from django.conf import settings
 
-from api.alchemyapi import AlchemyAPI
-from sb_comments.neo_models import SBComment
-from sb_posts.neo_models import SBPost
+from sb_base.utils import defensive_exception
+from sb_base.decorators import apply_defense
 
-logger = logging.getLogger('loggly_logs')
+from api.alchemyapi import AlchemyAPI
+
 
 '''
 # TOOD Add tagging process into git so that we can label point that we deleted
@@ -92,6 +91,7 @@ def add_failure_to_queue(message_info):
     m = Message()
     m.set_body(dumps(message_info))
     my_queue.write(m)
+    return True
 
 
 def spawn_task(task_func, task_param, countdown=0, task_id=None):
@@ -100,7 +100,7 @@ def spawn_task(task_func, task_param, countdown=0, task_id=None):
     try:
         return task_func.apply_async(kwargs=task_param, countdown=countdown,
                                      task_id=task_id)
-    except socket_error:
+    except (socket_error, Exception) as e:
         failure_uuid = str(uuid1())
         failure_dict = {
             'action': 'failed_task',
@@ -108,35 +108,20 @@ def spawn_task(task_func, task_param, countdown=0, task_id=None):
             'task_info_kwargs': task_param,
             'failure_uuid': failure_uuid
         }
-        logger.exception(dumps(
-            {'failure_uuid': failure_uuid, 'function': task_func.__name__,
-             'exception': 'socket_error'}))
         add_failure_to_queue(failure_dict)
-        return None
-    except Exception:
-        failure_uuid = str(uuid1())
-        failure_dict = {
-            'action': 'failed_task',
-            'attempted_task': task_func.__name__,
-            'task_info_kwargs': task_param,
-            'failure_uuid': failure_uuid
-        }
-        logger.exception(dumps(
-            {'failure_uuid': failure_uuid, 'function': task_func.__name__,
-             'exception': 'Unhandled Exception'}))
-        add_failure_to_queue(failure_dict)
-        return None
+        return defensive_exception(spawn_task.__name__, e, e,
+            {"failure_uuid": failure_uuid, "failure": "Unhandled Exception"})
 
 
 def language_filter(content):
-    '''
+    """
     Filters harsh language from posts and comments using the bomberman
     client which
     is initialized each time the function is called.
 
     :param content:
     :return:
-    '''
+    """
     try:
         bomberman = Client()
         if bomberman.is_profane(content):
@@ -154,33 +139,31 @@ def create_auto_tags(content):
         alchemyapi = AlchemyAPI()
         keywords = alchemyapi.keywords("text", content)
         return keywords
-    except Exception:
-        logger.exception(dumps({"function": create_auto_tags,
-                                "exception": "Unhandled Exception"}))
-        return None
+    except Exception as e:
+        return defensive_exception(create_auto_tags.__name__, e, e)
 
 
 def execute_cypher_query(query):
+    # TODO either return the exception and retry or none and retry but make
+    # sure all functions that call this check to ensure that the query was
+    # successful
     try:
         return db.cypher_query(query)
-    except CypherException:
-        return {'detail': 'CypherException'}
-    except Exception:
-        logger.exception(dumps({"function": execute_cypher_query.__name__,
-                                "exception":"Unhandled Exception"}))
-        return {'detail': 'fail'}
+    except CypherException as e:
+        return e
 
 
-def test_wait_util(async_res):
+def wait_util(async_res):
     while not async_res['task_id'].ready():
         time.sleep(1)
 
     while not async_res['task_id'].result.ready():
         time.sleep(1)
+    return async_res['task_id'].result.result
 
-
+@apply_defense
 def get_object(object_type, object_uuid):
-    '''
+    """
     DO NOT USE THIS FUNCTION ANYWHERE THAT DOES NOT HAVE A FORM
     AND A CHOICE FIELD CLEARLY LAID OUT.
 
@@ -191,21 +174,18 @@ def get_object(object_type, object_uuid):
     :param object_type:
     :param object_uuid:
     :return:
-    '''
+    """
     try:
         cls = object_type
-        print cls
         module_name, class_name = cls.rsplit(".", 1)
         sb_module = importlib.import_module(module_name)
         sb_object = getattr(sb_module, class_name)
         try:
             return sb_object.nodes.get(sb_id=object_uuid)
-        except (sb_object.DoesNotExist, DoesNotExist) as e:
-            return TypeError("%s.DoesNotExist"%object_type)
-    except (CypherException, NameError) as e:
-        return e
-    except Exception as e:
-        logger.exception(dumps({"function": get_object.__name__,
-                                "exception": "Unhandled Exception"}))
+        except (sb_object.DoesNotExist, DoesNotExist):
+            return TypeError("%s.DoesNotExist" % object_type)
+    except (NameError, ValueError, ImportError, AttributeError):
+        return False
+    except CypherException as e:
         return e
 

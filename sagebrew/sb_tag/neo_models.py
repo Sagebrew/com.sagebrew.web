@@ -14,15 +14,11 @@ class SBTag(StructuredNode):
     base = BooleanProperty(default=False)
     
     #relationships
-    posts = RelationshipTo('sb_posts.neo_models.SBPost', 'POSTS_TAGGED')
-    questions = RelationshipTo('sb_questions.neo_models.SBQuestion',
-                               'QUESTION_TAGGED')
 
 class SBAutoTag(SBTag):
     generated_from = StringProperty(default='alchemyapi')
 
-    #
-    answers = RelationshipTo('sb_answers.neo_models.SBAnswer', 'ANSWER_TAGGED')
+    #relationships
     frequently_auto_tagged_with = RelationshipTo('sb_tag.neo_models.SBAutoTag',
                                                  'FREQUENTLY_AUTO_TAGGED_WITH',
                                                  model=FrequentTagModel)

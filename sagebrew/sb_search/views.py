@@ -20,6 +20,7 @@ from .forms import SearchForm, SearchFormApi
 from api.alchemyapi import AlchemyAPI
 from api.utils import (spawn_task)
 from plebs.neo_models import Pleb
+from sb_base.utils import defensive_exception
 from plebs.utils import prepare_user_search_html
 from sb_search.tasks import update_weight_relationship
 from sb_questions.utils import prepare_question_search_html
@@ -94,6 +95,10 @@ def search_result_api(request, query_param="", display_num=10, page=1,
     :param filter_param:
     :return:
     '''
+    # TODO Make sure calling function knows what to do with a 500 status
+    # TODO can we move any of this into a util?
+    # TODO need to surround Alchemy with exception handling
+    # TODO need to surround es with proper exception handling
     data = {'query_param': query_param, 'display_num': display_num,
             'page': int(page),
             'filter_type': filter_type, 'filter_param': filter_param}
@@ -114,8 +119,6 @@ def search_result_api(request, query_param="", display_num=10, page=1,
             #if what they have searched is an email address or a name so that
             #the first search result is that user
             #TODO implement filtering on auto generated keywords from alchemyapi
-            #TODO change using the current_user_email to the users
-            #username
             res = es.search(index='full-search-user-specific-1', size=50,
                             body=
                             {
@@ -133,9 +136,12 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                             })
             res = res['hits']['hits']
             task_param = {"pleb": request.user.email, "query_param":
-                search_form.cleaned_data['query_param'],
+                          search_form.cleaned_data['query_param'],
                           "keywords": response['keywords']}
-            spawn_task(task_func=update_search_query, task_param=task_param)
+            spawned = spawn_task(task_func=update_search_query,
+                                 task_param=task_param)
+            if isinstance(spawned, Exception) is True:
+                return Response({'detail': "server error"}, status=500)
             if not res:
                 html = render_to_string('search_result_empty.html')
                 return Response({'html': html}, status=200)
@@ -153,39 +159,40 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                                  reverse=True)
             elif current_page > 1:
                 for item in page.object_list:
-                    if item['_type'] == 'question':
+                    # TODO Can we generalize this any further?
+                    if item['_type'] == 'sb_questions.neo_models.SBQuestion':
                         results.append(prepare_question_search_html(
-                            item['_source']['question_uuid']))
-                        spawn_task(update_weight_relationship,
-                                   task_param=
-                                   {'index': item['_index'],
-                                    'document_id': item['_id'],
-                                    'object_uuid': item['_source'][
-                                        'question_uuid'],
-                                    'object_type': 'question',
-                                    'current_pleb': item['_source'][
-                                        'related_user'],
-                                    'modifier_type': 'search_seen'})
+                            item['_source']['object_uuid']))
+                        spawned = spawn_task(
+                            update_weight_relationship,
+                            task_param=
+                            {'index': item['_index'],
+                             'document_id': item['_id'],
+                             'object_uuid': item['_source']['object_uuid'],
+                             'object_type': 'question',
+                             'current_pleb': item['_source']['related_user'],
+                             'modifier_type': 'search_seen'})
                     if item['_type'] == 'pleb':
-                        spawn_task(update_weight_relationship,
+                        spawned = spawn_task(
+                            update_weight_relationship,
                             task_param={'index': item['_index'],
-                                   'document_id': item['_id'],
-                                   'object_uuid':
-                                       item['_source']['pleb_email'],
-                                   'object_type': 'pleb',
-                                   'current_pleb': item['_source'][
-                                       'related_user'],
-                                   'modifier_type': 'search_seen'})
+                                        'document_id': item['_id'],
+                                        'object_uuid':
+                                        item['_source']['pleb_email'],
+                                        'object_type': 'pleb',
+                                        'current_pleb': item['_source'][
+                                        'related_user'],
+                                        'modifier_type': 'search_seen'})
                         results.append(prepare_user_search_html(
                             item['_source']['pleb_email']))
             try:
                 next_page_num = page.next_page_number()
             except EmptyPage:
                 next_page_num = ""
-            return Response({'html': results, 'next': next_page_num}, status=200)
-        except Exception:
-            logger.exception(dumps({"function": search_result_api.__name__,
-                                    "exception": "Unhandled Exception"}))
-            return Response({'detail': 'fail'}, status=400)
+            return Response({'html': results, 'next': next_page_num},
+                            status=200)
+        except Exception as e:
+            return defensive_exception(search_result_api.__name__, e,
+                                       Response({'detail': 'fail'}, status=400))
     else:
         return Response({'detail': 'invalid form'}, status=400)

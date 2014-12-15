@@ -19,6 +19,7 @@ omit =
     */management/commands/populatetopiccats.py
     */management/commands/populateenvconfig.py
     */management/commands/populatehistoricaldata.py
+    */management/commands/create_prepopulated_tags.py
 
 [report]
 # Regexes for lines to exclude from consideration
@@ -28,10 +29,9 @@ exclude_lines =
     if self.debug:
     raise AssertionError
     raise NotImplementedError
-    except Exception:
-    except Exception as e:
     if 0:
     if __name__ == .__main__.:
+    except CypherException as e:
 
 
 [html]

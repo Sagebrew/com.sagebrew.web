@@ -20,10 +20,10 @@
            data-comment_uuid="{{ comment.sb_id }}">Delete this
             Comment</a>
     {% endif %}
-    <a class='btn btn-primary vote_comment-action' data-vote_type='up'
+    <a class='btn btn-primary vote_comment-action' data-vote_type=true
        data-pleb="{{ current_user }}"
        data-comment_uuid="{{ comment.sb_id }}">Upvote Comment</a>
-    <a class='btn btn-primary vote_comment-action' data-vote_type='down'
+    <a class='btn btn-primary vote_comment-action' data-vote_type=false
        data-pleb="{{ current_user }}"
        data-comment_uuid="{{ comment.sb_id }}">Downvote Comment</a>
     <a class='btn btn-primary vote-action' data-vote_type='up'

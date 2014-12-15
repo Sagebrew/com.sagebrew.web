@@ -4,7 +4,8 @@ from os import environ, path, makedirs
 from unipath import Path
 from datetime import timedelta
 import multiprocessing
-
+from logentries import LogentriesHandler
+import logging
 
 PROJECT_DIR = Path(__file__).ancestor(3)
 REPO_DIR = Path(__file__).ancestor(4)
@@ -24,6 +25,7 @@ environ['PROJECT_PATH'] = PROJECT_DIR
 
 environ['HTTPS'] = "on"
 MANAGERS = ADMINS
+
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -130,6 +132,7 @@ TEMPLATE_DIRS = (
     '%s/sb_questions/templates/' % PROJECT_DIR,
     '%s/sb_answers/templates/' % PROJECT_DIR,
     '%s/sb_search/templates/' % PROJECT_DIR,
+    '%s/help_center/templates/' % PROJECT_DIR,
 )
 
 FIXTURE_DIRS = (
@@ -173,11 +176,12 @@ INSTALLED_APPS = (
     'sb_deletes',
     'elasticsearch',
     'textblob',
+    'help_center',
 )
-
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 EMAIL_VERIFICATION_TIMEOUT_DAYS = 1
+
 
 SERVER_EMAIL = "service@sagebrew.com"
 DEFAULT_FROM_EMAIL = "service@sagebrew.com"
@@ -218,6 +222,7 @@ AWS_PROFILE_PICTURE_FOLDER_NAME = 'profile_pictures'
 SECRET_KEY = environ.get("APPLICATION_SECRET_KEY", "")
 BOMBERMAN_API_KEY = environ.get("BOMBERMAN_API_KEY", "")
 LOG_TOKEN = environ.get("LOG_TOKEN", "")
+LOGENT_TOKEN = environ.get("LOGENT_TOKEN", "")
 ALCHEMY_API_KEY = environ.get("ALCHEMY_API_KEY", '')
 ADDRESS_VALIDATION_ID = environ.get("ADDRESS_VALIDATION_ID", '')
 ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN", '')
@@ -274,7 +279,8 @@ BASE_TAGS = ["fiscal", "foreign_policy", "social", "education", "science",
 KNOWN_TYPES = [
     ("01bb301a-644f-11e4-9ad9-080027242395", "sb_posts.neo_models.SBPost"),
     ("02241aee-644f-11e4-9ad9-080027242395", "sb_answers.neo_models.SBAnswer"),
-    ("0274a216-644f-11e4-9ad9-080027242395", "sb_questions.neo_models.SBQuestion"),
+    ("0274a216-644f-11e4-9ad9-080027242395",
+     "sb_questions.neo_models.SBQuestion"),
     ("02ba1c88-644f-11e4-9ad9-080027242395", "sb_comments.neo_models.SBComment")
 ]
 

@@ -8,7 +8,7 @@ from django.test import TestCase
 from django.conf import settings
 
 from sb_questions.neo_models import SBQuestion
-from api.utils import test_wait_util
+from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_questions.views import (save_question_view,
                                 get_question_view)
@@ -21,7 +21,7 @@ class SaveQuestionViewTests(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
@@ -110,7 +110,7 @@ class TestGetQuestionView(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.first_name = 'Tyler'
@@ -264,7 +264,7 @@ class TestGetQuestionSearchView(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.first_name = 'Tyler'

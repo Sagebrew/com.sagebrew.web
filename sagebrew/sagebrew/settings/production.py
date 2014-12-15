@@ -76,49 +76,47 @@ LOGGING = {
         },
     },
     'handlers': {
-        'logging.handlers.SysLogHandler': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.SysLogHandler',
-            'facility': 'local5',
-            'formatter': 'loggly',
+        'logentries_handler': {
+            'token': LOGENT_TOKEN,
+            'class': 'logentries.LogentriesHandler'
         },
     },
     'loggers': {
         'django.db': {
-            'handlers': ['logging.handlers.SysLogHandler'],
+            'handlers': ['logentries_handler'],
             'level': 'ERROR',
             'propagate': False,
         },
         'elasticsearch': {
-            'handlers': ['logging.handlers.SysLogHandler'],
+            'handlers': ['logentries_handler'],
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'CRITICAL',
             'token': LOG_TOKEN
         },
         'loggly_logs': {
-            'handlers': ['logging.handlers.SysLogHandler'],
+            'handlers': ['logentries_handler'],
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'ERROR',
             'token': LOG_TOKEN
         },
         'elasticsearch.trace': {
-            'handlers': ['logging.handlers.SysLogHandler'],
+            'handlers': ['logentries_handler'],
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'CRITICAL',
             'token': LOG_TOKEN
         },
         'neomodel.properties': {
-            'handlers': ['logging.handlers.SysLogHandler'],
+            'handlers': ['logentries_handler'],
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'CRITICAL',
             'token': LOG_TOKEN
         },
         'django.request': {
-            'handlers': ['logging.handlers.SysLogHandler'],
+            'handlers': ['logentries_handler'],
             'level': 'ERROR',
             'propagate': False,
         },

@@ -4,9 +4,10 @@ from datetime import datetime
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty)
+                      BooleanProperty, CypherException)
 
-from sb_posts.neo_models import SBNonVersioned
+from sb_base.decorators import apply_defense
+from sb_base.neo_models import SBNonVersioned
 
 class CommentedOnRel(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
@@ -34,3 +35,25 @@ class SBComment(SBNonVersioned):
 
     def comment_on(self, comment):
         pass
+
+    @apply_defense
+    def get_comment_dict(self, pleb):
+        try:
+            comment_owner = self.is_owned_by.all()[0]
+            comment_dict = {'comment_content': self.content,
+                            'comment_up_vote_number': self.get_upvote_count(),
+                            'vote_count': self.get_vote_count(),
+                            'sb_id': self.sb_id,
+                            'comment_down_vote_number':
+                                self.get_downvote_count(),
+                            'comment_last_edited_on':
+                                str(self.last_edited_on),
+                            'comment_owner': comment_owner.first_name + ' '
+                                             + comment_owner.last_name,
+                            'comment_owner_email': comment_owner.email,
+                            'current_user': pleb}
+            self.view_count += 1
+            self.save()
+            return comment_dict
+        except CypherException as e:
+            return e

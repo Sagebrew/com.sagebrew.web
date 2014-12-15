@@ -2,7 +2,7 @@ import shortuuid
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from api.utils import test_wait_util
+from api.utils import wait_util
 from plebs.neo_models import Pleb
 from plebs.utils import prepare_user_search_html
 from sb_registration.utils import create_user_util
@@ -15,7 +15,7 @@ class TestPrepareUserSearchHTML(TestCase):
         res = create_user_util("test", "test", self.email, self.password,
                                self.username)
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 

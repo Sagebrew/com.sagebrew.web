@@ -1,3 +1,4 @@
+dockerfiles/sys_util/Dockerfile
 dockerfiles/web_app/Dockerfile
 dockerfiles/worker/Dockerfile
 kepric_core
@@ -32,7 +33,6 @@ env/
 bin/
 build/
 develop-eggs/
-dist/
 eggs/
 lib/
 lib64/
@@ -74,3 +74,5 @@ coverage.xml
 docs/_build/
 
 logs/*
+bower_components/
+node_modules/

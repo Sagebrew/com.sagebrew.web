@@ -1,21 +1,24 @@
 import pytz
 import logging
-from json import dumps
+
 from datetime import datetime
 from django.conf import settings
 
 from celery import shared_task
 from neomodel import DoesNotExist, CypherException
 from elasticsearch import Elasticsearch
+from elasticsearch.exceptions import (ElasticsearchException, TransportError,
+                                      ConnectionError, RequestError)
 
 from .neo_models import SearchQuery, KeyWord
-from .utils import (update_search_index_doc, update_weight_relationship_values)
+from .utils import (update_search_index_doc)
 from api.utils import spawn_task, get_object
 from plebs.neo_models import Pleb
-from sb_answers.neo_models import SBAnswer
-from sb_questions.neo_models import SBQuestion
+
+from sb_base.utils import defensive_exception
 
 logger = logging.getLogger('loggly_logs')
+
 
 
 @shared_task()
@@ -35,8 +38,6 @@ def update_weight_relationship(document_id, index, object_type,
     :param modifier_type:
     :return:
     '''
-    # TODO update with dynamic object recognition
-
     update_dict = {
         "document_id" : document_id, "index": index, "field": "sb_score",
         "document_type" : object_type, "update_value": 0
@@ -47,50 +48,7 @@ def update_weight_relationship(document_id, index, object_type,
         except (Pleb.DoesNotExist, DoesNotExist):
             return False
 
-        if object_type == 'question':
-
-            try:
-                question = SBQuestion.nodes.get(sb_id=object_uuid)
-            except (SBQuestion.DoesNotExist, DoesNotExist):
-                raise SBQuestion.DoesNotExist("SBQuestion does not exist")
-
-            if pleb.obj_weight_is_connected(question):
-                rel = pleb.obj_weight_relationship(question)
-
-                update_dict['update_value'] = \
-                    update_weight_relationship_values(rel, modifier_type)
-
-                update_search_index_doc(**update_dict)
-                return True
-            else:
-                rel = pleb.obj_weight_connect(question)
-                rel.save()
-                update_dict['update_value'] = rel.weight
-                update_search_index_doc(**update_dict)
-                return True
-
-        if object_type == 'answer':
-            try:
-                answer = SBAnswer.nodes.get(sb_id = object_uuid)
-            except (SBAnswer.DoesNotExist, DoesNotExist):
-                raise SBQuestion.DoesNotExist("SBQuestion does not exist")
-
-            if pleb.obj_weight_is_connected(answer):
-                rel = pleb.obj_weight_relationship(answer)
-
-                update_dict['update_value'] = \
-                    update_weight_relationship_values(rel, modifier_type)
-                update_search_index_doc(**update_dict)
-                return True
-            else:
-                rel = pleb.obj_weight_connect(answer)
-                rel.save()
-                update_dict['update_value'] = rel.weight
-                update_search_index_doc(**update_dict)
-                return True
-
         if object_type == 'pleb':
-
             try:
                 pleb = Pleb.nodes.get(email=object_uuid)
                 c_pleb = Pleb.nodes.get(email=current_pleb)
@@ -111,21 +69,32 @@ def update_weight_relationship(document_id, index, object_type,
                 update_dict['update_value'] = rel.weight
                 update_search_index_doc(**update_dict)
             return True
-    except TypeError:
-        # TODO what is this portion used for?
-        return False
-    except SBQuestion.DoesNotExist as e:
-        raise update_weight_relationship.retry(exc=e,
-                                               countdown=3, max_retries=None)
+
+        sb_object = get_object(object_type, object_uuid)
+        if isinstance(sb_object, Exception) is True:
+            return sb_object
+
+        if pleb.object_weight.is_connected(sb_object):
+
+            update_dict['update_value'] = \
+                pleb.update_weight_relationship(sb_object, modifier_type)
+
+            update_search_index_doc(**update_dict)
+            return True
+        else:
+            rel = pleb.object_weight.connect(sb_object)
+            rel.save()
+            update_dict['update_value'] = rel.weight
+            update_search_index_doc(**update_dict)
+            return True
     except CypherException as e:
         raise update_weight_relationship.retry(exc=e, countdown=3,
                                                max_retries=None)
     except Exception as e:
-        logger.exception(dumps(
-            {"exception": "Unhandled Exception",
-             "function": update_weight_relationship.__name__}))
-        raise update_weight_relationship.retry(exc=e, countdown=3,
-                                               max_retries=None)
+        raise defensive_exception(update_weight_relationship.__name__, e,
+                                  update_weight_relationship.retry(exc=e,
+                                                                   countdown=3,
+                                                             max_retries=None))
 
 
 @shared_task()
@@ -159,7 +128,7 @@ def add_user_to_custom_index(pleb, index="full-search-user-specific-1"):
         for item in res:
             item['_source']['related_user'] = pleb.email
             item['_source']['sb_score'] = 0
-            if item['_type'] == 'question':
+            if item['_type'] == 'SBQuestion':
                 result = es.index(index=index, doc_type='question',
                                   body=item['_source'])
             if item['_type'] == 'pleb':
@@ -169,11 +138,9 @@ def add_user_to_custom_index(pleb, index="full-search-user-specific-1"):
         pleb.save()
         return True
     except Exception as e:
-        logger.critical(dumps({"exception": "Unhandled Exception",
-                               "function": add_user_to_custom_index.__name__}))
-        logger.exception("Unhandled Exception")
-        raise add_user_to_custom_index.retry(exc=e, countdown=3,
-                                             max_retries=None)
+        raise defensive_exception(add_user_to_custom_index.__name__, e,
+                                  add_user_to_custom_index.retry(
+                                      exc=e, countdown=3, max_retries=None))
 
 
 
@@ -189,14 +156,37 @@ def update_user_indices(doc_type, doc_id):
     :param doc_id:
     :return:
     '''
-    es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-    res = es.get(index='full-search-base', doc_type=doc_type, id=doc_id)
-    plebs = Pleb.category()
-    for pleb in plebs.instance.all():
-        #TODO update this to get index name from the users assigned index
-        res['_source']['related_user'] = pleb.email
-        result = es.index(index='full-search-user-specific-1',
-                          doc_type=doc_type, body=res['_source'])
+    try:
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        res = es.get(index='full-search-base', doc_type=doc_type, id=doc_id)
+    except (ElasticsearchException, TransportError, ConnectionError,
+            RequestError) as e:
+        raise update_user_indices.retry(exc=e, countdown=3, max_retries=None)
+    # TODO what do we want to do if there is a ConflictError
+    # TODO what do we want to do if there is a ImproperlyConfigured
+    # TODO should we have logic in the case that 'full-search-base' is not found
+    try:
+        plebs = Pleb.category()
+        for pleb in plebs.instance.all():
+            #TODO update this to get index name from the users assigned index
+            res['_source']['related_user'] = pleb.email
+            result = es.index(index='full-search-user-specific-1',
+                              doc_type=doc_type, body=res['_source'])
+    except CypherException as e:
+        raise update_user_indices.retry(exc=e, countdown=3, max_retries=None)
+    except (ElasticsearchException, TransportError, ConnectionError,
+            RequestError) as e:
+        raise update_user_indices.retry(exc=e, countdown=3, max_retries=None)
+    # TODO what do we want to do if there is a ConflictError
+    # TODO what do we want to do if there is a ImproperlyConfigured
+    # TODO should we have logic in the case that 'full-search-base' is not found
+    # TODO what should we do if half way through we fail out?
+    # TODO break this out to multiple tasks that are responsible for populating
+    # the index with a certain range of users. That way it's less of a strain
+    # on neo, we can stagger the tasks out to reduce the strain on the two
+    # systems and wipe portions if it fails and retry. This should reduce the
+    # likely hood of duplicate entries occurring or losing entire chunks of
+    # users.
 
     return True
 
@@ -212,6 +202,7 @@ def update_search_query(pleb, query_param, keywords):
     :param keywords:
     :return:
     '''
+    # TODO Need to catch CypherExceptions and insure this is idempotent
     try:
         try:
             pleb = Pleb.nodes.get(email=pleb)
@@ -237,12 +228,14 @@ def update_search_query(pleb, query_param, keywords):
         rel.save()
         for keyword in keywords:
             keyword['query_param'] = query_param
-            spawn_task(task_func=create_keyword, task_param=keyword)
+            spawned = spawn_task(task_func=create_keyword, task_param=keyword)
+            if isinstance(spawned, Exception) is True:
+                return spawned
         return True
     except Exception as e:
-        logger.exception(dumps({"function": update_search_query.__name__,
-                                "exception": "Unhandled Exception"}))
-        raise update_search_query.retry(exc=e, countdown=3, max_retries=None)
+        raise defensive_exception(update_search_query.__name__, e,
+                                  update_search_query.retry(exc=e, countdown=3,
+                                                            max_retries=None))
 
 
 @shared_task()
@@ -281,8 +274,6 @@ def create_keyword(text, relevance, query_param):
     except CypherException as e:
         raise create_keyword.retry(exc=e, countdown=3, max_retries=None)
     except Exception as e:
-        logger.exception(dumps({"function": create_keyword.__name__,
-                                "exception": "Unhandled Exception"}))
-        raise create_keyword.retry(exc=e, countdown=3,
-                                   max_retries=None)
-
+        raise defensive_exception(create_keyword.__name__, e,
+                                  create_keyword.retry(exc=e, countdown=3,
+                                   max_retries=None))

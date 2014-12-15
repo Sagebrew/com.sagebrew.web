@@ -11,6 +11,8 @@ from .forms import EditObjectForm, EditQuestionForm
 from .tasks import edit_object_task, edit_question_task
 from plebs.neo_models import Pleb
 from api.utils import spawn_task
+from api.tasks import get_pleb_task
+from sb_base.utils import defensive_exception
 
 logger = logging.getLogger('loggly_logs')
 
@@ -21,29 +23,29 @@ def edit_object_view(request):
     try:
         edit_object_form = EditObjectForm(request.DATA)
         if edit_object_form.is_valid():
-            try:
-                pleb = Pleb.nodes.get(email=edit_object_form.
-                                      cleaned_data['current_pleb'])
-            except (Pleb.DoesNotExist, DoesNotExist):
-                return Response({"detail": "pleb does not exist"}, status=401)
             choice_dict = dict(settings.KNOWN_TYPES)
             task_data = {
-                "current_pleb": pleb,
                 "object_type": choice_dict[
                     edit_object_form.cleaned_data['object_type']],
                 "object_uuid": edit_object_form.cleaned_data['object_uuid'],
                 "content": edit_object_form.cleaned_data['content']
             }
-            spawn_task(task_func=edit_object_task, task_param=task_data)
-
+            pleb_data = {
+                'email': request.user.email,
+                'task_func': edit_object_task,
+                'task_param': task_data
+            }
+            spawned = spawn_task(task_func=get_pleb_task, task_param=pleb_data)
+            if isinstance(spawned, Exception):
+                return Response({"detail": "server error"}, status=500)
             return Response({"detail": "success"}, status=200)
         else:
-            print edit_object_form.errors
             return Response({"detail": "invalid form"}, status=400)
-    except Exception:
-        logger.exception(dumps({"function": edit_object_view.__name__,
-                                "exception": "Unhandled Exception"}))
+    except AttributeError:
         return Response(status=400)
+    except Exception as e:
+        return defensive_exception(edit_object_view.__name__,
+                                   e, Response(status=400))
 
 @api_view(["POST"])
 @permission_classes((IsAuthenticated,))
@@ -51,26 +53,27 @@ def edit_question_title_view(request):
     try:
         edit_question_form = EditQuestionForm(request.DATA)
         if edit_question_form.is_valid():
-            try:
-                pleb = Pleb.nodes.get(email=edit_question_form.
-                                      cleaned_data['current_pleb'])
-            except (Pleb.DoesNotExist, DoesNotExist):
-                return Response({"detail": "pleb does not exist"}, status=401)
             choice_dict = dict(settings.KNOWN_TYPES)
             task_data = {
-                "current_pleb": pleb,
                 "object_type": choice_dict[
                     edit_question_form.cleaned_data['object_type']],
                 "object_uuid": edit_question_form.cleaned_data['object_uuid'],
                 "question_title": edit_question_form.cleaned_data['question_title']
             }
-            spawn_task(task_func=edit_question_task, task_param=task_data)
+            pleb_data = {
+                'email': request.user.email,
+                'task_func': edit_question_task,
+                'task_param': task_data
+            }
+            spawned = spawn_task(task_func=get_pleb_task, task_param=pleb_data)
+            if isinstance(spawned, Exception):
+                return Response({"detail": "invalid form"}, status=500)
 
             return Response({"detail": "success"}, status=200)
         else:
-
             return Response({"detail": "invalid form"}, status=400)
-    except Exception:
-        logger.exception(dumps({"function": edit_object_view.__name__,
-                                "exception": "Unhandled Exception"}))
+    except AttributeError:
         return Response(status=400)
+    except Exception as e:
+        return defensive_exception(edit_question_title_view.__name__,
+                                   e, Response(status=400))

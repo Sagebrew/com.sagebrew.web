@@ -1,4 +1,5 @@
 import logging
+import traceback
 from uuid import uuid1
 from json import dumps
 from django.shortcuts import render
@@ -16,6 +17,7 @@ from .utils import (get_question_by_most_recent, get_question_by_uuid,
                     get_question_by_least_recent, prepare_question_search_html)
 from .tasks import (create_question_task)
 from .forms import (SaveQuestionForm)
+from sb_base.utils import defensive_exception
 
 
 logger = logging.getLogger('loggly_logs')
@@ -101,8 +103,11 @@ def save_question_view(request):
     #question_data['content'] = language_filter(question_data['content'])
     question_form = SaveQuestionForm(question_data)
     if question_form.is_valid():
-        spawn_task(task_func=create_question_task,
-                   task_param=question_form.cleaned_data)
+        question_form.cleaned_data['question_uuid'] = str(uuid1())
+        spawned = spawn_task(task_func=create_question_task,
+                             task_param=question_form.cleaned_data)
+        if isinstance(spawned, Exception) is True:
+            return Response({"detail": "server error"}, status=500)
         return Response({"detail": "filtered",
                          "filtered_content": question_data}, status=200)
     else:
@@ -176,38 +181,37 @@ def get_question_view(request):
     try:
         html_array = []
         question_data = request.DATA
+        if isinstance(question_data, dict) is False:
+            return Response({"please pass a valid JSON Object"}, status=400)
         if question_data['sort_by'] == 'most_recent':
-            response = get_question_by_most_recent(
-                current_pleb=question_data['current_pleb'])
+            response = get_question_by_most_recent()
             for question in response:
-                t = get_template("questions.html")
-                c = Context(question)
-                html_array.append(t.render(c))
+                html_array.append(
+                    question.render_question_page(question_data
+                    ['current_pleb']))
             return Response(html_array, status=200)
 
         elif question_data['sort_by'] == 'uuid':
-            response = get_question_by_uuid(
+            return Response(get_question_by_uuid(
                 question_data['question_uuid'],
-                question_data['current_pleb'])
-            t = get_template("single_question.html")
-            c = Context(response)
-            return Response(t.render(c), status=200)
+                question_data['current_pleb']), status=200)
 
         elif question_data['sort_by'] == 'least_recent':
-            response = get_question_by_least_recent(
-                current_pleb=question_data['current_pleb'])
+            response = get_question_by_least_recent()
             for question in response:
-                t = get_template("questions.html")
-                c = Context(question)
-                html_array.append(t.render(c))
+                html_array.append(
+                    question.render_question_page(question_data
+                    ['current_pleb']))
             return Response(html_array, status=200)
 
         else:
             response = {"detail": "fail"}
             return Response(response, status=400)
-
-    except Exception:
-        return Response({'detail': 'fail'}, status=400)
+    except KeyError:
+        return Response(status=400)
+    except Exception as e:
+        return defensive_exception(get_question_view.__name__, e,
+                                   Response(status=400))
 
 
 @api_view(['GET'])
@@ -225,7 +229,6 @@ def get_question_search_view(request, question_uuid=str(uuid1())):
     try:
         response = prepare_question_search_html(question_uuid)
         return Response({'html': response}, status=200)
-    except Exception:
-        logger.exception(dumps({"function": get_question_search_view.__name__,
-                                "exception": "Unhandled Exception"}))
-        return Response({'html': []}, status=400)
+    except Exception as e:
+        return defensive_exception(get_question_search_view.__name__, e,
+                                   Response({'html': []},status=400))

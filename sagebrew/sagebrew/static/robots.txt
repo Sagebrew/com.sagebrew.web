@@ -1,0 +1,38 @@
+User-agent: Googlebot
+Disallow: /oauth2/
+Disallow: /comments/
+Disallow: /posts/
+Disallow: /notifications/
+Disallow: /relationships/
+Disallow: /tags/
+Disallow: /flag/
+Disallow: /vote/
+Disallow: /edit/
+Disallow: /delete/
+
+User-agent: Bingbot
+Disallow: /oauth2/
+Disallow: /comments/
+Disallow: /posts/
+Disallow: /notifications/
+Disallow: /relationships/
+Disallow: /tags/
+Disallow: /flag/
+Disallow: /vote/
+Disallow: /edit/
+Disallow: /delete/
+
+User-agent: YahooSeeker
+Disallow: /oauth2/
+Disallow: /comments/
+Disallow: /posts/
+Disallow: /notifications/
+Disallow: /relationships/
+Disallow: /tags/
+Disallow: /flag/
+Disallow: /vote/
+Disallow: /edit/
+Disallow: /delete/
+
+User-agent: *
+Disallow: /

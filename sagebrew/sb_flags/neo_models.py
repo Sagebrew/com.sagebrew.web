@@ -1,11 +1,9 @@
 import pytz
-from uuid import uuid1
 from datetime import datetime
 
-from neomodel import (StructuredNode, StringProperty, RelationshipTo,
-                      BooleanProperty, StructuredRel, DateTimeProperty)
+from neomodel import (StringProperty, StructuredRel, DateTimeProperty)
 
-from sb_posts.neo_models import SBVoteableContent
+from sb_base.neo_models import SBVoteableContent
 
 class FlagRelationship(StructuredRel):
     flag_time = DateTimeProperty(default=lambda: datetime.now(pytz.utc))

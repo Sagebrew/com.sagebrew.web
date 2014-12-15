@@ -1,20 +1,18 @@
 import logging
-from uuid import uuid1
-from json import dumps
 
-from neomodel import DoesNotExist
+from neomodel.exception import CypherException, DoesNotExist
 
 from api.utils import execute_cypher_query
-from plebs.neo_models import Pleb
-from sb_comments.utils import get_post_comments
 from .neo_models import SBPost
+from sb_base.decorators import apply_defense
 
 logger = logging.getLogger('loggly_logs')
 
 
-def get_pleb_posts(pleb_object, range_end, range_start):
+@apply_defense
+def get_pleb_posts(pleb_object, range_end, range_start=0):
     '''
-    Gets all the posts which are attached to the page users wall aswell as the
+    Gets all the posts which are attached to the page users wall as well as the
     comments associated with the posts
 
     :param pleb_object:
@@ -22,7 +20,6 @@ def get_pleb_posts(pleb_object, range_end, range_start):
     :return:
     '''
     try:
-        # TODO is range start needed anymore? Should it go where str(0) is?
         post_query = 'MATCH (pleb:Pleb) WHERE pleb.email="%s" ' \
                      'WITH pleb ' \
                      'MATCH (pleb)-[:OWNS_WALL]-(wall) ' \
@@ -33,19 +30,16 @@ def get_pleb_posts(pleb_object, range_end, range_start):
                      'ORDER BY posts.date_created DESC ' \
                      'SKIP %s LIMIT %s ' \
                      'RETURN posts'\
-                     % (pleb_object.email, str(0), str(range_end))
+                     % (pleb_object.email, str(range_start), str(range_end))
         pleb_posts, meta = execute_cypher_query(post_query)
         posts = [SBPost.inflate(row[0]) for row in pleb_posts]
-        return get_post_comments(posts)
-    except IndexError:
-        return {'details': 'something broke'}
-    except Exception:
-        logger.exception(dumps({"function": get_pleb_posts.__name__,
-                                "exception": "Unhandled Exception"}))
-        return {"details": "You have no posts!"}
+        return posts
+    except IndexError as e:
+        return e
 
 
-def save_post(current_pleb, wall_pleb, content, post_uuid=None):
+@apply_defense
+def save_post(content, post_uuid):
     '''
     saves a post and creates the relationships between the wall
     and the poster of the comment
@@ -59,33 +53,14 @@ def save_post(current_pleb, wall_pleb, content, post_uuid=None):
             if post exists returns None
             else returns SBPost object
     '''
-    if post_uuid is None:
-        post_uuid = str(uuid1())
     try:
-        SBPost.nodes.get(sb_id=post_uuid)
-        return True
-    except SBPost.DoesNotExist:
+        sb_post = SBPost.nodes.get(sb_id=post_uuid)
+    except(SBPost.DoesNotExist, DoesNotExist):
         try:
-            poster = Pleb.nodes.get(email=current_pleb)
-            my_citizen = Pleb.nodes.get(email=wall_pleb)
-        except (Pleb.DoesNotExist, DoesNotExist) as e:
+            sb_post = SBPost(content=content, sb_id=post_uuid)
+            sb_post.save()
+        except CypherException as e:
             return e
-        my_post = SBPost(content=content, sb_id=post_uuid)
-        my_post.save()
-        wall = my_citizen.wall.all()[0]
-        my_post.posted_on_wall.connect(wall)
-        wall.post.connect(my_post)
-        rel = my_post.owned_by.connect(poster)
-        rel.save()
-        rel_from_pleb = poster.posts.connect(my_post)
-        rel_from_pleb.save()
-        return my_post
-    except ValueError as e:
+    except CypherException as e:
         return e
-    except IndexError as e:
-        return e
-    except Exception as e:
-        logger.exception(dumps({"function": save_post.__name__,
-                                "exception": "Unhandled Exception"}))
-        return e
-
+    return sb_post

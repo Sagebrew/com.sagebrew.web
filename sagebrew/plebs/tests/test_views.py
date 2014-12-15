@@ -11,7 +11,7 @@ from plebs.neo_models import Pleb
 from plebs.views import (profile_page, friends_page, about_page,
                          reputation_page)
 from sb_registration.utils import create_user_util
-from api.utils import test_wait_util
+from api.utils import wait_util
 
 
 #TODO test friend user, registered non-friend user getting the correct page
@@ -26,7 +26,7 @@ class ProfilePageTest(TestCase):
         res = create_user_util("test", "test", self.email, self.password,
                                self.username)
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.completed_profile_info = True
@@ -233,18 +233,25 @@ class ProfilePageTest(TestCase):
             comment.delete()
         test_post.delete()
 
+    def test_pleb_does_not_exist(self):
+        request = self.factory.get('/fake_username')
+        request.user = self.user
+        response = profile_page(request, 'fake_username')
+
+        self.assertEqual(response.status_code, 302)
+
+
 
 class TestProfilePageAbout(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.client = Client()
         self.email = "success@simulator.amazonses.com"
         self.username = shortuuid.uuid()
         self.password = "testpassword"
         res = create_user_util("test", "test", self.email, self.password,
                                self.username)
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.completed_profile_info = True
@@ -263,18 +270,24 @@ class TestProfilePageAbout(TestCase):
         response = about_page(request, self.pleb.username)
         self.assertEqual(response.status_code, 302)
 
+    def test_pleb_does_not_exist(self):
+        request = self.factory.get('/fake_username')
+        request.user = self.user
+        response = about_page(request, 'fake_username')
+
+        self.assertEqual(response.status_code, 302)
+
 
 class TestProfilePageReputationPage(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.client = Client()
         self.email = "success@simulator.amazonses.com"
         self.username = shortuuid.uuid()
         self.password = "testpassword"
         res = create_user_util("test", "test", self.email, self.password,
                                self.username)
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.completed_profile_info = True
@@ -293,17 +306,23 @@ class TestProfilePageReputationPage(TestCase):
         response = reputation_page(request, self.pleb.username)
         self.assertEqual(response.status_code, 302)
 
+    def test_pleb_does_not_exist(self):
+        request = self.factory.get('/fake_username')
+        request.user = self.user
+        response = reputation_page(request, 'fake_username')
+
+        self.assertEqual(response.status_code, 302)
+
 class TestProfilePageFriendPage(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.client = Client()
         self.email = "success@simulator.amazonses.com"
         self.username = shortuuid.uuid()
         self.password = "testpassword"
         res = create_user_util("test", "test", self.email, self.password,
                                self.username)
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.completed_profile_info = True
@@ -322,3 +341,9 @@ class TestProfilePageFriendPage(TestCase):
         response = friends_page(request, self.pleb.username)
         self.assertEqual(response.status_code, 302)
 
+    def test_pleb_does_not_exist(self):
+        request = self.factory.get('/fake_username')
+        request.user = self.user
+        response = friends_page(request, 'fake_username')
+
+        self.assertEqual(response.status_code, 302)

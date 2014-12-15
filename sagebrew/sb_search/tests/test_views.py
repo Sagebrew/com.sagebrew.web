@@ -13,7 +13,7 @@ from django.core.urlresolvers import reverse
 
 from elasticsearch import Elasticsearch
 
-from api.utils import test_wait_util
+from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_search.views import search_result_view
 from sb_questions.neo_models import SBQuestion
@@ -26,7 +26,7 @@ class TestSearchResultView(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.completed_profile_info = True
@@ -246,7 +246,7 @@ class TestSearchResultAPI(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "password")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
@@ -261,7 +261,7 @@ class TestSearchResultAPI(TestCase):
 
         self.client.login(username=self.user.username, password='password')
         request = self.client.get(reverse('search_result_api',kwargs={
-            'query_param':'test', 'page': '1'}))
+            'query_param': 'test', 'page': '1'}))
 
         self.assertEqual(request.status_code, 200)
 
@@ -288,7 +288,7 @@ class TestSearchResultAPIReturns(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "password")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.first_name='Tyler'
@@ -356,9 +356,9 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(self.pleb)
         index_res = es.index(index='full-search-user-specific-1',
-                 doc_type='question',
+                 doc_type='sb_questions.neo_models.SBQuestion',
                  body={
-                     'question_uuid': question1.sb_id,
+                     'object_uuid': question1.sb_id,
                      'question_title': question1.question_title,
                      'question_content': question1.question_content,
                      'related_user': self.user.email
@@ -385,18 +385,18 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(self.pleb)
         es.index(index='full-search-user-specific-1',
-                 doc_type='question',
+                 doc_type='sb_questions.neo_models.SBQuestion',
                  body={
-                     'question_uuid': question1.sb_id,
+                     'object_uuid': question1.sb_id,
                      'question_title': question1.question_title,
                      'question_content': question1.question_content,
                      'related_user': self.user.email
                  })
         for item in range(0,9):
             es.index(index='full-search-user-specific-1',
-                     doc_type='question',
+                     doc_type='sb_questions.neo_models.SBQuestion',
                      body={
-                         'question_uuid': question1.sb_id,
+                         'object_uuid': question1.sb_id,
                          'question_title': question1.question_title,
                          'question_content': question1.question_content,
                          'related_user': self.user.email[:37]+str(item)+'@gmail.com'
@@ -423,18 +423,18 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(self.pleb)
         es.index(index='full-search-user-specific-1',
-                 doc_type='question',
+                 doc_type='sb_questions.neo_models.SBQuestion',
                  body={
-                     'question_uuid': question1.sb_id,
+                     'object_uuid': question1.sb_id,
                      'question_title': question1.question_title,
                      'question_content': question1.question_content,
                      'related_user': self.user.email
                  })
         for item in range(0,19):
             es.index(index='full-search-user-specific-1',
-                     doc_type='question',
+                     doc_type='sb_questions.neo_models.SBQuestion',
                      body={
-                         'question_uuid': question1.sb_id,
+                         'object_uuid': question1.sb_id,
                          'question_title': question1.question_title,
                          'question_content': question1.question_content,
                          'related_user': self.user.email
@@ -452,10 +452,11 @@ class TestSearchResultAPIReturns(TestCase):
     def test_search_result_api_returns_page_3(self):
         email = "suppressionlist@simulator.amazonses.com"
         pleb = Pleb(email=email)
-        pleb.first_name='Tyler'
-        pleb.last_name='Wiersing'
+        pleb.first_name = 'Tyler'
+        pleb.last_name = 'Wiersing'
+        pleb.username = str(shortuuid.uuid())
         pleb.save()
-        user = User.objects.create_user(shortuuid.uuid(), email, 'password')
+        user = User.objects.create_user(pleb.username, email, 'password')
 
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(sb_id=str(uuid1()),
@@ -469,18 +470,18 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(pleb)
         es.index(index='full-search-user-specific-1',
-                 doc_type='question',
+                 doc_type='sb_questions.neo_models.SBQuestion',
                  body={
-                     'question_uuid': question1.sb_id,
+                     'object_uuid': question1.sb_id,
                      'question_title': question1.question_title,
                      'question_content': question1.question_content,
                      'related_user': user.email
                  })
         for item in range(0,39):
             es.index(index='full-search-user-specific-1',
-                     doc_type='question',
+                     doc_type='sb_questions.neo_models.SBQuestion',
                      body={
-                         'question_uuid': question1.sb_id,
+                         'object_uuid': question1.sb_id,
                          'question_title': question1.question_title,
                          'question_content': question1.question_content,
                          'related_user': user.email
@@ -513,18 +514,18 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(self.pleb)
         es.index(index='full-search-user-specific-1',
-                 doc_type='question',
+                 doc_type='sb_questions.neo_models.SBQuestion',
                  body={
-                     'question_uuid': question1.sb_id,
+                     'object_uuid': question1.sb_id,
                      'question_title': question1.question_title,
                      'question_content': question1.question_content,
                      'related_user': str(uuid1()).strip('-')
                  })
         for item in range(0,29):
             es.index(index='full-search-user-specific-1',
-                     doc_type='question',
+                     doc_type='sb_questions.neo_models.SBQuestion',
                      body={
-                         'question_uuid': question1.sb_id,
+                         'object_uuid': question1.sb_id,
                          'question_title': question1.question_title,
                          'question_content': question1.question_content,
                          'related_user': str(uuid1()).strip('-')
@@ -557,9 +558,9 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(pleb)
         es.index(index='full-search-user-specific-1',
-                 doc_type='question',
+                 doc_type='sb_questions.neo_models.SBQuestion',
                  body={
-                     'question_uuid': question1.sb_id,
+                     'object_uuid': question1.sb_id,
                      'question_title': question1.question_title,
                      'question_content': question1.question_content,
                      'related_user': self.user.email
@@ -582,8 +583,8 @@ class TestSearchResultAPIReturns(TestCase):
                                )
         question2.save()
         es.index(index='full-search-user-specific-1',
-                 doc_type='question',
-                 body={'question_uuid': question2.sb_id,
+                 doc_type='sb_questions.neo_models.SBQuestion',
+                 body={'object_uuid': question2.sb_id,
                        'question_content': question2.question_content,
                        'question_title': question2.question_title,
                        'related_user': self.user.email})

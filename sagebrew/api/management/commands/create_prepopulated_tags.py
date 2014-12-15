@@ -5,15 +5,16 @@ from neomodel import DoesNotExist
 
 from sb_tag.neo_models import SBTag
 
+
 class Command(BaseCommand):
     args = 'None.'
 
     def populate_base_tags(self):
         for tag in settings.BASE_TAGS:
             try:
-                tag_obj = SBTag.nodes.get(tag_name=tag)
+                SBTag.nodes.get(tag_name=tag)
             except (SBTag.DoesNotExist, DoesNotExist):
-                tag_obj = SBTag(tag_name=tag, base=True).save()
+                SBTag(tag_name=tag, base=True).save()
 
     def handle(self, *args, **options):
         self.populate_base_tags()

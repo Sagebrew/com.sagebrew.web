@@ -1,3 +1,12 @@
+.sb_beta_background {
+    position:absolute;
+    width: 100%;
+    heigh: 100%;
+    margin-top: -55px;
+    margin-left: -15px;
+    min-height: 620px;
+    min-width: 1200px;
+}
 .sb_beta_input:focus,
 .sb_beta_input:active,
 .sb_beta_input:hover{
@@ -9,6 +18,7 @@
     width: 80%;
     margin-left: 10%;
     margin-bottom: 0;
+    margin-top: 462px
 }
 .sb_beta_input{
     width: 100%;
@@ -16,5 +26,4 @@
     border-width: 1px;
 }
 .sb_beta_headline{
-    color: #eeeeee;
 }

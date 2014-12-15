@@ -1,14 +1,14 @@
 import logging
 from uuid import uuid1
-from json import dumps
 
 from neomodel import DoesNotExist, CypherException
 
 from .neo_models import NotificationBase
+from sb_base.decorators import apply_defense
 
 logger = logging.getLogger('loggly_logs')
 
-
+@apply_defense
 def create_notification_util(sb_object, from_pleb, to_plebs,
                              notification_id=None):
     '''
@@ -50,9 +50,5 @@ def create_notification_util(sb_object, from_pleb, to_plebs,
         return True
 
     except CypherException as e:
-        return e
-    except Exception as e:
-        logger.exception(dumps({"function": create_notification_util.__name__,
-                                "exception": "Unhandled Exception"}))
         return e
 

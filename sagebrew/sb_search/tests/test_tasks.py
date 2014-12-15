@@ -8,10 +8,9 @@ from django.contrib.auth.models import User
 
 from elasticsearch import Elasticsearch
 
-from api.utils import test_wait_util
+from api.utils import wait_util
 from plebs.neo_models import Pleb
 from api.alchemyapi import AlchemyAPI
-from sb_answers.neo_models import SBAnswer
 from sb_questions.neo_models import SBQuestion
 from sb_search.tasks import (update_weight_relationship,
                              add_user_to_custom_index, update_user_indices,
@@ -24,7 +23,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.question = SBQuestion(sb_id=str(uuid1()))
@@ -36,7 +35,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
     def test_update_weight_relationship_task_success_seen_unconnected(self):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'question',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
                 'modifier_type': 'search_seen'}
@@ -48,16 +47,16 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.pleb.refresh()
         self.question.refresh()
 
-        self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
+        self.assertTrue(self.pleb.object_weight.is_connected(self.question))
         self.assertTrue(res)
 
         self.assertEqual(
-            self.pleb.obj_weight_relationship(self.question).weight, 150)
+            self.pleb.object_weight.relationship(self.question).weight, 150)
 
     def test_update_weight_relationship_task_success_comment_on_unconnected(self):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'question',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
                 'modifier_type': 'comment_on'}
@@ -69,16 +68,16 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.pleb.refresh()
         self.question.refresh()
 
-        self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
+        self.assertTrue(self.pleb.object_weight.is_connected(self.question))
         self.assertTrue(res)
 
         self.assertEqual(
-            self.pleb.obj_weight_relationship(self.question).weight, 150)
+            self.pleb.object_weight.relationship(self.question).weight, 150)
 
     def test_update_weight_relationship_task_success_flag_as_inappropriate_unconnected(self):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'question',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
                 'modifier_type': 'flag_as_inappropriate'}
@@ -90,16 +89,16 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.pleb.refresh()
         self.question.refresh()
 
-        self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
+        self.assertTrue(self.pleb.object_weight.is_connected(self.question))
         self.assertTrue(res)
 
         self.assertEqual(
-            self.pleb.obj_weight_relationship(self.question).weight, 150)
+            self.pleb.object_weight.relationship(self.question).weight, 150)
 
     def test_update_weight_relationship_task_success_flag_as_spam_unconnected(self):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'question',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
                 'modifier_type': 'flag_as_spam'}
@@ -111,16 +110,16 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.pleb.refresh()
         self.question.refresh()
 
-        self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
+        self.assertTrue(self.pleb.object_weight.is_connected(self.question))
         self.assertTrue(res)
 
         self.assertEqual(
-            self.pleb.obj_weight_relationship(self.question).weight, 150)
+            self.pleb.object_weight.relationship(self.question).weight, 150)
 
     def test_update_weight_relationship_task_success_share_unconnected(self):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'question',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
                 'modifier_type': 'share'}
@@ -132,16 +131,16 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.pleb.refresh()
         self.question.refresh()
 
-        self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
+        self.assertTrue(self.pleb.object_weight.is_connected(self.question))
         self.assertTrue(res)
 
         self.assertEqual(
-            self.pleb.obj_weight_relationship(self.question).weight, 150)
+            self.pleb.object_weight.relationship(self.question).weight, 150)
 
     def test_update_weight_relationship_task_success_answered_unconnected(self):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'question',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
                 'modifier_type': 'answered'}
@@ -153,20 +152,21 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.pleb.refresh()
         self.question.refresh()
 
-        self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
+        self.assertTrue(self.pleb.object_weight.is_connected(self.question))
         self.assertTrue(res)
 
     def test_update_weight_relationship_task_success_seen_connected(self):
-        res = self.pleb.obj_weight_connect(self.question)
+        res = self.pleb.object_weight.connect(self.question)
+        res.save()
 
         self.assertIsNot(res, False)
 
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'question',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
-                'modifier_type': 'search_seen'}
+                'modifier_type': 'seen_search'}
         res = update_weight_relationship.apply_async(kwargs=data)
         while not res.ready():
             time.sleep(1)
@@ -175,19 +175,19 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.pleb.refresh()
         self.question.refresh()
 
-        self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
+        self.assertTrue(self.pleb.object_weight.is_connected(self.question))
         self.assertTrue(res)
         self.assertEqual(
-            self.pleb.obj_weight_relationship(self.question).weight, 155)
+            self.pleb.object_weight.relationship(self.question).weight, 155)
 
     def test_update_weight_relationship_task_success_comment_on_connected(self):
-        res = self.pleb.obj_weight_connect(self.question)
-
+        res = self.pleb.object_weight.connect(self.question)
+        res.save()
         self.assertIsNot(res, False)
 
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'question',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
                 'modifier_type': 'comment_on'}
@@ -199,19 +199,19 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.pleb.refresh()
         self.question.refresh()
 
-        self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
+        self.assertTrue(self.pleb.object_weight.is_connected(self.question))
         self.assertTrue(res)
         self.assertEqual(
-            self.pleb.obj_weight_relationship(self.question).weight, 155)
+            self.pleb.object_weight.relationship(self.question).weight, 155)
 
     def test_update_weight_relationship_task_success_flag_as_inappropriate_connected(self):
-        res = self.pleb.obj_weight_connect(self.question)
-
+        res = self.pleb.object_weight.connect(self.question)
+        res.save()
         self.assertIsNot(res, False)
 
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'question',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
                 'modifier_type': 'flag_as_inappropriate'}
@@ -223,19 +223,19 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.pleb.refresh()
         self.question.refresh()
 
-        self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
+        self.assertTrue(self.pleb.object_weight.is_connected(self.question))
         self.assertTrue(res)
         self.assertEqual(
-            self.pleb.obj_weight_relationship(self.question).weight, 145)
+            self.pleb.object_weight.relationship(self.question).weight, 145)
 
     def test_update_weight_relationship_task_success_flag_as_spam_connected(self):
-        res = self.pleb.obj_weight_connect(self.question)
-
+        res = self.pleb.object_weight.connect(self.question)
+        res.save()
         self.assertIsNot(res, False)
 
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'question',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
                 'modifier_type': 'flag_as_spam'}
@@ -247,19 +247,19 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.pleb.refresh()
         self.question.refresh()
 
-        self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
+        self.assertTrue(self.pleb.object_weight.is_connected(self.question))
         self.assertTrue(res)
         self.assertEqual(
-            self.pleb.obj_weight_relationship(self.question).weight, 50)
+            self.pleb.object_weight.relationship(self.question).weight, 50)
 
     def test_update_weight_relationship_task_success_share_connected(self):
-        res = self.pleb.obj_weight_connect(self.question)
-
+        res = self.pleb.object_weight.connect(self.question)
+        res.save()
         self.assertIsNot(res, False)
 
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'question',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
                 'modifier_type': 'share'}
@@ -271,19 +271,19 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.pleb.refresh()
         self.question.refresh()
 
-        self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
+        self.assertTrue(self.pleb.object_weight.is_connected(self.question))
         self.assertTrue(res)
         self.assertEqual(
-            self.pleb.obj_weight_relationship(self.question).weight, 157)
+            self.pleb.object_weight.relationship(self.question).weight, 157)
 
     def test_update_weight_relationship_task_success_answered_connected(self):
-        res = self.pleb.obj_weight_connect(self.question)
-
+        res = self.pleb.object_weight.connect(self.question)
+        res.save()
         self.assertIsNot(res, False)
 
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'question',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
                 'modifier_type': 'answered'}
@@ -295,15 +295,15 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.pleb.refresh()
         self.question.refresh()
 
-        self.assertTrue(self.pleb.obj_weight_is_connected(self.question))
+        self.assertTrue(self.pleb.object_weight.is_connected(self.question))
         self.assertTrue(res)
         self.assertEqual(
-            self.pleb.obj_weight_relationship(self.question).weight, 200)
+            self.pleb.object_weight.relationship(self.question).weight, 200)
 
     def test_update_weight_relationship_task_pleb_does_not_exist(self):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
-                'object_type': 'question',
+                'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': str(uuid1()),
                 'modifier_type': 'answered'}
@@ -317,244 +317,6 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
     def test_update_weight_relationship_task_question_does_not_exist(self):
         pass
 
-class TestUpdateWeightRelationshipTaskAnswer(TestCase):
-    def setUp(self):
-        settings.CELERY_ALWAYS_EAGER = True
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
-        self.assertNotEqual(res, False)
-        test_wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        self.answer = SBAnswer(sb_id=str(uuid1()))
-        self.answer.save()
-
-    def tearDown(self):
-        settings.CELERY_ALWAYS_EAGER = False
-
-    def test_update_weight_relationship_task_success_seen_unconnected(self):
-        data = {"document_id": str(uuid1()),
-                'index': 'full-search-user-specific-1',
-                'object_type': 'answer',
-                'object_uuid': self.answer.sb_id,
-                'current_pleb': self.user.email,
-                'modifier_type': 'search_seen'}
-        res = update_weight_relationship.apply_async(kwargs=data)
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.pleb.refresh()
-        self.answer.refresh()
-
-        self.assertTrue(self.pleb.obj_weight_is_connected(self.answer))
-        self.assertTrue(res)
-
-        self.assertEqual(
-            self.pleb.obj_weight_relationship(self.answer).weight, 150)
-
-    def test_update_weight_relationship_task_success_comment_on_unconnected(self):
-        data = {"document_id": str(uuid1()),
-                'index': 'full-search-user-specific-1',
-                'object_type': 'answer',
-                'object_uuid': self.answer.sb_id,
-                'current_pleb': self.user.email,
-                'modifier_type': 'comment_on'}
-        res = update_weight_relationship.apply_async(kwargs=data)
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.pleb.refresh()
-        self.answer.refresh()
-
-        self.assertTrue(self.pleb.obj_weight_is_connected(self.answer))
-        self.assertTrue(res)
-
-        self.assertEqual(
-            self.pleb.obj_weight_relationship(self.answer).weight, 150)
-
-    def test_update_weight_relationship_task_success_flag_as_inappropriate_unconnected(self):
-        data = {"document_id": str(uuid1()),
-                'index': 'full-search-user-specific-1',
-                'object_type': 'answer',
-                'object_uuid': self.answer.sb_id,
-                'current_pleb': self.user.email,
-                'modifier_type': 'flag_as_inappropriate'}
-        res = update_weight_relationship.apply_async(kwargs=data)
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.pleb.refresh()
-        self.answer.refresh()
-
-        self.assertTrue(self.pleb.obj_weight_is_connected(self.answer))
-        self.assertTrue(res)
-
-        self.assertEqual(
-            self.pleb.obj_weight_relationship(self.answer).weight, 150)
-
-    def test_update_weight_relationship_task_success_flag_as_spam_unconnected(self):
-        data = {"document_id": str(uuid1()),
-                'index': 'full-search-user-specific-1',
-                'object_type': 'answer',
-                'object_uuid': self.answer.sb_id,
-                'current_pleb': self.user.email,
-                'modifier_type': 'flag_as_spam'}
-        res = update_weight_relationship.apply_async(kwargs=data)
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.pleb.refresh()
-        self.answer.refresh()
-
-        self.assertTrue(self.pleb.obj_weight_is_connected(self.answer))
-        self.assertTrue(res)
-
-        self.assertEqual(
-            self.pleb.obj_weight_relationship(self.answer).weight, 150)
-
-    def test_update_weight_relationship_task_success_share_unconnected(self):
-        data = {"document_id": str(uuid1()),
-                'index': 'full-search-user-specific-1',
-                'object_type': 'answer',
-                'object_uuid': self.answer.sb_id,
-                'current_pleb': self.user.email,
-                'modifier_type': 'share'}
-        res = update_weight_relationship.apply_async(kwargs=data)
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.pleb.refresh()
-        self.answer.refresh()
-
-        self.assertTrue(self.pleb.obj_weight_is_connected(self.answer))
-        self.assertTrue(res)
-
-        self.assertEqual(
-            self.pleb.obj_weight_relationship(self.answer).weight, 150)
-
-    def test_update_weight_relationship_task_success_seen_connected(self):
-        res = self.pleb.obj_weight_connect(self.answer)
-
-        self.assertIsNot(res, False)
-
-        data = {"document_id": str(uuid1()),
-                'index': 'full-search-user-specific-1',
-                'object_type': 'answer',
-                'object_uuid': self.answer.sb_id,
-                'current_pleb': self.user.email,
-                'modifier_type': 'search_seen'}
-        res = update_weight_relationship.apply_async(kwargs=data)
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.pleb.refresh()
-        self.answer.refresh()
-
-        self.assertTrue(self.pleb.obj_weight_is_connected(self.answer))
-        self.assertTrue(res)
-        self.assertEqual(
-            self.pleb.obj_weight_relationship(self.answer).weight, 155)
-
-    def test_update_weight_relationship_task_success_comment_on_connected(self):
-        res = self.pleb.obj_weight_connect(self.answer)
-
-        self.assertIsNot(res, False)
-
-        data = {"document_id": str(uuid1()),
-                'index': 'full-search-user-specific-1',
-                'object_type': 'answer',
-                'object_uuid': self.answer.sb_id,
-                'current_pleb': self.user.email,
-                'modifier_type': 'comment_on'}
-        res = update_weight_relationship.apply_async(kwargs=data)
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.pleb.refresh()
-        self.answer.refresh()
-
-        self.assertTrue(self.pleb.obj_weight_is_connected(self.answer))
-        self.assertTrue(res)
-        self.assertEqual(self.pleb.obj_weight_relationship(self.answer).weight, 155)
-
-    def test_update_weight_relationship_task_success_flag_as_inappropriate_connected(self):
-        res = self.pleb.obj_weight_connect(self.answer)
-
-        self.assertIsNot(res, False)
-
-        data = {"document_id": str(uuid1()),
-                'index': 'full-search-user-specific-1',
-                'object_type': 'answer',
-                'object_uuid': self.answer.sb_id,
-                'current_pleb': self.user.email,
-                'modifier_type': 'flag_as_inappropriate'}
-        res = update_weight_relationship.apply_async(kwargs=data)
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.pleb.refresh()
-        self.answer.refresh()
-
-        self.assertTrue(self.pleb.obj_weight_is_connected(self.answer))
-        self.assertTrue(res)
-        self.assertEqual(
-            self.pleb.obj_weight_relationship(self.answer).weight, 145)
-
-    def test_update_weight_relationship_task_success_flag_as_spam_connected(self):
-        res = self.pleb.obj_weight_connect(self.answer)
-
-        self.assertIsNot(res, False)
-
-        data = {"document_id": str(uuid1()),
-                'index': 'full-search-user-specific-1',
-                'object_type': 'answer',
-                'object_uuid': self.answer.sb_id,
-                'current_pleb': self.user.email,
-                'modifier_type': 'flag_as_spam'}
-        res = update_weight_relationship.apply_async(kwargs=data)
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.pleb.refresh()
-        self.answer.refresh()
-
-        self.assertTrue(self.pleb.obj_weight_is_connected(self.answer))
-        self.assertTrue(res)
-        self.assertEqual(
-            self.pleb.obj_weight_relationship(self.answer).weight, 50)
-
-    def test_update_weight_relationship_task_success_share_connected(self):
-        res = self.pleb.obj_weight_connect(self.answer)
-
-        self.assertIsNot(res, False)
-
-        data = {"document_id": str(uuid1()),
-                'index': 'full-search-user-specific-1',
-                'object_type': 'answer',
-                'object_uuid': self.answer.sb_id,
-                'current_pleb': self.user.email,
-                'modifier_type': 'share'}
-        res = update_weight_relationship.apply_async(kwargs=data)
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.pleb.refresh()
-        self.answer.refresh()
-
-        self.assertTrue(self.pleb.obj_weight_is_connected(self.answer))
-        self.assertTrue(res)
-        self.assertEqual(
-            self.pleb.obj_weight_relationship(self.answer).weight, 157)
 
 class TestUpdateWeightRelationshipTaskPleb(TestCase):
     def setUp(self):
@@ -562,7 +324,7 @@ class TestUpdateWeightRelationshipTaskPleb(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
@@ -629,29 +391,13 @@ class TestUpdateWeightRelationshipTaskPleb(TestCase):
 
         self.assertFalse(res)
 
-
-class TestUpdateWeightRelationshipTaskPost(TestCase):
-    def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
-        self.assertNotEqual(res, False)
-        test_wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        self.email2= "bounce@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email2, "testpassword")
-        self.assertNotEqual(res, False)
-        test_wait_util(res)
-        self.pleb2 = Pleb.nodes.get(email=self.email2)
-        self.user2 = User.objects.get(email=self.email2)
-
 class TestAddUserToCustomIndexTask(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
@@ -675,7 +421,7 @@ class TestUpdateUserIndices(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
@@ -709,7 +455,7 @@ class TestUpdateSearchQuery(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
@@ -815,7 +561,7 @@ class TestCreateKeywordTask(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
-        test_wait_util(res)
+        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True

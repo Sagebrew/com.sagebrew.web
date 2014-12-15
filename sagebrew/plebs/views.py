@@ -1,5 +1,3 @@
-import logging
-from json import dumps
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
@@ -8,12 +6,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from neomodel import DoesNotExist
 
-from .utils import prepare_user_search_html
+from sb_base.utils import defensive_exception
 from plebs.neo_models import Pleb
 from sb_registration.utils import (get_friends, generate_profile_pic_url,
                                    verify_completed_registration)
+from .utils import prepare_user_search_html
 
-logger = logging.getLogger('loggly_logs')
 
 @login_required()
 @user_passes_test(verify_completed_registration,
@@ -88,10 +86,9 @@ def get_user_search_view(request, pleb_email=""):
     try:
         response = prepare_user_search_html(pleb_email)
         return Response({'html': response}, status=200)
-    except Exception:
-        logger.exception(dumps({"function": get_user_search_view.__name__,
-                                "exception": "Unhandled Exception"}))
-        return Response({'html': []}, status=400)
+    except Exception as e:
+        return defensive_exception(get_user_search_view.__name__, e,
+                                   Response({'html': []}, status=400))
 
 
 @login_required()

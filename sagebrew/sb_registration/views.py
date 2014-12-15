@@ -1,7 +1,5 @@
-import logging
 from django.conf import settings
 from uuid import uuid1
-from json import dumps
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -18,6 +16,8 @@ from sb_tag.neo_models import SBTag
 from api.utils import spawn_task
 from plebs.tasks import send_email_task
 from plebs.neo_models import Pleb, Address
+from sb_base.utils import defensive_exception
+
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm,
                     LoginForm)
@@ -27,29 +27,18 @@ from .utils import (upload_image,
                     create_user_util)
 from .models import token_gen
 
-logger = logging.getLogger('loggly_logs')
-
-
-@login_required()
-def confirm_view(request):
-    return render(request, 'verify_email.html')
-
-
-def age_restriction(request):
-    return render(request, 'age_restriction_13.html')
-
-
-def signup_view(request):
-    # TODO Need to take the user somewhere and do something with the ajax
-    # from the api.
-    # Need to take them to a 500 error page or something.
-    # Otherwise they just sit at the sign up page
-    # with the button not taking them anywhere.
-    return render(request, 'sign_up_page/index.html')
-
 
 @api_view(['POST'])
 def signup_view_api(request):
+    # TODO discuss potential to store off initial user into dynamo or just in
+    # postgres until confirmation email is verified. If it is then store
+    # user into neo.
+    # That way if we get a flood of bots trying to sign up we aren't DDoSing
+    # Neo and will have an automated routine that removes the user from the
+    # document store after a day and potentially sets them as flagged for
+    # suspicious activity if more than say a week passes and no one activates
+    # their email. Should be able to perform the hashing process on the
+    # data stored in dynamo or psql the same way we do with the Pleb currently.
     try:
         try:
             signup_form = SignupForm(request.DATA)
@@ -61,11 +50,10 @@ def signup_view_api(request):
                 return Response({'detail': 'Passwords do not match!'},
                                 status=401)
             try:
-                test_user = User.objects.get(email=signup_form.
-                                             cleaned_data['email'])
-                return Response({'detail':
-                                     'A user with this email already exists!'},
-                                status=401)
+                User.objects.get(email=signup_form.cleaned_data['email'])
+                return Response(
+                    {'detail': 'A user with this email already exists!'},
+                    status=401)
             except User.DoesNotExist:
                 res = create_user_util(first_name=signup_form.
                                        cleaned_data['first_name'],
@@ -106,10 +94,12 @@ def signup_view_api(request):
                     return Response({'detail': 'invalid login'},
                                     status=400)
         # TODO add a handler for if the form is not valid
-    except Exception:
-        logger.exception(dumps({'function': signup_view_api.__name__,
-                                'exception': 'Unhandled Exception'}))
-        return Response({'detail': 'exception'}, status=400)
+    except AttributeError:
+        return Response(status=400)
+    except Exception as e:
+        return defensive_exception(signup_view_api.__name__, e,
+                                   Response({'detail': 'exception'},
+                                            status=400))
 
 
 def login_view(request):
@@ -137,7 +127,10 @@ def resend_email_verification(request):
         'email_templates/email_verification.html').render(
         Context(template_dict))
     task_data = {'to': to, 'subject': subject, 'html_content': html_content}
-    spawn_task(task_func=send_email_task, task_param=task_data)
+    spawned = spawn_task(task_func=send_email_task, task_param=task_data)
+    if isinstance(spawned, Exception):
+        # TODO need to replace this with an actual view
+        return Response(status=500)
     return redirect("confirm_view")
 
 
@@ -158,6 +151,11 @@ def login_view_api(request):
             if user is not None:
                 if user.is_active:
                     login(request, user)
+                    # TODO do we need this logic? If we can get away with
+                    # loading the page based on the user.email and user.username
+                    # we should try. Then we can query the pleb when we
+                    # get to their page and build their document storage up
+                    # if it's not already built
                     try:
                         pleb = Pleb.nodes.get(email=user.email)
                     except (Pleb.DoesNotExist, DoesNotExist):
@@ -177,10 +175,10 @@ def login_view_api(request):
                 return Response({'detail': 'invalid password'}, status=400)
     except AttributeError:
         return Response(status=400)
-    except Exception:
-        logger.exception(dumps({'function': login_view_api.__name__,
-                                'exception': 'Unhandled Exception'}))
-        return Response({'detail': 'unknown exception'}, status=400)
+    except Exception as e:
+        return defensive_exception(login_view_api.__name__, e,
+                                   Response({'detail': 'exception'},
+                                            status=400))
 
 
 @login_required()
@@ -202,10 +200,9 @@ def email_verification(request, confirmation):
             return HttpResponse('Unauthorized', status=401)
     except (Pleb.DoesNotExist, DoesNotExist):
         return redirect('logout')
-    except Exception:
-        logger.exception(dumps({'function': email_verification.__name__,
-                                'exception': 'Unhandled Exception'}))
-        return redirect('confirm_view')
+    except Exception as e:
+        return defensive_exception(email_verification.__name__, e,
+                                   redirect('confirm_view'))
 
 
 @login_required
@@ -230,7 +227,12 @@ def profile_information(request):
     '''
     profile_information_form = ProfileInfoForm(request.POST or None)
     address_information_form = AddressInfoForm(request.POST or None)
-
+    # TODO can we use the base user here rather than querying for the pleb?
+    # Also I think we can move the address storage logic into a task and follow
+    # a similar process as described with the profile picture where we're
+    # really just building up the plebs personal document with these
+    # and spawning off tasks in the background to store the information
+    # in neo
     try:
         citizen = Pleb.nodes.get(email=request.user.email)
     except (Pleb.DoesNotExist, DoesNotExist):
@@ -315,6 +317,9 @@ def interests(request):
     try:
         interest_form = InterestForm(request.POST or None)
         if interest_form.is_valid():
+            # TODO can we use the base user here rather than
+            # querying for the pleb? Then spawn a task for connecting the
+            # interests
             try:
                 citizen = Pleb.nodes.get(email=request.user.email)
             except (Pleb.DoesNotExist, DoesNotExist):
@@ -330,10 +335,9 @@ def interests(request):
 
         return render(request, 'interests.html',
                       {'interest_form': interest_form})
-    except Exception:
-        logger.exception(dumps({"function": interests.__name__,
-                                "exception": "Unhandled Exception"}))
-        return redirect("404_Error")
+    except Exception as e:
+        return defensive_exception(login_view_api.__name__, e,
+                                   redirect("404_Error"))
 
 
 @login_required()
@@ -351,12 +355,18 @@ def profile_picture(request):
     :param request:
     :return:
     '''
+    # TODO can we use the base user here rather than querying for the pleb?
+    # Then spawn a task to connect the profile pic? We'll want to save the image
+    # as quickly as possible so it's available but maybe we do that with the
+    # new document store, save it into the pleb's document quickly and then
+    # spawn off a task for storing the url in neo.
     try:
         citizen = Pleb.nodes.get(email=request.user.email)
     except Pleb.DoesNotExist:
         return render(request, 'login.html')
     if request.method == 'POST':
         profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
+
         if profile_picture_form.is_valid():
 
             image_uuid = uuid1()
@@ -375,4 +385,3 @@ def profile_picture(request):
     return render(request, 'profile_picture.html',
                   {'profile_picture_form': profile_picture_form,
                    'pleb': citizen})
-

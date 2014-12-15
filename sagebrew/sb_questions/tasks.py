@@ -1,14 +1,19 @@
 import logging
-from json import dumps
+from django.conf import settings
+
 from celery import shared_task
 from neomodel import DoesNotExist, CypherException
+from elasticsearch import Elasticsearch
+from elasticsearch.exceptions import (ElasticsearchException, TransportError,
+                                      ConnectionError, RequestError,
+                                      NotFoundError)
 
 from api.utils import spawn_task, create_auto_tags
 from api.tasks import add_object_to_search_index
-
 from sb_tag.tasks import add_auto_tags, add_tags
-from .neo_models import SBQuestion
+from sb_base.tasks import create_object_relations_task
 from .utils import create_question_util
+from sb_base.utils import defensive_exception
 
 logger = logging.getLogger('loggly_logs')
 
@@ -25,38 +30,45 @@ def add_question_to_indices_task(question, tags):
     :return:
     '''
     try:
-        if question.added_to_search_index is True:
+        try:
+            es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+            res = es.get(index='full-search-base',
+                         doc_type='sb_questions.neo_models.SBQuestion',
+                         id=question.sb_id)
             return True
-        else:
-            search_dict = {'question_content': question.content,
-                           'user': question.owned_by.all()[0].email,
-                           'question_title': question.question_title,
-                           'tags': tags,
-                           'question_uuid': question.sb_id,
-                           'post_date': question.date_created,
-                           'related_user': ''}
-            task_data = {"object_type": "question",
-                         "object_data": search_dict}
-            question.added_to_search_index = True
-            question.save()
-            spawn_task(task_func=add_object_to_search_index,
-                       task_param=task_data)
-            return True
+        except NotFoundError:
+            pass
+        except (ElasticsearchException, TransportError, ConnectionError,
+                RequestError) as e:
+            raise add_question_to_indices_task.retry(exc=e, countdown=3,
+                                                   max_retries=None)
 
-    except IndexError as e:
+        search_dict = {'question_content': question.content,
+                       'user': question.owned_by.all()[0].email,
+                       'question_title': question.question_title,
+                       'tags': tags,
+                       'object_uuid': question.sb_id,
+                       'post_date': question.date_created,
+                       'related_user': ''}
+        task_data = {"object_type": "sb_questions.neo_models.SBQuestion",
+                     "object_data": search_dict}
+        question.added_to_search_index = True
+        question.save()
+        spawned = spawn_task(task_func=add_object_to_search_index,
+                             task_param=task_data)
+        if isinstance(spawned, Exception) is True:
+            raise add_question_to_indices_task.retry(exc=spawned,
+                                                     countdown=3,
+                                                     max_retries=None)
+        return True
+
+    except (CypherException, IndexError) as e:
         raise add_question_to_indices_task.retry(exc=e, countdown=3,
                                                  max_retries=None)
-    except CypherException as e:
-        raise add_question_to_indices_task.retry(exc=e,
-                                                 countdown=3, max_retries=None)
     except Exception as e:
-        logger.exception(dumps(
-            {
-                "function": add_question_to_indices_task.__name__,
-                "exception": "Unhandled Exception"
-            }))
-        raise add_question_to_indices_task.retry(exc=e, countdown=3,
-                                                 max_retries=None)
+        raise defensive_exception(add_tags_to_question_task.__name__, e,
+                                  add_question_to_indices_task.retry(
+                                      exc=e, countdown=3,max_retries=None))
 
 
 @shared_task()
@@ -70,47 +82,65 @@ def add_tags_to_question_task(question, tags):
     :param tags:
     :return:
     '''
+    #TODO review and make sure this is idempotent
     try:
         if question.tags_added is True:
             task_data = {
                 'question': question,
                 'tags': tags
             }
-            return spawn_task(task_func=add_question_to_indices_task,
-                              task_param=task_data)
+            spawned = spawn_task(task_func=add_question_to_indices_task,
+                                 task_param=task_data)
+            if isinstance(spawned, Exception) is True:
+                raise add_tags_to_question_task.retry(exc=spawned, countdown=3,
+                                                      max_retries=None)
         else:
-            # TODO Switch Exception handling in create_auto_tags then
-            # figure out a way to repeat this task if an unhandled exception
-            # is thrown.
             auto_tags = create_auto_tags(question.content)
+            if isinstance(auto_tags, Exception) is True:
+                raise add_tags_to_question_task.retry(
+                    exc=auto_tags, countdown=3, max_retries=None)
             task_data = []
             for tag in auto_tags['keywords']:
-                task_data.append({"tags": tag,
-                                  "object_uuid": question.sb_id,
-                                  "object_type": "question"
-                })
-            tag_list = {'tag_list': task_data}
-            tag_task_data = {"object_uuid": question.sb_id,
-                             "object_type": "question", "tags": tags}
-            spawn_task(task_func=add_tags, task_param=tag_task_data)
-            spawn_task(task_func=add_auto_tags, task_param=tag_list)
+                task_data.append({"tags": tag})
+            auto_tag_data = {'question': question,
+                             'tag_list': task_data}
+            tag_task_data = {'question': question,
+                             "tags": tags}
+            spawned = spawn_task(task_func=add_tags, task_param=tag_task_data)
+            if isinstance(spawned, Exception) is True:
+                raise add_tags_to_question_task.retry(exc=spawned, countdown=3,
+                                                      max_retries=None)
+            spawned = spawn_task(task_func=add_auto_tags,
+                                 task_param=auto_tag_data)
+            if isinstance(spawned, Exception) is True:
+                raise add_tags_to_question_task.retry(exc=spawned, countdown=3,
+                                                      max_retries=None)
             question.tags_added = True
-            question.save()
-            return spawn_task(task_func=add_question_to_indices_task,
-                              task_param={'question': question, 'tags': tags})
+            try:
+                question.save()
+            except CypherException as e:
+                raise add_tags_to_question_task.retry(exc=e, countdown=3,
+                                                      max_retries=None)
+            spawned = spawn_task(task_func=add_question_to_indices_task,
+                                 task_param={'question': question,
+                                             'tags': tags})
+            if isinstance(spawned, Exception) is True:
+                raise add_tags_to_question_task.retry(exc=spawned, countdown=3,
+                                                      max_retries=None)
+            return spawned
     except CypherException as e:
         raise add_tags_to_question_task.retry(exc=e, countdown=3,
                                               max_retries=None)
     except Exception as e:
-        logger.exception(dumps({"function": add_tags_to_question_task.__name__,
-                                "exception": "Unhandled Exception"}))
-        raise add_tags_to_question_task.retry(exc=e, countdown=3,
-                                              max_retries=None)
+        raise defensive_exception(add_tags_to_question_task.__name__, e,
+                                  add_tags_to_question_task.retry(exc=e,
+                                                                  countdown=3,
+                                                            max_retries=None))
 
 
 @shared_task()
-def create_question_task(content, current_pleb, question_title,
-                         tags=None, question_uuid=None):
+def create_question_task(content, current_pleb, question_title, question_uuid,
+                         tags=None):
     '''
     This task calls the util to create a question, if the util fails the
     task respawns itself.
@@ -130,28 +160,24 @@ def create_question_task(content, current_pleb, question_title,
     '''
     if tags is None:
         tags = []
-    try:
-        try:
-            SBQuestion.nodes.get(sb_id=question_uuid)
-            return False
-        except (SBQuestion.DoesNotExist, DoesNotExist):
-            response = create_question_util(content=content,
-                                            current_pleb=current_pleb,
-                                            question_title=question_title,
-                                            question_uuid=question_uuid)
-        if isinstance(response, Exception) is True:
-            raise create_question_task.retry(exc=response, countdown=5,
-                                             max_retries=None)
-        elif response is False:
-            return False
-        else:
-            task_data = {"question": response, "tags": tags}
-            return spawn_task(task_func=add_tags_to_question_task,
-                              task_param=task_data)
-    except CypherException as e:
-        raise create_question_task.retry(exc=e, countdown=3, max_retries=None)
-    except Exception as e:
-        logger.exception(dumps({'function': create_question_task.__name__,
-                                'exception': "Unhandled Exception"}))
-        raise create_question_task.retry(exc=e, countdown=5, max_retries=None)
+
+    question = create_question_util(content=content,
+                                    question_title=question_title,
+                                    question_uuid=question_uuid)
+    if isinstance(question, Exception) is True:
+        raise create_question_task.retry(exc=question, countdown=5,
+                                         max_retries=None)
+
+    task_data = {"question": question, "tags": tags}
+    spawned = spawn_task(task_func=add_tags_to_question_task,
+                         task_param=task_data)
+    if isinstance(spawned, Exception) is True:
+        raise create_question_task.retry(exc=spawned,
+                                         countdown=3, max_retries=None)
+
+    relations_data = {'sb_object': question, 'current_pleb': current_pleb}
+    spawned = spawn_task(task_func=create_object_relations_task,
+                         task_param=relations_data)
+    return spawned
+
 

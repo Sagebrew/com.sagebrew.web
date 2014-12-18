@@ -37,14 +37,17 @@ def get_updates_from_dynamo(request):
             spawn_task(task_func=edit_object_task, task_param=task_data)
 
     for item in vote_res:
-        item['status'] = int(item['status'])
-        task_data = {
-            'vote_type': item['status'],
-            'current_pleb': pleb,
-            'object_uuid': item['parent_object'],
-            'object_type': item['object_type']
-        }
-        spawn_task(task_func=vote_object_task, task_param=task_data)
+        try:
+            item['status'] = int(item['status'])
+            task_data = {
+                'vote_type': item['status'],
+                'current_pleb': pleb,
+                'object_uuid': item['parent_object'],
+                'object_type': item['object_type']
+            }
+            spawn_task(task_func=vote_object_task, task_param=task_data)
+        except KeyError:
+            pass
     return Response({'detail': 'success'}, status=200)
 
 

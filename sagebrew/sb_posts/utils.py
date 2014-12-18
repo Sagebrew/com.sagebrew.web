@@ -28,6 +28,8 @@ def get_pleb_posts(pleb_object, range_end, range_start=0):
                      'RETURN posts'\
                      % (pleb_object.email, str(range_start), str(range_end))
         pleb_posts, meta = execute_cypher_query(post_query)
+        if isinstance(pleb_posts, Exception):
+            return pleb_posts
         posts = [SBPost.inflate(row[0]) for row in pleb_posts]
         return posts
     except IndexError as e:

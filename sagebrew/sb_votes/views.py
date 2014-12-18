@@ -9,6 +9,7 @@ from rest_framework.response import Response
 
 from .forms import VoteObjectForm
 from .tasks import vote_object_task
+from .utils import determine_update_values
 from api.utils import spawn_task
 from api.tasks import get_pleb_task
 from sb_base.utils import defensive_exception
@@ -60,20 +61,9 @@ def vote_object_view(request):
                 return Response({"detail": "server error"}, status=500)
             prev_status = int(prev_vote['status'])
             update_status = update['status']
-            if update_status==2 and prev_status==1:
-                upvote_value -= 1
-            elif update_status==2 and prev_status==0:
-                downvote_value -= 1
-            elif update_status==1 and prev_status==0:
-                downvote_value -= 1
-                upvote_value += 1
-            elif update_status==0 and prev_status==1:
-                downvote_value += 1
-                upvote_value -= 1
-            elif update_status==1 and prev_status==2:
-                upvote_value += 1
-            elif update_status==0 and prev_status==2:
-                downvote_value += 1
+            upvote_value, downvote_value = \
+                determine_update_values(prev_status, update_status,
+                                        upvote_value, downvote_value)
 
         version_add = add_object_to_table("vote_versions", vote_data)
         if isinstance(version_add, Exception) is True:

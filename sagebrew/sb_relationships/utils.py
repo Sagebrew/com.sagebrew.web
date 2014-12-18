@@ -29,6 +29,8 @@ def create_friend_request_util(data):
                 'match (r)-[:REQUEST_TO]-(p2:Pleb) where p2.email="%s" ' \
                 'return p2' % (data['from_pleb'], data['to_pleb'])
         pleb2, meta = execute_cypher_query(query)
+        if isinstance(pleb2, Exception):
+            return pleb2
         if pleb2:
             return True
 

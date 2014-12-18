@@ -18,7 +18,7 @@ from sb_docstore.utils import (connect_to_dynamo, add_object_to_table,
                                get_wall_docs, build_wall_docs,
                                get_user_updates)
 
-class TestSaveComments(TestCase):
+class TestDocstoreUtils(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")

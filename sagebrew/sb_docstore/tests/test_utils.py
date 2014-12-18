@@ -206,5 +206,12 @@ class TestSaveComments(TestCase):
 
         self.assertTrue(res)
 
+    def test_get_user_updates_edits(self):
+        res = get_user_updates(self.pleb.username, str(uuid1()), 'edits')
+
+        self.assertIsInstance(res, list)
+
     def test_get_user_updates(self):
-        pass
+        res = get_user_updates(self.pleb.username, str(uuid1()), 'votes')
+
+        self.assertIsInstance(res, dict)

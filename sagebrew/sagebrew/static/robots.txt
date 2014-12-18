@@ -9,6 +9,7 @@ Disallow: /flag/
 Disallow: /vote/
 Disallow: /edit/
 Disallow: /delete/
+Disallow: /registration/
 
 User-agent: Bingbot
 Disallow: /oauth2/
@@ -21,6 +22,7 @@ Disallow: /flag/
 Disallow: /vote/
 Disallow: /edit/
 Disallow: /delete/
+Disallow: /registration/
 
 User-agent: YahooSeeker
 Disallow: /oauth2/
@@ -33,6 +35,7 @@ Disallow: /flag/
 Disallow: /vote/
 Disallow: /edit/
 Disallow: /delete/
+Disallow: /registration/
 
 User-agent: *
 Disallow: /

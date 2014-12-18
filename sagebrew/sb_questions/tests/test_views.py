@@ -164,7 +164,7 @@ class TestGetQuestionView(TestCase):
         response = get_question_view(request)
         response = response.render()
 
-        self.assertIn('Upvotes: 0 | Downvotes: 0 | Asked by: ',
+        self.assertIn('Asked by: ',
                       response.content)
         self.assertEqual(response.status_code, 200)
 

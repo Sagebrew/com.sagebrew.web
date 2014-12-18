@@ -69,7 +69,6 @@ def edit_object_view(request):
 def edit_question_title_view(request):
     try:
         edit_question_form = EditQuestionForm(request.DATA)
-        edit_question_form['current_pleb'] = request.user.email
         valid_form = edit_question_form.is_valid()
     except AttributeError:
         return Response(status=400)

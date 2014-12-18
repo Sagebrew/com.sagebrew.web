@@ -16,7 +16,6 @@ logger = logging.getLogger('loggly_logs')
 @permission_classes((IsAuthenticated,))
 def delete_object_view(request):
     try:
-        request.DATA['current_pleb'] = request.user.email
         delete_object_form = DeleteObjectForm(request.DATA)
         valid_form = delete_object_form.is_valid()
     except AttributeError:

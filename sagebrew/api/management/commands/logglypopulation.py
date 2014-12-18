@@ -10,7 +10,7 @@ class Command(BaseCommand):
         with open("%s/rsyslog_template.conf" % settings.REPO_DIR,
                   "r") as rsys_log:
             data = rsys_log.read()
-            data = data.replace('{{TOKEN}}', environ.get("SYS_LOG_TOKEN"))
+            data = data.replace('{{TOKEN}}', environ.get("SYS_LOG_TOKEN", ""))
         f = open("/etc/rsyslog.d/sagebrew.conf", "w")
         f.write(data)
         f.close()

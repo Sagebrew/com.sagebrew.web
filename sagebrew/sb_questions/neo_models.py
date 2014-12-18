@@ -16,10 +16,10 @@ from sb_base.decorators import apply_defense
 
 
 class SBQuestion(SBVersioned, SBTagContent):
+    table = 'public_questions'
     up_vote_adjustment = 5
     down_vote_adjustment = 2
-    allowed_flags = ["explicit", "spam", "duplicate",
-                     "unsupported", "other"]
+    object_type = "0274a216-644f-11e4-9ad9-080027242395"
 
     answer_number = IntegerProperty(default=0)
     question_title = StringProperty()
@@ -106,10 +106,11 @@ class SBQuestion(SBVersioned, SBTagContent):
             return e
 
     @apply_defense
-    def get_single_question_dict(self, pleb):
+    def get_single_dict(self, pleb=None):
         from sb_answers.neo_models import SBAnswer
         try:
             answer_array = []
+            comment_array = []
             owner = self.owned_by.all()
             owner = owner[0]
             owner_name = owner.first_name + ' ' + owner.last_name
@@ -122,24 +123,29 @@ class SBQuestion(SBVersioned, SBTagContent):
             answers, meta = execute_cypher_query(query)
             answers = [SBAnswer.inflate(row[0]) for row in answers]
             for answer in answers:
-                answer_array.append(answer.get_single_answer_dict(pleb))
+                answer_array.append(answer.get_single_dict(pleb))
             edit = self.get_most_recent_edit()
+            for comment in self.comments.all():
+                comment_array.append(comment.get_single_dict())
 
             question_dict = {'question_title': edit.question_title,
-                             'question_content': edit.content,
-                             'question_uuid': self.sb_id,
+                             'content': edit.content,
+                             'object_uuid': self.sb_id,
                              'is_closed': self.is_closed,
                              'answer_number': self.answer_number,
-                             'last_edited_on': self.last_edited_on,
+                             'last_edited_on': unicode(self.last_edited_on),
                              'up_vote_number': self.get_upvote_count(),
                              'down_vote_number': self.get_downvote_count(),
                              'vote_score': self.get_vote_count(),
                              'owner': owner_name,
                              'owner_profile_url': owner_profile_url,
-                             'time_created': self.date_created,
+                             'time_created': unicode(self.date_created),
                              'answers': answer_array,
+                             'comments': comment_array,
                              'current_pleb': pleb,
-                             'owner_email': owner.email}
+                             'owner_email': owner.email,
+                             'edits': [],
+                             'object_type': self.object_type}
             return question_dict
         except CypherException as e:
             return e
@@ -171,33 +177,43 @@ class SBQuestion(SBVersioned, SBTagContent):
             return e
 
     @apply_defense
-    def render_question_page(self, pleb):
+    def render_question_page(self, user_email):
         try:
             owner = self.owned_by.all()
             try:
                 owner = owner[0]
             except IndexError as e:
-                # TODO Should we fail out here?
                 return e
             owner = "%s %s" % (owner.first_name, owner.last_name)
-            question_dict = {'question_title': self.
-                                get_most_recent_edit().question_title,
-                             'question_content':
-                                 self.get_most_recent_edit().content[:50]+'...',
-                             'is_closed': self.is_closed,
-                             'answer_number': self.answer_number,
-                             'last_edited_on': self.last_edited_on,
-                             'up_vote_number': self.up_vote_number,
-                             'down_vote_number': self.down_vote_number,
-                             'owner': owner,
-                             'time_created': self.date_created,
-                             'question_url': self.sb_id,
-                             'current_pleb': pleb
-                        }
+            most_recent = self.get_most_recent_edit()
+            if isinstance(most_recent, Exception):
+                return most_recent
+            if most_recent is not None:
+                most_recent_content = most_recent.content
+                if most_recent_content is not None:
+                    if len(most_recent_content) > 50:
+                        most_recent_content = most_recent_content[:50] + '...'
+                    question_dict = {
+                        'question_title': most_recent.question_title,
+                        'question_content': most_recent_content,
+                        'is_closed': self.is_closed,
+                        'answer_number': self.answer_number,
+                        'last_edited_on': self.last_edited_on,
+                        'up_vote_number': self.up_vote_number,
+                        'down_vote_number': self.down_vote_number,
+                        'owner': owner,
+                        'time_created': self.date_created,
+                        'question_url': self.sb_id,
+                        'current_pleb': user_email
+                    }
+                else:
+                    question_dict = {"detail": "failed"}
+            else:
+                question_dict = {"detail": "failed"}
             t = get_template("questions.html")
             c = Context(question_dict)
             return t.render(c)
-        except CypherException as e:
+        except (CypherException, IOError) as e:
             return e
 
     @apply_defense
@@ -208,8 +224,6 @@ class SBQuestion(SBVersioned, SBTagContent):
             except IndexError as e:
                 return e
             owner_name = "%s %s" % (owner.first_name, owner.last_name)
-            # TODO Do we need the WEB_ADDRESS can't we just use the absolute
-            # path?
             owner_profile_url = owner.username
             question_dict = {
                 "question_title": self.get_most_recent_edit().question_title,
@@ -233,7 +247,7 @@ class SBQuestion(SBVersioned, SBTagContent):
     def render_single(self, pleb):
         try:
             t = get_template("single_question.html")
-            c = Context(self.get_single_question_dict(pleb))
+            c = Context(self.get_single_dict(pleb))
             return t.render(c)
         except CypherException as e:
             return e
@@ -246,7 +260,7 @@ class SBQuestion(SBVersioned, SBTagContent):
         try:
             if self.original is True:
                 return self
-            return self.edit_to.search(original=True)
+            return self.edit_to.all()[0]
         except CypherException as e:
             return e
 
@@ -254,9 +268,10 @@ class SBQuestion(SBVersioned, SBTagContent):
     def get_most_recent_edit(self):
         try:
             results, columns = self.cypher('start q=node({self}) '
-                                          'match q-[:EDIT]-(n:SBQuestion) '
-                                          'with n '
-                                          'ORDER BY n.date_created DESC return n')
+                                           'match q-[:EDIT]-(n:SBQuestion) '
+                                           'with n '
+                                           'ORDER BY n.date_created DESC'
+                                           ' return n')
             edits = [self.inflate(row[0]) for row in results]
             if not edits:
                 return self

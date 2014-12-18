@@ -119,7 +119,8 @@ class TestGetQuestionView(TestCase):
 
     def test_get_question_view_correct_data(self):
         my_dict = {'current_pleb': 'tyler.wiersing@sagebrew.com',
-                   'sort_by': 'most_recent'}
+                   'sort_by': 'most_recent',
+                   'user': 'tyler.wiersing@sagebrew.com'}
         request = self.factory.post('/questions/query_questions_api/',
                                     data=my_dict,
                                     format='json')
@@ -143,7 +144,7 @@ class TestGetQuestionView(TestCase):
         response = get_question_view(request)
         response = response.render()
 
-        self.assertIn('Content: test... | Answers: 0 | Upvotes: 0 | '
+        self.assertIn('Content: test | Answers: 0 | Upvotes: 0 | '
                       'Downvotes: 0 |',
                       response.content)
         self.assertEqual(response.status_code, 200)

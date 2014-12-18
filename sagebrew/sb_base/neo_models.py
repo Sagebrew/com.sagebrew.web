@@ -12,7 +12,6 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
 from sb_base.decorators import apply_defense
 
 
-
 class EditRelationshipModel(StructuredRel):
     time_edited = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
@@ -24,15 +23,18 @@ class PostedOnRel(StructuredRel):
 class PostReceivedRel(StructuredRel):
     received = BooleanProperty()
 
+
 class RelationshipWeight(StructuredRel):
     weight = IntegerProperty(default=150)
     status = StringProperty(default='seen')
     seen = BooleanProperty(default=True)
 
+
 class VoteRelationship(StructuredRel):
     active = BooleanProperty(default=True)
     vote_type = BooleanProperty() # True is up False is down
     date_created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+
 
 class SBVoteableContent(StructuredNode):
     up_vote_adjustment = 0
@@ -56,7 +58,7 @@ class SBVoteableContent(StructuredNode):
         try:
             if self.votes.is_connected(pleb):
                 rel = self.votes.relationship(pleb)
-                if vote_type is rel.vote_type:
+                if vote_type == 2:
                     return self.remove_vote(rel)
                 rel.vote_type = vote_type
                 rel.active = True
@@ -65,6 +67,8 @@ class SBVoteableContent(StructuredNode):
                 rel = self.votes.connect(pleb)
                 rel.vote_type = vote_type
                 rel.active = True
+                if vote_type == 2:
+                    rel.active = False
                 rel.save()
             return self
         except CypherException as e:
@@ -108,6 +112,7 @@ class SBVoteableContent(StructuredNode):
 
 
 class SBContent(SBVoteableContent):
+    table = ''
     allowed_flags = []
     up_vote_number = IntegerProperty(default=0)
     down_vote_number = IntegerProperty(default=0)
@@ -192,10 +197,16 @@ class SBContent(SBVoteableContent):
     def render_single(self, pleb):
         pass
 
+    @apply_defense
+    def get_table(self):
+        return self.table
+
 
 
 class SBVersioned(SBContent):
     __abstract_node__ = True
+    allowed_flags = ["explicit", "spam", "duplicate",
+                     "unsupported", "other"]
     edit = lambda self: self.__class__.__name__
     original = BooleanProperty(default=True)
     draft = BooleanProperty(default=False)
@@ -215,6 +226,7 @@ class SBVersioned(SBContent):
 
 
 class SBNonVersioned(SBContent):
+    allowed_flags = ["explicit", "spam", "other"]
     #relationships
     auto_tagged_as = RelationshipTo('sb_tag.neo_models.SBTag',
                                     'AUTO_TAGGED_AS')
@@ -239,30 +251,37 @@ class SBTagContent(StructuredNode):
     #methods
     @apply_defense
     def add_tags(self, tags):
+        """
+        :param tags: String that contains a list of the tags being added with
+                     a , representing the splitting point
+        :return:
+        """
         from sb_tag.neo_models import SBTag
-        try:
-            tag_array = []
-            es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-            if not tags:
-                return False
-            tags = tags.split(',')
-            for tag in tags:
-                try:
-                    tag_object = SBTag.nodes.get(tag_name=tag)
-                    tag_array.append(tag_object)
-                except (SBTag.DoesNotExist, DoesNotExist):
-                    es.index(index='tags', doc_type='tag',
-                             body={'tag_name': tag})
-                    tag_object = SBTag(tag_name=tag).save()
-                    tag_array.append(tag_object)
-            for item in tag_array:
+        tag_array = []
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        if not tags:
+            return False
+
+        tags = tags.split(',')
+        for tag in tags:
+            try:
+                tag_object = SBTag.nodes.get(tag_name=tag)
+                tag_array.append(tag_object)
+            except (SBTag.DoesNotExist, DoesNotExist):
+                es.index(index='tags', doc_type='tag',
+                         body={'tag_name': tag})
+                tag_object = SBTag(tag_name=tag).save()
+                tag_array.append(tag_object)
+            except CypherException as e:
+                return e
+        for item in tag_array:
+            try:
                 self.tagged_as.connect(item)
                 item.tag_used += 1
                 item.save()
-            return True
-        except CypherException as e:
-            return e
-
+            except CypherException as e:
+                return e
+        return True
 
     def add_auto_tags(self, tag_list):
         from sb_tag.neo_models import SBAutoTag
@@ -281,8 +300,6 @@ class SBTagContent(StructuredNode):
             return tag_array
         except KeyError as e:
             return e
-        except Exception as e:
-            return defensive_exception(self.add_auto_tags.__name__, e, e)
 
 
 

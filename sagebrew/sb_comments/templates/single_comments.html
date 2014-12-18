@@ -1,6 +1,6 @@
 <div>{{ comment.comment_content }} |
-        Upvotes={{ comment.comment_up_vote_number }} |
-        Downvotes={{ comment.comment_down_vote_number }} | Last
+        Upvotes={{ comment.up_vote_number }} |
+        Downvotes={{ comment.down_vote_number }} | Last
         Edited: {{ comment.comment_last_edited_on }} | Posted
         By: {{ comment.comment_owner }}</div>
     {% if comment.comment_owner_email == current_user %}

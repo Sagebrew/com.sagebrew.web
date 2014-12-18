@@ -15,7 +15,7 @@ urlpatterns = patterns(
         TemplateView.as_view(template_name='verify_email.html')),
         name="confirm_view"),
 
-    url(r'^login/api/$', login_view_api, name="login_api"),
+    url(r'^login/api/$', login_view_api, name="login_api"), # TODO should move this to pleb or sagebrew app
     url(r'^profile_information/$', profile_information, name="profile_info"),
     url(r'^interests/$', interests, name="interests"),
     url(r'^profile_picture/$', profile_picture, name="profile_picture"),
@@ -27,5 +27,5 @@ urlpatterns = patterns(
 
     url(r'^email_confirmation/(?P<confirmation>[A-Za-z0-9.@_%+-]{24})/$',
         email_verification, name="email_verification"),
-    url(r'^beta/$', TemplateView.as_view(template_name="sb_beta.html"))
+    url(r'^beta/$', TemplateView.as_view(template_name="sb_beta.html")) # TODO should move this to the core sagebrew app
 )

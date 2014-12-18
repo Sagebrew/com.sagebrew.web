@@ -159,21 +159,23 @@ INSTALLED_APPS = (
     'api',
     'govtrack',
     'neomodel',
-    'sb_registration',
-    'sb_comments',
-    'sb_posts',
-    'sb_wall',
-    'sb_notifications',
-    'sb_relationships',
-    'sb_tag',
-    'sb_questions',
     'sb_answers',
-    'sb_trends',
-    'sb_search',
-    'sb_votes',
-    'sb_flags',
-    'sb_edits',
+    'sb_base',
+    'sb_comments',
     'sb_deletes',
+    'sb_docstore',
+    'sb_edits',
+    'sb_flags',
+    'sb_notifications',
+    'sb_posts',
+    'sb_questions',
+    'sb_registration',
+    'sb_relationships',
+    'sb_search',
+    'sb_tag',
+    'sb_trends',
+    'sb_votes',
+    'sb_wall',
     'elasticsearch',
     'textblob',
     'help_center',
@@ -227,13 +229,8 @@ ALCHEMY_API_KEY = environ.get("ALCHEMY_API_KEY", '')
 ADDRESS_VALIDATION_ID = environ.get("ADDRESS_VALIDATION_ID", '')
 ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN", '')
 
+DYNAMO_IP = environ.get("DYNAMO_IP", None)
 
-CELERYBEAT_SCHEDULE = {
-    'empty-garbage-can-minute': {
-        'task': 'sb_garbage.tasks.empty_garbage_can',
-        'schedule': timedelta(minutes=30),
-    }
-}
 CELERY_TIMEZONE = 'UTC'
 
 
@@ -262,7 +259,6 @@ OBJECT_RELATIONSHIP_BASE = {
 }
 
 
-# TODO revisit search modifiers
 OBJECT_SEARCH_MODIFIERS = {
     'post': 10, 'comment_on': 5, 'upvote': 3, 'downvote': -3,
     'time': -1, 'proximity_to_you': 10, 'proximity_to_interest': 10,
@@ -284,7 +280,9 @@ KNOWN_TYPES = [
     ("02ba1c88-644f-11e4-9ad9-080027242395", "sb_comments.neo_models.SBComment")
 ]
 
-# TODO When doing load testing and beta testing ensure that LOGGING of DB is on
-# and at w/e level we need to check response times. We might be able to
-# determine it from new relic but we should check into that prior to moving
-# forward
+KNOWN_TABLES = {
+    "01bb301a-644f-11e4-9ad9-080027242395": "posts",
+    "02241aee-644f-11e4-9ad9-080027242395": "public_solutions",
+    "0274a216-644f-11e4-9ad9-080027242395": "public_questions",
+    "02ba1c88-644f-11e4-9ad9-080027242395": "comments"
+}

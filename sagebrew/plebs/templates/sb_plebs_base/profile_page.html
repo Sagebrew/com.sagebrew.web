@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% block title %}{{request.user.first_name}} {{ request.user.last_name }}{% endblock title %}
 {% block navigation %}
     {% include "navigation/logged_in_navigation.html" %}
 {% endblock %}

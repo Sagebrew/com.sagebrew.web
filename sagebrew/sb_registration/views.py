@@ -10,13 +10,13 @@ from django.template.loader import get_template
 from django.template import Context
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from neomodel import DoesNotExist, AttemptedCardinalityViolation
+from neomodel import (DoesNotExist, AttemptedCardinalityViolation,
+                      CypherException)
 
 from sb_tag.neo_models import SBTag
 from api.utils import spawn_task
 from plebs.tasks import send_email_task
 from plebs.neo_models import Pleb, Address
-from sb_base.utils import defensive_exception
 
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm,
@@ -30,76 +30,48 @@ from .models import token_gen
 
 @api_view(['POST'])
 def signup_view_api(request):
-    # TODO discuss potential to store off initial user into dynamo or just in
-    # postgres until confirmation email is verified. If it is then store
-    # user into neo.
-    # That way if we get a flood of bots trying to sign up we aren't DDoSing
-    # Neo and will have an automated routine that removes the user from the
-    # document store after a day and potentially sets them as flagged for
-    # suspicious activity if more than say a week passes and no one activates
-    # their email. Should be able to perform the hashing process on the
-    # data stored in dynamo or psql the same way we do with the Pleb currently.
     try:
-        try:
-            signup_form = SignupForm(request.DATA)
-        except TypeError:
-            return Response(status=400)
-        if signup_form.is_valid():
-            if signup_form.cleaned_data['password'] != \
-                    signup_form.cleaned_data['password2']:
-                return Response({'detail': 'Passwords do not match!'},
-                                status=401)
-            try:
-                User.objects.get(email=signup_form.cleaned_data['email'])
-                return Response(
-                    {'detail': 'A user with this email already exists!'},
-                    status=401)
-            except User.DoesNotExist:
-                res = create_user_util(first_name=signup_form.
-                                       cleaned_data['first_name'],
-                                       last_name=signup_form.
-                                       cleaned_data['last_name'],
-                                       email=signup_form.
-                                       cleaned_data['email'],
-                                       password=signup_form.
-                                       cleaned_data['password'])
-                # TODO if this fails we might want to roll back the user creation
-                # Otherwise we end up creating a user and never actually moving
-                # the user forward. Then when they go to try again they get
-                # a user already exists error
-                # Also need to benchmark process in production/staging
-                # on local instance with docker after clicking sign up the
-                # user sits at the page for a couple seconds prior to being
-                # redirected. This makes it seem as though nothing happened on
-                # click. They click again and it results in an error being provided.
-                # We may have to do a loading greyed out screen while waiting
-                # for a response if the timing takes that long in prod.
-                # Or go over to a pure view implementation without the API.
-                # Just need to look into it when not going through so many
-                # different hops
-                if res and res is not None:
-                    user = authenticate(username=res['username'],
-                                        password=signup_form.cleaned_data[
-                                            'password'])
-                else:
-                    return Response({'detail': 'system error'}, status=500)
-                if user is not None:
-                    if user.is_active:
-                        login(request, user)
-                        return Response({'detail': 'success'}, status=200)
-                    else:
-                        return Response({'detail': 'account disabled'},
-                                        status=400)
-                else:
-                    return Response({'detail': 'invalid login'},
-                                    status=400)
-        # TODO add a handler for if the form is not valid
+        signup_form = SignupForm(request.DATA)
+        valid_form = signup_form.is_valid()
     except AttributeError:
         return Response(status=400)
-    except Exception as e:
-        return defensive_exception(signup_view_api.__name__, e,
-                                   Response({'detail': 'exception'},
-                                            status=400))
+    if valid_form:
+        if signup_form.cleaned_data['password'] != \
+                signup_form.cleaned_data['password2']:
+            return Response({'detail': 'Passwords do not match!'},
+                            status=401)
+        try:
+            User.objects.get(email=signup_form.cleaned_data['email'])
+            return Response(
+                {'detail': 'A user with this email already exists!'},
+                status=401)
+        except User.DoesNotExist:
+            res = create_user_util(first_name=signup_form.
+                                   cleaned_data['first_name'],
+                                   last_name=signup_form.
+                                   cleaned_data['last_name'],
+                                   email=signup_form.
+                                   cleaned_data['email'],
+                                   password=signup_form.
+                                   cleaned_data['password'])
+            if res and res is not None:
+                user = authenticate(username=res['username'],
+                                    password=signup_form.cleaned_data[
+                                        'password'])
+            else:
+                return Response({'detail': 'system error'}, status=500)
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    return Response({'detail': 'success'}, status=200)
+                else:
+                    return Response({'detail': 'account disabled'},
+                                    status=400)
+            else:
+                return Response({'detail': 'invalid login'},
+                                status=400)
+    else:
+        return Response({'detail': "invalid form"}, status=400)
 
 
 def login_view(request):
@@ -110,11 +82,11 @@ def login_view(request):
 def resend_email_verification(request):
     try:
         pleb = Pleb.nodes.get(email=request.user.email)
-    except (Pleb.DoesNotExist, DoesNotExist):
+    except(DoesNotExist):
         return Response({'detail': 'pleb does not exist'}, status=400)
 
     template_dict = {
-        'full_name': request.user.first_name+' '+request.user.last_name,
+        'full_name': request.user.get_full_name(),
         'verification_url': "%s%s%s" % (settings.EMAIL_VERIFICATION_URL,
                                         token_gen.make_token(
                                             request.user, pleb),
@@ -137,49 +109,43 @@ def resend_email_verification(request):
 @api_view(['POST'])
 def login_view_api(request):
     try:
-        try:
-            login_form = LoginForm(request.DATA)
-        except TypeError:
-            return Response(status=400)
-        if login_form.is_valid():
-            try:
-                user = User.objects.get(email=login_form.cleaned_data['email'])
-            except User.DoesNotExist:
-                return Response({'detail': 'cannot find user'}, status=400)
-            user = authenticate(username=user.username,
-                                password=login_form.cleaned_data['password'])
-            if user is not None:
-                if user.is_active:
-                    login(request, user)
-                    # TODO do we need this logic? If we can get away with
-                    # loading the page based on the user.email and user.username
-                    # we should try. Then we can query the pleb when we
-                    # get to their page and build their document storage up
-                    # if it's not already built
-                    try:
-                        pleb = Pleb.nodes.get(email=user.email)
-                    except (Pleb.DoesNotExist, DoesNotExist):
-                        return Response({'detail': 'cannot find user'},
-                                        status=400)
-
-                    rev = reverse('profile_page',
-                                  kwargs={'pleb_username': pleb.username})
-                    profile_page_url = settings.WEB_ADDRESS+rev
-                    return Response({'detail': 'success',
-                                     'user': user.email,
-                                     'url': profile_page_url}, status=200)
-                else:
-                    return Response({'detail': 'account disabled'},
-                                    status=400)
-            else:
-                return Response({'detail': 'invalid password'}, status=400)
+        login_form = LoginForm(request.DATA)
+        valid_form = login_form.is_valid()
     except AttributeError:
         return Response(status=400)
-    except Exception as e:
-        return defensive_exception(login_view_api.__name__, e,
-                                   Response({'detail': 'exception'},
-                                            status=400))
+    if valid_form:
+        try:
+            user = User.objects.get(email=login_form.cleaned_data['email'])
+        except User.DoesNotExist:
+            return Response({'detail': 'cannot find user'}, status=400)
+        user = authenticate(username=user.username,
+                            password=login_form.cleaned_data['password'])
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                # TODO do we need this logic? If we can get away with
+                # loading the page based on the user.email and user.username
+                # we should try. Then we can query the pleb when we
+                # get to their page and build their document storage up
+                # if it's not already built
+                try:
+                    pleb = Pleb.nodes.get(email=user.email)
+                except (Pleb.DoesNotExist, DoesNotExist):
+                    return Response({'detail': 'cannot find user'},
+                                    status=400)
 
+                rev = reverse('profile_page',
+                              kwargs={'pleb_username': pleb.username})
+                profile_page_url = settings.WEB_ADDRESS+rev
+                return Response({'detail': 'success',
+                                 'user': user.email,
+                                 'url': profile_page_url}, status=200)
+            else:
+                return Response({'detail': 'account disabled'},
+                                status=400)
+        else:
+            return Response({'detail': 'invalid password'}, status=400)
+    # TODO add a handler for if the form is not valid
 
 @login_required()
 def logout_view(request):
@@ -200,9 +166,9 @@ def email_verification(request, confirmation):
             return HttpResponse('Unauthorized', status=401)
     except (Pleb.DoesNotExist, DoesNotExist):
         return redirect('logout')
-    except Exception as e:
-        return defensive_exception(email_verification.__name__, e,
-                                   redirect('confirm_view'))
+    except(CypherException):
+        # TODO Actually redirect to 500 page
+        return HttpResponse('Server Error', status=500)
 
 
 @login_required
@@ -314,30 +280,29 @@ def interests(request):
     :param request:
     :return: HttpResponse
     '''
-    try:
-        interest_form = InterestForm(request.POST or None)
-        if interest_form.is_valid():
-            # TODO can we use the base user here rather than
-            # querying for the pleb? Then spawn a task for connecting the
-            # interests
-            try:
-                citizen = Pleb.nodes.get(email=request.user.email)
-            except (Pleb.DoesNotExist, DoesNotExist):
-                return redirect("404_Error")
-            for item in interest_form.cleaned_data:
-                if interest_form.cleaned_data[item]:
-                    try:
-                        tag = SBTag.nodes.get(tag_name=item)
-                    except (SBTag.DoesNotExist, DoesNotExist):
-                        return redirect("404_Error")
+    interest_form = InterestForm(request.POST or None)
+    if interest_form.is_valid():
+        # TODO can we use the base user here rather than
+        # querying for the pleb? Then spawn a task for connecting the
+        # interests
+        try:
+            citizen = Pleb.nodes.get(email=request.user.email)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            return redirect("404_Error")
+        except CypherException:
+            return HttpResponse('Server Error', status=500)
+        for item in interest_form.cleaned_data:
+            if interest_form.cleaned_data[item]:
+                try:
+                    tag = SBTag.nodes.get(tag_name=item)
                     citizen.interests.connect(tag)
-            return redirect('profile_picture')
+                except (SBTag.DoesNotExist, DoesNotExist):
+                    return redirect("404_Error")
+                except CypherException:
+                    return HttpResponse('Server Error', status=500)
+        return redirect('profile_picture')
 
-        return render(request, 'interests.html',
-                      {'interest_form': interest_form})
-    except Exception as e:
-        return defensive_exception(login_view_api.__name__, e,
-                                   redirect("404_Error"))
+    return render(request, 'interests.html', {'interest_form': interest_form})
 
 
 @login_required()
@@ -359,24 +324,26 @@ def profile_picture(request):
     # Then spawn a task to connect the profile pic? We'll want to save the image
     # as quickly as possible so it's available but maybe we do that with the
     # new document store, save it into the pleb's document quickly and then
-    # spawn off a task for storing the url in neo.
+    # spawn off a task for storing the url in neo and working with blitline to
+    # get different versions of the image.
     try:
         citizen = Pleb.nodes.get(email=request.user.email)
-    except Pleb.DoesNotExist:
+    except(Pleb.DoesNotExist, DoesNotExist):
         return render(request, 'login.html')
+    except CypherException:
+        return HttpResponse('Server Error', status=500)
     if request.method == 'POST':
         profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
 
         if profile_picture_form.is_valid():
-
             image_uuid = uuid1()
             data = request.FILES['picture']
             temp_file = '%s%s.jpeg' % (settings.TEMP_FILES, image_uuid)
             with open(temp_file, 'wb+') as destination:
                 for chunk in data.chunks():
                     destination.write(chunk)
-            citizen.profile_pic = upload_image(settings.AWS_PROFILE_PICTURE_FOLDER_NAME,
-                                               image_uuid)
+            citizen.profile_pic = upload_image(
+                settings.AWS_PROFILE_PICTURE_FOLDER_NAME, image_uuid)
             citizen.profile_pic_uuid = image_uuid
             citizen.save()
             return redirect('profile_page', pleb_username=citizen.username)

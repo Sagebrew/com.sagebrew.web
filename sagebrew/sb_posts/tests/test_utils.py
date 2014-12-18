@@ -20,8 +20,6 @@ class TestSavePost(TestCase):
         self.assertIsNot(post, False)
 
     def test_post_already_exists(self):
-        # TODO changed the response for an already existing post to True
-        # Does this screw any other functionality?
         post_info_dict = {'content': 'test post',
                           'post_uuid': str(uuid1())}
 
@@ -29,7 +27,7 @@ class TestSavePost(TestCase):
         prev_post.save()
         post = save_post(post_uuid=post_info_dict['post_uuid'],
                          content='test post')
-        self.assertTrue(post)
+        self.assertIsInstance(post, SBPost)
 
 
 class TestGetPlebPostsUtil(TestCase):

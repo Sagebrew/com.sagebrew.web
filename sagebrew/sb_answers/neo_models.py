@@ -1,7 +1,6 @@
 import pytz
 from uuid import uuid1
 from datetime import datetime
-from django.conf import settings
 
 from neomodel import (StringProperty, RelationshipTo, BooleanProperty,
                       CypherException)
@@ -11,12 +10,13 @@ from sb_base.decorators import apply_defense
 
 from sb_base.neo_models import SBVersioned
 
+
 class SBAnswer(SBVersioned):
+    object_type = "02241aee-644f-11e4-9ad9-080027242395"
+    table = 'public_solutions'
     up_vote_adjustment = 10
     down_vote_adjustment = 10
     down_vote_cost = 2
-    allowed_flags = ["explicit", "spam", "duplicate",
-                     "unsupported", "other"]
     sb_name = "answer"
     added_to_search_index = BooleanProperty(default=False)
     search_id = StringProperty()
@@ -59,23 +59,31 @@ class SBAnswer(SBVersioned):
             return e
 
     @apply_defense
-    def get_single_answer_dict(self, pleb):
+    def get_single_dict(self, pleb=None):
         try:
+            comment_array = []
             answer_owner = self.owned_by.all()[0]
             answer_owner_name = answer_owner.first_name +' '+answer_owner.last_name
             answer_owner_url = answer_owner.username
-            answer_dict = {'answer_content': self.content,
+            for comment in self.comments.all():
+                comment_array.append(comment.get_single_dict())
+            answer_dict = {'content': self.content,
                            'current_pleb': pleb,
-                           'answer_uuid': self.sb_id,
-                           'last_edited_on': self.last_edited_on,
+                           'parent_object': self.answer_to.all()[0].sb_id,
+                           'object_uuid': self.sb_id,
+                           'last_edited_on': unicode(self.last_edited_on),
                            'up_vote_number': self.get_upvote_count(),
                            'down_vote_number': self.get_downvote_count(),
                            'vote_score': self.get_vote_count(),
                            'answer_owner_name': answer_owner_name,
                            'answer_owner_url': answer_owner.username,
-                           'time_created': self.date_created,
-                           'answer_owner_email': answer_owner.email}
+                           'time_created': unicode(self.date_created),
+                           'comments': comment_array,
+                           'answer_owner_email': answer_owner.email,
+                           'edits': [],
+                           'object_type': self.object_type}
             return answer_dict
         except CypherException as e:
             return e
+
 

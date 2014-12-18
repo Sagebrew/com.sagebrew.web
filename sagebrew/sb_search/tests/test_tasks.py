@@ -1,4 +1,5 @@
 import time
+import pickle
 import pytz
 from uuid import uuid1
 from datetime import datetime
@@ -7,6 +8,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 
 from elasticsearch import Elasticsearch
+from neomodel.exception import DoesNotExist
 
 from api.utils import wait_util
 from plebs.neo_models import Pleb
@@ -391,6 +393,7 @@ class TestUpdateWeightRelationshipTaskPleb(TestCase):
 
         self.assertFalse(res)
 
+
 class TestAddUserToCustomIndexTask(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
@@ -553,7 +556,26 @@ class TestUpdateSearchQuery(TestCase):
             time.sleep(1)
         res = res.result
 
-        self.assertFalse(res)
+        self.assertIsInstance(res, DoesNotExist)
+
+    def test_update_search_query_success_pleb_does_not_exist_pickle(self):
+        from sb_search.neo_models import SearchQuery
+        test_query = SearchQuery(search_query="this is a test search query")
+        test_query.save()
+
+        task_data = {
+            "pleb": str(uuid1()), "query_param": test_query.search_query,
+            "keywords": ['fake', 'keywords']
+        }
+
+        res = update_search_query.apply_async(kwargs=task_data)
+
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+        pickle_instance = pickle.dumps(res)
+        self.assertTrue(pickle_instance)
+        self.assertIsInstance(pickle.loads(pickle_instance), DoesNotExist)
 
 
 class TestCreateKeywordTask(TestCase):

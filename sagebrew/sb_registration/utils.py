@@ -201,11 +201,6 @@ def upload_image(folder_name, file_uuid, file_location=None):
     k.key = key_string
     k.set_contents_from_filename(file_path)
     image_uri = k.generate_url(expires_in=259200)
-    # TODO This should be reviewed and updated. It is a quick fix for
-    # not deleting the test file in sb_posts/tests/images when running
-    # through tests. We should also be looking into just storing the image
-    # in memory or directly in s3 rather than bringing it locally onto the
-    # system.
     if os.environ.get("CIRCLECI", "false") == "false":
         os.remove(file_path)
     return image_uri
@@ -335,7 +330,6 @@ def sb_send_email(to_email, subject, html_content):
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
         )
-        # TODO swap out source with some service@sagebrew.com type of email
         conn.send_email(source='devon@sagebrew.com', subject=subject,
                         body=html_content, to_addresses=[to_email],
                         format='html')
@@ -347,10 +341,8 @@ def sb_send_email(to_email, subject, html_content):
 def create_user_util(first_name, last_name, email, password, username=None):
     if username is None:
         username = str(shortuuid.uuid())
-    user = User.objects.create_user(first_name=first_name,
-                                    last_name=last_name,
-                                    email=email,
-                                    password=password,
+    user = User.objects.create_user(first_name=first_name, last_name=last_name,
+                                    email=email, password=password,
                                     username=username)
     user.save()
     res = spawn_task(task_func=create_pleb_task,

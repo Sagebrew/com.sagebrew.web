@@ -26,8 +26,8 @@ class TestSBPostNeoModels(TestCase):
 
         self.assertFalse(isinstance(res, Exception))
 
-    def test_get_post_dictionary(self):
-        res = self.post.get_post_dictionary(self.pleb)
+    def test_get_single_dict(self):
+        res = self.post.get_single_dict(self.pleb)
 
         self.assertIsInstance(res, dict)
 

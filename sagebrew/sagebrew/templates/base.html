@@ -3,7 +3,7 @@
 <head>
     {% load staticfiles %}
     <title>{% block title %}Sagebrew{% endblock title %}</title>
-
+    {% block description %}{% endblock description %}
     {% block css %}
         <link href="{% static 'flat-ui/bower_components/bootstrap/dist/css/bootstrap.min.css' %}"rel="stylesheet">
         <link href="{% static 'flat-ui/dist/css/flat-ui-pro.css' %}" rel="stylesheet"/>

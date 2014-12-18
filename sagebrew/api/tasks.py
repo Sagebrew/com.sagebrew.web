@@ -45,8 +45,13 @@ def add_object_to_search_index(index="full-search-base", object_type="",
         return False
     try:
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        res = es.index(index=index, doc_type=object_type,
-                       id=object_data['object_uuid'], body=object_data)
+        try:
+            res = es.index(index=index, doc_type=object_type,
+                           id=object_data['object_uuid'], body=object_data)
+        except KeyError:
+            # TODO should this be pleb.username?
+            res = es.index(index=index, doc_type=object_type,
+                           id=object_data['pleb_email'], body=object_data)
     except (ElasticsearchException, TransportError, ConnectionError,
             RequestError) as e:
         raise add_object_to_search_index.retry(exc=e, countdown=3,
@@ -55,8 +60,7 @@ def add_object_to_search_index(index="full-search-base", object_type="",
         raise defensive_exception(add_object_to_search_index.__name__, e,
                                   add_object_to_search_index.retry(
                                   exc=e, countdown=3, max_retries=None))
-    # TODO what do we want to do if there is a ConflictError
-    # TODO what do we want to do if there is a ImproperlyConfigured
+
 
     search_id_data = {"search_data": res, "object_type": object_type,
                       "object_data": object_data,
@@ -77,6 +81,9 @@ def save_search_id(search_data, object_type, object_data, object_added):
         "doc_id": search_data['_id'],
         "doc_type": search_data['_type']
     }
+    # TODO We may need to change username to sb_id internally for pleb. That
+    # way the following will work and we can potentially just pass around
+    # the username as the object_uuid.
     sb_object = get_object(object_type, object_data['object_uuid'])
     if isinstance(sb_object, Exception) is True:
         raise save_search_id.retry(exc=sb_object, countdown=3,

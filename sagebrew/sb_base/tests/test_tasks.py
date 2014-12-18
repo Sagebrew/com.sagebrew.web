@@ -45,7 +45,7 @@ class TestCreateObjectRelationsTask(TestCase):
         solution_uuid = str(uuid1())
         SBQuestion(content="fake content", question_title="fake title",
                    sb_id=question_uuid).save()
-        solution = SBAnswer(content="fake solution", sb_id=solution_uuid)
+        solution = SBAnswer(content="fake solution", sb_id=solution_uuid).save()
         post_info_dict = {'content': 'test post', 'sb_id': str(uuid1())}
         post = SBPost(**post_info_dict)
         post.save()

@@ -560,7 +560,7 @@ class TestUpdateSearchQuery(TestCase):
 
     def test_update_search_query_success_pleb_does_not_exist_pickle(self):
         from sb_search.neo_models import SearchQuery
-        test_query = SearchQuery(search_query="this is a test search query")
+        test_query = SearchQuery(search_query=str(uuid1()))
         test_query.save()
 
         task_data = {

@@ -35,7 +35,7 @@ def get_updates_from_dynamo(request):
                 'content': edit['content']
             }
             spawn_task(task_func=edit_object_task, task_param=task_data)
-            
+
     for item in vote_res:
         item['status'] = int(item['status'])
         task_data = {

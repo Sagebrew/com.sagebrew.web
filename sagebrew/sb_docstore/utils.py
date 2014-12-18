@@ -2,7 +2,8 @@ from django.conf import settings
 from boto.dynamodb2.layer1 import DynamoDBConnection
 from boto.dynamodb2.table import Table
 from boto.dynamodb2.exceptions import (JSONResponseError, ItemNotFound,
-                                       ConditionalCheckFailedException)
+                                       ConditionalCheckFailedException,
+                                       ValidationException)
 
 from neomodel import DoesNotExist
 
@@ -21,6 +22,7 @@ def connect_to_dynamo():
     directly from neo in the case that dynamo is down but because we currently
     use AWS for a lot of our services, if dynamo is down AWS will most likely
     be down. Also there will be three instances of dynamo on our AWS cloud.
+
     :return:
     '''
     try:
@@ -56,10 +58,10 @@ def add_object_to_table(table_name, object_data):
     try:
         table = Table(table_name=table_name, connection=conn)
     except JSONResponseError:
-        return False #TODO review this return
+        return False
     try:
         table.put_item(data=object_data)
-    except ConditionalCheckFailedException as e:
+    except (ConditionalCheckFailedException, ValidationException) as e:
         return e
     return True
 
@@ -117,7 +119,7 @@ def get_question_doc(question_uuid, question_table, solution_table):
         questions = Table(table_name=question_table, connection=conn)
         solutions = Table(table_name=solution_table, connection=conn)
     except JSONResponseError as e:
-        return e #TODO review this return
+        return e
     try:
         question = questions.get_item(
             object_uuid=question_uuid
@@ -170,6 +172,7 @@ def build_question_page(question_uuid, question_table, solution_table):
     for answer in answer_dicts:
         answer['parent_object'] = question_dict['object_uuid']
         add_object_to_table(table_name=solution_table, object_data=answer)
+    return True
 
 @apply_defense
 def get_vote(object_uuid, user):
@@ -280,7 +283,6 @@ def build_wall_docs(pleb):
     for post in posts:
         post_data = post.get_single_dict()
         comments = post_data.pop('comments', None)
-        print post_data
         post_table.put_item(post_data)
         for comment in comments:
             comment['parent_object'] = post.sb_id

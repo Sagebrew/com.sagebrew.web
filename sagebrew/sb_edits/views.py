@@ -21,7 +21,6 @@ logger = logging.getLogger('loggly_logs')
 @permission_classes((IsAuthenticated,))
 def edit_object_view(request):
     try:
-        request.DATA['current_pleb'] = request.user.email
         edit_object_form = EditObjectForm(request.DATA)
         valid_form = edit_object_form.is_valid()
     except AttributeError:

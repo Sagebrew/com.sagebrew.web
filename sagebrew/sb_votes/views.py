@@ -22,7 +22,6 @@ logger = logging.getLogger('loggly_logs')
 def vote_object_view(request):
     now = unicode(datetime.now(pytz.utc))
     try:
-        request.DATA['current_pleb'] = request.user.email
         vote_object_form = VoteObjectForm(request.DATA)
         valid_form = vote_object_form.is_valid()
     except AttributeError:

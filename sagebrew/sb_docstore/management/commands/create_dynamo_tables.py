@@ -1,3 +1,4 @@
+import os
 from json import loads
 from django.core.management.base import BaseCommand
 from django.conf import settings
@@ -25,13 +26,18 @@ class Command(BaseCommand):
             data = loads(data_file.read())
             conn = connect_to_dynamo()
             for item in data:
+                branch = os.environ.get("CIRCLE_BRANCH", None)
+                if branch == 'staging':
+                    table_name = "staging" + item['table_name']
+                else:
+                    table_name = item['table_name']
                 try:
-                    table = Table(table_name=item['table_name'],
+                    table = Table(table_name=table_name,
                                   connection=conn)
                     table.describe()
                     table.delete()
                 except JSONResponseError:
-                    print 'The table %s does not exist'%item['table_name']
+                    print 'The table %s does not exist'%table_name
                 try:
                     if 'range_key' and 'local_index' in item.keys():
                         Table.create(item['table_name'], schema=[

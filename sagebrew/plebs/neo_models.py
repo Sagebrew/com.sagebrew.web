@@ -18,6 +18,10 @@ from sb_search.neo_models import SearchCount
 class PostObjectCreated(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
+class OfficialRelationship(StructuredRel):
+    active = BooleanProperty(default=False)
+    start_date = DateTimeProperty()
+    end_date = DateTimeProperty()
 
 class School(StructuredNode):
     name = StringProperty()
@@ -142,6 +146,8 @@ class Pleb(StructuredNode):
                               model=SearchCount)
     clicked_results = RelationshipTo('sb_search.neo_models.SearchResult',
                                      'CLICKED_RESULT')
+    official = RelationshipTo('sb_reps.neo_models.BaseOfficial', 'IS',
+                              model=OfficialRelationship)
 
     def generate_username(self):
         temp_username = "%s_%s" % (str(self.first_name).lower(),

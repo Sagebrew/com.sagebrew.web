@@ -3,6 +3,7 @@ from django.template.loader import render_to_string
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from neomodel import CypherException
 
 from api.utils import execute_cypher_query
 
@@ -41,8 +42,10 @@ def get_notifications(request):
             notification_form.cleaned_data['email'],
             str(notification_form.cleaned_data['range_start']),
             str(notification_form.cleaned_data['range_end']))
-
-        notifications, meta = execute_cypher_query(query)
+        try:
+            notifications, meta = execute_cypher_query(query)
+        except CypherException:
+            return Response(status=500)
         notifications = [NotificationBase.inflate(row[0])
                          for row in notifications]
         for notification in notifications:

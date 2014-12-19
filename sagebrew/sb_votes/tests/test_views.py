@@ -26,7 +26,9 @@ class TestVoteObjectView(TestCase):
             'object_type': '0274a216-644f-11e4-9ad9-080027242395',
             'object_uuid': str(uuid1()),
             'current_pleb': self.email,
-            'vote_type': False
+            'vote_type': False,
+            'upvote_count': 0,
+            'downvote_count': 0
         }
         request = self.factory.post('/vote/vote_object_api/', data=data,
                                     format='json')

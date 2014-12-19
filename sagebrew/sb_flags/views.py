@@ -19,7 +19,6 @@ logger = logging.getLogger("loggly_logs")
 def flag_object_view(request):
     now = unicode(datetime.now(pytz.utc))
     try:
-        request.DATA['current_pleb'] = request.user.email
         flag_object_form = FlagObjectForm(request.DATA)
         valid_form = flag_object_form.is_valid()
     except AttributeError:

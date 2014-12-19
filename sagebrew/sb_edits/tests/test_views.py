@@ -1,13 +1,14 @@
+import pytz
 from uuid import uuid1
-from base64 import b64encode
+from datetime import datetime
 from rest_framework.test import APIRequestFactory
 from django.contrib.auth.models import User
 from django.test import TestCase
-from django.conf import settings
 
 from plebs.neo_models import Pleb
 from api.utils import wait_util
 from sb_registration.utils import create_user_util
+from sb_docstore.utils import add_object_to_table
 
 from sb_edits.views import edit_question_title_view, edit_object_view
 
@@ -23,9 +24,16 @@ class TestEditObjectView(TestCase):
         self.user = User.objects.get(email=self.email)
 
     def test_edit_view_success(self):
-        test_data = {'content': 'test contentasdfas', 'current_pleb': self.email,
+        timestamp = unicode(datetime.now(pytz.utc))
+        uuid = str(uuid1())
+        data = {'parent_object': uuid, 'datetime': timestamp,
+                'content': "12312312312312312",}
+        res = add_object_to_table('posts', data)
+        self.assertTrue(res)
+        test_data = {'content': 'test contentasdfas',
                      'object_type': '01bb301a-644f-11e4-9ad9-080027242395',
-                     'object_uuid': str(uuid1())}
+                     'object_uuid': uuid, 'datetime': timestamp,
+                     'parent_object': uuid}
         request = self.factory.post('/edit/edit_object_content_api/',
                                     data=test_data,
                                     format='json')
@@ -35,8 +43,7 @@ class TestEditObjectView(TestCase):
         self.assertEqual(res.status_code, 200)
 
     def test_edit_view_invalid_form(self):
-        test_data = {'current_pleb': self.email,
-                     'object_type': '01bb301a-644f-11e4-9ad9-080027242395',
+        test_data = {'object_type': '01bb301a-644f-11e4-9ad9-080027242395',
                      'object_uuid': str(uuid1())}
         request = self.factory.post('/edit/edit_object_content_api/',
                                     data=test_data,

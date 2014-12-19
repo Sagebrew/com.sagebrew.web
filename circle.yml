@@ -4,7 +4,6 @@ machine:
     - docker
     - neo4j
 
-
 dependencies:
   pre:
     - pip install awscli

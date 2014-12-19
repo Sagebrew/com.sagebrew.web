@@ -24,7 +24,7 @@
 .sb_btn_post{
     width: 80px;
     height: 40px;
-    background-color: #b7bfbb;
+    background-color: #1ba39c;
     border-radius: 5px;
     margin-top: 10px;
     margin-bottom: 10px;
@@ -32,10 +32,7 @@
 .sb_btn_post:hover,
 .sb_btn_post:active,
 .sb_btn_post:focus{
-    border: solid;
-    border-width: 2px;
-    border-color: #1ba39c;
-    background-color: #838c92;
+    background-color: #00b8ac;
 }
 .sb_photo{
     font-size: 30px;

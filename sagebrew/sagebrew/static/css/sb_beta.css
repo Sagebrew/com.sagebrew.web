@@ -1,11 +1,13 @@
 .sb_beta_background {
-    position:absolute;
+    position:fixed;
     width: 100%;
     heigh: 100%;
     margin-top: -55px;
     margin-left: -15px;
     min-height: 620px;
     min-width: 1200px;
+    background: cover;
+
 }
 .sb_beta_input:focus,
 .sb_beta_input:active,
@@ -15,15 +17,30 @@
     border-width: 1px;
 }
 .sb_beta_input_group{
-    width: 80%;
-    margin-left: 10%;
+    position: fixed;
+    width: 420px;
+    margin-left: 411px;
     margin-bottom: 0;
-    margin-top: 462px
+    margin-top: 175px;
 }
 .sb_beta_input{
     width: 100%;
     margin-bottom: 15px;
     border-width: 1px;
 }
-.sb_beta_headline{
+.sb_beta_text{
+    color: #ffffff;
+}
+.sb_beta_title{
+    color: #ffffff;
+    font: "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial, sans-serif;
+    margin-bottom: 90px;
+    font-size: 60pt;
+}
+.sb_beta_beta{
+    color: #ffffff;
+    font: "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial;
+    margin-top: -110px;
+    margin-left: 355px;
+    font-size: 20pt;
 }

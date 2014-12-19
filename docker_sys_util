@@ -7,13 +7,12 @@ RUN apt-get update && apt-get install -y git
 RUN mkdir /home/apps/
 RUN mkdir /home/apps/logs
 
-
 RUN git clone -b {{DOCKER_ENV}} git@github.com:{{PROJECT_USERNAME}}/{{PROJECT_REPONAME}}.git /home/apps/{{PROJECT_NAME}}/
 RUN chown -R {{APP_USER}}:{{APP_USER}} /home/apps/
 RUN mkdir /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/
-RUN rm -r /root/.ssh
 
 RUN pip install -r /home/apps/{{PROJECT_NAME}}/requirements/{{REQUIREMENTS_FILE}}.txt
+RUN rm -r /root/.ssh
 RUN apt-get remove --auto-remove -y openssh-client
 
 WORKDIR /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/

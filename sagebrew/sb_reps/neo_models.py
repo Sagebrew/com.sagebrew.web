@@ -6,9 +6,6 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
 from plebs.neo_models import Pleb
 
 
-
-
-
 class BaseOfficial(Pleb):
     sb_id = StringProperty(unique_index=True)
 

@@ -34,8 +34,18 @@ class Hearing(StructuredNode):
     attendees = RelationshipTo(BaseOfficial, "HEARING_ATTENDEES")
 
 class USSenator(BaseOfficial):
+    is_majority_leader = BooleanProperty(default=False)
+    is_minority_leader = BooleanProperty(default=False)
+
     #relationships
     committee = RelationshipTo('sb_reps.neo_models.Committee', "PART_OF")
+
+class USHouseRepresentative(BaseOfficial):
+    seat = IntegerProperty(unique_index=True)
+    is_speaker = BooleanProperty(default=False)
+    is_majority_leader = BooleanProperty(default=False)
+    is_minority_leader = BooleanProperty(default=False)
+
 
 class Committee(StructuredNode):
     committee_number = IntegerProperty(unique_index=True)
@@ -46,5 +56,26 @@ class Committee(StructuredNode):
 class Governor(BaseOfficial):
     vetoed = RelationshipTo(Bill, "VETOED")
 
+class PositionRequirements(StructuredNode):
+    position = StringProperty(unique_index=True)
+    age = IntegerProperty()
+    res_of_state = BooleanProperty(default=True)
+    citizen_years = IntegerProperty()
+    cannot_be_felon = BooleanProperty(default=True)
+    registered_to_vote = BooleanProperty()
+    registered_to_vote_years = IntegerProperty()
+
+'''
 class GovernorRequirements(StructuredNode):
     pass
+
+class HouseRepRequirements(StructuredNode):
+    age = 25
+    res_of_state = BooleanProperty(default=True)
+    citizen_years = 7
+
+class SenateRequirements(StructuredNode):
+    citizen_years = 9
+    age = 30
+    res_of_state = BooleanProperty(default=True)
+'''

@@ -149,6 +149,10 @@ textarea.sb_comment_input{
     padding: 3px 3px 3px 3px;
     hieght: 30px;
     width: 30px;
+    border: solid;
+    border-width: 1px;
+    border-color: transparent;
+    border-radius: 5px;
 }
 .sb_btn_vote_icon:hover{
     color: #1ba39c;

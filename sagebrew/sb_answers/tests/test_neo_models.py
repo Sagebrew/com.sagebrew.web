@@ -6,6 +6,7 @@ from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util
 from sb_answers.neo_models import SBAnswer
+from sb_questions.neo_models import SBQuestion
 
 
 class TestSBAnswerNeoModel(TestCase):
@@ -18,8 +19,17 @@ class TestSBAnswerNeoModel(TestCase):
         self.user = User.objects.get(email=self.email)
         self.answer = SBAnswer(content="test answer content",
                                sb_id=str(uuid1())).save()
+        self.question = SBQuestion(content='test question content',
+                                   sb_id=str(uuid1())).save()
 
     def test_edit_content(self):
         self.assertFalse(isinstance(self.answer.edit_content('test edit',
                                                              self.pleb),
                                     Exception))
+
+    def test_create_relations(self):
+        self.assertTrue(self.answer.create_relations(self.pleb, self.question))
+
+    def test_create_relations_no_question(self):
+        self.assertFalse(self.answer.create_relations(self.pleb))
+        

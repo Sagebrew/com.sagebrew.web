@@ -1,11 +1,10 @@
-from uuid import uuid1
-from neomodel import CypherException
+from neomodel import CypherException, DoesNotExist
 
-from sb_base.utils import defensive_exception
+from sb_base.decorators import apply_defense
 from .neo_models import SBComment
 
-
-def save_comment(content, comment_uuid=None):
+@apply_defense
+def save_comment(content, comment_uuid):
     '''
     Creates a comment with the content passed to it. It also connects the
     comment
@@ -14,28 +13,20 @@ def save_comment(content, comment_uuid=None):
     :param comment_uuid = str(uuid) id of the post which the
     :return:
     '''
-    if comment_uuid is None:
-        comment_uuid = str(uuid1())
     try:
+        my_comment = SBComment.nodes.get(sb_id=comment_uuid)
+    except (SBComment.DoesNotExist, DoesNotExist):
         my_comment = SBComment(content=content, sb_id=comment_uuid)
         my_comment.save()
-        return my_comment
     except CypherException as e:
         return e
-    except Exception as e:
-        return defensive_exception(save_comment.__name__, e, e)
+    return my_comment
 
 
+@apply_defense
 def comment_relations(pleb, comment, sb_object):
-    try:
-        comment_add_res = sb_object.comment_on(comment)
-        if isinstance(comment_add_res, Exception) is True:
-            return comment_add_res
+    comment_add_res = sb_object.comment_on(comment)
+    if isinstance(comment_add_res, Exception) is True:
+        return comment_add_res
 
-        pleb_res = pleb.relate_comment(comment)
-        if isinstance(pleb_res, Exception) is True:
-            return pleb_res
-
-        return True
-    except Exception as e:
-        return defensive_exception(comment_relations.__name__, e, e)
+    return pleb.relate_comment(comment)

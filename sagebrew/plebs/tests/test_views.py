@@ -14,7 +14,6 @@ from sb_registration.utils import create_user_util
 from api.utils import wait_util
 
 
-#TODO test friend user, registered non-friend user getting the correct page
 class ProfilePageTest(TestCase):
 
     def setUp(self):
@@ -233,6 +232,14 @@ class ProfilePageTest(TestCase):
             comment.delete()
         test_post.delete()
 
+    def test_pleb_does_not_exist(self):
+        request = self.factory.get('/fake_username')
+        request.user = self.user
+        response = profile_page(request, 'fake_username')
+
+        self.assertEqual(response.status_code, 302)
+
+
 
 class TestProfilePageAbout(TestCase):
     def setUp(self):
@@ -260,6 +267,13 @@ class TestProfilePageAbout(TestCase):
         request = self.factory.get('/%s/about/' % self.pleb.username)
         request.user = AnonymousUser()
         response = about_page(request, self.pleb.username)
+        self.assertEqual(response.status_code, 302)
+
+    def test_pleb_does_not_exist(self):
+        request = self.factory.get('/fake_username')
+        request.user = self.user
+        response = about_page(request, 'fake_username')
+
         self.assertEqual(response.status_code, 302)
 
 
@@ -291,6 +305,13 @@ class TestProfilePageReputationPage(TestCase):
         response = reputation_page(request, self.pleb.username)
         self.assertEqual(response.status_code, 302)
 
+    def test_pleb_does_not_exist(self):
+        request = self.factory.get('/fake_username')
+        request.user = self.user
+        response = reputation_page(request, 'fake_username')
+
+        self.assertEqual(response.status_code, 302)
+
 class TestProfilePageFriendPage(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
@@ -319,3 +340,9 @@ class TestProfilePageFriendPage(TestCase):
         response = friends_page(request, self.pleb.username)
         self.assertEqual(response.status_code, 302)
 
+    def test_pleb_does_not_exist(self):
+        request = self.factory.get('/fake_username')
+        request.user = self.user
+        response = friends_page(request, 'fake_username')
+
+        self.assertEqual(response.status_code, 302)

@@ -79,6 +79,9 @@ function flag_object() {
 
 function vote_object() {
     $("a.vote_object-action").click(function (event) {
+        var uuid = $(this).data('object_uuid');
+        var upvote_count = $('div.sb_upvote_count'+uuid).text();
+        var downvote_count = $('div.sb_downvote_count'+uuid).text();
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -93,10 +96,16 @@ function vote_object() {
                 'vote_type': $(this).data('vote_type'),
                 'current_pleb': $(this).data('current_pleb'),
                 'object_uuid': $(this).data('object_uuid'),
-                'object_type': $(this).data('object_type')
+                'object_type': $(this).data('object_type'),
+                'downvote_count': downvote_count,
+                'upvote_count': upvote_count
             }),
             contentType: "application/json; charset=utf-8",
-            dataType: "json"
+            dataType: "json",
+            success: function(data){
+                $('div.sb_upvote_count'+uuid).text(data['upvote_value']);
+                $('div.sb_downvote_count'+uuid).text(data['downvote_value']);
+            }
         });
     });
 }
@@ -119,7 +128,7 @@ function save_answer() {
 			data: JSON.stringify({
 			   'content': $('textarea#answer_content_id').val(),
                'current_pleb': $(this).data('current_pleb'),
-               'question_uuid': $(this).data('question_uuid')
+               'question_uuid': $(this).data('object_uuid')
 			}),
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
@@ -144,9 +153,10 @@ function edit_object() {
             url: "/edit/edit_object_content_api/",
             data: JSON.stringify({
                 'content': $('textarea#'+uuid).val(),
-                'current_pleb': $(this).data('current_pleb'),
+                'parent_object': $(this).data('parent_object'),
                 'object_uuid': uuid,
-                'object_type': $(this).data('object_type')
+                'object_type': $(this).data('object_type'),
+                'datetime': $(this).data('datetime')
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json"
@@ -180,14 +190,14 @@ function edit_question_title() {
 
 function show_edit_question() {
     $("a.show_edit_question-action").click(function(event){
-        var question_uuid = $(this).data('question_uuid');
+        var question_uuid = $(this).data('object_uuid');
         $('#edit_question_'+question_uuid).fadeToggle();
     });
 }
 
 function show_edit_answer() {
     $("a.show_edit_answer-action").click(function(event){
-        var answer_uuid = $(this).data('answer_uuid');
+        var answer_uuid = $(this).data('object_uuid');
         $('#show_edit_sb_id_'+answer_uuid).fadeToggle();
     });
 }
@@ -215,6 +225,31 @@ function delete_object() {
     });
 }
 
+function page_leave_endpoint() {
+    $(window).on('unload', function() {
+        var object_list = [];
+        $(".sb_id").each(function(){
+            object_list.push($(this).data('object_uuid'))
+        });
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "POST",
+            async: false,
+            url: "/docstore/update_neo_api/",
+            data: JSON.stringify({
+                'object_uuids': object_list
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json"
+        });
+    });
+}
+
 
 function enable_post_functionality() {
     save_answer();
@@ -228,6 +263,7 @@ function enable_post_functionality() {
     show_edit_comment();
     show_edit_answer();
     delete_object();
+    page_leave_endpoint();
 }
 
 function getUrlParameter(sParam)

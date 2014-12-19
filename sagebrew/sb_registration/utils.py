@@ -1,10 +1,7 @@
 import os
 import shortuuid
 import hashlib
-import json
 import boto.ses
-import logging
-from json import dumps
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from datetime import date
 from django.conf import settings
@@ -17,9 +14,8 @@ from neomodel import DoesNotExist, CypherException
 from api.utils import spawn_task
 from plebs.tasks import create_pleb_task
 from plebs.neo_models import Pleb
-from sb_base.utils import defensive_exception
+from sb_base.decorators import apply_defense
 
-logger = logging.getLogger('loggly_logs')
 
 
 def calc_age(birthday):
@@ -205,11 +201,6 @@ def upload_image(folder_name, file_uuid, file_location=None):
     k.key = key_string
     k.set_contents_from_filename(file_path)
     image_uri = k.generate_url(expires_in=259200)
-    # TODO This should be reviewed and updated. It is a quick fix for
-    # not deleting the test file in sb_posts/tests/images when running
-    # through tests. We should also be looking into just storing the image
-    # in memory or directly in s3 rather than bringing it locally onto the
-    # system.
     if os.environ.get("CIRCLECI", "false") == "false":
         os.remove(file_path)
     return image_uri
@@ -320,10 +311,9 @@ def verify_verified_email(user):
     except (Pleb.DoesNotExist, DoesNotExist):
         return False
     except CypherException as e:
-        return defensive_exception(verify_verified_email.__name__, e,
-                                   False)
+        return e
 
-
+@apply_defense
 def sb_send_email(to_email, subject, html_content):
     '''
     This function is used to send mail through the amazon ses service,
@@ -340,38 +330,24 @@ def sb_send_email(to_email, subject, html_content):
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
         )
-        # TODO swap out source with some service@sagebrew.com type of email
         conn.send_email(source='devon@sagebrew.com', subject=subject,
                         body=html_content, to_addresses=[to_email],
                         format='html')
         return True
     except SESMaxSendingRateExceededError as e:
         return e
-    except Exception as e:
-        return defensive_exception(sb_send_email.__name__, e, e)
 
-
+@apply_defense
 def create_user_util(first_name, last_name, email, password, username=None):
-    try:
-        if username is None:
-            username = shortuuid.uuid()
-        user = User.objects.create_user(first_name=first_name,
-                                        last_name=last_name,
-                                        email=email,
-                                        password=password,
-                                        username=username)
-        user.save()
-        res = spawn_task(task_func=create_pleb_task,
-                         task_param={"user_instance": user})
-        if res is not None:
-            return {"task_id": res, "username": user.username}
-        else:
-            logger.critical(json.dumps({"function": create_user_util.__name__,
-                          "exception": "res is None"}))
-            return False
-    except Exception as e:
-        logger.exception(json.dumps({"function": create_user_util.__name__,
-                                     "exception": "Unhandled Exception"}))
-        # TODO should this return the exception? Think most things rely on it
-        # being False if something goes wrong.
-        return False
+    if username is None:
+        username = str(shortuuid.uuid())
+    user = User.objects.create_user(first_name=first_name, last_name=last_name,
+                                    email=email, password=password,
+                                    username=username)
+    user.save()
+    res = spawn_task(task_func=create_pleb_task,
+                     task_param={"user_instance": user})
+    if isinstance(res, Exception) is True:
+        return res
+    else:
+        return {"task_id": res, "username": user.username}

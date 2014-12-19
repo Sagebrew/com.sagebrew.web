@@ -149,10 +149,6 @@
 // Styles for bordered table
 
 .table-bordered {
-  &.dataTable {
-    border-collapse: separate !important;
-  }
-
   tr th {
     border-bottom-width: 0;
   }
@@ -270,4 +266,25 @@
 
 .FixedHeader_Cloned table {
   margin: 0 !important
+}
+
+@media (max-width: @screen-xs-max) {
+  .dataTables_paginate {
+    ul.pagination {
+      padding-left: 0;
+      padding-right: 0;
+
+      .paginate_button {
+        &.previous, &.next {
+          display: none;
+        }
+      }
+    } 
+  }
+}
+
+@media (max-width: @screen-xs-min) {
+  .dataTables_paginate {
+    width: 100%; 
+  }
 }

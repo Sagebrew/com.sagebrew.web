@@ -1,5 +1,5 @@
 import logging
-from json import dumps
+
 from celery import shared_task
 
 from api.utils import get_object
@@ -31,14 +31,14 @@ def edit_object_task(object_uuid, object_type, current_pleb, content):
 
 @shared_task()
 def edit_question_task(object_uuid, object_type, current_pleb, question_title):
-    sb_object = get_object(object_type, object_uuid)
+    sb_object = get_object(object_type=object_type, object_uuid=object_uuid)
     if isinstance(sb_object, Exception) is True:
         raise edit_question_task.retry(exc=sb_object, countdown=3,
                                        max_retries=None)
     elif sb_object is False:
         return sb_object
 
-    res = sb_object.edit_title(pleb=current_pleb, title=question_title)
+    res = sb_object.edit_title(title=question_title)
 
     if isinstance(res, Exception) is True:
         raise edit_question_task.retry(exc=res, countdown=3, max_retries=None)

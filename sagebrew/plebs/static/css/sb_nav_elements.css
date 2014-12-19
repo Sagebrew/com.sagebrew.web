@@ -21,6 +21,14 @@
     font-size: 25pt;
     padding-left: 15px;
 }
+.sb_search_btn{
+    background: #ffffff;
+    border: solid;
+    border-width: 1px;
+    border-color: #b7bfbb;
+    border-left-color: #ffffff;
+    border-bottom-left-radius: 0px;
+}
 .sb_nav_user{
     margin-top:15px;
 }
@@ -64,6 +72,8 @@
     width: 300px;
     border-color: #b7bfbb;
     border-radius: 5px 0 0 5px;
+    border-width: 1px;
+    margin-right: -8px;
 }
 .sb_search_input_div{
     display: inline;

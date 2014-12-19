@@ -22,21 +22,23 @@ class TestCreateQuestion(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question_info_dict = {'current_pleb': self.user.email,
-                                   'question_title': "Test question",
-                                   'content': 'test post'}
+        self.uuid = str(uuid1())
+        self.question_info_dict = {'question_title': "Test question",
+                                   'content': 'test post',
+                                   'question_uuid': self.uuid}
 
     def test_save_question_util_success(self):
         response = create_question_util(**self.question_info_dict)
 
         self.assertIsNotNone(response)
 
-    def test_save_question_util_pleb_does_not_exist(self):
-        self.question_info_dict['current_pleb'] = 'adsfasdfasdfasdf@gmail.com'
+    def test_save_question_twice(self):
+        question = SBQuestion(question_title="Test question",
+                              content="test post", sb_id=self.uuid)
+        question.save()
         response = create_question_util(**self.question_info_dict)
 
-        self.assertFalse(response)
-
+        self.assertEqual(response.sb_id, question.sb_id)
 
 
 class TestGetQuestionByUUID(TestCase):
@@ -64,21 +66,17 @@ class TestGetQuestionByUUID(TestCase):
         question.answer.connect(answer)
         question.save()
 
-        response = get_question_by_uuid(question.sb_id,
-                            current_pleb=self.question_info_dict
-                            ['current_pleb'])
+        response = get_question_by_uuid(
+            question.sb_id, current_pleb=self.question_info_dict['current_pleb'])
 
         self.assertIsInstance(response, SafeText)
 
     def test_get_question_by_uuid_failure_question_does_not_exist(self):
 
-        dict_response = get_question_by_uuid(str(uuid1()),
-                            current_pleb=self.question_info_dict
-                            ['current_pleb'])
+        question_uuid = get_question_by_uuid(
+            str(uuid1()), current_pleb=self.question_info_dict['current_pleb'])
 
-        self.assertIsInstance(dict_response, dict)
-        self.assertEqual(dict_response['detail'],
-                         'There are no questions with that ID')
+        self.assertFalse(question_uuid, False)
 
 
 class TestGetQuestionByLeastRecent(TestCase):
@@ -89,19 +87,17 @@ class TestGetQuestionByLeastRecent(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question_info_dict = {'current_pleb': self.user.email,
-                                   'question_title': "Test question",
-                                   'content': 'test post'}
+        self.question_info_dict = {'question_title': "Test question",
+                                   'content': 'test post',
+                                   'question_uuid': str(uuid1())}
 
     def test_get_questions_by_least_recent_success(self):
         question_array = []
-        for num in range(1,5):
+        for num in range(1, 5):
             response = create_question_util(**self.question_info_dict)
             question_array.append(response)
 
-        dict_response = get_question_by_least_recent(
-                            current_pleb=self.question_info_dict
-                            ['current_pleb'])
+        dict_response = get_question_by_least_recent()
 
         self.assertIsInstance(dict_response, list)
 

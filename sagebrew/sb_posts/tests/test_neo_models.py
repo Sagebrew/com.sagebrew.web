@@ -18,6 +18,7 @@ class TestSBPostNeoModels(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.post = SBPost(content='test', sb_id=str(uuid1())).save()
+        self.post.posted_on_wall.connect(self.pleb.wall.all()[0])
         self.post.owned_by.connect(self.pleb)
 
     def test_create_relations(self):
@@ -26,8 +27,8 @@ class TestSBPostNeoModels(TestCase):
 
         self.assertFalse(isinstance(res, Exception))
 
-    def test_get_post_dictionary(self):
-        res = self.post.get_post_dictionary(self.pleb)
+    def test_get_single_dict(self):
+        res = self.post.get_single_dict(self.pleb)
 
         self.assertIsInstance(res, dict)
 

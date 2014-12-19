@@ -3,7 +3,7 @@ from uuid import uuid1
 from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
-
+from elasticsearch import Elasticsearch
 
 from api.utils import wait_util
 from sb_questions.tasks import (create_question_task,
@@ -26,7 +26,8 @@ class TestSaveQuestionTask(TestCase):
         self.question_info_dict = {'current_pleb': self.user.email,
                                    'question_title': "Test question",
                                    'content': 'test post',
-                                   'tags': "this,is,a,test"}
+                                   'tags': "this,is,a,test",
+                                   'question_uuid': str(uuid1())}
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
@@ -48,27 +49,6 @@ class TestSaveQuestionTask(TestCase):
 
         self.assertTrue(response.result)
 
-    def test_create_question_task_pleb_does_not_exist(self):
-        self.question_info_dict['current_pleb'] = str(uuid1())
-        response = create_question_task.apply_async(
-            kwargs=self.question_info_dict)
-        while not response.ready():
-            time.sleep(1)
-
-        self.assertFalse(response.result)
-
-    def test_save_question_task_fail(self):
-        question_info = {'current_pleb': self.user.email,
-                         'question_title': "Test question",
-                         'tags': "this,is,a,test"}
-        response = create_question_task.apply_async(kwargs=question_info)
-
-        while not response.ready():
-            time.sleep(3)
-
-        result = response.result
-        self.assertIsInstance(result, Exception)
-
     def test_save_question_task_question_exists(self):
         question = SBQuestion(sb_id=str(uuid1()))
         question.save()
@@ -80,7 +60,7 @@ class TestSaveQuestionTask(TestCase):
             time.sleep(1)
         res = res.result
 
-        self.assertFalse(res)
+        self.assertTrue(res)
 
 
 class TestAddQuestionToIndicesTask(TestCase):
@@ -112,8 +92,11 @@ class TestAddQuestionToIndicesTask(TestCase):
         self.assertFalse(isinstance(res.result, Exception))
 
     def test_add_question_to_indices_task_added_already(self):
-        self.question.added_to_search_index = True
-        self.question.save()
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        es.index(index='full-search-base',
+                 doc_type='sb_questions.neo_models.SBQuestion',
+                 id=self.question.sb_id,
+                 body={'content': self.question.content})
         task_data = {
             'question': self.question,
             'tags': ['fake', 'tags']
@@ -122,7 +105,8 @@ class TestAddQuestionToIndicesTask(TestCase):
         while not res.ready():
             time.sleep(1)
 
-        self.assertFalse(isinstance(res.result, Exception))
+        self.assertTrue(res.result)
+
 
 
 class TestAddTagsToQuestionTask(TestCase):
@@ -145,7 +129,7 @@ class TestAddTagsToQuestionTask(TestCase):
     def test_add_tags_to_question_task(self):
         task_data = {
             'question': self.question,
-            'tags': ['fake', 'tags']
+            'tags': 'fake,tags'
         }
         res = add_tags_to_question_task.apply_async(kwargs=task_data)
         while not res.ready():
@@ -158,7 +142,7 @@ class TestAddTagsToQuestionTask(TestCase):
         self.question.save()
         task_data = {
             'question': self.question,
-            'tags': ['fake', 'tags']
+            'tags': 'fake,tags'
         }
         res = add_tags_to_question_task.apply_async(kwargs=task_data)
         while not res.ready():
@@ -202,7 +186,5 @@ class TestMultipleTasks(TestCase):
                           'content': 'test question',
                           'question_uuid': question.sb_id,}
         response2 = create_question_task.apply_async(kwargs=post_info_dict)
-        while not response2.ready():
-            time.sleep(1)
-        response2 = response2.result
-        self.assertFalse(response2)
+        same_question = wait_util({"task_id": response2})
+        self.assertTrue(same_question)

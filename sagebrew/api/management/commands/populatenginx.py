@@ -27,12 +27,12 @@ class Command(BaseCommand):
             env = "production"
             if worker == "worker":
                 env = "production_worker"
-        worker_count = (multiprocessing.cpu_count() *2) + 1
+        worker_count = (multiprocessing.cpu_count() * 2) + 1
         if worker_count > 12 and circle_ci:
             worker_count = 12
         worker_count = str(worker_count)
         call("sudo chown -R %s:%s /etc/nginx/" % (user, user), shell=True)
-        with open ("%s/nginx_templates/base.tmpl" % (
+        with open("%s/nginx_templates/base.tmpl" % (
                 settings.REPO_DIR), "r") as nginx_file:
             data = nginx_file.read()
             data = data.replace("{{WEB_WORKER_COUNT}}", worker_count)
@@ -42,7 +42,7 @@ class Command(BaseCommand):
         f.write(data)
         f.close()
 
-        with open ("%s/nginx_templates/nginx.tmpl" % (
+        with open("%s/nginx_templates/nginx.tmpl" % (
                 settings.REPO_DIR), "r") as nginx_conf_file:
             data = nginx_conf_file.read()
 
@@ -50,7 +50,7 @@ class Command(BaseCommand):
         f.write(data)
         f.close()
 
-        with open ("%s/nginx_templates/%s.tmpl" % (
+        with open("%s/nginx_templates/%s.tmpl" % (
                 settings.REPO_DIR, env), "r") as site_file:
             data = site_file.read()
             domains = ""
@@ -85,15 +85,15 @@ class Command(BaseCommand):
         self.stdout.write(data)
         if os.path.isfile("/etc/nginx/sites-enabled/%s.conf" % env):
             logger.info({"Exception": "Nginx file exists and was removed",
-                             "Location": "Initial Population",
-                             "Server": socket.gethostname(),
-                             "Message": "This server's nginx file has already"
-                                        "been populated. This should"
-                                        "not happen and all nginx files should"
-                                        "be the same for consistency and to"
-                                        "reduced intermittent issues. Because"
-                                        "of this the file was removed and"
-                                        "the latest template replaced it."})
+                         "Location": "Initial Population",
+                         "Server": socket.gethostname(),
+                         "Message": "This server's nginx file has already"
+                                    "been populated. This should"
+                                    "not happen and all nginx files should"
+                                    "be the same for consistency and to"
+                                    "reduced intermittent issues. Because"
+                                    "of this the file was removed and"
+                                    "the latest template replaced it."})
             os.remove("/etc/nginx/sites-enabled/%s.conf" % env)
         call("sudo ln -s /etc/nginx/sites-available/%s.conf" % (env) +
              " /etc/nginx/sites-enabled/%s.conf" % (env), shell=True)

@@ -15,7 +15,7 @@ sed "s/<TAG>/$SHA1/;s/<PROJECT_NAME>/$PROJECT_NAME/;s/<BUCKET>/$CIRCLE_BRANCH/;s
 sed "s/<TAG>/$SHA1/;s/<PROJECT_NAME>/$PROJECT_NAME/;s/<BUCKET>/$CIRCLE_BRANCH/;s/<IMAGE>/sys_util/;" < ~/com.sagebrew.web/aws_templates/Dockerrun.aws.json.web_template > $DOCKERRUN_FILE_SYS
 
 
-# TODO Make sure to set AWS_DEFAULT_REGION to us-east-1 https://pypi.python.org/pypi/awscli
+# Make sure to set AWS_DEFAULT_REGION to us-east-1 https://pypi.python.org/pypi/awscli
 # Also need to make sure to set permissions on dockercfg file so that all authenticated users
 # can access it
 # Make sure to add AWS creds to circle

@@ -33,7 +33,7 @@ module.exports = function (grunt) {
         src: 'js/*.js'
       },
       assets: {
-        src: 'docs/assets/js/application-docs.js'
+        src: 'docs/assets/js/application.js'
       }
     },
 
@@ -54,7 +54,7 @@ module.exports = function (grunt) {
         options: {
           requireCamelCaseOrUpperCaseIdentifiers: null
         },
-        src: 'docs/assets/js/application-docs.js'
+        src: 'docs/assets/js/application.js'
       }
     },
 
@@ -82,7 +82,6 @@ module.exports = function (grunt) {
           '<%= bower_conf.directory %>/bootstrap-tagsinput/dist/bootstrap-tagsinput.js',
           '<%= bower_conf.directory %>/holderjs/holder.js',
           '<%= bower_conf.directory %>/typeahead.js/dist/typeahead.bundle.js',
-          '<%= bower_conf.directory %>/videojs/dist/video-js/video.js',
           '<%= bower_conf.directory %>/jquery-placeholder/jquery.placeholder.js',
           '<%= bower_conf.directory %>/select2/select2.js',
           '<%= bower_conf.directory %>/datatables/media/js/jquery.dataTables.js',
@@ -158,10 +157,11 @@ module.exports = function (grunt) {
 
     csslint: {
       options: {
-        csslintrc: 'less/.csslintrc'
+        csslintrc: 'less/.csslintrc',
+        'overqualified-elements': false
       },
       src: [
-        'dist/css/flat-ui-pro.css'
+        'dist/css/<%= pkg.name %>.css'
       ],
       docs: {
         options: {
@@ -194,8 +194,7 @@ module.exports = function (grunt) {
           src: [
             'dist/css/<%= pkg.name %>.css',
             'dist/css/<%= pkg.name %>.min.css',
-            'docs/assets/css/docs.css',
-            'docs/assets/css/docs.min.css'
+            'docs/assets/css/docs.css'
           ]
         }
       }
@@ -239,6 +238,7 @@ module.exports = function (grunt) {
           'jquery/dist/jquery.min.map',
           'respond/dest/respond.min.js',
           'html5shiv/dist/html5shiv.js',
+          'videojs/dist/video-js/video.js',
           'videojs/dist/video-js/video-js.swf'
         ],
         dest: 'dist/js/vendor/'

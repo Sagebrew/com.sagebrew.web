@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
+from django.http import HttpResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from neomodel import DoesNotExist
+from neomodel import DoesNotExist, CypherException
 
-from sb_base.utils import defensive_exception
 from plebs.neo_models import Pleb
 from sb_registration.utils import (get_friends, generate_profile_pic_url,
                                    verify_completed_registration)
@@ -42,6 +42,8 @@ def profile_page(request, pleb_username=""):
         page_user_pleb = Pleb.nodes.get(username=pleb_username)
     except (Pleb.DoesNotExist, DoesNotExist):
         return redirect('404_Error')
+    except(CypherException):
+        return HttpResponse('Server Error', status=500)
     current_user = request.user
     page_user = User.objects.get(email=page_user_pleb.email)
     is_owner = False
@@ -83,12 +85,12 @@ def get_user_search_view(request, pleb_email=""):
     :param pleb_email:
     :return:
     '''
-    try:
-        response = prepare_user_search_html(pleb_email)
-        return Response({'html': response}, status=200)
-    except Exception as e:
-        return defensive_exception(get_user_search_view.__name__, e,
-                                   Response({'html': []}, status=400))
+    response = prepare_user_search_html(pleb_email)
+    if response is None:
+        return HttpResponse('Server Error', status=500)
+    elif response is False:
+        return HttpResponse('Bad Email', status=400)
+    return Response({'html': response}, status=200)
 
 
 @login_required()
@@ -117,6 +119,8 @@ def about_page(request, pleb_username):
         citizen = Pleb.nodes.get(username=pleb_username)
     except (Pleb.DoesNotExist, DoesNotExist):
         return redirect("404_Error")
+    except CypherException:
+        return HttpResponse('Server Error', status=500)
     current_user = request.user
     page_user = User.objects.get(email=citizen.email)
     is_owner = False
@@ -174,6 +178,8 @@ def reputation_page(request, pleb_username):
         citizen = Pleb.nodes.get(username=pleb_username)
     except (Pleb.DoesNotExist, DoesNotExist):
         return redirect("404_Error")
+    except CypherException:
+        return HttpResponse('Server Error', status=500)
     current_user = request.user
     page_user = User.objects.get(email=citizen.email)
     is_owner = False
@@ -230,6 +236,8 @@ def friends_page(request, pleb_username):
         citizen = Pleb.nodes.get(username=pleb_username)
     except (Pleb.DoesNotExist, DoesNotExist):
         return redirect("404_Error")
+    except CypherException:
+        return HttpResponse('Server Error', status=500)
     current_user = request.user
     page_user = User.objects.get(email=citizen.email)
     is_owner = False

@@ -1,6 +1,5 @@
 from django.template.loader import render_to_string
-from django.conf import settings
-
+from neomodel import DoesNotExist, CypherException
 from .neo_models import Pleb
 
 
@@ -12,10 +11,15 @@ def prepare_user_search_html(pleb=""):
     :param pleb:
     :return:
     '''
-    pleb = Pleb.nodes.get(email=pleb)
+    try:
+        pleb = Pleb.nodes.get(email=pleb)
+    except(Pleb.DoesNotExist, DoesNotExist):
+        return False
+    except(CypherException, IOError):
+        return None
     pleb_data = {
         'full_name': pleb.first_name + ' ' + pleb.last_name,
-        'reputation': 0, 'pleb_url': settings.WEB_ADDRESS+'/user/'+pleb.email,
+        'reputation': 0, 'username': pleb.username,
         'mutual_friends': 0
     }
     html = render_to_string('sb_search_section/pleb_search.html', pleb_data)

@@ -1,9 +1,7 @@
 from uuid import uuid1
-from base64 import b64encode
 from rest_framework.test import APIRequestFactory
 from django.contrib.auth.models import User
 from django.test import TestCase
-from django.conf import settings
 
 from plebs.neo_models import Pleb
 from api.utils import wait_util

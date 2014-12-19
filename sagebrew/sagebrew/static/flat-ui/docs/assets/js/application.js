@@ -1,25 +1,29 @@
 // Some general UI pack related JS
 // Extend JS String with repeat method
 String.prototype.repeat = function (num) {
-  return new Array(num + 1).join(this);
+  return new Array(Math.round(num) + 1).join(this);
 };
 
 (function ($) {
 
   // Add segments to a slider
-  $.fn.addSliderSegments = function (amount, orientation) {
+  $.fn.addSliderSegments = function () {
     return this.each(function () {
-      if (orientation === 'vertical') {
-        var output = '';
-        var i;
-        for (i = 1; i <= amount - 2; i++) {
-          output += '<div class="ui-slider-segment" style="top:' + 100 / (amount - 1) * i + '%;"></div>';
+      var $this = $(this),
+          option = $this.slider('option'),
+          amount = (option.max - option.min)/option.step,
+          orientation = option.orientation;
+      if ( 'vertical' === orientation ) {
+        var output = '', i;
+        console.log(amount);
+        for (i = 1; i <= amount - 1; i++) {
+            output += '<div class="ui-slider-segment" style="top:' + 100 / amount * i + '%;"></div>';
         }
-        $(this).prepend(output);
+        $this.prepend(output);
       } else {
-        var segmentGap = 100 / (amount - 1) + '%';
+        var segmentGap = 100 / (amount) + '%';
         var segment = '<div class="ui-slider-segment" style="margin-left: ' + segmentGap + ';"></div>';
-        $(this).prepend(segment.repeat(amount - 2));
+        $this.prepend(segment.repeat(amount - 1));
       }
     });
   };
@@ -52,12 +56,12 @@ String.prototype.repeat = function (num) {
     var $slider = $('#slider');
     if ($slider.length > 0) {
       $slider.slider({
-        min: 1,
-        max: 5,
+        max: 15,
+        step: 6,
         value: 3,
         orientation: 'horizontal',
         range: 'min'
-      }).addSliderSegments($slider.slider('option').max);
+      }).addSliderSegments();
     }
 
     var $slider2 = $('#slider2');
@@ -177,7 +181,7 @@ String.prototype.repeat = function (num) {
     $('.table tbody :checkbox').on('change.radiocheck', function () {
       var $this = $(this);
       var check = $this.prop('checked');
-      var checkboxes = $('.table tbody :checkbox');
+      var checkboxes = $this.closest('.table').find('tbody :checkbox');
       var checkAll = checkboxes.length === checkboxes.filter(':checked').length;
 
       $this.closest('tr')[check ? 'addClass' : 'removeClass']('selected-row');
@@ -202,8 +206,8 @@ String.prototype.repeat = function (num) {
 
     // Timepicker
     $('#timepicker-01').timepicker({
-      'className': 'timepicker-primary',
-      'timeFormat': 'h:i A'
+      className: 'timepicker-primary',
+      timeFormat: 'h:i A'
     });
 
     // Switches

@@ -58,7 +58,7 @@ class TestCreateFriendRequestTask(TestCase):
             time.sleep(1)
         res = res.result
 
-        self.assertFalse(res)
+        self.assertIsInstance(res, Exception)
 
     def test_create_friend_request_task_failure_missing_key(self):
         data = {'data':

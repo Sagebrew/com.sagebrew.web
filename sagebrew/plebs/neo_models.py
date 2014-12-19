@@ -6,13 +6,12 @@ from datetime import datetime
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, ZeroOrOne,
-                      CypherException)
+                      CypherException, DoesNotExist)
 
 from api.utils import execute_cypher_query
 from sb_relationships.neo_models import (FriendRelationship,
                                          UserWeightRelationship)
 from sb_base.neo_models import RelationshipWeight
-from sb_base.utils import defensive_exception
 from sb_search.neo_models import SearchCount
 
 
@@ -79,7 +78,7 @@ class Pleb(StructuredNode):
         'flag_as_other': -10, 'answered': 50, 'starred': 150, 'seen_search': 5,
         'seen_page': 20
     }
-    username = StringProperty(unique_index=True)
+    username = StringProperty(unique_index=True, default=None)
     first_name = StringProperty()
     last_name = StringProperty()
     age = IntegerProperty()
@@ -145,20 +144,30 @@ class Pleb(StructuredNode):
                                      'CLICKED_RESULT')
 
     def generate_username(self):
-        temp_username = str(self.first_name).lower() + \
-                        str(self.last_name).lower()
-        temp_username = re.sub('[^a-z0-9]+', '', temp_username)
+        temp_username = "%s_%s" % (str(self.first_name).lower(),
+                                   str(self.last_name).lower())
+        temp_username = re.sub('[^a-z]+', '', temp_username)
+        query = 'match (p:Pleb) where p.first_name="%s" and ' \
+                'p.last_name="%s" return p' % (self.first_name,
+                                               self.last_name)
+        res = execute_cypher_query(query)
+        if isinstance(res, Exception):
+            return res
         try:
-            pleb = Pleb.nodes.get(username=temp_username)
-            query = 'match (p:Pleb) where p.first_name="%s" and ' \
-                    'p.last_name="%s" return p' % (self.first_name,
-                                                   self.last_name)
-            res = execute_cypher_query(query)
-            self.username = temp_username + str((len(res[0])+1))
-            self.save()
-        except Pleb.DoesNotExist:
+            existing_users = res[0]
+        except IndexError:
+            existing_users = None
+
+        if existing_users is None:
             self.username = temp_username
+        else:
+            self.username = temp_username + str((len(res[0])+1))
+
+        try:
             self.save()
+        except(CypherException, IOError) as e:
+            return e
+        return True
 
     def relate_comment(self, comment):
         try:
@@ -169,8 +178,6 @@ class Pleb(StructuredNode):
             return True
         except CypherException as e:
             return e
-        except Exception as e:
-            return defensive_exception(Pleb.relate_comment.__name__, e, e)
 
     def update_weight_relationship(self, sb_object, modifier_type):
         rel = self.object_weight.relationship(sb_object)
@@ -185,6 +192,7 @@ class Pleb(StructuredNode):
 
     def vote_on_content(self, content):
         pass
+
 
 class Address(StructuredNode):
     street = StringProperty()

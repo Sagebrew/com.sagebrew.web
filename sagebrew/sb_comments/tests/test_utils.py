@@ -29,7 +29,8 @@ class TestSaveComments(TestCase):
         res = save_post_task.apply_async(kwargs=task_data)
         while not res.ready():
             time.sleep(1)
-        my_comment = save_comment(content="test comment")
+        my_comment = save_comment(content="test comment",
+                                  comment_uuid=str(uuid1()))
 
         self.assertEqual(my_comment.content, "test comment")
 

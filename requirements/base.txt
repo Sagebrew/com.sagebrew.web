@@ -13,7 +13,7 @@ django-localflavor
 django-oauth2-provider
 django-static-precompiler
 django-storages
-djangorestframework
+djangorestframework==2.4.4
 python-dateutil
 pytz
 requests
@@ -30,7 +30,7 @@ elasticsearch
 textblob
 newrelic
 nltk
--e git+git@github.com:robinedwards/neomodel.git@282d522c9ed5b6a08e4258008d07d29fca3aed45#egg=neomodel
+-e git+http://github.com/robinedwards/neomodel.git@282d522c9ed5b6a08e4258008d07d29fca3aed45#egg=neomodel
 shortuuid
 gunicorn
-
+logentries

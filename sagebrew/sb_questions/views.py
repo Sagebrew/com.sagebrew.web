@@ -1,6 +1,4 @@
-import logging
 from uuid import uuid1
-from json import dumps
 from django.shortcuts import render
 from django.template import Context
 from django.template.loader import get_template
@@ -11,24 +9,21 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from rest_framework.decorators import (api_view, permission_classes)
 
 from api.utils import spawn_task
+from sb_docstore.tasks import build_question_page_task
+from sb_docstore.utils import get_question_doc
 from sb_registration.utils import verify_completed_registration
 from .utils import (get_question_by_most_recent, get_question_by_uuid,
                     get_question_by_least_recent, prepare_question_search_html)
 from .tasks import (create_question_task)
-from .forms import (SaveQuestionForm)
-from sb_base.utils import defensive_exception
-
-
-logger = logging.getLogger('loggly_logs')
+from .forms import (SaveQuestionForm, GetQuestionForm)
 
 
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def submit_question_view_page(request):
-    current_user = request.user
     return render(request,'save_question.html',{
-        'current_user': current_user.email,
+        'current_user': request.user.email,
     })
 
 
@@ -100,10 +95,17 @@ def save_question_view(request):
         return Response({"details": "Please provide a valid JSON object"},
                         status=400)
     #question_data['content'] = language_filter(question_data['content'])
-    question_form = SaveQuestionForm(question_data)
-    if question_form.is_valid():
-        spawn_task(task_func=create_question_task,
-                   task_param=question_form.cleaned_data)
+    try:
+        question_form = SaveQuestionForm(question_data)
+        valid_form = question_form.is_valid()
+    except AttributeError:
+        return Response(status=404)
+    if valid_form:
+        question_form.cleaned_data['question_uuid'] = str(uuid1())
+        spawned = spawn_task(task_func=create_question_task,
+                             task_param=question_form.cleaned_data)
+        if isinstance(spawned, Exception) is True:
+            return Response({"detail": "server error"}, status=500)
         return Response({"detail": "filtered",
                          "filtered_content": question_data}, status=200)
     else:
@@ -174,39 +176,75 @@ def get_question_view(request):
 
     :return:
     '''
+    question_data = request.DATA
+    if isinstance(question_data, dict) is False:
+        return Response({"please pass a valid JSON Object"}, status=400)
     try:
+        question_form = GetQuestionForm(question_data)
+        valid_form = question_form.is_valid()
+    except AttributeError:
+        return Response(status=400)
+    if valid_form is True:
         html_array = []
-        question_data = request.DATA
+        # TODO Can we generalize this so that we don't need the ifs?
+        # TODO Can we also make the form a choice form that only allows
+        # the available search types as acceptable values?
         if question_data['sort_by'] == 'most_recent':
-            response = get_question_by_most_recent(
-                current_pleb=question_data['current_pleb'])
+            response = get_question_by_most_recent()
+            if isinstance(response, Exception):
+                # TODO Might want to handle this differently
+                return Response(status=500)
             for question in response:
+
                 html_array.append(
-                    question.render_question_page(question_data
-                    ['current_pleb']))
+                    question.render_question_page(request.user.email))
             return Response(html_array, status=200)
 
         elif question_data['sort_by'] == 'uuid':
-            return Response(get_question_by_uuid(
-                question_data['question_uuid'],
-                question_data['current_pleb']), status=200)
+            res = get_question_doc(question_data['question_uuid'],
+                                   'public_questions', 'public_solutions')
+            if res == {}:
+                question_by_uuid = get_question_by_uuid(
+                question_data['question_uuid'], request.user.email)
+                task_data = {
+                    'question_uuid': question_data['question_uuid'],
+                    'question_table': 'public_questions',
+                    'solution_table': 'public_solutions'
+                }
+                spawn_task(build_question_page_task, task_param=task_data)
+                if isinstance(question_by_uuid, Exception):
+                    # TODO ensure we have pages that will render certain things
+                    # for server error and does not exist errors for questions
+                    # TODO do we have tests for the above?
+                    # TODO Might want to handle this differently
+                    return Response(status=500)
+                elif question_by_uuid is False:
+                    # TODO Might want to handle this differently
+                    return Response({"detail": "question does not exist"},
+                                    status=400)
+                else:
+                    return Response(question_by_uuid, status=200)
+            else:
+                t = get_template("single_question.html")
+                c = Context(res)
+                return Response(t.render(c), status=200)
 
         elif question_data['sort_by'] == 'least_recent':
-            response = get_question_by_least_recent(
-                current_pleb=question_data['current_pleb'])
+            response = get_question_by_least_recent()
+            if isinstance(response, Exception):
+                return Response(status=500)
+            # is there any potential for get_question_by_least_recent to be
+            # None?
             for question in response:
                 html_array.append(
-                    question.render_question_page(question_data
-                    ['current_pleb']))
+                    question.render_question_page(request.user.email))
+            # TODO if question is empty we should be returning a 404
             return Response(html_array, status=200)
+        # TODO if cannot perform the above TODOs need to at least add
+        # an additional else or remove the bottom else specifier and just
+        # return the Response anytime it reaches that area
 
-        else:
-            response = {"detail": "fail"}
-            return Response(response, status=400)
-
-    except Exception as e:
-        return defensive_exception(get_question_view.__name__, e,
-                                   Response(status=400))
+    return Response({"detail": "fail"}, status=400)
 
 
 @api_view(['GET'])
@@ -221,9 +259,9 @@ def get_question_search_view(request, question_uuid=str(uuid1())):
     :param request:
     :return:
     '''
-    try:
-        response = prepare_question_search_html(question_uuid)
-        return Response({'html': response}, status=200)
-    except Exception as e:
-        return defensive_exception(get_question_search_view.__name__, e,
-                                   Response({'html': []},status=400))
+    response = prepare_question_search_html(question_uuid)
+    if response is None:
+        return Response(status=500)
+    elif response is False:
+        return Response(status=404)
+    return Response({'html': response}, status=200)

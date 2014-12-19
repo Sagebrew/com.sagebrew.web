@@ -255,13 +255,13 @@ class TestSearchResultAPI(TestCase):
         res_array = []
         for item in range(0,9):
             res = es.index(index='full-search-user-specific-1',
-                           doc_type='sb_test',
+                           doc_type='pleb',
                            body={'content': 'test content'})
             res_array.append(res)
 
         self.client.login(username=self.user.username, password='password')
         request = self.client.get(reverse('search_result_api',kwargs={
-            'query_param':'test', 'page': '1'}))
+            'query_param': 'test', 'page': '1'}))
 
         self.assertEqual(request.status_code, 200)
 
@@ -270,7 +270,7 @@ class TestSearchResultAPI(TestCase):
         res_array = []
         for item in range(0,9):
             res = es.index(index='full-search-user-specific-1',
-                           doc_type='sb_test',
+                           doc_type='pleb',
                            body={'content': 'test content'})
             res_array.append(res)
 
@@ -334,7 +334,8 @@ class TestSearchResultAPIReturns(TestCase):
 
     def tearDown(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        es.delete_by_query('full-search-user-specific-1', 'question',
+        es.delete_by_query('full-search-user-specific-1',
+                           'sb_questions.neo_models.SBQuestion',
                            body={
                                'query': {
                                    'query_string': {
@@ -347,7 +348,7 @@ class TestSearchResultAPIReturns(TestCase):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(sb_id=str(uuid1()),
                                question_title=self.q1dict['question_title'],
-                               question_content=self.q1dict['question_content'],
+                               content=self.q1dict['question_content'],
                                is_closed=False, answer_number=0,
                                last_edited_on=datetime.now(pytz.utc),
                                up_vote_number=0,
@@ -356,18 +357,19 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(self.pleb)
         index_res = es.index(index='full-search-user-specific-1',
-                 doc_type='sb_questions.neo_models.SBQuestion',
-                 body={
-                     'object_uuid': question1.sb_id,
-                     'question_title': question1.question_title,
-                     'question_content': question1.question_content,
-                     'related_user': self.user.email
-                 })
+                             doc_type='sb_questions.neo_models.SBQuestion',
+                             body={
+                                 'object_uuid': question1.sb_id,
+                                 'question_title': question1.question_title,
+                                 'question_content': question1.content,
+                                 'related_user': self.user.email
+                             })
         self.assertTrue(index_res['created'])
         time.sleep(2)
         self.client.login(username=self.user.username, password='password')
         request = self.client.get(reverse('search_result_api',
-                                          kwargs={'query_param':'battery-powered',
+                                          kwargs={'query_param':
+                                                      'battery-powered',
                                                   'page': '1'}))
         self.assertEqual(request.status_code, 200)
         self.assertIn('question_uuid', request.content)
@@ -376,7 +378,7 @@ class TestSearchResultAPIReturns(TestCase):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(sb_id=str(uuid1()),
                                question_title=self.q1dict['question_title'],
-                               question_content=self.q1dict['question_content'],
+                               content=self.q1dict['question_content'],
                                is_closed=False, answer_number=0,
                                last_edited_on=datetime.now(pytz.utc),
                                up_vote_number=0,
@@ -389,7 +391,7 @@ class TestSearchResultAPIReturns(TestCase):
                  body={
                      'object_uuid': question1.sb_id,
                      'question_title': question1.question_title,
-                     'question_content': question1.question_content,
+                     'question_content': question1.content,
                      'related_user': self.user.email
                  })
         for item in range(0,9):
@@ -398,13 +400,14 @@ class TestSearchResultAPIReturns(TestCase):
                      body={
                          'object_uuid': question1.sb_id,
                          'question_title': question1.question_title,
-                         'question_content': question1.question_content,
-                         'related_user': self.user.email[:37]+str(item)+'@gmail.com'
+                         'question_content': question1.content,
+                         'related_user': self.user.email
                      })
         time.sleep(2)
         self.client.login(username=self.user.username, password='password')
         request = self.client.get(reverse('search_result_api',
-                                          kwargs={'query_param':'battery-powered',
+                                          kwargs={'query_param':
+                                                      'battery-powered',
                                                   'page': '1'}))
         self.assertGreaterEqual(len(loads(request.content)['html']), 1)
         self.assertEqual(request.status_code, 200)
@@ -414,7 +417,7 @@ class TestSearchResultAPIReturns(TestCase):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(sb_id=str(uuid1()),
                                question_title=self.q1dict['question_title'],
-                               question_content=self.q1dict['question_content'],
+                               content=self.q1dict['question_content'],
                                is_closed=False, answer_number=0,
                                last_edited_on=datetime.now(pytz.utc),
                                up_vote_number=0,
@@ -427,7 +430,7 @@ class TestSearchResultAPIReturns(TestCase):
                  body={
                      'object_uuid': question1.sb_id,
                      'question_title': question1.question_title,
-                     'question_content': question1.question_content,
+                     'question_content': question1.content,
                      'related_user': self.user.email
                  })
         for item in range(0,19):
@@ -436,7 +439,7 @@ class TestSearchResultAPIReturns(TestCase):
                      body={
                          'object_uuid': question1.sb_id,
                          'question_title': question1.question_title,
-                         'question_content': question1.question_content,
+                         'question_content': question1.content,
                          'related_user': self.user.email
                      })
         time.sleep(2)
@@ -452,10 +455,11 @@ class TestSearchResultAPIReturns(TestCase):
     def test_search_result_api_returns_page_3(self):
         email = "suppressionlist@simulator.amazonses.com"
         pleb = Pleb(email=email)
-        pleb.first_name='Tyler'
-        pleb.last_name='Wiersing'
+        pleb.first_name = 'Tyler'
+        pleb.last_name = 'Wiersing'
+        pleb.username = str(shortuuid.uuid())
         pleb.save()
-        user = User.objects.create_user(shortuuid.uuid(), email, 'password')
+        user = User.objects.create_user(pleb.username, email, 'password')
 
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(sb_id=str(uuid1()),
@@ -489,7 +493,8 @@ class TestSearchResultAPIReturns(TestCase):
 
         self.client.login(username=user.username, password='password')
         request = self.client.get(reverse('search_result_api',
-                                          kwargs={'query_param':'battery-powered',
+                                          kwargs={'query_param':
+                                                      'battery-powered',
                                                   'page': '3'}))
 
         self.assertEqual(len(loads(request.content)['html']), 10)
@@ -532,7 +537,8 @@ class TestSearchResultAPIReturns(TestCase):
         time.sleep(2)
         self.client.login(username=user.username, password='password')
         request = self.client.get(reverse('search_result_api',
-                                          kwargs={'query_param':'battery-powered',
+                                          kwargs={'query_param':
+                                                      'battery-powered',
                                                   'page': '1'}))
 
         self.assertEqual(request.status_code, 200)
@@ -548,7 +554,7 @@ class TestSearchResultAPIReturns(TestCase):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(sb_id=str(uuid1()),
                                question_title=self.q1dict['question_title'],
-                               question_content=self.q1dict['question_content'],
+                               content=self.q1dict['question_content'],
                                is_closed=False, answer_number=0,
                                last_edited_on=datetime.now(pytz.utc),
                                up_vote_number=0,
@@ -561,14 +567,14 @@ class TestSearchResultAPIReturns(TestCase):
                  body={
                      'object_uuid': question1.sb_id,
                      'question_title': question1.question_title,
-                     'question_content': question1.question_content,
+                     'question_content': question1.content,
                      'related_user': self.user.email
                  })
 
         question2 = SBQuestion(sb_id=str(uuid1()),
                                question_title='Should we ban the use '
                                               'of fossil fuels?',
-                               question_content='With battery-powered cars '
+                               content='With battery-powered cars '
                                                 'becoming more and more '
                                                 'efficient and affordable'
                                                 'and home energy solutions '
@@ -584,7 +590,7 @@ class TestSearchResultAPIReturns(TestCase):
         es.index(index='full-search-user-specific-1',
                  doc_type='sb_questions.neo_models.SBQuestion',
                  body={'object_uuid': question2.sb_id,
-                       'question_content': question2.question_content,
+                       'question_content': question2.content,
                        'question_title': question2.question_title,
                        'related_user': self.user.email})
         time.sleep(3)

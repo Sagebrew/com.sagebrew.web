@@ -1,32 +1,26 @@
-import pytz
-import logging
-from json import dumps
-from uuid import uuid1
-from datetime import datetime
 from django.template.loader import render_to_string
 
-from neomodel import (StructuredNode, StringProperty, IntegerProperty,
-                      DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty, CypherException)
+from neomodel import (RelationshipTo, CypherException)
 
 from api.utils import execute_cypher_query
 from sb_base.neo_models import SBNonVersioned
-
-logger = logging.getLogger("loggly_logs")
-
+from sb_base.decorators import apply_defense
 
 
 
 class SBPost(SBNonVersioned):
-    allowed_flags = ["explicit", "spam","other"]
     sb_name = "post"
-
+    table = 'posts'
+    object_type = "01bb301a-644f-11e4-9ad9-080027242395"
     # relationships
     posted_on_wall = RelationshipTo('sb_wall.neo_models.SBWall', 'POSTED_ON')
     #TODO Implement referenced_by_... relationships
     #TODO Implement ..._referenced relationships
 
+    @apply_defense
     def create_relations(self, pleb, question=None, wall=None):
+        if wall is None:
+            return False
         try:
             self.posted_on_wall.connect(wall)
             wall.post.connect(self)
@@ -35,37 +29,47 @@ class SBPost(SBNonVersioned):
             rel_from_pleb = pleb.posts.connect(self)
             rel_from_pleb.save()
             return True
-        except Exception as e:
-            logger.exception(dumps({"function":
-                                        SBPost.create_relations.__name__,
-                                    "exception": "Unhandled Exception"}))
+        except CypherException as e:
             return e
 
-    def get_post_dictionary(self, pleb):
+    @apply_defense
+    def get_single_dict(self, pleb=None):
         from sb_comments.neo_models import SBComment
-        comment_array = []
-        query = 'MATCH (p:SBPost) WHERE p.sb_id="%s" ' \
-                'WITH p MATCH (p) - [:HAS_A] - (c:SBComment) ' \
-                'WHERE c.to_be_deleted=False ' \
-                'WITH c ORDER BY c.created_on ' \
-                'RETURN c' % self.sb_id
-        post_comments, meta = execute_cypher_query(query)
-        post_comments = [SBComment.inflate(row[0]) for row in post_comments]
-        post_owner = self.owned_by.all()[0]
-        self.view_count += 1
-        self.save()
-        for comment in post_comments:
-            comment_array.append(comment.get_comment_dict(pleb))
-        return {'content': self.content, 'sb_id': self.sb_id,
-                'vote_count': self.get_vote_count(),
-                'up_vote_number': self.get_upvote_count(),
-                'down_vote_number': self.get_downvote_count(),
-                'last_edited_on': str(self.last_edited_on),
-                'post_owner': post_owner.first_name + ' ' +
-                              post_owner.last_name,
-                'post_owner_email': post_owner.email,
-                'comments': comment_array,
-                'current_user': pleb}
+        try:
+            comment_array = []
+            query = 'MATCH (p:SBPost) WHERE p.sb_id="%s" ' \
+                    'WITH p MATCH (p) - [:HAS_A] - (c:SBComment) ' \
+                    'WHERE c.to_be_deleted=False ' \
+                    'WITH c ORDER BY c.created_on ' \
+                    'RETURN c' % self.sb_id
+            post_comments, meta = execute_cypher_query(query)
+            post_comments = [SBComment.inflate(row[0]) for row in post_comments]
+            post_owner = self.owned_by.all()[0]
+            self.view_count += 1
+            self.save()
+            for comment in post_comments:
+                comment_array.append(comment.get_single_dict(pleb))
+            return {'content': self.content, 'object_uuid': self.sb_id,
+                    'parent_object': self.posted_on_wall.all()[0].
+                        owner.all()[0].username,
+                    'vote_count': self.get_vote_count(),
+                    'up_vote_number': self.get_upvote_count(),
+                    'down_vote_number': self.get_downvote_count(),
+                    'last_edited_on': unicode(self.last_edited_on),
+                    'post_owner': post_owner.first_name + ' ' +
+                                  post_owner.last_name,
+                    'post_owner_email': post_owner.email,
+                    'comments': comment_array,
+                    'current_user': pleb,
+                    'datetime': unicode(self.date_created),
+                    'object_type': self.object_type}
+        except CypherException as e:
+            return e
 
+    @apply_defense
     def render_post_wall_html(self, pleb):
-        return render_to_string('sb_post.html', self.get_post_dictionary(pleb))
+        try:
+            return render_to_string('sb_post.html',
+                                    self.get_single_dict(pleb))
+        except CypherException as e:
+            return e

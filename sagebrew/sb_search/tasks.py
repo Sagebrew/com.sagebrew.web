@@ -1,23 +1,51 @@
 import pytz
 import logging
-from json import dumps
+
 from datetime import datetime
 from django.conf import settings
 
 from celery import shared_task
 from neomodel import DoesNotExist, CypherException
 from elasticsearch import Elasticsearch
+from elasticsearch.exceptions import (ElasticsearchException, TransportError,
+                                      ConnectionError, RequestError)
 
 from .neo_models import SearchQuery, KeyWord
 from .utils import (update_search_index_doc)
 from api.utils import spawn_task, get_object
 from plebs.neo_models import Pleb
-from sb_questions.neo_models import SBQuestion
+
 from sb_base.utils import defensive_exception
 
 logger = logging.getLogger('loggly_logs')
 
 
+@shared_task()
+def spawn_weight_relationships(search_items):
+    for item in search_items:
+        if item['_type'] == 'sb_questions.neo_models.SBQuestion':
+            spawned = spawn_task(
+            update_weight_relationship, task_param=
+            {'index': item['_index'],
+             'document_id': item['_id'],
+             'object_uuid': item['_source']['object_uuid'],
+             'object_type': 'question',
+             'current_pleb': item['_source']['related_user'],
+             'modifier_type': 'seen'})
+            if isinstance(spawned, Exception) is True:
+                return spawned
+        if item['_type'] == 'pleb':
+            spawned = spawn_task(
+            update_weight_relationship,
+            task_param={'index': item['_index'],
+                        'document_id': item['_id'],
+                        'object_uuid': item['_source']['pleb_email'],
+                        'object_type': 'pleb',
+                        'current_pleb': item['_source']['related_user'],
+                        'modifier_type': 'seen'})
+            if isinstance(spawned, Exception) is True:
+                return spawned
+    return True
 
 @shared_task()
 def update_weight_relationship(document_id, index, object_type,
@@ -137,9 +165,8 @@ def add_user_to_custom_index(pleb, index="full-search-user-specific-1"):
         return True
     except Exception as e:
         raise defensive_exception(add_user_to_custom_index.__name__, e,
-                                  add_user_to_custom_index.retry(exc=e,
-                                                                 countdown=3,
-                                                            max_retries=None))
+                                  add_user_to_custom_index.retry(
+                                      exc=e, countdown=3, max_retries=None))
 
 
 
@@ -155,14 +182,25 @@ def update_user_indices(doc_type, doc_id):
     :param doc_id:
     :return:
     '''
-    es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-    res = es.get(index='full-search-base', doc_type=doc_type, id=doc_id)
-    plebs = Pleb.category()
-    for pleb in plebs.instance.all():
-        #TODO update this to get index name from the users assigned index
-        res['_source']['related_user'] = pleb.email
-        result = es.index(index='full-search-user-specific-1',
-                          doc_type=doc_type, body=res['_source'])
+    try:
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        res = es.get(index='full-search-base', doc_type=doc_type, id=doc_id)
+    except (ElasticsearchException, TransportError, ConnectionError,
+            RequestError) as e:
+        raise update_user_indices.retry(exc=e, countdown=3, max_retries=None)
+    try:
+        plebs = Pleb.category()
+        for pleb in plebs.instance.all():
+            #TODO update this to get index name from the users assigned index
+            res['_source']['related_user'] = pleb.email
+            result = es.index(index='full-search-user-specific-1',
+                              doc_type=doc_type, body=res['_source'])
+    except (CypherException, IOError) as e:
+        raise update_user_indices.retry(exc=e, countdown=3, max_retries=None)
+    except (ElasticsearchException, TransportError, ConnectionError,
+            RequestError) as e:
+        raise update_user_indices.retry(exc=e, countdown=3, max_retries=None)
+
 
     return True
 
@@ -181,8 +219,10 @@ def update_search_query(pleb, query_param, keywords):
     try:
         try:
             pleb = Pleb.nodes.get(email=pleb)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return False
+        except (Pleb.DoesNotExist, DoesNotExist) as e:
+            return e
+        except(CypherException, IOError) as e:
+            return e
         search_query = SearchQuery.nodes.get(search_query=query_param)
         if pleb.searches.is_connected(search_query):
             rel = pleb.searches.relationship(search_query)
@@ -203,7 +243,9 @@ def update_search_query(pleb, query_param, keywords):
         rel.save()
         for keyword in keywords:
             keyword['query_param'] = query_param
-            spawn_task(task_func=create_keyword, task_param=keyword)
+            spawned = spawn_task(task_func=create_keyword, task_param=keyword)
+            if isinstance(spawned, Exception) is True:
+                return spawned
         return True
     except Exception as e:
         raise defensive_exception(update_search_query.__name__, e,

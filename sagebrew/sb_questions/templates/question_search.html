@@ -1,2 +1,3 @@
+{% url 'profile_page' pleb_username=owner_profile_url as the_url %}
 <h2><a href="/questions/{{ question_uuid }}">{{ question_title }}</a></h2>
-<div style="font-weight: bold">Content: {{ question_content }} | Asked by: {{ owner }} | Posted: {{ time_created }} | Answer: {{ answer_number }} | Upvotes: {{ up_vote_number }} | Downvotes: {{ down_vote_number }} | Last Edited: {{ last_edited_on }}</div>
+<div style="font-weight: bold">Content: {{ question_content }} | Asked by: <a href="{{ the_url }}">{{ owner }}</a> | Posted: {{ time_created }} | Answer: {{ answer_number }} | Upvotes: {{ up_vote_number }} | Downvotes: {{ down_vote_number }} | Last Edited: {{ last_edited_on }}</div>

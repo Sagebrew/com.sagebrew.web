@@ -8,9 +8,10 @@ from django.conf import settings
 
 logger = logging.getLogger('loggly_logs')
 
+
 class Command(BaseCommand):
     def populate_supervisor(self, env, user):
-        worker_count = (multiprocessing.cpu_count() *2) + 1
+        worker_count = (multiprocessing.cpu_count() * 2) + 1
         if(environ.get("CIRCLECI", False)):
             worker_count = 2
         worker_count = str(worker_count)
@@ -61,44 +62,46 @@ def populate_general_values(data, user, worker_count):
     data = data.replace("%(ENV_PROJECT_DIR)s", settings.PROJECT_DIR)
     data = data.replace("%(ENV_PROJECT_NAME)s", "sagebrew")
     data = data.replace("%(ENV_NUMBER_OF_WORKERS)s", worker_count)
+    data = data.replace("%(ENV_LOGENT_TOKEN)s",
+                        environ.get("LOGENT_TOKEN", ""))
     data = data.replace("%(ENV_APPLICATION_SECRET_KEY)s",
-                             environ.get("APPLICATION_SECRET_KEY", ""))
+                        environ.get("APPLICATION_SECRET_KEY", ""))
     data = data.replace("%(ENV_NEO4J_REST_URL)s",
-                             environ.get("NEO4J_REST_URL", ""))
+                        environ.get("NEO4J_REST_URL", ""))
     data = data.replace("%(ENV_BOMBERMAN_API_KEY)s",
-                             environ.get("BOMBERMAN_API_KEY", ""))
+                        environ.get("BOMBERMAN_API_KEY", ""))
     data = data.replace("%(ENV_AWS_S3_BUCKET)s",
-                             environ.get("AWS_S3_BUCKET", ""))
+                        environ.get("AWS_S3_BUCKET", ""))
     data = data.replace("%(ENV_AWS_SECRET_ACCESS_KEY)s",
-                             environ.get("AWS_SECRET_ACCESS_KEY", ""))
+                        environ.get("AWS_SECRET_ACCESS_KEY", ""))
     data = data.replace("%(ENV_AWS_ACCESS_KEY_ID)s",
-                             environ.get("AWS_ACCESS_KEY_ID", ""))
+                        environ.get("AWS_ACCESS_KEY_ID", ""))
     data = data.replace("%(ENV_LOG_TOKEN)s",
-                             environ.get("LOG_TOKEN", ""))
+                        environ.get("LOG_TOKEN", ""))
     data = data.replace("%(ENV_LOG_ACCOUNT)s",
-                             environ.get("LOG_ACCOUNT", ""))
+                        environ.get("LOG_ACCOUNT", ""))
     data = data.replace("%(ENV_ALCHEMY_API_KEY)s",
-                             environ.get("ALCHEMY_API_KEY", ""))
+                        environ.get("ALCHEMY_API_KEY", ""))
     data = data.replace("%(ENV_ADDRESS_VALIDATION_ID)s",
-                             environ.get("ADDRESS_VALIDATION_ID", ""))
+                        environ.get("ADDRESS_VALIDATION_ID", ""))
     data = data.replace("%(ENV_ADDRESS_VALIDATION_TOKEN)s",
-                             environ.get("ADDRESS_VALIDATION_TOKEN", ""))
+                        environ.get("ADDRESS_VALIDATION_TOKEN", ""))
     data = data.replace("%(ENV_ELASTIC_SEARCH_HOST)s",
-                             environ.get("ELASTIC_SEARCH_HOST", ""))
+                        environ.get("ELASTIC_SEARCH_HOST", ""))
     data = data.replace("%(ENV_ELASTIC_SEARCH_PORT)s",
-                             environ.get("ELASTIC_SEARCH_PORT", ""))
+                        environ.get("ELASTIC_SEARCH_PORT", ""))
     data = data.replace("%(ENV_ELASTIC_SEARCH_USER)s",
-                             environ.get("ELASTIC_SEARCH_USER", ""))
+                        environ.get("ELASTIC_SEARCH_USER", ""))
     data = data.replace("%(ENV_ELASTIC_SEARCH_KEY)s",
-                             environ.get("ELASTIC_SEARCH_KEY", ""))
+                        environ.get("ELASTIC_SEARCH_KEY", ""))
     data = data.replace("%(ENV_REDIS_PORT)s",
-                             environ.get("REDIS_PORT", ""))
+                        environ.get("REDIS_PORT", ""))
     data = data.replace("%(ENV_REDIS_LOCATION)s",
-                             environ.get("REDIS_LOCATION", ""))
+                        environ.get("REDIS_LOCATION", ""))
     data = data.replace("%(ENV_QUEUE_USERNAME)s",
-                             environ.get("QUEUE_USERNAME", ""))
+                        environ.get("QUEUE_USERNAME", ""))
     data = data.replace("%(ENV_QUEUE_PASSWORD)s",
-                             environ.get("QUEUE_PASSWORD", ""))
+                        environ.get("QUEUE_PASSWORD", ""))
     data = data.replace("%(ENV_QUEUE_HOST)s", environ.get("QUEUE_HOST", ""))
     data = data.replace("%(ENV_QUEUE_PORT)s", environ.get("QUEUE_PORT", ""))
     data = data.replace("%(ENV_RDS_DB_NAME)s", environ.get("RDS_DB_NAME", ""))
@@ -106,5 +109,6 @@ def populate_general_values(data, user, worker_count):
     data = data.replace("%(ENV_RDS_PASSWORD)s", environ.get("RDS_PASSWORD", ""))
     data = data.replace("%(ENV_RDS_HOSTNAME)s", environ.get("RDS_HOSTNAME", ""))
     data = data.replace("%(ENV_RDS_PORT)s", environ.get("RDS_PORT", ""))
+    data = data.replace("%(ENV_DYNAMO_IP)s", environ.get("DYNAMO_IP", ""))
 
     return data

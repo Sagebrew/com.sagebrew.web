@@ -1,10 +1,7 @@
-import logging
 import time
 import boto.sqs
 import importlib
-
 from uuid import uuid1
-from socket import error as socket_error
 from json import dumps
 
 from boto.sqs.message import Message
@@ -14,10 +11,10 @@ from neomodel import db
 from django.conf import settings
 
 from sb_base.utils import defensive_exception
+from sb_base.decorators import apply_defense
 
 from api.alchemyapi import AlchemyAPI
 
-logger = logging.getLogger('loggly_logs')
 
 '''
 # TOOD Add tagging process into git so that we can label point that we deleted
@@ -80,8 +77,6 @@ iron_mq = IronMQ(project_id=settings.IRON_PROJECT_ID,
 '''
 
 
-#TODO if add_failure_to_queue fails store in postgress database in a meta field
-#allow for backup if Amazon goes down
 def add_failure_to_queue(message_info):
     conn = boto.sqs.connect_to_region(
         "us-west-2",
@@ -101,7 +96,7 @@ def spawn_task(task_func, task_param, countdown=0, task_id=None):
     try:
         return task_func.apply_async(kwargs=task_param, countdown=countdown,
                                      task_id=task_id)
-    except (socket_error, Exception) as e:
+    except (IOError, Exception) as e:
         failure_uuid = str(uuid1())
         failure_dict = {
             'action': 'failed_task',
@@ -110,19 +105,19 @@ def spawn_task(task_func, task_param, countdown=0, task_id=None):
             'failure_uuid': failure_uuid
         }
         add_failure_to_queue(failure_dict)
-        return defensive_exception(spawn_task.__name__, e, None,
+        return defensive_exception(spawn_task.__name__, e, e,
             {"failure_uuid": failure_uuid, "failure": "Unhandled Exception"})
 
 
 def language_filter(content):
-    '''
+    """
     Filters harsh language from posts and comments using the bomberman
     client which
     is initialized each time the function is called.
 
     :param content:
     :return:
-    '''
+    """
     try:
         bomberman = Client()
         if bomberman.is_profane(content):
@@ -135,35 +130,35 @@ def language_filter(content):
 
 
 def create_auto_tags(content):
-    # TODO Improve exception handling and change related functions accordingly
     try:
         alchemyapi = AlchemyAPI()
         keywords = alchemyapi.keywords("text", content)
         return keywords
     except Exception as e:
-        return defensive_exception(create_auto_tags.__name__, e, None)
+        return defensive_exception(create_auto_tags.__name__, e, e)
 
 
 def execute_cypher_query(query):
-    # TODO either return the exception and retry or none and retry but make
-    # sure all functions that call this check to ensure that the query was
-    # successful
     try:
         return db.cypher_query(query)
-    except CypherException:
-        return False
+    except(CypherException, IOError) as e:
+        return e
 
 
 def wait_util(async_res):
     while not async_res['task_id'].ready():
         time.sleep(1)
+    if isinstance(async_res['task_id'].result, Exception):
+        print async_res['task_id'].result
 
     while not async_res['task_id'].result.ready():
         time.sleep(1)
+    return async_res['task_id'].result.result
 
 
+@apply_defense
 def get_object(object_type, object_uuid):
-    '''
+    """
     DO NOT USE THIS FUNCTION ANYWHERE THAT DOES NOT HAVE A FORM
     AND A CHOICE FIELD CLEARLY LAID OUT.
 
@@ -174,10 +169,7 @@ def get_object(object_type, object_uuid):
     :param object_type:
     :param object_uuid:
     :return:
-    '''
-    # TODO if this raises a NameError or ValueError should we return false
-    # and not retry? Feel like if that happens something incorrect was
-    # passed to the function?
+    """
     try:
         cls = object_type
         module_name, class_name = cls.rsplit(".", 1)
@@ -185,14 +177,10 @@ def get_object(object_type, object_uuid):
         sb_object = getattr(sb_module, class_name)
         try:
             return sb_object.nodes.get(sb_id=object_uuid)
-        except (sb_object.DoesNotExist, DoesNotExist) as e:
+        except (sb_object.DoesNotExist, DoesNotExist):
             return TypeError("%s.DoesNotExist" % object_type)
-    except (CypherException) as e:
-            return TypeError("%s.DoesNotExist"%object_type)
-    except (NameError, ValueError):
+    except (NameError, ValueError, ImportError, AttributeError):
         return False
     except CypherException as e:
         return e
-    except Exception as e:
-        return defensive_exception(get_object.__name__, e, e)
 

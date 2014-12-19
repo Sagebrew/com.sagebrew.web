@@ -37,7 +37,7 @@ class TestDeleteObjectTask(TestCase):
         while not res.ready():
             time.sleep(1)
 
-        self.assertIsInstance(res.result, SBQuestion)
+        self.assertTrue(res.result)
 
     def test_delete_object_task_get_object_fail(self):
         question = SBQuestion(question_title='test title for delete',

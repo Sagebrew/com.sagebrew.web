@@ -1,21 +1,15 @@
-import logging
 from uuid import uuid1
-from json import dumps
 from textblob import TextBlob
 
 from neomodel import DoesNotExist, CypherException
 
-from api.utils import execute_cypher_query, spawn_task
-from sb_base.tasks import create_object_relations_task
-from plebs.neo_models import Pleb
+from api.utils import execute_cypher_query
 from .neo_models import SBQuestion
-from sb_base.utils import defensive_exception
-
-logger = logging.getLogger('loggly_logs')
+from sb_base.decorators import apply_defense
 
 
-def create_question_util(content, current_pleb, question_title,
-                         question_uuid=None):
+@apply_defense
+def create_question_util(content, question_title, question_uuid):
     '''
     This util creates the question and attaches it to the user who asked it
 
@@ -24,35 +18,25 @@ def create_question_util(content, current_pleb, question_title,
     :param question_title:
     :return:
     '''
-    if question_uuid is None:
-        question_uuid = str(uuid1())
     try:
-        try:
-            poster = Pleb.nodes.get(email=current_pleb)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return False
-
+        question = SBQuestion.nodes.get(sb_id=question_uuid)
+    except (SBQuestion.DoesNotExist, DoesNotExist):
         content_blob = TextBlob(content)
         title_blob = TextBlob(question_title)
-        my_question = SBQuestion(content=content,
-                                 question_title=question_title,
-                                 sb_id=question_uuid)
-        my_question.save()
-        my_question.subjectivity = content_blob.subjectivity
-        my_question.positivity = content_blob.polarity
-        my_question.title_polarity = title_blob.polarity
-        my_question.title_subjectivity = title_blob.subjectivity
-        my_question.save()
-        relations_data = {'sb_object': my_question, 'current_pleb': poster}
-        spawn_task(task_func=create_object_relations_task,
-                   task_param=relations_data)
-        return my_question
+        question = SBQuestion(content=content,
+                              question_title=question_title,
+                              sb_id=question_uuid)
+        question.subjectivity = content_blob.subjectivity
+        question.positivity = content_blob.polarity
+        question.title_polarity = title_blob.polarity
+        question.title_subjectivity = title_blob.subjectivity
+        question.save()
     except CypherException as e:
         return e
-    except Exception as e:
-        return defensive_exception(create_question_util.__name__, e, e)
+    return question
 
 
+@apply_defense
 def get_question_by_uuid(question_uuid, current_pleb):
     '''
     Sorting util
@@ -67,17 +51,15 @@ def get_question_by_uuid(question_uuid, current_pleb):
     '''
     try:
         question = SBQuestion.nodes.get(sb_id=question_uuid)
-        return question.render_single(current_pleb)
     except (SBQuestion.DoesNotExist, DoesNotExist):
-        return {"detail": "There are no questions with that ID"}
-    except CypherException:
-        return {"detail": "A CypherException was thrown"}
-    except Exception as e:
-        return defensive_exception(get_question_by_uuid.__name__, e,
-                                   {"detail": "Failure"})
+        return False
+    except CypherException as e:
+        return e
+    return question.render_single(current_pleb)
 
 
-def get_question_by_most_recent(current_pleb, range_start=0, range_end=5):
+@apply_defense
+def get_question_by_most_recent(range_start=0, range_end=5):
     '''
     Sorting util
 
@@ -87,23 +69,21 @@ def get_question_by_most_recent(current_pleb, range_start=0, range_end=5):
 
     :param range_start:
     :param range_end:
-    :param current_pleb:
     :return:
     '''
-    try:
-        query = 'match (q:SBQuestion) where q.to_be_deleted=False ' \
-                'with q order by q.date_created desc ' \
-                'with q skip %s limit %s ' \
-                'return q' % (range_start, range_end)
-        questions, meta = execute_cypher_query(query)
-        questions = [SBQuestion.inflate(row[0]) for row in questions]
+    query = 'match (q:SBQuestion) where q.to_be_deleted=False and q.original=True ' \
+            'with q order by q.date_created desc ' \
+            'with q skip %s limit %s ' \
+            'return q' % (range_start, range_end)
+    questions, meta = execute_cypher_query(query)
+    if isinstance(questions, Exception):
         return questions
-    except Exception as e:
-        return defensive_exception(get_question_by_most_recent.__name__, e,
-                                   {"detail": "fail"})
+    questions = [SBQuestion.inflate(row[0]) for row in questions]
+    return questions
 
 
-def get_question_by_least_recent(current_pleb, range_start=0, range_end=5):
+@apply_defense
+def get_question_by_least_recent(range_start=0, range_end=5):
     '''
     Sorting util
 
@@ -113,32 +93,26 @@ def get_question_by_least_recent(current_pleb, range_start=0, range_end=5):
 
     :param range_start:
     :param range_end:
-    :param current_pleb:
     :return:
     '''
-    try:
-        query = 'match (q:SBQuestion) where q.to_be_deleted=False ' \
-                'with q order by q.date_created ' \
-                'with q skip %s limit %s ' \
-                'return q' % (range_start, range_end)
-        questions, meta = execute_cypher_query(query)
-        questions = [SBQuestion.inflate(row[0]) for row in questions]
+    query = 'match (q:SBQuestion) where q.to_be_deleted=False and q.original=True ' \
+            'with q order by q.date_created ' \
+            'with q skip %s limit %s ' \
+            'return q' % (range_start, range_end)
+    questions, meta = execute_cypher_query(query)
+    if isinstance(questions, Exception):
         return questions
-    except Exception:
-        return defensive_exception(get_question_by_least_recent.__name__, e,
-                                   {"detail": "fail"})
+    questions = [SBQuestion.inflate(row[0]) for row in questions]
+    return questions
 
+
+@apply_defense
 def prepare_question_search_html(question_uuid):
     try:
-        try:
-            my_question = SBQuestion.nodes.get(sb_id=question_uuid)
-        except (SBQuestion.DoesNotExist, DoesNotExist):
-            return False
-
-        return my_question.render_search()
-
-    except IndexError:
+        my_question = SBQuestion.nodes.get(sb_id=question_uuid)
+    except (SBQuestion.DoesNotExist, DoesNotExist):
         return False
-    except Exception as e:
-        return defensive_exception(prepare_question_search_html.__name__, e,
-                                   False)
+    except CypherException:
+        return None
+
+    return my_question.render_search()

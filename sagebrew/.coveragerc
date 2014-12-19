@@ -29,10 +29,9 @@ exclude_lines =
     if self.debug:
     raise AssertionError
     raise NotImplementedError
-    except Exception:
-    except Exception as e:
     if 0:
     if __name__ == .__main__.:
+    except CypherException as e:
 
 
 [html]

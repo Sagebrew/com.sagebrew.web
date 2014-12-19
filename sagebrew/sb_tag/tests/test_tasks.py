@@ -29,28 +29,14 @@ class TestTagTask(TestCase):
     def test_add_tag_success(self):
         question = SBQuestion(sb_id=uuid1())
         question.save()
-        tags = ['test','tag','please','do', 'not','fail','in', 'testing']
-        task_dict = {'object_uuid': question.sb_id,
-                     'object_type': 'question',
+        tags = 'test,tag,please,do,not,fail,in,testing'
+        task_dict = {'question': question,
                      'tags': tags}
         res = add_tags.apply_async(kwargs=task_dict)
         while not res.ready():
             time.sleep(1)
         res = res.result
         self.assertTrue(res)
-
-    def test_add_tag_failure_object_does_not_exist(self):
-        question = SBQuestion(sb_id=uuid1())
-        question.save()
-        tags = ['test','tag','please','do', 'not','fail','in', 'testing']
-        task_dict = {'object_uuid': '1',
-                     'object_type': 'nothing',
-                     'tags': tags}
-        res = add_tags.apply_async(kwargs=task_dict)
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-        self.assertFalse(res)
 
 
 class TestAutoTagTask(TestCase):
@@ -69,37 +55,15 @@ class TestAutoTagTask(TestCase):
     def test_add_auto_tag_success(self):
         question = SBQuestion(sb_id=uuid1())
         question.save()
-        task_dict = {'tag_list': [{'object_type': 'question',
-                      'object_uuid': question.sb_id,
-                      'tags': {'relevance': '.9',
-                               'text': 'test'}}]}
+        task_dict = {
+            'question': question,
+            'tag_list': [{'tags': {'relevance': '.9','text': 'test'}}]
+        }
         res = add_auto_tags.apply_async(kwargs=task_dict)
         while not res.ready():
             time.sleep(1)
         res = res.result
         self.assertTrue(res)
-
-    def test_add_auto_tag_wrong_object_type(self):
-        question = SBQuestion(sb_id=uuid1())
-        question.save()
-        task_dict = {'tag_list': [{'object_type': 'nothing',
-                      'object_uuid': question.sb_id,
-                      'tags': {'relevance': '.9', 'text': 'test'}}]}
-        res = add_auto_tags.apply_async(kwargs=task_dict)
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-        self.assertFalse(res)
-
-    def test_add_auto_tag_object_does_not_exist(self):
-        task_dict = {'tag_list': [{'object_type': 'question',
-                      'object_uuid': str(uuid1()),
-                      'tags': {'relevance': '.9', 'text': 'test'}}]}
-        res = add_auto_tags.apply_async(kwargs=task_dict)
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-        self.assertTrue(isinstance(res, Exception))
 
 
 class TestCreateAutoTagRelationships(TestCase):

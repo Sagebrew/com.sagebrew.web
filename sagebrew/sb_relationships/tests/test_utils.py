@@ -1,4 +1,5 @@
 from uuid import uuid1
+import pickle
 from django.test import TestCase
 from django.contrib.auth.models import User
 from neomodel.exception import DoesNotExist
@@ -53,5 +54,14 @@ class TestCreateFriendRequestUtil(TestCase):
                 'friend_request_uuid': str(uuid1())}
         res = create_friend_request_util(data)
 
-        self.assertFalse(res)
+        self.assertIsInstance(res, DoesNotExist)
+
+    def test_create_friend_request_util_fail_pleb_does_not_exist_pickle(self):
+        data = {'from_pleb': self.pleb1.email,
+                'to_pleb': str(uuid1()),
+                'friend_request_uuid': str(uuid1())}
+        res = create_friend_request_util(data)
+        pickle_instance = pickle.dumps(res)
+        self.assertTrue(pickle_instance)
+        self.assertTrue(pickle.loads(pickle_instance))
 

@@ -25,6 +25,10 @@ class TestNotificationTasks(TestCase):
         wait_util(res)
         self.pleb2 = Pleb.nodes.get(email=self.email2)
         self.user2 = User.objects.get(email=self.email2)
+
+        self.email3= "bounce@simulator.amazonses.com"
+        res = create_user_util("test", "test", self.email3, "testpassword")
+
         self.post_info_dict = {'content': 'test post',
                                'sb_id': str(uuid1())}
         settings.CELERY_ALWAYS_EAGER = True
@@ -37,8 +41,8 @@ class TestNotificationTasks(TestCase):
         post.save()
 
         data={'sb_object': post,
-              'from_pleb': self.pleb,
-              'to_plebs': [self.pleb2,]}
+              'from_pleb': self.pleb.email,
+              'to_plebs': [self.pleb2.email,]}
         response = spawn_notifications.apply_async(kwargs=data)
         while not response.ready():
             time.sleep(3)
@@ -50,7 +54,7 @@ class TestNotificationTasks(TestCase):
         comment = SBComment(sb_id=str(uuid1()), content='sdfasd')
         comment.save()
 
-        data = {'from_pleb':self.pleb, 'to_plebs': [self.pleb2,],
+        data = {'from_pleb':self.pleb.email, 'to_plebs': [self.pleb2.email,],
                 'sb_object': comment}
 
         response = spawn_notifications.apply_async(kwargs=data)
@@ -63,8 +67,8 @@ class TestNotificationTasks(TestCase):
         post.save()
 
         data={'sb_object': post,
-              'from_pleb': self.pleb,
-              'to_plebs': [self.pleb2,'fakeemail1@fake.com']}
+              'from_pleb': self.pleb.email,
+              'to_plebs': [self.pleb2.email, 'fakeemail1@fake.com']}
         response = spawn_notifications.apply_async(kwargs=data)
         while not response.ready():
             time.sleep(1)

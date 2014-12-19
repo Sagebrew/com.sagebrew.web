@@ -4,7 +4,8 @@ from os import environ, path, makedirs
 from unipath import Path
 from datetime import timedelta
 import multiprocessing
-
+from logentries import LogentriesHandler
+import logging
 
 PROJECT_DIR = Path(__file__).ancestor(3)
 REPO_DIR = Path(__file__).ancestor(4)
@@ -24,6 +25,7 @@ environ['PROJECT_PATH'] = PROJECT_DIR
 
 environ['HTTPS'] = "on"
 MANAGERS = ADMINS
+
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -73,7 +75,8 @@ STATICFILES_DIRS = (
     '%s/sb_tag/static/' % PROJECT_DIR,
     '%s/sb_flags/static/' % PROJECT_DIR,
     '%s/sb_votes/static/' % PROJECT_DIR,
-    '%s/sb_edits/static/' % PROJECT_DIR
+    '%s/sb_edits/static/' % PROJECT_DIR,
+    '%s/sb_wall/static/' % PROJECT_DIR
 )
 
 # List of finder classes that know how to find static files in
@@ -157,21 +160,23 @@ INSTALLED_APPS = (
     'api',
     'govtrack',
     'neomodel',
-    'sb_registration',
-    'sb_comments',
-    'sb_posts',
-    'sb_wall',
-    'sb_notifications',
-    'sb_relationships',
-    'sb_tag',
-    'sb_questions',
     'sb_answers',
-    'sb_trends',
-    'sb_search',
-    'sb_votes',
-    'sb_flags',
-    'sb_edits',
+    'sb_base',
+    'sb_comments',
     'sb_deletes',
+    'sb_docstore',
+    'sb_edits',
+    'sb_flags',
+    'sb_notifications',
+    'sb_posts',
+    'sb_questions',
+    'sb_registration',
+    'sb_relationships',
+    'sb_search',
+    'sb_tag',
+    'sb_trends',
+    'sb_votes',
+    'sb_wall',
     'elasticsearch',
     'textblob',
     'help_center',
@@ -220,12 +225,13 @@ AWS_PROFILE_PICTURE_FOLDER_NAME = 'profile_pictures'
 SECRET_KEY = environ.get("APPLICATION_SECRET_KEY", "")
 BOMBERMAN_API_KEY = environ.get("BOMBERMAN_API_KEY", "")
 LOG_TOKEN = environ.get("LOG_TOKEN", "")
+LOGENT_TOKEN = environ.get("LOGENT_TOKEN", "")
 ALCHEMY_API_KEY = environ.get("ALCHEMY_API_KEY", '')
 ADDRESS_VALIDATION_ID = environ.get("ADDRESS_VALIDATION_ID", '')
 ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN", '')
 
+DYNAMO_IP = environ.get("DYNAMO_IP", None)
 
-CELERYBEAT_SCHEDULE = {}
 CELERY_TIMEZONE = 'UTC'
 
 
@@ -254,7 +260,6 @@ OBJECT_RELATIONSHIP_BASE = {
 }
 
 
-# TODO revisit search modifiers
 OBJECT_SEARCH_MODIFIERS = {
     'post': 10, 'comment_on': 5, 'upvote': 3, 'downvote': -3,
     'time': -1, 'proximity_to_you': 10, 'proximity_to_interest': 10,
@@ -276,7 +281,9 @@ KNOWN_TYPES = [
     ("02ba1c88-644f-11e4-9ad9-080027242395", "sb_comments.neo_models.SBComment")
 ]
 
-# TODO When doing load testing and beta testing ensure that LOGGING of DB is on
-# and at w/e level we need to check response times. We might be able to
-# determine it from new relic but we should check into that prior to moving
-# forward
+KNOWN_TABLES = {
+    "01bb301a-644f-11e4-9ad9-080027242395": "posts",
+    "02241aee-644f-11e4-9ad9-080027242395": "public_solutions",
+    "0274a216-644f-11e4-9ad9-080027242395": "public_questions",
+    "02ba1c88-644f-11e4-9ad9-080027242395": "comments"
+}

@@ -1,14 +1,4 @@
-.sb_image_background {
-    position:absolute;
-    height: 100%;
-    width: 100%;
-    margin-top: -40px;
-
-}
-
-.sb_title_signup {
-    color: #eeeeee;
-    font-size: 1.75em;
+.sb_signup_headline_containter {
     margin-top: 15px;
     margin-bottom: 15px;
     position: relative;
@@ -52,11 +42,32 @@
 .sb_signup_input_email {
     width: 100%;
 }
-.sb_sign_up{
-    color: #ffffff;
+.sb_signup_headline{
+    color: #1ba39c;
 }
 .sb_content_sign_up{
     height: 500px;
     width: 100%;
     position: absolute;
+}
+input.sb_date_picker{
+   color: #bdc3c7;
+}
+button.btn.sb_date_picker_btn{
+    height: 45px;
+    border-width: 0px;
+}
+button.btn.sb_date_picker_btn{
+    height: 45px;
+    border-width: 1px;
+}
+button.btn.sb_date_picker_btn:focus,
+button.btn.sb_date_picker_btnt:active,
+button.btn.sb_date_picker_btn:hover{
+    border: solid;
+    border-color: #1ba39c;
+    border-width: 1px;
+}
+.ui-datepicker .ui-datepicker-header{
+    background-color: #1ba39c;
 }

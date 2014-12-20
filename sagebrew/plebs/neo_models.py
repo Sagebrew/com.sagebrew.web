@@ -217,3 +217,32 @@ class Address(StructuredNode):
     # Relationships
     address = RelationshipTo("Pleb", 'LIVES_IN')
 
+class Country(StructuredNode):
+    name = StringProperty(unique_index=True)
+    abbreviation = StringProperty()
+
+    #relationships
+    states = RelationshipTo('plebs.neo_models.State', 'HAS')
+
+class State(StructuredNode):
+    name = StringProperty(unique_index=True)
+    abbreviation = StringProperty()
+
+    #relationships
+    capitol = RelationshipTo('plebs.neo_models.City', 'CAPITOL')
+
+class County(StructuredNode):
+    name = StringProperty()
+
+    #relationships
+    city = RelationshipTo('plebs.neo_models.City', "HAS")
+
+class City(StructuredNode):
+    name = StringProperty()
+
+    #relationships
+    district = RelationshipTo('plebs.neo_models.District', "RESIDES_IN")
+
+
+class District(StructuredNode):
+    number = IntegerProperty()

@@ -51,6 +51,7 @@ class Committee(StructuredNode):
     members = RelationshipTo(BaseOfficial, "COMMITEE_MEMBERS")
 
 class Governor(BaseOfficial):
+    #relationships
     vetoed = RelationshipTo(Bill, "VETOED")
 
 class PositionRequirements(StructuredNode):
@@ -61,18 +62,3 @@ class PositionRequirements(StructuredNode):
     cannot_be_felon = BooleanProperty(default=True)
     registered_to_vote = BooleanProperty()
     registered_to_vote_years = IntegerProperty()
-
-'''
-class GovernorRequirements(StructuredNode):
-    pass
-
-class HouseRepRequirements(StructuredNode):
-    age = 25
-    res_of_state = BooleanProperty(default=True)
-    citizen_years = 7
-
-class SenateRequirements(StructuredNode):
-    citizen_years = 9
-    age = 30
-    res_of_state = BooleanProperty(default=True)
-'''

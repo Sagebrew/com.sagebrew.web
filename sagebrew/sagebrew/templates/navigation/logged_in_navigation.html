@@ -34,7 +34,7 @@
     <a href="{% url 'profile_page' pleb_info.email %}"
        id="sb_nav_user">{{ pleb_info.first_name }} {{ pleb_info.last_name }}</a>
 </div>
-{% if is_owner == True %}
+{% if request.user.is_authenticated == True %}
     {% block notifications %}
     <div class="sb_nav_btn_row col-lg-2 col-md-2 hidden-sm hidden-xs">
         <div class="sb_nav_btn_group btn-group">

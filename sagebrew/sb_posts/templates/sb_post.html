@@ -27,12 +27,11 @@
                          align="left">
                         <button class="sb_post_btn_dropdown btn dropdown-toggle"
                                 type="button"
-                                id="dropdownMenu1"
                                 data-toggle="dropdown">
-                        <span class="sb_downdrop_icon fui-gear"></span>
+                        <span class="sb_dropdown_icon fui-gear"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
-                            role="menu" aria-labelledby="dropdownMenu1">
+                            role="menu" aria-labelledby="dropdown-menu">
                              <li role="presentation"><a class="sb_post_dropdown_menu btn show_edit_post_class"
                                                        data-uuid="{{ object_uuid }}"
                                                        type="submit">Edit Post</a>
@@ -86,7 +85,7 @@
                    data-current_pleb="{{ current_user }}"
                    data-object_uuid="{{ object_uuid }}"
                    data-object_type="01bb301a-644f-11e4-9ad9-080027242395">
-                    <span class="sb_icon sb_icon_up_vote fui-check"></span>
+                    <span class="sb_icon sb_icon_up_vote fui-triangle-up"></span>
                 </a>
             </div>
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2 sb_vote_div">
@@ -98,7 +97,7 @@
                    data-current_pleb="{{ current_user }}"
                    data-object_uuid="{{ object_uuid }}"
                    data-object_type="01bb301a-644f-11e4-9ad9-080027242395">
-                     <span class="sb_icon sb_icon_down_vote fui-cross"></span>
+                     <span class="sb_icon sb_icon_down_vote fui-triangle-down"></span>
                 </a>
             </div>
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2 sb_vote_div">
@@ -144,4 +143,54 @@
        data-pleb="{{ post.current_user }}"
        data-post_uuid="{{ post.object_uuid }}">Reference
         Post</a>
+
+         <div class="col-lg-8" align="right">
+                    <div class="btn-group"
+                         align="left">
+                        <button class="sb_post_btn_dropdown btn dropdown-toggle"
+                                type="button"
+                                data-toggle="dropdown">
+                        <span class="sb_dropdown_icon fui-gear"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
+                            role="menu" aria-labelledby="dropdown-menu">
+                             <li role="presentation"><a class="sb_post_dropdown_menu btn show_edit_post_class"
+                                                       data-uuid="{{ object_uuid }}"
+                                                       type="submit">Edit Post</a>
+                            </li>
+                            <li role="presentation" class="sb_divider divider"></li>
+                            <li role="presentation"><a class='sb_post_dropdown_menu btn flag_object-action'
+                                                       data-flag_reason='spam'
+                                                       data-current_user="{{ current_user }}"
+                                                       data-object_uuid="{{ object_uuid }}"
+                                                       data-object_type="01bb301a-644f-11e4-9ad9-080027242395">flag as spam
+                                                       </a>
+                            </li>
+                            <li role="presentation" class="sb_divider divider"></li>
+                            <li role="presentation"><a class='sb_post_dropdown_menu btn flag_object-action'
+                                                       data-flag_reason='explicit'
+                                                       data-current_user="{{ current_user }}"
+                                                       data-object_uuid="{{ object_uuid }}"
+                                                       data-object_type="01bb301a-644f-11e4-9ad9-080027242395">flag as explicit
+                                                       </a>
+                            </li>
+                            <li role="presentation" class="sb_divider divider"></li>
+                            <li role="presentation"><a class='sb_post_dropdown_menu btn flag_object-action'
+                                                       data-flag_reason='other'
+                                                       data-current_user="{{ current_user }}"
+                                                       data-object_uuid="{{ object_uuid }}"
+                                                       data-object_type="01bb301a-644f-11e4-9ad9-080027242395">flag as other
+                                                       </a>
+                            </li>
+                            {% if post_owner_email == current_user %}
+                            <li role="presentation" class="sb_divider divider"></li>
+                            <li role="presentation"> <a class='sb_post_dropdown_menu btn delete_object-action'
+                                                       data-current_pleb="{{ current_user }}"
+                                                       data-object_uuid="{{ object_uuid }}"
+                                                       data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Delete Post</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
 {% endcomment %}

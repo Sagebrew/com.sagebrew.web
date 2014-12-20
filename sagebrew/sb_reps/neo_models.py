@@ -5,6 +5,17 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
 
 from plebs.neo_models import Pleb
 
+
+class BaseOfficial(Pleb):
+    sb_id = StringProperty(unique_index=True)
+
+    #relationships
+    pleb = RelationshipTo('plebs.neo_models.Pleb', 'IS')
+    sponsored = RelationshipTo('sb_reps.neo_models.Bill', "SPONSORED")
+    co_sponsored = RelationshipTo('sb_reps.neo_models.Bill', "COSPONSORED")
+    proposed = RelationshipTo('sb_reps.neo_models.Bill', "PROPOSED")
+    hearings = RelationshipTo('sb_reps.neo_models.Hearing', "ATTENDED")
+
 class Bill(StructuredNode):
     bill_id = StringProperty(unique_index=True)
 
@@ -13,35 +24,55 @@ class Bill(StructuredNode):
     sponsor = RelationshipTo(BaseOfficial, "SPONSORED_BY")
     co_sponsor = RelationshipTo(BaseOfficial, "COSPONSORED_BY")
 
-class Committee(StructuredNode):
-    committee_number = IntegerProperty(unique_index=True)
-
-    #relationships
-    members = RelationshipTo(BaseOfficial, "COMMITEE_MEMBERS")
-
 class Hearing(StructuredNode):
     hearing_id = StringProperty(unique_index=True)
 
     #relationships
     attendees = RelationshipTo(BaseOfficial, "HEARING_ATTENDEES")
 
-class BaseOfficial(Pleb):
-    sb_id = StringProperty(unique_index=True)
-
-    #relationships
-    pleb = RelationshipTo('plebs.neo_models.Pleb', 'IS')
-    sponsored = RelationshipTo(Bill, "SPONSORED")
-    co_sponsored = RelationshipTo(Bill, "COSPONSORED")
-    proposed = RelationshipTo(Bill, "PROPOSED")
-    hearings = RelationshipTo(Hearing, "ATTENDED")
-
 class USSenator(BaseOfficial):
-    #relationships
-    committee = RelationshipTo(Committee, "PART_OF")
+    is_majority_leader = BooleanProperty(default=False)
+    is_minority_leader = BooleanProperty(default=False)
 
+    #relationships
+    committee = RelationshipTo('sb_reps.neo_models.Committee', "PART_OF")
+
+class USHouseRepresentative(BaseOfficial):
+    seat = IntegerProperty(unique_index=True)
+    is_speaker = BooleanProperty(default=False)
+    is_majority_leader = BooleanProperty(default=False)
+    is_minority_leader = BooleanProperty(default=False)
+
+
+class Committee(StructuredNode):
+    committee_number = IntegerProperty(unique_index=True)
+
+    #relationships
+    members = RelationshipTo(BaseOfficial, "COMMITEE_MEMBERS")
 
 class Governor(BaseOfficial):
     vetoed = RelationshipTo(Bill, "VETOED")
 
+class PositionRequirements(StructuredNode):
+    position = StringProperty(unique_index=True)
+    age = IntegerProperty()
+    res_of_state = BooleanProperty(default=True)
+    citizen_years = IntegerProperty()
+    cannot_be_felon = BooleanProperty(default=True)
+    registered_to_vote = BooleanProperty()
+    registered_to_vote_years = IntegerProperty()
+
+'''
 class GovernorRequirements(StructuredNode):
     pass
+
+class HouseRepRequirements(StructuredNode):
+    age = 25
+    res_of_state = BooleanProperty(default=True)
+    citizen_years = 7
+
+class SenateRequirements(StructuredNode):
+    citizen_years = 9
+    age = 30
+    res_of_state = BooleanProperty(default=True)
+'''

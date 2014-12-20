@@ -172,6 +172,7 @@ INSTALLED_APPS = (
     'sb_questions',
     'sb_registration',
     'sb_relationships',
+    'sb_reps',
     'sb_search',
     'sb_tag',
     'sb_trends',

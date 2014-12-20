@@ -46,12 +46,14 @@ def edit_object_view(request):
                              edit_object_form.cleaned_data['object_type']]
         if table == 'posts' or table=='comments':
             obj_datetime = edit_object_form.cleaned_data['datetime']
+            parent_object = request.user.username
         else:
             obj_datetime = ""
+            parent_object = edit_object_form.cleaned_data['parent_object']
         res = update_doc(table,
                          edit_object_form.cleaned_data['object_uuid'],
                          updates,
-                         edit_object_form.cleaned_data['parent_object'],
+                         parent_object,
                          obj_datetime)
         if isinstance(res, Exception) is True:
             return Response({"detail": "server error"}, status=500)

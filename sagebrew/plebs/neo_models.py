@@ -149,7 +149,7 @@ class Pleb(StructuredNode):
     official = RelationshipTo('sb_reps.neo_models.BaseOfficial', 'IS',
                               model=OfficialRelationship)
 
-    def generate_username(self):
+    def generate_username(self, user):
         temp_username = "%s_%s" % (str(self.first_name).lower(),
                                    str(self.last_name).lower())
         temp_username = re.sub('[^a-z]+', '', temp_username)
@@ -168,7 +168,8 @@ class Pleb(StructuredNode):
             self.username = temp_username
         else:
             self.username = temp_username + str((len(res[0])+1))
-
+        user.username = self.username
+        user.save()
         try:
             self.save()
         except(CypherException, IOError) as e:

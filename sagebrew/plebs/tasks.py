@@ -131,7 +131,7 @@ def create_pleb_task(user_instance):
     except(CypherException, IOError) as e:
         raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
     if pleb.username is None:
-        generated = pleb.generate_username()
+        generated = pleb.generate_username(user_instance)
         if isinstance(generated, Exception):
             raise create_pleb_task.retry(exc=generated, countdown=3,
                                          max_retries=None)

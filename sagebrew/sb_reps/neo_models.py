@@ -6,6 +6,9 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
 from plebs.neo_models import Pleb
 
 
+class CongressVoteRelationship(StructuredRel):
+    pass
+
 class BaseOfficial(Pleb):
     sb_id = StringProperty(unique_index=True)
 
@@ -48,6 +51,9 @@ class USHouseRepresentative(BaseOfficial):
     is_speaker = BooleanProperty(default=False)
     is_majority_leader = BooleanProperty(default=False)
     is_minority_leader = BooleanProperty(default=False)
+
+    #relationships
+    vote = RelationshipTo('sb_reps.neo_models.Bill', 'VOTED_ON',)
 
 
 class Committee(StructuredNode):

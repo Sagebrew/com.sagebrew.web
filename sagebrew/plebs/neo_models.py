@@ -146,8 +146,7 @@ class Pleb(StructuredNode):
                               model=SearchCount)
     clicked_results = RelationshipTo('sb_search.neo_models.SearchResult',
                                      'CLICKED_RESULT')
-    official = RelationshipTo('sb_reps.neo_models.BaseOfficial', 'IS',
-                              model=OfficialRelationship)
+    official = RelationshipTo('sb_reps.neo_models.BaseOfficial', 'IS')
 
     def generate_username(self, user):
         temp_username = "%s_%s" % (str(self.first_name).lower(),

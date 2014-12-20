@@ -19,6 +19,8 @@ class Command(BaseCommand):
                 data = data.replace("{{PROJECT_USERNAME}}",
                                     os.environ.get("CIRCLE_PROJECT_USERNAME",
                                                    ""))
+                data = data.replace("{{CIRCLE_BRANCH}}",
+                                    os.environ.get("CIRCLE_BRANCH", ""))
 
                 data = populate_general_env(data)
                 if(circle_branch == "staging"):

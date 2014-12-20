@@ -35,6 +35,11 @@ dependencies:
     - python ~/com.sagebrew.web/sagebrew/manage.py runserver 127.0.0.1:8080:
         background: true
 
+checkout:
+  post:
+    - git submodule sync
+    - git submodule update --init
+
 test:
   override:
     - coverage run --source='.' manage.py test --failfast
@@ -148,10 +153,6 @@ test:
     - docker logs sb_worker >> $CIRCLE_ARTIFACTS/sb_worker.log
     - docker logs sb_sys_util >> $CIRCLE_ARTIFACTS/sys_util.log
 
-checkout:
-  post:
-    - git submodule sync
-    - git submodule update --init
 
 deployment:
 #  production:

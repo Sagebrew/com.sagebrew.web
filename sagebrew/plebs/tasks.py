@@ -59,7 +59,8 @@ def finalize_citizen_creation(pleb, user):
          'last_name': pleb.last_name,
          'username': pleb.username,
          'type': 'standard'}}
-    res = spawn_task(task_func=add_object_to_table_task, task_param=dynamo_data)
+    res = spawn_task(task_func=add_object_to_table_task,
+                     task_param=dynamo_data)
     if not pleb.initial_verification_email_sent:
         generated_token = token_gen.make_token(user, pleb)
         template_dict = {
@@ -106,11 +107,13 @@ def create_wall_task(pleb, user):
             wall.owner.connect(pleb)
             pleb.wall.connect(wall)
         except(CypherException, IOError) as e:
-            raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
+            raise create_wall_task.retry(exc=e, countdown=3,
+                                         max_retries=None)
     spawned = spawn_task(task_func=finalize_citizen_creation,
                          task_param={"pleb": pleb, "user": user})
     if isinstance(spawned, Exception) is True:
-        raise create_wall_task.retry(exc=spawned, countdown=3, max_retries=None)
+        raise create_wall_task.retry(exc=spawned, countdown=3,
+                                     max_retries=None)
     return spawned
 
 
@@ -131,7 +134,7 @@ def create_pleb_task(user_instance):
     except(CypherException, IOError) as e:
         raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
     if pleb.username is None:
-        generated = pleb.generate_username()
+        generated = pleb.generate_username(user_instance)
         if isinstance(generated, Exception):
             raise create_pleb_task.retry(exc=generated, countdown=3,
                                          max_retries=None)

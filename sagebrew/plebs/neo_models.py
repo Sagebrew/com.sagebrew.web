@@ -149,7 +149,7 @@ class Pleb(StructuredNode):
     official = RelationshipTo('sb_reps.neo_models.BaseOfficial', 'IS',
                               model=OfficialRelationship)
 
-    def generate_username(self):
+    def generate_username(self, user):
         temp_username = "%s_%s" % (str(self.first_name).lower(),
                                    str(self.last_name).lower())
         temp_username = re.sub('[^a-z]+', '', temp_username)
@@ -168,7 +168,8 @@ class Pleb(StructuredNode):
             self.username = temp_username
         else:
             self.username = temp_username + str((len(res[0])+1))
-
+        user.username = self.username
+        user.save()
         try:
             self.save()
         except(CypherException, IOError) as e:
@@ -216,3 +217,32 @@ class Address(StructuredNode):
     # Relationships
     address = RelationshipTo("Pleb", 'LIVES_IN')
 
+class Country(StructuredNode):
+    name = StringProperty(unique_index=True)
+    abbreviation = StringProperty()
+
+    #relationships
+    states = RelationshipTo('plebs.neo_models.State', 'HAS')
+
+class State(StructuredNode):
+    name = StringProperty(unique_index=True)
+    abbreviation = StringProperty()
+
+    #relationships
+    capitol = RelationshipTo('plebs.neo_models.City', 'CAPITOL')
+
+class County(StructuredNode):
+    name = StringProperty()
+
+    #relationships
+    city = RelationshipTo('plebs.neo_models.City', "HAS")
+
+class City(StructuredNode):
+    name = StringProperty()
+
+    #relationships
+    district = RelationshipTo('plebs.neo_models.District', "RESIDES_IN")
+
+
+class District(StructuredNode):
+    number = IntegerProperty()

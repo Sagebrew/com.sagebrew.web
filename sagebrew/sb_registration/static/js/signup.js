@@ -56,7 +56,12 @@ $( document ).ready(function() {
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (data) {
-                    window.location.href = "/registration/signup/confirm/"
+                    if (data['detail'] === 'A user with this email already exists!'){
+                        alert(data['detail'])
+                    }
+                    else {
+                        window.location.href = "/registration/signup/confirm/";
+                    }
                 }
             });
         }

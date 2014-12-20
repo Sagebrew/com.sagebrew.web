@@ -100,7 +100,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    #'django.contrib.auth.middleware.SessionAuthenticationMiddleware'
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware'
     'djangosecure.middleware.SecurityMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
@@ -172,6 +172,7 @@ INSTALLED_APPS = (
     'sb_questions',
     'sb_registration',
     'sb_relationships',
+    'sb_reps',
     'sb_search',
     'sb_tag',
     'sb_trends',

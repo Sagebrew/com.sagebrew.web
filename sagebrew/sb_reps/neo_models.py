@@ -37,6 +37,12 @@ class USSenator(BaseOfficial):
     #relationships
     committee = RelationshipTo('sb_reps.neo_models.Committee', "PART_OF")
 
+class USPresident(BaseOfficial):
+    number = IntegerProperty()
+
+    #relationships
+    vetoed = RelationshipTo(Bill, "VETOED")
+
 class USHouseRepresentative(BaseOfficial):
     seat = IntegerProperty(unique_index=True)
     is_speaker = BooleanProperty(default=False)
@@ -53,6 +59,8 @@ class Committee(StructuredNode):
 class Governor(BaseOfficial):
     #relationships
     vetoed = RelationshipTo(Bill, "VETOED")
+    passed = RelationshipTo(Bill, "PASSED")
+    committee = RelationshipTo('sb_reps.neo_models.Committee', "STARTED")
 
 class PositionRequirements(StructuredNode):
     position = StringProperty(unique_index=True)
@@ -62,3 +70,5 @@ class PositionRequirements(StructuredNode):
     cannot_be_felon = BooleanProperty(default=True)
     registered_to_vote = BooleanProperty()
     registered_to_vote_years = IntegerProperty()
+    natural_born_resident = BooleanProperty(default=False)
+    term_limit = IntegerProperty()

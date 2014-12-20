@@ -1,0 +1,3 @@
+[submodule "sagebrew/sb_assets"]
+	path = sagebrew/sb_assets
+	url = git@github.com:Sagebrew/sb_assets.git

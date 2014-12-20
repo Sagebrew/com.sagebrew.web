@@ -128,7 +128,7 @@ textarea.sb_comment_input{
 .sb_icon{
     font-size: 20px;
 }
-.sb_downdrop_icon{
+.sb_dropdown_icon {
     color: #b7bfbb;
 }
 .sb_icon_down_vote,
@@ -145,7 +145,7 @@ textarea.sb_comment_input{
 
 }
 .sb_btn_vote_icon{
-    color: #1ba39c;
+    color: #b7bfbb;
     padding: 3px 3px 3px 3px;
     hieght: 30px;
     width: 30px;
@@ -182,4 +182,8 @@ textarea.sb_comment_input{
 .sb_post_dropdown_menu{
     text-align: left;
     padding-left: 20px;
+}
+#sb_vote_style {
+    color: #7c7e80;
+    font-size: 13pt;
 }

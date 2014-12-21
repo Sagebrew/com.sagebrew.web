@@ -26,7 +26,7 @@
 }
 .sb_question_header{
     color: #838c92;
-font-size: 15pt;
+    font-size: 15pt;
 }
 .sb_question_inner_border{
     border-style: solid;
@@ -34,6 +34,7 @@ font-size: 15pt;
     border-color: #b7bfbb;
     border-radius: 5px;
     min-height: 550px;
+    padding: 15px;
 }
 .sb_btn_question_cat{
     background-color: transparent;
@@ -67,5 +68,5 @@ font-size: 15pt;
     margin-bottom: 15px;
 }
 .sb_question_input{
-    margin: 15px
+    margin-bottom: 15px;
 }

@@ -23,13 +23,10 @@
                         </div>
                     </div>
                     <div class="sb_questions_cat_container">
-
                     </div>
                     <div class="sb_question_inner_border">
                     <div class="row">
-                        <div class="col-lg-6 col-md-6">
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-lg-offset-6">
                             <textarea class="sb_question_input sb_post form-control"
                                   id="post_input_id"
                                   name="post_input"
@@ -38,7 +35,7 @@
                     </div>
                         {% block questions %}
                             <div id="question_wrapper">
-
+                            {% include "question_detail.html" %}
                             </div>
                         {% endblock %}
                         <img src="https://logs-01.loggly.com/inputs/4befe913-b753-4823-a844-193a41779000.gif?source=pixel&data=hello" />
@@ -60,30 +57,6 @@
             {% endcomment %}
             </div>
         </div>
-    <div class="pagination">
-  <ul>
-    <li class="previous">
-      <a href="#" class="fui-arrow-left"></a>
-    </li>
-
-    <!-- Make dropdown appear above pagination -->
-    <li class="pagination-dropdown dropup">
-      <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-        <i class="fui-triangle-up"></i>
-      </a>
-      <!-- Dropdown menu -->
-      <ul class="dropdown-menu">
-        <li>
-          <a href="#">10-20</a>
-        </li>
-      </ul>
-    </li>
-
-    <li class="next">
-      <a href="#" class="fui-arrow-right"></a>
-    </li>
-  </ul>
-</div>
     </div>
 {% endblock %}
 

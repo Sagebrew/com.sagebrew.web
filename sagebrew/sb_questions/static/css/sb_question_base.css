@@ -35,3 +35,26 @@ font-size: 15pt;
     border-radius: 5px;
     min-height: 550px;
 }
+.sb_btn_question_cat{
+    background-color: transparent;
+    border-color: transparent;
+    border-radius: 5px;
+    border-style: solid;
+    border-width: 1px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+.sb_btn_question_cat:active,
+.sb_btn_question_cat:hover,
+.sb_btn_question_cat:focus{
+    border-color: #1ba39c;
+    border-radius: 5px;
+    border-style: solid;
+    border-width: 1px;
+}
+.sb_categories{
+    color: #1ba39c;
+    font-size: 15pt;
+}

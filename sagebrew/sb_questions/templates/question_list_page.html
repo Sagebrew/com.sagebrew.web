@@ -14,7 +14,14 @@
         <div class="row-fluid">
             <div class="col-lg-9">
                 <div class="sb_questions_list_container">
-                    <p class="sb_question_header">Conversations</p>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <p class="sb_question_header">Conversations</p>
+                        </div>
+                        <div class="col-lg-6" align="right">
+                            <button class="btn sb_btn_question_cat"><span class="sb_categories fui-list-large-thumbnails"></span></button>
+                        </div>
+                    </div>
                     <div class="sb_question_inner_border">
                         {% block questions %}
                             <div id="question_wrapper">

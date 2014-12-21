@@ -54,7 +54,18 @@ font-size: 15pt;
     border-style: solid;
     border-width: 1px;
 }
-.sb_categories{
+.sb_cat{
     color: #1ba39c;
     font-size: 15pt;
+}
+.sb_questions_cat_container{
+    border: solid;
+    border-color: #b7bfbb;
+    border-width: 1px;
+    border-radius: 5px;
+    height: 100px;
+    margin-bottom: 15px;
+}
+.sb_question_input{
+    margin: 15px
 }

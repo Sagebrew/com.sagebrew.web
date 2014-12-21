@@ -1,24 +1,6 @@
-{% extends "base.html" %}
-{% load i18n %}
-{% load staticfiles %}
-{% block navigation %}
-    {% include "navigation/logged_in_navigation.html" %}
-{% endblock %}
-
-{% block content %}
-    <div id="single_question_wrapper">
-        <div class="div_data_hidden"
-             data-current_pleb="{{ pleb }}"
-             data-sort_by="uuid"
-             data-question_uuid="{{ uuid }}"></div>
-    </div>
-{% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    <script src="{% static 'js/save_answer.js' %}"></script>
-    <script src="{% static 'js/edit_answer.js' %}"></script>
-    <script src="{% static 'js/edit_question.js' %}"></script>
-    <script src="{% static 'js/query_questions.js' %}"></script>
-    <script src="{% static 'js/query_single_question.js' %}"></script>
-{% endblock scripts %}
+<div id="single_question_wrapper">
+    <div class="div_data_hidden"
+         data-current_pleb="{{ pleb }}"
+         data-sort_by="uuid"
+         data-question_uuid="{{ uuid }}"></div>
+</div>

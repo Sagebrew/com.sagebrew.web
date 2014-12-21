@@ -15,14 +15,28 @@
             <div class="col-lg-9">
                 <div class="sb_questions_list_container">
                     <div class="row">
-                        <div class="col-lg-6">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
                             <p class="sb_question_header">Conversations</p>
                         </div>
-                        <div class="col-lg-6" align="right">
-                            <button class="btn sb_btn_question_cat"><span class="sb_categories fui-list-large-thumbnails"></span></button>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" align="right">
+                            <button class="btn sb_btn_question_cat"><span class="sb_cat fui-list-large-thumbnails"></span></button>
                         </div>
                     </div>
+                    <div class="sb_questions_cat_container">
+
+                    </div>
                     <div class="sb_question_inner_border">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6">
+
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                            <textarea class="sb_question_input sb_post form-control"
+                                  id="post_input_id"
+                                  name="post_input"
+                                  placeholder="Spark a conversation . . ."></textarea>
+                        </div>
+                    </div>
                         {% block questions %}
                             <div id="question_wrapper">
 
@@ -35,6 +49,7 @@
         </div>
         <div class="col-lg-3">
             <div class="sb_questions_side_container">
+            {% comment %}
                 {% block filter_options %}
                     <a class="btn btn-sm btn-primary query_questions-action"
                        data-sort_by="most_recent"
@@ -43,8 +58,33 @@
                        data-sort_by="least_recent"
                        data-current_pleb="{{ email }}">Least Recent</a>
                 {% endblock %}
+            {% endcomment %}
             </div>
         </div>
+    <div class="pagination">
+  <ul>
+    <li class="previous">
+      <a href="#" class="fui-arrow-left"></a>
+    </li>
+
+    <!-- Make dropdown appear above pagination -->
+    <li class="pagination-dropdown dropup">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        <i class="fui-triangle-up"></i>
+      </a>
+      <!-- Dropdown menu -->
+      <ul class="dropdown-menu">
+        <li>
+          <a href="#">10-20</a>
+        </li>
+      </ul>
+    </li>
+
+    <li class="next">
+      <a href="#" class="fui-arrow-right"></a>
+    </li>
+  </ul>
+</div>
     </div>
 {% endblock %}
 

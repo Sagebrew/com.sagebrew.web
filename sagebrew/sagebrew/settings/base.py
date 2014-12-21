@@ -127,6 +127,7 @@ TEMPLATE_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     '%s/sagebrew/templates/' % PROJECT_DIR,
+    '%s/sb_reps/templates/' % PROJECT_DIR,
     '%s/sb_registration/templates/' % PROJECT_DIR,
     '%s/sb_wall/templates/' % PROJECT_DIR,
     '%s/plebs/templates/' % PROJECT_DIR,

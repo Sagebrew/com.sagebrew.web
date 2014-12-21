@@ -10,7 +10,11 @@ class CongressVoteRelationship(StructuredRel):
     pass
 
 class BaseOfficial(Pleb):
+    title = ""
     sb_id = StringProperty(unique_index=True)
+    resume = StringProperty()
+    agenda = StringProperty()
+    policies = StringProperty()
 
     #relationships
     pleb = RelationshipTo('plebs.neo_models.Pleb', 'IS')
@@ -34,6 +38,7 @@ class Hearing(StructuredNode):
     attendees = RelationshipTo(BaseOfficial, "HEARING_ATTENDEES")
 
 class USSenator(BaseOfficial):
+    title = "Senator "
     is_majority_leader = BooleanProperty(default=False)
     is_minority_leader = BooleanProperty(default=False)
 
@@ -41,12 +46,14 @@ class USSenator(BaseOfficial):
     committee = RelationshipTo('sb_reps.neo_models.Committee', "PART_OF")
 
 class USPresident(BaseOfficial):
+    title = "President "
     number = IntegerProperty()
 
     #relationships
     vetoed = RelationshipTo(Bill, "VETOED")
 
 class USHouseRepresentative(BaseOfficial):
+    title = "Representative "
     seat = IntegerProperty(unique_index=True)
     is_speaker = BooleanProperty(default=False)
     is_majority_leader = BooleanProperty(default=False)

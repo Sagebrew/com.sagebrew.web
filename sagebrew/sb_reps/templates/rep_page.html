@@ -1,0 +1,32 @@
+{% extends "registration_base.html" %}
+{% block title %}Representative{% endblock %}
+{% block content %}
+    <div>{{ full }}</div>
+    <div>Policy</div>
+    {{ policy }}
+    {% if request.user.username == username %}
+    {% block policy %}
+        {% for field in policy_form %}
+            {{ field }}
+        {% endfor %}
+    {% endblock %}
+    {% endif %}
+    <div>Resume</div>
+    {{ resume }}
+    {% if request.user.username == username %}
+    {% block resume %}
+        {% for field in resume_form %}
+            {{ field }}
+        {% endfor %}
+    {% endblock %}
+    {% endif %}
+    <div>Agenda</div>
+    {{ agenda }}
+    {% if request.user.username == username %}
+    {% block agenda %}
+        {% for field in agenda_form %}
+            {{ field }}
+        {% endfor %}
+    {% endblock %}
+    {% endif %}
+{% endblock %}

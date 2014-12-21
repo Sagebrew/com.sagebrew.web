@@ -2,12 +2,15 @@
 {% load i18n %}
 {% load staticfiles %}
 {% block navigation %}
-    {% include "navigation/sign_up_navigation.html" %}
+    {% include "navigation/logged_in_navigation.html" %}
 {% endblock %}
 
 {% block content %}
     <div id="single_question_wrapper">
-        <div class="div_data_hidden" data-current_pleb="{{ pleb }}" data-sort_by="uuid" data-question_uuid="{{ uuid }}"></div>
+        <div class="div_data_hidden"
+             data-current_pleb="{{ pleb }}"
+             data-sort_by="uuid"
+             data-question_uuid="{{ uuid }}"></div>
     </div>
 {% endblock %}
 

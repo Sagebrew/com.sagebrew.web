@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load staticfiles %}
+{% block css %}
+    {{ block.super }}
+        <link href="{% static 'css/sb_question_base.css' %}" rel="stylesheet"/>
+{%  endblock css %}
+{% block navigation %}
+    {% include "navigation/logged_in_navigation.html" %}
+{% endblock %}
+
+{% block content %}
+    <div class="sb_questions_content">
+        <div class="row-fluid">
+            <div class="col-lg-9">
+                <div class="sb_questions_list_container">
+                    <p class="sb_question_header">Conversations</p>
+                    <div class="sb_question_inner_border">
+                        {% block questions %}
+                            <div id="question_wrapper">
+
+                            </div>
+                        {% endblock %}
+                        <img src="https://logs-01.loggly.com/inputs/4befe913-b753-4823-a844-193a41779000.gif?source=pixel&data=hello" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="sb_questions_side_container">
+                {% block filter_options %}
+                    <a class="btn btn-sm btn-primary query_questions-action"
+                       data-sort_by="most_recent"
+                       data-current_pleb="{{ email }}">Most Recent</a>
+                    <a class="btn btn-sm btn-primary query_questions-action"
+                       data-sort_by="least_recent"
+                       data-current_pleb="{{ email }}">Least Recent</a>
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/query_questions.js' %}"></script>
+{% endblock scripts %}

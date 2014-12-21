@@ -49,7 +49,7 @@ def question_page(request, sort_by="most_recent"):
 
     :return:
     '''
-    return render(request, 'question_sort_page.html',
+    return render(request, 'question_list_page.html',
                   {'email': request.user.email})
 
 

@@ -293,7 +293,7 @@ def verify_completed_registration(user):
     try:
         pleb = Pleb.nodes.get(email=user.email)
         return pleb.completed_profile_info
-    except (Pleb.DoesNotExist,DoesNotExist,CypherException):
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException):
         return False
 
 

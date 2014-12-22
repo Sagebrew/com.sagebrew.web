@@ -5,7 +5,6 @@ from base import *
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['*']
-WEB_ADDRESS = "https://192.168.56.101"
 API_PASSWORD = "admin"
 VERIFY_SECURE = False
 MEDIA_ROOT = PROJECT_DIR.child("media")

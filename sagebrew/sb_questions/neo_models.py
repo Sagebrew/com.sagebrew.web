@@ -166,10 +166,7 @@ class SBQuestion(SBVersioned, SBTagContent):
                              'vote_count': self.get_vote_count(),
                              'owner': owner,
                              'time_created': self.date_created,
-                             # TODO Do we need the web address here?
-                             'question_url': settings.WEB_ADDRESS +
-                                             '/questions/' +
-                                             self.sb_id,
+                             'question_url': '/questions/%s' % self.sb_id,
                              'current_pleb': pleb
                         }
             return question_dict

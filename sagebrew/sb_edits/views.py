@@ -46,7 +46,7 @@ def edit_object_view(request):
                              edit_object_form.cleaned_data['object_type']]
         if table == 'posts' or table=='comments':
             obj_datetime = edit_object_form.cleaned_data['datetime']
-            parent_object = request.user.username
+            parent_object = edit_object_form.cleaned_data['parent_object']
         else:
             obj_datetime = ""
             parent_object = edit_object_form.cleaned_data['parent_object']

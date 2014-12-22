@@ -1,7 +1,8 @@
 from django import forms
 
 class PolicyForm(forms.Form):
-    policies = forms.CharField(widget=forms.Textarea)
+    policies = forms.CharField()
+    description = forms.CharField(widget=forms.Textarea)
 
 class AgendaForm(forms.Form):
     agenda = forms.CharField(widget=forms.Textarea)

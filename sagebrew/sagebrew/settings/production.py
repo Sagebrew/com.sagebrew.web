@@ -96,28 +96,24 @@ LOGGING = {
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'CRITICAL',
-            'token': LOG_TOKEN
         },
         'loggly_logs': {
             'handlers': ['logentries_handler'],
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'ERROR',
-            'token': LOG_TOKEN
         },
         'elasticsearch.trace': {
             'handlers': ['logentries_handler'],
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'CRITICAL',
-            'token': LOG_TOKEN
         },
         'neomodel.properties': {
             'handlers': ['logentries_handler'],
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'CRITICAL',
-            'token': LOG_TOKEN
         },
         'django.request': {
             'handlers': ['logentries_handler'],

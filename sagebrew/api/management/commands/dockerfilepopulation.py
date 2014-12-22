@@ -109,8 +109,6 @@ def populate_general_env(data):
         "SSL_CERT_LOCATION", ""))
     data = data.replace('{{SSL_KEY_LOCATION}}', os.environ.get(
         "SSL_KEY_LOCATION", ""))
-    data = data.replace("{{LOG_ACCOUNT}}", os.environ.get("LOG_ACCOUNT", ""))
-    data = data.replace("{{LOG_TOKEN}}", os.environ.get("LOG_TOKEN", ""))
     return data
 
 

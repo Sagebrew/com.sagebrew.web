@@ -76,10 +76,6 @@ def populate_general_values(data, user, worker_count):
                         environ.get("AWS_SECRET_ACCESS_KEY", ""))
     data = data.replace("%(ENV_AWS_ACCESS_KEY_ID)s",
                         environ.get("AWS_ACCESS_KEY_ID", ""))
-    data = data.replace("%(ENV_LOG_TOKEN)s",
-                        environ.get("LOG_TOKEN", ""))
-    data = data.replace("%(ENV_LOG_ACCOUNT)s",
-                        environ.get("LOG_ACCOUNT", ""))
     data = data.replace("%(ENV_ALCHEMY_API_KEY)s",
                         environ.get("ALCHEMY_API_KEY", ""))
     data = data.replace("%(ENV_ADDRESS_VALIDATION_ID)s",

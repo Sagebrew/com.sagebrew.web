@@ -138,8 +138,6 @@ def populate_general_values(data):
     data = data.replace("<APP_USER>", environ.get("APP_USER", ""))
     data = data.replace("<REPO_NAME>", environ.get("REPO_NAME", ""))
     data = data.replace("<PROJECT_NAME>", environ.get("PROJECT_NAME"))
-    data = data.replace("<LOG_ACCOUNT>", environ.get("LOG_ACCOUNT", ""))
-    data = data.replace("<LOG_TOKEN>", environ.get("LOG_TOKEN", ""))
 
     data = data.replace("<CIRCLE_BRANCH>", environ.get("CIRCLE_BRANCH", ""))
 

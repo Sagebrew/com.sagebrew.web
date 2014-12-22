@@ -144,7 +144,8 @@ def login_view_api(request):
                                 status=400)
         else:
             return Response({'detail': 'invalid password'}, status=400)
-    # TODO add a handler for if the form is not valid
+    else:
+        return Response({'detail': 'invalid form'}, status=400)
 
 @login_required()
 def logout_view(request):

@@ -6,8 +6,15 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
 from plebs.neo_models import Pleb
 
 
+class CongressVoteRelationship(StructuredRel):
+    pass
+
 class BaseOfficial(Pleb):
+    title = ""
     sb_id = StringProperty(unique_index=True)
+    resume = StringProperty()
+    agenda = StringProperty()
+    policies = StringProperty()
 
     #relationships
     pleb = RelationshipTo('plebs.neo_models.Pleb', 'IS')
@@ -31,17 +38,29 @@ class Hearing(StructuredNode):
     attendees = RelationshipTo(BaseOfficial, "HEARING_ATTENDEES")
 
 class USSenator(BaseOfficial):
+    title = "Senator "
     is_majority_leader = BooleanProperty(default=False)
     is_minority_leader = BooleanProperty(default=False)
 
     #relationships
     committee = RelationshipTo('sb_reps.neo_models.Committee', "PART_OF")
 
+class USPresident(BaseOfficial):
+    title = "President "
+    number = IntegerProperty()
+
+    #relationships
+    vetoed = RelationshipTo(Bill, "VETOED")
+
 class USHouseRepresentative(BaseOfficial):
+    title = "Representative "
     seat = IntegerProperty(unique_index=True)
     is_speaker = BooleanProperty(default=False)
     is_majority_leader = BooleanProperty(default=False)
     is_minority_leader = BooleanProperty(default=False)
+
+    #relationships
+    vote = RelationshipTo('sb_reps.neo_models.Bill', 'VOTED_ON',)
 
 
 class Committee(StructuredNode):
@@ -51,7 +70,10 @@ class Committee(StructuredNode):
     members = RelationshipTo(BaseOfficial, "COMMITEE_MEMBERS")
 
 class Governor(BaseOfficial):
+    #relationships
     vetoed = RelationshipTo(Bill, "VETOED")
+    passed = RelationshipTo(Bill, "PASSED")
+    committee = RelationshipTo('sb_reps.neo_models.Committee', "STARTED")
 
 class PositionRequirements(StructuredNode):
     position = StringProperty(unique_index=True)
@@ -61,18 +83,5 @@ class PositionRequirements(StructuredNode):
     cannot_be_felon = BooleanProperty(default=True)
     registered_to_vote = BooleanProperty()
     registered_to_vote_years = IntegerProperty()
-
-'''
-class GovernorRequirements(StructuredNode):
-    pass
-
-class HouseRepRequirements(StructuredNode):
-    age = 25
-    res_of_state = BooleanProperty(default=True)
-    citizen_years = 7
-
-class SenateRequirements(StructuredNode):
-    citizen_years = 9
-    age = 30
-    res_of_state = BooleanProperty(default=True)
-'''
+    natural_born_resident = BooleanProperty(default=False)
+    term_limit = IntegerProperty()

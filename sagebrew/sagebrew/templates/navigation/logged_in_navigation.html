@@ -27,12 +27,11 @@
     </form>
 </div>
 <div class="col-lg-1 col-md-0 hidden-sm hidden-xs">
-
 </div>
 <div class="sb_nav_user col-lg-2 col-md-2 col-sm-3 hidden-xs"
      align="right">
-    <a href="{% url 'profile_page' pleb_info.email %}"
-       id="sb_nav_user">{{ pleb_info.first_name }} {{ pleb_info.last_name }}</a>
+    <a href="{% url 'profile_page' request.user.email %}"
+       id="sb_nav_user">{{ request.user.first_name }} {{ request.user.last_name }}</a>
 </div>
 {% if request.user.is_authenticated == True %}
     {% block notifications %}
@@ -43,7 +42,7 @@
                         type="button"
                         id="sb_friend"
                         data-toggle="dropdown"
-                        data-email="{{ pleb_info.email }}">
+                        data-email="{{ request.user.email }}">
                 <span class="sb_btn_icon fui-user"></span>
                 </a>
                 <ul class="sb_nav_dropdown_container dropdown-menu dropdown-menu-right"
@@ -63,7 +62,7 @@
                         type="button"
                         id="dropdownMenu1"
                         data-toggle="dropdown"
-                        data-email="{{ pleb_info.email }}">
+                        data-email="{{ request.user.email }}">
                 <span class="sb_btn_icon glyphicon glyphicon-leaf"></span>
                 </button>
                 <ul class="sb_nav_dropdown_container dropdown-menu dropdown-menu-right"
@@ -86,7 +85,7 @@
                         data-toggle="dropdown">
                 <span class="sb_btn_icon fui-gear"></span>
                 </button>
-                <ul class="sb_nav_dropdown_container dropdown-menu dropdown-menu-right"
+                <ul class="sb_nav_dropdown_container_menu dropdown-menu dropdown-menu-right"
                     role="menu" aria-labelledby="dropdownMenu1">
                     <li role="presentation"><a role="menuitem"
                                                tabindex="-1"

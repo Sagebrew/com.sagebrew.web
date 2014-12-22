@@ -100,7 +100,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware'
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'djangosecure.middleware.SecurityMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
@@ -127,6 +127,7 @@ TEMPLATE_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     '%s/sagebrew/templates/' % PROJECT_DIR,
+    '%s/sb_reps/templates/' % PROJECT_DIR,
     '%s/sb_registration/templates/' % PROJECT_DIR,
     '%s/sb_wall/templates/' % PROJECT_DIR,
     '%s/plebs/templates/' % PROJECT_DIR,

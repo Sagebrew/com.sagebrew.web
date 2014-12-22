@@ -13,6 +13,9 @@ from sb_registration.utils import (get_friends, generate_profile_pic_url,
 from .utils import prepare_user_search_html
 
 
+def less_lesson(request):
+    return render(request, "lesson.html", {})
+
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')

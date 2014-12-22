@@ -46,7 +46,7 @@ def edit_object_view(request):
                              edit_object_form.cleaned_data['object_type']]
         if table == 'posts' or table=='comments':
             obj_datetime = edit_object_form.cleaned_data['datetime']
-            parent_object = request.user.username
+            parent_object = edit_object_form.cleaned_data['parent_object']
         else:
             obj_datetime = ""
             parent_object = edit_object_form.cleaned_data['parent_object']
@@ -93,9 +93,11 @@ def edit_question_title_view(request):
         dynamo_data = {
             'table': 'edits', 'object_data':
             {
-                'parent_object': edit_question_form.cleaned_data['object_uuid'],
+                'parent_object': edit_question_form.cleaned_data
+                ['object_uuid'],
                 'datetime': unicode(datetime.now(pytz.utc)),
-                'question_title': edit_question_form.cleaned_data['question_title']
+                'question_title': edit_question_form.cleaned_data
+                ['question_title']
             }
         }
         res = spawn_task(task_func=add_object_to_table_task,

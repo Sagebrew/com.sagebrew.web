@@ -4,8 +4,11 @@ from os import environ
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['beta.sagebrew.com', 'www.sagebrew.com', 'sagebrew.com']
-WEB_ADDRESS = "https://sagebrew.com"
 VERIFY_SECURE = True
+
+COMPRESS_PRECOMPILERS = (
+   ('text/less', 'lessc {infile} {outfile}'),
+)
 
 DATABASES = {
     'default': {

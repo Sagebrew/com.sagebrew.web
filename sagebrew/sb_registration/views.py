@@ -136,10 +136,9 @@ def login_view_api(request):
 
                 rev = reverse('profile_page',
                               kwargs={'pleb_username': pleb.username})
-                profile_page_url = settings.WEB_ADDRESS+rev
                 return Response({'detail': 'success',
                                  'user': user.email,
-                                 'url': profile_page_url}, status=200)
+                                 'url': rev}, status=200)
             else:
                 return Response({'detail': 'account disabled'},
                                 status=400)

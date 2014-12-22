@@ -1,3 +1,6 @@
+@import "../../bower_components/bootstrap/less/bootstrap.less";
+@import "../../flat-ui/less/flat-ui-pro.less";
+@import "../sb_core/sb_core_variables.less";
 html, .body {
     height: 100%;
 }
@@ -9,8 +12,8 @@ body {
     position:absolute;
     width: 100%;
     heigh: 100%;
-    margin-top: -15px;
-    margin-left: -15px;
+    margin-top: @sb_main_margin_negative;
+    margin-left: @sb_main_margin_negative;
     min-height: 620px;
     min-width: 1200px;
 }
@@ -24,7 +27,7 @@ div#sb_wrapper{
     margin-left: 30px;
 }
 #sb_logo_xs {
-    color: #eaf0e8;
+    color: @sb_off_white;
     text-align: left;
     margin-top: 1px;
     margin-left: 50%;
@@ -32,16 +35,16 @@ div#sb_wrapper{
 }
 .sb_background {
     background-size: cover;
-    background-color: #b7bfbb;
+    background-color: @sb_grey;
 }
 .sb_deco_line{
     border-bottom: solid 5px;
-    border-color: #838c92;
+    border-color: @sb_grey_dark;
     margin-bottom: 35px;
 }
 .sb_deco_line_2{
     border-bottom: solid 5px;
-    border-color: #838c92;
+    border-color: @sb_grey_dark;
     margin-bottom: 100px;
 }
 .sb_title {
@@ -49,40 +52,40 @@ div#sb_wrapper{
     font-size: 1.75em;
 }
 .sb_btn_continue {
-    background-color: #1ba39c;
+    background-color: @sb_green;
     width: 100%;
     height: 100%;
 }
 .sb_btn {
-    background-color: #1ba39c;
+    background-color: @sb_green;
     width: 100%;
     height: 100%;
 }
 .sb_btn_photo_modal_select {
     width: 150px;
-    background-color: #1ba39c;
+    background-color: @sb_green;
 }
 .sb_btn_photo_modal_remove {
     width: 150px;
-    background-color: #1ba39c;
+    background-color: @sb_green;
 }
 .sb_btn_photo_modal_change {
     width: 150px;
-    background-color: #1ba39c;
+    background-color: @sb_green;
 }
 .sb_btn_photo_modal_save {
     width: 150px;
-    background-color: #1ba39c;
+    background-color: @sb_green;
 }
 .sb_btn_upload {
     margin-top: 20px;
-    background-color: #1ba39c;
+    background-color: @sb_green;
     width: 265px;
     height: 100%;
-    margin-bottom: 15px;
+    margin-bottom: @sb_main_margin_positive;
 }
 .sb_error {
-    color: #e74c3c;
+    color: @sb_red;
     margin-left: 2em;
 }
 .sb_photo_modal {
@@ -90,21 +93,21 @@ div#sb_wrapper{
     margin-left: 17%;
     margin-right: 17%;
     margin-bottom: 2%;
-    border-radius:7px 7px 7px 7px ;
+    border-radius: @sb_main_radius;
 }
 .sb_modal_body {
-    background-color: #eaf0e8;
-    border-radius:0 0 7px 7px ;
+    background-color: @sb_off_white;
+    border-radius:0 0 5px 5px ;
 }
 .sb_modal_header {
-    background-color: #1ba39c;
+    background-color: @sb_green;
     border-bottom-width: 5pt;
-    border-bottom-color: #838c92;
+    border-bottom-color: @sb_grey_dark;
 }
 .sb_btn_group{
     border-radius: 0;
 }
 .sb_divider{
-    color: #1ba39c;
+    color: @sb_green;
 }
 

@@ -1,21 +1,36 @@
-{% extends "base.html" %}
-{% load i18n %}
-{% load staticfiles %}
-{% block navigation %}
-    {% include "navigation/sign_up_navigation.html" %}
-{% endblock %}
-
-{% block content %}
-    <div id="single_question_wrapper">
-        <div class="div_data_hidden" data-current_pleb="{{ pleb }}" data-sort_by="uuid" data-question_uuid="{{ uuid }}"></div>
+<div id="single_question_wrapper">
+    <div class="sb_question_block">
+        <div class="row-fluid">
+            <div class="col-lg-1">
+                <button class="sb_btn_question_vote btn"><span class="sb_question_vote_icon fui-triangle-up"></span></button>
+                <div class="sb_vote_number">
+                    453
+                </div>
+                <button class="btn sb_btn_question_vote"><span class="sb_question_vote_icon fui-triangle-down"></span></button>
+            </div>
+            <div class="col-lg-11">
+                <div class="row">
+                    <div class="sb_question_block_title">
+                        This is where the question will be placed?
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="sb_question_block_content">
+                        tempus cursus. Proin ut sem quis lectus tincidunt euismod.
+                        Cras consectetur, metus vitae pretium hendrerit, dui dolor
+                        condimentum tortor, ac congue est nunc interdum mi.....
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 sb_question_block_data" align="right">
+                        asked by Jordan Welton
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-{% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    <script src="{% static 'js/save_answer.js' %}"></script>
-    <script src="{% static 'js/edit_answer.js' %}"></script>
-    <script src="{% static 'js/edit_question.js' %}"></script>
-    <script src="{% static 'js/query_questions.js' %}"></script>
-    <script src="{% static 'js/query_single_question.js' %}"></script>
-{% endblock scripts %}
+</div>
+    <div class="div_data_hidden"
+         data-current_pleb="{{ pleb }}"
+         data-sort_by="uuid"
+         data-question_uuid="{{ uuid }}"></div>

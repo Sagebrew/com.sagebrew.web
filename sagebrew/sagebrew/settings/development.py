@@ -11,6 +11,7 @@ MEDIA_ROOT = PROJECT_DIR.child("media")
 STATIC_ROOT = PROJECT_DIR.child("static")
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
+WEB_ADDRESS = "https://192.168.56.101"
 
 DATABASES = {
     'default': {

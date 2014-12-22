@@ -1,4 +1,5 @@
 {% extends "registration_base.html" %}
+{% load staticfiles %}
 {% block title %}Representative{% endblock %}
 {% block content %}
     <div>{{ full }}</div>
@@ -6,9 +7,15 @@
     {{ policy }}
     {% if request.user.username == username %}
     {% block policy %}
-        {% for field in policy_form %}
-            {{ field }}
+        {{ policy_form_set.management_form }}
+        {% for form in policy_form_set.forms %}
+            <div class="policy_table">
+            <table class="no_error">
+                {{ form.as_table }}
+            </table>
+            </div>
         {% endfor %}
+        <input type="button" value="Add Policy" class="add_policy">
     {% endblock %}
     {% endif %}
     <div>Resume</div>
@@ -30,3 +37,8 @@
     {% endblock %}
     {% endif %}
 {% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/add_policy.js' %}"></script>
+{% endblock scripts %}

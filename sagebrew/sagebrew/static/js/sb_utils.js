@@ -250,6 +250,31 @@ function page_leave_endpoint() {
     });
 }
 
+function add_new(){
+    $('.add_policy').on('click', function(){
+            cloneForm('div.policy_table:last', 'form');
+    });
+}
+
+function cloneForm(selector, type) {
+    var newElement = $(selector).clone(true);
+    var total = $('#id_'+type+'_TOTAL_FORMS').val();
+    console.log(newElement);
+    console.log(total);
+    newElement.find(':input').each(function(){
+        var name = $(this).attr('name').replace('-' + (total-1) + '-','-'+total+'-');
+        var id = 'id_'+name;
+        $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+    });
+    newElement.find('label').each(function() {
+        var newFor = $(this).attr('for').replace('-' + (total-1) + '-','-' + total + '-');
+        $(this).attr('for', newFor);
+    });
+    total++;
+    $('#id_' + type + '-TOTAL_FORMS').val(total);
+    $(selector).after(newElement);
+}
+
 
 function enable_post_functionality() {
     save_answer();
@@ -279,3 +304,4 @@ function getUrlParameter(sParam)
         }
     }
 }
+

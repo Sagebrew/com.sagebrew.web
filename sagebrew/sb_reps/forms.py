@@ -1,7 +1,7 @@
 from django import forms
 
 class PolicyForm(forms.Form):
-    policies = forms.CharField()
+    policies = forms.CharField(max_length=150)
     description = forms.CharField(widget=forms.Textarea)
 
 class AgendaForm(forms.Form):

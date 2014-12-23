@@ -32,9 +32,7 @@
     {% block resume %}
         <form method="post" action="">
             {% csrf_token %}
-            {% for field in resume_form %}
-                {{ field }}
-            {% endfor %}
+            {{ resume_form }}
             <input type="Submit" value="Add Resume">
         </form>
     {% endblock %}

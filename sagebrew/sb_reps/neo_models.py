@@ -25,6 +25,7 @@ class BaseOfficial(Pleb):
     co_sponsored = RelationshipTo('sb_reps.neo_models.Bill', "COSPONSORED")
     proposed = RelationshipTo('sb_reps.neo_models.Bill', "PROPOSED")
     hearings = RelationshipTo('sb_reps.neo_models.Hearing', "ATTENDED")
+    experience = RelationshipTo('sb_reps.neo_models.Experience', "EXPERIENCED")
 
 class Bill(StructuredNode):
     bill_id = StringProperty(unique_index=True)
@@ -93,3 +94,13 @@ class PositionRequirements(StructuredNode):
     registered_to_vote_years = IntegerProperty()
     natural_born_resident = BooleanProperty(default=False)
     term_limit = IntegerProperty()
+
+class Experience(StructuredNode):
+    title = StringProperty()
+    start_date = DateTimeProperty()
+    end_date = DateTimeProperty()
+    description = StringProperty()
+
+    #relationships
+    company = RelationshipTo('plebs.neo_models.Company', 'EXPERIENCED_AT')
+    location = RelationshipTo('plebs.neo_models.Address', "LOCATION")

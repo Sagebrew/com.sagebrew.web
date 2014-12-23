@@ -1,0 +1,71 @@
+@import "../sb_core/sb_core_variables.less";
+
+.sb_signup_headline_containter {
+    margin-top: @sb_main_margin_positive;
+    margin-bottom: @sb_main_margin_positive;
+    position: relative;
+}
+.sb-btn-login{
+    color: @sb_green;
+    background-color: @sb_green;
+    font-weight: bolder;
+    border: solid;
+    border-width: 1px;
+    border-color: @sb_green;
+      &:active{
+        background-color: @sb_green;
+      }
+      &:hover{
+        background-color: @sb_green;
+      }
+}
+.sb_btn_signup{
+    margin-bottom: @sb_main_margin_positive;
+      &:active{
+        border: solid;
+        border-color: @sb_green;
+        border-width: 1px;
+      }
+      &:hover{
+        border: solid;
+        border-color: @sb_green;
+        border-width: 1px;
+      }
+}
+.sb_signup_input_group{
+    width: 80%;
+    margin-left: 10%;
+    margin-bottom: 0;
+}
+.sb_signup_input_email,
+.sb_signup_input_name {
+    width: 100%;
+    .sb_signup_input{
+      margin-bottom: @sb_main_margin_positive;
+      border-width: 1px;
+    }
+}
+.sb_signup_headline{
+    color: @sb_green;
+}
+.sb_content_sign_up{
+    height: 500px;
+    width: 100%;
+    position: absolute;
+}
+input.sb_date_picker{
+   color:@sb_grey;
+}
+button.btn.sb_date_picker_btn{
+    height: 45px;
+    border-width: 0px;
+      &:active,
+      &:hover{
+        border: solid;
+        border-color: @sb_green;
+        border-width: 1px;
+      }
+}
+.ui-datepicker .ui-datepicker-header{
+    background-color: @sb_green;
+}

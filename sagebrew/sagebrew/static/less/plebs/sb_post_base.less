@@ -1,6 +1,4 @@
-@import "../../bower_components/bootstrap/less/bootstrap.less";
-@import "../../flat-ui/less/flat-ui-pro.less";
-@import "../sb_core/sb_core_variables.less";
+@import "../sb_core/sb_core_variables";
 .sb_post_content{
     margin-bottom: 30px;
     background-color: @white;
@@ -23,7 +21,7 @@
     background-color: @white;
     border-style: solid;
     border-width: 1px;
-    border-color: @sb_green_light;
+    border--color: @sb_green_light;
 }
 .sb_post_header{
     width: auto;
@@ -54,25 +52,6 @@
     border-color: @sb_grey;
     padding-bottom: 5px;
 }
-.sb_comment{
-    padding: 10px 15px 10px 15px;
-    background-color: @sb_off_white;
-    border: solid;
-    border-width: 1px 0 1px 0;
-    border-radius: 0 0 5px 5px;
-    border-color: @sb_grey;
-}
-.sb_comment_input{
-    border-width: 1px 0 1px 1px;
-    border-radius: @sb_main_radius;
-    border-color: @sb_green_light;
-    padding: 10px 10px 10px 10px;
-    width: 100%;
-    resize: none;
-}
-textarea.sb_comment_input{
-    height: 50px;
-}
 #sb_text{
     height: 30px;
 }
@@ -91,35 +70,6 @@ textarea.sb_comment_input{
     margin-top: @sb_main_padding_negative;
     font-size: 11px;
     line-height: 10px;
-}
-.sb_btn_comment{
-    background-color: transparent;
-    color: @sb_green;
-      &:active {
-       color: @sb_dark_blue;
-       text-decoration: underline;
-       text-decoration-color: @sb_dark_blue;
-      }
-      &:hover{
-       color: @sb_green;
-       text-decoration: underline;
-       text-decoration-color: @sb_green;
-      }
-}
-.sb_btn_comment_icon{
-    color: @sb_green;
-    heigh: 50px;
-    border: solid;
-    border-width: 1px;
-    border-color: @sb_green_light;
-    border-radius: 0 5px 5px 0;
-      &:hover{
-        color: @sb_green;
-        border-color: @sb_green;
-      }
-      &:active{
-        color: @sb_dark_blue;
-      }
 }
 .sb_icon{
     font-size: @sb_header_text;

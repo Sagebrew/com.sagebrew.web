@@ -34,3 +34,4 @@ nltk
 shortuuid
 gunicorn
 logentries
+django_compressor

@@ -19,6 +19,8 @@
     "bootstrapvalidator": "~0.5.3",
     "jquery-cookie": "~1.4.1",
     "jquery-ui": "~1.11.2",
-    "bootstrap": "~3.3.1"
+    "bootstrap": "~3.3.1",
+    "less": "~2.1.2",
+    "normalize.css": "~3.0.2"
   }
 }

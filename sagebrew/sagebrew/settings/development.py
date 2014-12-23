@@ -5,13 +5,14 @@ from base import *
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['*']
+INTERNAL_IPS = ('192.168.56.1', '127.0.0.1', '192.168.56.101', '192.168.56.101:8080')
+WEB_ADDRESS = "https://192.168.56.101"
 API_PASSWORD = "admin"
 VERIFY_SECURE = False
 MEDIA_ROOT = PROJECT_DIR.child("media")
 STATIC_ROOT = PROJECT_DIR.child("static")
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
-WEB_ADDRESS = "https://192.168.56.101"
 
 DATABASES = {
     'default': {
@@ -118,28 +119,24 @@ LOGGING = {
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'DEBUG',
-            'token': LOG_TOKEN
         },
         'elasticsearch': {
             'handlers': ['logentries_handler'],
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'CRITICAL',
-            'token': LOG_TOKEN
         },
         'elasticsearch.trace': {
             'handlers': ['logentries_handler'],
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'CRITICAL',
-            'token': LOG_TOKEN
         },
         'neomodel.properties': {
             'handlers': ['logentries_handler'],
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'CRITICAL',
-            'token': LOG_TOKEN
         },
         'django.request': {
             'handlers': ['logentries_handler'],

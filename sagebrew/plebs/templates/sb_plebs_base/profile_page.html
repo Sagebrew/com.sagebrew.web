@@ -5,6 +5,7 @@
     {{ block.super }}
         <link href="{% static 'css/sb_wall.css' %}" rel="stylesheet"/>
         <link href="{% static 'css/sb_profile_reps.css' %}" rel="stylesheet"/>
+        <link rel="stylesheet/less" type="text/less" href="{% static 'less/plebs/sb_post_base.less' %}"/>
 {%  endblock css %}
 {% block navigation %}
     {% include "navigation/logged_in_navigation.html" %}

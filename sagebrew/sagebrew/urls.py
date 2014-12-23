@@ -45,7 +45,7 @@ if settings.DEBUG is True:
         (r'^secret/', include(admin.site.urls))
     )
 
-if environ.get("CIRCLE_BRANCH", "") == "staging":
+if environ.get("CIRCLE_BRANCH", "") == "staging" and settings.DEBUG is False:
     urlpatterns += patterns(
         (r'^admin/', include('admin_honeypot.urls')),
         (r'^secret/', include(admin.site.urls)),

@@ -2,7 +2,7 @@ from django.conf.urls import patterns, url
 
 from .views import (profile_page, get_user_search_view,
                     about_page, friends_page,
-                    reputation_page)
+                    reputation_page, less_lesson)
 
 
 urlpatterns = patterns(
@@ -18,5 +18,7 @@ urlpatterns = patterns(
         get_user_search_view, name="get_user_search_view"),
     url(r'^(?P<pleb_username>[A-Za-z0-9.@_%+-]{7,60})/',
        profile_page, name="profile_page"),
+    url(r'^lesson/',
+       less_lesson, name="lesson"),
 
 )

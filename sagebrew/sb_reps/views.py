@@ -16,6 +16,7 @@ from neomodel import DoesNotExist, CypherException
 
 from api.utils import spawn_task
 from sb_registration.utils import (verify_completed_registration)
+from sb_docstore.utils import get_policies
 from .forms import (AgendaForm, GoalForm, ResumeForm, PolicyForm)
 from .neo_models import BaseOfficial
 from .tasks import save_policy_task
@@ -30,7 +31,6 @@ def representative_page(request, rep_id=""):
     policy_form_set = PolicyFormSet(request.POST or None, prefix='policy')
     if policy_form_set.is_valid():
         for item in policy_form_set:
-            print item.cleaned_data
             data = {
                 'rep_id': rep_id,
                 'category': item.cleaned_data['policies'],
@@ -42,11 +42,12 @@ def representative_page(request, rep_id=""):
         official = BaseOfficial.nodes.get(sb_id=rep_id)
     except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException):
         return redirect('profile_page', request.user.username)
+    res = get_policies(rep_id)
     pleb = official.pleb.all()[0]
     data = {
         "name": pleb.first_name+' '+pleb.last_name,
         "full": official.title+pleb.first_name+' '+pleb.last_name,
-        "policy": official.policies, "agenda": official.agenda,
+        "policies": res, "agenda": official.agenda,
         "resume": official.resume, "username": pleb.username,
         'agenda_form': agenda_form, 'policy_form_set': policy_form_set,
         'resume_form': resume_form,

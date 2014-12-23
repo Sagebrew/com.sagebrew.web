@@ -4,7 +4,11 @@
 {% block content %}
     <div>{{ full }}</div>
     <div>Policy</div>
-    {{ policy }}
+    <ul>
+    {% for policy in policies %}
+        <li>{{ policy.category }}</li><ul><li>{{ policy.description }}</li></ul>
+    {% endfor %}
+    </ul>
     {% if request.user.username == username %}
     {% block policy %}
         <form method="post" action="">

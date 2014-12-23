@@ -42,6 +42,21 @@ def connect_to_dynamo():
     except IOError as e:
         return e
 
+def get_policies(parent_object):
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
+    try:
+        table = Table(table_name='policies', connection=conn)
+    except JSONResponseError:
+        return False
+
+    res = table.query_2(
+        parent_object__eq=parent_object,
+        object_uuid__gte="a"
+    )
+    return list(res)
+
 @apply_defense
 def add_object_to_table(table_name, object_data):
     '''

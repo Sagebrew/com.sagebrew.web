@@ -134,11 +134,6 @@ class InterestForm(forms.Form):
 
 
 class ProfileInfoForm(forms.Form):
-    date_of_birth = forms.DateTimeField(
-        label="Birthday*",
-        required=True,
-    )
-
     home_town = forms.CharField(
         label="Hometown",
         max_length=40,

@@ -21,7 +21,7 @@
                 </table>
                 </div>
             {% endfor %}
-            <input type="submit" value="Submit">
+            <input type="submit" value="Submit Policies">
         </form>
         <input type="button" value="Add Policy" class="add_policy">
     {% endblock %}
@@ -30,9 +30,13 @@
     {{ resume }}
     {% if request.user.username == username %}
     {% block resume %}
-        {% for field in resume_form %}
-            {{ field }}
-        {% endfor %}
+        <form method="post" action="">
+            {% csrf_token %}
+            {% for field in resume_form %}
+                {{ field }}
+            {% endfor %}
+            <input type="Submit" value="Add Resume">
+        </form>
     {% endblock %}
     {% endif %}
     <div>Agenda</div>

@@ -17,4 +17,10 @@ class ResumeForm(forms.Form):
     description = forms.CharField(widget=forms.Textarea, required=False)
 
 class GoalForm(forms.Form):
-    pass
+    vote_req = forms.IntegerField()
+    money_req = forms.FloatField()
+    description = forms.CharField()
+
+class DonationForm(forms.Form):
+    cost = forms.FloatField()
+    description = forms.CharField()

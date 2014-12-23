@@ -8,6 +8,10 @@ ALLOWED_HOSTS = ['*']
 WEB_ADDRESS = "https://127.0.0.1:8080"
 VERIFY_SECURE = False
 
+COMPRESS_PRECOMPILERS = (
+   ('text/less', 'lessc {infile} {outfile}'),
+)
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',

@@ -7,14 +7,18 @@
     {{ policy }}
     {% if request.user.username == username %}
     {% block policy %}
-        {{ policy_form_set.management_form }}
-        {% for form in policy_form_set.forms %}
-            <div class="policy_table">
-            <table class="no_error">
-                {{ form.as_table }}
-            </table>
-            </div>
-        {% endfor %}
+        <form method="post" action="">
+            {% csrf_token %}
+            {{ policy_form_set.management_form }}
+            {% for form in policy_form_set.forms %}
+                <div class="policy_table">
+                <table class="no_error">
+                    {{ form.as_table }}
+                </table>
+                </div>
+            {% endfor %}
+            <input type="submit" value="Submit">
+        </form>
         <input type="button" value="Add Policy" class="add_policy">
     {% endblock %}
     {% endif %}

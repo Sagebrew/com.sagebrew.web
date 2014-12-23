@@ -1,3 +1,5 @@
+from uuid import uuid1
+
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, CypherException,
@@ -17,6 +19,7 @@ class BaseOfficial(Pleb):
     policies = StringProperty()
 
     #relationships
+    policy = RelationshipTo('sb_reps.neo_models.Policy', "HAS_POLICY")
     pleb = RelationshipTo('plebs.neo_models.Pleb', 'IS')
     sponsored = RelationshipTo('sb_reps.neo_models.Bill', "SPONSORED")
     co_sponsored = RelationshipTo('sb_reps.neo_models.Bill', "COSPONSORED")
@@ -51,6 +54,11 @@ class USPresident(BaseOfficial):
 
     #relationships
     vetoed = RelationshipTo(Bill, "VETOED")
+
+class Policy(StructuredNode):
+    sb_id = StringProperty(default=lambda: str(uuid1()))
+    category = StringProperty()
+    description = StringProperty()
 
 class USHouseRepresentative(BaseOfficial):
     title = "Representative "

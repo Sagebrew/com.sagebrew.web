@@ -1,5 +1,6 @@
 import pytz
 import logging
+from uuid import uuid1
 from datetime import datetime
 from django.conf import settings
 from django.forms.formsets import formset_factory
@@ -13,9 +14,11 @@ from rest_framework.response import Response
 
 from neomodel import DoesNotExist, CypherException
 
+from api.utils import spawn_task
 from sb_registration.utils import (verify_completed_registration)
 from .forms import (AgendaForm, GoalForm, ResumeForm, PolicyForm)
 from .neo_models import BaseOfficial
+from .tasks import save_policy_task
 
 @login_required()
 @user_passes_test(verify_completed_registration,
@@ -27,7 +30,14 @@ def representative_page(request, rep_id=""):
     policy_form_set = PolicyFormSet(request.POST or None, prefix='policy')
     if policy_form_set.is_valid():
         for item in policy_form_set:
-            print item
+            print item.cleaned_data
+            data = {
+                'rep_id': rep_id,
+                'category': item.cleaned_data['policies'],
+                'description': item.cleaned_data['description'],
+                'object_uuid': str(uuid1())
+            }
+            spawn_task(save_policy_task, data)
     try:
         official = BaseOfficial.nodes.get(sb_id=rep_id)
     except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException):

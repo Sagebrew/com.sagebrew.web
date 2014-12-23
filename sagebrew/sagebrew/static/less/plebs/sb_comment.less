@@ -1,0 +1,98 @@
+@import "../../bower_components/bootstrap/less/bootstrap.less";
+@import "../../flat-ui/less/flat-ui-pro.less";
+@import "../sb_core/sb_core_variables.less";
+
+.sb_comments_container{
+    font-size: @sb_body_text;
+    padding: 15px 0 3px 0;
+    hanging-punctuation: force-end;
+    height-max: 600px;
+    height: auto;
+    width: auto;
+    background-color: @sb_off_white;
+}
+.sb_comment_stats{
+    height: 45px;
+    padding-top: 5px;
+    padding-left: 65px;
+    margin-bottom: @sb_main_margin_negative;
+    margin-left: @sb_main_margin_negative;
+    margin-right: @sb_main_margin_negative;
+    background-color: @sb_off_white;
+    border-style: solid;
+    border-width: 0 0 1px 0;
+    border-color: transparent;
+    border-radius: 0;
+    border-bottom-color: @sb_grey_dark;
+}
+.sb_comment_header{
+    width: auto;
+    background-color: @sb_off_white;
+}
+.sb_comment_content{
+    font-size: @sb_body_text;
+    margin-left: @sb_main_margin_positive;
+    margin-right: @sb_main_margin_positive;
+    hanging-punctuation: force-end;
+    height-max: 600px;
+    height: auto;
+    width: auto;
+}
+.sb_comment_body{
+    margin-left: 55px;
+    margin-top: -10px;
+}
+.sb_comment_header_info{
+    font-size: @sb_body_text;
+    margin-top: -12px;
+    margin-left: 0;
+    padding-left: 5px;
+}
+.sb_comment{
+    padding: 10px 15px 10px 15px;
+    background-color: @sb_off_white;
+    border: solid;
+    border-width: 1px 0 1px 0;
+    border-radius: 0 0 5px 5px;
+    border-color: @sb_grey;
+}
+.sb_comment_input{
+    border-width: 1px 0 1px 1px;
+    border-radius: @sb_main_radius;
+    border-color: @sb_green_light;
+    padding: 10px 10px 10px 10px;
+    width: 100%;
+    resize: none;
+}
+textarea.sb_comment_input{
+    height: 50px;
+}
+.sb_btn_comment{
+    background-color: transparent;
+    color: @sb_green;
+      &:active {
+       color: @sb_dark_blue;
+       text-decoration: underline;
+       text-decoration-color: @sb_dark_blue;
+      }
+      &:hover{
+       color: @sb_green;
+       text-decoration: underline;
+       text-decoration-color: @sb_green;
+      }
+}
+.sb_btn_comment_icon{
+    color: @sb_green;
+    heigh: 50px;
+    border: solid;
+    border-width: 1px;
+    border-color: @sb_green_light;
+    border-radius: 0 5px 5px 0;
+      &:hover{
+        color: @sb_green;
+        border-color: @sb_green;
+      }
+      &:active{
+        color: @sb_dark_blue;
+      }
+}

@@ -39,7 +39,7 @@ DEFAULT_FILE_STORAGE = 'sagebrew.s3utils.MediaRootS3BotoStorage'
 STATICFILES_STORAGE = 'sagebrew.s3utils.CachedS3BotoStorage'
 COMPRESS_STORAGE = 'sagebrew.s3utils.CachedS3BotoStorage'
 
-S3_URL = 'https://%s.s3.amazonaws.com/' % (AWS_STORAGE_BUCKET_NAME)
+S3_URL = 'https://%s.s3.amazonaws.com/static/' % (AWS_STORAGE_BUCKET_NAME)
 
 STATIC_URL = "%s" % (S3_URL)
 COMPRESS_URL = STATIC_URL

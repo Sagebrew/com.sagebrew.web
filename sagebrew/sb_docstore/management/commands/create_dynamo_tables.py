@@ -3,11 +3,9 @@ from json import loads
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from boto.dynamodb2.layer1 import DynamoDBConnection
-from boto.dynamodb2.fields import (HashKey, RangeKey, KeysOnlyIndex,
-                                   AllIndex, GlobalAllIndex)
+from boto.dynamodb2.fields import (HashKey, RangeKey, AllIndex)
 from boto.dynamodb2.table import Table
-from boto.dynamodb2.types import STRING, NUMBER
+from boto.dynamodb2.types import STRING
 from boto.dynamodb2.exceptions import JSONResponseError
 
 from sb_docstore.utils import connect_to_dynamo
@@ -27,10 +25,7 @@ class Command(BaseCommand):
             conn = connect_to_dynamo()
             for item in data:
                 branch = os.environ.get("CIRCLE_BRANCH", None)
-                if branch == 'staging':
-                    table_name = "staging" + item['table_name']
-                else:
-                    table_name = item['table_name']
+                table_name = "%s-%s" % (branch, item['table_name'])
                 try:
                     table = Table(table_name=table_name,
                                   connection=conn)

@@ -256,6 +256,27 @@ function add_new(){
     });
 }
 
+function add_experience(){
+    $(".add_experience").click(function (event) {
+        event.preventDefault();
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "GET",
+            url: "/reps/experience/",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data){
+                $("#experience_added_form").append(data['rendered'])
+            }
+        });
+    });
+}
+
 function cloneForm(selector, type) {
     var newElement = $(selector).clone(true);
     var total = $('#id_'+type+'_TOTAL_FORMS').val();
@@ -289,6 +310,7 @@ function enable_post_functionality() {
     show_edit_answer();
     delete_object();
     page_leave_endpoint();
+    add_experience();
 }
 
 function getUrlParameter(sParam)

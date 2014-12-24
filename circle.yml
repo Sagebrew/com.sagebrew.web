@@ -33,6 +33,9 @@ dependencies:
         background: true
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py populateenvconfig /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-$CIRCLE_BRANCH-web.json /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-$CIRCLE_BRANCH-worker.json
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py create_dynamo_tables
+    - cd /home/ubuntu/$CIRCLE_PROJECT_REPONAME/sagebrew/sagebrew/static/ && bower install --config.interactive=false --allow-root
+    - cd /home/ubuntu/$CIRCLE_PROJECT_REPONAME/sagebrew/sagebrew/static/flat-ui/ && bower install --config.interactive=false --allow-root
+    - python /home/ubuntu/$CIRCLE_PROJECT_REPONAME/sagebrew/manage.py collectstatic -c --noinput
     - python ~/com.sagebrew.web/sagebrew/manage.py runserver 127.0.0.1:8080:
         background: true
 

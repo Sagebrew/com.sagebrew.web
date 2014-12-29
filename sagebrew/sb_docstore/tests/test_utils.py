@@ -16,7 +16,7 @@ from sb_docstore.utils import (connect_to_dynamo, add_object_to_table,
                                get_question_doc, build_question_page,
                                get_vote, update_vote, get_vote_count,
                                get_wall_docs, build_wall_docs,
-                               get_user_updates)
+                               get_user_updates, get_table_name)
 
 class TestDocstoreUtils(TestCase):
     def setUp(self):

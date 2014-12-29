@@ -71,7 +71,6 @@ def add_object_to_table(table_name, object_data):
     :param object_data:
     :return:
     '''
-    print object_data
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
@@ -82,7 +81,6 @@ def add_object_to_table(table_name, object_data):
     try:
         table.put_item(data=object_data)
     except (ConditionalCheckFailedException, ValidationException) as e:
-        print e
         return e
     return True
 

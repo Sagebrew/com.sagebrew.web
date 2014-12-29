@@ -18,7 +18,7 @@ from api.utils import spawn_task
 from sb_registration.utils import (verify_completed_registration)
 from sb_docstore.utils import add_object_to_table, get_rep_docs
 from sb_docstore.tasks import build_rep_page_task
-from .forms import (AgendaForm, GoalForm, ExperienceForm, PolicyForm)
+from .forms import (EducationForm, ExperienceForm, PolicyForm)
 from .neo_models import BaseOfficial
 from .tasks import save_policy_task, save_experience_task
 
@@ -159,3 +159,11 @@ def get_policy_form(request):
         rendered = render_to_string('policy_form.html',
                           {'policy_form': policy_form})
         return Response({"rendered": rendered}, 200)
+
+@api_view(['GET', 'POST'])
+@permission_classes((IsAuthenticated,))
+def get_education_form(request):
+    education_form = EducationForm(request.DATA or None)
+    if request.method == "POST":
+        if education_form.is_valid():
+            rep_id = request.DATA['rep_id']

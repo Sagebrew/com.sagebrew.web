@@ -24,3 +24,9 @@ class GoalForm(forms.Form):
 class DonationForm(forms.Form):
     cost = forms.FloatField()
     description = forms.CharField()
+
+class EducationForm(forms.Form):
+    school = forms.CharField()
+    start_date = forms.DateField()
+    end_date = forms.DateField()
+    degree = forms.CharField()

@@ -48,7 +48,7 @@ $(document).ready(function(){
             success: function(data){
                 $('.add_experience').removeAttr('disabled');
                 $('.add_experience_wrapper').remove();
-                $(".experience_list").append(data['rendered']);
+                $("#experience_list").append(data['rendered']);
             }
         });
     });

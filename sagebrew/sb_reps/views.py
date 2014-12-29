@@ -62,6 +62,11 @@ def representative_page(request, rep_id=""):
     }
     return render(request, 'rep_page.html', data)
 
+@api_view(['POST'])
+@premission_classes((IsAuthenticated,))
+def get_policies(request):
+
+
 @api_view(['GET', 'POST'])
 @permission_classes((IsAuthenticated,))
 def get_experience_form(request):

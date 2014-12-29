@@ -2,6 +2,7 @@
 {% load staticfiles %}
 {% block title %}Representative{% endblock %}
 {% block content %}
+    <div id="rep_id" data-rep_id="{{ rep_id }}" style="display: none"></div>
     <div>{{ full }}</div>
     <div>Policy</div>
     <ul>
@@ -11,32 +12,30 @@
     </ul>
     {% if request.user.username == username %}
     {% block policy %}
-        <form method="post" action="">
-            {% csrf_token %}
-            {{ policy_form_set.management_form }}
-            {% for form in policy_form_set.forms %}
-                <div class="policy_table">
-                <table class="no_error">
-                    {{ form.as_table }}
-                </table>
-                </div>
-            {% endfor %}
-            <input type="submit" value="Submit Policies">
-        </form>
         <input type="button" value="Add Policy" class="add_policy">
     {% endblock %}
     {% endif %}
-    <div>Resume</div>
-    {{ resume }}
+
+    <div>Experiences</div>
+    <ul>
+    {% for experience in experiences %}
+        <li>
+        {{ experience.title }}
+        {{ experience.start_date }}
+        {{ experience.end_date }}
+        {{ experience.company }}
+        {{ experience.location }}
+        {{ experience.description }}
+        </li>
+    {% endfor %}
+    </ul>
+    <div id="experience_added_form"></div>
     {% if request.user.username == username %}
     {% block resume %}
-        <form method="post" action="">
-            {% csrf_token %}
-            {{ resume_form }}
-            <input type="Submit" value="Add Resume">
-        </form>
+        <button class="btn btn-primary add_experience">Add Experience</button>
     {% endblock %}
     {% endif %}
+
     <div>Agenda</div>
     {{ agenda }}
     {% if request.user.username == username %}
@@ -50,5 +49,7 @@
 
 {% block scripts %}
     {{ block.super }}
+    <script src="{% static 'js/sb_utils.js' %}"></script>
     <script src="{% static 'js/add_policy.js' %}"></script>
+    <script src="{% static 'js/add_experience.js' %}"></script>
 {% endblock scripts %}

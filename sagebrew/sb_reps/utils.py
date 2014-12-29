@@ -19,3 +19,9 @@ def save_policy(rep_id, category, description, object_uuid):
     except CypherException as e:
         return e
     return policy
+
+
+@apply_defense
+def save_experience(rep_id, title, start_date, end_date, current,
+                         company, location, exp_id, description):
+    pass

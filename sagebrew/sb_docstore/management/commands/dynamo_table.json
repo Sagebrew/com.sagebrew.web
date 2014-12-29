@@ -101,5 +101,10 @@
         "table_name": "policies",
         "hash_key": "parent_object",
         "range_key": "object_uuid"
+    },
+    {
+        "table_name": "experiences",
+        "hash_key": "parent_object",
+        "range_key": "object_uuid"
     }
 ]

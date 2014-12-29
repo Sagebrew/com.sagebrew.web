@@ -42,12 +42,12 @@ def connect_to_dynamo():
     except IOError as e:
         return e
 
-def get_policies(parent_object):
+def get_rep_info(parent_object, table_name):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
     try:
-        table = Table(table_name='policies', connection=conn)
+        table = Table(table_name=table_name, connection=conn)
     except JSONResponseError:
         return False
 
@@ -67,6 +67,7 @@ def add_object_to_table(table_name, object_data):
     :param object_data:
     :return:
     '''
+    print object_data
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
@@ -77,6 +78,7 @@ def add_object_to_table(table_name, object_data):
     try:
         table.put_item(data=object_data)
     except (ConditionalCheckFailedException, ValidationException) as e:
+        print e
         return e
     return True
 

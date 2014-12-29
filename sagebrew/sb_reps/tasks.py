@@ -1,6 +1,6 @@
 from celery import shared_task
 
-from .utils import save_policy
+from .utils import save_policy, save_experience
 from .neo_models import Policy
 from sb_docstore.tasks import add_object_to_table_task
 from api.utils import spawn_task
@@ -19,4 +19,14 @@ def save_policy_task(rep_id, category, description, object_uuid):
     res = spawn_task(add_object_to_table_task, task_data)
     if isinstance(res, Exception):
         raise save_policy_task.retry(exc=res, countdown=3, max_retries=None)
-    return res1
+    return True
+
+@shared_task()
+def save_experience_task(rep_id, title, start_date, end_date, current,
+                         company, location, exp_id, description=""):
+    experience = save_experience(rep_id, title, start_date, end_date, current,
+                                 company, location, exp_id, description)
+    if isinstance(experience, Exception):
+        raise save_experience_task.retry(exc=experience, countdown=3,
+                                         max_retries=None)
+    return True

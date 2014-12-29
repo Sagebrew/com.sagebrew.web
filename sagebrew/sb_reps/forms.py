@@ -7,11 +7,11 @@ class PolicyForm(forms.Form):
 class AgendaForm(forms.Form):
     agenda = forms.CharField(widget=forms.Textarea)
 
-class ResumeForm(forms.Form):
+class ExperienceForm(forms.Form):
     title = forms.CharField()
     start_date = forms.DateField()
     end_date = forms.DateField()
-    current = forms.BooleanField()
+    current = forms.BooleanField(required=False)
     company = forms.CharField()
     location = forms.CharField(required=False)
     description = forms.CharField(widget=forms.Textarea, required=False)

@@ -8,6 +8,10 @@ ALLOWED_HOSTS = ['*']
 WEB_ADDRESS = "https://127.0.0.1:8080"
 VERIFY_SECURE = False
 
+COMPRESS_PRECOMPILERS = (
+   ('text/less', 'lessc {infile} {outfile}'),
+)
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -29,14 +33,17 @@ CACHES = {
 
 
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
-
+STATIC_ROOT = PROJECT_DIR.child("static")
+COMPRESS_ROOT = STATIC_ROOT
 DEFAULT_FILE_STORAGE = 'sagebrew.s3utils.MediaRootS3BotoStorage'
-STATICFILES_STORAGE = 'sagebrew.s3utils.StaticRootS3BotoStorage'
+STATICFILES_STORAGE = 'sagebrew.s3utils.CachedS3BotoStorage'
+COMPRESS_STORAGE = 'sagebrew.s3utils.CachedS3BotoStorage'
 
-S3_URL = 'http://%s.s3.amazonaws.com/' % (AWS_STORAGE_BUCKET_NAME)
-STATIC_URL = "%s%s" % (S3_URL, "static/")
+S3_URL = 'https://%s.s3.amazonaws.com/' % (AWS_STORAGE_BUCKET_NAME)
+
+STATIC_URL = "%s" % (S3_URL)
+COMPRESS_URL = STATIC_URL
 MEDIA_URL = "%s%s" % (S3_URL, "media/")
-
 EMAIL_VERIFICATION_URL = "https://localhost/registration/email_confirmation/"
 BROKER_URL = 'amqp://%s@%s:%s//' % (environ.get("QUEUE_USERNAME", ""),
                                     environ.get("QUEUE_HOST", ""),

@@ -43,43 +43,8 @@
                         <p class="sb_registration_label">{{ field.label }}</p>
                     </div>
                     <div class="col-lg-4 col-md-5 col-sm-5 col-xs-10 col-xs-offset-1">
-                    {% if field.id_for_label != "id_date_of_birth" %}
-                        <div class="form-group">
-                        {% if field.errors %}
-                            <div class="has-error">
-                        {% else %}
-                            <div class="form-group">
-                        {% endif %}
-                    {% endif %}
-                {% if field.id_for_label == "id_date_of_birth" %}
-                    <div class="form-group">
-                    {% if field.errors %}
-                        <div class="input-group has-error">
-                    {% else %}
-                        <div class="input-group">
-                    {% endif %}
-                <span class="input-group-btn">
-                    <button class="btn"
-                            type="button"><span
-                            class="fui-calendar"></span>
-                    </button>
-                </span>
-                {% if field.value == None %}
-                    <input type="text" class="form-control sb_date"
-                           name="{{ field.html_name }}"
-                           value=""
-                           placeholder="When were you born?"
-                           id="datepicker-01">
-                {% else %}
-                    <input type="text" class="form-control sb_date"
-                           name="{{ field.html_name }}"
-                           value="{{ field.value }}"
-                           placeholder="When were you born?"
-                           id="datepicker-01">
-                {% endif %}
-                </div>
-                </div>
-                {% elif field.id_for_label == "id_home_town" %}
+
+                {% if field.id_for_label == "id_home_town" %}
                     {% if field.value == None %}
                         <input type="text"
                                value=""

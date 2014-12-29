@@ -13,7 +13,9 @@
   "ignore": [
     ".*",
     "temp",
-    "tests"
+    "tests",
+    "grunt",
+    "src"
   ],
   "devDependencies": {
     "jquery": "~1.11.1",

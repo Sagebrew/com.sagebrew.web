@@ -167,3 +167,11 @@ def get_education_form(request):
     if request.method == "POST":
         if education_form.is_valid():
             rep_id = request.DATA['rep_id']
+            data = {
+                'rep_id': rep_id,
+                'school': education_form.cleaned_data['school'],
+                'start_date': education_form.cleaned_data['start_date'],
+                'end_date': education_form.cleaned_data['end_date'],
+                'degree': education_form.cleaned_data['end_date'],
+                'school_id': str(uuid1())
+            }

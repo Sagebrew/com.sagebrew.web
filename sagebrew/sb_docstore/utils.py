@@ -1,3 +1,4 @@
+import os
 from django.conf import settings
 from boto.dynamodb2.layer1 import DynamoDBConnection
 from boto.dynamodb2.table import Table
@@ -10,6 +11,9 @@ from neomodel import DoesNotExist
 from sb_base.decorators import apply_defense
 from sb_questions.neo_models import SBQuestion
 
+def get_table_name(name):
+    branch = os.environ.get("CIRCLE_BRANCH", None)
+    return "%s-%s" % (branch, name)
 
 def connect_to_dynamo():
     '''
@@ -47,7 +51,7 @@ def get_rep_info(parent_object, table_name):
     if isinstance(conn, Exception):
         return conn
     try:
-        table = Table(table_name=table_name, connection=conn)
+        table = Table(table_name=get_table_name(table_name), connection=conn)
     except JSONResponseError:
         return False
 
@@ -72,7 +76,7 @@ def add_object_to_table(table_name, object_data):
     if isinstance(conn, Exception):
         return conn
     try:
-        table = Table(table_name=table_name, connection=conn)
+        table = Table(table_name=get_table_name(table_name), connection=conn)
     except JSONResponseError:
         return False
     try:
@@ -88,7 +92,7 @@ def query_parent_object_table(object_uuid, get_all=False, table_name='edits'):
     if isinstance(conn, Exception):
         return conn
     try:
-        edits = Table(table_name=table_name, connection=conn)
+        edits = Table(table_name=get_table_name(table_name), connection=conn)
     except JSONResponseError as e:
         return e
     res = edits.query_2(
@@ -109,7 +113,7 @@ def update_doc(table, object_uuid, update_data, parent_object="", datetime=""):
     if isinstance(conn, Exception):
         return conn
     try:
-        db_table = Table(table_name=table, connection=conn)
+        db_table = Table(table_name=get_table_name(table), connection=conn)
     except JSONResponseError as e:
         return e
     if datetime != "" and parent_object!="":
@@ -133,8 +137,10 @@ def get_question_doc(question_uuid, question_table, solution_table):
         return conn
     answer_list = []
     try:
-        questions = Table(table_name=question_table, connection=conn)
-        solutions = Table(table_name=solution_table, connection=conn)
+        questions = Table(table_name=get_table_name(question_table),
+                          connection=conn)
+        solutions = Table(table_name=get_table_name(solution_table),
+                          connection=conn)
     except JSONResponseError as e:
         return e
     try:
@@ -185,10 +191,12 @@ def build_question_page(question_uuid, question_table, solution_table):
         return e
     question_dict = question.get_single_dict()
     answer_dicts = question_dict.pop('answers', None)
-    add_object_to_table(table_name=question_table, object_data=question_dict)
+    add_object_to_table(table_name=get_table_name(question_table),
+                        object_data=question_dict)
     for answer in answer_dicts:
         answer['parent_object'] = question_dict['object_uuid']
-        add_object_to_table(table_name=solution_table, object_data=answer)
+        add_object_to_table(table_name=get_table_name(solution_table),
+                            object_data=answer)
     return True
 
 @apply_defense
@@ -197,7 +205,8 @@ def get_vote(object_uuid, user):
     if isinstance(conn, Exception):
         return conn
     try:
-        votes_table = Table(table_name='votes', connection=conn)
+        votes_table = Table(table_name=get_table_name('votes'),
+                            connection=conn)
     except JSONResponseError as e:
         return e
     try:
@@ -215,7 +224,8 @@ def update_vote(object_uuid, user, vote_type, time):
     if isinstance(conn, Exception):
         return conn
     try:
-        votes_table = Table(table_name='votes', connection=conn)
+        votes_table = Table(table_name=get_table_name('votes'),
+                            connection=conn)
     except JSONResponseError as e:
         return e
     try:
@@ -239,7 +249,7 @@ def get_vote_count(object_uuid, vote_type):
     if isinstance(conn, Exception):
         return conn
     try:
-        votes_table = Table(table_name='votes', connection=conn)
+        votes_table = Table(table_name=get_table_name('votes'), connection=conn)
     except JSONResponseError as e:
         return e
     votes = votes_table.query_2(parent_object__eq=object_uuid,
@@ -254,8 +264,10 @@ def get_wall_docs(parent_object):
         return conn
     post_list = []
     try:
-        posts_table = Table(table_name='posts', connection=conn)
-        comments_table = Table(table_name='comments', connection=conn)
+        posts_table = Table(table_name=get_table_name('posts'),
+                            connection=conn)
+        comments_table = Table(table_name=get_table_name('comments'),
+                               connection=conn)
     except JSONResponseError as e:
         return e
     posts = posts_table.query_2(
@@ -292,8 +304,9 @@ def build_wall_docs(pleb):
     if isinstance(conn, Exception):
         return conn
     try:
-        post_table = Table(table_name='posts', connection=conn)
-        comment_table = Table(table_name='comments', connection=conn)
+        post_table = Table(table_name=get_table_name('posts'), connection=conn)
+        comment_table = Table(table_name=get_table_name('comments'),
+                              connection=conn)
     except JSONResponseError as e:
         return e
     posts = pleb.wall.all()[0].post.all()
@@ -313,7 +326,7 @@ def get_user_updates(username, object_uuid, table_name):
     if isinstance(conn, Exception):
         return conn
     try:
-        table = Table(table_name=table_name, connection=conn)
+        table = Table(table_name=get_table_name(table_name), connection=conn)
     except JSONResponseError as e:
         return e
     if table_name=='edits':

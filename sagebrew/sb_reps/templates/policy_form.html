@@ -1,12 +1,5 @@
-<form method="post" action="">
-    {% csrf_token %}
-    {{ policy_form_set.management_form }}
-    {% for form in policy_form_set.forms %}
-        <div class="policy_table">
-        <table class="no_error">
-            {{ form.as_table }}
-        </table>
-        </div>
-    {% endfor %}
-    <input type="submit" value="Submit Policies">
-</form>
+<div class="add_policy_wrapper">
+    {{ policy_form.as_table }}
+    <a class="btn btn-primary submit_policy-action">
+        Submit Policy</a>
+</div>

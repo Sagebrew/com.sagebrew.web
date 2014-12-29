@@ -304,7 +304,9 @@ function submit_experience(){
             }),
             dataType: "json",
             success: function(data){
-                $('.add_experience').removeAttr('disabled')
+                $('.add_experience').removeAttr('disabled');
+                $('.add_experience_wrapper').remove();
+                $(".experience_list").append(data['rendered']);
             }
         });
     });
@@ -329,6 +331,34 @@ function cloneForm(selector, type) {
     $(selector).after(newElement);
 }
 
+function submit_policy() {
+    $(".submit_policy-action").click(function(event){
+        event.preventDefault();
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "POST",
+            url: "/reps/policy/",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                'rep_id': $("#rep_id").data('rep_id'),
+                'policies': $('#id_policies').val(),
+                'description': $('#id_description').val()
+            }),
+            dataType: "json",
+            success: function(data){
+                $('.add_policy').removeAttr('disabled');
+                $('.add_policy_wrapper').remove();
+                $("#policy_list").append(data['rendered']);
+            }
+        });
+    });
+}
+
 
 function enable_post_functionality() {
     save_answer();
@@ -344,6 +374,7 @@ function enable_post_functionality() {
     delete_object();
     page_leave_endpoint();
     submit_experience();
+    submit_policy();
 }
 
 function getUrlParameter(sParam)

@@ -31,6 +31,7 @@ def representative_page(request, rep_id=""):
     except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException):
         return redirect('profile_page', request.user.username)
     res = get_rep_info(rep_id, 'policies')
+    print res
     exp = get_rep_info(rep_id, 'experiences')
     pleb = official.pleb.all()[0]
     data = {
@@ -50,9 +51,9 @@ def get_experience_form(request):
     experience_form = ExperienceForm(request.DATA or None)
     if request.method == 'POST':
         if experience_form.is_valid():
-            id = request.DATA['rep_id']
+            rep_id = request.DATA['rep_id']
             uuid = str(uuid1())
-            data = {'rep_id': id,
+            data = {'rep_id': rep_id,
                     'title': experience_form.cleaned_data['title'],
                     'start_date': experience_form.cleaned_data['start_date'],
                     'end_date': experience_form.cleaned_data['end_date'],
@@ -78,7 +79,10 @@ def get_experience_form(request):
             res = spawn_task(save_experience_task, data)
             if isinstance(res, Exception):
                 return Response({"detail": "error2"}, 400)
-            return Response({"detail": "success"}, 200)
+            rendered = render_to_string('experience_detail.html',
+                                        {'experience': data})
+            return Response({"detail": "success",
+                             "rendered": rendered}, 200)
         else:
             return Response({"detail": "invalid form"}, 400)
     else:
@@ -86,20 +90,31 @@ def get_experience_form(request):
                                     {'experience_form': experience_form})
         return Response({"rendered": rendered}, 200)
 
-@api_view(['POST'])
+@api_view(['GET','POST'])
 @permission_classes((IsAuthenticated,))
 def get_policy_form(request):
-    PolicyFormSet = formset_factory(PolicyForm)
-    policy_form_set = PolicyFormSet(request.POST or None, prefix='policy')
-    if policy_form_set.is_valid():
-        for item in policy_form_set:
+    policy_form = PolicyForm(request.DATA or None)
+    if request.method == "POST":
+        if policy_form.is_valid():
+            rep_id = request.DATA['rep_id']
             data = {
-                'rep_id': request.user.email,
-                'category': item.cleaned_data['policies'],
-                'description': item.cleaned_data['description'],
+                'rep_id': rep_id,
+                'category': policy_form.cleaned_data['policies'],
+                'description': policy_form.cleaned_data['description'],
                 'object_uuid': str(uuid1())
             }
-            spawn_task(save_policy_task, data)
-    rendered = render(request, 'policy_form.html',
-                      {'policy_form_set': policy_form_set})
-    print rendered
+            res = spawn_task(save_policy_task, data)
+            if isinstance(res, Exception):
+                return Response({"detail": "error"}, 400)
+            data['parent_object'] = str(rep_id)
+            res = add_object_to_table('policies', data)
+            print res
+            if isinstance(res, Exception):
+                return Response({"detail": "error"}, 400)
+            rendered = render_to_string('policy_detail.html', {'policy': data})
+            return Response({"detail": "success",
+                             "rendered": rendered}, 200)
+    else:
+        rendered = render_to_string('policy_form.html',
+                          {'policy_form': policy_form})
+        return Response({"rendered": rendered}, 200)

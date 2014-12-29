@@ -16,9 +16,6 @@ def save_policy_task(rep_id, category, description, object_uuid):
         'object_data': {'parent_object': rep_id, 'object_uuid': object_uuid,
                         'category': category, 'description': description}
     }
-    res = spawn_task(add_object_to_table_task, task_data)
-    if isinstance(res, Exception):
-        raise save_policy_task.retry(exc=res, countdown=3, max_retries=None)
     return True
 
 @shared_task()

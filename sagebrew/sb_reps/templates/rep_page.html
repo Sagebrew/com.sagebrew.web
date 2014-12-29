@@ -5,28 +5,22 @@
     <div id="rep_id" data-rep_id="{{ rep_id }}" style="display: none"></div>
     <div>{{ full }}</div>
     <div>Policy</div>
-    <ul>
+    <ul id="policy_list">
     {% for policy in policies %}
-        <li>{{ policy.category }}</li><ul><li>{{ policy.description }}</li></ul>
+        {% include "policy_detail.html" %}
     {% endfor %}
     </ul>
     {% if request.user.username == username %}
+    <div id="policy_added_form"></div>
     {% block policy %}
-        <input type="button" value="Add Policy" class="add_policy">
+        <button class="btn btn-primary add_policy">Add Policy</button>
     {% endblock %}
     {% endif %}
 
     <div>Experiences</div>
-    <ul>
+    <ul class="experience_list">
     {% for experience in experiences %}
-        <li>
-        {{ experience.title }}
-        {{ experience.start_date }}
-        {{ experience.end_date }}
-        {{ experience.company }}
-        {{ experience.location }}
-        {{ experience.description }}
-        </li>
+        {% include "experience_detail.html" %}
     {% endfor %}
     </ul>
     <div id="experience_added_form"></div>

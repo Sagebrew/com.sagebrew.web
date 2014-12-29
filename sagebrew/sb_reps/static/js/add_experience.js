@@ -46,7 +46,9 @@ $(document).ready(function(){
             }),
             dataType: "json",
             success: function(data){
-                $('.add_experience').removeAttr('disabled')
+                $('.add_experience').removeAttr('disabled');
+                $('.add_experience_wrapper').remove();
+                $(".experience_list").append(data['rendered']);
             }
         });
     });

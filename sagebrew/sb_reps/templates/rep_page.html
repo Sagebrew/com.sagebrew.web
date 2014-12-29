@@ -30,15 +30,6 @@
     {% endblock %}
     {% endif %}
 
-    <div>Agenda</div>
-    {{ agenda }}
-    {% if request.user.username == username %}
-    {% block agenda %}
-        {% for field in agenda_form %}
-            {{ field }}
-        {% endfor %}
-    {% endblock %}
-    {% endif %}
 {% endblock %}
 
 {% block scripts %}

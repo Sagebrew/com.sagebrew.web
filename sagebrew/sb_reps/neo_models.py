@@ -4,7 +4,7 @@ from sb_base.decorators import apply_defense
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, CypherException,
-                      RelationshipFrom, DoesNotExist)
+                      RelationshipFrom, DoesNotExist, DateProperty)
 
 from plebs.neo_models import Pleb
 
@@ -104,8 +104,8 @@ class PositionRequirements(StructuredNode):
 class Experience(StructuredNode):
     sb_id = StringProperty(unique_index=True)
     title = StringProperty()
-    start_date = DateTimeProperty()
-    end_date = DateTimeProperty()
+    start_date = DateProperty()
+    end_date = DateProperty()
     description = StringProperty()
     current = BooleanProperty()
     company_s = StringProperty()

@@ -63,9 +63,9 @@ def representative_page(request, rep_id=""):
     return render(request, 'rep_page.html', data)
 
 @api_view(['POST'])
-@premission_classes((IsAuthenticated,))
+@permission_classes((IsAuthenticated,))
 def get_policies(request):
-
+    pass
 
 @api_view(['GET', 'POST'])
 @permission_classes((IsAuthenticated,))
@@ -130,7 +130,6 @@ def get_policy_form(request):
                 return Response({"detail": "error"}, 400)
             data['parent_object'] = str(rep_id)
             res = add_object_to_table('policies', data)
-            print res
             if isinstance(res, Exception):
                 return Response({"detail": "error"}, 400)
             rendered = render_to_string('policy_detail.html', {'policy': data})

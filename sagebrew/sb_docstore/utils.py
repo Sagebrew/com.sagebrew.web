@@ -351,14 +351,11 @@ def get_user_updates(username, object_uuid, table_name):
 @apply_defense
 def build_rep_page(rep_id):
     conn = connect_to_dynamo()
-    rep_name = get_table_name('general_reps')
-    print rep_name
     if isinstance(conn, Exception):
         return conn
     try:
-        rep_table = Table(table_name=rep_name,
+        rep_table = Table(table_name=get_table_name('general_reps'),
                           connection=conn)
-        rep_table.describe()
         policy_table = Table(table_name=get_table_name('policies'),
                              connection=conn)
         experience_table = Table(table_name=get_table_name('experiences'),

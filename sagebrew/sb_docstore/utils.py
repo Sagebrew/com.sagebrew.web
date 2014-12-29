@@ -404,7 +404,7 @@ def build_rep_page(rep_id):
     return True
 
 @apply_defense
-def get_rep_docs(rep_id):
+def get_rep_docs(rep_id, rep_only=False):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
@@ -419,6 +419,8 @@ def get_rep_docs(rep_id):
         )
     except ItemNotFound:
         return {}
+    if rep_only:
+        return rep
     policies = get_rep_info(rep_id, 'policies')
     experiences = get_rep_info(rep_id, 'experiences')
     return {"rep": rep, "policies": policies, "experiences": experiences}

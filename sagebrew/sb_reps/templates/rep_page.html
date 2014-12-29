@@ -6,9 +6,6 @@
     <div>{{ full }}</div>
     <div>Policy</div>
     <ul id="policy_list">
-    {% for policy in policies %}
-        {% include "policy_detail.html" %}
-    {% endfor %}
     </ul>
     {% if request.user.username == username %}
     <div id="policy_added_form"></div>
@@ -18,10 +15,7 @@
     {% endif %}
 
     <div>Experiences</div>
-    <ul class="experience_list">
-    {% for experience in experiences %}
-        {% include "experience_detail.html" %}
-    {% endfor %}
+    <ul id="experience_list">
     </ul>
     <div id="experience_added_form"></div>
     {% if request.user.username == username %}
@@ -37,4 +31,5 @@
     <script src="{% static 'js/sb_utils.js' %}"></script>
     <script src="{% static 'js/add_policy.js' %}"></script>
     <script src="{% static 'js/add_experience.js' %}"></script>
+    <script src="{% static 'js/query_rep_info.js' %}"></script>
 {% endblock scripts %}

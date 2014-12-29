@@ -26,6 +26,35 @@ from .tasks import save_policy_task, save_experience_task
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def representative_page(request, rep_id=""):
+    res = get_rep_docs(rep_id, True)
+    if isinstance(res, Exception):
+        return redirect('404_Error')
+    if not res:
+        spawn_task(build_rep_page_task, {"rep_id": rep_id})
+        try:
+            official = BaseOfficial.nodes.get(sb_id=rep_id)
+        except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException):
+            return redirect('profile_page', request.user.username)
+        pleb = official.pleb.all()[0]
+        name = pleb.first_name+' '+pleb.last_name
+        full = official.title+pleb.first_name+' '+pleb.last_name
+        username = pleb.username
+        data = {
+            "name": name,
+            "full": full, "username": username,
+            "rep_id": rep_id
+        }
+        return render(request, 'rep_page.html', data)
+    data = {
+        'name': res['name'], 'full': res['full'],
+        'username': res['username'], 'rep_id': res['rep_id']
+    }
+    return render(request, 'rep_page.html', data)
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def get_rep_info(request):
+    rep_id =  str(request.DATA['rep_id'])
     res = get_rep_docs(rep_id)
     if isinstance(res, Exception):
         return redirect('404_Error')
@@ -37,35 +66,26 @@ def representative_page(request, rep_id=""):
             official = BaseOfficial.nodes.get(sb_id=rep_id)
         except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException):
             return redirect('profile_page', request.user.username)
-        pleb = official.pleb.all()[0]
-        name = pleb.first_name+' '+pleb.last_name
-        full = official.title+pleb.first_name+' '+pleb.last_name
-        username = pleb.username
         policies = official.policy.all()
         experiences = official.experience.all()
         for policy in policies:
             policy_list.append(policy.get_dict())
         for experience in experiences:
             experience_list.append(experience.get_dict())
-        data = {
-            "name": name,
-            "full": full,
-            "policies": policy_list,
-            "experiences": experience_list, "username": username,
-            "rep_id": rep_id
-        }
-        return render(request, 'rep_page.html', data)
-    data = {
-        'name': res['rep']['name'], 'full': res['rep']['full'],
-        'policies': res['policies'], 'experiences': res['experiences'],
-        'username': res['rep']['username'], 'rep_id': res['rep']['rep_id']
-    }
-    return render(request, 'rep_page.html', data)
+        policy_html = render_to_string('policy_list.html',
+                                       {'policies': policy_list})
+        experience_html = render_to_string('experience_list.html',
+                                           {'experiences': experience_list})
+    else:
+        policies = res['policies']
+        experiences = res['experiences']
+        policy_html = render_to_string('policy_list.html',
+                                       {'policies': policies})
+        experience_html = render_to_string('experience_list.html',
+                                           {'experiences': experiences})
+    return Response({"policy_html": policy_html,
+                     "experience_html": experience_html}, 200)
 
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def get_policies(request):
-    pass
 
 @api_view(['GET', 'POST'])
 @permission_classes((IsAuthenticated,))
@@ -73,7 +93,7 @@ def get_experience_form(request):
     experience_form = ExperienceForm(request.DATA or None)
     if request.method == 'POST':
         if experience_form.is_valid():
-            rep_id = request.DATA['rep_id']
+            rep_id = str(request.DATA['rep_id'])
             uuid = str(uuid1())
             data = {'rep_id': rep_id,
                     'title': experience_form.cleaned_data['title'],
@@ -84,7 +104,7 @@ def get_experience_form(request):
                     'location': experience_form.cleaned_data['location'],
                     'description': experience_form.cleaned_data['description'],
                     'exp_id': uuid}
-            table_data = {'parent_object': str(id),
+            table_data = {'parent_object': rep_id,
                     'title': experience_form.cleaned_data['title'],
                     'start_date': unicode(
                         experience_form.cleaned_data['start_date']),

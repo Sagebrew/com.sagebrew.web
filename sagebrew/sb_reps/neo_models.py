@@ -1,4 +1,5 @@
 from uuid import uuid1
+from sb_base.decorators import apply_defense
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
@@ -61,6 +62,11 @@ class Policy(StructuredNode):
     category = StringProperty()
     description = StringProperty()
 
+    @apply_defense
+    def get_dict(self):
+        return {"category": self.category,
+                "description": self.description}
+
 class USHouseRepresentative(BaseOfficial):
     title = "Representative "
     seat = IntegerProperty(unique_index=True)
@@ -76,7 +82,7 @@ class Committee(StructuredNode):
     committee_number = IntegerProperty(unique_index=True)
 
     #relationships
-    members = RelationshipTo(BaseOfficial, "COMMITEE_MEMBERS")
+    members = RelationshipTo(BaseOfficial, "COMMITTEE_MEMBERS")
 
 class Governor(BaseOfficial):
     #relationships
@@ -96,11 +102,25 @@ class PositionRequirements(StructuredNode):
     term_limit = IntegerProperty()
 
 class Experience(StructuredNode):
+    sb_id = StringProperty(unique_index=True)
     title = StringProperty()
     start_date = DateTimeProperty()
     end_date = DateTimeProperty()
     description = StringProperty()
+    current = BooleanProperty()
+    company_s = StringProperty()
+    location_s = StringProperty()
 
     #relationships
     company = RelationshipTo('plebs.neo_models.Company', 'EXPERIENCED_AT')
     location = RelationshipTo('plebs.neo_models.Address', "LOCATION")
+
+    @apply_defense
+    def get_dict(self):
+        return {"title": self.title,
+                "start_date": unicode(self.start_date),
+                "end_date": unicode(self.end_date),
+                "description": self.description,
+                "current": self.current,
+                "company": self.company_s,
+                "location": self.location_s}

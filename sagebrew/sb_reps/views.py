@@ -16,7 +16,8 @@ from neomodel import DoesNotExist, CypherException
 
 from api.utils import spawn_task
 from sb_registration.utils import (verify_completed_registration)
-from sb_docstore.utils import get_rep_info, add_object_to_table
+from sb_docstore.utils import add_object_to_table, get_rep_docs
+from sb_docstore.tasks import build_rep_page_task
 from .forms import (AgendaForm, GoalForm, ExperienceForm, PolicyForm)
 from .neo_models import BaseOfficial
 from .tasks import save_policy_task, save_experience_task
@@ -25,24 +26,40 @@ from .tasks import save_policy_task, save_experience_task
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def representative_page(request, rep_id=""):
-    agenda_form = AgendaForm(request.POST or None)
-    try:
-        official = BaseOfficial.nodes.get(sb_id=rep_id)
-    except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException):
-        return redirect('profile_page', request.user.username)
-    res = get_rep_info(rep_id, 'policies')
-    print res
-    exp = get_rep_info(rep_id, 'experiences')
-    pleb = official.pleb.all()[0]
+    res = get_rep_docs(rep_id)
+    if isinstance(res, Exception):
+        return redirect('404_Error')
+    if not res:
+        policy_list = []
+        experience_list = []
+        spawn_task(build_rep_page_task, {"rep_id": rep_id})
+        try:
+            official = BaseOfficial.nodes.get(sb_id=rep_id)
+        except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException):
+            return redirect('profile_page', request.user.username)
+        pleb = official.pleb.all()[0]
+        name = pleb.first_name+' '+pleb.last_name
+        full = official.title+pleb.first_name+' '+pleb.last_name
+        username = pleb.username
+        policies = official.policy.all()
+        experiences = official.experience.all()
+        for policy in policies:
+            policy_list.append(policy.get_dict())
+        for experience in experiences:
+            experience_list.append(experience.get_dict())
+        data = {
+            "name": name,
+            "full": full,
+            "policies": policy_list,
+            "experiences": experience_list, "username": username,
+            "rep_id": rep_id
+        }
+        return render(request, 'rep_page.html', data)
     data = {
-        "name": pleb.first_name+' '+pleb.last_name,
-        "full": official.title+pleb.first_name+' '+pleb.last_name,
-        "policies": res, "agenda": official.agenda,
-        "experiences": exp, "username": pleb.username,
-        'agenda_form': agenda_form,
-        "rep_id": rep_id
+        'name': res['rep']['name'], 'full': res['rep']['full'],
+        'policies': res['policies'], 'experiences': res['experiences'],
+        'username': res['rep']['username'], 'rep_id': res['rep']['rep_id']
     }
-
     return render(request, 'rep_page.html', data)
 
 @api_view(['GET', 'POST'])

@@ -6,10 +6,11 @@ from boto.dynamodb2.exceptions import (JSONResponseError, ItemNotFound,
                                        ConditionalCheckFailedException,
                                        ValidationException)
 
-from neomodel import DoesNotExist
+from neomodel import DoesNotExist, CypherException
 
 from sb_base.decorators import apply_defense
 from sb_questions.neo_models import SBQuestion
+from sb_reps.neo_models import BaseOfficial
 
 def get_table_name(name):
     branch = os.environ.get("CIRCLE_BRANCH", None)
@@ -307,7 +308,10 @@ def build_wall_docs(pleb):
                               connection=conn)
     except JSONResponseError as e:
         return e
-    posts = pleb.wall.all()[0].post.all()
+    try:
+        posts = pleb.wall.all()[0].post.all()
+    except IndexError as e:
+        return e
     for post in posts:
         post_data = post.get_single_dict()
         comments = post_data.pop('comments', None)
@@ -343,3 +347,81 @@ def get_user_updates(username, object_uuid, table_name):
             return {}
         return dict(res)
     return list(res)
+
+@apply_defense
+def build_rep_page(rep_id):
+    conn = connect_to_dynamo()
+    rep_name = get_table_name('general_reps')
+    print rep_name
+    if isinstance(conn, Exception):
+        return conn
+    try:
+        rep_table = Table(table_name=rep_name,
+                          connection=conn)
+        rep_table.describe()
+        policy_table = Table(table_name=get_table_name('policies'),
+                             connection=conn)
+        experience_table = Table(table_name=get_table_name('experiences'),
+                                 connection=conn)
+    except JSONResponseError as e:
+        return e
+    try:
+        rep = BaseOfficial.nodes.get(sb_id=rep_id)
+    except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException):
+        return False
+    policies = rep.policy.all()
+    experiences = rep.experience.all()
+    try:
+        pleb = rep.pleb.all()[0]
+    except IndexError as e:
+        return e
+    rep_data = {
+        'object_uuid': rep.sb_id,
+        'name': "%s %s"%(pleb.first_name, pleb.last_name),
+        'full': '%s %s %s'%(rep.title, pleb.first_name, pleb.last_name),
+        'username': pleb.username, 'rep_id': rep.sb_id
+    }
+    rep_table.put_item(rep_data)
+    for policy in policies:
+        data = {
+            'parent_object': rep.sb_id,
+            'object_uuid': policy.sb_id,
+            'category': policy.category,
+            'description': policy.description
+        }
+        policy_table.put_item(data)
+
+    for experience in experiences:
+        data = {
+            'parent_object': rep.sb_id,
+            'object_uuid': experience.sb_id,
+            'title': experience.title,
+            'start_date': unicode(experience.start_date),
+            'end_date': unicode(experience.end_date),
+            'description': experience.description,
+            'current': experience.current,
+            'company': experience.company_s,
+            'location': experience.location_s
+        }
+        experience_table.put_item(data)
+    return True
+
+@apply_defense
+def get_rep_docs(rep_id):
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
+    try:
+        rep_table = Table(table_name=get_table_name('general_reps'),
+                          connection=conn)
+    except JSONResponseError as e:
+        return e
+    try:
+        rep = rep_table.get_item(
+            object_uuid=rep_id
+        )
+    except ItemNotFound:
+        return {}
+    policies = get_rep_info(rep_id, 'policies')
+    experiences = get_rep_info(rep_id, 'experiences')
+    return {"rep": rep, "policies": policies, "experiences": experiences}

@@ -106,5 +106,9 @@
         "table_name": "experiences",
         "hash_key": "parent_object",
         "range_key": "object_uuid"
+    },
+    {
+        "table_name": "general_reps",
+        "hash_key": "object_uuid"
     }
 ]

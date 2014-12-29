@@ -1,6 +1,7 @@
 from celery import shared_task
 
-from .utils import build_question_page, add_object_to_table, build_wall_docs
+from .utils import (build_question_page, add_object_to_table, build_wall_docs,
+                    build_rep_page)
 
 @shared_task()
 def build_question_page_task(question_uuid, question_table, solution_table):
@@ -24,4 +25,11 @@ def build_wall_task(pleb):
     if isinstance(res, Exception):
         raise build_wall_task.retry(exc=res, countdown=3, max_retries=None)
 
+    return True
+
+@shared_task()
+def build_rep_page_task(rep_id):
+    res = build_rep_page(rep_id)
+    if isinstance(res, Exception):
+        raise build_rep_page_task.retry(exc=res, countdown=3, max_retries=None)
     return True

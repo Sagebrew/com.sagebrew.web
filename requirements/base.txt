@@ -21,7 +21,7 @@ wsgiref
 setproctitle
 django-secure
 django-admin-honeypot
-celery
+celery==3.1.16
 python-memcached
 beautifulsoup4
 redis

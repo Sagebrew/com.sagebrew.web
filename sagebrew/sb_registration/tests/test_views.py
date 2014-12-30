@@ -428,8 +428,8 @@ class TestSignupAPIView(TestCase):
         self.store = SessionStore()
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("Tyler", "Wiersing", self.email, "testpassword",
-                               username=shortuuid.uuid())
+        res = create_user_util("Tyler", "Wiersing", self.email, "testpassword")
+        self.username = res["username"]
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)

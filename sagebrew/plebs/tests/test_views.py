@@ -20,10 +20,9 @@ class ProfilePageTest(TestCase):
         self.factory = APIRequestFactory()
         self.client = Client()
         self.email = "success@simulator.amazonses.com"
-        self.username = shortuuid.uuid()
         self.password = "testpassword"
-        res = create_user_util("test", "test", self.email, self.password,
-                               self.username)
+        res = create_user_util("test", "test", self.email, self.password)
+        self.username = res["username"]
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -245,10 +244,9 @@ class TestProfilePageAbout(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        self.username = shortuuid.uuid()
         self.password = "testpassword"
-        res = create_user_util("test", "test", self.email, self.password,
-                               self.username)
+        res = create_user_util("test", "test", self.email, self.password)
+        self.username = res["username"]
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -281,10 +279,9 @@ class TestProfilePageReputationPage(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        self.username = shortuuid.uuid()
         self.password = "testpassword"
-        res = create_user_util("test", "test", self.email, self.password,
-                               self.username)
+        res = create_user_util("test", "test", self.email, self.password)
+        self.username = res["username"]
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -316,10 +313,9 @@ class TestProfilePageFriendPage(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        self.username = shortuuid.uuid()
         self.password = "testpassword"
-        res = create_user_util("test", "test", self.email, self.password,
-                               self.username)
+        res = create_user_util("test", "test", self.email, self.password)
+        self.username = res["username"]
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)

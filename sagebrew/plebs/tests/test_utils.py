@@ -15,10 +15,10 @@ from sb_registration.utils import create_user_util
 class TestPrepareUserSearchHTML(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        self.username = str(shortuuid.uuid())
+
         self.password = "testpassword"
-        res = create_user_util("test", "test", self.email, self.password,
-                               self.username)
+        res = create_user_util("test", "test", self.email, self.password)
+        self.username = res["username"]
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)

@@ -15,6 +15,7 @@ def build_question_page_task(question_uuid, question_table, solution_table):
 
 @shared_task()
 def add_object_to_table_task(object_data, table):
+    print object_data
     res = add_object_to_table(table_name=table, object_data=object_data)
     if isinstance(res, Exception) is True:
         raise add_object_to_table_task.retry(exc=res, countdown=3,

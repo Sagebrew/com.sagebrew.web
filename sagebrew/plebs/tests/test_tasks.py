@@ -76,9 +76,13 @@ class TestCreateWallTask(TestCase):
         self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
         try:
-            pleb = Pleb.nodes.get(email='suppressionlist@simulator.amazonses.com')
+            pleb = Pleb.nodes.get(
+                email='suppressionlist@simulator.amazonses.com',
+                username="thisthat")
             pleb.delete()
-            user = User.objects.get(email='suppressionlist@simulator.amazonses.com')
+            user = User.objects.get(
+                email='suppressionlist@simulator.amazonses.com',
+                username="thisthat")
             user.delete()
         except (Pleb.DoesNotExist, User.DoesNotExist):
             pass
@@ -88,7 +92,8 @@ class TestCreateWallTask(TestCase):
             password='fakepass',
             username='thisisafakeusername')
         self.fake_user.save()
-        self.fake_pleb = Pleb(email=self.fake_user.email).save()
+        self.fake_pleb = Pleb(email=self.fake_user.email,
+                              username=self.fake_user.username).save()
 
     def tearDown(self):
         self.fake_pleb.delete()

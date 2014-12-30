@@ -174,7 +174,7 @@ class Pleb(StructuredNode):
             self.save()
         except(CypherException, IOError) as e:
             return e
-        return True
+        return user
 
     def relate_comment(self, comment):
         try:

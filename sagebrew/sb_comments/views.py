@@ -10,7 +10,6 @@ from api.utils import spawn_task
 from api.tasks import get_pleb_task
 from .tasks import save_comment_on_object
 from .forms import (SaveCommentForm)
-from sb_docstore.utils import add_object_to_table
 
 
 @api_view(['POST'])

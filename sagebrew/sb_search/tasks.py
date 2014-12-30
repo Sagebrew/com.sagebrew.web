@@ -124,7 +124,7 @@ def update_weight_relationship(document_id, index, object_type,
 
 
 @shared_task()
-def add_user_to_custom_index(pleb, index="full-search-user-specific-1"):
+def add_user_to_custom_index(username=None, index="full-search-user-specific-1"):
     '''
     This function is called when a user is created, it reindexes every document
     from the full-search-base index to the users assigned index with the
@@ -134,6 +134,13 @@ def add_user_to_custom_index(pleb, index="full-search-user-specific-1"):
     :param index:
     :return:
     '''
+    if username is None:
+        return None
+    try:
+        pleb = Pleb.nodes.get(username=username)
+    except (Pleb.DoesNotExist, DoesNotExist) as e:
+        raise add_user_to_custom_index.retry(exc=e, countdown=3,
+                                              max_retries=None)
     if pleb.populated_personal_index:
         return True
     es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)

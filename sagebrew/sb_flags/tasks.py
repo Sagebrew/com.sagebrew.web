@@ -2,6 +2,7 @@ from celery import shared_task
 
 from api.utils import get_object
 
+
 @shared_task()
 def flag_object_task(current_pleb, object_uuid, object_type, flag_reason,
                      description=""):

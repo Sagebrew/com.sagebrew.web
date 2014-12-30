@@ -4,6 +4,7 @@ from celery import shared_task
 from django.conf import settings
 from django.template.loader import get_template
 from django.template import Context
+from django.contrib.auth.models import User
 from neomodel import DoesNotExist, CypherException
 
 from api.utils import spawn_task
@@ -32,8 +33,20 @@ def send_email_task(to, subject, html_content, text_content=None):
 
 
 @shared_task()
-def finalize_citizen_creation(pleb, user):
+def finalize_citizen_creation(username=None):
     # TODO look into celery chaining and/or grouping
+    if username is None:
+        return None
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist as e:
+        raise finalize_citizen_creation.retry(exc=e, countdown=3,
+                                              max_retries=None)
+    try:
+        pleb = Pleb.nodes.get(username=username)
+    except (Pleb.DoesNotExist, DoesNotExist) as e:
+        raise finalize_citizen_creation.retry(exc=e, countdown=3,
+                                              max_retries=None)
     task_list = {}
     task_data = {
         'object_added': pleb,
@@ -48,7 +61,7 @@ def finalize_citizen_creation(pleb, user):
     task_list["add_object_to_search_index"] = spawn_task(
         task_func=add_object_to_search_index,
         task_param=task_data)
-    task_data = {'pleb': pleb,
+    task_data = {'username': username,
                  'index': "full-search-user-specific-1"}
     task_list["add_user_to_custom_index"] = spawn_task(
         task_func=add_user_to_custom_index,
@@ -59,8 +72,8 @@ def finalize_citizen_creation(pleb, user):
          'last_name': pleb.last_name,
          'username': pleb.username,
          'type': 'standard'}}
-    res = spawn_task(task_func=add_object_to_table_task,
-                     task_param=dynamo_data)
+    task_list["add_object_to_table_task"] = spawn_task(
+        task_func=add_object_to_table_task, task_param=dynamo_data)
     if not pleb.initial_verification_email_sent:
         generated_token = token_gen.make_token(user, pleb)
         template_dict = {
@@ -92,7 +105,13 @@ def finalize_citizen_creation(pleb, user):
 
 
 @shared_task()
-def create_wall_task(pleb, user):
+def create_wall_task(username=None):
+    if username is None:
+        return None
+    try:
+        pleb = Pleb.nodes.get(username=username)
+    except (Pleb.DoesNotExist, DoesNotExist) as e:
+        raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
     try:
         wall_list = pleb.wall.all()
     except(CypherException, IOError) as e:
@@ -110,7 +129,7 @@ def create_wall_task(pleb, user):
             raise create_wall_task.retry(exc=e, countdown=3,
                                          max_retries=None)
     spawned = spawn_task(task_func=finalize_citizen_creation,
-                         task_param={"pleb": pleb, "user": user})
+                         task_param={"username": username})
     if isinstance(spawned, Exception) is True:
         raise create_wall_task.retry(exc=spawned, countdown=3,
                                      max_retries=None)
@@ -118,7 +137,13 @@ def create_wall_task(pleb, user):
 
 
 @shared_task()
-def create_pleb_task(user_instance):
+def create_pleb_task(username=None):
+    if username is None:
+        return None
+    try:
+        user_instance = User.objects.get(username=username)
+    except User.DoesNotExist as e:
+        raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
     try:
         pleb = Pleb.nodes.get(email=user_instance.email)
     except (Pleb.DoesNotExist, DoesNotExist):
@@ -139,7 +164,7 @@ def create_pleb_task(user_instance):
             raise create_pleb_task.retry(exc=generated, countdown=3,
                                          max_retries=None)
     task_info = spawn_task(task_func=create_wall_task,
-                           task_param={"pleb": pleb, "user": user_instance})
+                           task_param={"username": username})
     if isinstance(task_info, Exception) is True:
         raise create_pleb_task.retry(exc=task_info, countdown=3,
                                      max_retries=None)

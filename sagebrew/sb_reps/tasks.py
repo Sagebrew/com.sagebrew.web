@@ -1,9 +1,6 @@
 from celery import shared_task
 
 from .utils import save_policy, save_experience
-from .neo_models import Policy
-from sb_docstore.tasks import add_object_to_table_task
-from api.utils import spawn_task
 
 
 @shared_task()

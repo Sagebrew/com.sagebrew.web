@@ -12,9 +12,11 @@ from sb_base.decorators import apply_defense
 from sb_questions.neo_models import SBQuestion
 from sb_reps.neo_models import BaseOfficial
 
+
 def get_table_name(name):
     branch = os.environ.get("CIRCLE_BRANCH", None)
     return "%s-%s" % (branch, name)
+
 
 def connect_to_dynamo():
     '''
@@ -47,6 +49,7 @@ def connect_to_dynamo():
     except IOError as e:
         return e
 
+
 def get_rep_info(parent_object, table_name):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
@@ -62,7 +65,7 @@ def get_rep_info(parent_object, table_name):
     )
     return list(res)
 
-@apply_defense
+
 def add_object_to_table(table_name, object_data):
     '''
     This function will attempt to add an object to a table, this will be
@@ -76,14 +79,20 @@ def add_object_to_table(table_name, object_data):
     if isinstance(conn, Exception):
         return conn
     try:
-        table = Table(table_name=get_table_name(table_name), connection=conn)
+        table_name = get_table_name(table_name)
+        table = Table(table_name=table_name, connection=conn)
     except JSONResponseError:
         return False
     try:
         table.put_item(data=object_data)
-    except (ConditionalCheckFailedException, ValidationException) as e:
+    except (ConditionalCheckFailedException, ValidationException,
+            JSONResponseError) as e:
+        # TODO if we receive these errors we probably want to do
+        # something other than just return e. Don't they mean the
+        # table doesn't exist?
         return e
     return True
+
 
 @apply_defense
 def query_parent_object_table(object_uuid, get_all=False, table_name='edits'):
@@ -105,6 +114,7 @@ def query_parent_object_table(object_uuid, get_all=False, table_name='edits'):
         return dict(list(res)[0])
     except IndexError:
         return False
+
 
 @apply_defense
 def update_doc(table, object_uuid, update_data, parent_object="", datetime=""):
@@ -128,6 +138,7 @@ def update_doc(table, object_uuid, update_data, parent_object="", datetime=""):
         res[item['update_key']] = item['update_value']
     res.partial_save()
     return res
+
 
 @apply_defense
 def get_question_doc(question_uuid, question_table, solution_table):
@@ -166,6 +177,7 @@ def get_question_doc(question_uuid, question_table, solution_table):
     question['answers'] = answer_list
     return question
 
+
 @apply_defense
 def build_question_page(question_uuid, question_table, solution_table):
     '''
@@ -198,6 +210,7 @@ def build_question_page(question_uuid, question_table, solution_table):
                             object_data=answer)
     return True
 
+
 @apply_defense
 def get_vote(object_uuid, user):
     conn = connect_to_dynamo()
@@ -216,6 +229,7 @@ def get_vote(object_uuid, user):
         return vote
     except ItemNotFound:
         return False
+
 
 @apply_defense
 def update_vote(object_uuid, user, vote_type, time):
@@ -242,6 +256,7 @@ def update_vote(object_uuid, user, vote_type, time):
     vote.partial_save()
     return vote
 
+
 @apply_defense
 def get_vote_count(object_uuid, vote_type):
     conn = connect_to_dynamo()
@@ -255,6 +270,7 @@ def get_vote_count(object_uuid, vote_type):
                                 status__eq=vote_type,
                                 index="VoteStatusIndex")
     return len(list(votes))
+
 
 @apply_defense
 def get_wall_docs(parent_object):
@@ -297,7 +313,7 @@ def get_wall_docs(parent_object):
         post_list.append(post)
     return post_list
 
-@apply_defense
+
 def build_wall_docs(pleb):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
@@ -315,12 +331,16 @@ def build_wall_docs(pleb):
     for post in posts:
         post_data = post.get_single_dict()
         comments = post_data.pop('comments', None)
-        post_table.put_item(post_data)
+        try:
+            post_table.put_item(post_data)
+        except ConditionalCheckFailedException as e:
+            return e
         for comment in comments:
             comment['parent_object'] = post.sb_id
             comment_table.put_item(comment)
 
     return True
+
 
 @apply_defense
 def get_user_updates(username, object_uuid, table_name):
@@ -347,6 +367,7 @@ def get_user_updates(username, object_uuid, table_name):
             return {}
         return dict(res)
     return list(res)
+
 
 @apply_defense
 def build_rep_page(rep_id):
@@ -402,6 +423,7 @@ def build_rep_page(rep_id):
         }
         experience_table.put_item(data)
     return True
+
 
 @apply_defense
 def get_rep_docs(rep_id, rep_only=False):

@@ -346,8 +346,8 @@ def create_user_util(first_name, last_name, email, password, username=None):
                                     username=username)
     user.save()
     res = spawn_task(task_func=create_pleb_task,
-                     task_param={"user_instance": user})
+                     task_param={"username": username})
     if isinstance(res, Exception) is True:
         return res
     else:
-        return {"task_id": res, "username": user.username}
+        return {"task_id": res, "username": username}

@@ -138,7 +138,6 @@ def create_wall_task(username=None):
 
 @shared_task()
 def create_pleb_task(username=None):
-    print settings.DATABASES
     if username is None:
         return None
     try:
@@ -165,7 +164,7 @@ def create_pleb_task(username=None):
             raise create_pleb_task.retry(exc=generated, countdown=3,
                                          max_retries=None)
     task_info = spawn_task(task_func=create_wall_task,
-                           task_param={"username": username})
+                           task_param={"username": generated})
     if isinstance(task_info, Exception) is True:
         raise create_pleb_task.retry(exc=task_info, countdown=3,
                                      max_retries=None)

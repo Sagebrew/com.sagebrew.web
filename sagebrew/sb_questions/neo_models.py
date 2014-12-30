@@ -128,7 +128,7 @@ class SBQuestion(SBVersioned, SBTagContent):
             for comment in self.comments.all():
                 comment_array.append(comment.get_single_dict())
 
-            question_dict = {'question_title': edit.question_title,
+            return {'question_title': edit.question_title,
                              'content': edit.content,
                              'object_uuid': self.sb_id,
                              'is_closed': self.is_closed,
@@ -146,7 +146,6 @@ class SBQuestion(SBVersioned, SBTagContent):
                              'owner_email': owner.email,
                              'edits': [],
                              'object_type': self.object_type}
-            return question_dict
         except CypherException as e:
             return e
 

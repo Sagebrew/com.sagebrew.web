@@ -11,7 +11,6 @@ from neomodel import CypherException, DoesNotExist
 from api.utils import spawn_task
 from api.tasks import add_object_to_search_index
 from sb_notifications.tasks import spawn_notifications
-from sb_docstore.tasks import add_object_to_table_task
 from sb_base.tasks import create_object_relations_task
 from sb_questions.neo_models import SBQuestion
 from .utils import (save_answer_util)

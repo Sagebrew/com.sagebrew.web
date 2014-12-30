@@ -1,5 +1,4 @@
 import pytz
-from json import dumps
 from uuid import uuid1
 from datetime import datetime
 from django.test import TestCase
@@ -11,12 +10,12 @@ from sb_registration.utils import create_user_util
 from sb_questions.neo_models import SBQuestion
 from sb_posts.neo_models import SBPost
 from sb_comments.neo_models import SBComment
-from sb_docstore.utils import (connect_to_dynamo, add_object_to_table,
+from sb_docstore.utils import (add_object_to_table,
                                query_parent_object_table, update_doc,
                                get_question_doc, build_question_page,
                                get_vote, update_vote, get_vote_count,
                                get_wall_docs, build_wall_docs,
-                               get_user_updates, get_table_name)
+                               get_user_updates)
 
 class TestDocstoreUtils(TestCase):
     def setUp(self):

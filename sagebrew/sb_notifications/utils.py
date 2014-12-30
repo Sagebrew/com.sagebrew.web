@@ -46,7 +46,7 @@ def create_notification_util(sb_object, from_pleb, to_plebs,
                                  'from_pleb': from_pleb.email,
                                  'notification_about': sb_object.sb_name,
                                  'notification_about_id': sb_object.sb_id,
-                                 'notification_id': notification_id}
+                                 'notification_id': str(notification_id)}
             add_object_to_table('notifications', notification_data)
         notification.sent = True
         notification.save()

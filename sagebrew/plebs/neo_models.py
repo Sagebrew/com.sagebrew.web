@@ -149,33 +149,6 @@ class Pleb(StructuredNode):
     official = RelationshipTo('sb_reps.neo_models.BaseOfficial', 'IS',
                               model=OfficialRelationship)
 
-    def generate_username(self, user):
-        temp_username = "%s_%s" % (str(self.first_name).lower(),
-                                   str(self.last_name).lower())
-        temp_username = re.sub('[^a-z]+', '', temp_username)
-        query = 'match (p:Pleb) where p.first_name="%s" and ' \
-                'p.last_name="%s" return p' % (self.first_name,
-                                               self.last_name)
-        res = execute_cypher_query(query)
-        if isinstance(res, Exception):
-            return res
-        try:
-            existing_users = res[0]
-        except IndexError:
-            existing_users = None
-
-        if existing_users is None:
-            self.username = temp_username
-        else:
-            self.username = temp_username + str((len(res[0])+1))
-        user.username = self.username
-        user.save()
-        try:
-            self.save()
-        except(CypherException, IOError) as e:
-            return e
-        return True
-
     def relate_comment(self, comment):
         try:
             rel_to_pleb = comment.is_owned_by.connect(self)

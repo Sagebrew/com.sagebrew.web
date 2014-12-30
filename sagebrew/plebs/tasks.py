@@ -33,15 +33,11 @@ def send_email_task(to, subject, html_content, text_content=None):
 
 
 @shared_task()
-def finalize_citizen_creation(username=None):
+def finalize_citizen_creation(user_instance=None):
     # TODO look into celery chaining and/or grouping
-    if username is None:
+    if user_instance is None:
         return None
-    try:
-        user = User.objects.get(username=username)
-    except User.DoesNotExist as e:
-        raise finalize_citizen_creation.retry(exc=e, countdown=3,
-                                              max_retries=None)
+    username = user_instance.username
     try:
         pleb = Pleb.nodes.get(username=username)
     except (Pleb.DoesNotExist, DoesNotExist) as e:
@@ -66,6 +62,7 @@ def finalize_citizen_creation(username=None):
     task_list["add_user_to_custom_index"] = spawn_task(
         task_func=add_user_to_custom_index,
         task_param=task_data)
+    print pleb.username
     dynamo_data = {'table': 'users_barebones', 'object_data':
         {'email': pleb.email,
          'first_name': pleb.first_name,
@@ -75,9 +72,9 @@ def finalize_citizen_creation(username=None):
     task_list["add_object_to_table_task"] = spawn_task(
         task_func=add_object_to_table_task, task_param=dynamo_data)
     if not pleb.initial_verification_email_sent:
-        generated_token = token_gen.make_token(user, pleb)
+        generated_token = token_gen.make_token(user_instance, pleb)
         template_dict = {
-            'full_name': "%s %s" % (pleb.first_name, pleb.last_name),
+            'full_name': user_instance.get_full_name(),
             'verification_url': "%s%s/" % (settings.EMAIL_VERIFICATION_URL,
                                            generated_token)
         }
@@ -105,11 +102,11 @@ def finalize_citizen_creation(username=None):
 
 
 @shared_task()
-def create_wall_task(username=None):
-    if username is None:
+def create_wall_task(user_instance=None):
+    if user_instance is None:
         return None
     try:
-        pleb = Pleb.nodes.get(username=username)
+        pleb = Pleb.nodes.get(username=user_instance.username)
     except (Pleb.DoesNotExist, DoesNotExist) as e:
         raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
     try:
@@ -129,7 +126,7 @@ def create_wall_task(username=None):
             raise create_wall_task.retry(exc=e, countdown=3,
                                          max_retries=None)
     spawned = spawn_task(task_func=finalize_citizen_creation,
-                         task_param={"username": username})
+                         task_param={"user_instance": user_instance})
     if isinstance(spawned, Exception) is True:
         raise create_wall_task.retry(exc=spawned, countdown=3,
                                      max_retries=None)
@@ -137,34 +134,24 @@ def create_wall_task(username=None):
 
 
 @shared_task()
-def create_pleb_task(username=None):
-    if username is None:
+def create_pleb_task(user_instance=None):
+    if user_instance is None:
         return None
     try:
-        user_instance = User.objects.get(username=username)
-    except User.DoesNotExist as e:
-        raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
-    try:
-        pleb = Pleb.nodes.get(email=user_instance.email)
+        pleb = Pleb.nodes.get(username=user_instance.username)
     except (Pleb.DoesNotExist, DoesNotExist):
         try:
             pleb = Pleb(email=user_instance.email,
                         first_name=user_instance.first_name,
-                        last_name=user_instance.last_name)
-            # TODO do we need this save or can we use the one in
-            # generate_username?
+                        last_name=user_instance.last_name,
+                        username=user_instance.username)
             pleb.save()
         except(CypherException, IOError) as e:
             raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
     except(CypherException, IOError) as e:
         raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
-    if pleb.username is None:
-        generated = pleb.generate_username(user_instance)
-        if isinstance(generated, Exception):
-            raise create_pleb_task.retry(exc=generated, countdown=3,
-                                         max_retries=None)
     task_info = spawn_task(task_func=create_wall_task,
-                           task_param={"username": pleb.username})
+                           task_param={"user_instance": user_instance})
     if isinstance(task_info, Exception) is True:
         raise create_pleb_task.retry(exc=task_info, countdown=3,
                                      max_retries=None)

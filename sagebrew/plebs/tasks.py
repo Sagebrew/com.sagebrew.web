@@ -34,7 +34,6 @@ def send_email_task(to, subject, html_content, text_content=None):
 @shared_task()
 def finalize_citizen_creation(pleb_username, user):
     # TODO look into celery chaining and/or grouping
-    print "into finalize citizen"
     try:
         pleb = Pleb.nodes.get(username=pleb_username)
     except (Pleb.DoesNotExist, DoesNotExist) as e:

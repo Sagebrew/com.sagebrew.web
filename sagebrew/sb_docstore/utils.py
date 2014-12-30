@@ -15,7 +15,6 @@ from sb_reps.neo_models import BaseOfficial
 
 def get_table_name(name):
     branch = os.environ.get("CIRCLE_BRANCH", None)
-    print "%s-%s" % (branch, name)
     return "%s-%s" % (branch, name)
 
 def connect_to_dynamo():

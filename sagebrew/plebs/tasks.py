@@ -149,10 +149,10 @@ def create_pleb_task(email=None):
     except User.DoesNotExist as e:
         raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
     try:
-        pleb = Pleb.nodes.get(email=user_instance.email)
+        pleb = Pleb.nodes.get(email=email)
     except (Pleb.DoesNotExist, DoesNotExist):
         try:
-            pleb = Pleb(email=user_instance.email,
+            pleb = Pleb(email=email,
                         first_name=user_instance.first_name,
                         last_name=user_instance.last_name)
             # TODO do we need this save or can we use the one in

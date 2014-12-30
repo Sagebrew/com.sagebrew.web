@@ -55,7 +55,6 @@ def finalize_citizen_creation(pleb, user):
         task_func=add_user_to_custom_index,
         task_param=task_data)
     table_name = get_table_name('users_barebones')
-    print table_name
     dynamo_data = {'table': table_name, 'object_data':
         {'email': pleb.email,
          'first_name': pleb.first_name,

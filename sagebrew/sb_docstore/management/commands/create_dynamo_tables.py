@@ -8,8 +8,7 @@ from boto.dynamodb2.table import Table
 from boto.dynamodb2.types import STRING
 from boto.dynamodb2.exceptions import JSONResponseError
 
-from sb_docstore.utils import connect_to_dynamo
-
+from sb_docstore.utils import connect_to_dynamo, get_table_name
 
 
 
@@ -19,13 +18,12 @@ class Command(BaseCommand):
 
     def create_dynamo_tables(self):
         with open('%s/sb_docstore/management/commands'
-                  '/dynamo_table.json'%settings.PROJECT_DIR,
+                  '/dynamo_table.json' % settings.PROJECT_DIR,
                   'r') as data_file:
             data = loads(data_file.read())
             conn = connect_to_dynamo()
             for item in data:
-                branch = os.environ.get("CIRCLE_BRANCH", None)
-                table_name = "%s-%s" % (branch, item['table_name'])
+                table_name = get_table_name(item['table_name'])
                 try:
                     table = Table(table_name=table_name,
                                   connection=conn)

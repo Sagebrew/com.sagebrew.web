@@ -344,6 +344,7 @@ def create_user_util(first_name, last_name, email, password, username=None):
     user = User.objects.create_user(first_name=first_name, last_name=last_name,
                                     email=email, password=password,
                                     username=username)
+    print username
     user.save()
     res = spawn_task(task_func=create_pleb_task,
                      task_param={"username": username})

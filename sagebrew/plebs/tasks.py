@@ -140,6 +140,7 @@ def create_wall_task(username=None):
 def create_pleb_task(username=None):
     if username is None:
         return None
+    print username
     try:
         user_instance = User.objects.get(username=username)
     except User.DoesNotExist as e:

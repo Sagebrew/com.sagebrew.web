@@ -80,7 +80,6 @@ def add_object_to_table(table_name, object_data):
         return conn
     try:
         table_name = get_table_name(table_name)
-        print table_name
         table = Table(table_name=table_name, connection=conn)
     except JSONResponseError:
         return False

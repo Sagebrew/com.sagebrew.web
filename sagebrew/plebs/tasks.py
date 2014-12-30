@@ -62,6 +62,7 @@ def finalize_citizen_creation(user_instance=None):
     task_list["add_user_to_custom_index"] = spawn_task(
         task_func=add_user_to_custom_index,
         task_param=task_data)
+    print pleb.username
     dynamo_data = {'table': 'users_barebones', 'object_data':
         {'email': pleb.email,
          'first_name': pleb.first_name,
@@ -73,7 +74,7 @@ def finalize_citizen_creation(user_instance=None):
     if not pleb.initial_verification_email_sent:
         generated_token = token_gen.make_token(user_instance, pleb)
         template_dict = {
-            'full_name': "%s %s" % (pleb.first_name, pleb.last_name),
+            'full_name': user_instance.get_full_name(),
             'verification_url': "%s%s/" % (settings.EMAIL_VERIFICATION_URL,
                                            generated_token)
         }

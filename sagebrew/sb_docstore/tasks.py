@@ -3,6 +3,7 @@ from celery import shared_task
 from .utils import (build_question_page, add_object_to_table, build_wall_docs,
                     build_rep_page)
 
+
 @shared_task()
 def build_question_page_task(question_uuid, question_table, solution_table):
     res = build_question_page(question_uuid, question_table, solution_table)
@@ -10,6 +11,7 @@ def build_question_page_task(question_uuid, question_table, solution_table):
         raise build_question_page_task.retry(exc=res, countdown=3,
                                              max_retries=None)
     return True
+
 
 @shared_task()
 def add_object_to_table_task(object_data, table):
@@ -19,6 +21,7 @@ def add_object_to_table_task(object_data, table):
                                              max_retries=None)
     return True
 
+
 @shared_task()
 def build_wall_task(pleb):
     res = build_wall_docs(pleb)
@@ -26,6 +29,7 @@ def build_wall_task(pleb):
         raise build_wall_task.retry(exc=res, countdown=3, max_retries=None)
 
     return True
+
 
 @shared_task()
 def build_rep_page_task(rep_id):

@@ -179,6 +179,7 @@ def get_education_form(request):
             res = spawn_task(save_education_task, data)
             if isinstance(res, Exception):
                 return Response({"detail": "error"}, 400)
+            
             data = {
                 'parent_object': rep_id,
                 'school': education_form.cleaned_data['school'],

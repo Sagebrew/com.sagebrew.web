@@ -66,7 +66,6 @@ def get_rep_info(parent_object, table_name):
     return list(res)
 
 
-@apply_defense
 def add_object_to_table(table_name, object_data):
     '''
     This function will attempt to add an object to a table, this will be
@@ -85,7 +84,8 @@ def add_object_to_table(table_name, object_data):
         return False
     try:
         table.put_item(data=object_data)
-    except (ConditionalCheckFailedException, ValidationException) as e:
+    except (ConditionalCheckFailedException, ValidationException,
+            JSONResponseError) as e:
         return e
     return True
 

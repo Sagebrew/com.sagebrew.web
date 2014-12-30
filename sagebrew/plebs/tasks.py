@@ -161,7 +161,7 @@ def create_pleb_task(username=None):
     if pleb.username is None:
         generated = pleb.generate_username(user_instance)
         if isinstance(generated, Exception):
-            raise create_pleb_task.retry(exc=generated, countdown=3,
+            raise create_pleb_task.retry(exc=pleb.username, countdown=3,
                                          max_retries=None)
     task_info = spawn_task(task_func=create_wall_task,
                            task_param={"username": generated})

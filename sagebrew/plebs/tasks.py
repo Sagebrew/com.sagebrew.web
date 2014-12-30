@@ -138,7 +138,6 @@ def create_wall_task(username=None):
 
 @shared_task()
 def create_pleb_task(email=None):
-    print settings.DATABASES
     if email is None:
         return None
     print email

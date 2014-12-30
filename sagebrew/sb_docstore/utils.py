@@ -85,12 +85,18 @@ def add_object_to_table(table_name, object_data):
         return False
     try:
         table.put_item(data=object_data)
-    except (ConditionalCheckFailedException, ValidationException,
+    except (ValidationException,
             JSONResponseError) as e:
         # TODO if we receive these errors we probably want to do
         # something other than just return e. Don't they mean the
         # table doesn't exist?
         return e
+    except ConditionalCheckFailedException:
+        try:
+            user_object = table.get_item(email=object_data['email'])
+            return True
+        except (ConditionalCheckFailedException, JSONResponseError) as e:
+            return e
     return True
 
 

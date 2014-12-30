@@ -35,7 +35,7 @@ class Command(BaseCommand):
                     print 'The table %s does not exist'%table_name
                 try:
                     if 'range_key' and 'local_index' in item.keys():
-                        Table.create(item['table_name'], schema=[
+                        Table.create(table_name, schema=[
                             HashKey(item['hash_key'], data_type=STRING),
                             RangeKey(item['range_key']),
                         ], indexes=[
@@ -49,7 +49,7 @@ class Command(BaseCommand):
                             'write': 15
                         }, connection=conn)
                     elif 'range_key' in item.keys():
-                        Table.create(item['table_name'], schema=[
+                        Table.create(table_name, schema=[
                             HashKey(item['hash_key'], data_type=STRING),
                             RangeKey(item['range_key']),
                         ], throughput={
@@ -57,7 +57,7 @@ class Command(BaseCommand):
                             'write': 15
                         }, connection=conn)
                     else:
-                        Table.create(item['table_name'], schema=[
+                        Table.create(table_name, schema=[
                             HashKey(item['hash_key'], data_type=STRING),
                         ], throughput={
                             'read': 15,

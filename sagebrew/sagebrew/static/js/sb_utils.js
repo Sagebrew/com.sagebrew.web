@@ -256,6 +256,62 @@ function add_new(){
     });
 }
 
+function add_experience(){
+    $(".add_experience").click(function (event) {
+        event.preventDefault();
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "GET",
+            url: "/reps/experience/",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data){
+                $("#experience_added_form").append(data['rendered']);
+                enable_post_functionality();
+                $(".add_experience").attr('disabled', 'disabled');
+            }
+        });
+    });
+}
+
+function submit_experience(){
+    $(".submit_experience-action").click(function(event){
+        event.preventDefault();
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "POST",
+            url: "/reps/experience/",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                'rep_id': $("#rep_id").data('rep_id'),
+                'title': $('#id_title').val(),
+                'start_date': $('#id_start_date').val(),
+                'end_date': $('#id_end_date').val(),
+                'current': $('#id_current').val(),
+                'company': $('#id_company').val(),
+                'location': $('#id_location').val(),
+                'description': $('#id_description').val()
+            }),
+            dataType: "json",
+            success: function(data){
+                $('.add_experience').removeAttr('disabled');
+                $('.add_experience_wrapper').remove();
+                $("#experience_list").append(data['rendered']);
+            }
+        });
+    });
+}
+
 function cloneForm(selector, type) {
     var newElement = $(selector).clone(true);
     var total = $('#id_'+type+'_TOTAL_FORMS').val();
@@ -275,6 +331,34 @@ function cloneForm(selector, type) {
     $(selector).after(newElement);
 }
 
+function submit_policy() {
+    $(".submit_policy-action").click(function(event){
+        event.preventDefault();
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "POST",
+            url: "/reps/policy/",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                'rep_id': $("#rep_id").data('rep_id'),
+                'policies': $('#id_policies').val(),
+                'description': $('#id_description').val()
+            }),
+            dataType: "json",
+            success: function(data){
+                $('.add_policy').removeAttr('disabled');
+                $('.add_policy_wrapper').remove();
+                $("#policy_list").append(data['rendered']);
+            }
+        });
+    });
+}
+
 
 function enable_post_functionality() {
     save_answer();
@@ -289,6 +373,8 @@ function enable_post_functionality() {
     show_edit_answer();
     delete_object();
     page_leave_endpoint();
+    submit_experience();
+    submit_policy();
 }
 
 function getUrlParameter(sParam)

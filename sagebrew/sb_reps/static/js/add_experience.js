@@ -1,5 +1,5 @@
 $( document ).ready(function() {
-    $(".add_policy").click(function (event) {
+    $(".add_experience").click(function (event) {
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -9,20 +9,20 @@ $( document ).ready(function() {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "GET",
-            url: "/reps/policy/",
+            url: "/reps/experience/",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function(data){
-                $("#policy_added_form").append(data['rendered']);
+                $("#experience_added_form").append(data['rendered']);
                 enable_post_functionality();
-                $(".add_policy").attr('disabled', 'disabled');
+                $(".add_experience").attr('disabled', 'disabled');
             }
         });
     });
 });
 
 $(document).ready(function(){
-    $(".submit_policy-action").click(function(event){
+    $(".submit_experience-action").click(function(event){
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function(xhr, settings) {
@@ -32,18 +32,23 @@ $(document).ready(function(){
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
-            url: "/reps/policy/",
+            url: "/reps/experience/",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify({
                 'rep_id': $("#rep_id").data('rep_id'),
-                'policies': $('#id_policies').val(),
+                'title': $('#id_title').val(),
+                'start_date': $('#id_start_date').val(),
+                'end_date': $('#id_end_date').val(),
+                'current': $('#id_current').val(),
+                'company': $('#id_company').val(),
+                'location': $('#id_location').val(),
                 'description': $('#id_description').val()
             }),
             dataType: "json",
             success: function(data){
-                $('.add_policy').removeAttr('disabled');
-                $('.add_policy_wrapper').remove();
-                $(".policy_list").append(data['rendered']);
+                $('.add_experience').removeAttr('disabled');
+                $('.add_experience_wrapper').remove();
+                $("#experience_list").append(data['rendered']);
             }
         });
     });

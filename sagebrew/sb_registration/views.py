@@ -206,10 +206,6 @@ def profile_information(request):
     if citizen.completed_profile_info:
         return redirect("interests")
     if profile_information_form.is_valid():
-        if calc_age(profile_information_form.cleaned_data['date_of_birth'])<13:
-            return redirect("age_restriction_13")
-        citizen.date_of_birth = profile_information_form.cleaned_data[
-            "date_of_birth"]
         citizen.home_town = profile_information_form.cleaned_data["home_town"]
         #citizen.high_school = profile_information_form.cleaned_data.get("high_school", "")
         #citizen.college = profile_information_form.cleaned_data.get("college", "")

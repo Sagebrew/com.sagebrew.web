@@ -23,7 +23,14 @@
         <button class="btn btn-primary add_experience">Add Experience</button>
     {% endblock %}
     {% endif %}
+    <div>Education</div>
+    <ul id="education_list">
 
+    </ul>
+    <div id="education_added_form"></div>
+    {% if request.user.username == username %}
+        <button class="btn btn-primary add_education">Add Education</button>
+    {% endif %}
 {% endblock %}
 
 {% block scripts %}

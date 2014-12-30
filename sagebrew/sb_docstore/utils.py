@@ -17,7 +17,6 @@ def get_table_name(name):
     branch = os.environ.get("CIRCLE_BRANCH", None)
     return "%s-%s" % (branch, name)
 
-
 def connect_to_dynamo():
     '''
     This function gets the connection to dynamodb.

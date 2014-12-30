@@ -137,21 +137,14 @@ def create_wall_task(username=None):
 
 
 @shared_task()
-def create_pleb_task(email=None):
-    if email is None:
+def create_pleb_task(user_instance=None):
+    if user_instance is None:
         return None
-    print email
     try:
-        # Use email here instead of username since username has the
-        # potential to change in this task and then get retried
-        user_instance = User.objects.get(email=email)
-    except (User.DoesNotExist, Exception) as e:
-        raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
-    try:
-        pleb = Pleb.nodes.get(email=email)
+        pleb = Pleb.nodes.get(email=user_instance.email)
     except (Pleb.DoesNotExist, DoesNotExist):
         try:
-            pleb = Pleb(email=email,
+            pleb = Pleb(email=user_instance.email,
                         first_name=user_instance.first_name,
                         last_name=user_instance.last_name)
             # TODO do we need this save or can we use the one in

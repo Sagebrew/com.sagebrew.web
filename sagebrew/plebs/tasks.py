@@ -5,6 +5,7 @@ from django.conf import settings
 from django.template.loader import get_template
 from django.template import Context
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from neomodel import DoesNotExist, CypherException
 
 from api.utils import spawn_task
@@ -39,7 +40,7 @@ def finalize_citizen_creation(username=None):
         return None
     try:
         user = User.objects.get(username=username)
-    except (User.DoesNotExist, DoesNotExist) as e:
+    except (User.DoesNotExist, ObjectDoesNotExist) as e:
         raise finalize_citizen_creation.retry(exc=e, countdown=3,
                                               max_retries=None)
     try:
@@ -143,7 +144,7 @@ def create_pleb_task(username=None):
     print username
     try:
         user_instance = User.objects.get(username=username)
-    except (User.DoesNotExist, DoesNotExist) as e:
+    except (User.DoesNotExist, ObjectDoesNotExist) as e:
         raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
     try:
         pleb = Pleb.nodes.get(email=user_instance.email)

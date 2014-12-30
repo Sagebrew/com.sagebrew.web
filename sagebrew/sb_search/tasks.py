@@ -196,8 +196,7 @@ def update_user_indices(doc_type, doc_id):
             RequestError) as e:
         raise update_user_indices.retry(exc=e, countdown=3, max_retries=None)
     try:
-        plebs = Pleb.category()
-        for pleb in plebs.instance.all():
+        for pleb in Pleb.nodes.all():
             #TODO update this to get index name from the users assigned index
             res['_source']['related_user'] = pleb.email
             result = es.index(index='full-search-user-specific-1',

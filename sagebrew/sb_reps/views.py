@@ -175,3 +175,7 @@ def get_education_form(request):
                 'degree': education_form.cleaned_data['end_date'],
                 'school_id': str(uuid1())
             }
+    else:
+        rendered = render_to_string('education_form.html',
+                                    {'education_form': education_form})
+        return Response({'rendered': rendered}, 200)

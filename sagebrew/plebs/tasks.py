@@ -137,13 +137,15 @@ def create_wall_task(username=None):
 
 
 @shared_task()
-def create_pleb_task(username=None):
+def create_pleb_task(email=None):
     print settings.DATABASES
-    if username is None:
+    if email is None:
         return None
-    print username
+    print email
     try:
-        user_instance = User.objects.get(username=username)
+        # Use email here instead of username since username has the
+        # potential to change in this task and then get retried
+        user_instance = User.objects.get(email=email)
     except User.DoesNotExist as e:
         raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
     try:

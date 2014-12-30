@@ -20,7 +20,7 @@ from sb_docstore.utils import add_object_to_table, get_rep_docs
 from sb_docstore.tasks import build_rep_page_task
 from .forms import (EducationForm, ExperienceForm, PolicyForm)
 from .neo_models import BaseOfficial
-from .tasks import save_policy_task, save_experience_task
+from .tasks import save_policy_task, save_experience_task, save_education_task
 
 @login_required()
 @user_passes_test(verify_completed_registration,
@@ -166,15 +166,35 @@ def get_education_form(request):
     education_form = EducationForm(request.DATA or None)
     if request.method == "POST":
         if education_form.is_valid():
-            rep_id = request.DATA['rep_id']
+            rep_id = str(request.DATA['rep_id'])
+            uuid = str(uuid1())
             data = {
                 'rep_id': rep_id,
                 'school': education_form.cleaned_data['school'],
                 'start_date': education_form.cleaned_data['start_date'],
                 'end_date': education_form.cleaned_data['end_date'],
-                'degree': education_form.cleaned_data['end_date'],
-                'school_id': str(uuid1())
+                'degree': education_form.cleaned_data['degree'],
+                'edu_id': uuid
             }
+            res = spawn_task(save_education_task, data)
+            if isinstance(res, Exception):
+                return Response({"detail": "error"}, 400)
+            data = {
+                'parent_object': rep_id,
+                'school': education_form.cleaned_data['school'],
+                'start_date': unicode(
+                    education_form.cleaned_data['start_date']),
+                'end_date': unicode(education_form.cleaned_data['end_date']),
+                'degree': education_form.cleaned_data['degree'],
+                'object_uuid': uuid
+            }
+            res = add_object_to_table('education', data)
+            if isinstance(res, Exception):
+                return Response({"detail": "error"}, 400)
+            rendered = render_to_string('education_detail.html',
+                                        {'education': data})
+            print rendered
+            return Response({"rendered": rendered}, 200)
     else:
         rendered = render_to_string('education_form.html',
                                     {'education_form': education_form})

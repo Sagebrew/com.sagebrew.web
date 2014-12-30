@@ -80,8 +80,8 @@ def add_object_to_table(table_name, object_data):
     try:
         table_name = get_table_name(table_name)
         table = Table(table_name=table_name, connection=conn)
-    except JSONResponseError:
-        return False
+    except JSONResponseError as e:
+        return e
     try:
         table.put_item(data=object_data)
     except (ValidationException,
@@ -450,4 +450,6 @@ def get_rep_docs(rep_id, rep_only=False):
         return rep
     policies = get_rep_info(rep_id, 'policies')
     experiences = get_rep_info(rep_id, 'experiences')
-    return {"rep": rep, "policies": policies, "experiences": experiences}
+    education = get_rep_info(rep_id, 'education')
+    return {"rep": rep, "policies": policies, "experiences": experiences,
+            'education': education}

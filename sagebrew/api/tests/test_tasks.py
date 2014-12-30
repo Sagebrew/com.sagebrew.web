@@ -98,7 +98,7 @@ class TestAddObjectToSearchIndex(TestCase):
     def test_add_object_to_search_index_pleb_already_populated(self):
         task_data = {
             'object_type': 'pleb',
-            'object_data': {'email': self.email},
+            'object_data': {'email': self.email, "object_uuid": str(uuid1())},
             'object_added': self.pleb,
         }
         self.pleb.populated_es_index = True

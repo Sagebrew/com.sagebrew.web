@@ -79,7 +79,8 @@ def add_object_to_table(table_name, object_data):
     if isinstance(conn, Exception):
         return conn
     try:
-        table = Table(table_name=get_table_name(table_name), connection=conn)
+        table_name = get_table_name(table_name)
+        table = Table(table_name=table_name, connection=conn)
     except JSONResponseError:
         return False
     try:
@@ -310,7 +311,6 @@ def get_wall_docs(parent_object):
     return post_list
 
 
-@apply_defense
 def build_wall_docs(pleb):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
@@ -328,7 +328,10 @@ def build_wall_docs(pleb):
     for post in posts:
         post_data = post.get_single_dict()
         comments = post_data.pop('comments', None)
-        post_table.put_item(post_data)
+        try:
+            post_table.put_item(post_data)
+        except ConditionalCheckFailedException as e:
+            return e
         for comment in comments:
             comment['parent_object'] = post.sb_id
             comment_table.put_item(comment)

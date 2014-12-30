@@ -11,6 +11,7 @@ from sb_comments.neo_models import SBComment
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util
 
+
 class TestNotificationTasks(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"

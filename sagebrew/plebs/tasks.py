@@ -33,8 +33,12 @@ def send_email_task(to, subject, html_content, text_content=None):
 
 
 @shared_task()
-def finalize_citizen_creation(pleb, user):
+def finalize_citizen_creation(pleb_email, user):
     # TODO look into celery chaining and/or grouping
+    try:
+        pleb = Pleb.nodes.get(email=pleb_email)
+    except (Pleb.DoesNotExist, DoesNotExist) as e:
+        return e
     task_list = {}
     task_data = {
         'object_added': pleb,
@@ -111,7 +115,7 @@ def create_wall_task(pleb, user):
             raise create_wall_task.retry(exc=e, countdown=3,
                                          max_retries=None)
     spawned = spawn_task(task_func=finalize_citizen_creation,
-                         task_param={"pleb": pleb, "user": user})
+                         task_param={"pleb_email": pleb.email, "user": user})
     if isinstance(spawned, Exception) is True:
         raise create_wall_task.retry(exc=spawned, countdown=3,
                                      max_retries=None)

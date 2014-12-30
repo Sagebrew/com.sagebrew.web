@@ -10,6 +10,7 @@ from sb_relationships.neo_models import FriendRequest
 from sb_relationships.utils import create_friend_request_util
 from sb_registration.utils import create_user_util
 
+
 class TestCreateFriendRequestUtil(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"

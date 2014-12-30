@@ -137,28 +137,20 @@ def create_pleb_task(user_instance=None):
     if user_instance is None:
         return None
     try:
-        pleb = Pleb.nodes.get(email=user_instance.email)
+        pleb = Pleb.nodes.get(username=user_instance.username)
     except (Pleb.DoesNotExist, DoesNotExist):
         try:
             pleb = Pleb(email=user_instance.email,
                         first_name=user_instance.first_name,
-                        last_name=user_instance.last_name)
-            # TODO do we need this save or can we use the one in
-            # generate_username?
+                        last_name=user_instance.last_name,
+                        username=user_instance.username)
             pleb.save()
         except(CypherException, IOError) as e:
             raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
     except(CypherException, IOError) as e:
         raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
-    if pleb.username is None:
-        generated = pleb.generate_username(user_instance)
-        if isinstance(generated, Exception):
-            raise create_pleb_task.retry(exc=generated, countdown=3,
-                                         max_retries=None)
-    else:
-        generated = user_instance
     task_info = spawn_task(task_func=create_wall_task,
-                           task_param={"user_instance": generated})
+                           task_param={"user_instance": user_instance})
     if isinstance(task_info, Exception) is True:
         raise create_pleb_task.retry(exc=task_info, countdown=3,
                                      max_retries=None)

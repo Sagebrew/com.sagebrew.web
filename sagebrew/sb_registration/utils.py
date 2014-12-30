@@ -337,10 +337,21 @@ def sb_send_email(to_email, subject, html_content):
     except SESMaxSendingRateExceededError as e:
         return e
 
+
+def generate_username(first_name, last_name):
+    users_count = User.objects.filter(first_name__iexact=first_name).filter(
+        last_name__iexact=last_name).count()
+    if users_count == 0:
+        username = "%s_%s" % (first_name.lower(), last_name.lower())
+    else:
+        username = "%s_%s%d" % (first_name.lower(), last_name.lower(),
+                                users_count)
+    return username
+
+
 @apply_defense
-def create_user_util(first_name, last_name, email, password, username=None):
-    if username is None:
-        username = str(shortuuid.uuid())
+def create_user_util(first_name, last_name, email, password):
+    username = generate_username(first_name, last_name)
     user = User.objects.create_user(first_name=first_name, last_name=last_name,
                                     email=email, password=password,
                                     username=username)

@@ -84,7 +84,8 @@ class TestCreateWallTask(TestCase):
             pass
         self.fake_user = User.objects.create_user(
             first_name='test', last_name='test',
-            email='suppressionlist@simulator.amazonses.com', password='fakepass',
+            email='suppressionlist@simulator.amazonses.com',
+            password='fakepass',
             username='thisisafakeusername')
         self.fake_user.save()
         self.fake_pleb = Pleb(email=self.fake_user.email).save()
@@ -96,8 +97,7 @@ class TestCreateWallTask(TestCase):
 
     def test_create_wall_task_success(self):
         task_data = {
-            'pleb': self.fake_pleb,
-            'user': self.fake_user
+            'user_instance': self.fake_user
         }
         res = create_wall_task.apply_async(kwargs=task_data)
         while not res.ready():
@@ -110,8 +110,7 @@ class TestCreateWallTask(TestCase):
         wall.owner.connect(self.fake_pleb)
         self.fake_pleb.wall.connect(wall)
         task_data = {
-            'pleb': self.fake_pleb,
-            'user': self.fake_user,
+            'user_instance': self.fake_user,
         }
 
         res = create_wall_task.apply_async(kwargs=task_data)
@@ -127,8 +126,7 @@ class TestCreateWallTask(TestCase):
         self.fake_pleb.wall.connect(wall)
         self.fake_pleb.wall.connect(wall2)
         task_data = {
-            'pleb': self.fake_pleb,
-            'user': self.fake_user,
+            'user_instance': self.fake_user,
         }
 
         res = create_wall_task.apply_async(kwargs=task_data)
@@ -170,8 +168,7 @@ class TestFinalizeCitizenCreationTask(TestCase):
 
     def test_finalize_citizen_creation_email_not_sent(self):
         task_data = {
-            'pleb': self.fake_pleb,
-            'user': self.fake_user
+            'user_instance': self.fake_user
         }
         res = finalize_citizen_creation.apply_async(kwargs=task_data)
         while not res.ready():
@@ -183,8 +180,7 @@ class TestFinalizeCitizenCreationTask(TestCase):
         self.fake_pleb.initial_verification_email_sent = True
         self.fake_pleb.save()
         task_data = {
-            'pleb': self.fake_pleb,
-            'user': self.fake_user
+            'user_instance': self.fake_user
         }
         res = finalize_citizen_creation.apply_async(kwargs=task_data)
         while not res.ready():

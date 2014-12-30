@@ -1,4 +1,4 @@
-Django
+Django==1.6.9
 subprocess32
 unipath
 psycopg2

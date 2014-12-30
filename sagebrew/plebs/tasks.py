@@ -145,7 +145,7 @@ def create_pleb_task(email=None):
         # Use email here instead of username since username has the
         # potential to change in this task and then get retried
         user_instance = User.objects.get(email=email)
-    except User.DoesNotExist as e:
+    except (User.DoesNotExist, Exception) as e:
         raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
     try:
         pleb = Pleb.nodes.get(email=email)

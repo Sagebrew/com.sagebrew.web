@@ -39,7 +39,7 @@ def finalize_citizen_creation(username=None):
         return None
     try:
         user = User.objects.get(username=username)
-    except User.DoesNotExist as e:
+    except (User.DoesNotExist, DoesNotExist) as e:
         raise finalize_citizen_creation.retry(exc=e, countdown=3,
                                               max_retries=None)
     try:
@@ -143,7 +143,7 @@ def create_pleb_task(username=None):
     print username
     try:
         user_instance = User.objects.get(username=username)
-    except User.DoesNotExist as e:
+    except (User.DoesNotExist, DoesNotExist) as e:
         raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
     try:
         pleb = Pleb.nodes.get(email=user_instance.email)

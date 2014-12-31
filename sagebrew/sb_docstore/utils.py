@@ -84,8 +84,7 @@ def add_object_to_table(table_name, object_data):
         return e
     try:
         table.put_item(data=object_data)
-    except (ValidationException,
-            JSONResponseError) as e:
+    except (ValidationException, JSONResponseError) as e:
         # TODO if we receive these errors we probably want to do
         # something other than just return e. Don't they mean the
         # table doesn't exist?

@@ -15,9 +15,7 @@ class CongressVoteRelationship(StructuredRel):
 class BaseOfficial(Pleb):
     title = ""
     sb_id = StringProperty(unique_index=True)
-    resume = StringProperty()
-    agenda = StringProperty()
-    policies = StringProperty()
+    bio = StringProperty()
 
     #relationships
     policy = RelationshipTo('sb_reps.neo_models.Policy', "HAS_POLICY")

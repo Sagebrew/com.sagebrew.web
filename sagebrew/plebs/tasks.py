@@ -50,7 +50,8 @@ def finalize_citizen_creation(user_instance=None):
             'first_name': pleb.first_name,
             'last_name': pleb.last_name,
             'full_name': "%s %s" % (pleb.first_name, pleb.last_name),
-            'pleb_email': pleb.email
+            'pleb_email': pleb.email,
+            'object_uuid': pleb.username
             },
         'object_type': 'pleb'
     }

@@ -16,6 +16,7 @@ class TestCreatePlebTask(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
+        self.username = res["username"]
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -48,21 +49,12 @@ class TestCreatePlebTask(TestCase):
         self.assertFalse(isinstance(res.result, Exception))
 
     def test_create_pleb_task_success_pleb_exists(self):
-        pleb = Pleb(email='fakeemail@fake.com').save()
-        pleb.initial_verification_email_sent = True
-        pleb.save()
-        user = User.objects.create_user(
-            first_name='test', last_name='test',
-            email='fakeemail@fake.com', password='fakepass',
-            username='thisisafakeusername123')
-        task_data = {'user_instance': user}
+        user_instance = User.objects.get(username=self.username)
+        task_data = {'user_instance': user_instance}
 
         res = create_pleb_task.apply_async(kwargs=task_data)
         while not res.ready():
             time.sleep(1)
-
-        pleb.delete()
-        user.delete()
         self.assertFalse(isinstance(res.result, Exception))
 
 

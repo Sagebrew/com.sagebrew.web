@@ -93,7 +93,7 @@ def finalize_citizen_creation(user_instance=None):
         if task_list['send_email_task'] is not None:
             pleb.initial_verification_email_sent = True
             pleb.save()
-
+    print task_list
     task_ids = []
     for item in task_list:
         task_ids.append(task_list[item].task_id)

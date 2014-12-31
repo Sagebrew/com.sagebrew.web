@@ -133,4 +133,13 @@ class Education(StructuredNode):
     end_date = DateProperty()
     degree = StringProperty()
 
+    #relationships
     school = RelationshipTo('plebs.neo_models.School', 'SCHOOL')
+
+    @apply_defense
+    def get_dict(self):
+        return {"object_uuid": self.sb_id,
+                "start_date": unicode(self.start_date),
+                "end_date": unicode(self.end_date),
+                "school": self.school_s,
+                "degree": self.degree}

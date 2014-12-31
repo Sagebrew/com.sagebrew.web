@@ -61,6 +61,7 @@ def get_rep_info(request):
     if not res:
         policy_list = []
         experience_list = []
+        education_list = []
         spawn_task(build_rep_page_task, {"rep_id": rep_id})
         try:
             official = BaseOfficial.nodes.get(sb_id=rep_id)
@@ -68,23 +69,32 @@ def get_rep_info(request):
             return redirect('profile_page', request.user.username)
         policies = official.policy.all()
         experiences = official.experience.all()
+        education = official.education.all()
         for policy in policies:
             policy_list.append(policy.get_dict())
         for experience in experiences:
             experience_list.append(experience.get_dict())
+        for edu in education:
+            education_list.append(edu.get_dict())
         policy_html = render_to_string('policy_list.html',
                                        {'policies': policy_list})
         experience_html = render_to_string('experience_list.html',
                                            {'experiences': experience_list})
+        education_html = render_to_string('education_list.html',
+                                          {'educations': education_list})
     else:
         policies = res['policies']
         experiences = res['experiences']
+        education = res['education']
         policy_html = render_to_string('policy_list.html',
                                        {'policies': policies})
         experience_html = render_to_string('experience_list.html',
                                            {'experiences': experiences})
+        education_html = render_to_string('education_list.html',
+                                          {'educations': education})
     return Response({"policy_html": policy_html,
-                     "experience_html": experience_html}, 200)
+                     "experience_html": experience_html,
+                     "education_html": education_html}, 200)
 
 
 @api_view(['GET', 'POST'])

@@ -38,6 +38,7 @@ def add_object_to_search_index(index="full-search-base", object_type="",
     :param object_data:
     :return:
     """
+    print index, object_type, object_data, object_added
     if object_added is not None:
         if object_added.populated_es_index:
             return True
@@ -89,7 +90,10 @@ def save_search_id(search_data, object_type, object_data, object_added):
     if isinstance(sb_object, Exception) is True:
         raise save_search_id.retry(exc=sb_object, countdown=3,
                                                max_retries=None)
-    sb_object.search_id = search_data['_id']
+    if not sb_object:
+        object_added.search_id = search_data['_id']
+    else:
+        sb_object.search_id = search_data['_id']
     try:
         sb_object.save()
     except CypherException as e:

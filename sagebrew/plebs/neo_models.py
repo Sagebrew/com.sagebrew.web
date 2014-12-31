@@ -104,6 +104,7 @@ class Pleb(StructuredNode):
     populated_es_index = BooleanProperty(default=False)
     populated_personal_index = BooleanProperty(default=False)
     initial_verification_email_sent = BooleanProperty(default=False)
+    search_id = StringProperty()
 
     # Relationships
     voted_on = RelationshipTo('sb_base.neo_models.SBVoteableContent', 'VOTES')

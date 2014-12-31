@@ -76,7 +76,6 @@ def add_object_to_table(table_name, object_data):
     '''
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
-        print conn, "exception happens here"
         return conn
     try:
         table_name = get_table_name(table_name)
@@ -87,8 +86,6 @@ def add_object_to_table(table_name, object_data):
         table.put_item(data=object_data)
     except ConditionalCheckFailedException:
         try:
-            print 'here'
-            print object_data
             user_object = table.get_item(email=object_data['email'])
             return True
         except (ConditionalCheckFailedException, JSONResponseError) as e:

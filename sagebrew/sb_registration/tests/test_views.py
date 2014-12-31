@@ -428,7 +428,7 @@ class TestSignupAPIView(TestCase):
         self.store = SessionStore()
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("Tyler", "Wiersing", self.email, "testpassword")
+        res = create_user_util("test", "test", self.email, "testpassword")
         self.username = res["username"]
         self.assertNotEqual(res, False)
         wait_util(res)

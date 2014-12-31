@@ -91,6 +91,8 @@ def add_object_to_table(table_name, object_data):
         return e
     except ConditionalCheckFailedException:
         try:
+            print 'here'
+            print object_data
             user_object = table.get_item(email=object_data['email'])
             return True
         except (ConditionalCheckFailedException, JSONResponseError) as e:

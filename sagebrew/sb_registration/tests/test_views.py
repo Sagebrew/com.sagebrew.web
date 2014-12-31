@@ -491,53 +491,6 @@ class TestSignupAPIView(TestCase):
         self.assertEqual(loads(res.content)['detail'], 'Passwords do not match!')
         self.assertEqual(res.status_code, 401)
 
-    def test_signup_view_api_failure_incorrect_data_type_int(self):
-        request = self.factory.post('/registration/signup/', data=10010101010,
-                                    format='json')
-        s = SessionStore()
-        s.save()
-        request.session = s
-        res = signup_view_api(request)
-        res.render()
-
-        self.assertEqual(res.status_code, 400)
-
-    def test_signup_view_api_failure_incorrect_data_type_float(self):
-        request = self.factory.post('/registration/signup/', data=1.1010,
-                                    format='json')
-        s = SessionStore()
-        s.save()
-        request.session = s
-        res = signup_view_api(request)
-        res.render()
-
-        self.assertEqual(res.status_code, 400)
-
-    def test_signup_view_api_failure_incorrect_data_type_image(self):
-        with open(settings.PROJECT_DIR + "/sb_posts/" +
-                  "tests/images/test_image.jpg", "rb") as image_file:
-            image = b64encode(image_file.read())
-
-        request = self.factory.post('/registration/signup/', data=image,
-                                    format='json')
-        s = SessionStore()
-        s.save()
-        request.session = s
-        res = signup_view_api(request)
-        res.render()
-
-        self.assertEqual(res.status_code, 400)
-
-    def test_signup_view_api_failure_incorrect_data_type_string(self):
-        request = self.factory.post('/registration/signup/', data='teststring',
-                                    format='json')
-        s = SessionStore()
-        s.save()
-        request.session = s
-        res = signup_view_api(request)
-        res.render()
-
-        self.assertEqual(res.status_code, 400)
 
 
 class TestLoginView(TestCase):

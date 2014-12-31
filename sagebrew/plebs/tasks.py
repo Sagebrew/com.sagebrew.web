@@ -104,44 +104,39 @@ def finalize_citizen_creation(user_instance=None):
 
 @shared_task()
 def create_wall_task(user_instance=None):
+    if user_instance is None:
+        return None
     try:
-        if user_instance is None:
-            return None
+        pleb = Pleb.nodes.get(username=user_instance.username)
+    except (Pleb.DoesNotExist, DoesNotExist) as e:
+        raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
+    try:
+        wall_list = pleb.wall.all()
+    except(CypherException, IOError) as e:
+        raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
+    if len(wall_list) > 1:
+        return False
+    elif len(wall_list) == 1:
+        pass
+    else:
         try:
-            pleb = Pleb.nodes.get(username=user_instance.username)
-        except (Pleb.DoesNotExist, DoesNotExist) as e:
-            raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
-        try:
-            wall_list = pleb.wall.all()
+            wall = SBWall(wall_id=str(uuid1())).save()
+            wall.owner.connect(pleb)
+            pleb.wall.connect(wall)
         except(CypherException, IOError) as e:
-            raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
-        if len(wall_list) > 1:
-            return False
-        elif len(wall_list) == 1:
-            pass
-        else:
-            try:
-                wall = SBWall(wall_id=str(uuid1())).save()
-                wall.owner.connect(pleb)
-                pleb.wall.connect(wall)
-            except(CypherException, IOError) as e:
-                raise create_wall_task.retry(exc=e, countdown=3,
-                                             max_retries=None)
-        spawned = spawn_task(task_func=finalize_citizen_creation,
-                             task_param={"user_instance": user_instance})
-        if isinstance(spawned, Exception) is True:
-            raise create_wall_task.retry(exc=spawned, countdown=3,
+            raise create_wall_task.retry(exc=e, countdown=3,
                                          max_retries=None)
-        return spawned
-    except ValueError as e:
-        print e
-        print_exc()
-        return e
-        
+    spawned = spawn_task(task_func=finalize_citizen_creation,
+                         task_param={"user_instance": user_instance})
+    if isinstance(spawned, Exception) is True:
+        raise create_wall_task.retry(exc=spawned, countdown=3,
+                                     max_retries=None)
+    return spawned
 
 
 @shared_task()
 def create_pleb_task(user_instance=None):
+    print user_instance.username, "username here"
     if user_instance is None:
         return None
     try:

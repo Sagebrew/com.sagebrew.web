@@ -381,7 +381,6 @@ function submit_education() {
             }),
             dataType: "json",
             success: function(data){
-                console.log(data);
                 $('.add_education').removeAttr('disabled');
                 $('.add_education_wrapper').remove();
                 $("#education_list").append(data['rendered']);

@@ -77,7 +77,7 @@ def add_object_to_search_index(index="full-search-base", object_type="",
 @shared_task
 def save_search_id(search_data, object_type, object_data, object_added):
     from sb_search.tasks import update_user_indices
-    print search_data, object_data, object_type
+    print search_data, object_data, object_type, object_added
     task_data = {
         "doc_id": search_data['_id'],
         "doc_type": search_data['_type']

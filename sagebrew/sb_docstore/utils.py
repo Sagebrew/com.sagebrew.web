@@ -76,6 +76,7 @@ def add_object_to_table(table_name, object_data):
     '''
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
+        print conn, "exception happens here"
         return conn
     try:
         table_name = get_table_name(table_name)
@@ -84,11 +85,6 @@ def add_object_to_table(table_name, object_data):
         return e
     try:
         table.put_item(data=object_data)
-    except (ValidationException, JSONResponseError) as e:
-        # TODO if we receive these errors we probably want to do
-        # something other than just return e. Don't they mean the
-        # table doesn't exist?
-        return e
     except ConditionalCheckFailedException:
         try:
             print 'here'
@@ -97,6 +93,12 @@ def add_object_to_table(table_name, object_data):
             return True
         except (ConditionalCheckFailedException, JSONResponseError) as e:
             return True
+    except (ValidationException, JSONResponseError) as e:
+        # TODO if we receive these errors we probably want to do
+        # something other than just return e. Don't they mean the
+        # table doesn't exist?
+        return e
+
     return True
 
 

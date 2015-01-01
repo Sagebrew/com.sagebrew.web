@@ -136,7 +136,11 @@ def create_wall_task(user_instance=None):
 
 @shared_task()
 def create_pleb_task(user_instance=None):
-    print user_instance.username, "username here"
+    #We do a check to make sure that a user with the email given does not exist
+    #in the registration view, so if you are calling this function without
+    #using that view there is a potential UniqueProperty error which can get
+    #thrown.
+    print user_instance.email, user_instance.username
     if user_instance is None:
         return None
     try:

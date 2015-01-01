@@ -135,6 +135,7 @@ class TestCreateWallTask(TestCase):
 
 class TestFinalizeCitizenCreationTask(TestCase):
     def setUp(self):
+        self.email2 = 'suppressionlist@simulator.amazonses.com'
         self.email = "success@simulator.amazonses.com"
         res = create_user_util("test", "test", self.email, "testpassword")
         self.assertNotEqual(res, False)
@@ -143,20 +144,21 @@ class TestFinalizeCitizenCreationTask(TestCase):
         self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
         try:
-            pleb = Pleb.nodes.get(email='suppressionlist@simulator.amazonses.com')
+            pleb = Pleb.nodes.get(email=self.email2)
             pleb.delete()
-            user = User.objects.get(email='suppressionlist@simulator.amazonses.com')
+            user = User.objects.get(email=self.email2)
             user.delete()
         except (Pleb.DoesNotExist, User.DoesNotExist):
             pass
         self.fake_user = User.objects.create_user(
-            first_name='test', last_name='test',
+            first_name='fake', last_name='user',
             email='suppressionlist@simulator.amazonses.com', password='fakepass',
-            username='thisisafakeusername')
+            username='thisisafakeusername1')
         self.fake_user.save()
         self.fake_pleb = Pleb(email=self.fake_user.email,
                               first_name=self.fake_user.first_name,
-                              last_name=self.fake_user.last_name).save()
+                              last_name=self.fake_user.last_name,
+                              username=self.fake_user.username).save()
 
     def tearDown(self):
         self.fake_pleb.delete()
@@ -171,7 +173,7 @@ class TestFinalizeCitizenCreationTask(TestCase):
         while not res.ready():
             time.sleep(1)
 
-        self.assertFalse(isinstance(res.result, Exception))
+        self.assertNotIsInstance(res.result, Exception)
 
     def test_finalize_citizen_creation_email_sent(self):
         self.fake_pleb.initial_verification_email_sent = True
@@ -183,7 +185,7 @@ class TestFinalizeCitizenCreationTask(TestCase):
         while not res.ready():
             time.sleep(1)
 
-        self.assertFalse(isinstance(res.result, Exception))
+        self.assertNotIsInstance(res.result, Exception)
 
 
 class TestSendEmailTask(TestCase):

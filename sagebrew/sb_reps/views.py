@@ -204,7 +204,6 @@ def get_education_form(request):
                 return Response({"detail": "error"}, 400)
             rendered = render_to_string('education_detail.html',
                                         {'education': data})
-            print rendered
             return Response({"rendered": rendered}, 200)
     else:
         rendered = render_to_string('education_form.html',

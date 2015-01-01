@@ -1,5 +1,4 @@
 from uuid import uuid1
-from traceback import print_exc
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from celery import shared_task
 from django.conf import settings
@@ -95,7 +94,6 @@ def finalize_citizen_creation(user_instance=None):
         if task_list['send_email_task'] is not None:
             pleb.initial_verification_email_sent = True
             pleb.save()
-    print task_list
     task_ids = []
     for item in task_list:
         task_ids.append(task_list[item].task_id)
@@ -140,7 +138,6 @@ def create_pleb_task(user_instance=None):
     #in the registration view, so if you are calling this function without
     #using that view there is a potential UniqueProperty error which can get
     #thrown.
-    print user_instance.email, user_instance.username
     if user_instance is None:
         return None
     try:

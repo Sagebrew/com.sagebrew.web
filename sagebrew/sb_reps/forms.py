@@ -16,11 +16,6 @@ class ExperienceForm(forms.Form):
     location = forms.CharField(required=False)
     description = forms.CharField(widget=forms.Textarea, required=False)
 
-class GoalForm(forms.Form):
-    vote_req = forms.IntegerField()
-    money_req = forms.FloatField()
-    description = forms.CharField()
-
 class DonationForm(forms.Form):
     cost = forms.FloatField()
     description = forms.CharField()
@@ -30,3 +25,12 @@ class EducationForm(forms.Form):
     start_date = forms.DateField()
     end_date = forms.DateField()
     degree = forms.CharField()
+
+class BioForm(forms.Form):
+    bio = forms.CharField(widget=forms.Textarea)
+
+class GoalForm(forms.Form):
+    vote_req = forms.IntegerField()
+    money_req = forms.IntegerField()
+    initial = forms.BooleanField()
+    description = forms.CharField(widget=forms.Textarea)

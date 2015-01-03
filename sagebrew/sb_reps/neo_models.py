@@ -26,6 +26,7 @@ class BaseOfficial(Pleb):
     hearings = RelationshipTo('sb_reps.neo_models.Hearing', "ATTENDED")
     experience = RelationshipTo('sb_reps.neo_models.Experience', "EXPERIENCED")
     education = RelationshipTo('sb_reps.neo_models.Education', 'EDUCATION')
+    goal = RelationshipTo('sb_reps.neo_models.Goal', 'GOAL')
 
 class Bill(StructuredNode):
     bill_id = StringProperty(unique_index=True)
@@ -141,3 +142,11 @@ class Education(StructuredNode):
                 "end_date": unicode(self.end_date),
                 "school": self.school_s,
                 "degree": self.degree}
+
+class Goal(StructuredNode):
+    sb_id = StringProperty(unique_index=True)
+    initial = BooleanProperty(default=False)
+    description = StringProperty()
+    vote_req = IntegerProperty()
+    money_req = IntegerProperty()
+

@@ -4,6 +4,11 @@
 {% block content %}
     <div id="rep_id" data-rep_id="{{ rep_id }}" style="display: none"></div>
     <div>{{ full }}</div>
+    <div id="bio_added_form"></div>
+    <div id="bio_wrapper">{{ bio }}</div>
+    {% if request.user.username == username %}
+        <button class="btn btn-primary add_bio">Add Bio</button>
+    {% endif %}
     <div>Policy</div>
     <ul id="policy_list">
     </ul>
@@ -31,6 +36,12 @@
     {% if request.user.username == username %}
         <button class="btn btn-primary add_education">Add Education</button>
     {% endif %}
+    <div>Goals</div>
+    <ul id="goal_list"></ul>
+    <div id="goal_added_form"></div>
+    {% if request.user.username == username %}
+        <button class="btn btn-primary add_goal">Add Goal</button>
+    {% endif %}
 {% endblock %}
 
 {% block scripts %}
@@ -39,5 +50,7 @@
     <script src="{% static 'js/add_policy.js' %}"></script>
     <script src="{% static 'js/add_experience.js' %}"></script>
     <script src="{% static 'js/add_education.js' %}"></script>
+    <script src="{% static 'js/add_goal.js' %}"></script>
     <script src="{% static 'js/query_rep_info.js' %}"></script>
+    <script src="{% static 'js/add_bio.js' %}"></script>
 {% endblock scripts %}

@@ -1,6 +1,7 @@
 from celery import shared_task
 
-from .utils import save_policy, save_experience, save_education
+from .utils import (save_policy, save_experience, save_education, save_bio,
+                    save_goal)
 
 
 @shared_task()
@@ -32,4 +33,19 @@ def save_education_task(rep_id, school, start_date, end_date, degree, edu_id):
     if isinstance(education, Exception):
         raise save_education_task.retry(exc=education, countdown=3,
                                         max_retries=None)
+    return True
+
+@shared_task()
+def save_bio_task(rep_id, bio):
+    bio = save_bio(rep_id, bio)
+    if isinstance(bio, Exception):
+        raise save_bio_task.retry(exc=bio, countdown=3, max_retries=None)
+    return True
+
+@shared_task()
+def save_goal_task(rep_id, vote_req, money_req, initial, description, goal_id):
+    goal = save_goal(rep_id, vote_req, money_req, initial, description,
+                     goal_id)
+    if isinstance(goal, Exception):
+        raise save_goal_task.retry(exc=goal, countdown=3, max_retries=None)
     return True

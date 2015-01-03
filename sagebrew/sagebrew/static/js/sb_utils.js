@@ -388,6 +388,63 @@ function submit_education() {
         });
     });
 }
+
+function submit_bio() {
+    $(".submit_bio-action").click(function(event){
+        event.preventDefault();
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "POST",
+            url: "/reps/bio/",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                'rep_id': $("#rep_id").data('rep_id'),
+                'bio': $('#id_bio').val()
+            }),
+            dataType: "json",
+            success: function(data){
+                $('.add_bio_wrapper').remove();
+                $("#bio_wrapper").append(data['rendered']);
+            }
+        });
+    });
+}
+
+function submit_goal() {
+    $(".submit_goal-action").click(function(event){
+        event.preventDefault();
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "POST",
+            url: "/reps/goals/",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                'rep_id': $("#rep_id").data('rep_id'),
+                'initial': $('#id_initial').val(),
+                'money_req': $('#id_money_req').val(),
+                'vote_req': $("#id_vote_req").val(),
+                'description': $('#id_description').val()
+            }),
+            dataType: "json",
+            success: function(data){
+                $('.add_goal').removeAttr('disabled');
+                $('.add_goal_wrapper').remove();
+                $("#goal_list").append(data['rendered']);
+            }
+        });
+    });
+}
+
 function enable_post_functionality() {
     save_answer();
     flag_object();
@@ -404,6 +461,8 @@ function enable_post_functionality() {
     submit_experience();
     submit_policy();
     submit_education();
+    submit_bio();
+    submit_goal();
 }
 
 function getUrlParameter(sParam)

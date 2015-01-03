@@ -142,6 +142,7 @@ def update_doc(table, object_uuid, update_data, parent_object="", datetime=""):
     for item in update_data:
         res[item['update_key']] = item['update_value']
     res.partial_save()
+    print dict(res)
     return res
 
 
@@ -399,11 +400,13 @@ def build_rep_page(rep_id):
     except IndexError as e:
         return e
     rep_data = {
-        'object_uuid': rep.sb_id,
+        'object_uuid': str(rep.sb_id),
         'name': "%s %s"%(pleb.first_name, pleb.last_name),
         'full': '%s %s %s'%(rep.title, pleb.first_name, pleb.last_name),
-        'username': pleb.username, 'rep_id': rep.sb_id
+        'username': pleb.username, 'rep_id': rep.sb_id,
+        "bio": str(rep.bio)
     }
+    print rep_data
     rep_table.put_item(rep_data)
     for policy in policies:
         data = {

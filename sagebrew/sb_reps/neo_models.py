@@ -150,3 +150,10 @@ class Goal(StructuredNode):
     vote_req = IntegerProperty()
     money_req = IntegerProperty()
 
+    @apply_defense
+    def get_dict(self):
+        return {"object_uuid": self.sb_id,
+                "initial": self.initial,
+                "description": self.description,
+                "money_req": self.money_req,
+                "vote_req": self.vote_req}

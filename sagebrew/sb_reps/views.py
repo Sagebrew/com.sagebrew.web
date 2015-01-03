@@ -65,6 +65,7 @@ def get_rep_info(request):
         policy_list = []
         experience_list = []
         education_list = []
+        goal_list = []
         spawn_task(build_rep_page_task, {"rep_id": rep_id})
         try:
             official = BaseOfficial.nodes.get(sb_id=rep_id)
@@ -73,6 +74,9 @@ def get_rep_info(request):
         policies = official.policy.all()
         experiences = official.experience.all()
         education = official.education.all()
+        goals = official.goal.all()
+        for goal in goals:
+            goal_list.append(goal.get_dict())
         for policy in policies:
             policy_list.append(policy.get_dict())
         for experience in experiences:
@@ -85,19 +89,23 @@ def get_rep_info(request):
                                            {'experiences': experience_list})
         education_html = render_to_string('education_list.html',
                                           {'educations': education_list})
+        goals_html = render_to_string('goal_list.html', {'goals': goal_list})
     else:
         policies = res['policies']
         experiences = res['experiences']
         education = res['education']
+        goals = res['goals']
         policy_html = render_to_string('policy_list.html',
                                        {'policies': policies})
         experience_html = render_to_string('experience_list.html',
                                            {'experiences': experiences})
         education_html = render_to_string('education_list.html',
                                           {'educations': education})
+        goals_html = render_to_string('goal_list.html', {'goals': goals})
     return Response({"policy_html": policy_html,
                      "experience_html": experience_html,
-                     "education_html": education_html}, 200)
+                     "education_html": education_html,
+                     "goal_html": goals_html}, 200)
 
 
 @api_view(['GET', 'POST'])

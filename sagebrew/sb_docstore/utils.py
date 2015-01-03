@@ -406,7 +406,6 @@ def build_rep_page(rep_id):
         'username': pleb.username, 'rep_id': rep.sb_id,
         "bio": str(rep.bio)
     }
-    print rep_data
     rep_table.put_item(rep_data)
     for policy in policies:
         data = {
@@ -454,5 +453,6 @@ def get_rep_docs(rep_id, rep_only=False):
     policies = get_rep_info(rep_id, 'policies')
     experiences = get_rep_info(rep_id, 'experiences')
     education = get_rep_info(rep_id, 'education')
+    goals = get_rep_info(rep_id, 'goals')
     return {"rep": rep, "policies": policies, "experiences": experiences,
-            'education': education}
+            'education': education, 'goals': goals}

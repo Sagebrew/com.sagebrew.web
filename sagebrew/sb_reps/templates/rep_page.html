@@ -1,6 +1,10 @@
 {% extends "registration_base.html" %}
 {% load staticfiles %}
 {% block title %}Representative{% endblock %}
+{% block css %}
+    {{ block.super }}
+    <link href="{% static 'css/dist/dropzone.css' %}" rel="stylesheet">
+{% endblock %}
 {% block content %}
     <div id="dropzone_wrapper" class="dropzone"></div>
     <button class="btn btn-primary upload_images">Upload Images</button>
@@ -56,9 +60,7 @@
     <script src="{% static 'js/query_rep_info.js' %}"></script>
     <script src="{% static 'js/add_bio.js' %}"></script>
     <script src="{% static 'js/dropzone.js' %}"></script>
-    <script>
-    Dropzone.autoDiscover = false;
-    </script>
+
     <script src="{% static 'js/get_dropzone.js' %}"></script>
 
 {% endblock scripts %}

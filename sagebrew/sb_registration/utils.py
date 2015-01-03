@@ -345,7 +345,6 @@ def generate_username(first_name, last_name):
 @apply_defense
 def create_user_util(first_name, last_name, email, password):
     username = generate_username(first_name, last_name)
-    print user
     user = User.objects.create_user(first_name=first_name, last_name=last_name,
                                     email=email, password=password,
                                     username=username)

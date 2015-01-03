@@ -178,7 +178,7 @@ def validate_school(school_name):
     pass
 
 
-def upload_image(folder_name, file_uuid, file_location=None):
+def upload_image(folder_name, file_uuid, image_file):
     '''
     Creates a connection to the s3 service then uploads the file which was
     passed
@@ -188,21 +188,14 @@ def upload_image(folder_name, file_uuid, file_location=None):
     :param file_uuid:
     :return:
     '''
-    if file_location is None:
-        file_path = '%s%s.%s' % (settings.TEMP_FILES, file_uuid, 'jpg')
-    else:
-        file_path = '%s%s.%s' % (file_location, file_uuid, 'jpg')
-
     bucket = settings.AWS_STORAGE_BUCKET_NAME
     conn = connect_s3(settings.AWS_ACCESS_KEY_ID,
                       settings.AWS_SECRET_ACCESS_KEY)
     k = Key(conn.get_bucket(bucket))
     key_string = "%s/%s.%s" % (folder_name, file_uuid, "jpg")
     k.key = key_string
-    k.set_contents_from_filename(file_path)
-    image_uri = k.generate_url(expires_in=259200)
-    if os.environ.get("CIRCLECI", "false") == "false":
-        os.remove(file_path)
+    k.set_contents_from_file(image_file)
+    image_uri = k.generate_url(expires_in=0, query_auth=False)
     return image_uri
 
 
@@ -214,7 +207,7 @@ def generate_profile_pic_url(image_uuid):
     key_string = "%s/%s.%s" % (settings.AWS_PROFILE_PICTURE_FOLDER_NAME,
                                image_uuid, "jpeg")
     k.key = key_string
-    image_uri = k.generate_url(expires_in=259200)
+    image_uri = k.generate_url(expires_in=0, query_auth=False)
     return image_uri
 
 """
@@ -352,6 +345,7 @@ def generate_username(first_name, last_name):
 @apply_defense
 def create_user_util(first_name, last_name, email, password):
     username = generate_username(first_name, last_name)
+    print user
     user = User.objects.create_user(first_name=first_name, last_name=last_name,
                                     email=email, password=password,
                                     username=username)

@@ -8,8 +8,9 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.template.loader import get_template
 from django.template import Context
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from neomodel import (DoesNotExist, AttemptedCardinalityViolation,
                       CypherException)
 
@@ -221,13 +222,15 @@ def profile_information(request):
             except (Address.DoesNotExist, DoesNotExist):
                 address = Address(address_hash=address_hash,
                                   street=address_clean['primary_address'],
-                                  street_aditional=address_clean['street_additional'],
+                                  street_aditional=address_clean[
+                                      'street_additional'],
                                   city=address_clean['city'],
                                   state=address_clean['state'],
                                   postal_code=address_clean['postal_code'],
                                   latitude=address_clean['latitude'],
                                   longitude=address_clean['longitude'],
-                                  congressional_district=address_clean['congressional_district'])
+                                  congressional_district=address_clean[
+                                      'congressional_district'])
                 address.save()
             address.address.connect(citizen)
             try:
@@ -237,16 +240,19 @@ def profile_information(request):
             citizen.completed_profile_info = True
             citizen.save()
             return redirect('interests')
-        elif address_clean['valid']=="invalid" and address_clean['original_selected']:
+        elif address_clean['valid']=="invalid" and \
+                address_clean['original_selected']:
             address = Address(address_hash=str(uuid1()),
                               street=address_clean['primary_address'],
-                              street_additional=address_clean['street_additional'],
+                              street_additional=address_clean[
+                                  'street_additional'],
                               city=address_clean['city'],
                               state=address_clean['state'],
                               postal_code=address_clean['postal_code'],
                               latitude=address_clean['latitude'],
                               longitude=address_clean['longitude'],
-                              congressional_district=address_clean['congressional_district'],
+                              congressional_district=address_clean[
+                                  'congressional_district'],
                               validated = False)
             address.save()
             address.address.connect(citizen)
@@ -332,14 +338,10 @@ def profile_picture(request):
         profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
 
         if profile_picture_form.is_valid():
-            image_uuid = uuid1()
+            image_uuid = str(uuid1())
             data = request.FILES['picture']
-            temp_file = '%s%s.jpeg' % (settings.TEMP_FILES, image_uuid)
-            with open(temp_file, 'wb+') as destination:
-                for chunk in data.chunks():
-                    destination.write(chunk)
             citizen.profile_pic = upload_image(
-                settings.AWS_PROFILE_PICTURE_FOLDER_NAME, image_uuid)
+                settings.AWS_PROFILE_PICTURE_FOLDER_NAME, image_uuid, data)
             citizen.profile_pic_uuid = image_uuid
             citizen.save()
             return redirect('profile_page', pleb_username=citizen.username)
@@ -348,3 +350,8 @@ def profile_picture(request):
     return render(request, 'profile_picture.html',
                   {'profile_picture_form': profile_picture_form,
                    'pleb': citizen})
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def upload_image(request):
+    pass

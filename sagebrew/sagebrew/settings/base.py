@@ -77,7 +77,8 @@ STATICFILES_DIRS = (
     '%s/sb_votes/static/' % PROJECT_DIR,
     '%s/sb_edits/static/' % PROJECT_DIR,
     '%s/sb_wall/static/' % PROJECT_DIR,
-    '%s/sb_reps/static/' % PROJECT_DIR
+    '%s/sb_reps/static/' % PROJECT_DIR,
+    '%s/sb_uploads/static/' % PROJECT_DIR
 )
 
 # List of finder classes that know how to find static files in
@@ -135,6 +136,7 @@ TEMPLATE_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     '%s/sagebrew/templates/' % PROJECT_DIR,
+    '%s/sb_uploads/templates/' % PROJECT_DIR,
     '%s/sb_reps/templates/' % PROJECT_DIR,
     '%s/sb_registration/templates/' % PROJECT_DIR,
     '%s/sb_wall/templates/' % PROJECT_DIR,
@@ -186,6 +188,7 @@ INSTALLED_APPS = (
     'sb_search',
     'sb_tag',
     'sb_trends',
+    'sb_uploads',
     'sb_votes',
     'sb_wall',
     'elasticsearch',

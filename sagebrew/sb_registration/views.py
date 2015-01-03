@@ -351,7 +351,3 @@ def profile_picture(request):
                   {'profile_picture_form': profile_picture_form,
                    'pleb': citizen})
 
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def upload_image(request):
-    pass

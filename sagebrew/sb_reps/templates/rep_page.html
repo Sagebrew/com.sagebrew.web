@@ -2,6 +2,8 @@
 {% load staticfiles %}
 {% block title %}Representative{% endblock %}
 {% block content %}
+    <div id="dropzone_wrapper" class="dropzone"></div>
+    <button class="btn btn-primary upload_images">Upload Images</button>
     <div id="rep_id" data-rep_id="{{ rep_id }}" style="display: none"></div>
     <div>{{ full }}</div>
     <div id="bio_added_form"></div>
@@ -53,4 +55,10 @@
     <script src="{% static 'js/add_goal.js' %}"></script>
     <script src="{% static 'js/query_rep_info.js' %}"></script>
     <script src="{% static 'js/add_bio.js' %}"></script>
+    <script src="{% static 'js/dropzone.js' %}"></script>
+    <script>
+    Dropzone.autoDiscover = false;
+    </script>
+    <script src="{% static 'js/get_dropzone.js' %}"></script>
+
 {% endblock scripts %}

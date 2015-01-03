@@ -1,6 +1,7 @@
 $( document ).ready(function() {
-    $('.upload_images').on('click', function(){
-        $("div#dropzone").dropzone({url: "/upload/images"});
+    $("div#dropzone_wrapper").dropzone({
+        url: "/upload/images",
+        autoProcessQueue: false
     });
 });
 

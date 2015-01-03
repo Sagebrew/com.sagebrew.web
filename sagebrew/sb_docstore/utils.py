@@ -142,7 +142,6 @@ def update_doc(table, object_uuid, update_data, parent_object="", datetime=""):
     for item in update_data:
         res[item['update_key']] = item['update_value']
     res.partial_save()
-    print dict(res)
     return res
 
 

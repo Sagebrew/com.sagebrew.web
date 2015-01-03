@@ -271,10 +271,8 @@ def get_goal_form(request):
             res = add_object_to_table('goals', data)
             if isinstance(res, Exception):
                 return Response({"detail": "error"}, 400)
-            print data
             rendered = render_to_string('goal_detail.html',
                                         {'goal': data})
-            print rendered
             return Response({'rendered': rendered}, 200)
         else:
             return Response({"detail": goal_form.errors}, 400)

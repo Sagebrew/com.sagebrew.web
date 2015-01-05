@@ -1,3 +1,5 @@
+from uuid import uuid1
+from django.conf import settings
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -12,8 +14,11 @@ from .forms import ImageForm
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def upload_image_api(request):
-    picture_form = ImageForm(request.FILES or None)
     if request.method == 'POST':
-        if picture_form.is_valid():
-            print request.FILES
-            print request.DATA
+        uuid = str(uuid1())
+        file_data = dict(request.FILES)
+        for item in file_data.values():
+            res = upload_image(settings.AWS_UPLOAED_IMAGE_FOLDER_NAME,
+                               uuid, item[0])
+            print res
+    return Response({"detail": "success"}, 200)

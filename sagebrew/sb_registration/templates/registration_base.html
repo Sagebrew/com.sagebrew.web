@@ -2,8 +2,8 @@
 {% load staticfiles %}
 {% block css %}
     {{ block.super }}
-           <link rel="stylesheet/less" type="text/less" href="{% static 'less/sb_registration/sb_registration.less' %}"/>
-           <link rel="stylesheet/less" type="text/less" href="{% static 'less/sb_core/sb_base.less' %}"/>
+           <link rel="stylesheet" href="{% static 'less/sb_registration/sb_registration.css' %}"/>
+           <link rel="stylesheet" href="{% static 'less/sb_core/sb_base.css' %}"/>
 {% endblock css %}
 {% block navigation %}
     {% include "registration_nav.html" %}

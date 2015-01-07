@@ -16,6 +16,7 @@ class BaseOfficial(Pleb):
     title = ""
     sb_id = StringProperty(unique_index=True)
     bio = StringProperty()
+    stripe_id = StringProperty(unique_index=True)
 
     #relationships
     policy = RelationshipTo('sb_reps.neo_models.Policy', "HAS_POLICY")

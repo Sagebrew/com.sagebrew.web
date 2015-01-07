@@ -17,54 +17,35 @@ $( document ).ready(function() {
             password_too_small = true;
         }
     });
-	$("a.submit_signup").click(function(event){
-        if ($('.f_name').val() === ''){
-            alert('Please enter a first name')
-        }
-        else if ($('.l_name').val()===''){
-            alert('Please enter a last name')
-        }
-        else if ($('.email').val()===''){
-            alert('Please enter an email address')
-        }
-        else if (password_too_small){
-            alert('Passwords must be at least 6 characters long')
-        }
-        else if (password_too_large){
-            alert('Passwords must be no larger than 56 characters long')
-        }
-        else if (!password_match) {
-            alert('Passwords must match!')
-        }
-        else {
-            $.ajaxSetup({
-                beforeSend: function (xhr, settings) {
-                    ajax_security(xhr, settings)
+	$("button.submit_signup").click(function(event){
+        event.preventDefault();
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "POST",
+            url: "/registration/signup/",
+            data: JSON.stringify({
+                'first_name': $('.f_name').val(),
+                'last_name': $('.l_name').val(),
+                'email': $('.email').val(),
+                'password': $('.password').val(),
+                'password2': $('.password2').val()
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                if (data['detail'] === 'A user with this email already exists!'){
+                    alert(data['detail'])
                 }
-            });
-            $.ajax({
-                xhrFields: {withCredentials: true},
-                type: "POST",
-                url: "/registration/signup/",
-                data: JSON.stringify({
-                    'first_name': $('.f_name').val(),
-                    'last_name': $('.l_name').val(),
-                    'email': $('.email').val(),
-                    'password': $('.password').val(),
-                    'password2': $('.password2').val()
-                }),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (data) {
-                    if (data['detail'] === 'A user with this email already exists!'){
-                        alert(data['detail'])
-                    }
-                    else {
-                        window.location.href = "/registration/signup/confirm/";
-                    }
+                else {
+                    window.location.href = "/registration/signup/confirm/";
                 }
-            });
-        }
+            }
+        });
 	});
 });
 

@@ -18,7 +18,7 @@ def upload_image_api(request):
         uuid = str(uuid1())
         file_data = dict(request.FILES)
         for item in file_data.values():
-            res = upload_image(settings.AWS_UPLOAED_IMAGE_FOLDER_NAME,
+            res = upload_image(settings.AWS_UPLOAD_IMAGE_FOLDER_NAME,
                                uuid, item[0])
             print res
     return Response({"detail": "success"}, 200)

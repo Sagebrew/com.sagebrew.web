@@ -161,12 +161,14 @@ INSTALLED_APPS = (
     'djangosecure',
     'django_admin_bootstrapped',
     'django.contrib.admin',
+    'django_forms_bootstrap',
     'rest_framework',
     'admin_honeypot',
     'provider',
     'provider.oauth2',
     'storages',
     'localflavor',
+    'payments',
     'plebs',
     'api',
     'govtrack',
@@ -236,13 +238,15 @@ AWS_STORAGE_BUCKET_NAME = environ.get("AWS_S3_BUCKET")
 AWS_ACCESS_KEY_ID = environ.get("AWS_ACCESS_KEY_ID", "")
 AWS_SECRET_ACCESS_KEY = environ.get("AWS_SECRET_ACCESS_KEY", "")
 AWS_PROFILE_PICTURE_FOLDER_NAME = 'profile_pictures'
-AWS_UPLOAED_IMAGE_FOLDER_NAME = 'images'
+AWS_UPLOAD_IMAGE_FOLDER_NAME = 'media'
 SECRET_KEY = environ.get("APPLICATION_SECRET_KEY", "")
 BOMBERMAN_API_KEY = environ.get("BOMBERMAN_API_KEY", "")
 LOGENT_TOKEN = environ.get("LOGENT_TOKEN", "")
 ALCHEMY_API_KEY = environ.get("ALCHEMY_API_KEY", '')
 ADDRESS_VALIDATION_ID = environ.get("ADDRESS_VALIDATION_ID", '')
 ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN", '')
+STRIPE_PUBLIC_KEY = environ.get("STRIPE_PUBLIC_KEY", 'sk_test_jIytkvmYMCwIzTranx2om7bq')
+STRIPE_SECRET_KEY = environ.get("STRIPE_SECRET_KEY", 'pk_test_BvgnQJjwcednzpsx4Q4Uqv8p')
 
 DYNAMO_IP = environ.get("DYNAMO_IP", None)
 

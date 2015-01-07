@@ -351,3 +351,9 @@ def profile_picture(request):
                   {'profile_picture_form': profile_picture_form,
                    'pleb': citizen})
 
+@login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
+def rep_stripe_page(request):
+    pass
+

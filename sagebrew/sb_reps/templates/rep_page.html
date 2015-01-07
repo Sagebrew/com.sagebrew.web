@@ -71,11 +71,8 @@
             var myFormData = new FormData();
 
             $.each(files, function(i, j) {
-                console.log(j);
                 myFormData.append('myFile'+i, j);
             });
-            console.log(myFormData);
-            console.log(files);
             $.ajaxSetup({
                 beforeSend: function (xhr, settings) {
                     ajax_security(xhr, settings)

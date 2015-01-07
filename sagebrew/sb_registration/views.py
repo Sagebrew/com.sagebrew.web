@@ -41,6 +41,8 @@ def signup_view_api(request):
                 signup_form.cleaned_data['password2']:
             return Response({'detail': 'Passwords do not match!'},
                             status=401)
+        if signup_form.cleaned_data['email'][-4:] == '.gov':
+            return Response({"detail": "If you are using a .gov email address please follow this link, or use a personal email address."}, 200)
         try:
             User.objects.get(email=signup_form.cleaned_data['email'])
             return Response(

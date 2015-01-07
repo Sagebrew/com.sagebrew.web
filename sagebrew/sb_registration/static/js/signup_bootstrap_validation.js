@@ -51,8 +51,9 @@ $(document).ready(function(){
                         message: "Password is required"
                     },
                     stringLength: {
-                        max: 150,
-                        message: "Password must not exceed 150 characters"
+                        min: 8,
+                        max: 128,
+                        message: "Passwords must be between 8 and 128 characters long"
                     },
                     identical: {
                         field: 'password2',
@@ -67,8 +68,9 @@ $(document).ready(function(){
                         message: "Password 2 is required"
                     },
                     stringLength: {
-                        max: 200,
-                        message: "Email must not exceed 200 characters"
+                        min: 8,
+                        max: 128,
+                        message: "Passwords must be between 8 and 128 characters long"
                     },
                     identical: {
                         field: 'password1',

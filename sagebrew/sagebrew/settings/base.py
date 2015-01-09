@@ -290,6 +290,11 @@ BASE_TAGS = ["fiscal", "foreign_policy", "social", "education", "science",
              "environment", "drugs", "agriculture", "defense", "energy",
              "health", "space"]
 
+PAYMENT_PLANS = [
+    ("free", "Free"),
+    ("sub", "Subscription")
+]
+
 
 KNOWN_TYPES = [
     ("01bb301a-644f-11e4-9ad9-080027242395", "sb_posts.neo_models.SBPost"),

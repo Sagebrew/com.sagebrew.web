@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from localflavor.us.forms import  USZipCodeField, USStateField
 
 
@@ -240,6 +241,15 @@ class LoginForm(forms.Form):
     email = forms.EmailField(required=True)
     password = forms.CharField(required=True)
 
+class RepRegistrationForm(forms.Form):
+    ssn = forms.CharField()
+    bank_account = forms.CharField()
+    credit_card = forms.IntegerField(required=False)
+    office = forms.CharField()
+    district = forms.IntegerField()
+    seat_number = forms.IntegerField()
+    gov_email = forms.EmailField()
+    account_type = forms.ChoiceField(choices=settings.PAYMENT_PLANS)
 
 '''
 If you want to adjust field attributes programatically without overwritting

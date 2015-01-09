@@ -20,7 +20,7 @@ from plebs.tasks import send_email_task
 from plebs.neo_models import Pleb, Address
 
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
-                    ProfilePictureForm, SignupForm,
+                    ProfilePictureForm, SignupForm, RepRegistrationForm,
                     LoginForm)
 from .utils import (upload_image,
                     create_address_long_hash, verify_completed_registration,
@@ -357,5 +357,5 @@ def profile_picture(request):
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def rep_stripe_page(request):
-    pass
+    return render(request, 'registration_rep.html')
 

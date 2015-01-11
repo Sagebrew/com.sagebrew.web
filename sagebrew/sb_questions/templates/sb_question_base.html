@@ -40,12 +40,7 @@
                         </div>
                         {% block questions %}
                             <div id="question_wrapper">
-                            {% comment %}
-                                {% include "question_minimal_detail.html" %}
-                                {% include "question_minimal_detail.html" %}
-                                {% include "question_minimal_detail.html" %}
-                            {% endcomment %}
-                                {% include "question_form.html" %}
+
                             </div>
                         {% endblock %}
                         {% comment %}
@@ -66,8 +61,12 @@
         </div>
         <div class="col-lg-3">
             <div class="sb_questions_side_container">
-            {% comment %}
-                {% block filter_options %}
+
+            </div>
+        </div>
+    </div>
+
+    {% block filter_options %}
                     <a class="btn btn-sm btn-primary query_questions-action"
                        data-sort_by="most_recent"
                        data-current_pleb="{{ email }}">Most Recent</a>
@@ -76,10 +75,6 @@
                        data-current_pleb="{{ email }}">Least Recent</a>
                 {% endblock %}
                 <img src="https://logs-01.loggly.com/inputs/4befe913-b753-4823-a844-193a41779000.gif?source=pixel&data=hello" />
-            {% endcomment %}
-            </div>
-        </div>
-    </div>
 {% endblock %}
 
 {% block scripts %}

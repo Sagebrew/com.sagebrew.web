@@ -204,8 +204,9 @@ def profile_information(request):
         citizen = Pleb.nodes.get(email=request.user.email)
     except (Pleb.DoesNotExist, DoesNotExist):
         return redirect("404_Error")
-    if citizen.completed_profile_info:
-        return redirect("interests")
+    # TODO Add this
+    #if citizen.completed_profile_info:
+    #    return redirect("interests")
     if profile_information_form.is_valid():
         if calc_age(profile_information_form.cleaned_data['date_of_birth'])<13:
             return redirect("age_restriction_13")

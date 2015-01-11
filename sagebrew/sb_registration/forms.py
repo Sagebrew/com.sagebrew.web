@@ -134,10 +134,7 @@ class InterestForm(forms.Form):
 
 
 class ProfileInfoForm(forms.Form):
-    date_of_birth = forms.DateTimeField(
-        label="Birthday*",
-        required=True,
-    )
+
 
     home_town = forms.CharField(
         label="Hometown",
@@ -258,4 +255,9 @@ for field in self.fields:
                 self.fields[field].widget.attrs.update({'class':'has-popover',
                 'data-content':help_text, 'data-placement':'right',
                 'data-container':'body'})
+
+    date_of_birth = forms.DateTimeField(
+        label="Birthday*",
+        required=True,
+    )
 '''

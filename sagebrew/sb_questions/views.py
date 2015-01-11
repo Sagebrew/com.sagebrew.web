@@ -71,7 +71,7 @@ def question_detail_page(request, question_uuid=str(uuid1())):
     #headers = {'content-type': 'application/json'}
     #question = post_to_api(reverse('get_questions'), data=post_data,
     #                       headers=headers)
-    return render(request, 'question_detail.html', post_data)
+    return render(request, 'question_minimal_detail.html', post_data)
 
 
 @api_view(['POST'])

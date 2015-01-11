@@ -40,11 +40,15 @@
                         </div>
                         {% block questions %}
                             <div id="question_wrapper">
-                            {% include "question_detail.html" %}
-                            {% include "question_detail.html" %}
-                            {% include "question_detail.html" %}
+                            {% comment %}
+                                {% include "question_minimal_detail.html" %}
+                                {% include "question_minimal_detail.html" %}
+                                {% include "question_minimal_detail.html" %}
+                            {% endcomment %}
+                                {% include "question_form.html" %}
                             </div>
                         {% endblock %}
+                        {% comment %}
                         <div class="pagination">
                           <ul>
                             <li class="previous">
@@ -55,6 +59,7 @@
                             </li>
                           </ul>
                         </div>
+                        {% endcomment %}
                     </div>
                 </div>
             </div>

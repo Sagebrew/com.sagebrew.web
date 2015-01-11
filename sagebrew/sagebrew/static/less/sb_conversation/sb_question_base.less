@@ -1,4 +1,12 @@
 @import "../sb_core/sb_core_variables";
+@import "../../flat-ui/less/mixins/pagination";
+#single_question_wrapper{
+  padding-bottom: 5px;
+  padding-top: 15px;
+}
+#sb_pagination_arrow{
+  background-color: transparent;
+}
 .sb_questions_list_container{
     margin-top: 30px;
     background-color: @sb_green_wall;
@@ -32,7 +40,7 @@
 .sb_question_inner_border{
     border-style: solid;
     border-width: 1px;
-    border-color: @sb_grey_dark;
+    border-color: @sb_grey;
     border-radius: 5px;
     min-height: 550px;
     padding: @sb_common_padding_positive;
@@ -61,19 +69,27 @@
 }
 .sb_questions_cat_container{
     border: solid;
-    border-color: @sb_grey_dark;
+    border-color: @sb_grey;
     border-width: 1px;
     border-radius: @sb_common_radius;
     height: 100px;
     margin-bottom: @sb_common_margin_positive;
 }
-.sb_question_input{
-    margin-bottom: 30px;
+#sb_search_input{
+    width: 400px;
+    border-color: @sb_grey;
+    border-radius: 5px 0 0 5px;
+    border-width: 1px;
+    border-right: none;
+    margin-right: -8px;
 }
-
-
-
-
+#sb_conv_input{
+    width: 400px;
+    border-color: @sb_grey;
+    border-radius: 5px;
+    border-width: 1px;
+    margin-right: @sb_common_margin_negative;
+}
 .sb_question_block{
     background-color: @sb_green_extra_light;
     border-style: solid;
@@ -90,21 +106,31 @@
     padding-left: @sb_common_padding_positive;
 }
 .sb_question_block_content{
-    font-size: @sb_header_text;
+    font-size: @sb_body_text;
     padding-left: @sb_common_padding_positive;
     padding-right: @sb_common_padding_positive;
 }
 .sb_question_block_data{
     font-size: 11px;
-line-height: 10px;
+    line-height: 10px;
+    padding-top: 15px;
 }
-.sb_btn_question_vote{
+.sb_btn_question_vote_up{
     background-color: transparent;
     color: @sb_grey;
     padding: 0;
       &:active,
       &:hover{
           color:@sb_green;
+      }
+}
+.sb_btn_question_vote_down{
+    background-color: transparent;
+    color: @sb_grey;
+    padding: 0;
+      &:active,
+      &:hover{
+          color: @sb_violet;
       }
 }
 .sb_question_vote_icon{

@@ -14,9 +14,6 @@
         <link rel="stylesheet" href="{% static 'less/plebs/sb_post_enter.css' %}"/>
         <link rel="stylesheet" href="{% static 'less/plebs/sb_comment.css' %}"/>
 {%  endblock css %}
-{% block navigation %}
-    {% include "navigation/sb_navbar.html" %}
-{% endblock %}
 {% block content %}
 {% if is_owner == True or is_friend == True %}
        <div id="pleb_info"

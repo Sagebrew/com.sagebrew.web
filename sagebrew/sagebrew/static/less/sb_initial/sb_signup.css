@@ -16,7 +16,7 @@
 .sb_btn_signup {
   margin-bottom: 65px;
   width: 348px;
-  height: 35px;
+  height: 30px;
   line-height: 12px;
 }
 .sb_btn_signup:active {
@@ -31,7 +31,7 @@
 }
 .sb_signup_input {
   width: 348px;
-  height: 35px;
+  height: 30px;
   margin-bottom: 15px;
   border-width: 1px;
 }
@@ -59,7 +59,7 @@ input.sb_date_picker {
   color: #b7bfbb;
 }
 button.btn.sb_date_picker_btn {
-  height: 35px;
+  height: 30px;
   border-width: 1px;
 }
 .ui-datepicker .ui-datepicker-header {

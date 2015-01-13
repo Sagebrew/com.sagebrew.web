@@ -10,7 +10,6 @@ RUN mkdir /home/apps/logs
 RUN git clone -b {{CIRCLE_BRANCH}} git@github.com:{{PROJECT_USERNAME}}/{{PROJECT_REPONAME}}.git /home/apps/{{PROJECT_NAME}}/
 RUN chown -R {{APP_USER}}:{{APP_USER}} /home/apps/
 WORKDIR /home/apps/{{PROJECT_REPONAME}}/
-RUN git submodule sync
 RUN git submodule update --init
 RUN mkdir /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/
 

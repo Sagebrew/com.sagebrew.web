@@ -40,6 +40,15 @@ $(document).ready(function(){
                     }
                 }
             },
+            cvv: {
+                groupd: 'col-sm-8',
+                validators: {
+                    cvv: {
+                        creditCardField: "credit_card",
+                        message: "The CVV number is not valid"
+                    }
+                }
+            },
             office: {
                 group: 'col-sm-8',
                 validators: {
@@ -87,4 +96,36 @@ $(document).ready(function(){
             }
         }
     })
+    .on('success.field.fv', function(e, data) {
+        if (data.field === 'cc') {
+            var $icon = data.element.data('fv.icon');
+            switch (data.result.type) {
+                case 'AMERICAN_EXPRESS':
+                    $icon.removeClass().addClass('form-control-feedback fa fa-cc-amex');
+                    break;
+
+                case 'DISCOVER':
+                    $icon.removeClass().addClass('form-control-feedback fa fa-cc-discover');
+                    break;
+
+                case 'MASTERCARD':
+                    $icon.removeClass().addClass('form-control-feedback fa fa-cc-mastercard');
+                    break;
+
+                case 'VISA':
+                    $icon.removeClass().addClass('form-control-feedback fa fa-cc-visa');
+                    break;
+
+                default:
+                    $icon.removeClass().addClass('form-control-feedback fa fa-credit-card');
+                    break;
+            }
+        }
+    })
+    .on('err.field.fv', function(e, data) {
+        if (data.field === 'cc') {
+            var $icon = data.element.data('fv.icon');
+            $icon.removeClass().addClass('form-control-feedback fa fa-times');
+        }
+    });
 });

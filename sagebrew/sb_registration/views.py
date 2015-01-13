@@ -357,6 +357,11 @@ def profile_picture(request):
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
-def rep_stripe_page(request):
+def rep_reg_page(request):
     return render(request, 'registration_rep.html')
+
+@api_view
+@permission_classes((IsAuthenticated,))
+def process_rep_stripe():
+    pass
 

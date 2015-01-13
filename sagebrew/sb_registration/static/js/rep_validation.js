@@ -97,7 +97,7 @@ $(document).ready(function(){
         }
     })
     .on('success.field.fv', function(e, data) {
-        if (data.field === 'cc') {
+        if (data.field === 'credit_card') {
             var $icon = data.element.data('fv.icon');
             switch (data.result.type) {
                 case 'AMERICAN_EXPRESS':
@@ -123,7 +123,7 @@ $(document).ready(function(){
         }
     })
     .on('err.field.fv', function(e, data) {
-        if (data.field === 'cc') {
+        if (data.field === 'credit_card') {
             var $icon = data.element.data('fv.icon');
             $icon.removeClass().addClass('form-control-feedback fa fa-times');
         }

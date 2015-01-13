@@ -1,0 +1,233 @@
+.checkbox {
+  background-color: #000000;
+}
+.sb_all_check {
+  color: #34495e;
+  font-weight: bolder;
+}
+.select2-search-field {
+  height: 40px;
+}
+#s2id_autogen1 {
+  height: 40px;
+}
+.sb_reg_input {
+  border-width: 1px;
+  height: 30px;
+}
+.sb_date_input {
+  height: 30px;
+  border-radius: 5px;
+}
+.sb_row_main {
+  width: 80%;
+  margin-top: 100px;
+  margin-bottom: 60px;
+  margin-left: 10%;
+  margin-right: 10%;
+  border-radius: 10px;
+  background-color: #eaf0e8;
+  position: inherit;
+  float: left;
+}
+.sb_registration_title {
+  color: #34495e;
+  font-size: 2em;
+  margin-left: 60px;
+}
+.sb_registration_title_2 {
+  color: #34495e;
+  font-size: 2em;
+}
+.sb_registration_title_3 {
+  color: #34495e;
+  font-size: 2em;
+  padding-left: 15px;
+  margin-bottom: 30px;
+}
+.sb_registration_label {
+  margin-left: 5em;
+  margin-right: -15px;
+  font-weight: bold;
+  color: #34495e;
+  font-size: 21px;
+}
+.sb_registration_label_2 {
+  margin-left: 4em;
+  font-weight: bold;
+  color: #34495e;
+  font-size: 21px;
+}
+.sb_registration_label_xs {
+  margin-left: 1em;
+  margin-top: 10px;
+  color: #34495e;
+  font-size: 21px;
+}
+#sb_picture_header {
+  color: #eaf0e8;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.sb_profile_info_1 {
+  color: #5c6367;
+  font-size: 2em;
+  margin-left: 8%;
+  margin-bottom: 30px;
+}
+.sb_profile_info_2 {
+  color: #5c6367;
+  font-size: 2em;
+  margin-bottom: 30px;
+}
+.sb_registration_steps {
+  color: #5c6367;
+  font-size: 1em;
+  margin-right: 0;
+  margin-top: 45px;
+  margin-left: 1%;
+  padding-right: 30px;
+}
+.sb_content_box {
+  background-color: #26424a;
+  color: #eaf0e8;
+  font-weight: bolder;
+  border-radius: 10px;
+  position: absolute;
+  float: right;
+  width: 200px;
+  height: 200px;
+  margin-left: 60%;
+  margin-bottom: 80px;
+}
+.sb_content_box_2 {
+  background-color: #26424a;
+  color: #eaf0e8;
+  font-weight: bolder;
+  border-radius: 10px;
+  position: absolute;
+  float: right;
+  width: 200px;
+  height: 200px;
+  margin-left: 60%;
+  margin-bottom: 80px;
+  margin-right: -215px;
+  margin-top: 365px;
+}
+.sb_content_box_3 {
+  margin-left: 800px;
+  margin-top: 170px;
+  margin-bottom: 200px;
+}
+.sb_content {
+  margin-top: 30px;
+  width: 190px;
+  height: 190px;
+  padding-top: 30px;
+  padding-bottom: 20px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-left-width: 5px;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.sb_row_continue {
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-bottom: 30px;
+}
+.sb_row_continue_2 {
+  margin-top: 15px;
+  margin-bottom: 30px;
+}
+.sb_address_info {
+  margin-top: 10px;
+}
+#sb_interests_form {
+  margin-right: 10%;
+}
+.sb_all_check {
+  padding-left: 15px;
+  padding-right: 15px;
+  margin-bottom: 20px;
+}
+.sb_interests {
+  padding-left: 8%;
+}
+.second-icon {
+  background-color: #1ba39c;
+}
+.sb_interests_search {
+  margin-left: 15px;
+  margin-righ: 15px;
+}
+#sb_content_block {
+  background-color: #26424a;
+}
+/* profile picture selection */
+.sb_picture {
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 30px;
+}
+.sb_select_image {
+  margin-bottom: 15px;
+  margin-left: 15px;
+  margin-right: 15px;
+}
+.sb_photo_thumbnail {
+  border-color: #ffffff;
+  background-color: #ffffff;
+  padding: 0;
+  max-height: 300px;
+  border-radius: 6px;
+  margin-left: 5%;
+  margin-right: 5%;
+}
+.sb_modal_close {
+  text-emphasis-color: #eaf0e8;
+  margin-left: 98%;
+  padding-right: 15px;
+}
+#id_state {
+  height: 100%;
+}
+.sb_btn_skip {
+  background-color: #1ba39c;
+  width: 150px;
+  height: 100%;
+  margin-bottom: 160px;
+}
+.sb_photo_modal {
+  margin-top: 2%;
+  margin-left: 17%;
+  margin-right: 17%;
+  margin-bottom: 2%;
+  border-radius: 5px;
+}
+.sb_modal_body {
+  background-color: #eaf0e8;
+  border-radius: 0 0 5px 5px ;
+}
+.sb_modal_header {
+  background-color: #eaf0e8;
+  border-bottom-width: 5pt;
+  border-bottom-color: #838c92;
+}
+.sb_btn_photo_modal_select {
+  width: 150px;
+  background-color: #1ba39c;
+}
+.sb_btn_photo_modal_remove {
+  width: 150px;
+  background-color: #1ba39c;
+}
+.sb_btn_photo_modal_change {
+  width: 150px;
+  background-color: #1ba39c;
+}
+.sb_btn_photo_modal_save {
+  width: 150px;
+  background-color: #1ba39c;
+}

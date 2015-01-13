@@ -5,18 +5,15 @@
     {{ block.super }}
         <link href="{% static 'css/sb_wall.css' %}" rel="stylesheet"/>
         <link href="{% static 'css/sb_profile_reps.css' %}" rel="stylesheet"/>
-        <link rel="stylesheet/less" type="text/less" href="{% static 'less/sb_core/sb_core_variables.less' %}"/>
-        <link rel="stylesheet/less" type="text/less" href="{% static 'less/plebs/sb_post_base.less' %}"/>
-        <link rel="stylesheet/less" type="text/less" href="{% static 'less/plebs/sb_profile.less' %}"/>
-        <link rel="stylesheet/less" type="text/less" href="{% static 'less/plebs/sb_profile_rep_stats.less' %}"/>
-        <link rel="stylesheet/less" type="text/less" href="{% static 'less/plebs/sb_profile_reps.less' %}"/>
-        <link rel="stylesheet/less" type="text/less" href="{% static 'less/plebs/sb_user_about.less' %}"/>
-        <link rel="stylesheet/less" type="text/less" href="{% static 'less/plebs/sb_post_enter.less' %}"/>
-        <link rel="stylesheet/less" type="text/less" href="{% static 'less/plebs/sb_comment.less' %}"/>
+        <link rel="stylesheet" href="{% static 'less/sb_core/sb_core_variables.css' %}"/>
+        <link rel="stylesheet" href="{% static 'less/plebs/sb_post_base.css' %}"/>
+        <link rel="stylesheet" href="{% static 'less/plebs/sb_profile.css' %}"/>
+        <link rel="stylesheet" href="{% static 'less/plebs/sb_profile_rep_stats.css' %}"/>
+        <link rel="stylesheet" href="{% static 'less/plebs/sb_profile_reps.css' %}"/>
+        <link rel="stylesheet" href="{% static 'less/plebs/sb_user_about.css' %}"/>
+        <link rel="stylesheet" href="{% static 'less/plebs/sb_post_enter.css' %}"/>
+        <link rel="stylesheet" href="{% static 'less/plebs/sb_comment.css' %}"/>
 {%  endblock css %}
-{% block navigation %}
-    {% include "navigation/logged_in_navigation.html" %}
-{% endblock %}
 {% block content %}
 {% if is_owner == True or is_friend == True %}
        <div id="pleb_info"

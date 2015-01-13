@@ -1,0 +1,115 @@
+.sb_post_content {
+  margin-bottom: 30px;
+  background-color: #ffffff;
+  border-style: solid;
+  border-width: 1px 1px 0px 1px;
+  border-color: #b7bfbb;
+  border-radius: 5px;
+}
+.sb_post_body {
+  font-size: 12pt;
+  padding: 15px;
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-bottom: 15px;
+  hanging-punctuation: force-end;
+  height-max: 600px;
+  height: auto;
+  width: auto;
+  border-radius: 5px;
+  background-color: #ffffff;
+  border-style: solid;
+  border-width: 1px;
+  border--color: #d0e9c6;
+}
+.sb_post_header {
+  width: auto;
+  background-color: #ffffff;
+  border-radius: 5px 5px 0 0;
+  padding: 15px;
+}
+.sb_post_header_info {
+  font-size: 15px;
+  margin-top: -12px;
+  margin-left: 0;
+  padding-left: 5px;
+}
+.sb_post_stats {
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 15px;
+  padding-right: 15px;
+  background-color: #ffffff;
+  border-style: solid;
+  border-width: 1px 0 0 0;
+  border-color: #b7bfbb;
+  border-radius: 0 0 0 0;
+}
+.sb_post_comments {
+  border-style: solid;
+  border-width: 1px 0 0 0;
+  border-color: #b7bfbb;
+  padding-bottom: 5px;
+}
+#sb_text {
+  height: 30px;
+}
+.sb_btn_profile_link {
+  color: #1ba39c;
+  padding-left: 0;
+  padding-bottom: 15px;
+}
+.sb_btn_profile_link:hover {
+  color: #1ba39c;
+  text-decoration: underline;
+  text-decoration-color: #1ba39c;
+}
+.sb_post_data {
+  margin-top: -15px;
+  font-size: 11px;
+  line-height: 10px;
+}
+.sb_icon {
+  font-size: 21px;
+}
+.sb_dropdown_icon {
+  color: #b7bfbb;
+}
+.sb_icon_down_vote,
+.sb_icon_up_vote {
+  font-size: 15px;
+}
+.sb_vote_count {
+  color: #838c92;
+  width: auto;
+  height: 25px;
+  padding: 5px 15px 5px 0px;
+  font-size: 15px;
+  background-color: transparent;
+}
+.sb_btn_vote_icon {
+  color: #b7bfbb;
+  padding: 3px 3px 3px 3px;
+  hieght: 30px;
+  width: 30px;
+  border: solid;
+  border-width: 1px;
+  border-color: transparent;
+  border-radius: 5px;
+}
+.sb_btn_vote_icon:hover {
+  color: #1ba39c;
+  border-color: #b7bfbb;
+}
+.sb_post_btn_dropdown {
+  background: transparent;
+  margin-top: -15px;
+}
+.sb_post_dropdown_menu {
+  text-align: left;
+  padding-left: 20px;
+}
+#sb_vote_style {
+  color: #838c92;
+  font-size: 17px;
+}

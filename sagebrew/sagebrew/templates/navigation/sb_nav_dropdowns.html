@@ -1,42 +1,3 @@
-{% load staticfiles %}
-{% block css %}
-    {{ super.block }}
-    <link rel="stylesheet" href="{% static 'less/sb_navigation/sb_nav_elements.css' %}"/>
-{%  endblock css %}
-<div class="col-lg-2 col-md-2 col-sm-6 col-xs-6">
-    <div class="sb_nav_head navbar-header">
-        {% comment %}
-        TODO is the two Sagebrew h1s necessary? Can we combine them?
-        {% endcomment %}
-        <h1 id="sb_nav_logo"
-            class="hidden-xs">Sagebrew</h1>
-        <h1 id="sb_logo_xs"
-            class="hidden-lg hidden-md hidden-sm">Sagebrew</h1>
-    </div>
-</div>
-<div class="col-lg-5 col-md-6 hidden-sm hidden-xs">
-    <form class="sb_nav_search navbar-form"
-          role="search">
-        <div class="sb_search_input_div input-group">
-            <input type="text"
-                   id="sb_search_input"
-                   class="form-control"
-                   placeholder="Search">
-        </div>
-        <button type="submit"
-             id="sb_nav_spy"
-             class="sb_search_btn btn"><span
-             class="fui-search"></span>
-        </button>
-    </form>
-</div>
-<div class="col-lg-1 col-md-0 hidden-sm hidden-xs">
-</div>
-<div class="sb_nav_user"
-     align="right">
-    <a href="{% url 'profile_page' request.user.email %}"
-       id="sb_nav_user">{{ request.user.first_name }} {{ request.user.last_name }}</a>
-</div>
 {% if request.user.is_authenticated == True %}
     {% block notifications %}
     <div class="sb_nav_btn_row col-lg-2 col-md-2 hidden-sm hidden-xs">
@@ -113,6 +74,3 @@
         </div>
     </div>
 {% endif %}
-{% block friends %}
-    {% include "friends_list.html" %}
-{% endblock %}

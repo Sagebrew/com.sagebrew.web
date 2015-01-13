@@ -9,7 +9,7 @@ $(document).ready(function(){
         submitButtons: 'button.submit_signup',
         fields: {
             first_name: {
-                group: '.col-sm-4',
+                group: 'fname',
                 validators: {
                     notEmpty: {
                         message: "First Name is Required"
@@ -21,7 +21,7 @@ $(document).ready(function(){
                 }
             },
             last_name: {
-                group: '.col-sm-4',
+                group: 'lname',
                 validators: {
                     notEmpty: {
                         message: "Last Name is Required"
@@ -33,7 +33,7 @@ $(document).ready(function(){
                 }
             },
             email: {
-                group: '.col-sm-8',
+                group: 'email_class',
                 validators: {
                     notEmpty: {
                         message: "Email is required"
@@ -45,7 +45,7 @@ $(document).ready(function(){
                 }
             },
             password1: {
-                group: '.col-sm-8',
+                group: 'p1',
                 validators: {
                     notEmpty: {
                         message: "Password is required"
@@ -62,7 +62,7 @@ $(document).ready(function(){
                 }
             },
             password2: {
-                group: '.col-sm-8',
+                group: 'p2',
                 validators: {
                     notEmpty: {
                         message: "Password 2 is required"
@@ -79,7 +79,7 @@ $(document).ready(function(){
                 }
             },
             birthday: {
-                group: '.col-sm-8',
+                group: 'bday',
                 validators: {
                     notEmpty: {
                         message: "Birthdate is required"

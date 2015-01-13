@@ -3,11 +3,8 @@
 {% load staticfiles %}
 {% block css %}
     {{ block.super }}
-        <link href="{% static 'css/sb_question_base.css' %}" rel="stylesheet"/>
+]        <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_base.css' %}"/>
 {%  endblock css %}
-{% block navigation %}
-    {% include "navigation/logged_in_navigation.html" %}
-{% endblock %}
 
 {% block content %}
     <div class="sb_questions_content">
@@ -28,28 +25,48 @@
                     <div class="sb_questions_cat_container">
                     </div>
                     <div class="sb_question_inner_border">
-                    <div class="row">
-                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-lg-offset-6">
-                            <textarea class="sb_question_input sb_post form-control"
-                                  id="post_input_id"
-                                  name="post_input"
-                                  placeholder="Spark a conversation . . ."></textarea>
+                        <div class="row">
+                            <div class="col-lg-12" align="right">
+                                <form class="navbar-form"
+                                      role="search">
+                                    <div class="input-group">
+                                        <input type="text"
+                                               id="sb_conv_input"
+                                               class="form-control"
+                                               placeholder="Spark a conversation....">
+                                    </div>
+                                </form>
+                            </div>
                         </div>
-                    </div>
                         {% block questions %}
                             <div id="question_wrapper">
-                            {% include "question_detail.html" %}
+
                             </div>
                         {% endblock %}
-                        <img src="https://logs-01.loggly.com/inputs/4befe913-b753-4823-a844-193a41779000.gif?source=pixel&data=hello" />
+                        {% comment %}
+                        <div class="pagination">
+                          <ul>
+                            <li class="previous">
+                              <a href="#" class="fui-arrow-left"></a>
+                            </li>
+                            <li class="next">
+                              <a href="#" class="fui-arrow-right" id="sb_pagination_arrow "></a>
+                            </li>
+                          </ul>
+                        </div>
+                        {% endcomment %}
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-lg-3">
             <div class="sb_questions_side_container">
-            {% comment %}
-                {% block filter_options %}
+
+            </div>
+        </div>
+    </div>
+
+    {% block filter_options %}
                     <a class="btn btn-sm btn-primary query_questions-action"
                        data-sort_by="most_recent"
                        data-current_pleb="{{ email }}">Most Recent</a>
@@ -57,10 +74,7 @@
                        data-sort_by="least_recent"
                        data-current_pleb="{{ email }}">Least Recent</a>
                 {% endblock %}
-            {% endcomment %}
-            </div>
-        </div>
-    </div>
+                <img src="https://logs-01.loggly.com/inputs/4befe913-b753-4823-a844-193a41779000.gif?source=pixel&data=hello" />
 {% endblock %}
 
 {% block scripts %}

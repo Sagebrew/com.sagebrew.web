@@ -1,0 +1,74 @@
+{% if request.user.is_authenticated == True %}
+{% block notifications %}
+    <div class="sb_nav_btn_group btn-group">
+        <div class="btn-group">
+            <a class="sb_btn_dropdown show_friend_request-action btn dropdown-toggle pull-right"
+                    type="button"
+                    id="sb_friend"
+                    data-toggle="dropdown"
+                    data-email="{{ request.user.email }}">
+            <span class="sb_btn_icon fui-user"></span>
+            </a>
+            <ul class="sb_nav_dropdown_container dropdown-menu dropdown-menu-right"
+                role="menu"
+                aria-labelledby="dropdownMenu1">
+                <li role="presentation">
+                    <div id="friend_request_div">
+                        {% block friend_requests %}
+                            {% include "friend_requests.html" %}
+                        {% endblock %}
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="btn-group">
+            <button class="sb_btn_dropdown show_notifications-action btn dropdown-toggle pull-right"
+                    type="button"
+                    id="dropdownMenu1"
+                    data-toggle="dropdown"
+                    data-email="{{ request.user.email }}">
+            <span class="sb_btn_icon fui-eye"></span>
+            </button>
+            <ul class="sb_nav_dropdown_container dropdown-menu dropdown-menu-right"
+                role="menu" aria-labelledby="dropdownMenu1">
+                <li role="presentation">
+                    <div>
+                        {% block notification_divs %}
+                            {% include "notifications.html" %}
+                        {% endblock %}
+                    </div>
+                </li>
+            </ul>
+        </div>
+{% endblock %}
+        <div class="btn-group"
+             align="left">
+            <button class="sb_btn_dropdown btn pull-right"
+                    type="button"
+                    id="dropdownMenu1"
+                    data-toggle="dropdown">
+            <span class="sb_btn_icon fui-gear"></span>
+            </button>
+            <ul class="sb_nav_dropdown_container_menu dropdown-menu dropdown-menu-right"
+                role="menu" aria-labelledby="dropdownMenu1">
+                <li role="presentation"><a role="menuitem"
+                                           tabindex="-1"
+                                           href="#">Edit Profile</a>
+                </li>
+                <li role="presentation"><a role="menuitem"
+                                           tabindex="-1"
+                                           href="#">Settings</a>
+                </li>
+                <li role="presentation"><a role="menuitem"
+                                           tabindex="-1"
+                                           href="#">Help</a>
+                </li>
+                <li role="presentation" class="divider"></li>
+                <li role="presentation"><a role="menuitem"
+                                           tabindex="-1"
+                                           href="#">Log Out</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endif %}

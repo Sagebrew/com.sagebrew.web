@@ -1,26 +1,25 @@
 @import "../sb_core/sb_core_variables.less";
 
+.sb_sign_up_background {
+    position: fixed;
+    float: left;
+    width: 100%;
+    heigh: 100%;
+    min-height: 600px;
+    min-width: 1000px;
+    margin-top: -15px;
+    margin-left: -16px;
+}
 .sb_signup_headline_containter {
-    margin-top: @sb_main_margin_positive;
-    margin-bottom: @sb_main_margin_positive;
+    margin-top: @sb_common_margin_positive;
+    margin-bottom: @sb_common_margin_positive;
     position: relative;
 }
-.sb-btn-login{
-    color: @sb_green;
-    background-color: @sb_green;
-    font-weight: bolder;
-    border: solid;
-    border-width: 1px;
-    border-color: @sb_green;
-      &:active{
-        background-color: @sb_green;
-      }
-      &:hover{
-        background-color: @sb_green;
-      }
-}
 .sb_btn_signup{
-    margin-bottom: @sb_main_margin_positive;
+    margin-bottom: 65px;
+    width: @sb_input_width;
+    height: @sb_btn_height;
+    line-height: 12px;
       &:active{
         border: solid;
         border-color: @sb_green;
@@ -33,20 +32,28 @@
       }
 }
 .sb_signup_input_group{
-    width: 80%;
-    margin-left: 10%;
-    margin-bottom: 0;
+
 }
-.sb_signup_input_email,
-.sb_signup_input_name {
-    width: 100%;
-    .sb_signup_input{
-      margin-bottom: @sb_main_margin_positive;
-      border-width: 1px;
-    }
+.sb_signup_input{
+    width: 348px;
+    height: @sb_input_height;
+    margin-bottom: 15px;
+    border-width: 1px;
+      &:active,
+      &:hover{
+        border: solid;
+        border-color: @sb_green;
+        border-width: 1px;
+        border-radius: @sb_common_radius;
+      }
+}
+.sb_signup_input_name,
+.sb_signup_input_email{
+    width: @sb_input_width;
 }
 .sb_signup_headline{
     color: @sb_green;
+  margin-top: 60px;
 }
 .sb_content_sign_up{
     height: 500px;
@@ -57,14 +64,8 @@ input.sb_date_picker{
    color:@sb_grey;
 }
 button.btn.sb_date_picker_btn{
-    height: 45px;
-    border-width: 0px;
-      &:active,
-      &:hover{
-        border: solid;
-        border-color: @sb_green;
-        border-width: 1px;
-      }
+    height: @sb_btn_height;
+    border-width: 1px;
 }
 .ui-datepicker .ui-datepicker-header{
     background-color: @sb_green;

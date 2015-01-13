@@ -206,7 +206,7 @@ class SBQuestion(SBVersioned, SBTagContent):
                     question_dict = {"detail": "failed"}
             else:
                 question_dict = {"detail": "failed"}
-            t = get_template("questions.html")
+            t = get_template("question_summary.html")
             c = Context(question_dict)
             return t.render(c)
         except (CypherException, IOError) as e:

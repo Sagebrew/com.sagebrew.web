@@ -206,8 +206,9 @@ def profile_information(request):
         citizen = Pleb.nodes.get(email=request.user.email)
     except (Pleb.DoesNotExist, DoesNotExist):
         return redirect("404_Error")
-    if citizen.completed_profile_info:
-        return redirect("interests")
+    # TODO Add this
+    #if citizen.completed_profile_info:
+    #    return redirect("interests")
     if profile_information_form.is_valid():
         citizen.home_town = profile_information_form.cleaned_data["home_town"]
         #citizen.high_school = profile_information_form.cleaned_data.get("high_school", "")

@@ -1,6 +1,7 @@
 from uuid import uuid1
 from django.shortcuts import render
 from django.template import Context
+from django.core.urlresolvers import reverse
 from django.template.loader import get_template
 
 from rest_framework.response import Response
@@ -106,8 +107,11 @@ def save_question_view(request):
                              task_param=question_form.cleaned_data)
         if isinstance(spawned, Exception) is True:
             return Response({"detail": "server error"}, status=500)
+        url = reverse(question_detail_page, args=[question_form.cleaned_data[
+            'question_uuid']])
         return Response({"detail": "filtered",
-                         "filtered_content": question_data}, status=200)
+                         "url": url}
+                        , status=200)
     else:
         return Response(question_form.errors, status=400)
 

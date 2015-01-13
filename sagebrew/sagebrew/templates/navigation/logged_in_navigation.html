@@ -34,7 +34,7 @@
 </div>
 <div class="sb_nav_user"
      align="right">
-    <a href="{% url 'profile_page' request.user.email %}"
+    <a href="{% url 'profile_page' request.user.username %}"
        id="sb_nav_user">{{ request.user.first_name }} {{ request.user.last_name }}</a>
 </div>
 {% if request.user.is_authenticated == True %}

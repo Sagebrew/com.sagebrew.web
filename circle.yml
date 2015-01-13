@@ -45,7 +45,7 @@ checkout:
 
 test:
   override:
-    - coverage run --source='.' manage.py test
+    - coverage run --source='.' manage.py test --failfast
   post:
     - coverage html
     - coveralls --rcfile=$CIRCLE_ARTIFACTS

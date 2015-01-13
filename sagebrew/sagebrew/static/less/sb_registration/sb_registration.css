@@ -1,3 +1,6 @@
+.checkbox {
+  background-color: #000000;
+}
 .sb_all_check {
   color: #34495e;
   font-weight: bolder;
@@ -10,10 +13,10 @@
 }
 .sb_reg_input {
   border-width: 1px;
-  height: 35px;
+  height: 30px;
 }
 .sb_date_input {
-  height: 35px;
+  height: 30px;
   border-radius: 5px;
 }
 .sb_row_main {
@@ -28,16 +31,16 @@
   float: left;
 }
 .sb_registration_title {
-  color: #5c6367;
+  color: #34495e;
   font-size: 2em;
   margin-left: 60px;
 }
 .sb_registration_title_2 {
-  color: #5c6367;
+  color: #34495e;
   font-size: 2em;
 }
 .sb_registration_title_3 {
-  color: #5c6367;
+  color: #34495e;
   font-size: 2em;
   padding-left: 15px;
   margin-bottom: 30px;
@@ -52,13 +55,13 @@
 .sb_registration_label_2 {
   margin-left: 4em;
   font-weight: bold;
-  color: #838c92;
+  color: #34495e;
   font-size: 21px;
 }
 .sb_registration_label_xs {
   margin-left: 1em;
   margin-top: 10px;
-  color: #838c92;
+  color: #34495e;
   font-size: 21px;
 }
 #sb_picture_header {
@@ -195,4 +198,36 @@
   width: 150px;
   height: 100%;
   margin-bottom: 160px;
+}
+.sb_photo_modal {
+  margin-top: 2%;
+  margin-left: 17%;
+  margin-right: 17%;
+  margin-bottom: 2%;
+  border-radius: 5px;
+}
+.sb_modal_body {
+  background-color: #eaf0e8;
+  border-radius: 0 0 5px 5px ;
+}
+.sb_modal_header {
+  background-color: #eaf0e8;
+  border-bottom-width: 5pt;
+  border-bottom-color: #838c92;
+}
+.sb_btn_photo_modal_select {
+  width: 150px;
+  background-color: #1ba39c;
+}
+.sb_btn_photo_modal_remove {
+  width: 150px;
+  background-color: #1ba39c;
+}
+.sb_btn_photo_modal_change {
+  width: 150px;
+  background-color: #1ba39c;
+}
+.sb_btn_photo_modal_save {
+  width: 150px;
+  background-color: #1ba39c;
 }

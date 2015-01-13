@@ -7,17 +7,21 @@ RUN apt-get update && apt-get install -y git
 RUN mkdir /home/apps/
 RUN mkdir /home/apps/logs
 
-RUN git clone -b {{CIRCLE_BRANCH}} git@github.com:{{PROJECT_USERNAME}}/{{PROJECT_REPONAME}}.git /home/apps/{{PROJECT_NAME}}/
+RUN git clone -b {{CIRCLE_BRANCH}} git@github.com:{{PROJECT_USERNAME}}/{{PROJECT_REPONAME}}.git /home/apps/{{PROJECT_REPONAME}}/
 RUN chown -R {{APP_USER}}:{{APP_USER}} /home/apps/
-RUN mkdir /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/
+RUN mkdir /home/apps/{{PROJECT_REPONAME}}/{{PROJECT_NAME}}/static/
 
-RUN pip install -r /home/apps/{{PROJECT_NAME}}/requirements/{{REQUIREMENTS_FILE}}.txt
+RUN pip install -r /home/apps/{{PROJECT_REPONAME}}/requirements/{{REQUIREMENTS_FILE}}.txt
 RUN rm -r /root/.ssh
 RUN apt-get remove --auto-remove -y openssh-client
 
-WORKDIR /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/flat-ui/
+WORKDIR /home/apps/{{PROJECT_REPONAME}}/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/flat-ui/
 RUN npm install
 
 RUN apt-get remove --auto-remove -y git
-
-CMD chown {{APP_USER}} /etc/rsyslog.d/ && python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py logglypopulation && chown root /etc/rsyslog.d/ && service rsyslog restart && python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py collectstatic --noinput && python /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/manage.py migrate --noinput --no-initial-data
+WORKDIR /home/apps/{{PROJECT_REPONAME}}/{{PROJECT_NAME}}/
+CMD chown {{APP_USER}} /etc/rsyslog.d/ && \
+    python manage.py logglypopulation && \
+    chown root /etc/rsyslog.d/ && service rsyslog restart && \
+    python manage.py collectstatic --noinput && \
+    python manage.py migrate --noinput --no-initial-data

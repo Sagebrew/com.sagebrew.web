@@ -7,13 +7,13 @@ RUN apt-get update && apt-get install -y git
 RUN mkdir /home/apps/
 RUN mkdir /home/apps/logs
 
-RUN git clone -b {{CIRCLE_BRANCH}} git@github.com:{{PROJECT_USERNAME}}/{{PROJECT_REPONAME}}.git /home/apps/{{PROJECT_NAME}}/
+RUN git clone -b {{CIRCLE_BRANCH}} git@github.com:{{PROJECT_USERNAME}}/{{PROJECT_REPONAME}}.git /home/apps/{{PROJECT_REPONAME}}/
 RUN chown -R {{APP_USER}}:{{APP_USER}} /home/apps/
 WORKDIR /home/apps/{{PROJECT_REPONAME}}/
 RUN git submodule update --init --recursive
-RUN mkdir /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/
+RUN mkdir /home/apps/{{PROJECT_REPONAME}}/{{PROJECT_NAME}}/static/
 
-RUN pip install -r /home/apps/{{PROJECT_NAME}}/requirements/{{REQUIREMENTS_FILE}}.txt
+RUN pip install -r /home/apps/{{PROJECT_REPONAME}}/requirements/{{REQUIREMENTS_FILE}}.txt
 RUN rm -r /root/.ssh
 RUN apt-get remove --auto-remove -y openssh-client
 RUN apt-get -y install wget
@@ -35,7 +35,7 @@ RUN rm /etc/nginx/sites-enabled/default
 # it would never get to the && nginx if it were first. We might want to run
 # something else endlessly rather than run supervisor as a nodaemon. Not sure
 # the reprocutions of this.
-WORKDIR /home/apps/{{PROJECT_NAME}}/{{PROJECT_NAME}}/
+WORKDIR /home/apps/{{PROJECT_REPONAME}}/{{PROJECT_NAME}}/
 CMD chown {{APP_USER}} /etc/rsyslog.d/ && python manage.py \
   logglypopulation && chown root /etc/rsyslog.d/ && service \
   rsyslog restart && chown {{APP_USER}} /etc/supervisor/conf.d/ \

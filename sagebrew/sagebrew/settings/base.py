@@ -193,7 +193,7 @@ INSTALLED_APPS = (
     'sb_wall',
     'elasticsearch',
     'textblob',
-    'help_center',
+    'help_center'
 )
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
@@ -243,8 +243,8 @@ LOGENT_TOKEN = environ.get("LOGENT_TOKEN", "")
 ALCHEMY_API_KEY = environ.get("ALCHEMY_API_KEY", '')
 ADDRESS_VALIDATION_ID = environ.get("ADDRESS_VALIDATION_ID", '')
 ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN", '')
-STRIPE_PUBLIC_KEY = environ.get("STRIPE_PUBLIC_KEY", 'sk_test_jIytkvmYMCwIzTranx2om7bq')
-STRIPE_SECRET_KEY = environ.get("STRIPE_SECRET_KEY", 'pk_test_BvgnQJjwcednzpsx4Q4Uqv8p')
+STRIPE_PUBLIC_KEY = environ.get("STRIPE_PUBLIC_KEY", 'pk_test_BvgnQJjwcednzpsx4Q4Uqv8p')
+STRIPE_SECRET_KEY = environ.get("STRIPE_SECRET_KEY", 'sk_test_jIytkvmYMCwIzTranx2om7bq')
 
 DYNAMO_IP = environ.get("DYNAMO_IP", None)
 

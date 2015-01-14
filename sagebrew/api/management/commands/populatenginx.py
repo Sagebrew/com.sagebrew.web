@@ -71,9 +71,11 @@ class Command(BaseCommand):
             data = data.replace("{{DOMAINS_SPACE}}", domains_space)
             data = data.replace("{{STATIC_URL}}", settings.STATIC_URL)
             data = data.replace("{{SSL_CERT_LOCATION}}",
-                                os.environ.get("SSL_CERT_LOCATION", ""))
+                                "/home/apps/%s/certs/cert.pem" %
+                                os.environ.get("PROJECT_REPONAME", ""))
             data = data.replace("{{SSL_KEY_LOCATION}}",
-                                os.environ.get("SSL_KEY_LOCATION", ""))
+                                "/home/apps/%s/certs/key.pem" %
+                                os.environ.get("PROJECT_REPONAME", ""))
         f = open("/etc/nginx/sites-available/%s.conf" % env, "w")
         f.write(data)
         f.close()

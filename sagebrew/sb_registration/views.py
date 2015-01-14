@@ -1,3 +1,4 @@
+import stripe
 from django.conf import settings
 from uuid import uuid1
 from django.core.urlresolvers import reverse
@@ -360,7 +361,7 @@ def profile_picture(request):
 def rep_reg_page(request):
     return render(request, 'registration_rep.html')
 
-@api_view
+@api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def process_rep_stripe():
     pass

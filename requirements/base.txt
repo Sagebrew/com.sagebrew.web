@@ -35,3 +35,4 @@ shortuuid
 gunicorn
 logentries
 django_compressor
+stripe

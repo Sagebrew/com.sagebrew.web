@@ -20,7 +20,7 @@ dependencies:
     - tar -xvf elasticsearch-1.3.2.tar.gz
     - if [[ ! -e dynamodb_local_latest.tar.gz ]]; then wget http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest.tar.gz; fi
     - tar -xvf dynamodb_local_latest.tar.gz
-    - java -Djava.library.path=DynamoDBLocal_lib/DynamoDBLocal_lib -jar DynamoDBLocal.jar -Xmx1024m:
+    - java  -Xmx1024m -Djava.library.path=DynamoDBLocal_lib/DynamoDBLocal_lib -jar DynamoDBLocal.jar:
         background: true
     - elasticsearch-1.3.2/bin/elasticsearch:
         background: true

@@ -10,7 +10,6 @@ import logging
 PROJECT_DIR = Path(__file__).ancestor(3)
 REPO_DIR = Path(__file__).ancestor(4)
 
-
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 

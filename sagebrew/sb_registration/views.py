@@ -359,10 +359,27 @@ def profile_picture(request):
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def rep_reg_page(request):
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    if request.method == 'POST':
+        if 'stripeCardToken' in request.POST.keys():
+            customer = stripe.Customer.create(
+                description="Customer for %s" % request.user.username,
+                card=request.POST['stripeCardToken']
+            )
+            print customer
+        recipient = stripe.Recipient.create(
+            name=request.POST['account_name'],
+            tax_id=request.POST['ssn'],
+            type="individual",
+            bank_account=request.POST['stripeBankToken'],
+            email=request.POST['gov_email']
+        )
+        print recipient
     return render(request, 'registration_rep.html')
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
-def process_rep_stripe():
+def process_rep_stripe(request):
+    print request.DATA
     pass
 

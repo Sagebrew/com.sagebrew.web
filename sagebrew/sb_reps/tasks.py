@@ -49,3 +49,8 @@ def save_goal_task(rep_id, vote_req, money_req, initial, description, goal_id):
     if isinstance(goal, Exception):
         raise save_goal_task.retry(exc=goal, countdown=3, max_retries=None)
     return True
+
+@shared_task()
+def create_rep(pleb_username, rep_type, rep_id, recipient_id,
+               customer_id=None):
+    pass

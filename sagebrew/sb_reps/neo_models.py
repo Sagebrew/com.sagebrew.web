@@ -13,10 +13,11 @@ class CongressVoteRelationship(StructuredRel):
     pass
 
 class BaseOfficial(Pleb):
-    title = ""
+    title = StringProperty()
     sb_id = StringProperty(unique_index=True)
     bio = StringProperty()
-    stripe_id = StringProperty(unique_index=True)
+    recipient_id = StringProperty()
+    customer_id = StringProperty()
 
     #relationships
     policy = RelationshipTo('sb_reps.neo_models.Policy', "HAS_POLICY")

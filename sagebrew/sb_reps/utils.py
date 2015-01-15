@@ -112,3 +112,6 @@ def save_goal(rep_id, vote_req, money_req, initial, description, goal_id):
 @apply_defense
 def save_rep(pleb_username, rep_type, rep_id, recipient_id, customer_id=None):
     try:
+        pass
+    except:
+        pass

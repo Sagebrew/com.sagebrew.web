@@ -246,12 +246,19 @@ class LoginForm(forms.Form):
 class RepRegistrationForm(forms.Form):
     ssn = forms.CharField()
     bank_account = forms.CharField()
-    credit_card = forms.IntegerField(required=False)
+    account_name = forms.CharField()
     office = forms.CharField()
+    office_text = forms.CharField(required=False)
     district = forms.IntegerField()
     seat_number = forms.IntegerField()
     gov_email = forms.EmailField()
     account_type = forms.ChoiceField(choices=settings.PAYMENT_PLANS)
+    stripeBankToken = forms.CharField()
+    credit_card = forms.IntegerField(required=False)
+    stripeCardToken = forms.CharField(required=False)
+    exp_month = forms.IntegerField(required=False)
+    exp_year = forms.IntegerField(required=False)
+    cvv = forms.IntegerField(required=False)
 
 '''
 If you want to adjust field attributes programatically without overwritting

@@ -369,8 +369,7 @@ def rep_reg_page(request):
         valid_form = reg_form.is_valid()
         if valid_form:
             cleaned = reg_form.cleaned_data
-            print cleaned
-            if 'stripeCardToken' in cleaned.keys():
+            if cleaned['account_type'] == 'sub':
                 customer = stripe.Customer.create(
                     description="Customer for %s" % cleaned['account_name'],
                     card=cleaned['stripeCardToken']
@@ -393,13 +392,13 @@ def rep_reg_page(request):
             }
             res = spawn_task(create_rep_task, task_data)
             if isinstance(res, Exception):
-                return #this needs to be changed
+                return redirect("404_Error")
             res = spawn_task(build_rep_page_task, {'rep_id': uuid,
                                                    'rep_type': cleaned[
                                                        'office']})
             if isinstance(res, Exception):
                 return
-            return redirect("rep_page", rep_id=uuid)
+            return redirect("rep_page", rep_type=cleaned['office'], rep_id=uuid)
     return render(request, 'registration_rep.html')
 
 @api_view(['POST'])

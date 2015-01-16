@@ -12,6 +12,6 @@ urlpatterns = patterns(
     url(r'^education/$', get_education_form, name="education"),
     url(r'^bio/$', get_bio_form, name="bio"),
     url(r'^goals/$', get_goal_form, name="goal"),
-    url(r'^(?P<rep_id>[A-Za-z0-9.@_%+-]{7,60})/$', representative_page,
+    url(r'^(?P<rep_type>[A-Za-z0-9.@_%+-]{7,60})/(?P<rep_id>[A-Za-z0-9.@_%+-]{7,60})/$', representative_page,
         name="rep_page")
     )

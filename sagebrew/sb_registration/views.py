@@ -19,6 +19,8 @@ from sb_tag.neo_models import SBTag
 from api.utils import spawn_task
 from plebs.tasks import send_email_task
 from plebs.neo_models import Pleb, Address
+from sb_reps.tasks import create_rep_task
+from sb_docstore.tasks import build_rep_page_task
 
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm, RepRegistrationForm,
@@ -359,18 +361,20 @@ def profile_picture(request):
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def rep_reg_page(request):
+    uuid = str(uuid1())
+    customer_id = None
     stripe.api_key = settings.STRIPE_SECRET_KEY
     if request.method == 'POST':
         reg_form = RepRegistrationForm(request.POST)
         valid_form = reg_form.is_valid()
         if valid_form:
             cleaned = reg_form.cleaned_data
-            if 'stripeCardToken' in cleaned.keys():
+            if cleaned['account_type'] == 'sub':
                 customer = stripe.Customer.create(
                     description="Customer for %s" % cleaned['account_name'],
                     card=cleaned['stripeCardToken']
                 )
-                print customer
+                customer_id = customer['id']
             recipient = stripe.Recipient.create(
                 name=cleaned['account_name'],
                 tax_id=cleaned['ssn'],
@@ -378,7 +382,23 @@ def rep_reg_page(request):
                 bank_account=cleaned['stripeBankToken'],
                 email=cleaned['gov_email']
             )
-            print recipient
+            recipient_id = recipient['id']
+            task_data = {
+                'pleb_username': request.user.username,
+                'rep_type': cleaned['office'],
+                'rep_id': uuid,
+                'customer_id': customer_id,
+                'recipient_id': recipient_id
+            }
+            res = spawn_task(create_rep_task, task_data)
+            if isinstance(res, Exception):
+                return redirect("404_Error")
+            res = spawn_task(build_rep_page_task, {'rep_id': uuid,
+                                                   'rep_type': cleaned[
+                                                       'office']})
+            if isinstance(res, Exception):
+                return
+            return redirect("rep_page", rep_type=cleaned['office'], rep_id=uuid)
     return render(request, 'registration_rep.html')
 
 @api_view(['POST'])

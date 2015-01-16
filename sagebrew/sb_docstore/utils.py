@@ -11,6 +11,7 @@ from neomodel import DoesNotExist, CypherException
 from sb_base.decorators import apply_defense
 from sb_questions.neo_models import SBQuestion
 from sb_reps.neo_models import BaseOfficial
+from sb_reps.utils import get_rep_type
 
 
 def get_table_name(name):
@@ -375,7 +376,7 @@ def get_user_updates(username, object_uuid, table_name):
 
 
 @apply_defense
-def build_rep_page(rep_id):
+def build_rep_page(rep_id, rep_type=None):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
@@ -388,10 +389,17 @@ def build_rep_page(rep_id):
                                  connection=conn)
     except JSONResponseError as e:
         return e
-    try:
-        rep = BaseOfficial.nodes.get(sb_id=rep_id)
-    except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException):
-        return False
+    if rep_type is None:
+        try:
+            rep = BaseOfficial.nodes.get(sb_id=rep_id)
+        except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException) as e:
+            return e
+    else:
+        r_type = get_rep_type(dict(settings.BASE_REP_TYPES)[rep_type])
+        try:
+            rep = r_type.nodes.get(sb_id=rep_id)
+        except (r_type.DoesNotExist, DoesNotExist, CypherException) as e:
+            return e
     policies = rep.policy.all()
     experiences = rep.experience.all()
     try:
@@ -402,9 +410,12 @@ def build_rep_page(rep_id):
         'object_uuid': str(rep.sb_id),
         'name': "%s %s"%(pleb.first_name, pleb.last_name),
         'full': '%s %s %s'%(rep.title, pleb.first_name, pleb.last_name),
-        'username': pleb.username, 'rep_id': rep.sb_id,
-        "bio": str(rep.bio)
+        'username': pleb.username, 'rep_id': str(rep.sb_id),
+        "bio": str(rep.bio), 'title': rep.title
     }
+    print rep_data
+    for key in rep_data.keys():
+        print type(rep_data[key])
     rep_table.put_item(rep_data)
     for policy in policies:
         data = {
@@ -413,6 +424,7 @@ def build_rep_page(rep_id):
             'category': policy.category,
             'description': policy.description
         }
+        print data
         policy_table.put_item(data)
 
     for experience in experiences:
@@ -427,6 +439,7 @@ def build_rep_page(rep_id):
             'company': experience.company_s,
             'location': experience.location_s
         }
+        print data
         experience_table.put_item(data)
     return True
 

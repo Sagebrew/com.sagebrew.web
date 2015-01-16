@@ -303,6 +303,14 @@ KNOWN_TYPES = [
     ("02ba1c88-644f-11e4-9ad9-080027242395", "sb_comments.neo_models.SBComment")
 ]
 
+BASE_REP_TYPES = [
+    ("f2729db2-9da8-11e4-9233-080027242395", "sb_reps.neo_models.USSenator"),
+    ("f3aeebe0-9da8-11e4-9233-080027242395", "sb_reps.neo_models.USPresident"),
+    ("f46fbcda-9da8-11e4-9233-080027242395", "sb_reps.neo_models.BaseOfficial"),
+    ("628c138a-9da9-11e4-9233-080027242395", "sb_reps.neo_models.USHouseRepresentative"),
+    ("786dcf40-9da9-11e4-9233-080027242395", "sb_reps.neo_models.Governor")
+]
+
 KNOWN_TABLES = {
     "01bb301a-644f-11e4-9ad9-080027242395": "posts",
     "02241aee-644f-11e4-9ad9-080027242395": "public_solutions",

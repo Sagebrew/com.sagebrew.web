@@ -54,7 +54,8 @@ MEDIA_URL = "%s%s" % (S3_URL, "media/")
 BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 43200,
                             'polling_interval': 1}
 
-CELERY_DEFAULT_QUEUE = "%s" % environ.get("CELERY_QUEUE", "")
+CELERY_DEFAULT_QUEUE = "%s-%s-celery" % (environ.get("APP_NAME", ""),
+                                         environ.get("CIRCLE_BRANCH", ""))
 
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (

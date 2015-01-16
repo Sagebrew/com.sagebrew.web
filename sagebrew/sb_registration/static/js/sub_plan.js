@@ -3,5 +3,5 @@ $('#id_account_type').change(function(){
 });
 
 $("#id_office").change(function(){
-    ($(this).val()=='other') ? $("#office_input").show() : $("#office_input").hide();
+    ($(this).val()=='f46fbcda-9da8-11e4-9233-080027242395') ? $("#office_input").show() : $("#office_input").hide();
 });

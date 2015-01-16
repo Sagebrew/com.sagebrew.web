@@ -13,9 +13,9 @@ class CongressVoteRelationship(StructuredRel):
     pass
 
 class BaseOfficial(Pleb):
-    title = StringProperty()
+    title = StringProperty(default="")
     sb_id = StringProperty(unique_index=True)
-    bio = StringProperty()
+    bio = StringProperty(default="")
     recipient_id = StringProperty()
     customer_id = StringProperty()
 

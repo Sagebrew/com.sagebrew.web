@@ -1,6 +1,7 @@
 from dateutil import parser
 from neomodel import (DoesNotExist, CypherException)
 
+from plebs.neo_models import Pleb
 from .neo_models import Policy, BaseOfficial, Experience, Education, Goal
 from sb_base.decorators import apply_defense
 
@@ -112,6 +113,6 @@ def save_goal(rep_id, vote_req, money_req, initial, description, goal_id):
 @apply_defense
 def save_rep(pleb_username, rep_type, rep_id, recipient_id, customer_id=None):
     try:
-        pass
-    except:
+        pleb = Pleb.nodes.get(username=pleb_username)
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException):
         pass

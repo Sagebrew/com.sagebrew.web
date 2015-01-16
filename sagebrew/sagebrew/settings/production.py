@@ -44,11 +44,16 @@ BROKER_URL = "sqs://%s:%s@" % (
     environ.get("AWS_SECRET_ACCESS_KEY", ""))
 
 
-DEFAULT_FILE_STORAGE = 'sagebrew.s3utils.MediaRootS3BotoStorage'
-STATICFILES_STORAGE = 'sagebrew.s3utils.StaticRootS3BotoStorage'
 STATIC_ROOT = PROJECT_DIR.child("static")
-S3_URL = 'http://%s.s3.amazonaws.com/' % (AWS_STORAGE_BUCKET_NAME)
-STATIC_URL = "%s%s" % (S3_URL, "static/")
+COMPRESS_ROOT = STATIC_ROOT
+DEFAULT_FILE_STORAGE = 'sagebrew.s3utils.MediaRootS3BotoStorage'
+STATICFILES_STORAGE = 'sagebrew.s3utils.CachedS3BotoStorage'
+COMPRESS_STORAGE = 'sagebrew.s3utils.CachedS3BotoStorage'
+
+S3_URL = 'https://%s.s3.amazonaws.com/' % (AWS_STORAGE_BUCKET_NAME)
+
+STATIC_URL = "%s" % (S3_URL)
+COMPRESS_URL = STATIC_URL
 MEDIA_URL = "%s%s" % (S3_URL, "media/")
 
 BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 43200,

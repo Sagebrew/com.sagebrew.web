@@ -150,7 +150,6 @@ test:
     - docker logs sb_worker >> $CIRCLE_ARTIFACTS/sb_worker.log
     - docker logs sb_sys_util >> $CIRCLE_ARTIFACTS/sys_util.log
 
-
 deployment:
 #  production:
 #    branch: master

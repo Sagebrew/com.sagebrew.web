@@ -46,7 +46,7 @@ BROKER_URL = "sqs://%s:%s@" % (
 
 DEFAULT_FILE_STORAGE = 'sagebrew.s3utils.MediaRootS3BotoStorage'
 STATICFILES_STORAGE = 'sagebrew.s3utils.StaticRootS3BotoStorage'
-
+STATIC_ROOT = PROJECT_DIR.child("static")
 S3_URL = 'http://%s.s3.amazonaws.com/' % (AWS_STORAGE_BUCKET_NAME)
 STATIC_URL = "%s%s" % (S3_URL, "static/")
 MEDIA_URL = "%s%s" % (S3_URL, "media/")

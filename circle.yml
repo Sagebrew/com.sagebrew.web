@@ -84,6 +84,7 @@ test:
         -e QUEUE_HOST=$QUEUE_HOST
         -e QUEUE_PORT=$QUEUE_PORT
         -e LOGENT_TOKEN=$LOGENT_TOKEN
+        -e DEPLOYED=true
         -e SYS_LOG_TOKEN=$SYS_LOG_TOKEN
         -d -t sagebrew/sys_util:$CIRCLE_SHA1
     - docker run -h box-worker --name sb_worker -P --link db:db
@@ -111,6 +112,7 @@ test:
         -e QUEUE_HOST=$QUEUE_HOST
         -e QUEUE_PORT=$QUEUE_PORT
         -e LOGENT_TOKEN=$LOGENT_TOKEN
+        -e DEPLOYED=true
         -e SYS_LOG_TOKEN=$SYS_LOG_TOKEN
         -d -t sagebrew/sb_worker:$CIRCLE_SHA1
     # It appears if two migrations run at the same time they cause a
@@ -139,6 +141,7 @@ test:
         -e QUEUE_HOST=$QUEUE_HOST
         -e QUEUE_PORT=$QUEUE_PORT
         -e LOGENT_TOKEN=$LOGENT_TOKEN
+        -e DEPLOYED=true
         -e SYS_LOG_TOKEN=$SYS_LOG_TOKEN
         -d -t sagebrew/sb_web:$CIRCLE_SHA1
     # Sleep time based on aws timeout counts. This insures it is possible

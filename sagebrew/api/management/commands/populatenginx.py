@@ -64,6 +64,7 @@ class Command(BaseCommand):
                 domains_space = domains_pipe.replace("|", " ")
             project_name = settings.PROJECT_DIR[
                            settings.PROJECT_DIR.rfind('/') + 1:]
+            data = data.replace("{{APP_NAME}}", os.environ.get("APP_NAME", ""))
             data = data.replace("{{PROJECT_NAME}}", project_name)
             data = data.replace("{{PROJECT_PATH}}", settings.PROJECT_DIR)
             data = data.replace("{{PROJECT_DIRECTORY}}", settings.REPO_DIR)

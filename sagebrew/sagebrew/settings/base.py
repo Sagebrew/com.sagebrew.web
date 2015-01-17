@@ -86,7 +86,6 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
-    'compressor.finders.CompressorFinder',
 )
 
 
@@ -170,7 +169,6 @@ INSTALLED_APPS = (
     'api',
     'govtrack',
     'neomodel',
-    'compressor',
     'sb_answers',
     'sb_base',
     'sb_comments',

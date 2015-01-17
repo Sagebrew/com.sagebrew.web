@@ -62,7 +62,8 @@ test:
     - docker run -h box-sys-util --name sb_sys_util -P --link db:db
         -e DB_USER=docker -e DB_DOCKER_NAME=docker
         -e NEO4J_REST_URL=$GRAPHEN_NEO4J_REST_URL -e APP_USER=$APP_USER
-        -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME
+        -e APP_NAME=$APP_NAME
+        -e PROJECT_NAME=$PROJECT_NAME
         -e PROJECT_REPONAME=$CIRCLE_PROJECT_REPONAME
         -e CIRCLECI=$CIRCLECI -e CIRCLE_BRANCH=$CIRCLE_BRANCH
         -e APPLICATION_SECRET_KEY=$APPLICATION_SECRET_KEY
@@ -90,7 +91,8 @@ test:
     - docker run -h box-worker --name sb_worker -P --link db:db
         -e DB_USER=docker -e DB_DOCKER_NAME=docker
         -e NEO4J_REST_URL=$GRAPHEN_NEO4J_REST_URL -e APP_USER=$APP_USER
-        -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME
+        -e APP_NAME=$APP_NAME
+        -e PROJECT_NAME=$PROJECT_NAME
         -e CIRCLECI=$CIRCLECI -e CIRCLE_BRANCH=$CIRCLE_BRANCH
         -e PROJECT_REPONAME=$CIRCLE_PROJECT_REPONAME
         -e APPLICATION_SECRET_KEY=$APPLICATION_SECRET_KEY
@@ -119,7 +121,8 @@ test:
     - docker run -h box-webapp --name sb_web -P --link db:db
         -e DB_USER=docker -e DB_DOCKER_NAME=docker -p 443:443 -p 80:80
         -e NEO4J_REST_URL=$GRAPHEN_NEO4J_REST_URL -e APP_USER=$APP_USER
-        -e REPO_NAME=$REPO_NAME -e PROJECT_NAME=$PROJECT_NAME
+        -e APP_NAME=$APP_NAME
+        -e PROJECT_NAME=$PROJECT_NAME
         -e CIRCLECI=$CIRCLECI -e CIRCLE_BRANCH=$CIRCLE_BRANCH
         -e PROJECT_REPONAME=$CIRCLE_PROJECT_REPONAME
         -e APPLICATION_SECRET_KEY=$APPLICATION_SECRET_KEY

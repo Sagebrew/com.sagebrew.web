@@ -136,7 +136,10 @@ def populate_general_values(data):
     data = data.replace("<RDS_PORT>",
                         environ.get("RDS_PORT", ""))
     data = data.replace("<APP_USER>", environ.get("APP_USER", ""))
-    data = data.replace("<REPO_NAME>", environ.get("REPO_NAME", ""))
+    data = data.replace("<APP_NAME>", environ.get("APP_NAME", ""))
+    data = data.replace("<PROJECT_REPONAME>",
+                        environ.get("PROJECT_REPONAME",
+                                    environ.get("CIRCLE_PROJECT_REPONAME", "")))
     data = data.replace("<PROJECT_NAME>", environ.get("PROJECT_NAME"))
 
     data = data.replace("<CIRCLE_BRANCH>", environ.get("CIRCLE_BRANCH", ""))

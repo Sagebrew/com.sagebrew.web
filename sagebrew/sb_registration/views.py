@@ -401,9 +401,4 @@ def rep_reg_page(request):
             return redirect("rep_page", rep_type=cleaned['office'], rep_id=uuid)
     return render(request, 'registration_rep.html')
 
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def process_rep_stripe(request):
-    print request.DATA
-    pass
 

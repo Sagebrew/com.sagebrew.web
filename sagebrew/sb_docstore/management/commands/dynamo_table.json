@@ -120,5 +120,9 @@
         "table_name": "goals",
         "hash_key": "parent_object",
         "range_key": "object_uuid"
+    },
+    {
+        "table_name": "images",
+        "hash_key": "object_uuid"
     }
 ]

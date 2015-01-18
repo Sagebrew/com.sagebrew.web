@@ -134,15 +134,3 @@ class TestGetUserPosts(TestCase):
         res = get_user_posts(request)
 
         self.assertEqual(res.status_code, 400)
-
-    def test_get_user_posts_pleb_does_not_exist(self):
-        data = {'current_user': self.pleb.email,
-                'email': 'fakeemail@fake.com',
-                'range_end': 5,
-                'range_start': 0}
-        request = self.factory.post('/posts/query_posts/', data=data,
-                                    format='json')
-        request.user = self.user
-        res = get_user_posts(request)
-
-        self.assertEqual(res.status_code, 401)

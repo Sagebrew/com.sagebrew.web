@@ -101,6 +101,7 @@ class Command(BaseCommand):
 
 def populate_general_env(data):
     data = data.replace('{{APP_USER}}', os.environ.get("APP_USER", ""))
+    data = data.replace("{{APP_NAME}}", os.environ.get("APP_NAME", ""))
     data = data.replace('{{NEW_RELIC_LICENSE}}', os.environ.get(
         "NEW_RELIC_LICENSE", ""))
     data = data.replace('{{CIRCLE_BRANCH}}', os.environ.get(

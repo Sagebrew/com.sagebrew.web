@@ -1,7 +1,7 @@
 from celery import shared_task
 
 from .utils import (save_policy, save_experience, save_education, save_bio,
-                    save_goal)
+                    save_goal, save_rep)
 
 
 @shared_task()
@@ -48,4 +48,12 @@ def save_goal_task(rep_id, vote_req, money_req, initial, description, goal_id):
                      goal_id)
     if isinstance(goal, Exception):
         raise save_goal_task.retry(exc=goal, countdown=3, max_retries=None)
+    return True
+
+@shared_task()
+def create_rep_task(pleb_username, rep_type, rep_id, recipient_id,
+               customer_id=None):
+    rep = save_rep(pleb_username, rep_type, rep_id, recipient_id, customer_id)
+    if isinstance(rep, Exception):
+        raise create_rep_task.retry(exc=rep, countdown=3, max_retries=None)
     return True

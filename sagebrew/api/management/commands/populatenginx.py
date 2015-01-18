@@ -64,6 +64,7 @@ class Command(BaseCommand):
                 domains_space = domains_pipe.replace("|", " ")
             project_name = settings.PROJECT_DIR[
                            settings.PROJECT_DIR.rfind('/') + 1:]
+            data = data.replace("{{APP_NAME}}", os.environ.get("APP_NAME", ""))
             data = data.replace("{{PROJECT_NAME}}", project_name)
             data = data.replace("{{PROJECT_PATH}}", settings.PROJECT_DIR)
             data = data.replace("{{PROJECT_DIRECTORY}}", settings.REPO_DIR)
@@ -71,9 +72,11 @@ class Command(BaseCommand):
             data = data.replace("{{DOMAINS_SPACE}}", domains_space)
             data = data.replace("{{STATIC_URL}}", settings.STATIC_URL)
             data = data.replace("{{SSL_CERT_LOCATION}}",
-                                os.environ.get("SSL_CERT_LOCATION", ""))
+                                "/home/apps/%s/certs/cert.pem" %
+                                os.environ.get("PROJECT_REPONAME", ""))
             data = data.replace("{{SSL_KEY_LOCATION}}",
-                                os.environ.get("SSL_KEY_LOCATION", ""))
+                                "/home/apps/%s/certs/key.pem" %
+                                os.environ.get("PROJECT_REPONAME", ""))
         f = open("/etc/nginx/sites-available/%s.conf" % env, "w")
         f.write(data)
         f.close()

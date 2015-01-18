@@ -23,19 +23,21 @@ from .forms import (EducationForm, ExperienceForm, PolicyForm, BioForm,
 from .neo_models import BaseOfficial
 from .tasks import (save_policy_task, save_experience_task,
                     save_education_task, save_bio_task, save_goal_task)
+from .utils import get_rep_type
 
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
-def representative_page(request, rep_id=""):
+def representative_page(request, rep_type="", rep_id=""):
     res = get_rep_docs(rep_id, True)
     if isinstance(res, Exception):
         return redirect('404_Error')
     if not res:
         spawn_task(build_rep_page_task, {"rep_id": rep_id})
         try:
-            official = BaseOfficial.nodes.get(sb_id=rep_id)
-        except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException):
+            temp_type = get_rep_type(dict(settings.BASE_REP_TYPES)[rep_type])
+            official = temp_type.nodes.get(sb_id=rep_id)
+        except (temp_type.DoesNotExist, DoesNotExist, CypherException):
             return redirect('profile_page', request.user.username)
         pleb = official.pleb.all()[0]
         name = pleb.first_name+' '+pleb.last_name

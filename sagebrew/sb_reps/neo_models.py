@@ -14,9 +14,11 @@ class CongressVoteRelationship(StructuredRel):
 
 class BaseOfficial(Pleb):
     title = ""
+    type_str = "f46fbcda-9da8-11e4-9233-080027242395"
     sb_id = StringProperty(unique_index=True)
-    bio = StringProperty()
-    stripe_id = StringProperty(unique_index=True)
+    bio = StringProperty(default="")
+    recipient_id = StringProperty()
+    customer_id = StringProperty()
 
     #relationships
     policy = RelationshipTo('sb_reps.neo_models.Policy', "HAS_POLICY")
@@ -45,6 +47,7 @@ class Hearing(StructuredNode):
 
 class USSenator(BaseOfficial):
     title = "Senator "
+    type_str = "f2729db2-9da8-11e4-9233-080027242395"
     is_majority_leader = BooleanProperty(default=False)
     is_minority_leader = BooleanProperty(default=False)
 
@@ -53,6 +56,7 @@ class USSenator(BaseOfficial):
 
 class USPresident(BaseOfficial):
     title = "President "
+    type_str = "f3aeebe0-9da8-11e4-9233-080027242395"
     number = IntegerProperty()
 
     #relationships
@@ -70,6 +74,7 @@ class Policy(StructuredNode):
 
 class USHouseRepresentative(BaseOfficial):
     title = "Representative "
+    type_str = "628c138a-9da9-11e4-9233-080027242395"
     seat = IntegerProperty(unique_index=True)
     is_speaker = BooleanProperty(default=False)
     is_majority_leader = BooleanProperty(default=False)
@@ -86,6 +91,9 @@ class Committee(StructuredNode):
     members = RelationshipTo(BaseOfficial, "COMMITTEE_MEMBERS")
 
 class Governor(BaseOfficial):
+    title = "Governor "
+    type_str = "786dcf40-9da9-11e4-9233-080027242395"
+
     #relationships
     vetoed = RelationshipTo(Bill, "VETOED")
     passed = RelationshipTo(Bill, "PASSED")

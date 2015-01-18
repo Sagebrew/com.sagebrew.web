@@ -3,7 +3,7 @@
 {% block title %}Representative{% endblock %}
 {% block css %}
     {{ block.super }}
-    <link href="{% static 'css/dist/dropzone.css' %}" rel="stylesheet">
+    <link href="{% static 'css/vendor/dropzone.css' %}" rel="stylesheet">
 {% endblock %}
 {% block content %}
     <div id="myId" class="dropzone"></div>
@@ -60,7 +60,7 @@
     <script src="{% static 'js/add_goal.js' %}"></script>
     <script src="{% static 'js/query_rep_info.js' %}"></script>
     <script src="{% static 'js/add_bio.js' %}"></script>
-    <script src="{% static 'js/dropzone.js' %}"></script>
+    <script src="{% static 'js/vendor/dropzone.min.js' %}"></script>
     <script src="{% static 'js/get_dropzone.js' %}"></script>
     <script type="text/javascript">
         Dropzone.autoDiscover = false;

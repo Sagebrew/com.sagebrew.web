@@ -32,8 +32,8 @@ def build_wall_task(pleb):
 
 
 @shared_task()
-def build_rep_page_task(rep_id):
-    res = build_rep_page(rep_id)
+def build_rep_page_task(rep_id, rep_type=None):
+    res = build_rep_page(rep_id, rep_type)
     if isinstance(res, Exception):
         raise build_rep_page_task.retry(exc=res, countdown=3, max_retries=None)
     return True

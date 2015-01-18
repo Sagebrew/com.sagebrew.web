@@ -9,7 +9,7 @@ $(document).ready(function(){
         submitButtons: 'button.submit_rep',
         fields: {
             ssn: {
-                group: 'col-sm-4',
+                group: 'ssn_wrapper',
                 validators: {
                     notEmpty: {
                         message: "SSN is required"
@@ -21,7 +21,7 @@ $(document).ready(function(){
                 }
             },
             bank_account: {
-                group: 'col-sm-4',
+                group: 'bank_account_wrapper',
                 validators: {
                     notEmpty: {
                         message: "Bank Account must not be empty"
@@ -32,8 +32,32 @@ $(document).ready(function(){
                     }
                 }
             },
+            account_name :{
+                group: 'account_name_wrapper',
+                validators: {
+                    notEmpty: {
+                        message: "Account Name must not be empty"
+                    },
+                    stringLength: {
+                        max: 200,
+                        message: "Account Name must not be longer than 200 characters"
+                    }
+                }
+            },
+            routing_number: {
+                group: 'routing_number_wrapper',
+                validators: {
+                    notEmpty: {
+                        message: "Routing Number must not be empty"
+                    },
+                    stringLength: {
+                        max: 100,
+                        message: "Routing number must not be longer than 100 characters"
+                    }
+                }
+            },
             credit_card: {
-                group: 'col-sm-8',
+                group: 'credit_card_wrapper',
                 validators: {
                     creditCard: {
                         message: "Must be a valid credit card layout"
@@ -41,7 +65,7 @@ $(document).ready(function(){
                 }
             },
             cvv: {
-                groupd: 'col-sm-8',
+                groupd: 'cvv_wrapper',
                 validators: {
                     cvv: {
                         creditCardField: "credit_card",
@@ -50,7 +74,7 @@ $(document).ready(function(){
                 }
             },
             office: {
-                group: 'col-sm-8',
+                group: 'office_wrapper',
                 validators: {
                     notEmpty: {
                         message: "Office is required"
@@ -62,7 +86,7 @@ $(document).ready(function(){
                 }
             },
             district: {
-                group: 'col-sm-8',
+                group: 'district_wrapper',
                 validators: {
                     stringLength: {
                         max: 3,
@@ -71,7 +95,7 @@ $(document).ready(function(){
                 }
             },
             seat_number: {
-                group: 'col-sm-8',
+                group: 'seat_number_wrapper',
                 validators: {
                     notEmpty: {
                         message: "Seat Number is required"
@@ -83,7 +107,7 @@ $(document).ready(function(){
                 }
             },
             gov_email: {
-                group: 'col-sm-8',
+                group: 'gov_email_wrapper',
                 validators: {
                     notEmpty: {
                         message: "Gov Email is required"

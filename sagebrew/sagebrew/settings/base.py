@@ -10,7 +10,6 @@ import logging
 PROJECT_DIR = Path(__file__).ancestor(3)
 REPO_DIR = Path(__file__).ancestor(4)
 
-
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
@@ -87,7 +86,6 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
-    'compressor.finders.CompressorFinder',
 )
 
 
@@ -171,7 +169,6 @@ INSTALLED_APPS = (
     'api',
     'govtrack',
     'neomodel',
-    'compressor',
     'sb_answers',
     'sb_base',
     'sb_comments',
@@ -243,8 +240,12 @@ LOGENT_TOKEN = environ.get("LOGENT_TOKEN", "")
 ALCHEMY_API_KEY = environ.get("ALCHEMY_API_KEY", '')
 ADDRESS_VALIDATION_ID = environ.get("ADDRESS_VALIDATION_ID", '')
 ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN", '')
-STRIPE_PUBLIC_KEY = environ.get("STRIPE_PUBLIC_KEY", 'pk_test_BvgnQJjwcednzpsx4Q4Uqv8p')
-STRIPE_SECRET_KEY = environ.get("STRIPE_SECRET_KEY", 'sk_test_jIytkvmYMCwIzTranx2om7bq')
+STRIPE_PUBLIC_KEY = environ.get("STRIPE_PUBLIC_KEY", '')
+STRIPE_SECRET_KEY = environ.get("STRIPE_SECRET_KEY", '')
+PX_USER_ID = environ.get("PX_USER_ID", "")
+PX_API_KEY = environ.get("PX_API_KEY", "")
+PX_SECRET_KEY = environ.get("PX_SECRET_KEY", "")
+MASKED_NAME = environ.get("MASKED_NAME", "")
 
 DYNAMO_IP = environ.get("DYNAMO_IP", None)
 
@@ -300,6 +301,14 @@ KNOWN_TYPES = [
     ("0274a216-644f-11e4-9ad9-080027242395",
      "sb_questions.neo_models.SBQuestion"),
     ("02ba1c88-644f-11e4-9ad9-080027242395", "sb_comments.neo_models.SBComment")
+]
+
+BASE_REP_TYPES = [
+    ("f2729db2-9da8-11e4-9233-080027242395", "sb_reps.neo_models.USSenator"),
+    ("f3aeebe0-9da8-11e4-9233-080027242395", "sb_reps.neo_models.USPresident"),
+    ("f46fbcda-9da8-11e4-9233-080027242395", "sb_reps.neo_models.BaseOfficial"),
+    ("628c138a-9da9-11e4-9233-080027242395", "sb_reps.neo_models.USHouseRepresentative"),
+    ("786dcf40-9da9-11e4-9233-080027242395", "sb_reps.neo_models.Governor")
 ]
 
 KNOWN_TABLES = {

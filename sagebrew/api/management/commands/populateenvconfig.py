@@ -197,4 +197,6 @@ def populate_general_values(data):
                         environ.get("PX_API_KEY", ""))
     data = data.replace("<PX_SECRET_KEY>",
                         environ.get("PX_SECRET_KEY", ""))
+    data = data.replace("<AWS_DEFAULT_REGION>",
+                        environ.get("AWS_DEFAULT_REGION", ""))
     return data

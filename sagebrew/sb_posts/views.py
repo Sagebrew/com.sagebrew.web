@@ -64,21 +64,15 @@ def get_user_posts(request):
     except AttributeError:
         return Response(status=404)
     if valid_form:
-        try:
-            citizen = Pleb.nodes.get(email=post_form.cleaned_data['email'])
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return Response(status=401)
-        except CypherException:
-            return Response(status=500)
-        posts = get_wall_docs(citizen.username)
+        posts = get_wall_docs(request.user.username)
         if not posts:
-            posts = get_pleb_posts(citizen,
+            posts = get_pleb_posts(request.user.email,
                                    post_form.cleaned_data['range_end'],
                                    post_form.cleaned_data['range_start'])
             for post in posts:
                 html_array.append(post.render_post_wall_html(
                     post_form.cleaned_data['current_user']))
-            task_dict = {'pleb': citizen}
+            task_dict = {'pleb': request.user.email}
             spawn_task(task_func=build_wall_task, task_param=task_dict)
         else:
             for post in posts:

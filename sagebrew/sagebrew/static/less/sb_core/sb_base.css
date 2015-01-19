@@ -6,6 +6,9 @@ body {
   margin: 0;
   padding: 0;
 }
+.sb_content_wrapper {
+  margin-top: 60px;
+}
 div#sb_wrapper {
   width: 100%;
   min-height: 100%;

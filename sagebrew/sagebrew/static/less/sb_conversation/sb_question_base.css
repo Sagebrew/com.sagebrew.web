@@ -30,6 +30,7 @@
   height: auto;
   margin-left: auto;
   margin-right: auto;
+  margin-top: 40px;
 }
 .sb_question_header {
   color: #838c92;
@@ -102,6 +103,8 @@
   font: bold;
   font-weight: bold;
   padding-left: 15px;
+  margin-top: -20px;
+  color: #34495e;
 }
 .sb_question_block_content {
   font-size: 15px;

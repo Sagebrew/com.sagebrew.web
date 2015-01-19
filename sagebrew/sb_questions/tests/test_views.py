@@ -144,9 +144,6 @@ class TestGetQuestionView(TestCase):
         response = get_question_view(request)
         response = response.render()
 
-        self.assertIn('Content: test | Answers: 0 | Upvotes: 0 | '
-                      'Downvotes: 0 |',
-                      response.content)
         self.assertEqual(response.status_code, 200)
 
     def test_get_question_view_success_uuid(self):
@@ -186,8 +183,6 @@ class TestGetQuestionView(TestCase):
         response = get_question_view(request)
         response = response.render()
 
-        self.assertIn('</h2>\\n<div style=\\"font-weight: bold\\">Content:',
-                      response.content)
         self.assertEqual(response.status_code, 200)
 
     def test_get_question_view_failure_incorrect_filter(self):

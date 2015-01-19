@@ -36,4 +36,4 @@ gunicorn
 logentries
 django_compressor
 stripe
-px
+px==0.1.0

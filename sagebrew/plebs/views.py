@@ -11,6 +11,7 @@ from plebs.neo_models import Pleb
 from sb_registration.utils import (get_friends, generate_profile_pic_url,
                                    verify_completed_registration)
 from .utils import prepare_user_search_html
+from .forms import GetUserSearchForm
 
 
 def less_lesson(request):
@@ -88,12 +89,16 @@ def get_user_search_view(request, pleb_email=""):
     :param pleb_email:
     :return:
     '''
-    response = prepare_user_search_html(pleb_email)
-    if response is None:
-        return HttpResponse('Server Error', status=500)
-    elif response is False:
-        return HttpResponse('Bad Email', status=400)
-    return Response({'html': response}, status=200)
+    form = GetUserSearchForm({"email": pleb_email})
+    if form.is_valid():
+        response = prepare_user_search_html(form.cleaned_data['email'])
+        if response is None:
+            return HttpResponse('Server Error', status=500)
+        elif response is False:
+            return HttpResponse('Bad Email', status=400)
+        return Response({'html': response}, status=200)
+    else:
+        return Response({'detail': 'error'}, 400)
 
 
 @login_required()

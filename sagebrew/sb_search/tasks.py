@@ -225,10 +225,12 @@ def update_search_query(pleb, query_param, keywords):
     try:
         try:
             pleb = Pleb.nodes.get(email=pleb)
-        except (Pleb.DoesNotExist, DoesNotExist) as e:
-            return e
+        except (Pleb.DoesNotExist, DoesNotExist,CypherException, IOError) as e:
+            raise update_search_query.retry(exc=e, countdown=3,
+                                            max_retries=None)
         except(CypherException, IOError) as e:
-            return e
+            raise update_search_query.retry(exc=e, countdown=3,
+                                            max_retries=None)
         search_query = SearchQuery.nodes.get(search_query=query_param)
         if pleb.searches.is_connected(search_query):
             rel = pleb.searches.relationship(search_query)
@@ -253,10 +255,10 @@ def update_search_query(pleb, query_param, keywords):
             if isinstance(spawned, Exception) is True:
                 return spawned
         return True
+    except (CypherException, IOError) as e:
+        raise update_search_query.retry(exc=e, countdown=3, max_retries=None)
     except Exception as e:
-        raise defensive_exception(update_search_query.__name__, e,
-                                  update_search_query.retry(exc=e, countdown=3,
-                                                            max_retries=None))
+        raise update_search_query.retry(exc=e, countdown=3, max_retries=None)
 
 
 @shared_task()
@@ -272,7 +274,7 @@ def create_keyword(text, relevance, query_param):
     try:
         try:
             search_query = SearchQuery.nodes.get(search_query=query_param)
-        except (SearchQuery.DoesNotExist) as e:
+        except (SearchQuery.DoesNotExist, DoesNotExist) as e:
             raise create_keyword.retry(exc=e, countdown=3, max_retries=None)
         try:
             keyword = KeyWord.nodes.get(keyword=text)
@@ -294,7 +296,3 @@ def create_keyword(text, relevance, query_param):
             return True
     except CypherException as e:
         raise create_keyword.retry(exc=e, countdown=3, max_retries=None)
-    except Exception as e:
-        raise defensive_exception(create_keyword.__name__, e,
-                                  create_keyword.retry(exc=e, countdown=3,
-                                   max_retries=None))

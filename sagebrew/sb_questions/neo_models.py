@@ -112,7 +112,10 @@ class SBQuestion(SBVersioned, SBTagContent):
             answer_array = []
             comment_array = []
             owner = self.owned_by.all()
-            owner = owner[0]
+            try:
+                owner = owner[0]
+            except IndexError as e:
+                return e
             owner_name = owner.first_name + ' ' + owner.last_name
             owner_profile_url = owner.username
             query = 'match (q:SBQuestion) where q.sb_id="%s" ' \

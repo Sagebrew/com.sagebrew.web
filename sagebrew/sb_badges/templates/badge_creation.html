@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {{ badge_form.as_table }}
+    <div id="requirement_wrapper"></div>
+    <a class="btn btn-primary add_requirement-action"></a>
+    <a class="btn btn-primary submit_badge-action">
+        Submit Bio</a>
+{% endblock %}

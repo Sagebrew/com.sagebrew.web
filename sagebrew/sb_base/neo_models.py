@@ -33,6 +33,7 @@ class RelationshipWeight(StructuredRel):
 class VoteRelationship(StructuredRel):
     active = BooleanProperty(default=True)
     vote_type = BooleanProperty() # True is up False is down
+    rep_adjust = IntegerProperty()
     date_created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
 

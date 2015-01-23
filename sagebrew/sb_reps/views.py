@@ -79,16 +79,12 @@ def get_rep_info(request):
         education = official.education.all()
         goals = official.goal.all()
         for goal in goals:
-            print goal
             goal_list.append(goal.get_dict())
         for policy in policies:
-            print policy
             policy_list.append(policy.get_dict())
         for experience in experiences:
-            print experience
             experience_list.append(experience.get_dict())
         for edu in education:
-            print edu
             education_list.append(edu.get_dict())
         policy_html = render_to_string('policy_list.html',
                                        {'policies': policy_list})

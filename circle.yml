@@ -162,6 +162,11 @@ test:
 deployment:
 #  production:
 #    branch: master
+# when pushing to master should ensure user is within listed allowed users
+# who can push and deploy to master. Should be able to check CIRCLE_USERNAME
+# and potentially hit an endpoint or a local file for allowed admins
+# Safer to probably loop through django admins or comma seperated env var
+# so that endpoint can't be spoofed
   staging:
     branch: staging
     commands:

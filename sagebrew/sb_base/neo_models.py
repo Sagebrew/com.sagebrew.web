@@ -237,16 +237,24 @@ class SBVersioned(SBContent):
 
     def get_rep_breakout(self):
         tag_list = []
+        base_tags = []
         pos_rep = self.get_upvote_count()*self.up_vote_adjustment
         neg_rep = self.get_downvote_count()*self.down_vote_adjustment
         for tag in self.tagged_as.all():
+            if tag.base:
+                base_tags.append(tag.tag_name)
             tag_list.append(tag.tag_name)
+        try:
+            rep_per_tag = math.ceil(float(pos_rep+neg_rep)/len(tag_list))
+        except ZeroDivisionError:
+            rep_per_tag = 0
         return {
             "total_rep": pos_rep+neg_rep,
             "pos_rep": pos_rep,
             "neg_rep": neg_rep,
             "tag_list": tag_list,
-            "rep_per_tag": math.ceil((pos_rep+neg_rep)/len(tag_list))
+            "rep_per_tag": rep_per_tag,
+            "base_tag_list": base_tags
         }
 
 

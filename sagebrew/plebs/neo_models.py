@@ -177,11 +177,23 @@ class Pleb(StructuredNode):
                self.posts.all()+self.comments.all()
 
     def get_total_rep(self):
-        rep = 0
+        rep_list = []
+        base_tags = {}
+        tags = {}
+        total_rep = 0
         for item in self.get_owned_objects():
-            rel = item.owned_by.relationship(self)
-            rep += rel.rep_gained
-            rep -= rel.rep_lost
+            rep_res = item.get_rep_breakout()
+            total_rep += rep_res['total_rep']
+            if 'base_tag_list' in rep_res.keys():
+                for base_tag in rep_res['base_tag_list']:
+                    base_tags[base_tag] = rep_res['rep_per_tag']
+                for tag in rep_res['tag_list']:
+                    tags[tag] = rep_res['rep_per_tag']
+            rep_list.append(rep_res)
+        print base_tags
+        print tags
+        print total_rep
+        print rep_list
 
     def get_object_rep_count(self):
 

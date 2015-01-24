@@ -69,7 +69,7 @@ class SBPost(SBNonVersioned):
     @apply_defense
     def render_post_wall_html(self, pleb):
         try:
-            return render_to_string('sb_post.html',
+            return render_to_string('post.html',
                                     self.get_single_dict(pleb))
         except CypherException as e:
             return e

@@ -242,7 +242,7 @@ class SBQuestion(SBVersioned, SBTagContent):
     @apply_defense
     def render_single(self, pleb):
         try:
-            t = get_template("single_question.html")
+            t = get_template("question_detail.html")
             c = Context(self.get_single_dict(pleb))
             return t.render(c)
         except CypherException as e:

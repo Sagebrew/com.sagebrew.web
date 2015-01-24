@@ -1,4 +1,5 @@
 {% block content %}
+
 <div class="sb_id" data-object_uuid="{{ object_uuid }}"
          style="display: None"></div>
 <h1>{{ question_title }}</h1>
@@ -37,8 +38,8 @@
 <a class="btn btn-primary btn-sm submit_answer-action" data-object_uuid="{{ object_uuid }}" data-current_pleb="{{ current_pleb }}">Answer</a>
 <h2>Answers:</h2>
 {% block answers %}
-    {% for answer in answers %}
-        {% include "answer_detail.html" %}
-    {% endfor %}
+{% for answer in answers %}
+    {% include "answer_detail.html" %}
+{% endfor %}
 {% endblock %}
 {% endblock %}

@@ -185,6 +185,7 @@ class Pleb(StructuredNode):
         return len(self.posts.all())
 
     def get_comment_count(self):
+        
         return len(self.comments.all())
 
 

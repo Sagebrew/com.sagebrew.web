@@ -190,13 +190,12 @@ class Pleb(StructuredNode):
                 for tag in rep_res['tag_list']:
                     tags[tag] = rep_res['rep_per_tag']
             rep_list.append(rep_res)
-        print base_tags
-        print tags
-        print total_rep
-        print rep_list
+        return {"rep_list": rep_list,
+                "base_tags": base_tags,
+                "tags": tags,
+                "total_rep": 0}
 
     def get_object_rep_count(self):
-
         pass
 
     def get_available_flags(self):

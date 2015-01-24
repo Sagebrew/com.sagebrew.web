@@ -1,3 +1,4 @@
+import math
 import pytz
 from uuid import uuid1
 from datetime import datetime
@@ -18,7 +19,8 @@ class EditRelationshipModel(StructuredRel):
 
 class PostedOnRel(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
-
+    rep_gained = IntegerProperty(default=0)
+    rep_lost = IntegerProperty(defaut=0)
 
 class PostReceivedRel(StructuredRel):
     received = BooleanProperty()
@@ -110,6 +112,16 @@ class SBVoteableContent(StructuredNode):
             return self.get_upvote_count() - self.get_downvote_count()
         except CypherException as e:
             return e
+
+    @apply_defense
+    def get_rep_breakout(self):
+        pos_rep = self.get_upvote_count()*self.up_vote_adjustment
+        neg_rep = self.get_downvote_count()*self.down_vote_adjustment
+        return {
+            "total_rep": pos_rep+neg_rep,
+            "pos_rep": pos_rep,
+            "neg_rep": neg_rep,
+        }
 
 
 class SBContent(SBVoteableContent):
@@ -223,6 +235,20 @@ class SBVersioned(SBContent):
     def get_name(self):
         return self.__class__.__name__
 
+    def get_rep_breakout(self):
+        tag_list = []
+        pos_rep = self.get_upvote_count()*self.up_vote_adjustment
+        neg_rep = self.get_downvote_count()*self.down_vote_adjustment
+        for tag in self.tagged_as.all():
+            tag_list.append(tag.tag_name)
+        return {
+            "total_rep": pos_rep+neg_rep,
+            "pos_rep": pos_rep,
+            "neg_rep": neg_rep,
+            "tag_list": tag_list,
+            "rep_per_tag": math.ceil((pos_rep+neg_rep)/len(tag_list))
+        }
+
 
 
 
@@ -303,6 +329,5 @@ class SBTagContent(StructuredNode):
             return tag_array
         except KeyError as e:
             return e
-
 
 

@@ -17,6 +17,8 @@ from sb_search.neo_models import SearchCount
 
 class PostObjectCreated(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    rep_gained = IntegerProperty(default=0)
+    rep_lost = IntegerProperty(defaut=0)
 
 class OfficialRelationship(StructuredRel):
     active = BooleanProperty(default=False)
@@ -108,7 +110,7 @@ class Pleb(StructuredNode):
     stripe_customer_id = StringProperty()
 
     # Relationships
-    sphere = RelationshipTo('', 'SPHERE')
+    sphere = RelationshipTo('sb_tag.neo_models.SBTag', 'SPHERE')
     voted_on = RelationshipTo('sb_base.neo_models.SBVoteableContent', 'VOTES')
     home_town_address = RelationshipTo("Address", "GREW_UP_AT")
     high_school = RelationshipTo("HighSchool", "ATTENDED_HS",
@@ -170,7 +172,19 @@ class Pleb(StructuredNode):
             rel.save()
             return rel.weight
 
-    def get_rep_count(self, sphere):
+    def get_owned_objects(self):
+        return self.answers.all()+self.questions.all()+\
+               self.posts.all()+self.comments.all()
+
+    def get_total_rep(self):
+        rep = 0
+        for item in self.get_owned_objects():
+            rel = item.owned_by.relationship(self)
+            rep += rel.rep_gained
+            rep -= rel.rep_lost
+
+    def get_object_rep_count(self):
+
         pass
 
     def get_available_flags(self):

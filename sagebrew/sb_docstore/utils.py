@@ -8,6 +8,7 @@ from boto.dynamodb2.exceptions import (JSONResponseError, ItemNotFound,
 
 from neomodel import DoesNotExist, CypherException
 
+from plebs.neo_models import Pleb
 from sb_base.decorators import apply_defense
 from sb_questions.neo_models import SBQuestion
 from sb_reps.neo_models import BaseOfficial
@@ -331,7 +332,11 @@ def build_wall_docs(pleb):
     except JSONResponseError as e:
         return e
     try:
-        posts = pleb.wall.all()[0].post.all()
+        pleb_obj = Pleb.nodes.get(username=pleb)
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
+        return e
+    try:
+        posts = pleb_obj.wall.all()[0].post.all()
     except IndexError as e:
         return e
     for post in posts:

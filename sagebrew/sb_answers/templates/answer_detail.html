@@ -29,3 +29,18 @@
        data-object_uuid="{{ answer.object_uuid }}"
        data-parent_object="{{ answer.parent_object }}">Submit Edit</a>
 </div>
+{% block answer_comments %}
+    {% for comment in answer.comments %}
+        {% include "single_comments.html" %}
+    {% endfor %}
+{% endblock %}
+<div class="input-group sb_comment">
+    <textarea class="input-group form-control sb_comment_input "
+              id="post_comment_on_{{ answer.object_uuid }}"
+              rows="2"
+              placeholder="Write your comment..."></textarea>
+    <a class=' sb_btn_comment_icon btn input-group-btn comment-action'
+       data-object_uuid="{{ answer.object_uuid }}"
+       data-current_pleb="{{ current_user }}"
+       data-object_type="02241aee-644f-11e4-9ad9-080027242395"><span class="fui-new"></span></a>
+</div>

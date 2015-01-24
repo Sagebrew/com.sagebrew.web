@@ -183,7 +183,7 @@ INSTALLED_APPS = (
     'sb_questions',
     'sb_registration',
     'sb_relationships',
-    'sb_req'
+    'sb_requirements',
     'sb_reps',
     'sb_search',
     'sb_tag',
@@ -332,7 +332,7 @@ OPERATOR_TYPES = [
 
 OPERATOR_DICT = {
     'coperator\neq\np0\n.': 'equal to',
-    'coperator\nle\np0\n.': 'less than',
+    'coperator\nle\np0\n.': 'at most',
     'coperator\ngt\np0\n.': 'more than',
     'coperator\nne\np0\n.': 'not have',
     'coperator\nlt\np0\n.': 'less than',

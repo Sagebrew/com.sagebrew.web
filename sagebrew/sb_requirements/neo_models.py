@@ -1,6 +1,7 @@
 import pickle
 import urllib2
 from uuid import uuid1
+from django.conf import settings
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
@@ -22,15 +23,23 @@ class Requirement(StructuredNode):
         temp_type = type(data[self.key])
         temp_cond = temp_type(self.condition)
         return self.build_check_dict(
-            pickle.loads(self.operator)(data[self.key], temp_cond))
+            pickle.loads(self.operator)(data[self.key], temp_cond),
+            data[self.key])
 
-    def build_check_dict(self, check):
+    def build_check_dict(self, check, current):
         if not check:
             return {"detail": "The requirement %s was not met"%(self.sb_id),
                     "key": self.key,
                     "operator": pickle.loads(self.operator),
                     "response": check,
-                    "reason": "You must have %s %s %s, you have %s"%('less than', '4', 'flags', '7')}#sample layout for the response sentence construction
+                    "reason": "You must have %s %s %s, you have %s"%(
+                        self.get_operator_string(), self.condition, 'flags',
+                        current)}
+        else:
+            return {"detail": "The requirement %s was met"%(self.sb_id),
+                    "key": self.key,
+                    "operator": pickle.loads(self.operator),
+                    "response": check}
 
     def get_dict(self):
         return {"req_id": self.sb_id,
@@ -38,3 +47,6 @@ class Requirement(StructuredNode):
                 "key": self.key,
                 "operator": self.operator,
                 "condition": self.condition}
+
+    def get_operator_string(self):
+        return settings.OPERATOR_DICT[self.operator]

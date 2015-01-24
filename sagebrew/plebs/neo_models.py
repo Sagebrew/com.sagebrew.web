@@ -108,7 +108,7 @@ class Pleb(StructuredNode):
     stripe_customer_id = StringProperty()
 
     # Relationships
-    sphere = RelationshipTo('', '')
+    sphere = RelationshipTo('', 'SPHERE')
     voted_on = RelationshipTo('sb_base.neo_models.SBVoteableContent', 'VOTES')
     home_town_address = RelationshipTo("Address", "GREW_UP_AT")
     high_school = RelationshipTo("HighSchool", "ATTENDED_HS",

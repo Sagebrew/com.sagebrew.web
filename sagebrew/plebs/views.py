@@ -101,6 +101,7 @@ def get_user_search_view(request, pleb_email=""):
         return Response({'detail': 'error'}, 400)
 
 
+
 @login_required()
 def about_page(request, pleb_username):
     '''
@@ -275,3 +276,19 @@ def friends_page(request, pleb_username):
         'is_friend': is_friend,
         'friends_list': friends_list,
     })
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def get_user_rep(request, pleb_email=""):
+    '''
+    This view will be used when checking if requirements have been met and
+    to get the current amount of rep that a user has. It will return both a
+    overall calculated rep score and a breakdown of how the user has gain
+    that rep, what tags the rep gain has been associated with.
+
+    :param request:
+    :param pleb_email:
+    :return:
+    '''
+    pass

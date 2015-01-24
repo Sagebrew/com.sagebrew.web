@@ -175,6 +175,18 @@ class Pleb(StructuredNode):
     def vote_on_content(self, content):
         pass
 
+    def get_question_count(self):
+        return len(self.questions.all())
+
+    def get_answer_count(self):
+        return len(self.answers.all())
+
+    def get_post_count(self):
+        return len(self.posts.all())
+
+    def get_comment_count(self):
+        return len(self.comments.all())
+
 
 class Address(StructuredNode):
     street = StringProperty()

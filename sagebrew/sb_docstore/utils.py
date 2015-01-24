@@ -153,11 +153,14 @@ def get_question_doc(question_uuid, question_table, solution_table):
     if isinstance(conn, Exception):
         return conn
     answer_list = []
+    q_comments = []
     try:
         questions = Table(table_name=get_table_name(question_table),
                           connection=conn)
         solutions = Table(table_name=get_table_name(solution_table),
                           connection=conn)
+        comment_table = Table(table_name=get_table_name("comments"),
+                         connection=conn)
     except JSONResponseError as e:
         return e
     try:
@@ -169,19 +172,43 @@ def get_question_doc(question_uuid, question_table, solution_table):
     answers = solutions.query_2(
         parent_object__eq=question_uuid
     )
+    comments = comment_table.query_2(
+        parent_object__eq=question_uuid,
+        datetime__gte="0"
+    )
     question = dict(question)
     question['up_vote_number'] = get_vote_count(question['object_uuid'],
                                                 1)
     question['down_vote_number'] = get_vote_count(question['object_uuid'],
                                                   0)
+    for comment in comments:
+        comment = dict(comment)
+        print comment
+        comment['up_vote_number'] = get_vote_count(comment['object_uuid'],1)
+        comment['down_vote_number'] = get_vote_count(comment['object_uuid'],0)
+        q_comments.append(comment)
     for answer in answers:
+        a_comments = []
         answer = dict(answer)
         answer['up_vote_number'] = get_vote_count(answer['object_uuid'],
                                                   1)
         answer['down_vote_number'] = get_vote_count(answer['object_uuid'],
                                                     0)
+        answer_comments = comment_table.query_2(
+            parent_object__eq=answer['object_uuid'],
+            datetime__gte="0"
+        )
+        for ans_comment in answer_comments:
+            comment = dict(ans_comment)
+            comment['up_vote_number'] = get_vote_count(comment['object_uuid'],1)
+            comment['down_vote_number'] = get_vote_count(
+                comment['object_uuid'],0)
+            a_comments.append(comment)
+        answer['comments'] = a_comments
         answer_list.append(answer)
     question['answers'] = answer_list
+    question['comments'] = q_comments
+    print question
     return question
 
 

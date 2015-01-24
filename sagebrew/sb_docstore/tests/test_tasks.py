@@ -24,7 +24,7 @@ class TestBuildWallTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_build_wall_task(self):
-        data = {'pleb': self.pleb}
+        data = {'pleb': self.pleb.email}
         res = build_wall_task.apply_async(kwargs=data)
         while not res.ready():
             time.sleep(1)

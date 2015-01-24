@@ -170,6 +170,7 @@ INSTALLED_APPS = (
     'govtrack',
     'neomodel',
     'sb_answers',
+    'sb_badges',
     'sb_base',
     'sb_comments',
     'sb_deletes',
@@ -177,10 +178,12 @@ INSTALLED_APPS = (
     'sb_edits',
     'sb_flags',
     'sb_notifications',
+    'sb_privileges',
     'sb_posts',
     'sb_questions',
     'sb_registration',
     'sb_relationships',
+    'sb_requirements',
     'sb_reps',
     'sb_search',
     'sb_tag',
@@ -316,4 +319,22 @@ KNOWN_TABLES = {
     "02241aee-644f-11e4-9ad9-080027242395": "public_solutions",
     "0274a216-644f-11e4-9ad9-080027242395": "public_questions",
     "02ba1c88-644f-11e4-9ad9-080027242395": "comments"
+}
+
+OPERATOR_TYPES = [
+    ('coperator\neq\np0\n.', '='),
+    ('coperator\nle\np0\n.', '<='),
+    ('coperator\ngt\np0\n.', '>'),
+    ('coperator\nne\np0\n.', '!='),
+    ('coperator\nlt\np0\n.', '<'),
+    ('coperator\nge\np0\n.', '>=')
+]
+
+OPERATOR_DICT = {
+    'coperator\neq\np0\n.': 'equal to',
+    'coperator\nle\np0\n.': 'at most',
+    'coperator\ngt\np0\n.': 'more than',
+    'coperator\nne\np0\n.': 'not have',
+    'coperator\nlt\np0\n.': 'less than',
+    'coperator\nge\np0\n.': 'at least'
 }

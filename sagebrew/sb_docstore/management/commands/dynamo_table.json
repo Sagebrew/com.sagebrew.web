@@ -124,5 +124,9 @@
     {
         "table_name": "images",
         "hash_key": "object_uuid"
+    },
+    {
+        "table_name": "notifications",
+        "hash_key": "parent_object"
     }
 ]

@@ -33,6 +33,7 @@ class RelationshipWeight(StructuredRel):
 class VoteRelationship(StructuredRel):
     active = BooleanProperty(default=True)
     vote_type = BooleanProperty() # True is up False is down
+    rep_adjust = IntegerProperty()
     date_created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
 
@@ -289,10 +290,12 @@ class SBTagContent(StructuredNode):
         try:
             for tag in tag_list:
                 try:
-                    tag_object = SBAutoTag.nodes.get(tag_name=tag['tags']['text'])
+                    tag_object = SBAutoTag.nodes.get(tag_name=tag['tags']
+                    ['text'])
                 except (SBAutoTag.DoesNotExist, DoesNotExist):
                     tag_object = SBAutoTag(tag_name=tag['tags']['text']).save()
-
+                if self.auto_tags.is_connected(tag_object):
+                    continue
                 rel = self.auto_tags.connect(tag_object)
                 rel.relevance = tag['tags']['relevance']
                 rel.save()

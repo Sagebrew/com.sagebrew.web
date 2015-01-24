@@ -108,6 +108,7 @@ class Pleb(StructuredNode):
     stripe_customer_id = StringProperty()
 
     # Relationships
+    sphere = RelationshipTo()
     voted_on = RelationshipTo('sb_base.neo_models.SBVoteableContent', 'VOTES')
     home_town_address = RelationshipTo("Address", "GREW_UP_AT")
     high_school = RelationshipTo("HighSchool", "ATTENDED_HS",
@@ -169,6 +170,9 @@ class Pleb(StructuredNode):
             rel.save()
             return rel.weight
 
+    def get_rep_count(self, sphere):
+        pass
+
     def get_available_flags(self):
         pass
 
@@ -185,7 +189,7 @@ class Pleb(StructuredNode):
         return len(self.posts.all())
 
     def get_comment_count(self):
-        
+
         return len(self.comments.all())
 
 

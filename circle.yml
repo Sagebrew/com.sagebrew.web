@@ -172,13 +172,6 @@ deployment:
     commands:
       #- coverage report --fail-under=100
       - bash -x ~/com.sagebrew.web/deployment/staging.sh $CIRCLE_SHA1
-      # Merger into master should be done manually, tested locally
-      # and coorespond with a verification that staging successfully deployed
-      # with the commit being merged in
-      #- git checkout master
-      #- git merge --no-edit staging
-      #- git push origin master
-      #- git checkout staging
 
 
 general:

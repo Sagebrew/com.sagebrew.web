@@ -9,7 +9,7 @@ There should be no clear-cut solution to your question,
 and if there is, it probably shouldn't be posted. For example, 
 a poor question that is not open ended might look like this: 
 
-### Do high levels of atmospheric CO2 lend to the Greenhouse Effect? (not open ended enough) ###
+### Do high levels of atmospheric CO2 lend to the Greenhouse Effect? ###
 This question is not open ended. There are no multiple sides to this question 
 because science has proven that, yes, higher levels of CO2 in the atmosphere 
 directly lend to the Greenhouse Effect. We've observed this on our earth, as 

@@ -5,13 +5,15 @@
     {{ block.super }}
     <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_base.css' %}"/>
     <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_input.css' %}"/>
+    <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_expanded.css' %}"/>
+    <link rel="stylesheet" href="{% static 'less/plebs/sb_comment.css' %}"/>
 {%  endblock css %}
 
 {% block content %}
     <div class="sb_questions_content">
         <div class="row-fluid">
             <div class="col-lg-9">
-                <div class="sb_questions_list_container">
+                <div class="sb_questions_container">
                     <div class="row">
                         <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
                             <p class="sb_question_header">Conversations</p>
@@ -142,7 +144,7 @@
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="sb_question_block_content">
+                                            <div class="sb_question_block_minimal_content">
                                                 tempus cursus. Proin ut sem quis lectus tincidunt euismod.
                                                 Cras consectetur, metus vitae pretium hendrerit, dui dolor
                                                 condimentum tortor, ac congue est nunc interdum mi Cras consectetur,

@@ -1,7 +1,7 @@
 #sb_pagination_arrow {
   background-color: transparent;
 }
-.sb_questions_list_container {
+.sb_questions_container {
   margin-top: 30px;
   background-color: #e0e7e1;
   height: auto;
@@ -106,7 +106,7 @@
 .sb_question_block_title:hover {
   color: #34495e;
 }
-.sb_question_block_content {
+.sb_question_block_minimal_content {
   font-size: 15px;
   padding-left: 15px;
   padding-right: 15px;

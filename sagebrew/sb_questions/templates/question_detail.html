@@ -1,60 +1,130 @@
 {% block content %}
-
-<div class="sb_id" data-object_uuid="{{ object_uuid }}"
-         style="display: None"></div>
-<h1>{{ question_title }}</h1>
-<p>{{ content }}</p>
-{% url "profile_page" pleb_username=owner_profile_url as the_url %}
-<div style="font-weight: bold">Asked by: <a href="{{ the_url }}">{{ owner }}</a> | Posted: {{ time_created }} | Last edited: {{ last_edited_on }}</div>
-<div class="sb_upvote_count{{ object_uuid }}">{{ up_vote_number }}</div>
-<a class="btn btn-primary brt-sm vote_object-action"
-   data-object_uuid="{{ object_uuid }}"
-   data-vote_type=true
-   data-current_pleb="{{ current_pleb }}"
-   data-object_type="0274a216-644f-11e4-9ad9-080027242395">Upvote</a>
-<div class="sb_downvote_count{{ object_uuid }}">{{ down_vote_number }}</div>
-<a class="btn btn-primary brt-sm vote_object-action"
-   data-object_uuid="{{ object_uuid }}"
-   data-vote_type=false
-   data-current_pleb="{{ current_pleb }}"
-   data-object_type="0274a216-644f-11e4-9ad9-080027242395">Downvote</a>
-<a class="btn btn-primary btn-sm delete_object-action"
-   data-object_type="0274a216-644f-11e4-9ad9-080027242395"
-   data-object_uuid="{{ object_uuid }}"
-   data-current_pleb="{{ current_pleb }}"
-   >Delete</a>
-<a class="btn btn-primary btn-sm show_edit_question-action"
-   data-object_uuid="{{ object_uuid }}">Edit</a>
-<div id="edit_question_{{ object_uuid }}" style="display:none">
-    <textarea class="form-control" id="{{ object_uuid }}" name="edit_question_input" rows="1" placeholder="Edit your question..."></textarea>
-    <a class="btn btn-primary btn-sm edit_object-action"
-       data-object_uuid="{{ object_uuid }}"
-       data-current_pleb="{{ current_pleb }}"
-       data-object_type="0274a216-644f-11e4-9ad9-080027242395">Submit</a>
+<div class="sb_question_detail_block">
+    <div class="row-fluid">
+           <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 sb_vote_data_block">
+                <div style="display: none" class="sb_upvote_count{{ object_uuid }}">{{ up_vote_number }}</div>
+                <a class="btn sb_btn_question_vote_up vote_object-action"
+                   data-object_uuid="{{ object_uuid }}"
+                   data-vote_type=true
+                   data-current_pleb="{{ current_pleb }}"
+                   data-object_type="0274a216-644f-11e4-9ad9-080027242395">
+                    <span class="sb_question_vote_icon fui-triangle-up"></span>
+                </a>
+                <div class="sb_vote_number">
+                    453
+                </div>
+                <a class="btn sb_btn_question_vote_down vote_object-action"
+                   data-object_uuid="{{ object_uuid }}"
+                   data-vote_type=false
+                   data-current_pleb="{{ current_pleb }}"
+                   data-object_type="0274a216-644f-11e4-9ad9-080027242395">
+                    <span class="sb_question_vote_icon fui-triangle-down"></span>
+                </a>
+                <div style="display: none" class="sb_downvote_count{{ object_uuid }}">{{ down_vote_number }}</div>
+           </div>
+        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+            <div class="row">
+                <div class="sb_question_detail_block_title">
+                    {{ question_title }}
+                    Have Justice Frankfurter's concerns the courts involving themselves
+                    in matters of legislative reapportionment proven
+                    well-founded?
+                </div>
+            </div>
+            <div class="row">
+                <div class="sb_question_detail_block_content">
+                    {{ content }}
+                    Finally, in Vieth v Jubelirer (2004) considered whether cases involving claims
+                    of partisan gerrymandering are constitutional.  The Court divided
+                    4-1-4 in Vieth on the issue of whether judicially manageable standards
+                    existed that could be used to decide such cases.  Four justices saw claims
+                    of partisan gerrymandering as presenting a non-justiciable political question,
+                    four justices believed that standards existed or could be developed to decide
+                    such cases, and one justice (Kennedy) stood in the middle, writing a concurring
+                    opinion that suggested he had doubts about the ability of the Court to develop
+                    judicially-manageable standards, but was unwilling to rule out the possibility
+                    completely.  (Interestingly, Kennedy hinted that  gross cases of partisan gerrymandering
+                    might violate the First Amendment, not the Equal Protection Clause, as most other justices
+                    see as the better basis for challenging such laws.) Kennedy presumably voted with the majority
+                    in a subsequent case challenging a reapportionment scheme in Texas pushed by Republican House
+                    Majority Leader Tom DeLay, designed to eliminate as many as possible House Democrats from Texas.
+                    The Court ordered the case sent back to the lower courts to determine whether the Texas
+                    reapportionment plan violated the Constitution.
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12 sb_question_block_data"
+                     align="right">
+                     asked by <a href="{{ the_url }}">{{ owner }}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="sb_solution_content">
+        <div class="sb_id" data-object_uuid="{{ object_uuid }}"
+                 style="display: None"></div>
+        {% url "profile_page" pleb_username=owner_profile_url as the_url %}
+        <a class="btn btn-primary btn-sm delete_object-action"
+           data-object_type="0274a216-644f-11e4-9ad9-080027242395"
+           data-object_uuid="{{ object_uuid }}"
+           data-current_pleb="{{ current_pleb }}">Delete</a>
+        <a class="btn btn-primary btn-sm show_edit_question-action"
+           data-object_uuid="{{ object_uuid }}">Edit</a>
+        <div id="edit_question_{{ object_uuid }}"
+             style="display:none">
+            <textarea class="form-control"
+                      id="{{ object_uuid }}"
+                      name="edit_question_input"
+                      rows="1"
+                      placeholder="Edit your question..."></textarea>
+            <a class="btn btn-primary btn-sm edit_object-action"
+               data-object_uuid="{{ object_uuid }}"
+               data-current_pleb="{{ current_pleb }}"
+               data-object_type="0274a216-644f-11e4-9ad9-080027242395">Submit</a>
+        </div>
+    </div>
+    {% block comments %}
+        {% for comment in comments %}
+            {% include "single_comments.html" %}
+        {% endfor %}
+    {% endblock %}
+    <div class="btn sb_link sb_convo_comment_link">write a comment</div>
+    <div style="display: none"class="input-group sb_comment">
+        <textarea class="input-group form-control sb_comment_input "
+                  id="post_comment_on_{{ object_uuid }}"
+                  rows="2"
+                  placeholder="Write your comment..."></textarea>
+        <a class=' sb_btn_comment_icon btn input-group-btn comment-action'
+           data-object_uuid="{{ object_uuid }}"
+           data-current_pleb="{{ current_user }}"
+           data-object_type="0274a216-644f-11e4-9ad9-080027242395"><span class="fui-new"></span></a>
+    </div>
 </div>
-{% block comments %}
-    {% for comment in comments %}
-        {% include "single_comments.html" %}
-    {% endfor %}
-{% endblock %}
-<div class="input-group sb_comment">
-    <textarea class="input-group form-control sb_comment_input "
-              id="post_comment_on_{{ object_uuid }}"
-              rows="2"
-              placeholder="Write your comment..."></textarea>
-    <a class=' sb_btn_comment_icon btn input-group-btn comment-action'
-       data-object_uuid="{{ object_uuid }}"
-       data-current_pleb="{{ current_user }}"
-       data-object_type="0274a216-644f-11e4-9ad9-080027242395"><span class="fui-new"></span></a>
-</div>
-
-<textarea class="form-control" id="answer_content_id" name="answer_content"
-          cols="40" rows="2" placeholder="Write your answer..."></textarea>
-<a class="btn btn-primary btn-sm submit_answer-action" data-object_uuid="{{ object_uuid }}" data-current_pleb="{{ current_pleb }}">Answer</a>
-<h2>Answers:</h2>
 {% block answers %}
-{% for answer in answers %}
-    {% include "answer_detail.html" %}
-{% endfor %}
+<div class="row">
+    <div class="col-lg-12">
+        {% for answer in answers %}
+            {% include "answer_detail.html" %}
+        {% endfor %}
+    </div>
+</div>
+<div class="sb_answer_input_block">
+<div class="row">
+    <div class="col-lg-12">
+    <div class="input-group sb_answer_input">
+        <textarea class="form-control sb_answer_input_area"
+                  id="answer_content_id"
+                  name="answer_content"
+                  cols="40"
+                  rows="2"
+                  placeholder="Write your answer..."></textarea>
+        <a class="btn btn-primary btn-sm submit_answer-action" data-object_uuid="{{ object_uuid }}" data-current_pleb="{{ current_pleb }}">Answer</a>
+    </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 {% endblock %}
+{% comment %}
+ <div>Asked by: <a href="{{ the_url }}">{{ owner }}</a> | Posted: {{ time_created }} | Last edited: {{ last_edited_on }}</div>
+{% endcomment %}

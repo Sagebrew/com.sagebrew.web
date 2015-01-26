@@ -316,7 +316,7 @@ class SBTagContent(StructuredNode):
                 item.save()
             except CypherException as e:
                 return e
-        return True
+        return tag_array
 
     def add_auto_tags(self, tag_list):
         from sb_tag.neo_models import SBAutoTag

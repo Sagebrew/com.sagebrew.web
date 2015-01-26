@@ -13,7 +13,12 @@ from sb_relationships.neo_models import (FriendRelationship,
                                          UserWeightRelationship)
 from sb_base.neo_models import RelationshipWeight
 from sb_search.neo_models import SearchCount
+from sb_tag.neo_models import SBTag
 
+class TagRelationship(StructuredRel):
+    total = IntegerProperty(default=0)
+    rep_gained = IntegerProperty(default=0)
+    rep_lost = IntegerProperty(default=0)
 
 class PostObjectCreated(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
@@ -110,7 +115,8 @@ class Pleb(StructuredNode):
     stripe_customer_id = StringProperty()
 
     # Relationships
-    sphere = RelationshipTo('sb_tag.neo_models.SBTag', 'SPHERE')
+    tags = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGS',
+                          model=TagRelationship)
     voted_on = RelationshipTo('sb_base.neo_models.SBVoteableContent', 'VOTES')
     home_town_address = RelationshipTo("Address", "GREW_UP_AT")
     high_school = RelationshipTo("HighSchool", "ATTENDED_HS",
@@ -190,6 +196,7 @@ class Pleb(StructuredNode):
                 for tag in rep_res['tag_list']:
                     tags[tag] = rep_res['rep_per_tag']
             rep_list.append(rep_res)
+        print "base tags", base_tags, "tags", tags
         return {"rep_list": rep_list,
                 "base_tags": base_tags,
                 "tags": tags,
@@ -197,6 +204,35 @@ class Pleb(StructuredNode):
 
     def get_object_rep_count(self):
         pass
+
+    def update_tag_rep(self, base_tags, tags):
+        for item in tags:
+            try:
+                tag = SBTag.nodes.get(tag_name=item)
+            except (SBTag.DoesNotExist, DoesNotExist, CypherException):
+                continue
+            if self.tags.is_connected(tag):
+                rel = self.tags.relationship(tag)
+                rel.total = tags[item]
+                rel.save()
+            else:
+                rel = self.tags.connect(tag)
+                rel.total = tags[item]
+                rel.save()
+        for item in base_tags:
+            try:
+                tag = SBTag.nodes.get(tag_name=item)
+            except (SBTag.DoesNotExist, DoesNotExist, CypherException):
+                continue
+            if self.tags.is_connected(tag):
+                rel = self.tags.relationship(tag)
+                rel.total = base_tags[item]
+                rel.save()
+            else:
+                rel = self.tags.connect(tag)
+                rel.total = base_tags[item]
+                rel.save()
+        return True
 
     def get_available_flags(self):
         pass

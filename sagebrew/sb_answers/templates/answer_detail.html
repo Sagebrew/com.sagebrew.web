@@ -32,7 +32,7 @@
 {% block answer_comments %}
     {% for comment in answer.comments %}
         {% include "single_comments.html" %}
-
+    {% endfor %}
 {% endblock %}
 <div class="input-group sb_comment">
     <textarea class="input-group form-control sb_comment_input "

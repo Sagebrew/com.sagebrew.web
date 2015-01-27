@@ -14,6 +14,7 @@ class Requirement(StructuredNode):
     key = StringProperty()
     operator = StringProperty(default="") #gt, ge, eq, ne, ge, gt
     condition = StringProperty() #convert to w/e type the return is
+    auth_type = StringProperty()
 
     #methods
     def check_requirement(self):

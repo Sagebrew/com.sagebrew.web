@@ -2,7 +2,6 @@ import re
 import pytz
 from datetime import datetime
 
-
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, ZeroOrOne,
@@ -14,6 +13,7 @@ from sb_relationships.neo_models import (FriendRelationship,
 from sb_base.neo_models import RelationshipWeight
 from sb_search.neo_models import SearchCount
 from sb_tag.neo_models import SBTag
+
 
 class TagRelationship(StructuredRel):
     total = IntegerProperty(default=0)
@@ -89,6 +89,7 @@ class Pleb(StructuredNode):
         'flag_as_other': -10, 'answered': 50, 'starred': 150, 'seen_search': 5,
         'seen_page': 20
     }
+    oauth_token = StringProperty()
     username = StringProperty(unique_index=True, default=None)
     first_name = StringProperty()
     last_name = StringProperty()
@@ -115,6 +116,7 @@ class Pleb(StructuredNode):
     stripe_customer_id = StringProperty()
 
     # Relationships
+    oauth = RelationshipTo("plebs.neo_modes.OauthClientNeo", "OAUTH_CLIENT")
     tags = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGS',
                           model=TagRelationship)
     voted_on = RelationshipTo('sb_base.neo_models.SBVoteableContent', 'VOTES')
@@ -196,7 +198,6 @@ class Pleb(StructuredNode):
                 for tag in rep_res['tag_list']:
                     tags[tag] = rep_res['rep_per_tag']
             rep_list.append(rep_res)
-        print "base tags", base_tags, "tags", tags
         return {"rep_list": rep_list,
                 "base_tags": base_tags,
                 "tags": tags,
@@ -299,3 +300,11 @@ class City(StructuredNode):
 
 class District(StructuredNode):
     number = IntegerProperty()
+
+class OauthClientNeo(StructuredNode):
+    access_token = StringProperty()
+    client_id = StringProperty()
+    client_secret = StringProperty()
+    expires_in = IntegerProperty()
+    refresh_token = StringProperty()
+    last_updated = DateTimeProperty(default=lambda: datetime.now(pytz.utc))

@@ -1,5 +1,6 @@
 import re
 import pytz
+from uuid import uuid1
 from datetime import datetime
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
@@ -7,7 +8,6 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       BooleanProperty, FloatProperty, ZeroOrOne,
                       CypherException, DoesNotExist)
 
-from api.utils import execute_cypher_query
 from sb_relationships.neo_models import (FriendRelationship,
                                          UserWeightRelationship)
 from sb_base.neo_models import RelationshipWeight
@@ -116,7 +116,7 @@ class Pleb(StructuredNode):
     stripe_customer_id = StringProperty()
 
     # Relationships
-    oauth = RelationshipTo("plebs.neo_modes.OauthClientNeo", "OAUTH_CLIENT")
+    oauth = RelationshipTo("plebs.neo_models.OauthClientNeo", "OAUTH_CLIENT")
     tags = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGS',
                           model=TagRelationship)
     voted_on = RelationshipTo('sb_base.neo_models.SBVoteableContent', 'VOTES')
@@ -302,6 +302,7 @@ class District(StructuredNode):
     number = IntegerProperty()
 
 class OauthClientNeo(StructuredNode):
+    sb_id = StringProperty(default=lambda: str(uuid1()))
     access_token = StringProperty()
     client_id = StringProperty()
     client_secret = StringProperty()

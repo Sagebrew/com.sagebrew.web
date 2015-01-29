@@ -110,3 +110,7 @@ def save_search_id(search_data, object_type, object_data, object_added):
     if object_added is not None:
         object_added.populated_es_index = True
         object_added.save()
+
+@shared_task
+def generate_oauth_info(username):
+    pass

@@ -400,5 +400,3 @@ def rep_reg_page(request):
                 return
             return redirect("rep_page", rep_type=cleaned['office'], rep_id=uuid)
     return render(request, 'registration_rep.html')
-
-

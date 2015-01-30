@@ -1,3 +1,11 @@
+.sb_xs_thumbnail {
+  height: 33px;
+  width: 33px;
+}
+.sb_btn {
+  height: 30px;
+  color: #1ba39c;
+}
 #sb_pagination_arrow {
   background-color: transparent;
 }
@@ -125,6 +133,9 @@
 }
 .sb_btn_question_vote_up:active,
 .sb_btn_question_vote_up:hover {
+  color: #1ba39c;
+}
+.sb_btn_question_vote_up_clicked {
   color: #1ba39c;
 }
 .sb_btn_question_vote_down {

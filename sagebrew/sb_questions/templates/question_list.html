@@ -16,7 +16,7 @@
                 <div class="sb_questions_container">
                     <div class="row">
                         <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
-                            <p class="sb_question_header">Conversations</p>
+                            <div class="sb_question_header">Conversations</div>
                         </div>
                         <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1"
                              align="right">
@@ -52,10 +52,11 @@
                                 </form>
                             </div>
                         </div>
-                            <div id="question_wrapper">
-                              {% block questions %}
-                              {% endblock %}
-                            </div>
+                        <div id="question_wrapper">
+                        <!-- TODO verify t hat this is needed by something because Tyler's JS will wipe this out -->
+                          {% block questions %}
+                          {% endblock %}
+                        </div>
                         {% comment %}
                         <div class="pagination">
                           <ul>
@@ -69,113 +70,16 @@
                         </div>
                         {% endcomment %}
                     </div>
-                {% comment %}
-                    The following is for the question input and is placed here temporaraly
-                    so that I can build it out. This content will end at the next comment.
-                {% endcomment %}
-                    <div class="row">
-                        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
-                            <p class="sb_question_header">Question</p>
-                        </div>
-                    </div>
-                    <div class="sb_questions_input_container">
-                        <div class="row">
-                            <div class="col-lg-12"
-                                 align="left">
-                                <form class="navbar-form"
-                                      role="search">
-                                    <div class="input-group">
-                                        <input type="text"
-                                               id="sb_question_input"
-                                               class="form-control"
-                                               placeholder="Spark a conversation....">
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    <textarea id="pagedownMeDangerously" class="sb_question_content_input form-control" rows="10">Context
-                    </textarea>
-                    <div class="sb_convo_tags row">
-                        <div class="col-lg-12" align="left">
-                            <form class="navbar-form"
-                                  role="search">
-                                <div class="input-group">
-                                    <input type="text"
-                                           id="sb_question_input"
-                                           class="form-control"
-                                           placeholder="Tags">
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                    <div class="sb_question_btn_group">
-                        <button class="btn sb_btn sb_btn_basic">Post</button>
-                        <button class="btn sb_btn sb_btn_basic">Cancel</button>
-                    </div>
-                    </div>
-                {% comment %}
-                    This marks the end of the question input content.
-                {% endcomment %}
-                {% comment %}
-                    This is the expanded question
-                {% endcomment %}
-                <div class="sb_questions_expanded_container">
-                     <div id="single_question_wrapper">
-                            <div class="sb_question_content_block">
-                                <div class="row-fluid">
-                                    <div class="col-lg-1">
-                                        <button class="sb_btn_question_vote_up btn">
-                                            <span class="sb_question_vote_icon fui-triangle-up"></span>
-                                        </button>
-                                        <div class="sb_vote_number">
-                                            453
-                                        </div>
-                                        <button class="btn sb_btn_question_vote_down">
-                                            <span class="sb_question_vote_icon fui-triangle-down"></span>
-                                        </button>
-                                    </div>
-                                    <div id="single_question_wrapper">
-                                        <div class="div_data_hidden" data-current_pleb="{{ pleb }}" data-sort_by="uuid" data-question_uuid="{{ uuid }}"></div>
-                                    </div>
-                                    <div class="col-lg-11">
-                                        <div class="row">
-                                            <div class="sb_question_block_title">
-                                                This is where the question will be placed?
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="sb_question_block_minimal_content">
-                                                tempus cursus. Proin ut sem quis lectus tincidunt euismod.
-                                                Cras consectetur, metus vitae pretium hendrerit, dui dolor
-                                                condimentum tortor, ac congue est nunc interdum mi Cras consectetur,
-                                                metus vitae pretium hendrerit, dui condimentum tortor,
-                                                ac congue est nunc interdum mi.....
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-lg-12 sb_question_block_data"
-                                                 align="right">
-                                                asked by Jordan Welton
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-3">
-            <div class="sb_questions_side_container">
-
-            </div>
-        </div>
+        {%  include "side_content.html" %}
     </div>
-                <img src="https://logs-01.loggly.com/inputs/4befe913-b753-4823-a844-193a41779000.gif?source=pixel&data=hello" />
+    <img src="https://logs-01.loggly.com/inputs/4befe913-b753-4823-a844-193a41779000.gif?source=pixel&data=hello" />
 {% endblock %}
 
 {% block scripts %}
     {{ block.super }}
     <script src="{% static 'js/query_questions.js' %}"></script>
+    <script src="{% static 'js/question_ui.js' %}"></script>
 {% endblock scripts %}

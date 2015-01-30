@@ -1,3 +1,11 @@
+.sb_xs_thumbnail {
+  height: 33px;
+  width: 33px;
+}
+.sb_btn {
+  height: 30px;
+  color: #1ba39c;
+}
 .sb_profile_rep_container {
   background-color: #e0e7e1;
   border-radius: 2px;

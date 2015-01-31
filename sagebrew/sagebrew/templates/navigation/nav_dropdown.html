@@ -32,12 +32,9 @@
             <ul class="sb_nav_dropdown_container dropdown-menu dropdown-menu-right"
                 role="menu" aria-labelledby="dropdownMenu1">
                 <li role="presentation">
-                    <div>
+                    <div id="notification_wrapper">
                         <!-- TODO Talk to tyler about #notification_div id and what it was
                         used for and if it could be causing issues with dropdowns -->
-                        {% block notification_divs %}
-                            {% include "notifications.html" %}
-                        {% endblock %}
                     </div>
                 </li>
             </ul>

@@ -107,6 +107,7 @@ MIDDLEWARE_CLASSES = (
     # Uncomment the next line for simple clickjacking protection:
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'oauth2_provider.middleware.OAuth2TokenMiddleware'
 )
 
 ROOT_URLCONF = 'sagebrew.urls'
@@ -127,6 +128,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
+    'oauth2_provider.backends.OAuth2Backend',
 )
 
 TEMPLATE_DIRS = (
@@ -339,3 +341,7 @@ OPERATOR_DICT = {
     'coperator\nlt\np0\n.': 'less than',
     'coperator\nge\np0\n.': 'at least'
 }
+
+OAUTH_CLIENT_ID = '658919414169191a6ds1f9a1s9'
+OAUTH_CLIENT_SECRET = '651a69d1516aSD651a65sd1sd645a1s56d5165A1SD'
+CORS_ORIGIN_ALLOW_ALL = True

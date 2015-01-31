@@ -1,4 +1,5 @@
 from django.template.loader import render_to_string
+from django.core.urlresolvers import reverse
 
 from neomodel import (RelationshipTo, CypherException)
 
@@ -11,6 +12,7 @@ from sb_base.decorators import apply_defense
 class SBPost(SBNonVersioned):
     sb_name = "post"
     table = 'posts'
+    action = "posted on your wall"
     object_type = "01bb301a-644f-11e4-9ad9-080027242395"
     # relationships
     posted_on_wall = RelationshipTo('sb_wall.neo_models.SBWall', 'POSTED_ON')
@@ -31,6 +33,20 @@ class SBPost(SBNonVersioned):
             return True
         except CypherException as e:
             return e
+
+    def get_url(self):
+        return reverse("profile_page",
+                       kwargs={"pleb_username":
+                            self.posted_on_wall.all()[
+                                0].owner.all()[0].username})
+
+    def create_notification(self, pleb, sb_object=None):
+        return {
+            "profile_pic": pleb.profile_pic,
+            "full_name": pleb.get_full_name(),
+            "action": self.action,
+            "url": self.get_url()
+        }
 
     @apply_defense
     def get_single_dict(self, pleb=None):

@@ -60,13 +60,9 @@ def get_notifications(request):
                         'from_user': from_user.first_name+' '+from_user.last_name}
                 notification_array.append(notification_dict)
             html = render_to_string('notifications.html', notification_array)
-            print 1
-            print html
         else:
             html = render_to_string('notifications.html',
                                     {'notifications': res})
-            print 2
-            print html
         return Response({'html': html}, status=200)
     else:
         return Response(status=400)

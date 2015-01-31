@@ -75,7 +75,7 @@ def check_oauth_expires_in(oauth_client):
 
 def get_oauth_access_token(username, web_address=None):
     if web_address is None:
-        web_address = settings.WEB_ADDRESS + '/o/token'
+        web_address = settings.WEB_ADDRESS + '/o/token/'
     pleb = Pleb.nodes.get(username=username)
     try:
         oauth_creds = [oauth_user for oauth_user in pleb.oauth.all()
@@ -89,7 +89,7 @@ def get_oauth_access_token(username, web_address=None):
         oauth_creds.last_modified = datetime.now(pytz.utc)
         oauth_creds.access_token = encrypt(updated_creds['access_token'])
         oauth_creds.token_type = updated_creds['token_type']
-        oauth_creds.expires_in = updated_creds['expires_id']
+        oauth_creds.expires_in = updated_creds['expires_in']
         oauth_creds.refresh_token = encrypt(updated_creds['refresh_token'])
         oauth_creds.save()
 
@@ -97,7 +97,7 @@ def get_oauth_access_token(username, web_address=None):
 
 def generate_oauth_user(username, password, web_address=None):
     if web_address is None:
-        web_address = settings.WEB_ADDRESS + '/o/token'
+        web_address = settings.WEB_ADDRESS + '/o/token/'
     try:
         pleb = Pleb.nodes.get(username=username)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
@@ -106,7 +106,7 @@ def generate_oauth_user(username, password, web_address=None):
     try:
         oauth_obj = OauthUser(access_token=encrypt(creds['access_token']),
                           token_type=creds['token_type'],
-                          expires_in=creds['expires_id'],
+                          expires_in=creds['expires_in'],
                           refresh_token=encrypt(creds['refresh_token'])).save()
     except CypherException as e:
         return e

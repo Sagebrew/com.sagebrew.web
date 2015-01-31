@@ -1,3 +1,11 @@
+.sb_xs_thumbnail {
+  height: 33px;
+  width: 33px;
+}
+.sb_btn {
+  height: 30px;
+  background_color: #1ba39c;
+}
 .sb_top_menu {
   height: 45px;
   padding-top: 5px;
@@ -9,7 +17,7 @@
 }
 .sb_top_menu .sb_logo {
   display: inline-block;
-  color: #eaf0e8;
+  color: #f9fff7;
   margin-top: -2px;
   font-size: 25pt;
   padding-left: 15px;
@@ -36,8 +44,8 @@
   line-height: 5px;
 }
 .sb_nav_id_thumbnail {
-  width: 33px;
   height: 33px;
+  width: 33px;
   background-color: #e5ece6;
   border-radius: 5px;
   margin-left: -45px;
@@ -64,7 +72,7 @@
 }
 #sb_nav_name {
   font-size: 15px;
-  color: #eaf0e8;
+  color: #f9fff7;
   font-weight: bold;
   margin-top: -15px;
 }
@@ -102,7 +110,7 @@
 }
 .sb_btn_icon {
   background-color: transparent;
-  color: #eaf0e8;
+  color: #f9fff7;
 }
 .sb_nav_btn_group {
   background-color: transparent;
@@ -174,7 +182,7 @@
   width: 100%;
 }
 .sb_btn_see_all {
-  background-color: #eaf0e8;
+  background-color: #f9fff7;
   color: #838c92;
   border-color: #b7bfbb;
   border-top-style: solid;
@@ -193,7 +201,7 @@
 .sb_dropdown_label {
   margin-left: 0;
   padding-left: 15px;
-  background-color: #eaf0e8;
+  background-color: #f9fff7;
   color: #838c92;
   font-size: 15px;
   height: 30px;

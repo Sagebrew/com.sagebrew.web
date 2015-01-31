@@ -1,3 +1,11 @@
+.sb_xs_thumbnail {
+  height: 33px;
+  width: 33px;
+}
+.sb_btn {
+  height: 30px;
+  background_color: #1ba39c;
+}
 html,
 .body {
   height: 100%;
@@ -19,7 +27,7 @@ div#sb_wrapper {
   margin-left: 30px;
 }
 #sb_logo_xs {
-  color: #eaf0e8;
+  color: #f9fff7;
   text-align: left;
   margin-top: 1px;
   margin-left: 50%;

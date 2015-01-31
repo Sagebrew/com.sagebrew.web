@@ -84,3 +84,4 @@ docs/_build/
 logs/*
 bower_components/
 node_modules/
+certs/key.pem

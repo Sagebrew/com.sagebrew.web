@@ -1,3 +1,11 @@
+.sb_xs_thumbnail {
+  height: 33px;
+  width: 33px;
+}
+.sb_btn {
+  height: 30px;
+  background_color: #1ba39c;
+}
 .sb_rep_container {
   margin-left: -15px;
   margin-bottom: 15px;

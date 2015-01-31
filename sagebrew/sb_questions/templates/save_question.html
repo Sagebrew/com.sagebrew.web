@@ -1,28 +1,47 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load staticfiles %}
-{% block navigation %}
-    {% include "navigation/sign_up_navigation.html" %}
-{% endblock %}
 {% block css %}
     {{ block.super }}
     <link href="{% static 'select2/select2.css' %}" rel="stylesheet"/>
+        <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_base.css' %}"/>
+    <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_input.css' %}"/>
 {% endblock css %}
 
-
 {% block content %}
-    <div>Submit Question</div>
-    <div>Question Title:</div>
-    <textarea class="form-control" id="question_title_id" name="question_title"
-           cols="20" rows="1" placeholder="Question title"></textarea>
-    <div>Question Content:</div>
-    <textarea class="form-control" id="question_content_id" name="question_content"
-           cols="40" rows="3" placeholder="Question content"></textarea>
-    <div>Tags: </div>
-    {% include "tag_box.html" %}
-    <a class="btn btn-lg btn-block btn-primary submit_question-action"
-           data-current_pleb="{{ current_user }}">Create Question</a>
+<div class="sb_questions_content">
+    <div class="row-fluid">
+        <div class="col-lg-9">
+            <div class="sb_questions_container">
+                <div class="sb_question_header">Submit Question</div>
+                <div class="sb_question_inner_border">
+                    <textarea class="form-control sb_question_content_input"
+                              id="question_title_id"
+                              name="question_title"
+                              cols="20"
+                              rows="1"
+                              placeholder="Question title"></textarea>
 
+                    <textarea class="form-control sb_question_content_input"
+                              id="question_content_id"
+                              name="question_content"
+                              cols="20"
+                              rows="6"
+                              placeholder="Question Content"></textarea>
+                    <div class="row sb_convo_tags">
+                        <div class="col-lg-12">
+                            {% include "tag_box.html" %}
+                        </div>
+                    </div>
+                    <a class="btn sb_btn sb_btn_basic submit_question-action"
+                           data-current_pleb="{{ current_user }}">Create Question</a>
+                    <button class="btn sb_btn sb_btn_basic">Cancel</button>
+                </div>
+             </div>
+        </div>
+    </div>
+</div>
+{% include "side_content.html" %}
 {% endblock %}
 
 {% block scripts %}

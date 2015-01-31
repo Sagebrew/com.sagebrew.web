@@ -1,3 +1,11 @@
+.sb_xs_thumbnail {
+  height: 33px;
+  width: 33px;
+}
+.sb_btn {
+  height: 30px;
+  background_color: #1ba39c;
+}
 .sb_nav_bottom_links {
   color: #838c92;
   text-align: left;
@@ -9,7 +17,7 @@
   margin-bottom: 0;
 }
 .sb_bottom_menu {
-  background: #eaf0e8;
+  background: #f9fff7;
   color: #b7bfbb;
   padding: 39px 0 42px;
 }

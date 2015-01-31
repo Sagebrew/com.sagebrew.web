@@ -1,6 +1,14 @@
+.sb_xs_thumbnail {
+  height: 33px;
+  width: 33px;
+}
+.sb_btn {
+  height: 30px;
+  background_color: #1ba39c;
+}
 .sb_post_content {
   margin-bottom: 30px;
-  background-color: #ffffff;
+  background-color: #fafcfa;
   border-style: solid;
   border-width: 1px 1px 0px 1px;
   border-color: #b7bfbb;
@@ -17,14 +25,15 @@
   height: auto;
   width: auto;
   border-radius: 5px;
-  background-color: #ffffff;
+  background-color: #fafcfa;
   border-style: solid;
   border-width: 1px;
-  border--color: #d0e9c6;
+  border-color: #d0e9c6;
+  word-wrap: break-word;
 }
 .sb_post_header {
   width: auto;
-  background-color: #ffffff;
+  background-color: #fafcfa;
   border-radius: 5px 5px 0 0;
   padding: 15px;
 }
@@ -39,7 +48,7 @@
   padding-bottom: 3px;
   padding-left: 15px;
   padding-right: 15px;
-  background-color: #ffffff;
+  background-color: #fafcfa;
   border-style: solid;
   border-width: 1px 0 0 0;
   border-color: #b7bfbb;

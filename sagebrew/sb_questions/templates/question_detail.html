@@ -26,31 +26,12 @@
         <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
             <div class="row">
                 <div class="sb_question_detail_block_title">
-                    {{ question_title }}
-                    Have Justice Frankfurter's concerns the courts involving themselves
-                    in matters of legislative reapportionment proven
-                    well-founded?
+                    {{ question_title|linebreaksbr }}
                 </div>
             </div>
             <div class="row">
                 <div class="sb_question_detail_block_content">
                     {{ content }}
-                    Finally, in Vieth v Jubelirer (2004) considered whether cases involving claims
-                    of partisan gerrymandering are constitutional.  The Court divided
-                    4-1-4 in Vieth on the issue of whether judicially manageable standards
-                    existed that could be used to decide such cases.  Four justices saw claims
-                    of partisan gerrymandering as presenting a non-justiciable political question,
-                    four justices believed that standards existed or could be developed to decide
-                    such cases, and one justice (Kennedy) stood in the middle, writing a concurring
-                    opinion that suggested he had doubts about the ability of the Court to develop
-                    judicially-manageable standards, but was unwilling to rule out the possibility
-                    completely.  (Interestingly, Kennedy hinted that  gross cases of partisan gerrymandering
-                    might violate the First Amendment, not the Equal Protection Clause, as most other justices
-                    see as the better basis for challenging such laws.) Kennedy presumably voted with the majority
-                    in a subsequent case challenging a reapportionment scheme in Texas pushed by Republican House
-                    Majority Leader Tom DeLay, designed to eliminate as many as possible House Democrats from Texas.
-                    The Court ordered the case sent back to the lower courts to determine whether the Texas
-                    reapportionment plan violated the Constitution.
                 </div>
             </div>
             <div class="row">
@@ -65,12 +46,14 @@
         <div class="sb_id" data-object_uuid="{{ object_uuid }}"
                  style="display: None"></div>
         {% url "profile_page" pleb_username=owner_profile_url as the_url %}
+        {% comment %}
         <a class="btn btn-primary btn-sm delete_object-action"
            data-object_type="0274a216-644f-11e4-9ad9-080027242395"
            data-object_uuid="{{ object_uuid }}"
            data-current_pleb="{{ current_pleb }}">Delete</a>
         <a class="btn btn-primary btn-sm show_edit_question-action"
            data-object_uuid="{{ object_uuid }}">Edit</a>
+        {% endcomment %}
         <div id="edit_question_{{ object_uuid }}"
              style="display:none">
             <textarea class="form-control"
@@ -119,7 +102,7 @@
                   cols="40"
                   rows="2"
                   placeholder="Write your answer..."></textarea>
-        <a class="btn btn-primary btn-sm submit_answer-action" data-object_uuid="{{ object_uuid }}" data-current_pleb="{{ current_pleb }}">Answer</a>
+        <a class="btn sb_btn sb_btn_basic submit_answer-action" data-object_uuid="{{ object_uuid }}" data-current_pleb="{{ current_pleb }}">Answer</a>
     </div>
         </div>
     </div>

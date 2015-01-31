@@ -9,7 +9,6 @@ $( document ).ready(function() {
 			type: "POST",
 			url: "/notifications/query_notifications/",
 			data: JSON.stringify({
-               'email': $('#pleb_info').data('current_user_email'),
 			   'range_start': 0,
                'range_end':10
 			}),

@@ -34,7 +34,6 @@ def get_notifications(request):
         return Response({"details": "Invalid Form"}, status=400)
     if valid_form:
         res = get_notification_docs(request.user.username)
-        print res
         if isinstance(res, Exception):
             return Response({"detail": "fail"}, status=400)
         if not res:

@@ -17,7 +17,7 @@ urlpatterns = patterns(
     url(r'^404/$', TemplateView.as_view(template_name="404.html"),
         name="404_Error"),
     (r'^contact_us/$', TemplateView.as_view(template_name="contact_us.html")),
-    (r'^oauth2/', include('provider.oauth2.urls', namespace='oauth2')),
+    url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     (r'^registration/', include('sb_registration.urls')),
     (r'^help/', include('help_center.urls')),
     (r'^comments/', include('sb_comments.urls')),

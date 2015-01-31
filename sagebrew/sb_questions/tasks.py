@@ -91,8 +91,11 @@ def add_tags_to_question_task(question, tags):
             raise add_tags_to_question_task.retry(
                 exc=auto_tags, countdown=3, max_retries=None)
         task_data = []
-        for tag in auto_tags['keywords']:
-            task_data.append({"tags": tag})
+        try:
+            for tag in auto_tags['keywords']:
+                task_data.append({"tags": tag})
+        except KeyError:
+            pass
         auto_tag_data = {'question': question,
                          'tag_list': task_data}
         tag_task_data = {'question': question,

@@ -106,6 +106,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 )
 
 ROOT_URLCONF = 'sagebrew.urls'
@@ -161,8 +162,8 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'rest_framework',
     'admin_honeypot',
-    'provider',
-    'provider.oauth2',
+    'oauth2_provider',
+    'corsheaders',
     'storages',
     'localflavor',
     'plebs',

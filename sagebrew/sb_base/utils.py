@@ -25,3 +25,6 @@ def defensive_exception(function_name, exception, return_value, message=None):
     logger.exception("defensive exception handler: ")
 
     return return_value
+
+
+

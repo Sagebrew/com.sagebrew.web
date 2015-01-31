@@ -1,42 +1,45 @@
 import time
 import boto.sqs
 import importlib
+import requests
+import hashlib
+import shortuuid
 from uuid import uuid1
 from json import dumps
-
+from django.contrib.auth.models import User
 from boto.sqs.message import Message
 from bomberman.client import Client, RateLimitExceeded
-from neomodel.exception import CypherException, DoesNotExist
 from neomodel import db
+from neomodel.exception import CypherException, DoesNotExist
+
 from django.conf import settings
 
 from sb_base.utils import defensive_exception
 from sb_base.decorators import apply_defense
-
+from plebs.neo_models import Pleb
 from api.alchemyapi import AlchemyAPI
 
 
-'''
-# TOOD Add tagging process into git so that we can label point that we deleted
-this
-def post_to_api(api_url, data, headers=None):
+
+def post_to_api(api_url, data, username, headers=None):
     if headers is None:
         headers = {}
-    headers['Authorization'] = "Bearer %s" % (get_oauth_access_token())
+    headers['Authorization'] = "Bearer %s" % (get_oauth_access_token(username))
     url = "%s%s" % (settings.WEB_ADDRESS, api_url)
-    response = request_post(url, data=dumps(data),
+    response = requests.post(url, data=dumps(data),
                             verify=settings.VERIFY_SECURE, headers=headers)
     return response.json()
 
 
-def get_oauth_client():
-    url = settings.WEB_ADDRESS + '/oauth2/access_token'
-    user = User.objects.get(username="admin")
-    client = OauthClient.objects.get(user=1)
+def get_oauth_client(username):
+    url = settings.WEB_ADDRESS + '/o/access_token'
+    pleb = Pleb.nodes.get(username=username)
+    user = User.objects.get(username=username)
+    client = Pleb.oauth.all()
     response = requests.post(url, data={
         'client_id': client.client_id,
         'client_secret': client.client_secret,
-        'username': user.username,
+        'username': pleb.username,
         'password': settings.API_PASSWORD,
         'grant_type': 'password'}, verify=settings.VERIFY_SECURE)
     return response.json()
@@ -61,21 +64,46 @@ def check_oauth_expires_in(oauth_client):
     return False
 
 
-def get_oauth_access_token():
-    oauth_client = get_oauth_client()
+def get_oauth_access_token(username):
+    oauth_client = get_oauth_client(username)
     if check_oauth_expires_in(oauth_client):
         return refresh_oauth_access_token(oauth_client)['access_token']
     return oauth_client['access_token']
 
+def generate_oauth_client(username):
+    try:
+        pleb = Pleb.nodes.get(username=username)
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
+        return e
+    '''try:
+        oauth = OauthClientNeo(client_id=generate_short_token(),
+                               client_secret=generate_long_token()).save()
+    except CypherException as e:
+        return e
+    try:
+        pleb.oauth.connect(oauth)
+    except CypherException as e:
+        return e'''
+    return True
 
+def generate_short_token():
+    short_hash = hashlib.sha1(shortuuid.uuid())
+    short_hash.update(settings.SECRET_KEY)
+    return short_hash.hexdigest()[::2]
 
+def generate_long_token():
+    long_hash = hashlib.sha1(shortuuid.uuid())
+    long_hash.update(settings.SECRET_KEY)
+    return long_hash.hexidigest()
+
+'''
+# TODO Add tagging process into git so that we can label point that we deleted this
 iron_mq = IronMQ(project_id=settings.IRON_PROJECT_ID,
                          token=settings.IRON_TOKEN)
         queue = iron_mq.queue('sb_failures')
         info['action'] = attempt_task.__name__
         queue.post(dumps(info))
 '''
-
 
 def add_failure_to_queue(message_info):
     conn = boto.sqs.connect_to_region(
@@ -138,13 +166,6 @@ def create_auto_tags(content):
         return defensive_exception(create_auto_tags.__name__, e, e)
 
 
-def execute_cypher_query(query):
-    try:
-        return db.cypher_query(query)
-    except(CypherException, IOError) as e:
-        return e
-
-
 def wait_util(async_res):
     while not async_res['task_id'].ready():
         time.sleep(1)
@@ -182,3 +203,9 @@ def get_object(object_type, object_uuid):
     except CypherException as e:
         return e
 
+
+def execute_cypher_query(query):
+    try:
+        return db.cypher_query(query)
+    except(CypherException, IOError) as e:
+        return e

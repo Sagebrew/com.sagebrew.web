@@ -18,3 +18,4 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.populate_base_tags()
+        print "Tags created"

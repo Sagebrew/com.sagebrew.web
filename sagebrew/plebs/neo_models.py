@@ -1,22 +1,29 @@
 import re
 import pytz
+from uuid import uuid1
 from datetime import datetime
-
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, ZeroOrOne,
                       CypherException, DoesNotExist)
 
-from api.utils import execute_cypher_query
 from sb_relationships.neo_models import (FriendRelationship,
                                          UserWeightRelationship)
 from sb_base.neo_models import RelationshipWeight
 from sb_search.neo_models import SearchCount
+from sb_tag.neo_models import SBTag
 
+
+class TagRelationship(StructuredRel):
+    total = IntegerProperty(default=0)
+    rep_gained = IntegerProperty(default=0)
+    rep_lost = IntegerProperty(default=0)
 
 class PostObjectCreated(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    rep_gained = IntegerProperty(default=0)
+    rep_lost = IntegerProperty(defaut=0)
 
 class OfficialRelationship(StructuredRel):
     active = BooleanProperty(default=False)
@@ -82,6 +89,7 @@ class Pleb(StructuredNode):
         'flag_as_other': -10, 'answered': 50, 'starred': 150, 'seen_search': 5,
         'seen_page': 20
     }
+    oauth_token = StringProperty()
     username = StringProperty(unique_index=True, default=None)
     first_name = StringProperty()
     last_name = StringProperty()
@@ -108,6 +116,9 @@ class Pleb(StructuredNode):
     stripe_customer_id = StringProperty()
 
     # Relationships
+    oauth = RelationshipTo("plebs.neo_models.OauthClientNeo", "OAUTH_CLIENT")
+    tags = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGS',
+                          model=TagRelationship)
     voted_on = RelationshipTo('sb_base.neo_models.SBVoteableContent', 'VOTES')
     home_town_address = RelationshipTo("Address", "GREW_UP_AT")
     high_school = RelationshipTo("HighSchool", "ATTENDED_HS",
@@ -169,11 +180,79 @@ class Pleb(StructuredNode):
             rel.save()
             return rel.weight
 
+    def get_owned_objects(self):
+        return self.answers.all()+self.questions.all()+\
+               self.posts.all()+self.comments.all()
+
+    def get_total_rep(self):
+        rep_list = []
+        base_tags = {}
+        tags = {}
+        total_rep = 0
+        for item in self.get_owned_objects():
+            rep_res = item.get_rep_breakout()
+            total_rep += rep_res['total_rep']
+            if 'base_tag_list' in rep_res.keys():
+                for base_tag in rep_res['base_tag_list']:
+                    base_tags[base_tag] = rep_res['rep_per_tag']
+                for tag in rep_res['tag_list']:
+                    tags[tag] = rep_res['rep_per_tag']
+            rep_list.append(rep_res)
+        return {"rep_list": rep_list,
+                "base_tags": base_tags,
+                "tags": tags,
+                "total_rep": 0}
+
+    def get_object_rep_count(self):
+        pass
+
+    def update_tag_rep(self, base_tags, tags):
+        for item in tags:
+            try:
+                tag = SBTag.nodes.get(tag_name=item)
+            except (SBTag.DoesNotExist, DoesNotExist, CypherException):
+                continue
+            if self.tags.is_connected(tag):
+                rel = self.tags.relationship(tag)
+                rel.total = tags[item]
+                rel.save()
+            else:
+                rel = self.tags.connect(tag)
+                rel.total = tags[item]
+                rel.save()
+        for item in base_tags:
+            try:
+                tag = SBTag.nodes.get(tag_name=item)
+            except (SBTag.DoesNotExist, DoesNotExist, CypherException):
+                continue
+            if self.tags.is_connected(tag):
+                rel = self.tags.relationship(tag)
+                rel.total = base_tags[item]
+                rel.save()
+            else:
+                rel = self.tags.connect(tag)
+                rel.total = base_tags[item]
+                rel.save()
+        return True
+
     def get_available_flags(self):
         pass
 
     def vote_on_content(self, content):
         pass
+
+    def get_question_count(self):
+        return len(self.questions.all())
+
+    def get_answer_count(self):
+        return len(self.answers.all())
+
+    def get_post_count(self):
+        return len(self.posts.all())
+
+    def get_comment_count(self):
+
+        return len(self.comments.all())
 
 
 class Address(StructuredNode):
@@ -221,3 +300,12 @@ class City(StructuredNode):
 
 class District(StructuredNode):
     number = IntegerProperty()
+
+class OauthClientNeo(StructuredNode):
+    sb_id = StringProperty(default=lambda: str(uuid1()))
+    access_token = StringProperty()
+    client_id = StringProperty()
+    client_secret = StringProperty()
+    expires_in = IntegerProperty()
+    refresh_token = StringProperty()
+    last_updated = DateTimeProperty(default=lambda: datetime.now(pytz.utc))

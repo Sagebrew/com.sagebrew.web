@@ -15,6 +15,7 @@ class BadgeBase(StructuredNode):
     requirements = RelationshipTo('sb_requirements.neo_models.Requirement',
                                   "REQUIRES")
 
+
     #methods
     def check_requirements(self):
         req_checks = []

@@ -9,7 +9,7 @@ from neomodel import DoesNotExist, CypherException
 from sb_base.utils import defensive_exception
 from api.utils import spawn_task, get_object
 from plebs.neo_models import Pleb
-
+from .utils import generate_oauth_user
 
 @shared_task()
 def get_pleb_task(email, task_func, task_param):
@@ -112,5 +112,9 @@ def save_search_id(search_data, object_type, object_data, object_added):
         object_added.save()
 
 @shared_task
-def generate_oauth_info(username):
-    pass
+def generate_oauth_info(username, password, web_address=None):
+    res = generate_oauth_user(username, password, web_address)
+    if isinstance(res, Exception):
+        raise generate_oauth_info.retry(exc=res, countdown=3, max_retries=None)
+
+    return True

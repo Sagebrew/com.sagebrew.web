@@ -17,7 +17,6 @@ $( document ).ready(function() {
 			dataType: "json",
             success: function (data) {
                 var notification_div = $('#notification_wrapper');
-                console.log(data['html']);
                 notification_div.append(data['html']);
             }
     });

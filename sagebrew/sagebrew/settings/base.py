@@ -198,6 +198,7 @@ INSTALLED_APPS = (
     'textblob',
     'help_center'
 )
+
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 EMAIL_VERIFICATION_TIMEOUT_DAYS = 1

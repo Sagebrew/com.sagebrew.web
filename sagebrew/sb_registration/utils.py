@@ -15,7 +15,7 @@ from api.utils import spawn_task
 from plebs.tasks import create_pleb_task
 from plebs.neo_models import Pleb
 from sb_base.decorators import apply_defense
-
+from api.tasks import generate_oauth_info
 
 
 def calc_age(birthday):
@@ -350,6 +350,11 @@ def create_user_util(first_name, last_name, email, password):
                                     email=email, password=password,
                                     username=username)
     user.save()
+    oauth_res = spawn_task(task_func=generate_oauth_info,
+                           task_param={'username': username,
+                                       'password': password})
+    if isinstance(oauth_res, Exception):
+        return oauth_res
     res = spawn_task(task_func=create_pleb_task,
                      task_param={"user_instance": user})
     if isinstance(res, Exception) is True:

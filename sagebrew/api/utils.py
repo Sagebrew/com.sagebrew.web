@@ -83,16 +83,17 @@ def get_oauth_access_token(username, web_address=None):
     except IndexError:
         return
     if check_oauth_expires_in(oauth_creds):
-        updated_creds = refresh_oauth_access_token(oauth_creds.refresh_token,
+        refresh_token = decrypt(oauth_creds.refresh_token)
+        updated_creds = refresh_oauth_access_token(refresh_token,
                                           oauth_creds.web_address)
         oauth_creds.last_modified = datetime.now(pytz.utc)
-        oauth_creds.access_token = updated_creds['access_token']
+        oauth_creds.access_token = encrypt(updated_creds['access_token'])
         oauth_creds.token_type = updated_creds['token_type']
         oauth_creds.expires_in = updated_creds['expires_id']
-        oauth_creds.refresh_token = updated_creds['refresh_token']
+        oauth_creds.refresh_token = encrypt(updated_creds['refresh_token'])
         oauth_creds.save()
-        return
-    return oauth_creds.access_token
+
+    return decrypt(oauth_creds.access_token)
 
 def generate_oauth_user(username, password, web_address=None):
     if web_address is None:
@@ -103,14 +104,14 @@ def generate_oauth_user(username, password, web_address=None):
         return e
     creds = get_oauth_client(username, password, web_address)
     try:
-        oauth = OauthUser(access_token=encrypt(creds['access_token']),
+        oauth_obj = OauthUser(access_token=encrypt(creds['access_token']),
                           token_type=creds['token_type'],
                           expires_in=creds['expires_id'],
                           refresh_token=encrypt(creds['refresh_token'])).save()
     except CypherException as e:
         return e
     try:
-        pleb.oauth.connect(oauth)
+        pleb.oauth.connect(oauth_obj)
     except CypherException as e:
         return e
     return True
@@ -118,7 +119,7 @@ def generate_oauth_user(username, password, web_address=None):
 def encrypt(data):
     return signing.dumps(data)
 
-def unencrypt(data):
+def decrypt(data):
     return signing.loads(data)
 
 def generate_short_token():

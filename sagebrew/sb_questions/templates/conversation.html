@@ -1,9 +1,16 @@
-{% extends 'question_list.html' %}
+{% extends 'base.html' %}
 <!-- Because this .html file extends an html file with '
     js/query_questions.js' it will cause a 400 error
     from one of the views. We can fix this by not having this html
     extend html that includes 'js/query_questions.js' -->
 {% load staticfiles %}
+{% block css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_base.css' %}"/>
+    <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_input.css' %}"/>
+    <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_expanded.css' %}"/>
+    <link rel="stylesheet" href="{% static 'less/plebs/sb_comment.css' %}"/>
+{%  endblock css %}
 {% block content %}
 <div class="sb_questions_content">
     <div class="row-fluid">

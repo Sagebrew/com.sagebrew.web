@@ -61,7 +61,8 @@
     },
     {
         "table_name": "notifications",
-        "hash_key": "email"
+        "hash_key": "parent_object",
+        "range_key": "datetime"
     },
     {
         "table_name": "location",

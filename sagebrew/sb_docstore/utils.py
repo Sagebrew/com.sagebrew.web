@@ -359,7 +359,7 @@ def build_wall_docs(pleb):
     except JSONResponseError as e:
         return e
     try:
-        pleb_obj = Pleb.nodes.get(username=pleb)
+        pleb_obj = Pleb.nodes.get(email=pleb)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
         return e
     try:
@@ -445,7 +445,6 @@ def build_rep_page(rep_id, rep_type=None):
         'username': pleb.username, 'rep_id': str(rep.sb_id),
         "bio": str(rep.bio), 'title': rep.title
     }
-    print rep_data
     for key in rep_data.keys():
         print type(rep_data[key])
     rep_table.put_item(rep_data)
@@ -456,7 +455,6 @@ def build_rep_page(rep_id, rep_type=None):
             'category': policy.category,
             'description': policy.description
         }
-        print data
         policy_table.put_item(data)
 
     for experience in experiences:
@@ -500,3 +498,18 @@ def get_rep_docs(rep_id, rep_only=False):
     goals = get_rep_info(rep_id, 'goals')
     return {"rep": rep, "policies": policies, "experiences": experiences,
             'education': education, 'goals': goals}
+
+@apply_defense
+def get_notification_docs(username):
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
+    try:
+        notification_table = Table(table_name=get_table_name('notifications'),
+                                   connection=conn)
+    except JSONResponseError as e:
+        return e
+    return notification_table.query_2(
+        parent_object__eq=username,
+        datetime__gte='0'
+    )

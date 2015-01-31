@@ -4,6 +4,7 @@ from datetime import datetime
 from api.utils import execute_cypher_query
 from django.conf import settings
 from django.template import Context
+from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string, get_template
 
 from neomodel import (StringProperty, IntegerProperty,
@@ -17,6 +18,7 @@ from sb_base.decorators import apply_defense
 
 class SBQuestion(SBVersioned, SBTagContent):
     table = 'public_questions'
+    action = "asked a question"
     up_vote_adjustment = 5
     down_vote_adjustment = 2
     object_type = "0274a216-644f-11e4-9ad9-080027242395"
@@ -43,6 +45,18 @@ class SBQuestion(SBVersioned, SBTagContent):
     closed_by = RelationshipTo('plebs.neo_models.Pleb', 'CLOSED_BY')
     answer = RelationshipTo('sb_answers.neo_models.SBAnswer',
                             'POSSIBLE_ANSWER')
+
+    def get_url(self):
+        return reverse("question_detail_page",
+                       kwargs={"question_uuid": self.sb_id})
+
+    def create_notification(self, pleb, sb_object=None):
+        return {
+            "profile_pic": pleb.profile_pic,
+            "full_name": pleb.get_full_name(),
+            "action": self.action,
+            "url": self.get_url()
+        }
 
     @apply_defense
     def create_relations(self, pleb, question=None, wall=None):

@@ -1,6 +1,7 @@
 import pytz
 from uuid import uuid1
 from datetime import datetime
+from django.core.urlresolvers import reverse
 
 from neomodel import (StringProperty, RelationshipTo, BooleanProperty,
                       CypherException)
@@ -14,6 +15,7 @@ from sb_base.neo_models import SBVersioned
 class SBAnswer(SBVersioned):
     object_type = "02241aee-644f-11e4-9ad9-080027242395"
     table = 'public_solutions'
+    action = "offered a solution to a question"
     up_vote_adjustment = 10
     down_vote_adjustment = 10
     down_vote_cost = 2
@@ -26,6 +28,18 @@ class SBAnswer(SBVersioned):
                                'AUTO_TAGGED_AS')
     answer_to = RelationshipTo('sb_questions.neo_models.SBQuestion',
                                'POSSIBLE_ANSWER_TO')
+
+    def get_url(self):
+        return reverse("question_detail_page",
+                       kwargs={"question_uuid": self.answer_to.all()[0].sb_id})
+
+    def create_notification(self, pleb, sb_object=None):
+        return {
+            "profile_pic": pleb.profile_pic,
+            "full_name": pleb.get_full_name(),
+            "action": self.action,
+            "url": self.get_url()
+        }
 
     @apply_defense
     def create_relations(self, pleb, question=None, wall=None):

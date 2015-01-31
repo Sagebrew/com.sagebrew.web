@@ -1,4 +1,6 @@
+import pytz
 from uuid import uuid1
+from datetime import datetime
 
 from neomodel import DoesNotExist, CypherException
 
@@ -42,12 +44,15 @@ def create_notification_util(sb_object, from_pleb, to_plebs,
         for pleb in to_plebs:
             notification.notification_to.connect(pleb)
             pleb.notifications.connect(notification)
+            res = sb_object.create_notification(from_pleb)
+            res['parent_object'] = pleb.username
+            res['datetime'] = str(datetime.now(pytz.utc))
             notification_data = {'email': pleb.email,
                                  'from_pleb': from_pleb.email,
                                  'notification_about': sb_object.sb_name,
                                  'notification_about_id': sb_object.sb_id,
                                  'notification_id': str(notification_id)}
-            add_object_to_table('notifications', notification_data)
+            add_object_to_table('notifications', res)
         notification.sent = True
         notification.save()
 

@@ -157,7 +157,6 @@ class SBContent(SBVoteableContent):
         return cls.__name__
 
     def create_notification(self, pleb):
-        
         pass
 
     def create_relations(self, pleb, question=None, wall=None):

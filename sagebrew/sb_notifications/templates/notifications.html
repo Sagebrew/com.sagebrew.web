@@ -1,12 +1,7 @@
 <div class="sb_dropdown_label" align="left">Notifications</div>
 <div class="sb_dropdown_content">
 {% for notification in notifications %}
-    {% if notification.notification_about == "post" %}
-        <a class="btn btn-sm btn-primary">{{ notification.from_user }} posted on your wall!</a>
-    {% endif %}
-    {% if notification.notification_about == "comment" %}
-        <a class="btn btn-sm btn-primary">{{ notification.from_user }} commented on a post!</a>
-    {% endif %}
+    {% include 'notification_detail.html' %}
 {% endfor %}
 </div>
 <div class="sb_btn_see_all btn" align="left">See all</div>

@@ -163,6 +163,9 @@ class Pleb(StructuredNode):
     official = RelationshipTo('sb_reps.neo_models.BaseOfficial', 'IS',
                               model=OfficialRelationship)
 
+    def get_full_name(self):
+        return str(self.first_name) + " " + str(self.last_name)
+
     def relate_comment(self, comment):
         try:
             rel_to_pleb = comment.is_owned_by.connect(self)

@@ -115,7 +115,7 @@
   color: #34495e;
 }
 .sb_question_block_minimal_content {
-  font-size: 15px;
+  font-size: 18px;
   padding-left: 15px;
   padding-right: 15px;
   height: 65px;
@@ -123,8 +123,6 @@
 }
 .sb_question_block_data {
   font-size: 11px;
-  line-height: 10px;
-  padding-top: 5px;
 }
 .sb_btn_question_vote_up {
   background-color: transparent;
@@ -159,4 +157,7 @@
 }
 .sb_link:hover {
   color: #1ba39c;
+}
+.sb_row {
+  padding-right: 15px;
 }

@@ -71,7 +71,7 @@
   padding-right: 20px;
 }
 #sb_nav_name {
-  font-size: 15px;
+  font-size: 18px;
   color: #f9fff7;
   font-weight: bold;
   margin-top: -15px;
@@ -190,7 +190,7 @@
   border-radius: 0;
   width: 100%;
   height: 40px;
-  font-size: 15px;
+  font-size: 18px;
 }
 .sb_btn_see_all:active {
   color: #1ba39c;
@@ -203,7 +203,7 @@
   padding-left: 15px;
   background-color: #f9fff7;
   color: #838c92;
-  font-size: 15px;
+  font-size: 18px;
   height: 30px;
   line-height: 30px;
 }

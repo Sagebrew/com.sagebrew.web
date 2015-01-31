@@ -11,7 +11,7 @@ from .tasks import edit_object_task, edit_question_task
 
 from api.utils import spawn_task
 from api.tasks import get_pleb_task
-from sb_docstore.utils import add_object_to_table, update_doc
+from sb_docstore.utils import add_object_to_table, update_doc, get_table_name
 from sb_docstore.tasks import add_object_to_table_task
 
 logger = logging.getLogger('loggly_logs')
@@ -44,7 +44,8 @@ def edit_object_view(request):
         ]
         table = settings.KNOWN_TABLES[
                              edit_object_form.cleaned_data['object_type']]
-        if table == 'posts' or table=='comments':
+        if table == get_table_name('posts') or \
+                        table==get_table_name('comments'):
             obj_datetime = edit_object_form.cleaned_data['datetime']
             parent_object = edit_object_form.cleaned_data['parent_object']
         else:

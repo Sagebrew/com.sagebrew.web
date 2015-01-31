@@ -4,24 +4,7 @@
 }
 .sb_btn {
   height: 30px;
-  color: #1ba39c;
-}
-.sb_questions_input_container {
-  border: solid;
-  border-color: #b7bfbb;
-  border-width: 1px;
-  border-radius: 5px;
-  height: auto;
-  margin-bottom: 15px;
-  padding: 15px;
-}
-#sb_question_input {
-  border-color: #b7bfbb;
-  width: 400px;
-  border-radius: 5px;
-  border-width: 1px;
-  margin-right: -15px;
-  margin-left: -15px;
+  background_color: #1ba39c;
 }
 .sb_question_content_input {
   margin-top: 15px;
@@ -46,10 +29,10 @@
   line-height: 5px;
   color: #ffffff;
 }
-.sb_btn_basic:hover {
-  color: #ffffff;
-}
 .sb_question_btn_group {
   margin-left: 5px;
   margin-top: 15px;
+}
+#question_title_id {
+  border-bottom-color: #ffffff;
 }

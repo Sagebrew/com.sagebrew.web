@@ -22,7 +22,7 @@
             </ul>
         </div>
         <div class="btn-group">
-            <button class="sb_btn_dropdown show_notifications-action btn dropdown-toggle pull-right"
+            <button class="btn dropdown-toggle pull-right sb_btn_dropdown show_notifications-action"
                     type="button"
                     id="dropdownMenu1"
                     data-toggle="dropdown"
@@ -33,6 +33,8 @@
                 role="menu" aria-labelledby="dropdownMenu1">
                 <li role="presentation">
                     <div>
+                        <!-- TODO Talk to tyler about #notification_div id and what it was
+                        used for and if it could be causing issues with dropdowns -->
                         {% block notification_divs %}
                             {% include "notifications.html" %}
                         {% endblock %}

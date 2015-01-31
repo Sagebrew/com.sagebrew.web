@@ -2,13 +2,13 @@
 {% block notifications %}
     <div class="sb_nav_btn_group btn-group">
         <div class="btn-group">
-            <a class="sb_btn_dropdown show_friend_request-action btn dropdown-toggle pull-right"
+            <button class="sb_btn_dropdown show_friend_request-action btn dropdown-toggle pull-right"
                     type="button"
                     id="sb_friend"
                     data-toggle="dropdown"
                     data-email="{{ request.user.email }}">
             <span class="sb_btn_icon fui-user"></span>
-            </a>
+            </button>
             <ul class="sb_nav_dropdown_container dropdown-menu dropdown-menu-right"
                 role="menu"
                 aria-labelledby="dropdownMenu1">

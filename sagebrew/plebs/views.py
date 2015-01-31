@@ -280,15 +280,20 @@ def friends_page(request, pleb_username):
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
-def get_user_rep(request, pleb_email=""):
+def get_user_rep(request):
     '''
     This view will be used when checking if requirements have been met and
     to get the current amount of rep that a user has. It will return both a
-    overall calculated rep score and a breakdown of how the user has gain
+    overall calculated rep score and a breakdown of how the user has gained
     that rep, what tags the rep gain has been associated with.
 
     :param request:
     :param pleb_email:
     :return:
     '''
+    try:
+        pleb = Pleb.nodes.get(username=request.user.username)
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException):
+        return Response({"detail": "pleb does not exist"}, 400)
+
     pass

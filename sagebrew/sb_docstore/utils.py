@@ -501,6 +501,7 @@ def get_rep_docs(rep_id, rep_only=False):
 
 @apply_defense
 def get_notification_docs(username):
+    notification_list = []
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
@@ -509,7 +510,10 @@ def get_notification_docs(username):
                                    connection=conn)
     except JSONResponseError as e:
         return e
-    return notification_table.query_2(
-        parent_object__eq=username,
-        datetime__gte='0'
-    )
+    res = notification_table.query_2(
+                            parent_object__eq=username,
+                            datetime__gte='0')
+    for notification in res:
+        notification_list.append(dict(notification))
+    return notification_list
+

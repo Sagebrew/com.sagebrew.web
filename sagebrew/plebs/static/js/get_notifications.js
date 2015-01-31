@@ -16,7 +16,7 @@ $( document ).ready(function() {
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
             success: function (data) {
-                var notification_div = $('#notification_div');
+                var notification_div = $('#notification_wrapper');
                 console.log(data['html']);
                 notification_div.append(data['html']);
             }

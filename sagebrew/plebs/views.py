@@ -55,7 +55,7 @@ def profile_page(request, pleb_username=""):
     friends_list = get_friends(citizen.email)
     if current_user.email == page_user.email:
         is_owner = True
-    elif citizen.friends.search(email=current_user.email):
+    elif page_user_pleb in citizen.friends.all():
         is_friend = True
 
     # TODO deal with address and senator/rep in a util + task

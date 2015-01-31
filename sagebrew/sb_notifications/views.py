@@ -37,14 +37,14 @@ def get_notifications(request):
         if isinstance(res, Exception):
             return Response({"detail": "fail"}, status=400)
         if not res:
-            query = 'match (p:Pleb) where p.email="%s" ' \
+            query = 'match (p:Pleb) where p.username="%s" ' \
                 'with p ' \
                 'match (p)-[:RECEIVED_A]-(n:NotificationBase) ' \
                 'where n.seen=False ' \
                 'with p, n ' \
                 'order by n.time_sent desc ' \
                 'with n skip %s limit %s return n' % (
-                notification_form.cleaned_data['email'],
+                request.user.username,
                 str(notification_form.cleaned_data['range_start']),
                 str(notification_form.cleaned_data['range_end']))
             try:

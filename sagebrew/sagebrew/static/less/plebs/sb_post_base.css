@@ -38,7 +38,7 @@
   padding: 15px;
 }
 .sb_post_header_info {
-  font-size: 15px;
+  font-size: 18px;
   margin-top: -12px;
   margin-left: 0;
   padding-left: 5px;
@@ -86,14 +86,14 @@
 }
 .sb_icon_down_vote,
 .sb_icon_up_vote {
-  font-size: 15px;
+  font-size: 18px;
 }
 .sb_vote_count {
   color: #838c92;
   width: auto;
   height: 25px;
   padding: 5px 15px 5px 0px;
-  font-size: 15px;
+  font-size: 18px;
   background-color: transparent;
 }
 .sb_btn_vote_icon {

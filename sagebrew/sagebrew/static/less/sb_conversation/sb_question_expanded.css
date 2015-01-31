@@ -24,7 +24,8 @@
   padding-bottom: 15px;
 }
 .sb_answer_content {
-  font-size: 15px;
+  font-size: 18px;
+  margin-top: 30px;
 }
 .sb_answer_block {
   margin-top: 30px;
@@ -35,7 +36,7 @@
   padding-right: 15px;
 }
 .sb_question_detail_block_content {
-  font-size: 15px;
+  font-size: 18px;
   padding-right: 15px;
   min-height: 200px;
 }
@@ -55,4 +56,7 @@
   padding: 10px 10px 10px 10px;
   width: 100%;
   resize: none;
+}
+.sb_answer_btn {
+  padding-top: 15px;
 }

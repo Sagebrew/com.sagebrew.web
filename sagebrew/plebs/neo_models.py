@@ -2,6 +2,7 @@ import re
 import pytz
 from uuid import uuid1
 from datetime import datetime
+from django.conf import settings
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
@@ -116,7 +117,7 @@ class Pleb(StructuredNode):
     stripe_customer_id = StringProperty()
 
     # Relationships
-    oauth = RelationshipTo("plebs.neo_models.OauthClientNeo", "OAUTH_CLIENT")
+    oauth = RelationshipTo("plebs.neo_models.OauthUser", "OAUTH_CLIENT")
     tags = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGS',
                           model=TagRelationship)
     voted_on = RelationshipTo('sb_base.neo_models.SBVoteableContent', 'VOTES')
@@ -301,11 +302,14 @@ class City(StructuredNode):
 class District(StructuredNode):
     number = IntegerProperty()
 
-class OauthClientNeo(StructuredNode):
+class OauthUser(StructuredNode):
     sb_id = StringProperty(default=lambda: str(uuid1()))
+    web_address = StringProperty(
+        default=lambda: settings.WEB_ADDRESS+'/o/token')
     access_token = StringProperty()
-    client_id = StringProperty()
-    client_secret = StringProperty()
     expires_in = IntegerProperty()
     refresh_token = StringProperty()
-    last_updated = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    token_type = StringProperty(default="Bearer")
+    last_modified = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+
+

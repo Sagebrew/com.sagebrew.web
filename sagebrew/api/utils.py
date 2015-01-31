@@ -1,4 +1,5 @@
 import time
+import pytz
 import boto.sqs
 import importlib
 import requests
@@ -6,6 +7,8 @@ import hashlib
 import shortuuid
 from uuid import uuid1
 from json import dumps
+from datetime import timedelta, datetime
+from django.core import signing
 from django.contrib.auth.models import User
 from boto.sqs.message import Message
 from bomberman.client import Client, RateLimitExceeded
@@ -16,7 +19,7 @@ from django.conf import settings
 
 from sb_base.utils import defensive_exception
 from sb_base.decorators import apply_defense
-from plebs.neo_models import Pleb
+from plebs.neo_models import Pleb, OauthUser
 from api.alchemyapi import AlchemyAPI
 
 
@@ -24,67 +27,99 @@ from api.alchemyapi import AlchemyAPI
 def post_to_api(api_url, data, username, headers=None):
     if headers is None:
         headers = {}
-    headers['Authorization'] = "Bearer %s" % (get_oauth_access_token(username))
+    headers['Authorization'] = "%s %s" % (get_oauth_access_token(username))
     url = "%s%s" % (settings.WEB_ADDRESS, api_url)
     response = requests.post(url, data=dumps(data),
                             verify=settings.VERIFY_SECURE, headers=headers)
     return response.json()
 
 
-def get_oauth_client(username):
-    url = settings.WEB_ADDRESS + '/o/access_token'
-    pleb = Pleb.nodes.get(username=username)
-    user = User.objects.get(username=username)
-    client = Pleb.oauth.all()
-    response = requests.post(url, data={
-        'client_id': client.client_id,
-        'client_secret': client.client_secret,
-        'username': pleb.username,
-        'password': settings.API_PASSWORD,
+def get_oauth_client(username, password, web_address, client_id=None,
+                     client_secret=None):
+    if client_id is None:
+        client_id = settings.OAUTH_CLIENT_ID
+    if client_secret is None:
+        client_secret = settings.OAUTH_CLIENT_SECRET
+    response = requests.post(web_address, data={
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'username': username,
+        'password': password,
         'grant_type': 'password'}, verify=settings.VERIFY_SECURE)
     return response.json()
 
 
-def refresh_oauth_access_token(oauth_client):
-    url = settings.WEB_ADDRESS + '/oauth2/access_token'
+def refresh_oauth_access_token(refresh_token, url, client_id=None,
+                               client_secret=None):
+    if client_id is None:
+        client_id = settings.OAUTH_CLIENT_ID
+    if client_secret is None:
+        client_secret = settings.OAUTH_CLIENT_SECRET
     data = {
-        'client_id': oauth_client['client_id'],
-        'client_secret': oauth_client['client_secret'],
+        'client_id': client_id,
+        'client_secret': client_secret,
         'grant_type': 'refresh_token',
-        'refresh_token': oauth_client['refresh_token']
+        'refresh_token': refresh_token
     }
     response = requests.post(url, data=data,
                              verify=settings.VERIFY_SECURE)
-    return response
+    return response.json()
 
 
 def check_oauth_expires_in(oauth_client):
-    if oauth_client['expires_in'] < 100:
+    elapsed = datetime.now(pytz.utc) - oauth_client.last_modified
+    if elapsed.total_seconds() < 1800:
         return True
     return False
 
 
-def get_oauth_access_token(username):
-    oauth_client = get_oauth_client(username)
-    if check_oauth_expires_in(oauth_client):
-        return refresh_oauth_access_token(oauth_client)['access_token']
-    return oauth_client['access_token']
+def get_oauth_access_token(username, web_address=None):
+    if web_address is None:
+        web_address = settings.WEB_ADDRESS + '/o/token'
+    pleb = Pleb.nodes.get(username=username)
+    try:
+        oauth_creds = [oauth_user for oauth_user in pleb.oauth.all()
+                  if oauth_user.web_address == web_address][0]
+    except IndexError:
+        return
+    if check_oauth_expires_in(oauth_creds):
+        updated_creds = refresh_oauth_access_token(oauth_creds.refresh_token,
+                                          oauth_creds.web_address)
+        oauth_creds.last_modified = datetime.now(pytz.utc)
+        oauth_creds.access_token = updated_creds['access_token']
+        oauth_creds.token_type = updated_creds['token_type']
+        oauth_creds.expires_in = updated_creds['expires_id']
+        oauth_creds.refresh_token = updated_creds['refresh_token']
+        oauth_creds.save()
+        return
+    return oauth_creds.access_token
 
-def generate_oauth_client(username):
+def generate_oauth_user(username, password, web_address=None):
+    if web_address is None:
+        web_address = settings.WEB_ADDRESS + '/o/token'
     try:
         pleb = Pleb.nodes.get(username=username)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
         return e
-    '''try:
-        oauth = OauthClientNeo(client_id=generate_short_token(),
-                               client_secret=generate_long_token()).save()
+    creds = get_oauth_client(username, password, web_address)
+    try:
+        oauth = OauthUser(access_token=encrypt(creds['access_token']),
+                          token_type=creds['token_type'],
+                          expires_in=creds['expires_id'],
+                          refresh_token=encrypt(creds['refresh_token'])).save()
     except CypherException as e:
         return e
     try:
         pleb.oauth.connect(oauth)
     except CypherException as e:
-        return e'''
+        return e
     return True
+
+def encrypt(data):
+    return signing.dumps(data)
+
+def unencrypt(data):
+    return signing.loads(data)
 
 def generate_short_token():
     short_hash = hashlib.sha1(shortuuid.uuid())

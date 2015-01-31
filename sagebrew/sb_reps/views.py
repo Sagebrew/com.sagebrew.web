@@ -61,7 +61,6 @@ def representative_page(request, rep_type="", rep_id=""):
 def get_rep_info(request):
     rep_id =  str(request.DATA['rep_id'])
     res = get_rep_docs(rep_id)
-    print res
     if isinstance(res, Exception):
         return redirect('404_Error')
     if not res:

@@ -156,6 +156,10 @@ class SBContent(SBVoteableContent):
     def get_model_name(cls):
         return cls.__name__
 
+    def create_notification(self, pleb):
+        
+        pass
+
     def create_relations(self, pleb, question=None, wall=None):
         try:
             self.owned_by.connect(pleb)

@@ -4,8 +4,9 @@
 {% block css %}
     {{ block.super }}
     <link href="{% static 'select2/select2.css' %}" rel="stylesheet"/>
-        <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_base.css' %}"/>
+    <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_base.css' %}"/>
     <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_input.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/vendor/jquery.pagedown-bootstrap.css' %}"/>
 {% endblock css %}
 
 {% block content %}
@@ -46,6 +47,8 @@
 
 {% block scripts %}
     {{ block.super }}
+    <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
+    <script src="{% static 'js/create_markdown.js' %}"></script>
     <script src="{% static 'js/save_question.js' %}"></script>
     <script src="{% static 'js/get_tags.js' %}"></script>
     <script src="{% static 'select2/select2.js' %}"></script>

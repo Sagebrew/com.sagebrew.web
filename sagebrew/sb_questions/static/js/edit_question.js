@@ -3,7 +3,9 @@ $( document ).ready(function() {
         var question_uuid = $(this).data('question_uuid');
         $('#edit_question_'+question_uuid).fadeToggle();
     });
-
+    $("#sb_comment_link").click(function () {
+        $(this).show("#sb_comment_container");
+    });
 	$("a.edit_question-action").click(function(event){
 		event.preventDefault();
 		$.ajaxSetup({

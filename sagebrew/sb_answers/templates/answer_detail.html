@@ -21,12 +21,15 @@
                 </a>
                 <div style="display: none" class="sb_downvote_count{{ answer.object_uuid }}">{{ answer.down_vote_number }}</div>
            </div>
-        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+        <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
             <div class="row">
                 <div class="sb_answer_content">
                     {{ answer.content }}
                 </div>
             </div>
+        </div>
+        <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
+            {% include "answer_dropdown.html" %}
         </div>
     </div>
 
@@ -39,19 +42,12 @@
             written by <a href="{{ the_url }}">{{ owner }}</a>
         </div>
     </div>
-    <a class="btn btn-primary btn-sm delete_object-action"
-       data-object_uuid="{{ answer.object_uuid }}"
-       data-object_type="02241aee-644f-11e4-9ad9-080027242395"
-       data-current_pleb="{{ answer.current_pleb }}">Delete</a>
-    <a class="btn btn-primary btn-sm show_edit_answer-action"
-       data-object_uuid="{{ answer.object_uuid }}"
-       data-parent_object="{{ answer.parent_object }}">Edit</a>
-    <div style="display:none" id="show_edit_sb_id_{{ answer.object_uuid }}">
-        <textarea class="form-control" id="{{ answer.object_uuid }}" placeholder="Edit your answer..."></textarea>
-        <a class="btn btn-primary btn-sm edit_object-action"
+    <div class="row sb_edit_input_container"style="display:none" id="show_edit_sb_id_{{ answer.object_uuid }}">
+        <textarea class="form-control sb_edit_input" id="{{ answer.object_uuid }}" placeholder="Edit your answer..."></textarea>
+        <a class="btn btn-primary sb_btn sb_btn_basic edit_object-action"
            data-object_type="02241aee-644f-11e4-9ad9-080027242395"
            data-object_uuid="{{ answer.object_uuid }}"
-           data-parent_object="{{ answer.parent_object }}">Submit Edit</a>
+           data-parent_object="{{ answer.parent_object }}">Submit</a>
     </div>
     {% block answer_comments %}
         {% for comment in answer.comments %}

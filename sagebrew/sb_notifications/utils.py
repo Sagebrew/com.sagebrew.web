@@ -47,11 +47,6 @@ def create_notification_util(sb_object, from_pleb, to_plebs,
             res = sb_object.create_notification(from_pleb)
             res['parent_object'] = pleb.username
             res['datetime'] = str(datetime.now(pytz.utc))
-            notification_data = {'email': pleb.email,
-                                 'from_pleb': from_pleb.email,
-                                 'notification_about': sb_object.sb_name,
-                                 'notification_about_id': sb_object.sb_id,
-                                 'notification_id': str(notification_id)}
             add_object_to_table('notifications', res)
         notification.sent = True
         notification.save()

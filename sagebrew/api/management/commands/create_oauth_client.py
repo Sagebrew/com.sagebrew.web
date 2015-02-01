@@ -17,7 +17,7 @@ class Command(BaseCommand):
                                                :128]
         try:
             oauth_user = User.objects.get(username=environ.get("APP_USER",""))
-        except oauth_user.DoesNotExist:
+        except User.DoesNotExist:
             oauth_user = User(username=environ.get("APP_USER", ""),
                           password=password)
             oauth_user.save()

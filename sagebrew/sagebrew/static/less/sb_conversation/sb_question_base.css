@@ -6,6 +6,27 @@
   height: 30px;
   background_color: #1ba39c;
 }
+.sb_icon {
+  font-size: 21px;
+}
+.sb_dropdown_icon {
+  color: #eaf0e8;
+}
+.sb_post_btn_dropdown {
+  background: transparent;
+  margin-top: -15px;
+}
+.sb_post_dropdown_menu {
+  text-align: left;
+  padding-left: 20px;
+}
+.sb_link {
+  display: inline-block;
+  color: #34495e;
+}
+.sb_link:hover {
+  color: #1ba39c;
+}
 #sb_pagination_arrow {
   background-color: transparent;
 }
@@ -123,6 +144,7 @@
 }
 .sb_question_block_data {
   font-size: 11px;
+  display: inline-block;
 }
 .sb_btn_question_vote_up {
   background-color: transparent;
@@ -152,12 +174,10 @@
   font-size: 21px;
   font-weight: bold;
 }
-.sb_link {
-  color: #34495e;
-}
-.sb_link:hover {
-  color: #1ba39c;
-}
 .sb_row {
   padding-right: 15px;
+}
+.sb_comment_row {
+  margin-left: 0px;
+  margin-right: 0px;
 }

@@ -6,7 +6,7 @@
 @sb_green_light: #d0e9c6;
 @sb_green_extra_light: #eaf0e8;
 @sb_green_wall: #e0e7e1;
-@sb_green_extra_light: #f9fff7;
+@sb_grey_extra_light: #f9fff7;
 @sb_grey_light:#e5ece6;
 @sb_grey: #b7bfbb;
 @sb_grey_dark: #838c92;
@@ -44,6 +44,24 @@
   height: @sb_btn_height;
   background_color: @sb_green;
 }
-.sb_normal_header{
-  font-size: @s;
+.sb_icon{
+    font-size: @sb_header_text;
+}
+.sb_dropdown_icon {
+    color: @sb_green_extra_light;
+}
+.sb_post_btn_dropdown{
+    background: transparent;
+    margin-top: @sb_common_padding_negative;
+}
+.sb_post_dropdown_menu{
+    text-align: left;
+    padding-left: 20px;
+}
+.sb_link{
+  display: inline-block;
+  color: @sb_dark_blue;
+      &:hover{
+        color: @sb_green;
+      }
 }

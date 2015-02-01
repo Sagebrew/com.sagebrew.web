@@ -6,10 +6,32 @@
   height: 30px;
   background_color: #1ba39c;
 }
+.sb_icon {
+  font-size: 21px;
+}
+.sb_dropdown_icon {
+  color: #eaf0e8;
+}
+.sb_post_btn_dropdown {
+  background: transparent;
+  margin-top: -15px;
+}
+.sb_post_dropdown_menu {
+  text-align: left;
+  padding-left: 20px;
+}
+.sb_link {
+  display: inline-block;
+  color: #34495e;
+}
+.sb_link:hover {
+  color: #1ba39c;
+}
 .sb_question_detail_block {
   background-color: #fafcfa;
   border-radius: 5px;
   min-height: 250px;
+  height: auto;
 }
 .sb_vote_data_block {
   padding-top: 15px;
@@ -59,4 +81,17 @@
 }
 .sb_answer_btn {
   padding-top: 15px;
+}
+.sb_question_drop_down {
+  padding-top: 15px;
+}
+.sb_edit_input_container {
+  padding: 15px;
+}
+.sb_edit_input {
+  margin-bottom: 15px;
+  margin-top: 15px;
+  border-width: 1px 1px 1px 1px;
+  border-radius: 5px;
+  border-color: #d0e9c6;
 }

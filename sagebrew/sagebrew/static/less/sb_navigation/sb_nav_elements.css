@@ -6,6 +6,27 @@
   height: 30px;
   background_color: #1ba39c;
 }
+.sb_icon {
+  font-size: 21px;
+}
+.sb_dropdown_icon {
+  color: #eaf0e8;
+}
+.sb_post_btn_dropdown {
+  background: transparent;
+  margin-top: -15px;
+}
+.sb_post_dropdown_menu {
+  text-align: left;
+  padding-left: 20px;
+}
+.sb_link {
+  display: inline-block;
+  color: #34495e;
+}
+.sb_link:hover {
+  color: #1ba39c;
+}
 .sb_top_menu {
   height: 45px;
   padding-top: 5px;

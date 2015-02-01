@@ -6,6 +6,27 @@
   height: 30px;
   background_color: #1ba39c;
 }
+.sb_icon {
+  font-size: 21px;
+}
+.sb_dropdown_icon {
+  color: #eaf0e8;
+}
+.sb_post_btn_dropdown {
+  background: transparent;
+  margin-top: -15px;
+}
+.sb_post_dropdown_menu {
+  text-align: left;
+  padding-left: 20px;
+}
+.sb_link {
+  display: inline-block;
+  color: #34495e;
+}
+.sb_link:hover {
+  color: #1ba39c;
+}
 .sb_post_content {
   margin-bottom: 30px;
   background-color: #fafcfa;
@@ -78,12 +99,6 @@
   font-size: 11px;
   line-height: 10px;
 }
-.sb_icon {
-  font-size: 21px;
-}
-.sb_dropdown_icon {
-  color: #b7bfbb;
-}
 .sb_icon_down_vote,
 .sb_icon_up_vote {
   font-size: 18px;
@@ -109,14 +124,6 @@
 .sb_btn_vote_icon:hover {
   color: #1ba39c;
   border-color: #b7bfbb;
-}
-.sb_post_btn_dropdown {
-  background: transparent;
-  margin-top: -15px;
-}
-.sb_post_dropdown_menu {
-  text-align: left;
-  padding-left: 20px;
 }
 #sb_vote_style {
   color: #838c92;

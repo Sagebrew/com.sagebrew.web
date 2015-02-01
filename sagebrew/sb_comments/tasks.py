@@ -53,7 +53,7 @@ def save_comment_on_object(content, current_pleb, object_uuid, object_type,
 @shared_task()
 def create_comment_relations(current_pleb, comment, sb_object):
         res = comment_relations(current_pleb, comment, sb_object)
-
+        to_plebs = []
         if isinstance(res, Exception) is True:
             raise create_comment_relations.retry(exc=res, countdown=3,
                                                  max_retries=None)
@@ -65,11 +65,12 @@ def create_comment_relations(current_pleb, comment, sb_object):
             raise create_comment_relations.retry(exc=res, countdown=3,
                                                  max_retries=None)
         try:
-            to_plebs = sb_object.owned_by.all()
+            for pleb in sb_object.owned_by.all():
+                to_plebs.append(pleb.email)
         except CypherException:
             raise create_comment_relations.retry(exc=res, countdown=3,
                                                  max_retries=None)
-        data = {'from_pleb': current_pleb, 'to_plebs': to_plebs,
+        data = {'from_pleb': current_pleb.email, 'to_plebs': to_plebs,
                 'sb_object': comment}
         spawned = spawn_task(task_func=spawn_notifications, task_param=data)
         if isinstance(spawned, Exception) is True:

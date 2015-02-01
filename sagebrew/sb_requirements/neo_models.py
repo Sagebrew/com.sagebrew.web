@@ -8,6 +8,8 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       BooleanProperty, FloatProperty, CypherException,
                       RelationshipFrom, DoesNotExist, JSONProperty)
 
+from api.utils import post_to_api
+
 class Requirement(StructuredNode):
     sb_id = StringProperty(default=lambda: str(uuid1()), unique_index=True)
     url = StringProperty()

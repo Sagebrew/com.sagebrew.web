@@ -124,7 +124,8 @@ def query_parent_object_table(object_uuid, get_all=False, table_name='edits'):
 
 
 @apply_defense
-def update_doc(table, object_uuid, update_data, parent_object="", datetime=""):
+def update_doc(table, object_uuid, update_data, parent_object="",
+               obj_datetime=""):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
@@ -132,9 +133,9 @@ def update_doc(table, object_uuid, update_data, parent_object="", datetime=""):
         db_table = Table(table_name=get_table_name(table), connection=conn)
     except JSONResponseError as e:
         return e
-    if datetime != "" and parent_object!="":
+    if obj_datetime != "" and parent_object != "":
         res = db_table.get_item(parent_object=parent_object,
-                                datetime=datetime)
+                                datetime=obj_datetime)
     elif parent_object!="":
         res = db_table.get_item(parent_object=parent_object,
                                 object_uuid=object_uuid)

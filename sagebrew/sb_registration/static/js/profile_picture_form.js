@@ -23,11 +23,13 @@ $( document ).ready(function() {
     });
     $( "#image_uploaded" ).on("mouseenter", "img", function() {
         $("img").Jcrop({
+           allowResize: false,
+           allowSelect:false,
            onSelect: getCoords,
-           aspectRatio: 150/150,
+           aspectRatio: 200/200,
            bgColor: '#26424a',
            bgOpacity: 0.4,
-           setSelect: [ 60, 70, 540, 330 ]
+           setSelect: [ 0, 0, 200, 200 ]
         });
     });
 });

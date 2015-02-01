@@ -6,6 +6,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from neomodel import DoesNotExist, CypherException
+from oauth2_provider.decorators import protected_resource
+from oauth2_provider.ext.rest_framework import TokenHasScope
 
 from plebs.neo_models import Pleb
 from sb_registration.utils import (get_friends, generate_profile_pic_url,
@@ -277,7 +279,7 @@ def friends_page(request, pleb_username):
         'friends_list': friends_list,
     })
 
-
+#@protected_resource(['read']) # Add TokenHasScope back into @permission_classes to use this
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def get_user_rep(request):
@@ -288,9 +290,9 @@ def get_user_rep(request):
     that rep, what tags the rep gain has been associated with.
 
     :param request:
-    :param pleb_email:
     :return:
     '''
+    print 'yayay'
     try:
         pleb = Pleb.nodes.get(username=request.user.username)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException):

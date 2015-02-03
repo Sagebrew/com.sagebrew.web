@@ -117,6 +117,7 @@ class Pleb(StructuredNode):
     stripe_customer_id = StringProperty()
 
     # Relationships
+    badges = RelationshipTo("sb_badges.neo_models.BadgeBase", "BADGES")
     oauth = RelationshipTo("plebs.neo_models.OauthUser", "OAUTH_CLIENT")
     tags = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGS',
                           model=TagRelationship)
@@ -205,7 +206,7 @@ class Pleb(StructuredNode):
         return {"rep_list": rep_list,
                 "base_tags": base_tags,
                 "tags": tags,
-                "total_rep": 0}
+                "total_rep": total_rep}
 
     def get_object_rep_count(self):
         pass
@@ -308,7 +309,7 @@ class District(StructuredNode):
 class OauthUser(StructuredNode):
     sb_id = StringProperty(default=lambda: str(uuid1()))
     web_address = StringProperty(
-        default=lambda: settings.WEB_ADDRESS+'/o/token')
+        default=lambda: settings.WEB_ADDRESS+'/o/token/')
     access_token = StringProperty()
     expires_in = IntegerProperty()
     refresh_token = StringProperty()

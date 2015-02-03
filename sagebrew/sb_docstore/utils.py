@@ -209,7 +209,6 @@ def get_question_doc(question_uuid, question_table, solution_table):
         answer_list.append(answer)
     question['answers'] = answer_list
     question['comments'] = q_comments
-    print question
     return question
 
 
@@ -446,8 +445,6 @@ def build_rep_page(rep_id, rep_type=None):
         'username': pleb.username, 'rep_id': str(rep.sb_id),
         "bio": str(rep.bio), 'title': rep.title
     }
-    for key in rep_data.keys():
-        print type(rep_data[key])
     rep_table.put_item(rep_data)
     for policy in policies:
         data = {
@@ -470,7 +467,6 @@ def build_rep_page(rep_id, rep_type=None):
             'company': experience.company_s,
             'location': experience.location_s
         }
-        print data
         experience_table.put_item(data)
     return True
 
@@ -518,3 +514,20 @@ def get_notification_docs(username):
         notification_list.append(dict(notification))
     return notification_list
 
+@apply_defense
+def get_user_reputation(username):
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
+    try:
+        reputation_table = Table(table_name=get_table_name('reputation'),
+                                 connection=conn)
+    except JSONResponseError as e:
+        return e
+    try:
+        res = reputation_table.get_item(
+            parent_object=username
+        )
+    except ItemNotFound:
+        return False
+    return dict(res)

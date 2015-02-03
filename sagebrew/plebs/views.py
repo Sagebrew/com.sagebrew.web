@@ -292,10 +292,8 @@ def get_user_rep(request):
     :param request:
     :return:
     '''
-    print 'yayay'
     try:
         pleb = Pleb.nodes.get(username=request.user.username)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException):
         return Response({"detail": "pleb does not exist"}, 400)
-
-    pass
+    return Response(pleb.get_total_rep(), 200)

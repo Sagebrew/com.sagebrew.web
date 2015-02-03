@@ -24,13 +24,17 @@ from api.alchemyapi import AlchemyAPI
 
 
 
-def post_to_api(api_url, data, username, headers=None):
+def post_to_api(api_url, username, data=None, headers=None, req_method=None):
     if headers is None:
         headers = {}
-    headers['Authorization'] = "%s %s" % (get_oauth_access_token(username))
+    headers['Authorization'] = "%s %s" % ('Bearer', get_oauth_access_token(username))
     url = "%s%s" % (settings.WEB_ADDRESS, api_url)
-    response = requests.post(url, data=dumps(data),
+    if req_method is None:
+        response = requests.post(url, data=dumps(data),
                             verify=settings.VERIFY_SECURE, headers=headers)
+    elif req_method == 'get':
+        response = requests.get(url, verify=settings.VERIFY_SECURE,
+                                headers=headers)
     return response.json()
 
 

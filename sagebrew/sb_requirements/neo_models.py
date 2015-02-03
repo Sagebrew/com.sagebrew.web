@@ -19,19 +19,17 @@ class Requirement(StructuredNode):
     auth_type = StringProperty()
 
     #methods
-    def check_requirement(self):
-        req = urllib2.Request(self.url)
-        res = urllib2.urlopen(req)
-        data = res.read()
-        temp_type = type(data[self.key])
+    def check_requirement(self, username):
+        res = post_to_api(self.url, username, req_method='get')
+        temp_type = type(res[self.key])
         temp_cond = temp_type(self.condition)
         return self.build_check_dict(
-            pickle.loads(self.operator)(data[self.key], temp_cond),
-            data[self.key])
+            pickle.loads(self.operator)(res[self.key], temp_cond),
+            res[self.key])
 
     def build_check_dict(self, check, current):
         if not check:
-            return {"detail": "The requirement %s was not met"%(self.sb_id),
+            return {"detail": False,
                     "key": self.key,
                     "operator": pickle.loads(self.operator),
                     "response": check,

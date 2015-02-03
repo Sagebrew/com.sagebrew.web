@@ -7,7 +7,7 @@ from .views import (profile_page, get_user_search_view,
 
 urlpatterns = patterns(
     'plebs.views',
-    url(r'^profile', get_user_rep, name="user_rep_api"),
+    url(r'^v1/profile/', get_user_rep, name="user_rep_api"),
     url(r'^(?P<pleb_username>[A-Za-z0-9.@_%+-]{7,60})/about/',
        about_page, name="about_page"),
     url(r'^(?P<pleb_username>[A-Za-z0-9.@_%+-]{7,60})/friends/',

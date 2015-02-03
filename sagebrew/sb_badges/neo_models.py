@@ -17,13 +17,14 @@ class BadgeBase(StructuredNode):
 
 
     #methods
-    def check_requirements(self):
+    def check_requirements(self, username):
         req_checks = []
         for req in self.get_requirements():
-            res = req.check_requirement()
-            if not res["response"]:
-                req_checks.append(res)
-        return req_checks
+            res = req.check_requirement(username)
+            req_checks.append(res['response'])
+        if False in req_checks:
+            return False
+        return True
 
     def get_dict(self):
         requirements = []

@@ -1,5 +1,4 @@
 import pytz
-from celery import shared_task
 from datetime import datetime
 from neomodel import (DoesNotExist, CypherException)
 

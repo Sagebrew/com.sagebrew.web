@@ -26,6 +26,11 @@ class PostObjectCreated(StructuredRel):
     rep_gained = IntegerProperty(default=0)
     rep_lost = IntegerProperty(defaut=0)
 
+class ActionActiveRel(StructuredRel):
+    gained_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    active = BooleanProperty(default=True)
+    lost_on = DateTimeProperty()
+
 class OfficialRelationship(StructuredRel):
     active = BooleanProperty(default=False)
     start_date = DateTimeProperty()
@@ -117,6 +122,10 @@ class Pleb(StructuredNode):
     stripe_customer_id = StringProperty()
 
     # Relationships
+    privileges = RelationshipTo('sb_privileges.neo_models.SBPrivilege', 'HAS',
+                                model=ActionActiveRel)
+    actions = RelationshipTo('sb_privileges.neo_models.SBAction', 'CAN',
+                             model=ActionActiveRel)
     badges = RelationshipTo("sb_badges.neo_models.BadgeBase", "BADGES")
     oauth = RelationshipTo("plebs.neo_models.OauthUser", "OAUTH_CLIENT")
     tags = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGS',

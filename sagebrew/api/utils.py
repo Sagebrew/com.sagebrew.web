@@ -72,7 +72,7 @@ def refresh_oauth_access_token(refresh_token, url, client_id=None,
 
 def check_oauth_expires_in(oauth_client):
     elapsed = datetime.now(pytz.utc) - oauth_client.last_modified
-    if elapsed.total_seconds() < 1800:
+    if elapsed.total_seconds() >= 37800:
         return True
     return False
 

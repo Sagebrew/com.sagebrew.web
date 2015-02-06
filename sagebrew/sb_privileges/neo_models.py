@@ -47,7 +47,8 @@ class SBPrivilege(StructuredNode):
             "sb_id": self.sb_id,
             "name": self.privilege_name,
             "actions": actions,
-            "requirements": requirements
+            "requirements": requirements,
+            "privilege": self.privilege_name
         }
 
 
@@ -66,7 +67,7 @@ class SBAction(StructuredNode):
 
     def get_dict(self):
         return {"sb_id": self.sb_id,
-                "action_type": self.action,
+                "action": self.action,
                 "object_type": self.object_type,
                 "url": self.url,
                 "html_object": self.html_object}

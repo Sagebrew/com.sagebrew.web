@@ -566,9 +566,19 @@ def build_privileges(username):
         privilege_table = Table(table_name=get_table_name('privileges'))
     except JSONResponseError as e:
         return e
-    active_privileges = []
+
     for privilege in pleb.privileges.all():
         rel = pleb.privileges.relationship(privilege)
         if rel.active:
-            active_privileges.append(privilege)
-    
+            privilege_dict = privilege.get_dict()
+            privilege_dict['parent_object'] = username
+            privilege_table.put_item(privilege_dict, True)
+
+    for action in pleb.actions.all():
+        rel = pleb.actions.relationship(action)
+        if rel.active:
+            action_dict = action.get_dict()
+            action_dict['parent_object'] = username
+            action_table.put_item(action_dict, True)
+
+    return True

@@ -173,6 +173,9 @@ class Pleb(StructuredNode):
     official = RelationshipTo('sb_reps.neo_models.BaseOfficial', 'IS',
                               model=OfficialRelationship)
 
+    def get_badges(self):
+        return self.badges.all()
+
     def get_full_name(self):
         return str(self.first_name) + " " + str(self.last_name)
 

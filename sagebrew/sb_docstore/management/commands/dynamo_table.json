@@ -133,5 +133,15 @@
     {
         "table_name": "reputation",
         "hash_key": "parent_object"
+    },
+    {
+        "table_name": "actions",
+        "hash_key":  "parent_object",
+        "range_key": "action"
+    },
+    {
+        "table_name": "privileges",
+        "hash_key": "parent_object",
+        "range_key": "privilege"
     }
 ]

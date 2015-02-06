@@ -14,13 +14,20 @@ class SBPrivilege(StructuredNode):
     actions = RelationshipTo('sb_privileges.neo_models.SBAction', 'GRANTS')
     requirements = RelationshipTo('sb_requirements.neo_models.Requirement',
                                   'REQUIRES')
+    badges = RelationshipTo('sb_badges.neo_models.BadgeBase', "REQUIRES_BADGE")
 
-    def check_requirements(self, username):
+    def check_requirements(self, pleb):
         req_checks = []
         for req in self.get_requirements():
-            req_checks.append(req.check_requirement(username)['response'])
+            req_checks.append(req.check_requirement(pleb.username)['response'])
         if False in req_checks:
             return False
+        return True
+
+    def check_badges(self, pleb):
+        for badge in pleb.get_badges():
+            if badge not in self.badges.all():
+                return False
         return True
 
     def get_requirements(self):
@@ -51,7 +58,7 @@ class SBAction(StructuredNode):
     action = StringProperty(default="read")
     object_type = StringProperty()#one of the object types specified in settings.KNOWN_TYPES
     url = StringProperty()
-
+    html_object = StringProperty()
 
     #relationships
     privilege = RelationshipTo('sb_privileges.neo_models.SBPrivilege',
@@ -61,4 +68,24 @@ class SBAction(StructuredNode):
         return {"sb_id": self.sb_id,
                 "action_type": self.action,
                 "object_type": self.object_type,
-                "url": self.url}
+                "url": self.url,
+                "html_object": self.html_object}
+
+class SBRestriction(StructuredNode):
+    sb_id = StringProperty(default=lambda: str(uuid1()))
+    restriction_type = StringProperty()
+    restriction_limit = IntegerProperty()
+    restriction_time_limit = DateTimeProperty()
+    restriction_expiry = DateTimeProperty()
+    url = StringProperty()
+
+    #methods
+    def get_dict(self):
+        return {
+            "sb_id": self.sb_id,
+            "restriction_type": self.restriction_type,
+            "restriction_limit": self.restriction_limit,
+            "restriction_time_limit": self.restriction_time_limit,
+            "restriction_expiry": self.restriction_expiry,
+            "url": self.url
+        }

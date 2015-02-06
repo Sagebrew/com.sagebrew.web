@@ -15,7 +15,7 @@ def manage_privilege_relation(username):
     except CypherException as e:
         return e
     for privilege in privileges:
-        res = privilege.check_requirements(username)
+        res = privilege.check_requirements(pleb)
         if not res and privilege in pleb.privileges.all():
             rel = pleb.privileges.relationship(privilege)
             if rel.active:

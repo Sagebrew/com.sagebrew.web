@@ -531,3 +531,44 @@ def get_user_reputation(username):
     except ItemNotFound:
         return False
     return dict(res)
+
+@apply_defense
+def get_action(username, action):
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
+    try:
+        action_table = Table(table_name=get_table_name('actions'))
+    except JSONResponseError as e:
+        return e
+    try:
+        action_object = action_table.get_item(
+            parent_object=username,
+            action=action
+        )
+    except JSONResponseError as e:
+        return e
+    except ItemNotFound:
+        return False
+    return dict(action_object)
+
+@apply_defense
+def build_privileges(username):
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
+    try:
+        pleb = Pleb.nodes.get(username=username)
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
+        return e
+    try:
+        action_table = Table(table_name=get_table_name('actions'))
+        privilege_table = Table(table_name=get_table_name('privileges'))
+    except JSONResponseError as e:
+        return e
+    active_privileges = []
+    for privilege in pleb.privileges.all():
+        rel = pleb.privileges.relationship(privilege)
+        if rel.active:
+            active_privileges.append(privilege)
+    

@@ -564,6 +564,7 @@ def build_privileges(username):
     try:
         action_table = Table(table_name=get_table_name('actions'))
         privilege_table = Table(table_name=get_table_name('privileges'))
+        #TODO implement functionality for restriction table
     except JSONResponseError as e:
         return e
 
@@ -580,5 +581,7 @@ def build_privileges(username):
             action_dict = action.get_dict()
             action_dict['parent_object'] = username
             action_table.put_item(action_dict, True)
+
+    #TODO implement functionality for restriction table population
 
     return True

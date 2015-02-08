@@ -1,5 +1,5 @@
 $( document ).ready(function() {
-	$("a.submit_question-action").click(function(event){
+	$(".submit_question-action").click(function(event){
 		event.preventDefault();
 		$.ajaxSetup({
 		    beforeSend: function (xhr, settings) {

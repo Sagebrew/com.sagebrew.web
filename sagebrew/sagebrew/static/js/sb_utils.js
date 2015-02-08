@@ -111,7 +111,7 @@ function vote_object() {
 }
 
 function save_answer() {
-    $("a.submit_answer-action").click(function(event){
+    $(".submit_answer-action").click(function(event){
 		event.preventDefault();
 		$.ajaxSetup({
 		    beforeSend: function(xhr, settings) {

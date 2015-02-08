@@ -9,25 +9,28 @@
     <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_base.css' %}"/>
     <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_input.css' %}"/>
     <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_expanded.css' %}"/>
+    <link rel="stylesheet" href="{% static 'less/sb_markdown.css' %}"/>
+    <link rel="stylesheet" href="{% static 'less/sb_general.css' %}"/>
     <link rel="stylesheet" href="{% static 'less/plebs/sb_comment.css' %}"/>
 {%  endblock css %}
 {% block content %}
-<div class="sb_questions_content">
-    <div class="row-fluid">
-        <div class="col-lg-9">
-            <div class="sb_questions_container">
-                <div class="sb_question_header">Conversation</div>
-                <div class="sb_question_inner_border">
-                    <div id="single_question_wrapper">
+<div class="sb_general">
+    <div class="sb_questions_content">
+        <div class="row-fluid">
+            <div class="col-lg-9">
+                <div class="sb_questions_wall">
+                    <h3>Conversations</h3>
+                    <div class="sb_question_inner_border">
+                        <div id="single_question_wrapper">
 
+                        </div>
                     </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
 {% include "side_content.html" %}
-
 <div class="div_data_hidden"
      data-current_pleb="{{ pleb }}"
      data-sort_by="uuid"

@@ -1,4 +1,4 @@
-.sb_xs_thumbnail {
+.sb_thumbnail_xs {
   height: 33px;
   width: 33px;
 }
@@ -21,8 +21,8 @@
   padding-left: 20px;
 }
 .sb_link {
-  display: inline-block;
   color: #34495e;
+  padding-left: 0;
 }
 .sb_link:hover {
   color: #1ba39c;
@@ -56,7 +56,7 @@
   padding-bottom: 10px;
 }
 .sb_rep_info {
-  font-size: 17px;
+  font-size: 18px;
   color: #838c92;
   margin-top: -5px;
 }
@@ -68,7 +68,7 @@
 }
 .sb_rep_name {
   color: #1ba39c;
-  font-size: 17px;
+  font-size: 18px;
   margin-left: -15px;
   padding-bottom: 0;
 }

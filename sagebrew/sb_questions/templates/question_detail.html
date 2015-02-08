@@ -1,7 +1,7 @@
 {% block content %}
-<div class="sb_question_detail_block">
+<div class="block sb_question">
     <div class="row-fluid">
-       <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 sb_vote_data_block">
+       <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
             <div style="display: none" class="sb_upvote_count{{ object_uuid }}">{{ up_vote_number }}</div>
             <a class="btn sb_btn_question_vote_up vote_object-action"
                data-object_uuid="{{ object_uuid }}"
@@ -24,12 +24,30 @@
        </div>
     <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
         <div>
-            <div class="sb_question_detail_block_title">
+            <h1>
                 {{ question_title|linebreaksbr }}
-            </div>
+            </h1>
         </div>
         <div>
-            <div class="sb_question_detail_block_content">
+            <div class="sb_markdown">
+                <h1>
+                    content
+                </h1>
+                <h2>
+                    content
+                </h2>
+                <h3>
+                    content
+                </h3>
+                <h4>
+                    content
+                </h4>
+                <h5>
+                    content
+                </h5>
+                <h6>content
+                </h6>
+                <p>paragraph</p>
                 {{ content }}
             </div>
         </div>
@@ -63,11 +81,11 @@
             {% include "single_comments.html" %}
         {% endfor %}
     {% endblock %}
-    <div class="row sb_row">
+    <div class="row">
         <div class="col-lg-6">
-            <div id="sb_comment_link" class="btn sb_link">write a comment</div>
+            <div class="btn sb_link">write a comment</div>
         </div>
-        <div class="col-lg-6 sb_question_block_data"
+        <div class="col-lg-6 sb_question_expanded_data"
              align="right">
              asked by <a href="{{ the_url }}">{{ owner }}</a>
         </div>
@@ -84,7 +102,7 @@
                data-object_type="0274a216-644f-11e4-9ad9-080027242395"><span class="fui-new"></span></a>
     </div>
 </div>
-<div class="sb_question_header">3 Solutions</div>
+<h3>3 Solutions</h3>
 {% block answers %}
 <div class="row">
     <div class="col-lg-12">

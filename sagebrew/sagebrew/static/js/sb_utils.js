@@ -11,7 +11,7 @@ function ajax_security(xhr, settings) {
 }
 
 function save_comment() {
-    $("a.comment-action").click(function (event) {
+    $(".comment-action").click(function (event) {
         var sb_id = $(this).data('object_uuid');
         event.preventDefault();
         $.ajaxSetup({

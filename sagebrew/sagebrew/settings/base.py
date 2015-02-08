@@ -343,6 +343,13 @@ OPERATOR_DICT = {
     'coperator\nge\np0\n.': 'at least'
 }
 
+PRIVILEGE_HTML_TYPES = {
+    "write_question": ".submit_question-action",
+    "write_post": ".submit_post-action",
+    "write_comment": ".comment-action",
+    "write_solution": ".submit_answer-action"
+}
+
 OAUTH_CLIENT_ID = '658919414169191a6ds1f9a1s9'
 OAUTH_CLIENT_SECRET = '651a69d1516aSD651a65sd1sd645a1s56d5165A1SD'
 CORS_ORIGIN_ALLOW_ALL = True

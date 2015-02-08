@@ -1,3 +1,4 @@
+{% load staticfiles %}
 {% block content %}
 <div class="sb_question_detail_block">
     <div class="row-fluid">
@@ -78,10 +79,11 @@
                       rows="2"
                       placeholder="Write your comment..."></textarea>
 
-            <a class=' sb_btn_comment_icon btn input-group-btn comment-action'
+            <button class=' sb_btn_comment_icon btn input-group-btn comment-action'
                data-object_uuid="{{ object_uuid }}"
                data-current_pleb="{{ current_user }}"
-               data-object_type="0274a216-644f-11e4-9ad9-080027242395"><span class="fui-new"></span></a>
+               data-object_type="0274a216-644f-11e4-9ad9-080027242395"
+                    disabled><span class="fui-new"></span></button>
     </div>
 </div>
 <div class="sb_question_header">3 Solutions</div>
@@ -101,13 +103,20 @@
                   id="answer_content_id"
                   name="answer_content"
                   placeholder="Write your answer..."></textarea>
-        <a class="btn sb_btn sb_btn_basic sb_answer_btn submit_answer-action" data-object_uuid="{{ object_uuid }}" data-current_pleb="{{ current_pleb }}">Answer</a>
+        <button class="btn sb_btn sb_btn_basic sb_answer_btn submit_answer-action"
+                data-object_uuid="{{ object_uuid }}"
+                data-current_pleb="{{ current_pleb }}"
+                disabled>Answer</button>
     </div>
         </div>
     </div>
 </div>
 {% endblock %}
 {% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'js/check_action.js' %}"></script>
+{% endblock scripts %}
 {% comment %}
  <div>Asked by: <a href="{{ the_url }}">{{ owner }}</a> | Posted: {{ time_created }} | Last edited: {{ last_edited_on }}</div>
 {% endcomment %}

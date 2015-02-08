@@ -9,15 +9,18 @@ $(document).ready(function () {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "GET",
-            url: "/privileges/check/action/",
-            data: JSON.stringify({
+            url: "/privilege/check/action/",//?action="+$(this).data("action"),
+            data: {
                 'action': $(this).data("action")
-            }),
+            },
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function(data){
                 $(this).remove();
-                $(data['html_object']).data("url", data['url'])
+                var test_object = $(data['html_object']);
+                console.log(test_object);
+                $(data['html_object']).data("url", data['url']);
+                $(data['html_object']).removeAttr('disabled')
             }
         });
     });

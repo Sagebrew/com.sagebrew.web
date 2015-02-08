@@ -538,7 +538,8 @@ def get_action(username, action):
     if isinstance(conn, Exception):
         return conn
     try:
-        action_table = Table(table_name=get_table_name('actions'))
+        action_table = Table(table_name=get_table_name('actions'),
+                             connection=conn)
     except JSONResponseError as e:
         return e
     try:

@@ -9,7 +9,7 @@ $( document ).ready(function() {
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
 			type: "POST",
-			url: "/questions/submit_question_api/",
+			url: $(this).data('url'),
 			data: JSON.stringify({
                'question_title': $('textarea#question_title_id').val(),
 			   'content': $('textarea#wmd-input-0').val(),

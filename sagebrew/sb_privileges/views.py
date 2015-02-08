@@ -8,7 +8,6 @@ from sb_docstore.utils import get_action
 @permission_classes((IsAuthenticated,))
 def check_action(request):
     res = get_action(request.user.username, request.GET['action'])
-    print res
     if isinstance(res, Exception):
         return Response({"detail": "fail"}, 400)
     if not res:

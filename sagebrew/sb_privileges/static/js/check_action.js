@@ -9,18 +9,21 @@ $(document).ready(function () {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "GET",
-            url: "/privilege/check/action/",//?action="+$(this).data("action"),
+            url: "/privilege/check/action/",
             data: {
                 'action': $(this).data("action")
             },
             contentType: "application/json; charset=utf-8",
             dataType: "json",
-            success: function(data){
-                $(this).remove();
-                var test_object = $(data['html_object']);
-                console.log(test_object);
-                $(data['html_object']).data("url", data['url']);
-                $(data['html_object']).removeAttr('disabled')
+            success: function(data) {
+                console.log(data);
+                if (data['detail'] === 'forbidden') {
+                }
+                else {
+                    var button_obj = $(data['html_object']);
+                    button_obj.prop('disabled', false);
+                    button_obj.attr("data-url", data['url']);
+                }
             }
         });
     });

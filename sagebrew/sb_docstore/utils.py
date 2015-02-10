@@ -565,7 +565,7 @@ def build_privileges(username):
     try:
         action_table = Table(table_name=get_table_name('actions'))
         privilege_table = Table(table_name=get_table_name('privileges'))
-        #TODO implement functionality for restriction table
+        restriction_table = Table(table_name=get_table_name('restrictions'))
     except JSONResponseError as e:
         return e
 

@@ -143,5 +143,10 @@
         "table_name": "privileges",
         "hash_key": "parent_object",
         "range_key": "privilege"
+    },
+    {
+        "table_name": "restrictions",
+        "hash_key": "parent_object",
+        "range_key": "restriction"
     }
 ]

@@ -64,13 +64,19 @@ class SBAction(StructuredNode):
     #relationships
     privilege = RelationshipTo('sb_privileges.neo_models.SBPrivilege',
                                'PART_OF')
+    restrictions = RelationshipTo('sb_privileges.neo_models.SBRestriction',
+                                  'RESTRICTED_BY')
 
     def get_dict(self):
+        possible_restrictions = []
+        for restriction in self.restrictions.all():
+            possible_restrictions.append(restriction.get_dict)
         return {"sb_id": self.sb_id,
                 "action": self.action,
                 "object_type": self.object_type,
                 "url": self.url,
-                "html_object": self.html_object}
+                "html_object": self.html_object,
+                "possible_restrictions": possible_restrictions}
 
 class SBRestriction(StructuredNode):
     sb_id = StringProperty(default=lambda: str(uuid1()))

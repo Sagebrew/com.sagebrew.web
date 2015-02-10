@@ -126,6 +126,8 @@ class Pleb(StructuredNode):
                                 model=ActionActiveRel)
     actions = RelationshipTo('sb_privileges.neo_models.SBAction', 'CAN',
                              model=ActionActiveRel)
+    restrictions = RelationshipTo('sb_privileges.neo_models.SBRestriction',
+                                  'RESTRICTED_BY', model=ActionActiveRel)
     badges = RelationshipTo("sb_badges.neo_models.BadgeBase", "BADGES")
     oauth = RelationshipTo("plebs.neo_models.OauthUser", "OAUTH_CLIENT")
     tags = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGS',
@@ -172,6 +174,15 @@ class Pleb(StructuredNode):
                                      'CLICKED_RESULT')
     official = RelationshipTo('sb_reps.neo_models.BaseOfficial', 'IS',
                               model=OfficialRelationship)
+
+    def get_restrictions(self):
+        return self.restrictions.all()
+
+    def get_actions(self):
+        return self.actions.all()
+
+    def get_privileges(self):
+        return self.privileges.all()
 
     def get_badges(self):
         return self.badges.all()
@@ -268,8 +279,9 @@ class Pleb(StructuredNode):
         return len(self.posts.all())
 
     def get_comment_count(self):
-
         return len(self.comments.all())
+
+
 
 
 class Address(StructuredNode):

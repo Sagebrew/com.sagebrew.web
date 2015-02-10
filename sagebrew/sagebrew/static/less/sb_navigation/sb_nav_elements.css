@@ -21,8 +21,8 @@
   padding-left: 20px;
 }
 .sb_link {
-  display: inline-block;
   color: #34495e;
+  padding-left: 0;
 }
 .sb_link:hover {
   color: #1ba39c;

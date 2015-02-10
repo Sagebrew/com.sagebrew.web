@@ -7,61 +7,64 @@
     <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_input.css' %}"/>
     <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_expanded.css' %}"/>
     <link rel="stylesheet" href="{% static 'less/plebs/sb_comment.css' %}"/>
+    <link rel="stylesheet" href="{% static 'less/sb_general.css' %}"/>
 {%  endblock css %}
 
 {% block content %}
-    <div class="sb_questions_content">
-        <div class="row-fluid">
-            <div class="col-lg-9">
-                <div class="sb_questions_container">
-                    <div class="row">
-                        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
-                            <div class="sb_question_header">Conversations</div>
-                        </div>
-                        <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1"
-                             align="right">
-                            <button class="btn sb_btn_question_cat">
-                                <span class="sb_cat fui-list-large-thumbnails"></span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="sb_questions_cat_container">
-                    </div>
-                    <div class="sb_question_inner_border">
+    <div class="sb_general">
+        <div class="sb_questions_content">
+            <div class="row-fluid">
+                <div class="col-lg-9">
+                    <div class="sb_questions_wall">
                         <div class="row">
-                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4"
-                                 align="left">
-                               {% block filter_options %}
-                                    <a class="sb_link  btn query_questions-action"
-                                       data-sort_by="most_recent"
-                                       data-current_pleb="{{ email }}">Most Recent</a>
-                                    <a class="sb_link btn query_questions-action"
-                                       data-sort_by="least_recent"
-                                       data-current_pleb="{{ email }}">Least Recent</a>
-                               {% endblock %}
+                            <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                                <h3>Conversations</h3>
                             </div>
-                            <div class="col-lg-8" align="right">
-                                <form class="navbar-form"
-                                      role="search">
-                                    <div class="input-group">
-                                        <input type="text"
-                                               id="sb_conv_input"
-                                               class="form-control"
-                                               placeholder="Spark a conversation....">
-                                    </div>
-                                </form>
+                            <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1"
+                                 align="right">
+                                <button class="btn sb_btn_question_cat">
+                                    <span class="sb_cat fui-list-large-thumbnails"></span>
+                                </button>
                             </div>
                         </div>
-                        <div id="question_wrapper">
-                        <!-- TODO verify t hat this is needed by something because Tyler's JS will wipe this out -->
-                          {% block questions %}
-                          {% endblock %}
+                        <div class="sb_questions_cat_container">
+                        </div>
+                        <div class="sb_question_inner_border">
+                            <div class="row">
+                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4"
+                                     align="left">
+                                   {% block filter_options %}
+                                        <a class="sb_link  btn query_questions-action"
+                                           data-sort_by="most_recent"
+                                           data-current_pleb="{{ email }}">Most Recent</a>
+                                        <a class="sb_link btn query_questions-action"
+                                           data-sort_by="least_recent"
+                                           data-current_pleb="{{ email }}">Least Recent</a>
+                                   {% endblock %}
+                                </div>
+                                <div class="col-lg-8" align="right">
+                                    <form class="navbar-form"
+                                          role="search">
+                                        <div class="input-group">
+                                            <input type="text"
+                                                   id="sb_conv_input"
+                                                   class="form-control"
+                                                   placeholder="Spark a conversation....">
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <div id="question_wrapper">
+                            <!-- TODO verify t hat this is needed by something because Tyler's JS will wipe this out -->
+                              {% block questions %}
+                              {% endblock %}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+            {%  include "side_content.html" %}
         </div>
-        {%  include "side_content.html" %}
     </div>
     <img src="https://logs-01.loggly.com/inputs/4befe913-b753-4823-a844-193a41779000.gif?source=pixel&data=hello" />
 {% endblock %}

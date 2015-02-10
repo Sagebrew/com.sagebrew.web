@@ -1,0 +1,63 @@
+.sb_thumbnail_xs {
+  height: 33px;
+  width: 33px;
+}
+.sb_btn {
+  height: 30px;
+  background_color: #1ba39c;
+}
+.sb_icon {
+  font-size: 21px;
+}
+.sb_dropdown_icon {
+  color: #eaf0e8;
+}
+.sb_post_btn_dropdown {
+  background: transparent;
+  margin-top: -15px;
+}
+.sb_post_dropdown_menu {
+  text-align: left;
+  padding-left: 20px;
+}
+.sb_link {
+  color: #34495e;
+  padding-left: 0;
+}
+.sb_link:hover {
+  color: #1ba39c;
+}
+.sb_markdown {
+  color: #34495e;
+}
+.sb_markdown h1 {
+  font-size: 28px;
+  font-weight: bold;
+}
+.sb_markdown h2 {
+  font-size: 26px;
+  font-weight: bold;
+}
+.sb_markdown h3 {
+  font-size: 24px;
+  font-weight: bold;
+}
+.sb_markdown h4 {
+  font-size: 22px;
+  font-weight: bold;
+}
+.sb_markdown h5 {
+  font-size: 20px;
+  font-weight: bold;
+}
+.sb_markdown h6 {
+  font-size: 18px;
+  font-weight: bold;
+}
+.sb_markdown p {
+  font-size: 18px;
+}
+.sb_markdown img {
+  max-height: 300px;
+  max-width: 400px;
+}

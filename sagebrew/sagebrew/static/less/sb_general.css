@@ -1,0 +1,82 @@
+.sb_thumbnail_xs {
+  height: 33px;
+  width: 33px;
+}
+.sb_btn {
+  height: 30px;
+  background_color: #1ba39c;
+}
+.sb_icon {
+  font-size: 21px;
+}
+.sb_dropdown_icon {
+  color: #eaf0e8;
+}
+.sb_post_btn_dropdown {
+  background: transparent;
+  margin-top: -15px;
+}
+.sb_post_dropdown_menu {
+  text-align: left;
+  padding-left: 20px;
+}
+.sb_link {
+  color: #34495e;
+  padding-left: 0;
+}
+.sb_link:hover {
+  color: #1ba39c;
+}
+.sb_general {
+  color: #34495e;
+}
+.sb_general h1 {
+  font-weight: bold;
+  font-size: 30px;
+}
+.sb_general h2 {
+  font-weight: bold;
+  font-size: 28px;
+}
+.sb_general h3 {
+  font-weight: bold;
+  font-size: 26px;
+  color: #838c92;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+.sb_general h4 {
+  font-weight: bold;
+  font-size: 24px;
+}
+.sb_general h5 {
+  font-weight: bold;
+  font-size: 22px;
+}
+.sb_general h6 {
+  font-weight: bold;
+  font-size: 20px;
+  color: #34495e;
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+.sb_general p {
+  font-size: 18px;
+}
+.sb_general small {
+  font-size: 11px;
+}
+.block {
+  height: auto;
+  padding-top: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  border-radius: 5px;
+  background-color: #fafcfa;
+}
+.block .sb_answer {
+  margin-top: 30px;
+}
+.block .sb_question {
+  min-height: 250px;
+}

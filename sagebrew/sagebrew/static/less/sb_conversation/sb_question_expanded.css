@@ -1,4 +1,4 @@
-.sb_xs_thumbnail {
+.sb_thumbnail_xs {
   height: 33px;
   width: 33px;
 }
@@ -21,25 +21,24 @@
   padding-left: 20px;
 }
 .sb_link {
-  display: inline-block;
   color: #34495e;
+  padding-left: 0;
 }
 .sb_link:hover {
   color: #1ba39c;
 }
 .sb_question_detail_block {
-  background-color: #fafcfa;
-  border-radius: 5px;
-  min-height: 250px;
-  height: auto;
+  padding-right: 15px;
+  min-height: 200px;
 }
-.sb_vote_data_block {
-  padding-top: 15px;
+.sb_answer_input_block {
+  margin-top: 15px;
+}
+.sb_question_expanded_data {
+  font-size: 11px;
+  margin-top: 15px;
 }
 .sb_question_detail_block_title {
-  font-size: 24px;
-  font: bold;
-  font-weight: bold;
   color: #34495e;
   padding-right: 15px;
   padding-top: 15px;
@@ -49,21 +48,10 @@
   font-size: 18px;
   margin-top: 30px;
 }
-.sb_answer_block {
-  margin-top: 30px;
-  background-color: #fafcfa;
-  border-radius: 5px;
-  padding-top: 15px;
-  padding-bottom: 15px;
-  padding-right: 15px;
-}
-.sb_question_detail_block_content {
-  font-size: 18px;
-  padding-right: 15px;
-  min-height: 200px;
-}
-.sb_answer_input_block {
-  margin-top: 55px;
+.sb_answer_header {
+  color: #838c92;
+  font-size: 26px;
+  margin-top: 25px;
 }
 .sb_answer_input {
   padding: 10px 15px 10px 15px;

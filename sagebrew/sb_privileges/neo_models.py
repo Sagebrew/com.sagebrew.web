@@ -69,7 +69,7 @@ class SBAction(StructuredNode):
 
     def get_dict(self):
         possible_restrictions = []
-        for restriction in self.restrictions.all():
+        for restriction in self.get_restrictions():
             possible_restrictions.append(restriction.get_dict)
         return {"sb_id": self.sb_id,
                 "action": self.action,
@@ -78,21 +78,26 @@ class SBAction(StructuredNode):
                 "html_object": self.html_object,
                 "possible_restrictions": possible_restrictions}
 
+    def get_restrictions(self):
+        return self.restrictions.all()
+
 class SBRestriction(StructuredNode):
     sb_id = StringProperty(default=lambda: str(uuid1()))
-    restriction_type = StringProperty()
-    restriction_limit = IntegerProperty()
-    restriction_time_limit = DateTimeProperty()
-    restriction_expiry = DateTimeProperty()
+    res_type = StringProperty()
+    limit = IntegerProperty()
+    time_limit = DateTimeProperty()
+    expiry = DateTimeProperty()
+    current = IntegerProperty()
     url = StringProperty()
 
     #methods
     def get_dict(self):
         return {
             "sb_id": self.sb_id,
-            "restriction_type": self.restriction_type,
+            "restriction": self.restriction_type,
             "restriction_limit": self.restriction_limit,
             "restriction_time_limit": self.restriction_time_limit,
             "restriction_expiry": self.restriction_expiry,
+            "current": self.current,
             "url": self.url
         }

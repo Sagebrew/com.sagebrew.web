@@ -579,10 +579,14 @@ def build_privileges(username):
     for action in pleb.actions.all():
         rel = pleb.actions.relationship(action)
         if rel.active:
+            for restriction in action.get_restrictions():
+                if pleb.restrictions.is_connected(restriction):
+                    rel = pleb.restrictions.relationship(restriction)
+                    if rel.active:
+                        restriction_dict = restriction.get_dict()
+                        restriction_dict['parent_object'] = username
+                        restriction_table.put_item(restriction, True)
             action_dict = action.get_dict()
             action_dict['parent_object'] = username
             action_table.put_item(action_dict, True)
-
-    #TODO implement functionality for restriction table population
-
     return True

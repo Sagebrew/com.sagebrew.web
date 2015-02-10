@@ -104,6 +104,18 @@ urlpatterns = patterns(
                     settings.STATIC_URL)
         },
         name="solution_to_question"),
+    url(r'^tags/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": "What are Tags, and how should I use them?",
+            "description": "Tags help Sagebrew help the community in many ways,"
+                           "including improved search results and better "
+                           "suggestions.",
+            "content_path":
+                "%s/static/rendered_docs/tags_and_how_to_use_them.html" % (
+                    settings.STATIC_URL)
+        },
+        name="tags_and_how_to_use_them"),
     url(r'^topics_to_ask_about/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={

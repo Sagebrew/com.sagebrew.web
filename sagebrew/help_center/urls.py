@@ -17,6 +17,8 @@ urlpatterns = patterns(
     (r'^help/conversation/', include(
         'help_center.sub_urls.reputation_and_moderation')),
     (r'^help/conversation/', include('help_center.sub_urls.solutions')),
+    (r'^help/accounts/', include('help_center.sub_urls.account')),
+    (r'^help/security/', include('help_center.sub_urls.security')),
 )
 
 """

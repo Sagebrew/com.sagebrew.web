@@ -1,34 +1,40 @@
 {
     "privileges": [
         {
-
+            "privilege_name": "base_privilege",
+            "actions": [
+                {
+                    "action": "write_question",
+                    "object_type": "0274a216-644f-11e4-9ad9-080027242395",
+                    "url": "/questions/submit_question_api/",
+                    "html_object": ".submit_question-action"
+                },
+                {
+                    "action": "write_solution",
+                    "object_type": "02241aee-644f-11e4-9ad9-080027242395",
+                    "url": "/answers/submit_answer_api/",
+                    "html_object": ".submit_answer-action",
+                    "requirements": [
+                        {}
+                    ]
+                },
+                {
+                    "action": "write_comment",
+                    "object_type": "02ba1c88-644f-11e4-9ad9-080027242395",
+                    "url": "/comments/submit_comments/",
+                    "html_object": ".comment-action"
+                },
+                {
+                    "action": "write_post",
+                    "object_type": "01bb301a-644f-11e4-9ad9-080027242395",
+                    "url": "/posts/submit_post/",
+                    "html_object": ".post-action"
+                }
+            ]
         }
     ],
     "actions": [
-        {
-            "action": "write_question",
-            "object_type": "0274a216-644f-11e4-9ad9-080027242395",
-            "url": "/questions/submit_question_api/",
-            "html_object": ".submit_question-action"
-        },
-        {
-            "action": "write_solution",
-            "object_type": "02241aee-644f-11e4-9ad9-080027242395",
-            "url": "/answers/submit_answer_api/",
-            "html_object": ".submit_answer-action"
-        },
-        {
-            "action": "write_comment",
-            "object_type": "02ba1c88-644f-11e4-9ad9-080027242395",
-            "url": "/comments/submit_comments/",
-            "html_object": ".comment-action"
-        },
-        {
-            "action": "write_post",
-            "object_type": "01bb301a-644f-11e4-9ad9-080027242395",
-            "url": "/posts/submit_post/",
-            "html_object": ".post-action"
-        }
+
     ],
     "restrictions": [
         {

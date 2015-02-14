@@ -9,9 +9,8 @@
     <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_base.css' %}"/>
     <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_input.css' %}"/>
     <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_expanded.css' %}"/>
-    <link rel="stylesheet" href="{% static 'less/sb_markdown.css' %}"/>
-    <link rel="stylesheet" href="{% static 'less/sb_general.css' %}"/>
     <link rel="stylesheet" href="{% static 'less/plebs/sb_comment.css' %}"/>
+    <link rel="stylesheet" href="{% static 'less/sb_markdown.css' %}"/>
 {%  endblock css %}
 {% block content %}
 <div class="action" style="display: none" data-action="write_question"></div>
@@ -44,6 +43,8 @@
     <script src="{% static 'js/save_answer.js' %}"></script>
     <script src="{% static 'js/edit_answer.js' %}"></script>
     <script src="{% static 'js/edit_question.js' %}"></script>
+    {% comment %}
     <script src="{% static 'js/comment_question.js' %}"></script>
+    {% endcomment %}
     <script src="{% static 'js/query_single_question.js' %}"></script>
 {% endblock scripts %}

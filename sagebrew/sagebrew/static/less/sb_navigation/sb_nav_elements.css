@@ -1,10 +1,6 @@
-.sb_xs_thumbnail {
+.sb_thumbnail_xs {
   height: 33px;
   width: 33px;
-}
-.sb_btn {
-  height: 30px;
-  background_color: #1ba39c;
 }
 .sb_icon {
   font-size: 21px;
@@ -65,8 +61,6 @@
   line-height: 5px;
 }
 .sb_nav_id_thumbnail {
-  height: 33px;
-  width: 33px;
   background-color: #e5ece6;
   border-radius: 5px;
   margin-left: -45px;

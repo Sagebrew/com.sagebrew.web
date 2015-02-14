@@ -2,10 +2,6 @@
   height: 33px;
   width: 33px;
 }
-.sb_btn {
-  height: 30px;
-  background_color: #1ba39c;
-}
 .sb_icon {
   font-size: 21px;
 }
@@ -46,12 +42,6 @@
 }
 .sb_convo_tags {
   padding-top: 15px;
-}
-.sb_btn_basic {
-  height: 30px;
-  width: auto;
-  line-height: 5px;
-  color: #ffffff;
 }
 .sb_question_btn_group {
   margin-left: 5px;

@@ -2,10 +2,6 @@
   height: 33px;
   width: 33px;
 }
-.sb_btn {
-  height: 30px;
-  background_color: #1ba39c;
-}
 .sb_icon {
   font-size: 21px;
 }
@@ -79,4 +75,11 @@
 }
 .block .sb_question {
   min-height: 250px;
+}
+.sb_btn_basic {
+  background_color: #1ba39c;
+  height: 30px;
+  width: auto;
+  line-height: 5px;
+  color: #ffffff;
 }

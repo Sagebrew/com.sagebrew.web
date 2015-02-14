@@ -54,9 +54,50 @@
   }
 }
 .sb_btn_basic{
-  background_color: @sb_green;
+  background-color: @sb_green;
   height: @sb_btn_height;
   width: auto;
   line-height: 5px;
   color: @white;
+}
+.sb_btn{
+  .sb_btn_icon{
+    background-color: transparent;
+    font-size: @sb_body_text;
+  }
+  .sb_btn_submit{
+
+  }
+  .sb_btn_vote{
+
+  }
+  .sb_btn_nav{
+
+  }
+}
+// go through this stuff
+.sb_thumbnail_xs{
+  height: 33px;
+  width: 33px;
+}
+.sb_icon{
+    font-size: @sb_header_text;
+}
+.sb_dropdown_icon {
+    color: @sb_green_extra_light;
+}
+.sb_post_btn_dropdown{
+    background: transparent;
+    margin-top: @sb_common_padding_negative;
+}
+.sb_post_dropdown_menu{
+    text-align: left;
+    padding-left: 20px;
+}
+.sb_link{
+  color: @sb_dark_blue;
+      &:hover{
+        color: @sb_green;
+      }
+  padding-left: 0;
 }

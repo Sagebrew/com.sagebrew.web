@@ -1,28 +1,3 @@
-.sb_thumbnail_xs {
-  height: 33px;
-  width: 33px;
-}
-.sb_icon {
-  font-size: 21px;
-}
-.sb_dropdown_icon {
-  color: #eaf0e8;
-}
-.sb_post_btn_dropdown {
-  background: transparent;
-  margin-top: -15px;
-}
-.sb_post_dropdown_menu {
-  text-align: left;
-  padding-left: 20px;
-}
-.sb_link {
-  color: #34495e;
-  padding-left: 0;
-}
-.sb_link:hover {
-  color: #1ba39c;
-}
 .sb_all_check {
   color: #34495e;
   font-weight: bolder;

@@ -37,7 +37,12 @@
 .sb_general small {
   font-size: 11px;
 }
-.block {
+.sb_general a {
+  color: #1ba39c;
+}
+.block,
+.sb_answer,
+.sb_question {
   height: auto;
   padding-top: 15px;
   padding-left: 15px;
@@ -45,11 +50,118 @@
   border-radius: 5px;
   background-color: #fafcfa;
 }
-.block .sb_answer {
+.sb_answer {
   margin-top: 30px;
 }
-.block .sb_question {
+.sb_question {
   min-height: 250px;
+}
+.sb_btn_icon,
+.sb_btn_nav {
+  background-color: transparent;
+  font-size: 18px;
+  padding: 10px;
+}
+.sb_btn_submit,
+.sb_btn_login {
+  background-color: #1ba39c;
+  color: #ffffff;
+  font-size: 18px;
+  width: auto;
+  line-height: 5px;
+}
+.sb_btn_login {
+  background-color: #fafcfa;
+}
+.sb_btn_vote {
+  background-color: transparent;
+  color: #838c92;
+  padding: 10px;
+}
+.sb_spy {
+  color: #b7bfbb;
+  background-color: #ffffff;
+  border: solid;
+  border-width: 1px;
+  border-color: #b7bfbb;
+}
+.sb_btn_nav {
+  color: #ffffff;
+}
+.sb_nav li {
+  display: inline-block;
+}
+.sb_primary_nav {
+  background-color: #1ba39c;
+  height: 45px;
+  padding: 0px 15px 0px 15px;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.sb_primary_nav a {
+  text-decoration: none;
+  color: #f9fff7;
+}
+.sb_primary_nav ul {
+  float: right;
+}
+.sb_primary_nav h1 {
+  color: #fafcfa;
+  display: inline-block;
+  margin-top: 0;
+  padding-top: 5px;
+}
+.sb_primary_nav input {
+  width: auto;
+  height: 30px;
+  border-color: #b7bfbb;
+  border-width: 1px;
+  border-right: none;
+}
+.sb_secondary_nav,
+.sb_tertiary_nav {
+  background-color: #e5ece6;
+  font-size: 19px;
+  height: 30px;
+  padding: 0 0 10px 15px;
+  border-radius: 0 0 2px 2px;
+  border-bottom: solid;
+  border-width: 2px;
+  border-bottom-color: #9dbbb9;
+}
+.sb_secondary_nav a {
+  text-decoration: none;
+  color: #838c92;
+}
+.sb_secondary_nav a:hover {
+  background-color: #e0e7e1;
+}
+.sb_tertiary_nav {
+  background-color: transparent;
+  border: none;
+}
+.sb_search {
+  display: inline-block;
+  float: right;
+}
+.sb_search form {
+  padding-top: 5px;
+}
+.sb_search input {
+  width: 400px;
+  border-radius: 5px 0 0 5px;
+}
+.sb_dropdown ul {
+  background-color: #ffffff;
+  width: auto;
+  border-top: solid;
+  border-width: 2px;
+  border-radius: 0 0 2px 2px;
+  border-top-color: #9dbbb9;
+  margin-top: -3px;
+}
+.sb_dropdown li {
+  display: block;
 }
 .sb_btn_basic {
   background-color: #1ba39c;
@@ -57,10 +169,6 @@
   width: auto;
   line-height: 5px;
   color: #ffffff;
-}
-.sb_btn .sb_btn_icon {
-  background-color: transparent;
-  font-size: 18px;
 }
 .sb_thumbnail_xs {
   height: 33px;

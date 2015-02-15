@@ -83,7 +83,7 @@
 .sb_wall,
 .sb_conversation_wall {
   height: auto;
-  background-color: #e0e7e1;
+  background-color: #e5ece6;
   padding: 15px 15px 15px 15px;
   border-radius: 2px;
   min-height: 575px;
@@ -108,14 +108,6 @@
   border-color: #b7bfbb;
   min-height: 100px;
   margin-bottom: 15px;
-}
-.sb_tab_navigation {
-  color: #838c92;
-  background-color: transparent;
-}
-.sb_tab_navigation:hover {
-  color: #838c92;
-  background-color: #e0e7e1;
 }
 .sb_tab_question {
   color: #1ba39c;
@@ -216,13 +208,7 @@
 .sb_secondary_nav,
 .sb_tertiary_nav {
   background-color: #e5ece6;
-  font-size: 19px;
   height: 30px;
-  padding: 0 0 30px 0px;
-  border-radius: 0 0 2px 2px;
-  border-bottom: solid;
-  border-width: 2px;
-  border-bottom-color: #9dbbb9;
 }
 .sb_secondary_nav a {
   text-decoration: none;
@@ -230,6 +216,7 @@
 }
 .sb_secondary_nav a:hover {
   background-color: #e0e7e1;
+  color: #838c92;
 }
 .sb_tertiary_nav {
   background-color: transparent;

@@ -32,3 +32,12 @@
   max-height: 300px;
   max-width: 400px;
 }
+.sb_markdown textarea {
+  border-width: 1px 1px 1px 1px;
+  border-radius: 5px;
+  border-color: #d0e9c6;
+  width: 100%;
+  height: auto;
+  resize: none;
+  margin-bottom: 15px;
+}

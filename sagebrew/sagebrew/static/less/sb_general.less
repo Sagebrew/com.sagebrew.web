@@ -86,7 +86,7 @@
 }
 .sb_wall{
   height: auto;
-  background-color: @sb_green_wall;
+  background-color: @sb_grey_light;
   padding: 15px 15px 15px 15px;
   border-radius: 2px;
   min-height: 575px;
@@ -116,14 +116,6 @@
   margin-bottom: @sb_common_margin_positive;
 }
 // Links
-.sb_tab_navigation{
-  color: @sb_grey_dark;
-  background-color: transparent;
-  &:hover{
-    color: @sb_grey_dark;
-    background-color: @sb_green_wall;
-  }
-}
 .sb_tab_question{
   color: @sb_green;
   background-color: transparent;
@@ -233,20 +225,24 @@
 }
 .sb_secondary_nav {
   &:extend(.sb_nav);
-  background-color: @sb_grey_light;
-  font-size: @sb_menu_text;
-  height: @sb_btn_height;
-  padding: 0 0 30px 0px;
-  border-radius: 0 0 2px 2px;
-  border-bottom: solid;
-  border-width: 2px;
-  border-bottom-color: @sb_green_medium;
   a{
     text-decoration: none;
     color: @sb_grey_dark;
     &:hover{
        background-color: @sb_green_wall;
+       color: @sb_grey_dark;
+  }
    }
+  }
+.sb_secondary_nav_bar{
+  &:extend(.sb_secondary_nav){
+    background-color: @sb_grey_light;
+    height: @sb_btn_height;
+    padding: 0 0 30px 0px;
+    border-radius: 0 0 2px 2px;
+    border-bottom: solid;
+    border-width: 2px;
+    border-bottom-color: @sb_green_medium;
   }
 }
 .sb_tertiary_nav {

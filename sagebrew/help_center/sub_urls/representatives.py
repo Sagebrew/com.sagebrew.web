@@ -57,4 +57,26 @@ urlpatterns = patterns(
                     settings.STATIC_URL)
         },
         name="name_on_ballot_to_run"),
+    url(r'^need_more_help_public_official/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": "What if I need more help",
+            "description": "Getting more help is just a click away, please"
+                           " let us know what you need assistance with!",
+            "content_path":
+                "%s/static/rendered_docs/need_more_help_repsagetribune.html" % (
+                    settings.STATIC_URL)
+        },
+        name="need_more_help_repsagetribune"),
+    url(r'^principal_campaign_committee/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": "What is a principal campaign committee?",
+            "description": "This is your campaign team.",
+            "content_path":
+                "%s/static/rendered_docs/"
+                "what_is_principle_campaign_committee.html" % (
+                    settings.STATIC_URL)
+        },
+        name="principle_campaign_committee"),
 )

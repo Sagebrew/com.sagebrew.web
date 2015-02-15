@@ -12,13 +12,16 @@ for our content creators to manage the information.
 '''
 urlpatterns = patterns(
     'help_center.views',
-    (r'^help/conversation/', include('help_center.sub_urls.asking')),
-    (r'^help/campaigns/', include('help_center.sub_urls.representatives')),
-    (r'^help/conversation/', include(
+    (r'^conversation/', include('help_center.sub_urls.asking')),
+    (r'^conversation/', include('help_center.sub_urls.solutions')),
+    (r'^conversation/', include(
         'help_center.sub_urls.reputation_and_moderation')),
-    (r'^help/conversation/', include('help_center.sub_urls.solutions')),
-    (r'^help/accounts/', include('help_center.sub_urls.account')),
-    (r'^help/security/', include('help_center.sub_urls.security')),
+    (r'^privileges/', include('help_center.sub_urls.privileges')),
+    (r'^campaigns/', include('help_center.sub_urls.representatives')),
+    (r'^accounts/', include('help_center.sub_urls.account')),
+    (r'^security/', include('help_center.sub_urls.security')),
+    (r'^terms/', include('help_center.sub_urls.terms')),
+    (r'^policies/', include('help_center.sub_urls.policies')),
 )
 
 """

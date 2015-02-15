@@ -24,8 +24,8 @@ handy.
 The ability to set Donation Goals is arguably the most prolific
 feature of the Sagebrew Action page. Donation Goals allow you
 to organize your fundraising and campaign expenditures
- while providing your constituents easy access to
- your campaign plans and a simple way to contribute.
+while providing your constituents easy access to
+your campaign plans and a simple way to contribute.
 
  Here's how they work:
 
@@ -43,22 +43,22 @@ to organize your fundraising and campaign expenditures
  in the calling booth.
 
 ####Setting Smart Donation Goals and Rounds####
-  With such an efficient and easy system, it's hard not to raise funding
-  on Sagebrew.
-  However, it is important to set smart Donation Goals to make the
-  most out of Sagebrew's contribution system.
+With such an efficient and easy system, it's hard not to raise funding
+on Sagebrew.
+However, it is important to set smart Donation Goals to make the
+most out of Sagebrew's contribution system.
 
-  To begin your campaign we'd advise that
-  you set short, attainable Donation Goals that
-  will help get your campaign rolling. You will not actually
- receive any of the funding raised until you reach your Donation
- Goals. For example, if you set your first Donation Goal at
- 5,000 dollars, you will not receive any of that funding until
- the 5,000 dollar mark is reached, at which point any leftover
- funding will roll over into your next Donation Goal. So, by setting short,
-  achievable goals you can show your contributors that
-  you're good on your word and that you have the dedication
-  to achieve your goals and get things done.
+To begin your campaign we'd advise that
+you set short, attainable Donation Goals that
+will help get your campaign rolling. You will not actually
+receive any of the funding raised until you reach your Donation
+Goals. For example, if you set your first Donation Goal at
+5,000 dollars, you will not receive any of that funding until
+the 5,000 dollar mark is reached, at which point any leftover
+funding will roll over into your next Donation Goal. So, by setting short,
+achievable goals you can show your contributors that
+you're good on your word and that you have the dedication
+to achieve your goals and get things done.
 
 
 ###Education and Experiences###
@@ -75,23 +75,22 @@ In this section you'll be able to outline your political policies, highlighting
 the issues that are most important to you. You'll also be able to
 plan your political agenda (what you plan to do once/if you reach office).
 
- ###Bio###
- This is where you have a chance to express yourself on a personal level.
- Forget your education and experience and all that, this is your chance
- to appeal to your constituents. What makes you a good person, and why will
+###Bio###
+This is where you have a chance to express yourself on a personal level.
+Forget your education and experience and all that, this is your chance
+to appeal to your constituents. What makes you a good person, and why will
 people like you?
 
 
-
-  ###Efficient Campaigning###
-  With Sagebrew's Action Page campaigning has never been more
-  efficient. Our system of Donation Goals and Rounds allows you
-  to spend more time and resources on your campaign itself, rather
-  than worrying about how to collect funding. With the Action Page you'll
-  be able to display your views and agenda, as well as your credentials
-  and political strategy. And with the Dashboard you'll receive
-  unique and priceless information about your constituency and the efficacy of
-  your campaign.
+###Efficient Campaigning###
+With Sagebrew's Action Page campaigning has never been more
+efficient. Our system of Donation Goals and Rounds allows you
+to spend more time and resources on your campaign itself, rather
+than worrying about how to collect funding. With the Action Page you'll
+be able to display your views and agenda, as well as your credentials
+and political strategy. And with the Dashboard you'll receive
+unique and priceless information about your constituency and the efficacy of
+your campaign.
 
 ##Reminders##
 ####Things you must do outside of Sagebrew before your Action Page can go live:####

@@ -3,25 +3,25 @@
 <div class="block sb_question">
     <div class="row-fluid">
        <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
-            <div style="display: none" class="sb_upvote_count{{ object_uuid }}">{{ up_vote_number }}</div>
-            <a class="btn sb_btn_question_vote_up vote_object-action"
+            <div style="display: none" class="{{ object_uuid }}">{{ up_vote_number }}</div>
+            <button class="btn sb_btn sb_btn_vote vote_up vote_object-action"
                data-object_uuid="{{ object_uuid }}"
                data-vote_type=true
                data-current_pleb="{{ current_pleb }}"
                data-object_type="0274a216-644f-11e4-9ad9-080027242395">
-                <span class="sb_question_vote_icon fui-triangle-up"></span>
-            </a>
+                <span class="fui-triangle-up"></span>
+            </button>
             <h6>
                 45
             </h6>
-            <a class="btn sb_btn_question_vote_down vote_object-action"
+            <button class="btn sb_btn sb_btn_vote vote_down vote_object-action"
                data-object_uuid="{{ object_uuid }}"
                data-vote_type=false
                data-current_pleb="{{ current_pleb }}"
                data-object_type="0274a216-644f-11e4-9ad9-080027242395">
-                <span class="sb_question_vote_icon fui-triangle-down"></span>
-            </a>
-            <div style="display: none" class="sb_downvote_count{{ object_uuid }}">{{ down_vote_number }}</div>
+                <span class="fui-triangle-down"></span>
+            </button>
+            <div style="display: none" class="{{ object_uuid }}">{{ down_vote_number }}</div>
        </div>
     <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
         <div>
@@ -38,24 +38,21 @@
     <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 sb_question_drop_down">
         {% include "question_dropdown.html" %}
     </div>
-    <div class="sb_solution_content">
-        <div class="sb_id" data-object_uuid="{{ object_uuid }}"
-                 style=""></div>
-        {% url "profile_page" pleb_username=owner_profile_url as the_url %}
-
-        <div class="row sb_edit_input_container" id="edit_question_{{ object_uuid }}"
-             style="display: none">
-            <div class="col-lg-10 col-lg-offset-1">
-            <textarea class="form-control sb_edit_input"
-                      id="{{ object_uuid }}"
-                      name="edit_question_input"
-                      rows="5"
-                      placeholder="Edit your question..."></textarea>
-            <a class="btn btn-primary sb_btn sb_btn_basic edit_object-action"
-               data-object_uuid="{{ object_uuid }}"
-               data-current_pleb="{{ current_pleb }}"
-               data-object_type="0274a216-644f-11e4-9ad9-080027242395">Submit</a>
-            </div>
+    <div class="sb_id" data-object_uuid="{{ object_uuid }}"
+             style=""></div>
+    {% url "profile_page" pleb_username=owner_profile_url as the_url %}
+    <div class="row" id="edit_question_{{ object_uuid }}"
+         style="display: none">
+        <div class="col-lg-10 col-lg-offset-1">
+        <textarea class="form-control"
+                  id="{{ object_uuid }}"
+                  name="edit_question_input"
+                  rows="5"
+                  placeholder="Edit your question..."></textarea>
+        <btn class="btn sb_btn sb_btn_submit edit_object-action"
+           data-object_uuid="{{ object_uuid }}"
+           data-current_pleb="{{ current_pleb }}"
+           data-object_type="0274a216-644f-11e4-9ad9-080027242395">Submit</btn>
         </div>
     </div>
     </div>
@@ -66,24 +63,26 @@
     {% endblock %}
     <div class="row">
         <div class="col-lg-6">
-            <div class="btn sb_link">write a comment</div>
+            <a class="btn">write a comment</a>
         </div>
-        <div class="col-lg-6 sb_question_expanded_data"
-             align="right">
-             asked by <a href="{{ the_url }}">{{ owner }}</a>
+        <div class="col-lg-6" align="right">
+            <small>
+            asked by <a href="{{ the_url }}">{{ owner }}</a>
+            </small>
         </div>
     </div>
-    <div id="sb_comment_container" class="input-group sb_comment" style="display: none;">
-            <textarea class="input-group form-control sb_comment_input "
+    <div id="sb_comment_container" class="input-group" style="display: none;">
+            <textarea class="input-group form-control"
                       id="post_comment_on_{{ object_uuid }}"
                       rows="2"
                       placeholder="Write your comment..."></textarea>
 
-            <button class=' sb_btn_comment_icon btn input-group-btn comment-action'
+            <button class='btn input-group-btn comment-action'
                data-object_uuid="{{ object_uuid }}"
                data-current_pleb="{{ current_user }}"
                data-object_type="0274a216-644f-11e4-9ad9-080027242395"
-               disabled><span class="fui-new"></span></button>
+               disabled><span class="fui-new"></span>
+            </button>
     </div>
 </div>
 <h3>3 Solutions</h3>
@@ -95,15 +94,15 @@
         {% endfor %}
     </div>
 </div>
-<div class="sb_answer_input_block">
+<div class="block sb_answer">
     <div class="row">
         <div class="col-lg-12">
-            <div class="input-group sb_answer_input">
+            <div class="input-group">
                 <textarea class="form-control sb_answer_input_area"
                           id="answer_content_id"
                           name="answer_content"
                           placeholder="Write your answer..."></textarea>
-                <button class="btn sb_btn_basic submit_answer-action"
+                <button class="btn sb_btn sb_btn_submit submit_answer-action"
                         data-object_uuid="{{ object_uuid }}"
                         data-current_pleb="{{ current_pleb }}">
                     Answer

@@ -1,10 +1,12 @@
 {% url 'question_detail_page' question_uuid=question_url as the_url %}
-        <div class="sb_question_content_block">
+        <div class="block sb_question_summary">
             <div class="row-fluid">
                 <div class="col-lg-1">
-                    <button class="sb_btn_question_vote_up btn">
-                        <span class="sb_question_vote_icon fui-triangle-up"></span>
-                        {{ up_vote_number }}
+                    <button class="btn sb_btn sb_btn_vote vote_up">
+                        <span class="fui-triangle-up"></span>
+                        <p style="display:none;">
+                            {{ up_vote_number }}
+                        </p>
                     </button>
                     <h6>
                         432
@@ -16,9 +18,11 @@
                                </div>
                         {% endcomment %}
                     </h6>
-                    <button class="btn sb_btn_question_vote_down">
-                        <span class="sb_question_vote_icon fui-triangle-down"></span>
-                        {{ down_vote_number }}
+                    <button class="btn sb_btn sb_btn_vote vote_down">
+                        <span class="fui-triangle-down"></span>
+                        <p  style="display:none;">
+                            {{ down_vote_number }}
+                        </p>
                     </button>
                 </div>
                 <div id="single_question_wrapper">

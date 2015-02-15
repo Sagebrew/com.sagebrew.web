@@ -25,8 +25,6 @@ class Command(BaseCommand):
                         badge.requirements.connect(req)
                     except CypherException:
                         continue
-                    print req.get_dict()
-                print badge.get_dict()
 
 
     def handle(self, *args, **options):

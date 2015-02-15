@@ -56,7 +56,7 @@ class SBPrivilege(StructuredNode):
 
 class SBAction(StructuredNode):
     sb_id = StringProperty(default=lambda: str(uuid1()))
-    action = StringProperty(default="read")
+    action = StringProperty(default="")
     object_type = StringProperty()#one of the object types specified in settings.KNOWN_TYPES
     url = StringProperty()
     html_object = StringProperty()

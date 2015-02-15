@@ -3,6 +3,7 @@ from datetime import datetime
 from neomodel import (DoesNotExist, CypherException)
 
 from plebs.neo_models import Pleb
+from sb_docstore.utils import add_object_to_table
 from .neo_models import SBPrivilege
 
 def manage_privilege_relation(username):
@@ -32,7 +33,13 @@ def manage_privilege_relation(username):
             continue
         rel = pleb.privileges.connect(privilege)
         rel.save()
+        pri_dict = privilege.get_dict()
+        pri_dict['parent_object'] = username
+        res = add_object_to_table('privileges', pri_dict)
         for action in privilege.get_actions():
             rel = pleb.actions.connect(action)
             rel.save()
+            act_dict = action.get_dict()
+            act_dict['parent_object'] = username
+            res = add_object_to_table('actions', act_dict)
     return True

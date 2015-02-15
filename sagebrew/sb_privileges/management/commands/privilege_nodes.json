@@ -29,7 +29,12 @@
                 }
             ],
             "requirements": [
-                {}
+                {
+                    "url": "/user/v1/profile/",
+                    "key": "total_rep",
+                    "operator": "coperator\nge\np0\n.",
+                    "condition": "0"
+                }
             ]
         },
         {

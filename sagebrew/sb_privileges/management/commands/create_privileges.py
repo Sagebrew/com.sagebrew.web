@@ -29,7 +29,7 @@ class Command(BaseCommand):
                         privilege.requirements.connect(req)
                     except CypherException:
                         pass
-            for action in data['actions']:
+            for action in data['actions']: #for possible future use of single actions
                 try:
                     action = SBAction(**action).save()
                 except CypherException:

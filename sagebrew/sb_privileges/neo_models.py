@@ -1,10 +1,15 @@
+import pytz
+import pickle
 from uuid import uuid1
 from django.conf import settings
+from datetime import datetime
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, CypherException,
                       RelationshipFrom, DoesNotExist, JSONProperty)
+
+from api.utils import post_to_api
 
 class SBPrivilege(StructuredNode):
     sb_id = StringProperty(default=lambda: str(uuid1()))
@@ -82,22 +87,49 @@ class SBAction(StructuredNode):
         return self.restrictions.all()
 
 class SBRestriction(StructuredNode):
-    sb_id = StringProperty(default=lambda: str(uuid1()))
-    res_type = StringProperty()
-    limit = IntegerProperty()
-    time_limit = DateTimeProperty()
-    expiry = DateTimeProperty()
-    current = IntegerProperty()
+    sb_id = StringProperty(default=lambda: str(uuid1()), unique_index=True)
     url = StringProperty()
+    key = StringProperty()
+    operator = StringProperty(default="") #gt, ge, eq, ne, ge, gt
+    condition = StringProperty() #convert to w/e type the return is
+    auth_type = StringProperty()
+    expiry = IntegerProperty()
+    end_date = DateTimeProperty()
 
     #methods
     def get_dict(self):
         return {
             "sb_id": self.sb_id,
-            "restriction": self.restriction_type,
             "restriction_limit": self.restriction_limit,
             "restriction_time_limit": self.restriction_time_limit,
             "restriction_expiry": self.restriction_expiry,
-            "current": self.current,
             "url": self.url
         }
+
+    def check_restriction(self, username, start_date):
+        res = post_to_api(self.url, username, req_method='get')
+        temp_type = type(res[self.key])
+        temp_cond = temp_type(self.condition)
+
+
+        return self.build_check_dict(
+            pickle.loads(self.operator)(res[self.key], temp_cond),
+            res[self.key])
+
+    def build_check_dict(self, check, current):
+        if not self.expiry <= (datetime.now(pytz.utc)-self.end_date).seconds:
+            check = False
+        if not check:
+            return {"detail": False,
+                    "key": self.key,
+                    "operator": pickle.loads(self.operator),
+                    "response": check,
+                    "reason": "You must have %s %s %s, you have %s"%(
+                        self.get_operator_string(), self.condition, 'flags',
+                        current)}
+        else:
+            return {"detail": "The requirement %s was met"%(self.sb_id),
+                    "key": self.key,
+                    "operator": pickle.loads(self.operator),
+                    "response": check}
+

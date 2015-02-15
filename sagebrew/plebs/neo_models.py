@@ -31,6 +31,10 @@ class ActionActiveRel(StructuredRel):
     active = BooleanProperty(default=True)
     lost_on = DateTimeProperty()
 
+class RestrictionRel(StructuredRel):
+    gained_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    active = BooleanProperty()
+
 class OfficialRelationship(StructuredRel):
     active = BooleanProperty(default=False)
     start_date = DateTimeProperty()
@@ -127,7 +131,7 @@ class Pleb(StructuredNode):
     actions = RelationshipTo('sb_privileges.neo_models.SBAction', 'CAN',
                              model=ActionActiveRel)
     restrictions = RelationshipTo('sb_privileges.neo_models.SBRestriction',
-                                  'RESTRICTED_BY', model=ActionActiveRel)
+                                  'RESTRICTED_BY', model=RestrictionRel)
     badges = RelationshipTo("sb_badges.neo_models.BadgeBase", "BADGES")
     oauth = RelationshipTo("plebs.neo_models.OauthUser", "OAUTH_CLIENT")
     tags = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGS',

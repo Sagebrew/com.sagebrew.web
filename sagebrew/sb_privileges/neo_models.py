@@ -93,8 +93,9 @@ class SBRestriction(StructuredNode):
     operator = StringProperty(default="") #gt, ge, eq, ne, ge, gt
     condition = StringProperty() #convert to w/e type the return is
     auth_type = StringProperty()
-    expiry = IntegerProperty()
+    expiry = IntegerProperty() #time in seconds until the restriction is up
     end_date = DateTimeProperty()
+    recurring = BooleanProperty(default=False)
 
     #methods
     def get_dict(self):

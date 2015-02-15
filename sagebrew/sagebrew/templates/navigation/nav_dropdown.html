@@ -1,28 +1,26 @@
 {% if request.user.is_authenticated == True %}
 {% block notifications %}
-    <div class="sb_nav_btn_group btn-group">
+    <div class="btn-group sb_dropdown">
+        <button class="btn dropdown-toggle sb_btn_icon sb_btn_nav show_friend_request-action"
+                type="button"
+                id="sb_friend"
+                data-toggle="dropdown"
+                data-email="{{ request.user.email }}">
+        <span class="sb_btn_icon fui-user"></span>
+        </button>
+        <ul class="sb_nav_dropdown_container dropdown-menu dropdown-menu-right"
+            role="menu"
+            aria-labelledby="dropdownMenu1">
+            <li role="presentation">
+                <div id="friend_request_div">
+                    {% block friend_requests %}
+                        {% include "friend_requests.html" %}
+                    {% endblock %}
+                </div>
+            </li>
+        </ul>
         <div class="btn-group">
-            <button class="sb_btn_dropdown show_friend_request-action btn dropdown-toggle pull-right"
-                    type="button"
-                    id="sb_friend"
-                    data-toggle="dropdown"
-                    data-email="{{ request.user.email }}">
-            <span class="sb_btn_icon fui-user"></span>
-            </button>
-            <ul class="sb_nav_dropdown_container dropdown-menu dropdown-menu-right"
-                role="menu"
-                aria-labelledby="dropdownMenu1">
-                <li role="presentation">
-                    <div id="friend_request_div">
-                        {% block friend_requests %}
-                            {% include "friend_requests.html" %}
-                        {% endblock %}
-                    </div>
-                </li>
-            </ul>
-        </div>
-        <div class="btn-group">
-            <button class="btn dropdown-toggle pull-right sb_btn_dropdown show_notifications-action"
+            <button class="btn dropdown-toggle sb_btn_icon sb_btn_nav show_notifications-action"
                     type="button"
                     id="dropdownMenu1"
                     data-toggle="dropdown"
@@ -42,13 +40,13 @@
 {% endblock %}
         <div class="btn-group"
              align="left">
-            <button class="sb_btn_dropdown btn pull-right"
+            <button class="btn dropdown-toggle sb_btn_icon sb_btn_nav"
                     type="button"
                     id="dropdownMenu1"
                     data-toggle="dropdown">
             <span class="sb_btn_icon fui-gear"></span>
             </button>
-            <ul class="sb_nav_dropdown_container_menu dropdown-menu dropdown-menu-right"
+            <ul class="dropdown-menu dropdown-menu-right"
                 role="menu" aria-labelledby="dropdownMenu1">
                 <li role="presentation"><a role="menuitem"
                                            tabindex="-1"

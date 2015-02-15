@@ -1,7 +1,7 @@
-<div class="sb_nav_user hidden-sm hidden-xs">
-    <a href="{% url 'profile_page' request.user.username %}"
-       id="sb_nav_name">{{ request.user.first_name }} {{ request.user.last_name }}</a>
-<div class="sb_nav_id_thumbnail">
-
-</div>
+<div class="hidden-sm hidden-xs">
+    <p>
+        <a href="{% url 'profile_page' request.user.username %}">
+        {{ request.user.first_name }} {{ request.user.last_name }}
+        </a>
+    </p>
 </div>

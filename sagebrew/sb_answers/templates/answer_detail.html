@@ -23,7 +23,9 @@
         </div>
         <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
             <div class="sb_answer_content">
-                {{ answer.content }}
+                <div class="sb_markdown">
+                    {{ answer.content }}
+                </div>
             </div>
         </div>
         <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 sb_question_drop_down">
@@ -47,11 +49,15 @@
     {% endblock %}
     <div class="row">
         <div class="col-lg-6">
-            <div class="btn sb_link">write a comment</div>
+            <div class="btn sb_link">
+                <small>write a comment</small>
+            </div>
         </div>
         <div class="col-lg-6 sb_question_data"
              align="right">
-             written by <a href="{{ the_url }}">{{ owner }}</a>
+            <small>
+                written by <a href="{{ the_url }}">{{ owner }}</a>
+            </small>
         </div>
     </div>
     <div style="display: none"class="input-group sb_comment">

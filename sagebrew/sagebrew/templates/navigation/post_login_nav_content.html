@@ -1,13 +1,11 @@
-<div class="sb_top_menu_nav">
-    <ul class="top_menu_nav_list">
-        <li class="sb_nav_li hidden-sm hidden-xs">
-            {% include 'navigation/search_input.html' %}
-        </li>
-        <li class="sb_nav_li hidden-md hidden-sm hidden-xs">
-            {% include 'navigation/profile_nav_info.html' %}
-        </li>
-        <li class="sb_nav_li hidden-sm hidden-xs">
-            {% include 'navigation/nav_dropdown.html' %}
-        </li>
-    </ul>
+<ul>
+    <li class="hidden-md hidden-sm hidden-xs">
+        {% include 'navigation/profile_nav_info.html' %}
+    </li>
+    <li class="hidden-sm hidden-xs">
+        {% include 'navigation/nav_dropdown.html' %}
+    </li>
+</ul>
+<div class="hidden-sm hidden-xs sb_search">
+    {% include 'navigation/search_input.html' %}
 </div>

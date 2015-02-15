@@ -12,46 +12,44 @@
 {% endblock css %}
 
 {% block content %}
-<div class="sb_general">
-    <div class="sb_questions_content">
-        <div class="row-fluid">
-            <div class="col-lg-9">
-                <div class="sb_questions_wall">
-                    <h3>Submit Question</h3>
-                    <div class="sb_question_inner_border">
-                        <textarea class="form-control sb_question_content_input sb_question_input_title"
-                                  id="question_title_id"
-                                  name="question_title"
-                                  cols="20"
-                                  rows="1"
-                                  placeholder="Question title"></textarea>
-                        <div class="sb_markdown">
-                        <textarea class="form-control sb_question_content_input"
-                                  id="question_content_id"
-                                  name="question_content"
-                                  cols="20"
-                                  rows="6"
-                                  placeholder="Question Content"></textarea>
-                        </div>
-                        <div class="row sb_convo_tags">
-                            <div class="col-lg-12">
-                                {% include "tag_box.html" %}
-                            </div>
-                        </div>
-                        {% comment %} 
-                        TODO determine if this and other "buttons" need to be a tags
-                        instead of buttons
-                        {% endcomment %}
-                        <button class="btn sb_btn sb_btn_basic submit_question-action"
-                               data-current_pleb="{{ current_user }}">Create Question</button>
-                        <a class="btn sb_btn sb_btn_basic">Cancel</a>
+<div class="sb_questions_content">
+    <div class="row-fluid">
+        <div class="col-lg-9">
+            <div class="sb_questions_wall">
+                <h3>Submit Question</h3>
+                <div class="sb_question_inner_border">
+                    <textarea class="form-control sb_question_content_input sb_question_input_title"
+                              id="question_title_id"
+                              name="question_title"
+                              cols="20"
+                              rows="1"
+                              placeholder="Question title"></textarea>
+                    <div class="sb_markdown">
+                    <textarea class="form-control sb_question_content_input"
+                              id="question_content_id"
+                              name="question_content"
+                              cols="20"
+                              rows="6"
+                              placeholder="Question Content"></textarea>
                     </div>
-                 </div>
-            </div>
+                    <div class="row sb_convo_tags">
+                        <div class="col-lg-12">
+                            {% include "tag_box.html" %}
+                        </div>
+                    </div>
+                    {% comment %}
+                    TODO determine if this and other "buttons" need to be a tags
+                    instead of buttons
+                    {% endcomment %}
+                    <button class="btn sb_btn sb_btn_basic submit_question-action"
+                           data-current_pleb="{{ current_user }}">Create Question</button>
+                    <a class="btn sb_btn sb_btn_basic">Cancel</a>
+                </div>
+             </div>
         </div>
     </div>
-    {% include "side_content.html" %}
 </div>
+{% include "side_content.html" %}
 {% endblock %}
 
 {% block scripts %}
@@ -60,6 +58,5 @@
     <script src="{% static 'js/create_markdown.js' %}"></script>
     <script src="{% static 'js/save_question.js' %}"></script>
     <script src="{% static 'js/get_tags.js' %}"></script>
-    <script src="{% static 'js/check_action.js' %}"></script>
     <script src="{% static 'select2/select2.js' %}"></script>
 {% endblock scripts %}

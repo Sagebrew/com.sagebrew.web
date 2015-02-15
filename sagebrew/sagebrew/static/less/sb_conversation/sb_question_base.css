@@ -1,52 +1,4 @@
-.sb_thumbnail_xs {
-  height: 33px;
-  width: 33px;
-}
-.sb_btn {
-  height: 30px;
-  background_color: #1ba39c;
-}
-.sb_icon {
-  font-size: 21px;
-}
-.sb_dropdown_icon {
-  color: #eaf0e8;
-}
-.sb_post_btn_dropdown {
-  background: transparent;
-  margin-top: -15px;
-}
-.sb_post_dropdown_menu {
-  text-align: left;
-  padding-left: 20px;
-}
-.sb_link {
-  color: #34495e;
-  padding-left: 0;
-}
-.sb_link:hover {
-  color: #1ba39c;
-}
-.sb_questions_content {
-  width: 90%;
-  height: auto;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 40px;
-}
-.sb_questions_content .sb_questions_wall {
-  background-color: #e0e7e1;
-  min-height: 575px;
-  margin-top: 30px;
-  margin-bottom: 30px;
-  margin-left: -30px;
-  padding-top: 10px;
-  padding-bottom: 30px;
-  padding-left: 15px;
-  padding-right: 15px;
-  border-radius: 2px;
-}
-.sb_questions_content .sb_question_inner_border {
+.sb_question_inner_border {
   min-height: 550px;
   padding: 15px;
   border-color: #b7bfbb;
@@ -54,7 +6,7 @@
   border-width: 1px;
   border-style: solid;
 }
-.sb_questions_content .sb_question_block_minimal_content {
+.sb_question_block_minimal_content {
   height: 65px;
   max-height: 65px;
   font-size: 18px;

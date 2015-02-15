@@ -7,32 +7,34 @@
     <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_base.css' %}"/>
     <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_input.css' %}"/>
     <link rel="stylesheet" href="{% static 'css/vendor/jquery.pagedown-bootstrap.css' %}"/>
-    <link rel="stylesheet" href="{% static 'less/sb_general.css' %}"/>
-    <link rel="stylesheet" href="{% static 'less/sb_markdown.css' %}"/>
 {% endblock css %}
 
 {% block content %}
-<div class="sb_questions_content">
-    <div class="row-fluid">
+    <div class="row-fluid sb_page">
         <div class="col-lg-9">
-            <div class="sb_questions_wall">
-                <h3>Submit Question</h3>
-                <div class="sb_question_inner_border">
-                    <textarea class="form-control sb_question_content_input sb_question_input_title"
+            <div class="sb_wall sb_conversation_wall">
+                <a href=""
+                   type="button"
+                   class="btn sb_tab_navigation">
+                   <span><h3>Conversations</h3></span>
+                </a>
+                <div class="sb_border">
+                    <h3>Submit Question</h3>
+                    <textarea class="form-control"
                               id="question_title_id"
                               name="question_title"
                               cols="20"
                               rows="1"
                               placeholder="Question title"></textarea>
                     <div class="sb_markdown">
-                    <textarea class="form-control sb_question_content_input"
+                    <textarea class="form-control"
                               id="question_content_id"
                               name="question_content"
                               cols="20"
                               rows="6"
                               placeholder="Question Content"></textarea>
                     </div>
-                    <div class="row sb_convo_tags">
+                    <div class="row">
                         <div class="col-lg-12">
                             {% include "tag_box.html" %}
                         </div>
@@ -41,14 +43,13 @@
                     TODO determine if this and other "buttons" need to be a tags
                     instead of buttons
                     {% endcomment %}
-                    <button class="btn sb_btn sb_btn_basic submit_question-action"
+                    <button class="btn sb_btn sb_btn_submit submit_question-action"
                            data-current_pleb="{{ current_user }}">Create Question</button>
-                    <a class="btn sb_btn sb_btn_basic">Cancel</a>
+                    <button class="btn sb_btn sb_btn_submit">Cancel</button>
                 </div>
              </div>
         </div>
     </div>
-</div>
 {% include "side_content.html" %}
 {% endblock %}
 

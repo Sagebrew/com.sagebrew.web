@@ -8,4 +8,4 @@ order to achieve the attention it deserves, the question may need revision.
 For more information on the Sagebrew quality standards, check out the 
 [Participate in the Conversation][1] page.
 
-[1]: /help_center/participate_in_the_conversation.html
+[1]: /help_center/privileges/participate_in_the_conversation/

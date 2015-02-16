@@ -1,4 +1,4 @@
-#What types of Questions should I avoid asking?#
+# What types of Questions should I avoid asking? #
 Questions to avoid asking on Sagebrew are Questions that
 - Have a clear cut and simple answer
  - for example, don't ask why the sky is blue, or

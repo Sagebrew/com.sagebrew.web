@@ -1,14 +1,14 @@
-# What should I do if no one provides a Solution to my Question? #
-If your Question has received a decent amount of traffic as well as Upvotes and/or Downvotes, but
-nobody has left a Solution, there may be a few issues
-with your Question.
+# What should I do if nobody provides a Solution to my Question? #
+If your Question has received a decent amount of traffic as well as 
+Upvotes and/or Downvotes, but nobody has left a Solution, there may be a few 
+items you may want to consider.
 
 - Your Question might be confusing.
  - Perhaps the way in which you worded your Question
    has left users confused or unsure of how to
    proceed with a Solution.
-- Maybe your Question is too difficult and
-other users simply don't know where to start the conversation.
+- Maybe your Question is too difficult and other users simply don't know 
+  where to start the conversation.
 
 The best thing to do if your Question is receiving
 traffic/Upvotes/Downvotes but no Solutions is to pose the first
@@ -29,4 +29,4 @@ Question will generate Conversation, but by
 providing quality Context and motivation for
 other users to get involved, you can make sure
 that you've done as much as you can to generate
-meaningful Conversation.
+a meaningful Conversation.

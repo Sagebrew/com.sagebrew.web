@@ -16,8 +16,11 @@ urlpatterns = patterns(
     (r'^conversation/', include('help_center.sub_urls.solutions')),
     (r'^conversation/', include(
         'help_center.sub_urls.reputation_and_moderation')),
+    (r'^conversation/', include('help_center.sub_urls.conversation')),
     (r'^privileges/', include('help_center.sub_urls.privileges')),
     (r'^campaigns/', include('help_center.sub_urls.representatives')),
+    (r'^reputation/', include(
+        'help_center.sub_urls.reputation_and_moderation')),
     (r'^accounts/', include('help_center.sub_urls.account')),
     (r'^security/', include('help_center.sub_urls.security')),
     (r'^terms/', include('help_center.sub_urls.terms')),

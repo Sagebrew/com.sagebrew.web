@@ -1,4 +1,4 @@
-#Why are Questions no longer being accepted by my account?#
+# Why are Questions no longer being accepted by my account? #
 There are a few reasons that might lead to
 an inability to spark Questions.
 

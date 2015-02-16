@@ -79,4 +79,15 @@ urlpatterns = patterns(
                     settings.STATIC_URL)
         },
         name="principle_campaign_committee"),
+    url(r'^suspicious_public_servants/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": "How do I report suspicious activity by a Representative?",
+            "description": "This is your campaign team.",
+            "content_path":
+                "%s/static/rendered_docs/"
+                "suspicious_public_servants.html" % (
+                    settings.STATIC_URL)
+        },
+        name="suspicious_public_servants"),
 )

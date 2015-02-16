@@ -5,6 +5,32 @@ from django.conf import settings
 
 urlpatterns = patterns(
     'help_center.views',
+    url(r'^closed_question/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": "What does it mean if a Question is Closed?",
+            "description": "Closed questions are questions that don't warrant "
+                           "deletion but might be lacking in quality.",
+            "content_path":
+                "%s/static/rendered_docs/why_closed_question.html" % (
+                    settings.STATIC_URL)
+        },
+        name="closed_question"),
+    url(r'^closure_of_a_question/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": "What if I disagree with the closure of a question? "
+                     "How can I reopen it?",
+            "description": "Closed questions cannot be reopened. If your "
+                           "Question has been flagged for closure you must "
+                           "provide evidence that it should not be closed "
+                           "prior to the Admin Council concluding their vote "
+                           "on the content.",
+            "content_path":
+                "%s/static/rendered_docs/closure_of_a_question.html" % (
+                    settings.STATIC_URL)
+        },
+        name="closure_of_a_question"),
     url(r'^context_to_a_question/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -23,7 +49,8 @@ urlpatterns = patterns(
             "title": "Why are some questions marked as duplicate?",
             "description": "It helps to keep  conversations on track if "
                            "duplicate questions are marked and users are"
-                           " informed where the core conversation is happening.",
+                           " informed where the core conversation is"
+                           " happening.",
             "content_path":
                 "%s/static/rendered_docs/duplicate_question.html" % (
                     settings.STATIC_URL)
@@ -36,8 +63,37 @@ urlpatterns = patterns(
             "description": "A frequently asked question regarding what is"
                            "expected from community members when they are"
                            "asking a question.",
-            "content_path": ""},
+            "content_path":
+                "%s/static/rendered_docs/good_question.html" % (
+                    settings.STATIC_URL)},
         name="good_question"),
+    url(r'^no_traffic/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": "What should I do if my Question gets no traffic?",
+            "description": "Sometimes our Questions don't receive a lot of "
+                           "traffic. This can be caused by a multitude of "
+                           "reasons but some common ones are described here.",
+            "content_path":
+                "%s/static/rendered_docs/no_traffic.html" % (
+                    settings.STATIC_URL)
+        },
+        name="no_traffic"),
+    url(r'^protected_conversation/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": 'What does it mean if a Conversation is "Protected"?',
+            "description": "Admin Council members have the ability to Protect "
+                           "Conversations that have not yet reached Seasoned "
+                           "status but need a bit more credibility to "
+                           "participate in. This can happen "
+                           "on valid Questions that attract a lot of attention "
+                           "but bolster too much noise.",
+            "content_path":
+                "%s/static/rendered_docs/protected_conversation.html" % (
+                    settings.STATIC_URL)
+        },
+        name="protected_conversation"),
     url(r'^quality_standards/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={

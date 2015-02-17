@@ -5,6 +5,19 @@ from django.conf import settings
 
 urlpatterns = patterns(
     'help_center.views',
+    url(r'^donation_goals/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": "What are donation goals and how should I set them?",
+            "description": "Donation Goals give Representatives and Candidates "
+                           "a pragmatic way of interacting with their "
+                           "constituents. Gaining donations in turn for "
+                           "updates on how the funds are being used.",
+            "content_path":
+                "%s/static/rendered_docs/donation_goals.html" % (
+                    settings.STATIC_URL)
+        },
+        name="donation_goals"),
     url(r'^funding_not_in_account/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -83,7 +96,10 @@ urlpatterns = patterns(
         template_name="help_page.html"),
         kwargs={
             "title": "How do I report suspicious activity by a Representative?",
-            "description": "This is your campaign team.",
+            "description": "Sagebrew does its best to make sure all "
+                           "candidates and representatives are using the site "
+                           "in a legal and positive manner. We welcome the "
+                           "assistance of the community.",
             "content_path":
                 "%s/static/rendered_docs/"
                 "suspicious_public_servants.html" % (

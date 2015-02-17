@@ -1,5 +1,3 @@
-{% load staticfiles %}
-{% block content %}
 <div class="block sb_question">
     <div class="row-fluid">
        <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
@@ -41,7 +39,7 @@
     <div class="sb_id" data-object_uuid="{{ object_uuid }}"
              style=""></div>
     {% url "profile_page" pleb_username=owner_profile_url as the_url %}
-    <div class="row" id="edit_question_{{ object_uuid }}"
+    <div class="row sb_edit_input_container" id="edit_question_{{ object_uuid }}"
          style="display: none">
         <div class="col-lg-10 col-lg-offset-1">
         <textarea class="form-control"
@@ -85,8 +83,19 @@
             </button>
     </div>
 </div>
-<h3>3 Solutions</h3>
-{% block answers %}
+<div class="row sb_tertiary_nav">
+    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+        <h3>3 Solutions</h3>
+    </div>
+    <div class="col-lg-9 col-md-9 col-sm-9 hidden-xs" align="right">
+        <a class="btn sb_tab_question"
+           data-sort_by="most_recent"
+           data-current_pleb="{{ email }}">Most Recent</a>
+        <a class="btn sb_tab_question"
+           data-sort_by="least_recent"
+           data-current_pleb="{{ email }}">Least Recent</a>
+    </div>
+</div>
 <div class="row">
     <div class="col-lg-12">
         {% for answer in answers %}
@@ -94,26 +103,6 @@
         {% endfor %}
     </div>
 </div>
-<div class="block sb_answer">
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="input-group">
-                <textarea class="form-control sb_answer_input_area"
-                          id="answer_content_id"
-                          name="answer_content"
-                          placeholder="Write your answer..."></textarea>
-                <button class="btn sb_btn sb_btn_submit submit_answer-action"
-                        data-object_uuid="{{ object_uuid }}"
-                        data-current_pleb="{{ current_pleb }}">
-                    Answer
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-{% endblock %}
-
 {% comment %}
  <div>Asked by: <a href="{{ the_url }}">{{ owner }}</a> | Posted: {{ time_created }} | Last edited: {{ last_edited_on }}</div>
 {% endcomment %}

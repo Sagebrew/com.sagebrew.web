@@ -54,6 +54,16 @@
 .sb_answer{
   &:extend(.block);
   margin-top: 30px;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  textarea{
+    border-width: 1px 1px 1px 1px;
+    border-radius: @sb_common_radius;
+    border-color: @sb_green_light;;
+    width: 100%;
+    height: 200px;
+    resize: none;
+  }
 }
 .sb_question{
   &:extend(.block);
@@ -76,7 +86,7 @@
 }
 .sb_wall{
   height: auto;
-  background-color: @sb_green_wall;
+  background-color: @sb_grey_light;
   padding: 15px 15px 15px 15px;
   border-radius: 2px;
   min-height: 575px;
@@ -92,6 +102,7 @@
   border-style: solid;
   padding: @sb_common_padding_positive;
   min-height: auto;
+  border-color: @sb_grey;
 }
 .sb_border_question{
   &:extend(.sb_border);
@@ -105,14 +116,6 @@
   margin-bottom: @sb_common_margin_positive;
 }
 // Links
-.sb_tab_navigation{
-  color: @sb_grey_dark;
-  background-color: transparent;
-  &:hover{
-    color: @sb_grey_dark;
-    background-color: @sb_green_wall;
-  }
-}
 .sb_tab_question{
   color: @sb_green;
   background-color: transparent;
@@ -123,23 +126,6 @@
 }
 // Buttons
 .sb_btn{}
-.sb_btn_icon{
-  &:extend(.sb_btn);
-  background-color: transparent;
-  font-size: @sb_body_text;
-  padding: 10px;
-}
-.sb_btn_icon_green{
-  &:extend(.sb_btn_cat);
-  color: @sb_green;
-  &:hover{
-    border: solid;
-    border-radius: 5px;
-    border-width: 1px;
-    border-color: @sb_grey_dark;
-    color: @sb_green;
-  }
-}
 .sb_btn_submit{
   &:extend(.sb_btn);
   background-color: @sb_green;
@@ -153,9 +139,25 @@
   background-color: @sb_off_white;
   color: @sb_green;
 }
-.sb_btn_vote{
+.sb_btn_icon{
   &:extend(.sb_btn);
   background-color: transparent;
+  font-size: @sb_body_text;
+  padding: 10px;
+}
+.sb_btn_icon_green{
+  &:extend(.sb_btn_icon);
+    color: @sb_green;
+  &:hover{
+    border: solid;
+    border-radius: 5px;
+    border-width: 1px;
+    border-color: @sb_grey;
+    color: @sb_green;
+  }
+}
+.sb_btn_vote{
+  &:extend(.sb_btn_icon);
   color: @sb_grey;
   padding: 0;
   font-size: 30pt;
@@ -223,20 +225,24 @@
 }
 .sb_secondary_nav {
   &:extend(.sb_nav);
-  background-color: @sb_grey_light;
-  font-size: @sb_menu_text;
-  height: @sb_btn_height;
-  padding: 0 0 30px 0px;
-  border-radius: 0 0 2px 2px;
-  border-bottom: solid;
-  border-width: 2px;
-  border-bottom-color: @sb_green_medium;
   a{
     text-decoration: none;
     color: @sb_grey_dark;
     &:hover{
        background-color: @sb_green_wall;
+       color: @sb_grey_dark;
+  }
    }
+  }
+.sb_secondary_nav_bar{
+  &:extend(.sb_secondary_nav){
+    background-color: @sb_grey_light;
+    height: @sb_btn_height;
+    padding: 0 0 30px 0px;
+    border-radius: 0 0 2px 2px;
+    border-bottom: solid;
+    border-width: 2px;
+    border-bottom-color: @sb_green_medium;
   }
 }
 .sb_tertiary_nav {
@@ -244,6 +250,7 @@
   background-color: transparent;
   border: none;
   height: auto;
+  margin-top: 15px;
   input{
     height: @sb_input_height;
     width: 400px;
@@ -291,19 +298,9 @@
   }
 }
 // go through this stuff
-.sb_btn_basic{
-  background-color: @sb_green;
-  height: @sb_btn_height;
-  width: auto;
-  line-height: 5px;
-  color: @white;
-}
 .sb_thumbnail_xs{
   height: 33px;
   width: 33px;
-}
-.sb_icon{
-    font-size: @sb_header_text;
 }
 .sb_dropdown_icon {
     color: @sb_green_extra_light;
@@ -315,13 +312,6 @@
 .sb_post_dropdown_menu{
     text-align: left;
     padding-left: 20px;
-}
-.sb_link{
-  color: @sb_dark_blue;
-      &:hover{
-        color: @sb_green;
-      }
-  padding-left: 0;
 }
 .sb_profile_container_wall {
     background-color: #e0e7e1;

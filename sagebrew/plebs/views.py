@@ -1,3 +1,5 @@
+import pytz
+from datetime import datetime
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
@@ -295,3 +297,12 @@ def get_user_rep(request):
     except (Pleb.DoesNotExist, DoesNotExist, CypherException):
         return Response({"detail": "pleb does not exist"}, 400)
     return Response(pleb.get_total_rep(), 200)
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def get_user_questions(request):
+    now = datetime.now(pytz.utc)
+    try:
+        pleb = Pleb.nodes.get(username=request.user.username)
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException):
+        return Response({"detail": "pleb does not exist"}, 400)

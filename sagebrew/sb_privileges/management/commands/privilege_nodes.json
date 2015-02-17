@@ -52,7 +52,14 @@
     ],
     "restrictions": [
         {
-
+            "name": "3 questions weekly",
+            "url": "/user/v1/profile/question/?expiry=604800",
+            "key": "count",
+            "operator": "coperator\nle\np0\n.",
+            "condition": "3",
+            "expiry": 604800,
+            "recurring": false,
+            "base": true
         }
     ]
 }

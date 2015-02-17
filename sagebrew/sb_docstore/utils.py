@@ -589,4 +589,12 @@ def build_privileges(username):
             action_dict = action.get_dict()
             action_dict['parent_object'] = username
             action_table.put_item(action_dict, True)
+
+    for restriction in pleb.restrictions.all():
+        rel = pleb.restrictions.relationship(restriction)
+        if rel.active:
+            rest_dict = restriction.get_dict()
+            rest_dict['parent_object'] = username
+            restriction.put_item(rest_dict)
     return True
+

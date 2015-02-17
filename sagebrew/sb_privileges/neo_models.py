@@ -88,6 +88,8 @@ class SBAction(StructuredNode):
 
 class SBRestriction(StructuredNode):
     sb_id = StringProperty(default=lambda: str(uuid1()), unique_index=True)
+    base = BooleanProperty(default=False)
+    name = StringProperty()
     url = StringProperty()
     key = StringProperty()
     operator = StringProperty(default="") #gt, ge, eq, ne, ge, gt
@@ -101,9 +103,13 @@ class SBRestriction(StructuredNode):
     def get_dict(self):
         return {
             "sb_id": self.sb_id,
-            "restriction_limit": self.restriction_limit,
-            "restriction_time_limit": self.restriction_time_limit,
-            "restriction_expiry": self.restriction_expiry,
+            "restriction": self.name,
+            "key": self.key,
+            "operator": self.operator,
+            "condition": self.condition,
+            "auth_type": self.auth_type,
+            "end_date": self.end_date,
+            "expiry": self.restriction_expiry,
             "url": self.url
         }
 
@@ -111,8 +117,6 @@ class SBRestriction(StructuredNode):
         res = post_to_api(self.url, username, req_method='get')
         temp_type = type(res[self.key])
         temp_cond = temp_type(self.condition)
-
-
         return self.build_check_dict(
             pickle.loads(self.operator)(res[self.key], temp_cond),
             res[self.key])

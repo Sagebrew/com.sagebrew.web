@@ -2,11 +2,13 @@ from django.conf.urls import patterns, url
 
 from .views import (profile_page, get_user_search_view,
                     about_page, friends_page,
-                    reputation_page, get_user_rep)
+                    reputation_page, get_user_rep, get_user_questions)
 
 
 urlpatterns = patterns(
     'plebs.views',
+    url(r'^v1/profile/question/', get_user_questions,
+        name="user_question_api"),
     url(r'^v1/profile/', get_user_rep, name="user_rep_api"),
     url(r'^(?P<pleb_username>[A-Za-z0-9.@_%+-]{7,60})/about/',
        about_page, name="about_page"),

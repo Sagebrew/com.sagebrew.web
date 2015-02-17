@@ -306,3 +306,4 @@ def get_user_questions(request):
         pleb = Pleb.nodes.get(username=request.user.username)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException):
         return Response({"detail": "pleb does not exist"}, 400)
+    return Response(pleb.get_questions(request.GET['expiry'], now), 200)

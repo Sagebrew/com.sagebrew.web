@@ -5,17 +5,29 @@ from django.conf import settings
 
 urlpatterns = patterns(
     'help_center.views',
-    url(r'^why_are_solutions_removed/$', TemplateView.as_view(
+    url(r'^good_solution/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
-            "title": "Why and how are some solutions removed?",
-            "description": "Explanation on why and how solutions are removed "
-                           "from the Conversation area.",
+            "title": "How do I write a good solution?",
+            "description": "Writing a good solution takes time, dedication, "
+                           "and a lot of thought. A good solution doesn't "
+                           "appear overnight. Here are some tips on what to "
+                           "keep in mind when crafting a Solution.",
             "content_path":
-                "%s/static/rendered_docs/how_solutions_removed.html" % (
+                "%s/static/rendered_docs/good_solution.html" % (
                     settings.STATIC_URL)
         },
-        name="why_are_solutions_removed"),
+        name="good_solution"),
+    url(r'^solution_to_own_question/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": "Can I give a Solution to my own Question?",
+            "description": "Yes you can give a Solution to your own Question.",
+            "content_path":
+                "%s/static/rendered_docs/solution_to_own_question.html" % (
+                    settings.STATIC_URL)
+        },
+        name="solution_to_own_question"),
     url(r'^solutions_no_longer_accepted/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -41,4 +53,15 @@ urlpatterns = patterns(
                     settings.STATIC_URL)
         },
         name="when_to_edit_solutions"),
+    url(r'^why_are_solutions_removed/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": "Why and how are some solutions removed?",
+            "description": "Explanation on why and how solutions are removed "
+                           "from the Conversation area.",
+            "content_path":
+                "%s/static/rendered_docs/why_solutions_removed.html" % (
+                    settings.STATIC_URL)
+        },
+        name="why_are_solutions_removed"),
 )

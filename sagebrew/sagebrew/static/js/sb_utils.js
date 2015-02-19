@@ -139,7 +139,7 @@ function save_answer() {
 }
 
 function edit_object() {
-    $("a.edit_object-action").click(function (event) {
+    $(".edit_object-action").click(function (event) {
         event.preventDefault();
         var uuid = $(this).data('object_uuid');
         $.ajaxSetup({
@@ -159,7 +159,10 @@ function edit_object() {
                 'datetime': $(this).data('datetime')
             }),
             contentType: "application/json; charset=utf-8",
-            dataType: "json"
+            dataType: "json",
+            success: function(data){
+                $(data['html_object']).text(data['content'])
+            }
         });
     });
 }

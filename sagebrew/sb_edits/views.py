@@ -60,7 +60,12 @@ def edit_object_view(request):
         res = add_object_to_table('edits', dynamo_data)
         if isinstance(res, Exception) is True:
             return Response({"detail": "server error"}, status=500)
-        return Response({"detail": "success"}, status=200)
+        html_string = "%s%s" % ("#sb_content_",
+                                edit_object_form.cleaned_data['object_uuid'])
+        return Response({"detail": "success",
+                         "content": edit_object_form.cleaned_data['content'],
+                         "html_object": html_string},
+                        status=200)
     else:
         return Response({"detail": "invalid form"}, status=400)
 

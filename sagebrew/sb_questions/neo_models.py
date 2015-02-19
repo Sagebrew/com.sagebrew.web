@@ -145,24 +145,25 @@ class SBQuestion(SBVersioned, SBTagContent):
             for comment in self.comments.all():
                 comment_array.append(comment.get_single_dict())
 
-            return {'question_title': edit.question_title,
-                             'content': edit.content,
-                             'object_uuid': self.sb_id,
-                             'is_closed': self.is_closed,
-                             'answer_number': self.answer_number,
-                             'last_edited_on': unicode(self.last_edited_on),
-                             'up_vote_number': self.get_upvote_count(),
-                             'down_vote_number': self.get_downvote_count(),
-                             'vote_score': self.get_vote_count(),
-                             'owner': owner_name,
-                             'owner_profile_url': owner_profile_url,
-                             'time_created': unicode(self.date_created),
-                             'answers': answer_array,
-                             'comments': comment_array,
-                             'current_pleb': pleb,
-                             'owner_email': owner.email,
-                             'edits': [],
-                             'object_type': self.object_type}
+            return {
+                'question_title': edit.question_title,
+                'content': edit.content,
+                'object_uuid': self.sb_id,
+                'is_closed': self.is_closed,
+                'answer_number': self.answer_number,
+                'last_edited_on': unicode(self.last_edited_on),
+                'up_vote_number': self.get_upvote_count(),
+                'down_vote_number': self.get_downvote_count(),
+                'vote_score': self.get_vote_count(),
+                'owner': owner_name,
+                'owner_profile_url': owner_profile_url,
+                'time_created': unicode(self.date_created),
+                'answers': answer_array,
+                'comments': comment_array,
+                'current_pleb': pleb,
+                'owner_email': owner.email,
+                'edits': [],
+                'object_type': self.object_type}
         except CypherException as e:
             return e
 

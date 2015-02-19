@@ -4,7 +4,8 @@ from boto.dynamodb2.layer1 import DynamoDBConnection
 from boto.dynamodb2.table import Table
 from boto.dynamodb2.exceptions import (JSONResponseError, ItemNotFound,
                                        ConditionalCheckFailedException,
-                                       ValidationException)
+                                       ValidationException,
+                                       ResourceNotFoundException)
 
 from neomodel import DoesNotExist, CypherException
 
@@ -17,6 +18,8 @@ from sb_reps.utils import get_rep_type
 
 def get_table_name(name):
     branch = os.environ.get("CIRCLE_BRANCH", None)
+    if branch in name:
+        return name
     return "%s-%s" % (branch, name)
 
 def connect_to_dynamo():
@@ -76,14 +79,17 @@ def add_object_to_table(table_name, object_data):
     :param object_data:
     :return:
     '''
+    table_name = get_table_name(table_name)
+    print table_name
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
     try:
         table_name = get_table_name(table_name)
         table = Table(table_name=table_name, connection=conn)
-    except JSONResponseError as e:
+    except (JSONResponseError, ResourceNotFoundException) as e:
         return e
+    table.describe()
     try:
         res = table.put_item(data=object_data)
     except ConditionalCheckFailedException:
@@ -126,11 +132,13 @@ def query_parent_object_table(object_uuid, get_all=False, table_name='edits'):
 @apply_defense
 def update_doc(table, object_uuid, update_data, parent_object="",
                obj_datetime=""):
+    table_name = get_table_name(table)
+    print table_name
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
     try:
-        db_table = Table(table_name=get_table_name(table), connection=conn)
+        db_table = Table(table_name=table_name, connection=conn)
     except JSONResponseError as e:
         return e
     if obj_datetime != "" and parent_object != "":
@@ -155,6 +163,7 @@ def get_question_doc(question_uuid, question_table, solution_table):
         return conn
     answer_list = []
     q_comments = []
+    print question_table, solution_table
     try:
         questions = Table(table_name=get_table_name(question_table),
                           connection=conn)
@@ -184,7 +193,6 @@ def get_question_doc(question_uuid, question_table, solution_table):
                                                   0)
     for comment in comments:
         comment = dict(comment)
-        print comment
         comment['up_vote_number'] = get_vote_count(comment['object_uuid'],1)
         comment['down_vote_number'] = get_vote_count(comment['object_uuid'],0)
         q_comments.append(comment)
@@ -230,6 +238,7 @@ def build_question_page(question_uuid, question_table, solution_table):
     :param solution_table:
     :return:
     '''
+    print question_table, solution_table
     try:
         question = SBQuestion.nodes.get(sb_id=question_uuid)
     except (SBQuestion.DoesNotExist, DoesNotExist) as e:

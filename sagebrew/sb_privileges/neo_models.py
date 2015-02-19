@@ -133,7 +133,7 @@ class SBRestriction(StructuredNode):
                         self.get_operator_string(), self.condition, 'flags',
                         current)}
         else:
-            return {"detail": "The requirement %s was met"%(self.sb_id),
+            return {"detail": "The restriction %s was met"%(self.sb_id),
                     "key": self.key,
                     "operator": pickle.loads(self.operator),
                     "response": check}

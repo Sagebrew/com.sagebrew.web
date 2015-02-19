@@ -267,10 +267,34 @@ class Pleb(StructuredNode):
                 rel.save()
         return True
 
+    def get_conversation(self, expiry=0, now=0):
+        return self.get_questions(expiry, now)['count']+\
+               self.get_answers(expiry,now)['count']
+
     def get_questions(self, expiry=0, now=0):
         if expiry == 0:
             return self.get_question_dicts(self.questions.all())
         return self.get_question_dicts(self.filter_questions(expiry, now))
+
+    def get_answers(self, expiry=0, now=0):
+        if expiry == 0:
+            return self.get_answer_dicts(self.answers.all())
+        return self.get_answer_dicts(self.filter_answers(expiry, now))
+
+    def get_answer_dicts(self, answers):
+        a_dict = {
+            "answers": []
+        }
+        for answer in answers:
+            a_dict['answers'].append(answer.get_dict())
+        a_dict['count'] = len(a_dict['answers'])
+
+    def filter_answers(self, expiry, now):
+        answers = []
+        for answer in self.answers.all():
+            if (now-answer.date_created).seconds < expiry:
+                answers.append(answer)
+        return answers
 
     def filter_questions(self, expiry, now):
         questions = []

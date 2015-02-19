@@ -52,11 +52,21 @@
     ],
     "restrictions": [
         {
-            "name": "1 questions weekly",
+            "name": "1 question weekly",
             "url": "/user/v1/profile/question/?expiry=604800",
             "key": "count",
             "operator": "coperator\nle\np0\n.",
             "condition": "1",
+            "expiry": 604800,
+            "recurring": false,
+            "base": true
+        },
+        {
+            "name": "sum of 3 questions and solutions weekly",
+            "url": "/user/v1/profile/conversation/?expiry=604800",
+            "key": "count",
+            "operator": "coperator\nle\np0\n.",
+            "condition": "3",
             "expiry": 604800,
             "recurring": false,
             "base": true

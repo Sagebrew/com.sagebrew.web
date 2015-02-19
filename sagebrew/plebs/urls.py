@@ -2,11 +2,14 @@ from django.conf.urls import patterns, url
 
 from .views import (profile_page, get_user_search_view,
                     about_page, friends_page,
-                    reputation_page, get_user_rep, get_user_questions)
+                    reputation_page, get_user_rep, get_user_questions,
+                    get_user_conversation, get_user_age)
 
 
 urlpatterns = patterns(
     'plebs.views',
+    url(r'^v1/profile/conversation/', get_user_conversation,
+        name="user_conversation_api"),
     url(r'^v1/profile/question/', get_user_questions,
         name="user_question_api"),
     url(r'^v1/profile/', get_user_rep, name="user_rep_api"),

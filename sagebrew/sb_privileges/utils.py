@@ -34,12 +34,17 @@ def manage_privilege_relation(username):
         rel = pleb.privileges.connect(privilege)
         rel.save()
         pri_dict = privilege.get_dict()
+        pri_dict.pop('requirements', None)
+        pri_dict.pop('actions', None)
         pri_dict['parent_object'] = username
+        print pri_dict
         res = add_object_to_table('privileges', pri_dict)
         for action in privilege.get_actions():
             rel = pleb.actions.connect(action)
             rel.save()
             act_dict = action.get_dict()
+            act_dict.pop("possible_restrictions", None)
             act_dict['parent_object'] = username
+            print act_dict
             res = add_object_to_table('actions', act_dict)
     return True

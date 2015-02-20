@@ -268,8 +268,10 @@ class Pleb(StructuredNode):
         return True
 
     def get_conversation(self, expiry=0, now=0):
-        return self.get_questions(expiry, now)['count']+\
-               self.get_answers(expiry,now)['count']
+        return {"questions": [self.get_questions(expiry, now)],
+                "solutions": [self.get_answers(expiry, now)],
+                "count": self.get_questions(expiry, now)['count']+\
+                    self.get_answers(expiry,now)['count']}
 
     def get_questions(self, expiry=0, now=0):
         if expiry == 0:

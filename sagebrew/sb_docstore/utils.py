@@ -95,7 +95,7 @@ def add_object_to_table(table_name, object_data):
         try:
             user_object = table.get_item(email=object_data['email'])
             return True
-        except ConditionalCheckFailedException as e:
+        except (ConditionalCheckFailedException, KeyError):
             return True
     except (ValidationException, JSONResponseError) as e:
         # TODO if we receive these errors we probably want to do

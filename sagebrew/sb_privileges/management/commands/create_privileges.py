@@ -19,6 +19,7 @@ class Command(BaseCommand):
             data = loads(data_file.read())
             for privilege in data['privileges']:
                 requirements = privilege.pop('requirements', [])
+                actions = privilege.pop('actions', [])
                 try:
                     privilege = SBPrivilege(**privilege).save()
                 except CypherException:
@@ -27,6 +28,12 @@ class Command(BaseCommand):
                     try:
                         req = Requirement(**requirement).save()
                         privilege.requirements.connect(req)
+                    except CypherException:
+                        pass
+                for action in actions:
+                    try:
+                        action = SBAction(**action).save()
+                        privilege.actions.connect(action)
                     except CypherException:
                         pass
             for action in data['actions']: #for possible future use of single actions not connected with a privilege

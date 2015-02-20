@@ -120,4 +120,4 @@ class TestEditQuestionTitleTask(TestCase):
         while not res.ready():
             time.sleep(1)
 
-        self.assertFalse(res.result)
+        self.assertIsInstance(res.result, Exception)

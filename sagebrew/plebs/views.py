@@ -312,7 +312,6 @@ def get_user_questions(request):
 @permission_classes((IsAuthenticated,))
 def get_user_conversation(request):
     now = datetime.now(pytz.utc)
-    print request.GET.get('expiry', 0)
     try:
         pleb = Pleb.nodes.get(username=request.user.username)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException):

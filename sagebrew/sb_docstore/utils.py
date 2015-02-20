@@ -80,7 +80,6 @@ def add_object_to_table(table_name, object_data):
     :return:
     '''
     table_name = get_table_name(table_name)
-    print table_name
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
@@ -133,7 +132,6 @@ def query_parent_object_table(object_uuid, get_all=False, table_name='edits'):
 def update_doc(table, object_uuid, update_data, parent_object="",
                obj_datetime=""):
     table_name = get_table_name(table)
-    print table_name
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
@@ -163,7 +161,6 @@ def get_question_doc(question_uuid, question_table, solution_table):
         return conn
     answer_list = []
     q_comments = []
-    print question_table, solution_table
     try:
         questions = Table(table_name=get_table_name(question_table),
                           connection=conn)
@@ -238,7 +235,6 @@ def build_question_page(question_uuid, question_table, solution_table):
     :param solution_table:
     :return:
     '''
-    print question_table, solution_table
     try:
         question = SBQuestion.nodes.get(sb_id=question_uuid)
     except (SBQuestion.DoesNotExist, DoesNotExist) as e:

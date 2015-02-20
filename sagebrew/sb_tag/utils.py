@@ -53,4 +53,3 @@ def calc_spheres():
                     'with reduce(dist = 0, rel in rels(path) | dist + rel.count) as distance ' \
                     'return distance'%(tag.tag_name, base_tag.tag_name)
             res = execute_cypher_query(query)
-            print res

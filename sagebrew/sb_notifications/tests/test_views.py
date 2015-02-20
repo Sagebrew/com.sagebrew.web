@@ -29,15 +29,6 @@ class TestNotificationViews(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-    def test_get_notification_view_missing_data(self):
-        my_dict = {'range_end': 5, 'range_start': 0}
-        request = self.factory.post('/notifications/query_notifications/',
-                                    data=my_dict, format='json')
-        request.user = self.user
-        response = get_notifications(request)
-
-        self.assertEqual(response.status_code, 400)
-
     def test_get_notification_view_int_data(self):
         my_dict = 1337
         request = self.factory.post('/notifications/query_notifications/',

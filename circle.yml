@@ -173,6 +173,11 @@ deployment:
     commands:
       #- coverage report --fail-under=100
       - bash -x ~/com.sagebrew.web/deployment/staging.sh $CIRCLE_SHA1
+      - curl https://opbeat.com/api/v1/organizations/$OPBEAT_ORG_ID_STAGING/apps/$OPBEAT_APP_ID_STAGING/releases/ \
+        -H "Authorization: Bearer $OPBEAT_SECRET_TOKEN_STAGING" \
+        -d rev=`git log -n 1 --pretty=format:%H` \
+        -d branch=`git rev-parse --abbrev-ref HEAD` \
+        -d status=completed
 
 
 general:

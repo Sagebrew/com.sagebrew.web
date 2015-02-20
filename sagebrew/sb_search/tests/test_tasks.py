@@ -556,7 +556,7 @@ class TestUpdateSearchQuery(TestCase):
             time.sleep(1)
         res = res.result
 
-        self.assertIsInstance(res, ValueError)
+        self.assertIsInstance(res, Exception)
 
     def test_update_search_query_success_pleb_does_not_exist_pickle(self):
         from sb_search.neo_models import SearchQuery
@@ -575,7 +575,7 @@ class TestUpdateSearchQuery(TestCase):
         res = res.result
         pickle_instance = pickle.dumps(res)
         self.assertTrue(pickle_instance)
-        self.assertIsInstance(pickle.loads(pickle_instance), DoesNotExist)
+        self.assertIsInstance(pickle.loads(pickle_instance), Exception)
 
 
 class TestCreateKeywordTask(TestCase):

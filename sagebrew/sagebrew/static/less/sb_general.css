@@ -118,16 +118,12 @@
   background-color: transparent;
 }
 .sb_btn_submit,
-.sb_btn_login {
+.sb_login button {
   background-color: #1ba39c;
   color: #ffffff;
   font-size: 18px;
   width: auto;
   line-height: 5px;
-}
-.sb_btn_login {
-  background-color: #fafcfa;
-  color: #1ba39c;
 }
 .sb_btn_icon,
 .sb_btn_icon_green,
@@ -181,7 +177,8 @@
 .sb_primary_nav {
   background-color: #1ba39c;
   height: 45px;
-  padding: 0px 15px 0px 15px;
+  padding-left: 15px;
+  padding-right: 15px;
   margin-top: 0;
   margin-bottom: 0;
 }
@@ -204,11 +201,7 @@
   border-color: #b7bfbb;
   border-width: 1px;
   border-right: none;
-}
-.sb_secondary_nav,
-.sb_tertiary_nav {
-  background-color: #e5ece6;
-  height: 30px;
+  margin-top: 6px;
 }
 .sb_secondary_nav a {
   text-decoration: none;
@@ -217,6 +210,15 @@
 .sb_secondary_nav a:hover {
   background-color: #e0e7e1;
   color: #838c92;
+}
+.sb_secondary_nav_bar {
+  background-color: #e5ece6;
+  height: 30px;
+  padding: 0 0 30px 0px;
+  border-radius: 0 0 2px 2px;
+  border-bottom: solid;
+  border-width: 2px;
+  border-bottom-color: #9dbbb9;
 }
 .sb_tertiary_nav {
   background-color: transparent;
@@ -232,6 +234,21 @@
   border-width: 1px;
   border-color: #b7bfbb;
 }
+.sb_footer {
+  background-color: transparent;
+  position: relative;
+  margin-left: -15px;
+  margin-right: -15px;
+}
+.sb_sign_up_form input {
+  width: 348px;
+}
+.sb_sign_up_form button {
+  width: 348px;
+}
+.sb_input_wrapper {
+  margin-bottom: 15px;
+}
 .sb_search,
 .sb_login {
   display: inline-block;
@@ -245,11 +262,15 @@
   border-radius: 5px 0 0 5px;
 }
 .sb_login input {
-  padding-top: 0px;
   line-height: 25px;
 }
 .sb_login ul {
   margin-bottom: 14px;
+}
+.sb_login button {
+  background-color: #fafcfa;
+  color: #1ba39c;
+  height: 28px;
 }
 .sb_dropdown ul {
   background-color: #ffffff;

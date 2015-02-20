@@ -75,7 +75,6 @@ STATICFILES_DIRS = (
     '%s/sb_flags/static/' % PROJECT_DIR,
     '%s/sb_votes/static/' % PROJECT_DIR,
     '%s/sb_edits/static/' % PROJECT_DIR,
-    '%s/sb_wall/static/' % PROJECT_DIR,
     '%s/sb_reps/static/' % PROJECT_DIR,
     '%s/sb_uploads/static/' % PROJECT_DIR
 )

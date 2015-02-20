@@ -242,10 +242,12 @@
 }
 .sb_sign_up_form input {
   width: 348px;
-  margin-bottom: 15px;
 }
 .sb_sign_up_form button {
   width: 348px;
+}
+.sb_input_wrapper {
+  margin-bottom: 15px;
 }
 .sb_search,
 .sb_login {

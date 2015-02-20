@@ -20,18 +20,18 @@
             <h1>Sign Up</h1>
         </div>
         <div class="sb_sign_up_form">
-        <form id="singupForm" method="post">
+        <form id="signupForm" method="post">
             {% csrf_token %}
             <div align="center">
                 <div class="row-fluid">
-                    <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2 fname">
+                    <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2 sb_input_wrapper fname">
                         <input type="text"
                                value=""
                                placeholder="First Name"
                                name="first_name"
                                class="form-control input-lg f_name">
                     </div>
-                    <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2 lname">
+                    <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2 sb_input_wrapper lname">
                         <input type="text"
                                value=""
                                name="last_name"
@@ -40,7 +40,7 @@
                     </div>
                 </div>
                 <div class="row-fluid">
-                    <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2 email_class">
+                    <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2 sb_input_wrapper email_class">
                         <input type="text"
                                value=""
                                name="email"
@@ -49,7 +49,7 @@
                     </div>
                 </div>
                 <div class="row-fluid">
-                    <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2 p1">
+                    <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2 sb_input_wrapper p1">
                         <input type="password"
                                value=""
                                name="password1"
@@ -58,7 +58,7 @@
                     </div>
                 </div>
                 <div class="row-fluid">
-                    <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2 p2">
+                    <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2 sb_input_wrapper p2">
                         <input type="password"
                                value=""
                                name="password2"
@@ -67,20 +67,20 @@
                     </div>
                 </div>
                 <div class="row-fluid">
-                    <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2 bday">
+                    <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2 sb_input_wrapper bday">
                         <h3>Birthday</h3>
                             <input type="text"
                                    class="form-control input-lg"
                                    value=""
                                    placeholder="MM/DD/YYYY"
-                                   name="birthday">
+                                   name="birthday" id="birthday">
                     </div>
 
                 </div>
                 <div class="row-fluid">
                     <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2">
                         <button class="btn btn-block btn-lg btn-primary"
-                                type="submit">
+                                type="submit" id="submit_signup">
                             Register
                         </button>
                     </div>

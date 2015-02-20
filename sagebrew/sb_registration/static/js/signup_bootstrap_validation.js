@@ -1,12 +1,15 @@
 $(document).ready(function(){
-    $("#singupForm").bootstrapValidator({
+    $("#signupForm").bootstrapValidator({
+        framework: 'bootstrap',
+        err: {
+            container: '#fname_errors'
+        },
         feedbackIcons: {
             valid: 'glyphicon glyphicon-ok',
             validating: 'glyphicon glyphicon-refresh'
         },
         live: 'enabled',
-        submitButtons: 'button.submit_signup',
-        err: "tooltip",
+        submitButtons: '#submit_signup',
         fields: {
             first_name: {
                 group: 'fname',

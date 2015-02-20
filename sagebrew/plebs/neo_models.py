@@ -288,6 +288,7 @@ class Pleb(StructuredNode):
         for answer in answers:
             a_dict['answers'].append(answer.get_dict())
         a_dict['count'] = len(a_dict['answers'])
+        return a_dict
 
     def filter_answers(self, expiry, now):
         answers = []

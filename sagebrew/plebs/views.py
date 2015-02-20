@@ -302,21 +302,24 @@ def get_user_rep(request):
 @permission_classes((IsAuthenticated,))
 def get_user_questions(request):
     now = datetime.now(pytz.utc)
+    expiry = request.GET.get('expiry', 0)
     try:
         pleb = Pleb.nodes.get(username=request.user.username)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException):
         return Response({"detail": "pleb does not exist"}, 400)
-    return Response(pleb.get_questions(request.GET.get('expiry', 0), now), 200)
+    return Response(pleb.get_questions(expiry, now), 200)
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def get_user_conversation(request):
     now = datetime.now(pytz.utc)
+    expiry = request.GET.get('expiry', 0)
+    print expiry
     try:
         pleb = Pleb.nodes.get(username=request.user.username)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException):
         return Response({"detail": "pleb does not exist"}, 400)
-    return Response(pleb.get_conversation(request.GET.get('expiry', 0), now), 200)
+    return Response(pleb.get_conversation(expiry, now), 200)
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))

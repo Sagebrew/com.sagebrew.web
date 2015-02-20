@@ -92,12 +92,12 @@ class TestCreateAutoTagRelationships(TestCase):
 
         self.assertTrue(res)
 
-    def test_create_auto_tag_relaitonship_fequently_tagged_with(self):
+    def test_create_auto_tag_relationship_frequently_tagged_with(self):
         tag1 = SBAutoTag(tag_name=str(uuid1())).save()
         tag2 = SBAutoTag(tag_name=str(uuid1())).save()
-        rel = tag1.frequently_auto_tagged_with.connect(tag2)
+        rel = tag1.frequently_tagged_with.connect(tag2)
         rel.save()
-        rel2 = tag2.frequently_auto_tagged_with.connect(tag1)
+        rel2 = tag2.frequently_tagged_with.connect(tag1)
         rel2.save()
         tag_list = [tag1, tag2]
         res = create_tag_relations.apply_async(kwargs={"tag_list": tag_list})

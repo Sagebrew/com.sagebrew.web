@@ -556,7 +556,7 @@ class TestUpdateSearchQuery(TestCase):
             time.sleep(1)
         res = res.result
 
-        self.assertIsInstance(res, DoesNotExist)
+        self.assertIsInstance(res, ValueError)
 
     def test_update_search_query_success_pleb_does_not_exist_pickle(self):
         from sb_search.neo_models import SearchQuery

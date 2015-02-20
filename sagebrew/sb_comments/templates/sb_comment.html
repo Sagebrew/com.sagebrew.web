@@ -8,7 +8,13 @@
             </div>
             <div class="col-lg-3 col-md-3 col-sm-2 col-xs-4">
                <div class="sb_comment_header_info">
-                   <a class="btn sb_btn_profile_link">
+                   {% comment %}<a class="btn sb_btn_profile_link"
+                      href="{% url 'profile_page' comment_owner_.username %}">
+                   </a>
+                   TODO get the users username so we can do this redirect
+                   {% endcomment %}
+                   <a class="btn sb_btn_profile_link"
+                      href="#">
                        {{ comment.comment_owner }}
                    </a>
                    <div class="sb_post_data">
@@ -30,13 +36,13 @@
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
                             role="menu" aria-labelledby="dropdownMenu1">
-                            {% if comment.comment_owner_email == comment.current_user %}
-                             <li role="presentation"><a class="btn show_edit_comment_class"
-                                                        data-comment_uuid="{{ comment.object_uuid }}"
-                                                        type="submit">edit</a>
-                            </li>
+                            {% if comment.comment_owner_email == user.email %}
+                                <li role="presentation"><a class="btn show_edit_comment_class"
+                                                            data-comment_uuid="{{ comment.object_uuid }}"
+                                                            type="submit">edit</a>
+                                </li>
+                                <li role="presentation" class="sb_divider divider"></li>
                             {% endif %}
-                             <li role="presentation" class="sb_divider divider"></li>
                             <li role="presentation"><a class='btn flag_object-action'
                                                        data-flag_reason='spam'
                                                        data-current_user="{{ comment.current_user }}"
@@ -73,7 +79,7 @@
                 </div>
         </div>
     </div>
-    <div class="sb_comment_body">
+    <div class="sb_comment_body" id="sb_content_{{ comment.object_uuid }}">
         {{ comment.content }}
     </div>
     <div class="sb_comment_stats">
@@ -118,7 +124,8 @@
            data-object_type="02ba1c88-644f-11e4-9ad9-080027242395"
            data-current_pleb="{{ comment.current_user }}"
            data-object_uuid="{{ comment.object_uuid }}"
-           data-datetime="{{ comment.datetime }}">Submit</a>
+           data-datetime="{{ comment.datetime }}"
+           data-parent_object="{{ object_uuid }}">Submit</a>
     </div>
 {% comment %}
     <a class='btn btn-primary vote-action'

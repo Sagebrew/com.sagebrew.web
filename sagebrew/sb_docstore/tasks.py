@@ -1,7 +1,7 @@
 from celery import shared_task
 
 from .utils import (build_question_page, add_object_to_table, build_wall_docs,
-                    build_rep_page)
+                    build_rep_page, build_privileges)
 
 
 @shared_task()
@@ -36,4 +36,12 @@ def build_rep_page_task(rep_id, rep_type=None):
     res = build_rep_page(rep_id, rep_type)
     if isinstance(res, Exception):
         raise build_rep_page_task.retry(exc=res, countdown=3, max_retries=None)
+    return True
+
+@shared_task()
+def build_user_privilege_task(username):
+    res = build_privileges(username)
+    if isinstance(res, Exception):
+        raise build_user_privilege_task.retry(exc=res, countdown=3,
+                                              max_retries=None)
     return True

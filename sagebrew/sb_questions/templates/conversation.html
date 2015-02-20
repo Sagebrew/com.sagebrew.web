@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+<!-- Because this .html file extends an html file with '
+    js/query_questions.js' it will cause a 400 error
+    from one of the views. We can fix this by not having this html
+    extend html that includes 'js/query_questions.js' -->
+{% load staticfiles %}
+{% block css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_base.css' %}"/>
+    <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_input.css' %}"/>
+    <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_expanded.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/vendor/jquery.pagedown-bootstrap.css' %}"/>    <link rel="stylesheet" href="{% static 'less/plebs/sb_comment.css' %}"/>
+{%  endblock css %}
+{% block content %}
+<div class="action" style="display: none" data-action="write_question"></div>
+<div class="action" style="display: none" data-action="write_comment"></div>
+<div class="action" style="display: none" data-action="write_solution"></div>
+<div class="sb_page">
+    <div class="row-fluid">
+        <div class="col-lg-9">
+            <div class="sb_wall sb_conversation_wall">
+                <h3>
+                <a href="{% url 'question_page'%}"
+                      type="button"
+                      class="sb_secondary_nav">
+                   Conversations
+                </a>
+                    </h3>
+                <div class="sb_border sb_border_question">
+                    <h3>Question</h3>
+                    <div id="single_question_wrapper">
+
+                    </div>
+                    <div class="block sb_answer">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <textarea class="form-control sb_answer_input_area"
+                                          id="answer_content_id"
+                                          name="answer_content"
+                                          placeholder="Write your answer..."></textarea>
+                                <button class="btn sb_btn sb_btn_submit submit_answer-action"
+                                        data-object_uuid="{{ object_uuid }}"
+                                        data-current_pleb="{{ current_pleb }}">
+                                    Answer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% include "side_content.html" %}
+<div class="div_data_hidden"
+     data-current_pleb="{{ pleb }}"
+     data-sort_by="uuid"
+     data-question_uuid="{{ uuid }}"></div>
+{% endblock content %}
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/save_answer.js' %}"></script>
+    <script src="{% static 'js/edit_answer.js' %}"></script>
+    <script src="{% static 'js/edit_question.js' %}"></script>
+    {% comment %}
+    <script src="{% static 'js/comment_question.js' %}"></script>
+    {% endcomment %}
+    <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
+    <script src="{% static 'js/query_single_question.js' %}"></script>
+    <script src="{% static 'js/create_markdown.js' %}"></script>
+{% endblock scripts %}

@@ -1,0 +1,27 @@
+.sb_question_content_input {
+  border-radius: 5px;
+  border-width: 1px;
+}
+.sb_question_content_input:hover {
+  border-color: #1ba39c;
+}
+.sb_question_input_title {
+  margin-bottom: 30px;
+  margin-top: 15px;
+}
+.sb_question_context_header {
+  color: #838c92;
+  font-size: 19px;
+  margin-bottom: 0px;
+  padding-top: 15px;
+}
+.sb_convo_tags {
+  padding-top: 15px;
+}
+.sb_question_btn_group {
+  margin-left: 5px;
+  margin-top: 15px;
+}
+#question_title_id {
+  border-bottom-color: #ffffff;
+}

@@ -161,7 +161,7 @@ class TestGetQuestionView(TestCase):
         response = get_question_view(request)
         response = response.render()
 
-        self.assertIn('Asked by: ',
+        self.assertIn('<div class=\\"block sb_question\\">',
                       response.content)
         self.assertEqual(response.status_code, 200)
 

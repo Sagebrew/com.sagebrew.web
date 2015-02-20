@@ -1,81 +1,149 @@
 import time
+import pytz
 import boto.sqs
 import importlib
+import requests
+import hashlib
+import shortuuid
 from uuid import uuid1
 from json import dumps
-
+from datetime import timedelta, datetime
+from django.core import signing
+from django.contrib.auth.models import User
 from boto.sqs.message import Message
 from bomberman.client import Client, RateLimitExceeded
-from neomodel.exception import CypherException, DoesNotExist
 from neomodel import db
+from neomodel.exception import CypherException, DoesNotExist
+
 from django.conf import settings
 
 from sb_base.utils import defensive_exception
 from sb_base.decorators import apply_defense
-
+from plebs.neo_models import Pleb, OauthUser
 from api.alchemyapi import AlchemyAPI
 
 
-'''
-# TOOD Add tagging process into git so that we can label point that we deleted
-this
-def post_to_api(api_url, data, headers=None):
+
+def post_to_api(api_url, username, data=None, headers=None, req_method=None):
     if headers is None:
         headers = {}
-    headers['Authorization'] = "Bearer %s" % (get_oauth_access_token())
+    headers['Authorization'] = "%s %s" % ('Bearer', get_oauth_access_token(username))
     url = "%s%s" % (settings.WEB_ADDRESS, api_url)
-    response = request_post(url, data=dumps(data),
+    if req_method is None:
+        response = requests.post(url, data=dumps(data),
                             verify=settings.VERIFY_SECURE, headers=headers)
+    elif req_method == 'get':
+        response = requests.get(url, verify=settings.VERIFY_SECURE,
+                                headers=headers)
     return response.json()
 
 
-def get_oauth_client():
-    url = settings.WEB_ADDRESS + '/oauth2/access_token'
-    user = User.objects.get(username="admin")
-    client = OauthClient.objects.get(user=1)
-    response = requests.post(url, data={
-        'client_id': client.client_id,
-        'client_secret': client.client_secret,
-        'username': user.username,
-        'password': settings.API_PASSWORD,
+def get_oauth_client(username, password, web_address, client_id=None,
+                     client_secret=None):
+    if client_id is None:
+        client_id = settings.OAUTH_CLIENT_ID
+    if client_secret is None:
+        client_secret = settings.OAUTH_CLIENT_SECRET
+    response = requests.post(web_address, data={
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'username': username,
+        'password': password,
         'grant_type': 'password'}, verify=settings.VERIFY_SECURE)
     return response.json()
 
 
-def refresh_oauth_access_token(oauth_client):
-    url = settings.WEB_ADDRESS + '/oauth2/access_token'
+def refresh_oauth_access_token(refresh_token, url, client_id=None,
+                               client_secret=None):
+    if client_id is None:
+        client_id = settings.OAUTH_CLIENT_ID
+    if client_secret is None:
+        client_secret = settings.OAUTH_CLIENT_SECRET
     data = {
-        'client_id': oauth_client['client_id'],
-        'client_secret': oauth_client['client_secret'],
+        'client_id': client_id,
+        'client_secret': client_secret,
         'grant_type': 'refresh_token',
-        'refresh_token': oauth_client['refresh_token']
+        'refresh_token': refresh_token
     }
     response = requests.post(url, data=data,
                              verify=settings.VERIFY_SECURE)
-    return response
+    return response.json()
 
 
 def check_oauth_expires_in(oauth_client):
-    if oauth_client['expires_in'] < 100:
+    elapsed = datetime.now(pytz.utc) - oauth_client.last_modified
+    if elapsed.total_seconds() >= 37800:
         return True
     return False
 
 
-def get_oauth_access_token():
-    oauth_client = get_oauth_client()
-    if check_oauth_expires_in(oauth_client):
-        return refresh_oauth_access_token(oauth_client)['access_token']
-    return oauth_client['access_token']
+def get_oauth_access_token(username, web_address=None):
+    if web_address is None:
+        web_address = settings.WEB_ADDRESS + '/o/token/'
+    pleb = Pleb.nodes.get(username=username)
+    try:
+        oauth_creds = [oauth_user for oauth_user in pleb.oauth.all()
+                  if oauth_user.web_address == web_address][0]
+    except IndexError:
+        return
+    if check_oauth_expires_in(oauth_creds):
+        refresh_token = decrypt(oauth_creds.refresh_token)
+        updated_creds = refresh_oauth_access_token(refresh_token,
+                                          oauth_creds.web_address)
+        oauth_creds.last_modified = datetime.now(pytz.utc)
+        oauth_creds.access_token = encrypt(updated_creds['access_token'])
+        oauth_creds.token_type = updated_creds['token_type']
+        oauth_creds.expires_in = updated_creds['expires_in']
+        oauth_creds.refresh_token = encrypt(updated_creds['refresh_token'])
+        oauth_creds.save()
 
+    return decrypt(oauth_creds.access_token)
 
+def generate_oauth_user(username, password, web_address=None):
+    if web_address is None:
+        web_address = settings.WEB_ADDRESS + '/o/token/'
+    try:
+        pleb = Pleb.nodes.get(username=username)
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
+        return e
+    creds = get_oauth_client(username, password, web_address)
+    try:
+        oauth_obj = OauthUser(access_token=encrypt(creds['access_token']),
+                          token_type=creds['token_type'],
+                          expires_in=creds['expires_in'],
+                          refresh_token=encrypt(creds['refresh_token'])).save()
+    except CypherException as e:
+        return e
+    try:
+        pleb.oauth.connect(oauth_obj)
+    except CypherException as e:
+        return e
+    return True
 
+def encrypt(data):
+    return signing.dumps(data)
+
+def decrypt(data):
+    return signing.loads(data)
+
+def generate_short_token():
+    short_hash = hashlib.sha1(shortuuid.uuid())
+    short_hash.update(settings.SECRET_KEY)
+    return short_hash.hexdigest()[::2]
+
+def generate_long_token():
+    long_hash = hashlib.sha1(shortuuid.uuid())
+    long_hash.update(settings.SECRET_KEY)
+    return long_hash.hexidigest()
+
+'''
+# TODO Add tagging process into git so that we can label point that we deleted this
 iron_mq = IronMQ(project_id=settings.IRON_PROJECT_ID,
                          token=settings.IRON_TOKEN)
         queue = iron_mq.queue('sb_failures')
         info['action'] = attempt_task.__name__
         queue.post(dumps(info))
 '''
-
 
 def add_failure_to_queue(message_info):
     conn = boto.sqs.connect_to_region(
@@ -138,13 +206,6 @@ def create_auto_tags(content):
         return defensive_exception(create_auto_tags.__name__, e, e)
 
 
-def execute_cypher_query(query):
-    try:
-        return db.cypher_query(query)
-    except(CypherException, IOError) as e:
-        return e
-
-
 def wait_util(async_res):
     while not async_res['task_id'].ready():
         time.sleep(1)
@@ -182,3 +243,9 @@ def get_object(object_type, object_uuid):
     except CypherException as e:
         return e
 
+
+def execute_cypher_query(query):
+    try:
+        return db.cypher_query(query)
+    except(CypherException, IOError) as e:
+        return e

@@ -2,7 +2,8 @@
 {% load staticfiles %}
 {% block title %}Welcome to Sagebrew{% endblock title %}
 {% block description %}
-    <meta name="description" content="Sagebrew is the platform that empowers people to make change">
+    <meta name="description" content="Sagebrew is the platform that
+                                     empowers people to make change">
 {% endblock description %}
 
 {% block css %}
@@ -10,93 +11,90 @@
     <link rel="stylesheet" href="{% static 'css/vendor/bootstrapValidator.min.css' %}">
 {% endblock css %}
 {% block content %}
-    <div>
-        <img class="sb_sign_up_background"
+    <img class="sb_sign_up_background"
              src="{% static 'images/sign_up.jpg' %}">
+    <div class="row">
+
         <div class="row sb_signup_headline_containter"
              align="center">
-            <h2 class="sb_signup_headline">Sign Up</h2>
+            <h1>Sign Up</h1>
         </div>
-        <form id="singupForm" method="post">
+        <div class="sb_sign_up_form">
+        <form id="signupForm" method="post">
             {% csrf_token %}
-            <div class="sb_signup_input_group"
-                    align="center">
+            <div align="center">
                 <div class="row-fluid">
-                    <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2 fname">
+                    <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2 sb_input_wrapper fname">
                         <input type="text"
                                value=""
                                placeholder="First Name"
                                name="first_name"
-                               class="sb_signup_input sb_signup_input_name form-control input-lg f_name">
+                               class="form-control input-lg f_name">
                     </div>
-                    <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2 lname">
+                    <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2 sb_input_wrapper lname">
                         <input type="text"
                                value=""
                                name="last_name"
                                placeholder="Last Name"
-                               class="sb_signup_input sb_signup_input_name form-control input-lg l_name">
+                               class="form-control input-lg l_name">
                     </div>
                 </div>
                 <div class="row-fluid">
-                    <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2 email_class">
+                    <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2 sb_input_wrapper email_class">
                         <input type="text"
                                value=""
                                name="email"
                                placeholder="Email"
-                               class="sb_signup_input sb_signup_input_email form-control input-lg email">
+                               class="form-control input-lg email">
                     </div>
                 </div>
                 <div class="row-fluid">
-                    <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2 p1">
+                    <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2 sb_input_wrapper p1">
                         <input type="password"
                                value=""
                                name="password1"
                                placeholder="Password"
-                               class="sb_signup_input sb_signup_input_password form-control input-lg password">
+                               class="form-control input-lg password">
                     </div>
                 </div>
                 <div class="row-fluid">
-                    <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2 p2">
+                    <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2 sb_input_wrapper p2">
                         <input type="password"
                                value=""
                                name="password2"
                                placeholder="Re-enter Password"
-                               class="sb_signup_input sb_signup_input_password form-control input-lg password2">
+                               class="form-control input-lg password2">
                     </div>
                 </div>
                 <div class="row-fluid">
-                    <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2 bday">
-                        <div class="sb_signup_input form-group">
-                          <div class=" input-group">
-                            <span class="input-group-btn">
-                              <button class="btn sb_date_picker_btn"
-                                      type="button"><span
-                                      class="fui-calendar"></span></button>
-                            </span>
+                    <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2 sb_input_wrapper bday">
+                        <h3>Birthday</h3>
                             <input type="text"
-                                   class="sb_date_picker input-lg sb_signup_input form-control"
-                                   value="Date of Birth"
-                                   name="birthday"
-                                   id="datepicker-01" />
-                          </div>
-                        </div>
+                                   class="form-control input-lg"
+                                   value=""
+                                   placeholder="MM/DD/YYYY"
+                                   name="birthday" id="birthday">
                     </div>
+
                 </div>
                 <div class="row-fluid">
                     <div class="col-lg-6 col-sm-8 col-xs-12 col-lg-offset-3 col-sm-offset-2">
-                        <button class="btn btn-embossed btn-primary sb_btn sb_btn_signup submit_signup"
-                                type="submit">
-                            Sign Up
+                        <button class="btn btn-block btn-lg btn-primary"
+                                type="submit" id="submit_signup">
+                            Register
                         </button>
                     </div>
                 </div>
             </div>
-            </form>
-        </div>
+        </form>
+    </div>
+</div>
 {% endblock content %}
 {% block footer %}
-      <div class="sb_content_sign_up_footer">
+      <div class="bottom-menu sb_footer">
+      <div class="container">
         {% include "footer.html" %}
+      </div>
     </div>
 {% endblock footer %}
 {% block scripts %}
@@ -105,4 +103,5 @@
     <script src="{% static 'js/profile_information_form.js' %}"></script>
     <script src="{% static 'js/vendor/bootstrapValidator.min.js' %}"></script>
     <script src="{% static 'js/signup_bootstrap_validation.js' %}"></script>
+    <script src="{% static 'js/sb_date_of_birth.js' %}"></script>
 {% endblock %}

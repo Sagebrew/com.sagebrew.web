@@ -17,7 +17,7 @@ urlpatterns = patterns(
     url(r'^404/$', TemplateView.as_view(template_name="404.html"),
         name="404_Error"),
     (r'^contact_us/$', TemplateView.as_view(template_name="contact_us.html")),
-    (r'^oauth2/', include('provider.oauth2.urls', namespace='oauth2')),
+    url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     (r'^registration/', include('sb_registration.urls')),
     (r'^help/', include('help_center.urls')),
     (r'^comments/', include('sb_comments.urls')),
@@ -27,6 +27,7 @@ urlpatterns = patterns(
     (r'^user/', include('plebs.urls')),
     (r'^questions/', include('sb_questions.urls')),
     (r'^answers/', include('sb_answers.urls')),
+    (r'^badges/', include('sb_badges.urls')),
     (r'^search/', include('sb_search.urls')),
     (r'^tags/', include('sb_tag.urls')),
     (r'^flag/', include('sb_flags.urls')),
@@ -36,6 +37,7 @@ urlpatterns = patterns(
     (r'^docstore/', include('sb_docstore.urls')),
     (r'^reps/', include('sb_reps.urls')),
     (r'^upload/', include('sb_uploads.urls')),
+    (r'^privilege/', include('sb_privileges.urls')),
     url(r'^$', TemplateView.as_view(template_name='sign_up_page/index.html'),
         name="signup")
 )

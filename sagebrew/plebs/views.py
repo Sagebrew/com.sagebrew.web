@@ -1,3 +1,5 @@
+import pytz
+from datetime import datetime
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
@@ -11,6 +13,7 @@ from plebs.neo_models import Pleb
 from sb_registration.utils import (get_friends, generate_profile_pic_url,
                                    verify_completed_registration)
 from .utils import prepare_user_search_html
+from .forms import GetUserSearchForm
 
 
 def less_lesson(request):
@@ -54,7 +57,7 @@ def profile_page(request, pleb_username=""):
     friends_list = get_friends(citizen.email)
     if current_user.email == page_user.email:
         is_owner = True
-    elif citizen.friends.search(email=current_user.email):
+    elif page_user_pleb in citizen.friends.all():
         is_friend = True
 
     # TODO deal with address and senator/rep in a util + task
@@ -88,12 +91,17 @@ def get_user_search_view(request, pleb_email=""):
     :param pleb_email:
     :return:
     '''
-    response = prepare_user_search_html(pleb_email)
-    if response is None:
-        return HttpResponse('Server Error', status=500)
-    elif response is False:
-        return HttpResponse('Bad Email', status=400)
-    return Response({'html': response}, status=200)
+    form = GetUserSearchForm({"email": pleb_email})
+    if form.is_valid():
+        response = prepare_user_search_html(form.cleaned_data['email'])
+        if response is None:
+            return HttpResponse('Server Error', status=500)
+        elif response is False:
+            return HttpResponse('Bad Email', status=400)
+        return Response({'html': response}, status=200)
+    else:
+        return Response({'detail': 'error'}, 400)
+
 
 
 @login_required()
@@ -270,3 +278,53 @@ def friends_page(request, pleb_username):
         'is_friend': is_friend,
         'friends_list': friends_list,
     })
+
+#@protected_resource(['read']) # Add TokenHasScope back into @permission_classes to use this
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def get_user_rep(request):
+    '''
+    This view will be used when checking if requirements have been met and
+    to get the current amount of rep that a user has. It will return both a
+    overall calculated rep score and a breakdown of how the user has gained
+    that rep, what tags the rep gain has been associated with.
+
+    :param request:
+    :return:
+    '''
+    try:
+        pleb = Pleb.nodes.get(username=request.user.username)
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException):
+        return Response({"detail": "pleb does not exist"}, 400)
+    return Response(pleb.get_total_rep(), 200)
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def get_user_questions(request):
+    now = datetime.now(pytz.utc)
+    expiry = request.GET.get('expiry', 0)
+    try:
+        pleb = Pleb.nodes.get(username=request.user.username)
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException):
+        return Response({"detail": "pleb does not exist"}, 400)
+    return Response(pleb.get_questions(expiry, now), 200)
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def get_user_conversation(request):
+    now = datetime.now(pytz.utc)
+    expiry = request.GET.get('expiry', 0)
+    try:
+        pleb = Pleb.nodes.get(username=request.user.username)
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException):
+        return Response({"detail": "pleb does not exist"}, 400)
+    return Response(pleb.get_conversation(expiry, now), 200)
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def get_user_age(request):
+    try:
+        pleb = Pleb.nodes.get(username=request.user.username)
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException):
+        return Response({"detail": "pleb does not exist"}, 400)
+    return Response({"age": pleb.age}, 200)

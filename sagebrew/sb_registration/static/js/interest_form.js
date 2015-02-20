@@ -5,9 +5,13 @@ $(document).ready(function () {
      * It also assigns the value to the checkbox of true or false with the
      * end dot notation of .val(!ch).
      */
+    $('[data-toggle="tooltip"]').tooltip();
+    $('[data-toggle="popover"]').popover();
+    $('[data-toggle="checkbox"]').radiocheck();
     $('.toggle-all').on('click', function () {
-        var ch = $(this).find(':checkbox').prop('checked');
-        $('#select_all_checkboxes').find('.checkbox-toggle :checkbox').checkbox(!ch ? 'check' : 'uncheck').val(!ch);
+        var $this = $(this);
+        var ch = $this.prop('checked');
+        $('#select_all_checkboxes').find('.checkbox-toggle :checkbox').radiocheck(!ch ? 'check' : 'uncheck').val(!ch);
     });
 
     /**

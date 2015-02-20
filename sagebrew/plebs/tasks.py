@@ -14,6 +14,7 @@ from sb_search.tasks import add_user_to_custom_index
 from sb_wall.neo_models import SBWall
 from sb_docstore.tasks import add_object_to_table_task
 from sb_registration.models import token_gen
+from sb_privileges.tasks import check_privileges
 
 from .neo_models import Pleb
 
@@ -71,6 +72,8 @@ def finalize_citizen_creation(user_instance=None):
          'type': 'standard'}}
     task_list["add_object_to_table_task"] = spawn_task(
         task_func=add_object_to_table_task, task_param=dynamo_data)
+    task_list["check_privileges_task"] = spawn_task(
+        task_func=check_privileges, task_param={"username": username})
     if not pleb.initial_verification_email_sent:
         generated_token = token_gen.make_token(user_instance, pleb)
         template_dict = {

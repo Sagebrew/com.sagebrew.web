@@ -25,4 +25,3 @@ def resize_image(url, height, width):
     out = px.output({f_uuid: name})
     out.resize({"width": width, "height": height}).url(settings.MASKED_NAME)
     res = px.save()
-    print res.data

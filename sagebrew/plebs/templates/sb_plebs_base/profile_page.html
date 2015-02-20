@@ -3,8 +3,6 @@
 {% block title %}{{request.user.first_name}} {{ request.user.last_name }}{% endblock title %}
 {% block css %}
     {{ block.super }}
-        <link href="{% static 'css/sb_wall.css' %}" rel="stylesheet"/>
-        <link href="{% static 'css/sb_profile_reps.css' %}" rel="stylesheet"/>
         <link rel="stylesheet" href="{% static 'less/sb_core/sb_core_variables.css' %}"/>
         <link rel="stylesheet" href="{% static 'less/plebs/sb_post_base.css' %}"/>
         <link rel="stylesheet" href="{% static 'less/plebs/sb_profile.css' %}"/>
@@ -66,14 +64,10 @@
 {% block scripts %}
     {{ block.super }}
     <script src="{% static 'js/sb_profile.js' %}"></script>
-    <script src="{% static 'js/sb_utils.js' %}"></script>
-    <script src="{% static 'js/get_notifications.js' %}"></script>
     <script src="{% static 'js/get_posts.js' %}"></script>
     <script src="{% static 'js/save_post.js' %}"></script>
     <script src="{% static 'js/send_friend_request.js' %}"></script>
     <script src="{% static 'js/send_notification.js' %}"></script>
-    <script src="{% static 'js/show_notifications.js' %}"></script>
-    <script src="{% static 'js/show_friend_request.js' %}"></script>
     <script src="{% static 'js/respond_friend_request.js' %}"></script>
     <script src="{% static 'js/sb_post_enter.js' %}"></script>
     <script src="{% static 'js/sb_post.js' %}"></script>

@@ -7,6 +7,7 @@ class TagRelevanceModel(StructuredRel):
 
 class FrequentTagModel(StructuredRel):
     count = IntegerProperty(default=1)
+    in_sphere = BooleanProperty(default=False)
 
 class SBTag(StructuredNode):
     tag_name = StringProperty(unique_index=True)
@@ -14,11 +15,10 @@ class SBTag(StructuredNode):
     base = BooleanProperty(default=False)
     
     #relationships
+    frequently_tagged_with = RelationshipTo('sb_tag.neo_models.SBTag',
+                                            'FREQUENTLY_TAGGED_WITH',
+                                            model=FrequentTagModel)
 
 class SBAutoTag(SBTag):
     generated_from = StringProperty(default='alchemyapi')
 
-    #relationships
-    frequently_auto_tagged_with = RelationshipTo('sb_tag.neo_models.SBAutoTag',
-                                                 'FREQUENTLY_AUTO_TAGGED_WITH',
-                                                 model=FrequentTagModel)

@@ -20,7 +20,6 @@ def upload_image_api(request):
             uuid = str(uuid1())
             res = upload_image(settings.AWS_UPLOAD_IMAGE_FOLDER_NAME,
                                uuid, item[0])
-            print res
     return Response({"detail": "success"}, 200)
 
 @api_view(['GET'])

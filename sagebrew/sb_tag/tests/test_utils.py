@@ -33,7 +33,7 @@ class TestCreateTagRelations(TestCase):
         tag1 = SBAutoTag(tag_name="amazing tag").save()
         tag2 = SBAutoTag(tag_name="another amazing tag").save()
 
-        rel = tag1.frequently_auto_tagged_with.connect(tag2)
+        rel = tag1.frequently_tagged_with.connect(tag2)
         rel.save()
 
         res = create_tag_relations_util([tag1, tag2])

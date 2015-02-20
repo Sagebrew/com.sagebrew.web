@@ -61,7 +61,8 @@
     },
     {
         "table_name": "notifications",
-        "hash_key": "email"
+        "hash_key": "parent_object",
+        "range_key": "datetime"
     },
     {
         "table_name": "location",
@@ -124,5 +125,28 @@
     {
         "table_name": "images",
         "hash_key": "object_uuid"
+    },
+    {
+        "table_name": "notifications",
+        "hash_key": "parent_object"
+    },
+    {
+        "table_name": "reputation",
+        "hash_key": "parent_object"
+    },
+    {
+        "table_name": "actions",
+        "hash_key":  "parent_object",
+        "range_key": "action"
+    },
+    {
+        "table_name": "privileges",
+        "hash_key": "parent_object",
+        "range_key": "privilege"
+    },
+    {
+        "table_name": "restrictions",
+        "hash_key": "parent_object",
+        "range_key": "restriction"
     }
 ]

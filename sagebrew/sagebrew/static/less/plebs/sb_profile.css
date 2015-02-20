@@ -12,7 +12,7 @@
   margin-right: auto;
 }
 .sb_profile_container_top {
-  background-color: #eaf0e8;
+  background-color: #f9fff7;
   width: 100%;
   height: 250px;
   border-radius: 5px 5px 0 0;
@@ -85,7 +85,7 @@
   padding-top: 5px;
   margin-top: 0;
   height: 70px;
-  background-color: #eaf0e8;
+  background-color: #f9fff7;
   color: #838c92;
   font-size: 21px;
   border-bottom: solid;

@@ -1,9 +1,11 @@
+import logging
 from urllib2 import HTTPError
 from django.conf import settings
 
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import TransportError
 
+logger = logging.getLogger('loggly_logs')
 
 """
 def update_search_index_doc_script(document_id, index, field, update_value,

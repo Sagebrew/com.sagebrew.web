@@ -1,32 +1,60 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load staticfiles %}
-{% block navigation %}
-    {% include "navigation/sign_up_navigation.html" %}
-{% endblock %}
 {% block css %}
     {{ block.super }}
     <link href="{% static 'select2/select2.css' %}" rel="stylesheet"/>
+    <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_base.css' %}"/>
+    <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_input.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/vendor/jquery.pagedown-bootstrap.css' %}"/>
 {% endblock css %}
 
-
 {% block content %}
-    <div>Submit Question</div>
-    <div>Question Title:</div>
-    <textarea class="form-control" id="question_title_id" name="question_title"
-           cols="20" rows="1" placeholder="Question title"></textarea>
-    <div>Question Content:</div>
-    <textarea class="form-control" id="question_content_id" name="question_content"
-           cols="40" rows="3" placeholder="Question content"></textarea>
-    <div>Tags: </div>
-    {% include "tag_box.html" %}
-    <a class="btn btn-lg btn-block btn-primary submit_question-action"
-           data-current_pleb="{{ current_user }}">Create Question</a>
-
+    <div class="row-fluid sb_page">
+        <div class="col-lg-9">
+            <div class="sb_wall sb_conversation_wall">
+                <a href="{% url 'question_page'%}"
+                   type="button"
+                   class="btn sb_tab_navigation">
+                   <span><h3>Conversations</h3></span>
+                </a>
+                <div class="sb_border sb_markdown">
+                    <h3>Submit Question</h3>
+                    <textarea class="form-control"
+                              id="question_title_id"
+                              name="question_title"
+                              cols="20"
+                              rows="1"
+                              placeholder="Question title"></textarea>
+                    <textarea class="form-control"
+                              id="question_content_id"
+                              name="question_content"
+                              cols="20"
+                              rows="8"
+                              placeholder="Question Content"></textarea>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            {% include "tag_box.html" %}
+                        </div>
+                    </div>
+                    {% comment %}
+                    TODO determine if this and other "buttons" need to be a tags
+                    instead of buttons
+                    {% endcomment %}
+                    <button class="btn sb_btn sb_btn_submit submit_question-action"
+                           data-current_pleb="{{ current_user }}">Create Question</button>
+                    <button class="btn sb_btn sb_btn_submit">Cancel</button>
+                </div>
+             </div>
+        </div>
+    </div>
+{% include "side_content.html" %}
 {% endblock %}
 
 {% block scripts %}
     {{ block.super }}
+    <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
+    <script src="{% static 'js/create_markdown.js' %}"></script>
     <script src="{% static 'js/save_question.js' %}"></script>
     <script src="{% static 'js/get_tags.js' %}"></script>
     <script src="{% static 'select2/select2.js' %}"></script>

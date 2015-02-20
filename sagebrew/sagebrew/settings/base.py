@@ -75,7 +75,6 @@ STATICFILES_DIRS = (
     '%s/sb_flags/static/' % PROJECT_DIR,
     '%s/sb_votes/static/' % PROJECT_DIR,
     '%s/sb_edits/static/' % PROJECT_DIR,
-    '%s/sb_wall/static/' % PROJECT_DIR,
     '%s/sb_reps/static/' % PROJECT_DIR,
     '%s/sb_uploads/static/' % PROJECT_DIR
 )
@@ -97,6 +96,7 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -106,6 +106,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'oauth2_provider.middleware.OAuth2TokenMiddleware'
 )
 
 ROOT_URLCONF = 'sagebrew.urls'
@@ -126,6 +127,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
+    'oauth2_provider.backends.OAuth2Backend',
 )
 
 TEMPLATE_DIRS = (
@@ -161,8 +163,8 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'rest_framework',
     'admin_honeypot',
-    'provider',
-    'provider.oauth2',
+    'oauth2_provider',
+    'corsheaders',
     'storages',
     'localflavor',
     'plebs',
@@ -170,6 +172,7 @@ INSTALLED_APPS = (
     'govtrack',
     'neomodel',
     'sb_answers',
+    'sb_badges',
     'sb_base',
     'sb_comments',
     'sb_deletes',
@@ -177,10 +180,12 @@ INSTALLED_APPS = (
     'sb_edits',
     'sb_flags',
     'sb_notifications',
+    'sb_privileges',
     'sb_posts',
     'sb_questions',
     'sb_registration',
     'sb_relationships',
+    'sb_requirements',
     'sb_reps',
     'sb_search',
     'sb_tag',
@@ -192,6 +197,7 @@ INSTALLED_APPS = (
     'textblob',
     'help_center'
 )
+
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 EMAIL_VERIFICATION_TIMEOUT_DAYS = 1
@@ -317,3 +323,33 @@ KNOWN_TABLES = {
     "0274a216-644f-11e4-9ad9-080027242395": "public_questions",
     "02ba1c88-644f-11e4-9ad9-080027242395": "comments"
 }
+
+OPERATOR_TYPES = [
+    ('coperator\neq\np0\n.', '='),
+    ('coperator\nle\np0\n.', '<='),
+    ('coperator\ngt\np0\n.', '>'),
+    ('coperator\nne\np0\n.', '!='),
+    ('coperator\nlt\np0\n.', '<'),
+    ('coperator\nge\np0\n.', '>=')
+]
+
+OPERATOR_DICT = {
+    'coperator\neq\np0\n.': 'equal to',
+    'coperator\nle\np0\n.': 'at most',
+    'coperator\ngt\np0\n.': 'more than',
+    'coperator\nne\np0\n.': 'not have',
+    'coperator\nlt\np0\n.': 'less than',
+    'coperator\nge\np0\n.': 'at least'
+}
+
+PRIVILEGE_HTML_TYPES = {
+    "write_question": ".submit_question-action",
+    "write_post": ".submit_post-action",
+    "write_comment": ".comment-action",
+    "write_solution": ".submit_answer-action"
+}
+
+
+OAUTH_CLIENT_ID = '658919414169191a6ds1f9a1s9'
+OAUTH_CLIENT_SECRET = '651a69d1516aSD651a65sd1sd645a1s56d5165A1SD'
+CORS_ORIGIN_ALLOW_ALL = True

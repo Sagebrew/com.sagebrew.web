@@ -171,6 +171,7 @@ INSTALLED_APPS = (
     'api',
     'govtrack',
     'neomodel',
+    "opbeat.contrib.django",
     'sb_answers',
     'sb_badges',
     'sb_base',
@@ -256,7 +257,11 @@ MASKED_NAME = environ.get("MASKED_NAME", "")
 DYNAMO_IP = environ.get("DYNAMO_IP", None)
 
 CELERY_TIMEZONE = 'UTC'
-
+OPBEAT = {
+    "ORGANIZATION_ID": environ.get("OPBEAT_ORG_ID", ""),
+    "APP_ID": environ.get("OPBEAT_APP_ID", ""),
+    "SECRET_TOKEN": environ.get("OPBEAT_SECRET_TOKEN", "")
+}
 
 CSV_FILES = '%s/csv_content/' % PROJECT_DIR
 

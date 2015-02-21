@@ -20,8 +20,8 @@ class TestNotificationTasks(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.email2= "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        self.email2 = "bounce@simulator.amazonses.com"
+        res = create_user_util_test(self.email2)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb2 = Pleb.nodes.get(email=self.email2)

@@ -1,4 +1,4 @@
-{% extends "registration_base.html" %}
+{% extends "base.html" %}
 {% load staticfiles %}
 {% block title %} Profile Information {% endblock %}
 {% block content %}
@@ -9,16 +9,12 @@
                     <div>
                         <h1 class="hidden-xs sb_registration_header">Profile Information</h1>
                     </div>
-                    <div>
-                        <h2 class="sb_registration_title_2 hidden-lg hidden-md hidden-sm"
-                            align="center"> Profile Information</h2>
-                    </div>
                 </div>
                 <div class="col-lg-3 col-md-3 col-sm-5 col-xs-4 col-lg-offset-3 col-md-offset-3">
                         <h4 class="hidden-xs sb_registration_step">Step 1 of 3</h4>
                 </div>
             </div>
-            <div class="sb_deco_line"></div>
+            <div class="sb_deco_line hidden-xs"></div>
             <div class="row-fluid">
                 <div class="col-lg-10 col-md-10 col-sm-10 col-lg-offset-1 col-md-offset-1 col-sm-offset-1">
                     <div class="alert alert-warning hidden-xs" role="alert">Fields marked * are required</div>
@@ -46,7 +42,7 @@
             <div class="hidden-lg hidden-md hidden-sm sb_deco_line"></div>
             <div class="sb_line hidden-lg hidden-md hidden-sm"></div>
             <div class="row-fluid">
-                <div class="sb_address_info">
+                <div>
                     {% for field in address_information_form %}
                         {% if field.id_for_label == "id_primary_address" or field.id_for_label == "id_street_additional" %}
                             <div class="row-fluid">
@@ -97,7 +93,7 @@
                         {% endif %}
                     {% endfor %}
                     <div class="row-fluid">
-                        <div class="row-fluid" style="padding: 0">
+                        <div class="row-fluid">
                             <div class="col-lg-12">
                                 <div class="col-lg-1 col-md-1"> </div>
                                     {% for field in address_information_form %}
@@ -194,29 +190,3 @@
 {% block external_scripts %}
     <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/2.4/jquery.liveaddress.min.js"></script>
 {% endblock external_scripts %}
-
-{% comment%}
- "Long way to use flat ui selector. REMEMBER JUST USE ID AND ASSOCIATE WITH JQUERY CALL"
-    <!-- You should be able to look in sagebrew/static/flat_ui/js/application.js for exampls of how
-            to use the Javascript/JQuery calls to check for the ID and replace the html with the Flat UI
-            version. Doing so should enable you to just use the {{ field }} variable and grab the ID -->
-    <select id="id_state"
-            class="select-block mbl"
-            name="state">
-        <optgroup
-                label="States">
-            {% for x, y in address_information_form.fields.state.choices %}
-                <option value="{{ x }}">{{ y }}</option>
-            {% endfor %}
-        </optgroup>
-    </select>
-{% endcomment %}
-{% comment %}
- "How you loop through options in a selection field"
-    <select id="id_state"
-            name="state">
-        {% for x, y in address_information_form.fields.state.choices %}
-            <option value="{{ x }}">{{ y }}</option>
-        {% endfor %}
-    </select>
-{% endcomment %}

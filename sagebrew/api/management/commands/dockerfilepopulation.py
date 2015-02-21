@@ -187,6 +187,12 @@ def populate_prod_env(data):
                         os.environ.get("QUEUE_PASSWORD_PROD", ""))
     data = data.replace("{{QUEUE_HOST}}", os.environ.get("QUEUE_HOST_PROD", ""))
     data = data.replace("{{QUEUE_PORT}}", os.environ.get("QUEUE_PORT_PROD", ""))
+    data = data.replace("{{OPBEAT_ORG_ID}}",
+                        os.environ.get("OPBEAT_ORG_ID_PROD", ""))
+    data = data.replace("{{OPBEAT_APP}}",
+                        os.environ.get("OPBEAT_APP_ID_PROD", ""))
+    data = data.replace("{{OPBEAT_SECRET_TOKEN}}",
+                        os.environ.get("OPBEAT_SECRET_TOKEN_PROD", ""))
     return data
 
 
@@ -228,4 +234,10 @@ def populate_staging_env(data):
                         os.environ.get("QUEUE_HOST_STAGING", ""))
     data = data.replace("{{QUEUE_PORT}}",
                         os.environ.get("QUEUE_PORT_STAGING", ""))
+    data = data.replace("{{OPBEAT_ORG_ID}}",
+                        os.environ.get("OPBEAT_ORG_ID_STAGING", ""))
+    data = data.replace("{{OPBEAT_APP_ID}}",
+                        os.environ.get("OPBEAT_APP_ID_STAGING", ""))
+    data = data.replace("{{OPBEAT_SECRET_TOKEN}}",
+                        os.environ.get("OPBEAT_SECRET_TOKEN_STAGING", ""))
     return data

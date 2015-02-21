@@ -11,13 +11,13 @@ from sb_questions.utils import (create_question_util,
                                 prepare_question_search_html)
 from sb_questions.neo_models import SBQuestion
 from plebs.neo_models import Pleb
-from sb_registration.utils import create_user_util
+from sb_registration.utils import create_user_util_test
 
 
 class TestCreateQuestion(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -44,7 +44,7 @@ class TestCreateQuestion(TestCase):
 class TestGetQuestionByUUID(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -82,7 +82,7 @@ class TestGetQuestionByUUID(TestCase):
 class TestGetQuestionByLeastRecent(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -105,7 +105,7 @@ class TestGetQuestionByLeastRecent(TestCase):
 class TestPrepareQuestionSearchHTML(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)

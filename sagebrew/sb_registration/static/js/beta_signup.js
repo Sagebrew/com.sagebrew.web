@@ -16,7 +16,8 @@ $( document ).ready(function() {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-                window.location.href = "/registration/signup/confirm/";
+                $(".email_class").empty();
+                $("#successMessage").show();
             }
         });
 	});

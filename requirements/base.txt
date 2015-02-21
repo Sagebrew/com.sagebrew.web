@@ -39,3 +39,4 @@ stripe
 px==0.1.0
 django-oauth-toolkit
 django-cors-headers
+opbeat

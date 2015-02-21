@@ -71,6 +71,7 @@ test:
         -e AWS_S3_BUCKET=$AWS_S3_BUCKET
         -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
         -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+        -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
         -e ALCHEMY_API_KEY=$ALCHEMY_API_KEY
         -e ADDRESS_VALIDATION_ID=$ADDRESS_VALIDATION_ID
         -e ADDRESS_VALIDATION_TOKEN=$ADDRESS_VALIDATION_TOKEN
@@ -100,6 +101,7 @@ test:
         -e AWS_S3_BUCKET=$AWS_S3_BUCKET
         -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
         -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+        -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
         -e ALCHEMY_API_KEY=$ALCHEMY_API_KEY
         -e ADDRESS_VALIDATION_ID=$ADDRESS_VALIDATION_ID
         -e ADDRESS_VALIDATION_TOKEN=$ADDRESS_VALIDATION_TOKEN
@@ -130,6 +132,7 @@ test:
         -e AWS_S3_BUCKET=$AWS_S3_BUCKET
         -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
         -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+        -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
         -e ALCHEMY_API_KEY=$ALCHEMY_API_KEY
         -e ADDRESS_VALIDATION_ID=$ADDRESS_VALIDATION_ID
         -e ADDRESS_VALIDATION_TOKEN=$ADDRESS_VALIDATION_TOKEN
@@ -159,15 +162,16 @@ test:
 deployment:
 #  production:
 #    branch: master
+# when pushing to master should ensure user is within listed allowed users
+# who can push and deploy to master. Should be able to check CIRCLE_USERNAME
+# and potentially hit an endpoint or a local file for allowed admins
+# Safer to probably loop through django admins or comma seperated env var
+# so that endpoint can't be spoofed
   staging:
     branch: staging
     commands:
       #- coverage report --fail-under=100
       - bash -x ~/com.sagebrew.web/deployment/staging.sh $CIRCLE_SHA1
-      #- git checkout master
-      #- git merge --no-edit staging
-      #- git push origin master
-      #- git checkout staging
 
 
 general:

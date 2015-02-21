@@ -1,46 +1,47 @@
 @import "sb_core/sb_core_variables.less";
 
 .sb_general{
-   color: @sb_dark_blue;
-    h1 {
-      font-weight: bold;
-      font-size: 30px;
+  color: @sb_dark_blue;
+  word-wrap: break-word;
+  h1 {
+    font-weight: bold;
+    font-size: 30px;
+  }
+  h2{
+    font-weight: bold;
+    font-size: 28px;
+  }
+  h3{
+    font-weight: bold;
+    font-size: 26px;
+    color: @sb_grey_dark;
+    margin-top: @sb_common_margin_positive;
+    margin-bottom: @sb_common_margin_positive;
     }
-    h2{
-      font-weight: bold;
-      font-size: 28px;
+  h4{
+    font-weight: bold;
+    font-size: 24px;
+  }
+  h5{
+    font-weight: bold;
+    font-size: 22px;
+  }
+  h6{
+    font-weight: bold;
+    font-size: 20px;
+    color: @sb_dark_blue;
+    margin-top: 0px;
+    margin-bottom: 0px;
+  }
+  p{
+    font-size: 18px;
     }
-    h3{
-      font-weight: bold;
-      font-size: 26px;
-      color: @sb_grey_dark;
-      margin-top: @sb_common_margin_positive;
-      margin-bottom: @sb_common_margin_positive;
-      }
-    h4{
-      font-weight: bold;
-      font-size: 24px;
-    }
-    h5{
-      font-weight: bold;
-      font-size: 22px;
-    }
-    h6{
-      font-weight: bold;
-      font-size: 20px;
-      color: @sb_dark_blue;
-      margin-top: 0px;
-      margin-bottom: 0px;
-    }
-    p{
-      font-size: 18px;
-      }
-    small{
-      font-size: @sb_data_text;
-    }
-    a{
-      color: @sb_green;
-    }
+  small{
+    font-size: @sb_data_text;
+  }
+  a{
+    color: @sb_green;
+  }
 }
 // Blocks
 .block{
@@ -79,6 +80,18 @@
   height: 170px;
   padding: @sb_common_padding_positive;
   margin-bottom: @sb_common_margin_positive;
+}
+.sb_registration_block {
+  &:extend(.block);
+  width: 80%;
+  margin-top:100px;
+  margin-bottom: 60px;
+  margin-left: 10%;
+  margin-right: 10%;
+  border-radius: 10px;
+  background-color: @sb_grey_extra_light;
+  position: inherit;
+  float: left;
 }
 // Walls
 .sb_page{
@@ -125,10 +138,11 @@
   }
 }
 // Buttons
-.sb_btn{}
+.sb_btn{
+  background-color: @sb_green;
+}
 .sb_btn_submit{
   &:extend(.sb_btn);
-  background-color: @sb_green;
   color: @white;
   font-size: @sb_body_text;
   width: auto;
@@ -175,9 +189,8 @@
 .sb_spy{
   color: @sb_grey;
   background-color: @white;
-  border: solid;
-  border-width: 1px;
-  border-color: #b7bfbb;
+  padding: 3px 10px 2px 6px;
+  margin-top: 6px;
 }
 .sb_btn_nav{
   &:extend(.sb_btn_icon);
@@ -219,6 +232,9 @@
     border-width: 1px;
     border-right: none;
     margin-top: 6px;
+    // This fixes firefox border issue with input
+    border-bottom: 0px;
+    border-top: 0px;
   }
 }
 .sb_secondary_nav {
@@ -302,7 +318,9 @@
     &:extend(.sb_btn_submit);
     background-color: @sb_off_white;
     color: @sb_green;
-    height: 28px;
+    height: @sb_input_height;
+    // Firefox fix for button being placed differently in navbar
+    padding-top: 5px;
   }
 }
 .sb_dropdown {
@@ -348,4 +366,35 @@
     padding-right:15px;
     padding-bottom: 30px;
     border-radius: 2px;
+}
+.sb_registration_header {
+  margin-left: 60px;
+}
+.sb_registration_step {
+  margin-right: 0;
+  margin-top: 35px;
+  margin-left: 1%;
+  padding-right: 30px;
+}
+.sb_row_continue {
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-bottom: 30px;
+}
+.sb_address_fix {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+.sb_deco_line {
+  border-bottom: solid 5px;
+  border-color: @sb_green_medium;
+  margin-bottom: 35px;
+}
+.sb_btn_modal {
+  a{
+    color: @white;
+    &:visited{
+      background-color: none;
+    }
+  }
 }

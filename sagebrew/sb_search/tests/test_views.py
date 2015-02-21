@@ -17,14 +17,14 @@ from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_search.views import search_result_view
 from sb_questions.neo_models import SBQuestion
-from sb_registration.utils import create_user_util
+from sb_registration.utils import create_user_util_test
 
 
 class TestSearchResultView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -244,7 +244,7 @@ class TestSearchResultAPI(TestCase):
         self.client = APIClient()
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "password")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -259,7 +259,8 @@ class TestSearchResultAPI(TestCase):
                            body={'content': 'test content'})
             res_array.append(res)
 
-        self.client.login(username=self.user.username, password='password')
+        self.client.login(username=self.user.username,
+                          password='testpassword')
         request = self.client.get(reverse('search_result_api',kwargs={
             'query_param': 'test', 'page': '1'}))
 
@@ -286,7 +287,7 @@ class TestSearchResultAPIReturns(TestCase):
         self.client = APIClient()
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "password")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -366,7 +367,8 @@ class TestSearchResultAPIReturns(TestCase):
                              })
         self.assertTrue(index_res['created'])
         time.sleep(2)
-        self.client.login(username=self.user.username, password='password')
+        self.client.login(username=self.user.username,
+                          password='testpassword')
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':
                                                       'battery-powered',

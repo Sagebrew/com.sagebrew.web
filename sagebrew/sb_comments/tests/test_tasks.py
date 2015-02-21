@@ -8,7 +8,7 @@ from api.utils import wait_util
 from sb_comments.tasks import (save_comment_on_object,
                                create_comment_relations)
 from plebs.neo_models import Pleb
-from sb_registration.utils import create_user_util
+from sb_registration.utils import create_user_util_test
 from sb_questions.neo_models import SBQuestion
 from sb_comments.neo_models import SBComment
 
@@ -16,7 +16,7 @@ from sb_comments.neo_models import SBComment
 class TestSaveCommentTask(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -55,7 +55,7 @@ class TestSaveCommentTask(TestCase):
 class TestCreateCommentRelationsTask(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)

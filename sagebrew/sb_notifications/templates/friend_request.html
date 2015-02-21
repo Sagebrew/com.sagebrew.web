@@ -1,0 +1,15 @@
+<div class="sb_friend_request_container">
+    <div class="sb_downdrop_label">Friend Requests</div>
+    <div class="sb_dropdown_content" >
+        {% for request in user_friend_requests %}
+                {{ request.from_name }}
+                <a class="btn sb_btn_profile_link respond_friend_request-action"
+                   data-response="accept" data-request_id="{{ request.request_id }}">Accept</a>
+                <a class="btn respond_friend_request-action"
+                   data-response="deny"
+                   data-request_id="{{ request.request_id }}">Deny</a>
+                <a class="btn respond_friend_request-action"
+                   data-response="block" data-request_id="{{ request.request_id }}">Block</a>
+        {% endfor %}
+    </div>
+</div>

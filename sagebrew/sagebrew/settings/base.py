@@ -171,6 +171,7 @@ INSTALLED_APPS = (
     'api',
     'govtrack',
     'neomodel',
+    "opbeat.contrib.django",
     'sb_answers',
     'sb_badges',
     'sb_base',
@@ -232,7 +233,7 @@ OAUTH_DELETE_EXPIRED = True
 CELERY_DISABLE_RATE_LIMITS = True
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 CELERY_ALWAYS_EAGER = False
-CELERY_IGNORE_RESULT = False
+
 # AWS_S3_SECURE_URLS = True
 AWS_STORAGE_BUCKET_NAME = environ.get("AWS_S3_BUCKET")
 
@@ -256,7 +257,11 @@ MASKED_NAME = environ.get("MASKED_NAME", "")
 DYNAMO_IP = environ.get("DYNAMO_IP", None)
 
 CELERY_TIMEZONE = 'UTC'
-
+OPBEAT = {
+    "ORGANIZATION_ID": environ.get("OPBEAT_ORG_ID", ""),
+    "APP_ID": environ.get("OPBEAT_APP_ID", ""),
+    "SECRET_TOKEN": environ.get("OPBEAT_SECRET_TOKEN", "")
+}
 
 CSV_FILES = '%s/csv_content/' % PROJECT_DIR
 

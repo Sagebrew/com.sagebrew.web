@@ -1,7 +1,6 @@
 $(document).ready(function () {
     $('#birthday').keyup(function (e) {
             if (e.keyCode != 193 && e.keyCode != 111) {
-                console.log(e.keyCode);
                 if (e.keyCode != 8) {
                     if ($(this).val().length == 2) {
                         $(this).val($(this).val() + "/");

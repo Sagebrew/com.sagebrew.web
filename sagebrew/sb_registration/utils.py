@@ -306,8 +306,9 @@ def verify_verified_email(user):
     except CypherException as e:
         return e
 
+
 @apply_defense
-def sb_send_email(to_email, subject, html_content):
+def sb_send_email(source, to_email, subject, html_content):
     '''
     This function is used to send mail through the amazon ses service,
     we can use this for any emails we send just specify html content
@@ -323,7 +324,7 @@ def sb_send_email(to_email, subject, html_content):
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
         )
-        conn.send_email(source='devon@sagebrew.com', subject=subject,
+        conn.send_email(source=source, subject=subject,
                         body=html_content, to_addresses=[to_email],
                         format='html')
         return True

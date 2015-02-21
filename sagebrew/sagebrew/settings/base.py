@@ -204,8 +204,8 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 EMAIL_VERIFICATION_TIMEOUT_DAYS = 1
 
 
-SERVER_EMAIL = "service@sagebrew.com"
-DEFAULT_FROM_EMAIL = "service@sagebrew.com"
+SERVER_EMAIL = "support@sagebrew.com"
+DEFAULT_FROM_EMAIL = "support@sagebrew.com"
 
 LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/'

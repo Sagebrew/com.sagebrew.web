@@ -155,6 +155,6 @@ if __name__ == "__main__":
                  "OPBEAT_SECRET_TOKEN_STAGING", "") +
              '-d rev=`git log -n 1 --pretty=format:%H`'
              '-d branch=`git rev-parse --abbrev-ref HEAD`'
-             '-d status=completed')
+             '-d status=completed', shell=True)
     elif sys.argv[1] == "production":
         production_deploy()

@@ -108,13 +108,6 @@
   height: 100%;
   margin-bottom: 160px;
 }
-.sb_photo_modal {
-  margin-top: 2%;
-  margin-left: 17%;
-  margin-right: 17%;
-  margin-bottom: 2%;
-  border-radius: 5px;
-}
 .sb_modal_body {
   background-color: #f9fff7;
   border-radius: 0 0 5px 5px ;

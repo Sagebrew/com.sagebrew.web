@@ -361,3 +361,9 @@
   border-color: #9dbbb9;
   margin-bottom: 35px;
 }
+.sb_btn_modal a {
+  color: #ffffff;
+}
+.sb_btn_modal a:visited {
+  background-color: none;
+}

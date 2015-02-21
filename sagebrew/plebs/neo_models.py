@@ -394,5 +394,11 @@ class OauthUser(StructuredNode):
 
 class BetaUser(StructuredNode):
     email = StringProperty(unique_index=True)
-    beta_uuid = StringProperty(default=lambda: str(uuid1()))
+    invited = BooleanProperty(default=False)
     signup_date = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+
+    def invite(self):
+        from sb_registration.utils import sb_send_email
+        self.invited = True
+        self.save()
+

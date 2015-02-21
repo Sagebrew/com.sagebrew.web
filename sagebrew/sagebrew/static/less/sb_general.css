@@ -1,5 +1,6 @@
 .sb_general {
   color: #34495e;
+  word-wrap: break-word;
 }
 .sb_general h1 {
   font-weight: bold;

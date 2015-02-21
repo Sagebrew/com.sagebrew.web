@@ -412,7 +412,7 @@ class TestSignupView(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_logged_in_user(self):
-        self.client.login(username=self.user.username, password='testpass')
+        self.client.login(username=self.user.username, password='testpassword')
         response = self.client.get(reverse('signup'))
 
         self.assertEqual(response.status_code, 200)
@@ -436,8 +436,8 @@ class TestSignupAPIView(TestCase):
             'first_name': 'Tyler',
             'last_name': 'Wiersing',
             'email': 'ooto@simulator.amazonses.com',
-            'password': 'testpass',
-            'password2': 'testpass'
+            'password': 'testpassword',
+            'password2': 'testpassword'
         }
         request = self.factory.post('/registration/signup/', data=signup_dict,
                                     format='json')
@@ -453,8 +453,8 @@ class TestSignupAPIView(TestCase):
             'first_name': self.user.first_name,
             'last_name': self.user.last_name,
             'email': self.user.email,
-            'password': 'testpass',
-            'password2': 'testpass'
+            'password': 'testpassword',
+            'password2': 'testpassword'
         }
 
         request = self.factory.post('/registration/signup/', data=signup_dict,
@@ -543,7 +543,7 @@ class TestLoginAPIView(TestCase):
     def test_login_api_view_inactive_user(self):
         login_data = {
             'email': self.user.email,
-            'password': 'testpass'
+            'password': 'testpassword'
         }
         self.user.is_active = False
         self.user.save()
@@ -698,7 +698,7 @@ class TestEmailVerificationView(TestCase):
 
     def test_email_verification_view_incorrect_token(self):
         user = authenticate(username=self.user.username,
-                            password='testpass')
+                            password='testpassword')
         request = self.factory.request()
         s = SessionStore()
         s.save()
@@ -712,7 +712,7 @@ class TestEmailVerificationView(TestCase):
 
     def test_email_verification_view_pleb_does_not_exist(self):
         user = authenticate(username=self.user.username,
-                            password='testpass')
+                            password='testpassword')
         request = self.factory.request()
         s = SessionStore()
         s.save()
@@ -756,7 +756,7 @@ class TestResendEmailVerificationView(TestCase):
 
     def test_resend_email_verification_view_failure_pleb_does_not_exist(self):
         user = authenticate(username=self.user.username,
-                            password='testpass')
+                            password='testpassword')
         request = self.factory.request()
         s = SessionStore()
         s.save()

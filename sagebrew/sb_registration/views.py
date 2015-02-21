@@ -17,14 +17,14 @@ from neomodel import (DoesNotExist, AttemptedCardinalityViolation,
 
 from sb_tag.neo_models import SBTag
 from api.utils import spawn_task
-from plebs.tasks import send_email_task
+from plebs.tasks import send_email_task, create_beta_user
 from plebs.neo_models import Pleb, Address
 from sb_reps.tasks import create_rep_task
 from sb_docstore.tasks import build_rep_page_task
 
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm, RepRegistrationForm,
-                    LoginForm)
+                    LoginForm, BetaSignupForm)
 from .utils import (upload_image,
                     create_address_long_hash, verify_completed_registration,
                     verify_verified_email, calc_age,
@@ -402,3 +402,15 @@ def rep_reg_page(request):
                 return
             return redirect("rep_page", rep_type=cleaned['office'], rep_id=uuid)
     return render(request, 'registration_rep.html')
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def beta_signup(request):
+    beta_form = BetaSignupForm(request.DATA or None)
+    print beta_form
+    if beta_form.is_valid():
+        res = spawn_task(create_beta_user, beta_form.cleaned_data)
+        if isinstance(res, Exception):
+            return Response({"detail": "Failed to spawn task"}, 500)
+    else:
+        return Response({"detail": beta_form.errors.as_json()}, 400)

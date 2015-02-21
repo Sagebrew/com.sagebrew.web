@@ -2,6 +2,7 @@
 {% load staticfiles %}
 {% block css %}
     {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/vendor/bootstrapValidator.min.css' %}">
 {% endblock css %}
 {% block navigation %}
 {% endblock navigation %}
@@ -10,21 +11,33 @@
     <img class="sb_beta_background"
            src="{% static 'images/beta_graphic_four-02.jpg' %}">
     <div>
-        <div class="sb_beta_input_group">
-            <h1 class="sb_beta_title">Sagebrew</h1>
-            <h1 class="sb_beta_beta">beta</h1>
-            <div class="">
+        <form id="betaSignupForm" method="post">
+                {% csrf_token %}
+            <div class="sb_beta_input_group">
+                <h1 class="sb_beta_title">Sagebrew</h1>
+                <h1 class="sb_beta_beta">beta</h1>
                 <div class="">
-                    <input type="text"
-                           value=""
-                           placeholder="enter email"
-                           class="sb_signup_input form-control input-md">
+                    <div class="email_class">
+                        <input id="beta_email_input"
+                               type="text"
+                               value=""
+                               name="email"
+                               placeholder="enter email"
+                               class="sb_signup_input form-control input-md">
+                        <button class="btn btn-primary btn-sm" id="beta_email_submit">Submit</button>
+                    </div>
                 </div>
+                <p class="sb_beta_text">already a member? sign in here.</p>
             </div>
-            <p class="sb_beta_text">already a member? sign in here.</p>
-        </div>
+        </form>
     </div>
 
 {% endblock content %}
 {% block footer %}
 {% endblock footer %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/beta_signup.js' %}"></script>
+    <script src="{% static 'js/vendor/bootstrapValidator.min.js' %}"></script>
+{% endblock %}

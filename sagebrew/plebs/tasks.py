@@ -16,7 +16,7 @@ from sb_docstore.tasks import add_object_to_table_task
 from sb_registration.models import token_gen
 from sb_privileges.tasks import check_privileges
 
-from .neo_models import Pleb
+from .neo_models import Pleb, BetaUser
 
 @shared_task()
 def send_email_task(to, subject, html_content, text_content=None):
@@ -162,3 +162,14 @@ def create_pleb_task(user_instance=None):
         raise create_pleb_task.retry(exc=task_info, countdown=3,
                                      max_retries=None)
     return task_info
+
+@shared_task()
+def create_beta_user(email):
+    try:
+        beta_user = BetaUser.nodes.get(email=email)
+        return True
+    except (BetaUser.DoesNotExist, DoesNotExist):
+        beta_user = BetaUser(email=email).save()
+    except CypherException as e:
+        raise create_beta_user.retry(exc=e, countdown=3, max_retries=None)
+    return True

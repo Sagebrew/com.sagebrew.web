@@ -392,4 +392,7 @@ class OauthUser(StructuredNode):
     token_type = StringProperty(default="Bearer")
     last_modified = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
-
+class BetaUser(StructuredNode):
+    email = StringProperty(unique_index=True)
+    beta_uuid = StringProperty(default=lambda: str(uuid1()))
+    signup_date = DateTimeProperty(default=lambda: datetime.now(pytz.utc))

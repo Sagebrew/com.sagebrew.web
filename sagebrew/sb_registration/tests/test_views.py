@@ -200,7 +200,8 @@ class TestProfileInfoView(TestCase):
                    "address_additional": [], "employer": [],
                    "state": "MI", "date_of_birth": ["06/04/94"],
                    "college": [], "primary_address": ["125 Glenwood Dr"],
-                   "high_school": [], "postal_code": ["48390"], "valid": "valid",
+                   "high_school": [], "postal_code": ["48390"],
+                   "valid": "valid",
                    "congressional_district": 11, "longitude": -83.4965,
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',

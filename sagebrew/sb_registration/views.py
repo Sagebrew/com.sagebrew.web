@@ -206,12 +206,12 @@ def profile_information(request):
         return redirect("interests")
     if profile_information_form.is_valid():
         citizen.home_town = profile_information_form.cleaned_data["home_town"]
-        citizen.high_school = profile_information_form.cleaned_data.get(
-            "high_school", "")
-        citizen.college = profile_information_form.cleaned_data.get(
-            "college", "")
-        citizen.employer = profile_information_form.cleaned_data.get(
-            "employer", "")
+        #citizen.high_school = profile_information_form.cleaned_data.get(
+        #   "high_school", "")
+        #citizen.college = profile_information_form.cleaned_data.get(
+        #    "college", "")
+        #citizen.employer = profile_information_form.cleaned_data.get(
+        #    "employer", "")
         citizen.save()
     if address_information_form.is_valid():
         address_clean = address_information_form.cleaned_data
@@ -241,9 +241,7 @@ def profile_information(request):
 
     return render(request, 'profile_info.html',
                   {'profile_information_form': profile_information_form,
-                   'address_information_form': address_information_form,
-                   'profile_info_errors': profile_information_form.errors,
-                   'address_info_errors': address_information_form.errors})
+                   'address_information_form': address_information_form})
 
 
 @login_required()

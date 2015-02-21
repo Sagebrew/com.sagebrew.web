@@ -237,11 +237,12 @@ class SignupForm(forms.Form):
     email = forms.EmailField(required=True, label="Email")
     password = forms.CharField(required=True, min_length=6, max_length=56)
     password2 = forms.CharField(required=True, min_length=6, max_length=56)
+    birthday = forms.DateTimeField(required=True, input_formats=['%m/%d/%Y'])
 
 
 class LoginForm(forms.Form):
     email = forms.EmailField(required=True)
-    password = forms.CharField(required=True)
+    password = forms.CharField(required=True, min_length=6)
 
 class RepRegistrationForm(forms.Form):
     ssn = forms.CharField()

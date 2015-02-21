@@ -2,7 +2,6 @@
 
 .sb_general{
    color: @sb_dark_blue;
-   word-wrap: break-word;
     h1 {
       font-weight: bold;
       font-size: 30px;
@@ -176,9 +175,8 @@
 .sb_spy{
   color: @sb_grey;
   background-color: @white;
-  border: solid;
-  border-width: 1px;
-  border-color: #b7bfbb;
+  padding: 3px 10px 2px 6px;
+  margin-top: 6px;
 }
 .sb_btn_nav{
   &:extend(.sb_btn_icon);
@@ -220,6 +218,9 @@
     border-width: 1px;
     border-right: none;
     margin-top: 6px;
+    // This fixes firefox border issue with input
+    border-bottom: 0px;
+    border-top: 0px;
   }
 }
 .sb_secondary_nav {
@@ -303,7 +304,9 @@
     &:extend(.sb_btn_submit);
     background-color: @sb_off_white;
     color: @sb_green;
-    height: 28px;
+    height: @sb_input_height;
+    // Firefox fix for button being placed differently in navbar
+    padding-top: 5px;
   }
 }
 .sb_dropdown {

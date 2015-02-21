@@ -338,13 +338,13 @@ def generate_username(first_name, last_name):
     if users_count == 0:
         username = "%s_%s" % (first_name.lower(), last_name.lower())
     else:
-        username = "%s_%s%d" % (first_name.lower(), last_name.lower(),
+        username = "%s_%s_%d" % (first_name.lower(), last_name.lower(),
                                 users_count)
     return username
 
 
 @apply_defense
-def create_user_util(first_name, last_name, email, password):
+def create_user_util(first_name, last_name, email, password, birthday):
     username = generate_username(first_name, last_name)
     user = User.objects.create_user(first_name=first_name, last_name=last_name,
                                     email=email, password=password,
@@ -356,7 +356,7 @@ def create_user_util(first_name, last_name, email, password):
     if isinstance(oauth_res, Exception):
         return oauth_res
     res = spawn_task(task_func=create_pleb_task,
-                     task_param={"user_instance": user})
+                     task_param={"user_instance": user, "birthday": birthday})
     if isinstance(res, Exception) is True:
         return res
     else:

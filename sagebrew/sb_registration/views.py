@@ -2,20 +2,20 @@ import stripe
 from django.conf import settings
 from uuid import uuid1
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse
+from django.http import (HttpResponse, HttpResponseNotFound,
+                         HttpResponseServerError)
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.template.loader import get_template
 from django.template import Context
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+
 from neomodel import (DoesNotExist, AttemptedCardinalityViolation,
                       CypherException)
 
-from sb_tag.neo_models import SBTag
 from api.utils import spawn_task
 from plebs.tasks import send_email_task
 from plebs.neo_models import Pleb, Address
@@ -30,16 +30,18 @@ from .utils import (upload_image,
                     verify_verified_email, calc_age,
                     create_user_util)
 from .models import token_gen
+from .tasks import update_interests
 
 
 @api_view(['POST'])
 def signup_view_api(request):
+    print request.DATA
     try:
         signup_form = SignupForm(request.DATA)
         valid_form = signup_form.is_valid()
     except AttributeError:
         return Response(status=400)
-    if valid_form:
+    if valid_form is True:
         if signup_form.cleaned_data['password'] != \
                 signup_form.cleaned_data['password2']:
             return Response({'detail': 'Passwords do not match!'},
@@ -61,7 +63,9 @@ def signup_view_api(request):
                                    email=signup_form.
                                    cleaned_data['email'],
                                    password=signup_form.
-                                   cleaned_data['password'])
+                                   cleaned_data['password'],
+                                   birthday=signup_form.
+                                   cleaned_data['birthday'])
             if res and res is not None:
                 user = authenticate(username=res['username'],
                                     password=signup_form.cleaned_data[
@@ -79,7 +83,9 @@ def signup_view_api(request):
                 return Response({'detail': 'invalid login'},
                                 status=400)
     else:
-        return Response({'detail': "invalid form"}, status=400)
+        print
+        return Response({"detail": signup_form.errors.as_json()},
+                         status=400)
 
 
 def login_view(request):
@@ -89,9 +95,10 @@ def login_view(request):
 @login_required()
 def resend_email_verification(request):
     try:
+        print request.user.email
         pleb = Pleb.nodes.get(email=request.user.email)
     except(DoesNotExist):
-        return Response({'detail': 'pleb does not exist'}, status=400)
+        return HttpResponseNotFound("Could not find user")
 
     template_dict = {
         'full_name': request.user.get_full_name(),
@@ -110,18 +117,19 @@ def resend_email_verification(request):
     spawned = spawn_task(task_func=send_email_task, task_param=task_data)
     if isinstance(spawned, Exception):
         # TODO need to replace this with an actual view
-        return Response(status=500)
+        return HttpResponseServerError("Unhandled Exception Occurred")
     return redirect("confirm_view")
 
 
 @api_view(['POST'])
 def login_view_api(request):
+    print request.DATA
     try:
         login_form = LoginForm(request.DATA)
         valid_form = login_form.is_valid()
     except AttributeError:
         return Response(status=400)
-    if valid_form:
+    if valid_form is True:
         try:
             user = User.objects.get(email=login_form.cleaned_data['email'])
         except User.DoesNotExist:
@@ -131,19 +139,8 @@ def login_view_api(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
-                # TODO do we need this logic? If we can get away with
-                # loading the page based on the user.email and user.username
-                # we should try. Then we can query the pleb when we
-                # get to their page and build their document storage up
-                # if it's not already built
-                try:
-                    pleb = Pleb.nodes.get(email=user.email)
-                except (Pleb.DoesNotExist, DoesNotExist):
-                    return Response({'detail': 'cannot find user'},
-                                    status=400)
-
                 rev = reverse('profile_page',
-                              kwargs={'pleb_username': pleb.username})
+                              kwargs={'pleb_username': user.username})
                 return Response({'detail': 'success',
                                  'user': user.email,
                                  'url': rev}, status=200)
@@ -292,24 +289,11 @@ def interests(request):
     '''
     interest_form = InterestForm(request.POST or None)
     if interest_form.is_valid():
-        # TODO can we use the base user here rather than
-        # querying for the pleb? Then spawn a task for connecting the
-        # interests
-        try:
-            citizen = Pleb.nodes.get(email=request.user.email)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return redirect("404_Error")
-        except CypherException:
+        data = {"email": request.user.email,
+                "interests": interest_form.cleaned_data}
+        success = spawn_task(update_interests, data)
+        if isinstance(success, Exception):
             return HttpResponse('Server Error', status=500)
-        for item in interest_form.cleaned_data:
-            if interest_form.cleaned_data[item]:
-                try:
-                    tag = SBTag.nodes.get(tag_name=item)
-                    citizen.interests.connect(tag)
-                except (SBTag.DoesNotExist, DoesNotExist):
-                    return redirect("404_Error")
-                except CypherException:
-                    return HttpResponse('Server Error', status=500)
         return redirect('profile_picture')
 
     return render(request, 'interests.html', {'interest_form': interest_form})

@@ -766,7 +766,7 @@ class TestResendEmailVerificationView(TestCase):
         request.user.email = 'totallynotafakeuser@fake.com'
         res = resend_email_verification(request)
 
-        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res.status_code, 404)
 
 
 class TestConfirmView(TestCase):

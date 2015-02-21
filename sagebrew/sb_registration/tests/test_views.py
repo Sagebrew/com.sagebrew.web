@@ -437,7 +437,8 @@ class TestSignupAPIView(TestCase):
             'last_name': 'Wiersing',
             'email': 'ooto@simulator.amazonses.com',
             'password': 'testpassword',
-            'password2': 'testpassword'
+            'password2': 'testpassword',
+            'birthday': datetime.datetime.now()
         }
         request = self.factory.post('/registration/signup/', data=signup_dict,
                                     format='json')
@@ -454,7 +455,8 @@ class TestSignupAPIView(TestCase):
             'last_name': self.user.last_name,
             'email': self.user.email,
             'password': 'testpassword',
-            'password2': 'testpassword'
+            'password2': 'testpassword',
+            'birthday': datetime.datetime.now()
         }
 
         request = self.factory.post('/registration/signup/', data=signup_dict,
@@ -474,7 +476,8 @@ class TestSignupAPIView(TestCase):
             'last_name': 'Wiersing',
             'email': 'success@simulator.amazonses.com',
             'password': 'testpass',
-            'password2': 'not the same as the first'
+            'password2': 'not the same as the first',
+            'birthday': datetime.datetime.now()
         }
         request = self.factory.post('/registration/signup/', data=signup_dict,
                                     format='json')

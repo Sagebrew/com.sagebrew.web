@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 
 from api.utils import wait_util
 from plebs.neo_models import Pleb
-from sb_registration.utils import create_user_util
+from sb_registration.utils import create_user_util_test
 from plebs.tasks import (create_pleb_task, create_wall_task,
                          finalize_citizen_creation, send_email_task)
 from sb_wall.neo_models import SBWall
@@ -15,7 +15,7 @@ from sb_wall.neo_models import SBWall
 class TestCreatePlebTask(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.username = res["username"]
         self.assertNotEqual(res, False)
         wait_util(res)
@@ -61,7 +61,7 @@ class TestCreatePlebTask(TestCase):
 class TestCreateWallTask(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -137,7 +137,7 @@ class TestFinalizeCitizenCreationTask(TestCase):
     def setUp(self):
         self.email2 = 'suppressionlist@simulator.amazonses.com'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -191,7 +191,7 @@ class TestFinalizeCitizenCreationTask(TestCase):
 class TestSendEmailTask(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)

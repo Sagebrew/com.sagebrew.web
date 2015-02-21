@@ -12,14 +12,14 @@ from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_questions.views import (save_question_view,
                                 get_question_view)
-from sb_registration.utils import create_user_util
+from sb_registration.utils import create_user_util_test
 
 
 class SaveQuestionViewTests(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -108,7 +108,7 @@ class TestGetQuestionView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -258,7 +258,7 @@ class TestGetQuestionSearchView(TestCase):
         self.factory = APIRequestFactory()
         self.client = APIClient()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)

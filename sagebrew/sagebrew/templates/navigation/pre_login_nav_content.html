@@ -1,16 +1,17 @@
-<ul class="hidden-xs sb_login">
-    <li>
-        <input type="email"
-               class="form-control"
-               placeholder="E-mail">
-    </li>
-    <li>
-        <input type="password"
-               class="form-control"
-               placeholder="Password">
-    </li>
-    <li>
-        <button class="btn">Login
-        </button>
-    </li>
-</ul>
+{% if request.path != "/login/" %}
+    <ul class="hidden-xs sb_login">
+        <li>
+            <input type="email"
+                   class="form-control input-sm email"
+                   placeholder="E-mail">
+        </li>
+        <li>
+            <input type="password"
+                   class="form-control input-sm password"
+                   placeholder="Password">
+        </li>
+        <li>
+            <button class="btn btn-sm btn-block btn-primary submit_login">Login</button>
+        </li>
+    </ul>
+{% endif %}

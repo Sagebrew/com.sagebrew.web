@@ -135,29 +135,9 @@ class InterestForm(forms.Form):
 
 
 class ProfileInfoForm(forms.Form):
-
-
     home_town = forms.CharField(
         label="Hometown",
         max_length=40,
-        required=False,
-    )
-
-    high_school = forms.CharField(
-        label="High School",
-        max_length=50,
-        required=False,
-    )
-
-    college = forms.CharField(
-        label="College/University",
-        max_length=50,
-        required=False,
-    )
-
-    employer = forms.CharField(
-        label="Employer",
-        max_length=50,
         required=False,
     )
 
@@ -192,7 +172,7 @@ class AddressInfoForm(forms.Form):
     )
 
     valid = forms.CharField(
-        required=True,
+        required=False,
         max_length=100,
         widget=forms.HiddenInput()
     )
@@ -218,7 +198,6 @@ class AddressInfoForm(forms.Form):
     )
 
 
-
 class ProfilePictureForm(forms.Form):
     picture = forms.ImageField(
         label="Profile Picture"
@@ -237,11 +216,12 @@ class SignupForm(forms.Form):
     email = forms.EmailField(required=True, label="Email")
     password = forms.CharField(required=True, min_length=6, max_length=56)
     password2 = forms.CharField(required=True, min_length=6, max_length=56)
+    birthday = forms.DateTimeField(required=True, input_formats=['%m/%d/%Y'])
 
 
 class LoginForm(forms.Form):
     email = forms.EmailField(required=True)
-    password = forms.CharField(required=True)
+    password = forms.CharField(required=True, min_length=6)
 
 class RepRegistrationForm(forms.Form):
     ssn = forms.CharField()

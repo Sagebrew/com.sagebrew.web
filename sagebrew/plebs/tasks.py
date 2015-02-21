@@ -1,10 +1,11 @@
 from uuid import uuid1
+from time import strptime
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from celery import shared_task
 from django.conf import settings
 from django.template.loader import get_template
 from django.template import Context
-from django.contrib.auth.models import User
+
 from neomodel import DoesNotExist, CypherException
 
 from api.utils import spawn_task
@@ -136,7 +137,7 @@ def create_wall_task(user_instance=None):
 
 
 @shared_task()
-def create_pleb_task(user_instance=None):
+def create_pleb_task(user_instance=None, birthday=None):
     #We do a check to make sure that a user with the email given does not exist
     #in the registration view, so if you are calling this function without
     #using that view there is a potential UniqueProperty error which can get
@@ -150,7 +151,8 @@ def create_pleb_task(user_instance=None):
             pleb = Pleb(email=user_instance.email,
                         first_name=user_instance.first_name,
                         last_name=user_instance.last_name,
-                        username=user_instance.username)
+                        username=user_instance.username,
+                        birthday=birthday)
             pleb.save()
         except(CypherException, IOError) as e:
             raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)

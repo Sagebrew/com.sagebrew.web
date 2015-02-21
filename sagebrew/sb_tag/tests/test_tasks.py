@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from api.utils import wait_util
 from sb_questions.neo_models import SBQuestion
 from plebs.neo_models import Pleb
-from sb_registration.utils import create_user_util
+from sb_registration.utils import create_user_util_test
 
 from sb_tag.neo_models import SBAutoTag
 from sb_tag.tasks import add_auto_tags, add_tags, create_tag_relations
@@ -16,7 +16,7 @@ from sb_tag.tasks import add_auto_tags, add_tags, create_tag_relations
 class TestTagTask(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -42,7 +42,7 @@ class TestTagTask(TestCase):
 class TestAutoTagTask(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -69,7 +69,7 @@ class TestAutoTagTask(TestCase):
 class TestCreateAutoTagRelationships(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)

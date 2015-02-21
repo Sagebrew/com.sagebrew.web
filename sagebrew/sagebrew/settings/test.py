@@ -7,7 +7,7 @@ TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['*']
 WEB_ADDRESS = "https://127.0.0.1:8080"
 VERIFY_SECURE = False
-
+CELERY_IGNORE_RESULT = False
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',

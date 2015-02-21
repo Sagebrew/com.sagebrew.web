@@ -8,14 +8,14 @@ from api.utils import wait_util
 from sb_answers.tasks import save_answer_task, add_answer_to_search_index
 from sb_questions.neo_models import SBQuestion
 from plebs.neo_models import Pleb
-from sb_registration.utils import create_user_util
+from sb_registration.utils import create_user_util_test
 from sb_answers.neo_models import SBAnswer
 
 
 class TestSaveAnswerTask(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -76,7 +76,7 @@ class TestSaveAnswerTask(TestCase):
 class TestAddAnswerToSearchIndexTask(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)

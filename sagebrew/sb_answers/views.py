@@ -40,4 +40,5 @@ def save_answer_view(request):
             return Response({'detail': 'failed to post an answer'}, status=500)
         return Response({'detail': 'successfully posted an answer'}, status=200)
     else:
+        print answer_form.cleaned_data
         return Response({'detail': 'failed to post an answer'}, status=400)

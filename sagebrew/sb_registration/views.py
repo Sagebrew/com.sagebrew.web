@@ -10,21 +10,25 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.template.loader import get_template
 from django.template import Context
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from neomodel import (DoesNotExist, AttemptedCardinalityViolation,
+                      CypherException)
 
 from neomodel import (DoesNotExist, CypherException)
 
 from api.utils import spawn_task
-from plebs.tasks import send_email_task
+from plebs.tasks import send_email_task, create_beta_user
 from plebs.neo_models import Pleb
 from sb_reps.tasks import create_rep_task
 from sb_docstore.tasks import build_rep_page_task
 
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm, RepRegistrationForm,
-                    LoginForm)
-from .utils import (upload_image, verify_completed_registration,
+                    LoginForm, BetaSignupForm)
+from .utils import (upload_image,
+                    create_address_long_hash, verify_completed_registration,
                     verify_verified_email, calc_age,
                     create_user_util)
 from .models import token_gen
@@ -353,3 +357,14 @@ def rep_reg_page(request):
                 return
             return redirect("rep_page", rep_type=cleaned['office'], rep_id=uuid)
     return render(request, 'registration_rep.html')
+
+@api_view(['POST'])
+def beta_signup(request):
+    beta_form = BetaSignupForm(request.DATA or None)
+    if beta_form.is_valid():
+        res = spawn_task(create_beta_user, beta_form.cleaned_data)
+        if isinstance(res, Exception):
+            return Response({"detail": "Failed to spawn task"}, 500)
+        return Response({"detail": "success"}, 200)
+    else:
+        return Response({"detail": beta_form.errors.as_json()}, 400)

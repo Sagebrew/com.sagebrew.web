@@ -240,6 +240,9 @@ class RepRegistrationForm(forms.Form):
     exp_year = forms.IntegerField(required=False)
     cvv = forms.IntegerField(required=False)
 
+class BetaSignupForm(forms.Form):
+    email = forms.CharField()
+
 '''
 If you want to adjust field attributes programatically without overwritting
 everything use something like the following under super(...) in

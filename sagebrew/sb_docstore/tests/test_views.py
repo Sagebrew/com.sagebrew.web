@@ -7,7 +7,7 @@ from django.test import TestCase
 
 from plebs.neo_models import Pleb
 from api.utils import wait_util
-from sb_registration.utils import create_user_util
+from sb_registration.utils import create_user_util_test
 from sb_docstore.utils import add_object_to_table
 
 from sb_docstore.views import get_updates_from_dynamo
@@ -17,7 +17,7 @@ class TestGetUpdatesFromDynamo(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)

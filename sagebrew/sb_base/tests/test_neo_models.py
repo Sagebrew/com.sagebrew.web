@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 from api.utils import wait_util
 from plebs.neo_models import Pleb
-from sb_registration.utils import create_user_util
+from sb_registration.utils import create_user_util_test
 from sb_posts.neo_models import SBPost
 from sb_base.neo_models import SBContent
 
@@ -12,7 +12,7 @@ from sb_base.neo_models import SBContent
 class TestSBVoteableContentNeoModel(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -87,7 +87,7 @@ class TestSBVoteableContentNeoModel(TestCase):
 class TestSBContentNeoModel(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -120,7 +120,7 @@ class TestSBContentNeoModel(TestCase):
 class TestSBNonVersionedContent(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)

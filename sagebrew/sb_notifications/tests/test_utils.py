@@ -7,20 +7,20 @@ from api.utils import wait_util
 from sb_comments.neo_models import SBComment
 from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
-from sb_registration.utils import create_user_util
+from sb_registration.utils import create_user_util_test
 from sb_notifications.utils import create_notification_util
 from sb_notifications.neo_models import NotificationBase
 
 class TestNotificationUtils(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.email2= "bounce@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email2, "testpassword")
+        res = create_user_util_test(self.email)
         # TODO review these and make sure it's checking it's not an instance
         # of exception
         self.assertNotIsInstance(res, Exception)

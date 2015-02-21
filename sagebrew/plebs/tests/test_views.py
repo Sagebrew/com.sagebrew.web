@@ -1,5 +1,4 @@
 from uuid import uuid1
-import shortuuid
 from rest_framework.test import APIRequestFactory
 from django.contrib.auth.models import User, AnonymousUser
 from django.test import TestCase, Client
@@ -10,7 +9,7 @@ from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb
 from plebs.views import (profile_page, friends_page, about_page,
                          reputation_page)
-from sb_registration.utils import create_user_util
+from sb_registration.utils import create_user_util_test
 from api.utils import wait_util
 
 
@@ -21,7 +20,7 @@ class ProfilePageTest(TestCase):
         self.client = Client()
         self.email = "success@simulator.amazonses.com"
         self.password = "testpassword"
-        res = create_user_util("test", "test", self.email, self.password)
+        res = create_user_util_test(self.email)
         self.username = res["username"]
         self.assertNotEqual(res, False)
         wait_util(res)
@@ -245,7 +244,7 @@ class TestProfilePageAbout(TestCase):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
         self.password = "testpassword"
-        res = create_user_util("test", "test", self.email, self.password)
+        res = create_user_util_test(self.email)
         self.username = res["username"]
         self.assertNotEqual(res, False)
         wait_util(res)
@@ -280,7 +279,7 @@ class TestProfilePageReputationPage(TestCase):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
         self.password = "testpassword"
-        res = create_user_util("test", "test", self.email, self.password)
+        res = create_user_util_test(self.email)
         self.username = res["username"]
         self.assertNotEqual(res, False)
         wait_util(res)
@@ -314,7 +313,7 @@ class TestProfilePageFriendPage(TestCase):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
         self.password = "testpassword"
-        res = create_user_util("test", "test", self.email, self.password)
+        res = create_user_util_test(self.email)
         self.username = res["username"]
         self.assertNotEqual(res, False)
         wait_util(res)

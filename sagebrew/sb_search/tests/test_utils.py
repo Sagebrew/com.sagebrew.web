@@ -1,17 +1,16 @@
 from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
-from neomodel.exception import DoesNotExist
 
 from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_search.utils import process_search_result
-from sb_registration.utils import create_user_util
+from sb_registration.utils import create_user_util_test
 
 class TestProcessSearchResultUtil(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)

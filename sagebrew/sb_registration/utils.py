@@ -1,5 +1,4 @@
-import os
-import shortuuid
+from datetime import datetime
 import hashlib
 import boto.ses
 from boto.ses.exceptions import SESMaxSendingRateExceededError
@@ -361,3 +360,8 @@ def create_user_util(first_name, last_name, email, password, birthday):
         return res
     else:
         return {"task_id": res, "username": username}
+
+
+def create_user_util_test(email):
+    return create_user_util("test", "test", email, "testpassword",
+                            datetime.now())

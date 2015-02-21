@@ -13,24 +13,22 @@ from django.template import Context
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from neomodel import (DoesNotExist, AttemptedCardinalityViolation,
-                      CypherException)
+from neomodel import (DoesNotExist, CypherException)
 
 from api.utils import spawn_task
 from plebs.tasks import send_email_task
-from plebs.neo_models import Pleb, Address
+from plebs.neo_models import Pleb
 from sb_reps.tasks import create_rep_task
 from sb_docstore.tasks import build_rep_page_task
 
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm, RepRegistrationForm,
                     LoginForm)
-from .utils import (upload_image,
-                    create_address_long_hash, verify_completed_registration,
+from .utils import (upload_image, verify_completed_registration,
                     verify_verified_email, calc_age,
                     create_user_util)
 from .models import token_gen
-from .tasks import update_interests
+from .tasks import update_interests, store_address
 
 
 @api_view(['POST'])
@@ -198,80 +196,54 @@ def profile_information(request):
     '''
     profile_information_form = ProfileInfoForm(request.POST or None)
     address_information_form = AddressInfoForm(request.POST or None)
-    # TODO can we use the base user here rather than querying for the pleb?
-    # Also I think we can move the address storage logic into a task and follow
-    # a similar process as described with the profile picture where we're
-    # really just building up the plebs personal document with these
-    # and spawning off tasks in the background to store the information
-    # in neo
     try:
         citizen = Pleb.nodes.get(email=request.user.email)
     except (Pleb.DoesNotExist, DoesNotExist):
         return redirect("404_Error")
-    # TODO Add this
-    #if citizen.completed_profile_info:
-    #    return redirect("interests")
+    except (CypherException, IOError) as e:
+        return HttpResponseServerError('Server Error')
+    if citizen.completed_profile_info:
+        return redirect("interests")
     if profile_information_form.is_valid():
         citizen.home_town = profile_information_form.cleaned_data["home_town"]
-        #citizen.high_school = profile_information_form.cleaned_data.get("high_school", "")
-        #citizen.college = profile_information_form.cleaned_data.get("college", "")
-        #citizen.employer = profile_information_form.cleaned_data.get("employer", "")
+        citizen.high_school = profile_information_form.cleaned_data.get(
+            "high_school", "")
+        citizen.college = profile_information_form.cleaned_data.get(
+            "college", "")
+        citizen.employer = profile_information_form.cleaned_data.get(
+            "employer", "")
         citizen.save()
     if address_information_form.is_valid():
         address_clean = address_information_form.cleaned_data
         address_clean['country'] = 'USA'
-        if address_clean['valid']=="valid":
-            address_hash = create_address_long_hash(address_clean)
+        if(address_clean['valid'] == "valid" or
+                   address_clean.get('original_selected', False) is True):
+            success = spawn_task(store_address,
+                                 {"address_clean": address_clean})
+            if isinstance(success, Exception):
+                return HttpResponseServerError('Server Error')
             try:
-                address = Address.nodes.get(address_hash=address_hash)
-            except (Address.DoesNotExist, DoesNotExist):
-                address = Address(address_hash=address_hash,
-                                  street=address_clean['primary_address'],
-                                  street_aditional=address_clean[
-                                      'street_additional'],
-                                  city=address_clean['city'],
-                                  state=address_clean['state'],
-                                  postal_code=address_clean['postal_code'],
-                                  latitude=address_clean['latitude'],
-                                  longitude=address_clean['longitude'],
-                                  congressional_district=address_clean[
-                                      'congressional_district'])
-                address.save()
-            address.address.connect(citizen)
-            try:
-                citizen.address.connect(address)
-            except AttemptedCardinalityViolation:
-                return redirect('interests')
-            citizen.completed_profile_info = True
-            citizen.save()
+                citizen.completed_profile_info = True
+                citizen.save()
+            except (CypherException, IOError):
+                # TODO instead of going to 500 we should instead repopulate the
+                # page with the forms and make an alert or notification that
+                # indicates we're sorry but there was an error communicating
+                # with the server.
+                return HttpResponseServerError('Server Error')
             return redirect('interests')
-        elif address_clean['valid']=="invalid" and \
-                address_clean['original_selected']:
-            address = Address(address_hash=str(uuid1()),
-                              street=address_clean['primary_address'],
-                              street_additional=address_clean[
-                                  'street_additional'],
-                              city=address_clean['city'],
-                              state=address_clean['state'],
-                              postal_code=address_clean['postal_code'],
-                              latitude=address_clean['latitude'],
-                              longitude=address_clean['longitude'],
-                              congressional_district=address_clean[
-                                  'congressional_district'],
-                              validated = False)
-            address.save()
-            address.address.connect(citizen)
-            try:
-                citizen.address.connect(address)
-            except AttemptedCardinalityViolation:
-                return redirect('interests')
-            citizen.completed_profile_info = True
-            citizen.save()
-            return redirect('interests')
+        else:
+            # TODO this is just a place holder, what should we really be doing
+            # here?
+            return render(request, 'profile_info.html',
+                  {'profile_information_form': profile_information_form,
+                   'address_information_form': address_information_form})
 
     return render(request, 'profile_info.html',
                   {'profile_information_form': profile_information_form,
-                   'address_information_form': address_information_form})
+                   'address_information_form': address_information_form,
+                   'profile_info_errors': profile_information_form.errors,
+                   'address_info_errors': address_information_form.errors})
 
 
 @login_required()

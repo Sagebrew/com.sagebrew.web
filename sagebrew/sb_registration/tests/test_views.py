@@ -438,7 +438,7 @@ class TestSignupAPIView(TestCase):
             'email': 'ooto@simulator.amazonses.com',
             'password': 'testpassword',
             'password2': 'testpassword',
-            'birthday': datetime.datetime.now()
+            'birthday': "06/23/1990"
         }
         request = self.factory.post('/registration/signup/', data=signup_dict,
                                     format='json')
@@ -456,7 +456,7 @@ class TestSignupAPIView(TestCase):
             'email': self.user.email,
             'password': 'testpassword',
             'password2': 'testpassword',
-            'birthday': datetime.datetime.now()
+            'birthday': "06/23/1990"
         }
 
         request = self.factory.post('/registration/signup/', data=signup_dict,
@@ -477,7 +477,7 @@ class TestSignupAPIView(TestCase):
             'email': 'success@simulator.amazonses.com',
             'password': 'testpass',
             'password2': 'not the same as the first',
-            'birthday': datetime.datetime.now()
+            'birthday': "06/23/1990"
         }
         request = self.factory.post('/registration/signup/', data=signup_dict,
                                     format='json')
@@ -487,7 +487,8 @@ class TestSignupAPIView(TestCase):
         res = signup_view_api(request)
         res.render()
 
-        self.assertEqual(loads(res.content)['detail'], 'Passwords do not match!')
+        self.assertEqual(loads(res.content)['detail'],
+                         'Passwords do not match!')
         self.assertEqual(res.status_code, 401)
 
 

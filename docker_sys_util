@@ -15,8 +15,6 @@ RUN pip install -r /home/apps/{{PROJECT_REPONAME}}/requirements/{{REQUIREMENTS_F
 RUN rm -r /root/.ssh
 RUN apt-get remove --auto-remove -y openssh-client
 
-WORKDIR /home/apps/{{PROJECT_REPONAME}}/{{PROJECT_NAME}}/{{PROJECT_NAME}}/static/flat-ui/
-RUN npm install
 
 RUN apt-get remove --auto-remove -y git
 WORKDIR /home/apps/{{PROJECT_REPONAME}}/{{PROJECT_NAME}}/

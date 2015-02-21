@@ -135,29 +135,9 @@ class InterestForm(forms.Form):
 
 
 class ProfileInfoForm(forms.Form):
-
-
     home_town = forms.CharField(
         label="Hometown",
         max_length=40,
-        required=False,
-    )
-
-    high_school = forms.CharField(
-        label="High School",
-        max_length=50,
-        required=False,
-    )
-
-    college = forms.CharField(
-        label="College/University",
-        max_length=50,
-        required=False,
-    )
-
-    employer = forms.CharField(
-        label="Employer",
-        max_length=50,
         required=False,
     )
 
@@ -192,7 +172,7 @@ class AddressInfoForm(forms.Form):
     )
 
     valid = forms.CharField(
-        required=True,
+        required=False,
         max_length=100,
         widget=forms.HiddenInput()
     )
@@ -216,7 +196,6 @@ class AddressInfoForm(forms.Form):
         required=False,
         widget=forms.HiddenInput()
     )
-
 
 
 class ProfilePictureForm(forms.Form):

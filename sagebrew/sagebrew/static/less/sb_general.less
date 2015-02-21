@@ -81,6 +81,18 @@
   padding: @sb_common_padding_positive;
   margin-bottom: @sb_common_margin_positive;
 }
+.sb_registration_block {
+  &:extend(.block);
+  width: 80%;
+  margin-top:100px;
+  margin-bottom: 60px;
+  margin-left: 10%;
+  margin-right: 10%;
+  border-radius: 10px;
+  background-color: @sb_grey_extra_light;
+  position: inherit;
+  float: left;
+}
 // Walls
 .sb_page{
   margin: 0 10% 0 5%;
@@ -126,10 +138,11 @@
   }
 }
 // Buttons
-.sb_btn{}
+.sb_btn{
+  background-color: @sb_green;
+}
 .sb_btn_submit{
   &:extend(.sb_btn);
-  background-color: @sb_green;
   color: @white;
   font-size: @sb_body_text;
   width: auto;
@@ -353,4 +366,27 @@
     padding-right:15px;
     padding-bottom: 30px;
     border-radius: 2px;
+}
+.sb_registration_header {
+  margin-left: 60px;
+}
+.sb_registration_step {
+  margin-right: 0;
+  margin-top: 35px;
+  margin-left: 1%;
+  padding-right: 30px;
+}
+.sb_row_continue {
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-bottom: 30px;
+}
+.sb_address_fix {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+.sb_deco_line {
+  border-bottom: solid 5px;
+  border-color: #9dbbb9;
+  margin-bottom: 35px;
 }

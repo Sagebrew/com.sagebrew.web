@@ -1,4 +1,5 @@
 .sb_markdown {
+  word-wrap: break-word;
   color: #34495e;
 }
 .sb_markdown h1 {

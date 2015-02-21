@@ -33,7 +33,6 @@ from .tasks import update_interests, store_address
 
 @api_view(['POST'])
 def signup_view_api(request):
-    print request.DATA
     try:
         signup_form = SignupForm(request.DATA)
         valid_form = signup_form.is_valid()
@@ -81,7 +80,6 @@ def signup_view_api(request):
                 return Response({'detail': 'invalid login'},
                                 status=400)
     else:
-        print
         return Response({"detail": signup_form.errors.as_json()},
                          status=400)
 
@@ -93,7 +91,6 @@ def login_view(request):
 @login_required()
 def resend_email_verification(request):
     try:
-        print request.user.email
         pleb = Pleb.nodes.get(email=request.user.email)
     except(DoesNotExist):
         return HttpResponseNotFound("Could not find user")
@@ -121,7 +118,6 @@ def resend_email_verification(request):
 
 @api_view(['POST'])
 def login_view_api(request):
-    print request.DATA
     try:
         login_form = LoginForm(request.DATA)
         valid_form = login_form.is_valid()

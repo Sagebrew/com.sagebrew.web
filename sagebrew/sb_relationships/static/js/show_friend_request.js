@@ -18,7 +18,6 @@ $(document).ready(function () {
             success: function (data) {
                 var container = $("#friend_request_div");
                 $.each(data, function (key, value) {
-                    console.log("here2");
                     container.append("<div>" + value['from_name'] + "</div>");
                     container.append('<button class="btn btn-sm btn-primary respond_friend_request-action" data-response="accept" data-request_id="' + value["request_id"] + '">Accept</button>');
                     container.append('<button class="btn btn-sm btn-primary respond_friend_request-action" data-response="deny" data-request_id="' + value["request_id"] + '">Deny</button>');

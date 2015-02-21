@@ -42,7 +42,7 @@ BROKER_URL = 'amqp://%s:%s@%s:%s//' % (environ.get("QUEUE_USERNAME", ""),
                                        environ.get("QUEUE_PASSWORD", ""),
                                        environ.get("QUEUE_HOST", ""),
                                        environ.get("QUEUE_PORT", ""))
-
+CELERY_IGNORE_RESULT = True
 REST_FRAMEWORK = {
     'DEFAULT_MODEL_SERIALIZER_CLASS':
         'rest_framework.serializers.HyperlinkedModelSerializer',

@@ -17,7 +17,8 @@ class TestGetPlebTask(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util("test", "test", self.email, "testpassword",
+                               datetime.now())
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -55,7 +56,8 @@ class TestAddObjectToSearchIndex(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util("test", "test", self.email, "testpassword",
+                               datetime.now())
         self.assertFalse(isinstance(res, Exception))
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)

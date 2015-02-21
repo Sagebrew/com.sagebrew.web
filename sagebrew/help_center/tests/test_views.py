@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -11,7 +12,8 @@ class HelpGoodQuestionTests(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util("test", "test", self.email, "testpassword",
+                               datetime.now())
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)

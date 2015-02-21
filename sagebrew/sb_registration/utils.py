@@ -338,7 +338,7 @@ def generate_username(first_name, last_name):
     if users_count == 0:
         username = "%s_%s" % (first_name.lower(), last_name.lower())
     else:
-        username = "%s_%s_%d" % (first_name.lower(), last_name.lower(),
+        username = "%s_%s%d" % (first_name.lower(), last_name.lower(),
                                 users_count)
     return username
 

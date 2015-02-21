@@ -14,7 +14,7 @@ $( document ).ready(function() {
 			type: "POST",
 			url: $(this).data('url'),
 			data: JSON.stringify({
-			   'content': $('textarea#answer_content_id').val(),
+			   'content': $('textarea.sb_answer_input_area').val(),
                'current_pleb': $(this).data('current_pleb'),
                'question_uuid': $(this).data('question_uuid')
 			}),

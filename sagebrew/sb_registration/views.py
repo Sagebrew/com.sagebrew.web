@@ -20,7 +20,7 @@ from neomodel import (DoesNotExist, CypherException)
 
 from api.utils import spawn_task
 from plebs.tasks import send_email_task, create_beta_user
-from plebs.neo_models import Pleb
+from plebs.neo_models import Pleb, BetaUser
 from sb_reps.tasks import create_rep_task
 from sb_docstore.tasks import build_rep_page_task
 
@@ -34,6 +34,17 @@ from .utils import (upload_image,
 from .models import token_gen
 from .tasks import update_interests, store_address
 
+def signup_view(request):
+    user = request.GET.get('user', '')
+    if not user:
+        return redirect('beta_page')
+    try:
+        beta_user = BetaUser.nodes.get(email=user)
+    except (BetaUser.DoesNotExist, DoesNotExist, CypherException):
+        return redirect('beta_page')
+    if not beta_user.invited:
+        return redirect('beta_page')
+    return render(request, 'sign_up_page/index.html')
 
 @api_view(['POST'])
 def signup_view_api(request):

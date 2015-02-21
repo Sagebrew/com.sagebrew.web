@@ -6,13 +6,6 @@
 {% block description %}
     <meta name="description" content="{{ description }}">
 {% endblock description %}
-{% block css %}
-    {{ block.super }}
-    <link href="{% static 'css/sb_registration.css' %}" rel="stylesheet"/>
-{% endblock css %}
-{% block navigation %}
-    {% include "registration_nav.html" %}
-{% endblock %}
 {% block sb_content_wrapper %}
 <div class="row-fluid">
     <div class="col-xs-12 col-sm-6 col-md-7 col-lg-7 col-sm-offset-1 col-lg-offset-2">

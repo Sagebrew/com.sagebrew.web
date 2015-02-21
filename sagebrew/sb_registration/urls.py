@@ -27,7 +27,7 @@ urlpatterns = patterns(
     url(r'^representative/$', rep_reg_page, name="rep_registration_page"),
     url(r'^email_confirmation/(?P<confirmation>[A-Za-z0-9.@_%+-]{24})/$',
         email_verification, name="email_verification"),
-    url(r'^beta/$', TemplateView.as_view(template_name="beta.html")), # TODO should move this to the core sagebrew app
+     # TODO should move this to the core sagebrew app
     url(r'^beta/signup/$', beta_signup, name="beta_signup"),
     url(r'^rep_signup/$', TemplateView.as_view(template_name="rep_signup.html"))
 )

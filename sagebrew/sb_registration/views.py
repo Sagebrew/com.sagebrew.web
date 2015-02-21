@@ -112,7 +112,8 @@ def resend_email_verification(request):
     html_content = get_template(
         'email_templates/email_verification.html').render(
         Context(template_dict))
-    task_data = {'to': to, 'subject': subject, 'html_content': html_content}
+    task_data = {'to': to, 'subject': subject, 'html_content': html_content,
+                 "source": "support@sagebrew.com"}
     spawned = spawn_task(task_func=send_email_task, task_param=task_data)
     if isinstance(spawned, Exception):
         # TODO need to replace this with an actual view

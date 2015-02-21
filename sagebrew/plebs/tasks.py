@@ -20,10 +20,11 @@ from sb_privileges.tasks import check_privileges
 from .neo_models import Pleb, BetaUser
 
 @shared_task()
-def send_email_task(to, subject, html_content, text_content=None):
+def send_email_task(source, to, subject, html_content,
+                    text_content=None):
     from sb_registration.utils import sb_send_email
     try:
-        res = sb_send_email(to, subject, html_content)
+        res = sb_send_email(source, to, subject, html_content)
         if isinstance(res, Exception):
             raise send_email_task.retry(exc=res, countdown=5, max_retries=None)
     except SESMaxSendingRateExceededError as e:
@@ -91,7 +92,7 @@ def finalize_citizen_creation(user_instance=None):
             Context(template_dict))
         task_dict = {
             "to": to, "subject": subject, "text_content": text_content,
-            "html_content": html_content
+            "html_content": html_content, "source": "support@sagebrew.com"
         }
         task_list["send_email_task"] = spawn_task(
             task_func=send_email_task, task_param=task_dict)

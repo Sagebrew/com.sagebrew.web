@@ -353,7 +353,7 @@ def get_wall_docs(parent_object):
     return post_list
 
 
-def build_wall_docs(pleb):
+def build_wall_docs(username):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
@@ -364,7 +364,7 @@ def build_wall_docs(pleb):
     except JSONResponseError as e:
         return e
     try:
-        pleb_obj = Pleb.nodes.get(email=pleb)
+        pleb_obj = Pleb.nodes.get(username=username)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
         return e
     try:

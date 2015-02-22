@@ -23,8 +23,8 @@ def add_object_to_table_task(object_data, table):
 
 
 @shared_task()
-def build_wall_task(pleb):
-    res = build_wall_docs(pleb)
+def build_wall_task(username):
+    res = build_wall_docs(username)
     if isinstance(res, Exception):
         raise build_wall_task.retry(exc=res, countdown=3, max_retries=None)
 

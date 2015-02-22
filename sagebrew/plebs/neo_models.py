@@ -1,8 +1,9 @@
-import re
 import pytz
 from uuid import uuid1
 from datetime import datetime
 from django.conf import settings
+from django.template.loader import get_template
+from django.template import Context
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
@@ -394,5 +395,19 @@ class OauthUser(StructuredNode):
 
 class BetaUser(StructuredNode):
     email = StringProperty(unique_index=True)
-    beta_uuid = StringProperty(default=lambda: str(uuid1()))
+    invited = BooleanProperty(default=False)
     signup_date = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+
+    def invite(self):
+        from sb_registration.utils import sb_send_email
+        self.invited = True
+        self.save()
+        template_dict = {
+            "signup_url": "%s%s%s"%(settings.WEB_ADDRESS, "/register/?user=", self.email)
+        }
+        html_content = get_template(
+            'email_templates/email_beta_invite.html').render(
+            Context(template_dict))
+        sb_send_email("support@sagebrew.com", self.email, "Sagebrew Beta",
+                      html_content)
+

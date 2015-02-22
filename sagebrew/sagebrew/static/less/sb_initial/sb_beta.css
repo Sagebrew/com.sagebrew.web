@@ -8,11 +8,6 @@
   min-width: 1200px;
   background: cover;
 }
-.sb_beta_background:active {
-  border: solid;
-  border-color: #1ba39c;
-  border-width: 1px;
-}
 .sb_beta_input_group {
   position: fixed;
   width: 420px;
@@ -39,5 +34,5 @@
   font: "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial;
   margin-top: -110px;
   margin-left: 355px;
-  font-size: 26px;
+  font-size: 20px;
 }

@@ -1,10 +1,11 @@
 from uuid import uuid1
+from time import strptime
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from celery import shared_task
 from django.conf import settings
 from django.template.loader import get_template
 from django.template import Context
-from django.contrib.auth.models import User
+
 from neomodel import DoesNotExist, CypherException
 
 from api.utils import spawn_task
@@ -14,14 +15,15 @@ from sb_search.tasks import add_user_to_custom_index
 from sb_wall.neo_models import SBWall
 from sb_docstore.tasks import add_object_to_table_task
 from sb_registration.models import token_gen
+from sb_privileges.tasks import check_privileges
 
-from .neo_models import Pleb
+from .neo_models import Pleb, BetaUser
 
 @shared_task()
-def send_email_task(to, subject, html_content, text_content=None):
+def send_email_task(source, to, subject, html_content):
     from sb_registration.utils import sb_send_email
     try:
-        res = sb_send_email(to, subject, html_content)
+        res = sb_send_email(source, to, subject, html_content)
         if isinstance(res, Exception):
             raise send_email_task.retry(exc=res, countdown=5, max_retries=None)
     except SESMaxSendingRateExceededError as e:
@@ -71,6 +73,8 @@ def finalize_citizen_creation(user_instance=None):
          'type': 'standard'}}
     task_list["add_object_to_table_task"] = spawn_task(
         task_func=add_object_to_table_task, task_param=dynamo_data)
+    task_list["check_privileges_task"] = spawn_task(
+        task_func=check_privileges, task_param={"username": username})
     if not pleb.initial_verification_email_sent:
         generated_token = token_gen.make_token(user_instance, pleb)
         template_dict = {
@@ -79,15 +83,12 @@ def finalize_citizen_creation(user_instance=None):
                                            generated_token)
         }
         subject, to = "Sagebrew Email Verification", pleb.email
-        text_content = get_template(
-            'email_templates/email_verification.txt').render(
-            Context(template_dict))
         html_content = get_template(
             'email_templates/email_verification.html').render(
             Context(template_dict))
         task_dict = {
-            "to": to, "subject": subject, "text_content": text_content,
-            "html_content": html_content
+            "to": to, "subject": subject,
+            "html_content": html_content, "source": "support@sagebrew.com"
         }
         task_list["send_email_task"] = spawn_task(
             task_func=send_email_task, task_param=task_dict)
@@ -133,7 +134,7 @@ def create_wall_task(user_instance=None):
 
 
 @shared_task()
-def create_pleb_task(user_instance=None):
+def create_pleb_task(user_instance=None, birthday=None):
     #We do a check to make sure that a user with the email given does not exist
     #in the registration view, so if you are calling this function without
     #using that view there is a potential UniqueProperty error which can get
@@ -147,7 +148,8 @@ def create_pleb_task(user_instance=None):
             pleb = Pleb(email=user_instance.email,
                         first_name=user_instance.first_name,
                         last_name=user_instance.last_name,
-                        username=user_instance.username)
+                        username=user_instance.username,
+                        birthday=birthday)
             pleb.save()
         except(CypherException, IOError) as e:
             raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
@@ -159,3 +161,14 @@ def create_pleb_task(user_instance=None):
         raise create_pleb_task.retry(exc=task_info, countdown=3,
                                      max_retries=None)
     return task_info
+
+@shared_task()
+def create_beta_user(email):
+    try:
+        beta_user = BetaUser.nodes.get(email=email)
+        return True
+    except (BetaUser.DoesNotExist, DoesNotExist):
+        beta_user = BetaUser(email=email).save()
+    except CypherException as e:
+        raise create_beta_user.retry(exc=e, countdown=3, max_retries=None)
+    return True

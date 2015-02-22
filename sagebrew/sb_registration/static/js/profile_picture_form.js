@@ -22,20 +22,45 @@ $( document ).ready(function() {
         $(".fileinput .fileinput-exists").replaceWith('')
     });
     $( "#image_uploaded" ).on("mouseenter", "img", function() {
-        $("img").Jcrop({
+        var jcrop = $("img").Jcrop({
+           allowResize: false,
+           allowSelect:false,
            onSelect: getCoords,
-           aspectRatio: 150/150,
+           aspectRatio: 200/200,
            bgColor: '#26424a',
            bgOpacity: 0.4,
-           setSelect: [ 60, 70, 540, 330 ]
+           setSelect: [ 0, 0, 200, 200 ]
         });
+    });
+    $("#sb_btn_save").click(function(){
+        event.preventDefault();
+		$.ajaxSetup({
+		    beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+		});
+	   	$.ajax({
+			xhrFields: {withCredentials: true},
+			type: "POST",
+			url: "/registration/edit_answer_api/",
+			data: JSON.stringify({
+               'content': $('textarea#' + $(this).data('answer_uuid')).val(),
+			   'answer_uuid': $(this).data('answer_uuid'),
+               'current_pleb':$(this).data('current_pleb')
+			}),
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+            success: function (data) {
+                alert(data['detail']);
+            }
+		});
     });
 });
 function getCoords (c){
-    console.log(c.x);
-    console.log(c.y);
-    console.log(c.w);
-    console.log(c.h);
+    $('#image_x').val(c.x);
+    $('#image_x2').val(c.x2);
+    $('#image_y').val(c.y);
+    $('#image_y2').val(c.y2);
 }
 /*
     $("#close").change(function () {

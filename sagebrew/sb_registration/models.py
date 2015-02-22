@@ -1,3 +1,4 @@
+
 from datetime import date
 from django.conf import settings
 from django.utils.http import int_to_base36, base36_to_int
@@ -25,7 +26,9 @@ class EmailAuthTokenGenerator(object):
         except ValueError:
             return False
 
-        if not constant_time_compare(self._make_timestamp_token(user, timestamp, pleb),
+        if not constant_time_compare(self._make_timestamp_token(user,
+                                                                timestamp,
+                                                                pleb),
                                      token):
             return False
 
@@ -54,3 +57,4 @@ class EmailAuthTokenGenerator(object):
         return date.today()
 
 token_gen = EmailAuthTokenGenerator()
+

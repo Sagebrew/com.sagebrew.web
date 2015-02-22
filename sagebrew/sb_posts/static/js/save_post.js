@@ -1,5 +1,5 @@
 $( document ).ready(function() {
-	$("a.post-action").click(function(event){
+	$(".post-action").click(function(event){
 		event.preventDefault();
 		$.ajaxSetup({
 		    beforeSend: function (xhr, settings) {

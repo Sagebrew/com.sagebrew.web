@@ -11,14 +11,14 @@ from sb_questions.tasks import (create_question_task,
                                 add_tags_to_question_task)
 from plebs.neo_models import Pleb
 from sb_questions.neo_models import SBQuestion
-from sb_registration.utils import create_user_util
+from sb_registration.utils import create_user_util_test
 
 
 class TestSaveQuestionTask(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -67,7 +67,7 @@ class TestAddQuestionToIndicesTask(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -113,7 +113,7 @@ class TestAddTagsToQuestionTask(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -154,7 +154,7 @@ class TestAddTagsToQuestionTask(TestCase):
 class TestMultipleTasks(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)

@@ -11,7 +11,7 @@ function ajax_security(xhr, settings) {
 }
 
 function save_comment() {
-    $("a.comment-action").click(function (event) {
+    $(".comment-action").click(function (event) {
         var sb_id = $(this).data('object_uuid');
         event.preventDefault();
         $.ajaxSetup({
@@ -111,7 +111,7 @@ function vote_object() {
 }
 
 function save_answer() {
-    $("a.submit_answer-action").click(function(event){
+    $(".submit_answer-action").click(function(event){
 		event.preventDefault();
 		$.ajaxSetup({
 		    beforeSend: function(xhr, settings) {
@@ -124,9 +124,9 @@ function save_answer() {
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
 			type: "POST",
-			url: "/answers/submit_answer_api/",
+			url: $(this).data('url'),
 			data: JSON.stringify({
-			   'content': $('textarea#answer_content_id').val(),
+			   'content': $('textarea.sb_answer_input_area').val(),
                'current_pleb': $(this).data('current_pleb'),
                'question_uuid': $(this).data('object_uuid')
 			}),
@@ -139,7 +139,7 @@ function save_answer() {
 }
 
 function edit_object() {
-    $("a.edit_object-action").click(function (event) {
+    $(".edit_object-action").click(function (event) {
         event.preventDefault();
         var uuid = $(this).data('object_uuid');
         $.ajaxSetup({
@@ -159,7 +159,10 @@ function edit_object() {
                 'datetime': $(this).data('datetime')
             }),
             contentType: "application/json; charset=utf-8",
-            dataType: "json"
+            dataType: "json",
+            success: function(data){
+                $(data['html_object']).text(data['content'])
+            }
         });
     });
 }

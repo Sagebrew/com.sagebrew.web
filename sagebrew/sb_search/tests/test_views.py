@@ -17,14 +17,14 @@ from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_search.views import search_result_view
 from sb_questions.neo_models import SBQuestion
-from sb_registration.utils import create_user_util
+from sb_registration.utils import create_user_util_test
 
 
 class TestSearchResultView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -244,7 +244,7 @@ class TestSearchResultAPI(TestCase):
         self.client = APIClient()
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "password")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -259,7 +259,8 @@ class TestSearchResultAPI(TestCase):
                            body={'content': 'test content'})
             res_array.append(res)
 
-        self.client.login(username=self.user.username, password='password')
+        self.client.login(username=self.user.username,
+                          password='testpassword')
         request = self.client.get(reverse('search_result_api',kwargs={
             'query_param': 'test', 'page': '1'}))
 
@@ -286,7 +287,7 @@ class TestSearchResultAPIReturns(TestCase):
         self.client = APIClient()
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "password")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -366,7 +367,8 @@ class TestSearchResultAPIReturns(TestCase):
                              })
         self.assertTrue(index_res['created'])
         time.sleep(2)
-        self.client.login(username=self.user.username, password='password')
+        self.client.login(username=self.user.username,
+                          password='testpassword')
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':
                                                       'battery-powered',
@@ -404,7 +406,7 @@ class TestSearchResultAPIReturns(TestCase):
                          'related_user': self.user.email
                      })
         time.sleep(2)
-        self.client.login(username=self.user.username, password='password')
+        self.client.login(username=self.user.username, password='testpassword')
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':
                                                       'battery-powered',
@@ -443,7 +445,7 @@ class TestSearchResultAPIReturns(TestCase):
                          'related_user': self.user.email
                      })
         time.sleep(2)
-        self.client.login(username=self.user.username, password='password')
+        self.client.login(username=self.user.username, password='testpassword')
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':'battery-powered',
                                                   'page': '2'}))
@@ -459,7 +461,7 @@ class TestSearchResultAPIReturns(TestCase):
         pleb.last_name = 'Wiersing'
         pleb.username = str(shortuuid.uuid())
         pleb.save()
-        user = User.objects.create_user(pleb.username, email, 'password')
+        user = User.objects.create_user(pleb.username, email, 'testpassword')
 
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(sb_id=str(uuid1()),
@@ -491,7 +493,7 @@ class TestSearchResultAPIReturns(TestCase):
                      })
         time.sleep(3)
 
-        self.client.login(username=user.username, password='password')
+        self.client.login(username=user.username, password='testpassword')
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':
                                                       'battery-powered',
@@ -505,7 +507,7 @@ class TestSearchResultAPIReturns(TestCase):
         email = str(uuid1()).strip('-')+"@gmail.com"
         pleb = Pleb(email=email)
         pleb.save()
-        user = User.objects.create_user(shortuuid.uuid(), email, 'password')
+        user = User.objects.create_user(shortuuid.uuid(), email, 'testpassword')
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(sb_id=str(uuid1()),
                                question_title=self.q1dict['question_title'],
@@ -535,7 +537,7 @@ class TestSearchResultAPIReturns(TestCase):
                          'related_user': str(uuid1()).strip('-')
                      })
         time.sleep(2)
-        self.client.login(username=user.username, password='password')
+        self.client.login(username=user.username, password='testpassword')
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':
                                                       'battery-powered',
@@ -594,7 +596,7 @@ class TestSearchResultAPIReturns(TestCase):
                        'question_title': question2.question_title,
                        'related_user': self.user.email})
         time.sleep(3)
-        self.client.login(username=self.user.username, password='password')
+        self.client.login(username=self.user.username, password='testpassword')
         request = self.client.get(reverse('search_result_api',
                                           kwargs={'query_param':'fossil fuels',
                                                   'page': '1'}))

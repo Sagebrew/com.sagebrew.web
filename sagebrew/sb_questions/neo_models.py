@@ -4,6 +4,7 @@ from datetime import datetime
 from api.utils import execute_cypher_query
 from django.conf import settings
 from django.template import Context
+from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string, get_template
 
 from neomodel import (StringProperty, IntegerProperty,
@@ -17,6 +18,7 @@ from sb_base.decorators import apply_defense
 
 class SBQuestion(SBVersioned, SBTagContent):
     table = 'public_questions'
+    action = "asked a question"
     up_vote_adjustment = 5
     down_vote_adjustment = 2
     object_type = "0274a216-644f-11e4-9ad9-080027242395"
@@ -43,6 +45,18 @@ class SBQuestion(SBVersioned, SBTagContent):
     closed_by = RelationshipTo('plebs.neo_models.Pleb', 'CLOSED_BY')
     answer = RelationshipTo('sb_answers.neo_models.SBAnswer',
                             'POSSIBLE_ANSWER')
+
+    def get_url(self):
+        return reverse("question_detail_page",
+                       kwargs={"question_uuid": self.sb_id})
+
+    def create_notification(self, pleb, sb_object=None):
+        return {
+            "profile_pic": pleb.profile_pic,
+            "full_name": pleb.get_full_name(),
+            "action": self.action,
+            "url": self.get_url()
+        }
 
     @apply_defense
     def create_relations(self, pleb, question=None, wall=None):
@@ -112,7 +126,10 @@ class SBQuestion(SBVersioned, SBTagContent):
             answer_array = []
             comment_array = []
             owner = self.owned_by.all()
-            owner = owner[0]
+            try:
+                owner = owner[0]
+            except IndexError as e:
+                return e
             owner_name = owner.first_name + ' ' + owner.last_name
             owner_profile_url = owner.username
             query = 'match (q:SBQuestion) where q.sb_id="%s" ' \
@@ -128,24 +145,25 @@ class SBQuestion(SBVersioned, SBTagContent):
             for comment in self.comments.all():
                 comment_array.append(comment.get_single_dict())
 
-            return {'question_title': edit.question_title,
-                             'content': edit.content,
-                             'object_uuid': self.sb_id,
-                             'is_closed': self.is_closed,
-                             'answer_number': self.answer_number,
-                             'last_edited_on': unicode(self.last_edited_on),
-                             'up_vote_number': self.get_upvote_count(),
-                             'down_vote_number': self.get_downvote_count(),
-                             'vote_score': self.get_vote_count(),
-                             'owner': owner_name,
-                             'owner_profile_url': owner_profile_url,
-                             'time_created': unicode(self.date_created),
-                             'answers': answer_array,
-                             'comments': comment_array,
-                             'current_pleb': pleb,
-                             'owner_email': owner.email,
-                             'edits': [],
-                             'object_type': self.object_type}
+            return {
+                'question_title': edit.question_title,
+                'content': edit.content,
+                'object_uuid': self.sb_id,
+                'is_closed': self.is_closed,
+                'answer_number': self.answer_number,
+                'last_edited_on': unicode(self.last_edited_on),
+                'up_vote_number': self.get_upvote_count(),
+                'down_vote_number': self.get_downvote_count(),
+                'vote_score': self.get_vote_count(),
+                'owner': owner_name,
+                'owner_profile_url': owner_profile_url,
+                'time_created': unicode(self.date_created),
+                'answers': answer_array,
+                'comments': comment_array,
+                'current_pleb': pleb,
+                'owner_email': owner.email,
+                'edits': [],
+                'object_type': self.object_type}
         except CypherException as e:
             return e
 
@@ -242,7 +260,7 @@ class SBQuestion(SBVersioned, SBTagContent):
     @apply_defense
     def render_single(self, pleb):
         try:
-            t = get_template("single_question.html")
+            t = get_template("question_detail.html")
             c = Context(self.get_single_dict(pleb))
             return t.render(c)
         except CypherException as e:

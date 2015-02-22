@@ -11,7 +11,7 @@ from .tasks import edit_object_task, edit_question_task
 
 from api.utils import spawn_task
 from api.tasks import get_pleb_task
-from sb_docstore.utils import add_object_to_table, update_doc
+from sb_docstore.utils import add_object_to_table, update_doc, get_table_name
 from sb_docstore.tasks import add_object_to_table_task
 
 logger = logging.getLogger('loggly_logs')
@@ -45,7 +45,7 @@ def edit_object_view(request):
         table = settings.KNOWN_TABLES[
                              edit_object_form.cleaned_data['object_type']]
         if table == 'posts' or table=='comments':
-            obj_datetime = edit_object_form.cleaned_data['datetime']
+            obj_datetime = unicode(edit_object_form.cleaned_data['datetime'])
             parent_object = edit_object_form.cleaned_data['parent_object']
         else:
             obj_datetime = ""
@@ -60,7 +60,12 @@ def edit_object_view(request):
         res = add_object_to_table('edits', dynamo_data)
         if isinstance(res, Exception) is True:
             return Response({"detail": "server error"}, status=500)
-        return Response({"detail": "success"}, status=200)
+        html_string = "%s%s" % ("#sb_content_",
+                                edit_object_form.cleaned_data['object_uuid'])
+        return Response({"detail": "success",
+                         "content": edit_object_form.cleaned_data['content'],
+                         "html_object": html_string},
+                        status=200)
     else:
         return Response({"detail": "invalid form"}, status=400)
 

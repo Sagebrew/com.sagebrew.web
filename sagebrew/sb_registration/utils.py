@@ -1,5 +1,4 @@
-import os
-import shortuuid
+from datetime import datetime
 import hashlib
 import boto.ses
 from boto.ses.exceptions import SESMaxSendingRateExceededError
@@ -15,7 +14,7 @@ from api.utils import spawn_task
 from plebs.tasks import create_pleb_task
 from plebs.neo_models import Pleb
 from sb_base.decorators import apply_defense
-
+from api.tasks import generate_oauth_info
 
 
 def calc_age(birthday):
@@ -307,8 +306,9 @@ def verify_verified_email(user):
     except CypherException as e:
         return e
 
+
 @apply_defense
-def sb_send_email(to_email, subject, html_content):
+def sb_send_email(source, to_email, subject, html_content):
     '''
     This function is used to send mail through the amazon ses service,
     we can use this for any emails we send just specify html content
@@ -324,7 +324,7 @@ def sb_send_email(to_email, subject, html_content):
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
         )
-        conn.send_email(source='devon@sagebrew.com', subject=subject,
+        conn.send_email(source=source, subject=subject,
                         body=html_content, to_addresses=[to_email],
                         format='html')
         return True
@@ -344,15 +344,25 @@ def generate_username(first_name, last_name):
 
 
 @apply_defense
-def create_user_util(first_name, last_name, email, password):
+def create_user_util(first_name, last_name, email, password, birthday):
     username = generate_username(first_name, last_name)
     user = User.objects.create_user(first_name=first_name, last_name=last_name,
                                     email=email, password=password,
                                     username=username)
     user.save()
+    oauth_res = spawn_task(task_func=generate_oauth_info,
+                           task_param={'username': username,
+                                       'password': password})
+    if isinstance(oauth_res, Exception):
+        return oauth_res
     res = spawn_task(task_func=create_pleb_task,
-                     task_param={"user_instance": user})
+                     task_param={"user_instance": user, "birthday": birthday})
     if isinstance(res, Exception) is True:
         return res
     else:
         return {"task_id": res, "username": username}
+
+
+def create_user_util_test(email):
+    return create_user_util("test", "test", email, "testpassword",
+                            datetime.now())

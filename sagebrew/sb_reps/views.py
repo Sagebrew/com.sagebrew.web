@@ -61,7 +61,6 @@ def representative_page(request, rep_type="", rep_id=""):
 def get_rep_info(request):
     rep_id =  str(request.DATA['rep_id'])
     res = get_rep_docs(rep_id)
-    print res
     if isinstance(res, Exception):
         return redirect('404_Error')
     if not res:
@@ -79,16 +78,12 @@ def get_rep_info(request):
         education = official.education.all()
         goals = official.goal.all()
         for goal in goals:
-            print goal
             goal_list.append(goal.get_dict())
         for policy in policies:
-            print policy
             policy_list.append(policy.get_dict())
         for experience in experiences:
-            print experience
             experience_list.append(experience.get_dict())
         for edu in education:
-            print edu
             education_list.append(edu.get_dict())
         policy_html = render_to_string('policy_list.html',
                                        {'policies': policy_list})

@@ -13,7 +13,7 @@ django-localflavor
 django-oauth2-provider
 django-static-precompiler
 django-storages
-djangorestframework==2.4.4
+djangorestframework
 python-dateutil
 pytz
 requests
@@ -37,3 +37,6 @@ logentries
 django_compressor
 stripe
 px==0.1.0
+django-oauth-toolkit
+django-cors-headers
+opbeat

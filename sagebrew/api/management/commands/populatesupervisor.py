@@ -122,4 +122,10 @@ def populate_general_values(data, user, worker_count):
                         environ.get("PX_SECRET_KEY", ""))
     data = data.replace("%(ENV_AWS_DEFAULT_REGION)s",
                         environ.get("AWS_DEFAULT_REGION", ""))
+    data = data.replace("%(ENV_OPBEAT_ORG_ID)s",
+                        environ.get("OPBEAT_ORG_ID", ""))
+    data = data.replace("%(ENV_OPBEAT_APP_ID)s",
+                        environ.get("OPBEAT_APP_ID", ""))
+    data = data.replace("%(ENV_OPBEAT_SECRET_TOKEN)s",
+                        environ.get("OPBEAT_SECRET_TOKEN", ""))
     return data

@@ -1,22 +1,17 @@
-#single_question_wrapper {
-  padding-bottom: 5px;
-  padding-top: 15px;
+.sb_question_inner_border {
+  min-height: 550px;
+  padding: 15px;
+  border-color: #b7bfbb;
+  border-radius: 5px;
+  border-width: 1px;
+  border-style: solid;
 }
-#sb_pagination_arrow {
-  background-color: transparent;
-}
-.sb_questions_list_container {
-  margin-top: 30px;
-  background-color: #e0e7e1;
-  height: auto;
-  min-height: 575px;
-  margin-left: -30px;
-  margin-bottom: 30px;
-  padding-top: 10px;
+.sb_question_block_minimal_content {
+  height: 65px;
+  max-height: 65px;
+  font-size: 18px;
   padding-left: 15px;
   padding-right: 15px;
-  padding-bottom: 30px;
-  border-radius: 2px;
 }
 .sb_questions_side_container {
   background-color: #e0e7e1;
@@ -24,25 +19,6 @@
   border-radius: 2px;
   height: auto;
   min-height: 575px;
-}
-.sb_questions_content {
-  width: 90%;
-  height: auto;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 40px;
-}
-.sb_question_header {
-  color: #838c92;
-  font-size: 21px;
-}
-.sb_question_inner_border {
-  border-style: solid;
-  border-width: 1px;
-  border-color: #b7bfbb;
-  border-radius: 5px;
-  min-height: 550px;
-  padding: 15px;
 }
 .sb_btn_question_cat {
   background-color: transparent;
@@ -89,7 +65,7 @@
   border-width: 1px;
   margin-right: -15px;
 }
-.sb_question_block {
+.sb_question_content_block {
   background-color: #f9fff7;
   border-style: solid;
   border-width: 1px;
@@ -97,24 +73,18 @@
   border-radius: 5px;
   height: 170px;
   padding: 15px;
+  margin-bottom: 15px;
 }
 .sb_question_block_title {
-  font-size: 24px;
+  font-size: 19px;
   font: bold;
   font-weight: bold;
   padding-left: 15px;
-  margin-top: -20px;
+  padding-top: -20px;
   color: #34495e;
 }
-.sb_question_block_content {
-  font-size: 15px;
-  padding-left: 15px;
-  padding-right: 15px;
-}
-.sb_question_block_data {
-  font-size: 11px;
-  line-height: 10px;
-  padding-top: 15px;
+.sb_question_block_title:hover {
+  color: #34495e;
 }
 .sb_btn_question_vote_up {
   background-color: transparent;
@@ -140,4 +110,12 @@
 .sb_vote_number {
   font-size: 21px;
   font-weight: bold;
+}
+.sb_comment_row {
+  margin-left: 0px;
+  margin-right: 0px;
+}
+.sb_question_header {
+  color: #838c92;
+  font-size: 21px;
 }

@@ -7,13 +7,13 @@ from django.conf import settings
 from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_notifications.views import get_notifications
-from sb_registration.utils import create_user_util
+from sb_registration.utils import create_user_util_test
 
 class TestNotificationViews(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -28,15 +28,6 @@ class TestNotificationViews(TestCase):
         response = get_notifications(request)
 
         self.assertEqual(response.status_code, 200)
-
-    def test_get_notification_view_missing_data(self):
-        my_dict = {'range_end': 5, 'range_start': 0}
-        request = self.factory.post('/notifications/query_notifications/',
-                                    data=my_dict, format='json')
-        request.user = self.user
-        response = get_notifications(request)
-
-        self.assertEqual(response.status_code, 400)
 
     def test_get_notification_view_int_data(self):
         my_dict = 1337

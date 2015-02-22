@@ -4,10 +4,12 @@ from boto.dynamodb2.layer1 import DynamoDBConnection
 from boto.dynamodb2.table import Table
 from boto.dynamodb2.exceptions import (JSONResponseError, ItemNotFound,
                                        ConditionalCheckFailedException,
-                                       ValidationException)
+                                       ValidationException,
+                                       ResourceNotFoundException)
 
 from neomodel import DoesNotExist, CypherException
 
+from plebs.neo_models import Pleb
 from sb_base.decorators import apply_defense
 from sb_questions.neo_models import SBQuestion
 from sb_reps.neo_models import BaseOfficial
@@ -16,6 +18,8 @@ from sb_reps.utils import get_rep_type
 
 def get_table_name(name):
     branch = os.environ.get("CIRCLE_BRANCH", None)
+    if branch in name:
+        return name
     return "%s-%s" % (branch, name)
 
 def connect_to_dynamo():
@@ -75,21 +79,23 @@ def add_object_to_table(table_name, object_data):
     :param object_data:
     :return:
     '''
+    table_name = get_table_name(table_name)
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
     try:
         table_name = get_table_name(table_name)
         table = Table(table_name=table_name, connection=conn)
-    except JSONResponseError as e:
+    except (JSONResponseError, ResourceNotFoundException) as e:
         return e
+    table.describe()
     try:
         res = table.put_item(data=object_data)
     except ConditionalCheckFailedException:
         try:
             user_object = table.get_item(email=object_data['email'])
             return True
-        except ConditionalCheckFailedException as e:
+        except (ConditionalCheckFailedException, KeyError):
             return True
     except (ValidationException, JSONResponseError) as e:
         # TODO if we receive these errors we probably want to do
@@ -123,17 +129,19 @@ def query_parent_object_table(object_uuid, get_all=False, table_name='edits'):
 
 
 @apply_defense
-def update_doc(table, object_uuid, update_data, parent_object="", datetime=""):
+def update_doc(table, object_uuid, update_data, parent_object="",
+               obj_datetime=""):
+    table_name = get_table_name(table)
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
     try:
-        db_table = Table(table_name=get_table_name(table), connection=conn)
+        db_table = Table(table_name=table_name, connection=conn)
     except JSONResponseError as e:
         return e
-    if datetime != "" and parent_object!="":
+    if obj_datetime != "" and parent_object != "":
         res = db_table.get_item(parent_object=parent_object,
-                                datetime=datetime)
+                                datetime=obj_datetime)
     elif parent_object!="":
         res = db_table.get_item(parent_object=parent_object,
                                 object_uuid=object_uuid)
@@ -152,11 +160,14 @@ def get_question_doc(question_uuid, question_table, solution_table):
     if isinstance(conn, Exception):
         return conn
     answer_list = []
+    q_comments = []
     try:
         questions = Table(table_name=get_table_name(question_table),
                           connection=conn)
         solutions = Table(table_name=get_table_name(solution_table),
                           connection=conn)
+        comment_table = Table(table_name=get_table_name("comments"),
+                         connection=conn)
     except JSONResponseError as e:
         return e
     try:
@@ -168,19 +179,41 @@ def get_question_doc(question_uuid, question_table, solution_table):
     answers = solutions.query_2(
         parent_object__eq=question_uuid
     )
+    comments = comment_table.query_2(
+        parent_object__eq=question_uuid,
+        datetime__gte="0"
+    )
     question = dict(question)
     question['up_vote_number'] = get_vote_count(question['object_uuid'],
                                                 1)
     question['down_vote_number'] = get_vote_count(question['object_uuid'],
                                                   0)
+    for comment in comments:
+        comment = dict(comment)
+        comment['up_vote_number'] = get_vote_count(comment['object_uuid'],1)
+        comment['down_vote_number'] = get_vote_count(comment['object_uuid'],0)
+        q_comments.append(comment)
     for answer in answers:
+        a_comments = []
         answer = dict(answer)
         answer['up_vote_number'] = get_vote_count(answer['object_uuid'],
                                                   1)
         answer['down_vote_number'] = get_vote_count(answer['object_uuid'],
                                                     0)
+        answer_comments = comment_table.query_2(
+            parent_object__eq=answer['object_uuid'],
+            datetime__gte="0"
+        )
+        for ans_comment in answer_comments:
+            comment = dict(ans_comment)
+            comment['up_vote_number'] = get_vote_count(comment['object_uuid'],1)
+            comment['down_vote_number'] = get_vote_count(
+                comment['object_uuid'],0)
+            a_comments.append(comment)
+        answer['comments'] = a_comments
         answer_list.append(answer)
     question['answers'] = answer_list
+    question['comments'] = q_comments
     return question
 
 
@@ -320,7 +353,7 @@ def get_wall_docs(parent_object):
     return post_list
 
 
-def build_wall_docs(pleb):
+def build_wall_docs(username):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
@@ -331,7 +364,11 @@ def build_wall_docs(pleb):
     except JSONResponseError as e:
         return e
     try:
-        posts = pleb.wall.all()[0].post.all()
+        pleb_obj = Pleb.nodes.get(username=username)
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
+        return e
+    try:
+        posts = pleb_obj.wall.all()[0].post.all()
     except IndexError as e:
         return e
     for post in posts:
@@ -413,9 +450,6 @@ def build_rep_page(rep_id, rep_type=None):
         'username': pleb.username, 'rep_id': str(rep.sb_id),
         "bio": str(rep.bio), 'title': rep.title
     }
-    print rep_data
-    for key in rep_data.keys():
-        print type(rep_data[key])
     rep_table.put_item(rep_data)
     for policy in policies:
         data = {
@@ -424,7 +458,6 @@ def build_rep_page(rep_id, rep_type=None):
             'category': policy.category,
             'description': policy.description
         }
-        print data
         policy_table.put_item(data)
 
     for experience in experiences:
@@ -439,7 +472,6 @@ def build_rep_page(rep_id, rep_type=None):
             'company': experience.company_s,
             'location': experience.location_s
         }
-        print data
         experience_table.put_item(data)
     return True
 
@@ -468,3 +500,106 @@ def get_rep_docs(rep_id, rep_only=False):
     goals = get_rep_info(rep_id, 'goals')
     return {"rep": rep, "policies": policies, "experiences": experiences,
             'education': education, 'goals': goals}
+
+@apply_defense
+def get_notification_docs(username):
+    notification_list = []
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
+    try:
+        notification_table = Table(table_name=get_table_name('notifications'),
+                                   connection=conn)
+    except JSONResponseError as e:
+        return e
+    res = notification_table.query_2(
+                            parent_object__eq=username,
+                            datetime__gte='0')
+    for notification in res:
+        notification_list.append(dict(notification))
+    return notification_list
+
+@apply_defense
+def get_user_reputation(username):
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
+    try:
+        reputation_table = Table(table_name=get_table_name('reputation'),
+                                 connection=conn)
+    except JSONResponseError as e:
+        return e
+    try:
+        res = reputation_table.get_item(
+            parent_object=username
+        )
+    except ItemNotFound:
+        return False
+    return dict(res)
+
+@apply_defense
+def get_action(username, action):
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
+    try:
+        action_table = Table(table_name=get_table_name('actions'),
+                             connection=conn)
+    except JSONResponseError as e:
+        return e
+    try:
+        action_object = action_table.get_item(
+            parent_object=username,
+            action=action
+        )
+    except JSONResponseError as e:
+        return e
+    except ItemNotFound:
+        return False
+    return dict(action_object)
+
+@apply_defense
+def build_privileges(username):
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
+    try:
+        pleb = Pleb.nodes.get(username=username)
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
+        return e
+    try:
+        action_table = Table(table_name=get_table_name('actions'))
+        privilege_table = Table(table_name=get_table_name('privileges'))
+        restriction_table = Table(table_name=get_table_name('restrictions'))
+    except JSONResponseError as e:
+        return e
+
+    for privilege in pleb.privileges.all():
+        rel = pleb.privileges.relationship(privilege)
+        if rel.active:
+            privilege_dict = privilege.get_dict()
+            privilege_dict['parent_object'] = username
+            privilege_table.put_item(privilege_dict, True)
+
+    for action in pleb.actions.all():
+        rel = pleb.actions.relationship(action)
+        if rel.active:
+            for restriction in action.get_restrictions():
+                if pleb.restrictions.is_connected(restriction):
+                    rel = pleb.restrictions.relationship(restriction)
+                    if rel.active:
+                        restriction_dict = restriction.get_dict()
+                        restriction_dict['parent_object'] = username
+                        restriction_table.put_item(restriction, True)
+            action_dict = action.get_dict()
+            action_dict['parent_object'] = username
+            action_table.put_item(action_dict, True)
+
+    for restriction in pleb.restrictions.all():
+        rel = pleb.restrictions.relationship(restriction)
+        if rel.active:
+            rest_dict = restriction.get_dict()
+            rest_dict['parent_object'] = username
+            restriction.put_item(rest_dict)
+    return True
+

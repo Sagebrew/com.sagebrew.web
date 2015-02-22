@@ -168,7 +168,6 @@ deployment:
 # Safer to probably loop through django admins or comma seperated env var
 # so that endpoint can't be spoofed
   staging:
-    owner: bleib1dj
     branch: staging
     commands:
       #- coverage report --fail-under=100

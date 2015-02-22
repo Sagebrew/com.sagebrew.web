@@ -1,6 +1,7 @@
 import pytz
 from uuid import uuid1
 from datetime import datetime
+from django.core.urlresolvers import reverse
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
@@ -17,6 +18,7 @@ class SBComment(SBNonVersioned):
     table = 'comments'
     up_vote_adjustment = 2
     down_vote_adjustment = 1
+    action = "commented on your "
     sb_name = "comment"
     object_type = "02ba1c88-644f-11e4-9ad9-080027242395"
     created_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
@@ -33,6 +35,18 @@ class SBComment(SBNonVersioned):
                                  model=CommentedOnRel)
     #TODO Implement the user_referenced, post_referenced, etc. relationships
     #TODO Implement referenced_by_users, referenced_by_post, etc. relationships
+
+    def get_url(self):
+        return reverse("question_detail_page",
+                       kwargs={"question_uuid": self.answer_to.all()[0].sb_id})
+
+    def create_notification(self, pleb, sb_object=None):
+        return {
+            "profile_pic": pleb.profile_pic,
+            "full_name": pleb.get_full_name(),
+            "action": self.action + sb_object.sb_name,
+            "url": self.get_url()
+        }
 
     def comment_on(self, comment):
         pass

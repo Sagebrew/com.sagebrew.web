@@ -1,0 +1,15 @@
+[
+    {
+        "badge_name": "test badge",
+        "image_color": "1",
+        "image_grey": "2",
+        "requirements":[
+            {
+                "url": "/user/v1/profile/",
+                "key": "total_rep",
+                "operator": "coperator\nge\np0\n.",
+                "condition": "10"
+            }
+        ]
+    }
+]

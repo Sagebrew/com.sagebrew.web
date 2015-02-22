@@ -1,12 +1,12 @@
 $(document).ready(function(){
-    $("#singupForm").bootstrapValidator({
+    $("#signupForm").bootstrapValidator({
+        framework: 'bootstrap',
         feedbackIcons: {
             valid: 'glyphicon glyphicon-ok',
-            invalid: 'glyphicon glyphicon-remove',
             validating: 'glyphicon glyphicon-refresh'
         },
         live: 'enabled',
-        submitButtons: 'button.submit_signup',
+        submitButtons: '#submit_signup',
         fields: {
             first_name: {
                 group: 'fname',
@@ -81,6 +81,10 @@ $(document).ready(function(){
             birthday: {
                 group: 'bday',
                 validators: {
+                    date: {
+                        format: 'MM/DD/YYYY',
+                        message: 'The value is not a valid date'
+                    },
                     notEmpty: {
                         message: "Birthdate is required"
                     }

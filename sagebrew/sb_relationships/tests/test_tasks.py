@@ -7,18 +7,18 @@ from django.contrib.auth.models import User
 from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_relationships.tasks import create_friend_request_task
-from sb_registration.utils import create_user_util
+from sb_registration.utils import create_user_util_test
 
 class TestCreateFriendRequestTask(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb1 = Pleb.nodes.get(email=self.email)
         self.user1 = User.objects.get(email=self.email)
         self.email2= "bounce@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email2, "testpassword")
+        res = create_user_util_test(self.email2)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb2 = Pleb.nodes.get(email=self.email2)

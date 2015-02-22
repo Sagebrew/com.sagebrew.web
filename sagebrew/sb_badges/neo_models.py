@@ -1,9 +1,7 @@
 from uuid import uuid1
 
-from neomodel import (StructuredNode, StringProperty, IntegerProperty,
-                      DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty, ZeroOrOne,
-                      CypherException, DoesNotExist)
+from neomodel import (StructuredNode, StringProperty, RelationshipTo)
+
 
 class BadgeBase(StructuredNode):
     sb_id = StringProperty(default=lambda: str(uuid1()), unique_index=True)

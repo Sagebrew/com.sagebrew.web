@@ -10,11 +10,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.template.loader import get_template
 from django.template import Context
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from neomodel import (DoesNotExist, AttemptedCardinalityViolation,
-                      CypherException)
 
 from neomodel import (DoesNotExist, CypherException)
 
@@ -27,12 +24,12 @@ from sb_docstore.tasks import build_rep_page_task
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm, RepRegistrationForm,
                     LoginForm, BetaSignupForm)
-from .utils import (upload_image,
-                    create_address_long_hash, verify_completed_registration,
+from .utils import (upload_image, verify_completed_registration,
                     verify_verified_email, calc_age,
                     create_user_util)
 from .models import token_gen
 from .tasks import update_interests, store_address
+
 
 def signup_view(request):
     user = request.GET.get('user', '')
@@ -161,6 +158,7 @@ def login_view_api(request):
             return Response({'detail': 'invalid password'}, status=400)
     else:
         return Response({'detail': 'invalid form'}, status=400)
+
 
 @login_required()
 def logout_view(request):
@@ -325,6 +323,7 @@ def profile_picture(request):
                   {'profile_picture_form': profile_picture_form,
                    'pleb': citizen})
 
+
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
@@ -368,6 +367,7 @@ def rep_reg_page(request):
                 return
             return redirect("rep_page", rep_type=cleaned['office'], rep_id=uuid)
     return render(request, 'registration_rep.html')
+
 
 @api_view(['POST'])
 def beta_signup(request):

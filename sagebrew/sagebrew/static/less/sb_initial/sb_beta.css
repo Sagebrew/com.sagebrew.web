@@ -2,18 +2,9 @@
   position: fixed;
   width: 100%;
   heigh: 100%;
-  margin-top: -55px;
+  margin-top: -60px;
   margin-left: -15px;
-  min-height: 620px;
-  min-width: 1200px;
-  background: cover;
-}
-.sb_beta_input_group {
-  position: fixed;
-  width: 420px;
-  margin-left: 35%;
-  margin-bottom: 0;
-  margin-top: 12%;
+  background-size: 100% auto;
 }
 .sb_beta_input {
   width: 100%;
@@ -27,12 +18,13 @@
   color: #ffffff;
   font: "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial, sans-serif;
   margin-bottom: 90px;
+  margin-left: 10px;
   font-size: 80px;
 }
 .sb_beta_beta {
   color: #ffffff;
   font: "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial;
   margin-top: -110px;
-  margin-left: 355px;
-  font-size: 20px;
+  margin-left: 205px;
+  font-size: 26px;
 }

@@ -38,8 +38,9 @@ urlpatterns = patterns(
     (r'^reps/', include('sb_reps.urls')),
     (r'^upload/', include('sb_uploads.urls')),
     (r'^privilege/', include('sb_privileges.urls')),
-    url(r'^register/$', signup_view, name="signup"),
-    url(r'^$', TemplateView.as_view(template_name="beta.html"), name='beta_page'),
+    url(r'^signup/$', signup_view, name="signup"),
+    url(r'^$', TemplateView.as_view(template_name="beta.html"),
+        name='beta_page'),
 )
 
 if settings.DEBUG is True:

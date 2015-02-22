@@ -20,8 +20,7 @@ from sb_privileges.tasks import check_privileges
 from .neo_models import Pleb, BetaUser
 
 @shared_task()
-def send_email_task(source, to, subject, html_content,
-                    text_content=None):
+def send_email_task(source, to, subject, html_content):
     from sb_registration.utils import sb_send_email
     try:
         res = sb_send_email(source, to, subject, html_content)
@@ -84,14 +83,11 @@ def finalize_citizen_creation(user_instance=None):
                                            generated_token)
         }
         subject, to = "Sagebrew Email Verification", pleb.email
-        text_content = get_template(
-            'email_templates/email_verification.txt').render(
-            Context(template_dict))
         html_content = get_template(
             'email_templates/email_verification.html').render(
             Context(template_dict))
         task_dict = {
-            "to": to, "subject": subject, "text_content": text_content,
+            "to": to, "subject": subject,
             "html_content": html_content, "source": "support@sagebrew.com"
         }
         task_list["send_email_task"] = spawn_task(

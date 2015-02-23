@@ -4,5 +4,5 @@
     <h1>{{ title }}</h1>
 {% endblock help_heading %}
 {% block content %}
-    {% include "{{ file_name }}.html" %}
+    {% ssi content_path %}
 {% endblock content %}

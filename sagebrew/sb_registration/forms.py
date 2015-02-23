@@ -202,6 +202,10 @@ class ProfilePictureForm(forms.Form):
     picture = forms.ImageField(
         label="Profile Picture"
     )
+    x1 = forms.IntegerField()
+    x2 = forms.IntegerField()
+    y1 = forms.IntegerField()
+    y2 = forms.IntegerField()
 
 
 class ProfilePageForm(forms.Form):

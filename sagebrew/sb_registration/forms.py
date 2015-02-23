@@ -199,13 +199,13 @@ class AddressInfoForm(forms.Form):
 
 
 class ProfilePictureForm(forms.Form):
-    picture = forms.ImageField(
+    picture = forms.FileField(
         label="Profile Picture"
     )
-    x1 = forms.IntegerField()
-    x2 = forms.IntegerField()
-    y1 = forms.IntegerField()
-    y2 = forms.IntegerField()
+    image_x1 = forms.IntegerField()
+    image_x2 = forms.IntegerField()
+    image_y1 = forms.IntegerField()
+    image_y2 = forms.IntegerField()
 
 
 class ProfilePageForm(forms.Form):

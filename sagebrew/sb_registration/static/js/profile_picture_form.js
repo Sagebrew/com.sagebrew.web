@@ -34,34 +34,35 @@ $( document ).ready(function() {
     });
     $("#sb_btn_save").click(function(){
         event.preventDefault();
-		$.ajaxSetup({
-		    beforeSend: function (xhr, settings) {
+        var form = new FormData($('#uploadForm')[0]);
+        console.log($('#uploadForm').serialize());
+        console.log(form);
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
                 ajax_security(xhr, settings)
             }
-		});
-	   	$.ajax({
-			xhrFields: {withCredentials: true},
-			type: "POST",
-			url: "/registration/edit_answer_api/",
-			data: JSON.stringify({
-               'content': $('textarea#' + $(this).data('answer_uuid')).val(),
-			   'answer_uuid': $(this).data('answer_uuid'),
-               'current_pleb':$(this).data('current_pleb')
-			}),
-			contentType: "application/json; charset=utf-8",
-			dataType: "json",
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "POST",
+            url: "/registration/profile_picture/",
+            data: form,
+            cache: false,
+            contentType: false,
+            processData: false,
             success: function (data) {
-                alert(data['detail']);
             }
-		});
+        });
     });
+    function getCoords (c){
+        $('#image_x1').val(c.x);
+        console.log($('#image_x1').val());
+        $('#image_x2').val(c.x2);
+        $('#image_y1').val(c.y);
+        $('#image_y2').val(c.y2);
+    }
 });
-function getCoords (c){
-    $('#image_x').val(c.x);
-    $('#image_x2').val(c.x2);
-    $('#image_y').val(c.y);
-    $('#image_y2').val(c.y2);
-}
+
 /*
     $("#close").change(function () {
         var existingdiv2 = document.getElementById( "sb_photo_parent" );

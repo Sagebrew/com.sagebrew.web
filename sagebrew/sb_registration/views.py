@@ -307,9 +307,10 @@ def profile_picture(request):
     except CypherException:
         return HttpResponse('Server Error', status=500)
     if request.method == 'POST':
+        print request.POST, request.FILES
         profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
-
         if profile_picture_form.is_valid():
+            print profile_picture_form.cleaned_data
             image_uuid = str(uuid1())
             data = request.FILES['picture']
             citizen.profile_pic = upload_image(

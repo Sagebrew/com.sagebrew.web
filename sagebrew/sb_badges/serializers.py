@@ -6,7 +6,7 @@ class BadgeSerializer(serializers.Serializer):
     sb_id = serializers.CharField(read_only=True)
     badge_name = serializers.CharField()
     image_color = serializers.CharField()
-    image_grey = serializers.BooleanField()
+    image_grey = serializers.CharField()
 
     def create(self, validated_data):
         """

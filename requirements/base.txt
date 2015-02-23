@@ -36,7 +36,8 @@ gunicorn
 logentries
 django_compressor
 stripe
-px==0.1.0
+-e git+http://github.com/6px-io/6px-python.git@4e538188c1b8344d95ed74f80e0d7007216c9b59#egg=px
 django-oauth-toolkit
 django-cors-headers
 opbeat
+Pillow

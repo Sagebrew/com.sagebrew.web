@@ -20,6 +20,7 @@ from plebs.tasks import send_email_task, create_beta_user
 from plebs.neo_models import Pleb, BetaUser
 from sb_reps.tasks import create_rep_task
 from sb_docstore.tasks import build_rep_page_task
+from sb_uploads.tasks import crop_image_task
 
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm, RepRegistrationForm,
@@ -313,10 +314,22 @@ def profile_picture(request):
             print profile_picture_form.cleaned_data
             image_uuid = str(uuid1())
             data = request.FILES['picture']
-            citizen.profile_pic = upload_image(
-                settings.AWS_PROFILE_PICTURE_FOLDER_NAME, image_uuid, data)
-            citizen.profile_pic_uuid = image_uuid
-            citizen.save()
+            image_data = {
+                "image": data,
+                "x": profile_picture_form.cleaned_data['image_x1'],
+                "y": profile_picture_form.cleaned_data['image_y1'],
+                "width": profile_picture_form.cleaned_data['image_x2'],
+                "height": profile_picture_form.cleaned_data['image_y2'],
+                "f_uuid": image_uuid
+            }
+            res = spawn_task(crop_image_task, image_data)
+            if isinstance(res, Exception):
+                return HttpResponse('Server Error', status=500)
+
+            #citizen.profile_pic = upload_image(
+                #settings.AWS_PROFILE_PICTURE_FOLDER_NAME, image_uuid, data)
+            #citizen.profile_pic_uuid = image_uuid
+            #citizen.save()
             return redirect('profile_page', pleb_username=citizen.username)
     else:
         profile_picture_form = ProfilePictureForm()

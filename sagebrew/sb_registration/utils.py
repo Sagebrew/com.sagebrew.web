@@ -191,7 +191,7 @@ def upload_image(folder_name, file_uuid, image_file):
     conn = connect_s3(settings.AWS_ACCESS_KEY_ID,
                       settings.AWS_SECRET_ACCESS_KEY)
     k = Key(conn.get_bucket(bucket))
-    key_string = "%s/%s.%s" % (folder_name, file_uuid, "jpg")
+    key_string = "%s/%s.%s" % (folder_name, file_uuid, "png")
     k.key = key_string
     k.set_contents_from_file(image_file)
     k.make_public()
@@ -205,7 +205,7 @@ def generate_profile_pic_url(image_uuid):
                       settings.AWS_SECRET_ACCESS_KEY)
     k = Key(conn.get_bucket(bucket))
     key_string = "%s/%s.%s" % (settings.AWS_PROFILE_PICTURE_FOLDER_NAME,
-                               image_uuid, "jpeg")
+                               image_uuid, "png")
     k.key = key_string
     image_uri = k.generate_url(expires_in=0, query_auth=False)
     return image_uri

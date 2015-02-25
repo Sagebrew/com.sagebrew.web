@@ -3,6 +3,7 @@
 {% block css %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static 'css/vendor/bootstrapValidator.min.css' %}">
+    <link rel="stylesheet" href="{% static 'less/sb_beta.css' %}"/>
 {% endblock css %}
 {% block navigation %}
 {% endblock navigation %}
@@ -18,31 +19,30 @@
                 <h1 class="sb_beta_beta" style="text-align: center;">beta</h1>
             </div>
         </div>
-        <div class="col-xs-7 col-xs-offset-2 hidden-sm hidden-md hidden-lg">
+        <div class="col-xs-12 col-xs-offset-0 hidden-sm hidden-md hidden-lg">
             <div class="row sb_signup_headline_containter">
-                <h1 class="sb_beta_title" style="text-align: center;">Sagebrew</h1>
-                <h1 class="sb_beta_beta" style="text-align: center;">beta</h1>
+                <h1 style="color: white; text-align: center;">Sagebrew</h1>
             </div>
         </div>
         <form id="signupForm" method="post">
             {% csrf_token %}
-            <div class="col-lg-4 col-sm-4 col-xs-10 col-lg-offset-4 col-sm-offset-4 col-xs-offset-1">
+            <div class="col-lg-4 col-sm-6 col-xs-10 col-lg-offset-4 col-sm-offset-3 col-xs-offset-1">
                 <div class="row-fluid">
                     <div class="sb_input_wrapper">
                         <input id="beta_email_input"
                            type="text"
                            value=""
                            name="email"
-                           placeholder="enter email"
+                           placeholder="Enter email"
                            class="form-control input-md">
                     </div>
                 </div>
 
             </div>
-            <div class="col-lg-4 col-sm-4 col-xs-10 col-lg-offset-4 col-sm-offset-4 col-xs-offset-1">
+            <div class="col-lg-4 col-sm-6 col-xs-10 col-lg-offset-4 col-sm-offset-3 col-xs-offset-1">
                 <button class="btn btn-block btn-sm btn-primary sb_btn" id="beta_email_submit">Submit</button>
             </div>
-            <div class="col-lg-4 col-sm-4 col-xs-10 col-lg-offset-4 col-sm-offset-4 col-xs-offset-1">
+            <div class="col-lg-4 col-sm-6 col-xs-10 col-lg-offset-4 col-sm-offset-3 col-xs-offset-1">
                  <p class="sb_beta_text" style="text-align: center;">Already a member? Sign in <a href="{% url 'login' %}">here</a>.</p>
             </div>
 

@@ -3,7 +3,6 @@
 {% block title %}{{request.user.first_name}} {{ request.user.last_name }}{% endblock title %}
 {% block css %}
     {{ block.super }}
-        <link rel="stylesheet" href="{% static 'less/sb_core/sb_core_variables.css' %}"/>
         <link rel="stylesheet" href="{% static 'less/plebs/sb_post_base.css' %}"/>
         <link rel="stylesheet" href="{% static 'less/plebs/sb_profile.css' %}"/>
         <link rel="stylesheet" href="{% static 'less/plebs/sb_profile_rep_stats.css' %}"/>

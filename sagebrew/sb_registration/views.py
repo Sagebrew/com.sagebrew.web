@@ -32,6 +32,9 @@ from .tasks import update_interests, store_address
 
 
 def signup_view(request):
+    if (request.user.is_authenticated() is True and
+                verify_completed_registration(request.user) is True):
+        return redirect('profile_page', pleb_username=request.user.username)
     user = request.GET.get('user', '')
     if not user:
         return redirect('beta_page')
@@ -41,6 +44,7 @@ def signup_view(request):
         return redirect('beta_page')
     if not beta_user.invited:
         return redirect('beta_page')
+
     return render(request, 'sign_up_page/index.html')
 
 @api_view(['POST'])
@@ -380,3 +384,13 @@ def beta_signup(request):
         return Response({"detail": "success"}, 200)
     else:
         return Response({"detail": beta_form.errors.as_json()}, 400)
+
+
+def beta_page(request):
+    if request.user.is_authenticated() is True:
+        if verify_completed_registration(request.user) is True:
+            return redirect('profile_page', pleb_username=request.user.username)
+        else:
+            return redirect('profile_info')
+
+    return render(request, "beta.html")

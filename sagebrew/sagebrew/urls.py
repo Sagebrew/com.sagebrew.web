@@ -6,7 +6,8 @@ from django.contrib import admin
 from django.views.generic.base import TemplateView, RedirectView
 from django.conf.urls import patterns, url
 
-from sb_registration.views import login_view, logout_view, signup_view
+from sb_registration.views import (login_view, logout_view, signup_view,
+                                   beta_page)
 
 urlpatterns = patterns(
     '',
@@ -39,8 +40,7 @@ urlpatterns = patterns(
     (r'^upload/', include('sb_uploads.urls')),
     (r'^privilege/', include('sb_privileges.urls')),
     url(r'^signup/$', signup_view, name="signup"),
-    url(r'^$', TemplateView.as_view(template_name="beta.html"),
-        name='beta_page'),
+    url(r'^$', beta_page, name='beta_page'),
 )
 
 if settings.DEBUG is True:

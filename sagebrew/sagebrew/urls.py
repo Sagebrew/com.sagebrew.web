@@ -39,6 +39,7 @@ urlpatterns = patterns(
     (r'^reps/', include('sb_reps.urls')),
     (r'^upload/', include('sb_uploads.urls')),
     (r'^privilege/', include('sb_privileges.urls')),
+    (r'^public_officials/', include('sb_public_official.urls')),
     url(r'^signup/$', signup_view, name="signup"),
     url(r'^$', beta_page, name='beta_page'),
 )

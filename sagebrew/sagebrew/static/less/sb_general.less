@@ -149,6 +149,16 @@
 .sb_btn{
   background-color: @sb_green;
 }
+.sb_btn_space {
+  &:extend(.sb_btn);
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+.sb_btn_fill{
+  &:extend(.sb_btn_space);
+  width: 100%;
+}
+
 .sb_btn_submit{
   &:extend(.sb_btn);
   color: @white;
@@ -351,34 +361,35 @@
   }
 }
 // go through this stuff
+// Can we create a mixin for thumbnails?
 .sb_thumbnail_xs{
   height: 33px;
   width: 33px;
 }
 .sb_dropdown_icon {
-    color: @sb_green_extra_light;
+  color: @sb_green_extra_light;
 }
 .sb_post_btn_dropdown{
-    background: transparent;
-    margin-top: @sb_common_padding_negative;
+  background: transparent;
+  margin-top: @sb_common_padding_negative;
 }
 .sb_post_dropdown_menu{
-    text-align: left;
-    padding-left: 20px;
+  text-align: left;
+  padding-left: 20px;
 }
 .sb_profile_container_wall {
-    background-color: #e0e7e1;
-    height: auto;
-    margin-top: 15px;
-    min-height: 575px;
-    margin-left: -30px;
-    margin-right: -30px;
-    margin-bottom: 30px;
-    padding-top: 15px;
-    padding-left:15px;
-    padding-right:15px;
-    padding-bottom: 30px;
-    border-radius: 2px;
+  background-color: #e0e7e1;
+  height: auto;
+  margin-top: 15px;
+  min-height: 575px;
+  margin-left: -30px;
+  margin-right: -30px;
+  margin-bottom: 30px;
+  padding-top: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-bottom: 30px;
+  border-radius: 2px;
 }
 .sb_registration_header {
   margin-left: 60px;
@@ -480,24 +491,78 @@
       }
 }
 .sb_wallpaper_container {
-    background-color: @sb_grey_extra_light;
-    width: 100%;
-    height: 250px;
-    border-radius:5px 5px 0 0;
-    margin-top: 30px;
+  background-color: @sb_grey_extra_light;
+  width: 100%;
+  height: 250px;
+  border-radius:5px 5px 0 0;
+  margin-top: 30px;
 }
 .sb_profile_pic {
-    border-color: @sb_grey_light;
-    margin-left: @sb_common_margin_positive;
-    margin-top: 65px;
-    width: 200px;
-    height:200px;
-    border-radius: 2px;
-    position: absolute;
-    padding:0;
+  border-color: @sb_grey_light;
+  margin-left: @sb_common_margin_positive;
+  margin-top: 65px;
+  width: 200px;
+  height:200px;
+  border-radius: 2px;
+  position: absolute;
+  padding:0;
 }
 // TODO Probably want to transition this into left side_container
 .sb_rep_container{
-    margin-left: @sb_common_margin_negative;
-    margin-bottom: @sb_common_margin_positive;
+  margin-left: @sb_common_margin_negative;
+  margin-bottom: @sb_common_margin_positive;
+}
+.sb_profile_rep_container{
+  background-color: @sb_green_wall;
+  border-radius: 2px;
+  padding-bottom: @sb_common_padding_positive;
+}
+.sb_container_header {
+  padding-left: @sb_common_padding_positive;
+  padding-top: 5px;
+  border-bottom: solid;
+  border-bottom-color: @sb_green_medium;
+}
+
+.sb_profile_rep_content{
+  padding-top: @sb_common_padding_positive;
+  padding-left: @sb_common_padding_positive;
+}
+
+.sb_thumbnail_rep{
+  margin-left: @sb_common_margin_positive;
+  margin-top: 10px;
+}
+.sb_thumbnail_potential_rep{
+  margin-left: @sb_common_margin_positive;
+}
+.sb_rep_name{
+  font-size: @sb_body_text;
+  margin-left: @sb_common_margin_negative;
+  padding-bottom: 0;
+}
+.sb_profile_post_enter{
+  margin-left: @sb_common_margin_negative;
+  margin-right: @sb_common_margin_negative;
+}
+.sb_post {
+    max-height: 50px;
+    max-width: 100%;
+    padding-top: 10px;
+    border-width: 1px;
+    resize: none;
+}
+
+// Proposed additions to default schema
+.vertical_nav{
+  margin-left: -10px;
+  ul {
+
+  }
+  li {
+    display: block;
+  }
+}
+.block_vertical {
+  margin-top: 15px;
 }

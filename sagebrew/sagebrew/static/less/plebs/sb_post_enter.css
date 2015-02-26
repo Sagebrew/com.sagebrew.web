@@ -1,7 +1,3 @@
-.sb_profile_post_enter {
-  margin-left: -15px;
-  margin-right: -15px;
-}
 .sb_post_container {
   background-color: #e0e7e1;
   height: 70px;
@@ -13,13 +9,6 @@
   margin-right: -15px;
   margin-left: -15px;
   margin-bottom: 15px;
-}
-.sb_post {
-  max-height: 50px;
-  max-width: 100%;
-  padding-top: 10px;
-  border-width: 1px;
-  resize: none;
 }
 .sb_btn_post {
   width: 80px;

@@ -1,72 +1,48 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-{% block title %}{{request.user.first_name}} {{ request.user.last_name }}{% endblock title %}
+{% block title %}{{ page_user.first_name}} {{ page_user.last_name }}{% endblock title %}
 {% block css %}
     {{ block.super }}
         <link rel="stylesheet" href="{% static 'less/plebs/sb_post_base.css' %}"/>
         <link rel="stylesheet" href="{% static 'less/plebs/sb_profile.css' %}"/>
-        <link rel="stylesheet" href="{% static 'less/plebs/sb_profile_rep_stats.css' %}"/>
-        <link rel="stylesheet" href="{% static 'less/plebs/sb_profile_reps.css' %}"/>
         <link rel="stylesheet" href="{% static 'less/plebs/sb_user_about.css' %}"/>
         <link rel="stylesheet" href="{% static 'less/plebs/sb_post_enter.css' %}"/>
         <link rel="stylesheet" href="{% static 'less/plebs/sb_comment.css' %}"/>
 {%  endblock css %}
 {% block content %}
-{% if is_owner == True or is_friend == True %}
-       <div id="pleb_info" style="display: none"
-            data-current_user_email="{{ current_user }}"
-            data-page_user_email="{{ pleb_info.email }}"></div>
-       <div class="row-fluid sb_page">
-           <div class="thumbnail sb_profile_pic">
-                <img src="{% static 'images/profile.jpg' %}">
-           </div>
-           <div>
-                <img class="sb_wallpaper_container" src="{% static 'images/sb_banners-01.png' %}">
-           </div>
-           <div class="sb_nav sb_secondary_nav sb_secondary_nav_bar">
-                {% include "sb_home_section/sb_profile_user_menu.html" %}
-           </div>
-           {% block midsection %}
-           <div>
+    <div id="pleb_info" style="display: none"
+        data-current_user_email="{{ page_user.email }}"
+        data-page_user_email="{{ pleb_info.email }}"></div>
+    <div class="row-fluid sb_page">
+       <div class="thumbnail sb_profile_pic">
+            <img src="{% static 'images/profile.jpg' %}">
+       </div>
+       <div>
+            <img class="sb_wallpaper_container" src="{% static 'images/sb_banners-01.png' %}">
+       </div>
+       <div class="sb_nav sb_secondary_nav sb_secondary_nav_bar">
+            {% include "sb_home_section/sb_profile_user_menu.html" %}
+       </div>
+       {% if page_user.username == request.user.username or is_friend == True %}
+            {% block midsection %}
                 {% include "sb_home_section/sb_home.html" %}
-           </div>
-           {%  endblock %}
-    {% elif is_friend == False and is_owner == False %}
-           <div class="row-fluid sb_profile_content">
-           <div class="thumbnail sb_profile_pic">
+            {%  endblock %}
+       {% endif %}
+    </div>
 
-           </div>
-           <div class=" sb_profile_container_top">
 
-           </div>
-           <div class="sb_profile_btn_menu_container ">
-               <div class="col-lg-5 col-lg-offset-4">
-                    <button class="btn sb_profile_menu_btn send_friend_request-action"
-                            data-from_pleb="{{ current_user }}"
-                            data-to_pleb="{{ page_user }}">Friend Request
-                    </button>
-                    <button class="btn sb_profile_menu_btn delete_friend_request-action">Delete Request</button>
-               </div>
-           </div>
-           <div class="col-lg-4">
 
-           </div>
-           </div>
-        </div>
-    {% endif %}
 {% endblock %}
 {% block footer %}
 {% endblock %}
 {% block scripts %}
     {{ block.super }}
-    <script src="{% static 'js/sb_profile.js' %}"></script>
     <script src="{% static 'js/get_posts.js' %}"></script>
     <script src="{% static 'js/save_post.js' %}"></script>
     <script src="{% static 'js/send_friend_request.js' %}"></script>
     <script src="{% static 'js/send_notification.js' %}"></script>
     <script src="{% static 'js/respond_friend_request.js' %}"></script>
     <script src="{% static 'js/sb_post_enter.js' %}"></script>
-    <script src="{% static 'js/sb_post.js' %}"></script>
     <script src="{% static 'js/sb_about_show.js' %}"></script>
     <script src="{% static 'js/sb_reputation_show.js' %}"></script>
     <script src="{% static 'js/sb_friends_show.js' %}"></script>

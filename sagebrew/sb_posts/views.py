@@ -5,10 +5,8 @@ from django.template.loader import render_to_string
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
-from neomodel import DoesNotExist, CypherException
 
 from api.utils import (spawn_task)
-from plebs.neo_models import Pleb
 from sb_docstore.utils import get_wall_docs
 from sb_docstore.tasks import build_wall_task
 from .tasks import save_post_task

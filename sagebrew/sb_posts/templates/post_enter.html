@@ -1,21 +1,19 @@
-<div class="sb_post_container">
+<div class="sb_post_container" id="sb_post_container">
     <div class="row">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <textarea class="sb_post form-control"
                   id="post_input_id"
                   name="post_input"
-                  placeholder="Spark a conversation . . ."></textarea>
+                  placeholder="Set a Spark . . ."></textarea>
         </div>
     </div>
-    <div class="row sb_post_menu"
-          style="display: none">
-        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" ></div>
-         <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
-            <a id="sb_btn_post"
-               class='sb_btn_post btn btn-primary post-action'
+    <div class="row" id="sb_post_menu" style="display: none">
+         <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 col-lg-offset-9 col-md-offset-9">
+            <button id="sb_btn_post"
+               class='btn btn-lg btn-primary sb_btn_fill post-action'
                data-current_pleb="{{ current_user }}"
-               data-wall_pleb="{{ page_user }}">Spark
-            </a>
+               data-wall_pleb="{{ page_user.email }}">Spark
+            </button>
          </div>
      </div>
 </div>

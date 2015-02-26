@@ -183,6 +183,7 @@ INSTALLED_APPS = (
     'sb_notifications',
     'sb_privileges',
     'sb_posts',
+    'sb_public_official',
     'sb_questions',
     'sb_registration',
     'sb_relationships',

@@ -6,7 +6,7 @@
                 {
                     "action": "write_question",
                     "object_type": "0274a216-644f-11e4-9ad9-080027242395",
-                    "url": "/questions/submit_question_api/",
+                    "url": "/conversations/submit_question_api/",
                     "html_object": ".submit_question-action"
                 },
                 {

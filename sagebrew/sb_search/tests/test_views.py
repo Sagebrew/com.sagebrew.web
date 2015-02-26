@@ -452,7 +452,7 @@ class TestSearchResultAPIReturns(TestCase):
 
         self.assertEqual(len(loads(request.content)['html']), 10)
         self.assertEqual(request.status_code, 200)
-        self.assertIn('<h2><a href=\\"/questions/', request.content)
+        self.assertIn('<h2><a href=\\"/conversations/', request.content)
 
     def test_search_result_api_returns_page_3(self):
         email = "suppressionlist@simulator.amazonses.com"
@@ -501,7 +501,7 @@ class TestSearchResultAPIReturns(TestCase):
 
         self.assertEqual(len(loads(request.content)['html']), 10)
         self.assertEqual(request.status_code, 200)
-        self.assertIn('<h2><a href=\\"/questions/', request.content)
+        self.assertIn('<h2><a href=\\"/conversations/', request.content)
 
     def test_search_result_api_result_user_has_no_results(self):
         email = str(uuid1()).strip('-')+"@gmail.com"

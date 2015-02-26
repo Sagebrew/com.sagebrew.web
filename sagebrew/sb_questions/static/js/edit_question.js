@@ -16,7 +16,7 @@ $( document ).ready(function() {
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
 			type: "POST",
-			url: "/questions/edit_question_api/",
+			url: "/conversations/edit_question_api/",
 			data: JSON.stringify({
                'content': $('textarea#' + $(this).data('question_uuid')).val(),
 			   'question_uuid': $(this).data('question_uuid'),

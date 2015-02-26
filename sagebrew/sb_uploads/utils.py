@@ -41,6 +41,5 @@ def crop_image(image, height, width, x, y, f_uuid=None):
                                image_name, cropped_image)
             if isinstance(res, Exception):
                 return res
-            print res
         os.remove(image_name+".png")
-    return True
+    return res

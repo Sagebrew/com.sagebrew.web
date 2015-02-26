@@ -32,11 +32,9 @@ $( document ).ready(function() {
            setSelect: [ 0, 0, 200, 200 ]
         });
     });
-    $("#sb_btn_save").click(function(){
-        event.preventDefault();
+    $("#sb_btn_save").click(function(e){
+        e.preventDefault();
         var form = new FormData($('#uploadForm')[0]);
-        console.log($('#uploadForm').serialize());
-        console.log(form);
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 ajax_security(xhr, settings)
@@ -45,21 +43,20 @@ $( document ).ready(function() {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
-            url: "/registration/profile_picture/",
+            url: "/registration/profile_picture_api/",
             data: form,
             cache: false,
             contentType: false,
             processData: false,
-            success: function (data) {
+            success: function(data){
+                window.location.replace(data['url']);
             }
         });
     });
     function getCoords (c){
         $('#image_x1').val(c.x);
-        console.log($('#image_x1').val());
         $('#image_x2').val(c.w);
         $('#image_y1').val(c.y);
-        console.log($('#image_y1').val());
         $('#image_y2').val(c.h);
     }
 });

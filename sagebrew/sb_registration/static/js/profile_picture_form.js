@@ -22,11 +22,15 @@ $( document ).ready(function() {
         $(".fileinput .fileinput-exists").replaceWith('')
     });
     $( "#image_uploaded" ).on("mouseenter", "img", function() {
+        var image_test = $("img");
+        var true_height = image_test.get(0).naturalHeight;
+        var true_width = image_test.get(0).naturalWidth;
         var jcrop = $("img").Jcrop({
+           trueSize: [true_width, true_height],
            allowResize: false,
-           allowSelect:false,
+           allowSelect: false,
            onSelect: getCoords,
-           aspectRatio: 200/200,
+           aspectRatio: 1,
            bgColor: '#26424a',
            bgOpacity: 0.4,
            setSelect: [ 0, 0, 200, 200 ]

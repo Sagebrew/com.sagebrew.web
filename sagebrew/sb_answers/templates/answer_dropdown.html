@@ -1,6 +1,6 @@
 <div class="btn-group"
      align="left">
-    <button class="btn dropdown-toggle sb_post_btn_dropdown"
+    <button class="btn dropdown-toggle sb_btn_icon"
             type="button"
             data-toggle="dropdown">
     <span class="fui-gear sb_dropdown_icon"></span>
@@ -12,7 +12,7 @@
                                     data-parent_object="{{ answer.parent_object }}"><p>Edit</p></a>
         </li>
         {% if post_owner_email == current_user %}
-        <li role="presentation" class="sb_divider divider"></li>
+        <li role="presentation" class="sb_divider"></li>
         <li role="presentation"><a class="btn sb_post_dropdown_menu delete_object-action"
                                    data-object_uuid="{{ answer.object_uuid }}"
                                    data-object_type="02241aee-644f-11e4-9ad9-080027242395"

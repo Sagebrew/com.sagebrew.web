@@ -1,4 +1,5 @@
 $( document ).ready(function() {
+    // This function hits the SBPost API and saves off a given post from a user
 	$(".post-action").click(function(event){
 		event.preventDefault();
 		$.ajaxSetup({

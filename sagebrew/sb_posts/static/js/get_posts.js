@@ -17,7 +17,7 @@ $( document ).ready(function() {
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
             success: function (data) {
-                var wall_container = $('.sb_profile_container_wall');
+                var wall_container = $('#wall_app');
                 wall_container.append(data['html']);
                 enable_post_functionality()
         }

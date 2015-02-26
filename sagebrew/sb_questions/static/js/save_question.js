@@ -11,7 +11,7 @@ $( document ).ready(function() {
 			type: "POST",
 			url: $(this).data('url'),
 			data: JSON.stringify({
-               'question_title': $('textarea#question_title_id').val(),
+               'question_title': $('input#question_title_id').val(),
 			   'content': $('textarea#wmd-input-0').val(),
                'current_pleb':$(this).data('current_pleb'),
                'tags': $('#sb_tag_box').val()
@@ -22,5 +22,8 @@ $( document ).ready(function() {
                 window.location.href=data['url']
             }
 		});
+	});
+    $(".cancel_question-action").click(function(event){
+		window.location.href = "/conversations/";
 	});
 });

@@ -13,19 +13,15 @@
     <div class="row-fluid sb_page">
         <div class="col-lg-9">
             <div class="sb_wall sb_conversation_wall">
-                <a href="{% url 'question_page'%}"
-                   type="button"
-                   class="btn sb_tab_navigation">
-                   <span><h3>Conversations</h3></span>
-                </a>
+                <div>
+                   <h3>Conversations</h3>
+                </div>
                 <div class="sb_border sb_markdown">
                     <h3>Submit Question</h3>
-                    <textarea class="form-control"
+                    <input class="form-control" style="margin-bottom: 10px;"
                               id="question_title_id"
                               name="question_title"
-                              cols="20"
-                              rows="1"
-                              placeholder="Question title"></textarea>
+                              placeholder="Question title"/>
                     <textarea class="form-control"
                               id="question_content_id"
                               name="question_content"
@@ -41,9 +37,9 @@
                     TODO determine if this and other "buttons" need to be a tags
                     instead of buttons
                     {% endcomment %}
-                    <button class="btn sb_btn sb_btn_submit submit_question-action"
+                    <button class="btn btn-primary sb_btn sb_btn_submit submit_question-action"
                            data-current_pleb="{{ current_user }}">Create Question</button>
-                    <button class="btn sb_btn sb_btn_submit">Cancel</button>
+                    <button class="btn btn-primary sb_btn sb_btn_submit cancel_question-action">Cancel</button>
                 </div>
              </div>
         </div>

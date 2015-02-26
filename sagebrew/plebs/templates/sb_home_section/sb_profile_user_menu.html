@@ -1,28 +1,28 @@
-{% load staticfiles %}
-    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-        <div class="sb_profile_name">
-            {{ pleb_info.first_name }} {{ pleb_info.last_name }}
-        </div>
-    </div>
-    <div class="col-lg-8 col-md-8 col-sm-8 hidden-xs">
-    <div class="sb_profile_btn_menu_group btn-group">
-        <a href="{% url 'profile_page' pleb_info.username %}"
-           type="button"
-           id="sb_btn_home"
-           class="btn sb_profile_menu_btn">Home</a>
+<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+        <h3>{{ pleb_info.first_name }} {{ pleb_info.last_name }}</h3>
+</div>
+<div class="col-lg-8 col-md-8 col-sm-8 hidden-md hidden-sm hidden-xs">
+    <ul>
+        <li>
+            <a href="{% url 'profile_page' pleb_info.username %}">
+                Home</a>
+        </li>
         {% if debug == True %}
-            <a href="{% url 'about_page' pleb_info.username %}"
-               type="button"
-               id="sb_btn_about"
-               class="btn sb_profile_menu_btn">About</a>
-            <a href="{% url 'reputation_page' pleb_info.username %}"
-               type="button"
-               id="sb_btn_reputation"
-               class="btn">Reputation</a>
-               <a href='{% url 'friends_page' pleb_info.username %}'
-               type="button"
-               id="sb_btn_friends"
-               class="btn sb_profile_menu_btn">Friends</a>
+            {% comment %}
+                # TODO BETA ADD IN feature
+            {% endcomment %}
+            <li>
+                <a href="{% url 'about_page' pleb_info.username %}">
+                    About</a>
+            </li>
+            <li>
+                <a href="{% url 'reputation_page' pleb_info.username %}">
+                    Reputation</a>
+            </li>
+            <li>
+                   <a href='{% url 'friends_page' pleb_info.username %}'>
+                       Friends</a>
+            </li>
         {% endif %}
-    </div>
+    </ul>
 </div>

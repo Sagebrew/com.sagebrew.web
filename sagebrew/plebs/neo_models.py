@@ -383,6 +383,7 @@ class City(StructuredNode):
 class District(StructuredNode):
     number = IntegerProperty()
 
+
 class OauthUser(StructuredNode):
     sb_id = StringProperty(default=lambda: str(uuid1()))
     web_address = StringProperty(
@@ -393,6 +394,7 @@ class OauthUser(StructuredNode):
     token_type = StringProperty(default="Bearer")
     last_modified = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
+
 class BetaUser(StructuredNode):
     email = StringProperty(unique_index=True)
     invited = BooleanProperty(default=False)
@@ -400,14 +402,18 @@ class BetaUser(StructuredNode):
 
     def invite(self):
         from sb_registration.utils import sb_send_email
+        if self.invited is True:
+            return True
         self.invited = True
         self.save()
         template_dict = {
-            "signup_url": "%s%s%s"%(settings.WEB_ADDRESS, "/register/?user=", self.email)
+            "signup_url": "%s%s%s"%(settings.WEB_ADDRESS, "/signup/?user=",
+                                    self.email)
         }
         html_content = get_template(
             'email_templates/email_beta_invite.html').render(
             Context(template_dict))
         sb_send_email("support@sagebrew.com", self.email, "Sagebrew Beta",
                       html_content)
+        return True
 

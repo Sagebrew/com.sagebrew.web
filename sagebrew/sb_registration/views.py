@@ -390,11 +390,17 @@ def rep_reg_page(request):
 @api_view(['POST'])
 def beta_signup(request):
     beta_form = BetaSignupForm(request.DATA or None)
-    if beta_form.is_valid():
-        res = spawn_task(create_beta_user, beta_form.cleaned_data)
-        if isinstance(res, Exception):
-            return Response({"detail": "Failed to spawn task"}, 500)
-        return Response({"detail": "success"}, 200)
+    if beta_form.is_valid() is True:
+        try:
+            BetaUser.nodes.get(email=beta_form.cleaned_data["email"])
+            return Response({"detail": "Beta User Already Exists"}, 409)
+        except (BetaUser.DoesNotExist, DoesNotExist):
+            res = spawn_task(create_beta_user, beta_form.cleaned_data)
+            if isinstance(res, Exception):
+                return Response({"detail": "Server Error"}, 500)
+            return Response({"detail": "success"}, 200)
+        except (CypherException, IOError):
+            return Response({"detail": "Server Error"}, 500)
     else:
         return Response({"detail": beta_form.errors.as_json()}, 400)
 

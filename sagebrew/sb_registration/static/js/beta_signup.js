@@ -16,8 +16,17 @@ $( document ).ready(function() {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-                $(".email_class").empty();
+                $("#signup_wrapper").empty();
                 $("#successMessage").show();
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 409) {
+                    $("#signup_wrapper").empty();
+                    $("#user_exists").show();
+                } else if(XMLHttpRequest.status === 500){
+                    $("#signup_wrapper").empty();
+                    $("#server_error").show();
+                }
             }
         });
 	});

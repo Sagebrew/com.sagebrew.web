@@ -1,3 +1,4 @@
+@import url(http://fonts.googleapis.com/css?family=Inconsolata);
 .sb_markdown,
 .sb_help_article {
   word-wrap: break-word;
@@ -53,6 +54,29 @@
 .sb_markdown hr {
   margin-top: 5px;
   margin-bottom: 5px;
+}
+.sb_markdown pre {
+  display: block;
+  padding-left: 20px;
+  overflow: scroll;
+  word-wrap: normal;
+  background-color: rgba(0, 0, 0, 0.04);
+  color: #323232;
+  font-family: "Inconsolata", Monaco, monospace;
+  font-size: 11pt;
+  border-radius: 5px;
+  padding-top: 10px;
+  padding-bottom: 5px;
+  word-break: normal;
+  white-space: pre;
+}
+.sb_markdown code {
+  display: inline-block;
+  font-family: "Inconsolata", Monaco, monospace;
+  white-space: pre;
+}
+.sb_markdown img {
+  border-radius: 5px;
 }
 .sb_help_article {
   padding-top: 15px;

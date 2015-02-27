@@ -47,7 +47,7 @@ A 2/3 majority is needed to [remove][3] or [close][4] Flagged posts.
   result in the Admin Council approving the flag the flagger will have their 
   Flag Privilege suspended for 2 weeks
   
-[1]: /help_center/reputation/admin_council/
-[2]: /help_center/reputation/
-[3]: /help_center/conversation/why_are_questions_deleted/
-[4]: /help_center/conversation/closure_of_a_question/
+[1]: /help/reputation/admin_council/
+[2]: /help/reputation/
+[3]: /help/conversation/why_are_questions_deleted/
+[4]: /help/conversation/closure_of_a_question/

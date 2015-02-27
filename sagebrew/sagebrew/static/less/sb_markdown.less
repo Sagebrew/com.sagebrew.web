@@ -1,4 +1,5 @@
 @import "sb_core/sb_core_variables.less";
+@import url(http://fonts.googleapis.com/css?family=Inconsolata);
 .sb_markdown {
   word-wrap: break-word;
   color: @sb_dark_blue;
@@ -53,6 +54,29 @@
   hr {
     margin-top: 5px;
     margin-bottom: 5px;
+  }
+  pre {
+    display: block;
+    padding-left: 20px;
+    overflow: scroll;
+    word-wrap: normal;
+    background-color: rgba(0,0,0,0.04);
+    color: #323232;
+    font-family: "Inconsolata", Monaco, monospace;
+    font-size: 11pt;
+    border-radius: @sb_common_radius;
+    padding-top: 10px;
+    padding-bottom: 5px;
+    word-break: normal;
+    white-space: pre;
+  }
+  code {
+    display: inline-block;
+    font-family: "Inconsolata", Monaco, monospace;
+    white-space: pre;
+  }
+  img {
+    border-radius: @sb_common_radius;
   }
 }
 

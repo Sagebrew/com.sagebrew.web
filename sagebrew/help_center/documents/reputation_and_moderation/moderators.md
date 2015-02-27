@@ -12,26 +12,26 @@ The role of the Admin council is to keep Sagebrew running fluidly, and to
 keep Sagebrew a mature and friendly space. The Admin Council's duties include:
 
 - Voting to [remove flagged material][8]
- - The voting system is democratic. A 2/3 majority among participating Admins 
-   is required to delete flagged material. If no [flagged][9] material has been 
-   voted on after two full days it will be deleted. 
+    - The voting system is democratic. A 2/3 majority among participating Admins 
+      is required to delete flagged material. If no [flagged][9] material has been 
+      voted on after two full days it will be deleted. 
 - [Closing conversations][7] # TODO
 - Removing [duplicate][5] questions # TODO
 - Place [Protection][6] on conversations
- - In the case that a conversation is being unnecessarily flagged or attacked, 
-   but it is decided to be a good conversation, an Admin may place Protection on 
-   that conversation so it may no longer be flagged. 
+    - In the case that a conversation is being unnecessarily flagged or attacked, 
+      but it is decided to be a good conversation, an Admin may place Protection on 
+      that conversation so it may no longer be flagged. 
 
 Think of the Admin Council as the "elders" of the Sagebrew community. They've 
 been around and can be trusted to take care of their responsibilities. 
 
 
-[1]: /help_center/reputation/admin_council/
-[2]: /help_center/reputation/
-[3]: /help_center/privileges/brewmaster/
-[4]: /help_center/privileges/tribune/
-[5]: /help_center/conversation/duplicate_questions/
-[6]: /help_center/conversation/protected_conversation/
-[7]: /help_center/conversation/closure_of_a_question/
-[8]: /help_center/conversation/why_are_questions_deleted/
-[9]: /help_center/privileges/flagging/
+[1]: /help/reputation/admin_council/
+[2]: /help/reputation/
+[3]: /help/privileges/brewmaster/
+[4]: /help/privileges/tribune/
+[5]: /help/conversation/duplicate_questions/
+[6]: /help/conversation/protected_conversation/
+[7]: /help/conversation/closure_of_a_question/
+[8]: /help/conversation/why_are_questions_deleted/
+[9]: /help/privileges/flagging/

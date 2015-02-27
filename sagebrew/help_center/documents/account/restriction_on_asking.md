@@ -4,7 +4,6 @@
    questions and to ease new users into the system. You may have reached your 
    3 question limit for the day, and will need to wait until tomorrow before 
    posting another question. 
-
 2. If you have more than 10 reputation and the system is asking you to wait a 
    day or more before asking another question, you have been posting too many 
    questions and need to slow your roll. We would like all Sagebrew 

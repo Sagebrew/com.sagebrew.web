@@ -40,3 +40,6 @@ django-oauth-toolkit
 django-cors-headers
 opbeat
 Pillow
+MarkdownSubscript
+MarkdownSuperscript
+git+git://github.com/aleray/mdx_cite.git

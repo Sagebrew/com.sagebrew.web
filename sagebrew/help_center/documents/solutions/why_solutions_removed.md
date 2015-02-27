@@ -20,6 +20,6 @@ be removed. Think of an appeal as a last effort to
 sway the Admin Council's vote. Each Admin will 
 read your appeal and consider it during their vote.
 
-[1]: /help_center/privileges/flagging/
-[2]: /help_center/conversation/duplicate_questions/
-[3]: /help_center/reputation/admin_council/
+[1]: /help/privileges/flagging/
+[2]: /help/conversation/duplicate_questions/
+[3]: /help/reputation/admin_council/

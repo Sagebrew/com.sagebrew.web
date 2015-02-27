@@ -75,6 +75,6 @@ make Sagebrew a great experience for everyone.
 #####Sagebrew is a new and exciting place, so lets all do our best to explore this uncharted territory together and make some real change!#####
 
 
-[1]: /help_center/privileges/flagging/
-[2]: /help_center/conversation/why_are_questions_deleted/
-[3]: /help_center/conversation/closure_of_a_question/
+[1]: /help/privileges/flagging/
+[2]: /help/conversation/why_are_questions_deleted/
+[3]: /help/conversation/closure_of_a_question/

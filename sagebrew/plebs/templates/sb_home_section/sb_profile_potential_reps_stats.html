@@ -1,47 +1,79 @@
 <div class="sb_rep_container">
     <div class="sb_profile_rep_container">
         <div class="sb_container_header">
-            <div>Potential Representatives</div>
+            <h4>Potential Representatives</h4>
         </div>
         <div class="sb_profile_rep_content">
-            <div class="sb_rep_header">Senators</div>
-                <div class="row">
+            <h5>Senators</h5>
+            {% for senator in candidate_senators %}
+                <div class="row block_vertical">
                     <div class="col-lg-2 col-md-2">
-                        <div class="thumbnail  sb_thumbnail_xs sb_thumbnail_rep"></div>
+                        <div class="thumbnail sb_thumbnail_xs sb_thumbnail_potential_rep">
+                            <img src="{{ senator.public_picture }}"> {% comment %} Link to their S3 public image{% endcomment %}
+                        </div>
                     </div>
-                    <div class="sb_rep col-lg-10 col-md-10" align="left">
+                    <div class="col-lg-8 col-md-10 vertical_nav">
                         <ul>
-                            <div class="btn sb_rep_name">John Doe</div>
+                            <li>
+                                <a href="{% url 'action_page' senator.username %}">{{ senator.first_name }} {{ senator.last_name }}</a>
+                            </li>
                         </ul>
-                    {% for senator in senator_names %}
-                         {{ senator }}
-                    {% endfor %}
                     </div>
                 </div>
-                <div class="row">
+            {% endfor %}
+            <!-- Begin place holder Senator info -->
+            <div class="row block_vertical">
+                <div class="col-lg-2 col-md-2">
+                    <div class="thumbnail sb_thumbnail_xs sb_thumbnail_potential_rep"></div>
+                </div>
+                <div class="sb_rep col-lg-10 col-md-10 vertical_nav">
+                    <ul>
+                        <li>
+                            <a href="{% url 'action_page' pleb_info.username %}">John Doe</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row block_vertical">
+                <div class="col-lg-2 col-md-2">
+                    <div class="thumbnail sb_thumbnail_xs sb_thumbnail_potential_rep"></div>
+                </div>
+                <div class="sb_rep col-lg-10 col-md-10 vertical_nav">
+                    <ul>
+                        <li>
+                             <a href="{% url 'action_page' pleb_info.username %}">Deltriasha Johnson</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- End place holder Senator info -->
+            <h5>House Representatives</h5>
+            {% for house_rep in candidate_representatives %}
+                <div class="row block_vertical">
                     <div class="col-lg-2 col-md-2">
-                        <div class="thumbnail sb_thumbnail_xs sb_thumbnail_rep"></div>
+                        <div class="thumbnail sb_thumbnail_xs sb_thumbnail_potential_rep">
+                            <img src="{{ house_rep.public_picture }}"> {% comment %} Link to their S3 public image{% endcomment %}
+                        </div>
                     </div>
-                    <div class="sb_rep col-lg-10 col-md-10" align="left">
+                    <div class="col-lg-8 col-md-10 vertical_nav">
                         <ul>
-                            <div class="btn sb_rep_name">Deltriasha Johnson</div>
+                            <li>
+                                <a href="{% url 'action_page' house_rep.username %}">{{ house_rep.first_name }} {{ house_rep.last_name }}</a>
+                            </li>
                         </ul>
-                    {% for senator in senator_names %}
-                         {{ senator }}
-                    {% endfor %}
                     </div>
                 </div>
-
-            <div class="sb_rep_header">House Representatives</div>
-                <div class="row">
+            {% endfor %}
+                <div class="row block_vertical">
                     <div class="col-lg-2 col-md-2">
-                        <div class="thumbnail sb_thumbnail_xs sb_thumbnail_rep"></div>
+                        <div class="thumbnail sb_thumbnail_xs sb_thumbnail_potential_rep"></div>
                     </div>
-                    <div class="sb_rep col-lg-10 col-md-10" align="left">
+                    <div class="sb_rep col-lg-10 col-md-10 vertical_nav">
                         <ul>
-                            <div class="btn sb_rep_name">Johnny Downer</div>
+                            <li>
+                                <a href="{% url 'action_page' pleb_info.username %}">Johnny Downer</a>
+                            </li>
                         </ul>
-                        {{ rep_name }}
                     </div>
                 </div>
         </div>

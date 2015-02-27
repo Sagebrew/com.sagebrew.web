@@ -31,7 +31,7 @@ $( document ).ready(function() {
                         $.ajax({
                             xhrFields: {withCredentials: true},
                             type: "GET",
-                            url: "/questions/search/" + sb_id + '/',
+                            url: "/conversations/search/" + sb_id + '/',
                             contentType: "application/json; charset=utf-8",
                             dataType: "json",
                             success: function (data) {

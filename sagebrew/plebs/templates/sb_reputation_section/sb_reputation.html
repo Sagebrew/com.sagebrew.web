@@ -1,13 +1,7 @@
 {% extends "sb_plebs_base/profile_page.html" %}
-{% block title %}{{ block.super }}'s Reputation{% endblock title %}
+{% block title %}{{ page_user.first_name }}'s Reputation{% endblock title %}
 {% block midsection %}
     <div class="col-lg-12">
        {% include "sb_reputation_section/sb_reputation_content_blocks.html" %}
-    </div>
-    <div class="col-lg-4">
-
-    </div>
-    <div class="col-lg-8">
-
     </div>
 {% endblock %}

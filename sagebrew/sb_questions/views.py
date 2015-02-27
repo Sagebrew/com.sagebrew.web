@@ -92,6 +92,7 @@ def save_question_view(request):
     :return:
     '''
     question_data = request.DATA
+    print question_data
     if type(question_data) != dict:
         return Response({"details": "Please provide a valid JSON object"},
                         status=400)

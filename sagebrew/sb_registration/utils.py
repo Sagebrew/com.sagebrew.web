@@ -192,13 +192,10 @@ def upload_image(folder_name, file_uuid, image_file):
                       settings.AWS_SECRET_ACCESS_KEY)
     k = Key(conn.get_bucket(bucket))
     key_string = "%s/%s.%s" % (folder_name, file_uuid, "png")
-    print key_string
-    print file_uuid
     k.key = key_string
     k.set_contents_from_file(image_file)
     k.make_public()
     image_uri = k.generate_url(expires_in=0, query_auth=False)
-    print image_uri
     return image_uri
 
 

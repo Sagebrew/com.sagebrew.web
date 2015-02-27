@@ -317,7 +317,6 @@ def profile_picture(request):
 @api_view(['POST'])
 def profile_picture_api(request):
     profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
-
     if profile_picture_form.is_valid():
         image_uuid = str(uuid1())
         data = request.FILES['picture']

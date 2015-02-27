@@ -63,8 +63,6 @@ def profile_page(request, pleb_username=""):
     #sen_array = determine_senators(address)
     #rep_array = determine_reps(address)
 
-    citizen.profile_pic = generate_profile_pic_url(citizen.profile_pic_uuid)
-    citizen.save()
     return render(request, 'sb_plebs_base/profile_page.html', {
         'pleb_info': citizen,
         'current_user': current_user.email,

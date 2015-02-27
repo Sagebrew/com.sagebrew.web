@@ -69,3 +69,16 @@ def store_address(email, address_clean):
     except (CypherException, IOError) as e:
         raise store_address.retry(exc=e, countdown=3, max_retries=None)
     return True
+
+@shared_task()
+def save_profile_picture(url, username):
+    try:
+        pleb = Pleb.nodes.get(username=username)
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
+        raise save_profile_picture.retry(exc=e, countdown=3, max_retries=None)
+    try:
+        pleb.profile_pic = url
+        pleb.save()
+    except CypherException as e:
+        raise save_profile_picture.retry(exc=e, countdown=3, max_retries=None)
+    return True

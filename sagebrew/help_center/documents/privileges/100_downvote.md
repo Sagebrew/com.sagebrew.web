@@ -2,12 +2,10 @@
 *Reputation needed: 100*
 ## Description ##
 You now have the ability to Downvote Questions and/or Solutions. This is a way 
-to express to another member that their question or Solution is either poorly 
-crafted or contains mostly opinion and judgment rather than fact. These 
-should be reserved for situations that you feel really merit a Downvote.
+to express to another member that you disagree with their question or solution. Downvotes are for questions or solutions that aren't flawed in their logic, but that you think simply won't work. Think of Downvotes like an anonymous disagreement. 
 
 ## When should I Downvote? ##
-You can Downvote a Solution if you think it is a seriously wrong solution. 
+You can Downvote a Question or Solution if you really disagree with it. 
 For example, if there's a Question posed about how to deal with the crisis in 
 Ukraine and one of the Solutions is pro-military invasion and highlights the 
 historical context of military invasion and past issues with Russia etc, and 

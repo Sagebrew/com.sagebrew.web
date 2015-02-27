@@ -93,6 +93,15 @@
   position: inherit;
   float: left;
 }
+
+.sb_blog_post_block {
+  &:extend(.block);
+  margin-top:40px;
+  margin-bottom: 60px;
+  border-radius: 10px;
+  background-color: @sb_green_wall;
+  float: left;
+}
 // TODO Review and potentially change to just standard side_container
 .sb_questions_side_container{
     background-color: @sb_green_wall;
@@ -383,7 +392,7 @@
   padding-left: 20px;
 }
 .sb_profile_container_wall {
-  background-color: #e0e7e1;
+  background-color: @sb_green_wall;
   height: auto;
   margin-top: 15px;
   min-height: 575px;
@@ -726,4 +735,16 @@ textarea.sb_comment_input{
       &:active{
         color: @sb_dark_blue;
       }
+}
+.related_article_wrapper{
+  background-color: @sb_off_white;
+  padding-top: @sb_common_padding_positive;
+    padding-left: @sb_common_padding_positive;
+    padding-right: @sb_common_padding_positive;
+    padding-bottom: @sb_common_padding_positive;
+    border-radius: @sb_common_radius;
+  margin-right: -15px;
+  ul{
+    font-size: 12pt;
+  }
 }

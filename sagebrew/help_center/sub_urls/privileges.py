@@ -12,9 +12,9 @@ urlpatterns = patterns(
             "description": "Everyone starts out with the privilege of partaking"
                            " in the conversation on Sagebrew.",
             "content_path":
-                "%s/static/rendered_docs/"
-                "participate_in_the_conversation.html" % (
-                    settings.STATIC_URL)
+                "%s1_participate_in_the_conversation.html" % (
+                    settings.HELP_DOCS_PATH),
+            "category": "privileges"
         },
         name="participate_in_the_conversation"),
     url(r'^upvote/$', TemplateView.as_view(
@@ -24,7 +24,8 @@ urlpatterns = patterns(
             "description": "Upvoting allows you to showcase your support for "
                            "different pieces of the Conversation!",
             "content_path":
-                "%s/static/rendered_docs/10_upvote.html" % (settings.STATIC_URL)
+                "%s10_upvote.html" % (settings.HELP_DOCS_PATH),
+            "category": "privileges"
         },
         name="upvote"),
     url(r'^comment/$', TemplateView.as_view(
@@ -37,7 +38,8 @@ urlpatterns = patterns(
                            " constantly evolve and move towards the best "
                            "result.",
             "content_path":
-                "%s/static/rendered_docs/20_comment.html" % (settings.STATIC_URL)
+                "%s20_comment.html" % (settings.HELP_DOCS_PATH),
+            "category": "privileges"
         },
         name="comment"),
     url(r'^flagging/$', TemplateView.as_view(
@@ -48,7 +50,8 @@ urlpatterns = patterns(
                            "clean and reduce the noise going into a"
                            " Conversation.",
             "content_path":
-                "%s/static/rendered_docs/50_flagging.html" % (settings.STATIC_URL)
+                "%s50_flagging.html" % (settings.HELP_DOCS_PATH),
+            "category": "privileges"
         },
         name="flagging"),
     url(r'^downvote/$', TemplateView.as_view(
@@ -59,8 +62,8 @@ urlpatterns = patterns(
                            "you to privately disclose negative feelings towards"
                            " a given Question, Solution, or Comment.",
             "content_path":
-                "%s/static/rendered_docs/100_downvote.html" % (
-                    settings.STATIC_URL)
+                "%s100_downvote.html" % (settings.HELP_DOCS_PATH),
+            "category": "privileges"
         },
         name="downvote"),
     url(r'^explicit_content/$', TemplateView.as_view(
@@ -72,8 +75,8 @@ urlpatterns = patterns(
                            "showcasing the need for a Solution. Abusing this "
                            "privilege can quickly result in your loss of it.",
             "content_path":
-                "%s/static/rendered_docs/250_explicit_content.html" % (
-                    settings.STATIC_URL)
+                "%s250_explicit_content.html" % (settings.HELP_DOCS_PATH),
+            "category": "privileges"
         },
         name="explicit_content"),
     url(r'^barista/$', TemplateView.as_view(
@@ -83,8 +86,8 @@ urlpatterns = patterns(
             "description": "Barista is the first rank you can reach! With it "
                            "come some additional privileges.",
             "content_path":
-                "%s/static/rendered_docs/1000_barista.html" % (
-                    settings.STATIC_URL)
+                "%s1000_barista.html" % (settings.HELP_DOCS_PATH),
+            "category": "privileges"
         },
         name="barista"),
     url(r'^tagging/$', TemplateView.as_view(
@@ -95,8 +98,8 @@ urlpatterns = patterns(
                            "members can use to further define "
                            "Conversations.",
             "content_path":
-                "%s/static/rendered_docs/1250_tagging.html" % (
-                    settings.STATIC_URL)
+                "%s1250_tagging.html" % (settings.HELP_DOCS_PATH),
+            "category": "privileges"
         },
         name="tagging"),
     url(r'^brewmaster/$', TemplateView.as_view(
@@ -109,8 +112,8 @@ urlpatterns = patterns(
                            "changes you've enabled. We want to empower you to "
                            "do more for the community.",
             "content_path":
-                "%s/static/rendered_docs/10000_brewmaster.html" % (
-                    settings.STATIC_URL)
+                "%s10000_brewmaster.html" % (settings.HELP_DOCS_PATH),
+            "category": "privileges"
         },
         name="brewmaster"),
     url(r'^tribune/$', TemplateView.as_view(
@@ -119,8 +122,8 @@ urlpatterns = patterns(
             "title": "Tribune",
             "description": "",
             "content_path":
-                "%s/static/rendered_docs/12500_tribune.html" % (
-                    settings.STATIC_URL)
+                "%s12500_tribune.html" % (settings.HELP_DOCS_PATH),
+            "category": "privileges"
         },
         name="tribune"),
 )

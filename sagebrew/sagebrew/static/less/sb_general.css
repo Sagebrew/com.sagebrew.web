@@ -45,7 +45,8 @@
 .sb_answer,
 .sb_question,
 .sb_question_summary,
-.sb_registration_block {
+.sb_registration_block,
+.sb_blog_post_block {
   height: auto;
   padding-top: 15px;
   padding-left: 15px;
@@ -88,6 +89,13 @@
   border-radius: 10px;
   background-color: #f9fff7;
   position: inherit;
+  float: left;
+}
+.sb_blog_post_block {
+  margin-top: 40px;
+  margin-bottom: 60px;
+  border-radius: 10px;
+  background-color: #e0e7e1;
   float: left;
 }
 .sb_questions_side_container {
@@ -676,4 +684,16 @@ textarea.sb_comment_input {
 }
 .sb_btn_comment_icon:active {
   color: #34495e;
+}
+.related_article_wrapper {
+  background-color: #fafcfa;
+  padding-top: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-bottom: 15px;
+  border-radius: 5px;
+  margin-right: -15px;
+}
+.related_article_wrapper ul {
+  font-size: 12pt;
 }

@@ -16,9 +16,6 @@ from .utils import prepare_user_search_html
 from .forms import GetUserSearchForm
 
 
-def less_lesson(request):
-    return render(request, "lesson.html", {})
-
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
@@ -66,8 +63,6 @@ def profile_page(request, pleb_username=""):
     #sen_array = determine_senators(address)
     #rep_array = determine_reps(address)
 
-    citizen.profile_pic = generate_profile_pic_url(citizen.profile_pic_uuid)
-    citizen.save()
     return render(request, 'sb_plebs_base/profile_page.html', {
         'pleb_info': citizen,
         'current_user': current_user.email,
@@ -78,6 +73,7 @@ def profile_page(request, pleb_username=""):
         'is_friend': is_friend,
         'friends_list': friends_list,
     })
+
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
@@ -309,6 +305,7 @@ def get_user_questions(request):
         return Response({"detail": "pleb does not exist"}, 400)
     return Response(pleb.get_questions(expiry, now), 200)
 
+
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def get_user_conversation(request):
@@ -319,6 +316,7 @@ def get_user_conversation(request):
     except (Pleb.DoesNotExist, DoesNotExist, CypherException):
         return Response({"detail": "pleb does not exist"}, 400)
     return Response(pleb.get_conversation(expiry, now), 200)
+
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))

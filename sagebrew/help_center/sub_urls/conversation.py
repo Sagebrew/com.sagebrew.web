@@ -13,8 +13,8 @@ urlpatterns = patterns(
                            "is shared and Solutions are provided to "
                            "leading Questions.",
             "content_path":
-                "%s/static/rendered_docs/conversation_area.html" % (
-                    settings.STATIC_URL)
+                "%sconversation_area.html" % (settings.HELP_DOCS_PATH),
+            "category": "conversation"
         },
         name="conversation_area"),
     url(r'^starting_a_public_conversation/$', TemplateView.as_view(
@@ -25,8 +25,8 @@ urlpatterns = patterns(
                            " way to throw ideas around with friends without "
                            "losing any reputation.",
             "content_path":
-                "%s/static/rendered_docs/starting_a_public_conversation."
-                "html" % (settings.STATIC_URL)
+                "%sstarting_a_public_conversation." % (settings.HELP_DOCS_PATH),
+            "category": "conversation"
         },
         name="starting_a_public_conversation"),
 
@@ -41,8 +41,7 @@ urlpatterns = patterns(
             "description": "To protect user's privacy we do not allow private "
                            "conversations to be converted to public ones.",
             "content_path":
-                "%s/static/rendered_docs/private_to_public.html" % (
-                    settings.STATIC_URL)
+                "%sprivate_to_public.html" % (settings.HELP_DOCS_PATH)
         },
         name="private_to_public"),
     url(r'^starting_a_private_conversation/$', TemplateView.as_view(
@@ -53,8 +52,7 @@ urlpatterns = patterns(
                            " way to throw ideas around with friends without "
                            "losing any reputation.",
             "content_path":
-                "%s/static/rendered_docs/starting_a_private_conversation."
-                "html" % (settings.STATIC_URL)
+                "%sstarting_a_private_conversation." % (settings.HELP_DOCS_PATH)
         },
         name="starting_a_private_conversation"),
     url(r'^public_vs_private/$', TemplateView.as_view(
@@ -69,8 +67,7 @@ urlpatterns = patterns(
                            "that Private Conversations don't affect your "
                            "Reputation while Public Conversations do. ",
             "content_path":
-                "%s/static/rendered_docs/public_vs_private.html" % (
-                    settings.STATIC_URL)
+                "%spublic_vs_private.html" % (settings.HELP_DOCS_PATH)
         },
         name="public_vs_private"),
     '''

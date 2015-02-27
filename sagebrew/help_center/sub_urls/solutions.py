@@ -14,8 +14,8 @@ urlpatterns = patterns(
                            "appear overnight. Here are some tips on what to "
                            "keep in mind when crafting a Solution.",
             "content_path":
-                "%s/static/rendered_docs/good_solution.html" % (
-                    settings.STATIC_URL)
+                "%sgood_solution.html" % (settings.HELP_DOCS_PATH),
+            "category": "solutions"
         },
         name="good_solution"),
     url(r'^solution_to_own_question/$', TemplateView.as_view(
@@ -24,8 +24,8 @@ urlpatterns = patterns(
             "title": "Can I give a Solution to my own Question?",
             "description": "Yes you can give a Solution to your own Question.",
             "content_path":
-                "%s/static/rendered_docs/solution_to_own_question.html" % (
-                    settings.STATIC_URL)
+                "%ssolution_to_own_question.html" % (settings.HELP_DOCS_PATH),
+            "category": "solutions"
         },
         name="solution_to_own_question"),
     url(r'^solutions_no_longer_accepted/$', TemplateView.as_view(
@@ -37,8 +37,9 @@ urlpatterns = patterns(
                            "you should be limited in providing Solutions. This "
                            "article details those reasons.",
             "content_path":
-                "%s/static/rendered_docs/solutions_no_longer_accepted.html" % (
-                    settings.STATIC_URL)
+                "%ssolutions_no_longer_accepted.html" % (
+                    settings.HELP_DOCS_PATH),
+            "category": "solutions"
         },
         name="solutions_no_longer_accepted"),
     url(r'^when_to_edit_solutions/$', TemplateView.as_view(
@@ -49,8 +50,9 @@ urlpatterns = patterns(
                            "and growing with a Conversation. Here are some tips"
                            " on when you should be editing your Solution",
             "content_path":
-                "%s/static/rendered_docs/when_edit_solutions.html" % (
-                    settings.STATIC_URL)
+                "%swhen_edit_solutions.html" % (
+                    settings.HELP_DOCS_PATH),
+            "category": "solutions"
         },
         name="when_to_edit_solutions"),
     url(r'^why_are_solutions_removed/$', TemplateView.as_view(
@@ -60,8 +62,8 @@ urlpatterns = patterns(
             "description": "Explanation on why and how solutions are removed "
                            "from the Conversation area.",
             "content_path":
-                "%s/static/rendered_docs/why_solutions_removed.html" % (
-                    settings.STATIC_URL)
+                "%swhy_solutions_removed.html" % (settings.HELP_DOCS_PATH),
+            "category": "solutions"
         },
         name="why_are_solutions_removed"),
 )

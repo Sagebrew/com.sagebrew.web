@@ -34,13 +34,12 @@ def crop_image(image, height, width, x, y, f_uuid=None):
         f_uuid = str(uuid1())
     with Image.open(image) as image:
         region = image.crop((x, y, x+width, y+height))
-        image_name = "%s-%sx%s" % (f_uuid, height, width)
+        image_name = "%s-%sx%s" % (f_uuid, width, height)
         region.save(image_name+".png")
-        with open(image_name+'.png', 'r') as cropped_image:
+        with open(image_name+".png") as cropped_image:
             res = upload_image(settings.AWS_PROFILE_PICTURE_FOLDER_NAME,
                                image_name, cropped_image)
             if isinstance(res, Exception):
                 return res
-            print res
-        os.remove(image_name+".png")
-    return True
+        os.remove(image_name+'.png')
+    return res

@@ -1,5 +1,5 @@
-from django.conf.urls import patterns, include
-
+from django.conf.urls import patterns, include, url
+from .views import related_articles
 '''
 content_path is used in sync with the ssi tag in help_page.html to include
 the rendered html files from S3. Using python's
@@ -26,6 +26,7 @@ urlpatterns = patterns(
     (r'^security/', include('help_center.sub_urls.security')),
     (r'^terms/', include('help_center.sub_urls.terms')),
     (r'^policies/', include('help_center.sub_urls.policies')),
+    url(r'^related_articles/$', related_articles, name="related_articles"),
 )
 
 """

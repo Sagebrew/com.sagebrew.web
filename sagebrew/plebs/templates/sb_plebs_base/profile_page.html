@@ -1,19 +1,13 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% block title %}{{ page_user.first_name}} {{ page_user.last_name }}{% endblock title %}
-{% block css %}
-    {{ block.super }}
-        <link rel="stylesheet" href="{% static 'less/plebs/sb_post_base.css' %}"/>
-        <link rel="stylesheet" href="{% static 'less/plebs/sb_post_enter.css' %}"/>
-        <link rel="stylesheet" href="{% static 'less/plebs/sb_comment.css' %}"/>
-{%  endblock css %}
 {% block content %}
     <div id="pleb_info" style="display: none"
         data-current_user_email="{{ page_user.email }}"
         data-page_user_email="{{ pleb_info.email }}"></div>
     <div class="row-fluid sb_page">
        <div class="thumbnail sb_profile_pic">
-            <img src="{% static 'images/profile.jpg' %}">
+            <img src="{{ pleb_info.profile_pic }}">
        </div>
        <div>
             <img class="sb_wallpaper_container" src="{% static 'images/sb_banners-01.png' %}">

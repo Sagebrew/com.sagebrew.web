@@ -1,0 +1,13 @@
+<h2>Related Articles</h2>
+<p>{{ request.path }}</p>
+<ul>
+    {% for related_article in articles %}
+        {% if related_article.name == current_name %}
+            <li>{{ related_article.title }}</li>
+        {% else %}
+            <li><a href="{% url related_article.name %}">{{ related_article.title }}</a></li>
+        {% endif %}
+    {% empty %}
+        <p>Currently No Related Articles Available</p>
+    {% endfor %}
+</ul>

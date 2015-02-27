@@ -14,8 +14,8 @@ urlpatterns = patterns(
                            "their responsibilities and what it takes to join "
                            "its ranks.",
             "content_path":
-                "%s/static/rendered_docs/admin_council.html" % (
-                    settings.STATIC_URL)
+                "%sadmin_council.html" % (settings.HELP_DOCS_PATH),
+            "category": "reputation_and_moderation"
         },
         name="admin_council"),
     url(r'^conceding/$', TemplateView.as_view(
@@ -27,8 +27,8 @@ urlpatterns = patterns(
                            "people. Conceding allows for the community to "
                            "focus in on the top solutions.",
             "content_path":
-                "%s/static/rendered_docs/conceding.html" % (
-                    settings.STATIC_URL)
+                "%sconceding.html" % (settings.HELP_DOCS_PATH),
+            "category": "reputation_and_moderation"
         },
         name="conceding"),
     url(r'^moderators/$', TemplateView.as_view(
@@ -40,8 +40,8 @@ urlpatterns = patterns(
                            "elders of the Sagebrew community who are tasked "
                            "with keeping Sagebrew running fluidly.",
             "content_path":
-                "%s/static/rendered_docs/moderators.html" % (
-                    settings.STATIC_URL)
+                "%smoderators.html" % (settings.HELP_DOCS_PATH),
+            "category": "reputation_and_moderation"
         },
         name="moderators"),
     url(r'^reputation_changed_user_removed/$', TemplateView.as_view(
@@ -53,8 +53,9 @@ urlpatterns = patterns(
                            "This sometimes affects innocent bystander's, we're"
                            "sorry you were one of them.",
             "content_path":
-                "%s/static/rendered_docs/reputation_change_user_remove.html" % (
-                    settings.STATIC_URL)
+                "%sreputation_change_user_remove.html" % (
+                    settings.HELP_DOCS_PATH),
+            "category": "reputation_and_moderation"
         },
         name="reputation_changed_user_removed"),
     url(r'^serial_voting_change/$', TemplateView.as_view(
@@ -69,8 +70,8 @@ urlpatterns = patterns(
                            "system while trying to limit the impact it has on "
                            "our members.",
             "content_path":
-                "%s/static/rendered_docs/serial_voting_change.html" % (
-                    settings.STATIC_URL)
+                "%sserial_voting_change.html" % (settings.HELP_DOCS_PATH),
+            "category": "reputation_and_moderation"
         },
         name="serial_voting_change"),
     url(r'^user_removed_change/$', TemplateView.as_view(
@@ -85,8 +86,8 @@ urlpatterns = patterns(
                            "system while trying to limit the impact it has on "
                            "our members.",
             "content_path":
-                "%s/static/rendered_docs/user_removed_change.html" % (
-                    settings.STATIC_URL)
+                "%suser_removed_change.html" % (settings.HELP_DOCS_PATH),
+            "category": "reputation_and_moderation"
         },
         name="user_removed_change"),
     url(r'^voting_importance/$', TemplateView.as_view(
@@ -98,8 +99,8 @@ urlpatterns = patterns(
                            "community at large to see which ideas are the "
                            "most popular and the most encompassing",
             "content_path":
-                "%s/static/rendered_docs/voting_importance.html" % (
-                    settings.STATIC_URL)
+                "%svoting_importance.html" % (settings.HELP_DOCS_PATH),
+            "category": "reputation_and_moderation"
         },
         name="voting_importance"),
     url(r'^what_are_badges/$', TemplateView.as_view(
@@ -110,8 +111,8 @@ urlpatterns = patterns(
                            "need to advance in Sagebrew. Badges are another "
                            "key component of distinguishing yourself.",
             "content_path":
-                "%s/static/rendered_docs/what_are_badges.html" % (
-                    settings.STATIC_URL)
+                "%swhat_are_badges.html" % (settings.HELP_DOCS_PATH),
+            "category": "reputation_and_moderation"
         },
         name="what_are_badges"),
     url(r'^$', TemplateView.as_view(
@@ -121,8 +122,8 @@ urlpatterns = patterns(
             "description": "Reputation is one of the ways the community can "
                            "gauge the knowledge and wit of a fellow member.",
             "content_path":
-                "%s/static/rendered_docs/reputation.html" % (
-                    settings.STATIC_URL)
+                "%sreputation.html" % (settings.HELP_DOCS_PATH),
+            "category": "reputation_and_moderation"
         },
         name="reputation"),
 )

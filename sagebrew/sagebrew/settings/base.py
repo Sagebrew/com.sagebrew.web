@@ -76,8 +76,12 @@ STATICFILES_DIRS = (
     '%s/sb_votes/static/' % PROJECT_DIR,
     '%s/sb_edits/static/' % PROJECT_DIR,
     '%s/sb_reps/static/' % PROJECT_DIR,
-    '%s/sb_uploads/static/' % PROJECT_DIR
+    '%s/sb_uploads/static/' % PROJECT_DIR,
+    '%s/help_center/static/' % PROJECT_DIR,
 )
+
+HELP_DOCS_PATH = "%s/help_center/rendered_docs/" % PROJECT_DIR
+ALLOWED_INCLUDE_ROOTS = (HELP_DOCS_PATH,)
 
 # List of finder classes that know how to find static files in
 # various locations.

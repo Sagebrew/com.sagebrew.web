@@ -317,7 +317,7 @@ def profile_picture(request):
 @api_view(['POST'])
 def profile_picture_api(request):
     profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
-    print request.POST, request.FILES
+
     if profile_picture_form.is_valid():
         image_uuid = str(uuid1())
         data = request.FILES['picture']
@@ -325,18 +325,19 @@ def profile_picture_api(request):
             "image": data,
             "x": profile_picture_form.cleaned_data['image_x1'],
             "y": profile_picture_form.cleaned_data['image_y1'],
-            "width": profile_picture_form.cleaned_data['image_x2'],
-            "height": profile_picture_form.cleaned_data['image_y2'],
+            "width": 200,
+            "height": 200,
             "f_uuid": image_uuid,
             "pleb": request.user.username
         }
-        print image_data
         res = spawn_task(crop_image_task, image_data)
         if isinstance(res, Exception):
             return Response({'detail': 'Server Error'}, status=500)
         url = "%s/%s/%s/" % (settings.WEB_ADDRESS, "user",
                              request.user.username)
         return Response({"url": url}, 200)
+    else:
+        return Response({"detail": "invalid form"}, 400)
 
 @login_required()
 @user_passes_test(verify_completed_registration,

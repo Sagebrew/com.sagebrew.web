@@ -17,13 +17,13 @@ from sb_docstore.tasks import add_object_to_table_task
 from sb_registration.models import token_gen
 from sb_privileges.tasks import check_privileges
 
-from .neo_models import Pleb
+from .neo_models import Pleb, BetaUser
 
 @shared_task()
-def send_email_task(to, subject, html_content, text_content=None):
+def send_email_task(source, to, subject, html_content):
     from sb_registration.utils import sb_send_email
     try:
-        res = sb_send_email(to, subject, html_content)
+        res = sb_send_email(source, to, subject, html_content)
         if isinstance(res, Exception):
             raise send_email_task.retry(exc=res, countdown=5, max_retries=None)
     except SESMaxSendingRateExceededError as e:
@@ -83,15 +83,12 @@ def finalize_citizen_creation(user_instance=None):
                                            generated_token)
         }
         subject, to = "Sagebrew Email Verification", pleb.email
-        text_content = get_template(
-            'email_templates/email_verification.txt').render(
-            Context(template_dict))
         html_content = get_template(
             'email_templates/email_verification.html').render(
             Context(template_dict))
         task_dict = {
-            "to": to, "subject": subject, "text_content": text_content,
-            "html_content": html_content
+            "to": to, "subject": subject,
+            "html_content": html_content, "source": "support@sagebrew.com"
         }
         task_list["send_email_task"] = spawn_task(
             task_func=send_email_task, task_param=task_dict)
@@ -164,3 +161,15 @@ def create_pleb_task(user_instance=None, birthday=None):
         raise create_pleb_task.retry(exc=task_info, countdown=3,
                                      max_retries=None)
     return task_info
+
+@shared_task()
+def create_beta_user(email):
+    try:
+        BetaUser.nodes.get(email=email)
+        return True
+    except (BetaUser.DoesNotExist, DoesNotExist):
+        beta_user = BetaUser(email=email)
+        beta_user.save()
+    except CypherException as e:
+        raise create_beta_user.retry(exc=e, countdown=3, max_retries=None)
+    return True

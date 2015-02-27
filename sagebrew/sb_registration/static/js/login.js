@@ -1,6 +1,6 @@
 $(document).ready(function(){
 
-    $('.submit_login').on('click', function() {
+    $('#submit_login').on('click', function() {
         try {
             var next = getUrlParameter('next');
         }

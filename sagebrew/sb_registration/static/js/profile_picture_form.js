@@ -22,7 +22,7 @@ $( document ).ready(function() {
         $(".fileinput .fileinput-exists").replaceWith('')
     });
     $( "#image_uploaded" ).on("mouseenter", "img", function() {
-        $("img").Jcrop({
+        var jcrop = $("img").Jcrop({
            allowResize: false,
            allowSelect:false,
            onSelect: getCoords,
@@ -32,13 +32,38 @@ $( document ).ready(function() {
            setSelect: [ 0, 0, 200, 200 ]
         });
     });
+    $("#sb_btn_save").click(function(){
+        event.preventDefault();
+        var form = new FormData($('#uploadForm')[0]);
+        console.log($('#uploadForm').serialize());
+        console.log(form);
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "POST",
+            url: "/registration/profile_picture/",
+            data: form,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+            }
+        });
+    });
+    function getCoords (c){
+        $('#image_x1').val(c.x);
+        console.log($('#image_x1').val());
+        $('#image_x2').val(c.w);
+        $('#image_y1').val(c.y);
+        console.log($('#image_y1').val());
+        $('#image_y2').val(c.h);
+    }
 });
-function getCoords (c){
-    console.log(c.x);
-    console.log(c.y);
-    console.log(c.w);
-    console.log(c.h);
-}
+
 /*
     $("#close").change(function () {
         var existingdiv2 = document.getElementById( "sb_photo_parent" );

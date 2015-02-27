@@ -39,6 +39,6 @@
   border-color: #d0e9c6;
   width: 100%;
   height: auto;
-  resize: none;
+  resize: vertical;
   margin-bottom: 15px;
 }

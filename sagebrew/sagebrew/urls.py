@@ -6,7 +6,8 @@ from django.contrib import admin
 from django.views.generic.base import TemplateView, RedirectView
 from django.conf.urls import patterns, url
 
-from sb_registration.views import login_view, logout_view
+from sb_registration.views import (login_view, logout_view, signup_view,
+                                   beta_page)
 
 urlpatterns = patterns(
     '',
@@ -25,8 +26,8 @@ urlpatterns = patterns(
     (r'^notifications/', include('sb_notifications.urls')),
     (r'^relationships/', include('sb_relationships.urls')),
     (r'^user/', include('plebs.urls')),
-    (r'^questions/', include('sb_questions.urls')),
-    (r'^answers/', include('sb_answers.urls')),
+    (r'^conversations/', include('sb_questions.urls')),
+    (r'^solutions/', include('sb_answers.urls')),
     (r'^badges/', include('sb_badges.urls')),
     (r'^search/', include('sb_search.urls')),
     (r'^tags/', include('sb_tag.urls')),
@@ -38,8 +39,9 @@ urlpatterns = patterns(
     (r'^reps/', include('sb_reps.urls')),
     (r'^upload/', include('sb_uploads.urls')),
     (r'^privilege/', include('sb_privileges.urls')),
-    url(r'^$', TemplateView.as_view(template_name='sign_up_page/index.html'),
-        name="signup")
+    (r'^public_officials/', include('sb_public_official.urls')),
+    url(r'^signup/$', signup_view, name="signup"),
+    url(r'^$', beta_page, name='beta_page'),
 )
 
 if settings.DEBUG is True:

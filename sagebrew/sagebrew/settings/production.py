@@ -49,7 +49,7 @@ STATIC_URL = "%s" % (S3_URL)
 MEDIA_URL = "%s%s" % (S3_URL, "media/")
 
 BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 43200,
-                            'polling_interval': 1}
+                            'polling_interval': 15}
 
 CELERY_DEFAULT_QUEUE = "%s-%s-celery" % (environ.get("APP_NAME", ""),
                                          environ.get("CIRCLE_BRANCH", ""))

@@ -16,20 +16,37 @@ from rest_framework.response import Response
 from neomodel import (DoesNotExist, CypherException)
 
 from api.utils import spawn_task
-from plebs.tasks import send_email_task
-from plebs.neo_models import Pleb
+from plebs.tasks import send_email_task, create_beta_user
+from plebs.neo_models import Pleb, BetaUser
 from sb_reps.tasks import create_rep_task
 from sb_docstore.tasks import build_rep_page_task
+from sb_uploads.tasks import crop_image_task
 
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm, RepRegistrationForm,
-                    LoginForm)
+                    LoginForm, BetaSignupForm)
 from .utils import (upload_image, verify_completed_registration,
                     verify_verified_email, calc_age,
                     create_user_util)
 from .models import token_gen
 from .tasks import update_interests, store_address
 
+
+def signup_view(request):
+    if (request.user.is_authenticated() is True and
+                verify_completed_registration(request.user) is True):
+        return redirect('profile_page', pleb_username=request.user.username)
+    user = request.GET.get('user', '')
+    if not user:
+        return redirect('beta_page')
+    try:
+        beta_user = BetaUser.nodes.get(email=user)
+    except (BetaUser.DoesNotExist, DoesNotExist, CypherException):
+        return redirect('beta_page')
+    if not beta_user.invited:
+        return redirect('beta_page')
+
+    return render(request, 'sign_up_page/index.html')
 
 @api_view(['POST'])
 def signup_view_api(request):
@@ -108,7 +125,8 @@ def resend_email_verification(request):
     html_content = get_template(
         'email_templates/email_verification.html').render(
         Context(template_dict))
-    task_data = {'to': to, 'subject': subject, 'html_content': html_content}
+    task_data = {'to': to, 'subject': subject, 'html_content': html_content,
+                 "source": "support@sagebrew.com"}
     spawned = spawn_task(task_func=send_email_task, task_param=task_data)
     if isinstance(spawned, Exception):
         # TODO need to replace this with an actual view
@@ -145,6 +163,7 @@ def login_view_api(request):
             return Response({'detail': 'invalid password'}, status=400)
     else:
         return Response({'detail': 'invalid form'}, status=400)
+
 
 @login_required()
 def logout_view(request):
@@ -293,21 +312,35 @@ def profile_picture(request):
     except CypherException:
         return HttpResponse('Server Error', status=500)
     if request.method == 'POST':
+        print request.POST, request.FILES
         profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
-
         if profile_picture_form.is_valid():
+            print profile_picture_form.cleaned_data
             image_uuid = str(uuid1())
             data = request.FILES['picture']
-            citizen.profile_pic = upload_image(
-                settings.AWS_PROFILE_PICTURE_FOLDER_NAME, image_uuid, data)
-            citizen.profile_pic_uuid = image_uuid
-            citizen.save()
+            image_data = {
+                "image": data,
+                "x": profile_picture_form.cleaned_data['image_x1'],
+                "y": profile_picture_form.cleaned_data['image_y1'],
+                "width": profile_picture_form.cleaned_data['image_x2'],
+                "height": profile_picture_form.cleaned_data['image_y2'],
+                "f_uuid": image_uuid
+            }
+            res = spawn_task(crop_image_task, image_data)
+            if isinstance(res, Exception):
+                return HttpResponse('Server Error', status=500)
+
+            #citizen.profile_pic = upload_image(
+                #settings.AWS_PROFILE_PICTURE_FOLDER_NAME, image_uuid, data)
+            #citizen.profile_pic_uuid = image_uuid
+            #citizen.save()
             return redirect('profile_page', pleb_username=citizen.username)
     else:
         profile_picture_form = ProfilePictureForm()
     return render(request, 'profile_picture.html',
                   {'profile_picture_form': profile_picture_form,
                    'pleb': citizen})
+
 
 @login_required()
 @user_passes_test(verify_completed_registration,
@@ -352,3 +385,31 @@ def rep_reg_page(request):
                 return
             return redirect("rep_page", rep_type=cleaned['office'], rep_id=uuid)
     return render(request, 'registration_rep.html')
+
+
+@api_view(['POST'])
+def beta_signup(request):
+    beta_form = BetaSignupForm(request.DATA or None)
+    if beta_form.is_valid() is True:
+        try:
+            BetaUser.nodes.get(email=beta_form.cleaned_data["email"])
+            return Response({"detail": "Beta User Already Exists"}, 409)
+        except (BetaUser.DoesNotExist, DoesNotExist):
+            res = spawn_task(create_beta_user, beta_form.cleaned_data)
+            if isinstance(res, Exception):
+                return Response({"detail": "Server Error"}, 500)
+            return Response({"detail": "success"}, 200)
+        except (CypherException, IOError):
+            return Response({"detail": "Server Error"}, 500)
+    else:
+        return Response({"detail": beta_form.errors.as_json()}, 400)
+
+
+def beta_page(request):
+    if request.user.is_authenticated() is True:
+        if verify_completed_registration(request.user) is True:
+            return redirect('profile_page', pleb_username=request.user.username)
+        else:
+            return redirect('profile_info')
+
+    return render(request, "beta.html")

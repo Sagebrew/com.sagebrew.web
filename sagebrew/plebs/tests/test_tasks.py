@@ -221,7 +221,8 @@ class TestSendEmailTask(TestCase):
     def test_send_email_task(self):
         task_data = {'to': self.fake_pleb.email,
                      'subject': 'This is a fake subject',
-                     'html_content': "<div>Fake HTML Content</div>"}
+                     'html_content': "<div>Fake HTML Content</div>",
+                     "source": "support@sagebrew.com"}
         res = send_email_task.apply_async(kwargs=task_data)
         while not res.ready():
             time.sleep(1)

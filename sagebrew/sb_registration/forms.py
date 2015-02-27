@@ -199,9 +199,13 @@ class AddressInfoForm(forms.Form):
 
 
 class ProfilePictureForm(forms.Form):
-    picture = forms.ImageField(
+    picture = forms.FileField(
         label="Profile Picture"
     )
+    image_x1 = forms.IntegerField()
+    image_x2 = forms.IntegerField()
+    image_y1 = forms.IntegerField()
+    image_y2 = forms.IntegerField()
 
 
 class ProfilePageForm(forms.Form):
@@ -239,6 +243,9 @@ class RepRegistrationForm(forms.Form):
     exp_month = forms.IntegerField(required=False)
     exp_year = forms.IntegerField(required=False)
     cvv = forms.IntegerField(required=False)
+
+class BetaSignupForm(forms.Form):
+    email = forms.CharField()
 
 '''
 If you want to adjust field attributes programatically without overwritting

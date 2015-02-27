@@ -151,10 +151,10 @@ if __name__ == "__main__":
              '%s/apps/%s/releases/' % (environ.get(
             "OPBEAT_ORG_ID_STAGING", ""), environ.get(
             "OPBEAT_APP_ID_STAGING", "")) +
-             '-H "Authorization: Bearer " %s ' % environ.get(
+             ' -H "Authorization: Bearer %s" ' % environ.get(
                  "OPBEAT_SECRET_TOKEN_STAGING", "") +
-             '-d rev=`git log -n 1 --pretty=format:%H`'
-             '-d branch=`git rev-parse --abbrev-ref HEAD`'
-             '-d status=completed')
+             '-d rev=`git log -n 1 --pretty=format:%H` '
+             '-d branch=`git rev-parse --abbrev-ref HEAD` '
+             '-d status=completed', shell=True)
     elif sys.argv[1] == "production":
         production_deploy()

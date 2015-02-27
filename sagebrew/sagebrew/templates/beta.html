@@ -2,29 +2,89 @@
 {% load staticfiles %}
 {% block css %}
     {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/vendor/bootstrapValidator.min.css' %}">
+    <link rel="stylesheet" href="{% static 'less/sb_beta.css' %}"/>
 {% endblock css %}
 {% block navigation %}
 {% endblock navigation %}
 {% block content %}
+<img class="sb_beta_background"
+       src="{% static 'images/beta_graphic_four-02.jpg' %}">
 
-    <img class="sb_beta_background"
-           src="{% static 'images/beta_graphic_four-02.jpg' %}">
-    <div>
-        <div class="sb_beta_input_group">
-            <h1 class="sb_beta_title">Sagebrew</h1>
-            <h1 class="sb_beta_beta">beta</h1>
-            <div class="">
-                <div class="">
-                    <input type="text"
-                           value=""
-                           placeholder="enter email"
-                           class="sb_signup_input form-control input-md">
-                </div>
+<div class="row">
+    <div style="margin-top: 12%;">
+        <div class="col-lg-5 col-sm-5 col-lg-offset-3 col-sm-offset-3 hidden-xs">
+            <div class="row sb_signup_headline_containter">
+                <h1 class="sb_beta_title" style="text-align: center;">Sagebrew</h1>
+                <h1 class="sb_beta_beta" style="text-align: center;">beta</h1>
             </div>
-            <p class="sb_beta_text">already a member? sign in here.</p>
+        </div>
+        <div class="col-xs-12 col-xs-offset-0 hidden-sm hidden-md hidden-lg">
+            <div class="row sb_signup_headline_containter">
+                <h1 style="color: white; text-align: center;">Sagebrew</h1>
+            </div>
+        </div>
+        <div id="signup_wrapper">
+            <form id="signupForm" method="post">
+                {% csrf_token %}
+                <div class="col-lg-4 col-sm-6 col-xs-10 col-lg-offset-4 col-sm-offset-3 col-xs-offset-1">
+                    <div class="row-fluid">
+                        <div class="sb_input_wrapper">
+                            <input id="beta_email_input"
+                               type="text"
+                               value=""
+                               name="email"
+                               placeholder="Enter email"
+                               class="form-control input-md">
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-lg-4 col-sm-6 col-xs-10 col-lg-offset-4 col-sm-offset-3 col-xs-offset-1">
+                    <button class="btn btn-block btn-sm btn-primary sb_btn" id="beta_email_submit">Submit</button>
+                </div>
+                <div class="col-lg-4 col-sm-6 col-xs-10 col-lg-offset-4 col-sm-offset-3 col-xs-offset-1">
+                     <p class="sb_beta_text" style="text-align: center;">Already a member? Sign in <a href="{% url 'login' %}">here</a>.</p>
+                </div>
+            </form>
+        </div>
+        <div class="row-fluid" id="successMessage" style="color:white;display: none; text-align: center;">
+            <div class="col-lg-4 col-sm-6 col-xs-10 col-lg-offset-4 col-sm-offset-3 col-xs-offset-1">
+                <p>
+                    Thanks for signing up! We will send you an email if you
+                    have been chosen to participate in the Sagebrew Beta!
+                </p>
+
+            </div>
+        </div>
+        <div class="row-fluid" id="user_exists" style="color:white;display: none; text-align: center;">
+            <div class="col-lg-4 col-sm-6 col-xs-10 col-lg-offset-4 col-sm-offset-3 col-xs-offset-1">
+                <p>
+                    Looks like that email's already been registered. Thanks for
+                    the enthusiasm! We'll make sure to email you if you have
+                    been chosen to participate in the Beta!
+                </p>
+
+            </div>
+        </div>
+        <div class="row-fluid" id="server_error" style="color:white;display: none; text-align: center;">
+            <div class="col-lg-4 col-sm-6 col-xs-10 col-lg-offset-4 col-sm-offset-3 col-xs-offset-1">
+                <p>
+                    Sorry looks like we're having some server issues right now.
+                    We really would love to have you as part of the beta so
+                    please try back later!
+                </p>
+
+            </div>
         </div>
     </div>
-
+</div>
 {% endblock content %}
 {% block footer %}
 {% endblock footer %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/vendor/bootstrapValidator.min.js' %}"></script>
+    <script src="{% static 'js/beta_signup.js' %}"></script>
+{% endblock %}

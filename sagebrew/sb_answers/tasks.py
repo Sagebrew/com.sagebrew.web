@@ -42,8 +42,7 @@ def add_answer_to_search_index(answer):
                        'post_date': answer.date_created,
                        'related_user': ''}
         task_data = {"object_type": 'sb_answers.neo_models.SBAnswer',
-                     'object_data': search_dict,
-                     "object_added": answer}
+                     'object_data': search_dict}
         spawned = spawn_task(task_func=add_object_to_search_index,
                              task_param=task_data)
         if isinstance(spawned, Exception) is True:
@@ -94,7 +93,7 @@ def save_answer_task(current_pleb, question_uuid, content, answer_uuid):
     except(CypherException, SBQuestion.DoesNotExist, DoesNotExist) as e:
         raise save_answer_task.retry(exc=e, countdown=3, max_retries=None)
     try:
-        to_pleb = question.owned_by.all()[0].email
+        to_pleb = [question.owned_by.all()[0].email]
     except IndexError as e:
         raise save_answer_task.retry(exc=e, countdown=3, max_retries=None)
 

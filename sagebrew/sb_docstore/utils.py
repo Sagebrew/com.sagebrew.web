@@ -568,9 +568,12 @@ def build_privileges(username):
     except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
         return e
     try:
-        action_table = Table(table_name=get_table_name('actions'))
-        privilege_table = Table(table_name=get_table_name('privileges'))
-        restriction_table = Table(table_name=get_table_name('restrictions'))
+        action_table = Table(table_name=get_table_name('actions'),
+                             connection=conn)
+        privilege_table = Table(table_name=get_table_name('privileges'),
+                                connection=conn)
+        restriction_table = Table(table_name=get_table_name('restrictions'),
+                                  connection=conn)
     except JSONResponseError as e:
         return e
 

@@ -163,7 +163,8 @@ class SBQuestion(SBVersioned, SBTagContent):
                 'current_pleb': pleb,
                 'owner_email': owner.email,
                 'edits': [],
-                'object_type': self.object_type}
+                'object_type': self.object_type,
+                'to_be_deleted': self.to_be_deleted}
         except CypherException as e:
             return e
 

@@ -209,7 +209,7 @@ def get_question_view(request):
                                    'public_questions', 'public_solutions')
             if res == {}:
                 question_by_uuid = get_question_by_uuid(
-                question_data['question_uuid'], request.user.email)
+                    question_data['question_uuid'], request.user.email)
                 task_data = {
                     'question_uuid': question_data['question_uuid'],
                     'question_table': 'public_questions',
@@ -229,6 +229,7 @@ def get_question_view(request):
                 else:
                     return Response(question_by_uuid, status=200)
             else:
+                print res
                 t = get_template("question_detail.html")
                 c = Context(res)
                 return Response(t.render(c), status=200)

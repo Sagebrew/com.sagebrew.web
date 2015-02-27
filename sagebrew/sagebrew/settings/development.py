@@ -2,7 +2,7 @@ from fnmatch import fnmatch
 
 from base import *
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['*']
 INTERNAL_IPS = ('192.168.56.1', '127.0.0.1', '192.168.56.101',

@@ -1,12 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% block title %}{{ page_user.first_name}} {{ page_user.last_name }}{% endblock title %}
-{% block css %}
-    {{ block.super }}
-        <link rel="stylesheet" href="{% static 'less/plebs/sb_post_base.css' %}"/>
-        <link rel="stylesheet" href="{% static 'less/plebs/sb_post_enter.css' %}"/>
-        <link rel="stylesheet" href="{% static 'less/plebs/sb_comment.css' %}"/>
-{%  endblock css %}
 {% block content %}
     <div id="pleb_info" style="display: none"
         data-current_user_email="{{ page_user.email }}"

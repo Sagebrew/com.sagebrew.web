@@ -12,8 +12,9 @@ urlpatterns = patterns(
             "description": "There a few options you have after you donate to "
                            "a candidate. This article outlines what they are.",
             "content_path":
-                "%s/static/rendered_docs/after_donating_to_a_candidate.html" % (
-                    settings.STATIC_URL)
+                "%safter_donating_to_a_candidate.html" % (
+                    settings.HELP_DOCS_PATH),
+            "category": "citizens"
         },
         name="after_donating_to_a_candidate"),
     url(r'^donating_to_a_candidate/$', TemplateView.as_view(
@@ -25,8 +26,8 @@ urlpatterns = patterns(
                            "been easier but you still need to do your research."
                            "If you have any questions please reach out to us.",
             "content_path":
-                "%s/static/rendered_docs/donating_to_a_candidate.html" % (
-                    settings.STATIC_URL)
+                "%sdonating_to_a_candidate.html" % (settings.HELP_DOCS_PATH),
+            "category": "citizens"
         },
         name="donating_to_a_candidate"),
     url(r'^pledging_votes/$', TemplateView.as_view(
@@ -40,8 +41,8 @@ urlpatterns = patterns(
                            "candidate you give your vote to is who you will "
                            "actually vote for.",
             "content_path":
-                "%s/static/rendered_docs/pledging_votes.html" % (
-                    settings.STATIC_URL)
+                "%spledging_votes.html" % (settings.HELP_DOCS_PATH),
+            "category": "citizens"
         },
         name="pledging_votes"),
 )

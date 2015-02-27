@@ -163,7 +163,9 @@ function edit_object() {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function(data){
-                $(data['html_object']).text(data['content'])
+                $(data['html_object']).text(data['content']);
+                $("#edit_container_"+uuid).hide();
+                $("#sb_content_"+uuid).show();
             }
         });
     });
@@ -196,7 +198,9 @@ function edit_question_title() {
 function show_edit_question() {
     $("a.show_edit_question-action").click(function(event){
         var question_uuid = $(this).data('object_uuid');
-        $('#edit_question_'+question_uuid).fadeToggle();
+        $('#sb_content_'+question_uuid).hide();
+        $("#edit_container_"+question_uuid).show();
+        $("textarea#"+question_uuid).pagedownBootstrap();
     });
 }
 

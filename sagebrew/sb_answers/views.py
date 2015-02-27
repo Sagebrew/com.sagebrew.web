@@ -1,4 +1,5 @@
 from uuid import uuid1
+from django.template.loader import render_to_string
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
@@ -38,7 +39,19 @@ def save_answer_view(request):
                              task_param=answer_form.cleaned_data)
         if isinstance(spawned, Exception) is True:
             return Response({'detail': 'failed to post an answer'}, status=500)
-        return Response({'detail': 'successfully posted an answer'}, status=200)
+        solution_data = {
+            "answer": {
+                "object_uuid": answer_form.cleaned_data['answer_uuid'],
+                "up_vote_number": 0,
+                "down_vote_number": 0,
+                "content": answer_form.cleaned_data['content'],
+                "answer_owner_url": request.user.username,
+                "parent_object": answer_form.cleaned_data['question_uuid'],
+                "owner": request.user.first_name + " " + request.user.last_name
+            }
+        }
+        html = render_to_string('answer_detail.html', solution_data)
+        return Response({'detail': 'successfully posted an answer',
+                         'html': html}, status=200)
     else:
-        print answer_form.cleaned_data
         return Response({'detail': 'failed to post an answer'}, status=400)

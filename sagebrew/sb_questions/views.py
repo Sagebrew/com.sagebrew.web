@@ -229,7 +229,6 @@ def get_question_view(request):
                 else:
                     return Response(question_by_uuid, status=200)
             else:
-                print res
                 t = get_template("question_detail.html")
                 c = Context(res)
                 return Response(t.render(c), status=200)

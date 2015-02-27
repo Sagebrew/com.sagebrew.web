@@ -133,6 +133,8 @@ function save_answer() {
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
             success: function (data) {
+                $("#solution_container").append(data['html']);
+                $('textarea.sb_answer_input_area').val("");
             }
 		});
 	});

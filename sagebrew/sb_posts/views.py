@@ -1,3 +1,4 @@
+import pytz
 import logging
 from uuid import uuid1
 from datetime import datetime
@@ -40,8 +41,22 @@ def save_post_view(request):
         if isinstance(spawned, Exception):
             return Response({"detail": "Failed to create post"},
                             status=500)
+        post_data = {
+            "object_uuid": post_form.cleaned_data['post_uuid'],
+            "parent_object": request.user.username,
+            "datetime": datetime.now(pytz.utc),
+            "last_edited_on": datetime.now(pytz.utc),
+            "post_owner": request.user.first_name + " " +
+                          request.user.last_name,
+            "upvote_number": 0,
+            "downvote_number": 0,
+            "content": post_form.cleaned_data['content']
+        }
+        html = render_to_string('post.html', post_data)
+        print html
         return Response(
-            {"action": "filtered", "filtered_content": post_data},
+            {"action": "filtered", "filtered_content": post_data,
+             "html": html},
             status=200)
     else:
         return Response(post_form.errors, status=400)

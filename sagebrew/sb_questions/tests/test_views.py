@@ -30,7 +30,7 @@ class SaveQuestionViewTests(TestCase):
                    'current_pleb': self.user.email,
                    'question_title': 'How do we end the war in Iraq?',
                    'tags': 'these,are,test,tags'}
-        request = self.factory.post('/questions/submit_question_api/',
+        request = self.factory.post('/conversations/submit_question_api/',
                                     data=my_dict,
                                     format='json')
         request.user = self.user
@@ -41,7 +41,7 @@ class SaveQuestionViewTests(TestCase):
     def test_save_question_view_missing_data(self):
         my_dict = {'content': 'aosdfhao',
                    'question_title': 'How do we end the war in Iraq?'}
-        request = self.factory.post('/questions/submit_question_api/',
+        request = self.factory.post('/conversations/submit_question_api/',
                                     data=my_dict,
                                     format='json')
         request.user = self.user
@@ -51,7 +51,7 @@ class SaveQuestionViewTests(TestCase):
 
     def test_save_question_view_int_data(self):
         my_dict = 98897965
-        request = self.factory.post('/questions/submit_question_api/',
+        request = self.factory.post('/conversations/submit_question_api/',
                                     data=my_dict,
                                     format='json')
         request.user = self.user
@@ -61,7 +61,7 @@ class SaveQuestionViewTests(TestCase):
 
     def test_save_question_view_string_data(self):
         my_dict = 'sdfasdfasdf'
-        request = self.factory.post('/questions/submit_question_api/',
+        request = self.factory.post('/conversations/submit_question_api/',
                                     data=my_dict,
                                     format='json')
         request.user = self.user
@@ -71,7 +71,7 @@ class SaveQuestionViewTests(TestCase):
 
     def test_save_question_view_list_data(self):
         my_dict = []
-        request = self.factory.post('/questions/submit_question_api/',
+        request = self.factory.post('/conversations/submit_question_api/',
                                     data=my_dict,
                                     format='json')
         request.user = self.user
@@ -81,7 +81,7 @@ class SaveQuestionViewTests(TestCase):
 
     def test_save_question_view_float_data(self):
         my_dict = 1.010101010
-        request = self.factory.post('/questions/submit_question_api/',
+        request = self.factory.post('/conversations/submit_question_api/',
                                     data=my_dict,
                                     format='json')
         request.user = self.user
@@ -94,7 +94,7 @@ class SaveQuestionViewTests(TestCase):
                   "tests/images/test_image.jpg", "rb") as image_file:
             image = b64encode(image_file.read())
 
-        request = self.factory.post('/questions/submit_question_api/',
+        request = self.factory.post('/conversations/submit_question_api/',
                                     data=image,
                                     format='json')
         request.user = self.user
@@ -121,7 +121,7 @@ class TestGetQuestionView(TestCase):
         my_dict = {'current_pleb': 'tyler.wiersing@sagebrew.com',
                    'sort_by': 'most_recent',
                    'user': 'tyler.wiersing@sagebrew.com'}
-        request = self.factory.post('/questions/query_questions_api/',
+        request = self.factory.post('/conversations/query_questions_api/',
                                     data=my_dict,
                                     format='json')
         request.user = self.user
@@ -137,7 +137,7 @@ class TestGetQuestionView(TestCase):
 
         my_dict = {'current_pleb': self.user.email,
                    'sort_by': 'most_recent'}
-        request = self.factory.post('/questions/query_questions_api/',
+        request = self.factory.post('/conversations/query_questions_api/',
                                     data=my_dict,
                                     format='json')
         request.user = self.user
@@ -154,7 +154,7 @@ class TestGetQuestionView(TestCase):
         my_dict = {'current_pleb': self.user.email,
                    'sort_by': 'uuid',
                    'question_uuid': question.sb_id}
-        request = self.factory.post('/questions/query_questions_api/',
+        request = self.factory.post('/conversations/query_questions_api/',
                                     data=my_dict,
                                     format='json')
         request.user = self.user
@@ -176,7 +176,7 @@ class TestGetQuestionView(TestCase):
 
         my_dict = {'current_pleb': self.pleb.email,
                    'sort_by': 'least_recent'}
-        request = self.factory.post('/questions/query_questions_api/',
+        request = self.factory.post('/conversations/query_questions_api/',
                                     data=my_dict,
                                     format='json')
         request.user = self.user
@@ -188,7 +188,7 @@ class TestGetQuestionView(TestCase):
     def test_get_question_view_failure_incorrect_filter(self):
         my_dict = {'current_pleb': self.pleb.email,
                    'sort_by': 'fake_filter'}
-        request = self.factory.post('/questions/query_questions_api/',
+        request = self.factory.post('/conversations/query_questions_api/',
                                     data=my_dict,
                                     format='json')
         request.user = self.user
@@ -201,7 +201,7 @@ class TestGetQuestionView(TestCase):
     def test_get_question_view_missing_data(self):
         my_dict = {'current_pleb': self.user.email,
                    'wall_pleb': self.user.email}
-        request = self.factory.post('/questions/query_questions_api/',
+        request = self.factory.post('/conversations/query_questions_api/',
                                     data=my_dict,
                                     format='json')
         request.user = self.user
@@ -211,7 +211,7 @@ class TestGetQuestionView(TestCase):
 
     def test_get_question_view_string_data(self):
         my_dict = 'sdfasdfasdf'
-        request = self.factory.post('/questions/query_questions_api/',
+        request = self.factory.post('/conversations/query_questions_api/',
                                     data=my_dict,
                                     format='json')
         request.user = self.user
@@ -221,7 +221,7 @@ class TestGetQuestionView(TestCase):
 
     def test_get_question_view_list_data(self):
         my_dict = []
-        request = self.factory.post('/questions/query_questions_api/',
+        request = self.factory.post('/conversations/query_questions_api/',
                                     data=my_dict,
                                     format='json')
         request.user = self.user
@@ -231,7 +231,7 @@ class TestGetQuestionView(TestCase):
 
     def test_get_question_view_float_data(self):
         my_dict = 1.010101010
-        request = self.factory.post('/questions/query_questions_api/',
+        request = self.factory.post('/conversations/query_questions_api/',
                                     data=my_dict,
                                     format='json')
         request.user = self.user
@@ -244,7 +244,7 @@ class TestGetQuestionView(TestCase):
                   "tests/images/test_image.jpg", "rb") as image_file:
             image = b64encode(image_file.read())
 
-        request = self.factory.post('/questions/query_questions_api/',
+        request = self.factory.post('/conversations/query_questions_api/',
                                     data=image,
                                     format='json')
         request.user = self.user
@@ -273,7 +273,7 @@ class TestGetQuestionSearchView(TestCase):
                               question_title='test title').save()
         question.owned_by.connect(self.pleb)
 
-        res = self.client.get('/questions/search/%s/'%question.sb_id)
+        res = self.client.get('/conversations/search/%s/' % question.sb_id)
         res = res.render()
 
         self.assertIn('| Answer: 0 | Upvotes: 0 | Downvotes: 0 |', res.content)

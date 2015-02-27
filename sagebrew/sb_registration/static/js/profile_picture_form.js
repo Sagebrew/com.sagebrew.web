@@ -57,9 +57,10 @@ $( document ).ready(function() {
     function getCoords (c){
         $('#image_x1').val(c.x);
         console.log($('#image_x1').val());
-        $('#image_x2').val(c.x2);
+        $('#image_x2').val(c.w);
         $('#image_y1').val(c.y);
-        $('#image_y2').val(c.y2);
+        console.log($('#image_y1').val());
+        $('#image_y2').val(c.h);
     }
 });
 

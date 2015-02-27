@@ -122,7 +122,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.media",
     "django.core.context_processors.static",
     "django.core.context_processors.tz",
-    "django.contrib.messages.context_processors.messages"
+    "django.contrib.messages.context_processors.messages",
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -139,7 +139,6 @@ TEMPLATE_DIRS = (
     '%s/sb_uploads/templates/' % PROJECT_DIR,
     '%s/sb_reps/templates/' % PROJECT_DIR,
     '%s/sb_registration/templates/' % PROJECT_DIR,
-    '%s/sb_wall/templates/' % PROJECT_DIR,
     '%s/plebs/templates/' % PROJECT_DIR,
     '%s/sb_questions/templates/' % PROJECT_DIR,
     '%s/sb_answers/templates/' % PROJECT_DIR,
@@ -183,6 +182,7 @@ INSTALLED_APPS = (
     'sb_notifications',
     'sb_privileges',
     'sb_posts',
+    'sb_public_official',
     'sb_questions',
     'sb_registration',
     'sb_relationships',

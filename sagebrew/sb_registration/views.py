@@ -20,6 +20,7 @@ from plebs.tasks import send_email_task, create_beta_user
 from plebs.neo_models import Pleb, BetaUser
 from sb_reps.tasks import create_rep_task
 from sb_docstore.tasks import build_rep_page_task
+from sb_uploads.tasks import crop_image_task
 
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm, RepRegistrationForm,
@@ -32,6 +33,9 @@ from .tasks import update_interests, store_address
 
 
 def signup_view(request):
+    if (request.user.is_authenticated() is True and
+                verify_completed_registration(request.user) is True):
+        return redirect('profile_page', pleb_username=request.user.username)
     user = request.GET.get('user', '')
     if not user:
         return redirect('beta_page')
@@ -41,6 +45,7 @@ def signup_view(request):
         return redirect('beta_page')
     if not beta_user.invited:
         return redirect('beta_page')
+
     return render(request, 'sign_up_page/index.html')
 
 @api_view(['POST'])
@@ -313,10 +318,22 @@ def profile_picture(request):
             print profile_picture_form.cleaned_data
             image_uuid = str(uuid1())
             data = request.FILES['picture']
-            citizen.profile_pic = upload_image(
-                settings.AWS_PROFILE_PICTURE_FOLDER_NAME, image_uuid, data)
-            citizen.profile_pic_uuid = image_uuid
-            citizen.save()
+            image_data = {
+                "image": data,
+                "x": profile_picture_form.cleaned_data['image_x1'],
+                "y": profile_picture_form.cleaned_data['image_y1'],
+                "width": profile_picture_form.cleaned_data['image_x2'],
+                "height": profile_picture_form.cleaned_data['image_y2'],
+                "f_uuid": image_uuid
+            }
+            res = spawn_task(crop_image_task, image_data)
+            if isinstance(res, Exception):
+                return HttpResponse('Server Error', status=500)
+
+            #citizen.profile_pic = upload_image(
+                #settings.AWS_PROFILE_PICTURE_FOLDER_NAME, image_uuid, data)
+            #citizen.profile_pic_uuid = image_uuid
+            #citizen.save()
             return redirect('profile_page', pleb_username=citizen.username)
     else:
         profile_picture_form = ProfilePictureForm()
@@ -373,10 +390,26 @@ def rep_reg_page(request):
 @api_view(['POST'])
 def beta_signup(request):
     beta_form = BetaSignupForm(request.DATA or None)
-    if beta_form.is_valid():
-        res = spawn_task(create_beta_user, beta_form.cleaned_data)
-        if isinstance(res, Exception):
-            return Response({"detail": "Failed to spawn task"}, 500)
-        return Response({"detail": "success"}, 200)
+    if beta_form.is_valid() is True:
+        try:
+            BetaUser.nodes.get(email=beta_form.cleaned_data["email"])
+            return Response({"detail": "Beta User Already Exists"}, 409)
+        except (BetaUser.DoesNotExist, DoesNotExist):
+            res = spawn_task(create_beta_user, beta_form.cleaned_data)
+            if isinstance(res, Exception):
+                return Response({"detail": "Server Error"}, 500)
+            return Response({"detail": "success"}, 200)
+        except (CypherException, IOError):
+            return Response({"detail": "Server Error"}, 500)
     else:
         return Response({"detail": beta_form.errors.as_json()}, 400)
+
+
+def beta_page(request):
+    if request.user.is_authenticated() is True:
+        if verify_completed_registration(request.user) is True:
+            return redirect('profile_page', pleb_username=request.user.username)
+        else:
+            return redirect('profile_info')
+
+    return render(request, "beta.html")

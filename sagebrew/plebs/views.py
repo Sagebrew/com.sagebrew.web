@@ -71,7 +71,7 @@ def profile_page(request, pleb_username=""):
     return render(request, 'sb_plebs_base/profile_page.html', {
         'pleb_info': citizen,
         'current_user': current_user.email,
-        'page_user': page_user.email,
+        'page_user': page_user,
         #'senator_names': sen_array,
         #'rep_name': rep_array,
         'is_owner': is_owner,
@@ -154,7 +154,7 @@ def about_page(request, pleb_username):
     return render(request, 'sb_about_section/sb_about.html', {
         'pleb_info': citizen,
         'current_user': current_user.email,
-        'page_user': page_user.email,
+        'page_user': page_user,
         #'senator_names': sen_array,
         #'rep_name': rep_array,
         'is_owner': is_owner,
@@ -213,7 +213,7 @@ def reputation_page(request, pleb_username):
     return render(request, 'sb_reputation_section/sb_reputation.html', {
         'pleb_info': citizen,
         'current_user': current_user.email,
-        'page_user': page_user.email,
+        'page_user': page_user,
         #'senator_names': sen_array,
         #'rep_name': rep_array,
         'is_owner': is_owner,
@@ -271,7 +271,7 @@ def friends_page(request, pleb_username):
     return render(request, 'sb_friends_section/sb_friends.html', {
         'pleb_info': citizen,
         'current_user': current_user.email,
-        'page_user': page_user.email,
+        'page_user': page_user,
         #'senator_names': sen_array,
         #'rep_name': rep_array,
         'is_owner': is_owner,

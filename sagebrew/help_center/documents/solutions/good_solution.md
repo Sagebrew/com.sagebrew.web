@@ -19,4 +19,4 @@ A good solution doesn't appear overnight. A good solution is the result of
 hard mental labor and iterative revision assisted by feedback from the 
 community in the form of [Comments][1] and alternative Solutions.
 
-[1]: /help_center/privileges/commenting/
+[1]: /help/privileges/commenting/

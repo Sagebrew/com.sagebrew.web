@@ -17,6 +17,6 @@ We want the Conversation here to be honest and truthful, and we want Reputation
 to reflect that honesty and truth.
 
 
-[1]: /help_center/privileges/upvote/
-[2]: /help_center/privileges/downvote/
-[3]: /help_center/reputation/
+[1]: /help/privileges/upvote/
+[2]: /help/privileges/downvote/
+[3]: /help/reputation/

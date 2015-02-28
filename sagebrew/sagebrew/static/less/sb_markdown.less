@@ -1,33 +1,38 @@
 @import "sb_core/sb_core_variables.less";
+@import url(https://fonts.googleapis.com/css?family=Inconsolata);
 .sb_markdown {
   word-wrap: break-word;
   color: @sb_dark_blue;
   h1 {
+    border-bottom: 2px solid @sb_grey;
     font-size: 28px;
     font-weight: bold;
   }
   h2 {
+    border-bottom: 1px solid @sb_grey;
     font-size: 26px;
     font-weight: bold;
   }
   h3 {
-    font-size: 24px;
-    font-weight: bold;
-  }
-  h4 {
     font-size: 22px;
     font-weight: bold;
   }
-  h5 {
-    font-size: 20px;
+  h4 {
+    font-size: 19px;
     font-weight: bold;
+  }
+  h5 {
+    font-size: 19px;
+    font-weight: bold;
+    font-style: italic;
   }
   h6 {
-    font-size: 18px;
+    font-size: 17px;
     font-weight: bold;
+    font-style: italic;
   }
   p {
-    font-size: 18px;
+    font-size: 16px;
   }
   img {
     max-height: 300px;
@@ -36,11 +41,88 @@
   textarea {
     border-width: 1px 1px 1px 1px;
     border-radius: @sb_common_radius;
-    border-color: @sb_green_light;;
+    border-color: @sb_green_light;
     width: 100%;
     height: auto;
     resize: vertical;
     margin-bottom: 15px;
 
   }
+  ul {
+    font-size: 16px;
+  }
+  hr {
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+  pre {
+    display: block;
+    padding-left: 20px;
+    overflow: scroll;
+    word-wrap: normal;
+    background-color: rgba(0,0,0,0.04);
+    color: #323232;
+    font-family: "Inconsolata", Monaco, monospace;
+    font-size: 11pt;
+    border-radius: @sb_common_radius;
+    padding-top: 10px;
+    padding-bottom: 5px;
+    word-break: normal;
+    white-space: pre;
+  }
+  code {
+    display: inline-block;
+    font-family: "Inconsolata", Monaco, monospace;
+    white-space: pre;
+  }
+  img {
+    border-radius: @sb_common_radius;
+  }
+}
+
+.sb_help_article{
+  &:extend(.sb_markdown);
+  padding-top: @sb_common_padding_positive;
+  padding-left: @sb_common_padding_positive;
+  padding-right: @sb_common_padding_positive;
+  padding-bottom: 50px;
+  border-radius: @sb_common_radius;
+  background-color: @sb_green_wall;
+  margin-right: 0;
+
+}
+
+.sb_help_article_content{
+  height: auto;
+  background-color: @sb_off_white;
+  padding-top: @sb_common_padding_positive;
+  padding-right: @sb_common_padding_positive;
+  padding-bottom: @sb_common_padding_positive;
+  border-radius: @sb_common_radius;
+  margin-left: 25px;
+  margin-right: 20px;
+}
+.related_article_wrapper{
+  background-color: @sb_off_white;
+  padding-top: @sb_common_padding_positive;
+  padding-left: @sb_common_padding_positive;
+  padding-right: @sb_common_padding_positive;
+  padding-bottom: @sb_common_padding_positive;
+  border-radius: @sb_common_radius;
+  margin-right: -20px;
+  ul{
+    font-size: 12pt;
+  }
+}
+.sb_help_center{
+  height: 100%;
+  background-color: @sb_off_white;
+  padding-top: @sb_common_padding_positive;
+  padding-left: @sb_common_padding_positive;
+  padding-right: @sb_common_padding_positive;
+  border-radius: @sb_common_radius;
+  margin-top: 30px;
+  margin-left: 50px;
+  padding-bottom: 40px;
+
 }

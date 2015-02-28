@@ -1,33 +1,39 @@
-.sb_markdown {
+@import url(https://fonts.googleapis.com/css?family=Inconsolata);
+.sb_markdown,
+.sb_help_article {
   word-wrap: break-word;
   color: #34495e;
 }
 .sb_markdown h1 {
+  border-bottom: 2px solid #b7bfbb;
   font-size: 28px;
   font-weight: bold;
 }
 .sb_markdown h2 {
+  border-bottom: 1px solid #b7bfbb;
   font-size: 26px;
   font-weight: bold;
 }
 .sb_markdown h3 {
-  font-size: 24px;
-  font-weight: bold;
-}
-.sb_markdown h4 {
   font-size: 22px;
   font-weight: bold;
 }
-.sb_markdown h5 {
-  font-size: 20px;
+.sb_markdown h4 {
+  font-size: 19px;
   font-weight: bold;
+}
+.sb_markdown h5 {
+  font-size: 19px;
+  font-weight: bold;
+  font-style: italic;
 }
 .sb_markdown h6 {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: bold;
+  font-style: italic;
 }
 .sb_markdown p {
-  font-size: 18px;
+  font-size: 16px;
 }
 .sb_markdown img {
   max-height: 300px;
@@ -41,4 +47,76 @@
   height: auto;
   resize: vertical;
   margin-bottom: 15px;
+}
+.sb_markdown ul {
+  font-size: 16px;
+}
+.sb_markdown hr {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+.sb_markdown pre {
+  display: block;
+  padding-left: 20px;
+  overflow: scroll;
+  word-wrap: normal;
+  background-color: rgba(0, 0, 0, 0.04);
+  color: #323232;
+  font-family: "Inconsolata", Monaco, monospace;
+  font-size: 11pt;
+  border-radius: 5px;
+  padding-top: 10px;
+  padding-bottom: 5px;
+  word-break: normal;
+  white-space: pre;
+}
+.sb_markdown code {
+  display: inline-block;
+  font-family: "Inconsolata", Monaco, monospace;
+  white-space: pre;
+}
+.sb_markdown img {
+  border-radius: 5px;
+}
+.sb_help_article {
+  padding-top: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-bottom: 50px;
+  border-radius: 5px;
+  background-color: #e0e7e1;
+  margin-right: 0;
+}
+.sb_help_article_content {
+  height: auto;
+  background-color: #fafcfa;
+  padding-top: 15px;
+  padding-right: 15px;
+  padding-bottom: 15px;
+  border-radius: 5px;
+  margin-left: 25px;
+  margin-right: 20px;
+}
+.related_article_wrapper {
+  background-color: #fafcfa;
+  padding-top: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-bottom: 15px;
+  border-radius: 5px;
+  margin-right: -20px;
+}
+.related_article_wrapper ul {
+  font-size: 12pt;
+}
+.sb_help_center {
+  height: 100%;
+  background-color: #fafcfa;
+  padding-top: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  border-radius: 5px;
+  margin-top: 30px;
+  margin-left: 50px;
+  padding-bottom: 40px;
 }

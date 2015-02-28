@@ -1,12 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% block title %}{{ page_user.first_name}} {{ page_user.last_name }}{% endblock title %}
-{% block css %}
-    {{ block.super }}
-        <link rel="stylesheet" href="{% static 'less/plebs/sb_post_base.css' %}"/>
-        <link rel="stylesheet" href="{% static 'less/plebs/sb_post_enter.css' %}"/>
-        <link rel="stylesheet" href="{% static 'less/plebs/sb_comment.css' %}"/>
-{%  endblock css %}
 {% block content %}
     <div id="pleb_info" style="display: none"
         data-current_user_email="{{ page_user.email }}"
@@ -41,9 +35,6 @@
     <script src="{% static 'js/send_notification.js' %}"></script>
     <script src="{% static 'js/respond_friend_request.js' %}"></script>
     <script src="{% static 'js/sb_post_enter.js' %}"></script>
-    <script src="{% static 'js/sb_about_show.js' %}"></script>
     <script src="{% static 'js/sb_reputation_show.js' %}"></script>
     <script src="{% static 'js/sb_friends_show.js' %}"></script>
-    <script src="{% static 'js/flag_object.js' %}"></script>
-    <script src="{% static 'js/vote_object.js' %}"></script>
 {% endblock scripts %}

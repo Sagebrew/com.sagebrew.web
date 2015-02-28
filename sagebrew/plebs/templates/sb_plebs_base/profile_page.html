@@ -29,6 +29,7 @@
 {% endblock %}
 {% block scripts %}
     {{ block.super }}
+    <script src="{% static 'js/vendor/bootstrapValidator.min.js' %}"></script>
     <script src="{% static 'js/get_posts.js' %}"></script>
     <script src="{% static 'js/save_post.js' %}"></script>
     <script src="{% static 'js/send_friend_request.js' %}"></script>
@@ -37,4 +38,5 @@
     <script src="{% static 'js/sb_post_enter.js' %}"></script>
     <script src="{% static 'js/sb_reputation_show.js' %}"></script>
     <script src="{% static 'js/sb_friends_show.js' %}"></script>
+    <script src="{% static 'js/post_validator.js' %}"></script>
 {% endblock scripts %}

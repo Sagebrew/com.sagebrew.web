@@ -18,8 +18,10 @@ $( document ).ready(function() {
 			}),
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
-            onSuccess: function() {
-
+            success: function(data) {
+                $('textarea#post_input_id').val("");
+                $("#wall_app").prepend(data['html']);
+                enable_post_functionality();
             }
 		});
 	});

@@ -16,6 +16,13 @@ from .utils import prepare_user_search_html
 from .forms import GetUserSearchForm
 
 
+def root_profile_page(request):
+    if request.user.is_authenticated() is True:
+        return redirect("profile_page", pleb_username=request.user.username)
+    else:
+        return redirect("signup")
+
+
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
@@ -326,3 +333,11 @@ def get_user_age(request):
     except (Pleb.DoesNotExist, DoesNotExist, CypherException):
         return Response({"detail": "pleb does not exist"}, 400)
     return Response({"age": pleb.age}, 200)
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def deactivate_user(request):
+    request.user.is_active = False
+    request.user.save()
+    return Response({"detail": "successfully deactivated user"}, 200)
+

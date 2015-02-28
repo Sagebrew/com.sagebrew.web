@@ -1,4 +1,5 @@
 @import "sb_core/sb_core_variables.less";
+@import url(https://fonts.googleapis.com/css?family=Inconsolata);
 .sb_markdown {
   word-wrap: break-word;
   color: @sb_dark_blue;
@@ -54,6 +55,29 @@
     margin-top: 5px;
     margin-bottom: 5px;
   }
+  pre {
+    display: block;
+    padding-left: 20px;
+    overflow: scroll;
+    word-wrap: normal;
+    background-color: rgba(0,0,0,0.04);
+    color: #323232;
+    font-family: "Inconsolata", Monaco, monospace;
+    font-size: 11pt;
+    border-radius: @sb_common_radius;
+    padding-top: 10px;
+    padding-bottom: 5px;
+    word-break: normal;
+    white-space: pre;
+  }
+  code {
+    display: inline-block;
+    font-family: "Inconsolata", Monaco, monospace;
+    white-space: pre;
+  }
+  img {
+    border-radius: @sb_common_radius;
+  }
 }
 
 .sb_help_article{
@@ -72,11 +96,33 @@
   height: auto;
   background-color: @sb_off_white;
   padding-top: @sb_common_padding_positive;
+  padding-right: @sb_common_padding_positive;
+  padding-bottom: @sb_common_padding_positive;
+  border-radius: @sb_common_radius;
+  margin-left: 25px;
+  margin-right: 20px;
+}
+.related_article_wrapper{
+  background-color: @sb_off_white;
+  padding-top: @sb_common_padding_positive;
   padding-left: @sb_common_padding_positive;
   padding-right: @sb_common_padding_positive;
   padding-bottom: @sb_common_padding_positive;
   border-radius: @sb_common_radius;
-  margin-left: 30px;
-  margin-right: 30px;
+  margin-right: -20px;
+  ul{
+    font-size: 12pt;
+  }
+}
+.sb_help_center{
+  height: 100%;
+  background-color: @sb_off_white;
+  padding-top: @sb_common_padding_positive;
+  padding-left: @sb_common_padding_positive;
+  padding-right: @sb_common_padding_positive;
+  border-radius: @sb_common_radius;
+  margin-top: 30px;
+  margin-left: 50px;
+  padding-bottom: 40px;
 
 }

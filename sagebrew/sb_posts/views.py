@@ -1,3 +1,4 @@
+import pytz
 import logging
 from uuid import uuid1
 from datetime import datetime
@@ -40,8 +41,24 @@ def save_post_view(request):
         if isinstance(spawned, Exception):
             return Response({"detail": "Failed to create post"},
                             status=500)
+        print type(request.user)
+        post_data = {
+            "object_uuid": post_form.cleaned_data['post_uuid'],
+            "parent_object": request.user.username,
+            "datetime": datetime.now(pytz.utc),
+            "last_edited_on": datetime.now(pytz.utc),
+            "post_owner": request.user.first_name + " " +
+                          request.user.last_name,
+            "upvote_number": 0,
+            "downvote_number": 0,
+            "content": post_form.cleaned_data['content'],
+            "object_vote_count": "0",
+            "vote_type": "true"
+        }
+        html = render_to_string('post.html', post_data)
         return Response(
-            {"action": "filtered", "filtered_content": post_data},
+            {"action": "filtered", "filtered_content": post_data,
+             "html": html},
             status=200)
     else:
         return Response(post_form.errors, status=400)
@@ -81,6 +98,14 @@ def get_user_posts(request):
                     datetime.strptime(post_dict['last_edited_on'][
                                       :len(post_dict['last_edited_on'])-6],
                                       '%Y-%m-%d %H:%M:%S.%f')
+                # TODO replace with actual vote count. Note that the template
+                # tag operations require it to be a string and not an int.
+                # The tag values also don't accomodate for dynamic updates
+                # from javascript so we'll have to figure that out that as well
+                # Example when someone transitions from 9 to 10 and 99 to 100
+                post_dict['object_vote_count'] = "10k"
+                post_dict['vote_type'] = "true"
+                post_dict['current_pleb'] = request.user
                 html = render_to_string('post.html', post_dict)
                 html_array.append(html)
 

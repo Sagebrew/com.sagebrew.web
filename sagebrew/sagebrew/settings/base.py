@@ -66,14 +66,11 @@ STATICFILES_DIRS = (
     '%s/plebs/static/' % PROJECT_DIR,
     '%s/sb_registration/static/' % PROJECT_DIR,
     #'%s/sb_comments/static/' % PROJECT_DIR,
-    '%s/sb_posts/static/' % PROJECT_DIR,
     '%s/sb_relationships/static/' % PROJECT_DIR,
     '%s/sb_questions/static/' % PROJECT_DIR,
     '%s/sb_answers/static/' % PROJECT_DIR,
     '%s/sb_search/static/' % PROJECT_DIR,
     '%s/sb_tag/static/' % PROJECT_DIR,
-    '%s/sb_flags/static/' % PROJECT_DIR,
-    '%s/sb_votes/static/' % PROJECT_DIR,
     '%s/sb_edits/static/' % PROJECT_DIR,
     '%s/sb_reps/static/' % PROJECT_DIR,
     '%s/sb_uploads/static/' % PROJECT_DIR,
@@ -111,7 +108,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'oauth2_provider.middleware.OAuth2TokenMiddleware'
+    'oauth2_provider.middleware.OAuth2TokenMiddleware',
 )
 
 ROOT_URLCONF = 'sagebrew.urls'

@@ -44,4 +44,4 @@ mean they don't know anything about Agriculture, they may have just provided
 poor or unfavorable solutions. While Reputation is useful to gauge knowledge 
 and expertise, it is not the final say.
 
-[1]: /help_center/reputation/admin_council/
+[1]: /help/reputation/admin_council/

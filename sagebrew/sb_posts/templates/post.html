@@ -27,7 +27,7 @@
                </div>
            </div>
         </div>
-        <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 col-lg-offset-4">
+        <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 col-lg-offset-4 col-md-offset-4 col-sm-offset-5 col-xs-offset-3">
             <button class="btn dropdown-toggle sb_btn_icon" type="button"
                     data-toggle="dropdown">
                 <span class="sb_dropdown_icon fui-gear"></span>
@@ -75,38 +75,80 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-lg-1 col-md-1 col-sm-1 hidden-xs sb_vote_wrapper">
-            <div style="display: none" class="sb_upvote_count{{ post.object_uuid }}">
-                {{ post.up_vote_number }}
+            <div class="col-lg-1 hidden-md hidden-sm hidden-xs sb_vote_wrapper">
+                <div class="row vote_wrapper" id="vote_{{ object_uuid }}">
+                    <div class="col-lg-12 sb_up_vote_wrapper">
+                        <div style="display: none" class="{{ object_uuid }}">{{ up_vote_number }}</div>
+                        {% if vote_type == "false" or vote_type == None %}
+                            <button class="btn sb_btn sb_btn_vote vote_up vote_object-action"
+                               data-object_uuid="{{ object_uuid }}"
+                               data-vote_type=true
+                               data-current_pleb="{{ current_pleb }}"
+                               data-object_type="02241aee-644f-11e4-9ad9-080027242395">
+                                <span class="fui-triangle-up"></span>
+                            </button>
+                        {% else %}
+                            <button class="btn sb_btn sb_btn_vote vote_up vote_up_active vote_object-action"
+                               data-object_uuid="{{ object_uuid }}"
+                               data-vote_type=true
+                               data-current_pleb="{{ current_pleb }}"
+                               data-object_type="02241aee-644f-11e4-9ad9-080027242395">
+                                <span class="fui-triangle-up"></span>
+                            </button>
+                        {% endif %}
+                    </div>
+                    {% if object_vote_count|length_is:"1" %}
+                        <div class="col-lg-12 col-lg-offset-3 vote_count">
+                    {% elif object_vote_count|length_is:"2" %}
+                        <div class="col-lg-12 col-lg-offset-2 vote_count">
+                    {% elif object_vote_count|length_is:"3" %}
+                        <div class="col-lg-12 col-lg-offset-1 vote_count">
+                    {% elif object_vote_count|length_is:"4" %}
+                        <div class="col-lg-12 col-lg-offset-0 vote_count">
+                    {% else %}
+                        <div class="col-lg-12 col-lg-offset-1 vote_count">
+                    {% endif %}
+                        <h6>
+                            {{ object_vote_count }}
+                        </h6>
+                    </div>
+                    <div class="col-lg-12 col-md-12 sb_down_vote_wrapper">
+                        {% if vote_type == "true" or vote_type == None %}
+                            <button class="btn sb_btn sb_btn_vote vote_down vote_object-action"
+                               data-object_uuid="{{ object_uuid }}"
+                               data-vote_type=false
+                               data-current_pleb="{{ current_pleb.username }}"
+                               data-object_type="02241aee-644f-11e4-9ad9-080027242395">
+                                <span class="fui-triangle-down"></span>
+                            </button>
+                        {% else %}
+                            <button class="btn sb_btn sb_btn_vote vote_down vote_down_active vote_object-action"
+                               data-object_uuid="{{ object_uuid }}"
+                               data-vote_type=false
+                               data-current_pleb="{{ current_pleb.username }}"
+                               data-object_type="02241aee-644f-11e4-9ad9-080027242395">
+                                <span class="fui-triangle-down"></span>
+                            </button>
+                        {% endif %}
+                        <div style="display: none" class="{{ object_uuid }}">{{ down_vote_number }}</div>
+                    </div>
+                </div>
             </div>
-            <div class="row sb_up_vote_wrapper">
-                <a class="btn sb_btn_question_vote_up vote_object-action"
-                   data-object_uuid="{{ post.object_uuid }}"
-                   data-current_pleb="{{ post.current_pleb }}"
-                   data-vote_type=true
-                   data-object_type="02241aee-644f-11e4-9ad9-080027242395">
-                    <span class="sb_question_vote_icon fui-triangle-up"></span>
-                </a>
-            </div>
-            <div class="row vote_count">
-                <p>
-                    453
-                </p>
-            </div>
-            <div class="row sb_down_vote_wrapper">
-                <a class="btn sb_btn_question_vote_down vote_object-action"
-                   data-object_uuid="{{ post.object_uuid }}"
-                   data-current_pleb="{{ post.current_pleb }}"
-                   data-vote_type=false
-                   data-object_type="02241aee-644f-11e4-9ad9-080027242395">
-                    <span class="sb_question_vote_icon fui-triangle-down"></span>
-                </a>
-            </div>
-            <div style="display: none" class="sb_downvote_count{{ post.object_uuid }}">{{ post.down_vote_number }}</div>
-        </div>
-        <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12 sb_post_wrapper">
+        <div class="col-lg-10 col-md-11 col-sm-11 col-xs-11 sb_post_wrapper">
             <div class="sb_post_body" id="sb_content_{{ object_uuid }}">
                 {{ content|linebreaksbr }}
+            </div>
+            <div id="edit_container_{{ object_uuid }}" style="display: none">
+                <textarea class="form-control edit_post_input_class"
+                          id="{{ object_uuid }}"
+                          name="edit_post_input"
+                          rows="1">{{ content }}</textarea>
+                <a class='btn btn-primary edit_object-action'
+                   id="edit_post_button_id"
+                   data-object_type="01bb301a-644f-11e4-9ad9-080027242395"
+                   data-parent_object="{{ parent_object }}"
+                   data-object_uuid="{{ object_uuid }}"
+                   data-datetime="{{ datetime }}">Submit</a>
             </div>
         </div>
     </div>
@@ -123,22 +165,8 @@
                       placeholder="Write your comment..."></textarea>
             <a class="btn input-group-btn sb_btn_comment_icon comment-action"
                data-object_uuid="{{ object_uuid }}"
-               data-current_pleb="{{ current_user }}"
                data-object_type="01bb301a-644f-11e4-9ad9-080027242395"><span class="fui-new"></span></a>
         </div>
-        <div id="divid_{{ object_uuid }}"
-             style="display: none">
-            <textarea class="form-control edit_post_input_class"
-                      id="{{ object_uuid }}"
-                      name="edit_post_input"
-                      rows="1"
-                      placeholder="Edit your post..."></textarea>
-            <a class='btn btn-primary edit_object-action'
-               id="edit_post_button_id"
-               data-object_type="01bb301a-644f-11e4-9ad9-080027242395"
-               data-parent_object="{{ parent_object }}"
-               data-object_uuid="{{ object_uuid }}"
-               data-datetime="{{ datetime }}">Submit</a>
-        </div>
+
     </div>
 </div>

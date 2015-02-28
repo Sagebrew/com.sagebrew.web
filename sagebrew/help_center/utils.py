@@ -1,5 +1,5 @@
 from sub_urls.account import urlpatterns as accounts
-from sub_urls.asking import urlpatterns as asking
+from sub_urls.questions import urlpatterns as asking
 from sub_urls.citizens import urlpatterns as citizens
 from sub_urls.conversation import urlpatterns as conversation
 from sub_urls.policies import urlpatterns as policies

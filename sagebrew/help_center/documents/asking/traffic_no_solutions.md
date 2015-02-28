@@ -4,9 +4,9 @@ Upvotes and/or Downvotes, but nobody has left a Solution, there may be a few
 items you may want to consider.
 
 - Your Question might be confusing.
- - Perhaps the way in which you worded your Question
-   has left users confused or unsure of how to
-   proceed with a Solution.
+    - Perhaps the way in which you worded your Question
+      has left users confused or unsure of how to
+      proceed with a Solution.
 - Maybe your Question is too difficult and other users simply don't know 
   where to start the conversation.
 

@@ -1,12 +1,9 @@
-import logging
 import socket
 import os
 import multiprocessing
 from subprocess32 import call
 from django.core.management.base import BaseCommand
 from django.conf import settings
-
-logger = logging.getLogger('loggly_logs')
 
 
 class Command(BaseCommand):
@@ -82,16 +79,6 @@ class Command(BaseCommand):
         f.close()
         self.stdout.write(data)
         if os.path.isfile("/etc/nginx/sites-enabled/%s.conf" % env):
-            logger.info({"Exception": "Nginx file exists and was removed",
-                         "Location": "Initial Population",
-                         "Server": socket.gethostname(),
-                         "Message": "This server's nginx file has already"
-                                    "been populated. This should"
-                                    "not happen and all nginx files should"
-                                    "be the same for consistency and to"
-                                    "reduced intermittent issues. Because"
-                                    "of this the file was removed and"
-                                    "the latest template replaced it."})
             os.remove("/etc/nginx/sites-enabled/%s.conf" % env)
         call("sudo ln -s /etc/nginx/sites-available/%s.conf" % (env) +
              " /etc/nginx/sites-enabled/%s.conf" % (env), shell=True)

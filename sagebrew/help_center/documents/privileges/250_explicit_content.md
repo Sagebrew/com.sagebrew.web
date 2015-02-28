@@ -21,4 +21,4 @@ orientation images, please. And please, please, please: no pornography.
 Violations will be [Flagged][1] as inappropriate and you may lose this
 privilege.
 
-[1]: /help_center/privileges/flagging/
+[1]: /help/privileges/flagging/

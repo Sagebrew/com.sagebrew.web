@@ -11,7 +11,7 @@ dependencies:
     - elasticsearch-1.3.2.tar.gz
     - dynamodb_local_latest.tar.gz
   post:
-    - pip install -r ../requirements/test.txt
+    - pip install -r ~/com.sagebrew.web/requirements/test.txt
     - sudo chown ubuntu /etc/rsyslog.d/
     - python ~/com.sagebrew.web/sagebrew/manage.py logglypopulation
     - sudo chown root /etc/rsyslog.d/

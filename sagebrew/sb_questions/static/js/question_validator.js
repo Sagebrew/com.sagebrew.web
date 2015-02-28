@@ -1,5 +1,5 @@
 $(document).ready(function(){
-    $("#answerSubmitForm").bootstrapValidator({
+    $("#questionInputForm").bootstrapValidator({
         framework: 'bootstrap',
         err: {
             container: '#fname_errors'
@@ -9,10 +9,22 @@ $(document).ready(function(){
             validating: 'glyphicon glyphicon-refresh'
         },
         live: 'enabled',
-        submitButtons: '#submit_answer',
+        submitButtons: '.submit_question-action',
         fields: {
-            answer_content: {
-                group: 'sb_answer_input',
+            question_title: {
+                group: 'question_title_input',
+                validators: {
+                    notEmpty: {
+                        message: "Title is required"
+                    },
+                    stringLength: {
+                        min: 15,
+                        message: "Title must be at least 15 characters long"
+                    }
+                }
+            },
+            question_content: {
+                group: 'question_content_input',
                 validators: {
                     notEmpty: {
                         message: "Content is required"

@@ -83,18 +83,23 @@ function vote_object() {
         var vote_type = $(this).hasClass('vote_up') ? true : false;
         var vote_down = $(this).parents('div.vote_wrapper').find(".vote_down");
         var vote_up = $(this).parents('div.vote_wrapper').find(".vote_up");
-        if(vote_down.hasClass('vote_selected')){
+        if(vote_down.hasClass('vote_down_active') && vote_type == true){
+            vote_down.removeClass('vote_down_active');
+            vote_up.addClass('vote_up_active');
+        } else if(vote_down.hasClass('vote_down_active') && vote_type === false)  {
+            vote_down.removeClass('vote_down_active');
+        } else if(vote_up.hasClass('vote_up_active') && vote_type === true)  {
+            vote_up.removeClass('vote_up_active');
+        } else if(vote_up.hasClass('vote_up_active') && vote_type === false)  {
             vote_down.addClass('vote_down_active');
             vote_up.removeClass('vote_up_active');
-            // Used to figure out if class is selected but still need above
-            // Due to variance in coloring of the up and down buttons.
-            $(this).toggleClass('vote_selected');
         } else {
-            vote_down.addClass('vote_up_active');
-            vote_up.removeClass('vote_down_active');
-            // Used to figure out if class is selected but still need above
-            // Due to variance in coloring of the up and down buttons.
-            $(this).toggleClass('vote_selected');
+            if(vote_type === true) {
+                $(this).addClass('vote_up_active');
+            }
+            else {
+                $(this).addClass('vote_down_active');
+            }
         }
 
         var uuid = $(this).data('object_uuid');

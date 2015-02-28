@@ -225,7 +225,6 @@ function show_edit_question() {
         $("#edit_container_"+question_uuid).show();
         var markdown = $("textarea#"+question_uuid).pagedownBootstrap();
         markdown.attr("id", question_uuid);
-        console.log(markdown);
     });
 }
 

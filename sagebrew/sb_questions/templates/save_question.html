@@ -19,28 +19,34 @@
                 </div>
                 <div class="sb_border sb_markdown">
                     <h3>Submit Question</h3>
-                    <input class="form-control" style="margin-bottom: 10px;"
-                              id="question_title_id"
-                              name="question_title"
-                              placeholder="Question title"/>
-                    <textarea class="form-control"
-                              id="question_content_id"
-                              name="question_content"
-                              cols="20"
-                              rows="8"
-                              placeholder="Question Content"></textarea>
-                    <div class="row">
-                        <div class="col-lg-12">
-                            {% include "tag_box.html" %}
+                    <form id="questionInputForm">
+                        <div class="question_title_input">
+                            <input class="form-control question_title_input" style="margin-bottom: 10px;"
+                                      id="question_title_id"
+                                      name="question_title"
+                                      placeholder="Question title"/>
                         </div>
-                    </div>
-                    {% comment %}
-                    TODO determine if this and other "buttons" need to be a tags
-                    instead of buttons
-                    {% endcomment %}
-                    <button class="btn btn-primary sb_btn sb_btn_submit submit_question-action"
-                           data-current_pleb="{{ current_user }}">Create Question</button>
-                    <button class="btn btn-primary sb_btn sb_btn_submit cancel_question-action">Cancel</button>
+                        <div class="question_content_input">
+                            <textarea class="form-control question_content_input"
+                                      id="question_content_id"
+                                      name="question_content"
+                                      cols="20"
+                                      rows="8"
+                                      placeholder="Question Content"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                {% include "tag_box.html" %}
+                            </div>
+                        </div>
+                        {% comment %}
+                        TODO determine if this and other "buttons" need to be a tags
+                        instead of buttons
+                        {% endcomment %}
+                        <button class="btn btn-primary sb_btn sb_btn_submit submit_question-action"
+                               data-current_pleb="{{ current_user }}">Create Question</button>
+                        <button class="btn btn-primary sb_btn sb_btn_submit cancel_question-action">Cancel</button>
+                    </form>
                 </div>
              </div>
         </div>
@@ -50,9 +56,11 @@
 
 {% block scripts %}
     {{ block.super }}
+    <script src="{% static 'js/vendor/bootstrapValidator.min.js' %}"></script>
     <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
     <script src="{% static 'js/create_markdown.js' %}"></script>
     <script src="{% static 'js/save_question.js' %}"></script>
     <script src="{% static 'js/get_tags.js' %}"></script>
     <script src="{% static 'select2/select2.js' %}"></script>
+    <script src="{% static 'js/question_validator.js' %}"></script>
 {% endblock scripts %}

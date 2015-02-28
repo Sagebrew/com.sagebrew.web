@@ -7,7 +7,7 @@ actively listen to you, the community, for your needs and
 desires, and we encourage open communication so we can
 make Sagebrew a great experience for everyone.
 
-###A few things for general users###
+## A few things for general users ##
 
 - Sagebrew provides a great platform for those seeking
   to run for public office to do so. However, not all campaigns
@@ -40,7 +40,7 @@ make Sagebrew a great experience for everyone.
   Open communication is what a democracy is all about. The more information exchanged
   between individuals and those representing groups of individuals, the better.
 
-###A few things for candidates and sitting representatives###
+## A few things for candidates and sitting representatives ##
 
 - It's best to be as clear and concise as possible when laying
   out your Donation Goals and Rounds. You'll want to make sure
@@ -53,7 +53,7 @@ make Sagebrew a great experience for everyone.
 
 
 
-###Sagebrew's role here###
+## Sagebrew's role here ##
 - Our algorithms do their best to remove things like spam, someone selling products, etc.
   If it's clearly not legitimate, we do our best to tidy it up. We like to run a clean
   ship. Anything that our algorithms can't decipher definitively will have to be reviewed
@@ -71,8 +71,10 @@ make Sagebrew a great experience for everyone.
 
 
 
+** **
 
-#####Sagebrew is a new and exciting place, so lets all do our best to explore this uncharted territory together and make some real change!#####
+** Sagebrew is a new and exciting place, so lets all do our best to explore
+this uncharted territory together and make some real change!**
 
 
 [1]: /help/privileges/flagging/

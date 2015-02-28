@@ -231,7 +231,10 @@ function show_edit_question() {
 function show_edit_answer() {
     $("a.show_edit_answer-action").click(function(event){
         var answer_uuid = $(this).data('object_uuid');
-        $('#show_edit_sb_id_'+answer_uuid).fadeToggle();
+        $('#sb_content_'+answer_uuid).hide();
+        $('#show_edit_sb_id_'+answer_uuid).show();
+        var markdown = $("textarea#"+answer_uuid).pagedownBootstrap();
+        markdown.attr("id", answer_uuid)
     });
 }
 

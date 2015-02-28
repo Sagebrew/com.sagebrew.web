@@ -9,10 +9,10 @@ $(document).ready(function(){
             validating: 'glyphicon glyphicon-refresh'
         },
         live: 'enabled',
-        submitButtons: '#su',
+        submitButtons: '.comment-action',
         fields: {
-            comment_content: {
-                group: 'sb_answer_input',
+            sb_comment_input: {
+                group: 'sb_comment',
                 validators: {
                     notEmpty: {
                         message: "Content is required"

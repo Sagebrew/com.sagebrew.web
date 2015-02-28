@@ -367,7 +367,8 @@
   height: 33px;
   width: 33px;
 }
-.sb_dropdown_icon {
+.sb_dropdown_icon,
+.conversation_logo {
   color: #eaf0e8;
 }
 .sb_post_dropdown_menu {
@@ -698,4 +699,11 @@ textarea.sb_comment_input {
 }
 .sb_btn_comment_icon:active {
   color: #34495e;
+}
+.conversation_logo {
+  fill: white;
+  background-repeat: no-repeat;
+  padding-top: 1px;
+  padding-bottom: 0px;
+  margin-left: 30px;
 }

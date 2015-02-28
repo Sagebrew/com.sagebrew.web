@@ -24,7 +24,9 @@
         <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
             <div class="sb_answer_content">
                 <div class="sb_markdown" id="sb_content_{{ answer.object_uuid }}">
-                    {{ answer.content|linebreaksbr }}
+                    {% autoescape off %}
+                        {{ html_content }}
+                    {% endautoescape %}
                 </div>
             </div>
             <div class="row sb_edit_input_container" style="display:none" id="edit_container_{{ answer.object_uuid }}">

@@ -38,7 +38,9 @@
             </div>
             <div>
                 <div class="sb_markdown" id="sb_content_{{ object_uuid }}">
-                    {{ content|linebreaksbr }}
+                    {% autoescape off %}
+                        {{ html_content }}
+                    {% endautoescape %}
                 </div>
             </div>
             <div id="edit_container_{{ object_uuid }}" style="display: none">

@@ -301,6 +301,11 @@
   background-color: @sb_grey_light;
   padding: 0 0 30px 0px;
 }
+.sb_secondary_nav_transparent{
+  &:extend(.sb_secondary_nav);
+  background-color: transparent;
+  padding: 0 0 30px 0px;
+}
 .sb_tertiary_nav {
   &:extend(.sb_secondary_nav);
   background-color: transparent;
@@ -735,16 +740,4 @@ textarea.sb_comment_input{
       &:active{
         color: @sb_dark_blue;
       }
-}
-.related_article_wrapper{
-  background-color: @sb_off_white;
-  padding-top: @sb_common_padding_positive;
-    padding-left: @sb_common_padding_positive;
-    padding-right: @sb_common_padding_positive;
-    padding-bottom: @sb_common_padding_positive;
-    border-radius: @sb_common_radius;
-  margin-right: -15px;
-  ul{
-    font-size: 12pt;
-  }
 }

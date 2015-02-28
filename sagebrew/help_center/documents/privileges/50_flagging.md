@@ -49,5 +49,5 @@ A 2/3 majority is needed to [remove][3] or [close][4] Flagged posts.
   
 [1]: /help/reputation/admin_council/
 [2]: /help/reputation/
-[3]: /help/conversation/why_are_questions_deleted/
-[4]: /help/conversation/closure_of_a_question/
+[3]: /help/questions/why_are_questions_deleted/
+[4]: /help/questions/closure_of_a_question/

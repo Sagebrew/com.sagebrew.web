@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, include, url
-from .views import related_articles
+from .views import related_articles, help_area
 '''
 content_path is used in sync with the ssi tag in help_page.html to include
 the rendered html files from S3. Using python's
@@ -12,9 +12,9 @@ for our content creators to manage the information.
 '''
 urlpatterns = patterns(
     'help_center.views',
-    (r'^conversation/', include('help_center.sub_urls.asking')),
-    (r'^conversation/', include('help_center.sub_urls.solutions')),
-    (r'^conversation/', include(
+    (r'^questions/', include('help_center.sub_urls.questions')),
+    (r'^solutions/', include('help_center.sub_urls.solutions')),
+    (r'^reputation_and_moderation/', include(
         'help_center.sub_urls.reputation_and_moderation')),
     (r'^conversation/', include('help_center.sub_urls.conversation')),
     (r'^privileges/', include('help_center.sub_urls.privileges')),
@@ -27,6 +27,7 @@ urlpatterns = patterns(
     (r'^terms/', include('help_center.sub_urls.terms')),
     (r'^policies/', include('help_center.sub_urls.policies')),
     url(r'^related_articles/$', related_articles, name="related_articles"),
+    url(r'^$', help_area, name="help_center")
 )
 
 """

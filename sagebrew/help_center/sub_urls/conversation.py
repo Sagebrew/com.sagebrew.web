@@ -29,6 +29,21 @@ urlpatterns = patterns(
             "category": "conversation"
         },
         name="starting_a_public_conversation"),
+    url(r'^protected_conversation/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": 'What does it mean if a Conversation is "Protected"?',
+            "description": "Admin Council members have the ability to Protect "
+                           "Conversations that have not yet reached Seasoned "
+                           "status but need a bit more credibility to "
+                           "participate in. This can happen "
+                           "on valid Questions that attract a lot of attention "
+                           "but bolster too much noise.",
+            "content_path":
+                "%sprotected_conversation.html" % (settings.HELP_DOCS_PATH),
+            "category": "conversation"
+        },
+        name="protected_conversation"),
 
 )
 

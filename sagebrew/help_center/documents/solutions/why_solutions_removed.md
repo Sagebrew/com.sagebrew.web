@@ -21,5 +21,5 @@ sway the Admin Council's vote. Each Admin will
 read your appeal and consider it during their vote.
 
 [1]: /help/privileges/flagging/
-[2]: /help/conversation/duplicate_questions/
+[2]: /help/questions/duplicate_questions/
 [3]: /help/reputation/admin_council/

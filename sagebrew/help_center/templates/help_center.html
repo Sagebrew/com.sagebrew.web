@@ -1,0 +1,46 @@
+{% extends "help_base.html" %}
+{% load staticfiles %}
+{% block help_heading %}
+    <h1>{{ title }}</h1>
+{% endblock help_heading %}
+{% block content %}
+
+<div id="category" style="display: none"
+    data-category="{{ category }}"></div>
+<div class="row">
+    <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10 col-lg-offset-1 col-md-offset-1 col-sm-offset-1">
+        <div class="sb_help_article">
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 sb_nav sb_secondary_nav sb_secondary_nav_transparent">
+                    <ul>
+                        <li>
+                            <a href="{% url 'help_center' %}">The Sagebrew Help Area</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="sb_markdown">
+                    {% for category, location in categories.items %}
+                        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11 sb_help_center">
+                            <div class="sb_help_article_content">
+                                <h2>{{ category|capfirst }}</h2>
+                                <ul>
+                                    {% for related_article in location %}
+                                        <li><a href="{% url related_article.name %}">{{ related_article.title }}</a></li>
+                                    {% empty %}
+                                        <p>Currently No Related Articles Available</p>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/related_articles.js' %}"></script>
+{% endblock scripts %}

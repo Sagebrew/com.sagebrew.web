@@ -30,8 +30,8 @@ been around and can be trusted to take care of their responsibilities.
 [2]: /help/reputation/
 [3]: /help/privileges/brewmaster/
 [4]: /help/privileges/tribune/
-[5]: /help/conversation/duplicate_questions/
+[5]: /help/questions/duplicate_questions/
 [6]: /help/conversation/protected_conversation/
-[7]: /help/conversation/closure_of_a_question/
-[8]: /help/conversation/why_are_questions_deleted/
+[7]: /help/questions/closure_of_a_question/
+[8]: /help/questions/why_are_questions_deleted/
 [9]: /help/privileges/flagging/

@@ -31,7 +31,7 @@ their country.
 
 [1]: /help/reputation/admin_council/
 [2]: /help/privileges/flagging/
-[3]: /help/conversation/why_are_questions_deleted/
-[4]: /help/conversation/closure_of_a_question/
-[5]: /help/conversation/duplicate_question/
+[3]: /help/questions/why_are_questions_deleted/
+[4]: /help/questions/closure_of_a_question/
+[5]: /help/questions/duplicate_question/
 [6]: TBD

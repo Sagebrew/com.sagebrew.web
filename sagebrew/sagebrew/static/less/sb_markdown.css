@@ -91,10 +91,32 @@
   height: auto;
   background-color: #fafcfa;
   padding-top: 15px;
+  padding-right: 15px;
+  padding-bottom: 15px;
+  border-radius: 5px;
+  margin-left: 25px;
+  margin-right: 20px;
+}
+.related_article_wrapper {
+  background-color: #fafcfa;
+  padding-top: 15px;
   padding-left: 15px;
   padding-right: 15px;
   padding-bottom: 15px;
   border-radius: 5px;
-  margin-left: 30px;
-  margin-right: 30px;
+  margin-right: -20px;
+}
+.related_article_wrapper ul {
+  font-size: 12pt;
+}
+.sb_help_center {
+  height: 100%;
+  background-color: #fafcfa;
+  padding-top: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  border-radius: 5px;
+  margin-top: 30px;
+  margin-left: 50px;
+  padding-bottom: 40px;
 }

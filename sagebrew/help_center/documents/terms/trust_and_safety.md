@@ -76,5 +76,5 @@ make Sagebrew a great experience for everyone.
 
 
 [1]: /help/privileges/flagging/
-[2]: /help/conversation/why_are_questions_deleted/
-[3]: /help/conversation/closure_of_a_question/
+[2]: /help/questions/why_are_questions_deleted/
+[3]: /help/questions/closure_of_a_question/

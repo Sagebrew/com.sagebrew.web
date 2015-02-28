@@ -261,6 +261,7 @@
 }
 .sb_secondary_nav,
 .sb_secondary_nav_bar,
+.sb_secondary_nav_transparent,
 .sb_tertiary_nav {
   background-color: #e5ece6;
   height: 50px;
@@ -284,6 +285,10 @@
 }
 .sb_secondary_nav_bar {
   background-color: #e5ece6;
+  padding: 0 0 30px 0px;
+}
+.sb_secondary_nav_transparent {
+  background-color: transparent;
   padding: 0 0 30px 0px;
 }
 .sb_tertiary_nav {
@@ -684,16 +689,4 @@ textarea.sb_comment_input {
 }
 .sb_btn_comment_icon:active {
   color: #34495e;
-}
-.related_article_wrapper {
-  background-color: #fafcfa;
-  padding-top: 15px;
-  padding-left: 15px;
-  padding-right: 15px;
-  padding-bottom: 15px;
-  border-radius: 5px;
-  margin-right: -15px;
-}
-.related_article_wrapper ul {
-  font-size: 12pt;
 }

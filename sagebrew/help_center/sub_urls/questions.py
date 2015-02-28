@@ -13,7 +13,7 @@ urlpatterns = patterns(
                            "deletion but might be lacking in quality.",
             "content_path":
                 "%swhy_closed_question.html" % (settings.HELP_DOCS_PATH),
-            "category": "asking"
+            "category": "questions"
         },
         name="closed_question"),
     url(r'^closure_of_a_question/$', TemplateView.as_view(
@@ -28,7 +28,7 @@ urlpatterns = patterns(
                            "on the content.",
             "content_path":
                 "%sclosure_of_a_question.html" % (settings.HELP_DOCS_PATH),
-            "category": "asking"
+            "category": "questions"
         },
         name="closure_of_a_question"),
     url(r'^context_to_a_question/$', TemplateView.as_view(
@@ -40,7 +40,7 @@ urlpatterns = patterns(
                            "question and provide a more accurate solution",
             "content_path":
                 "%scontext_to_a_question.html" % (settings.HELP_DOCS_PATH),
-            "category": "asking"
+            "category": "questions"
         },
         name="context_to_a_question"),
     url(r'^duplicate_questions/$', TemplateView.as_view(
@@ -53,7 +53,7 @@ urlpatterns = patterns(
                            " happening.",
             "content_path":
                 "%sduplicate_question.html" % (settings.HELP_DOCS_PATH),
-            "category": "asking"
+            "category": "questions"
         },
         name="duplicate_questions"),
     url(r'^good_question/$', TemplateView.as_view(
@@ -65,7 +65,7 @@ urlpatterns = patterns(
                            "asking a question.",
             "content_path":
                 "%sgood_question.html" % (settings.HELP_DOCS_PATH),
-            "category": "asking"
+            "category": "questions"
         },
         name="good_question"),
     url(r'^no_traffic/$', TemplateView.as_view(
@@ -77,24 +77,9 @@ urlpatterns = patterns(
                            "reasons but some common ones are described here.",
             "content_path":
                 "%sno_traffic.html" % (settings.HELP_DOCS_PATH),
-            "category": "asking"
+            "category": "questions"
         },
         name="no_traffic"),
-    url(r'^protected_conversation/$', TemplateView.as_view(
-        template_name="help_page.html"),
-        kwargs={
-            "title": 'What does it mean if a Conversation is "Protected"?',
-            "description": "Admin Council members have the ability to Protect "
-                           "Conversations that have not yet reached Seasoned "
-                           "status but need a bit more credibility to "
-                           "participate in. This can happen "
-                           "on valid Questions that attract a lot of attention "
-                           "but bolster too much noise.",
-            "content_path":
-                "%sprotected_conversation.html" % (settings.HELP_DOCS_PATH),
-            "category": "asking"
-        },
-        name="protected_conversation"),
     url(r'^quality_standards/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -107,7 +92,7 @@ urlpatterns = patterns(
                            "breaking the quality standards.",
             "content_path":
                 "%squality_standards_message.html" % (settings.HELP_DOCS_PATH),
-            "category": "asking"
+            "category": "questions"
         },
         name="quality_standards"),
     url(r'^questions_avoid_asking/$', TemplateView.as_view(
@@ -119,7 +104,7 @@ urlpatterns = patterns(
                            "meant for Sagebrew.",
             "content_path":
                 "%squestions_avoid_asking.html" % (settings.HELP_DOCS_PATH),
-            "category": "asking"
+            "category": "questions"
         },
         name="questions_avoid_asking"),
     url(r'^questions_no_longer_accepted/$', TemplateView.as_view(
@@ -133,7 +118,7 @@ urlpatterns = patterns(
             "content_path":
                 "%squestions_no_longer_accepted.html" % (
                     settings.HELP_DOCS_PATH),
-            "category": "asking"
+            "category": "questions"
         },
         name="questions_no_longer_accepted"),
     url(r'^seasoned_conversation/$', TemplateView.as_view(
@@ -145,7 +130,7 @@ urlpatterns = patterns(
                            "this occurs a Conversation becomes Seasoned.",
             "content_path":
                 "%sseasoned_description.html" % (settings.HELP_DOCS_PATH),
-            "category": "asking"
+            "category": "questions"
         },
         name="seasoned_conversation"),
     url(r'^solution_to_question/$', TemplateView.as_view(
@@ -159,7 +144,7 @@ urlpatterns = patterns(
                            " Question.",
             "content_path":
                 "%ssolution_to_question.html" % (settings.HELP_DOCS_PATH),
-            "category": "asking"
+            "category": "questions"
         },
         name="solution_to_question"),
     url(r'^tags/$', TemplateView.as_view(
@@ -171,7 +156,7 @@ urlpatterns = patterns(
                            "suggestions.",
             "content_path":
                 "%stags_and_how_to_use_them.html" % (settings.HELP_DOCS_PATH),
-            "category": "asking"
+            "category": "questions"
         },
         name="tags_and_how_to_use_them"),
     url(r'^topics_to_ask_about/$', TemplateView.as_view(
@@ -183,7 +168,7 @@ urlpatterns = patterns(
                            "to discuss.",
             "content_path":
                 "%stopics_to_ask_about.html" % (settings.HELP_DOCS_PATH),
-            "category": "asking"
+            "category": "questions"
         },
         name="topics_to_ask_about"),
     url(r'^traffic_no_solutions/$', TemplateView.as_view(
@@ -197,7 +182,7 @@ urlpatterns = patterns(
                            "being proposed, try some of these ideas.",
             "content_path":
                 "%straffic_no_solutions.html" % (settings.HELP_DOCS_PATH),
-            "category": "asking"
+            "category": "questions"
         },
         name="traffic_no_solutions"),
     url(r'^why_are_questions_deleted/$', TemplateView.as_view(
@@ -209,7 +194,7 @@ urlpatterns = patterns(
                            " are.",
             "content_path":
                 "%swhy_are_questions_deleted.html" % (settings.HELP_DOCS_PATH),
-            "category": "asking"
+            "category": "questions"
         },
         name="why_are_questions_deleted"),
 )

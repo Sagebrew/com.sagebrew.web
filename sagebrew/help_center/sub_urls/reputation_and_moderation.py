@@ -15,7 +15,7 @@ urlpatterns = patterns(
                            "its ranks.",
             "content_path":
                 "%sadmin_council.html" % (settings.HELP_DOCS_PATH),
-            "category": "reputation_and_moderation"
+            "category": "Reputation and Moderation"
         },
         name="admin_council"),
     url(r'^conceding/$', TemplateView.as_view(
@@ -28,7 +28,7 @@ urlpatterns = patterns(
                            "focus in on the top solutions.",
             "content_path":
                 "%sconceding.html" % (settings.HELP_DOCS_PATH),
-            "category": "reputation_and_moderation"
+            "category": "Reputation and Moderation"
         },
         name="conceding"),
     url(r'^moderators/$', TemplateView.as_view(
@@ -41,7 +41,7 @@ urlpatterns = patterns(
                            "with keeping Sagebrew running fluidly.",
             "content_path":
                 "%smoderators.html" % (settings.HELP_DOCS_PATH),
-            "category": "reputation_and_moderation"
+            "category": "Reputation and Moderation"
         },
         name="moderators"),
     url(r'^reputation_changed_user_removed/$', TemplateView.as_view(
@@ -55,7 +55,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sreputation_change_user_remove.html" % (
                     settings.HELP_DOCS_PATH),
-            "category": "reputation_and_moderation"
+            "category": "Reputation and Moderation"
         },
         name="reputation_changed_user_removed"),
     url(r'^serial_voting_change/$', TemplateView.as_view(
@@ -71,7 +71,7 @@ urlpatterns = patterns(
                            "our members.",
             "content_path":
                 "%sserial_voting_change.html" % (settings.HELP_DOCS_PATH),
-            "category": "reputation_and_moderation"
+            "category": "Reputation and Moderation"
         },
         name="serial_voting_change"),
     url(r'^user_removed_change/$', TemplateView.as_view(
@@ -87,7 +87,7 @@ urlpatterns = patterns(
                            "our members.",
             "content_path":
                 "%suser_removed_change.html" % (settings.HELP_DOCS_PATH),
-            "category": "reputation_and_moderation"
+            "category": "Reputation and Moderation"
         },
         name="user_removed_change"),
     url(r'^voting_importance/$', TemplateView.as_view(
@@ -100,7 +100,7 @@ urlpatterns = patterns(
                            "most popular and the most encompassing",
             "content_path":
                 "%svoting_importance.html" % (settings.HELP_DOCS_PATH),
-            "category": "reputation_and_moderation"
+            "category": "Reputation and Moderation"
         },
         name="voting_importance"),
     url(r'^what_are_badges/$', TemplateView.as_view(
@@ -112,7 +112,7 @@ urlpatterns = patterns(
                            "key component of distinguishing yourself.",
             "content_path":
                 "%swhat_are_badges.html" % (settings.HELP_DOCS_PATH),
-            "category": "reputation_and_moderation"
+            "category": "Reputation and Moderation"
         },
         name="what_are_badges"),
     url(r'^$', TemplateView.as_view(
@@ -123,7 +123,7 @@ urlpatterns = patterns(
                            "gauge the knowledge and wit of a fellow member.",
             "content_path":
                 "%sreputation.html" % (settings.HELP_DOCS_PATH),
-            "category": "reputation_and_moderation"
+            "category": "Reputation and Moderation"
         },
         name="reputation"),
 )

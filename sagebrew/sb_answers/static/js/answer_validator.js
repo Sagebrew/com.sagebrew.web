@@ -1,5 +1,5 @@
 $(document).ready(function(){
-    $("#answerSubmitForm").bootstrapValidator({
+    $("#betaSignupForm").bootstrapValidator({
         framework: 'bootstrap',
         err: {
             container: '#fname_errors'
@@ -9,17 +9,17 @@ $(document).ready(function(){
             validating: 'glyphicon glyphicon-refresh'
         },
         live: 'enabled',
-        submitButtons: '#submit_answer',
+        submitButtons: '#beta_email_submit',
         fields: {
-            answer_content: {
-                group: 'sb_answer_input',
+            content: {
+                group: 'email_class',
                 validators: {
                     notEmpty: {
-                        message: "Email is required"
+                        message: "Content is required"
                     },
                     stringLength: {
-                        max: 200,
-                        message: "Email must not exceed 200 characters"
+                        min: 15,
+                        message: "Content must be greater than 15 characters"
                     }
                 }
             }

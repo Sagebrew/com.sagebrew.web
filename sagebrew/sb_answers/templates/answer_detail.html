@@ -27,6 +27,13 @@
                     {{ answer.content|linebreaksbr }}
                 </div>
             </div>
+            <div class="row sb_edit_input_container" style="display:none" id="edit_container_{{ answer.object_uuid }}">
+                <textarea class="form-control sb_edit_input" id="{{ answer.object_uuid }}">{{ answer.content }}</textarea>
+                <a class="btn btn-primary sb_btn sb_btn_basic edit_object-action"
+                   data-object_type="02241aee-644f-11e4-9ad9-080027242395"
+                   data-object_uuid="{{ answer.object_uuid }}"
+                   data-parent_object="{{ answer.parent_object }}">Submit</a>
+            </div>
         </div>
         <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 sb_question_drop_down">
             {% include "answer_dropdown.html" %}
@@ -35,13 +42,7 @@
     <div class="sb_id" data-object_uuid="{{ object_uuid }}"
              style="display: None"></div>
     {% url "profile_page" pleb_username=answer.answer_owner_url as owner_url %}
-    <div class="row sb_edit_input_container"style="display:none" id="show_edit_sb_id_{{ answer.object_uuid }}">
-        <textarea class="form-control sb_edit_input" id="{{ answer.object_uuid }}" placeholder="Edit your answer..."></textarea>
-        <a class="btn btn-primary sb_btn sb_btn_basic edit_object-action"
-           data-object_type="02241aee-644f-11e4-9ad9-080027242395"
-           data-object_uuid="{{ answer.object_uuid }}"
-           data-parent_object="{{ answer.parent_object }}">Submit</a>
-    </div>
+
     {% block answer_comments %}
         {% for comment in answer.comments %}
             {% include "single_comments.html" %}
@@ -60,7 +61,7 @@
             </small>
         </div>
     </div>
-    <div style="display: none"class="input-group sb_comment">
+    <div style="display: none" class="input-group sb_comment">
         <textarea class="input-group form-control sb_comment_input "
                   id="post_comment_on_{{ answer.object_uuid }}"
                   rows="2"

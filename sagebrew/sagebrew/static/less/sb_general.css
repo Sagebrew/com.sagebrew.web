@@ -703,7 +703,8 @@ textarea.sb_comment_input {
 .conversation_logo {
   fill: white;
   background-repeat: no-repeat;
-  padding-top: 1px;
+  padding-top: 5px;
   padding-bottom: 0px;
   margin-left: 30px;
+  padding-right: 25px;
 }

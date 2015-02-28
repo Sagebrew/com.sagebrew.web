@@ -200,7 +200,9 @@ function show_edit_question() {
         var question_uuid = $(this).data('object_uuid');
         $('#sb_content_'+question_uuid).hide();
         $("#edit_container_"+question_uuid).show();
-        $("textarea#"+question_uuid).pagedownBootstrap();
+        var markdown = $("textarea#"+question_uuid).pagedownBootstrap();
+        markdown.attr("id", question_uuid);
+        console.log(markdown);
     });
 }
 

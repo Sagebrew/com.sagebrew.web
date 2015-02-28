@@ -155,7 +155,9 @@
 .sb_btn_nav,
 .sb_login button,
 .vote_up,
-.vote_down {
+.vote_down,
+.vote_up_small,
+.vote_down_small {
   background-color: #1ba39c;
 }
 .sb_btn_space,
@@ -177,7 +179,9 @@
 .sb_btn_vote,
 .sb_btn_nav,
 .vote_up,
-.vote_down {
+.vote_down,
+.vote_up_small,
+.vote_down_small {
   background-color: transparent;
   font-size: 18px;
   padding: 10px;
@@ -194,7 +198,9 @@
 }
 .sb_btn_vote,
 .vote_up,
-.vote_down {
+.vote_down,
+.vote_up_small,
+.vote_down_small {
   color: #b7bfbb;
   padding: 0;
   font-size: 30pt;
@@ -208,8 +214,14 @@
 .vote_up_active {
   color: #1ba39c;
 }
+.vote_up_small {
+  font-size: 20pt;
+}
 .vote_down:hover {
   color: #a162ff;
+}
+.vote_down_small {
+  font-size: 20pt;
 }
 .vote_down_active {
   color: #a162ff;
@@ -574,6 +586,10 @@
 }
 .sb_vote_wrapper {
   margin-left: -5px;
+  margin-top: -15px;
+}
+.sb_vote_wrapper_small {
+  margin-left: 2px;
   margin-top: -15px;
 }
 .sb_up_vote_wrapper {

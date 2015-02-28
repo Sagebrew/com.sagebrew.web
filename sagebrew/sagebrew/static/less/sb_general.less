@@ -209,11 +209,19 @@
 .vote_up_active{
   color: @sb_green;
 }
+.vote_up_small{
+  &:extend(.vote_up);
+  font-size: 20pt;
+}
 .vote_down{
   &:extend(.sb_btn_vote);
   &:hover{
     color: @sb_violet;
   }
+}
+.vote_down_small{
+  &:extend(.vote_down);
+  font-size: 20pt;
 }
 .vote_down_active{
   color: @sb_violet;
@@ -223,12 +231,13 @@
   h6{
     font-size: 12pt;
   }
-
   p {
-
     font-weight: bold;
     margin-bottom: -5px;
     margint-top: -5px;
+  }
+  small{
+
   }
 }
 .sb_spy{
@@ -618,6 +627,10 @@
 }
 .sb_vote_wrapper{
   margin-left: -5px;
+  margin-top: -15px;
+}
+.sb_vote_wrapper_small{
+  margin-left: 2px;
   margin-top: -15px;
 }
 .sb_up_vote_wrapper{

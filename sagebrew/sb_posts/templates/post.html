@@ -77,7 +77,7 @@
     <div class="row">
 
             <div class="col-lg-1 hidden-md hidden-sm hidden-xs sb_vote_wrapper">
-                <div class="row">
+                <div class="row vote_wrapper" id="vote_{{ object_uuid }}">
                     <div class="col-lg-12 sb_up_vote_wrapper">
                         <div style="display: none" class="{{ object_uuid }}">{{ up_vote_number }}</div>
                         <button class="btn sb_btn sb_btn_vote vote_up vote_object-action"
@@ -105,7 +105,7 @@
                         <button class="btn sb_btn sb_btn_vote vote_down vote_object-action"
                            data-object_uuid="{{ object_uuid }}"
                            data-vote_type=false
-                           data-current_pleb="{{ current_pleb }}"
+                           data-current_pleb="{{ current_pleb.username }}"
                            data-object_type="02241aee-644f-11e4-9ad9-080027242395">
                             <span class="fui-triangle-down"></span>
                         </button>

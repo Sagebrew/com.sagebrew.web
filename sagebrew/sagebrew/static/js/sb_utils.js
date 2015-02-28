@@ -78,7 +78,25 @@ function flag_object() {
 }
 
 function vote_object() {
-    $("a.vote_object-action").click(function (event) {
+    $(".vote_object-action").click(function (event) {
+        var id = $(this).parents('div.vote_wrapper').attr('id').split('_')[1];
+        var vote_type = $(this).hasClass('vote_up') ? true : false;
+        var vote_down = $(this).parents('div.vote_wrapper').find(".vote_down");
+        var vote_up = $(this).parents('div.vote_wrapper').find(".vote_up");
+        if(vote_down.hasClass('vote_selected')){
+            vote_down.addClass('vote_down_active');
+            vote_up.removeClass('vote_up_active');
+            // Used to figure out if class is selected but still need above
+            // Due to variance in coloring of the up and down buttons.
+            $(this).toggleClass('vote_selected');
+        } else {
+            vote_down.addClass('vote_up_active');
+            vote_up.removeClass('vote_down_active');
+            // Used to figure out if class is selected but still need above
+            // Due to variance in coloring of the up and down buttons.
+            $(this).toggleClass('vote_selected');
+        }
+
         var uuid = $(this).data('object_uuid');
         var upvote_count = $('div.sb_upvote_count'+uuid).text();
         var downvote_count = $('div.sb_downvote_count'+uuid).text();
@@ -93,7 +111,7 @@ function vote_object() {
             type: "POST",
             url: "/vote/vote_object_api/",
             data: JSON.stringify({
-                'vote_type': $(this).data('vote_type'),
+                'vote_type': vote_type,
                 'current_pleb': $(this).data('current_pleb'),
                 'object_uuid': $(this).data('object_uuid'),
                 'object_type': $(this).data('object_type'),

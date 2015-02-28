@@ -202,15 +202,21 @@
 }
 .vote_up{
   &:extend(.sb_btn_vote);
-  &:hover{
+  &:hover {
     color: @sb_green;
   }
+}
+.vote_up_active{
+  color: @sb_green;
 }
 .vote_down{
   &:extend(.sb_btn_vote);
   &:hover{
     color: @sb_violet;
   }
+}
+.vote_down_active{
+  color: @sb_violet;
 }
 .vote_count{
   padding-right: 0;

@@ -102,6 +102,7 @@ def get_user_posts(request):
                 # from javascript so we'll have to figure that out that as well
                 # Example when someone transitions from 9 to 10 and 99 to 100
                 post_dict['object_vote_count'] = "4.5k"
+                post_dict['current_pleb'] = request.user
                 html = render_to_string('post.html', post_dict)
                 html_array.append(html)
 

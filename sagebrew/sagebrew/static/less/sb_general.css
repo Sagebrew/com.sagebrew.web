@@ -205,7 +205,13 @@
 .vote_up:hover {
   color: #1ba39c;
 }
+.vote_up_active {
+  color: #1ba39c;
+}
 .vote_down:hover {
+  color: #a162ff;
+}
+.vote_down_active {
   color: #a162ff;
 }
 .vote_count {

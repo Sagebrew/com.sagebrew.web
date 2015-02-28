@@ -41,7 +41,8 @@ function save_comment() {
 function show_edit_post() {
     $("a.show_edit_post_class").click(function (event) {
         var sb_id = $(this).data('uuid');
-        $('#divid_' + sb_id).fadeToggle();
+        $("#sb_content_"+sb_id).hide();
+        $('#edit_container_' + sb_id).show();
     });
 }
 
@@ -49,7 +50,8 @@ function show_edit_post() {
 function show_edit_comment() {
     $("a.show_edit_comment_class").click(function () {
         var sb_id = $(this).data('comment_uuid');
-        $("#comment_divid_" + sb_id).fadeToggle();
+        $("#sb_content_"+sb_id).hide();
+        $('#edit_container_' + sb_id).show();
     });
 }
 

@@ -138,6 +138,18 @@
             <div class="sb_post_body" id="sb_content_{{ object_uuid }}">
                 {{ content|linebreaksbr }}
             </div>
+            <div id="edit_container_{{ object_uuid }}" style="display: none">
+                <textarea class="form-control edit_post_input_class"
+                          id="{{ object_uuid }}"
+                          name="edit_post_input"
+                          rows="1">{{ content }}</textarea>
+                <a class='btn btn-primary edit_object-action'
+                   id="edit_post_button_id"
+                   data-object_type="01bb301a-644f-11e4-9ad9-080027242395"
+                   data-parent_object="{{ parent_object }}"
+                   data-object_uuid="{{ object_uuid }}"
+                   data-datetime="{{ datetime }}">Submit</a>
+            </div>
         </div>
     </div>
 
@@ -153,22 +165,8 @@
                       placeholder="Write your comment..."></textarea>
             <a class="btn input-group-btn sb_btn_comment_icon comment-action"
                data-object_uuid="{{ object_uuid }}"
-               data-current_pleb="{{ current_user }}"
                data-object_type="01bb301a-644f-11e4-9ad9-080027242395"><span class="fui-new"></span></a>
         </div>
-        <div id="divid_{{ object_uuid }}"
-             style="display: none">
-            <textarea class="form-control edit_post_input_class"
-                      id="{{ object_uuid }}"
-                      name="edit_post_input"
-                      rows="1"
-                      placeholder="Edit your post..."></textarea>
-            <a class='btn btn-primary edit_object-action'
-               id="edit_post_button_id"
-               data-object_type="01bb301a-644f-11e4-9ad9-080027242395"
-               data-parent_object="{{ parent_object }}"
-               data-object_uuid="{{ object_uuid }}"
-               data-datetime="{{ datetime }}">Submit</a>
-        </div>
+
     </div>
 </div>

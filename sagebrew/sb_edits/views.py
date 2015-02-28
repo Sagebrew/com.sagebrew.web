@@ -51,6 +51,7 @@ def edit_object_view(request):
         else:
             obj_datetime = ""
             parent_object = edit_object_form.cleaned_data['parent_object']
+        print obj_datetime, parent_object
         res = update_doc(table,
                          edit_object_form.cleaned_data['object_uuid'],
                          updates,

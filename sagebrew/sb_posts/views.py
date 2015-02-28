@@ -41,6 +41,7 @@ def save_post_view(request):
         if isinstance(spawned, Exception):
             return Response({"detail": "Failed to create post"},
                             status=500)
+        print type(request.user)
         post_data = {
             "object_uuid": post_form.cleaned_data['post_uuid'],
             "parent_object": request.user.username,
@@ -50,10 +51,11 @@ def save_post_view(request):
                           request.user.last_name,
             "upvote_number": 0,
             "downvote_number": 0,
-            "content": post_form.cleaned_data['content']
+            "content": post_form.cleaned_data['content'],
+            "object_vote_count": "0",
+            "vote_type": "true"
         }
         html = render_to_string('post.html', post_data)
-        print html
         return Response(
             {"action": "filtered", "filtered_content": post_data,
              "html": html},

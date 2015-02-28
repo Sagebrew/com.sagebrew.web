@@ -29,22 +29,22 @@
 ight sb_post_dropdown"
                 role="menu" aria-labelledby="dropdown-menu">
                 {% if parent_object == user.username %}
-                    <li role="presentation"><a class="sb_post_dropdown_menu show_edit_post_class"
-                                               data-uuid="{{ object_uuid }}"
+                    <li role="presentation"><a class="sb_post_dropdown_menu show_edit_comment_class"
+                                               data-comment_uuid="{{ comment.object_uuid }}"
                                                type="submit">Edit Comment</a>
                     </li>
                     <li role="presentation" class="sb_divider"></li>
 
                     <li role="presentation"> <a class='sb_post_dropdown_menu delete_object-action'
                                                data-current_pleb="{{ current_user }}"
-                                               data-object_uuid="{{ object_uuid }}"
+                                               data-object_uuid="{{ comment.object_uuid }}"
                                                data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Delete Comment</a>
                     </li>
                 {% else %}
                     <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action'
                                                data-flag_reason='spam'
                                                data-current_user="{{ current_user }}"
-                                               data-object_uuid="{{ object_uuid }}"
+                                               data-object_uuid="{{ comment.object_uuid }}"
                                                data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Spam
                                                </a>
                     </li>
@@ -52,7 +52,7 @@ ight sb_post_dropdown"
                     <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action'
                                                data-flag_reason='explicit'
                                                data-current_user="{{ current_user }}"
-                                               data-object_uuid="{{ object_uuid }}"
+                                               data-object_uuid="{{ comment.object_uuid }}"
                                                data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Explicit
                                                </a>
                     </li>
@@ -60,7 +60,7 @@ ight sb_post_dropdown"
                     <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action'
                                                data-flag_reason='other'
                                                data-current_user="{{ current_user }}"
-                                               data-object_uuid="{{ object_uuid }}"
+                                               data-object_uuid="{{ comment.object_uuid }}"
                                                data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Other
                                                </a>
                     </li>
@@ -101,6 +101,18 @@ ight sb_post_dropdown"
         <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12 col-md-offset-1 col-sm-offset-1">
             <div class="sb_comment_body" id="sb_content_{{ comment.object_uuid }}">
                 <p>{{ comment.content|linebreaksbr }}</p>
+            </div>
+            <div id="edit_container_{{ comment.object_uuid }}" style="display: none">
+                <textarea class="form-control edit_comment_input_class"
+                          id="{{ comment.object_uuid }}"
+                          name="edit_comment_input"
+                          rows="1">{{ comment.content }}</textarea>
+                <a class='btn btn-primary edit_object-action'
+                   id="edit_post_button_id"
+                   data-object_type="02241aee-644f-11e4-9ad9-080027242395"
+                   data-parent_object="{{ object_uuid }}"
+                   data-object_uuid="{{ comment.object_uuid }}"
+                   data-datetime="{{ comment.datetime }}">Submit</a>
             </div>
         </div>
     </div>

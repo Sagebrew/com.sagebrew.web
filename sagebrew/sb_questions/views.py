@@ -209,7 +209,7 @@ def get_question_view(request):
                                    'public_questions', 'public_solutions')
             if res == {}:
                 question_by_uuid = get_question_by_uuid(
-                question_data['question_uuid'], request.user.email)
+                    question_data['question_uuid'], request.user.email)
                 task_data = {
                     'question_uuid': question_data['question_uuid'],
                     'question_table': 'public_questions',

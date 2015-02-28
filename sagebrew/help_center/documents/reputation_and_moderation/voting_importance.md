@@ -38,6 +38,6 @@ necessary.
 Don't be afraid to show support or opposition by voting! 
 
 
-[1]: /help_center/privileges/upvote/
-[2]: /help_center/privileges/downvote/
-[3]: /help_center/privileges/participate_in_the_conversation/
+[1]: /help/privileges/upvote/
+[2]: /help/privileges/downvote/
+[3]: /help/privileges/participate_in_the_conversation/

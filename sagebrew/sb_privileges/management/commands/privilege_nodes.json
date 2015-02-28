@@ -12,7 +12,7 @@
                 {
                     "action": "write_solution",
                     "object_type": "02241aee-644f-11e4-9ad9-080027242395",
-                    "url": "/answers/submit_answer_api/",
+                    "url": "/solutions/submit_answer_api/",
                     "html_object": ".submit_answer-action"
                 },
                 {

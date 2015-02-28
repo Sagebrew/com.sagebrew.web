@@ -22,4 +22,5 @@ themselves worthy of attaining them. Good luck unearthing these badges!
 
 For a full list of all Sagebrew Badges visit the [Badges Area][1]. 
 
+# TODO Fix links #
 [1]: badges_area

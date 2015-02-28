@@ -14,8 +14,8 @@ urlpatterns = patterns(
                            "miss and we hope the community will help us "
                            "if they find any holes.",
             "content_path":
-                "%s/static/rendered_docs/security_vulnerability.html" % (
-                    settings.STATIC_URL)
+                "%ssecurity_vulnerability.html" % (settings.HELP_DOCS_PATH),
+            "category": "security"
         },
         name="security_vulnerability"),
 )

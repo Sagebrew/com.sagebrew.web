@@ -180,6 +180,9 @@ class Pleb(StructuredNode):
     official = RelationshipTo('sb_reps.neo_models.BaseOfficial', 'IS',
                               model=OfficialRelationship)
 
+    def deactivate(self):
+        return
+
     def get_restrictions(self):
         return self.restrictions.all()
 

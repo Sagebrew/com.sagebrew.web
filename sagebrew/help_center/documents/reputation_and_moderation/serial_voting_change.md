@@ -8,4 +8,4 @@ the inconvenience, but Reputation gained or lost as a result of serial
 Up/Downvoting compromises the integrity of the site and detracts from 
 meaningful conversation.  
 
-[1]: /help_center/privileges/list_of_privileges/ # TODO
+[1]: /help/privileges/list_of_privileges/ # TODO

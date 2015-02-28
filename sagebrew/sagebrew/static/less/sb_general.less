@@ -93,6 +93,15 @@
   position: inherit;
   float: left;
 }
+
+.sb_blog_post_block {
+  &:extend(.block);
+  margin-top:40px;
+  margin-bottom: 60px;
+  border-radius: 10px;
+  background-color: @sb_green_wall;
+  float: left;
+}
 // TODO Review and potentially change to just standard side_container
 .sb_questions_side_container{
     background-color: @sb_green_wall;
@@ -193,9 +202,12 @@
 }
 .vote_up{
   &:extend(.sb_btn_vote);
-  &:hover{
+  &:hover {
     color: @sb_green;
   }
+}
+.vote_up_active{
+  color: @sb_green;
 }
 .vote_down{
   &:extend(.sb_btn_vote);
@@ -203,10 +215,17 @@
     color: @sb_violet;
   }
 }
+.vote_down_active{
+  color: @sb_violet;
+}
 .vote_count{
-  padding-left: 5px;
+  padding-right: 0;
+  h6{
+    font-size: 12pt;
+  }
 
   p {
+
     font-weight: bold;
     margin-bottom: -5px;
     margint-top: -5px;
@@ -290,6 +309,11 @@
 .sb_secondary_nav_bar{
   &:extend(.sb_secondary_nav);
   background-color: @sb_grey_light;
+  padding: 0 0 30px 0px;
+}
+.sb_secondary_nav_transparent{
+  &:extend(.sb_secondary_nav);
+  background-color: transparent;
   padding: 0 0 30px 0px;
 }
 .sb_tertiary_nav {
@@ -383,7 +407,7 @@
   padding-left: 20px;
 }
 .sb_profile_container_wall {
-  background-color: #e0e7e1;
+  background-color: @sb_green_wall;
   height: auto;
   margin-top: 15px;
   min-height: 575px;
@@ -593,24 +617,24 @@
   background-color: rgba(202,206,209,.5);
 }
 .sb_vote_wrapper{
-  margin-left: 9px;
-  margin-top: -10px
+  margin-left: -5px;
+  margin-top: -15px;
 }
 .sb_up_vote_wrapper{
   margin-bottom: -13px;
 }
 .sb_down_vote_wrapper{
   margin-top: -10px;
+  margin-bottom: -15px;
 }
 .sb_post_wrapper{
   padding-left: 0;
   padding-right: 0;
 }
 .sb_post_body{
-  margin-left: 7px;
+  margin-left: @sb_common_margin_positive;
   font-size: 12pt;
-  padding: @sb_common_padding_positive + 2;
-  margin-right: @sb_common_margin_positive;
+  padding: @sb_common_padding_positive;
   margin-bottom: @sb_common_margin_positive;
   hanging-punctuation: force-end;
   min-height: 65px;
@@ -655,7 +679,8 @@
     }
 }
 .sb_comment_wrapper{
-  padding-right: 10px;
+  padding-right: 0px;
+
 }
 
 .sb_comments_container{
@@ -675,7 +700,7 @@
 
 .sb_comment_body{
   p{
-    font-size: 10pt
+    font-size: 10pt;
   }
 }
 

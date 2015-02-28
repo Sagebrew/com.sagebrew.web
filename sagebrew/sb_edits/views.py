@@ -20,6 +20,7 @@ logger = logging.getLogger('loggly_logs')
 @api_view(["POST"])
 @permission_classes((IsAuthenticated,))
 def edit_object_view(request):
+    print request.DATA
     try:
         edit_object_form = EditObjectForm(request.DATA)
         valid_form = edit_object_form.is_valid()
@@ -67,6 +68,7 @@ def edit_object_view(request):
                          "html_object": html_string},
                         status=200)
     else:
+        print edit_object_form.errors
         return Response({"detail": "invalid form"}, status=400)
 
 

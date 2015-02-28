@@ -10,7 +10,7 @@ RUN mkdir /home/apps/logs
 RUN git clone -b {{CIRCLE_BRANCH}} git@github.com:{{PROJECT_USERNAME}}/{{PROJECT_REPONAME}}.git /home/apps/{{PROJECT_REPONAME}}/
 RUN chown -R {{APP_USER}}:{{APP_USER}} /home/apps/
 RUN mkdir /home/apps/{{PROJECT_REPONAME}}/{{PROJECT_NAME}}/static/
-
+RUN pip install --upgrade pip
 RUN pip install -r /home/apps/{{PROJECT_REPONAME}}/requirements/{{REQUIREMENTS_FILE}}.txt
 RUN rm -r /root/.ssh
 RUN apt-get remove --auto-remove -y openssh-client

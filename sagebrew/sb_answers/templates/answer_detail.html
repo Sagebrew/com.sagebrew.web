@@ -27,8 +27,8 @@
                     {{ answer.content|linebreaksbr }}
                 </div>
             </div>
-            <div class="row sb_edit_input_container" style="display:none" id="show_edit_sb_id_{{ answer.object_uuid }}">
-                <textarea class="form-control sb_edit_input" id="{{ answer.object_uuid }}" placeholder="Edit your answer..."></textarea>
+            <div class="row sb_edit_input_container" style="display:none" id="edit_container_{{ answer.object_uuid }}">
+                <textarea class="form-control sb_edit_input" id="{{ answer.object_uuid }}">{{ answer.content }}</textarea>
                 <a class="btn btn-primary sb_btn sb_btn_basic edit_object-action"
                    data-object_type="02241aee-644f-11e4-9ad9-080027242395"
                    data-object_uuid="{{ answer.object_uuid }}"

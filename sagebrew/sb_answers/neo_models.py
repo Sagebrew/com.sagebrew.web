@@ -1,4 +1,5 @@
 import pytz
+import markdown
 from uuid import uuid1
 from datetime import datetime
 from django.core.urlresolvers import reverse
@@ -95,7 +96,8 @@ class SBAnswer(SBVersioned):
                            'comments': comment_array,
                            'answer_owner_email': answer_owner.email,
                            'edits': [],
-                           'object_type': self.object_type}
+                           'object_type': self.object_type,
+                           'html_content': markdown.markdown(self.content)}
             return answer_dict
         except CypherException as e:
             return e

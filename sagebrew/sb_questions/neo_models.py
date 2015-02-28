@@ -1,4 +1,5 @@
 import pytz
+import markdown
 from uuid import uuid1
 from datetime import datetime
 from api.utils import execute_cypher_query
@@ -164,7 +165,8 @@ class SBQuestion(SBVersioned, SBTagContent):
                 'owner_email': owner.email,
                 'edits': [],
                 'object_type': self.object_type,
-                'to_be_deleted': self.to_be_deleted}
+                'to_be_deleted': self.to_be_deleted,
+                'html_content': markdown.markdown(self.content)}
         except CypherException as e:
             return e
 

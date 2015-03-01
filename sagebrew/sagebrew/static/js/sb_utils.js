@@ -43,6 +43,8 @@ function show_edit_post() {
         var sb_id = $(this).data('uuid');
         $("#sb_content_"+sb_id).hide();
         $('#edit_container_' + sb_id).show();
+        var textarea = $('textarea#' + $(this).data('uuid'));
+        textarea.height( textarea[0].scrollHeight );
     });
 }
 
@@ -52,6 +54,8 @@ function show_edit_comment() {
         var sb_id = $(this).data('comment_uuid');
         $("#sb_content_"+sb_id).hide();
         $('#edit_container_' + sb_id).show();
+        var textarea = $('textarea#' + $(this).data('comment_uuid'));
+        textarea.height( textarea[0].scrollHeight );
     });
 }
 

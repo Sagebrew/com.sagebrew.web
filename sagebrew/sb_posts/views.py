@@ -3,7 +3,10 @@ import logging
 import markdown
 from uuid import uuid1
 from datetime import datetime
+
 from django.template.loader import render_to_string
+from django.template import RequestContext
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
@@ -58,7 +61,9 @@ def save_post_view(request):
             "vote_type": "true",
             "html_content": post_form.cleaned_data['html_content']
         }
-        html = render_to_string('post.html', post_data)
+        c = RequestContext(request, post_data)
+        html = render_to_string('post.html', post_data,
+                                context_instance=c)
         return Response(
             {"action": "filtered", "filtered_content": post_data,
              "html": html},
@@ -109,7 +114,9 @@ def get_user_posts(request):
                 post_dict['object_vote_count'] = "10.5k"
                 post_dict['vote_type'] = "true"
                 post_dict['current_pleb'] = request.user
-                html = render_to_string('post.html', post_dict)
+                c = RequestContext(request, post_dict)
+                html = render_to_string('post.html', post_dict,
+                                        context_instance=c)
                 html_array.append(html)
 
         return Response({'html': html_array}, status=200)

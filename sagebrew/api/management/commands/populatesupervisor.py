@@ -128,4 +128,8 @@ def populate_general_values(data, user, worker_count):
                         environ.get("OPBEAT_APP_ID", ""))
     data = data.replace("%(ENV_OPBEAT_SECRET_TOKEN)s",
                         environ.get("OPBEAT_SECRET_TOKEN", ""))
+    data = data.replace("%(ENV_OAUTH_CLIENT_ID)s",
+                        environ.get("OAUTH_CLIENT_ID", ""))
+    data = data.replace("%(ENV_OAUTH_CLIENT_SECRET)s",
+                        environ.get("OAUTH_CLIENT_SECRET", ""))
     return data

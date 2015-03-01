@@ -11,10 +11,6 @@ class Command(BaseCommand):
     args = 'None.'
 
     def create_oauth_client(self):
-        client_id = signing.dumps(str(uuid1()))
-        settings.OAUTH_CLIENT_ID = client_id
-        client_secret = signing.dumps(str(uuid1()))+signing.dumps(str(uuid1()))
-        settings.OAUTH_CLIENT_SECRET = client_secret
         password = (signing.dumps(str(uuid1()))+signing.dumps(str(uuid1())))[
                                                :128]
         try:
@@ -23,15 +19,14 @@ class Command(BaseCommand):
             oauth_user = User(username=environ.get("APP_USER", ""),
                           password=password)
             oauth_user.save()
-        application = Application(client_id=client_id,
+        application = Application(client_id=settings.OAUTH_CLIENT_ID,
                                   user=oauth_user,
                                   redirect_uris=settings.WEB_ADDRESS+'/login',
                                   client_type='confidential',
                                   authorization_grant_type="password",
-                                  client_secret=client_secret,
+                                  client_secret=settings.OAUTH_CLIENT_SECRET,
                                   name=oauth_user.username)
         application.save()
-        print application.id
 
     def handle(self, *args, **options):
         self.create_oauth_client()

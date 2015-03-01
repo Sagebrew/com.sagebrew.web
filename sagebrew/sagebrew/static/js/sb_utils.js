@@ -20,7 +20,6 @@ function save_comment() {
             }
         });
         $.ajax({
-
             xhrFields: {withCredentials: true},
             type: "POST",
             url: "/comments/submit_comment/",
@@ -33,7 +32,9 @@ function save_comment() {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-                $("sb_comments_container_"+$(this).data('object_uuid')).append(data['html'])
+                var comment_container = $("#sb_comments_container_"+sb_id);
+                comment_container.append(data['html']);
+                $('textarea#post_comment_on_' + sb_id).val("");
             }
         });
     });

@@ -57,7 +57,7 @@ def save_comment_view(request):
             'task_param': task_data
         }
         comment_data = {
-            "comment": {
+            "comments": [{
                 "object_uuid": task_data['comment_uuid'],
                 "content": comment_form.cleaned_data['content'],
                 "up_vote_number": 0,
@@ -65,11 +65,11 @@ def save_comment_view(request):
                 "object_vote_count": 0,
                 "datetime": datetime.now(pytz.utc),
                 "comment_owner": "%s %s"%(request.user.first_name,
-                                         request.user.last_name),
-                "parent_object": request.user.username
-            }
+                                         request.user.last_name)
+            }],
+            "parent_object": request.user.username
         }
-        html = render_to_string("sb_comment.html", comment_data)
+        html = render_to_string("sb_comments.html", comment_data)
         spawned = spawn_task(task_func=get_pleb_task, task_param=pleb_task_data)
         if isinstance(spawned, Exception):
             return Response({"detail": "Failed to create comment task"},

@@ -162,8 +162,9 @@
             </div>
         </div>
     </div>
-
-    {% include "sb_comments.html" %}
+    <div id="sb_comments_container_{{ object_uuid }}">
+        {% include "sb_comments.html" %}
+    </div>
     {% comment %}
         This area is for inputing a new comment. The include is needed for population of existing comments.
     {% endcomment %}

@@ -1,11 +1,4 @@
 $(document).ready(function () {
-    // TODO Do we use this display function? It's displayed in sb_utils.js too
-    $("a.show_edit_post_class").click(function (event) {
-        var sb_id = $(this).data('uuid');
-        var textarea = $('textarea#' + $(this).data('uuid'));
-        textarea.height( textarea[0].scrollHeight );
-        $('#divid_' + sb_id).fadeToggle();
-    });
     $("button.edit_post-action").click(function (event) {
         event.preventDefault();
         $.ajaxSetup({

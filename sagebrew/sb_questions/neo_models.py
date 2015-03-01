@@ -145,7 +145,10 @@ class SBQuestion(SBVersioned, SBTagContent):
             edit = self.get_most_recent_edit()
             for comment in self.comments.all():
                 comment_array.append(comment.get_single_dict())
-
+            if self.content is None:
+                html_content = ""
+            else:
+                html_content = markdown.markdown(self.content)
             return {
                 'question_title': edit.question_title,
                 'content': edit.content,
@@ -166,7 +169,7 @@ class SBQuestion(SBVersioned, SBTagContent):
                 'edits': [],
                 'object_type': self.object_type,
                 'to_be_deleted': self.to_be_deleted,
-                'html_content': markdown.markdown(self.content)}
+                'html_content': html_content}
         except CypherException as e:
             return e
 

@@ -22,3 +22,14 @@ Ferguson to find and participate in the conversation.
 ## When shouldn't I create a Tag? ##
 You should refrain from creating Tags that are offensive, inappropriate, 
 obscene, libelous, irrelevant, or spam. 
+
+## Restrictions ##
+You can place 5 tags on any Question. 
+
+### Remember ###
+Your tags determine the Reputation breakdown for a Question. If you spark a Question and tag it with "science" and "foreign Policy" all the reputation you gain as a result of conversation on your Question will be split evenly between the Science and Foreign Policy Reputation categories. 
+
+#### For example: ####
+Sir Percival sparks a Question that he tags with "Social" and "Economic." The Question generates Sir Percival 400 reputation. 200 Reputation is allocated to the "Social" Reputation spec. The other 200 is allocated to the "Economic" Reputation spec. 
+
+These allocations designate speciality within a certain subject. If Sir Percival has gained a large amount of Reputation within the "Social" spec, it can be surmised that he is a credible source within social topics. 

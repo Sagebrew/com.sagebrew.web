@@ -489,6 +489,35 @@ function submit_goal() {
     });
 }
 
+function comment_validator() {
+    $("#commentSubmitForm").bootstrapValidator({
+        framework: 'bootstrap',
+        err: {
+            container: '#fname_errors'
+        },
+        feedbackIcons: {
+            valid: 'glyphicon glyphicon-ok',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        live: 'enabled',
+        submitButtons: '.comment-action',
+        fields: {
+            comment_content: {
+                group: 'sb_comment',
+                validators: {
+                    notEmpty: {
+                        message: "Content is required"
+                    },
+                    stringLength: {
+                        min: 1,
+                        message: "Content must be at least 1 character long"
+                    }
+                }
+            }
+        }
+    })
+}
+
 function enable_post_functionality() {
     save_answer();
     flag_object();
@@ -507,6 +536,7 @@ function enable_post_functionality() {
     submit_education();
     submit_bio();
     submit_goal();
+    comment_validator();
 }
 
 function getUrlParameter(sParam)

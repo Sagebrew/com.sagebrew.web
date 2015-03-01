@@ -13,10 +13,12 @@ keep Sagebrew a mature and friendly space. The Admin Council's duties include:
 
 - Voting to [remove flagged material][8]
  - The voting system is democratic. A 2/3 majority among participating Admins 
-   is required to delete flagged material. If no [flagged][9] material has been 
-   voted on after two full days it will be deleted. 
-- [Closing conversations][7] # TODO
-- Removing [duplicate][5] questions # TODO
+   is required to remove flagged material. If no [flagged][9] material has been 
+   voted on after two full days it will be removed. 
+- [Closing conversations][7] 
+    - A conversation may become closed if it is voted to be not up to par. Closed conversations aren't removed, but simply grayed out and closed off to further interaction. . 
+- Closing and linking [duplicate][5] questions 
+    - If a Question is found to be a duplicate, it will be closed and a link to the more relevant Question will be provided. 
 - Place [Protection][6] on conversations
  - In the case that a conversation is being unnecessarily flagged or attacked, 
    but it is decided to be a good conversation, an Admin may place Protection on 

@@ -114,12 +114,6 @@ def populate_general_values(data, user, worker_count):
                         environ.get("STRIPE_SECRET_KEY", ""))
     data = data.replace("%(ENV_MASKED_NAME)s",
                         environ.get("MASKED_NAME", ""))
-    data = data.replace("%(ENV_PX_USER_ID)s",
-                        environ.get("PX_USER_ID", ""))
-    data = data.replace("%(ENV_PX_API_KEY)s",
-                        environ.get("PX_API_KEY", ""))
-    data = data.replace("%(ENV_PX_SECRET_KEY)s",
-                        environ.get("PX_SECRET_KEY", ""))
     data = data.replace("%(ENV_AWS_DEFAULT_REGION)s",
                         environ.get("AWS_DEFAULT_REGION", ""))
     data = data.replace("%(ENV_OPBEAT_ORG_ID)s",

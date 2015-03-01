@@ -97,6 +97,10 @@ def populate_staging_values(data):
                         environ.get("OPBEAT_APP_ID_STAGING", ""))
     data = data.replace("<OPBEAT_SECRET_TOKEN>",
                         environ.get("OPBEAT_SECRET_TOKEN_STAGING", ""))
+    data = data.replace("<LOGENT_TOKEN>",
+                        environ.get("LOGENT_TOKEN_STAGING", ""))
+    data = data.replace("<SYS_LOG_TOKEN>",
+                        environ.get("SYS_LOG_TOKEN_STAGING", ""))
     return data
 
 
@@ -134,7 +138,10 @@ def populate_production_values(data):
                         environ.get("STRIPE_SECRET_KEY_PROD", ""))
     data = data.replace("<MASKED_NAME>",
                         environ.get("MASKED_NAME_PROD", ""))
-
+    data = data.replace("<LOGENT_TOKEN>",
+                        environ.get("LOGENT_TOKEN_PROD", ""))
+    data = data.replace("<SYS_LOG_TOKEN>",
+                        environ.get("SYS_LOG_TOKEN_PROD", ""))
     data = data.replace("<OPBEAT_ORG_ID>",
                         environ.get("OPBEAT_ORG_ID_PROD", ""))
     data = data.replace("<OPBEAT_APP_ID>",
@@ -160,6 +167,8 @@ def populate_test_values(data):
                         environ.get("STRIPE_SECRET_KEY_TEST", ""))
     data = data.replace("<MASKED_NAME>",
                         environ.get("MASKED_NAME", ""))
+    data = data.replace("<LOGENT_TOKEN>", environ.get("LOGENT_TOKEN", ""))
+    data = data.replace("<SYS_LOG_TOKEN>", environ.get("SYS_LOG_TOKEN", ""))
     return data
 
 
@@ -202,14 +211,6 @@ def populate_general_values(data):
     data = data.replace("<QUEUE_PASSWORD>", environ.get("QUEUE_PASSWORD", ""))
     data = data.replace("<QUEUE_HOST>", environ.get("QUEUE_HOST", ""))
     data = data.replace("<QUEUE_PORT>", environ.get("QUEUE_PORT", ""))
-    data = data.replace("<LOGENT_TOKEN>", environ.get("LOGENT_TOKEN", ""))
-    data = data.replace("<SYS_LOG_TOKEN>", environ.get("SYS_LOG_TOKEN", ""))
-    data = data.replace("<PX_USER_ID>",
-                        environ.get("PX_USER_ID", ""))
-    data = data.replace("<PX_API_KEY>",
-                        environ.get("PX_API_KEY", ""))
-    data = data.replace("<PX_SECRET_KEY>",
-                        environ.get("PX_SECRET_KEY", ""))
     data = data.replace("<AWS_DEFAULT_REGION>",
                         environ.get("AWS_DEFAULT_REGION", ""))
     return data

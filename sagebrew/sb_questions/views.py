@@ -93,7 +93,6 @@ def save_question_view(request):
     '''
     question_data = request.DATA
     if type(question_data) != dict:
-        print question_data
         return Response({"details": "Please provide a valid JSON object"},
                         status=400)
     #question_data['content'] = language_filter(question_data['content'])
@@ -114,7 +113,6 @@ def save_question_view(request):
                          "url": url}
                         , status=200)
     else:
-        print question_form.errors
         return Response(question_form.errors, status=400)
 
 

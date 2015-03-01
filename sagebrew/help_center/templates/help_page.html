@@ -34,6 +34,9 @@
                     <div class="row-fluid">
                         <div class="col-lg-7 col-md-11 col-sm-11 col-xs-11 sb_markdown sb_help_article_content">
                             {% ssi content_path %}
+                            {% if "/markdown_formatting/" in request.path %}
+                                <textarea id="question_content_id" style="height: 300px;"></textarea>
+                            {% endif %}
                         </div>
                         <div class="col-lg-4 hidden-md hidden-sm hidden-xs">
                             <div class="related_article_wrapper">
@@ -49,4 +52,9 @@
 {% block scripts %}
     {{ block.super }}
     <script src="{% static 'js/related_articles.js' %}"></script>
+    {% if "/markdown_formatting/" in request.path %}
+        <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
+        <script src="{% static 'js/create_markdown.js' %}"></script>
+    {% endif %}
+
 {% endblock scripts %}

@@ -1,0 +1,25 @@
+<div class="btn-group"
+     align="left">
+    <button class="btn dropdown-toggle sb_btn_icon"
+            type="button"
+            data-toggle="dropdown">
+    <span class="fui-gear sb_dropdown_icon"></span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
+        role="menu" aria-labelledby="dropdown-menu">
+         <li role="presentation"><a class="btn sb_post_dropdown_menu show_edit_answer-action"
+                                    data-object_uuid="{{ answer.object_uuid }}"
+                                    data-parent_object="{{ answer.parent_object }}"><p>Edit</p></a>
+        </li>
+        {% if post_owner_email == current_user %}
+        <li role="presentation" class="sb_divider"></li>
+        <li role="presentation"><a class="btn sb_post_dropdown_menu delete_object-action"
+                                   data-object_uuid="{{ answer.object_uuid }}"
+                                   data-object_type="02241aee-644f-11e4-9ad9-080027242395"
+                                   data-current_pleb="{{ answer.current_pleb }}"><p>Delete</p></a>
+        </li>
+        {% endif %}
+    </ul>
+</div>
+
+

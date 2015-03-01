@@ -2,11 +2,6 @@ FROM {{PROJECT_NAME}}/django.web.primary.{{IMAGE_TYPE}}:v{{VERSION}}
 
 MAINTAINER Devon Bleibtrey <devon@sagebrew.com>
 
-RUN apt-get update && apt-get install -y git
-
-RUN mkdir /home/apps/
-RUN mkdir /home/apps/logs
-
 RUN git clone -b {{CIRCLE_BRANCH}} git@github.com:{{PROJECT_USERNAME}}/{{PROJECT_REPONAME}}.git /home/apps/{{PROJECT_REPONAME}}/
 RUN chown -R {{APP_USER}}:{{APP_USER}} /home/apps/
 WORKDIR /home/apps/{{PROJECT_REPONAME}}/
@@ -16,19 +11,11 @@ RUN mkdir /home/apps/{{PROJECT_REPONAME}}/{{PROJECT_NAME}}/static/
 RUN pip install -r /home/apps/{{PROJECT_REPONAME}}/requirements/{{REQUIREMENTS_FILE}}.txt
 RUN rm -r /root/.ssh
 RUN apt-get remove --auto-remove -y openssh-client
-RUN apt-get -y install wget
-RUN echo deb http://apt.newrelic.com/debian/ newrelic non-free >> /etc/apt/sources.list.d/newrelic.list
-RUN wget -O- https://download.newrelic.com/548C16BF.gpg | apt-key add -
-RUN apt-get update
-RUN apt-get install newrelic-sysmond
+
 RUN nrsysmond-config --set license_key={{NEW_RELIC_LICENSE}}
 RUN newrelic-admin generate-config {{NEW_RELIC_LICENSE}} /home/apps/newrelic.ini
 
-
 RUN apt-get remove --auto-remove -y git
-RUN apt-get remove --auto-remove -y wget
-
-RUN rm /etc/nginx/sites-enabled/default
 
 
 # nginx command must come first because running supervisor as a nodaemon means

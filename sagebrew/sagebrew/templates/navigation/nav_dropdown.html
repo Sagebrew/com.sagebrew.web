@@ -1,0 +1,67 @@
+
+<div class="btn-group sb_dropdown">
+    <div class="btn-group">
+        <button class="btn dropdown-toggle sb_btn_nav show_friend_request-action"
+                type="button"
+                id="sb_friend"
+                data-toggle="dropdown"
+                data-email="{{ request.user.email }}">
+        <span class="sb_btn_icon fui-user"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right"
+            role="menu"
+            aria-labelledby="dropdownMenu1">
+            <li role="presentation">
+                <div>
+                    <div class="sb_dropdown_label">Friend Requests</div>
+                    <div class="sb_dropdown_content friend_request_div" ></div>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="btn-group">
+        <button class="btn dropdown-toggle sb_btn_nav show_notifications-action"
+                type="button"
+                id="dropdownMenu1"
+                data-toggle="dropdown"
+                data-email="{{ request.user.email }}">
+        <span class="sb_btn_icon fui-eye"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right"
+            role="menu" aria-labelledby="dropdownMenu1">
+            <li role="presentation">
+                <div id="notification_wrapper">
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="btn-group"
+         align="left">
+        <button class="btn dropdown-toggle sb_btn_nav"
+                type="button"
+                id="dropdownMenu1"
+                data-toggle="dropdown">
+        <span class="sb_btn_icon fui-gear"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right "
+            role="menu" aria-labelledby="dropdownMenu1">
+            <li role="presentation"><a role="menuitem"
+                                       tabindex="-1"
+                                       href="#">Edit Profile</a>
+            </li>
+            <li role="presentation"><a role="menuitem"
+                                       tabindex="-1"
+                                       href="#">Settings</a>
+            </li>
+            <li role="presentation"><a role="menuitem"
+                                       tabindex="-1"
+                                       href="{% url 'help_center' %}">Help</a>
+            </li>
+            <li role="presentation" class="sb_divider"></li>
+            <li role="presentation"><a role="menuitem"
+                                       tabindex="-1"
+                                       href="{% url 'logout'%}">Log Out</a>
+            </li>
+        </ul>
+    </div>
+</div>

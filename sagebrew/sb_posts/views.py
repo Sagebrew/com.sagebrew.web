@@ -1,13 +1,13 @@
+import pytz
 import logging
 from uuid import uuid1
+from datetime import datetime
 from django.template.loader import render_to_string
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
-from neomodel import DoesNotExist, CypherException
 
 from api.utils import (spawn_task)
-from plebs.neo_models import Pleb
 from sb_docstore.utils import get_wall_docs
 from sb_docstore.tasks import build_wall_task
 from .tasks import save_post_task
@@ -41,8 +41,24 @@ def save_post_view(request):
         if isinstance(spawned, Exception):
             return Response({"detail": "Failed to create post"},
                             status=500)
+        print type(request.user)
+        post_data = {
+            "object_uuid": post_form.cleaned_data['post_uuid'],
+            "parent_object": request.user.username,
+            "datetime": datetime.now(pytz.utc),
+            "last_edited_on": datetime.now(pytz.utc),
+            "post_owner": request.user.first_name + " " +
+                          request.user.last_name,
+            "upvote_number": 0,
+            "downvote_number": 0,
+            "content": post_form.cleaned_data['content'],
+            "object_vote_count": "0",
+            "vote_type": "true"
+        }
+        html = render_to_string('post.html', post_data)
         return Response(
-            {"action": "filtered", "filtered_content": post_data},
+            {"action": "filtered", "filtered_content": post_data,
+             "html": html},
             status=200)
     else:
         return Response(post_form.errors, status=400)
@@ -64,25 +80,33 @@ def get_user_posts(request):
     except AttributeError:
         return Response(status=404)
     if valid_form:
-        try:
-            citizen = Pleb.nodes.get(email=post_form.cleaned_data['email'])
-        except (Pleb.DoesNotExist, DoesNotExist):
-            return Response(status=401)
-        except CypherException:
-            return Response(status=500)
-        posts = get_wall_docs(citizen.username)
+        posts = get_wall_docs(request.user.username)
         if not posts:
-            posts = get_pleb_posts(citizen,
+            posts = get_pleb_posts(request.user.email,
                                    post_form.cleaned_data['range_end'],
                                    post_form.cleaned_data['range_start'])
             for post in posts:
                 html_array.append(post.render_post_wall_html(
                     post_form.cleaned_data['current_user']))
-            task_dict = {'pleb': citizen}
+            task_dict = {'username': request.user.username}
             spawn_task(task_func=build_wall_task, task_param=task_dict)
         else:
             for post in posts:
-                html = render_to_string('sb_post.html', dict(post))
+                post_dict = dict(post)
+                post_dict['user'] = request.user
+                post_dict['last_edited_on'] = \
+                    datetime.strptime(post_dict['last_edited_on'][
+                                      :len(post_dict['last_edited_on'])-6],
+                                      '%Y-%m-%d %H:%M:%S.%f')
+                # TODO replace with actual vote count. Note that the template
+                # tag operations require it to be a string and not an int.
+                # The tag values also don't accomodate for dynamic updates
+                # from javascript so we'll have to figure that out that as well
+                # Example when someone transitions from 9 to 10 and 99 to 100
+                post_dict['object_vote_count'] = "10k"
+                post_dict['vote_type'] = "true"
+                post_dict['current_pleb'] = request.user
+                html = render_to_string('post.html', post_dict)
                 html_array.append(html)
 
         return Response({'html': html_array}, status=200)

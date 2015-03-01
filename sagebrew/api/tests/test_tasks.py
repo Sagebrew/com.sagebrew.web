@@ -1,7 +1,5 @@
 import time
-import pytz
 from uuid import uuid1
-from datetime import datetime
 from django.test import TestCase
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -9,7 +7,7 @@ from django.contrib.auth.models import User
 from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_questions.neo_models import SBQuestion
-from sb_registration.utils import create_user_util
+from sb_registration.utils import create_user_util_test
 from api.tasks import get_pleb_task, add_object_to_search_index
 
 
@@ -17,7 +15,7 @@ class TestGetPlebTask(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -55,7 +53,7 @@ class TestAddObjectToSearchIndex(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertFalse(isinstance(res, Exception))
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)

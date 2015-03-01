@@ -1,5 +1,4 @@
 import time
-from json import dumps
 from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
@@ -7,15 +6,15 @@ from django.contrib.auth.models import User
 from api.utils import wait_util
 from sb_posts.tasks import save_post_task
 from sb_comments.utils import (save_comment)
-from sb_comments.neo_models import SBComment
+
 from plebs.neo_models import Pleb
-from sb_registration.utils import create_user_util
+from sb_registration.utils import create_user_util_test
 
 
 class TestSaveComments(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)

@@ -46,10 +46,10 @@ class Command(BaseCommand):
                                 os.environ.get("CIRCLECI", ""))
             web_docker = data.replace('{{SUPER_TEMPLATE}}', "web")
             web_docker = web_docker.replace('{{IMAGE_TYPE}}', "frontend")
-            web_docker = web_docker.replace('{{VERSION}}', "1")
+            web_docker = web_docker.replace('{{VERSION}}', "3")
             worker_docker = data.replace('{{SUPER_TEMPLATE}}', "worker")
             worker_docker = worker_docker.replace('{{IMAGE_TYPE}}', "base")
-            worker_docker = worker_docker.replace('{{VERSION}}', "13")
+            worker_docker = worker_docker.replace('{{VERSION}}', "14")
 
         f = open("%s/dockerfiles/web_app/Dockerfile" % settings.REPO_DIR, "w")
         f.write(web_docker)
@@ -187,6 +187,12 @@ def populate_prod_env(data):
                         os.environ.get("QUEUE_PASSWORD_PROD", ""))
     data = data.replace("{{QUEUE_HOST}}", os.environ.get("QUEUE_HOST_PROD", ""))
     data = data.replace("{{QUEUE_PORT}}", os.environ.get("QUEUE_PORT_PROD", ""))
+    data = data.replace("{{OPBEAT_ORG_ID}}",
+                        os.environ.get("OPBEAT_ORG_ID_PROD", ""))
+    data = data.replace("{{OPBEAT_APP}}",
+                        os.environ.get("OPBEAT_APP_ID_PROD", ""))
+    data = data.replace("{{OPBEAT_SECRET_TOKEN}}",
+                        os.environ.get("OPBEAT_SECRET_TOKEN_PROD", ""))
     return data
 
 
@@ -228,4 +234,10 @@ def populate_staging_env(data):
                         os.environ.get("QUEUE_HOST_STAGING", ""))
     data = data.replace("{{QUEUE_PORT}}",
                         os.environ.get("QUEUE_PORT_STAGING", ""))
+    data = data.replace("{{OPBEAT_ORG_ID}}",
+                        os.environ.get("OPBEAT_ORG_ID_STAGING", ""))
+    data = data.replace("{{OPBEAT_APP_ID}}",
+                        os.environ.get("OPBEAT_APP_ID_STAGING", ""))
+    data = data.replace("{{OPBEAT_SECRET_TOKEN}}",
+                        os.environ.get("OPBEAT_SECRET_TOKEN_STAGING", ""))
     return data

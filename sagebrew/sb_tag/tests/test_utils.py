@@ -5,14 +5,14 @@ from api.utils import wait_util
 from sb_tag.utils import (create_tag_relations_util)
 from sb_tag.neo_models import SBAutoTag
 from plebs.neo_models import Pleb
-from sb_registration.utils import create_user_util
+from sb_registration.utils import create_user_util_test
 
 
 class TestCreateTagRelations(TestCase):
     def setUp(self):
         self.tags = []
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -33,7 +33,7 @@ class TestCreateTagRelations(TestCase):
         tag1 = SBAutoTag(tag_name="amazing tag").save()
         tag2 = SBAutoTag(tag_name="another amazing tag").save()
 
-        rel = tag1.frequently_auto_tagged_with.connect(tag2)
+        rel = tag1.frequently_tagged_with.connect(tag2)
         rel.save()
 
         res = create_tag_relations_util([tag1, tag2])

@@ -1,5 +1,6 @@
 $(document).ready(function(){
-    $('.submit_login').on('click', function() {
+
+    $('#submit_login').on('click', function() {
         try {
             var next = getUrlParameter('next');
         }
@@ -25,18 +26,15 @@ $(document).ready(function(){
                 if (data['detail']==='success' && typeof next !=="undefined"){
                     window.location.href = next
                 }
-                else if (data['detail']==='success'){
+                else if (data['detail'] === 'success'){
                     window.location.href = data['url']
                 }
-                else if (data['detail']==='cannot find user'){
-                    alert("We cannot find a user with that email")
+                else {
+                    alert(data['detail'])
                 }
-                else if (data['detail']==='invalid password'){
-                    alert("Incorrect password")
-                }
-                else{
-                    alert("Something broke, please try again")
-                }
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                alert(XMLHttpRequest.responseJSON["detail"]);
             }
         });
     });

@@ -7,10 +7,6 @@ ALLOWED_HOSTS = ['beta.sagebrew.com', 'www.sagebrew.com', 'sagebrew.com']
 VERIFY_SECURE = True
 WEB_ADDRESS = "https://sagebrew.com"
 
-COMPRESS_PRECOMPILERS = (
-   ('text/less', 'lessc {infile} {outfile}'),
-)
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -44,20 +40,16 @@ BROKER_URL = "sqs://%s:%s@" % (
     environ.get("AWS_SECRET_ACCESS_KEY", ""))
 
 
-STATIC_ROOT = PROJECT_DIR.child("static")
-COMPRESS_ROOT = STATIC_ROOT
 DEFAULT_FILE_STORAGE = 'sagebrew.s3utils.MediaRootS3BotoStorage'
-STATICFILES_STORAGE = 'sagebrew.s3utils.CachedS3BotoStorage'
-COMPRESS_STORAGE = 'sagebrew.s3utils.CachedS3BotoStorage'
+STATICFILES_STORAGE = 'sagebrew.s3utils.StaticRootS3BotoStorage'
 
 S3_URL = 'https://%s.s3.amazonaws.com/' % (AWS_STORAGE_BUCKET_NAME)
-
+CELERY_IGNORE_RESULT = True
 STATIC_URL = "%s" % (S3_URL)
-COMPRESS_URL = STATIC_URL
 MEDIA_URL = "%s%s" % (S3_URL, "media/")
 
 BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 43200,
-                            'polling_interval': 1}
+                            'polling_interval': 15}
 
 CELERY_DEFAULT_QUEUE = "%s-%s-celery" % (environ.get("APP_NAME", ""),
                                          environ.get("CIRCLE_BRANCH", ""))

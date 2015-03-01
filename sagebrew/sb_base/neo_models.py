@@ -1,3 +1,4 @@
+import math
 import pytz
 from uuid import uuid1
 from datetime import datetime
@@ -18,7 +19,8 @@ class EditRelationshipModel(StructuredRel):
 
 class PostedOnRel(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
-
+    rep_gained = IntegerProperty(default=0)
+    rep_lost = IntegerProperty(defaut=0)
 
 class PostReceivedRel(StructuredRel):
     received = BooleanProperty()
@@ -33,6 +35,7 @@ class RelationshipWeight(StructuredRel):
 class VoteRelationship(StructuredRel):
     active = BooleanProperty(default=True)
     vote_type = BooleanProperty() # True is up False is down
+    rep_adjust = IntegerProperty()
     date_created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
 
@@ -110,13 +113,23 @@ class SBVoteableContent(StructuredNode):
         except CypherException as e:
             return e
 
+    @apply_defense
+    def get_rep_breakout(self):
+        pos_rep = self.get_upvote_count()*self.up_vote_adjustment
+        neg_rep = self.get_downvote_count()*self.down_vote_adjustment
+        return {
+            "total_rep": pos_rep+neg_rep,
+            "pos_rep": pos_rep,
+            "neg_rep": neg_rep,
+        }
+
 
 class SBContent(SBVoteableContent):
     table = ''
     allowed_flags = []
     up_vote_number = IntegerProperty(default=0)
     down_vote_number = IntegerProperty(default=0)
-    last_edited_on = DateTimeProperty()
+    last_edited_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     edited = BooleanProperty(default=False)
     to_be_deleted = BooleanProperty(default=False)
     is_explicit = BooleanProperty(default=False)
@@ -142,6 +155,9 @@ class SBContent(SBVoteableContent):
     @classmethod
     def get_model_name(cls):
         return cls.__name__
+
+    def create_notification(self, pleb):
+        pass
 
     def create_relations(self, pleb, question=None, wall=None):
         try:
@@ -222,6 +238,28 @@ class SBVersioned(SBContent):
     def get_name(self):
         return self.__class__.__name__
 
+    def get_rep_breakout(self):
+        tag_list = []
+        base_tags = []
+        pos_rep = self.get_upvote_count()*self.up_vote_adjustment
+        neg_rep = self.get_downvote_count()*self.down_vote_adjustment
+        for tag in self.tagged_as.all():
+            if tag.base:
+                base_tags.append(tag.tag_name)
+            tag_list.append(tag.tag_name)
+        try:
+            rep_per_tag = math.ceil(float(pos_rep+neg_rep)/len(tag_list))
+        except ZeroDivisionError:
+            rep_per_tag = 0
+        return {
+            "total_rep": pos_rep+neg_rep,
+            "pos_rep": pos_rep,
+            "neg_rep": neg_rep,
+            "tag_list": tag_list,
+            "rep_per_tag": rep_per_tag,
+            "base_tag_list": base_tags
+        }
+
 
 
 
@@ -281,7 +319,7 @@ class SBTagContent(StructuredNode):
                 item.save()
             except CypherException as e:
                 return e
-        return True
+        return tag_array
 
     def add_auto_tags(self, tag_list):
         from sb_tag.neo_models import SBAutoTag
@@ -289,10 +327,12 @@ class SBTagContent(StructuredNode):
         try:
             for tag in tag_list:
                 try:
-                    tag_object = SBAutoTag.nodes.get(tag_name=tag['tags']['text'])
+                    tag_object = SBAutoTag.nodes.get(tag_name=tag['tags']
+                    ['text'])
                 except (SBAutoTag.DoesNotExist, DoesNotExist):
                     tag_object = SBAutoTag(tag_name=tag['tags']['text']).save()
-
+                if self.auto_tags.is_connected(tag_object):
+                    continue
                 rel = self.auto_tags.connect(tag_object)
                 rel.relevance = tag['tags']['relevance']
                 rel.save()
@@ -300,6 +340,5 @@ class SBTagContent(StructuredNode):
             return tag_array
         except KeyError as e:
             return e
-
 
 

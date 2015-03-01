@@ -6,7 +6,7 @@ from sb_base.decorators import apply_defense
 
 
 @apply_defense
-def get_pleb_posts(pleb_object, range_end, range_start=0):
+def get_pleb_posts(pleb_email, range_end, range_start=0):
     '''
     Gets all the posts which are attached to the page users wall as well as the
     comments associated with the posts
@@ -26,7 +26,7 @@ def get_pleb_posts(pleb_object, range_end, range_start=0):
                      'ORDER BY posts.date_created DESC ' \
                      'SKIP %s LIMIT %s ' \
                      'RETURN posts'\
-                     % (pleb_object.email, str(range_start), str(range_end))
+                     % (pleb_email, str(range_start), str(range_end))
         pleb_posts, meta = execute_cypher_query(post_query)
         if isinstance(pleb_posts, Exception):
             return pleb_posts

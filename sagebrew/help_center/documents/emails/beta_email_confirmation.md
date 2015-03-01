@@ -1,0 +1,13 @@
+##(name),##
+Thanks for expressing interest in testing Sagebrew's beta phase! 
+Due to a large number of submissions we're choosing
+ participants at random. If you've been selected you'll
+ receive a golden ticket in the mail and that ticket will
+ admit you to the Sagebrew factory where... wait. Nevermind, that's a movie.
+ You'll actually receive an email confirming your acceptance and a link to our 
+ registration page where the real fun awaits!
+
+ We'll also send you an email when we go live. We hope to see you there!
+
+Thanks again,
+Sagebrew

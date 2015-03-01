@@ -49,7 +49,7 @@ test:
   post:
     - coverage html
     - coveralls --rcfile=$CIRCLE_ARTIFACTS
-    #- pep8 --show-source --exclude='~/com.sagebrew.web/sagebrew/api/alchemyapi.py` --show-pep8 ~/com.sagebrew.web/sagebrew/
+    #- flake8 sagebrew
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
     - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg
     - docker build -t sagebrew/sb_worker:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/worker/
@@ -71,6 +71,7 @@ test:
         -e AWS_S3_BUCKET=$AWS_S3_BUCKET
         -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
         -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+        -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
         -e ALCHEMY_API_KEY=$ALCHEMY_API_KEY
         -e ADDRESS_VALIDATION_ID=$ADDRESS_VALIDATION_ID
         -e ADDRESS_VALIDATION_TOKEN=$ADDRESS_VALIDATION_TOKEN
@@ -100,6 +101,7 @@ test:
         -e AWS_S3_BUCKET=$AWS_S3_BUCKET
         -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
         -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+        -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
         -e ALCHEMY_API_KEY=$ALCHEMY_API_KEY
         -e ADDRESS_VALIDATION_ID=$ADDRESS_VALIDATION_ID
         -e ADDRESS_VALIDATION_TOKEN=$ADDRESS_VALIDATION_TOKEN
@@ -130,6 +132,7 @@ test:
         -e AWS_S3_BUCKET=$AWS_S3_BUCKET
         -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
         -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+        -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
         -e ALCHEMY_API_KEY=$ALCHEMY_API_KEY
         -e ADDRESS_VALIDATION_ID=$ADDRESS_VALIDATION_ID
         -e ADDRESS_VALIDATION_TOKEN=$ADDRESS_VALIDATION_TOKEN
@@ -150,7 +153,7 @@ test:
     # Sleep time based on aws timeout counts. This insures it is possible
     # for the deployed code to be ready within the set amount of time
     # aws will give it.
-    - sleep 20
+    - sleep 50
     - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/
     - docker logs sb_web >> $CIRCLE_ARTIFACTS/sb_web.log
     - docker logs sb_worker >> $CIRCLE_ARTIFACTS/sb_worker.log
@@ -159,15 +162,16 @@ test:
 deployment:
 #  production:
 #    branch: master
+# when pushing to master should ensure user is within listed allowed users
+# who can push and deploy to master. Should be able to check CIRCLE_USERNAME
+# and potentially hit an endpoint or a local file for allowed admins
+# Safer to probably loop through django admins or comma seperated env var
+# so that endpoint can't be spoofed
   staging:
     branch: staging
     commands:
       #- coverage report --fail-under=100
       - bash -x ~/com.sagebrew.web/deployment/staging.sh $CIRCLE_SHA1
-      - git checkout master
-      - git merge --no-edit staging
-      - git push origin master
-      - git checkout staging
 
 
 general:

@@ -1,3 +1,67 @@
 {% url 'question_detail_page' question_uuid=question_url as the_url %}
-<h2><a href="{{ the_url }}">{{ question_title }}</a></h2>
+        <div class="block sb_question_summary">
+            <div class="row-fluid">
+                <div class="col-lg-1">
+                    <button class="btn sb_btn sb_btn_vote vote_up">
+                        <span class="fui-triangle-up"></span>
+                        <p style="display:none;">
+                            {{ up_vote_number }}
+                        </p>
+                    </button>
+                    <h6>
+                        432
+                        {% comment %}
+                            Need upvote and downvote difference
+                               <div class="col-lg-12 sb_question_block_data"
+                                    align="right">
+                                    {{ answer_number }}
+                               </div>
+                        {% endcomment %}
+                    </h6>
+                    <button class="btn sb_btn sb_btn_vote vote_down">
+                        <span class="fui-triangle-down"></span>
+                        <p  style="display:none;">
+                            {{ down_vote_number }}
+                        </p>
+                    </button>
+                </div>
+                <div id="single_question_wrapper">
+                    <div class="div_data_hidden" data-current_pleb="{{ pleb }}" data-sort_by="uuid" data-question_uuid="{{ uuid }}"></div>
+                </div>
+                <div class="sb_markdown">
+                    <div class="col-lg-11">
+                        <div class="row">
+                            <a href="{{ the_url }}">
+                              <h6>
+                                {{ question_title }}
+                              </h6>
+                            </a>
+                        </div>
+                        <div class="row">
+                            <p>
+                               {{ question_content }}
+                            </p>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12"
+                                 align="right">
+                                <small>
+                                asked by {{ owner }}
+                                </small>
+                                <br>
+                                <small>
+                                {{ time_created }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% comment %}
+{% url 'question_detail_page' question_uuid=question_url as the_url %}
+<div class="sb_question_block">
+<p class="sb_question_block_title"><a href="{{ the_url }}">{{ question_title }}</a><p>
 <div style="font-weight: bold">Content: {{ question_content }} | Answers: {{ answer_number }} | Upvotes: {{ up_vote_number }} | Downvotes: {{ down_vote_number }} | Asked by: {{ owner }} | Posted: {{ time_created }}</div>
+</div>
+{% endcomment %}

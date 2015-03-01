@@ -13,7 +13,7 @@ django-localflavor
 django-oauth2-provider
 django-static-precompiler
 django-storages
-djangorestframework==2.4.4
+djangorestframework
 python-dateutil
 pytz
 requests
@@ -36,3 +36,8 @@ gunicorn
 logentries
 django_compressor
 stripe
+django-oauth-toolkit
+django-cors-headers
+opbeat
+Pillow
+git+git://github.com/aleray/mdx_cite.git

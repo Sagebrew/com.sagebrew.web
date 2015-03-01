@@ -9,7 +9,7 @@ $( document ).ready(function() {
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
 			type: "POST",
-			url: "/questions/vote_question_api/",
+			url: "/conversations/vote_question_api/",
 			data: JSON.stringify({
                'question_uuid': $(this).data('question_uuid'),
 			   'vote_type': $(this).data('vote_type'),

@@ -50,7 +50,7 @@ def question_page(request, sort_by="most_recent"):
 
     :return:
     '''
-    return render(request, 'sb_question_base.html',
+    return render(request, 'question_list.html',
                   {'email': request.user.email})
 
 
@@ -72,7 +72,7 @@ def question_detail_page(request, question_uuid=str(uuid1())):
     #headers = {'content-type': 'application/json'}
     #question = post_to_api(reverse('get_questions'), data=post_data,
     #                       headers=headers)
-    return render(request, 'question_minimal_detail.html', post_data)
+    return render(request, 'conversation.html', post_data)
 
 
 @api_view(['POST'])
@@ -209,7 +209,7 @@ def get_question_view(request):
                                    'public_questions', 'public_solutions')
             if res == {}:
                 question_by_uuid = get_question_by_uuid(
-                question_data['question_uuid'], request.user.email)
+                    question_data['question_uuid'], request.user.email)
                 task_data = {
                     'question_uuid': question_data['question_uuid'],
                     'question_table': 'public_questions',
@@ -229,7 +229,7 @@ def get_question_view(request):
                 else:
                     return Response(question_by_uuid, status=200)
             else:
-                t = get_template("single_question.html")
+                t = get_template("question_detail.html")
                 c = Context(res)
                 return Response(t.render(c), status=200)
 

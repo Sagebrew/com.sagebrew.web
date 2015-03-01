@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load staticfiles %}
+{% block css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_base.css' %}"/>
+    <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_input.css' %}"/>
+    <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_expanded.css' %}"/>
+    <link rel="stylesheet" href="{% static 'less/plebs/sb_comment.css' %}"/>
+{%  endblock css %}
+
+{% block content %}
+<div class="row-fluid sb_page">
+    <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
+        <div class="sb_wall sb_conversation_wall">
+            <div class="row">
+                <div class="col-lg-11 col-md-11 col-sm-12 col-xs-12">
+                    <h3>Conversations</h3>
+                </div>
+                {% if debug == True %}
+                    {% comment %}
+                        # TODO BETA ADD IN feature
+                    {% endcomment %}
+                    <div class="col-lg-1 col-md-1 hidden-sm hidden-xs"
+                         align="right">
+                        <button class="btn sb_btn sb_btn_icon sb_btn_icon_green">
+                            <span class="fui-list-large-thumbnails"></span>
+                        </button>
+                    </div>
+                {% endif %}
+            </div>
+            {% if debug == True %}
+                {% comment %}
+                    # TODO BETA ADD IN feature
+                {% endcomment %}
+                <div class="hidden-sm hidden-xs sb_border sb_border_categories">
+                </div>
+            {% endif %}
+            <div class="sb_border sb_border_question">
+                <div class="row sb_tertiary_nav">
+                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12"
+                         align="left">
+                        <a class="btn sb_tab_question query_questions-action"
+                           data-sort_by="most_recent"
+                           data-current_pleb="{{ email }}">Most Recent</a>
+                    </div>
+                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12"
+                         align="left">
+                        <a class="btn sb_tab_question query_questions-action"
+                           data-sort_by="least_recent"
+                           data-current_pleb="{{ email }}">Least Recent</a>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 col-sm-offset-2 col-md-offset-2 col-lg-offset-2">
+                        <form class="navbar-form" role="search">
+                        {% comment %}
+                            The role of this should be to create a new question rather than sreach for them
+                        {% endcomment %}
+                                <input type="text" class="form-control" style="width: 100%;"
+                                       placeholder="Spark a conversation...." />
+                        </form>
+                    </div>
+                </div>
+                <div id="question_wrapper">
+                  {% block questions %}
+                  {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{%  include "side_content.html" %}
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/query_questions.js' %}"></script>
+    <script src="{% static 'js/question_ui.js' %}"></script>
+{% endblock scripts %}

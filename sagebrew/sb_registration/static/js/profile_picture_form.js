@@ -22,21 +22,49 @@ $( document ).ready(function() {
         $(".fileinput .fileinput-exists").replaceWith('')
     });
     $( "#image_uploaded" ).on("mouseenter", "img", function() {
-        $("img").Jcrop({
+        var image_test = $("img");
+        var true_height = image_test.get(0).naturalHeight;
+        var true_width = image_test.get(0).naturalWidth;
+        var jcrop = $("img").Jcrop({
+           trueSize: [true_width, true_height],
+           allowResize: false,
+           allowSelect: false,
            onSelect: getCoords,
-           aspectRatio: 150/150,
+           aspectRatio: 1,
            bgColor: '#26424a',
            bgOpacity: 0.4,
-           setSelect: [ 60, 70, 540, 330 ]
+           setSelect: [ 0, 0, 200, 200 ]
         });
     });
+    $("#sb_btn_save").click(function(e){
+        e.preventDefault();
+        var form = new FormData($('#uploadForm')[0]);
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "POST",
+            url: "/registration/profile_picture_api/",
+            data: form,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function(data){
+                window.location.replace(data['url']);
+            }
+        });
+    });
+    function getCoords (c){
+        $('#image_x1').val(c.x);
+        $('#image_x2').val(c.w);
+        $('#image_y1').val(c.y);
+        $('#image_y2').val(c.h);
+    }
 });
-function getCoords (c){
-    console.log(c.x);
-    console.log(c.y);
-    console.log(c.w);
-    console.log(c.h);
-}
+
 /*
     $("#close").change(function () {
         var existingdiv2 = document.getElementById( "sb_photo_parent" );

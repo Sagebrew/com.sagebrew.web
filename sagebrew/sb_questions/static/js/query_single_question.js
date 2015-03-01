@@ -8,7 +8,7 @@ $( document ).ready(function() {
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "POST",
-        url: "/questions/query_questions_api/",
+        url: "/conversations/query_questions_api/",
         data: JSON.stringify({
            'current_pleb': $(".div_data_hidden").data('current_pleb'),
            'question_uuid': $(".div_data_hidden").data('question_uuid'),
@@ -31,7 +31,7 @@ $( document ).ready(function() {
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
 			type: "POST",
-			url: "/questions/query_questions_api/",
+			url: "/conversations/query_questions_api/",
 			data: JSON.stringify({
                'question_uuid': $(this).data('question_uuid'),
                'sort_by': $(this).data('sort_by')

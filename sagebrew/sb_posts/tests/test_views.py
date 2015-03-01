@@ -10,7 +10,7 @@ from django.conf import settings
 from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_posts.views import (save_post_view, get_user_posts)
-from sb_registration.utils import create_user_util
+from sb_registration.utils import create_user_util_test
 from sb_posts.neo_models import SBPost
 
 
@@ -18,7 +18,7 @@ class SavePostViewTests(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -97,7 +97,7 @@ class TestGetUserPosts(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util("test", "test", self.email, "testpassword")
+        res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -134,15 +134,3 @@ class TestGetUserPosts(TestCase):
         res = get_user_posts(request)
 
         self.assertEqual(res.status_code, 400)
-
-    def test_get_user_posts_pleb_does_not_exist(self):
-        data = {'current_user': self.pleb.email,
-                'email': 'fakeemail@fake.com',
-                'range_end': 5,
-                'range_start': 0}
-        request = self.factory.post('/posts/query_posts/', data=data,
-                                    format='json')
-        request.user = self.user
-        res = get_user_posts(request)
-
-        self.assertEqual(res.status_code, 401)

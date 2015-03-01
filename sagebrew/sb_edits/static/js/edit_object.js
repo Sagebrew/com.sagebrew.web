@@ -17,7 +17,10 @@ $(document).ready(function () {
                 'object_type': $(this).data('object_type')
             }),
             contentType: "application/json; charset=utf-8",
-            dataType: "json"
+            dataType: "json",
+            success: function(data){
+                $(data['html_object']).text(data['content'])
+            }
         });
     });
 });

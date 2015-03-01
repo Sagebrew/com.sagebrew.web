@@ -66,19 +66,19 @@ STATICFILES_DIRS = (
     '%s/plebs/static/' % PROJECT_DIR,
     '%s/sb_registration/static/' % PROJECT_DIR,
     #'%s/sb_comments/static/' % PROJECT_DIR,
-    '%s/sb_posts/static/' % PROJECT_DIR,
     '%s/sb_relationships/static/' % PROJECT_DIR,
     '%s/sb_questions/static/' % PROJECT_DIR,
     '%s/sb_answers/static/' % PROJECT_DIR,
     '%s/sb_search/static/' % PROJECT_DIR,
     '%s/sb_tag/static/' % PROJECT_DIR,
-    '%s/sb_flags/static/' % PROJECT_DIR,
-    '%s/sb_votes/static/' % PROJECT_DIR,
     '%s/sb_edits/static/' % PROJECT_DIR,
-    '%s/sb_wall/static/' % PROJECT_DIR,
     '%s/sb_reps/static/' % PROJECT_DIR,
-    '%s/sb_uploads/static/' % PROJECT_DIR
+    '%s/sb_uploads/static/' % PROJECT_DIR,
+    '%s/help_center/static/' % PROJECT_DIR,
 )
+
+HELP_DOCS_PATH = "%s/help_center/rendered_docs/" % PROJECT_DIR
+ALLOWED_INCLUDE_ROOTS = (HELP_DOCS_PATH,)
 
 # List of finder classes that know how to find static files in
 # various locations.
@@ -86,7 +86,6 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
-    'compressor.finders.CompressorFinder',
 )
 
 
@@ -98,6 +97,8 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'opbeat.contrib.django.middleware.OpbeatAPMMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -107,6 +108,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'oauth2_provider.middleware.OAuth2TokenMiddleware',
 )
 
 ROOT_URLCONF = 'sagebrew.urls'
@@ -122,11 +124,12 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.media",
     "django.core.context_processors.static",
     "django.core.context_processors.tz",
-    "django.contrib.messages.context_processors.messages"
+    "django.contrib.messages.context_processors.messages",
 )
 
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
+    'oauth2_provider.backends.OAuth2Backend',
 )
 
 TEMPLATE_DIRS = (
@@ -138,7 +141,6 @@ TEMPLATE_DIRS = (
     '%s/sb_uploads/templates/' % PROJECT_DIR,
     '%s/sb_reps/templates/' % PROJECT_DIR,
     '%s/sb_registration/templates/' % PROJECT_DIR,
-    '%s/sb_wall/templates/' % PROJECT_DIR,
     '%s/plebs/templates/' % PROJECT_DIR,
     '%s/sb_questions/templates/' % PROJECT_DIR,
     '%s/sb_answers/templates/' % PROJECT_DIR,
@@ -162,16 +164,17 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'rest_framework',
     'admin_honeypot',
-    'provider',
-    'provider.oauth2',
+    'oauth2_provider',
+    'corsheaders',
     'storages',
     'localflavor',
     'plebs',
     'api',
     'govtrack',
     'neomodel',
-    'compressor',
+    "opbeat.contrib.django",
     'sb_answers',
+    'sb_badges',
     'sb_base',
     'sb_comments',
     'sb_deletes',
@@ -179,10 +182,13 @@ INSTALLED_APPS = (
     'sb_edits',
     'sb_flags',
     'sb_notifications',
+    'sb_privileges',
     'sb_posts',
+    'sb_public_official',
     'sb_questions',
     'sb_registration',
     'sb_relationships',
+    'sb_requirements',
     'sb_reps',
     'sb_search',
     'sb_tag',
@@ -194,13 +200,14 @@ INSTALLED_APPS = (
     'textblob',
     'help_center'
 )
+
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 EMAIL_VERIFICATION_TIMEOUT_DAYS = 1
 
 
-SERVER_EMAIL = "service@sagebrew.com"
-DEFAULT_FROM_EMAIL = "service@sagebrew.com"
+SERVER_EMAIL = "support@sagebrew.com"
+DEFAULT_FROM_EMAIL = "support@sagebrew.com"
 
 LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/'
@@ -228,7 +235,7 @@ OAUTH_DELETE_EXPIRED = True
 CELERY_DISABLE_RATE_LIMITS = True
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 CELERY_ALWAYS_EAGER = False
-CELERY_IGNORE_RESULT = False
+
 # AWS_S3_SECURE_URLS = True
 AWS_STORAGE_BUCKET_NAME = environ.get("AWS_S3_BUCKET")
 
@@ -242,15 +249,21 @@ LOGENT_TOKEN = environ.get("LOGENT_TOKEN", "")
 ALCHEMY_API_KEY = environ.get("ALCHEMY_API_KEY", '')
 ADDRESS_VALIDATION_ID = environ.get("ADDRESS_VALIDATION_ID", '')
 ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN", '')
-STRIPE_PUBLIC_KEY = environ.get("STRIPE_PUBLIC_KEY",
-                                'pk_test_BvgnQJjwcednzpsx4Q4Uqv8p')
-STRIPE_SECRET_KEY = environ.get("STRIPE_SECRET_KEY",
-                                'sk_test_jIytkvmYMCwIzTranx2om7bq')
+STRIPE_PUBLIC_KEY = environ.get("STRIPE_PUBLIC_KEY", '')
+STRIPE_SECRET_KEY = environ.get("STRIPE_SECRET_KEY", '')
+PX_USER_ID = environ.get("PX_USER_ID", "")
+PX_API_KEY = environ.get("PX_API_KEY", "")
+PX_SECRET_KEY = environ.get("PX_SECRET_KEY", "")
+MASKED_NAME = environ.get("MASKED_NAME", "")
 
 DYNAMO_IP = environ.get("DYNAMO_IP", None)
 
 CELERY_TIMEZONE = 'UTC'
-
+OPBEAT = {
+    "ORGANIZATION_ID": environ.get("OPBEAT_ORG_ID", ""),
+    "APP_ID": environ.get("OPBEAT_APP_ID", ""),
+    "SECRET_TOKEN": environ.get("OPBEAT_SECRET_TOKEN", "")
+}
 
 CSV_FILES = '%s/csv_content/' % PROJECT_DIR
 
@@ -317,3 +330,33 @@ KNOWN_TABLES = {
     "0274a216-644f-11e4-9ad9-080027242395": "public_questions",
     "02ba1c88-644f-11e4-9ad9-080027242395": "comments"
 }
+
+OPERATOR_TYPES = [
+    ('coperator\neq\np0\n.', '='),
+    ('coperator\nle\np0\n.', '<='),
+    ('coperator\ngt\np0\n.', '>'),
+    ('coperator\nne\np0\n.', '!='),
+    ('coperator\nlt\np0\n.', '<'),
+    ('coperator\nge\np0\n.', '>=')
+]
+
+OPERATOR_DICT = {
+    'coperator\neq\np0\n.': 'equal to',
+    'coperator\nle\np0\n.': 'at most',
+    'coperator\ngt\np0\n.': 'more than',
+    'coperator\nne\np0\n.': 'not have',
+    'coperator\nlt\np0\n.': 'less than',
+    'coperator\nge\np0\n.': 'at least'
+}
+
+PRIVILEGE_HTML_TYPES = {
+    "write_question": ".submit_question-action",
+    "write_post": ".submit_post-action",
+    "write_comment": ".comment-action",
+    "write_solution": ".submit_answer-action"
+}
+
+
+OAUTH_CLIENT_ID = '658919414169191a6ds1f9a1s9'
+OAUTH_CLIENT_SECRET = '651a69d1516aSD651a65sd1sd645a1s56d5165A1SD'
+CORS_ORIGIN_ALLOW_ALL = True

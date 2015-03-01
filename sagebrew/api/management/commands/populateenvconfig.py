@@ -85,6 +85,18 @@ def populate_staging_values(data):
                         environ.get("CELERY_QUEUE_STAGING", ""))
     data = data.replace("<WEB_SECURITY_GROUP>",
                         environ.get("WEB_SECURITY_GROUP_STAGING", ""))
+    data = data.replace("<STRIPE_PUBLIC_KEY>",
+                        environ.get("STRIPE_PUBLIC_KEY_TEST", ""))
+    data = data.replace("<STRIPE_SECRET_KEY>",
+                        environ.get("STRIPE_SECRET_KEY_TEST", ""))
+    data = data.replace("<MASKED_NAME>",
+                        environ.get("MASKED_NAME_STAGING", ""))
+    data = data.replace("<OPBEAT_ORG_ID>",
+                        environ.get("OPBEAT_ORG_ID_STAGING", ""))
+    data = data.replace("<OPBEAT_APP_ID>",
+                        environ.get("OPBEAT_APP_ID_STAGING", ""))
+    data = data.replace("<OPBEAT_SECRET_TOKEN>",
+                        environ.get("OPBEAT_SECRET_TOKEN_STAGING", ""))
     return data
 
 
@@ -116,6 +128,19 @@ def populate_production_values(data):
                         environ.get("CELERY_QUEUE_PROD", ""))
     data = data.replace("<WEB_SECURITY_GROUP>",
                         environ.get("WEB_SECURITY_GROUP_PROD", ""))
+    data = data.replace("<STRIPE_PUBLIC_KEY>",
+                        environ.get("STRIPE_PUBLIC_KEY_PROD", ""))
+    data = data.replace("<STRIPE_SECRET_KEY>",
+                        environ.get("STRIPE_SECRET_KEY_PROD", ""))
+    data = data.replace("<MASKED_NAME>",
+                        environ.get("MASKED_NAME_PROD", ""))
+
+    data = data.replace("<OPBEAT_ORG_ID>",
+                        environ.get("OPBEAT_ORG_ID_PROD", ""))
+    data = data.replace("<OPBEAT_APP_ID>",
+                        environ.get("OPBEAT_APP_ID_PROD", ""))
+    data = data.replace("<OPBEAT_SECRET_TOKEN>",
+                        environ.get("OPBEAT_SECRET_TOKEN_PROD", ""))
     return data
 
 
@@ -129,6 +154,12 @@ def populate_test_values(data):
                         environ.get("AWS_SECRET_ACCESS_KEY", ""))
     data = data.replace("<APPLICATION_SECRET_KEY>",
                         environ.get("APPLICATION_SECRET_KEY", ""))
+    data = data.replace("<STRIPE_PUBLIC_KEY>",
+                        environ.get("STRIPE_PUBLIC_KEY_TEST", ""))
+    data = data.replace("<STRIPE_SECRET_KEY>",
+                        environ.get("STRIPE_SECRET_KEY_TEST", ""))
+    data = data.replace("<MASKED_NAME>",
+                        environ.get("MASKED_NAME", ""))
     return data
 
 
@@ -173,4 +204,12 @@ def populate_general_values(data):
     data = data.replace("<QUEUE_PORT>", environ.get("QUEUE_PORT", ""))
     data = data.replace("<LOGENT_TOKEN>", environ.get("LOGENT_TOKEN", ""))
     data = data.replace("<SYS_LOG_TOKEN>", environ.get("SYS_LOG_TOKEN", ""))
+    data = data.replace("<PX_USER_ID>",
+                        environ.get("PX_USER_ID", ""))
+    data = data.replace("<PX_API_KEY>",
+                        environ.get("PX_API_KEY", ""))
+    data = data.replace("<PX_SECRET_KEY>",
+                        environ.get("PX_SECRET_KEY", ""))
+    data = data.replace("<AWS_DEFAULT_REGION>",
+                        environ.get("AWS_DEFAULT_REGION", ""))
     return data

@@ -108,5 +108,24 @@ def populate_general_values(data, user, worker_count):
     data = data.replace("%(ENV_RDS_HOSTNAME)s", environ.get("RDS_HOSTNAME", ""))
     data = data.replace("%(ENV_RDS_PORT)s", environ.get("RDS_PORT", ""))
     data = data.replace("%(ENV_DYNAMO_IP)s", environ.get("DYNAMO_IP", ""))
-
+    data = data.replace("%(ENV_STRIPE_PUBLIC_KEY)s",
+                        environ.get("STRIPE_PUBLIC_KEY", ""))
+    data = data.replace("%(ENV_STRIPE_SECRET_KEY)s",
+                        environ.get("STRIPE_SECRET_KEY", ""))
+    data = data.replace("%(ENV_MASKED_NAME)s",
+                        environ.get("MASKED_NAME", ""))
+    data = data.replace("%(ENV_PX_USER_ID)s",
+                        environ.get("PX_USER_ID", ""))
+    data = data.replace("%(ENV_PX_API_KEY)s",
+                        environ.get("PX_API_KEY", ""))
+    data = data.replace("%(ENV_PX_SECRET_KEY)s",
+                        environ.get("PX_SECRET_KEY", ""))
+    data = data.replace("%(ENV_AWS_DEFAULT_REGION)s",
+                        environ.get("AWS_DEFAULT_REGION", ""))
+    data = data.replace("%(ENV_OPBEAT_ORG_ID)s",
+                        environ.get("OPBEAT_ORG_ID", ""))
+    data = data.replace("%(ENV_OPBEAT_APP_ID)s",
+                        environ.get("OPBEAT_APP_ID", ""))
+    data = data.replace("%(ENV_OPBEAT_SECRET_TOKEN)s",
+                        environ.get("OPBEAT_SECRET_TOKEN", ""))
     return data

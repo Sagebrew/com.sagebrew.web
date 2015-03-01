@@ -15,10 +15,14 @@ from .forms import ImageForm
 @permission_classes((IsAuthenticated,))
 def upload_image_api(request):
     if request.method == 'POST':
-        uuid = str(uuid1())
         file_data = dict(request.FILES)
         for item in file_data.values():
+            uuid = str(uuid1())
             res = upload_image(settings.AWS_UPLOAD_IMAGE_FOLDER_NAME,
                                uuid, item[0])
-            print res
     return Response({"detail": "success"}, 200)
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def get_image_api(request):
+    return Response('https://sagebrew-dev.s3.amazonaws.com/media/590861ae-9e7d-11e4-8474-080027242395.jpg', 200)

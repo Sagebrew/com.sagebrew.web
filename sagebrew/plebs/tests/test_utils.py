@@ -1,4 +1,3 @@
-import shortuuid
 from os import environ
 from subprocess import check_call
 import pickle
@@ -9,7 +8,7 @@ from neomodel.exception import DoesNotExist
 from api.utils import wait_util
 from plebs.neo_models import Pleb
 from plebs.utils import prepare_user_search_html
-from sb_registration.utils import create_user_util
+from sb_registration.utils import create_user_util_test
 
 
 class TestPrepareUserSearchHTML(TestCase):
@@ -17,7 +16,7 @@ class TestPrepareUserSearchHTML(TestCase):
         self.email = "success@simulator.amazonses.com"
 
         self.password = "testpassword"
-        res = create_user_util("test", "test", self.email, self.password)
+        res = create_user_util_test(self.email)
         self.username = res["username"]
         self.assertNotEqual(res, False)
         wait_util(res)

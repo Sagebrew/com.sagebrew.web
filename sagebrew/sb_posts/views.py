@@ -107,7 +107,7 @@ def get_user_posts(request):
                                       '%Y-%m-%d %H:%M:%S.%f')
                 # TODO replace with actual vote count. Note that the template
                 # tag operations require it to be a string and not an int.
-                # The tag values also don't accomodate for dynamic updates
+                # The tag values also don't accommodate for dynamic updates
                 # from javascript so we'll have to figure that out that as well
                 # Example when someone transitions from 9 to 10 and 99 to 100
                 post_dict['object_vote_count'] = "10.5k"

@@ -14,7 +14,8 @@ from sb_docstore.tasks import build_question_page_task
 from sb_docstore.utils import get_question_doc
 from sb_registration.utils import verify_completed_registration
 from .utils import (get_question_by_most_recent, get_question_by_uuid,
-                    get_question_by_least_recent, prepare_question_search_html)
+                    get_question_by_least_recent, prepare_question_search_html,
+                    get_question_by_recent_edit)
 from .tasks import (create_question_task)
 from .forms import (SaveQuestionForm, GetQuestionForm)
 
@@ -247,6 +248,14 @@ def get_question_view(request):
         # TODO if cannot perform the above TODOs need to at least add
         # an additional else or remove the bottom else specifier and just
         # return the Response anytime it reaches that area
+        elif question_data['sort_by'] == 'recent_edit':
+            response = get_question_by_recent_edit()
+            if isinstance(response, Exception):
+                return Response(status=500)
+            for question in response:
+                html_array.append(
+                    question.render_question_page(request.user.email))
+            return Response(html_array, 200)
 
     return Response({"detail": "fail"}, status=400)
 

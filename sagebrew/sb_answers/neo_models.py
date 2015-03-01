@@ -82,9 +82,13 @@ class SBAnswer(SBVersioned):
             answer_owner_url = answer_owner.username
             for comment in self.comments.all():
                 comment_array.append(comment.get_single_dict())
+            try:
+                parent_object = self.answer_to.all()[0].sb_id
+            except IndexError:
+                parent_object = ''
             answer_dict = {'content': self.content,
                            'current_pleb': pleb,
-                           'parent_object': self.answer_to.all()[0].sb_id,
+                           'parent_object': parent_object,
                            'object_uuid': self.sb_id,
                            'last_edited_on': unicode(self.last_edited_on),
                            'up_vote_number': self.get_upvote_count(),

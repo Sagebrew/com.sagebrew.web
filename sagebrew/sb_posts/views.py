@@ -40,8 +40,7 @@ def save_post_view(request):
     if valid_form:
         #post_data['content'] = language_filter(post_data['content'])
         post_form.cleaned_data['post_uuid'] = str(uuid1())
-        post_form.cleaned_data['html_content'] = \
-            markdown.markdown(post_form.cleaned_data['content'])
+        html_content = markdown.markdown(post_form.cleaned_data['content'])
         spawned = spawn_task(task_func=save_post_task,
                              task_param=post_form.cleaned_data)
         if isinstance(spawned, Exception):
@@ -59,7 +58,7 @@ def save_post_view(request):
             "content": post_form.cleaned_data['content'],
             "object_vote_count": "0",
             "vote_type": "true",
-            "html_content": post_form.cleaned_data['html_content']
+            "html_content": html_content
         }
         c = RequestContext(request, post_data)
         html = render_to_string('post.html', post_data,

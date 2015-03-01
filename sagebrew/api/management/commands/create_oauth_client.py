@@ -12,7 +12,9 @@ class Command(BaseCommand):
 
     def create_oauth_client(self):
         client_id = signing.dumps(str(uuid1()))
+        settings.OAUTH_CLIENT_ID = client_id
         client_secret = signing.dumps(str(uuid1()))+signing.dumps(str(uuid1()))
+        settings.OAUTH_CLIENT_SECRET = client_secret
         password = (signing.dumps(str(uuid1()))+signing.dumps(str(uuid1())))[
                                                :128]
         try:

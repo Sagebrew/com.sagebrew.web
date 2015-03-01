@@ -6,7 +6,7 @@ machine:
 
 dependencies:
   pre:
-    - pip install --upgrade pip
+    - pip install pip --upgrade
     - pip install distribute --upgrade
     - pip install awscli
   cache_directories:

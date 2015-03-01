@@ -33,6 +33,7 @@ function save_comment() {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
+                $("sb_comments_container_"+$(this).data('object_uuid')).append(data['html'])
             }
         });
     });

@@ -3,7 +3,7 @@
 ## Description ##
 You’ve become familiar with the Conversation Area and you’ve proven that you 
 can create quality Questions, Solutions, and Comments. Now you can add Explicit 
-Content to your posts such as graphic photos or videos that enhance the 
+Content to one of your posts per week. This includes graphic photos or videos that enhance the 
 severity of your posed issue. These will appear blacked-out with a warning 
 on everyone’s display until they choose to view it. 
 
@@ -20,5 +20,6 @@ conversation. No offensive racial, religious, cultural, or gender
 orientation images, please. And please, please, please: no pornography. 
 Violations will be [Flagged][1] as inappropriate and you may lose this
 privilege.
+
 
 [1]: /help_center/privileges/flagging/

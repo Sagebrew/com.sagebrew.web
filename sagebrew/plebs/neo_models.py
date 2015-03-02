@@ -147,10 +147,10 @@ class Pleb(StructuredNode):
     address = RelationshipTo("Address", "LIVES_AT", cardinality=ZeroOrOne)
     interests = RelationshipTo("sb_tag.neo_models.SBTag", "INTERESTED_IN")
     friends = RelationshipTo("Pleb", "FRIENDS_WITH", model=FriendRelationship)
-    senator = RelationshipTo("govtrack.neo_models.GTRole",
-                             "HAS_SENATOR")
-    house_rep = RelationshipTo("govtrack.neo_models.GTRole",
-                               "HAS_REPRESENTATIVE")
+    #senator = RelationshipTo("govtrack.neo_models.GTRole",
+    #                         "HAS_SENATOR")
+    #house_rep = RelationshipTo("govtrack.neo_models.GTRole",
+    #                           "HAS_REPRESENTATIVE")
     posts = RelationshipTo('sb_posts.neo_models.SBPost', 'OWNS_POST',
                            model=PostObjectCreated)
     questions = RelationshipTo('sb_questions.neo_models.SBQuestion',

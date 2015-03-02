@@ -1,13 +1,13 @@
-<div class="sb_nav sb_secondary_nav sb_action_nav">
+<div class="row sb_nav sb_secondary_nav sb_action_nav">
     <ul>
         <li>
-           <a href="#">Saga</a>
+           <a href="{% url 'action_saga' representative.username %}">Saga</a>
         </li>
         <li>
-           <a href="#">Updates</a>
+           <a href="{% url 'action_updates' representative.username %}">Updates</a>
         </li>
           <li>
-           <a href="#">About</a>
+           <a href="{% url 'action_about' representative.username %}">About</a>
         </li>
 
     </ul>

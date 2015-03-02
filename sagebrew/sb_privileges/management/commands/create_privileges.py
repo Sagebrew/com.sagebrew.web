@@ -38,7 +38,7 @@ class Command(BaseCommand):
                                     "missing privileges")
                 for requirement in requirements:
                     try:
-                        Requirement.nodes.get(key=requirement["total_rep"])
+                        Requirement.nodes.get(key=requirement["key"])
                     except(Requirement.DoesNotExist, DoesNotExist):
                         try:
                             req = Requirement(**requirement).save()

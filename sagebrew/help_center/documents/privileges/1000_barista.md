@@ -4,6 +4,6 @@
 ## Description ##
 You’ve reached a new Rank! As a Regular Brewer you’ll gain the following perks:
 - Increased number of Flags (three more per day) 
-- Unlimited use of Explicit Content in contributions 
+- Can include explicit content in 3 separate posts per week
 - Increased communication with Representatives, Sages and Tribunes in your area
  - 5 Reach Posts a week

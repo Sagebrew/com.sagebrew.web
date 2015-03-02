@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 
 from oauth2_provider.models import Application, get_application_model
 
+
 class Command(BaseCommand):
     args = 'None.'
 

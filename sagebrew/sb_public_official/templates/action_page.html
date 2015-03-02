@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}Action Page Title{% endblock title %}
+{% block content %}
+<div class="row-fluid sb_page">
+{% include "action_channel.html" %}
+{% include "action_nav.html" %}
+{% include "action_wall.html" %}
+</div>
+{% endblock %}
+{% block footer %}
+{% endblock %}
+{% block scripts %}
+    {{ block.super }}
+{% endblock scripts %}

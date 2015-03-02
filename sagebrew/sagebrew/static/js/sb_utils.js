@@ -20,7 +20,6 @@ function save_comment() {
             }
         });
         $.ajax({
-
             xhrFields: {withCredentials: true},
             type: "POST",
             url: "/comments/submit_comment/",
@@ -33,6 +32,9 @@ function save_comment() {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
+                var comment_container = $("#sb_comments_container_"+sb_id);
+                comment_container.append(data['html']);
+                $('textarea#post_comment_on_' + sb_id).val("");
             }
         });
     });
@@ -43,6 +45,8 @@ function show_edit_post() {
         var sb_id = $(this).data('uuid');
         $("#sb_content_"+sb_id).hide();
         $('#edit_container_' + sb_id).show();
+        var textarea = $('textarea#' + $(this).data('uuid'));
+        textarea.height( textarea[0].scrollHeight );
     });
 }
 
@@ -52,6 +56,8 @@ function show_edit_comment() {
         var sb_id = $(this).data('comment_uuid');
         $("#sb_content_"+sb_id).hide();
         $('#edit_container_' + sb_id).show();
+        var textarea = $('textarea#' + $(this).data('comment_uuid'));
+        textarea.height( textarea[0].scrollHeight );
     });
 }
 

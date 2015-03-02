@@ -2,7 +2,6 @@
 {% load staticfiles %}
 {% block css %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static 'css/vendor/bootstrapValidator.min.css' %}">
     <link rel="stylesheet" href="{% static 'less/sb_beta.css' %}"/>
 {% endblock css %}
 {% block navigation %}
@@ -85,6 +84,5 @@
 
 {% block scripts %}
     {{ block.super }}
-    <script src="{% static 'js/vendor/bootstrapValidator.min.js' %}"></script>
     <script src="{% static 'js/beta_signup.js' %}"></script>
 {% endblock %}

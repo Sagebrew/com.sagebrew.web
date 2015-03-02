@@ -10,7 +10,7 @@
             <img src="{{ pleb_info.profile_pic }}">
        </div>
        <div>
-            <img class="sb_wallpaper_container" src="{% static 'images/sb_banners-01.png' %}">
+            <img class="sb_wallpaper wallpaper_profile" src="{% static 'images/sb_banners-01.png' %}">
        </div>
        <div class="sb_nav sb_secondary_nav sb_secondary_nav_bar">
             {% include "sb_home_section/sb_profile_user_menu.html" %}
@@ -37,4 +37,6 @@
     <script src="{% static 'js/sb_post_enter.js' %}"></script>
     <script src="{% static 'js/sb_reputation_show.js' %}"></script>
     <script src="{% static 'js/sb_friends_show.js' %}"></script>
+    <script src="{% static 'js/post_validator.js' %}"></script>
+    <script src="{% static 'js/comment_validator.js' %}"></script>
 {% endblock scripts %}

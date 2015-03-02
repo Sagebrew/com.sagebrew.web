@@ -43,6 +43,8 @@
     color: @sb_green;
   }
 }
+//html tag padding fixes
+
 // Blocks
 .block{
   height: auto;
@@ -81,7 +83,7 @@
   padding: @sb_common_padding_positive;
   margin-bottom: @sb_common_margin_positive;
 }
-.sb_registration_block {
+.sb_registration_block{
   &:extend(.block);
   width: 80%;
   margin-top:100px;
@@ -93,14 +95,61 @@
   position: inherit;
   float: left;
 }
-
-.sb_blog_post_block {
+.sb_blog_post_block{
   &:extend(.block);
   margin-top:40px;
   margin-bottom: 60px;
   border-radius: 10px;
   background-color: @sb_green_wall;
   float: left;
+}
+.sb_bio_block{
+  background-color: transparent;
+  padding-top: 0;
+  h2{
+    margin: 0 0 0 0;
+    margin-bottom: opx;
+  }
+}
+.sb_channel_block{
+  &:extend(.block);
+  padding: 15px 0 15px 0;
+  background-color: @sb_green_extra_light;
+  border-radius: 0 0 5px 5px;
+  height: 150px;
+}
+.sb_action_content_block{
+  background-color: @sb_green_extra_light;
+  min-height: 600px;
+}
+.sb_goals_block {
+  &:extend(.sb_action_content_block);
+  height: 300px;
+  min-height: 0;
+  margin-bottom: 30px;
+}
+.sb_about_block{
+  &:extend(.sb_action_content_block);
+  height: 250px;
+  min-height: 0;
+}
+//wallpaper
+.sb_wallpaper{
+  background-color: @sb_grey_extra_light;
+  width: 100%;
+}
+.wallpaper_profile {
+  &:extend(.sb_wallpaper);
+  height: 250px;
+  margin-top: 30px;
+  border-radius:5px 5px 0 0;
+}
+.sb_wallpaper_action{
+  &:extend(.sb_wallpaper);
+  background-color: @sb_green_medium;
+  height: 500px;
+  margin-top: 100px;
+  border-radius: 5px 5px 0 0;
 }
 // TODO Review and potentially change to just standard side_container
 .sb_questions_side_container{
@@ -116,7 +165,7 @@
 }
 .sb_wall{
   height: auto;
-  background-color: @sb_grey_light;
+  background-color: @sb_green_wall;
   padding: 15px 15px 15px 15px;
   border-radius: 2px;
   min-height: 575px;
@@ -124,6 +173,13 @@
 .sb_conversation_wall{
   &:extend(.sb_wall);
   margin-top: 30px;
+}
+.sb_action_wall{
+  &:extend(.sb_wall);
+  h5{
+    color: @sb_grey_dark;
+    font-weight: normal;
+  }
 }
 // Border
 .sb_border{
@@ -209,11 +265,19 @@
 .vote_up_active{
   color: @sb_green;
 }
+.vote_up_small{
+  &:extend(.vote_up);
+  font-size: 20pt;
+}
 .vote_down{
   &:extend(.sb_btn_vote);
   &:hover{
     color: @sb_violet;
   }
+}
+.vote_down_small{
+  &:extend(.vote_down);
+  font-size: 20pt;
 }
 .vote_down_active{
   color: @sb_violet;
@@ -223,12 +287,13 @@
   h6{
     font-size: 12pt;
   }
-
   p {
-
     font-weight: bold;
     margin-bottom: -5px;
     margint-top: -5px;
+  }
+  small{
+
   }
 }
 .sb_spy{
@@ -289,7 +354,7 @@
   border-radius: 0 0 2px 2px;
   border-bottom: solid;
   border-width: 2px;
-  border-bottom-color: @sb_green_medium;
+  border-bottom-color: @sb_grey;
   margin-bottom: @sb_common_margin_positive;
   ul {
     margin-top: 10px;
@@ -298,12 +363,22 @@
     margin-right: 30px;
   }
   a{
+    color: @sb_grey_dark;
+    font-size: 20px;
     &:hover{
-       color: @sb_green_impressed;
+       color: @sb_green;
     }
   }
   h3 {
     margin-top: 10px;
+  }
+}
+.sb_action_nav{
+  &:extend(.sb_secondary_nav);
+  background-color: @sb_green_extra_light;
+  margin: 60px 0 0 0;
+  ul{
+    padding: 8px 0 0 20px;
   }
 }
 .sb_secondary_nav_bar{
@@ -393,11 +468,26 @@
     display: block;
   }
 }
+//progress bar
+.sb_progress{
+  &:extend(.progress);
+  background: @sb_green_wall;
+}
+.sb_progress_bar{
+  &:extend(.progress_bar);
+  background: @sb_green;
+}
+
 // go through this stuff
 // Can we create a mixin for thumbnails?
+
 .sb_thumbnail_xs{
   height: 33px;
   width: 33px;
+}
+.sb_thumbnail_md{
+  height: 120px;
+  width: 120px;
 }
 .sb_dropdown_icon {
   color: @sb_green_extra_light;
@@ -439,9 +529,10 @@
   padding-right: 4px;
 }
 .sb_deco_line {
-  border-bottom: solid 5px;
+  border-bottom: solid 2px;
   border-color: @sb_green_medium;
   margin-bottom: 35px;
+  padding-top: 5px;
 }
 .sb_btn_modal {
   a{
@@ -519,13 +610,7 @@
         color: @sb_green;
       }
 }
-.sb_wallpaper_container {
-  background-color: @sb_grey_extra_light;
-  width: 100%;
-  height: 250px;
-  border-radius:5px 5px 0 0;
-  margin-top: 30px;
-}
+
 .sb_profile_pic {
   border-color: @sb_grey_light;
   margin-left: @sb_common_margin_positive;
@@ -618,6 +703,10 @@
 }
 .sb_vote_wrapper{
   margin-left: -5px;
+  margin-top: -15px;
+}
+.sb_vote_wrapper_small{
+  margin-left: 2px;
   margin-top: -15px;
 }
 .sb_up_vote_wrapper{
@@ -751,4 +840,14 @@ textarea.sb_comment_input{
       &:active{
         color: @sb_dark_blue;
       }
+}
+
+.conversation_logo {
+  &:extend(.sb_dropdown_icon);
+  fill: white;
+  background-repeat: no-repeat;
+  padding-top: 5px;
+  padding-bottom: 0px;
+  margin-left: 30px;
+  padding-right: 25px;
 }

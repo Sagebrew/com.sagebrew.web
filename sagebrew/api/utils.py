@@ -7,9 +7,8 @@ import hashlib
 import shortuuid
 from uuid import uuid1
 from json import dumps
-from datetime import timedelta, datetime
+from datetime import  datetime
 from django.core import signing
-from django.contrib.auth.models import User
 from boto.sqs.message import Message
 from bomberman.client import Client, RateLimitExceeded
 from neomodel import db
@@ -193,8 +192,13 @@ def language_filter(content):
             return corrected_content
         else:
             return content
-    except RateLimitExceeded:
-        return False
+    except RateLimitExceeded as e:
+        return e
+    except Exception as e:
+        # This is necessary because bomberman can return an exception if it
+        # doesn't have a specific status code handled. This happens when there
+        # is a 503 from the server.
+        return e
 
 
 def create_auto_tags(content):

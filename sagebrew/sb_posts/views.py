@@ -113,6 +113,8 @@ def get_user_posts(request):
                 post_dict['object_vote_count'] = "10.5k"
                 post_dict['vote_type'] = "true"
                 post_dict['current_pleb'] = request.user
+                for item in post_dict["comments"]:
+                    item["vote_count"] = str(item["vote_count"])
                 c = RequestContext(request, post_dict)
                 html = render_to_string('post.html', post_dict,
                                         context_instance=c)

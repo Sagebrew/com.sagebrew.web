@@ -46,7 +46,8 @@
 .sb_question,
 .sb_question_summary,
 .sb_registration_block,
-.sb_blog_post_block {
+.sb_blog_post_block,
+.sb_channel_block {
   height: auto;
   padding-top: 15px;
   padding-left: 15px;
@@ -98,6 +99,53 @@
   background-color: #e0e7e1;
   float: left;
 }
+.sb_bio_block {
+  background-color: transparent;
+  padding-top: 0;
+}
+.sb_bio_block h2 {
+  margin: 0 0 0 0;
+  margin-bottom: opx;
+}
+.sb_channel_block {
+  width: 100%;
+  padding: 15px 0 15px 0;
+  background-color: #eaf0e8;
+  border-radius: 0 0 5px 5px;
+  height: 150px;
+}
+.sb_action_content_block,
+.sb_goals_block,
+.sb_about_block {
+  background-color: #eaf0e8;
+  min-height: 600px;
+}
+.sb_goals_block {
+  height: 300px;
+  min-height: 0;
+  margin-bottom: 30px;
+}
+.sb_about_block {
+  height: 250px;
+  min-height: 0;
+}
+.sb_wallpaper,
+.wallpaper_profile,
+.sb_wallpaper_action {
+  background-color: #f9fff7;
+  width: 100%;
+}
+.wallpaper_profile {
+  height: 250px;
+  margin-top: 30px;
+  border-radius: 5px 5px 0 0;
+}
+.sb_wallpaper_action {
+  background-color: #9dbbb9;
+  height: 500px;
+  margin-top: 100px;
+  border-radius: 5px 5px 0 0;
+}
 .sb_questions_side_container {
   background-color: #e0e7e1;
   margin-top: 30px;
@@ -109,15 +157,23 @@
   margin: 0 5% 0 5%;
 }
 .sb_wall,
-.sb_conversation_wall {
+.sb_conversation_wall,
+.sb_action_wall {
   height: auto;
-  background-color: #e5ece6;
+  background-color: #e0e7e1;
   padding: 15px 15px 15px 15px;
   border-radius: 2px;
   min-height: 575px;
 }
 .sb_conversation_wall {
   margin-top: 30px;
+}
+.sb_action_wall {
+  width: 100%;
+}
+.sb_action_wall h5 {
+  color: #838c92;
+  font-weight: normal;
 }
 .sb_border,
 .sb_border_question,
@@ -155,7 +211,9 @@
 .sb_btn_nav,
 .sb_login button,
 .vote_up,
-.vote_down {
+.vote_down,
+.vote_up_small,
+.vote_down_small {
   background-color: #1ba39c;
 }
 .sb_btn_space,
@@ -177,7 +235,9 @@
 .sb_btn_vote,
 .sb_btn_nav,
 .vote_up,
-.vote_down {
+.vote_down,
+.vote_up_small,
+.vote_down_small {
   background-color: transparent;
   font-size: 18px;
   padding: 10px;
@@ -194,7 +254,9 @@
 }
 .sb_btn_vote,
 .vote_up,
-.vote_down {
+.vote_down,
+.vote_up_small,
+.vote_down_small {
   color: #b7bfbb;
   padding: 0;
   font-size: 30pt;
@@ -208,8 +270,14 @@
 .vote_up_active {
   color: #1ba39c;
 }
+.vote_up_small {
+  font-size: 20pt;
+}
 .vote_down:hover {
   color: #a162ff;
+}
+.vote_down_small {
+  font-size: 20pt;
 }
 .vote_down_active {
   color: #a162ff;
@@ -223,7 +291,7 @@
 .vote_count p {
   font-weight: bold;
   margin-bottom: -5px;
-  margint-top: -5px;
+  margin-top: -5px;
 }
 .sb_spy {
   color: #b7bfbb;
@@ -269,6 +337,7 @@
   border-top: 0px;
 }
 .sb_secondary_nav,
+.sb_action_nav,
 .sb_secondary_nav_bar,
 .sb_secondary_nav_transparent,
 .sb_tertiary_nav {
@@ -277,7 +346,7 @@
   border-radius: 0 0 2px 2px;
   border-bottom: solid;
   border-width: 2px;
-  border-bottom-color: #9dbbb9;
+  border-bottom-color: #b7bfbb;
   margin-bottom: 15px;
 }
 .sb_secondary_nav ul {
@@ -286,11 +355,22 @@
 .sb_secondary_nav li {
   margin-right: 30px;
 }
+.sb_secondary_nav a {
+  color: #838c92;
+  font-size: 20px;
+}
 .sb_secondary_nav a:hover {
-  color: #00b8ac;
+  color: #1ba39c;
 }
 .sb_secondary_nav h3 {
   margin-top: 10px;
+}
+.sb_action_nav {
+  background-color: #eaf0e8;
+  margin: 60px 15px 0 -15px;
+}
+.sb_action_nav ul {
+  padding: 0 0 0 20px;
 }
 .sb_secondary_nav_bar {
   background-color: #e5ece6;
@@ -363,11 +443,22 @@
 .sb_dropdown li {
   display: block;
 }
+.sb_progress {
+  background: #e0e7e1;
+}
+.sb_progress_bar {
+  background: #1ba39c;
+}
 .sb_thumbnail_xs {
   height: 33px;
   width: 33px;
 }
-.sb_dropdown_icon {
+.sb_thumbnail_md {
+  height: 120px;
+  width: 120px;
+}
+.sb_dropdown_icon,
+.conversation_logo {
   color: #eaf0e8;
 }
 .sb_post_dropdown_menu {
@@ -407,9 +498,10 @@
   padding-right: 4px;
 }
 .sb_deco_line {
-  border-bottom: solid 5px;
+  border-bottom: solid 2px;
   border-color: #9dbbb9;
   margin-bottom: 35px;
+  padding-top: 5px;
 }
 .sb_btn_modal a {
   color: #ffffff;
@@ -481,13 +573,6 @@
 }
 .sb_btn_see_all:hover {
   color: #1ba39c;
-}
-.sb_wallpaper_container {
-  background-color: #f9fff7;
-  width: 100%;
-  height: 250px;
-  border-radius: 5px 5px 0 0;
-  margin-top: 30px;
 }
 .sb_profile_pic {
   border-color: #e5ece6;
@@ -573,6 +658,10 @@
 }
 .sb_vote_wrapper {
   margin-left: -5px;
+  margin-top: -15px;
+}
+.sb_vote_wrapper_small {
+  margin-left: 2px;
   margin-top: -15px;
 }
 .sb_up_vote_wrapper {
@@ -698,4 +787,12 @@ textarea.sb_comment_input {
 }
 .sb_btn_comment_icon:active {
   color: #34495e;
+}
+.conversation_logo {
+  fill: white;
+  background-repeat: no-repeat;
+  padding-top: 5px;
+  padding-bottom: 0px;
+  margin-left: 30px;
+  padding-right: 25px;
 }

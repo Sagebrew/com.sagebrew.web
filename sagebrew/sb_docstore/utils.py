@@ -88,7 +88,6 @@ def add_object_to_table(table_name, object_data):
         table = Table(table_name=table_name, connection=conn)
     except (JSONResponseError, ResourceNotFoundException) as e:
         return e
-    table.describe()
     try:
         res = table.put_item(data=object_data)
     except ConditionalCheckFailedException:

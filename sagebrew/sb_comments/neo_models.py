@@ -1,5 +1,4 @@
 import pytz
-from uuid import uuid1
 from datetime import datetime
 from django.core.urlresolvers import reverse
 

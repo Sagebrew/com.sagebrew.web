@@ -6,12 +6,14 @@ machine:
 
 dependencies:
   pre:
+    - pip install pip --upgrade
+    - pip install setuptools --upgrade
     - pip install awscli
   cache_directories:
     - elasticsearch-1.3.2.tar.gz
     - dynamodb_local_latest.tar.gz
   post:
-    - pip install -r ../requirements/test.txt
+    - pip install -r ~/com.sagebrew.web/requirements/test.txt
     - sudo chown ubuntu /etc/rsyslog.d/
     - python ~/com.sagebrew.web/sagebrew/manage.py logglypopulation
     - sudo chown root /etc/rsyslog.d/
@@ -88,6 +90,9 @@ test:
         -e LOGENT_TOKEN=$LOGENT_TOKEN
         -e DEPLOYED=true
         -e SYS_LOG_TOKEN=$SYS_LOG_TOKEN
+        -e OAUTH_CLIENT_ID=$OAUTH_CLIENT_ID
+        -e OAUTH_CLIENT_SECRET=$OAUTH_CLIENT_SECRET
+        -e DYNAMO_IP=$DYNAMO_IP
         -d -t sagebrew/sys_util:$CIRCLE_SHA1
     - docker run -h box-worker --name sb_worker -P --link db:db
         -e DB_USER=docker -e DB_DOCKER_NAME=docker
@@ -118,6 +123,9 @@ test:
         -e LOGENT_TOKEN=$LOGENT_TOKEN
         -e DEPLOYED=true
         -e SYS_LOG_TOKEN=$SYS_LOG_TOKEN
+        -e OAUTH_CLIENT_ID=$OAUTH_CLIENT_ID
+        -e OAUTH_CLIENT_SECRET=$OAUTH_CLIENT_SECRET
+        -e DYNAMO_IP=$DYNAMO_IP
         -d -t sagebrew/sb_worker:$CIRCLE_SHA1
     # It appears if two migrations run at the same time they cause a
     - docker run -h box-webapp --name sb_web -P --link db:db
@@ -149,6 +157,9 @@ test:
         -e LOGENT_TOKEN=$LOGENT_TOKEN
         -e DEPLOYED=true
         -e SYS_LOG_TOKEN=$SYS_LOG_TOKEN
+        -e OAUTH_CLIENT_ID=$OAUTH_CLIENT_ID
+        -e OAUTH_CLIENT_SECRET=$OAUTH_CLIENT_SECRET
+        -e DYNAMO_IP=$DYNAMO_IP
         -d -t sagebrew/sb_web:$CIRCLE_SHA1
     # Sleep time based on aws timeout counts. This insures it is possible
     # for the deployed code to be ready within the set amount of time

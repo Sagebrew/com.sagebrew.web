@@ -21,6 +21,8 @@ class Command(BaseCommand):
                   'r') as data_file:
             data = loads(data_file.read())
             conn = connect_to_dynamo()
+            if isinstance(conn, Exception):
+                print "Unable to connect to dynamo table, potential error"
             for item in data:
                 table_name = get_table_name(item['table_name'])
                 try:

@@ -68,7 +68,6 @@ class TestGetQuestionByUUID(TestCase):
 
         response = get_question_by_uuid(
             question.sb_id, current_pleb=self.question_info_dict['current_pleb'])
-
         self.assertIsInstance(response, SafeText)
 
     def test_get_question_by_uuid_failure_question_does_not_exist(self):

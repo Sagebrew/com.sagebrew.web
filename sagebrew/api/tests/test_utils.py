@@ -2,9 +2,11 @@ from uuid import uuid1
 from django.test import TestCase
 
 from sb_questions.neo_models import SBQuestion
-from api.utils import (language_filter, add_failure_to_queue, get_object)
+from api.utils import (add_failure_to_queue, get_object)
 
-
+'''
+We currently do not use the language filter anywhere. We rely on customer
+moderation rather than filtering the language used by our customers.
 class TestLanguageFilterUtil(TestCase):
     def setUp(self):
         self.vulgar_words = 'anal anus ballsack blowjob blow job boner'
@@ -20,7 +22,7 @@ class TestLanguageFilterUtil(TestCase):
         res = language_filter(sentence)
 
         self.assertEqual(res, sentence)
-
+'''
 
 class TestAddFailureToQueue(TestCase):
     def setUp(self):

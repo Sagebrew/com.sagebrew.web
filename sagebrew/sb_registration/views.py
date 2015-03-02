@@ -316,7 +316,7 @@ def profile_picture(request):
         profile_picture_form = ProfilePictureForm()
         return render(request, 'profile_picture.html',
                     {'profile_picture_form': profile_picture_form,
-                    'pleb': citizen})
+                     'pleb': citizen})
 
 @api_view(['POST'])
 def profile_picture_api(request):
@@ -336,8 +336,8 @@ def profile_picture_api(request):
         res = spawn_task(crop_image_task, image_data)
         if isinstance(res, Exception):
             return Response({'detail': 'Server Error'}, status=500)
-        url = "%s/%s/%s/" % (settings.WEB_ADDRESS, "user",
-                             request.user.username)
+        url = reverse('profile_page', kwargs={"pleb_username":
+                                                  request.user.username})
         return Response({"url": url}, 200)
     else:
         return Response({"detail": "invalid form"}, 400)

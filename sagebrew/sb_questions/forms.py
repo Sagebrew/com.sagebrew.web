@@ -22,7 +22,8 @@ class GetQuestionForm(forms.Form):
     choices = (
         ('most_recent', 'most_recent'),
         ('least_recent', 'least_recent'),
-        ('uuid', 'uuid')
+        ('uuid', 'uuid'),
+        ('recent_edit', 'recent_edit')
     )
     sort_by = forms.ChoiceField(choices=choices)
     question_uuid = forms.CharField(required=False)

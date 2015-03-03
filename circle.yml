@@ -181,7 +181,6 @@ deployment:
   staging:
     branch: staging
     commands:
-      #- coverage report --fail-under=100
       - bash -x ~/com.sagebrew.web/deployment/staging.sh $CIRCLE_SHA1
 
 

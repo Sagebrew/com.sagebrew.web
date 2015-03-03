@@ -47,9 +47,9 @@ checkout:
 
 test:
   override:
-    - coverage run --source='.' manage.py test --failfast --fail-under=71
+    - coverage run --source='.' manage.py test --failfast
   post:
-    - coverage html
+    - coverage html --fail-under=71
     - coveralls --rcfile=$CIRCLE_ARTIFACTS
     - flake8 ~/com.sagebrew.web/sagebrew/
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation

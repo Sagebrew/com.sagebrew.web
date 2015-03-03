@@ -5,7 +5,7 @@ from django.conf import settings
 from neomodel import CypherException
 
 from sb_badges.neo_models import BadgeBase
-from sb_requirements.neo_models import Requirement
+from sb_requirements.neo_models import SBRequirement
 
 class Command(BaseCommand):
     args = 'None.'
@@ -21,7 +21,7 @@ class Command(BaseCommand):
                 badge = BadgeBase(**badge).save()
                 for requirement in requirements:
                     try:
-                        req = Requirement(**requirement).save()
+                        req = SBRequirement(**requirement).save()
                         badge.requirements.connect(req)
                     except CypherException:
                         continue

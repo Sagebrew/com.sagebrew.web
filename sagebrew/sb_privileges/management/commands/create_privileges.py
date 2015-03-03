@@ -7,7 +7,7 @@ from django.conf import settings
 from neomodel import CypherException, DoesNotExist
 
 from sb_privileges.neo_models import (SBPrivilege, SBRestriction, SBAction)
-from sb_requirements.neo_models import Requirement
+from sb_requirements.neo_models import SBRequirement
 
 
 logger = getLogger('loggly_logs')
@@ -38,10 +38,10 @@ class Command(BaseCommand):
                                     "missing privileges")
                 for requirement in requirements:
                     try:
-                        Requirement.nodes.get(key=requirement["key"])
-                    except(Requirement.DoesNotExist, DoesNotExist):
+                        SBRequirement.nodes.get(key=requirement["key"])
+                    except(SBRequirement.DoesNotExist, DoesNotExist):
                         try:
-                            req = Requirement(**requirement).save()
+                            req = SBRequirement(**requirement).save()
                             privilege.requirements.connect(req)
                         except(CypherException, IOError):
                             logger.critical("potential error there may"

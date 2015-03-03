@@ -35,6 +35,7 @@ function save_comment() {
                 var comment_container = $("#sb_comments_container_"+sb_id);
                 comment_container.append(data['html']);
                 $('textarea#post_comment_on_' + sb_id).val("");
+                enable_post_functionality();
             }
         });
     });
@@ -166,6 +167,7 @@ function save_answer() {
             success: function (data) {
                 $("#solution_container").append(data['html']);
                 $('textarea.sb_answer_input_area').val("");
+                enable_post_functionality();
             }
 		});
 	});

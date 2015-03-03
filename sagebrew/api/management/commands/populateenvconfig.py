@@ -101,9 +101,9 @@ def populate_staging_values(data):
                         environ.get("LOGENT_TOKEN_STAGING", ""))
     data = data.replace("<SYS_LOG_TOKEN>",
                         environ.get("SYS_LOG_TOKEN_STAGING", ""))
-    data = data.replace("%(ENV_OAUTH_CLIENT_ID)s",
+    data = data.replace("<OAUTH_CLIENT_ID>",
                         environ.get("OAUTH_CLIENT_ID_STAGING", ""))
-    data = data.replace("%(ENV_OAUTH_CLIENT_SECRET)s",
+    data = data.replace("<OAUTH_CLIENT_SECRET>",
                         environ.get("OAUTH_CLIENT_SECRET_STAGING", ""))
     return data
 
@@ -152,9 +152,9 @@ def populate_production_values(data):
                         environ.get("OPBEAT_APP_ID_PROD", ""))
     data = data.replace("<OPBEAT_SECRET_TOKEN>",
                         environ.get("OPBEAT_SECRET_TOKEN_PROD", ""))
-    data = data.replace("%(ENV_OAUTH_CLIENT_ID)s",
+    data = data.replace("<OAUTH_CLIENT_ID>",
                         environ.get("OAUTH_CLIENT_ID_PROD", ""))
-    data = data.replace("%(ENV_OAUTH_CLIENT_SECRET)s",
+    data = data.replace("<ENV_OAUTH_CLIENT_SECRET>",
                         environ.get("OAUTH_CLIENT_SECRET_PROD", ""))
     return data
 
@@ -177,9 +177,9 @@ def populate_test_values(data):
                         environ.get("MASKED_NAME", ""))
     data = data.replace("<LOGENT_TOKEN>", environ.get("LOGENT_TOKEN", ""))
     data = data.replace("<SYS_LOG_TOKEN>", environ.get("SYS_LOG_TOKEN", ""))
-    data = data.replace("%(ENV_OAUTH_CLIENT_ID)s",
+    data = data.replace("<OAUTH_CLIENT_ID>",
                         environ.get("OAUTH_CLIENT_ID", ""))
-    data = data.replace("%(ENV_OAUTH_CLIENT_SECRET)s",
+    data = data.replace("<OAUTH_CLIENT_SECRET>",
                         environ.get("OAUTH_CLIENT_SECRET", ""))
     return data
 

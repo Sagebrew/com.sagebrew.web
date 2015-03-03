@@ -1,9 +1,6 @@
 import pytz
-import markdown
 from uuid import uuid1
 from datetime import datetime
-from urllib2 import HTTPError
-from requests import ConnectionError
 from django.conf import settings
 from django.template.loader import render_to_string
 from rest_framework.permissions import IsAuthenticated
@@ -62,7 +59,7 @@ def save_comment_view(request):
                 "content": comment_form.cleaned_data['content'],
                 "up_vote_number": 0,
                 "down_vote_number": 0,
-                "object_vote_count": 0,
+                "vote_count": str(0),
                 "datetime": datetime.now(pytz.utc),
                 "comment_owner": "%s %s"%(request.user.first_name,
                                          request.user.last_name),

@@ -1,15 +1,13 @@
 import pytz
 import pickle
 from uuid import uuid1
-from django.conf import settings
 from datetime import datetime
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
-                      DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty, CypherException,
-                      RelationshipFrom, DoesNotExist, JSONProperty)
+                      DateTimeProperty, RelationshipTo, BooleanProperty)
 
 from api.utils import post_to_api
+
 
 class SBPrivilege(StructuredNode):
     sb_id = StringProperty(default=lambda: str(uuid1()))
@@ -57,8 +55,6 @@ class SBPrivilege(StructuredNode):
         }
 
 
-
-
 class SBAction(StructuredNode):
     sb_id = StringProperty(default=lambda: str(uuid1()))
     action = StringProperty(default="")
@@ -85,6 +81,7 @@ class SBAction(StructuredNode):
 
     def get_restrictions(self):
         return self.restrictions.all()
+
 
 class SBRestriction(StructuredNode):
     sb_id = StringProperty(default=lambda: str(uuid1()), unique_index=True)
@@ -122,7 +119,7 @@ class SBRestriction(StructuredNode):
             res[self.key])
 
     def build_check_dict(self, check, current):
-        if not self.expiry <= (datetime.now(pytz.utc)-self.end_date).seconds:
+        if not self.expiry <= (datetime.now(pytz.utc) - self.end_date).seconds:
             check = False
         if not check:
             return {"detail": False,

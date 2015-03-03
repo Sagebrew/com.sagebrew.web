@@ -1,21 +1,20 @@
 import pickle
-import urllib2
 from uuid import uuid1
 from django.conf import settings
 
-from neomodel import (StructuredNode, StringProperty, IntegerProperty,
-                      DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty, CypherException,
-                      RelationshipFrom, DoesNotExist, JSONProperty)
+from neomodel import (StructuredNode, StringProperty)
 
 from api.utils import post_to_api
+
 
 class Requirement(StructuredNode):
     sb_id = StringProperty(default=lambda: str(uuid1()), unique_index=True)
     url = StringProperty()
     key = StringProperty()
-    operator = StringProperty(default="") #gt, ge, eq, ne, ge, gt
-    condition = StringProperty() #convert to w/e type the return is
+    # gt, ge, eq, ne, ge, gt
+    operator = StringProperty(default="")
+    # convert to w/e type the return is
+    condition = StringProperty()
     auth_type = StringProperty()
 
     #methods
@@ -33,11 +32,11 @@ class Requirement(StructuredNode):
                     "key": self.key,
                     "operator": pickle.loads(self.operator),
                     "response": check,
-                    "reason": "You must have %s %s %s, you have %s"%(
+                    "reason": "You must have %s %s %s, you have %s" % (
                         self.get_operator_string(), self.condition, 'flags',
                         current)}
         else:
-            return {"detail": "The requirement %s was met"%(self.sb_id),
+            return {"detail": "The requirement %s was met" % (self.sb_id),
                     "key": self.key,
                     "operator": pickle.loads(self.operator),
                     "response": check}

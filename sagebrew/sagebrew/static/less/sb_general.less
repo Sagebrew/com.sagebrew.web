@@ -113,6 +113,7 @@
 }
 .sb_channel_block{
   &:extend(.block);
+  width: 100%;
   padding: 15px 0 15px 0;
   background-color: @sb_green_extra_light;
   border-radius: 0 0 5px 5px;
@@ -176,6 +177,7 @@
 }
 .sb_action_wall{
   &:extend(.sb_wall);
+  width: 100%;
   h5{
     color: @sb_grey_dark;
     font-weight: normal;
@@ -290,7 +292,7 @@
   p {
     font-weight: bold;
     margin-bottom: -5px;
-    margint-top: -5px;
+    margin-top: -5px;
   }
   small{
 
@@ -376,9 +378,10 @@
 .sb_action_nav{
   &:extend(.sb_secondary_nav);
   background-color: @sb_green_extra_light;
-  margin: 60px 0 0 0;
+  margin: 60px 15px 0 -15px;
+
   ul{
-    padding: 8px 0 0 20px;
+    padding: 0 0 0 20px;
   }
 }
 .sb_secondary_nav_bar{

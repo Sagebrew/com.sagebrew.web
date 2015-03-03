@@ -108,6 +108,7 @@
   margin-bottom: opx;
 }
 .sb_channel_block {
+  width: 100%;
   padding: 15px 0 15px 0;
   background-color: #eaf0e8;
   border-radius: 0 0 5px 5px;
@@ -166,6 +167,9 @@
 }
 .sb_conversation_wall {
   margin-top: 30px;
+}
+.sb_action_wall {
+  width: 100%;
 }
 .sb_action_wall h5 {
   color: #838c92;
@@ -287,7 +291,7 @@
 .vote_count p {
   font-weight: bold;
   margin-bottom: -5px;
-  margint-top: -5px;
+  margin-top: -5px;
 }
 .sb_spy {
   color: #b7bfbb;
@@ -363,10 +367,10 @@
 }
 .sb_action_nav {
   background-color: #eaf0e8;
-  margin: 60px 0 0 0;
+  margin: 60px 15px 0 -15px;
 }
 .sb_action_nav ul {
-  padding: 8px 0 0 20px;
+  padding: 0 0 0 20px;
 }
 .sb_secondary_nav_bar {
   background-color: #e5ece6;

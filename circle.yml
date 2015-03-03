@@ -47,11 +47,11 @@ checkout:
 
 test:
   override:
-    - coverage run --source='.' manage.py test --failfast
+    - coverage run --source='.' manage.py test --failfast --fail-under=71
   post:
     - coverage html
     - coveralls --rcfile=$CIRCLE_ARTIFACTS
-    #- flake8 sagebrew
+    - flake8 ~/com.sagebrew.web/sagebrew/
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
     - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg
     - docker build -t sagebrew/sb_worker:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/worker/

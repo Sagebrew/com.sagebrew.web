@@ -253,8 +253,6 @@ def get_question_view(request):
             if isinstance(response, Exception):
                 return Response(status=500)
             for question in response:
-                print question.last_edited_on
-                print question.content, type(question.content)
                 html_array.append(
                     question.render_question_page(request.user.email))
             return Response(html_array, 200)

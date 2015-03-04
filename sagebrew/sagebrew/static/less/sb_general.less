@@ -43,6 +43,8 @@
     color: @sb_green;
   }
 }
+//html tag padding fixes
+
 // Blocks
 .block{
   height: auto;
@@ -63,7 +65,7 @@
     border-color: @sb_green_light;;
     width: 100%;
     height: 200px;
-    resize: none;
+    resize: vertical;
   }
 }
 .sb_question{
@@ -81,7 +83,7 @@
   padding: @sb_common_padding_positive;
   margin-bottom: @sb_common_margin_positive;
 }
-.sb_registration_block {
+.sb_registration_block{
   &:extend(.block);
   width: 80%;
   margin-top:100px;
@@ -93,13 +95,78 @@
   position: inherit;
   float: left;
 }
+.sb_blog_post_block{
+  &:extend(.block);
+  margin-top:40px;
+  margin-bottom: 60px;
+  border-radius: 10px;
+  background-color: @sb_green_wall;
+  float: left;
+}
+.sb_bio_block{
+  background-color: transparent;
+  padding-top: 0;
+  h2{
+    margin: 0 0 0 0;
+    margin-bottom: opx;
+  }
+}
+.sb_channel_block{
+  &:extend(.block);
+  width: 100%;
+  padding: 15px 0 15px 0;
+  background-color: @sb_green_extra_light;
+  border-radius: 0 0 5px 5px;
+  height: 150px;
+}
+.sb_action_content_block{
+  background-color: @sb_green_extra_light;
+  min-height: 600px;
+}
+.sb_goals_block {
+  &:extend(.sb_action_content_block);
+  height: 300px;
+  min-height: 0;
+  margin-bottom: 30px;
+}
+.sb_about_block{
+  &:extend(.sb_action_content_block);
+  height: 250px;
+  min-height: 0;
+}
+//wallpaper
+.sb_wallpaper{
+  background-color: @sb_grey_extra_light;
+  width: 100%;
+}
+.wallpaper_profile {
+  &:extend(.sb_wallpaper);
+  height: 250px;
+  margin-top: 30px;
+  border-radius:5px 5px 0 0;
+}
+.sb_wallpaper_action{
+  &:extend(.sb_wallpaper);
+  background-color: @sb_green_medium;
+  height: 500px;
+  margin-top: 100px;
+  border-radius: 5px 5px 0 0;
+}
+// TODO Review and potentially change to just standard side_container
+.sb_questions_side_container{
+    background-color: @sb_green_wall;
+    margin-top: 30px;
+    border-radius: 2px;
+    height: auto;
+    min-height: 575px;
+}
 // Walls
 .sb_page{
-  margin: 0 10% 0 5%;
+  margin: 0 5% 0 5%;
 }
 .sb_wall{
   height: auto;
-  background-color: @sb_grey_light;
+  background-color: @sb_green_wall;
   padding: 15px 15px 15px 15px;
   border-radius: 2px;
   min-height: 575px;
@@ -107,6 +174,14 @@
 .sb_conversation_wall{
   &:extend(.sb_wall);
   margin-top: 30px;
+}
+.sb_action_wall{
+  &:extend(.sb_wall);
+  width: 100%;
+  h5{
+    color: @sb_grey_dark;
+    font-weight: normal;
+  }
 }
 // Border
 .sb_border{
@@ -141,12 +216,21 @@
 .sb_btn{
   background-color: @sb_green;
 }
+.sb_btn_space {
+  &:extend(.sb_btn);
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+.sb_btn_fill{
+  &:extend(.sb_btn_space);
+  width: 100%;
+}
+
 .sb_btn_submit{
   &:extend(.sb_btn);
   color: @white;
   font-size: @sb_body_text;
   width: auto;
-  line-height: 5px;
 }
 .sb_btn_icon{
   &:extend(.sb_btn);
@@ -176,14 +260,42 @@
 }
 .vote_up{
   &:extend(.sb_btn_vote);
-  &:hover{
+  &:hover {
     color: @sb_green;
   }
+}
+.vote_up_active{
+  color: @sb_green;
+}
+.vote_up_small{
+  &:extend(.vote_up);
+  font-size: 20pt;
 }
 .vote_down{
   &:extend(.sb_btn_vote);
   &:hover{
     color: @sb_violet;
+  }
+}
+.vote_down_small{
+  &:extend(.vote_down);
+  font-size: 20pt;
+}
+.vote_down_active{
+  color: @sb_violet;
+}
+.vote_count{
+  padding-right: 0;
+  h6{
+    font-size: 12pt;
+  }
+  p {
+    font-weight: bold;
+    margin-bottom: -5px;
+    margin-top: -5px;
+  }
+  small{
+
   }
 }
 .sb_spy{
@@ -239,24 +351,48 @@
 }
 .sb_secondary_nav {
   &:extend(.sb_nav);
-  a{
-    text-decoration: none;
-    color: @sb_grey_dark;
-    &:hover{
-       background-color: @sb_green_wall;
-       color: @sb_grey_dark;
-  }
-   }
-  }
-.sb_secondary_nav_bar{
-  &:extend(.sb_secondary_nav);
   background-color: @sb_grey_light;
-  height: @sb_btn_height;
-  padding: 0 0 30px 0px;
+  height: 50px;
   border-radius: 0 0 2px 2px;
   border-bottom: solid;
   border-width: 2px;
-  border-bottom-color: @sb_green_medium;
+  border-bottom-color: @sb_grey;
+  margin-bottom: @sb_common_margin_positive;
+  ul {
+    margin-top: 10px;
+  }
+  li {
+    margin-right: 30px;
+  }
+  a{
+    color: @sb_grey_dark;
+    font-size: 20px;
+    &:hover{
+       color: @sb_green;
+    }
+  }
+  h3 {
+    margin-top: 10px;
+  }
+}
+.sb_action_nav{
+  &:extend(.sb_secondary_nav);
+  background-color: @sb_green_extra_light;
+  margin: 60px 15px 0 -15px;
+
+  ul{
+    padding: 0 0 0 20px;
+  }
+}
+.sb_secondary_nav_bar{
+  &:extend(.sb_secondary_nav);
+  background-color: @sb_grey_light;
+  padding: 0 0 30px 0px;
+}
+.sb_secondary_nav_transparent{
+  &:extend(.sb_secondary_nav);
+  background-color: transparent;
+  padding: 0 0 30px 0px;
 }
 .sb_tertiary_nav {
   &:extend(.sb_secondary_nav);
@@ -265,8 +401,6 @@
   height: auto;
   margin-top: 15px;
   input {
-    height: @sb_input_height;
-    width: 400px;
     border-radius: 5px;
     border: solid;
     border-width: 1px;
@@ -318,9 +452,9 @@
     &:extend(.sb_btn_submit);
     background-color: @sb_off_white;
     color: @sb_green;
-    height: @sb_input_height;
     // Firefox fix for button being placed differently in navbar
-    padding-top: 5px;
+    padding-top: 0px;
+    padding-bottom: 5px;
   }
 }
 .sb_dropdown {
@@ -337,35 +471,47 @@
     display: block;
   }
 }
+//progress bar
+.sb_progress{
+  &:extend(.progress);
+  background: @sb_green_wall;
+}
+.sb_progress_bar{
+  &:extend(.progress_bar);
+  background: @sb_green;
+}
+
 // go through this stuff
+// Can we create a mixin for thumbnails?
+
 .sb_thumbnail_xs{
   height: 33px;
   width: 33px;
 }
-.sb_dropdown_icon {
-    color: @sb_green_extra_light;
+.sb_thumbnail_md{
+  height: 120px;
+  width: 120px;
 }
-.sb_post_btn_dropdown{
-    background: transparent;
-    margin-top: @sb_common_padding_negative;
+.sb_dropdown_icon {
+  color: @sb_green_extra_light;
 }
 .sb_post_dropdown_menu{
-    text-align: left;
-    padding-left: 20px;
+  text-align: left;
+  padding-left: 20px;
 }
 .sb_profile_container_wall {
-    background-color: #e0e7e1;
-    height: auto;
-    margin-top: 15px;
-    min-height: 575px;
-    margin-left: -30px;
-    margin-right: -30px;
-    margin-bottom: 30px;
-    padding-top: 15px;
-    padding-left:15px;
-    padding-right:15px;
-    padding-bottom: 30px;
-    border-radius: 2px;
+  background-color: @sb_green_wall;
+  height: auto;
+  margin-top: 15px;
+  min-height: 575px;
+  margin-left: -30px;
+  margin-right: -30px;
+  margin-bottom: 30px;
+  padding-top: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-bottom: 30px;
+  border-radius: 2px;
 }
 .sb_registration_header {
   margin-left: 60px;
@@ -386,9 +532,10 @@
   padding-right: 4px;
 }
 .sb_deco_line {
-  border-bottom: solid 5px;
+  border-bottom: solid 2px;
   border-color: @sb_green_medium;
   margin-bottom: 35px;
+  padding-top: 5px;
 }
 .sb_btn_modal {
   a{
@@ -410,14 +557,6 @@
     margin-top: @sb_common_margin_positive;
     margin-bottom: @sb_common_margin_positive;
     position: relative;
-}
-#sb_search_input{
-    width: 400px;
-    border-color: @sb_grey;
-    border-radius: 5px 0 0 5px;
-    border-width: 1px;
-    border-right: none;
-    margin-right: -8px;
 }
 
 .sb_dropdown_label{
@@ -448,4 +587,270 @@
 .sb_background {
     background-size: cover;
     background-color: @sb_grey;
+}
+#sb_search_input{
+    width: 400px;
+    border-color: @sb_grey;
+    border-radius: 5px 0 0 5px;
+    border-width: 1px;
+    border-right: none;
+    margin-right: -8px;
+}
+.sb_btn_see_all{
+    background-color: @sb_off_white;
+    color: #838c92;
+    border-color: @sb_grey;
+    border-top-style: solid;
+    border-width: 1px;
+    border-radius: 0;
+    width: 100%;
+    height: 40px;
+    font-size: @sb_body_text;
+      &:active{
+        color: @sb_green;
+      }
+      &:hover{
+        color: @sb_green;
+      }
+}
+
+.sb_profile_pic {
+  border-color: @sb_grey_light;
+  margin-left: @sb_common_margin_positive;
+  margin-top: 65px;
+  width: 200px;
+  height:200px;
+  border-radius: 2px;
+  position: absolute;
+  padding:0;
+}
+// TODO Probably want to transition this into left side_container
+.sb_rep_container{
+  margin-left: @sb_common_margin_negative;
+  margin-bottom: @sb_common_margin_positive;
+}
+.sb_profile_rep_container{
+  background-color: @sb_green_wall;
+  border-radius: 2px;
+  height: 100%;
+  padding-bottom: @sb_common_padding_positive;
+  background: cover;
+}
+.sb_container_header {
+  padding-left: @sb_common_padding_positive;
+  padding-top: 5px;
+  border-bottom: solid;
+  border-bottom-color: @sb_green_medium;
+}
+
+.sb_profile_rep_content{
+  padding-top: @sb_common_padding_positive;
+  padding-left: @sb_common_padding_positive;
+}
+
+.sb_thumbnail_rep{
+  margin-left: @sb_common_margin_positive;
+  margin-top: 10px;
+}
+.sb_thumbnail_potential_rep{
+  margin-left: @sb_common_margin_positive;
+}
+.sb_rep_name{
+  font-size: @sb_body_text;
+  margin-left: @sb_common_margin_negative;
+  padding-bottom: 0;
+}
+.sb_profile_post_enter{
+  margin-left: @sb_common_margin_negative;
+  margin-right: @sb_common_margin_negative;
+}
+.sb_post {
+    max-height: 50px;
+    max-width: 100%;
+    padding-top: 10px;
+    border-width: 1px;
+    resize: none;
+}
+.sb_post_header_info{
+  margin-top: -12px;
+}
+.sb_post_header{
+  width: auto;
+  background-color: @sb_off_white;
+  border-radius: 5px 5px 5px 5px;
+  padding: @sb_common_padding_positive;
+  padding-bottom: 0px;
+  margin-bottom: 15px;
+}
+
+// Proposed additions to default schema
+.vertical_nav{
+  margin-left: -10px;
+  ul {
+
+  }
+  li {
+    display: block;
+  }
+}
+.block_vertical {
+  margin-top: 15px;
+}
+.sb_divider{
+  color: @sb_green;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  height: 2px;
+  overflow: hidden;
+  background-color: rgba(202,206,209,.5);
+}
+.sb_vote_wrapper{
+  margin-left: -5px;
+  margin-top: -15px;
+}
+.sb_vote_wrapper_small{
+  margin-left: 2px;
+  margin-top: -15px;
+}
+.sb_up_vote_wrapper{
+  margin-bottom: -13px;
+}
+.sb_down_vote_wrapper{
+  margin-top: -10px;
+  margin-bottom: -15px;
+}
+.sb_post_wrapper{
+  padding-left: 0;
+  padding-right: 0;
+}
+.sb_post_body{
+  margin-left: @sb_common_margin_positive;
+  font-size: 12pt;
+  padding: @sb_common_padding_positive;
+  margin-bottom: @sb_common_margin_positive;
+  hanging-punctuation: force-end;
+  min-height: 65px;
+  border-radius: @sb_common_radius;
+  background-color: @sb_off_white;
+  border-style: solid;
+  border-width: 1px;
+  border-color: @sb_green_light;
+  word-wrap: break-word;
+}
+.sb_post_comments{
+    border-style: solid;
+    border-width: 1px 0 0 0;
+    border-color: @sb_grey;
+    padding-bottom: 5px;
+}
+.sb_post_container {
+  background-color: @sb_green_wall;
+  height:70px;
+  padding-top: 10px;
+  padding-bottom: 0;
+  padding-left: @sb_common_padding_positive;
+  padding-right: @sb_common_padding_positive;
+  border-radius: 2px;
+  margin-right: @sb_common_margin_negative;
+  margin-left: @sb_common_margin_negative;
+  margin-bottom: @sb_common_margin_positive;
+}
+
+.sb_btn_post{
+  width: 80px;
+  height: 40px;
+  background-color: @sb_green;
+  border-radius: 5px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+    &:hover{
+      background-color: @sb_green_impressed;
+    }
+    &:active{
+      background-color: @sb_green_impressed;
+    }
+}
+.sb_comment_wrapper{
+  padding-right: 0px;
+
+}
+
+.sb_comments_container{
+    font-size: @sb_body_text;
+    padding: 15px 0 3px 0;
+    hanging-punctuation: force-end;
+    height-max: 600px;
+    height: auto;
+    width: auto;
+    background-color: @sb_grey_extra_light;
+}
+
+.sb_comment_header{
+  width: auto;
+  margin-top: -8px;
+}
+
+.sb_comment_body{
+  p{
+    font-size: 10pt;
+  }
+}
+
+.sb_comment{
+    padding: 10px 15px 10px 15px;
+    background-color: @sb_grey_extra_light;
+    border: solid;
+    border-width: 1px 0 1px 0;
+    border-radius: 0 0 5px 5px;
+    border-color: @sb_grey;
+}
+.sb_comment_input{
+    border-width: 1px 0 1px 1px;
+    border-radius: @sb_common_radius;
+    border-color: @sb_green_light;
+    padding: 10px 10px 10px 10px;
+    width: 100%;
+    resize: vertical;
+}
+textarea.sb_comment_input{
+    height: 50px;
+}
+.sb_btn_comment{
+    background-color: transparent;
+    color: @sb_green;
+      &:active {
+       color: @sb_dark_blue;
+       text-decoration: underline;
+       text-decoration-color: @sb_dark_blue;
+      }
+      &:hover{
+       color: @sb_green;
+       text-decoration: underline;
+       text-decoration-color: @sb_green;
+      }
+}
+.sb_btn_comment_icon{
+    color: @sb_green;
+    heigh: 50px;
+    border: solid;
+    border-width: 1px;
+    border-color: @sb_green_light;
+    border-radius: 0 5px 5px 0;
+      &:hover{
+        color: @sb_green;
+        border-color: @sb_green;
+      }
+      &:active{
+        color: @sb_dark_blue;
+      }
+}
+
+.conversation_logo {
+  &:extend(.sb_dropdown_icon);
+  fill: white;
+  background-repeat: no-repeat;
+  padding-top: 5px;
+  padding-bottom: 0px;
+  margin-left: 30px;
+  padding-right: 25px;
 }

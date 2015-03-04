@@ -1,4 +1,5 @@
 import stripe
+import json
 from django.conf import settings
 from uuid import uuid1
 from django.core.urlresolvers import reverse
@@ -311,36 +312,35 @@ def profile_picture(request):
         return render(request, 'login.html')
     except CypherException:
         return HttpResponse('Server Error', status=500)
-    if request.method == 'POST':
-        print request.POST, request.FILES
-        profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
-        if profile_picture_form.is_valid():
-            print profile_picture_form.cleaned_data
-            image_uuid = str(uuid1())
-            data = request.FILES['picture']
-            image_data = {
-                "image": data,
-                "x": profile_picture_form.cleaned_data['image_x1'],
-                "y": profile_picture_form.cleaned_data['image_y1'],
-                "width": profile_picture_form.cleaned_data['image_x2'],
-                "height": profile_picture_form.cleaned_data['image_y2'],
-                "f_uuid": image_uuid
-            }
-            res = spawn_task(crop_image_task, image_data)
-            if isinstance(res, Exception):
-                return HttpResponse('Server Error', status=500)
-
-            #citizen.profile_pic = upload_image(
-                #settings.AWS_PROFILE_PICTURE_FOLDER_NAME, image_uuid, data)
-            #citizen.profile_pic_uuid = image_uuid
-            #citizen.save()
-            return redirect('profile_page', pleb_username=citizen.username)
-    else:
+    if request.method == 'GET':
         profile_picture_form = ProfilePictureForm()
-    return render(request, 'profile_picture.html',
-                  {'profile_picture_form': profile_picture_form,
-                   'pleb': citizen})
+        return render(request, 'profile_picture.html',
+                    {'profile_picture_form': profile_picture_form,
+                     'pleb': citizen})
 
+@api_view(['POST'])
+def profile_picture_api(request):
+    profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
+    if profile_picture_form.is_valid():
+        image_uuid = str(uuid1())
+        data = request.FILES['picture']
+        image_data = {
+            "image": data,
+            "x": profile_picture_form.cleaned_data['image_x1'],
+            "y": profile_picture_form.cleaned_data['image_y1'],
+            "width": 200,
+            "height": 200,
+            "f_uuid": image_uuid,
+            "pleb": request.user.username
+        }
+        res = spawn_task(crop_image_task, image_data)
+        if isinstance(res, Exception):
+            return Response({'detail': 'Server Error'}, status=500)
+        url = reverse('profile_page', kwargs={"pleb_username":
+                                                  request.user.username})
+        return Response({"url": url}, 200)
+    else:
+        return Response({"detail": "invalid form"}, 400)
 
 @login_required()
 @user_passes_test(verify_completed_registration,
@@ -390,11 +390,17 @@ def rep_reg_page(request):
 @api_view(['POST'])
 def beta_signup(request):
     beta_form = BetaSignupForm(request.DATA or None)
-    if beta_form.is_valid():
-        res = spawn_task(create_beta_user, beta_form.cleaned_data)
-        if isinstance(res, Exception):
-            return Response({"detail": "Failed to spawn task"}, 500)
-        return Response({"detail": "success"}, 200)
+    if beta_form.is_valid() is True:
+        try:
+            BetaUser.nodes.get(email=beta_form.cleaned_data["email"])
+            return Response({"detail": "Beta User Already Exists"}, 409)
+        except (BetaUser.DoesNotExist, DoesNotExist):
+            res = spawn_task(create_beta_user, beta_form.cleaned_data)
+            if isinstance(res, Exception):
+                return Response({"detail": "Server Error"}, 500)
+            return Response({"detail": "success"}, 200)
+        except (CypherException, IOError):
+            return Response({"detail": "Server Error"}, 500)
     else:
         return Response({"detail": beta_form.errors.as_json()}, 400)
 

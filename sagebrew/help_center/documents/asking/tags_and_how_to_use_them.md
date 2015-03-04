@@ -28,12 +28,10 @@ own tags!
 Also, Sagebrew will evenly allocate any Reputation gained on a Question into 
 categories respective to your tags. For example: 
 
-```
-Tom poses a Question about the effectiveness of increased Capital Gains Tax on 
-the wealthy and tags it with "Economic," and "Political." If he gains 
-120 Reputation from that Question, 60 of that Reputation will be tagged 
-"Economic," while the other 60 will be tagged "Political."
-```
+    Tom poses a Question about the effectiveness of increased Capital Gains Tax on 
+    the wealthy and tags it with "Economic," and "Political." If he gains 
+    120 Reputation from that Question, 60 of that Reputation will be tagged 
+    "Economic," while the other 60 will be tagged "Political."
 
 This system of Reputation allocation via Tags will help to lend credibility 
 to users in specific fields. So Tom, an Economist, continues to ask good 

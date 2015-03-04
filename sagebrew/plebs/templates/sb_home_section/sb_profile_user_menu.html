@@ -1,28 +1,50 @@
-{% load staticfiles %}
-    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-        <div class="sb_profile_name">
-            {{ pleb_info.first_name }} {{ pleb_info.last_name }}
-        </div>
-    </div>
-    <div class="col-lg-8 col-md-8 col-sm-8 hidden-xs">
-    <div class="sb_profile_btn_menu_group btn-group">
-        <a href="{% url 'profile_page' pleb_info.username %}"
-           type="button"
-           id="sb_btn_home"
-           class="btn sb_profile_menu_btn">Home</a>
-        {% if debug == True %}
-            <a href="{% url 'about_page' pleb_info.username %}"
-               type="button"
-               id="sb_btn_about"
-               class="btn sb_profile_menu_btn">About</a>
-            <a href="{% url 'reputation_page' pleb_info.username %}"
-               type="button"
-               id="sb_btn_reputation"
-               class="btn">Reputation</a>
-               <a href='{% url 'friends_page' pleb_info.username %}'
-               type="button"
-               id="sb_btn_friends"
-               class="btn sb_profile_menu_btn">Friends</a>
-        {% endif %}
-    </div>
+<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+        <h3>{{ page_user.first_name }} {{ page_user.last_name }}</h3>
+</div>
+<div class="col-lg-8 col-md-8 hidden-sm hidden-xs">
+    {% if page_user.username == request.user.username or is_friend == True %}
+
+        <ul>
+            <li>
+                <a href="{% url 'profile_page' page_user.username %}">
+                    Home</a>
+            </li>
+                {% if debug == True %}
+                    {% comment %}
+                        # TODO BETA ADD IN feature
+                    {% endcomment %}
+                    <li>
+                        <a href="{% url 'about_page' page_user.username %}">
+                            About</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'reputation_page' page_user.username %}">
+                            Reputation</a>
+                    </li>
+                    <li>
+                           <a href='{% url 'friends_page' page_user.username %}'>
+                               Friends</a>
+                    </li>
+                {% endif %}
+
+        </ul>
+    {% elif is_friend == False and page_user.username != request.user.username %}
+        <div class="sb_friend_btn_wrapper">
+           <div class="col-lg-3 col-md-3 col-lg-offset-9 col-md-offset-9">
+           {% comment %}
+                TODO add friend request sent logic into view
+           {% endcomment %}
+               {% if friend_request_sent == False %}
+                    <button class="btn btn-primary sb_btn send_friend_request-action" style="margin-top: 3px"
+                            data-from_pleb="{{ current_user }}"
+                            data-to_pleb="{{ page_user }}">Friend Request
+                    </button>
+                {% else %}
+                    <button class="btn btn-primary sb_btn delete_friend_request-action" style="margin-top: 3px">
+                        Delete Request
+                    </button>
+                {% endif %}
+           </div>
+       </div>
+    {% endif %}
 </div>

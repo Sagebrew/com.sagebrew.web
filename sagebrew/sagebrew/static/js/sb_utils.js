@@ -20,7 +20,6 @@ function save_comment() {
             }
         });
         $.ajax({
-
             xhrFields: {withCredentials: true},
             type: "POST",
             url: "/comments/submit_comment/",
@@ -33,6 +32,10 @@ function save_comment() {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
+                var comment_container = $("#sb_comments_container_"+sb_id);
+                comment_container.append(data['html']);
+                $('textarea#post_comment_on_' + sb_id).val("");
+                enable_post_functionality();
             }
         });
     });
@@ -41,7 +44,10 @@ function save_comment() {
 function show_edit_post() {
     $("a.show_edit_post_class").click(function (event) {
         var sb_id = $(this).data('uuid');
-        $('#divid_' + sb_id).fadeToggle();
+        $("#sb_content_"+sb_id).hide();
+        $('#edit_container_' + sb_id).show();
+        var textarea = $('textarea#' + $(this).data('uuid'));
+        textarea.height( textarea[0].scrollHeight );
     });
 }
 
@@ -49,7 +55,10 @@ function show_edit_post() {
 function show_edit_comment() {
     $("a.show_edit_comment_class").click(function () {
         var sb_id = $(this).data('comment_uuid');
-        $("#comment_divid_" + sb_id).fadeToggle();
+        $("#sb_content_"+sb_id).hide();
+        $('#edit_container_' + sb_id).show();
+        var textarea = $('textarea#' + $(this).data('comment_uuid'));
+        textarea.height( textarea[0].scrollHeight );
     });
 }
 
@@ -78,7 +87,30 @@ function flag_object() {
 }
 
 function vote_object() {
-    $("a.vote_object-action").click(function (event) {
+    $(".vote_object-action").click(function (event) {
+        var id = $(this).parents('div.vote_wrapper').attr('id').split('_')[1];
+        var vote_type = $(this).hasClass('vote_up') ? true : false;
+        var vote_down = $(this).parents('div.vote_wrapper').find(".vote_down");
+        var vote_up = $(this).parents('div.vote_wrapper').find(".vote_up");
+        if(vote_down.hasClass('vote_down_active') && vote_type == true){
+            vote_down.removeClass('vote_down_active');
+            vote_up.addClass('vote_up_active');
+        } else if(vote_down.hasClass('vote_down_active') && vote_type === false)  {
+            vote_down.removeClass('vote_down_active');
+        } else if(vote_up.hasClass('vote_up_active') && vote_type === true)  {
+            vote_up.removeClass('vote_up_active');
+        } else if(vote_up.hasClass('vote_up_active') && vote_type === false)  {
+            vote_down.addClass('vote_down_active');
+            vote_up.removeClass('vote_up_active');
+        } else {
+            if(vote_type === true) {
+                $(this).addClass('vote_up_active');
+            }
+            else {
+                $(this).addClass('vote_down_active');
+            }
+        }
+
         var uuid = $(this).data('object_uuid');
         var upvote_count = $('div.sb_upvote_count'+uuid).text();
         var downvote_count = $('div.sb_downvote_count'+uuid).text();
@@ -93,7 +125,7 @@ function vote_object() {
             type: "POST",
             url: "/vote/vote_object_api/",
             data: JSON.stringify({
-                'vote_type': $(this).data('vote_type'),
+                'vote_type': vote_type,
                 'current_pleb': $(this).data('current_pleb'),
                 'object_uuid': $(this).data('object_uuid'),
                 'object_type': $(this).data('object_type'),
@@ -133,6 +165,9 @@ function save_answer() {
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
             success: function (data) {
+                $("#solution_container").append(data['html']);
+                $('textarea.sb_answer_input_area').val("");
+                enable_post_functionality();
             }
 		});
 	});
@@ -161,7 +196,9 @@ function edit_object() {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function(data){
-                $(data['html_object']).text(data['content'])
+                $(data['html_object']).text(data['content']);
+                $("#edit_container_"+uuid).hide();
+                $("#sb_content_"+uuid).show();
             }
         });
     });
@@ -194,14 +231,20 @@ function edit_question_title() {
 function show_edit_question() {
     $("a.show_edit_question-action").click(function(event){
         var question_uuid = $(this).data('object_uuid');
-        $('#edit_question_'+question_uuid).fadeToggle();
+        $('#sb_content_'+question_uuid).hide();
+        $("#edit_container_"+question_uuid).show();
+        var markdown = $("textarea#"+question_uuid).pagedownBootstrap();
+        markdown.attr("id", question_uuid);
     });
 }
 
 function show_edit_answer() {
     $("a.show_edit_answer-action").click(function(event){
         var answer_uuid = $(this).data('object_uuid');
-        $('#show_edit_sb_id_'+answer_uuid).fadeToggle();
+        $('#sb_content_'+answer_uuid).hide();
+        $('#edit_container_'+answer_uuid).show();
+        var markdown = $("textarea#"+answer_uuid).pagedownBootstrap();
+        markdown.attr("id", answer_uuid)
     });
 }
 

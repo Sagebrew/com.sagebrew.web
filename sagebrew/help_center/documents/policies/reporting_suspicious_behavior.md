@@ -14,4 +14,4 @@ week. If you don't have the Flagging privilege yet don't worry, you only need
 15 reputation points before you gain it. Create a quality Solution or ask a 
 Question, you'll be there in no time.
 
-[1]: /help_center/privileges/flagging/
+[1]: /help/privileges/flagging/

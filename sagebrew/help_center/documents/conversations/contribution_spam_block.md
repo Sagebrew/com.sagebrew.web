@@ -11,4 +11,4 @@ account will be blocked from adding additional contributions to the Public
 Conversation.
 
 
-[1]: /help_center/reputation/admin_council/
+[1]: /help/reputation/admin_council/

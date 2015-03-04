@@ -1,10 +1,8 @@
 <div class="navbar-fixed-top sb_nav sb_primary_nav">
-    <h1>Sagebrew</h1>
-    {% block content %}
-        {% if user.is_authenticated %}
-            {% include "navigation/post_login_nav_content.html" %}
-        {% elif user.is_anonymous %}
-            {% include "navigation/pre_login_nav_content.html" %}
-        {% endif %}
-    {% endblock %}
+    <h1><a href="{% url 'root_profile_page' %}">Sagebrew</a></h1>
+    {% if user.is_authenticated %}
+        {% include "navigation/post_login_nav_content.html" %}
+    {% elif user.is_anonymous %}
+        {% include "navigation/pre_login_nav_content.html" %}
+    {% endif %}
 </div>

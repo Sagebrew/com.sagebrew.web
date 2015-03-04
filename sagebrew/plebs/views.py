@@ -16,8 +16,12 @@ from .utils import prepare_user_search_html
 from .forms import GetUserSearchForm
 
 
-def less_lesson(request):
-    return render(request, "lesson.html", {})
+def root_profile_page(request):
+    if request.user.is_authenticated() is True:
+        return redirect("profile_page", pleb_username=request.user.username)
+    else:
+        return redirect("signup")
+
 
 @login_required()
 @user_passes_test(verify_completed_registration,
@@ -66,18 +70,17 @@ def profile_page(request, pleb_username=""):
     #sen_array = determine_senators(address)
     #rep_array = determine_reps(address)
 
-    citizen.profile_pic = generate_profile_pic_url(citizen.profile_pic_uuid)
-    citizen.save()
     return render(request, 'sb_plebs_base/profile_page.html', {
         'pleb_info': citizen,
         'current_user': current_user.email,
-        'page_user': page_user.email,
+        'page_user': page_user,
         #'senator_names': sen_array,
         #'rep_name': rep_array,
         'is_owner': is_owner,
         'is_friend': is_friend,
         'friends_list': friends_list,
     })
+
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
@@ -154,7 +157,7 @@ def about_page(request, pleb_username):
     return render(request, 'sb_about_section/sb_about.html', {
         'pleb_info': citizen,
         'current_user': current_user.email,
-        'page_user': page_user.email,
+        'page_user': page_user,
         #'senator_names': sen_array,
         #'rep_name': rep_array,
         'is_owner': is_owner,
@@ -213,7 +216,7 @@ def reputation_page(request, pleb_username):
     return render(request, 'sb_reputation_section/sb_reputation.html', {
         'pleb_info': citizen,
         'current_user': current_user.email,
-        'page_user': page_user.email,
+        'page_user': page_user,
         #'senator_names': sen_array,
         #'rep_name': rep_array,
         'is_owner': is_owner,
@@ -271,7 +274,7 @@ def friends_page(request, pleb_username):
     return render(request, 'sb_friends_section/sb_friends.html', {
         'pleb_info': citizen,
         'current_user': current_user.email,
-        'page_user': page_user.email,
+        'page_user': page_user,
         #'senator_names': sen_array,
         #'rep_name': rep_array,
         'is_owner': is_owner,
@@ -309,6 +312,7 @@ def get_user_questions(request):
         return Response({"detail": "pleb does not exist"}, 400)
     return Response(pleb.get_questions(expiry, now), 200)
 
+
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def get_user_conversation(request):
@@ -320,6 +324,7 @@ def get_user_conversation(request):
         return Response({"detail": "pleb does not exist"}, 400)
     return Response(pleb.get_conversation(expiry, now), 200)
 
+
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def get_user_age(request):
@@ -328,3 +333,11 @@ def get_user_age(request):
     except (Pleb.DoesNotExist, DoesNotExist, CypherException):
         return Response({"detail": "pleb does not exist"}, 400)
     return Response({"age": pleb.age}, 200)
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def deactivate_user(request):
+    request.user.is_active = False
+    request.user.save()
+    return Response({"detail": "successfully deactivated user"}, 200)
+

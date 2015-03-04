@@ -66,18 +66,19 @@ STATICFILES_DIRS = (
     '%s/plebs/static/' % PROJECT_DIR,
     '%s/sb_registration/static/' % PROJECT_DIR,
     #'%s/sb_comments/static/' % PROJECT_DIR,
-    '%s/sb_posts/static/' % PROJECT_DIR,
     '%s/sb_relationships/static/' % PROJECT_DIR,
     '%s/sb_questions/static/' % PROJECT_DIR,
     '%s/sb_answers/static/' % PROJECT_DIR,
     '%s/sb_search/static/' % PROJECT_DIR,
     '%s/sb_tag/static/' % PROJECT_DIR,
-    '%s/sb_flags/static/' % PROJECT_DIR,
-    '%s/sb_votes/static/' % PROJECT_DIR,
     '%s/sb_edits/static/' % PROJECT_DIR,
     '%s/sb_reps/static/' % PROJECT_DIR,
-    '%s/sb_uploads/static/' % PROJECT_DIR
+    '%s/sb_uploads/static/' % PROJECT_DIR,
+    '%s/help_center/static/' % PROJECT_DIR,
 )
+
+HELP_DOCS_PATH = "%s/help_center/rendered_docs/" % PROJECT_DIR
+ALLOWED_INCLUDE_ROOTS = (HELP_DOCS_PATH,)
 
 # List of finder classes that know how to find static files in
 # various locations.
@@ -96,6 +97,7 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'opbeat.contrib.django.middleware.OpbeatAPMMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -106,7 +108,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'oauth2_provider.middleware.OAuth2TokenMiddleware'
+    'oauth2_provider.middleware.OAuth2TokenMiddleware',
 )
 
 ROOT_URLCONF = 'sagebrew.urls'
@@ -139,12 +141,12 @@ TEMPLATE_DIRS = (
     '%s/sb_uploads/templates/' % PROJECT_DIR,
     '%s/sb_reps/templates/' % PROJECT_DIR,
     '%s/sb_registration/templates/' % PROJECT_DIR,
-    '%s/sb_wall/templates/' % PROJECT_DIR,
     '%s/plebs/templates/' % PROJECT_DIR,
     '%s/sb_questions/templates/' % PROJECT_DIR,
     '%s/sb_answers/templates/' % PROJECT_DIR,
     '%s/sb_search/templates/' % PROJECT_DIR,
     '%s/help_center/templates/' % PROJECT_DIR,
+    '%s/sb_public_official/templates/' % PROJECT_DIR,
 )
 
 FIXTURE_DIRS = (
@@ -183,6 +185,7 @@ INSTALLED_APPS = (
     'sb_notifications',
     'sb_privileges',
     'sb_posts',
+    'sb_public_official',
     'sb_questions',
     'sb_registration',
     'sb_relationships',
@@ -249,10 +252,9 @@ ADDRESS_VALIDATION_ID = environ.get("ADDRESS_VALIDATION_ID", '')
 ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN", '')
 STRIPE_PUBLIC_KEY = environ.get("STRIPE_PUBLIC_KEY", '')
 STRIPE_SECRET_KEY = environ.get("STRIPE_SECRET_KEY", '')
-PX_USER_ID = environ.get("PX_USER_ID", "")
-PX_API_KEY = environ.get("PX_API_KEY", "")
-PX_SECRET_KEY = environ.get("PX_SECRET_KEY", "")
 MASKED_NAME = environ.get("MASKED_NAME", "")
+OAUTH_CLIENT_ID = environ.get("OAUTH_CLIENT_ID", '')
+OAUTH_CLIENT_SECRET = environ.get("OAUTH_CLIENT_SECRET", "")
 
 DYNAMO_IP = environ.get("DYNAMO_IP", None)
 
@@ -355,6 +357,5 @@ PRIVILEGE_HTML_TYPES = {
 }
 
 
-OAUTH_CLIENT_ID = '658919414169191a6ds1f9a1s9'
-OAUTH_CLIENT_SECRET = '651a69d1516aSD651a65sd1sd645a1s56d5165A1SD'
+
 CORS_ORIGIN_ALLOW_ALL = True

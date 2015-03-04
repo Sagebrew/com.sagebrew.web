@@ -1,5 +1,5 @@
 {% extends "sb_plebs_base/profile_page.html" %}
-{% block title %}About {{ block.super }}{% endblock title %}
+{% block title %}About {{ page_user.first_name }}{% endblock title %}
 {% load staticfiles %}
 {%  block midsection %}
     <div class="col-lg-8 col-md-8 col-sm-12 col-xs-sm">
@@ -7,10 +7,5 @@
     </div>
     <div class="col-lg-4 col-md-4 hidden-sm hidden-xs">
         {% include "sb_about_section/sb_about_content_suggestions.html" %}
-        {% include "sb_about_section/sb_about_content_have_read.html" %}
-    </div>
-    <div class="col-sm-12 col-xs-12 hidden-lg hidden-md">
-        {% include "sb_about_section/sb_about_content_suggestions.html" %}
-        {% include "sb_about_section/sb_about_content_have_read.html" %}
     </div>
 {% endblock %}

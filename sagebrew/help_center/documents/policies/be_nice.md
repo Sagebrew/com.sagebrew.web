@@ -8,12 +8,12 @@ guidelines:
 
 ## Do not use language that is: ##
 
- - offensive (i.e. racist, sexist, ableist, classist, 
+ - Offensive (i.e. racist, sexist, ableist, classist, 
    anti-religious...basically anything that takes aim at a marginalized group 
    of people)
- - libelous (lying)
- - obscene (profanity)
- - insulting (anything that directly targets an individual, making little of 
+ - Libelous (lying)
+ - Obscene (profanity)
+ - Insulting (anything that directly targets an individual, making little of 
    their opinion or position)
 
 ## Be respectful of other's ideas ##
@@ -36,4 +36,4 @@ The purpose of a Conversation is to find a common Solution that best
 accommodates the needs of all. The purpose of a Conversation is not to argue 
 your point stubbornly, but to genuinely wish to fix a problem. 
 
-It's simple folks! In the wise words of Aretha Franklin: R E S P E C T. 
+It's simple folks! In the wise words of Aretha Franklin: R.E.S.P.E.C.T :). 

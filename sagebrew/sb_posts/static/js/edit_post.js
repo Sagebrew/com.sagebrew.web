@@ -1,9 +1,5 @@
 $(document).ready(function () {
-    $("a.show_edit_post_class").click(function (event) {
-        var sb_id = $(this).data('uuid');
-        $('#divid_' + sb_id).fadeToggle();
-    });
-    $("a.edit_post-action").click(function (event) {
+    $("button.edit_post-action").click(function (event) {
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -24,9 +20,3 @@ $(document).ready(function () {
         });
     });
 });
-
-
-function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}

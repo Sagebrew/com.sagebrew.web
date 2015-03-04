@@ -147,10 +147,10 @@ class Pleb(StructuredNode):
     address = RelationshipTo("Address", "LIVES_AT", cardinality=ZeroOrOne)
     interests = RelationshipTo("sb_tag.neo_models.SBTag", "INTERESTED_IN")
     friends = RelationshipTo("Pleb", "FRIENDS_WITH", model=FriendRelationship)
-    senator = RelationshipTo("govtrack.neo_models.GTRole",
-                             "HAS_SENATOR")
-    house_rep = RelationshipTo("govtrack.neo_models.GTRole",
-                               "HAS_REPRESENTATIVE")
+    #senator = RelationshipTo("govtrack.neo_models.GTRole",
+    #                         "HAS_SENATOR")
+    #house_rep = RelationshipTo("govtrack.neo_models.GTRole",
+    #                           "HAS_REPRESENTATIVE")
     posts = RelationshipTo('sb_posts.neo_models.SBPost', 'OWNS_POST',
                            model=PostObjectCreated)
     questions = RelationshipTo('sb_questions.neo_models.SBQuestion',
@@ -179,6 +179,9 @@ class Pleb(StructuredNode):
                                      'CLICKED_RESULT')
     official = RelationshipTo('sb_reps.neo_models.BaseOfficial', 'IS',
                               model=OfficialRelationship)
+
+    def deactivate(self):
+        return
 
     def get_restrictions(self):
         return self.restrictions.all()
@@ -383,6 +386,7 @@ class City(StructuredNode):
 class District(StructuredNode):
     number = IntegerProperty()
 
+
 class OauthUser(StructuredNode):
     sb_id = StringProperty(default=lambda: str(uuid1()))
     web_address = StringProperty(
@@ -393,6 +397,7 @@ class OauthUser(StructuredNode):
     token_type = StringProperty(default="Bearer")
     last_modified = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
+
 class BetaUser(StructuredNode):
     email = StringProperty(unique_index=True)
     invited = BooleanProperty(default=False)
@@ -400,14 +405,18 @@ class BetaUser(StructuredNode):
 
     def invite(self):
         from sb_registration.utils import sb_send_email
+        if self.invited is True:
+            return True
         self.invited = True
         self.save()
         template_dict = {
-            "signup_url": "%s%s%s"%(settings.WEB_ADDRESS, "/register/?user=", self.email)
+            "signup_url": "%s%s%s"%(settings.WEB_ADDRESS, "/signup/?user=",
+                                    self.email)
         }
         html_content = get_template(
             'email_templates/email_beta_invite.html').render(
             Context(template_dict))
         sb_send_email("support@sagebrew.com", self.email, "Sagebrew Beta",
                       html_content)
+        return True
 

@@ -215,4 +215,3 @@ formatting. Give it a try in the Markdown Practice Box below!
 [link]: https://www.google.com 
 [1]: https://www.google.com 
 [2]: https://s3.amazonaws.com/sagebrew/10984046_596208397180366_3248774050269017847_n.jpg
-[3]: https://vimeo.com/channels/staffpicks/120960412

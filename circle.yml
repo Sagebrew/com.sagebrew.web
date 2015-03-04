@@ -48,10 +48,10 @@ checkout:
 test:
   override:
     - coverage run --source='.' manage.py test --failfast
-  post:
-    - coverage html
+    - coverage html --fail-under=68
     - coveralls --rcfile=$CIRCLE_ARTIFACTS
-    #- flake8 sagebrew
+    #- flake8 ~/com.sagebrew.web/sagebrew/
+  post:
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
     - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg
     - docker build -t sagebrew/sb_worker:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/worker/
@@ -181,7 +181,6 @@ deployment:
   staging:
     branch: staging
     commands:
-      #- coverage report --fail-under=100
       - bash -x ~/com.sagebrew.web/deployment/staging.sh $CIRCLE_SHA1
 
 

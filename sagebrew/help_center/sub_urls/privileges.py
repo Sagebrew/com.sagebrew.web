@@ -66,19 +66,19 @@ urlpatterns = patterns(
             "category": "privileges"
         },
         name="downvote"),
-    url(r'^explicit_content/$', TemplateView.as_view(
-        template_name="help_page.html"),
-        kwargs={
-            "title": "Explicit Content",
-            "description": "Sometimes explicit content can lend itself to "
-                           "highlighting the urgency of a Question or "
-                           "showcasing the need for a Solution. Abusing this "
-                           "privilege can quickly result in your loss of it.",
-            "content_path":
-                "%s250_explicit_content.html" % (settings.HELP_DOCS_PATH),
-            "category": "privileges"
-        },
-        name="explicit_content"),
+    # url(r'^explicit_content/$', TemplateView.as_view(
+    #    template_name="help_page.html"),
+    #    kwargs={
+    #        "title": "Explicit Content",
+    #        "description": "Sometimes explicit content can lend itself to "
+    #                       "highlighting the urgency of a Question or "
+    #                       "showcasing the need for a Solution. Abusing this "
+    #                       "privilege can quickly result in your loss of it.",
+    #        "content_path":
+    #            "%s250_explicit_content.html" % (settings.HELP_DOCS_PATH),
+    #        "category": "privileges"
+    #    },
+    #    name="explicit_content"),
     url(r'^barista/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={

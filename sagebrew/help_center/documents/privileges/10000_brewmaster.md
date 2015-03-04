@@ -29,9 +29,9 @@ elected to office. Also if you are a spouse of an elected official your
 moderator privileges shall be suspended for the length of their service to 
 their country.
 
-[1]: /help_center/reputation/admin_council/
-[2]: /help_center/privileges/flagging/
-[3]: /help_center/conversation/why_are_questions_deleted/
-[4]: /help_center/conversation/closure_of_a_question/
-[5]: /help_center/conversation/duplicate_question/
+[1]: /help/reputation/admin_council/
+[2]: /help/privileges/flagging/
+[3]: /help/questions/why_are_questions_deleted/
+[4]: /help/questions/closure_of_a_question/
+[5]: /help/questions/duplicate_question/
 [6]: TBD

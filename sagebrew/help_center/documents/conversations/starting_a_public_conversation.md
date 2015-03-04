@@ -17,4 +17,4 @@ a Comment is added to your Question.
 
 Welcome to the brew! 
 
-[1]: /help_center/privileges/participate_in_the_conversation/
+[1]: /help/privileges/participate_in_the_conversation/

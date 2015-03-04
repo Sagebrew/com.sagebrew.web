@@ -1,14 +1,11 @@
 from celery import shared_task
 from logging import getLogger
 
-from neomodel.exception import DoesNotExist, CypherException
 from sb_base.tasks import create_object_relations_task
 
 from sb_notifications.tasks import spawn_notifications
 from api.utils import spawn_task
-from plebs.neo_models import Pleb
 from .utils import (save_post)
-from sb_base.utils import defensive_exception
 
 logger = getLogger('loggly_logs')
 

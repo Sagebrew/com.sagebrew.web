@@ -4,46 +4,47 @@
 {% block css %}
     {{ block.super }}
     <link href="{% static 'select2/select2.css' %}" rel="stylesheet"/>
-    <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_base.css' %}"/>
-    <link rel="stylesheet" href="{% static 'less/sb_conversation/sb_question_input.css' %}"/>
     <link rel="stylesheet" href="{% static 'css/vendor/jquery.pagedown-bootstrap.css' %}"/>
 {% endblock css %}
 
 {% block content %}
+    <div class="action" style="display: none" data-action="write_question" data-button=".submit_question-action"></div>
     <div class="row-fluid sb_page">
         <div class="col-lg-9">
             <div class="sb_wall sb_conversation_wall">
-                <a href="{% url 'question_page'%}"
-                   type="button"
-                   class="btn sb_tab_navigation">
-                   <span><h3>Conversations</h3></span>
-                </a>
+                <div>
+                   <h3>Conversations</h3>
+                </div>
                 <div class="sb_border sb_markdown">
                     <h3>Submit Question</h3>
-                    <textarea class="form-control"
-                              id="question_title_id"
-                              name="question_title"
-                              cols="20"
-                              rows="1"
-                              placeholder="Question title"></textarea>
-                    <textarea class="form-control"
-                              id="question_content_id"
-                              name="question_content"
-                              cols="20"
-                              rows="8"
-                              placeholder="Question Content"></textarea>
-                    <div class="row">
-                        <div class="col-lg-12">
-                            {% include "tag_box.html" %}
+                    <form id="questionInputForm">
+                        <div class="question_title_input">
+                            <input class="form-control" style="margin-bottom: 10px;"
+                                      id="question_title_id"
+                                      name="question_title"
+                                      placeholder="Question title"/>
                         </div>
-                    </div>
-                    {% comment %}
-                    TODO determine if this and other "buttons" need to be a tags
-                    instead of buttons
-                    {% endcomment %}
-                    <button class="btn sb_btn sb_btn_submit submit_question-action"
-                           data-current_pleb="{{ current_user }}">Create Question</button>
-                    <button class="btn sb_btn sb_btn_submit">Cancel</button>
+                        <div class="question_content_input">
+                            <textarea class="form-control"
+                                      id="question_content_id"
+                                      name="question_content"
+                                      cols="20"
+                                      rows="8"
+                                      placeholder="Question Content"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                {% include "tag_box.html" %}
+                            </div>
+                        </div>
+                        {% comment %}
+                        TODO determine if this and other "buttons" need to be a tags
+                        instead of buttons
+                        {% endcomment %}
+                        <button class="btn btn-primary sb_btn sb_btn_submit submit_question-action"
+                               data-current_pleb="{{ request.user.email }}">Create Question</button>
+                        <button class="btn btn-primary sb_btn sb_btn_submit cancel_question-action">Cancel</button>
+                    </form>
                 </div>
              </div>
         </div>
@@ -58,4 +59,5 @@
     <script src="{% static 'js/save_question.js' %}"></script>
     <script src="{% static 'js/get_tags.js' %}"></script>
     <script src="{% static 'select2/select2.js' %}"></script>
+    <script src="{% static 'js/question_validator.js' %}"></script>
 {% endblock scripts %}

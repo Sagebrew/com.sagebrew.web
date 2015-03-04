@@ -4,5 +4,57 @@
     <h1>{{ title }}</h1>
 {% endblock help_heading %}
 {% block content %}
-    {% ssi content_path %}
+
+    <div id="category" style="display: none"
+        data-category="{{ category }}"></div>
+    <div class="row">
+        <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12 col-lg-offset-1 col-md-offset-1 col-sm-offset-1">
+            <div class="sb_help_article">
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12 hidden-xs sb_nav sb_secondary_nav sb_secondary_nav_transparent">
+                        <ul>
+                            <li>
+                                <a href="{% url 'help_center' %}">The Sagebrew Help Area</a>
+                            </li>
+                            <li>
+                                <p> > </p>
+                            </li>
+                            <li>
+                                <p>{{ category.split|join:" "|capfirst }}</p>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="hidden-lg hidden-md hidden-sm col-xs-12 sb_nav sb_secondary_nav sb_secondary_nav_transparent">
+                        <ul>
+                            <li>
+                                <a href="{% url 'help_center' %}">The Sagebrew Help Area</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="row-fluid">
+                        <div class="col-lg-7 col-md-11 col-sm-11 col-xs-11 sb_markdown sb_help_article_content">
+                            {% ssi content_path %}
+                            {% if "/markdown_formatting/" in request.path %}
+                                <textarea id="question_content_id" style="height: 300px;"></textarea>
+                            {% endif %}
+                        </div>
+                        <div class="col-lg-4 hidden-md hidden-sm hidden-xs">
+                            <div class="related_article_wrapper">
+                                <div id="related_articles"></div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/related_articles.js' %}"></script>
+    {% if "/markdown_formatting/" in request.path %}
+        <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
+        <script src="{% static 'js/create_markdown.js' %}"></script>
+    {% endif %}
+
+{% endblock scripts %}

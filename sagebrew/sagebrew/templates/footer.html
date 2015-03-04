@@ -47,22 +47,23 @@
             </div>
         </div>
     </div>
+
+    class="active"
     -->
 
 <div class="row">
-  <div class="col-lg-3 col-md-2 col-sm-2 hidden-xs">
-    <a href="#fakelink" class="bottom-menu-brand">Sagebrew</a>
+  <div class="col-lg-2 col-md-2 col-sm-2 hidden-xs col-lg-offset-1 col-md-offset-1">
+    <a href="{% url 'root_profile_page' %}" class="bottom-menu-brand">Sagebrew</a>
   </div>
-  <div class="col-lg-6 col-sm-8 hidden-xs">
+  <div class="col-lg-6 col-md-9 col-sm-9 hidden-xs">
     <ul class="bottom-menu-list">
       <li><a href="#fakelink">About Us</a></li>
-      <li><a href="#fakelink">Store</a></li>
-      <li class="active"><a href="#fakelink">Jobs</a></li>
+      <li><a href="#fakelink">Jobs</a></li>
       <li><a href="#fakelink">Privacy</a></li>
       <li><a href="#fakelink">Terms</a></li>
-      <li><a href="#fakelink">Follow Us</a></li>
       <li><a href="#fakelink">Support</a></li>
-      <li><a href="#fakelink">Links</a></li>
+        <li><a href="{% url 'trust_and_safety' %}">Trust and Safety</a></li>
+      <li><a href="{% url 'help_center' %}">Help</a></li>
     </ul>
   </div>
 </div>

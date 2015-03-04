@@ -1,4 +1,5 @@
 import pytz
+import markdown
 from uuid import uuid1
 from datetime import datetime
 from django.core.urlresolvers import reverse
@@ -81,9 +82,13 @@ class SBAnswer(SBVersioned):
             answer_owner_url = answer_owner.username
             for comment in self.comments.all():
                 comment_array.append(comment.get_single_dict())
+            try:
+                parent_object = self.answer_to.all()[0].sb_id
+            except IndexError:
+                parent_object = ''
             answer_dict = {'content': self.content,
                            'current_pleb': pleb,
-                           'parent_object': self.answer_to.all()[0].sb_id,
+                           'parent_object': parent_object,
                            'object_uuid': self.sb_id,
                            'last_edited_on': unicode(self.last_edited_on),
                            'up_vote_number': self.get_upvote_count(),
@@ -95,7 +100,8 @@ class SBAnswer(SBVersioned):
                            'comments': comment_array,
                            'answer_owner_email': answer_owner.email,
                            'edits': [],
-                           'object_type': self.object_type}
+                           'object_type': self.object_type,
+                           'html_content': markdown.markdown(self.content)}
             return answer_dict
         except CypherException as e:
             return e

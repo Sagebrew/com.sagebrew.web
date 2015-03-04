@@ -22,21 +22,23 @@ $( document ).ready(function() {
         $(".fileinput .fileinput-exists").replaceWith('')
     });
     $( "#image_uploaded" ).on("mouseenter", "img", function() {
+        var image_test = $("img");
+        var true_height = image_test.get(0).naturalHeight;
+        var true_width = image_test.get(0).naturalWidth;
         var jcrop = $("img").Jcrop({
+           trueSize: [true_width, true_height],
            allowResize: false,
-           allowSelect:false,
+           allowSelect: false,
            onSelect: getCoords,
-           aspectRatio: 200/200,
+           aspectRatio: 1,
            bgColor: '#26424a',
            bgOpacity: 0.4,
            setSelect: [ 0, 0, 200, 200 ]
         });
     });
-    $("#sb_btn_save").click(function(){
-        event.preventDefault();
+    $("#sb_btn_save").click(function(e){
+        e.preventDefault();
         var form = new FormData($('#uploadForm')[0]);
-        console.log($('#uploadForm').serialize());
-        console.log(form);
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 ajax_security(xhr, settings)
@@ -45,21 +47,20 @@ $( document ).ready(function() {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
-            url: "/registration/profile_picture/",
+            url: "/registration/profile_picture_api/",
             data: form,
             cache: false,
             contentType: false,
             processData: false,
-            success: function (data) {
+            success: function(data){
+                window.location.replace(data['url']);
             }
         });
     });
     function getCoords (c){
         $('#image_x1').val(c.x);
-        console.log($('#image_x1').val());
         $('#image_x2').val(c.w);
         $('#image_y1').val(c.y);
-        console.log($('#image_y1').val());
         $('#image_y2').val(c.h);
     }
 });

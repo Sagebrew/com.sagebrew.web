@@ -14,8 +14,8 @@ urlpatterns = patterns(
                            "constituents. Gaining donations in turn for "
                            "updates on how the funds are being used.",
             "content_path":
-                "%s/static/rendered_docs/donation_goals.html" % (
-                    settings.STATIC_URL)
+                "%sdonation_goals.html" % (settings.HELP_DOCS_PATH),
+            "category": "representatives"
         },
         name="donation_goals"),
     url(r'^funding_not_in_account/$', TemplateView.as_view(
@@ -29,8 +29,8 @@ urlpatterns = patterns(
                            "information. Contact us and we'll help figure it "
                            "out.",
             "content_path":
-                "%s/static/rendered_docs/funding_not_in_account.html" % (
-                    settings.STATIC_URL)
+                "%sfunding_not_in_account.html" % (settings.HELP_DOCS_PATH),
+            "category": "representatives"
         },
         name="funding_not_in_account"),
     url(r'^how_to_export_contributions/$', TemplateView.as_view(
@@ -42,8 +42,8 @@ urlpatterns = patterns(
                            " the information associated with the the "
                            "contributions they've received.",
             "content_path":
-                "%s/static/rendered_docs/how_export_contributions.html" % (
-                    settings.STATIC_URL)
+                "%show_export_contributions.html" % (settings.HELP_DOCS_PATH),
+            "category": "representatives"
         },
         name="how_to_export_contributions"),
     url(r'^how_to_get_on_the_ballot/$', TemplateView.as_view(
@@ -53,8 +53,8 @@ urlpatterns = patterns(
             "description": "Brief explanation on how a candidate goes about "
                            "getting their name on the ballot.",
             "content_path":
-                "%s/static/rendered_docs/how_to_get_name_on_ballot.html" % (
-                    settings.STATIC_URL)
+                "%show_to_get_name_on_ballot.html" % (settings.HELP_DOCS_PATH),
+            "category": "representatives"
         },
         name="how_to_get_on_the_ballot"),
     url(r'^name_on_ballot_to_run/$', TemplateView.as_view(
@@ -66,8 +66,8 @@ urlpatterns = patterns(
                            "their name on the ballot to run for office. This "
                            "article provides an answer to that question.",
             "content_path":
-                "%s/static/rendered_docs/name_on_ballot_to_run.html" % (
-                    settings.STATIC_URL)
+                "%sname_on_ballot_to_run.html" % (settings.HELP_DOCS_PATH),
+            "category": "representatives"
         },
         name="name_on_ballot_to_run"),
     url(r'^need_more_help_public_official/$', TemplateView.as_view(
@@ -77,8 +77,9 @@ urlpatterns = patterns(
             "description": "Getting more help is just a click away, please"
                            " let us know what you need assistance with!",
             "content_path":
-                "%s/static/rendered_docs/need_more_help_repsagetribune.html" % (
-                    settings.STATIC_URL)
+                "%sneed_more_help_repsagetribune.html" % (
+                    settings.HELP_DOCS_PATH),
+            "category": "representatives"
         },
         name="need_more_help_repsagetribune"),
     url(r'^principal_campaign_committee/$', TemplateView.as_view(
@@ -87,9 +88,9 @@ urlpatterns = patterns(
             "title": "What is a principal campaign committee?",
             "description": "This is your campaign team.",
             "content_path":
-                "%s/static/rendered_docs/"
-                "what_is_principle_campaign_committee.html" % (
-                    settings.STATIC_URL)
+                "%swhat_is_principle_campaign_committee.html" % (
+                    settings.HELP_DOCS_PATH),
+            "category": "representatives"
         },
         name="principle_campaign_committee"),
     url(r'^suspicious_public_servants/$', TemplateView.as_view(
@@ -101,9 +102,8 @@ urlpatterns = patterns(
                            "in a legal and positive manner. We welcome the "
                            "assistance of the community.",
             "content_path":
-                "%s/static/rendered_docs/"
-                "suspicious_public_servants.html" % (
-                    settings.STATIC_URL)
+                "%ssuspicious_public_servants.html" % (settings.HELP_DOCS_PATH),
+            "category": "representatives"
         },
         name="suspicious_public_servants"),
 )

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}Action Page Title{% endblock title %}
+{% block content %}
+<div class="row-fluid sb_page">
+{% include "action_channel.html" %}
+{% include "action_nav.html" %}
+<div class="row sb_wall sb_action_wall">
+    <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+        {% if "updates" in request.path %}
+            {% include "updates.html" %}
+        {% elif "about" in request.path %}
+            {% include "action_about.html" %}
+        {% else %}
+            {% include "saga.html" %}
+        {% endif %}
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+        <h5>Goals</h5>
+        {% include "goals_block.html" %}
+        {% include "goals_block.html" %}
+        {% include "goals_block.html" %}
+    </div>
+</div>
+</div>
+{% endblock %}
+{% block footer %}
+{% endblock %}
+{% block scripts %}
+    {{ block.super }}
+{% endblock scripts %}

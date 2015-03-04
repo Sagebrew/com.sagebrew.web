@@ -39,5 +39,4 @@ you'll amass.
 Your Reputation is tracked on your profile. 
 
 
-
-[1]: /help_center/reputation/admin_council/
+[1]: /help/reputation/admin_council/

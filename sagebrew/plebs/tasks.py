@@ -165,10 +165,19 @@ def create_pleb_task(user_instance=None, birthday=None):
 @shared_task()
 def create_beta_user(email):
     try:
-        beta_user = BetaUser.nodes.get(email=email)
+        BetaUser.nodes.get(email=email)
         return True
     except (BetaUser.DoesNotExist, DoesNotExist):
-        beta_user = BetaUser(email=email).save()
+        beta_user = BetaUser(email=email)
+        beta_user.save()
     except CypherException as e:
         raise create_beta_user.retry(exc=e, countdown=3, max_retries=None)
     return True
+
+@shared_task()
+def deactivate_user_task(username):
+    try:
+        pleb = Pleb.nodes.get(username=username)
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
+        raise deactivate_user_task.retry(exc=e, countdown=3, max_retries=None)
+

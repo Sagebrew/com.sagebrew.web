@@ -1,6 +1,10 @@
 $(document).ready(function () {
+    // TODO do we use this display function? It's defined in sb_utils.js too
     $("a.show_edit_comment_class").click(function () {
         var sb_id = $(this).data('comment_uuid');
+        var textarea = $('textarea#' + $(this).data('comment_uuid'));
+        console.log(textarea);
+        textarea.height( textarea[0].scrollHeight );
         $("#comment_divid_" + sb_id).fadeToggle();
     });
 
@@ -17,7 +21,7 @@ $(document).ready(function () {
             url: "/comments/edit_comment/",
             data: JSON.stringify({
                 'content': $('textarea#' + $(this).data('comment_uuid')).val(),
-                'pleb': $(this).data('pleb'),
+                'pleb': $(this).data('current_pleb'),
                 'comment_uuid': $(this).data('comment_uuid')
             }),
             contentType: "application/json; charset=utf-8",

@@ -1,48 +1,94 @@
 <div class="sb_rep_container">
     <div class="sb_profile_rep_container">
         <div class="sb_container_header">
-            <div>Representatives</div>
+            <h4>Representatives</h4>
         </div>
         <div class="sb_profile_rep_content">
-            <div class="sb_rep_header">Senators</div>
-                <div class="row">
-                    <div class="col-lg-2 col-md-2">
-                        <div class="sb_thumbnail_rep sb_thumbnail_xs thumbnail"></div>
+            <h5>Senators</h5>
+                {% for senator in senators %}
+                    <div class="row block_vertical">
+                        <div class="col-lg-2 col-md-2">
+                            <div class="thumbnail sb_thumbnail_rep sb_thumbnail_xs">
+                                <img src="{{ senator.public_picture }}"> {% comment %} Link to their S3 public image{% endcomment %}
+                            </div>
+                        </div>
+                        <div class="col-lg-8 col-md-10 vertical_nav">
+                            <ul>
+                                <li>
+                                    <a href="{% url 'action_page' senator.username %}">{{ senator.first_name }} {{ senator.last_name }}</a>
+                                </li>
+                                {% comment %}
+                                Django may have a better solution but see:
+                                http://stackoverflow.com/questions/9647202/ordinal-numbers-replacement
+                                for convertign a number into the necessary ordinal (1st, 2nd, 3rd)
+                                {% endcomment %}
+                                <li class="sb_rep_info">{{ senator.term }} term</li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="sb_rep col-lg-10 col-md-10" align="left">
+                {% endfor %}
+                <!-- Begin place holder Senator info -->
+                <div class="row block_vertical">
+                    <div class="col-lg-2 col-md-2">
+                        <div class="thumbnail sb_thumbnail_rep sb_thumbnail_xs">
+                        </div>
+                    </div>
+                    <div class="col-lg-8 col-md-10 vertical_nav">
                         <ul>
-                            <div class="btn sb_rep_name">Carl Levin</div>
-                            <div class="sb_rep_info">6th term</div>
+                            <li>
+                                <a href="{% url 'action_saga' pleb_info.username %}">Carl Levin</a>
+                            </li>
+                            <li class="sb_rep_info">6th term</li>
                         </ul>
-                    {% for senator in senator_names %}
-                         {{ senator }}
-                    {% endfor %}
                     </div>
                 </div>
-                <div class="row">
+                <div class="row block_vertical">
                     <div class="col-lg-2 col-md-2">
                         <div class="sb_thumbnail_rep sb_thumbnail_xs thumbnail"></div>
                     </div>
-                    <div class="sb_rep col-lg-10 col-md-10" align="left">
+                    <div class="col-lg-10 col-md-10 vertical_nav">
                         <ul>
-                            <div class="btn sb_rep_name">Debbie Stabenow</div>
-                            <div class="sb_rep_info">3rd term</div>
+                            <li>
+                                 <a href="{% url 'action_saga' pleb_info.username %}">Debbie Stabenow</a>
+                            </li>
+                            <li class="sb_rep_info">3rd term</li>
                         </ul>
-                    {% for senator in senator_names %}
-                         {{ senator }}
-                    {% endfor %}
                     </div>
                 </div>
-
-            <div class="sb_rep_header">House Representative</div>
-                <div class="row">
+                <!-- End place holder Senator info -->
+                <h5>House Representative</h5>
+                {% for house_rep in house_reps %}
+                    <div class="row block_vertical">
+                        <div class="col-lg-2 col-md-2">
+                            <div class="thumbnail sb_thumbnail_rep sb_thumbnail_xs">
+                                <img src="{{ house_rep.public_picture }}"> {% comment %} Link to their S3 public image{% endcomment %}
+                            </div>
+                        </div>
+                    <div class="col-lg-8 col-md-10 vertical_nav">
+                        <ul>
+                            <li>
+                                <a href="{% url 'action_saga' house_rep.username %}">{{ house_rep.first_name }} {{ house_rep.last_name }}</a>
+                            </li>
+                            {% comment %}
+                            Django may have a better solution but see:
+                            http://stackoverflow.com/questions/9647202/ordinal-numbers-replacement
+                            for convertign a number into the necessary ordinal (1st, 2nd, 3rd)
+                            {% endcomment %}
+                            <li class="sb_rep_info">{{ house_rep.term }} term</li>
+                        </ul>
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="row block_vertical">
                     <div class="col-lg-2 col-md-2">
                         <div class="sb_thumbnail_rep sb_thumbnail_xs thumbnail"></div>
                     </div>
-                    <div class="sb_rep col-lg-10 col-md-10" align="left">
+                    <div class="sb_rep col-lg-10 col-md-10 vertical_nav">
                         <ul>
-                            <div class="btn sb_rep_name">Justin Amash</div>
-                            <div class="sb_rep_info">1st term</div>
+                            <li>
+                                 <a href="{% url 'action_saga' pleb_info.username %}">Justin Amash</a>
+                            </li>
+                            <li class="sb_rep_info">1st term</li>
                         </ul>
                         {{ rep_name }}
                     </div>

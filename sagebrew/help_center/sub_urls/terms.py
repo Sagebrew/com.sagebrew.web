@@ -15,8 +15,8 @@ urlpatterns = patterns(
                            "we need the help of the community to "
                            "facilitate this environment.",
             "content_path":
-                "%s/static/rendered_docs/trust_and_safety.html" % (
-                    settings.STATIC_URL)
+                "%strust_and_safety.html" % (settings.HELP_DOCS_PATH),
+            "category": "terms"
         },
         name="trust_and_safety"),
 

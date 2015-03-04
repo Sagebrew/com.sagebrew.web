@@ -38,10 +38,5 @@ you'll amass.
 
 Your Reputation is tracked on your profile. 
 
-**Note**: Reputation is not the final determiner of knowledge or 
-experience. If somebody has negative Reputation in Agriculture it doesn't 
-mean they don't know anything about Agriculture, they may have just provided 
-poor or unfavorable solutions. While Reputation is useful to gauge knowledge 
-and expertise, it is not the final say.
 
 [1]: /help/reputation/admin_council/

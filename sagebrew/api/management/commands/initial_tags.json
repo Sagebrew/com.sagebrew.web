@@ -1,0 +1,74 @@
+{"tags": [
+    {
+        "tag_name": "fiscal",
+        "sub_tags": [
+            "pension", "income", "taxes"
+        ]
+    },
+    {
+        "tag_name": "foreign_policy",
+        "sub_tags": [
+            "russia", "middle-east", "iraq"
+        ]
+    },
+    {
+        "tag_name": "social",
+        "sub_tags": [
+            "lgbtqia", "feminism"
+        ]
+    },
+    {
+        "tag_name": "education",
+        "sub_tags": [
+            "education-reform", "university", "financial-aid"
+        ]
+    },
+    {
+        "tag_name": "science",
+        "sub_tags": [
+            "mathematics", "biology", "chemistry", "physics"
+        ]
+    },
+    {
+        "tag_name": "environment",
+        "sub_tags": [
+            "fracking", "climate-change", "natural-disaster"
+        ]
+    },
+    {
+        "tag_name": "drugs",
+        "sub_tags": [
+            "war-on-drugs", "marijuana", "substance-abuse"
+        ]
+    },
+    {
+        "tag_name": "agriculture",
+        "sub_tags": [
+            "organic", "holistic", "GMOs"
+        ]
+    },
+    {
+        "tag_name": "defense",
+        "sub_tags": [
+            "military", "navy", "military-budget"
+        ]
+    },
+    {
+        "tag_name": "energy",
+        "sub_tags": [
+            "renewable-energy", "nuclear-power", "wind-power"
+        ]
+    },
+    {
+        "tag_name": "health",
+        "sub_tags": [
+            "medical", "cancer", "obesity"
+        ]
+    },
+    {
+        "tag_name": "space",
+        "sub_tags": [
+            "space-exploration", "space-shuttle", "planet"
+        ]
+    }
+]}

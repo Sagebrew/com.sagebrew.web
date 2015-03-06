@@ -302,6 +302,8 @@ BASE_TAGS = ["fiscal", "foreign_policy", "social", "education", "science",
              "environment", "drugs", "agriculture", "defense", "energy",
              "health", "space"]
 
+
+
 PAYMENT_PLANS = [
     ("free", "Free"),
     ("sub", "Subscription")

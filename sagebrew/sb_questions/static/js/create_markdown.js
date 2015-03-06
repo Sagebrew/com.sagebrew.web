@@ -1,35 +1,22 @@
 $(document).ready(function () {
-	var question_pagedown = $("textarea#question_content_id").pagedownBootstrap();
-    var solution_pagedown = $("textarea#answer_content_id").pagedownBootstrap();
-    var converter = new Markdown.Converter();
-    var editor = new Markdown.Editor(converter);
-    console.log(editor);
-    editor.hooks.set("insertImageDialog", function(callback){
-        setTimeout(function(){
-            $("#fileModal").modal();
-            $("#insert_image_post").click(function(e){
-                e.preventDefault();
-                alert("this is a test");
-                /*
-                if($(".upload-photo").length>0) {
-                    var images;
-                    $(".upload-photo").each(function () {
-                        var images = "" + ($(this).filter("[src]").attr("src"));
-                    });
-                    callback(images);
-                    //$("#upload_photo").fileupload();
+	var question_pagedown = $("textarea#question_content_id").pagedownBootstrap({
+        "sanatize": false,
+        'editor_hooks': [
+                {
+                    'event': 'insertImageDialog',
+                    'callback': function (callback) {
+                        alert("Please click okay to start scanning your brain...");
+                        setTimeout(function () {
+                            var prompt = "We have detected that you like cats. Do you want to insert an image of a cat?";
+                            if (confirm(prompt))
+                                callback("http://icanhascheezburger.files.wordpress.com/2007/06/schrodingers-lolcat1.jpg")
+                            else
+                                callback(null);
+                        }, 2000);
+                        return true; // tell the editor that we'll take care of getting the image url
+                    }
                 }
-                else {
-                    var image=$("#img-url").val();
-                    callback(image);
-                }
-                $("#fileModal").modal("hide");
-                */
-            });
-        }, 0);
-        return true;
+            ]
     });
-    console.log(editor);
-    editor.run();
-    console.log(editor);
+    var solution_pagedown = $("textarea#answer_content_id").pagedownBootstrap();
 });

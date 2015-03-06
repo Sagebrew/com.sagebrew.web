@@ -5,37 +5,10 @@
     {{ block.super }}
     <link href="{% static 'select2/select2.css' %}" rel="stylesheet"/>
     <link rel="stylesheet" href="{% static 'css/vendor/jquery.pagedown-bootstrap.css' %}"/>
+
 {% endblock css %}
 
 {% block content %}
-    <div id="fileModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="fileModalLabel" aria-hidden="true">
-     <div class="modal-header">
-     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-     <h3 id="fileModalLabel">Upload Images</h3>
-     </div>
-     <div class="modal-form">
-     <div class="tabbable tabs-left"> <!-- Only required for left/right tabs -->
-     <ul class="nav nav-tabs">
-     <li class="active"><a href="#tab1" data-toggle="tab">Upload</a></li>
-     <li><a href="#tab2" data-toggle="tab">Enter URL</a></li>
-     </ul>
-     <div class="tab-content">
-     <div class="tab-pane active" id="tab1">
-     <div class="preview" id="preview" >
-     </div>
-     </div>
-     <div class="tab-pane" id="tab2">
-     <p><input type="text" class="img-url" placeholder="Ex: http://yoursite.com/image.jpg" id="img-url" /></p>
-     </div>
-     </div>
-     </div>
-     </div>
-     <div class="modal-footer">
-     <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-     <button class="btn" id="insert_image_post">Insert Image</button>
-     </div>
-    </div>
-    <div class="action" style="display: none" data-action="write_question" data-button=".submit_question-action"></div>
     <div class="row-fluid sb_page">
         <div class="col-lg-9">
             <div class="sb_wall sb_conversation_wall">
@@ -85,7 +58,6 @@
     {{ block.super }}
     <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
     <script src="{% static 'js/create_markdown.js' %}"></script>
-    <script src="{% static 'js/markdown_image_upload.js' %}"></script>
     <script src="{% static 'js/save_question.js' %}"></script>
     <script src="{% static 'js/get_tags.js' %}"></script>
     <script src="{% static 'select2/select2.js' %}"></script>

@@ -30,9 +30,6 @@ class Command(BaseCommand):
                 elif(circle_branch == "master"):
                     data = populate_prod_env(data)
             else:
-                data = data.replace('{{REQUIREMENTS_FILE}}',
-                                    os.environ.get(
-                                        "REQUIREMENTS_FILE", "base"))
                 data = data.replace("{{PROJECT_REPONAME}}",
                                     os.environ.get("PROJECT_REPONAME", ""))
                 data = data.replace("{{PROJECT_USERNAME}}",
@@ -40,6 +37,9 @@ class Command(BaseCommand):
                 circle_branch = os.environ.get("DOCKER_ENV", "staging")
             data = data.replace('{{APPLICATION_SECRET_KEY}}',
                                 os.environ.get("APPLICATION_SECRET_KEY", ""))
+            data = data.replace('{{REQUIREMENTS_FILE}}',
+                                    os.environ.get(
+                                        "REQUIREMENTS_FILE", "base"))
             data = data.replace('{{DOCKER_ENV}}', circle_branch)
             data = data.replace("{{PROJECT_NAME}}", "sagebrew")
             data = data.replace("{{CIRCLECI}}",
@@ -76,14 +76,14 @@ class Command(BaseCommand):
                 elif(circle_branch == "master"):
                     data = populate_prod_env(data)
             else:
-                data = data.replace('{{REQUIREMENTS_FILE}}',
-                                    os.environ.get(
-                                        "REQUIREMENTS_FILE", "base"))
                 data = data.replace("{{PROJECT_REPONAME}}",
                                     os.environ.get("PROJECT_REPONAME", ""))
                 data = data.replace("{{PROJECT_USERNAME}}",
                                     os.environ.get("PROJECT_USERNAME", ""))
                 circle_branch = os.environ.get("DOCKER_ENV", "staging")
+            data = data.replace('{{REQUIREMENTS_FILE}}',
+                                    os.environ.get(
+                                        "REQUIREMENTS_FILE", "base"))
             data = data.replace('{{APPLICATION_SECRET_KEY}}',
                                 os.environ.get("APPLICATION_SECRET_KEY", ""))
             data = data.replace('{{DOCKER_ENV}}', circle_branch)

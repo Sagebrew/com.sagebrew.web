@@ -145,6 +145,18 @@ Our editor will automatically resize your image to fit neatly on the page if it
 is too large, but if you can resize your image, it's recommended to do so.
 Preferred image size is at or below 750x500.
 
+### Videos ###
+
+
+For example:
+
+    <iframe src="https://player.vimeo.com/video/120960412" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> <small><a href="https://vimeo.com/120960412">Baxter</a> from <a href="https://vimeo.com/tcoyle">Ty Coyle</a> on <a href="https://vimeo.com">Vimeo</a>.</small>
+
+would translate to:
+
+<iframe src="https://player.vimeo.com/video/120960412" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> <small><a href="https://vimeo.com/120960412">Baxter</a> from <a href="https://vimeo.com/tcoyle">Ty Coyle</a> on <a href="https://vimeo.com">Vimeo</a>.</small>
+
+
 ### Preformatted Text ###
 To add preformatted text, simply indent your desired text 4 spaces. This will 
 place your text in a special block that retains 

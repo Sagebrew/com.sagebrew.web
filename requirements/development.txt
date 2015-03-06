@@ -2,3 +2,4 @@
 django-debug-toolbar
 pep8
 ipython
+flake8

@@ -38,7 +38,9 @@
             </div>
             <div>
                 <div class="sb_markdown" id="sb_content_{{ object_uuid }}">
-                    {{ content|linebreaksbr }}
+                    {% autoescape off %}
+                        {{ html_content }}
+                    {% endautoescape %}
                 </div>
             </div>
             <div id="edit_container_{{ object_uuid }}" style="display: none">
@@ -58,11 +60,6 @@
                  style=""></div>
         {% url "profile_page" pleb_username=owner_profile_url as the_url %}
         </div>
-        {% block comments %}
-            {% for comment in comments %}
-                {% include "single_comments.html" %}
-            {% endfor %}
-        {% endblock %}
         <div class="row">
             <div class="col-lg-6">
                 <a class="btn">write a comment</a>

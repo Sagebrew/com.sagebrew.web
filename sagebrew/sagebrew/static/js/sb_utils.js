@@ -20,7 +20,6 @@ function save_comment() {
             }
         });
         $.ajax({
-
             xhrFields: {withCredentials: true},
             type: "POST",
             url: "/comments/submit_comment/",
@@ -33,6 +32,10 @@ function save_comment() {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
+                var comment_container = $("#sb_comments_container_"+sb_id);
+                comment_container.append(data['html']);
+                $('textarea#post_comment_on_' + sb_id).val("");
+                enable_post_functionality();
             }
         });
     });
@@ -41,7 +44,10 @@ function save_comment() {
 function show_edit_post() {
     $("a.show_edit_post_class").click(function (event) {
         var sb_id = $(this).data('uuid');
-        $('#divid_' + sb_id).fadeToggle();
+        $("#sb_content_"+sb_id).hide();
+        $('#edit_container_' + sb_id).show();
+        var textarea = $('textarea#' + $(this).data('uuid'));
+        textarea.height( textarea[0].scrollHeight );
     });
 }
 
@@ -49,7 +55,10 @@ function show_edit_post() {
 function show_edit_comment() {
     $("a.show_edit_comment_class").click(function () {
         var sb_id = $(this).data('comment_uuid');
-        $("#comment_divid_" + sb_id).fadeToggle();
+        $("#sb_content_"+sb_id).hide();
+        $('#edit_container_' + sb_id).show();
+        var textarea = $('textarea#' + $(this).data('comment_uuid'));
+        textarea.height( textarea[0].scrollHeight );
     });
 }
 
@@ -158,6 +167,7 @@ function save_answer() {
             success: function (data) {
                 $("#solution_container").append(data['html']);
                 $('textarea.sb_answer_input_area').val("");
+                enable_post_functionality();
             }
 		});
 	});
@@ -232,7 +242,7 @@ function show_edit_answer() {
     $("a.show_edit_answer-action").click(function(event){
         var answer_uuid = $(this).data('object_uuid');
         $('#sb_content_'+answer_uuid).hide();
-        $('#show_edit_sb_id_'+answer_uuid).show();
+        $('#edit_container_'+answer_uuid).show();
         var markdown = $("textarea#"+answer_uuid).pagedownBootstrap();
         markdown.attr("id", answer_uuid)
     });

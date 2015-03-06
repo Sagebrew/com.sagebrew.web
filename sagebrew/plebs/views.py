@@ -16,15 +16,11 @@ from .utils import prepare_user_search_html
 from .forms import GetUserSearchForm
 
 
-
-@login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
 def root_profile_page(request):
     if request.user.is_authenticated() is True:
         return redirect("profile_page", pleb_username=request.user.username)
     else:
-        return redirect("login")
+        return redirect("signup")
 
 
 @login_required()

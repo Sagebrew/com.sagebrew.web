@@ -1,7 +1,8 @@
+import pytz
 from uuid import uuid1
-from urllib2 import HTTPError
-from requests import ConnectionError
+from datetime import datetime
 from django.conf import settings
+from django.template.loader import render_to_string
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -52,11 +53,26 @@ def save_comment_view(request):
             'task_func': save_comment_on_object,
             'task_param': task_data
         }
+        comment_data = {
+            "comments": [{
+                "object_uuid": task_data['comment_uuid'],
+                "content": comment_form.cleaned_data['content'],
+                "up_vote_number": 0,
+                "down_vote_number": 0,
+                "vote_count": str(0),
+                "datetime": datetime.now(pytz.utc),
+                "comment_owner": "%s %s"%(request.user.first_name,
+                                         request.user.last_name)
+            }],
+            "parent_object": request.user.username
+        }
+        html = render_to_string("sb_comments.html", comment_data)
         spawned = spawn_task(task_func=get_pleb_task, task_param=pleb_task_data)
         if isinstance(spawned, Exception):
             return Response({"detail": "Failed to create comment task"},
                             status=500)
-        return Response({"detail": "Comment successfully created"},
+        return Response({"detail": "Comment successfully created",
+                         "html": html},
                         status=200)
     else:
         return Response({'detail': "invalid form"}, status=400)

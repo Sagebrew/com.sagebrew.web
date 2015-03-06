@@ -23,7 +23,7 @@ urlpatterns = patterns(
     url(r'^be_nice/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
-            "title": "Markdown Formatting",
+            "title": "Be Nice",
             "description": "We try to foster a collaborative environment but "
                            "to do that we need the community to give us a "
                            "helping hand.",
@@ -35,7 +35,7 @@ urlpatterns = patterns(
     url(r'^do_not_spam/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
-            "title": "How to not be a spammer",
+            "title": "How to not be a Spammer",
             "description": "Some notes on what we consider a spammer and how "
                            "you can avoid being branded as one.",
             "content_path":
@@ -46,7 +46,7 @@ urlpatterns = patterns(
     url(r'^feedback/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
-            "title": "What is Markdown?",
+            "title": "Providing Feedback",
             "description": "We love receiving feedback from our users. Whether "
                            "it be positive or negative, it helps us to grow.",
             "content_path":

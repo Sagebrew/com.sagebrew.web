@@ -45,12 +45,14 @@ def edit_object_view(request):
         ]
         table = settings.KNOWN_TABLES[
                              edit_object_form.cleaned_data['object_type']]
+        print table
         if table == 'posts' or table=='comments':
             obj_datetime = unicode(edit_object_form.cleaned_data['datetime'])
             parent_object = edit_object_form.cleaned_data['parent_object']
         else:
             obj_datetime = ""
             parent_object = edit_object_form.cleaned_data['parent_object']
+        print obj_datetime, parent_object
         res = update_doc(table,
                          edit_object_form.cleaned_data['object_uuid'],
                          updates,

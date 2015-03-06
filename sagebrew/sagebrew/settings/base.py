@@ -97,6 +97,7 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'opbeat.contrib.django.middleware.OpbeatAPMMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -251,10 +252,9 @@ ADDRESS_VALIDATION_ID = environ.get("ADDRESS_VALIDATION_ID", '')
 ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN", '')
 STRIPE_PUBLIC_KEY = environ.get("STRIPE_PUBLIC_KEY", '')
 STRIPE_SECRET_KEY = environ.get("STRIPE_SECRET_KEY", '')
-PX_USER_ID = environ.get("PX_USER_ID", "")
-PX_API_KEY = environ.get("PX_API_KEY", "")
-PX_SECRET_KEY = environ.get("PX_SECRET_KEY", "")
 MASKED_NAME = environ.get("MASKED_NAME", "")
+OAUTH_CLIENT_ID = environ.get("OAUTH_CLIENT_ID", '')
+OAUTH_CLIENT_SECRET = environ.get("OAUTH_CLIENT_SECRET", "")
 
 DYNAMO_IP = environ.get("DYNAMO_IP", None)
 
@@ -357,6 +357,5 @@ PRIVILEGE_HTML_TYPES = {
 }
 
 
-OAUTH_CLIENT_ID = '658919414169191a6ds1f9a1s9'
-OAUTH_CLIENT_SECRET = '651a69d1516aSD651a65sd1sd645a1s56d5165A1SD'
+
 CORS_ORIGIN_ALLOW_ALL = True

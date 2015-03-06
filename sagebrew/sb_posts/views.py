@@ -1,8 +1,12 @@
 import pytz
 import logging
+import markdown
 from uuid import uuid1
 from datetime import datetime
+
 from django.template.loader import render_to_string
+from django.template import RequestContext
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
@@ -36,6 +40,7 @@ def save_post_view(request):
     if valid_form:
         #post_data['content'] = language_filter(post_data['content'])
         post_form.cleaned_data['post_uuid'] = str(uuid1())
+        html_content = markdown.markdown(post_form.cleaned_data['content'])
         spawned = spawn_task(task_func=save_post_task,
                              task_param=post_form.cleaned_data)
         if isinstance(spawned, Exception):
@@ -50,10 +55,14 @@ def save_post_view(request):
                           request.user.last_name,
             "upvote_number": 0,
             "downvote_number": 0,
-            "content": post_form.cleaned_data['content']
+            "content": post_form.cleaned_data['content'],
+            "object_vote_count": "0",
+            "vote_type": "true",
+            "html_content": html_content
         }
-        html = render_to_string('post.html', post_data)
-        print html
+        c = RequestContext(request, post_data)
+        html = render_to_string('post.html', post_data,
+                                context_instance=c)
         return Response(
             {"action": "filtered", "filtered_content": post_data,
              "html": html},
@@ -101,10 +110,14 @@ def get_user_posts(request):
                 # The tag values also don't accomodate for dynamic updates
                 # from javascript so we'll have to figure that out that as well
                 # Example when someone transitions from 9 to 10 and 99 to 100
-                post_dict['object_vote_count'] = "4.5k"
+                post_dict['object_vote_count'] = "10.5k"
                 post_dict['vote_type'] = "true"
                 post_dict['current_pleb'] = request.user
-                html = render_to_string('post.html', post_dict)
+                for item in post_dict["comments"]:
+                    item["vote_count"] = str(item["vote_count"])
+                c = RequestContext(request, post_dict)
+                html = render_to_string('post.html', post_dict,
+                                        context_instance=c)
                 html_array.append(html)
 
         return Response({'html': html_array}, status=200)

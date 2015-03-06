@@ -114,6 +114,7 @@
 }
 .sb_channel_block{
   &:extend(.block);
+  width: 100%;
   padding: 15px 0 15px 0;
   background-color: @sb_green_extra_light;
   border-radius: 0 0 5px 5px;
@@ -174,6 +175,14 @@
 .sb_conversation_wall{
   &:extend(.sb_wall);
   margin-top: 30px;
+}
+.sb_action_wall{
+  &:extend(.sb_wall);
+  width: 100%;
+  h5{
+    color: @sb_grey_dark;
+    font-weight: normal;
+  }
 }
 // Border
 .sb_border{
@@ -259,11 +268,19 @@
 .vote_up_active{
   color: @sb_green;
 }
+.vote_up_small{
+  &:extend(.vote_up);
+  font-size: 20pt;
+}
 .vote_down{
   &:extend(.sb_btn_vote);
   &:hover{
     color: @sb_violet;
   }
+}
+.vote_down_small{
+  &:extend(.vote_down);
+  font-size: 20pt;
 }
 .vote_down_active{
   color: @sb_violet;
@@ -278,7 +295,10 @@
 
     font-weight: bold;
     margin-bottom: -5px;
-    margint-top: -5px;
+    margin-top: -5px;
+  }
+  small{
+
   }
 }
 .sb_spy{
@@ -361,9 +381,10 @@
 .sb_action_nav{
   &:extend(.sb_secondary_nav);
   background-color: @sb_green_extra_light;
-  margin: 60px 0 0 0;
+  margin: 60px 15px 0 -15px;
+
   ul{
-    padding: 8px 0 0 20px;
+    padding: 0 0 0 20px;
   }
 }
 .sb_secondary_nav_bar{
@@ -690,6 +711,10 @@
   margin-left: -5px;
   margin-top: -15px;
 }
+.sb_vote_wrapper_small{
+  margin-left: 2px;
+  margin-top: -15px;
+}
 .sb_up_vote_wrapper{
   margin-bottom: -13px;
 }
@@ -821,4 +846,14 @@ textarea.sb_comment_input{
       &:active{
         color: @sb_dark_blue;
       }
+}
+
+.conversation_logo {
+  &:extend(.sb_dropdown_icon);
+  fill: white;
+  background-repeat: no-repeat;
+  padding-top: 5px;
+  padding-bottom: 0px;
+  margin-left: 30px;
+  padding-right: 25px;
 }

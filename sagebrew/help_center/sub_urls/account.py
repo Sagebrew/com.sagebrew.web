@@ -38,10 +38,10 @@ urlpatterns = patterns(
                            " create a Sagebrew account. We've laid out some of"
                            " the most important reasons in this article.",
             "content_path":
-                "%srestriction_on_asking.html" % (settings.HELP_DOCS_PATH),
+                "%screate_an_account.html" % (settings.HELP_DOCS_PATH),
             "category": "account"
         },
-        name="restriction_on_asking"),
+        name="create_an_account"),
     url(r'^delete_account/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={

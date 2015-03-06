@@ -6,10 +6,6 @@
                                      empowers people to make change">
 {% endblock description %}
 
-{% block css %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static 'css/vendor/bootstrapValidator.min.css' %}">
-{% endblock css %}
 {% block content %}
     <img class="sb_sign_up_background"
              src="{% static 'images/sign_up.jpg' %}">
@@ -105,7 +101,6 @@
 {% block scripts %}
     {{ block.super }}
     <script src="{% static 'js/signup.js' %}"></script>
-    <script src="{% static 'js/vendor/bootstrapValidator.min.js' %}"></script>
     <script src="{% static 'js/signup_bootstrap_validation.js' %}"></script>
     <script src="{% static 'js/sb_date_of_birth.js' %}"></script>
 {% endblock %}

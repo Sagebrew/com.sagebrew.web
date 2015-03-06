@@ -27,52 +27,56 @@
                </div>
            </div>
         </div>
-        <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 col-lg-offset-4 col-md-offset-4 col-sm-offset-5 col-xs-offset-3">
-            <button class="btn dropdown-toggle sb_btn_icon" type="button"
-                    data-toggle="dropdown">
-                <span class="sb_dropdown_icon fui-gear"></span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
-                role="menu" aria-labelledby="dropdown-menu">
-                {% if parent_object == user.username %}
-                    <li role="presentation"><a class="sb_post_dropdown_menu show_edit_post_class"
-                                               data-uuid="{{ object_uuid }}"
-                                               type="submit">Edit Post</a>
-                    </li>
-                    <li role="presentation" class="sb_divider"></li>
+        {% if parent_object == user.username %}
+            <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 col-lg-offset-4 col-md-offset-4 col-sm-offset-5 col-xs-offset-3">
+                <button class="btn dropdown-toggle sb_btn_icon" type="button"
+                        data-toggle="dropdown">
+                    <span class="sb_dropdown_icon fui-gear"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
+                    role="menu" aria-labelledby="dropdown-menu">
+                    {% if parent_object == user.username %}
+                        <li role="presentation"><a class="sb_post_dropdown_menu show_edit_post_class"
+                                                   data-uuid="{{ object_uuid }}"
+                                                   type="submit">Edit Post</a>
+                        </li>
+                        <li role="presentation" class="sb_divider"></li>
 
-                    <li role="presentation"> <a class='sb_post_dropdown_menu delete_object-action'
-                                               data-current_pleb="{{ current_user }}"
-                                               data-object_uuid="{{ object_uuid }}"
-                                               data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Delete Post</a>
-                    </li>
-                {% else %}
-                    <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action'
-                                               data-flag_reason='spam'
-                                               data-current_user="{{ current_user }}"
-                                               data-object_uuid="{{ object_uuid }}"
-                                               data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Spam
-                                               </a>
-                    </li>
-                    <li role="presentation" class="sb_divider"></li>
-                    <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action'
-                                               data-flag_reason='explicit'
-                                               data-current_user="{{ current_user }}"
-                                               data-object_uuid="{{ object_uuid }}"
-                                               data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Explicit
-                                               </a>
-                    </li>
-                    <li role="presentation" class="sb_divider"></li>
-                    <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action'
-                                               data-flag_reason='other'
-                                               data-current_user="{{ current_user }}"
-                                               data-object_uuid="{{ object_uuid }}"
-                                               data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Other
-                                               </a>
-                    </li>
-                {% endif %}
-            </ul>
-        </div>
+                        <li role="presentation"> <a class='sb_post_dropdown_menu delete_object-action'
+                                                   data-current_pleb="{{ current_user }}"
+                                                   data-object_uuid="{{ object_uuid }}"
+                                                   data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Delete Post</a>
+                        </li>
+                    {% else %}
+                        {% if debug %}
+                            <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action'
+                                                       data-flag_reason='spam'
+                                                       data-current_user="{{ current_user }}"
+                                                       data-object_uuid="{{ object_uuid }}"
+                                                       data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Spam
+                                                       </a>
+                            </li>
+                            <li role="presentation" class="sb_divider"></li>
+                            <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action'
+                                                       data-flag_reason='explicit'
+                                                       data-current_user="{{ current_user }}"
+                                                       data-object_uuid="{{ object_uuid }}"
+                                                       data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Explicit
+                                                       </a>
+                            </li>
+                            <li role="presentation" class="sb_divider"></li>
+                            <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action'
+                                                       data-flag_reason='other'
+                                                       data-current_user="{{ current_user }}"
+                                                       data-object_uuid="{{ object_uuid }}"
+                                                       data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Other
+                                                       </a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+            </div>
+        {% endif %}
     </div>
     <div class="row">
             <div class="col-lg-1 hidden-md hidden-sm hidden-xs sb_vote_wrapper">
@@ -98,13 +102,15 @@
                         {% endif %}
                     </div>
                     {% if object_vote_count|length_is:"1" %}
-                        <div class="col-lg-12 col-lg-offset-3 vote_count">
+                        <div class="col-lg-12 col-lg-offset-2 vote_count" style="margin-left: 16px;">
                     {% elif object_vote_count|length_is:"2" %}
                         <div class="col-lg-12 col-lg-offset-2 vote_count">
                     {% elif object_vote_count|length_is:"3" %}
                         <div class="col-lg-12 col-lg-offset-1 vote_count">
+                    {% elif object_vote_count|length_is:"4" %}
+                        <div class="col-lg-12 col-lg-offset-0 vote_count">
                     {% else %}
-                        <div class="col-lg-12 col-lg-offset-1 vote_count">
+                        <div class="col-lg-12 col-lg-offset-0 vote_count">
                     {% endif %}
                         <h6>
                             {{ object_vote_count }}
@@ -136,37 +142,44 @@
             <div class="sb_post_body" id="sb_content_{{ object_uuid }}">
                 {{ content|linebreaksbr }}
             </div>
+            <div id="edit_container_{{ object_uuid }}" style="display: none">
+                <div class="row-fluid">
+                    <textarea class="form-control edit_post_input_class"
+                              id="{{ object_uuid }}"
+                              name="edit_post_input"
+                              rows="1">{{ content }}</textarea>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 col-lg-offset-8 col-md-offset-8 col-sm-offset-8">
+                        <button class='btn btn-block btn-primary sb_btn_fill edit_object-action'
+                           id="edit_post_button_id"
+                           data-object_type="01bb301a-644f-11e4-9ad9-080027242395"
+                           data-parent_object="{{ parent_object }}"
+                           data-object_uuid="{{ object_uuid }}"
+                           data-datetime="{{ datetime }}">Edit Post</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
-    {% include "sb_comments.html" %}
+    <div id="sb_comments_container_{{ object_uuid }}">
+        {% include "sb_comments.html" %}
+    </div>
     {% comment %}
         This area is for inputing a new comment. The include is needed for population of existing comments.
     {% endcomment %}
     <div class="row">
+        <form id="commentSubmitForm">
         <div class="input-group sb_comment">
-            <textarea class="input-group form-control sb_comment_input "
+            <textarea class="input-group form-control sb_comment_input"
                       id="post_comment_on_{{ object_uuid }}"
                       rows="2"
+                      name="comment_content"
                       placeholder="Write your comment..."></textarea>
             <a class="btn input-group-btn sb_btn_comment_icon comment-action"
                data-object_uuid="{{ object_uuid }}"
-               data-current_pleb="{{ current_user }}"
                data-object_type="01bb301a-644f-11e4-9ad9-080027242395"><span class="fui-new"></span></a>
         </div>
-        <div id="divid_{{ object_uuid }}"
-             style="display: none">
-            <textarea class="form-control edit_post_input_class"
-                      id="{{ object_uuid }}"
-                      name="edit_post_input"
-                      rows="1"
-                      placeholder="Edit your post..."></textarea>
-            <a class='btn btn-primary edit_object-action'
-               id="edit_post_button_id"
-               data-object_type="01bb301a-644f-11e4-9ad9-080027242395"
-               data-parent_object="{{ parent_object }}"
-               data-object_uuid="{{ object_uuid }}"
-               data-datetime="{{ datetime }}">Submit</a>
-        </div>
+        </form>
     </div>
 </div>

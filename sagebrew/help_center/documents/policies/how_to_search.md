@@ -1,8 +1,4 @@
 # How do I search? #
-There is a search bar at the top of your profile and homepage. By clicking 
-on the search bar you can search for your friends, conversation topics, 
-representatives, groups, organizations, and events. 
+There is a search bar at the top of each page. This search bar recognizes what page you're on and adjusts results accordingly. If you're on the homepage you'll be able to search homepage related articles, issues, private conversations, friends etc. If you're in the Conversation Area you'll be able to search through the public conversation archives. By clicking 
+on the search bar you can type in keywords related to your inquiry and hit enter to search. 
 
-In the Public Conversation area there is a more detailed search bar that allows 
-you to search through conversations and relevant topics. You may search through 
-the entire archive of Sagebrew's Public Conversations. 

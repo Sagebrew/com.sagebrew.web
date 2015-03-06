@@ -3,7 +3,7 @@
 .sb_general{
   color: @sb_dark_blue;
   word-wrap: break-word;
-  h1 {
+  h1{
     font-weight: bold;
     font-size: 30px;
   }
@@ -23,8 +23,9 @@
     font-size: 24px;
   }
   h5{
-    font-weight: bold;
+    font-weight: normal;
     font-size: 22px;
+    color: @sb_grey_dark;
   }
   h6{
     font-weight: bold;
@@ -108,7 +109,7 @@
   padding-top: 0;
   h2{
     margin: 0 0 0 0;
-    margin-bottom: opx;
+    margin-bottom: 0px;
   }
 }
 .sb_channel_block{
@@ -122,7 +123,7 @@
   background-color: @sb_green_extra_light;
   min-height: 600px;
 }
-.sb_goals_block {
+.sb_goals_block{
   &:extend(.sb_action_content_block);
   height: 300px;
   min-height: 0;
@@ -138,7 +139,7 @@
   background-color: @sb_grey_extra_light;
   width: 100%;
 }
-.wallpaper_profile {
+.wallpaper_profile{
   &:extend(.sb_wallpaper);
   height: 250px;
   margin-top: 30px;
@@ -174,13 +175,6 @@
   &:extend(.sb_wall);
   margin-top: 30px;
 }
-.sb_action_wall{
-  &:extend(.sb_wall);
-  h5{
-    color: @sb_grey_dark;
-    font-weight: normal;
-  }
-}
 // Border
 .sb_border{
   border-radius: 5px;
@@ -214,7 +208,7 @@
 .sb_btn{
   background-color: @sb_green;
 }
-.sb_btn_space {
+.sb_btn_space{
   &:extend(.sb_btn);
   margin-bottom: 10px;
   margin-top: 10px;
@@ -258,7 +252,7 @@
 }
 .vote_up{
   &:extend(.sb_btn_vote);
-  &:hover {
+  &:hover{
     color: @sb_green;
   }
 }
@@ -280,7 +274,7 @@
     font-size: 12pt;
   }
 
-  p {
+  p{
 
     font-weight: bold;
     margin-bottom: -5px;
@@ -338,7 +332,7 @@
     border-top: 0px;
   }
 }
-.sb_secondary_nav {
+.sb_secondary_nav{
   &:extend(.sb_nav);
   background-color: @sb_grey_light;
   height: 50px;
@@ -388,7 +382,7 @@
   border: none;
   height: auto;
   margin-top: 15px;
-  input {
+  input{
     border-radius: 5px;
     border: solid;
     border-width: 1px;
@@ -396,7 +390,7 @@
   }
 }
 // Footers
-.sb_footer {
+.sb_footer{
   background-color: transparent;
   position: relative;
   margin-left: -15px;
@@ -407,7 +401,7 @@
   input {
     width: 348px;
   }
-  button {
+  button{
     width: 348px;
   }
 }
@@ -446,7 +440,7 @@
   }
 }
 .sb_dropdown {
-  ul {
+  ul{
     background-color: @white;
     width: auto;
     border-top: solid;
@@ -480,14 +474,14 @@
   height: 120px;
   width: 120px;
 }
-.sb_dropdown_icon {
+.sb_dropdown_icon{
   color: @sb_green_extra_light;
 }
 .sb_post_dropdown_menu{
   text-align: left;
   padding-left: 20px;
 }
-.sb_profile_container_wall {
+.sb_profile_container_wall{
   background-color: @sb_green_wall;
   height: auto;
   margin-top: 15px;
@@ -501,31 +495,31 @@
   padding-bottom: 30px;
   border-radius: 2px;
 }
-.sb_registration_header {
+.sb_registration_header{
   margin-left: 60px;
 }
-.sb_registration_step {
+.sb_registration_step{
   margin-right: 0;
   margin-top: 35px;
   margin-left: 1%;
   padding-right: 30px;
 }
-.sb_row_continue {
+.sb_row_continue{
   margin-left: 15px;
   margin-right: 15px;
   margin-bottom: 30px;
 }
-.sb_address_fix {
+.sb_address_fix{
   padding-left: 4px;
   padding-right: 4px;
 }
-.sb_deco_line {
+.sb_deco_line{
   border-bottom: solid 2px;
   border-color: @sb_green_medium;
   margin-bottom: 35px;
   padding-top: 5px;
 }
-.sb_btn_modal {
+.sb_btn_modal{
   a{
     color: @white;
     &:visited{
@@ -533,7 +527,7 @@
     }
   }
 }
-.sb_sign_up_background {
+.sb_sign_up_background{
     position: fixed;
     float: left;
     width: 100%;
@@ -541,7 +535,7 @@
     margin-top: -15px;
     margin-left: -16px;
 }
-.sb_signup_headline_containter {
+.sb_signup_headline_containter{
     margin-top: @sb_common_margin_positive;
     margin-bottom: @sb_common_margin_positive;
     position: relative;
@@ -602,7 +596,7 @@
       }
 }
 
-.sb_profile_pic {
+.sb_profile_pic{
   border-color: @sb_grey_light;
   margin-left: @sb_common_margin_positive;
   margin-top: 65px;
@@ -624,7 +618,7 @@
   padding-bottom: @sb_common_padding_positive;
   background: cover;
 }
-.sb_container_header {
+.sb_container_header{
   padding-left: @sb_common_padding_positive;
   padding-top: 5px;
   border-bottom: solid;
@@ -681,7 +675,7 @@
     display: block;
   }
 }
-.block_vertical {
+.block_vertical{
   margin-top: 15px;
 }
 .sb_divider{
@@ -727,7 +721,7 @@
     border-color: @sb_grey;
     padding-bottom: 5px;
 }
-.sb_post_container {
+.sb_post_container{
   background-color: @sb_green_wall;
   height:70px;
   padding-top: 10px;

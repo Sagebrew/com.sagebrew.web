@@ -22,8 +22,9 @@
   font-size: 24px;
 }
 .sb_general h5 {
-  font-weight: bold;
+  font-weight: normal;
   font-size: 22px;
+  color: #838c92;
 }
 .sb_general h6 {
   font-weight: bold;
@@ -105,7 +106,7 @@
 }
 .sb_bio_block h2 {
   margin: 0 0 0 0;
-  margin-bottom: opx;
+  margin-bottom: 0px;
 }
 .sb_channel_block {
   padding: 15px 0 15px 0;
@@ -156,8 +157,7 @@
   margin: 0 5% 0 5%;
 }
 .sb_wall,
-.sb_conversation_wall,
-.sb_action_wall {
+.sb_conversation_wall {
   height: auto;
   background-color: #e0e7e1;
   padding: 15px 15px 15px 15px;
@@ -166,10 +166,6 @@
 }
 .sb_conversation_wall {
   margin-top: 30px;
-}
-.sb_action_wall h5 {
-  color: #838c92;
-  font-weight: normal;
 }
 .sb_border,
 .sb_border_question,

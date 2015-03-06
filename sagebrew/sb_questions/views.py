@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from rest_framework.decorators import (api_view, permission_classes)
 
 from api.utils import spawn_task
+from sb_stats.tasks import update_view_count_task
 from sb_docstore.tasks import build_question_page_task
 from sb_docstore.utils import get_question_doc
 from sb_registration.utils import verify_completed_registration
@@ -206,6 +207,9 @@ def get_question_view(request):
             return Response(html_array, status=200)
 
         elif question_data['sort_by'] == 'uuid':
+            task_data = {"object_uuid": question_data['question_uuid'],
+                         "object_type": "0274a216-644f-11e4-9ad9-080027242395"}
+            spawn_task(update_view_count_task, task_data)
             res = get_question_doc(question_data['question_uuid'],
                                    'public_questions', 'public_solutions')
             if res == {}:

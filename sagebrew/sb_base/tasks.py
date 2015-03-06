@@ -35,6 +35,11 @@ def create_object_relations_task(sb_object, current_pleb, question=None,
         raise create_object_relations_task.retry(exc=res, countdown=3,
                                                  max_retries=None)
 
+    res = sb_object.create_view_count()
+    if isinstance(res, Exception) is True:
+        raise create_object_relations_task.retry(exc=res, countdown=3,
+                                                 max_retries=None)
+
     object_data = sb_object.get_single_dict()
     if isinstance(object_data, Exception) is True:
         raise create_object_relations_task.retry(exc=object_data, countdown=3,

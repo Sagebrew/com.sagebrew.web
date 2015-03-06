@@ -148,5 +148,9 @@
         "table_name": "restrictions",
         "hash_key": "parent_object",
         "range_key": "restriction"
+    },
+    {
+        "table_name": "view_counts",
+        "hash_key": "parent_object"
     }
 ]

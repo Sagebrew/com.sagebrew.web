@@ -7,8 +7,10 @@ $(document).ready(function () {
     editor.hooks.set("insertImageDialog", function(callback){
         setTimeout(function(){
             $("#fileModal").modal();
-            $("insert_image_post").click(function(e){
+            $("#insert_image_post").click(function(e){
                 e.preventDefault();
+                alert("this is a test");
+                /*
                 if($(".upload-photo").length>0) {
                     var images;
                     $(".upload-photo").each(function () {
@@ -22,6 +24,7 @@ $(document).ready(function () {
                     callback(image);
                 }
                 $("#fileModal").modal("hide");
+                */
             });
         }, 0);
         return true;

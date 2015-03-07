@@ -234,6 +234,8 @@ class SBContent(SBVoteableContent):
     def increment_view_count(self):
         return self.view_count_node.increment()
 
+    def get_view_count(self):
+        return self.view_count_node.all()[0].view_count
 
 
 class SBVersioned(SBContent):

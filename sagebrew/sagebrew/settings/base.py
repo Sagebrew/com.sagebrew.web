@@ -192,6 +192,7 @@ INSTALLED_APPS = (
     'sb_requirements',
     'sb_reps',
     'sb_search',
+    'sb_stats',
     'sb_tag',
     'sb_trends',
     'sb_uploads',

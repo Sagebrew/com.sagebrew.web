@@ -6,6 +6,7 @@ from datetime import datetime
 
 from django.template.loader import render_to_string
 from django.template import RequestContext
+from django.conf import settings
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
@@ -14,6 +15,7 @@ from rest_framework.response import Response
 from api.utils import (spawn_task)
 from sb_docstore.utils import get_wall_docs
 from sb_docstore.tasks import build_wall_task
+from sb_stats.tasks import update_view_count_task
 from .tasks import save_post_task
 from .utils import (get_pleb_posts)
 from .forms import (SavePostForm, GetPostForm)
@@ -95,6 +97,12 @@ def get_user_posts(request):
             for post in posts:
                 html_array.append(post.render_post_wall_html(
                     post_form.cleaned_data['current_user']))
+                task_data = {
+                    "object_type": dict(settings.KNOWN_TYPES)[post.object_type],
+                    "object_uuid": post.sb_id
+                }
+                print task_data
+                spawn_task(update_view_count_task, task_data)
             task_dict = {'username': request.user.username}
             spawn_task(task_func=build_wall_task, task_param=task_dict)
         else:
@@ -113,6 +121,13 @@ def get_user_posts(request):
                 post_dict['object_vote_count'] = "10.5k"
                 post_dict['vote_type'] = "true"
                 post_dict['current_pleb'] = request.user
+                task_data = {
+                    "object_type": dict(
+                        settings.KNOWN_TYPES)[post_dict['object_type']],
+                    'object_uuid': post_dict['object_uuid']
+                }
+                print task_data
+                spawn_task(update_view_count_task, task_data)
                 for item in post_dict["comments"]:
                     item["vote_count"] = str(item["vote_count"])
                 c = RequestContext(request, post_dict)

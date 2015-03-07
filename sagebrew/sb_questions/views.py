@@ -1,4 +1,5 @@
 from uuid import uuid1
+from django.conf import settings
 from django.shortcuts import render
 from django.template import Context
 from django.core.urlresolvers import reverse
@@ -208,7 +209,8 @@ def get_question_view(request):
 
         elif question_data['sort_by'] == 'uuid':
             task_data = {"object_uuid": question_data['question_uuid'],
-                         "object_type": "0274a216-644f-11e4-9ad9-080027242395"}
+                         "object_type": dict(settings.KNOWN_TYPES)[
+                             "0274a216-644f-11e4-9ad9-080027242395"]}
             spawn_task(update_view_count_task, task_data)
             res = get_question_doc(question_data['question_uuid'],
                                    'public_questions', 'public_solutions')
@@ -234,6 +236,11 @@ def get_question_view(request):
                 else:
                     return Response(question_by_uuid, status=200)
             else:
+                for answer in res['answers']:
+                    spawn_task(update_view_count_task,
+                               {'object_uuid': answer['object_uuid'],
+                                'object_type': dict(settings.KNOWN_TYPES)[
+                                    answer['object_type']]})
                 t = get_template("question_detail.html")
                 c = Context(res)
                 return Response(t.render(c), status=200)

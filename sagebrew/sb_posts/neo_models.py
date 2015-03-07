@@ -78,7 +78,8 @@ class SBPost(SBNonVersioned):
                     'comments': comment_array,
                     'current_user': pleb,
                     'datetime': unicode(self.date_created),
-                    'object_type': self.object_type}
+                    'object_type': self.object_type,
+                    'view_count': self.get_view_count()}
         except CypherException as e:
             return e
 

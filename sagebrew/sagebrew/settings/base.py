@@ -147,6 +147,7 @@ TEMPLATE_DIRS = (
     '%s/sb_search/templates/' % PROJECT_DIR,
     '%s/help_center/templates/' % PROJECT_DIR,
     '%s/sb_public_official/templates/' % PROJECT_DIR,
+    '%s/sb_privileges/templates/' % PROJECT_DIR,
 )
 
 FIXTURE_DIRS = (

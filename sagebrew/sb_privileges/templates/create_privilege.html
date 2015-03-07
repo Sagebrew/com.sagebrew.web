@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block content %}
+<div class="privilege_form">
+    {{ privilege_form.as_table }}
+</div>
+<div class="action_form_container" id="action_form_wrapper">
+    {% include 'action_form.html' %}
+</div>
+<button class="btn btn-sm sb_btn get_action_form">Add Action</button>
+<div class="requirement_form_container" id="requirement_form_wrapper">
+    {% include 'requirement_form.html' %}
+</div>
+<button class="btn btn-sm sb_btn get_requirement_form">Add Requirement</button>
+
+<button class="btn btn-sm sb_btn submit_privilege_form">Submit Privilege</button>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/get_action.js' %}"></script>
+    <script src="{% static 'js/get_requirement.js' %}"></script>
+    <script src="{% static 'js/submit_privilege.js' %}"></script>
+{% endblock %}

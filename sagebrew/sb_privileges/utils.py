@@ -4,7 +4,8 @@ from neomodel import (DoesNotExist, CypherException)
 
 from plebs.neo_models import Pleb
 from sb_docstore.utils import add_object_to_table
-from .neo_models import SBPrivilege
+from sb_requirements.neo_models import SBRequirement
+from .neo_models import SBPrivilege, SBAction
 
 def manage_privilege_relation(username):
     try:
@@ -46,3 +47,6 @@ def manage_privilege_relation(username):
             act_dict['parent_object'] = username
             res = add_object_to_table('actions', act_dict)
     return True
+
+def create_privilege(privilege_data, actions, requirements):
+    pass

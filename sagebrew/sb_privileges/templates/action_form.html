@@ -1,3 +1,5 @@
-<form class="action_form">
+<form class="action_form" id="action_form_id">
+    {% csrf_token %}
     {{ action_form.as_table }}
+    <button class="btn btn-sm sb_btn" id="submit_action_form">Submit Action</button>
 </form>

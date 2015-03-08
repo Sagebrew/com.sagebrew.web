@@ -15,6 +15,7 @@ $( document ).ready(function() {
             success: function(data){
                 $("#requirement_form_wrapper").append(data['html']);
                 enable_post_functionality();
+                $(".get_requirement_form").attr('disabled', 'disabled');
             }
         });
     });

@@ -49,4 +49,59 @@ def manage_privilege_relation(username):
     return True
 
 def create_privilege(privilege_data, actions, requirements):
-    pass
+    try:
+        privilege = SBPrivilege(**privilege_data).save()
+    except (CypherException, IOError) as e:
+        return e
+    for action in actions:
+        try:
+            sb_action = SBAction(**action).save()
+            sb_action.privilege.connect(privilege)
+            privilege.actions.connect(sb_action)
+        except (CypherException, IOError) as e:
+            return e
+    for requirement in requirements:
+        try:
+            sb_requirement = SBRequirement(**requirement).save()
+            privilege.requirements.connect(sb_requirement)
+        except (CypherException, IOError) as e:
+            return e
+    return True
+
+def create_action(action, object_type, url, html_object=None):
+    try:
+        action = SBAction(action=action, object_type=object_type, url=url,
+                          html_object=html_object)
+        action.save()
+    except (CypherException, IOError) as e:
+        return e
+    return True
+
+def create_requirement(url, key, operator, condition, auth_type=None):
+    try:
+        requirement = SBRequirement(url=url, key=key, operator=operator,
+                                    condition=condition, auth_type=auth_type)
+        requirement.save()
+    except (CypherException, IOError) as e:
+        return e
+    return True
+
+def get_actions():
+    action_list = []
+    try:
+        actions = SBAction.nodes.all()
+    except (CypherException, IOError) as e:
+        return e
+    for action in actions:
+        action_list.append(action.get_dict())
+    return action_list
+
+def get_requirements():
+    req_list = []
+    try:
+        requirements = SBRequirement.nodes.all()
+    except (CypherException, IOError) as e:
+        return e
+    for req in requirements:
+        req_list.append(req.get_dict())
+    return req_list

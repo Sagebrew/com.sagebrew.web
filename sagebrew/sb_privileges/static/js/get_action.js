@@ -13,9 +13,9 @@ $( document ).ready(function() {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function(data){
-                console.log(data);
                 $("#action_form_wrapper").append(data['html']);
                 enable_post_functionality();
+                $(".get_action_form").attr('disabled', 'disabled');
             }
         });
     });

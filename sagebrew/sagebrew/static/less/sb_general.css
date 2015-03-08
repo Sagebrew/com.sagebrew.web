@@ -146,6 +146,9 @@
 .sb_about_block h5 {
   margin-bottom: 5px;
 }
+.sb_update_block h1 {
+  margin-bottom: 15px;
+}
 .sb_wallpaper,
 .wallpaper_profile,
 .sb_wallpaper_action {

@@ -6,6 +6,8 @@
 }
 .sb_markdown h1 {
   border-bottom: 2px solid #b7bfbb;
+  padding-bottom: 5px;
+  margin-top: 15px;
   font-size: 28px;
   font-weight: bold;
 }

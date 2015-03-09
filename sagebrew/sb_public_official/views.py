@@ -9,7 +9,8 @@ from sb_registration.utils import (verify_completed_registration)
 def saga(request, username):
     representative = {"username": username}
     return render(request, 'action_page.html', {"representative":
-                                                    representative})
+                                                    representative,
+                                                "registered": False})
 
 
 @login_required()
@@ -18,7 +19,8 @@ def saga(request, username):
 def updates(request, username):
     representative = {"username": username}
     return render(request, 'action_page.html', {"representative":
-                                                    representative})
+                                                    representative,
+                                                "registered": False})
 
 
 @login_required()
@@ -27,4 +29,5 @@ def updates(request, username):
 def about(request, username):
     representative = {"username": username}
     return render(request, 'action_page.html', {"representative":
-                                                    representative})
+                                                    representative,
+                                                "registered": False})

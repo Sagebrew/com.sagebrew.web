@@ -1,9 +1,9 @@
 # How do I report suspicious activity by a Representative? #
-If you have a valid reason for believing that a representative should be 
+If you have a valid reason for believing that a representative or candidate should be 
 reported for suspicious activity, you may flag that representative by going 
-to that representative's Action Page and clicking the "flag this
-representative" button. This will open a ticket where you'll be able to 
-offer a reason for flagging that representative. 
+to that representative's Action Page and clicking the <i class="fa fa-flag"></i>.
+This will open a ticket where you'll be able to offer a reason for flagging 
+that representative. 
 
 Valid reasons for flagging a representative:
 

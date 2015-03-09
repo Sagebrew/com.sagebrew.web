@@ -1,6 +1,6 @@
 # Why should I create an account? #
 There are many exciting benefits and opportunities that come with your very 
-own Sagebrew account! As the nation's new hub for open-source, real world
+own Sagebrew account! As the nation's new hub for real world
 problem solving, a Sagebrew account is a great way to assure that your voice be 
 heard. As a Sagebrew member you will receive the following benefits:
 
@@ -12,11 +12,9 @@ heard. As a Sagebrew member you will receive the following benefits:
 * Easily contribute to individuals running for public office in your area
 * Work with others to find viable solutions to real world problems
 * Ability to launch a campaign for public office
-* Create and organize events, rallies, and gatherings
-* Draft bills and collect signatures to present to your representatives
 
 Most importantly, you should create a Sagebrew account because you have a 
-burning desire to leave the world in a better state than you came into it. 
+burning desire to leave the world in a better state than when you came into it. 
 That's really what makes a good person, isn't it? To discuss the big questions 
 and promote a society that works to actively benefit all members? We like to 
 think so, and we like to think that at the heart of each and every one of us 

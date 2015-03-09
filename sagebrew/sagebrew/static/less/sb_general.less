@@ -322,10 +322,13 @@
   }
 }
 .sb_spy{
-  color: @sb_grey;
+  color: @sb_grey_dark;
   background-color: @white;
   padding: 3px 10px 2px 6px;
   margin-top: 6px;
+  &:hover{
+    color: @sb_grey;
+  }
 }
 .sb_btn_nav{
   &:extend(.sb_btn_icon);

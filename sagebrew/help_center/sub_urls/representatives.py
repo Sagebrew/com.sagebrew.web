@@ -36,8 +36,7 @@ urlpatterns = patterns(
     url(r'^how_to_export_contributions/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
-            "title": "I need to file my contributions, how do I retrieve the "
-                     "ones I received through Sagebrew?",
+            "title": "I need to file the contributions to my campaign",
             "description": "Short description of how representatives can export"
                            " the information associated with the the "
                            "contributions they've received.",
@@ -57,6 +56,17 @@ urlpatterns = patterns(
             "category": "representatives"
         },
         name="how_to_get_on_the_ballot"),
+    url(r'^how_to_run/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": "How to run for office",
+            "description": "Information on what you need to know if you want to "
+                           "run for public office.",
+            "content_path":
+                "%show_to_run_for_office.html" % (settings.HELP_DOCS_PATH),
+            "category": "representatives"
+        },
+        name="how_to_run"),
     url(r'^name_on_ballot_to_run/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={

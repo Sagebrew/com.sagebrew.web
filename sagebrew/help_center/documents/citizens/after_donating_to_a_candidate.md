@@ -1,10 +1,16 @@
 # What happens when I donate to a Candidate? #
-After you've donated to a candidate you will receive an immediate email 
-confirmation stating that you've donated "x" amount of money to candidate "y". 
-Your donation will be held by Sagebrew until the candidate's Donation Goal has 
-been reached, at which time you will receive a second email with a notification
-that confirms your donation. The representative you donated to will also receive 
-notice that you have donated to their cause. They will not receive anything 
-more than your name, your district, and the amount you donated.  In the instance 
-that a candidate does not reach their Donation Goal, your donation will be 
-refunded minus a small transaction fee.
+After you've indicated you'd like to donate to a candidate you will receive an email 
+stating that you will donate the amount you specified to the candidate you selected 
+upon them reaching their [Donation Goal][1]. 
+
+You will not be charged and your donation will not be provided to the candidate 
+until their Donation Goal has been reached. When the goal is reached you will be
+billed and you will receive a second email with a notification that confirms your 
+donation. The representative you donated to will also receive notice that you 
+have donated to their cause.
+
+In the instance that a candidate does not reach their Donation Goal, you will 
+not be charged.
+
+
+[1]: /help/citizens/donation_goals/

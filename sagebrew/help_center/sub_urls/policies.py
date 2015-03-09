@@ -9,9 +9,8 @@ urlpatterns = patterns(
         template_name="help_page.html"),
         kwargs={
             "title": "Can I Advertise on Sagebrew?",
-            "description": "We attempt to stay as neutral as possible and "
-                           "believe allowing advertisement on the site would "
-                           " hinder our credibility. We don't allow third "
+            "description": "We attempt to stay as neutral as possible. "
+                           "We don't allow third "
                            "party advertising so that we ensure our focus stays"
                            " on our users and not those trying to exploit "
                            "them.",
@@ -92,7 +91,7 @@ urlpatterns = patterns(
             "category": "policies"
         },
         name="markdown_formatting"),
-    url(r'^more_help/$', TemplateView.as_view(
+    url(r'^support/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "What if I need more help?",
@@ -102,7 +101,7 @@ urlpatterns = patterns(
                 "%smore_help.html" % (settings.HELP_DOCS_PATH),
             "category": "policies"
         },
-        name="more_help"),
+        name="support"),
     url(r'^reporting_suspicious_behavior/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={

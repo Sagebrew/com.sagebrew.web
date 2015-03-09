@@ -5,57 +5,31 @@ from django.conf import settings
 
 urlpatterns = patterns(
     'help_center.views',
-    url(r'^closed_question/$', TemplateView.as_view(
-        template_name="help_page.html"),
-        kwargs={
-            "title": "What does it mean if a Question is Closed?",
-            "description": "Closed questions are questions that don't warrant "
-                           "deletion but might be lacking in quality.",
-            "content_path":
-                "%swhy_closed_question.html" % (settings.HELP_DOCS_PATH),
-            "category": "questions"
-        },
-        name="closed_question"),
-    url(r'^closure_of_a_question/$', TemplateView.as_view(
-        template_name="help_page.html"),
-        kwargs={
-            "title": "What if I disagree with the closure of a question? "
-                     "How can I reopen it?",
-            "description": "Closed questions cannot be reopened. If your "
-                           "Question has been flagged for closure you must "
-                           "provide evidence that it should not be closed "
-                           "prior to the Admin Council concluding their vote "
-                           "on the content.",
-            "content_path":
-                "%sclosure_of_a_question.html" % (settings.HELP_DOCS_PATH),
-            "category": "questions"
-        },
-        name="closure_of_a_question"),
-    url(r'^context_to_a_question/$', TemplateView.as_view(
+    url(r'^context/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "Why is adding Context to Questions important?",
             "description": "Bringing context to a question allows others to"
                            "gain a better understanding of the scope of the"
-                           "question and provide a more accurate solution",
+                           "Question and provide more accurate Solutions",
             "content_path":
                 "%scontext_to_a_question.html" % (settings.HELP_DOCS_PATH),
             "category": "questions"
         },
         name="context_to_a_question"),
-    url(r'^duplicate_questions/$', TemplateView.as_view(
+    url(r'^duplicates/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
-            "title": "Why are some questions marked as duplicate?",
-            "description": "It helps to keep  conversations on track if "
-                           "duplicate questions are marked and users are"
+            "title": "Why are some things marked as duplicate?",
+            "description": "It helps to keep  conversations on track. "
+                           "Duplicate questions are marked and users are"
                            " informed where the core conversation is"
                            " happening.",
             "content_path":
-                "%sduplicate_question.html" % (settings.HELP_DOCS_PATH),
+                "%sduplicates.html" % (settings.HELP_DOCS_PATH),
             "category": "questions"
         },
-        name="duplicate_questions"),
+        name="duplicates"),
     url(r'^good_question/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -88,7 +62,7 @@ urlpatterns = patterns(
             "description": "Sagebrew attempts to maintain a level of quality "
                            "within the conversations on the site. This is "
                            "achieved through active contribution from the "
-                           "community and notifications to users about "
+                           "Community and notifications to users about "
                            "breaking the quality standards.",
             "content_path":
                 "%squality_standards_message.html" % (settings.HELP_DOCS_PATH),
@@ -121,18 +95,6 @@ urlpatterns = patterns(
             "category": "questions"
         },
         name="questions_no_longer_accepted"),
-    url(r'^seasoned_conversation/$', TemplateView.as_view(
-        template_name="help_page.html"),
-        kwargs={
-            "title": 'What does it mean if a Conversation is "Seasoned"?',
-            "description": "Conversations eventually obtain a solid foundation "
-                           "where many users have agreed on a Solution. If "
-                           "this occurs a Conversation becomes Seasoned.",
-            "content_path":
-                "%sseasoned_description.html" % (settings.HELP_DOCS_PATH),
-            "category": "questions"
-        },
-        name="seasoned_conversation"),
     url(r'^solution_to_question/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -185,16 +147,22 @@ urlpatterns = patterns(
             "category": "questions"
         },
         name="traffic_no_solutions"),
-    url(r'^why_are_questions_deleted/$', TemplateView.as_view(
+)
+
+
+if settings.DEBUG is True:
+    url(r'^closure_of_a_question/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
-            "title": "Why and how are some Questions deleted?",
-            "description": "There are few reasons why a Question may be "
-                           "deleted. This article details what those reasons"
-                           " are.",
+            "title": "What if I disagree with the closure of a question? "
+                     "How can I reopen it?",
+            "description": "If something you've contributed has been closed, "
+                           "the only way to get it reopened is by explaining "
+                           "your case to the Admin Council. They have the right"
+                           " to disagree with your case and keep the content "
+                           "closed.",
             "content_path":
-                "%swhy_are_questions_deleted.html" % (settings.HELP_DOCS_PATH),
+                "%sclosure_of_a_question.html" % (settings.HELP_DOCS_PATH),
             "category": "questions"
         },
-        name="why_are_questions_deleted"),
-)
+        name="closure_of_a_question"),

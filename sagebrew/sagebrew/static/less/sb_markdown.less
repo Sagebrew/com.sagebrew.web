@@ -14,19 +14,23 @@
     font-weight: bold;
   }
   h3 {
+    padding-top: 20px;
     font-size: 22px;
     font-weight: bold;
   }
   h4 {
+    padding-top: 15px;
     font-size: 19px;
     font-weight: bold;
   }
   h5 {
+    padding-top: 15px;
     font-size: 19px;
     font-weight: bold;
     font-style: italic;
   }
   h6 {
+    padding-top: 15px;
     font-size: 17px;
     font-weight: bold;
     font-style: italic;
@@ -77,6 +81,19 @@
   }
   img {
     border-radius: @sb_common_radius;
+    max-width: 696px;
+    max-height: 696px;
+  }
+  blockquote{
+// This is how you would add the quotes next to the quote however does not work
+// as is
+//    &:before{
+//      content: "\201C";
+//      font-size: 80px;
+//      color: #7a7a7a;
+//    }
+    font-size: 11pt;
+    color: @sb_grey_dark;
   }
 }
 

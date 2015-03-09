@@ -8,10 +8,11 @@ Conversation area for existing Conversations via the search bar. There are a
 number of Conversation topics ranging from Environmental to Health to 
 Financial.
 
-The stakes in the Conversation area are higher as Reputation is on the line. 
+The stakes in the Conversation area are higher as [Reputation][1] is on the line. 
 This is a good thing! Great conversation will be rewarded with reputation 
 gains, while poor conversation is discouraged through reputation loss. 
-While reputation is by no means a direct indicator of the quality of a 
-conversation, it does offer enough incentive to provide meaningful insight. 
 So just remember when contributing in the conversation area that your ideas and 
 attitude are on public display. Let's start a conversation! 
+
+
+[1]: /help/reputation/

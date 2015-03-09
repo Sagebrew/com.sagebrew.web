@@ -15,6 +15,8 @@ urlpatterns = patterns(
         settings.STATIC_URL))),
     url(r'^login/$', login_view, name="login"),
     url(r'^logout/$', logout_view, name="logout"),
+    url(r'^terms/$',  RedirectView.as_view(
+        url='/help/terms/', permanent=False),name='terms_redirect'),
     url(r'^404/$', TemplateView.as_view(template_name="404.html"),
         name="404_Error"),
     (r'^contact_us/$', TemplateView.as_view(template_name="contact_us.html")),

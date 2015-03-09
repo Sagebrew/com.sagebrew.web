@@ -11,9 +11,9 @@ an inability to spark Questions.
       temporary suspension of your privilege to spark Questions.
 
 - Your Questions have repeatedly been Downvoted and are
-determined to be largely unhelpful or unoriginal.
+  determined to be largely unhelpful or unoriginal.
     - If you've been sparking Questions that aren't offensive
-      or inappropriate, but simply poor quality, your privilege to spark
+      or inappropriate, but simply are of poor quality, your privilege to spark
       Questions may be temporarily suspended. In this case, we suggest
       reading through some other Questions and Solutions to get
       an idea of what is expected in a Question.
@@ -25,6 +25,11 @@ determined to be largely unhelpful or unoriginal.
       of your privileges, including sparking Questions,
       will be temporarily suspended.
 
-If you are unhappy with Sagebrew's decision to suspend any of your
-privileges, you may open a ticket and email the Sagebrew Support team with
-your concerns or issues.
+Any suspensions in the Public Conversation area are allocated by the Community
+by [Flagging][1] content and the [Admin Council][2] voting in a two-thirds 
+agreement. Sagebrew staff does not have the power to reinstate privileges 
+prior to the completion of a suspension. 
+
+
+[1]: /help/privileges/flagging/
+[2]: /help/reputation/admin_council/

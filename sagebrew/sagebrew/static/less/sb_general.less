@@ -45,6 +45,7 @@
     color: @sb_green;
   }
 }
+
 //html tag padding fixes
 
 // Blocks
@@ -111,6 +112,7 @@
   background-color: transparent;
   padding-right: 0;
   margin-top: 40px;
+  padding-left: 0;
 }
 .sb_channel_block{
   &:extend(.block);
@@ -173,7 +175,14 @@
     margin-top: 30px;
     border-radius: 2px;
     height: auto;
-    min-height: 575px;
+    min-height: 445px;
+    padding: 15px;
+    h5{
+      margin-bottom: 15px;
+      margin-top: -15px;
+      padding-left: 15px;
+      padding-right: 15px;
+    }
 }
 
 // Walls
@@ -232,6 +241,9 @@
 // Buttons
 .sb_btn{
   background-color: @sb_green;
+}
+.sb_btn_disabled{
+  background-color: @sb_grey;
 }
 .sb_btn_space{
   &:extend(.sb_btn);

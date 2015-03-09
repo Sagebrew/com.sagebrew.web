@@ -63,7 +63,8 @@ urlpatterns = patterns(
                            "from the Conversation area.",
             "content_path":
                 "%swhy_solutions_removed.html" % (settings.HELP_DOCS_PATH),
-            "category": "solutions"
+            "category": "solutions",
+            "static_files": True,
         },
         name="why_are_solutions_removed"),
 )

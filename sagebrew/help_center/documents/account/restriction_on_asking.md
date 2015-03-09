@@ -1,5 +1,5 @@
 # Why is the system asking me to wait a day or more before asking another question? #
-1. If you have not yet achieved 10 reputation on Sagebrew, you are limited to 
+1. If you have not yet achieved 10 [Reputation][1] on Sagebrew, you are limited to 
    3 questions and solutions per day. This limit is in place to promote quality 
    questions and to ease new users into the system. You may have reached your 
    3 question limit for the day, and will need to wait until tomorrow before 
@@ -10,4 +10,7 @@
    conversations to be meaningful and thoughtful, and if you're pumping out 
    20 questions a day we can reasonably expect that you've sacrificed quality 
    for quantity. Plus, we don't want to flood the floor with so many questions
-   that the community doesn't have time to answer them all. 
+   that the community doesn't have time to provide solutions for them all. 
+
+
+[1]: /help/reputation/

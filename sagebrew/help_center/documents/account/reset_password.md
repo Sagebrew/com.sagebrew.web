@@ -10,7 +10,7 @@ registered Sagebrew email address and instructed to check your inbox.
 You will receive an email that will take you to a password reset page. 
 Enter your new password and confirm it. 
 
-Make sure that it's a password that you'll remember!
+Make sure that it's a secure password that you'll remember!
 
 
 [1]: /help/accounts/password_reset/

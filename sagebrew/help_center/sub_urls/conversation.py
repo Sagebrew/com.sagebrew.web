@@ -5,6 +5,17 @@ from django.conf import settings
 
 urlpatterns = patterns(
     'help_center.views',
+    url(r'^closed/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": "What does it mean if something is Closed?",
+            "description": "Something that is closed can no longer be "
+                           "interacted with.",
+            "content_path":
+                "%sclosed.html" % (settings.HELP_DOCS_PATH),
+            "category": "conversation"
+        },
+        name="closed"),
     url(r'^conversation_area/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -17,19 +28,57 @@ urlpatterns = patterns(
             "category": "conversation"
         },
         name="conversation_area"),
+    url(r'^deletions/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": "Why and how are some contributes deleted?",
+            "description": "There are few reasons why a contribution may be "
+                           "deleted. This article details what those reasons"
+                           " are.",
+            "content_path":
+                "%sdeletions.html" % (settings.HELP_DOCS_PATH),
+            "category": "conversation"
+        },
+        name="deletions"),
+    url(r'^one_question_per_week/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": "Why have I been limited to one question per week?",
+            "description": "If you've noticed you've been limited to one "
+                           "question per week, this article will help you "
+                           "understand why.",
+            "content_path":
+                "%sone_question_per_week.html" % (settings.HELP_DOCS_PATH),
+            "category": "conversation"
+        },
+        name="one_question_per_week"),
+    url(r'^research/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": "Research Study Methods and Value",
+            "description": "There are many forms of research that can assist in"
+                           " providing context to your Question or backing your"
+                           " Solution.",
+            "content_path":
+                "%sresearch.html" % (settings.HELP_DOCS_PATH),
+            "category": "conversation"
+        },
+        name="research"),
     url(r'^starting_a_public_conversation/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
-            "title": "How do I start a private conversation?",
-            "description": "Conversations out of the public eye can be a great"
-                           " way to throw ideas around with friends without "
-                           "losing any reputation.",
+            "title": "How do I start a public conversation?",
+            "description": "It's easy to start a Public Conversation by "
+                           "following these instructions. But please make sure "
+                           "to look around first and make sure there isn't "
+                           "already one brewing.",
             "content_path":
-                "%sstarting_a_public_conversation." % (settings.HELP_DOCS_PATH),
-            "category": "conversation"
+                "%sstarting_a_public_conversation.html" % (settings.HELP_DOCS_PATH),
+            "category": "conversation",
+            "static_files": True
         },
         name="starting_a_public_conversation"),
-    url(r'^protected_conversation/$', TemplateView.as_view(
+    url(r'^protected/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": 'What does it mean if a Conversation is "Protected"?',
@@ -40,11 +89,34 @@ urlpatterns = patterns(
                            "on valid Questions that attract a lot of attention "
                            "but bolster too much noise.",
             "content_path":
-                "%sprotected_conversation.html" % (settings.HELP_DOCS_PATH),
+                "%sprotected.html" % (settings.HELP_DOCS_PATH),
             "category": "conversation"
         },
-        name="protected_conversation"),
-
+        name="protected"),
+    url(r'^seasoned/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": 'What does it mean if a Conversation is "Seasoned"?',
+            "description": "Conversations eventually obtain a solid foundation "
+                           "where many users have agreed on a Solution. If "
+                           "this occurs a Conversation becomes Seasoned.",
+            "content_path":
+                "%sseasoned.html" % (settings.HELP_DOCS_PATH),
+            "category": "questions"
+        },
+        name="seasoned"),
+    url(r'^spam/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": "Why has my contribution been removed due to 'spam'?",
+            "description": "The Community has indicated your "
+                           "contribution looks like spam and the "
+                           "Admin Council has agreed with them.",
+            "content_path":
+                "%scontribution_spam_block.html" % (settings.HELP_DOCS_PATH),
+            "category": "conversation"
+        },
+        name="spam"),
 )
 
 '''

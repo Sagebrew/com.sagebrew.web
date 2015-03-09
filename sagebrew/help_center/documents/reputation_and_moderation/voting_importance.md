@@ -1,5 +1,5 @@
 # Why is voting on Questions, Solutions, and Comments important? #
-Voting on Questions, Solutions and Comments is important because it provides 
+Voting on Questions, Solutions and [Comments][5] is important because it provides 
 helpful feedback and allows the community at large to see which ideas are the 
 most popular and the most encompassing. Think of a vote as an indicator that 
 you either agree with a Question, Solution, or Comment ([Upvote][1]), or that 
@@ -11,10 +11,11 @@ in the right direction.
 ## Two types of votes ##
 ### Upvoting ###
 Shows support for a Question, Solution, or Comment. Upvote any Question, 
-Solution, or Comment that you agree strongly with to let that user know that 
+Solution, or Comment that you agree with to let that user know that 
 you are interested in what they have to say and that you're on the same boat.
+
 #### Requirements & Limitations ####
-- 10 Reputation is required to Upvote
+- 10 [Reputation][4] is required to Upvote
 - You're allowed 15 Upvotes per day
 - You're allowed 10 additional Upvotes per day on Questions only 
 - Upvotes on Comments result in 2 Reputation awarded to the author
@@ -27,6 +28,7 @@ Question, Solution, or Comment that you strongly disagree with to let the
 author know that you are opposed to their solution. It might be beneficial to 
 leave a Comment when Downvoting to explain your position, but it is not 
 necessary. 
+
 #### Requirements & Limitations ####
 - 100 Reputation is required to Downvote
 - You will have 15 overall Downvotes per day
@@ -41,3 +43,5 @@ Don't be afraid to show support or opposition by voting!
 [1]: /help/privileges/upvote/
 [2]: /help/privileges/downvote/
 [3]: /help/privileges/participate_in_the_conversation/
+[4]: /help/reputation/
+[5]: /help/privileges/comment/

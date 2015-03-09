@@ -129,7 +129,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
-    'oauth2_provider.backends.OAuth2Backend',
 )
 
 TEMPLATE_DIRS = (
@@ -165,6 +164,7 @@ INSTALLED_APPS = (
     'django_admin_bootstrapped',
     'django.contrib.admin',
     'rest_framework',
+    'rest_framework.authtoken',
     'admin_honeypot',
     'oauth2_provider',
     'corsheaders',

@@ -22,8 +22,9 @@ This will allow Sagebrew to classify your question according to your tags.
 It also makes it easier for other users to find your Question using 
 Sagebrew's search engine. So, after creating a question you should find the 
 appropriate tags to allocate your Question to. 
-Once you've reached 1250 Reputation, you will gain the ability to create your 
-own tags!
+
+*Once you've reached 1250 [Reputation][2], you will gain the ability to [create your 
+own tags][1]!*
 
 Also, Sagebrew will evenly allocate any Reputation gained on a Question into 
 categories respective to your tags. For example: 
@@ -45,3 +46,6 @@ diversity of Tags will increase and more options for Tagging will become
 available. 
 
 Happy Tagging!
+
+[1]: /help/privileges/tagging/
+[2]: /help/reputation/

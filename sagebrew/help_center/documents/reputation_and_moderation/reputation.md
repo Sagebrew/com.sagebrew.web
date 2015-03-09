@@ -22,14 +22,14 @@ different topics that include:
  
 Reputation will be categorized based on Tags.  
 
-The best way to earn Reputation is by posing great questions, giving 
-thoughtful, relevant solutions, and leaving smart and constructive comments. 
-If you prove to be a helpful presence on Sagebrew, you'll gain many Upvotes 
+The best way to earn Reputation is by posing great Questions, giving 
+thoughtful, relevant Solutions, and leaving smart and constructive [Comments][2]. 
+If you prove to be a helpful presence on Sagebrew, you'll gain many [Upvotes][3]
 and much Reputation in return for your help and insightful conversation. 
 
 The best way to lose Reputation is by posting spam, offensive or 
 inappropriate material, or by responding to others in a rude and/or 
-hurtful manner. Material of this nature will garner many Downvotes and you will
+hurtful manner. Material of this nature will garner many [Downvotes][4] and you will
 inevitably lose Reputation. 
 
 Your Reputation says a lot about you as a Sagebrew contributor. The more you 
@@ -38,10 +38,8 @@ you'll amass.
 
 Your Reputation is tracked on your profile. 
 
-**Note**: Reputation is not the final determiner of knowledge or 
-experience. If somebody has negative Reputation in Agriculture it doesn't 
-mean they don't know anything about Agriculture, they may have just provided 
-poor or unfavorable solutions. While Reputation is useful to gauge knowledge 
-and expertise, it is not the final say.
 
 [1]: /help/reputation/admin_council/
+[2]: /help/privileges/comment/
+[3]: /help/privileges/upvote/
+[4]: /help/privileges/downvote/

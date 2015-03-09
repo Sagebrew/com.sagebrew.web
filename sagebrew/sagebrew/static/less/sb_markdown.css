@@ -1,11 +1,14 @@
 @import url(https://fonts.googleapis.com/css?family=Inconsolata);
 .sb_markdown,
+.sb_markdown_disabled,
 .sb_help_article {
   word-wrap: break-word;
   color: #34495e;
 }
 .sb_markdown h1 {
   border-bottom: 2px solid #b7bfbb;
+  padding-bottom: 5px;
+  margin-top: 15px;
   font-size: 28px;
   font-weight: bold;
 }
@@ -15,19 +18,23 @@
   font-weight: bold;
 }
 .sb_markdown h3 {
+  padding-top: 20px;
   font-size: 22px;
   font-weight: bold;
 }
 .sb_markdown h4 {
+  padding-top: 15px;
   font-size: 19px;
   font-weight: bold;
 }
 .sb_markdown h5 {
+  padding-top: 15px;
   font-size: 19px;
   font-weight: bold;
   font-style: italic;
 }
 .sb_markdown h6 {
+  padding-top: 15px;
   font-size: 17px;
   font-weight: bold;
   font-style: italic;
@@ -78,12 +85,23 @@
 }
 .sb_markdown img {
   border-radius: 5px;
+  max-width: 696px;
+  max-height: 696px;
+}
+.sb_markdown blockquote {
+  font-size: 11pt;
+  color: #838c92;
+}
+.sb_markdown_disabled h4 {
+  color: #838c92;
+  text-shadow: 0px 2px 3px #fafcfa;
+}
+.sb_markdown_disabled p {
+  color: #838c92;
+  text-shadow: 0px 2px 3px #fafcfa;
 }
 .sb_help_article {
-  padding-top: 15px;
-  padding-left: 15px;
-  padding-right: 15px;
-  padding-bottom: 50px;
+  padding: 15px 15px 50px;
   border-radius: 5px;
   background-color: #e0e7e1;
   margin-right: 0;

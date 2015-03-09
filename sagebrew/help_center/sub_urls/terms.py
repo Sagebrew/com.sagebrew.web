@@ -19,5 +19,15 @@ urlpatterns = patterns(
             "category": "terms"
         },
         name="trust_and_safety"),
-
+    url(r'^$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": "Terms and Conditions",
+            "description": "If you follow these we'll get along swimmingly :).",
+            "content_path":
+                "%suser_terms_and_conditions.html" % (settings.HELP_DOCS_PATH),
+            "category": "terms",
+            "static_files": True
+        },
+        name="terms_and_conditions"),
 )

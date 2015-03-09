@@ -14,7 +14,8 @@ urlpatterns = patterns(
             "content_path":
                 "%s1_participate_in_the_conversation.html" % (
                     settings.HELP_DOCS_PATH),
-            "category": "privileges"
+            "category": "privileges",
+            "static_files": True,
         },
         name="participate_in_the_conversation"),
     url(r'^upvote/$', TemplateView.as_view(
@@ -25,7 +26,8 @@ urlpatterns = patterns(
                            "different pieces of the Conversation!",
             "content_path":
                 "%s10_upvote.html" % (settings.HELP_DOCS_PATH),
-            "category": "privileges"
+            "category": "privileges",
+            "static_files": True,
         },
         name="upvote"),
     url(r'^comment/$', TemplateView.as_view(
@@ -87,7 +89,8 @@ urlpatterns = patterns(
                            "come some additional privileges.",
             "content_path":
                 "%s1000_barista.html" % (settings.HELP_DOCS_PATH),
-            "category": "privileges"
+            "category": "privileges",
+            "static_files": True,
         },
         name="barista"),
     url(r'^tagging/$', TemplateView.as_view(
@@ -123,7 +126,8 @@ urlpatterns = patterns(
             "description": "",
             "content_path":
                 "%s12500_tribune.html" % (settings.HELP_DOCS_PATH),
-            "category": "privileges"
+            "category": "privileges",
+            "static_files": True,
         },
         name="tribune"),
 )

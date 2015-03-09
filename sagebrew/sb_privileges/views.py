@@ -149,7 +149,9 @@ class CreatePrivilege(APIView):
                 "actions": action_forms,
                 "requirements": requirement_forms
             }
-            print task_data
+            res = spawn_task(create_privilege_task, task_data)
+            if isinstance(res, Exception):
+                return Response({"detail": "server error"}, 500)
             return Response({"detail": "success"}, 200)
         else:
             return Response({"detail": "invalid privilege form",

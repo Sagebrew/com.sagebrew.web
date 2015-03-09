@@ -107,6 +107,7 @@
   background-color: transparent;
   padding-right: 0;
   margin-top: 40px;
+  padding-left: 0;
 }
 .sb_channel_block {
   width: 100%;
@@ -164,7 +165,14 @@
   margin-top: 30px;
   border-radius: 2px;
   height: auto;
-  min-height: 575px;
+  min-height: 445px;
+  padding: 15px;
+}
+.sb_questions_side_container h5 {
+  margin-bottom: 15px;
+  margin-top: -15px;
+  padding-left: 15px;
+  padding-right: 15px;
 }
 .sb_page {
   margin: 0 5% 0 5%;
@@ -226,6 +234,9 @@
 .vote_up_small,
 .vote_down_small {
   background-color: #1ba39c;
+}
+.sb_btn_disabled {
+  background-color: #b7bfbb;
 }
 .sb_btn_space,
 .sb_btn_fill {

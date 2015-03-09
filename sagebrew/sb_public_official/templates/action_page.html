@@ -3,23 +3,45 @@
 {% block title %}Action Page Title{% endblock title %}
 {% block content %}
 <div class="row-fluid sb_page">
-{% include "action_channel.html" %}
+    {% if registered == True %}
+        {% include "action_channel.html" %}
+    {% else %}
+        {% include "action_channel_disabled.html" %}
+    {% endif %}
 {% include "action_nav.html" %}
 <div class="row sb_wall sb_action_wall">
     <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
         {% if "updates" in request.path %}
-            {% include "updates.html" %}
+            {% if registered == True %}
+                {% include "updates.html" %}
+            {% else %}
+                {% include "updates_disabled.html" %}
+            {% endif %}
         {% elif "about" in request.path %}
             {% include "action_about.html" %}
         {% else %}
-            {% include "saga.html" %}
+            {% if registered == True %}
+                {% include "saga.html" %}
+            {% else %}
+                {% include "saga_disabled.html" %}
+            {% endif %}
         {% endif %}
     </div>
     <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
         <h5>Goals</h5>
-        {% include "goals_block.html" %}
-        {% include "goals_block.html" %}
-        {% include "goals_block.html" %}
+        {% if registered == True %}
+            {% include "goals_block.html" %}
+            {% include "goals_block.html" %}
+            {% include "goals_block.html" %}
+        {% else %}
+            {% include "goals_block_disabled.html" %}
+        {% endif %}
+
+    {% if registered == True %}
+        {% include "about_blocks.html" %}
+    {% else %}
+        {% include "about_blocks_disabled.html" %}
+    {% endif %}
     </div>
 </div>
 </div>

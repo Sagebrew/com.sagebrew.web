@@ -5,6 +5,8 @@
   color: @sb_dark_blue;
   h1 {
     border-bottom: 2px solid @sb_grey;
+    padding-bottom: 5px;
+    margin-top: 15px;
     font-size: 28px;
     font-weight: bold;
   }
@@ -96,13 +98,20 @@
     color: @sb_grey_dark;
   }
 }
-
+.sb_markdown_disabled{
+  &:extend(.sb_markdown);
+  h4{
+    color: @sb_grey_dark;
+    text-shadow: 0px 2px 3px @sb_off_white;
+  }
+  p{
+    color: @sb_grey_dark;
+    text-shadow: 0px 2px 3px @sb_off_white;
+  }
+}
 .sb_help_article{
   &:extend(.sb_markdown);
-  padding-top: @sb_common_padding_positive;
-  padding-left: @sb_common_padding_positive;
-  padding-right: @sb_common_padding_positive;
-  padding-bottom: 50px;
+  padding: @sb_common_padding_positive @sb_common_padding_positive 50px;
   border-radius: @sb_common_radius;
   background-color: @sb_green_wall;
   margin-right: 0;

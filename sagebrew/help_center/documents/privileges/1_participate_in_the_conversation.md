@@ -3,34 +3,38 @@
 
 ## Overview ##
 ### What does this mean? ###
- - Create Posts on own wall and friend’s walls
- - Ability to Create Questions and Solutions
- - Ability to Edit Own Questions
- - Ability to Concede to more viable Solutions
- - Until user attains 10 Reputation (leave "new user" status) they are 
- limited to a sum of 3 Questions and Solutions per day
+- Create Posts on own wall and friend’s walls
+- Ability to Create Questions and Solutions
+- Ability to Edit Own Questions
+- Ability to Concede to more viable Solutions
+- Until user attains 10 [Reputation][2] (leave "new user" status) they are 
+  limited to a sum of 3 Questions and Solutions per day
 
 ### Description ###
 This is the most basic privilege: the ability to communicate with others.
 
+{% if debug == True %}
 You can reach out to your friends and start Private Conversations. Consider 
 Private Conversations a testing ground where you can discuss issues with your 
 friends and family without worrying about Reputation. This is a place to 
 practice proper discussion etiquette, or to blow off etiquette altogether if 
 you’d like. It’s your space. Have fun.
+{% endif %}
 
-You can also create Questions and provide Solutions in the public Conversation 
+You can create Questions and provide Solutions in the Public Conversation 
 Area. This is your opportunity to lend your voice to the ongoing discussions, 
 allowing you to interact with other like-minded visionaries and find solutions 
-to real problems. Note that Reputation is on the line in the Conversation Area. 
-You may amass Reputation for quality Questions and Solutions, or you may lose 
-Reputation for poor quality Questions and Solutions. 
+to real problems. Note that Reputation is on the line in the Public 
+Conversation Area. You may amass Reputation for quality Questions and 
+Solutions, or you may lose Reputation for poor quality Questions and Solutions. 
 
+{% if debug == True %}
 Lastly, you'll be able to Concede your Solutions to more viable/invested 
 Solutions if you desire. If somebody comes up with a Solution that seems to 
 cover more ground than yours, there is no shame in Conceding to that person's 
 solution! In fact, by Conceding to a better solution, you've shown that you're 
 here to find the best answer to a problem and not to argue a moot point! 
+{% endif %}
 
 Time to stir the brew!  
  
@@ -47,9 +51,8 @@ points of view. A good Question should be backed up with facts drawn from
 reliable sources. 
 
 #### Example of a Good Question ####
-##### How can we reduce the amount of NO2 pollution in the atmosphere? ####
 ** **
-
+##### How can we reduce the amount of NO2 pollution in the atmosphere? ####
 NO2 is a greenhouse gas 300 times more harmful to the environment than CO2, 
 and the levels of NO2 in the environment are rising far above average 
 atmospheric fluctuation. Large scale agriculture is a main culprit, as 
@@ -59,20 +62,24 @@ atmosphere. What can farmers do to reduce the amount of NO2 being placed into
 the atmosphere? 
 
 Sources: http://epa.gov/climatechange/ghgemissions/gases/n2o.html
-
+** **
 ### What's a bad Question look like? ###
 A Question is a bad Question if it is: offensive, only has one side, 
 has an obvious answer, is not aimed at finding a solution, does not make 
-sense etc. If you aren't sure if your Question is good or bad, start a 
+sense etc. 
+{% if debug == True %}
+If you aren't sure if your Question is good or bad, start a 
 Private Conversation first and see what kind of feedback you get. If it 
 seems to spark a good conversation with multiple sides, it's probably okay. 
 If it doesn't, well, take it back to the drawing board and rework it. 
+{% endif %}
 
 #### Example of a Bad Question #####
+** **
 ##### Why do republicans keep wasting their time fighting Obamacare? #####
 ** **
 
-Note how there is no context, no information provided other than the Question, 
+Note how there is no [context][3], no information provided other than the Question, 
 and the Question is posed as a one-sided question. To make this a good Question,
 a more in-depth look at the Affordable Care Act and the politics behind it is 
 needed, as well as fact-based context to provide further insight. 
@@ -91,10 +98,14 @@ reached and it fizzles out and is replaced by others. Or, like a mountain,
 your Question may continue to gain attention as new, relevant 
 information comes to light, and might remain a contesting Question for a 
 long time. Regardless, all Questions are archived and you'll be able to review 
-them at any time you'd like. If your Question was part of a 
+them at any time you'd like. 
+{% if debug == True %}
+If your Question was part of a 
 Private Conversation it will remain archived on your page for you 
 and your friends to see should they so choose. 
+{% endif %}
 
+{% if debug == True %}
 ### When should I Concede to another Solution? ###
 You should Concede to another Solution if you honestly think somebody has 
 come up with a better Solution. 
@@ -109,9 +120,10 @@ Your Solution will be grayed out. What this means for you:
   10% of Reputation accrued on the Conceded Solution will be awarded 
   to the user of the "better" Solution 
 - The process of Conceding a Solution is irreversible
+{% endif %}
 
 ## Research ##
-There are many different types of research studies conducted with the aim of 
+There are many different types of [research studies][1] conducted with the aim of 
 shedding light on a certain causation. The most popular research studies are 
 as follows:
 
@@ -123,9 +135,6 @@ as follows:
 - Systematic Reviews
 - Meta-analysis 
 - Anecdotal Evidence
-
-To learn more about these different kinds of research and how/where/when to 
-utilize them visit the [Research Area][1].
 
 ## Question Restrictions ##
 After a Solution has been provided to a Question, you will no longer be able 
@@ -139,8 +148,9 @@ start a new Question.
 
 You will be limited to associating 5 tags with a given question. 
 ## 1 Up! ##
-All new users will recieve 1 Free Upvote! Use carefully! 
+All new users will receive 1 Free Upvote! Use carefully! 
 
+{% if debug == True %}
 ### Badges Associated with Conversing ###
 - Warming Up
 - Good Question
@@ -154,6 +164,9 @@ All new users will recieve 1 Free Upvote! Use carefully!
 - Sort of Popular
 - Popular
 - Way Popular
+{% endif %}
 
 
-[1]: insert_link_here
+[1]: /help/conversation/research/
+[2]: /help/reputation/
+[3]: /help/questions/context/

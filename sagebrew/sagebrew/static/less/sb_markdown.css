@@ -15,19 +15,23 @@
   font-weight: bold;
 }
 .sb_markdown h3 {
+  padding-top: 20px;
   font-size: 22px;
   font-weight: bold;
 }
 .sb_markdown h4 {
+  padding-top: 15px;
   font-size: 19px;
   font-weight: bold;
 }
 .sb_markdown h5 {
+  padding-top: 15px;
   font-size: 19px;
   font-weight: bold;
   font-style: italic;
 }
 .sb_markdown h6 {
+  padding-top: 15px;
   font-size: 17px;
   font-weight: bold;
   font-style: italic;
@@ -78,6 +82,12 @@
 }
 .sb_markdown img {
   border-radius: 5px;
+  max-width: 696px;
+  max-height: 696px;
+}
+.sb_markdown blockquote {
+  font-size: 11pt;
+  color: #838c92;
 }
 .sb_help_article {
   padding-top: 15px;

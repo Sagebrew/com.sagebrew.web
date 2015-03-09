@@ -20,7 +20,7 @@ Solutions, a Conversation can be quickly brought to life.
 
 Also consider that your Question might need more
 background information before others decide to
-get involved. Updating the Context of your Question
+get involved. Updating the [Context][1] of your Question
 and adding more information might encourage others
 to participate.
 
@@ -30,3 +30,5 @@ providing quality Context and motivation for
 other users to get involved, you can make sure
 that you've done as much as you can to generate
 a meaningful Conversation.
+
+[1]: /help/questions/context/

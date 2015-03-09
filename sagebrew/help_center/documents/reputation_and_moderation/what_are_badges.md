@@ -3,10 +3,10 @@ Sagebrew Badges are pins of honor and recognition. They stand as a testament of
 your active participation and are designed to encourage quality and relevant 
 content. In order to obtain one of these badges, you'll have to complete the 
 badge requirements. The difficulty of obtaining badges will vary, but each 
-badge will require a different level of commitment and dedication to Sagebrew.
+badge will require a different level of commitment and dedication.
 
 Some badges will grow and expand as you do. For example, to obtain the 
-"Street Cred" badge you must earn 100 reputation points. Once you've reached 
+"Street Cred" badge you must earn 100 [Reputation][2] points. Once you've reached 
 1000 reputation points your street cred badge updates to the "Well Known" 
 badge, and it updates again when you achieve 5000 reputation points to the 
 "Infamous" badge. These badges are a way to mark your progress and commitment 
@@ -22,5 +22,6 @@ themselves worthy of attaining them. Good luck unearthing these badges!
 
 For a full list of all Sagebrew Badges visit the [Badges Area][1]. 
 
-# TODO Fix links #
+<!-- TODO Fix links -->
 [1]: badges_area
+[2]: /help/reputation/

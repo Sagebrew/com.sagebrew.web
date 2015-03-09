@@ -20,7 +20,8 @@ Behaviors that will not be tolerated:
     - sexual harassment
 - Intentional invasion of the Sagebrew software
 - Exploitation of the Sagebrew software for any reason
-- Advertising for a personal business or advertising on behalf of any business or corporate entity
+- Advertising for a personal business or advertising on behalf of any 
+  business or corporate entity
 - Spamming
 
 These activities are not tolerated on Sagebrew and, depending on the severity 

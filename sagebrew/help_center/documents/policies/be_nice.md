@@ -8,17 +8,17 @@ guidelines:
 
 ## Do not use language that is: ##
 
- - Offensive (i.e. racist, sexist, ableist, classist, 
-   anti-religious...basically anything that takes aim at a marginalized group 
-   of people)
- - Libelous (lying)
- - Obscene (profanity)
- - Insulting (anything that directly targets an individual, making little of 
-   their opinion or position)
+- Offensive (i.e. racist, sexist, ableist, classist, 
+  anti-religious...basically anything that takes aim at a marginalized group 
+  of people)
+- Libelous (lying)
+- Obscene (profanity)
+- Insulting (anything that directly targets an individual, making little of 
+  their opinion or position)
 
 ## Be respectful of other's ideas ##
-This means respecting someone's position even if it is in direct opposition to y
-our own. As Aristotle said so long ago, "It is the mark of an educated mind 
+This means respecting someone's position even if it is in direct opposition to 
+your own. As Aristotle said so long ago, "It is the mark of an educated mind 
 to be able to entertain a thought without accepting it." 
 
 Just because someone thinks something should be done differently doesn't

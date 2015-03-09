@@ -57,13 +57,15 @@
   </div>
   <div class="col-lg-6 col-md-9 col-sm-9 hidden-xs">
     <ul class="bottom-menu-list">
-      <li><a href="#fakelink">About Us</a></li>
-      <li><a href="#fakelink">Jobs</a></li>
-      <li><a href="#fakelink">Privacy</a></li>
-      <li><a href="#fakelink">Terms</a></li>
-      <li><a href="#fakelink">Support</a></li>
+        {% if debug == True %}
+            <li><a href="#fakelink">About Us</a></li>
+            <li><a href="#fakelink">Jobs</a></li>
+            <li><a href="#fakelink">Privacy</a></li>
+        {% endif %}
+        <li><a href="{% url 'terms_and_conditions' %}">Terms</a></li>
+        <li><a href="{% url 'support' %}">Support</a></li>
         <li><a href="{% url 'trust_and_safety' %}">Trust and Safety</a></li>
-      <li><a href="{% url 'help_center' %}">Help</a></li>
+        <li><a href="{% url 'help_center' %}">Help</a></li>
     </ul>
   </div>
 </div>

@@ -4,7 +4,7 @@ text that can be easily converted to HTML. What that means is, Markdown is a
 writing system that allows easy customization of plain text, specifically 
 including headers, ordered lists, block quotations, bold and italics, 
 links etc. With Markdown it becomes very simple to write up Questions and 
-Solutions, providing Context, citing sources and organizing the information 
+Solutions, providing <a href="/help/questions/context/">Context</a>, citing sources and organizing the information 
 you wish to present.</p>
 <h2>The Specifics</h2>
 <h3>Headers</h3>
@@ -31,6 +31,7 @@ and the text will remain the same.</p>
 <h4>Header Four</h4>
 <h5>Header Five</h5>
 <h6>Header Six</h6>
+<p><br /></p>
 <h3>Ordered Lists</h3>
 <p>To make an ordered list, simply use the dash, or <code>-</code> key. For example: </p>
 <pre><code>- list one
@@ -43,7 +44,7 @@ and the text will remain the same.</p>
 <li>list two</li>
 <li>list three</li>
 </ul>
-<p>To nest the list, use 4 spaces before the <code>-</code> symbol you put in front of a line. 
+<p>To nest the list, use 4 spaces before the <code>-</code> symbol. 
 For example:</p>
 <pre><code>- list one
     - list two
@@ -59,14 +60,14 @@ For example:</p>
 <h3>Adding Links</h3>
 <p>To add a link, simply place the word or words you'd like linked in brackets
 (it's best to link a word or two). Then, at the bottom of your page, 
-define your link. For example: </p>
+define your link. For example:</p>
 <pre><code>This is a [link].
 
 ... Some Content ...
 
 [link]: https://www.google.com
 </code></pre>
-<p>will tranlaste to </p>
+<p>will translate to </p>
 <p>This is a <a href="https://www.google.com">link</a>. </p>
 <p>This will let the text editor know that your bracketed <a href="https://www.google.com">link</a> will take you to 
 the designated web address. You may also use numbers to designate links. 
@@ -81,12 +82,12 @@ For example:</p>
 <p>This is a <a href="https://www.google.com">link</a></p>
 <p>This is a great method for citing sources within the Context of a Question or
 a Solution. </p>
-<p>Block Quotes
-To add block quotes to your text, use the right-facing arrow key, <code>&gt;</code> to 
+<h3>Block Quotes</h3>
+<p>To add block quotes to your text, use the right-facing arrow key, <code>&gt;</code> to 
 indicate that a line of text should be a block quote. For Example</p>
-<pre><code>&gt;this is what block quotes would look like
-&gt;when arranged in Markdown formatting. 
-&gt;It's really not difficult at all!
+<pre><code>&gt; this is what block quotes would look like
+&gt; when arranged in Markdown formatting. 
+&gt; It's really not difficult at all!
 </code></pre>
 <p>would translate to</p>
 <blockquote>
@@ -96,26 +97,28 @@ It's really not difficult at all!</p>
 </blockquote>
 <p>So, by simply placing a <code>&gt;</code> before a line of text, you get nice, 
 neat block quotes! This becomes helpful when quoting text or speech, 
-especially when citing one of your research studies or journal articles. </p>
+especially when citing one of your <a href="/help/conversation/research/">research studies</a> or journal articles. </p>
 <h3>Images</h3>
-<p>To add Images, put an exclamation point <code>!</code> before brackets containing an 
+<p>To add images, put an exclamation point <code>!</code> before brackets containing an 
 image description, and a number for reference in separate brackets.
 Then, at the bottom of your page, define your image by the number
 For example:</p>
-<pre><code>![This is a picture][2]
+<pre><code>![Theo the Dog][2]
 
 ... Some Content ...
 
-[2]: https://s3.amazonaws.com/sagebrew/10984046_596208397180366_3248774050269017847_n.jpg
+[2]: https://s3.amazonaws.com/sagebrew/theo.jpg
 </code></pre>
 <p>would translate to:</p>
-<p><img alt="This is a picture" src="https://s3.amazonaws.com/sagebrew/10984046_596208397180366_3248774050269017847_n.jpg" /></p>
+<p><img alt="Theo the Dog" src="https://s3.amazonaws.com/sagebrew/theo.jpg" /></p>
 <p>This will let the editor know which image to use, and where. 
 Our editor will automatically resize your image to fit neatly on the page if it
 is too large, but if you can resize your image, it's recommended to do so.
-Preferred image size is at or below 750x500.</p>
+Preferred image size is at or below 696x696.</p>
 <h3>Videos</h3>
-<p>For example:</p>
+<p>To add a video choose your favorite hosting site, take their embedded link and
+insert it in the document where you'd like the video to be located.
+For example:</p>
 <pre><code>&lt;iframe src="https://player.vimeo.com/video/120960412" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen&gt;&lt;/iframe&gt; &lt;small&gt;&lt;a href="https://vimeo.com/120960412"&gt;Baxter&lt;/a&gt; from &lt;a href="https://vimeo.com/tcoyle"&gt;Ty Coyle&lt;/a&gt; on &lt;a href="https://vimeo.com"&gt;Vimeo&lt;/a&gt;.&lt;/small&gt;
 </code></pre>
 <p>would translate to:</p>
@@ -125,7 +128,7 @@ Preferred image size is at or below 750x500.</p>
 <h3>Preformatted Text</h3>
 <p>To add preformatted text, simply indent your desired text 4 spaces. This will 
 place your text in a special block that retains 
-formatting such as  spacing and indentation. Basically, your text will 
+formatting such as spacing and indentation. Basically, your text will 
 look exactly as you write it (Please note that copying and pasting in text from
 something like Word will not maintain its formatting due to Word's proprietary 
 formatting). An example of this formatting is as follows:</p>
@@ -136,15 +139,15 @@ formatting). An example of this formatting is as follows:</p>
 that the editor doesn't easily allow, such as preserving extra spaces or 
 line breaks.</p>
 <p>The other solution for adding preformatted text is to surround your text with
-<code>`</code>. This will result in an inline preformatting which doesn't handle spacing
-but does allow for you to specific pieces of text you don't want the markdown
+<code>`</code>s. This will result in an inline preformatting which doesn't handle spacing
+but does allow for you to specify pieces of text you don't want the markdown
 editor to interpret. For example:</p>
 <pre><code>`#### This shouldn't be a header ####`
 </code></pre>
 <p>would translate to <code>#### This shouldn't be a header ####</code> rather than:</p>
 <h4>This shouldn't be a header</h4>
 <p><strong>NOTE:</strong> You must leave a blank line between your previous, non-formatted, text 
-and your preformatted text if you are using the 4 spaces rather than <code>`</code>.</p>
+and your preformatted text if you are using the 4 spaces rather than <code>`</code>s.</p>
 <h3>Italics</h3>
 <p>To make Italics, simply surround the words you want italicized with <code>*</code>. 
 For example:</p>

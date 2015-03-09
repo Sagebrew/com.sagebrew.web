@@ -22,8 +22,9 @@
   font-size: 24px;
 }
 .sb_general h5 {
-  font-weight: bold;
+  font-weight: normal;
   font-size: 22px;
+  color: #838c92;
 }
 .sb_general h6 {
   font-weight: bold;
@@ -105,7 +106,7 @@
 }
 .sb_bio_block h2 {
   margin: 0 0 0 0;
-  margin-bottom: opx;
+  margin-bottom: 0px;
 }
 .sb_channel_block {
   width: 100%;

@@ -200,6 +200,9 @@
 .sb_search_block p {
   margin-bottom: 0px;
 }
+.sb_search_vote_block {
+  margin-top: 30px;
+}
 .sb_wallpaper,
 .wallpaper_profile,
 .sb_wallpaper_action {

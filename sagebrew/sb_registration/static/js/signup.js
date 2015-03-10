@@ -1,5 +1,6 @@
 $( document ).ready(function() {
 	$("#submit_signup").click(function(event){
+        $(this).attr("disabled", "disabled");
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -26,7 +27,8 @@ $( document ).ready(function() {
                     window.location.href = "/registration/signup/confirm/";
                 }
                 else {
-                    alert(data['detail'])
+                    alert(data['detail']);
+                    $("#submit_signup").removeAttr("disabled");
                 }
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {

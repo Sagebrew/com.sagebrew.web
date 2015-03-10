@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from django.conf import settings
 from boto.dynamodb2.layer1 import DynamoDBConnection
 from boto.dynamodb2.table import Table
@@ -187,10 +188,24 @@ def get_question_doc(question_uuid, question_table, solution_table):
                                                 1)
     question['down_vote_number'] = get_vote_count(question['object_uuid'],
                                                   0)
+    print question
+    question['last_edited_on'] = datetime.strptime(question['last_edited_on'][
+                                      :len(question['last_edited_on'])-6],
+                                      '%Y-%m-%d %H:%M:%S.%f')
+    question['time_created'] = datetime.strptime(question['time_created'][
+                                      :len(question['time_created'])-6],
+                                      '%Y-%m-%d %H:%M:%S.%f')
     for comment in comments:
         comment = dict(comment)
         comment['up_vote_number'] = get_vote_count(comment['object_uuid'],1)
         comment['down_vote_number'] = get_vote_count(comment['object_uuid'],0)
+        comment['last_edited_on'] = datetime.strptime(comment[
+                                      'last_edited_on'][
+                                      :len(comment['last_edited_on'])-6],
+                                      '%Y-%m-%d %H:%M:%S.%f')
+        comment['time_created'] = datetime.strptime(comment['time_created'][
+                                      :len(comment['time_created'])-6],
+                                      '%Y-%m-%d %H:%M:%S.%f')
         q_comments.append(comment)
     for answer in answers:
         a_comments = []
@@ -199,6 +214,13 @@ def get_question_doc(question_uuid, question_table, solution_table):
                                                   1)
         answer['down_vote_number'] = get_vote_count(answer['object_uuid'],
                                                     0)
+        answer['last_edited_on'] = datetime.strptime(answer[
+                                      'last_edited_on'][
+                                      :len(answer['last_edited_on'])-6],
+                                      '%Y-%m-%d %H:%M:%S.%f')
+        answer['time_created'] = datetime.strptime(answer['time_created'][
+                                      :len(answer['time_created'])-6],
+                                      '%Y-%m-%d %H:%M:%S.%f')
         answer_comments = comment_table.query_2(
             parent_object__eq=answer['object_uuid'],
             datetime__gte="0"
@@ -208,6 +230,14 @@ def get_question_doc(question_uuid, question_table, solution_table):
             comment['up_vote_number'] = get_vote_count(comment['object_uuid'],1)
             comment['down_vote_number'] = get_vote_count(
                 comment['object_uuid'],0)
+            comment['last_edited_on'] = datetime.strptime(comment[
+                                      'last_edited_on'][
+                                      :len(comment['last_edited_on'])-6],
+                                      '%Y-%m-%d %H:%M:%S.%f')
+            comment['time_created'] = datetime.strptime(comment[
+                                      'time_created'][
+                                      :len(comment['time_created'])-6],
+                                      '%Y-%m-%d %H:%M:%S.%f')
             a_comments.append(comment)
         answer['comments'] = a_comments
         answer_list.append(answer)

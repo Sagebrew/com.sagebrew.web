@@ -25,15 +25,6 @@
         "hash_key": "email"
     },
     {
-        "table_name": "private_questions",
-        "hash_key": "object_uuid"
-    },
-    {
-        "table_name": "private_solutions",
-        "hash_key": "parent_object",
-        "range_key": "object_uuid"
-    },
-    {
         "table_name": "public_questions",
         "hash_key": "object_uuid"
     },
@@ -46,10 +37,6 @@
         "table_name": "posts",
         "hash_key": "parent_object",
         "range_key": "datetime"
-    },
-    {
-        "table_name": "news_feed",
-        "hash_key": "email"
     },
     {
         "table_name": "flags",

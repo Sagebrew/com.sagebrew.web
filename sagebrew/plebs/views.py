@@ -82,6 +82,31 @@ def profile_page(request, pleb_username=""):
     })
 
 
+@login_required()
+def general_settings(request):
+    '''
+    Displays the users profile_page. This is where we call the functions to
+    determine
+    who the senators are for the plebs state and which representative for
+    the plebs
+    district. Checks to see if the user currently accessing the page is the
+    same user
+    as the one who owns the page. if so it loads the page fully, if the user
+    is a firend
+    of the owner of the page then it allows them to see posts and comments
+    on posts on the
+    owners wall. If the user is neither the owner nor a friend then it only
+    shows the users
+    name, congressmen, reputation and profile pictures along with a button
+    that allows
+    them to send a friend request.
+
+    :param request:
+    :return:
+    '''
+    return render(request, 'general_settings.html', {})
+
+
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def get_user_search_view(request, pleb_email=""):

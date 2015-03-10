@@ -57,6 +57,25 @@
   border-radius: @sb_common_radius;
   background-color: @sb_off_white;
 }
+.sb_settings_block{
+  &:extend(.block);
+  padding: 15px 30px 15px 30px;
+  background-color: @sb_green_extra_light;
+  height: auto;
+  min-height: 700px;
+  input{
+    margin-bottom: 15px;
+  }
+}
+.sb_alert_block{
+  &:extend(.block);
+  border: solid 2px @sb_red;
+  background-color: #fff4f0;
+  min-height: 100px;
+  height: auto;
+  padding-bottom: 15px;
+  margin-bottom: 30px;
+}
 .sb_answer{
   &:extend(.block);
   margin-top: 30px;
@@ -208,7 +227,12 @@
     font-weight: normal;
   }
 }
+.sb_settings_wall{
+  &:extend(.sb_wall);
+  width: 100%;
+  margin-top: 30px;
 
+}
 // Border
 .sb_border{
   border-radius: 5px;
@@ -712,6 +736,9 @@
   li {
     display: block;
   }
+}
+.settings_nav{
+  &:extend(.vertical_nav);
 }
 .block_vertical{
   margin-top: 15px;

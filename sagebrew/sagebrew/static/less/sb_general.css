@@ -52,7 +52,8 @@
 .sb_registration_block,
 .sb_blog_post_block,
 .sb_channel_social,
-.sb_channel_block {
+.sb_channel_block,
+.sb_search_block {
   height: auto;
   padding-top: 15px;
   padding-left: 15px;
@@ -177,6 +178,27 @@
 .sb_side_nav_block h3 {
   padding-left: 30px;
   margin: 0 0 15px 0;
+}
+.sb_search_block {
+  margin-bottom: 15px;
+  background-color: #fafcfa;
+  border-radius: 2px;
+  height: auto;
+  min-height: 130px;
+  padding-bottom: 15px;
+}
+.sb_search_block a {
+  color: #838c92;
+  font-size: 20px;
+}
+.sb_search_block a:hover {
+  color: #1ba39c;
+}
+.sb_search_block ul {
+  padding-left: 0px;
+}
+.sb_search_block p {
+  margin-bottom: 0px;
 }
 .sb_wallpaper,
 .wallpaper_profile,
@@ -427,7 +449,7 @@
   margin-top: 10px;
 }
 .sb_secondary_nav li {
-  margin-right: 30px;
+  margin-right: 20px;
 }
 .sb_secondary_nav a {
   color: #838c92;
@@ -448,6 +470,7 @@
   padding: 0 0 0 20px;
 }
 .sb_search_nav {
+  margin-top: 30px;
   margin-bottom: 0;
   border-radius: 2px 2px 0 0 ;
   padding-top: 1px;
@@ -534,13 +557,17 @@
   height: 75px;
   width: 75px;
 }
-.sb_thumbnail_md {
+.sb_thumbnail_md,
+.sb_thumbnail_search {
   height: 100px;
   width: 100px;
 }
 .sb_thumbnail_lg {
   height: 120px;
   width: 120px;
+}
+.sb_thumbnail_search {
+  margin-right: 15px;
 }
 .sb_dropdown_icon,
 .conversation_logo {

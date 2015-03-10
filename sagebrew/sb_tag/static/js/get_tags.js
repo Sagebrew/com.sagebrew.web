@@ -10,10 +10,12 @@ $(document).ready(function() {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
+            console.log(data);
             var tags = data['tags'];
+            console.log(tags);
             $('#sb_tag_box').select2({
                 tags: tags,
-                tokenSeparators: [",", " ","'",".","*"]
+                tokenSeparators: [",", " ","'",".","*", "_"]
             });
         }
     })

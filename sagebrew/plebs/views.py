@@ -58,11 +58,15 @@ def profile_page(request, pleb_username=""):
     page_user = User.objects.get(email=page_user_pleb.email)
     is_owner = False
     is_friend = False
+    friend_request_sent = False
     friends_list = get_friends(citizen.email)
     if current_user.email == page_user.email:
         is_owner = True
     elif page_user_pleb in citizen.friends.all():
         is_friend = True
+    if page_user_pleb.username in citizen.get_friend_requests_sent():
+        friend_request_sent = True
+
 
     # TODO deal with address and senator/rep in a util + task
     # TODO Create a cypher query to get addresses to replace traverse
@@ -79,6 +83,7 @@ def profile_page(request, pleb_username=""):
         'is_owner': is_owner,
         'is_friend': is_friend,
         'friends_list': friends_list,
+        'friend_request_sent': friend_request_sent
     })
 
 

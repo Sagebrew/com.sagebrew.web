@@ -188,7 +188,6 @@ def get_question_doc(question_uuid, question_table, solution_table):
                                                 1)
     question['down_vote_number'] = get_vote_count(question['object_uuid'],
                                                   0)
-    print question
     question['last_edited_on'] = datetime.strptime(question['last_edited_on'][
                                       :len(question['last_edited_on'])-6],
                                       '%Y-%m-%d %H:%M:%S.%f')

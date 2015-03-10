@@ -128,6 +128,10 @@ def get_user_posts(request):
                 spawn_task(update_view_count_task, task_data)
                 for item in post_dict["comments"]:
                     item["vote_count"] = str(item["vote_count"])
+                    item['last_edited_on'] = \
+                    datetime.strptime(item['last_edited_on'][
+                                      :len(item['last_edited_on'])-6],
+                                      '%Y-%m-%d %H:%M:%S.%f')
                 c = RequestContext(request, post_dict)
                 html = render_to_string('post.html', post_dict,
                                         context_instance=c)

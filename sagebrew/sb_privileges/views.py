@@ -102,7 +102,6 @@ class CreatePrivilege(APIView):
             context_instance=RequestContext(request))}, 200)
 
     def post(self, request, format=None):
-        print request.DATA
         action_forms = []
         requirement_forms = []
         privilege_form = CreatePrivilegeForm(

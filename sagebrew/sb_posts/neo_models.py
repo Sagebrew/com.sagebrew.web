@@ -60,21 +60,32 @@ class SBPost(SBNonVersioned):
                     'RETURN c' % self.sb_id
             post_comments, meta = execute_cypher_query(query)
             post_comments = [SBComment.inflate(row[0]) for row in post_comments]
-            post_owner = self.owned_by.all()[0]
+            try:
+                post_owner = self.owned_by.all()[0]
+                post_owner_name = post_owner.first_name + ' ' + \
+                                  post_owner.last_name
+                post_owner_email = post_owner.email
+            except IndexError:
+                post_owner_name = ""
+                post_owner_email = ""
+
             self.view_count += 1
             self.save()
+            try:
+                parent_object = self.posted_on_wall.all()[
+                    0].owner.all()[0].username
+            except IndexError:
+                parent_object = ""
             for comment in post_comments:
                 comment_array.append(comment.get_single_dict(pleb))
             return {'content': self.content, 'object_uuid': self.sb_id,
-                    'parent_object': self.posted_on_wall.all()[0].
-                        owner.all()[0].username,
+                    'parent_object': parent_object,
                     'vote_count': self.get_vote_count(),
                     'up_vote_number': self.get_upvote_count(),
                     'down_vote_number': self.get_downvote_count(),
                     'last_edited_on': unicode(self.last_edited_on),
-                    'post_owner': post_owner.first_name + ' ' +
-                                  post_owner.last_name,
-                    'post_owner_email': post_owner.email,
+                    'post_owner': post_owner_name,
+                    'post_owner_email': post_owner_email,
                     'comments': comment_array,
                     'current_user': pleb,
                     'datetime': unicode(self.date_created),

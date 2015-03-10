@@ -32,8 +32,6 @@ ELASTIC_SEARCH_HOST = [{'host': environ.get("ELASTIC_SEARCH_HOST", ""),
                                       environ.get("ELASTIC_SEARCH_KEY", ""))
                        }]
 
-CELERY_RESULT_BACKEND = 'redis://%s:%s/0' % (
-    environ.get("REDIS_LOCATION", ""), environ.get("REDIS_PORT", ""))
 
 BROKER_URL = "sqs://%s:%s@" % (
     environ.get("AWS_ACCESS_KEY_ID", ""),
@@ -61,7 +59,7 @@ REST_FRAMEWORK = {
     'DEFAULT_MODEL_SERIALIZER_CLASS':
         'rest_framework.serializers.HyperlinkedModelSerializer',
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.OAuth2Authentication',
+        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
 }

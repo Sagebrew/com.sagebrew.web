@@ -232,10 +232,16 @@ class SBContent(SBVoteableContent):
         return True
 
     def increment_view_count(self):
-        return self.view_count_node.increment()
+        try:
+            return self.view_count_node.all()[0].increment()
+        except IndexError:
+            return 0
 
     def get_view_count(self):
-        return self.view_count_node.all()[0].view_count
+        try:
+            return self.view_count_node.all()[0].view_count
+        except IndexError:
+            return 0
 
 
 class SBVersioned(SBContent):

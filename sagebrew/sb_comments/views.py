@@ -39,7 +39,7 @@ def save_comment_view(request):
         valid_form = comment_form.is_valid()
     except AttributeError:
         return Response({"details": "Invalid Form"}, status=400)
-    if valid_form:
+    if valid_form is True:
         choice_dict = dict(settings.KNOWN_TYPES)
         task_data = {
             "object_uuid": comment_form.cleaned_data['object_uuid'],

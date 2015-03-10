@@ -101,7 +101,6 @@ def get_user_posts(request):
                     "object_type": dict(settings.KNOWN_TYPES)[post.object_type],
                     "object_uuid": post.sb_id
                 }
-                print task_data
                 spawn_task(update_view_count_task, task_data)
             task_dict = {'username': request.user.username}
             spawn_task(task_func=build_wall_task, task_param=task_dict)
@@ -126,7 +125,6 @@ def get_user_posts(request):
                         settings.KNOWN_TYPES)[post_dict['object_type']],
                     'object_uuid': post_dict['object_uuid']
                 }
-                print task_data
                 spawn_task(update_view_count_task, task_data)
                 for item in post_dict["comments"]:
                     item["vote_count"] = str(item["vote_count"])

@@ -66,6 +66,7 @@
   background-color: #eaf0e8;
   height: auto;
   min-height: 700px;
+  border: 1px solid #b7bfbb;
 }
 .sb_settings_block input {
   margin-bottom: 15px;
@@ -167,6 +168,7 @@
   background-color: #eaf0e8;
   padding: 15px 0 15px 0px;
   margin-bottom: 15px;
+  border: 1px solid #b7bfbb;
 }
 .sb_side_nav_block h5 {
   margin: 0;
@@ -365,7 +367,7 @@
 .sb_header_bar {
   border-radius: 0 0 2px 2px;
   border-width: 2px;
-  border-bottom: solid #b7bfbb;
+  border-bottom: 1px solid #b7bfbb;
   margin-bottom: 15px;
 }
 .sb_header_bar h5 {

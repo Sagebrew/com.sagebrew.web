@@ -60,6 +60,7 @@
 .sb_settings_block{
   &:extend(.block);
   padding: 15px 30px 15px 30px;
+  margin-bottom: 30px;
   background-color: @sb_green_extra_light;
   height: auto;
   min-height: 700px;
@@ -170,6 +171,19 @@
     margin-bottom: 15px;
   }
 }
+.sb_side_nav_block{
+  background-color: @sb_green_extra_light;
+  padding: 15px 0 15px 0px;
+  margin-bottom: 15px;
+  h5{
+    margin: 0;
+    padding-left: 30px;
+  }
+  h3{
+    padding-left: 30px;
+    margin: 0 0 15px 0;
+  }
+}
 //wallpaper
 .sb_wallpaper{
   background-color: @sb_grey_extra_light;
@@ -231,7 +245,8 @@
   &:extend(.sb_wall);
   width: 100%;
   margin-top: 30px;
-
+  margin-bottom: 30px;
+  padding-top: 60px;
 }
 // Border
 .sb_border{
@@ -367,7 +382,9 @@
     margin-bottom: 5px;
   }
 }
+.sb_header_settings{
 
+}
 // Navigation
 .sb_nav{
   li{
@@ -460,7 +477,6 @@
     border: 1px solid @sb_grey;
   }
 }
-
 // Footers
 .sb_footer{
   background-color: transparent;

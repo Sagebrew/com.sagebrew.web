@@ -36,7 +36,7 @@ TIME_ZONE = 'UTC'
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
 
-SITE_ID = 1
+SITE_ID = 2
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
@@ -168,6 +168,7 @@ INSTALLED_APPS = (
     'djangosecure',
     'django_admin_bootstrapped',
     'django.contrib.admin',
+    'django_ses',
     'rest_framework',
     'rest_framework.authtoken',
     'admin_honeypot',
@@ -264,6 +265,8 @@ OAUTH_CLIENT_ID = environ.get("OAUTH_CLIENT_ID", '')
 OAUTH_CLIENT_SECRET = environ.get("OAUTH_CLIENT_SECRET", "")
 
 DYNAMO_IP = environ.get("DYNAMO_IP", None)
+
+EMAIL_BACKEND = 'django_ses.SESBackend'
 
 CELERY_TIMEZONE = 'UTC'
 OPBEAT = {

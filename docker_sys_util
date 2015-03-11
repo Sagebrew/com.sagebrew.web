@@ -17,8 +17,9 @@ CMD chown {{APP_USER}} /etc/rsyslog.d/ && \
     python manage.py logglypopulation && \
     chown root /etc/rsyslog.d/ && service rsyslog restart && \
     python manage.py collectstatic --noinput && \
-    python manage.py migrate --noinput --no-initial-data && \
+    python manage.py migrate --noinput && \
     python manage.py create_dynamo_tables && \
     python manage.py create_privileges && \
     python manage.py create_oauth_client && \
-    python manage.py create_prepopulated_tags
+    python manage.py create_prepopulated_tags && \
+    python manage.py createsite

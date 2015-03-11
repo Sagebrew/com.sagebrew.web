@@ -29,7 +29,7 @@ django-secure==1.0.1
 django-storages==1.1.8
 djangorestframework==3.0.5
 elasticsearch==1.4.0
-gunicorn==19.2.1
+gunicorn==19.3.0
 kombu==3.0.24
 mdx-cite==1.0
 meld3==1.0.0

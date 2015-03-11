@@ -116,7 +116,8 @@ urlpatterns = patterns(
                            "do more for the community.",
             "content_path":
                 "%s10000_brewmaster.html" % (settings.HELP_DOCS_PATH),
-            "category": "privileges"
+            "category": "privileges",
+            "static_files": True,
         },
         name="brewmaster"),
     url(r'^tribune/$', TemplateView.as_view(

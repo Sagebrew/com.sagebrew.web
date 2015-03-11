@@ -20,6 +20,13 @@ community and to lead through example.
   [Deleted][3] or [Closed][4].
 - Close [Duplicate][5] Questions
 - Ability to [Protect][7] a Conversation
+{% comment %}
+    Upon implementation of Reach Posts elected officials shall have the capability
+    to retain their additional reach posts granted at Tribune status until the 
+    end of their second term. For Presidential we'll probably want to remove 
+    these powers immediately after election. For Senators probably after their
+    first term.
+{% endcomment %}
 
 ## Limitations ##
 Admin and up privileges are suspended if you open a representative account or are 

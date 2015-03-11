@@ -221,6 +221,8 @@
   height: 250px;
   margin-top: 30px;
   border-radius:5px 5px 0 0;
+  //fixes gap at the bottom
+  margin-bottom: -35px;
 }
 .sb_wallpaper_action{
   &:extend(.sb_wallpaper);
@@ -343,6 +345,13 @@
   &:hover{
     color: @sb_green;
     background-color: transparent;
+  }
+}
+.sb_btn_icon_settings{
+  &:extend(.sb_btn_icon_green);
+  color: @sb_green_extra_light;
+  &:hover{
+    color: @sb_green_medium;
   }
 }
 .sb_btn_vote{

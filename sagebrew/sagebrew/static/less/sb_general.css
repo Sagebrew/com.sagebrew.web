@@ -213,6 +213,7 @@
   height: 250px;
   margin-top: 30px;
   border-radius: 5px 5px 0 0;
+  margin-bottom: -35px;
 }
 .sb_wallpaper_action {
   background-color: #9dbbb9;
@@ -300,6 +301,7 @@
 .sb_btn_vote,
 .sb_btn_nav,
 .sb_login button,
+.sb_btn_icon_settings,
 .vote_up,
 .vote_down,
 .vote_up_small,
@@ -327,6 +329,7 @@
 .sb_btn_icon_green,
 .sb_btn_vote,
 .sb_btn_nav,
+.sb_btn_icon_settings,
 .vote_up,
 .vote_down,
 .vote_up_small,
@@ -335,13 +338,20 @@
   font-size: 18px;
   padding: 10px;
 }
-.sb_btn_icon_green {
+.sb_btn_icon_green,
+.sb_btn_icon_settings {
   padding: 5px;
   color: #1ba39c;
 }
 .sb_btn_icon_green:hover {
   color: #1ba39c;
   background-color: transparent;
+}
+.sb_btn_icon_settings {
+  color: #eaf0e8;
+}
+.sb_btn_icon_settings:hover {
+  color: #9dbbb9;
 }
 .sb_btn_vote,
 .vote_up,

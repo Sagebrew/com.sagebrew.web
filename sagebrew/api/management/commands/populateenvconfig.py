@@ -72,7 +72,6 @@ def populate_staging_values(data):
                         environ.get("REDIS_LOCATION_STAGING", ""))
     data = data.replace("<CACHE_LOCATION>",
                         environ.get("CACHE_LOCATION_STAGING", ""))
-    # Only populated in worker config (web gets these by default from aws)
     data = data.replace("<RDS_DB_NAME>",
                         environ.get("RDS_DB_NAME_STAGING", ""))
     data = data.replace("<RDS_USERNAME>",

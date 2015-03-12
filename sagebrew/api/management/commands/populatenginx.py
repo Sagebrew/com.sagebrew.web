@@ -56,7 +56,7 @@ class Command(BaseCommand):
                 domains_space = "localhost"
             else:
                 for item in settings.ALLOWED_HOSTS:
-                    domains += domains + "|" + item
+                    domains += "|" + item
                 domains_pipe = domains[1:]
                 domains_space = domains_pipe.replace("|", " ")
             project_name = settings.PROJECT_DIR[

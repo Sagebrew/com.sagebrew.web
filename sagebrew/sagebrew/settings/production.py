@@ -3,7 +3,7 @@ from os import environ
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
-ALLOWED_HOSTS = ['beta.sagebrew.com', 'www.sagebrew.com', 'sagebrew.com']
+ALLOWED_HOSTS = ['www.sagebrew.com',]
 VERIFY_SECURE = True
 WEB_ADDRESS = "https://www.sagebrew.com"
 

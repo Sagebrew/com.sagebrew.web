@@ -1,4 +1,4 @@
-upstream {{PROJECT_NAME}} {
+upstream {{APP_NAME}} {
     server unix:{{PROJECT_PATH}}/run/gunicorn.sock
 	fail_timeout=0;
 }
@@ -6,8 +6,8 @@ upstream {{PROJECT_NAME}} {
 server {
 	listen 80;
 	
-	access_log /home/apps/logs/{{PROJECT_NAME}}_nginx.access.log;
-	error_log /home/apps/logs/{{PROJECT_NAME}}_nginx.error.log;
+	access_log /home/apps/logs/{{APP_NAME}}_nginx.access.log;
+	error_log /home/apps/logs/{{APP_NAME}}_nginx.error.log;
 	
     client_max_body_size 4G;
     server_name {{DOMAINS_SPACE}};
@@ -28,7 +28,7 @@ server {
 		proxy_set_header X-Real-IP $remote_addr;
 		proxy_set_header X-Scheme $scheme;
 		proxy_read_timeout 1200;
-        proxy_pass  http://{{PROJECT_NAME}};
+        proxy_pass  http://{{APP_NAME}};
     }
 	
 	if ($host !~* ^({{DOMAINS_PIPE}})$ ) {

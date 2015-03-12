@@ -64,6 +64,7 @@ class Command(BaseCommand):
             data = data.replace("{{APP_NAME}}", os.environ.get("APP_NAME", ""))
             data = data.replace("{{PROJECT_NAME}}", project_name)
             data = data.replace("{{PROJECT_PATH}}", settings.PROJECT_DIR)
+            data = data.replace("{{APP_PATH}}", settings.PROJECT_DIR)
             data = data.replace("{{PROJECT_DIRECTORY}}", settings.REPO_DIR)
             data = data.replace("{{DOMAINS_PIPE}}", domains_pipe)
             data = data.replace("{{DOMAINS_SPACE}}", domains_space)

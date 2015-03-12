@@ -13,16 +13,17 @@ $(document).ready(function() {
             console.log(data);
             var tags = data['tags'];
             console.log(tags);
-           var engine = new Bloodhound({
-  local: tags,
-  datumTokenizer: function(d) {
-    return Bloodhound.tokenizers.whitespace(d.value);
-  },
-  queryTokenizer: Bloodhound.tokenizers.whitespace
-});
+            var engine = new Bloodhound({
+                local: tags,
+                datumTokenizer: function(d) {
+                return Bloodhound.tokenizers.whitespace(d.value);
+              },
+              queryTokenizer: Bloodhound.tokenizers.whitespace
+              });
 
-engine.initialize();
+            engine.initialize();
             $('#sb_tag_box').tokenfield({
+                limit: 5,
                 typeahead: [null, {source: engine.ttAdapter()}],
                 delimiter: [",", " ","'",".","*", "_"]
             });

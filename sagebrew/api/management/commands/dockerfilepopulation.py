@@ -102,8 +102,6 @@ class Command(BaseCommand):
 def populate_general_env(data):
     data = data.replace('{{APP_USER}}', os.environ.get("APP_USER", ""))
     data = data.replace("{{APP_NAME}}", os.environ.get("APP_NAME", ""))
-    data = data.replace('{{NEW_RELIC_LICENSE}}', os.environ.get(
-        "NEW_RELIC_LICENSE", ""))
     data = data.replace('{{CIRCLE_BRANCH}}', os.environ.get(
         "CIRCLE_BRANCH", ""))
     data = data.replace('{{SSL_CERT_LOCATION}}', os.environ.get(
@@ -115,6 +113,8 @@ def populate_general_env(data):
 
 def populate_test_env(data):
     data = data.replace('{{REQUIREMENTS_FILE}}', "test")
+    data = data.replace('{{NEW_RELIC_LICENSE}}', os.environ.get(
+        "NEW_RELIC_LICENSE", ""))
     data = data.replace('{{BOMBERMAN_API_KEY}}', os.environ.get(
         "BOMBERMAN_API_KEY", ""))
     data = data.replace('{{NEO4J_REST_URL}}',
@@ -154,6 +154,8 @@ def populate_test_env(data):
 
 def populate_prod_env(data):
     data = data.replace('{{REQUIREMENTS_FILE}}', "production")
+    data = data.replace('{{NEW_RELIC_LICENSE}}', os.environ.get(
+        "NEW_RELIC_LICENSE_PROD", ""))
     data = data.replace('{{BOMBERMAN_API_KEY}}', os.environ.get(
         "BOMBERMAN_API_KEY_PROD", ""))
     data = data.replace('{{NEO4J_REST_URL}}',
@@ -198,6 +200,8 @@ def populate_prod_env(data):
 
 def populate_staging_env(data):
     data = data.replace('{{REQUIREMENTS_FILE}}', "production")
+    data = data.replace('{{NEW_RELIC_LICENSE}}', os.environ.get(
+        "NEW_RELIC_LICENSE", ""))
     data = data.replace('{{BOMBERMAN_API_KEY}}', os.environ.get(
         "BOMBERMAN_API_KEY_STAGING", ""))
     data = data.replace('{{NEO4J_REST_URL}}',

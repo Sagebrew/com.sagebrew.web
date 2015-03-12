@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}{{ page_user.first_name}} {{ page_user.last_name }}{% endblock title %}
+{% block content %}
+{%  include "search.html" %}
+<div class="row-fluid sb_page">
+    <div class="col-lg-10 col-lg-offset-1 col-md-12 col-sm-12 col-xs-12">
+        <div class="sb_wall sb_settings_wall">
+            <div class="row">
+                <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 col-lg-offset-1 col-md-offset-1 col-sm-offset-0 col-xs-offset-0">
+                    <div class="block sb_side_nav_block">
+                        <div class="sb_header_bar sb_header_settings">
+                            <h3>Settings</h3>
+                        </div>
+                        <h5>General</h5>
+                    </div>
+                </div>
+                <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
+                    <div class="block sb_settings_block">
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                <h5>First Name</h5>
+                                <input type="text"
+                                       placeholder="First Name"
+                                       class="form-control input-lg">
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                <h5>Last Name</h5>
+                                <input type="text"
+                                       placeholder="Last Name"
+                                       class="form-control input-lg">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <h5>Email</h5>
+                                <input type="text"
+                                       placeholder="Email Address"
+                                       class="form-control input-lg">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <h5>Update Address</h5>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <input type="text"
+                                       placeholder="Street Address"
+                                       class="form-control input-lg">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <input type="text"
+                                       placeholder="Address Line 2"
+                                       class="form-control input-lg">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4 col-md-4">
+                                <input type="text"
+                                       placeholder="City"
+                                       class="form-control input-lg">
+                            </div>
+                            <div class="col-lg-4 col-md-4">
+                                <input type="text"
+                                       placeholder="State"
+                                       class="form-control input-lg">
+                            </div>
+                            <div class="col-lg-4 col-md-4">
+                                <input type="text"
+                                       placeholder="Zip Code"
+                                       class="form-control input-lg">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <h5>Change Password</h5>
+                                <input type="text"
+                                       placeholder="Old Password"
+                                       class="form-control input-lg">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <input type="text"
+                                       placeholder="New Password"
+                                       class="form-control input-lg">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <input type="text"
+                                       placeholder="Confirm Password"
+                                       class="form-control input-lg">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <h5>Delete Account</h5>
+                                <div class="block sb_alert_block">
+                                    <p>
+                                        Are you sure you would like to delete your Sagebrew account?
+                                        Once you hit delete, your account is in the arms of the sages (aka dead).
+                                    </p>
+                                    <button class="btn btn-primary btn-danger">Delete Account</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                                <button class="btn btn-primary sb_btn sb_btn_fill">
+                                    Save Changes
+                                </button>
+                            </div>
+                            <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                                <button class="btn btn-primary sb_btn sb_btn_fill">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block footer %}
+{% endblock %}
+{% block scripts %}
+    {{ block.super }}
+
+{% endblock scripts %}

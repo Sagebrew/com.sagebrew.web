@@ -11,12 +11,16 @@ the Sagebrew Community.
 
 ## What exactly to I gain? ##
 - Action Page capabilities
-{% if debug == True %}
+{% comment %}
 - You now have 3 Reach Posts per week and they reach your entire county
 - 8 Reach Posts to interact with those that represent you
 - 5 Reach Posts to interact with representatives/sages/tribunes outside your 
   area.
-{% endif %}
+{% endcomment %}
+{% comment %}
+- 1 Free Project Page
+    - Ability to have up to 3
+{% endcomment %}
 
 ## Note ##
 We know that maintaining an Action Page isn't for everyone so don't worry we'll

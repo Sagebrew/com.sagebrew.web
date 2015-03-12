@@ -7,10 +7,12 @@
         data-page_user_email="{{ pleb_info.email }}"></div>
     <div class="row-fluid sb_page">
        <div class="thumbnail sb_profile_pic">
+               <button class="btn sb_btn_icon sb_btn_icon_green sb_btn_icon_settings"><span class="fui-photo"></span></button>
             <img src="{{ pleb_info.profile_pic }}">
        </div>
-       <div>
-            <img class="sb_wallpaper wallpaper_profile" src="{% static 'images/sb_banners-01.png' %}">
+       <div align="right" class="row-fluid">
+            <img class=" wallpaper_profile" src="{% static 'images/wallpaper_western.jpg' %}">
+                   <button class="btn sb_btn_icon sb_btn_icon_green sb_btn_icon_settings"><span class="fui-photo"></span></button>
        </div>
        <div class="sb_nav sb_secondary_nav sb_secondary_nav_bar">
             {% include "sb_home_section/sb_profile_user_menu.html" %}
@@ -21,9 +23,6 @@
             {%  endblock %}
        {% endif %}
     </div>
-
-
-
 {% endblock %}
 {% block footer %}
 {% endblock %}

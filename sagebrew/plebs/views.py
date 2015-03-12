@@ -48,7 +48,7 @@ def profile_page(request, pleb_username=""):
     :return:
     '''
     try:
-        citizen = Pleb.nodes.get(email=request.user.email)
+        citizen = Pleb.nodes.get(username=request.user.username)
         page_user_pleb = Pleb.nodes.get(username=pleb_username)
     except (Pleb.DoesNotExist, DoesNotExist):
         return redirect('404_Error')
@@ -114,7 +114,7 @@ def general_settings(request):
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
-def get_user_search_view(request, pleb_email=""):
+def get_user_search_view(request, pleb_username=""):
     '''
     This view will take a plebs email, get the user and render to string
     an html object which holds the data to be displayed when a user is returned
@@ -124,9 +124,9 @@ def get_user_search_view(request, pleb_email=""):
     :param pleb_email:
     :return:
     '''
-    form = GetUserSearchForm({"email": pleb_email})
+    form = GetUserSearchForm({"username": pleb_username})
     if form.is_valid():
-        response = prepare_user_search_html(form.cleaned_data['email'])
+        response = prepare_user_search_html(pleb=form.cleaned_data['username'])
         if response is None:
             return HttpResponse('Server Error', status=500)
         elif response is False:

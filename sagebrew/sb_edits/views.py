@@ -88,7 +88,7 @@ def edit_question_title_view(request):
             "question_title": edit_question_form.cleaned_data['question_title']
         }
         pleb_data = {
-            'email': request.user.email,
+            'username': request.user.username,
             'task_func': edit_question_task,
             'task_param': task_data
         }

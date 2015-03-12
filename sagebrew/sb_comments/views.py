@@ -49,7 +49,7 @@ def save_comment_view(request):
             'comment_uuid': str(uuid1())
         }
         pleb_task_data = {
-            'email': request.user.email,
+            'username': request.user.username,
             'task_func': save_comment_on_object,
             'task_param': task_data
         }

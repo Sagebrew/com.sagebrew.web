@@ -1,6 +1,6 @@
 $( document ).ready(function() {
 	$("button#beta_email_submit").click(function(event){
-        this.attr('disabled', 'disabled');
+        $("button#beta_email_submit").attr('disabled', 'disabled');
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {

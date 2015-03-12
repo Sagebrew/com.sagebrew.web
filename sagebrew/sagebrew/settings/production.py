@@ -66,7 +66,6 @@ REST_FRAMEWORK = {
     ),
 }
 
-
 EMAIL_VERIFICATION_URL = "%s/registration/email_confirmation/" % WEB_ADDRESS
 
 LOGGING = {

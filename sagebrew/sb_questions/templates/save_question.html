@@ -3,12 +3,17 @@
 {% load staticfiles %}
 {% block css %}
     {{ block.super }}
-    <link href="{% static 'select2/select2.css' %}" rel="stylesheet"/>
+    <link href="{% static 'css/vendor/select2.css' %}" rel="stylesheet"/>
     <link rel="stylesheet" href="{% static 'css/vendor/jquery.pagedown-bootstrap.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/vendor/bootstrap-tokenfield.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/vendor/tokenfield-typeahead.min.css' %}"/>
 
 {% endblock css %}
 
 {% block content %}
+    <div class="action" style="display: none" data-action="write_question"></div>
+    <div class="action" style="display: none" data-action="write_comment"></div>
+    <div class="action" style="display: none" data-action="write_solution"></div>
     <div class="row-fluid sb_page">
         <div class="col-lg-9">
             <div class="sb_wall sb_conversation_wall">
@@ -57,9 +62,10 @@
 {% block scripts %}
     {{ block.super }}
     <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
+    <script src="{% static 'js/vendor/bootstrap-tokenfield.min.js' %}"></script>
+    <script src="{% static 'js/vendor/typeahead.js' %}"></script>
     <script src="{% static 'js/create_markdown.js' %}"></script>
     <script src="{% static 'js/save_question.js' %}"></script>
     <script src="{% static 'js/get_tags.js' %}"></script>
-    <script src="{% static 'select2/select2.js' %}"></script>
     <script src="{% static 'js/question_validator.js' %}"></script>
 {% endblock scripts %}

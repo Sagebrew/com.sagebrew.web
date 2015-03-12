@@ -22,6 +22,6 @@ def get_tag_view(request):
                             index='tags', doc_type='tag')
 
     for resp in scan_resp:
-        tag_list.append(resp['_source']['tag_name'])
+        tag_list.append({"value": resp['_source']['tag_name']})
     return Response({'tags': tag_list}, status=200)
 

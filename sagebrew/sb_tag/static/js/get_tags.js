@@ -13,9 +13,18 @@ $(document).ready(function() {
             console.log(data);
             var tags = data['tags'];
             console.log(tags);
-            $('#sb_tag_box').select2({
-                tags: tags,
-                tokenSeparators: [",", " ","'",".","*", "_"]
+           var engine = new Bloodhound({
+  local: tags,
+  datumTokenizer: function(d) {
+    return Bloodhound.tokenizers.whitespace(d.value);
+  },
+  queryTokenizer: Bloodhound.tokenizers.whitespace
+});
+
+engine.initialize();
+            $('#sb_tag_box').tokenfield({
+                typeahead: [null, {source: engine.ttAdapter()}],
+                delimiter: [",", " ","'",".","*", "_"]
             });
         }
     })

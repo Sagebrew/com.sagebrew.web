@@ -16,7 +16,7 @@ def create_object_relations_task(sb_object, current_pleb, question=None,
     try:
         current_pleb = Pleb.nodes.get(username=current_pleb)
         if wall_pleb is not None:
-            wall_pleb = Pleb.nodes.get(username=wall_pleb)
+            wall_pleb = Pleb.nodes.get(email=wall_pleb)
             wall = wall_pleb.wall.all()[0]
         else:
             wall = None

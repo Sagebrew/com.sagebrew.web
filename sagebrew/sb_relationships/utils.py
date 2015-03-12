@@ -15,7 +15,7 @@ def create_friend_request_util(data):
     """
     try:
         try:
-            from_citizen = Pleb.nodes.get(email=data['from_pleb'])
+            from_citizen = Pleb.nodes.get(username=data['from_pleb'])
             to_citizen = Pleb.nodes.get(username=data['to_pleb'])
         except(Pleb.DoesNotExist, DoesNotExist) as e:
             return e

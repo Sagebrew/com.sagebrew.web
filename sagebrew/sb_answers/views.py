@@ -28,7 +28,7 @@ def save_answer_view(request):
         return Response({'detail': 'Please provide a valid JSON object'},
                         status=400)
     try:
-        answer_data['current_pleb'] = request.user.email
+        answer_data['current_pleb'] = request.user.username
         answer_form = SaveAnswerForm(answer_data)
         valid_form = answer_form.is_valid()
     except AttributeError:

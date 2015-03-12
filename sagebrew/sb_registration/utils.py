@@ -252,7 +252,7 @@ def determine_reps(pleb_address):
 """
 
 
-def get_friends(email):
+def get_friends(username):
     '''
     Creates a list of dictionaries which hold data about the friends of the
     user
@@ -261,7 +261,7 @@ def get_friends(email):
     :return:
     '''
     try:
-        citizen = Pleb.nodes.get(email=email)
+        citizen = Pleb.nodes.get(username=username)
     except (Pleb.DoesNotExist, DoesNotExist):
         return []
     friends = []
@@ -284,7 +284,7 @@ def verify_completed_registration(user):
     :return:
     '''
     try:
-        pleb = Pleb.nodes.get(email=user.email)
+        pleb = Pleb.nodes.get(username=user.username)
         return pleb.completed_profile_info
     except (Pleb.DoesNotExist, DoesNotExist, CypherException):
         return False
@@ -299,7 +299,7 @@ def verify_verified_email(user):
     :return:
     '''
     try:
-        pleb = Pleb.nodes.get(email=user.email)
+        pleb = Pleb.nodes.get(username=user.username)
         return pleb.email_verified
     except (Pleb.DoesNotExist, DoesNotExist):
         return False

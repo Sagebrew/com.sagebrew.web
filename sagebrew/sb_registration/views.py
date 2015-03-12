@@ -109,7 +109,7 @@ def login_view(request):
 @login_required()
 def resend_email_verification(request):
     try:
-        pleb = Pleb.nodes.get(email=request.user.email)
+        pleb = Pleb.nodes.get(username=request.user.username)
     except(DoesNotExist):
         return HttpResponseNotFound("Could not find user")
 
@@ -175,7 +175,7 @@ def logout_view(request):
 @login_required()
 def email_verification(request, confirmation):
     try:
-        pleb = Pleb.nodes.get(email=request.user.email)
+        pleb = Pleb.nodes.get(username=request.user.username)
         if token_gen.check_token(request.user, confirmation, pleb):
             pleb.email_verified = True
             pleb.save()
@@ -213,7 +213,7 @@ def profile_information(request):
     profile_information_form = ProfileInfoForm(request.POST or None)
     address_information_form = AddressInfoForm(request.POST or None)
     try:
-        citizen = Pleb.nodes.get(email=request.user.email)
+        citizen = Pleb.nodes.get(username=request.user.username)
     except (Pleb.DoesNotExist, DoesNotExist):
         return redirect("404_Error")
     except (CypherException, IOError) as e:
@@ -235,7 +235,8 @@ def profile_information(request):
         if(address_clean['valid'] == "valid" or
                    address_clean.get('original_selected', False) is True):
             success = spawn_task(store_address,
-                                 {"address_clean": address_clean})
+                                 {"username": request.user.username,
+                                  "address_clean": address_clean})
             if isinstance(success, Exception):
                 return HttpResponseServerError('Server Error')
             try:
@@ -307,7 +308,7 @@ def profile_picture(request):
     # spawn off a task for storing the url in neo and working with blitline to
     # get different versions of the image.
     try:
-        citizen = Pleb.nodes.get(email=request.user.email)
+        citizen = Pleb.nodes.get(username=request.user.username)
     except(Pleb.DoesNotExist, DoesNotExist):
         return render(request, 'login.html')
     except CypherException:

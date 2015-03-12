@@ -35,6 +35,7 @@ def save_post_view(request):
     if type(post_data) != dict:
         return Response({"details": "Please Provide a JSON Object"}, status=400)
     try:
+        post_data['current_pleb'] = request.user.username
         post_form = SavePostForm(post_data)
         valid_form = post_form.is_valid()
     except AttributeError:

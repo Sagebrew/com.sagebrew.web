@@ -59,7 +59,7 @@ def profile_page(request, pleb_username=""):
     is_owner = False
     is_friend = False
     friend_request_sent = False
-    friends_list = get_friends(citizen.email)
+    friends_list = get_friends(citizen.username)
     if current_user.email == page_user.email:
         is_owner = True
     elif page_user_pleb in citizen.friends.all():
@@ -169,7 +169,7 @@ def about_page(request, pleb_username):
     page_user = User.objects.get(email=citizen.email)
     is_owner = False
     is_friend = False
-    friends_list = get_friends(citizen.email)
+    friends_list = get_friends(citizen.username)
     if current_user.email == page_user.email:
         is_owner = True
     elif citizen.friends.search(email=current_user.email):
@@ -228,7 +228,7 @@ def reputation_page(request, pleb_username):
     page_user = User.objects.get(email=citizen.email)
     is_owner = False
     is_friend = False
-    friends_list = get_friends(citizen.email)
+    friends_list = get_friends(citizen.username)
     if current_user.email == page_user.email:
         is_owner = True
     elif citizen.friends.search(email=current_user.email):
@@ -286,7 +286,7 @@ def friends_page(request, pleb_username):
     page_user = User.objects.get(email=citizen.email)
     is_owner = False
     is_friend = False
-    friends_list = get_friends(citizen.email)
+    friends_list = get_friends(citizen.username)
     if current_user.email == page_user.email:
         is_owner = True
     elif citizen.friends.search(email=current_user.email):

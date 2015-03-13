@@ -158,7 +158,7 @@ class SBQuestion(SBVersioned, SBTagContent):
                 'last_edited_on': unicode(self.last_edited_on),
                 'up_vote_number': self.get_upvote_count(),
                 'down_vote_number': self.get_downvote_count(),
-                'vote_score': self.get_vote_count(),
+                'object_vote_count': self.get_vote_count(),
                 'owner': owner_name,
                 'owner_profile_url': owner_profile_url,
                 'time_created': unicode(self.date_created),

@@ -93,7 +93,7 @@ class SBAnswer(SBVersioned):
                            'last_edited_on': unicode(self.last_edited_on),
                            'up_vote_number': self.get_upvote_count(),
                            'down_vote_number': self.get_downvote_count(),
-                           'vote_score': self.get_vote_count(),
+                           'object_vote_count': self.get_vote_count(),
                            'answer_owner_name': answer_owner_name,
                            'answer_owner_url': answer_owner.username,
                            'time_created': unicode(self.date_created),

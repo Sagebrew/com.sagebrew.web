@@ -80,7 +80,7 @@ class SBPost(SBNonVersioned):
                 comment_array.append(comment.get_single_dict(pleb))
             return {'content': self.content, 'object_uuid': self.sb_id,
                     'parent_object': parent_object,
-                    'vote_count': self.get_vote_count(),
+                    'object_vote_count': self.get_vote_count(),
                     'up_vote_number': self.get_upvote_count(),
                     'down_vote_number': self.get_downvote_count(),
                     'last_edited_on': unicode(self.last_edited_on),

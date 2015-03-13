@@ -194,6 +194,8 @@ def get_question_doc(question_uuid, question_table, solution_table):
     question['time_created'] = datetime.strptime(question['time_created'][
                                       :len(question['time_created'])-6],
                                       '%Y-%m-%d %H:%M:%S.%f')
+    question['object_vote_count'] = str(question['up_vote_number']
+                                        - question['down_vote_number'])
     for comment in comments:
         comment = dict(comment)
         comment['up_vote_number'] = get_vote_count(comment['object_uuid'],1)
@@ -205,6 +207,8 @@ def get_question_doc(question_uuid, question_table, solution_table):
         comment['time_created'] = datetime.strptime(comment['time_created'][
                                       :len(comment['time_created'])-6],
                                       '%Y-%m-%d %H:%M:%S.%f')
+        comment['object_vote_count'] = str(comment['up_vote_number']
+                                           - comment['down_vote_number'])
         q_comments.append(comment)
     for answer in answers:
         a_comments = []
@@ -220,6 +224,8 @@ def get_question_doc(question_uuid, question_table, solution_table):
         answer['time_created'] = datetime.strptime(answer['time_created'][
                                       :len(answer['time_created'])-6],
                                       '%Y-%m-%d %H:%M:%S.%f')
+        answer['object_vote_count'] = str(answer['up_vote_number']-
+                                          answer['down_vote_number'])
         answer_comments = comment_table.query_2(
             parent_object__eq=answer['object_uuid'],
             datetime__gte="0"
@@ -237,6 +243,8 @@ def get_question_doc(question_uuid, question_table, solution_table):
                                       'time_created'][
                                       :len(comment['time_created'])-6],
                                       '%Y-%m-%d %H:%M:%S.%f')
+            comment['object_vote_count'] = str(comment['up_vote_number']
+                                               - comment['down_vote_number'])
             a_comments.append(comment)
         answer['comments'] = a_comments
         answer_list.append(answer)

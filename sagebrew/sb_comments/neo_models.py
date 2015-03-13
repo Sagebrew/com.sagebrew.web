@@ -56,7 +56,7 @@ class SBComment(SBNonVersioned):
             comment_owner = self.is_owned_by.all()[0]
             comment_dict = {'content': self.content,
                             'up_vote_number': self.get_upvote_count(),
-                            'vote_count': self.get_vote_count(),
+                            'object_vote_count': self.get_vote_count(),
                             'object_uuid': self.sb_id,
                             'down_vote_number':
                                 self.get_downvote_count(),

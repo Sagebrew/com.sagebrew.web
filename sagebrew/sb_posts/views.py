@@ -118,8 +118,10 @@ def get_user_posts(request):
                 # The tag values also don't accommodate for dynamic updates
                 # from javascript so we'll have to figure that out that as well
                 # Example when someone transitions from 9 to 10 and 99 to 100
-                post_dict['object_vote_count'] = "10.5k"
-                post_dict['vote_type'] = "true"
+                post_dict['object_vote_count'] = str(post_dict[
+                                                         'up_vote_number'] -\
+                                                 post_dict['down_vote_number'])
+                post_dict['vote_type'] = ""
                 post_dict['current_pleb'] = request.user
                 task_data = {
                     "object_type": dict(
@@ -133,6 +135,8 @@ def get_user_posts(request):
                     datetime.strptime(item['last_edited_on'][
                                       :len(item['last_edited_on'])-6],
                                       '%Y-%m-%d %H:%M:%S.%f')
+                    item['object_vote_count'] = str(item['up_vote_number'] - \
+                                                item['down_vote_number'])
                 c = RequestContext(request, post_dict)
                 html = render_to_string('post.html', post_dict,
                                         context_instance=c)

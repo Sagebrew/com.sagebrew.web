@@ -137,6 +137,7 @@ function vote_object() {
             success: function(data){
                 $('div.sb_upvote_count'+uuid).text(data['upvote_value']);
                 $('div.sb_downvote_count'+uuid).text(data['downvote_value']);
+                $('div.vote_count'+uuid).text(data['total_value'])
             }
         });
     });

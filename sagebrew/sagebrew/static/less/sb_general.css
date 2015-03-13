@@ -203,7 +203,8 @@
 .sb_search_vote_block {
   margin-top: 30px;
 }
-.sb_notification_block {
+.sb_notification_block,
+.sb_reputation_block {
   background-color: #f9fff7;
   border-radius: 0;
   height: 50px;
@@ -212,7 +213,10 @@
   padding: 5px;
 }
 .sb_notification_block p {
-  padding-top: 5px;
+  padding-top: 6px;
+}
+.sb_reputation_block {
+  width: 300px;
 }
 .sb_wallpaper,
 .wallpaper_profile,

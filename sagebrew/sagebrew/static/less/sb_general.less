@@ -215,6 +215,9 @@
   &:extend(.block);
   padding: 15px;
   margin-bottom: 15px;
+  button{
+    margin-top: 45px;
+  }
 }
 //wallpaper
 .sb_wallpaper{
@@ -355,6 +358,7 @@
 }
 .sb_btn_grey{
   &:extend(.sb_btn);
+  background-color: @sb_grey;
 }
 .sb_btn_icon_settings{
   &:extend(.sb_btn_icon_green);
@@ -362,6 +366,10 @@
   &:hover{
     color: @sb_green_medium;
   }
+}
+.sb_btn_icon_settings_profile{
+  &:extend(.sb_btn_icon_settings);
+  position: absolute;
 }
 .sb_btn_vote{
   &:extend(.sb_btn_icon);

@@ -11,6 +11,8 @@ class Command(BaseCommand):
         with open("%s/dockerfile_template" % settings.REPO_DIR,
                    "r") as dockerfile:
             circle_branch = os.environ.get("CIRCLE_BRANCH", None)
+            if "pull" in circle_branch:
+                circle_branch = "dev"
             data = dockerfile.read()
             if(circle_branch is not None):
                 data = data.replace("{{PROJECT_REPONAME}}",

@@ -9,6 +9,8 @@ from django.conf import settings
 class Command(BaseCommand):
     def populate_nginx(self, user, worker="web"):
         circle_branch = os.environ.get("CIRCLE_BRANCH", None)
+        if "pull" in circle_branch:
+            circle_branch = "dev"
         circle_ci = os.environ.get("CIRCLECI", False)
         if circle_ci == "false":
             circle_ci = False

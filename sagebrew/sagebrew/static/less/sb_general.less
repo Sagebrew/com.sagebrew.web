@@ -211,13 +211,16 @@
 .sb_search_vote_block{
   margin-top: 30px;
 }
-.sb_notification_block{
+.sb_notification_block {
   background-color: @sb_grey_extra_light;
   border-radius: 0;
   height: 50px;
   width: 460px;
-  padding: 2px;
-
+  margin: 1px;
+  padding: 5px;
+  p{
+    padding-top: 5px;
+  }
 }
 //wallpaper
 .sb_wallpaper{
@@ -365,7 +368,7 @@
 .sb_btn_friend{
   &:extend(.sb_btn);
   margin: 5px 0 0 0;
-  padding-top: 10px;
+  padding-top: 5px;
   padding-bottom: 5px;
 }
 .sb_btn_vote{
@@ -592,19 +595,6 @@
     padding-bottom: 5px;
   }
 }
-.sb_dropdown {
-  ul{
-    background-color: @white;
-    width: auto;
-    border-radius: 0 0 2px 2px;
-    border-width: 2px;
-    border-top: solid @sb_green_medium;
-    margin-top: -3px;
-  }
-  li{
-    display: block;
-  }
-}
 
 //progress bar
 .sb_progress{
@@ -617,6 +607,24 @@
 }
 
 //dropdown
+.sb_dropdown {
+  ul{
+    background-color: @white;
+    width: auto;
+    border-radius: 0 0 2px 2px;
+    border-width: 2px;
+    border-top: solid @sb_green_impressed;
+    margin-top: -4px;
+  }
+  li{
+    display: block;
+  }
+}
+.sb_dropdown_container{
+  border: solid;
+  border-width: 0 1px 1px 1px;
+  border-color: @sb_green_impressed;
+}
 .sb_dropdown_label{
   margin-left: 0;
   padding-left: @sb_common_padding_positive;
@@ -625,15 +633,13 @@
   font-size: @sb_body_text;
   height:@sb_input_height;
   line-height: 30px;
-  border: 1px solid @sb_grey;
+  border: 1px solid @sb_grey_light;
 }
 .sb_dropdown_content{
   height: auto;
   width: auto;
-  border: 1px solid @sb_grey;
   background-color: @sb_grey_light;
 }
-
 // go through this stuff
 // Can we create a mixin for thumbnails?
 
@@ -642,8 +648,8 @@
   width: 33px;
 }
 .sb_thumbnail_sm{
-  height: 46px;
-  width: 46px;
+  height: 40px;
+  width: 40px;
   border: solid 1px @sb_grey;
   border-radius: 0;
 }

@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.contrib.auth.models import User
 
-from oauth2_provider.models import Application
+from sb_oauth.models import SBApplication
 
 
 class Command(BaseCommand):
@@ -17,22 +17,42 @@ class Command(BaseCommand):
         try:
             oauth_user = User.objects.get(username=environ.get("APP_USER",""))
         except User.DoesNotExist:
-            oauth_user = User(username=environ.get("APP_USER", ""),
-                              password=password)
-            oauth_user.save()
+            oauth_user = User.objects.create(username=environ.get(
+                "APP_USER", ""), password=password)
+
         try:
-            Application.objects.get(client_id=settings.OAUTH_CLIENT_ID)
-        except Application.DoesNotExist:
-            application = Application(client_id=settings.OAUTH_CLIENT_ID,
-                                      user=oauth_user,
-                                      redirect_uris="%s%s" % (
-                                          settings.WEB_ADDRESS, '/login'),
-                                      client_type='confidential',
-                                      authorization_grant_type="password",
-                                      client_secret=
-                                      settings.OAUTH_CLIENT_SECRET,
-                                      name=oauth_user.username)
-            application.save()
+            SBApplication.objects.get(client_id=settings.OAUTH_CLIENT_ID)
+        except SBApplication.DoesNotExist:
+            SBApplication.objects.create(
+                client_id=settings.OAUTH_CLIENT_ID,
+                user=oauth_user, redirect_uris="%s%s" % (
+                    settings.WEB_ADDRESS, '/login'),
+                client_type='confidential',
+                authorization_grant_type="password",
+                client_secret=settings.OAUTH_CLIENT_SECRET,
+                name=oauth_user.username)
+
+        try:
+            oauth_user2 = User.objects.get(username=environ.get(
+                "CRED_USER", ""))
+        except User.DoesNotExist:
+            password = (signing.dumps(str(uuid1()))+signing.dumps(str(uuid1())))[
+                   :128]
+            oauth_user2 = User(username=environ.get("CRED_USER", ""),
+                               password=password)
+            oauth_user2.is_superuser = True
+            oauth_user2.is_staff = True
+            oauth_user2.save()
+        try:
+            SBApplication.objects.get(client_id=settings.OAUTH_CLIENT_ID_CRED)
+        except SBApplication.DoesNotExist:
+            SBApplication.objects.create(
+                client_id=settings.OAUTH_CLIENT_ID_CRED, user=oauth_user2,
+                redirect_uris="%s%s" % (settings.WEB_ADDRESS, '/login'),
+                client_type='confidential',
+                authorization_grant_type="client-credentials",
+                client_secret=settings.OAUTH_CLIENT_SECRET_CRED,
+                name=oauth_user2.username)
 
     def handle(self, *args, **options):
         self.create_oauth_client()

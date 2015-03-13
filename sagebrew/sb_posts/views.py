@@ -31,6 +31,7 @@ def save_post_view(request):
     :param request:
     :return:
     '''
+    datetime_preunicode = datetime.now(pytz.utc)
     post_data = request.DATA
     if type(post_data) != dict:
         return Response({"details": "Please Provide a JSON Object"}, status=400)
@@ -43,6 +44,7 @@ def save_post_view(request):
     if valid_form:
         #post_data['content'] = language_filter(post_data['content'])
         post_form.cleaned_data['post_uuid'] = str(uuid1())
+        post_form.cleaned_data['datetime'] = datetime_preunicode
         html_content = markdown.markdown(post_form.cleaned_data['content'])
         spawned = spawn_task(task_func=save_post_task,
                              task_param=post_form.cleaned_data)
@@ -52,7 +54,7 @@ def save_post_view(request):
         post_data = {
             "object_uuid": post_form.cleaned_data['post_uuid'],
             "parent_object": request.user.username,
-            "datetime": datetime.now(pytz.utc),
+            "datetime": unicode(datetime_preunicode),
             "last_edited_on": datetime.now(pytz.utc),
             "post_owner": request.user.first_name + " " +
                           request.user.last_name,
@@ -107,38 +109,36 @@ def get_user_posts(request):
             spawn_task(task_func=build_wall_task, task_param=task_dict)
         else:
             for post in posts:
-                post_dict = dict(post)
-                post_dict['user'] = request.user
-                post_dict['last_edited_on'] = \
-                    datetime.strptime(post_dict['last_edited_on'][
-                                      :len(post_dict['last_edited_on'])-6],
+                post['user'] = request.user
+                post['last_edited_on'] = \
+                    datetime.strptime(post['last_edited_on'][
+                                      :len(post['last_edited_on'])-6],
                                       '%Y-%m-%d %H:%M:%S.%f')
                 # TODO replace with actual vote count. Note that the template
                 # tag operations require it to be a string and not an int.
                 # The tag values also don't accommodate for dynamic updates
                 # from javascript so we'll have to figure that out that as well
                 # Example when someone transitions from 9 to 10 and 99 to 100
-                post_dict['object_vote_count'] = str(post_dict[
+                post['object_vote_count'] = str(post[
                                                          'up_vote_number'] -\
-                                                 post_dict['down_vote_number'])
-                post_dict['vote_type'] = ""
-                post_dict['current_pleb'] = request.user
+                                                 post['down_vote_number'])
+                post['vote_type'] = ""
+                post['current_pleb'] = request.user
                 task_data = {
                     "object_type": dict(
-                        settings.KNOWN_TYPES)[post_dict['object_type']],
-                    'object_uuid': post_dict['object_uuid']
+                        settings.KNOWN_TYPES)[post['object_type']],
+                    'object_uuid': post['object_uuid']
                 }
                 spawn_task(update_view_count_task, task_data)
-                for item in post_dict["comments"]:
-                    item["object_vote_count"] = str(item["object_vote_count"])
+                for item in post["comments"]:
                     item['last_edited_on'] = \
                     datetime.strptime(item['last_edited_on'][
                                       :len(item['last_edited_on'])-6],
                                       '%Y-%m-%d %H:%M:%S.%f')
                     item['object_vote_count'] = str(item['up_vote_number'] - \
                                                 item['down_vote_number'])
-                c = RequestContext(request, post_dict)
-                html = render_to_string('post.html', post_dict,
+                c = RequestContext(request, post)
+                html = render_to_string('post.html', post,
                                         context_instance=c)
                 html_array.append(html)
 

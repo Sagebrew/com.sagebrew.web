@@ -35,7 +35,6 @@ function save_comment() {
                 var comment_container = $("#sb_comments_container_"+sb_id);
                 comment_container.append(data['html']);
                 $('textarea#post_comment_on_' + sb_id).val("");
-                enable_post_functionality();
             }
         });
     });
@@ -604,6 +603,14 @@ function activate_montage(){
           columnWidth: ".grid-sizer"
       });
     });
+}
+
+function enable_single_post_functionality() {
+    flag_object();
+    vote_object();
+    edit_object();
+    save_comment();
+    show_edit_post();
 }
 
 function enable_post_functionality() {

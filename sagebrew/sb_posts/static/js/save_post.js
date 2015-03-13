@@ -21,6 +21,7 @@ $( document ).ready(function() {
             success: function(data) {
                 $('textarea#post_input_id').val("");
                 $("#wall_app").prepend(data['html']);
+                enable_single_post_functionality()
             }
 		});
 	});

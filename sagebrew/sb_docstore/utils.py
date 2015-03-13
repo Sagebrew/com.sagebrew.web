@@ -132,6 +132,8 @@ def query_parent_object_table(object_uuid, get_all=False, table_name='edits'):
 def update_doc(table, object_uuid, update_data, parent_object="",
                obj_datetime=""):
     table_name = get_table_name(table)
+    print table_name
+    print parent_object, obj_datetime, object_uuid, update_data
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
@@ -369,6 +371,7 @@ def get_wall_docs(parent_object):
     if len(posts) == 0:
         return False
     for post in posts:
+        print post['parent_object'], post['datetime'], type(post['datetime'])
         comment_list = []
         post = dict(post)
         post['up_vote_number'] = get_vote_count(post['object_uuid'], 1)

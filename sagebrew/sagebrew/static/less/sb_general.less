@@ -211,6 +211,11 @@
 .sb_search_vote_block{
   margin-top: 30px;
 }
+.sb_friend_block{
+  &:extend(.block);
+  padding: 15px;
+  margin-bottom: 15px;
+}
 //wallpaper
 .sb_wallpaper{
   background-color: @sb_grey_extra_light;
@@ -281,6 +286,7 @@
   margin-bottom: 30px;
   padding-top: 60px;
 }
+
 // Border
 .sb_border{
   border-radius: 5px;
@@ -346,6 +352,9 @@
     color: @sb_green;
     background-color: transparent;
   }
+}
+.sb_btn_grey{
+  &:extend(.sb_btn);
 }
 .sb_btn_icon_settings{
   &:extend(.sb_btn_icon_green);
@@ -620,6 +629,7 @@
 .sb_thumbnail_lg {
   height: 120px;
   width: 120px;
+  margin: 0;
 }
 .sb_thumbnail_search{
   &:extend(.sb_thumbnail_md);

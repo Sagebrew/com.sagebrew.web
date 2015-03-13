@@ -53,7 +53,8 @@
 .sb_blog_post_block,
 .sb_channel_social,
 .sb_channel_block,
-.sb_search_block {
+.sb_search_block,
+.sb_friend_block {
   height: auto;
   padding-top: 15px;
   padding-left: 15px;
@@ -203,6 +204,10 @@
 .sb_search_vote_block {
   margin-top: 30px;
 }
+.sb_friend_block {
+  padding: 15px;
+  margin-bottom: 15px;
+}
 .sb_wallpaper,
 .wallpaper_profile,
 .sb_wallpaper_action {
@@ -296,6 +301,7 @@
 .sb_btn_space,
 .sb_btn_submit,
 .sb_btn_icon,
+.sb_btn_grey,
 .sb_btn_fill,
 .sb_btn_icon_green,
 .sb_btn_vote,
@@ -581,6 +587,7 @@
 .sb_thumbnail_lg {
   height: 120px;
   width: 120px;
+  margin: 0;
 }
 .sb_thumbnail_search {
   margin-right: 15px;

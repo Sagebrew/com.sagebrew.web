@@ -200,6 +200,7 @@ class SBQuestion(SBVersioned, SBTagContent):
     def render_question_page(self, user_email):
         try:
             owner = self.owned_by.all()
+            print owner
             try:
                 owner = owner[0]
             except IndexError as e:

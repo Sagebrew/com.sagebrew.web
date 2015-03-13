@@ -167,6 +167,7 @@ function save_answer() {
             success: function (data) {
                 $("#solution_container").append(data['html']);
                 $('textarea.sb_answer_input_area').val("");
+                enable_single_answer_functionality();
             }
 		});
 	});
@@ -198,6 +199,9 @@ function edit_object() {
                 $(data['html_object']).text(data['content']);
                 $("#edit_container_"+uuid).hide();
                 $("#sb_content_"+uuid).show();
+                $(".sb_object_dropdown").each(function(i, obj){
+                    $(obj).removeAttr("disabled");
+                });
             }
         });
     });
@@ -229,6 +233,9 @@ function edit_question_title() {
 
 function show_edit_question() {
     $("a.show_edit_question-action").click(function(event){
+        $(".sb_object_dropdown").each(function(i, obj){
+            $(obj).attr("disabled", "disabled");
+        });
         var question_uuid = $(this).data('object_uuid');
         $('#sb_content_'+question_uuid).hide();
         $("#edit_container_"+question_uuid).show();
@@ -239,6 +246,9 @@ function show_edit_question() {
 
 function show_edit_answer() {
     $("a.show_edit_answer-action").click(function(event){
+        $(".sb_object_dropdown").each(function(i, obj){
+            $(obj).attr("disabled", "disabled");
+        });
         var answer_uuid = $(this).data('object_uuid');
         $('#sb_content_'+answer_uuid).hide();
         $('#edit_container_'+answer_uuid).show();
@@ -611,6 +621,14 @@ function enable_single_post_functionality() {
     edit_object();
     save_comment();
     show_edit_post();
+}
+
+function enable_single_answer_functionality() {
+    flag_object();
+    vote_object();
+    edit_object();
+    save_comment();
+    show_edit_answer();
 }
 
 function enable_post_functionality() {

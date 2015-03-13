@@ -10,9 +10,7 @@ $(document).ready(function() {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
-            console.log(data);
             var tags = data['tags'];
-            console.log(tags);
             var engine = new Bloodhound({
                 local: tags,
                 datumTokenizer: function(d) {

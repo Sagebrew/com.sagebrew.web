@@ -176,7 +176,7 @@ def compare_address(smarty_address, address_clean):
 def validate_school(school_name):
     pass
 
-
+@apply_defense
 def upload_image(folder_name, file_uuid, image_file):
     '''
     Creates a connection to the s3 service then uploads the file which was

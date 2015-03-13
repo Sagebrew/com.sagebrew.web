@@ -27,7 +27,8 @@ def upload_image_api(request):
                                                 "parent_object":
                                                     request.user.username})
     return Response({"detail": "success",
-                     "html": html}, 200)
+                     "html": html,
+                     "urls": urls}, 200)
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))

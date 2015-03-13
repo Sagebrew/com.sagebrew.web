@@ -324,8 +324,6 @@ class SBTagContent(StructuredNode):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         if not tags:
             return False
-
-        tags = tags.split(',')
         for tag in tags:
             try:
                 tag_object = SBTag.nodes.get(tag_name=tag)

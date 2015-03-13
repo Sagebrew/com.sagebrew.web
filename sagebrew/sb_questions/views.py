@@ -106,6 +106,7 @@ def save_question_view(request):
         return Response(status=404)
     if valid_form:
         question_form.cleaned_data['question_uuid'] = str(uuid1())
+        question_form.cleaned_data['current_pleb'] = request.user.username
         spawned = spawn_task(task_func=create_question_task,
                              task_param=question_form.cleaned_data)
         if isinstance(spawned, Exception) is True:

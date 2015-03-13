@@ -5,27 +5,43 @@ $(document).ready(function () {
                 {
                     'event': 'insertImageDialog',
                     'callback': function (callback) {
-                        console.log("here");
-                        console.log($("#fileModal"));
-                        setTimeout(function(){
+                        setTimeout(function ()
+                        {
                             $('#fileModal').modal();
-                            $("#insert_image_post").click(function(e){
+                            $("#insert_image_post").click(function(e) {
                                 e.preventDefault();
-                                if($(".upload-photo").length>0){
-                                    var images;
-                                    $(".upload-photo").each(function(){
-                                        images = ""+($(this).filter("[src]").attr("src"));
+                                if ($("#upload_image").val().length > 1) {
+                                    var formdata = new FormData();
+                                    var file = $("#upload_image")[0].files[0];
+                                    formdata.append("myFile", file);
+                                    $.ajaxSetup({
+                                        beforeSend: function (xhr, settings) {
+                                            ajax_security(xhr, settings)
+                                        }
                                     });
-                                    callback(images);
-                                    //$("#upload_photo").fileupload();
+                                    $.ajax({
+                                        xhrFields: {withCredentials: true},
+                                        type: "POST",
+                                        url: "/upload/images/",
+                                        contentType: false,
+                                        processData: false,
+                                        dataType: "json",
+                                        data: formdata,
+                                        success: function (data) {
+                                            console.log(data['urls']);
+                                            callback(data['urls'][0]);
+                                            $("#fileModal").modal('hide');
+                                            enable_post_functionality();
+                                        }
+                                    });
                                 } else {
-                                    var image=$("#img-url").val();
+                                    var image = $("#img-url").val();
                                     callback(image);
+                                    $("#fileModal").modal('hide');
                                 }
-                            })
+                            });
                         }, 0);
-                        console.log("after");
-                        return true; // tell the editor that we'll take care of getting the image url
+                        return true;
                     }
                 }
             ]

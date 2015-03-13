@@ -5,14 +5,21 @@ from django.conf import settings
 from django.contrib import admin
 from django.views.generic.base import TemplateView, RedirectView
 from django.conf.urls import patterns, url
+from plebs.views import ListBetaUsers, RetrieveBetaUsers, invite_beta_user
 
 from sb_registration.views import (login_view, logout_view, signup_view,
                                    beta_page)
+
 
 urlpatterns = patterns(
     '',
     (r'^favicon.ico$', RedirectView.as_view(url="%sfavicon.ico" % (
         settings.STATIC_URL))),
+    url(r'^v1/betausers/$', ListBetaUsers.as_view(), name='betauser-list'),
+    url(r'^v1/betausers/(?P<email>[A-Za-z0-9.@_%+-]{1,90})/$',
+        RetrieveBetaUsers.as_view(), name='betauser-detail'),
+    url(r'^v1/betausers/(?P<email>[A-Za-z0-9.@_%+-]{1,90})/invite/$',
+        invite_beta_user, name="betauser-invite"),
     url(r'^login/$', login_view, name="login"),
     url(r'^logout/$', logout_view, name="logout"),
     url(r'^password_reset/', 'django.contrib.auth.views.password_reset',

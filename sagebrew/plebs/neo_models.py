@@ -22,24 +22,29 @@ class TagRelationship(StructuredRel):
     rep_gained = IntegerProperty(default=0)
     rep_lost = IntegerProperty(default=0)
 
+
 class PostObjectCreated(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     rep_gained = IntegerProperty(default=0)
     rep_lost = IntegerProperty(defaut=0)
+
 
 class ActionActiveRel(StructuredRel):
     gained_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     active = BooleanProperty(default=True)
     lost_on = DateTimeProperty()
 
+
 class RestrictionRel(StructuredRel):
     gained_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     active = BooleanProperty()
+
 
 class OfficialRelationship(StructuredRel):
     active = BooleanProperty(default=False)
     start_date = DateTimeProperty()
     end_date = DateTimeProperty()
+
 
 class School(StructuredNode):
     name = StringProperty()
@@ -350,8 +355,6 @@ class Pleb(StructuredNode):
         return request_list
 
 
-
-
 class Address(StructuredNode):
     street = StringProperty()
     street_additional = StringProperty()
@@ -368,12 +371,14 @@ class Address(StructuredNode):
     # Relationships
     address = RelationshipTo("Pleb", 'LIVES_IN')
 
+
 class Country(StructuredNode):
     name = StringProperty(unique_index=True)
     abbreviation = StringProperty()
 
     #relationships
     states = RelationshipTo('plebs.neo_models.State', 'HAS')
+
 
 class State(StructuredNode):
     name = StringProperty(unique_index=True)

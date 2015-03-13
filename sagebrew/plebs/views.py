@@ -5,16 +5,18 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
+from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework import status
 from neomodel import DoesNotExist, CypherException
 
-from plebs.neo_models import Pleb
+from plebs.neo_models import Pleb, BetaUser
 from sb_registration.utils import (get_friends, generate_profile_pic_url,
                                    verify_completed_registration)
 from .utils import prepare_user_search_html
 from .forms import GetUserSearchForm
-
+from .serializer import BetaUserSerializer
 
 def root_profile_page(request):
     if request.user.is_authenticated() is True:
@@ -364,6 +366,7 @@ def get_user_age(request):
         return Response({"detail": "pleb does not exist"}, 400)
     return Response({"age": pleb.age}, 200)
 
+
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def deactivate_user(request):
@@ -371,3 +374,32 @@ def deactivate_user(request):
     request.user.save()
     return Response({"detail": "successfully deactivated user"}, 200)
 
+
+class ListBetaUsers(ListAPIView):
+    queryset = BetaUser.nodes.all()
+    serializer_class = BetaUserSerializer
+    permission_classes = (IsAuthenticated, IsAdminUser)
+
+
+class RetrieveBetaUsers(RetrieveAPIView):
+    serializer_class = BetaUserSerializer
+    permission_classes = (IsAuthenticated, IsAdminUser)
+
+    def retrieve(self, request, *args, **kwargs):
+        queryset = BetaUser.nodes.get(email=kwargs["email"])
+        serializer_class = BetaUserSerializer(queryset)
+        return Response(serializer_class.data)
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated, IsAdminUser))
+def invite_beta_user(request, email):
+    try:
+        beta_user = BetaUser.nodes.get(email=email)
+        beta_user.invite()
+    except (BetaUser.DoesNotExist, DoesNotExist) as e:
+        return Response({"detail": e.message}, status=status.HTTP_404_NOT_FOUND)
+    except (IOError, CypherException) as e:
+        return Response({"detail": e.message},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return Response({"detail": None}, status=status.HTTP_200_OK)

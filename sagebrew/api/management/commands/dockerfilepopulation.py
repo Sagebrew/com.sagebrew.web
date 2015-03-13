@@ -20,8 +20,7 @@ class Command(BaseCommand):
                 data = data.replace("{{PROJECT_USERNAME}}",
                                     os.environ.get("CIRCLE_PROJECT_USERNAME",
                                                    ""))
-                data = data.replace("{{CIRCLE_BRANCH}}",
-                                    os.environ.get("CIRCLE_BRANCH", ""))
+                data = data.replace("{{CIRCLE_BRANCH}}", circle_branch)
 
                 data = populate_general_env(data)
                 if(circle_branch == "staging"):
@@ -60,7 +59,8 @@ class Command(BaseCommand):
         f.close()
         with open("%s/docker_sys_util" % settings.REPO_DIR,
                   "r") as dockerfile:
-            circle_branch = os.environ.get("CIRCLE_BRANCH", None)
+            circle_branch = os.environ.get("CIRCLE_BRANCH", "test").replace(
+                "/", "-")
             data = dockerfile.read()
             if(circle_branch is not None):
                 data = data.replace("{{PROJECT_REPONAME}}",
@@ -104,7 +104,7 @@ def populate_general_env(data):
     data = data.replace('{{APP_USER}}', os.environ.get("APP_USER", ""))
     data = data.replace("{{APP_NAME}}", os.environ.get("APP_NAME", ""))
     data = data.replace('{{CIRCLE_BRANCH}}', os.environ.get(
-        "CIRCLE_BRANCH", ""))
+        "CIRCLE_BRANCH", "").replace("/", "-"))
     data = data.replace('{{SSL_CERT_LOCATION}}', os.environ.get(
         "SSL_CERT_LOCATION", ""))
     data = data.replace('{{SSL_KEY_LOCATION}}', os.environ.get(

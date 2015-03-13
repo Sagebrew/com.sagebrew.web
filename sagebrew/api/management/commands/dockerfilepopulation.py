@@ -10,7 +10,8 @@ class Command(BaseCommand):
     def populate_dockerfiles(self):
         with open("%s/dockerfile_template" % settings.REPO_DIR,
                    "r") as dockerfile:
-            circle_branch = os.environ.get("CIRCLE_BRANCH", None)
+            circle_branch = os.environ.get("CIRCLE_BRANCH", "test").replace(
+                "/", "-")
             data = dockerfile.read()
             if(circle_branch is not None):
                 data = data.replace("{{PROJECT_REPONAME}}",

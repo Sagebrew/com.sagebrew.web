@@ -168,7 +168,6 @@ function save_answer() {
             success: function (data) {
                 $("#solution_container").append(data['html']);
                 $('textarea.sb_answer_input_area').val("");
-                enable_post_functionality();
             }
 		});
 	});

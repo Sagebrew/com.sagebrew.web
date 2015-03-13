@@ -10,8 +10,9 @@ class Command(BaseCommand):
     def populate_dockerfiles(self):
         with open("%s/dockerfile_template" % settings.REPO_DIR,
                    "r") as dockerfile:
-            circle_branch = os.environ.get("CIRCLE_BRANCH", "test").replace(
-                "/", "-")
+            circle_branch = os.environ.get("CIRCLE_BRANCH", "")
+            if "pull" in circle_branch:
+                circle_branch = "staging"
             data = dockerfile.read()
             if(circle_branch is not None):
                 data = data.replace("{{PROJECT_REPONAME}}",
@@ -59,8 +60,9 @@ class Command(BaseCommand):
         f.close()
         with open("%s/docker_sys_util" % settings.REPO_DIR,
                   "r") as dockerfile:
-            circle_branch = os.environ.get("CIRCLE_BRANCH", "test").replace(
-                "/", "-")
+            circle_branch = os.environ.get("CIRCLE_BRANCH", "")
+            if "pull" in circle_branch:
+                circle_branch = "staging"
             data = dockerfile.read()
             if(circle_branch is not None):
                 data = data.replace("{{PROJECT_REPONAME}}",
@@ -103,8 +105,10 @@ class Command(BaseCommand):
 def populate_general_env(data):
     data = data.replace('{{APP_USER}}', os.environ.get("APP_USER", ""))
     data = data.replace("{{APP_NAME}}", os.environ.get("APP_NAME", ""))
-    data = data.replace('{{CIRCLE_BRANCH}}', os.environ.get(
-        "CIRCLE_BRANCH", "").replace("/", "-"))
+    branch = os.environ.get("CIRCLE_BRANCH", "")
+    if "pull" in branch:
+        branch = "staging"
+    data = data.replace('{{CIRCLE_BRANCH}}', branch)
     data = data.replace('{{SSL_CERT_LOCATION}}', os.environ.get(
         "SSL_CERT_LOCATION", ""))
     data = data.replace('{{SSL_KEY_LOCATION}}', os.environ.get(

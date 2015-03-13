@@ -130,7 +130,7 @@ def get_user_posts(request):
                 }
                 spawn_task(update_view_count_task, task_data)
                 for item in post_dict["comments"]:
-                    item["vote_count"] = str(item["vote_count"])
+                    item["object_vote_count"] = str(item["object_vote_count"])
                     item['last_edited_on'] = \
                     datetime.strptime(item['last_edited_on'][
                                       :len(item['last_edited_on'])-6],

@@ -33,7 +33,6 @@ dependencies:
     - sudo supervisorctl reread
     - sudo supervisorctl reload:
         background: true
-    - python ~/com.sagebrew.web/sagebrew/manage.py populateenvconfig /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-$CIRCLE_BRANCH-web.json /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-$CIRCLE_BRANCH-worker.json
     - sleep 5
     - python ~/com.sagebrew.web/sagebrew/manage.py create_dynamo_tables
     - python /home/ubuntu/$CIRCLE_PROJECT_REPONAME/sagebrew/manage.py collectstatic --noinput
@@ -181,6 +180,7 @@ deployment:
   staging:
     branch: staging
     commands:
+      - python ~/com.sagebrew.web/sagebrew/manage.py populateenvconfig /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-$CIRCLE_BRANCH-web.json /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-$CIRCLE_BRANCH-worker.json
       - bash -x ~/com.sagebrew.web/deployment/staging.sh $CIRCLE_SHA1
 
 

@@ -5,14 +5,26 @@ $(document).ready(function () {
                 {
                     'event': 'insertImageDialog',
                     'callback': function (callback) {
-                        alert("Please click okay to start scanning your brain...");
-                        setTimeout(function () {
-                            var prompt = "We have detected that you like cats. Do you want to insert an image of a cat?";
-                            if (confirm(prompt))
-                                callback("http://icanhascheezburger.files.wordpress.com/2007/06/schrodingers-lolcat1.jpg")
-                            else
-                                callback(null);
-                        }, 2000);
+                        console.log("here");
+                        console.log($("#fileModal"));
+                        setTimeout(function(){
+                            $('#fileModal').modal();
+                            $("#insert_image_post").click(function(e){
+                                e.preventDefault();
+                                if($(".upload-photo").length>0){
+                                    var images;
+                                    $(".upload-photo").each(function(){
+                                        images = ""+($(this).filter("[src]").attr("src"));
+                                    });
+                                    callback(images);
+                                    //$("#upload_photo").fileupload();
+                                } else {
+                                    var image=$("#img-url").val();
+                                    callback(image);
+                                }
+                            })
+                        }, 0);
+                        console.log("after");
                         return true; // tell the editor that we'll take care of getting the image url
                     }
                 }

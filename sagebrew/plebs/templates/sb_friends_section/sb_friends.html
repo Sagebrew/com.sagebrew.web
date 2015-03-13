@@ -1,5 +1,13 @@
 {% extends "sb_plebs_base/profile_page.html" %}
 {% block title %}{{ page_user.first_name }}'s Friends{% endblock title %}
 {%  block midsection %}
+<div class="col-lg-4 col-md-4 hidden-sm hidden-xs">
+   {% include "sb_home_section/sb_profile_rep_stats.html" %}
+   {% include "sb_home_section/sb_profile_potential_reps_stats.html" %}
+</div>
+<div class="col-lg-8 col-md-8">
+   <div class="col-lg-12">
 
+   </div>
+</div>
 {% endblock %}

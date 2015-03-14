@@ -35,6 +35,7 @@ dependencies:
         background: true
     - sleep 5
     - python ~/com.sagebrew.web/sagebrew/manage.py create_dynamo_tables
+    - python ~/com.sagebrew.web/sagebrew/manage.py create_oauth_client
     - python /home/ubuntu/$CIRCLE_PROJECT_REPONAME/sagebrew/manage.py collectstatic --noinput
     - python ~/com.sagebrew.web/sagebrew/manage.py runserver 127.0.0.1:8080:
         background: true

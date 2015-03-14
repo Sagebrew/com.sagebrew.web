@@ -170,13 +170,11 @@ test:
     - docker logs sb_sys_util >> $CIRCLE_ARTIFACTS/sys_util.log
 
 deployment:
-#  production:
-#    branch: master
-# when pushing to master should ensure user is within listed allowed users
-# who can push and deploy to master. Should be able to check CIRCLE_USERNAME
-# and potentially hit an endpoint or a local file for allowed admins
-# Safer to probably loop through django admins or comma seperated env var
-# so that endpoint can't be spoofed
+  production:
+    branch: master
+    commands:
+      - python ~/com.sagebrew.web/sagebrew/manage.py populateenvconfig /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-$CIRCLE_BRANCH-web.json /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-$CIRCLE_BRANCH-worker.json
+      - bash -x ~/com.sagebrew.web/deployment/master.sh $CIRCLE_SHA1
   staging:
     branch: staging
     commands:

@@ -1,5 +1,26 @@
 {% load staticfiles %}
 <div class="btn-group sb_dropdown">
+        <div class="btn-group">
+        <button class="btn dropdown-toggle sb_btn_nav show_friend_request-action"
+                type="button"
+                id="sb_friend"
+                data-toggle="dropdown"
+                data-email="{{ request.user.email }}">
+        <span class="sb_btn_icon fui-star"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right"
+            role="menu"
+            aria-labelledby="dropdownMenu1">
+            <li role="presentation">
+                <div class="sb_dropdown_container">
+                    <div class="sb_dropdown_label">Reputation</div>
+                    <div class="sb_dropdown_content">
+                        {% include "reputation_block.html" %}
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
     <div class="btn-group">
         <a href="{% url "question_page" %}" class="btn dropdown-toggle sb_btn_nav show_friend_request-action">
             <span class="sb_btn_icon conversation_logo" style="background-image: url({% static 'media/conversation.svg' %});"></span>
@@ -27,10 +48,18 @@
             role="menu"
             aria-labelledby="dropdownMenu1">
             <li role="presentation">
-                <div>
+                <div class="sb_dropdown_container">
                     <div class="sb_dropdown_label">Friend Requests</div>
-                    <div class="sb_dropdown_content friend_request_div">
-
+                    <div class="sb_dropdown_content">
+                        {% include "friend_request_block.html" %}
+                        {% include "friend_request_block.html" %}
+                        {% include "friend_request_block.html" %}
+                        {% include "friend_request_block.html" %}
+                        {% include "friend_request_block.html" %}
+                        {% include "general_notification_block.html" %}
+                        {% include "general_notification_block.html" %}
+                        {% include "general_notification_block.html" %}
+                        {% include "general_notification_block.html" %}
                     </div>
                 </div>
             </li>

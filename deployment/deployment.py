@@ -141,7 +141,7 @@ def production_deploy():
         aws_access_key_id=environ.get("AWS_ACCESS_KEY_ID_PROD", ""),
         aws_secret_access_key=environ.get("AWS_SECRET_ACCESS_KEY_PROD", ""),
         api_version='2010-12-01')
-    deployment(stalk, "production")
+    deployment(stalk, "master")
 
 
 if __name__ == "__main__":

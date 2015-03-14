@@ -35,10 +35,13 @@ class SBPost(SBNonVersioned):
             return e
 
     def get_url(self):
-        return reverse("profile_page",
-                       kwargs={"pleb_username":
-                            self.posted_on_wall.all()[
-                                0].owner.all()[0].username})
+        try:
+            return reverse("profile_page",
+                           kwargs={"pleb_username":
+                                self.posted_on_wall.all()[
+                                    0].owner.all()[0].username})
+        except IndexError:
+            return False
 
     def create_notification(self, pleb, sb_object=None):
         return {

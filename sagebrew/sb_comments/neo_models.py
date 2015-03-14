@@ -36,8 +36,12 @@ class SBComment(SBNonVersioned):
     #TODO Implement referenced_by_users, referenced_by_post, etc. relationships
 
     def get_url(self):
-        return reverse("question_detail_page",
-                       kwargs={"question_uuid": self.answer_to.all()[0].sb_id})
+        try:
+            return reverse("question_detail_page",
+                           kwargs={"question_uuid": self.answer_to.all()[
+                               0].sb_id})
+        except IndexError:
+            return False
 
     def create_notification(self, pleb, sb_object=None):
         return {

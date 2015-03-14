@@ -86,6 +86,10 @@ class SBAnswer(SBVersioned):
                 parent_object = self.answer_to.all()[0].sb_id
             except IndexError:
                 parent_object = ''
+            try:
+                html_content = markdown.markdown(self.content)
+            except AttributeError:
+                html_content = ""
             answer_dict = {'content': self.content,
                            'current_pleb': pleb,
                            'parent_object': parent_object,

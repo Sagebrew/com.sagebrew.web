@@ -334,7 +334,6 @@ def profile_picture_api(request):
             "f_uuid": image_uuid,
             "pleb": request.user.username
         }
-        print image_data
         res = spawn_task(crop_image_task, image_data)
         if isinstance(res, Exception):
             return Response({'detail': 'Server Error'}, status=500)

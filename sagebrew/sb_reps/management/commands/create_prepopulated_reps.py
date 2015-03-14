@@ -1,12 +1,10 @@
 from logging import getLogger
-from json import loads
 
 from django.core.management.base import BaseCommand
-from django.conf import settings
 
-from neomodel import CypherException, DoesNotExist
+from neomodel import CypherException
 
-from govtrack.neo_models import GTPerson, GTRole
+from govtrack.neo_models import  GTRole
 from sb_reps.neo_models import BaseOfficial
 
 logger = getLogger('loggly_logs')
@@ -26,8 +24,27 @@ class Command(BaseCommand):
                     person = role.person.all()[0]
                 except IndexError:
                     continue
-                #rep = BaseOfficial
-
+                except (CypherException, IOError) as e:
+                    logger.exception(e)
+                    continue
+                try:
+                    rep = BaseOfficial(first_name=person.firstname,
+                                       last_name=person.lastname,
+                                       gender=person.gender,
+                                       date_of_birth=person.birthday,
+                                       namemod=person.namemod,
+                                       current=role.current,
+                                       bio=role.description,
+                                       district=role.district,
+                                       state=role.state,
+                                       title=role.title,
+                                       website=role.website,
+                                       start_date=role.startdate,
+                                       end_date=role.enddate)
+                    rep.save()
+                except (CypherException, IOError) as e:
+                    logger.exception(e)
+                    continue
 
 
     def handle(self, *args, **options):

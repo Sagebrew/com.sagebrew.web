@@ -1,5 +1,6 @@
 import time
 from uuid import uuid1
+from datetime import datetime
 from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
@@ -21,7 +22,8 @@ class TestSavePostTask(TestCase):
         self.post_info_dict = {'current_pleb': self.pleb.email,
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
-                               'post_uuid': str(uuid1())}
+                               'post_uuid': str(uuid1()),
+                               'datetime': datetime.now()}
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
@@ -52,6 +54,7 @@ class TestMultipleTasks(TestCase):
         for num in range(1, 10):
             uuid = str(uuid1())
             self.post_info_dict['post_uuid'] = uuid
+            self.post_info_dict['datetime'] = datetime.now()
             save_response = save_post_task.apply_async(
                 kwargs=self.post_info_dict)
             while not save_response.ready():

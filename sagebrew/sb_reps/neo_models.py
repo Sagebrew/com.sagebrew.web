@@ -13,12 +13,20 @@ class CongressVoteRelationship(StructuredRel):
     pass
 
 class BaseOfficial(Pleb):
-    title = ""
+    title = StringProperty()
     type_str = "f46fbcda-9da8-11e4-9233-080027242395"
-    sb_id = StringProperty(unique_index=True)
+    sb_id = StringProperty(unique_index=True, default=str(uuid1()))
     bio = StringProperty(default="")
     recipient_id = StringProperty()
     customer_id = StringProperty()
+    gender = StringProperty()
+    name_mod = StringProperty()
+    current = BooleanProperty()
+    district = IntegerProperty()
+    state = StringProperty()
+    website = StringProperty()
+    start_date = DateTimeProperty()
+    end_date = DateTimeProperty()
 
     #relationships
     policy = RelationshipTo('sb_reps.neo_models.Policy', "HAS_POLICY")
@@ -30,6 +38,9 @@ class BaseOfficial(Pleb):
     experience = RelationshipTo('sb_reps.neo_models.Experience', "EXPERIENCED")
     education = RelationshipTo('sb_reps.neo_models.Education', 'EDUCATION')
     goal = RelationshipTo('sb_reps.neo_models.Goal', 'GOAL')
+    gt_person = RelationshipTo('govtrack.neo_models.GTPerson', 'GTPERSON')
+    gt_role = RelationshipTo('govtrack.neo_models.GTRole', 'GTROLE')
+
 
 class Bill(StructuredNode):
     bill_id = StringProperty(unique_index=True)

@@ -16,6 +16,11 @@ $( document ).ready(function() {
                 $("#action_form_wrapper").append(data['html']);
                 enable_post_functionality();
                 $(".get_action_form").attr('disabled', 'disabled');
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
         });
     });

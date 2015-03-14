@@ -27,6 +27,15 @@ $( document ).ready(function() {
                 $("#add").hide();
                 $("#wall_app").prepend(data['html']);
                 enable_post_functionality()
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 409) {
+                    $("#signup_wrapper").empty();
+                    $("#user_exists").show();
+                } else if(XMLHttpRequest.status === 500){
+                    $("#signup_wrapper").empty();
+                    $("#server_error").show();
+                }
             }
         });
     });

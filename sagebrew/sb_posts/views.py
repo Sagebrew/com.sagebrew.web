@@ -114,11 +114,6 @@ def get_user_posts(request):
                     datetime.strptime(post['last_edited_on'][
                                       :len(post['last_edited_on'])-6],
                                       '%Y-%m-%d %H:%M:%S.%f')
-                # TODO replace with actual vote count. Note that the template
-                # tag operations require it to be a string and not an int.
-                # The tag values also don't accommodate for dynamic updates
-                # from javascript so we'll have to figure that out that as well
-                # Example when someone transitions from 9 to 10 and 99 to 100
                 post['object_vote_count'] = str(post[
                                                          'up_vote_number'] -\
                                                  post['down_vote_number'])

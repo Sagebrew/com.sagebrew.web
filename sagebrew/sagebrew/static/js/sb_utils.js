@@ -35,6 +35,11 @@ function save_comment() {
                 var comment_container = $("#sb_comments_container_"+sb_id);
                 comment_container.append(data['html']);
                 $('textarea#post_comment_on_' + sb_id).val("");
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
         });
     });
@@ -80,7 +85,12 @@ function flag_object() {
                 'object_type': $(this).data('object_type')
             }),
             contentType: "application/json; charset=utf-8",
-            dataType: "json"
+            dataType: "json",
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
+            }
         });
     });
 }
@@ -137,6 +147,11 @@ function vote_object() {
                 $('div.sb_upvote_count'+uuid).text(data['upvote_value']);
                 $('div.sb_downvote_count'+uuid).text(data['downvote_value']);
                 $('div.vote_count'+uuid).text(data['total_value'])
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
         });
     });
@@ -168,6 +183,11 @@ function save_answer() {
                 $("#solution_container").append(data['html']);
                 $('textarea.sb_answer_input_area').val("");
                 enable_single_answer_functionality();
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
 		});
 	});
@@ -202,6 +222,11 @@ function edit_object() {
                 $(".sb_object_dropdown").each(function(i, obj){
                     $(obj).removeAttr("disabled");
                 });
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
         });
     });
@@ -226,7 +251,12 @@ function edit_question_title() {
                 'object_type': $(this).data('object_type')
             }),
             contentType: "application/json; charset=utf-8",
-            dataType: "json"
+            dataType: "json",
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
+            }
         });
     });
 }
@@ -275,7 +305,12 @@ function delete_object() {
                 'object_type': $(this).data('object_type')
             }),
             contentType: "application/json; charset=utf-8",
-            dataType: "json"
+            dataType: "json",
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
+            }
         });
     });
 }
@@ -300,7 +335,12 @@ function page_leave_endpoint() {
                 'object_uuids': object_list
             }),
             contentType: "application/json; charset=utf-8",
-            dataType: "json"
+            dataType: "json",
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
+            }
         });
     });
 }
@@ -329,6 +369,11 @@ function add_experience(){
                 $("#experience_added_form").append(data['rendered']);
                 enable_post_functionality();
                 $(".add_experience").attr('disabled', 'disabled');
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
         });
     });
@@ -362,6 +407,11 @@ function submit_experience(){
                 $('.add_experience').removeAttr('disabled');
                 $('.add_experience_wrapper').remove();
                 $("#experience_list").append(data['rendered']);
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
         });
     });
@@ -409,6 +459,11 @@ function submit_policy() {
                 $('.add_policy').removeAttr('disabled');
                 $('.add_policy_wrapper').remove();
                 $("#policy_list").append(data['rendered']);
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
         });
     });
@@ -439,6 +494,11 @@ function submit_education() {
                 $('.add_education').removeAttr('disabled');
                 $('.add_education_wrapper').remove();
                 $("#education_list").append(data['rendered']);
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
         });
     });
@@ -465,6 +525,12 @@ function submit_bio() {
             success: function(data){
                 $('.add_bio_wrapper').remove();
                 $("#bio_wrapper").append(data['rendered']);
+
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
         });
     });
@@ -495,6 +561,11 @@ function submit_goal() {
                 $('.add_goal').removeAttr('disabled');
                 $('.add_goal_wrapper').remove();
                 $("#goal_list").append(data['rendered']);
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
         });
     });
@@ -518,10 +589,6 @@ function comment_validator() {
                 validators: {
                     notEmpty: {
                         message: "Content is required"
-                    },
-                    stringLength: {
-                        min: 1,
-                        message: "Content must be at least 1 character long"
                     }
                 }
             }
@@ -560,6 +627,11 @@ function submit_action() {
             success: function(data) {
                 $(".action_form").remove();
                 $(".get_action_form").removeAttr('disabled');
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
         });
     });
@@ -596,6 +668,11 @@ function submit_requirement() {
             success: function(data) {
                 $(".requirement_form").remove();
                 $(".get_requirement_form").removeAttr('disabled');
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
         });
     });

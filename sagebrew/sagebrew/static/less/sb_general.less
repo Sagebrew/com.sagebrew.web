@@ -309,7 +309,6 @@
 .sb_border{
   border-radius: 5px;
   padding: @sb_common_padding_positive;
-  min-height: auto;
   border: 1px solid @sb_grey;
 }
 .sb_border_question{
@@ -735,7 +734,7 @@
   a{
     color: @white;
     &:visited{
-      background-color: none;
+      background-color: transparent;
     }
   }
 }
@@ -743,7 +742,7 @@
   position: fixed;
   float: left;
   width: 100%;
-  height: 100%;
+
   margin-top: -15px;
   margin-left: -16px;
 }
@@ -812,7 +811,6 @@
   border-radius: 2px;
   height: 100%;
   padding-bottom: @sb_common_padding_positive;
-  background: cover;
 }
 .sb_container_header{
   padding-left: @sb_common_padding_positive;

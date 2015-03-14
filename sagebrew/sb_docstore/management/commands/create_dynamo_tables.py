@@ -1,3 +1,4 @@
+import os
 from json import loads
 from django.core.management.base import BaseCommand
 from django.conf import settings
@@ -21,6 +22,12 @@ class Command(BaseCommand):
                   'r') as data_file:
             data = loads(data_file.read())
             conn = connect_to_dynamo()
+            reads = 1
+            writes = 1
+            if os.environ.get("CIRCLE_BRANCH", "unknown") == "master":
+                reads = 2
+                writes = 2
+
             if isinstance(conn, Exception):
                 print "Unable to connect to dynamo table, potential error"
             for item in data:
@@ -44,23 +51,23 @@ class Command(BaseCommand):
                                          data_type=item['type']),
                             ])
                         ],throughput={
-                            'read': 15,
-                            'write': 15
+                            'read': reads,
+                            'write': writes
                         }, connection=conn)
                     elif 'range_key' in item.keys():
                         Table.create(table_name, schema=[
                             HashKey(item['hash_key'], data_type=STRING),
                             RangeKey(item['range_key']),
                         ], throughput={
-                            'read': 15,
-                            'write': 15
+                            'read': reads,
+                            'write': writes
                         }, connection=conn)
                     else:
                         Table.create(table_name, schema=[
                             HashKey(item['hash_key'], data_type=STRING),
                         ], throughput={
-                            'read': 15,
-                            'write': 15
+                            'read': reads,
+                            'write': writes
                         }, connection=conn)
                 except JSONResponseError:
                     print 'Table %s already exists' % item['table_name']

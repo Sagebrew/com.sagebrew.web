@@ -342,6 +342,18 @@ class Pleb(StructuredNode):
     def get_comment_count(self):
         return len(self.comments.all())
 
+    def get_friends(self):
+        return self.friends.all()
+
+    def get_friend_requests_sent(self):
+        request_list = []
+        for request in self.friend_requests_sent.all():
+            try:
+                request_list.append(request.request_to.all()[0].username)
+            except IndexError:
+                continue
+        return request_list
+
 
 class Address(StructuredNode):
     street = StringProperty()

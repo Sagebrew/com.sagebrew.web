@@ -12,9 +12,9 @@ from plebs.neo_models import Pleb
 from .utils import generate_oauth_user
 
 @shared_task()
-def get_pleb_task(email, task_func, task_param):
+def get_pleb_task(username, task_func, task_param):
     try:
-        pleb = Pleb.nodes.get(email=email)
+        pleb = Pleb.nodes.get(username=username)
     except (Pleb.DoesNotExist, DoesNotExist) as e:
         raise get_pleb_task.retry(exc=e, countdown=3, max_retries=None)
     except CypherException as e:

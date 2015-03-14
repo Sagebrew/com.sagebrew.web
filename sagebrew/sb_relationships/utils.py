@@ -15,8 +15,8 @@ def create_friend_request_util(data):
     """
     try:
         try:
-            from_citizen = Pleb.nodes.get(email=data['from_pleb'])
-            to_citizen = Pleb.nodes.get(email=data['to_pleb'])
+            from_citizen = Pleb.nodes.get(username=data['from_pleb'])
+            to_citizen = Pleb.nodes.get(username=data['to_pleb'])
         except(Pleb.DoesNotExist, DoesNotExist) as e:
             return e
         except(CypherException, IOError) as e:
@@ -26,7 +26,7 @@ def create_friend_request_util(data):
                 'with p ' \
                 'match (p)-[:SENT_A_REQUEST]-(r:FriendRequest) ' \
                 'with p, r ' \
-                'match (r)-[:REQUEST_TO]-(p2:Pleb) where p2.email="%s" ' \
+                'match (r)-[:REQUEST_TO]-(p2:Pleb) where p2.username="%s" ' \
                 'return p2' % (data['from_pleb'], data['to_pleb'])
         pleb2, meta = execute_cypher_query(query)
         if isinstance(pleb2, Exception):

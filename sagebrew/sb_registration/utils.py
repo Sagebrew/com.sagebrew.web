@@ -176,7 +176,7 @@ def compare_address(smarty_address, address_clean):
 def validate_school(school_name):
     pass
 
-
+@apply_defense
 def upload_image(folder_name, file_uuid, image_file):
     '''
     Creates a connection to the s3 service then uploads the file which was
@@ -252,7 +252,7 @@ def determine_reps(pleb_address):
 """
 
 
-def get_friends(email):
+def get_friends(username):
     '''
     Creates a list of dictionaries which hold data about the friends of the
     user
@@ -261,7 +261,7 @@ def get_friends(email):
     :return:
     '''
     try:
-        citizen = Pleb.nodes.get(email=email)
+        citizen = Pleb.nodes.get(username=username)
     except (Pleb.DoesNotExist, DoesNotExist):
         return []
     friends = []
@@ -284,7 +284,7 @@ def verify_completed_registration(user):
     :return:
     '''
     try:
-        pleb = Pleb.nodes.get(email=user.email)
+        pleb = Pleb.nodes.get(username=user.username)
         return pleb.completed_profile_info
     except (Pleb.DoesNotExist, DoesNotExist, CypherException):
         return False
@@ -299,7 +299,7 @@ def verify_verified_email(user):
     :return:
     '''
     try:
-        pleb = Pleb.nodes.get(email=user.email)
+        pleb = Pleb.nodes.get(username=user.username)
         return pleb.email_verified
     except (Pleb.DoesNotExist, DoesNotExist):
         return False
@@ -335,7 +335,13 @@ def sb_send_email(source, to_email, subject, html_content):
 def generate_username(first_name, last_name):
     users_count = User.objects.filter(first_name__iexact=first_name).filter(
         last_name__iexact=last_name).count()
-    if users_count == 0:
+    username = "%s_%s" %(first_name.lower(), last_name.lower())
+    if len(username) > 30:
+        username = username[:30]
+        users_count = User.objects.filter(username__iexact=username).count()
+        if users_count > 0:
+            username = username[:(30-len(users_count))] + str(users_count)
+    elif len(username) < 30 and users_count == 0:
         username = "%s_%s" % (first_name.lower(), last_name.lower())
     else:
         username = "%s_%s%d" % (first_name.lower(), last_name.lower(),

@@ -16,7 +16,7 @@ def get_updates_from_dynamo(request):
     edit_res = []
     vote_res = []
     try:
-        pleb = Pleb.nodes.get(email=request.user.email)
+        pleb = Pleb.nodes.get(username=request.user.username)
     except CypherException:
         return Response(status=500)
     for object_uuid in request.DATA['object_uuids']:

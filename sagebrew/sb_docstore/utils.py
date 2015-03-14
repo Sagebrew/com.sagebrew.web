@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from django.conf import settings
 from boto.dynamodb2.layer1 import DynamoDBConnection
 from boto.dynamodb2.table import Table
@@ -131,6 +132,8 @@ def query_parent_object_table(object_uuid, get_all=False, table_name='edits'):
 def update_doc(table, object_uuid, update_data, parent_object="",
                obj_datetime=""):
     table_name = get_table_name(table)
+    print table_name
+    print parent_object, obj_datetime, object_uuid, update_data
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
@@ -187,10 +190,27 @@ def get_question_doc(question_uuid, question_table, solution_table):
                                                 1)
     question['down_vote_number'] = get_vote_count(question['object_uuid'],
                                                   0)
+    question['last_edited_on'] = datetime.strptime(question['last_edited_on'][
+                                      :len(question['last_edited_on'])-6],
+                                      '%Y-%m-%d %H:%M:%S.%f')
+    question['time_created'] = datetime.strptime(question['time_created'][
+                                      :len(question['time_created'])-6],
+                                      '%Y-%m-%d %H:%M:%S.%f')
+    question['object_vote_count'] = str(question['up_vote_number']
+                                        - question['down_vote_number'])
     for comment in comments:
         comment = dict(comment)
         comment['up_vote_number'] = get_vote_count(comment['object_uuid'],1)
         comment['down_vote_number'] = get_vote_count(comment['object_uuid'],0)
+        comment['last_edited_on'] = datetime.strptime(comment[
+                                      'last_edited_on'][
+                                      :len(comment['last_edited_on'])-6],
+                                      '%Y-%m-%d %H:%M:%S.%f')
+        comment['time_created'] = datetime.strptime(comment['time_created'][
+                                      :len(comment['time_created'])-6],
+                                      '%Y-%m-%d %H:%M:%S.%f')
+        comment['object_vote_count'] = str(comment['up_vote_number']
+                                           - comment['down_vote_number'])
         q_comments.append(comment)
     for answer in answers:
         a_comments = []
@@ -199,6 +219,15 @@ def get_question_doc(question_uuid, question_table, solution_table):
                                                   1)
         answer['down_vote_number'] = get_vote_count(answer['object_uuid'],
                                                     0)
+        answer['last_edited_on'] = datetime.strptime(answer[
+                                      'last_edited_on'][
+                                      :len(answer['last_edited_on'])-6],
+                                      '%Y-%m-%d %H:%M:%S.%f')
+        answer['time_created'] = datetime.strptime(answer['time_created'][
+                                      :len(answer['time_created'])-6],
+                                      '%Y-%m-%d %H:%M:%S.%f')
+        answer['object_vote_count'] = str(answer['up_vote_number']-
+                                          answer['down_vote_number'])
         answer_comments = comment_table.query_2(
             parent_object__eq=answer['object_uuid'],
             datetime__gte="0"
@@ -208,6 +237,16 @@ def get_question_doc(question_uuid, question_table, solution_table):
             comment['up_vote_number'] = get_vote_count(comment['object_uuid'],1)
             comment['down_vote_number'] = get_vote_count(
                 comment['object_uuid'],0)
+            comment['last_edited_on'] = datetime.strptime(comment[
+                                      'last_edited_on'][
+                                      :len(comment['last_edited_on'])-6],
+                                      '%Y-%m-%d %H:%M:%S.%f')
+            comment['time_created'] = datetime.strptime(comment[
+                                      'time_created'][
+                                      :len(comment['time_created'])-6],
+                                      '%Y-%m-%d %H:%M:%S.%f')
+            comment['object_vote_count'] = str(comment['up_vote_number']
+                                               - comment['down_vote_number'])
             a_comments.append(comment)
         answer['comments'] = a_comments
         answer_list.append(answer)
@@ -332,6 +371,7 @@ def get_wall_docs(parent_object):
     if len(posts) == 0:
         return False
     for post in posts:
+        print post['parent_object'], post['datetime'], type(post['datetime'])
         comment_list = []
         post = dict(post)
         post['up_vote_number'] = get_vote_count(post['object_uuid'], 1)

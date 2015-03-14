@@ -35,7 +35,11 @@ function save_comment() {
                 var comment_container = $("#sb_comments_container_"+sb_id);
                 comment_container.append(data['html']);
                 $('textarea#post_comment_on_' + sb_id).val("");
-                enable_post_functionality();
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
         });
     });
@@ -81,7 +85,12 @@ function flag_object() {
                 'object_type': $(this).data('object_type')
             }),
             contentType: "application/json; charset=utf-8",
-            dataType: "json"
+            dataType: "json",
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
+            }
         });
     });
 }
@@ -137,6 +146,12 @@ function vote_object() {
             success: function(data){
                 $('div.sb_upvote_count'+uuid).text(data['upvote_value']);
                 $('div.sb_downvote_count'+uuid).text(data['downvote_value']);
+                $('div.vote_count'+uuid).text(data['total_value'])
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
         });
     });
@@ -167,7 +182,12 @@ function save_answer() {
             success: function (data) {
                 $("#solution_container").append(data['html']);
                 $('textarea.sb_answer_input_area').val("");
-                enable_post_functionality();
+                enable_single_answer_functionality();
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
 		});
 	});
@@ -199,6 +219,14 @@ function edit_object() {
                 $(data['html_object']).text(data['content']);
                 $("#edit_container_"+uuid).hide();
                 $("#sb_content_"+uuid).show();
+                $(".sb_object_dropdown").each(function(i, obj){
+                    $(obj).removeAttr("disabled");
+                });
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
         });
     });
@@ -223,13 +251,21 @@ function edit_question_title() {
                 'object_type': $(this).data('object_type')
             }),
             contentType: "application/json; charset=utf-8",
-            dataType: "json"
+            dataType: "json",
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
+            }
         });
     });
 }
 
 function show_edit_question() {
     $("a.show_edit_question-action").click(function(event){
+        $(".sb_object_dropdown").each(function(i, obj){
+            $(obj).attr("disabled", "disabled");
+        });
         var question_uuid = $(this).data('object_uuid');
         $('#sb_content_'+question_uuid).hide();
         $("#edit_container_"+question_uuid).show();
@@ -240,6 +276,9 @@ function show_edit_question() {
 
 function show_edit_answer() {
     $("a.show_edit_answer-action").click(function(event){
+        $(".sb_object_dropdown").each(function(i, obj){
+            $(obj).attr("disabled", "disabled");
+        });
         var answer_uuid = $(this).data('object_uuid');
         $('#sb_content_'+answer_uuid).hide();
         $('#edit_container_'+answer_uuid).show();
@@ -266,7 +305,12 @@ function delete_object() {
                 'object_type': $(this).data('object_type')
             }),
             contentType: "application/json; charset=utf-8",
-            dataType: "json"
+            dataType: "json",
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
+            }
         });
     });
 }
@@ -291,7 +335,12 @@ function page_leave_endpoint() {
                 'object_uuids': object_list
             }),
             contentType: "application/json; charset=utf-8",
-            dataType: "json"
+            dataType: "json",
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
+            }
         });
     });
 }
@@ -320,6 +369,11 @@ function add_experience(){
                 $("#experience_added_form").append(data['rendered']);
                 enable_post_functionality();
                 $(".add_experience").attr('disabled', 'disabled');
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
         });
     });
@@ -353,6 +407,11 @@ function submit_experience(){
                 $('.add_experience').removeAttr('disabled');
                 $('.add_experience_wrapper').remove();
                 $("#experience_list").append(data['rendered']);
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
         });
     });
@@ -400,6 +459,11 @@ function submit_policy() {
                 $('.add_policy').removeAttr('disabled');
                 $('.add_policy_wrapper').remove();
                 $("#policy_list").append(data['rendered']);
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
         });
     });
@@ -430,6 +494,11 @@ function submit_education() {
                 $('.add_education').removeAttr('disabled');
                 $('.add_education_wrapper').remove();
                 $("#education_list").append(data['rendered']);
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
         });
     });
@@ -456,6 +525,12 @@ function submit_bio() {
             success: function(data){
                 $('.add_bio_wrapper').remove();
                 $("#bio_wrapper").append(data['rendered']);
+
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
         });
     });
@@ -486,9 +561,151 @@ function submit_goal() {
                 $('.add_goal').removeAttr('disabled');
                 $('.add_goal_wrapper').remove();
                 $("#goal_list").append(data['rendered']);
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
         });
     });
+}
+
+function comment_validator() {
+    $("#commentSubmitForm").bootstrapValidator({
+        framework: 'bootstrap',
+        err: {
+            container: '#fname_errors'
+        },
+        feedbackIcons: {
+            valid: 'glyphicon glyphicon-ok',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        live: 'enabled',
+        submitButtons: '.comment-action',
+        fields: {
+            comment_content: {
+                group: 'sb_comment',
+                validators: {
+                    notEmpty: {
+                        message: "Content is required"
+                    }
+                }
+            }
+        }
+    })
+}
+
+function submit_action() {
+    $('#submit_action_form').click(function(event){
+        event.preventDefault();
+        var data = {};
+        var form = $('#action_form_id').serializeArray();
+        $.each(form, function(){
+            if(data[this.name] !== undefined) {
+                if (!data[this.name].push) {
+                    data[this.name] = [data[this.name]];
+                }
+                data[this.name].push(this.value || '');
+            } else {
+                data[this.name] = this.value || '';
+            }
+        });
+        console.log(data);
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "POST",
+            url: "/privilege/create/action/",
+            data: JSON.stringify(data),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data) {
+                $(".action_form").remove();
+                $(".get_action_form").removeAttr('disabled');
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
+            }
+        });
+    });
+}
+
+function submit_requirement() {
+    $('#submit_requirement_form').click(function(event){
+        event.preventDefault();
+        var data = {};
+        var form = $('#requirement_form_id').serializeArray();
+        $.each(form, function(){
+            if(data[this.name] !== undefined) {
+                if (!data[this.name].push) {
+                    data[this.name] = [data[this.name]];
+                }
+                data[this.name].push(this.value || '');
+            } else {
+                data[this.name] = this.value || '';
+            }
+        });
+        console.log(data);
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "POST",
+            url: "/privilege/create/requirement/",
+            data: JSON.stringify(data),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data) {
+                $(".requirement_form").remove();
+                $(".get_requirement_form").removeAttr('disabled');
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
+            }
+        });
+    });
+}
+
+
+function activate_montage(){
+    var $container = $('#am-container').masonry();
+    // initialize Masonry after all images have loaded
+    $container.imagesLoaded( function() {
+      $container.packery({
+          gutter: 0,
+          itemSelector: '.post_images',
+          transitionDuration: 0,
+          columnWidth: ".grid-sizer"
+      });
+    });
+}
+
+function enable_single_post_functionality() {
+    flag_object();
+    vote_object();
+    edit_object();
+    save_comment();
+    show_edit_post();
+}
+
+function enable_single_answer_functionality() {
+    flag_object();
+    vote_object();
+    edit_object();
+    save_comment();
+    show_edit_answer();
 }
 
 function enable_post_functionality() {
@@ -509,6 +726,10 @@ function enable_post_functionality() {
     submit_education();
     submit_bio();
     submit_goal();
+    comment_validator();
+    submit_action();
+    submit_requirement();
+    activate_montage();
 }
 
 function getUrlParameter(sParam)

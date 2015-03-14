@@ -68,7 +68,9 @@ def vote_object_view(request):
         version_add = add_object_to_table("vote_versions", vote_data)
         if isinstance(version_add, Exception) is True:
             return Response({"detail": "server error"}, status=500)
+        total_vote_value = str(upvote_value-downvote_value)
         return Response({"detail": "success", "upvote_value": upvote_value,
-                         "downvote_value": downvote_value}, status=200)
+                         "downvote_value": downvote_value,
+                         "total_value": total_vote_value}, status=200)
     else:
         return Response({"detail": "invalid form"}, status=400)

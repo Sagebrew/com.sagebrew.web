@@ -617,6 +617,11 @@
   }
 }
 
+//this is for disabling certain dropdowns when editing an object
+.sb_object_dropdown {
+
+}
+
 //progress bar
 .sb_progress{
   &:extend(.progress);
@@ -789,6 +794,13 @@
   position: absolute;
   padding:0;
 
+}
+// This is used as the css for collage plus after uploading images
+.sb_collage{
+  img{
+    width: 100px;
+    height: 100px;
+  }
 }
 // TODO Probably want to transition this into left side_container
 .sb_rep_container{
@@ -1006,4 +1018,12 @@ textarea.sb_comment_input{
   padding-bottom: 0px;
   margin-left: 30px;
   padding-right: 25px;
+}
+.grid-sizer {
+  width: 20%;
+}
+
+.post_images {
+  height: 125px;
+  margin-left: -3px;
 }

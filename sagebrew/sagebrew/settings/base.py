@@ -197,6 +197,7 @@ INSTALLED_APPS = (
     'sb_uploads',
     'sb_votes',
     'sb_wall',
+    'sb_oauth',
     'elasticsearch',
     'textblob',
     'help_center'
@@ -214,7 +215,7 @@ LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/'
 
 ANONYMOUS_USER_ID = -1
-
+OAUTH2_PROVIDER_APPLICATION_MODEL='sb_oauth.SBApplication'
 LOGIN_REDIRECT_URL = '/registration/profile_information/'
 EMAIL_USE_TLS = True
 #CSRF_COOKIE_HTTPONLY = True
@@ -255,6 +256,8 @@ STRIPE_SECRET_KEY = environ.get("STRIPE_SECRET_KEY", '')
 MASKED_NAME = environ.get("MASKED_NAME", "")
 OAUTH_CLIENT_ID = environ.get("OAUTH_CLIENT_ID", '')
 OAUTH_CLIENT_SECRET = environ.get("OAUTH_CLIENT_SECRET", "")
+OAUTH_CLIENT_ID_CRED  = environ.get("OAUTH_CLIENT_ID_CRED", '')
+OAUTH_CLIENT_SECRET_CRED = environ.get("OAUTH_CLIENT_SECRET_CRED", "")
 
 DYNAMO_IP = environ.get("DYNAMO_IP", None)
 

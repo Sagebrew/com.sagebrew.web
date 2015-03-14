@@ -104,6 +104,10 @@ def populate_staging_values(data):
                         environ.get("OAUTH_CLIENT_ID_STAGING", ""))
     data = data.replace("<OAUTH_CLIENT_SECRET>",
                         environ.get("OAUTH_CLIENT_SECRET_STAGING", ""))
+    data = data.replace("<OAUTH_CLIENT_ID>",
+                        environ.get("OAUTH_CLIENT_ID_CRED_STAGING", ""))
+    data = data.replace("<OAUTH_CLIENT_SECRET>",
+                        environ.get("OAUTH_CLIENT_SECRET_CRED_STAGING", ""))
     return data
 
 
@@ -155,6 +159,10 @@ def populate_production_values(data):
                         environ.get("OAUTH_CLIENT_ID_PROD", ""))
     data = data.replace("<ENV_OAUTH_CLIENT_SECRET>",
                         environ.get("OAUTH_CLIENT_SECRET_PROD", ""))
+    data = data.replace("<OAUTH_CLIENT_ID>",
+                        environ.get("OAUTH_CLIENT_ID_CRED_PROD", ""))
+    data = data.replace("<OAUTH_CLIENT_SECRET>",
+                        environ.get("OAUTH_CLIENT_SECRET_CRED_PROD", ""))
     return data
 
 
@@ -180,6 +188,10 @@ def populate_test_values(data):
                         environ.get("OAUTH_CLIENT_ID", ""))
     data = data.replace("<OAUTH_CLIENT_SECRET>",
                         environ.get("OAUTH_CLIENT_SECRET", ""))
+    data = data.replace("<OAUTH_CLIENT_ID>",
+                        environ.get("OAUTH_CLIENT_ID_CRED", ""))
+    data = data.replace("<OAUTH_CLIENT_SECRET>",
+                        environ.get("OAUTH_CLIENT_SECRET_CRED", ""))
     return data
 
 
@@ -224,4 +236,5 @@ def populate_general_values(data):
     data = data.replace("<QUEUE_PORT>", environ.get("QUEUE_PORT", ""))
     data = data.replace("<AWS_DEFAULT_REGION>",
                         environ.get("AWS_DEFAULT_REGION", ""))
+    data = data.replace("<CRED_USER>", environ.get("CRED_USER", ""))
     return data

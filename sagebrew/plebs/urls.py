@@ -24,7 +24,7 @@ urlpatterns = patterns(
        friends_page, name="friends_page"),
     url(r'^(?P<pleb_username>[A-Za-z0-9.@_%+-]{1,30})/reputation/$',
        reputation_page, name="reputation_page"),
-    url(r'^search/(?P<pleb_username>[A-Za-z0-9.@_%+-]{1,30})/$',
+    url(r'^search/(?P<pleb_username>[A-Za-z0-9.@_%+-]{1,150})/$',
         get_user_search_view, name="get_user_search_view"),
 
     url(r'^', root_profile_page, name="root_profile_page"),

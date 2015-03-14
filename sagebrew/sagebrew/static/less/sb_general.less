@@ -211,14 +211,28 @@
 .sb_search_vote_block{
   margin-top: 30px;
 }
-.sb_notification_block{
+.sb_notification_block {
   background-color: @sb_grey_extra_light;
-  margin: 5px 5px 0px 5px;
   border-radius: 0;
   height: 50px;
-  width: 450px;
-  padding: 2px;
-
+  width: 460px;
+  margin: 1px;
+  padding: 5px;
+  p{
+    padding-top: 6px;
+  }
+}
+.sb_reputation_block{
+  &:extend(.sb_notification_block);
+  width: 300px;
+}
+.sb_friend_block{
+  &:extend(.block);
+  padding: 15px;
+  margin-bottom: 15px;
+  button{
+    margin-top: 45px;
+  }
 }
 //wallpaper
 .sb_wallpaper{
@@ -290,6 +304,7 @@
   margin-bottom: 30px;
   padding-top: 60px;
 }
+
 // Border
 .sb_border{
   border-radius: 5px;
@@ -356,6 +371,10 @@
     background-color: transparent;
   }
 }
+.sb_btn_grey{
+  &:extend(.sb_btn);
+  background-color: @sb_grey;
+}
 .sb_btn_icon_settings{
   &:extend(.sb_btn_icon_green);
   color: @sb_green_extra_light;
@@ -366,8 +385,12 @@
 .sb_btn_friend{
   &:extend(.sb_btn);
   margin: 5px 0 0 0;
-  padding-top: 10px;
+  padding-top: 5px;
   padding-bottom: 5px;
+}
+.sb_btn_icon_settings_profile{
+  &:extend(.sb_btn_icon_settings);
+  position: absolute;
 }
 .sb_btn_vote{
   &:extend(.sb_btn_icon);
@@ -593,19 +616,6 @@
     padding-bottom: 5px;
   }
 }
-.sb_dropdown {
-  ul{
-    background-color: @white;
-    width: auto;
-    border-radius: 0 0 2px 2px;
-    border-width: 2px;
-    border-top: solid @sb_green_medium;
-    margin-top: -3px;
-  }
-  li{
-    display: block;
-  }
-}
 
 //this is for disabling certain dropdowns when editing an object
 .sb_object_dropdown {
@@ -623,24 +633,39 @@
 }
 
 //dropdown
+.sb_dropdown {
+  ul{
+    background-color: @white;
+    width: auto;
+    border-radius: 0 0 2px 2px;
+    border-width: 2px;
+    border-top: solid @sb_green_impressed;
+    margin-top: -4px;
+  }
+  li{
+    display: block;
+  }
+}
+.sb_dropdown_container{
+  border: solid;
+  border-width: 0 1px 1px 1px;
+  border-color: @sb_green_impressed;
+}
 .sb_dropdown_label{
   margin-left: 0;
   padding-left: @sb_common_padding_positive;
   background-color: @sb_grey_light;
-  color: #838c92;
+  color: @sb_grey_dark;
   font-size: @sb_body_text;
   height:@sb_input_height;
   line-height: 30px;
-  border: 1px solid @sb_grey;
+  border: 1px solid @sb_grey_light;
 }
 .sb_dropdown_content{
-  padding-bottom: 5px;
   height: auto;
   width: auto;
-  border: 1px solid @sb_grey;
   background-color: @sb_grey_light;
 }
-
 // go through this stuff
 // Can we create a mixin for thumbnails?
 
@@ -649,8 +674,8 @@
   width: 33px;
 }
 .sb_thumbnail_sm{
-  height: 46px;
-  width: 46px;
+  height: 40px;
+  width: 40px;
   border: solid 1px @sb_grey;
   border-radius: 0;
 }
@@ -661,6 +686,7 @@
 .sb_thumbnail_lg {
   height: 120px;
   width: 120px;
+  margin: 0;
 }
 .sb_thumbnail_search{
   &:extend(.sb_thumbnail_md);

@@ -157,5 +157,15 @@ if __name__ == "__main__":
             '-d rev=`git log -n 1 --pretty=format:%H` '
             '-d branch=`git rev-parse --abbrev-ref HEAD` '
             '-d status=completed', shell=True)
-    elif sys.argv[1] == "production":
+    elif sys.argv[1] == "master":
         production_deploy()
+        call(
+            'curl https://opbeat.com/api/v1/organizations/'
+            '%s/apps/%s/releases/' % (environ.get(
+                "OPBEAT_ORG_ID_PROD", ""), environ.get(
+                    "OPBEAT_APP_ID_PROD", "")) +
+            ' -H "Authorization: Bearer %s" ' % environ.get(
+                "OPBEAT_SECRET_TOKEN_PROD", "") +
+            '-d rev=`git log -n 1 --pretty=format:%H` '
+            '-d branch=`git rev-parse --abbrev-ref HEAD` '
+            '-d status=completed', shell=True)

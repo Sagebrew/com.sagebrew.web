@@ -18,7 +18,7 @@ from sb_reps.utils import get_rep_type
 
 
 def get_table_name(name):
-    branch = os.environ.get("CIRCLE_BRANCH", None)
+    branch = os.environ.get("CIRCLE_BRANCH", "unknown").replace('/', '-')
     if branch in name:
         return name
     return "%s-%s" % (branch, name)

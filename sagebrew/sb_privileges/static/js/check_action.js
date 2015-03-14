@@ -23,6 +23,11 @@ $(document).ready(function () {
                     button_obj.prop('disabled', false);
                     button_obj.attr("data-url", data['url']);
                 }
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
         });
     });

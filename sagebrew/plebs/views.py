@@ -127,7 +127,7 @@ def get_user_search_view(request, pleb_username=""):
     :return:
     '''
     form = GetUserSearchForm({"username": pleb_username})
-    if form.is_valid():
+    if form.is_valid() is True:
         response = prepare_user_search_html(pleb=form.cleaned_data['username'])
         if response is None:
             return HttpResponse('Server Error', status=500)

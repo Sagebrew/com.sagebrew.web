@@ -414,7 +414,3 @@ def beta_page(request):
             return redirect('profile_info')
 
     return render(request, "beta.html")
-
-
-def password_reset(request):
-    pass

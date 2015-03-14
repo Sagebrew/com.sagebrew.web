@@ -148,7 +148,7 @@ def create_question_task(content, current_pleb, question_title, question_uuid,
         tags = []
     else:
         tags = tags.split(',')
-    print current_pleb
+
     question = create_question_util(content=content,
                                     question_title=question_title,
                                     question_uuid=question_uuid)

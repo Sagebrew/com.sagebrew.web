@@ -29,6 +29,11 @@ $(document).ready(function () {
             success: function(data) {
                 $(".action_form").remove();
                 $(".get_action_form").removeAttr('disabled');
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
             }
         });
     });

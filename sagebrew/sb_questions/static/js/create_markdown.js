@@ -32,6 +32,11 @@ $(document).ready(function () {
                                             callback(data['urls'][0]);
                                             $("#fileModal").modal('hide');
                                             enable_post_functionality();
+                                        },
+                                        error: function(XMLHttpRequest, textStatus, errorThrown) {
+                                            if(XMLHttpRequest.status === 500){
+                                                $("#server_error").show();
+                                            }
                                         }
                                     });
                                 } else {

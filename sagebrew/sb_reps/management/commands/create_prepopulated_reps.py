@@ -1,3 +1,4 @@
+from uuid import uuid1
 from logging import getLogger
 
 from django.core.management.base import BaseCommand
@@ -6,6 +7,7 @@ from neomodel import CypherException
 
 from govtrack.neo_models import  GTRole
 from sb_reps.neo_models import BaseOfficial
+from sb_docstore.utils import add_object_to_table
 
 logger = getLogger('loggly_logs')
 
@@ -14,6 +16,7 @@ class Command(BaseCommand):
     help = 'Creates placeholder representatives.'
 
     def create_placeholders(self):
+        reps = []
         try:
             roles = GTRole.nodes.all()
         except (IOError, CypherException):
@@ -40,11 +43,16 @@ class Command(BaseCommand):
                                        title=role.title,
                                        website=role.website,
                                        start_date=role.startdate,
-                                       end_date=role.enddate)
+                                       end_date=role.enddate,
+                                       full_name=person.name,
+                                       sb_id=str(uuid1()))
                     rep.save()
+                    reps.append(rep)
                 except (CypherException, IOError) as e:
                     logger.exception(e)
                     continue
+        for rep in reps:
+            add_object_to_table("general_reps", rep.get_dict())
 
 
     def handle(self, *args, **options):

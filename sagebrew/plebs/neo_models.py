@@ -354,6 +354,9 @@ class Pleb(StructuredNode):
                 continue
         return request_list
 
+    def determine_reps(self):
+        pass
+
 
 class Address(StructuredNode):
     street = StringProperty()

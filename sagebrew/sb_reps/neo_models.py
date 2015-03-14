@@ -27,6 +27,7 @@ class BaseOfficial(Pleb):
     website = StringProperty()
     start_date = DateTimeProperty()
     end_date = DateTimeProperty()
+    full_name = StringProperty()
 
     #relationships
     policy = RelationshipTo('sb_reps.neo_models.Policy', "HAS_POLICY")
@@ -40,6 +41,15 @@ class BaseOfficial(Pleb):
     goal = RelationshipTo('sb_reps.neo_models.Goal', 'GOAL')
     gt_person = RelationshipTo('govtrack.neo_models.GTPerson', 'GTPERSON')
     gt_role = RelationshipTo('govtrack.neo_models.GTRole', 'GTROLE')
+
+    def get_dict(self):
+        return {"object_uuid": self.sb_id,
+                "full_name": self.full_name,
+                "start_date": unicode(self.start_date),
+                "end_date": unicode(self.end_date),
+                "state": self.state,
+                "district": self.district,
+                "current": self.current}
 
 
 class Bill(StructuredNode):

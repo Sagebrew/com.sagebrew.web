@@ -19,7 +19,6 @@ class BaseOfficial(Pleb):
     bio = StringProperty(default="")
     recipient_id = StringProperty()
     customer_id = StringProperty()
-    gender = StringProperty()
     name_mod = StringProperty()
     current = BooleanProperty()
     district = IntegerProperty()

@@ -105,6 +105,7 @@ class Pleb(StructuredNode):
         'flag_as_other': -10, 'answered': 50, 'starred': 150, 'seen_search': 5,
         'seen_page': 20
     }
+    gender = StringProperty()
     oauth_token = StringProperty()
     username = StringProperty(unique_index=True, default=None)
     first_name = StringProperty()

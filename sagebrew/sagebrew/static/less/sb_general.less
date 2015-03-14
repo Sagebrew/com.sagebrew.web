@@ -211,6 +211,14 @@
 .sb_search_vote_block{
   margin-top: 30px;
 }
+.sb_friend_block{
+  &:extend(.block);
+  padding: 15px;
+  margin-bottom: 15px;
+  button{
+    margin-top: 45px;
+  }
+}
 //wallpaper
 .sb_wallpaper{
   background-color: @sb_grey_extra_light;
@@ -281,6 +289,7 @@
   margin-bottom: 30px;
   padding-top: 60px;
 }
+
 // Border
 .sb_border{
   border-radius: 5px;
@@ -347,12 +356,20 @@
     background-color: transparent;
   }
 }
+.sb_btn_grey{
+  &:extend(.sb_btn);
+  background-color: @sb_grey;
+}
 .sb_btn_icon_settings{
   &:extend(.sb_btn_icon_green);
   color: @sb_green_extra_light;
   &:hover{
     color: @sb_green_medium;
   }
+}
+.sb_btn_icon_settings_profile{
+  &:extend(.sb_btn_icon_settings);
+  position: absolute;
 }
 .sb_btn_vote{
   &:extend(.sb_btn_icon);
@@ -620,6 +637,7 @@
 .sb_thumbnail_lg {
   height: 120px;
   width: 120px;
+  margin: 0;
 }
 .sb_thumbnail_search{
   &:extend(.sb_thumbnail_md);

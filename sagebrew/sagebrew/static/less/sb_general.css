@@ -53,7 +53,8 @@
 .sb_blog_post_block,
 .sb_channel_social,
 .sb_channel_block,
-.sb_search_block {
+.sb_search_block,
+.sb_friend_block {
   height: auto;
   padding-top: 15px;
   padding-left: 15px;
@@ -203,6 +204,13 @@
 .sb_search_vote_block {
   margin-top: 30px;
 }
+.sb_friend_block {
+  padding: 15px;
+  margin-bottom: 15px;
+}
+.sb_friend_block button {
+  margin-top: 45px;
+}
 .sb_wallpaper,
 .wallpaper_profile,
 .sb_wallpaper_action {
@@ -296,6 +304,7 @@
 .sb_btn_space,
 .sb_btn_submit,
 .sb_btn_icon,
+.sb_btn_grey,
 .sb_btn_fill,
 .sb_btn_icon_green,
 .sb_btn_vote,
@@ -304,6 +313,7 @@
 .sb_btn_icon_settings,
 .vote_up,
 .vote_down,
+.sb_btn_icon_settings_profile,
 .vote_up_small,
 .vote_down_small {
   background-color: #1ba39c;
@@ -332,6 +342,7 @@
 .sb_btn_icon_settings,
 .vote_up,
 .vote_down,
+.sb_btn_icon_settings_profile,
 .vote_up_small,
 .vote_down_small {
   background-color: transparent;
@@ -339,7 +350,8 @@
   padding: 10px;
 }
 .sb_btn_icon_green,
-.sb_btn_icon_settings {
+.sb_btn_icon_settings,
+.sb_btn_icon_settings_profile {
   padding: 5px;
   color: #1ba39c;
 }
@@ -347,11 +359,18 @@
   color: #1ba39c;
   background-color: transparent;
 }
-.sb_btn_icon_settings {
+.sb_btn_grey {
+  background-color: #b7bfbb;
+}
+.sb_btn_icon_settings,
+.sb_btn_icon_settings_profile {
   color: #eaf0e8;
 }
 .sb_btn_icon_settings:hover {
   color: #9dbbb9;
+}
+.sb_btn_icon_settings_profile {
+  position: absolute;
 }
 .sb_btn_vote,
 .vote_up,
@@ -581,6 +600,7 @@
 .sb_thumbnail_lg {
   height: 120px;
   width: 120px;
+  margin: 0;
 }
 .sb_thumbnail_search {
   margin-right: 15px;

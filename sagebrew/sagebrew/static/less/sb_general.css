@@ -948,3 +948,8 @@ textarea.sb_comment_input {
   margin-left: 30px;
   padding-right: 25px;
 }
+
+.error_page{
+  padding-top: 100px;
+  padding-bottom: 400px;
+}

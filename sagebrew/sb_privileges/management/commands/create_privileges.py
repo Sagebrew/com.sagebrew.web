@@ -25,8 +25,8 @@ class Command(BaseCommand):
                 requirements = privilege.pop('requirements', [])
                 actions = privilege.pop('actions', [])
                 try:
-                    SBPrivilege.nodes.get(privilege_name=privilege[
-                        "privilege_name"])
+                    SBPrivilege.nodes.get(name=privilege[
+                        "name"])
                 except(SBPrivilege.DoesNotExist, DoesNotExist):
                     try:
                         privilege = SBPrivilege(**privilege).save()
@@ -38,7 +38,7 @@ class Command(BaseCommand):
                                     "missing privileges")
                 for requirement in requirements:
                     try:
-                        SBRequirement.nodes.get(key=requirement["key"])
+                        SBRequirement.nodes.get(name=requirement["name"])
                     except(SBRequirement.DoesNotExist, DoesNotExist):
                         try:
                             req = SBRequirement(**requirement).save()

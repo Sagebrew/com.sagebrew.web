@@ -11,7 +11,7 @@ from api.utils import post_to_api
 
 class SBPrivilege(StructuredNode):
     sb_id = StringProperty(default=lambda: str(uuid1()))
-    privilege_name = StringProperty()
+    name = StringProperty(unique_index=True)
 
     #relationships
     actions = RelationshipTo('sb_privileges.neo_models.SBAction', 'GRANTS')
@@ -48,10 +48,10 @@ class SBPrivilege(StructuredNode):
             requirements.append(req.get_dict())
         return {
             "sb_id": self.sb_id,
-            "name": self.privilege_name,
+            "name": self.name,
             "actions": actions,
             "requirements": requirements,
-            "privilege": self.privilege_name
+            "privilege": self.name
         }
 
 
@@ -86,7 +86,7 @@ class SBAction(StructuredNode):
 class SBRestriction(StructuredNode):
     sb_id = StringProperty(default=lambda: str(uuid1()), unique_index=True)
     base = BooleanProperty(default=False)
-    name = StringProperty()
+    name = StringProperty(unique_index=True)
     url = StringProperty()
     key = StringProperty()
     operator = StringProperty(default="") #gt, ge, eq, ne, ge, gt

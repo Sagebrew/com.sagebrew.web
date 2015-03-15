@@ -6,6 +6,7 @@
         "requirements":[
             {
                 "url": "/user/v1/profile/",
+                "name": "Total Reputation Badge",
                 "key": "total_rep",
                 "operator": "coperator\nge\np0\n.",
                 "condition": "10"

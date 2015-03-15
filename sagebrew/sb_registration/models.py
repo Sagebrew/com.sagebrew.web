@@ -15,6 +15,8 @@ class EmailAuthTokenGenerator(object):
                                           pleb)
 
     def check_token(self, user, token, pleb):
+        if token is None:
+            return False
         try:
             timestamp_base36, hash = token.split("-")
         except ValueError:

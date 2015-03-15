@@ -10,6 +10,7 @@ from django.contrib.sessions.backends.db import SessionStore
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIRequestFactory
+from rest_framework import status
 
 from api.utils import wait_util
 from sb_registration.views import (profile_information,
@@ -84,7 +85,7 @@ class InterestsTest(TestCase):
                    "agriculture": False}
         request = self.factory.post('/registration/interests',
                                     data=my_dict)
-        self.user.email = 'fakeemail@fake.com'
+        self.user.username = 'fakeusername'
         request.user = self.user
         response = interests(request)
 
@@ -294,11 +295,14 @@ class TestProfileInfoView(TestCase):
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',
                                     data=my_dict)
-        self.user.email = "fakeeemail@gmail.com"
+        self.user.username = "fakeeemail"
         request.user = self.user
         response = profile_information(request)
-
-        self.assertEqual(response.status_code, 302)
+        # Redirects a non-existent user to the defined login url which at the
+        # time of this writing is /registration/signup/confirm/. This is done
+        # by the decorator returning False if the user does not exist.
+        # This is contrary to throwing a 404.
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
     def test_profile_information_complete_profile_info(self):
         my_dict = {"city": ["Walled Lake"], "home_town": [],
@@ -724,12 +728,14 @@ class TestEmailVerificationView(TestCase):
         request.session = s
         login(request, user)
         request.user = user
-        request.user.email = "totallynotafakeuser@fake.com"
+        request.user.username = "totallyfakeusername"
         token = self.token_gen.make_token(user, None)
 
         res = email_verification(request, token)
-
-        self.assertEqual(res.status_code, 302)
+        # This redirects to logout and then subsequently login because we
+        # currently don't have an email verification failure page if the
+        # user does not exist. See WA-1058
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
 
 
 class TestResendEmailVerificationView(TestCase):
@@ -768,10 +774,10 @@ class TestResendEmailVerificationView(TestCase):
         request.session = s
         login(request, user)
         request.user = user
-        request.user.email = 'totallynotafakeuser@fake.com'
+        request.user.username = 'totallynotafakeuser'
         res = resend_email_verification(request)
 
-        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
 
 
 class TestConfirmView(TestCase):

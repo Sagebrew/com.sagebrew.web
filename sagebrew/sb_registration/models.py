@@ -15,8 +15,10 @@ class EmailAuthTokenGenerator(object):
                                           pleb)
 
     def check_token(self, user, token, pleb):
+        if token is None:
+            return False
         try:
-            timestamp_base36, hash = token.split("-")
+            timestamp_base36, hash_key = token.split("-")
         except ValueError:
             return False
 
@@ -25,10 +27,8 @@ class EmailAuthTokenGenerator(object):
         except ValueError:
             return False
 
-        if not constant_time_compare(self._make_timestamp_token(user,
-                                                                timestamp,
-                                                                pleb),
-                                     token):
+        if not constant_time_compare(self._make_timestamp_token(
+                user, timestamp, pleb), token):
             return False
 
         if (self._num_days(self._today()) - timestamp) > \

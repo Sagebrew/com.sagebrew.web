@@ -24,9 +24,6 @@ class Command(BaseCommand):
             conn = connect_to_dynamo()
             reads = 1
             writes = 1
-            if os.environ.get("CIRCLE_BRANCH", "unknown") == "master":
-                reads = 2
-                writes = 2
 
             if isinstance(conn, Exception):
                 print "Unable to connect to dynamo table, potential error"

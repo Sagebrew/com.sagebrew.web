@@ -1,4 +1,5 @@
 import os
+import time
 from json import loads
 from django.core.management.base import BaseCommand
 from django.conf import settings
@@ -32,8 +33,10 @@ class Command(BaseCommand):
                 try:
                     table = Table(table_name=table_name,
                                   connection=conn)
-                    table.describe()
                     table.delete()
+                    while (table.describe()['Table']['TableStatus'] ==
+                               "DELETING"):
+                        time.sleep(1)
                 except JSONResponseError:
                     print 'The table %s does not exist'%table_name
                 try:

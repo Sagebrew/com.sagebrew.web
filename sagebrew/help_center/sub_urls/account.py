@@ -5,6 +5,18 @@ from django.conf import settings
 
 urlpatterns = patterns(
     'help_center.views',
+    url(r'^reset_password/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": "How do I reset my password?",
+            "description": "Occasionally we all forget what our password was. "
+                           "This article will help walk you through resetting "
+                           "yours.",
+            "content_path":
+                "%sreset_password.html" % (settings.HELP_DOCS_PATH),
+            "category": "account"
+        },
+        name="reset_password"),
     url(r'^why_join/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -60,17 +72,5 @@ if settings.DEBUG is True:
                 "category": "account"
             },
             name="delete_account"),
-        url(r'^reset_password/$', TemplateView.as_view(
-            template_name="help_page.html"),
-            kwargs={
-                "title": "How do I reset my password?",
-                "description": "Occasionally we all forget what our password was. "
-                               "This article will help walk you through resetting "
-                               "yours.",
-                "content_path":
-                    "%sreset_password.html" % (settings.HELP_DOCS_PATH),
-                "category": "account"
-            },
-            name="reset_password"),
     )
 

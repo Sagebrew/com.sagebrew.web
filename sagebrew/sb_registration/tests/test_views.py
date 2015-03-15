@@ -298,8 +298,11 @@ class TestProfileInfoView(TestCase):
         self.user.username = "fakeeemail"
         request.user = self.user
         response = profile_information(request)
-
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        # Redirects a non-existent user to the defined login url which at the
+        # time of this writing is /registration/signup/confirm/. This is done
+        # by the decorator returning False if the user does not exist.
+        # This is contrary to throwing a 404.
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
     def test_profile_information_complete_profile_info(self):
         my_dict = {"city": ["Walled Lake"], "home_town": [],

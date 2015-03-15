@@ -212,8 +212,6 @@ def profile_information(request):
     address_information_form = AddressInfoForm(request.POST or None)
     try:
         citizen = Pleb.nodes.get(username=request.user.username)
-    except (Pleb.DoesNotExist, DoesNotExist):
-        raise Http404("User does not exist")
     except (CypherException, IOError) as e:
         return HttpResponseServerError('Server Error')
     if citizen.completed_profile_info:

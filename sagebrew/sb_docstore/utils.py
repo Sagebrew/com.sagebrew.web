@@ -371,7 +371,6 @@ def get_wall_docs(parent_object):
     if len(posts) == 0:
         return False
     for post in posts:
-        print post['parent_object'], post['datetime'], type(post['datetime'])
         comment_list = []
         post = dict(post)
         post['up_vote_number'] = get_vote_count(post['object_uuid'], 1)
@@ -644,3 +643,25 @@ def build_privileges(username):
             rest_dict['parent_object'] = username
             restriction.put_item(rest_dict)
     return True
+
+@apply_defense
+def update_base_user_reps(username, rep, senators):
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
+    try:
+        user_table = Table(table_name=get_table_name('users_barebones'),
+                           connection=conn)
+    except JSONResponseError as e:
+        return e
+    try:
+        res = user_table.get_item(username=username)
+    except JSONResponseError as e:
+        return e
+    except ItemNotFound:
+        return False
+    res['house_rep'] = rep
+    res['senators'] = ",".join(map(str, senators))
+    res.partial_save()
+    print dict(res)
+

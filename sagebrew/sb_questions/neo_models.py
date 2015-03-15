@@ -170,7 +170,7 @@ class SBQuestion(SBVersioned, SBTagContent):
                 'object_type': self.object_type,
                 'to_be_deleted': self.to_be_deleted,
                 'html_content': html_content}
-        except CypherException as e:
+        except (CypherException, IOError) as e:
             return e
 
     @apply_defense

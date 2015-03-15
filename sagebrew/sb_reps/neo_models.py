@@ -21,7 +21,7 @@ class BaseOfficial(Pleb):
     customer_id = StringProperty()
     name_mod = StringProperty()
     current = BooleanProperty()
-    district = IntegerProperty()
+    district = IntegerProperty(default=None)
     state = StringProperty()
     website = StringProperty()
     start_date = DateTimeProperty()

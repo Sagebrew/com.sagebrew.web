@@ -157,6 +157,8 @@ class Pleb(StructuredNode):
     #                         "HAS_SENATOR")
     #house_rep = RelationshipTo("govtrack.neo_models.GTRole",
     #                           "HAS_REPRESENTATIVE")
+    house_rep = RelationshipTo("sb_reps.neo_models.BaseOfficial", "HOUSE_REP")
+    senator = RelationshipTo("sb_reps.neo_models.BaseOfficial", "SENATOR")
     posts = RelationshipTo('sb_posts.neo_models.SBPost', 'OWNS_POST',
                            model=PostObjectCreated)
     questions = RelationshipTo('sb_questions.neo_models.SBQuestion',
@@ -356,7 +358,9 @@ class Pleb(StructuredNode):
         return request_list
 
     def determine_reps(self):
-        pass
+        from sb_reps.utils import determine_reps
+        return determine_reps(self.username)
+
 
 
 class Address(StructuredNode):

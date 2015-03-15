@@ -30,8 +30,8 @@
   font-weight: bold;
   font-size: 20px;
   color: #34495e;
-  margin-top: 0px;
-  margin-bottom: 0px;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 .sb_general p {
   font-size: 18px;
@@ -168,7 +168,7 @@
 }
 .sb_side_nav_block {
   background-color: #eaf0e8;
-  padding: 15px 0 15px 0px;
+  padding: 15px 0 15px 0;
   margin-bottom: 15px;
   border: 1px solid #b7bfbb;
 }
@@ -196,10 +196,10 @@
   color: #1ba39c;
 }
 .sb_search_block ul {
-  padding-left: 0px;
+  padding-left: 0;
 }
 .sb_search_block p {
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
 .sb_search_vote_block {
   margin-top: 30px;
@@ -483,7 +483,7 @@
   width: auto;
   height: 30px;
   margin-top: 6px;
-  border: 0px #b7bfbb;
+  border: 0 #b7bfbb;
   border-right: 1px none;
   border-left-width: 1px;
 }
@@ -532,11 +532,11 @@
 }
 .sb_secondary_nav_bar {
   background-color: #e5ece6;
-  padding: 0 0 30px 0px;
+  padding: 0 0 30px 0;
 }
 .sb_secondary_nav_transparent {
   background-color: transparent;
-  padding: 0 0 30px 0px;
+  padding: 0 0 30px 0;
 }
 .sb_tertiary_nav {
   background-color: transparent;
@@ -584,7 +584,7 @@
 .sb_login button {
   background-color: #fafcfa;
   color: #1ba39c;
-  padding-top: 0px;
+  padding-top: 0;
   padding-bottom: 5px;
 }
 .sb_progress {
@@ -798,7 +798,7 @@
   width: auto;
   background-color: #fafcfa;
   border-radius: 5px 5px 5px 5px;
-  padding: 15px 15px 0px;
+  padding: 15px 15px 0;
   margin-bottom: 15px;
 }
 .vertical_nav,
@@ -813,8 +813,8 @@
 }
 .sb_divider {
   color: #1ba39c;
-  margin-top: 0px;
-  margin-bottom: 0px;
+  margin-top: 0;
+  margin-bottom: 0;
   height: 2px;
   overflow: hidden;
   background-color: rgba(202, 206, 209, 0.5);
@@ -880,7 +880,7 @@
   background-color: #00b8ac;
 }
 .sb_comment_wrapper {
-  padding-right: 0px;
+  padding-right: 0;
 }
 .sb_comments_container {
   font-size: 18px;
@@ -948,7 +948,7 @@ textarea.sb_comment_input {
   color: white;
   background-repeat: no-repeat;
   padding-top: 5px;
-  padding-bottom: 0px;
+  padding-bottom: 0;
   margin-left: 30px;
   padding-right: 25px;
 }

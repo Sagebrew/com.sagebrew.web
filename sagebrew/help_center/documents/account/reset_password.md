@@ -13,4 +13,4 @@ Enter your new password and confirm it.
 Make sure that it's a secure password that you'll remember!
 
 
-[1]: /help/accounts/password_reset/
+[1]: /password_reset/

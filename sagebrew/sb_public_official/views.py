@@ -9,10 +9,8 @@ from sb_registration.utils import (verify_completed_registration)
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def saga(request, username):
-    representative = {"username": username}
     res = get_rep_docs(username)
     rep = dict(res['rep'])
-    print rep
     return render(request, 'action_page.html', {"representative":
                                                     rep,
                                                 "registered": False})
@@ -22,7 +20,6 @@ def saga(request, username):
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def updates(request, username):
-    representative = {"username": username}
     res = get_rep_docs(username)
     rep = dict(res['rep'])
     return render(request, 'action_page.html', {"representative":
@@ -34,7 +31,6 @@ def updates(request, username):
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def about(request, username):
-    representative = {"username": username}
     res = get_rep_docs(username)
     rep = dict(res['rep'])
     return render(request, 'action_page.html', {"representative":

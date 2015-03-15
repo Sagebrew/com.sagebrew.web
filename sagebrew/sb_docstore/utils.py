@@ -690,7 +690,6 @@ def update_base_user_reps(username, rep, senators):
                            connection=conn)
     except JSONResponseError as e:
         return e
-    print user_table.describe()
     try:
         res = user_table.get_item(username=username)
     except JSONResponseError as e:

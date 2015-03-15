@@ -60,10 +60,8 @@ def profile_page(request, pleb_username=""):
     current_user = request.user
     page_user = User.objects.get(email=page_user_pleb.email)
     page_user_barebones = get_barebones_user(page_user_pleb.username)
-    print page_user_barebones
     reps = get_profile_rep_docs(page_user_barebones['house_rep'],
                                 page_user_barebones['senators'].split(","))
-    print reps
     is_owner = False
     is_friend = False
     friend_request_sent = False

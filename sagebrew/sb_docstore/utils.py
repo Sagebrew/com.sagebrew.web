@@ -70,6 +70,44 @@ def get_rep_info(parent_object, table_name):
     )
     return list(res)
 
+def get_barebones_user(username):
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
+    try:
+        table = Table(table_name=get_table_name('users_barebones'),
+                      connection=conn)
+    except JSONResponseError:
+        return False
+    try:
+        res = table.get_item(username=username)
+    except (JSONResponseError, ItemNotFound):
+        return False
+    return dict(res)
+
+def get_profile_rep_docs(house_rep, senators):
+    rep_dict = {"senators": []}
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
+    try:
+        table = Table(table_name=get_table_name("general_reps"),
+                      connection=conn)
+    except JSONResponseError:
+        return False
+    try:
+        house_rep = table.get_item(object_uuid=house_rep)
+        rep_dict['house_rep'] = dict(house_rep)
+    except (JSONResponseError, ItemNotFound):
+        rep_dict['house_rep'] = False
+    for sen in senators:
+        try:
+            senator = table.get_item(object_uuid=sen)
+            rep_dict['senators'].append(dict(senator))
+        except (JSONResponseError, ItemNotFound):
+            rep_dict['senators'].append(False)
+
+    return rep_dict
 
 def add_object_to_table(table_name, object_data):
     '''
@@ -132,8 +170,6 @@ def query_parent_object_table(object_uuid, get_all=False, table_name='edits'):
 def update_doc(table, object_uuid, update_data, parent_object="",
                obj_datetime=""):
     table_name = get_table_name(table)
-    print table_name
-    print parent_object, obj_datetime, object_uuid, update_data
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
@@ -654,6 +690,7 @@ def update_base_user_reps(username, rep, senators):
                            connection=conn)
     except JSONResponseError as e:
         return e
+    print user_table.describe()
     try:
         res = user_table.get_item(username=username)
     except JSONResponseError as e:
@@ -662,6 +699,6 @@ def update_base_user_reps(username, rep, senators):
         return False
     res['house_rep'] = rep
     res['senators'] = ",".join(map(str, senators))
-    res.partial_save()
-    print dict(res)
+    res.save()
+    return True
 

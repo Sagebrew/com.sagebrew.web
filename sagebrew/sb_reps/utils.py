@@ -182,5 +182,7 @@ def determine_reps(username):
             except(CypherException, IOError):
                 return False
             senators.append(rep.sb_id)
-    update_base_user_reps(username, house_rep, senators)
-    return {"house_rep": house_rep, "senators": senators}
+    res = update_base_user_reps(username, house_rep, senators)
+    if isinstance(res, Exception):
+        return res
+    return True

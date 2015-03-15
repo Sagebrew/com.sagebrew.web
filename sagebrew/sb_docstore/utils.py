@@ -644,4 +644,3 @@ def build_privileges(username):
             rest_dict['parent_object'] = username
             restriction.put_item(rest_dict)
     return True
-

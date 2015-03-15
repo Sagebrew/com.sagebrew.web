@@ -102,12 +102,14 @@ class TestDocstoreUtils(TestCase):
         uuid = str(uuid1())
         now = unicode(datetime.now(pytz.utc))
         data = {'object_uuid': uuid, 'content': '1231231231',
-                'user': self.pleb.email, 'datetime': now}
+                'user': self.pleb.email, 'last_edited_on': now,
+                "time_created": now}
         res = add_object_to_table('public_questions', data)
         self.assertTrue(res)
         solution_uuid = str(uuid1())
         solution_data = {'parent_object': uuid, 'object_uuid': solution_uuid,
-                         'content': '12312312', 'datetime': now}
+                         'content': '12312312',  'last_edited_on': now,
+                         "time_created": now}
         sol_res = add_object_to_table('public_solutions', solution_data)
         self.assertTrue(sol_res)
         res = get_question_doc(uuid, 'public_questions', 'public_solutions')

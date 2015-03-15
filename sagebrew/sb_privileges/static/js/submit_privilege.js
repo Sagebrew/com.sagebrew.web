@@ -36,7 +36,7 @@ $(document).ready(function(){
             url: "/privilege/create/privilege/",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify({
-                "privilege_name": $("#id_privilege_name").val(),
+                "name": $("#id_privilege_name").val(),
                 "actions": action_data['action[]'],
                 "requirements": req_data['requirement[]']
             }),

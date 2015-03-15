@@ -9,6 +9,7 @@ from api.utils import post_to_api
 
 class SBRequirement(StructuredNode):
     sb_id = StringProperty(default=lambda: str(uuid1()), unique_index=True)
+    name = StringProperty(unique_index=True)
     url = StringProperty()
     key = StringProperty()
     # gt, ge, eq, ne, ge, gt

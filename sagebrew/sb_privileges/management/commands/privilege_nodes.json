@@ -1,7 +1,7 @@
 {
     "privileges": [
         {
-            "privilege_name": "base_privilege",
+            "name": "base_privilege",
             "actions": [
                 {
                     "action": "write_question",
@@ -30,6 +30,7 @@
             ],
             "requirements": [
                 {
+                    "name": "Total Reputation Profile",
                     "url": "/user/v1/profile/",
                     "key": "total_rep",
                     "operator": "coperator\nge\np0\n.",
@@ -43,7 +44,7 @@
     ],
     "restrictions": [
         {
-            "name": "1 question weekly",
+            "name": "1 Question Weekly",
             "url": "/user/v1/profile/question/?expiry=604800",
             "key": "count",
             "operator": "coperator\nle\np0\n.",
@@ -53,7 +54,7 @@
             "base": true
         },
         {
-            "name": "sum of 3 questions and solutions weekly",
+            "name": "Sum of 3 Questions and Solutions Weekly",
             "url": "/user/v1/profile/conversation/?expiry=604800",
             "key": "count",
             "operator": "coperator\nle\np0\n.",

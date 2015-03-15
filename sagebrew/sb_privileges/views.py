@@ -59,13 +59,13 @@ class CreateAction(APIView):
             return Response({"detail": "invalid form",
                              "errors": action_form.errors}, 400)
 
+
 class CreateRequirement(APIView):
     def get(self, request, format=None):
         return Response({"html": render_to_string('requirement_form.html',
-            {"requirement_form": CreateRequirementForm()},
-                                                  context_instance=
-                                                  RequestContext(request))},
-                        200)
+            {"requirement_form":
+                 CreateRequirementForm()},
+            context_instance=RequestContext(request))}, 200)
 
     def post(self, request, format=None):
         req_form = CreateRequirementForm(request.DATA)
@@ -77,6 +77,7 @@ class CreateRequirement(APIView):
         else:
             return Response({"detail": "invalid form",
                              "errors": req_form.errors}, 400)
+
 
 class CreatePrivilege(APIView):
     def create_requirement(self, requirements):
@@ -105,7 +106,7 @@ class CreatePrivilege(APIView):
         action_forms = []
         requirement_forms = []
         privilege_form = CreatePrivilegeForm(
-            {"privilege_name": request.DATA['privilege_name']})
+            {"name": request.DATA['name']})
         if privilege_form.is_valid():
             if 'actions' in request.DATA:
                 if type(request.DATA['actions']) == list:

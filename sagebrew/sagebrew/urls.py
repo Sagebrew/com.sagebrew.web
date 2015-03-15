@@ -39,8 +39,12 @@ urlpatterns = patterns(
         name="password_reset_complete"),
     url(r'^terms/$',  RedirectView.as_view(
         url='/help/terms/', permanent=False),name='terms_redirect'),
+    url(r'^400/$', TemplateView.as_view(template_name="400.html"),
+        name="400_Error"),
     url(r'^404/$', TemplateView.as_view(template_name="404.html"),
         name="404_Error"),
+    url(r'^500/$', TemplateView.as_view(template_name="500.html"),
+        name="500_Error"),
     (r'^contact_us/$', TemplateView.as_view(template_name="contact_us.html")),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     (r'^registration/', include('sb_registration.urls')),

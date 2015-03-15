@@ -1,10 +1,9 @@
 import stripe
-import json
 from django.conf import settings
 from uuid import uuid1
 from django.core.urlresolvers import reverse
 from django.http import (HttpResponse, HttpResponseNotFound,
-                         HttpResponseServerError)
+                         HttpResponseServerError, Http404)
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
@@ -26,8 +25,7 @@ from sb_uploads.tasks import crop_image_task
 from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm, RepRegistrationForm,
                     LoginForm, BetaSignupForm)
-from .utils import (upload_image, verify_completed_registration,
-                    verify_verified_email, calc_age,
+from .utils import (verify_completed_registration, verify_verified_email,
                     create_user_util)
 from .models import token_gen
 from .tasks import update_interests, store_address
@@ -110,7 +108,7 @@ def login_view(request):
 def resend_email_verification(request):
     try:
         pleb = Pleb.nodes.get(username=request.user.username)
-    except(DoesNotExist):
+    except(Pleb.DoesNotExist, DoesNotExist):
         return HttpResponseNotFound("Could not find user")
 
     template_dict = {
@@ -214,8 +212,6 @@ def profile_information(request):
     address_information_form = AddressInfoForm(request.POST or None)
     try:
         citizen = Pleb.nodes.get(username=request.user.username)
-    except (Pleb.DoesNotExist, DoesNotExist):
-        return redirect("404_Error")
     except (CypherException, IOError) as e:
         return HttpResponseServerError('Server Error')
     if citizen.completed_profile_info:

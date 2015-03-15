@@ -18,7 +18,7 @@ community and to lead through example.
   brought to the Admin Panel where they can vote on them. A 2/3 majority 
   among Admins who vote on Flagged posts is required before a Flagged piece of content is 
   [Deleted][3] or [Closed][4].
-- Close [Duplicate][5] Questions
+- Close [Duplicates][5]
 - Ability to [Protect][7] a Conversation
 {% comment %}
     Upon implementation of Reach Posts elected officials shall have the capability
@@ -37,6 +37,6 @@ their country.
 [1]: /help/reputation/admin_council/
 [2]: /help/privileges/flagging/
 [3]: /help/conversation/deletions/
-[4]: /help/questions/closure_of_a_question/
-[5]: /help/questions/duplicate_question/
+[4]: /help/conversation/closed/
+[5]: /help/questions/duplicates/
 [7]: /help/conversation/protected/

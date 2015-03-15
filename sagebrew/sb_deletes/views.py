@@ -28,7 +28,7 @@ def delete_object_view(request):
             "object_uuid": delete_object_form.cleaned_data['object_uuid']
         }
         pleb_task_data = {
-            'email': request.user.email,
+            'username': request.user.username,
             'task_func': delete_object_task,
             'task_param': task_data
         }

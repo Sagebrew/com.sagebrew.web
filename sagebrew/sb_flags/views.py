@@ -32,7 +32,7 @@ def flag_object_view(request):
             "flag_reason": flag_object_form.cleaned_data['flag_reason']
         }
         pleb_data = {
-            'email': request.user.email,
+            'username': request.user.username,
             'task_func': flag_object_task,
             'task_param': task_data
         }

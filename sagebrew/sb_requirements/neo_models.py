@@ -7,7 +7,7 @@ from neomodel import (StructuredNode, StringProperty)
 from api.utils import post_to_api
 
 
-class Requirement(StructuredNode):
+class SBRequirement(StructuredNode):
     sb_id = StringProperty(default=lambda: str(uuid1()), unique_index=True)
     url = StringProperty()
     key = StringProperty()

@@ -1,4 +1,5 @@
 from uuid import uuid1
+from django.conf import settings
 from django.shortcuts import render
 from django.template import Context
 from django.core.urlresolvers import reverse
@@ -10,11 +11,13 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from rest_framework.decorators import (api_view, permission_classes)
 
 from api.utils import spawn_task
+from sb_stats.tasks import update_view_count_task
 from sb_docstore.tasks import build_question_page_task
 from sb_docstore.utils import get_question_doc
 from sb_registration.utils import verify_completed_registration
 from .utils import (get_question_by_most_recent, get_question_by_uuid,
-                    get_question_by_least_recent, prepare_question_search_html)
+                    get_question_by_least_recent, prepare_question_search_html,
+                    get_question_by_recent_edit)
 from .tasks import (create_question_task)
 from .forms import (SaveQuestionForm, GetQuestionForm)
 
@@ -93,7 +96,6 @@ def save_question_view(request):
     '''
     question_data = request.DATA
     if type(question_data) != dict:
-        print question_data
         return Response({"details": "Please provide a valid JSON object"},
                         status=400)
     #question_data['content'] = language_filter(question_data['content'])
@@ -104,6 +106,7 @@ def save_question_view(request):
         return Response(status=404)
     if valid_form:
         question_form.cleaned_data['question_uuid'] = str(uuid1())
+        question_form.cleaned_data['current_pleb'] = request.user.username
         spawned = spawn_task(task_func=create_question_task,
                              task_param=question_form.cleaned_data)
         if isinstance(spawned, Exception) is True:
@@ -114,7 +117,6 @@ def save_question_view(request):
                          "url": url}
                         , status=200)
     else:
-        print question_form.errors
         return Response(question_form.errors, status=400)
 
 
@@ -207,6 +209,10 @@ def get_question_view(request):
             return Response(html_array, status=200)
 
         elif question_data['sort_by'] == 'uuid':
+            task_data = {"object_uuid": question_data['question_uuid'],
+                         "object_type": dict(settings.KNOWN_TYPES)[
+                             "0274a216-644f-11e4-9ad9-080027242395"]}
+            spawn_task(update_view_count_task, task_data)
             res = get_question_doc(question_data['question_uuid'],
                                    'public_questions', 'public_solutions')
             if res == {}:
@@ -231,6 +237,11 @@ def get_question_view(request):
                 else:
                     return Response(question_by_uuid, status=200)
             else:
+                for answer in res['answers']:
+                    spawn_task(update_view_count_task,
+                               {'object_uuid': answer['object_uuid'],
+                                'object_type': dict(settings.KNOWN_TYPES)[
+                                    answer['object_type']]})
                 t = get_template("question_detail.html")
                 c = Context(res)
                 return Response(t.render(c), status=200)
@@ -249,7 +260,14 @@ def get_question_view(request):
         # TODO if cannot perform the above TODOs need to at least add
         # an additional else or remove the bottom else specifier and just
         # return the Response anytime it reaches that area
-
+        elif question_data['sort_by'] == 'recent_edit':
+            response = get_question_by_recent_edit()
+            if isinstance(response, Exception):
+                return Response(status=500)
+            for question in response:
+                html_array.append(
+                    question.render_question_page(request.user.email))
+            return Response(html_array, 200)
     return Response({"detail": "fail"}, status=400)
 
 

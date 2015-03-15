@@ -139,6 +139,7 @@ class SBContent(SBVoteableContent):
 
 
     # relationships
+    view_count_node = RelationshipTo('sb_stats.neo_models.SBViewCount', 'VIEW_COUNT')
     flagged_by = RelationshipTo('plebs.neo_models.Pleb', 'FLAGGED_BY')
     flags = RelationshipTo('sb_flags.neo_models.SBFlag', 'HAS_FLAG')
     received_by = RelationshipTo('plebs.neo_models.Pleb', 'RECEIVED',
@@ -217,6 +218,30 @@ class SBContent(SBVoteableContent):
     def get_table(self):
         return self.table
 
+    @apply_defense
+    def create_view_count(self):
+        from sb_stats.neo_models import SBViewCount
+        try:
+            count_node = SBViewCount().save()
+        except (CypherException, IOError) as e:
+            return e
+        try:
+            self.view_count_node.connect(count_node)
+        except (CypherException, IOError) as e:
+            return e
+        return True
+
+    def increment_view_count(self):
+        try:
+            return self.view_count_node.all()[0].increment()
+        except IndexError:
+            return 0
+
+    def get_view_count(self):
+        try:
+            return self.view_count_node.all()[0].view_count
+        except IndexError:
+            return 0
 
 
 class SBVersioned(SBContent):
@@ -299,8 +324,6 @@ class SBTagContent(StructuredNode):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         if not tags:
             return False
-
-        tags = tags.split(',')
         for tag in tags:
             try:
                 tag_object = SBTag.nodes.get(tag_name=tag)

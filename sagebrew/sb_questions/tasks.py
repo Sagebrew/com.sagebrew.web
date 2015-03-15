@@ -146,6 +146,8 @@ def create_question_task(content, current_pleb, question_title, question_uuid,
     '''
     if tags is None:
         tags = []
+    else:
+        tags = tags.split(',')
 
     question = create_question_util(content=content,
                                     question_title=question_title,

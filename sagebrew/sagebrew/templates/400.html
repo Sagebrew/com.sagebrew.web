@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}Welcome to Sagebrew{% endblock title %}
+{% block description %}
+    <meta name="description" content="Sagebrew is the platform that
+                                     empowers people to make change">
+{% endblock description %}
+
+{% block content %}
+    <img class="sb_sign_up_background"
+             src="{% static 'images/sign_up.jpg' %}">
+    <div class="error_page">
+        <div class="row-fluid" align="center">
+            <div class="col-lg-8 col-sm-10 col-xs-12 col-lg-offset-2 col-md-offset-1 col-sm-offset-1"
+                 style="background:rgba(255,255,255,0.5);">
+                <h1>Sorry, You've Made An Improper Request</h1>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block footer %}
+      <div class="bottom-menu sb_footer">
+      <div class="container">
+        {% include "footer.html" %}
+      </div>
+    </div>
+{% endblock footer %}

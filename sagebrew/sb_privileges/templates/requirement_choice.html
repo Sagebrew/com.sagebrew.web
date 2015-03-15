@@ -1,0 +1,7 @@
+<h2>Requirements</h2>
+<form id="requirement_choice_form">
+    {% csrf_token %}
+    {% for req in requirements %}
+        <input type="radio" name="requirement[]" value="{{ req.req_id }}"> {{ req.key }}{{ req.operator }}{{ req.condition }} <br>
+    {% endfor %}
+</form>

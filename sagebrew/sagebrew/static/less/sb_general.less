@@ -31,8 +31,8 @@
     font-weight: bold;
     font-size: 20px;
     color: @sb_dark_blue;
-    margin-top: 0px;
-    margin-bottom: 0px;
+    margin-top: 0;
+    margin-bottom: 0;
   }
   p{
     font-size: 18px;
@@ -174,7 +174,7 @@
 }
 .sb_side_nav_block{
   background-color: @sb_green_extra_light;
-  padding: 15px 0 15px 0px;
+  padding: 15px 0 15px 0;
   margin-bottom: 15px;
   border: 1px solid @sb_grey;
   h5{
@@ -202,10 +202,10 @@
     }
   }
   ul{
-    padding-left: 0px;
+    padding-left: 0;
   }
   p{
-    margin-bottom: 0px;
+    margin-bottom: 0;
   }
 }
 .sb_search_vote_block{
@@ -309,7 +309,6 @@
 .sb_border{
   border-radius: 5px;
   padding: @sb_common_padding_positive;
-  min-height: auto;
   border: 1px solid @sb_grey;
 }
 .sb_border_question{
@@ -499,7 +498,7 @@
     height: @sb_input_height;
     margin-top: 6px;
     // This fixes firefox border issue with input
-    border: 0px @sb_grey;
+    border: 0 @sb_grey;
     border-right: 1px none;
     border-left-width: 1px;
   }
@@ -548,12 +547,12 @@
 .sb_secondary_nav_bar{
   &:extend(.sb_secondary_nav);
   background-color: @sb_grey_light;
-  padding: 0 0 30px 0px;
+  padding: 0 0 30px 0;
 }
 .sb_secondary_nav_transparent{
   &:extend(.sb_secondary_nav);
   background-color: transparent;
-  padding: 0 0 30px 0px;
+  padding: 0 0 30px 0;
 }
 .sb_tertiary_nav {
   &:extend(.sb_secondary_nav);
@@ -612,9 +611,14 @@
     background-color: @sb_off_white;
     color: @sb_green;
     // Firefox fix for button being placed differently in navbar
-    padding-top: 0px;
+    padding-top: 0;
     padding-bottom: 5px;
   }
+}
+
+//this is for disabling certain dropdowns when editing an object
+.sb_object_dropdown {
+
 }
 
 //progress bar
@@ -730,7 +734,7 @@
   a{
     color: @white;
     &:visited{
-      background-color: none;
+      background-color: transparent;
     }
   }
 }
@@ -738,7 +742,7 @@
   position: fixed;
   float: left;
   width: 100%;
-  height: 100%;
+
   margin-top: -15px;
   margin-left: -16px;
 }
@@ -790,6 +794,13 @@
   padding:0;
 
 }
+// This is used as the css for collage plus after uploading images
+.sb_collage{
+  img{
+    width: 100px;
+    height: 100px;
+  }
+}
 // TODO Probably want to transition this into left side_container
 .sb_rep_container{
   margin-left: @sb_common_margin_negative;
@@ -800,7 +811,6 @@
   border-radius: 2px;
   height: 100%;
   padding-bottom: @sb_common_padding_positive;
-  background: cover;
 }
 .sb_container_header{
   padding-left: @sb_common_padding_positive;
@@ -841,7 +851,7 @@
   width: auto;
   background-color: @sb_off_white;
   border-radius: 5px 5px 5px 5px;
-  padding: @sb_common_padding_positive @sb_common_padding_positive 0px;
+  padding: @sb_common_padding_positive @sb_common_padding_positive 0;
   margin-bottom: 15px;
 }
 
@@ -863,8 +873,8 @@
 }
 .sb_divider{
   color: @sb_green;
-  margin-top: 0px;
-  margin-bottom: 0px;
+  margin-top: 0;
+  margin-bottom: 0;
   height: 2px;
   overflow: hidden;
   background-color: rgba(202,206,209,.5);
@@ -930,7 +940,7 @@
     }
 }
 .sb_comment_wrapper{
-  padding-right: 0px;
+  padding-right: 0;
 
 }
 .sb_comments_container{
@@ -998,12 +1008,25 @@ textarea.sb_comment_input{
       color: @sb_dark_blue;
     }
 }
-.conversation_logo {
+.conversation_logo{
   &:extend(.sb_dropdown_icon);
   color: white;
   background-repeat: no-repeat;
   padding-top: 5px;
-  padding-bottom: 0px;
+  padding-bottom: 0;
   margin-left: 30px;
   padding-right: 25px;
+}
+.grid-sizer{
+  width: 20%;
+}
+
+.post_images{
+  height: 125px;
+  margin-left: -3px;
+}
+
+.error_page{
+  padding-top: 100px;
+  padding-bottom: 400px;
 }

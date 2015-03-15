@@ -27,7 +27,7 @@ class EducationForm(forms.Form):
     degree = forms.CharField()
 
 class BioForm(forms.Form):
-    bio = forms.CharField(widget=forms.Textarea)
+    bio = forms.CharField(max_length=200, widget=forms.Textarea)
 
 class GoalForm(forms.Form):
     vote_req = forms.IntegerField()

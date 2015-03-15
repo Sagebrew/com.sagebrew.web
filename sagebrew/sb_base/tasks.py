@@ -14,7 +14,7 @@ logger = logging.getLogger("loggly_logs")
 def create_object_relations_task(sb_object, current_pleb, question=None,
                                  wall_pleb=None):
     try:
-        current_pleb = Pleb.nodes.get(email=current_pleb)
+        current_pleb = Pleb.nodes.get(username=current_pleb)
         if wall_pleb is not None:
             wall_pleb = Pleb.nodes.get(email=wall_pleb)
             wall = wall_pleb.wall.all()[0]
@@ -31,6 +31,11 @@ def create_object_relations_task(sb_object, current_pleb, question=None,
             raise create_object_relations_task.retry(exc=e, countdown=3,
                                                      max_retries=None)
     res = sb_object.create_relations(current_pleb, question, wall)
+    if isinstance(res, Exception) is True:
+        raise create_object_relations_task.retry(exc=res, countdown=3,
+                                                 max_retries=None)
+
+    res = sb_object.create_view_count()
     if isinstance(res, Exception) is True:
         raise create_object_relations_task.retry(exc=res, countdown=3,
                                                  max_retries=None)

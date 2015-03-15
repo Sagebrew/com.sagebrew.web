@@ -105,6 +105,7 @@ class Pleb(StructuredNode):
         'flag_as_other': -10, 'answered': 50, 'starred': 150, 'seen_search': 5,
         'seen_page': 20
     }
+    gender = StringProperty()
     oauth_token = StringProperty()
     username = StringProperty(unique_index=True, default=None)
     first_name = StringProperty()
@@ -341,6 +342,21 @@ class Pleb(StructuredNode):
 
     def get_comment_count(self):
         return len(self.comments.all())
+
+    def get_friends(self):
+        return self.friends.all()
+
+    def get_friend_requests_sent(self):
+        request_list = []
+        for request in self.friend_requests_sent.all():
+            try:
+                request_list.append(request.request_to.all()[0].username)
+            except IndexError:
+                continue
+        return request_list
+
+    def determine_reps(self):
+        pass
 
 
 class Address(StructuredNode):

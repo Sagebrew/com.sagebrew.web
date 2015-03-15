@@ -11,9 +11,19 @@ $(document).ready(function() {
         dataType: "json",
         success: function (data) {
             var tags = data['tags'];
-            $('#sb_tag_box').select2({
-                tags: tags,
-                tokenSeparators: [",", " ","'",".","*"]
+            var engine = new Bloodhound({
+                local: tags,
+                datumTokenizer: function(d) {
+                return Bloodhound.tokenizers.whitespace(d.value);
+              },
+              queryTokenizer: Bloodhound.tokenizers.whitespace
+              });
+
+            engine.initialize();
+            $('#sb_tag_box').tokenfield({
+                limit: 5,
+                typeahead: [null, {source: engine.ttAdapter()}],
+                delimiter: [",", " ","'",".","*", "_"]
             });
         }
     })

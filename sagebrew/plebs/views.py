@@ -50,7 +50,7 @@ def profile_page(request, pleb_username=""):
     :return:
     '''
     try:
-        citizen = Pleb.nodes.get(email=request.user.email)
+        citizen = Pleb.nodes.get(username=request.user.username)
         page_user_pleb = Pleb.nodes.get(username=pleb_username)
     except (Pleb.DoesNotExist, DoesNotExist):
         return redirect('404_Error')
@@ -60,11 +60,15 @@ def profile_page(request, pleb_username=""):
     page_user = User.objects.get(email=page_user_pleb.email)
     is_owner = False
     is_friend = False
-    friends_list = get_friends(citizen.email)
+    friend_request_sent = False
+    friends_list = get_friends(citizen.username)
     if current_user.email == page_user.email:
         is_owner = True
     elif page_user_pleb in citizen.friends.all():
         is_friend = True
+    if page_user_pleb.username in citizen.get_friend_requests_sent():
+        friend_request_sent = True
+
 
     # TODO deal with address and senator/rep in a util + task
     # TODO Create a cypher query to get addresses to replace traverse
@@ -81,6 +85,7 @@ def profile_page(request, pleb_username=""):
         'is_owner': is_owner,
         'is_friend': is_friend,
         'friends_list': friends_list,
+        'friend_request_sent': friend_request_sent
     })
 
 
@@ -111,7 +116,7 @@ def general_settings(request):
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
-def get_user_search_view(request, pleb_email=""):
+def get_user_search_view(request, pleb_username=""):
     '''
     This view will take a plebs email, get the user and render to string
     an html object which holds the data to be displayed when a user is returned
@@ -121,9 +126,9 @@ def get_user_search_view(request, pleb_email=""):
     :param pleb_email:
     :return:
     '''
-    form = GetUserSearchForm({"email": pleb_email})
-    if form.is_valid():
-        response = prepare_user_search_html(form.cleaned_data['email'])
+    form = GetUserSearchForm({"username": pleb_username})
+    if form.is_valid() is True:
+        response = prepare_user_search_html(pleb=form.cleaned_data['username'])
         if response is None:
             return HttpResponse('Server Error', status=500)
         elif response is False:
@@ -166,7 +171,7 @@ def about_page(request, pleb_username):
     page_user = User.objects.get(email=citizen.email)
     is_owner = False
     is_friend = False
-    friends_list = get_friends(citizen.email)
+    friends_list = get_friends(citizen.username)
     if current_user.email == page_user.email:
         is_owner = True
     elif citizen.friends.search(email=current_user.email):
@@ -225,7 +230,7 @@ def reputation_page(request, pleb_username):
     page_user = User.objects.get(email=citizen.email)
     is_owner = False
     is_friend = False
-    friends_list = get_friends(citizen.email)
+    friends_list = get_friends(citizen.username)
     if current_user.email == page_user.email:
         is_owner = True
     elif citizen.friends.search(email=current_user.email):
@@ -283,7 +288,7 @@ def friends_page(request, pleb_username):
     page_user = User.objects.get(email=citizen.email)
     is_owner = False
     is_friend = False
-    friends_list = get_friends(citizen.email)
+    friends_list = get_friends(citizen.username)
     if current_user.email == page_user.email:
         is_owner = True
     elif citizen.friends.search(email=current_user.email):

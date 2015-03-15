@@ -3,7 +3,7 @@ from django import forms
 
 class PostForm(forms.Form):
     content = forms.CharField()
-    current_pleb = forms.EmailField()
+    current_pleb = forms.CharField()
 
 
 class SavePostForm(PostForm):

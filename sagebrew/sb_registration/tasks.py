@@ -11,7 +11,7 @@ from .utils import create_address_long_hash
 @shared_task()
 def update_interests(email, interests):
     try:
-        citizen = Pleb.nodes.get(email)
+        citizen = Pleb.nodes.get(email=email)
     except (Pleb.DoesNotExist, DoesNotExist) as e:
         raise update_interests.retry(exc=e, countdown=3, max_retries=None)
     except (CypherException, IOError) as e:
@@ -31,9 +31,9 @@ def update_interests(email, interests):
 
 
 @shared_task()
-def store_address(email, address_clean):
+def store_address(username, address_clean):
     try:
-        citizen = Pleb.nodes.get(email=email)
+        citizen = Pleb.nodes.get(username=username)
     except (Pleb.DoesNotExist, DoesNotExist) as e:
         raise store_address.retry(exc=e, countdown=3, max_retries=None)
     except (CypherException, IOError) as e:

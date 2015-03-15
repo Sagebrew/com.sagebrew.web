@@ -85,7 +85,7 @@ class InterestsTest(TestCase):
                    "agriculture": False}
         request = self.factory.post('/registration/interests',
                                     data=my_dict)
-        self.user.email = 'fakeemail@fake.com'
+        self.user.username = 'fakeusername'
         request.user = self.user
         response = interests(request)
 
@@ -295,11 +295,11 @@ class TestProfileInfoView(TestCase):
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',
                                     data=my_dict)
-        self.user.email = "fakeeemail@gmail.com"
+        self.user.username = "fakeeemail"
         request.user = self.user
         response = profile_information(request)
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_profile_information_complete_profile_info(self):
         my_dict = {"city": ["Walled Lake"], "home_town": [],
@@ -725,12 +725,14 @@ class TestEmailVerificationView(TestCase):
         request.session = s
         login(request, user)
         request.user = user
-        request.user.email = "totallynotafakeuser@fake.com"
+        request.user.username = "totallyfakeusername"
         token = self.token_gen.make_token(user, None)
 
         res = email_verification(request, token)
-
-        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+        # This redirects to logout and then subsequently login because we
+        # currently don't have an email verification failure page if the
+        # user does not exist. See WA-1058
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
 
 
 class TestResendEmailVerificationView(TestCase):
@@ -769,10 +771,10 @@ class TestResendEmailVerificationView(TestCase):
         request.session = s
         login(request, user)
         request.user = user
-        request.user.email = 'totallynotafakeuser@fake.com'
+        request.user.username = 'totallynotafakeuser'
         res = resend_email_verification(request)
 
-        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
 
 
 class TestConfirmView(TestCase):

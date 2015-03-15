@@ -110,7 +110,7 @@ def login_view(request):
 def resend_email_verification(request):
     try:
         pleb = Pleb.nodes.get(username=request.user.username)
-    except(DoesNotExist):
+    except(Pleb.DoesNotExist, DoesNotExist):
         return HttpResponseNotFound("Could not find user")
 
     template_dict = {

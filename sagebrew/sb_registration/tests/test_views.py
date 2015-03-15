@@ -10,6 +10,7 @@ from django.contrib.sessions.backends.db import SessionStore
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIRequestFactory
+from rest_framework import status
 
 from api.utils import wait_util
 from sb_registration.views import (profile_information,
@@ -729,7 +730,7 @@ class TestEmailVerificationView(TestCase):
 
         res = email_verification(request, token)
 
-        self.assertEqual(res.status_code, 302)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
 class TestResendEmailVerificationView(TestCase):

@@ -12,7 +12,7 @@ def prepare_user_search_html(pleb=""):
     :return:
     '''
     try:
-        pleb = Pleb.nodes.get(email=pleb)
+        pleb = Pleb.nodes.get(username=pleb)
     except(Pleb.DoesNotExist, DoesNotExist):
         return False
     except(CypherException, IOError):

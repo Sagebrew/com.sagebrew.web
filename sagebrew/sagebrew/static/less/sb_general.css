@@ -296,7 +296,6 @@
 .sb_border_categories {
   border-radius: 5px;
   padding: 15px;
-  min-height: auto;
   border: 1px solid #b7bfbb;
 }
 .sb_border_question {
@@ -692,13 +691,12 @@
   color: #ffffff;
 }
 .sb_btn_modal a:visited {
-  background-color: none;
+  background-color: transparent;
 }
 .sb_sign_up_background {
   position: fixed;
   float: left;
   width: 100%;
-  height: 100%;
   margin-top: -15px;
   margin-left: -16px;
 }
@@ -756,7 +754,6 @@
   border-radius: 2px;
   height: 100%;
   padding-bottom: 15px;
-  background: cover;
 }
 .sb_container_header {
   padding-left: 15px;
@@ -950,4 +947,9 @@ textarea.sb_comment_input {
   padding-bottom: 0px;
   margin-left: 30px;
   padding-right: 25px;
+}
+
+.error_page{
+  padding-top: 100px;
+  padding-bottom: 400px;
 }

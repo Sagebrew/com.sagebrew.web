@@ -40,7 +40,7 @@ $( document ).ready(function() {
                         });
                     }
                     if (data_list[i].type == 'pleb'){
-                        var pleb_email = data_list[i].pleb_email;
+                        var pleb_username = data_list[i].username;
                         $.ajaxSetup({
                             beforeSend: function (xhr, settings) {
                                 ajax_security(xhr, settings)
@@ -49,7 +49,7 @@ $( document ).ready(function() {
                         $.ajax({
                             xhrFields: {withCredentials: true},
                             type: "GET",
-                            url: "/user/search/" + pleb_email + '/',
+                            url: "/user/search/" + pleb_username + '/',
                             contentType: "application/json; charset=utf-8",
                             dataType: "json",
                             success: function (data) {

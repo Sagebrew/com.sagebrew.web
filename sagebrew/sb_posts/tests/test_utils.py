@@ -1,5 +1,6 @@
 import logging
 from uuid import uuid1
+from datetime import datetime
 from django.test import TestCase
 from django.contrib.auth.models import User
 
@@ -15,7 +16,8 @@ logger = logging.getLogger('loggly_logs')
 class TestSavePost(TestCase):
     def test_save_post(self):
         uuid = str(uuid1())
-        post = save_post(post_uuid=uuid, content="test post")
+        post = save_post(post_uuid=uuid, content="test post",
+                         datetime=datetime.now())
 
         self.assertIsNot(post, False)
 
@@ -26,7 +28,7 @@ class TestSavePost(TestCase):
         prev_post = SBPost(content='test', sb_id=post_info_dict['post_uuid'])
         prev_post.save()
         post = save_post(post_uuid=post_info_dict['post_uuid'],
-                         content='test post')
+                         content='test post', datetime=datetime.now())
         self.assertIsInstance(post, SBPost)
 
 

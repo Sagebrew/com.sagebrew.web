@@ -11,7 +11,7 @@ logger = getLogger('loggly_logs')
 
 
 @shared_task()
-def save_post_task(content, current_pleb, wall_pleb, post_uuid):
+def save_post_task(content, current_pleb, wall_pleb, post_uuid, datetime):
     """
     Saves the post with the content sent to the task
 
@@ -24,7 +24,7 @@ def save_post_task(content, current_pleb, wall_pleb, post_uuid):
         Returns True if the prepare_post_notification task is spawned and
         the post is successfully created
     """
-    my_post = save_post(post_uuid=post_uuid, content=content)
+    my_post = save_post(post_uuid=post_uuid, content=content, datetime=datetime)
     if isinstance(my_post, Exception) is True:
         raise save_post_task.retry(exc=my_post, countdown=3, max_retries=None)
 

@@ -15,7 +15,7 @@ class SBPrivilege(StructuredNode):
 
     #relationships
     actions = RelationshipTo('sb_privileges.neo_models.SBAction', 'GRANTS')
-    requirements = RelationshipTo('sb_requirements.neo_models.Requirement',
+    requirements = RelationshipTo('sb_requirements.neo_models.SBRequirement',
                                   'REQUIRES')
     badges = RelationshipTo('sb_badges.neo_models.BadgeBase', "REQUIRES_BADGE")
 

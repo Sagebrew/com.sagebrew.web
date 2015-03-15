@@ -1,5 +1,6 @@
 from uuid import uuid1
 from django.conf import settings
+from django.template.loader import render_to_string
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -14,13 +15,20 @@ from .forms import ImageForm
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def upload_image_api(request):
+    urls = []
     if request.method == 'POST':
         file_data = dict(request.FILES)
         for item in file_data.values():
             uuid = str(uuid1())
             res = upload_image(settings.AWS_UPLOAD_IMAGE_FOLDER_NAME,
                                uuid, item[0])
-    return Response({"detail": "success"}, 200)
+            urls.append(res)
+    html = render_to_string("image_post.html", {"urls": urls,
+                                                "parent_object":
+                                                    request.user.username})
+    return Response({"detail": "success",
+                     "html": html,
+                     "urls": urls}, 200)
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))

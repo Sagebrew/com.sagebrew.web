@@ -16,13 +16,17 @@ $(document).ready(function () {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function(data) {
-                console.log(data);
                 if (data['detail'] === 'forbidden') {
                 }
                 else {
                     var button_obj = $(data['html_object']);
                     button_obj.prop('disabled', false);
                     button_obj.attr("data-url", data['url']);
+                }
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
                 }
             }
         });

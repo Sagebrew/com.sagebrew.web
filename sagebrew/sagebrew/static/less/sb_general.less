@@ -309,7 +309,6 @@
 .sb_border{
   border-radius: 5px;
   padding: @sb_common_padding_positive;
-  min-height: auto;
   border: 1px solid @sb_grey;
 }
 .sb_border_question{
@@ -617,6 +616,11 @@
   }
 }
 
+//this is for disabling certain dropdowns when editing an object
+.sb_object_dropdown {
+
+}
+
 //progress bar
 .sb_progress{
   &:extend(.progress);
@@ -730,7 +734,7 @@
   a{
     color: @white;
     &:visited{
-      background-color: none;
+      background-color: transparent;
     }
   }
 }
@@ -738,7 +742,7 @@
   position: fixed;
   float: left;
   width: 100%;
-  height: 100%;
+
   margin-top: -15px;
   margin-left: -16px;
 }
@@ -790,6 +794,13 @@
   padding:0;
 
 }
+// This is used as the css for collage plus after uploading images
+.sb_collage{
+  img{
+    width: 100px;
+    height: 100px;
+  }
+}
 // TODO Probably want to transition this into left side_container
 .sb_rep_container{
   margin-left: @sb_common_margin_negative;
@@ -800,7 +811,6 @@
   border-radius: 2px;
   height: 100%;
   padding-bottom: @sb_common_padding_positive;
-  background: cover;
 }
 .sb_container_header{
   padding-left: @sb_common_padding_positive;
@@ -1006,4 +1016,17 @@ textarea.sb_comment_input{
   padding-bottom: 0px;
   margin-left: 30px;
   padding-right: 25px;
+}
+.grid-sizer {
+  width: 20%;
+}
+
+.post_images {
+  height: 125px;
+  margin-left: -3px;
+}
+
+.error_page{
+  padding-top: 100px;
+  padding-bottom: 400px;
 }

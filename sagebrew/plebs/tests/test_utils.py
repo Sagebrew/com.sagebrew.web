@@ -24,8 +24,7 @@ class TestPrepareUserSearchHTML(TestCase):
         self.user = User.objects.get(email=self.email)
 
     def test_prepare_user_search_html_success(self):
-        res = prepare_user_search_html(self.user.email)
-
+        res = prepare_user_search_html(self.user.username)
         self.assertIn('<div style="font-weight: bold">Reputation: 0 | '
                       'Mutual Friends: 0</div>', res)
 
@@ -35,7 +34,7 @@ class TestPrepareUserSearchHTML(TestCase):
 
     def test_connection_refused(self):
         check_call("sudo service neo4j-service stop", shell=True)
-        res = prepare_user_search_html(self.user.email)
+        res = prepare_user_search_html(self.user.username)
         check_call("sudo nohup service neo4j-service start > "
                    "%s/neo4j_logs.log &" % environ.get("CIRCLE_ARTIFACTS",
                                                        "/home/ubuntu/"),

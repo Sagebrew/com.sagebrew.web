@@ -1,0 +1,7 @@
+<h2>Actions</h2>
+<form id="action_choice_form">
+    {% csrf_token %}
+    {% for action in actions %}
+        <input type="checkbox" name="action[]" value="{{ action.sb_id }}"> {{ action.action }} <br>
+    {% endfor %}
+</form>

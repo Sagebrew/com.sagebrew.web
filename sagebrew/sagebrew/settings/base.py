@@ -36,7 +36,7 @@ TIME_ZONE = 'UTC'
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
 
-SITE_ID = 1
+SITE_ID = 2
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
@@ -62,19 +62,22 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    '%s/help_center/static/' % PROJECT_DIR,
     '%s/sagebrew/static/' % PROJECT_DIR,
     '%s/plebs/static/' % PROJECT_DIR,
-    '%s/sb_registration/static/' % PROJECT_DIR,
-    #'%s/sb_comments/static/' % PROJECT_DIR,
-    '%s/sb_relationships/static/' % PROJECT_DIR,
-    '%s/sb_questions/static/' % PROJECT_DIR,
     '%s/sb_answers/static/' % PROJECT_DIR,
+    '%s/sb_edits/static/' % PROJECT_DIR,
+    '%s/sb_notifications/static/' % PROJECT_DIR,
+    '%s/sb_privileges/static/' % PROJECT_DIR,
+    '%s/sb_posts/static/' % PROJECT_DIR,
+    '%s/sb_questions/static/' % PROJECT_DIR,
+    '%s/sb_registration/static/' % PROJECT_DIR,
+    '%s/sb_relationships/static/' % PROJECT_DIR,
+    '%s/sb_reps/static/' % PROJECT_DIR,
     '%s/sb_search/static/' % PROJECT_DIR,
     '%s/sb_tag/static/' % PROJECT_DIR,
-    '%s/sb_edits/static/' % PROJECT_DIR,
-    '%s/sb_reps/static/' % PROJECT_DIR,
     '%s/sb_uploads/static/' % PROJECT_DIR,
-    '%s/help_center/static/' % PROJECT_DIR,
+
 )
 
 HELP_DOCS_PATH = "%s/help_center/rendered_docs/" % PROJECT_DIR
@@ -136,21 +139,24 @@ TEMPLATE_DIRS = (
     # or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    '%s/sagebrew/templates/' % PROJECT_DIR,
-    '%s/sb_uploads/templates/' % PROJECT_DIR,
-    '%s/sb_reps/templates/' % PROJECT_DIR,
-    '%s/sb_registration/templates/' % PROJECT_DIR,
-    '%s/plebs/templates/' % PROJECT_DIR,
-    '%s/sb_questions/templates/' % PROJECT_DIR,
-    '%s/sb_answers/templates/' % PROJECT_DIR,
-    '%s/sb_search/templates/' % PROJECT_DIR,
     '%s/help_center/templates/' % PROJECT_DIR,
+    '%s/plebs/templates/' % PROJECT_DIR,
+    '%s/sagebrew/templates/' % PROJECT_DIR,
+    '%s/sb_answers/templates/' % PROJECT_DIR,
+    '%s/sb_badges/templates/' % PROJECT_DIR,
+    '%s/sb_comments/templates/' % PROJECT_DIR,
+    '%s/sb_notifications/templates/' % PROJECT_DIR,
+    '%s/sb_posts/templates/' % PROJECT_DIR,
+    '%s/sb_privileges/templates/' % PROJECT_DIR,
     '%s/sb_public_official/templates/' % PROJECT_DIR,
+    '%s/sb_questions/templates/' % PROJECT_DIR,
+    '%s/sb_registration/templates/' % PROJECT_DIR,
+    '%s/sb_reps/templates/' % PROJECT_DIR,
+    '%s/sb_requirements/templates/' % PROJECT_DIR,
+    '%s/sb_search/templates/' % PROJECT_DIR,
+    '%s/sb_tag/templates/' % PROJECT_DIR,
 )
 
-FIXTURE_DIRS = (
-    '%s/sagebrew/fixtures/' % PROJECT_DIR,
-)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -162,6 +168,7 @@ INSTALLED_APPS = (
     'djangosecure',
     'django_admin_bootstrapped',
     'django.contrib.admin',
+    'django_ses',
     'rest_framework',
     'rest_framework.authtoken',
     'admin_honeypot',
@@ -183,15 +190,16 @@ INSTALLED_APPS = (
     'sb_edits',
     'sb_flags',
     'sb_notifications',
-    'sb_privileges',
     'sb_posts',
+    'sb_privileges',
     'sb_public_official',
     'sb_questions',
     'sb_registration',
     'sb_relationships',
-    'sb_requirements',
     'sb_reps',
+    'sb_requirements',
     'sb_search',
+    'sb_stats',
     'sb_tag',
     'sb_trends',
     'sb_uploads',
@@ -261,6 +269,8 @@ OAUTH_CLIENT_SECRET_CRED = environ.get("OAUTH_CLIENT_SECRET_CRED", "")
 
 DYNAMO_IP = environ.get("DYNAMO_IP", None)
 
+EMAIL_BACKEND = 'django_ses.SESBackend'
+
 CELERY_TIMEZONE = 'UTC'
 OPBEAT = {
     "ORGANIZATION_ID": environ.get("OPBEAT_ORG_ID", ""),
@@ -305,6 +315,8 @@ BASE_TAGS = ["fiscal", "foreign_policy", "social", "education", "science",
              "environment", "drugs", "agriculture", "defense", "energy",
              "health", "space"]
 
+
+
 PAYMENT_PLANS = [
     ("free", "Free"),
     ("sub", "Subscription")
@@ -316,14 +328,17 @@ KNOWN_TYPES = [
     ("02241aee-644f-11e4-9ad9-080027242395", "sb_answers.neo_models.SBAnswer"),
     ("0274a216-644f-11e4-9ad9-080027242395",
      "sb_questions.neo_models.SBQuestion"),
-    ("02ba1c88-644f-11e4-9ad9-080027242395", "sb_comments.neo_models.SBComment")
+    ("02ba1c88-644f-11e4-9ad9-080027242395",
+     "sb_comments.neo_models.SBComment")
 ]
 
 BASE_REP_TYPES = [
     ("f2729db2-9da8-11e4-9233-080027242395", "sb_reps.neo_models.USSenator"),
     ("f3aeebe0-9da8-11e4-9233-080027242395", "sb_reps.neo_models.USPresident"),
-    ("f46fbcda-9da8-11e4-9233-080027242395", "sb_reps.neo_models.BaseOfficial"),
-    ("628c138a-9da9-11e4-9233-080027242395", "sb_reps.neo_models.USHouseRepresentative"),
+    ("f46fbcda-9da8-11e4-9233-080027242395",
+     "sb_reps.neo_models.BaseOfficial"),
+    ("628c138a-9da9-11e4-9233-080027242395",
+     "sb_reps.neo_models.USHouseRepresentative"),
     ("786dcf40-9da9-11e4-9233-080027242395", "sb_reps.neo_models.Governor")
 ]
 

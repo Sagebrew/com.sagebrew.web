@@ -50,7 +50,7 @@ urlpatterns = patterns(
                            "and growing with a Conversation. Here are some tips"
                            " on when you should be editing your Solution",
             "content_path":
-                "%swhen_edit_solutions.html" % (
+                "%swhen_edit_solution.html" % (
                     settings.HELP_DOCS_PATH),
             "category": "solutions"
         },

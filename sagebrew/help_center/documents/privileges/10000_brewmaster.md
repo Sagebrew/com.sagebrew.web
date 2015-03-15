@@ -37,6 +37,6 @@ their country.
 [1]: /help/reputation/admin_council/
 [2]: /help/privileges/flagging/
 [3]: /help/conversation/deletions/
-[4]: /help/questions/closure_of_a_question/
+[4]: /help/conversation/closed/
 [5]: /help/questions/duplicates/
 [7]: /help/conversation/protected/

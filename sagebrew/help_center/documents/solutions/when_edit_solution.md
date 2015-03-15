@@ -8,4 +8,4 @@ alternative Solutions.
 In the case that editing a solution completely changes the original
 intent of the Solution, it might be better to provide a new Solution. 
 
-[1]: /help/privileges/commenting/
+[1]: /help/privileges/comment/

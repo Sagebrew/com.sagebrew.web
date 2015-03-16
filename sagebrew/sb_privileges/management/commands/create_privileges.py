@@ -78,15 +78,15 @@ class Command(BaseCommand):
                           " be missing actions")
             for restriction in data['restrictions']:
                 try:
-                    SBRestriction.nodes.get(name="name")
+                    SBRestriction.nodes.get(name=restriction["name"])
                 except(SBRestriction.DoesNotExist, DoesNotExist):
-                    logger.critical("potential error there may"
-                          " be missing restrictions")
-                try:
-                    restriction = SBRestriction(**restriction).save()
-                except(CypherException, IOError):
-                    logger.critical("potential error there may"
-                          " be missing restrictions")
+                    try:
+                        restriction = SBRestriction(**restriction).save()
+                    except(CypherException, IOError) as e:
+                        logger.exception("Cypher Exception Reached")
+                        logger.critical("potential error there may"
+                              " be missing restrictions")
+
 
 
     def handle(self, *args, **options):

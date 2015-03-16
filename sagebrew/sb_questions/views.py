@@ -203,7 +203,6 @@ def get_question_view(request):
                 # TODO Might want to handle this differently
                 return Response(status=500)
             for question in response:
-
                 html_array.append(
                     question.render_question_page(request.user.email))
             return Response(html_array, status=200)

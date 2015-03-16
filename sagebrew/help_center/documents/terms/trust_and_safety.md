@@ -18,7 +18,7 @@ make Sagebrew a great experience for everyone.
 - Although it's easier to communicate with your representatives
   and candidates than ever before, we cannot promise that they'll respond
   immediately, or at all. Representatives are busy, and it may be
-  that they cannot solution your concerns for a week or two. Sagebrew
+  that they cannot answer your concerns for a week or two. Sagebrew
   cannot force representatives to respond to their constituents.
 
 - The public Conversation area is a great tool for talking

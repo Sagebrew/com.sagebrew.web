@@ -5,7 +5,7 @@ good question as a question that contains most, if not all, of the following
 criteria:
 
 ## Open Ended ##
-There should be no clear-cut solution to your question, 
+There should be no clear-cut answer to your question, 
 and if there is, it probably shouldn't be posed. For example, 
 a poor question that is not open ended might look like this: 
 

@@ -87,7 +87,10 @@ class SBSolution(SBVersioned):
             except IndexError:
                 parent_object = ''
             try:
-                html_content = markdown.markdown(self.content)
+                if self.content is None:
+                    html_content = ""
+                else:
+                    html_content = markdown.markdown(self.content)
             except AttributeError:
                 html_content = ""
             solution_dict = {'content': self.content,
@@ -105,7 +108,7 @@ class SBSolution(SBVersioned):
                            'solution_owner_email': solution_owner.email,
                            'edits': [],
                            'object_type': self.object_type,
-                           'html_content': markdown.markdown(self.content)}
+                           'html_content': html_content}
             return solution_dict
         except CypherException as e:
             return e

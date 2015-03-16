@@ -212,8 +212,6 @@ class SBQuestion(SBVersioned, SBTagContent):
             if most_recent is not None:
                 most_recent_content = most_recent.content
                 if most_recent_content is not None:
-                    if len(most_recent_content) > 50:
-                        most_recent_content = most_recent_content[:50] + '...'
                     question_dict = {
                         'question_title': most_recent.question_title,
                         'question_content': most_recent_content,
@@ -267,7 +265,7 @@ class SBQuestion(SBVersioned, SBTagContent):
     @apply_defense
     def render_single(self, pleb):
         try:
-            t = get_template("question_detail.html")
+            t = get_template("question.html")
             c = Context(self.get_single_dict(pleb))
             return t.render(c)
         except CypherException as e:

@@ -41,7 +41,7 @@
   small{
     font-size: @sb_data_text;
   }
-  a{
+  a {
     color: @sb_green;
   }
 }
@@ -94,13 +94,17 @@
 .sb_question{
   &:extend(.block);
   min-height: 250px;
+  height: 100%;
 }
 .sb_question_summary{
   &:extend(.block);
   background-color: @sb_grey_extra_light;
   border: 1px solid @sb_grey;
   border-radius: @sb_common_radius;
-  height: 170px;
+  margin-left: 15px;
+  margin-right: 15px;
+  height: 100%;
+  min-height: 120px;
   padding: @sb_common_padding_positive;
   margin-bottom: @sb_common_margin_positive;
 }
@@ -855,6 +859,12 @@
   margin-bottom: 15px;
 }
 
+.sb_question_header{
+  &:extend(.sb_post_header);
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
 // Proposed additions to default schema
 .vertical_nav{
   margin-left: -10px;
@@ -890,6 +900,10 @@
 .sb_up_vote_wrapper{
   margin-bottom: -13px;
 }
+.sb_up_vote_wrapper_summary{
+  margin-top: 0px;
+  margin-bottom: -25px;
+}
 .sb_down_vote_wrapper{
   margin-top: -10px;
   margin-bottom: -15px;
@@ -909,6 +923,10 @@
   background-color: @sb_off_white;
   border: 1px solid @sb_green_light;
   word-wrap: break-word;
+}
+.sb_question_body{
+  &:extend(.sb_post_body);
+  margin-left: 12px;
 }
 .sb_post_comments{
   border-style: solid;

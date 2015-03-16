@@ -1,5 +1,5 @@
 $( document ).ready(function() {
-	$(".submit_answer-action").click(function(event){
+	$(".submit_solution-action").click(function(event){
 		event.preventDefault();
 		$.ajaxSetup({
 		    beforeSend: function(xhr, settings) {
@@ -14,7 +14,7 @@ $( document ).ready(function() {
 			type: "POST",
 			url: $(this).data('url'),
 			data: JSON.stringify({
-			   'content': $('textarea.sb_answer_input_area').val(),
+			   'content': $('textarea.sb_solution_input_area').val(),
                'current_pleb': $(this).data('current_pleb'),
                'question_uuid': $(this).data('question_uuid')
 			}),

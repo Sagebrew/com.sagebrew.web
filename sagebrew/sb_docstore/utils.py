@@ -161,7 +161,7 @@ def get_question_doc(question_uuid, question_table, solution_table):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
-    answer_list = []
+    solution_list = []
     q_comments = []
     try:
         questions = Table(table_name=get_table_name(question_table),
@@ -178,7 +178,7 @@ def get_question_doc(question_uuid, question_table, solution_table):
         )
     except ItemNotFound:
         return {}
-    answers = solutions.query_2(
+    solutions = solutions.query_2(
         parent_object__eq=question_uuid
     )
     comments = comment_table.query_2(
@@ -212,27 +212,27 @@ def get_question_doc(question_uuid, question_table, solution_table):
         comment['object_vote_count'] = str(comment['up_vote_number']
                                            - comment['down_vote_number'])
         q_comments.append(comment)
-    for answer in answers:
+    for solution in solutions:
         a_comments = []
-        answer = dict(answer)
-        answer['up_vote_number'] = get_vote_count(answer['object_uuid'],
+        solution = dict(solution)
+        solution['up_vote_number'] = get_vote_count(solution['object_uuid'],
                                                   1)
-        answer['down_vote_number'] = get_vote_count(answer['object_uuid'],
+        solution['down_vote_number'] = get_vote_count(solution['object_uuid'],
                                                     0)
-        answer['last_edited_on'] = datetime.strptime(answer[
+        solution['last_edited_on'] = datetime.strptime(solution[
                                       'last_edited_on'][
-                                      :len(answer['last_edited_on'])-6],
+                                      :len(solution['last_edited_on'])-6],
                                       '%Y-%m-%d %H:%M:%S.%f')
-        answer['time_created'] = datetime.strptime(answer['time_created'][
-                                      :len(answer['time_created'])-6],
+        solution['time_created'] = datetime.strptime(solution['time_created'][
+                                      :len(solution['time_created'])-6],
                                       '%Y-%m-%d %H:%M:%S.%f')
-        answer['object_vote_count'] = str(answer['up_vote_number']-
-                                          answer['down_vote_number'])
-        answer_comments = comment_table.query_2(
-            parent_object__eq=answer['object_uuid'],
+        solution['object_vote_count'] = str(solution['up_vote_number']-
+                                          solution['down_vote_number'])
+        solution_comments = comment_table.query_2(
+            parent_object__eq=solution['object_uuid'],
             datetime__gte="0"
         )
-        for ans_comment in answer_comments:
+        for ans_comment in solution_comments:
             comment = dict(ans_comment)
             comment['up_vote_number'] = get_vote_count(comment['object_uuid'],1)
             comment['down_vote_number'] = get_vote_count(
@@ -248,9 +248,9 @@ def get_question_doc(question_uuid, question_table, solution_table):
             comment['object_vote_count'] = str(comment['up_vote_number']
                                                - comment['down_vote_number'])
             a_comments.append(comment)
-        answer['comments'] = a_comments
-        answer_list.append(answer)
-    question['answers'] = answer_list
+        solution['comments'] = a_comments
+        solution_list.append(solution)
+    question['solutions'] = solution_list
     question['comments'] = q_comments
     return question
 
@@ -278,13 +278,13 @@ def build_question_page(question_uuid, question_table, solution_table):
     except (SBQuestion.DoesNotExist, DoesNotExist) as e:
         return e
     question_dict = question.get_single_dict()
-    answer_dicts = question_dict.pop('answers', None)
+    solution_dicts = question_dict.pop('solutions', None)
     add_object_to_table(table_name=get_table_name(question_table),
                         object_data=question_dict)
-    for answer in answer_dicts:
-        answer['parent_object'] = question_dict['object_uuid']
+    for solution in solution_dicts:
+        solution['parent_object'] = question_dict['object_uuid']
         add_object_to_table(table_name=get_table_name(solution_table),
-                            object_data=answer)
+                            object_data=solution)
     return True
 
 

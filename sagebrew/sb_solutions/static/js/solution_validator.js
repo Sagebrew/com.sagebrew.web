@@ -1,5 +1,5 @@
 $(document).ready(function(){
-    $("#answerSubmitForm").bootstrapValidator({
+    $("#solutionSubmitForm").bootstrapValidator({
         framework: 'bootstrap',
         err: {
             container: '#fname_errors'
@@ -9,10 +9,10 @@ $(document).ready(function(){
             validating: 'glyphicon glyphicon-refresh'
         },
         live: 'enabled',
-        submitButtons: '#submit_answer',
+        submitButtons: '#submit_solution',
         fields: {
-            answer_content: {
-                group: 'sb_answer_input',
+            solution_content: {
+                group: 'sb_solution_input',
                 validators: {
                     notEmpty: {
                         message: "Content is required"

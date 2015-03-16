@@ -167,11 +167,10 @@ class TestGetQuestionView(TestCase):
 
     def test_get_question_view_success_least_recent(self):
         for item in range(0,5):
-            question = SBQuestion(sb_id=str(uuid1()), content='test',
-                                  question_title='test title',
-                                  date_created=datetime.datetime.now()-
-                                               datetime.timedelta(days=3*365))\
-                .save()
+            question = SBQuestion(
+                sb_id=str(uuid1()), content='test', question_title='test title',
+                date_created=datetime.datetime.now() -
+                datetime.timedelta(days=3*365)).save()
             question.owned_by.connect(self.pleb)
 
         my_dict = {'current_pleb': self.pleb.email,
@@ -276,5 +275,6 @@ class TestGetQuestionSearchView(TestCase):
         res = self.client.get('/conversations/search/%s/' % question.sb_id)
         res = res.render()
 
-        self.assertIn('| Answer: 0 | Upvotes: 0 | Downvotes: 0 |', res.content)
+        self.assertIn('| Solution: 0 | Upvotes: 0 | Downvotes: 0 |',
+                      res.content)
         self.assertEqual(res.status_code, 200)

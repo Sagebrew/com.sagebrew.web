@@ -157,8 +157,8 @@ function vote_object() {
     });
 }
 
-function save_answer() {
-    $(".submit_answer-action").click(function(event){
+function save_solution() {
+    $(".submit_solution-action").click(function(event){
 		event.preventDefault();
 		$.ajaxSetup({
 		    beforeSend: function(xhr, settings) {
@@ -173,7 +173,7 @@ function save_answer() {
 			type: "POST",
 			url: $(this).data('url'),
 			data: JSON.stringify({
-			   'content': $('textarea.sb_answer_input_area').val(),
+			   'content': $('textarea.sb_solution_input_area').val(),
                'current_pleb': $(this).data('current_pleb'),
                'question_uuid': $(this).data('object_uuid')
 			}),
@@ -181,8 +181,8 @@ function save_answer() {
 			dataType: "json",
             success: function (data) {
                 $("#solution_container").append(data['html']);
-                $('textarea.sb_answer_input_area').val("");
-                enable_single_answer_functionality();
+                $('textarea.sb_solution_input_area').val("");
+                enable_single_solution_functionality();
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 if(XMLHttpRequest.status === 500){
@@ -274,16 +274,16 @@ function show_edit_question() {
     });
 }
 
-function show_edit_answer() {
-    $("a.show_edit_answer-action").click(function(event){
+function show_edit_solution() {
+    $("a.show_edit_solution-action").click(function(event){
         $(".sb_object_dropdown").each(function(i, obj){
             $(obj).attr("disabled", "disabled");
         });
-        var answer_uuid = $(this).data('object_uuid');
-        $('#sb_content_'+answer_uuid).hide();
-        $('#edit_container_'+answer_uuid).show();
-        var markdown = $("textarea#"+answer_uuid).pagedownBootstrap();
-        markdown.attr("id", answer_uuid)
+        var solution_uuid = $(this).data('object_uuid');
+        $('#sb_content_'+solution_uuid).hide();
+        $('#edit_container_'+solution_uuid).show();
+        var markdown = $("textarea#"+solution_uuid).pagedownBootstrap();
+        markdown.attr("id", solution_uuid)
     });
 }
 
@@ -700,16 +700,16 @@ function enable_single_post_functionality() {
     show_edit_post();
 }
 
-function enable_single_answer_functionality() {
+function enable_single_solution_functionality() {
     flag_object();
     vote_object();
     edit_object();
     save_comment();
-    show_edit_answer();
+    show_edit_solution();
 }
 
 function enable_post_functionality() {
-    save_answer();
+    save_solution();
     flag_object();
     vote_object();
     edit_object();
@@ -718,7 +718,7 @@ function enable_post_functionality() {
     show_edit_question();
     show_edit_post();
     show_edit_comment();
-    show_edit_answer();
+    show_edit_solution();
     delete_object();
     page_leave_endpoint();
     submit_experience();

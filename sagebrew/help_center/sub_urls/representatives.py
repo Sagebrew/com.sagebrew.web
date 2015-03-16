@@ -74,7 +74,7 @@ urlpatterns = patterns(
                      "federal office?",
             "description": "Many candidates may wonder if they need to have "
                            "their name on the ballot to run for office. This "
-                           "article provides an answer to that question.",
+                           "article provides an solution to that question.",
             "content_path":
                 "%sname_on_ballot_to_run.html" % (settings.HELP_DOCS_PATH),
             "category": "representatives"

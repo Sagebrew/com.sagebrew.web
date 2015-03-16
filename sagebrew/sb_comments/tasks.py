@@ -15,7 +15,7 @@ def save_comment_on_object(content, current_pleb, object_uuid, object_type,
     '''
     The task which creates a comment and attaches it to an object.
 
-    The objects can be: SBPost, SBAnswer, SBQuestion.
+    The objects can be: SBPost, SBSolution, SBQuestion.
 
     :param content:
     :param current_pleb:

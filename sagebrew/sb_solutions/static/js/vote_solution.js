@@ -1,5 +1,5 @@
 $( document ).ready(function() {
-	$("a.vote_answer-action").click(function(event){
+	$("a.vote_solution-action").click(function(event){
 		event.preventDefault();
 		$.ajaxSetup({
 		    beforeSend: function(xhr, settings) {
@@ -12,10 +12,10 @@ $( document ).ready(function() {
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
 			type: "POST",
-			url: "/answers/vote_answer_api/",
+			url: "/solutions/vote_solution_api/",
 			data: JSON.stringify({
                'current_pleb': $(this).data('current_pleb'),
-               'answer_uuid': $(this).data('answer_uuid'),
+               'solution_uuid': $(this).data('solution_uuid'),
                'vote_type': $(this).data('vote_type')
 			}),
 			contentType: "application/json; charset=utf-8",

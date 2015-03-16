@@ -1,11 +1,11 @@
 # What types of Questions should I avoid asking? #
 Questions to avoid asking on Sagebrew are Questions that
 
-- Have a clear cut and simple answer
+- Have a clear cut and simple solution
     - For example, don't ask why the sky is blue, or
       why tomatoes are acidic. These are questions that a simple
-      internet search can answer. Sagebrew is for tough questions. Questions
-      that don't have clear cut answers and questions that
+      internet search can solution. Sagebrew is for tough questions. Questions
+      that don't have clear cut solutions and questions that
       pose a moral or ethical problem. The goal of Sagebrew is for
       people to work together to solve problems.
 - Questions that are inherently offensive or inappropriate.
@@ -24,5 +24,5 @@ Questions to avoid asking on Sagebrew are Questions that
       situations of unwanted pregnancy?"
 
 Generally on Sagebrew you should strive to ask the difficult Questions
-that have no clear cut answer. Questions should generate positive discussion
+that have no clear cut solution. Questions should generate positive discussion
 with the goal to improve a situation or issue. 

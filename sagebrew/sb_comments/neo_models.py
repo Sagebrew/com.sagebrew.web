@@ -38,7 +38,7 @@ class SBComment(SBNonVersioned):
     def get_url(self):
         try:
             return reverse("question_detail_page",
-                           kwargs={"question_uuid": self.answer_to.all()[
+                           kwargs={"question_uuid": self.solution_to.all()[
                                0].sb_id})
         except IndexError:
             return False

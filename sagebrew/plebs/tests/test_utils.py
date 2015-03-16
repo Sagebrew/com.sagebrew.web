@@ -35,11 +35,12 @@ class TestPrepareUserSearchHTML(TestCase):
     def test_connection_refused(self):
         check_call("sudo service neo4j-service stop", shell=True)
         res = prepare_user_search_html(self.user.username)
-        check_call("sudo nohup service neo4j-service start > "
-                   "%s/neo4j_logs.log &" % environ.get("CIRCLE_ARTIFACTS",
-                                                       "/home/ubuntu/"),
-                   shell=True)
-        self.assertIsNone(res)
+        if environ.get("CIRCLECI", "false") == "true":
+            check_call("sudo nohup service neo4j-service start > "
+                       "%s/neo4j_logs.log &" % environ.get("CIRCLE_ARTIFACTS",
+                                                           "/home/logs"),
+                       shell=True)
+            self.assertIsNone(res)
 
 
 class TestPleb(TestCase):

@@ -13,13 +13,13 @@ from api.tasks import get_pleb_task, add_object_to_search_index
 
 class TestGetPlebTask(TestCase):
     def setUp(self):
-        settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
@@ -51,7 +51,6 @@ class TestGetPlebTask(TestCase):
 
 class TestAddObjectToSearchIndex(TestCase):
     def setUp(self):
-        settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertFalse(isinstance(res, Exception))
@@ -60,6 +59,7 @@ class TestAddObjectToSearchIndex(TestCase):
         self.user = User.objects.get(email=self.email)
         self.question = SBQuestion(sb_id=str(uuid1()))
         self.question.save()
+        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False

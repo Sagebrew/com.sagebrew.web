@@ -30,7 +30,7 @@ def request_to_api(url, username, data=None, headers=None, req_method=None,
     an internal api but also include headers needed to access an alternative
     API. A full URL must be provided, this is to enable users to include
     external endpoints in Requirements and other API dependent resources.
-    
+
     :param url:
     :param username:
     :param data:
@@ -95,14 +95,17 @@ def check_oauth_expires_in(oauth_client):
 
 
 def get_oauth_access_token(username, web_address=None):
+    # TODO need to be able to pass creds rather than the username. That way
+    # someone can add their creds to the Restriction/Action/etc and use those
+    # rather than our internal ones.
     if web_address is None:
         web_address = settings.WEB_ADDRESS + '/o/token/'
     pleb = Pleb.nodes.get(username=username)
     try:
         oauth_creds = [oauth_user for oauth_user in pleb.oauth.all()
                   if oauth_user.web_address == web_address][0]
-    except IndexError:
-        return
+    except IndexError as e:
+        return e
     if check_oauth_expires_in(oauth_creds):
         refresh_token = decrypt(oauth_creds.refresh_token)
         updated_creds = refresh_oauth_access_token(refresh_token,

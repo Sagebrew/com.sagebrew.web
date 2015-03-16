@@ -87,15 +87,13 @@ class Command(BaseCommand):
                 try:
                     SBRestriction.nodes.get(name=restriction["name"])
                 except(SBRestriction.DoesNotExist, DoesNotExist):
-                    logger.critical("potential error there may"
-                          " be missing restrictions")
-                try:
-                    restriction["url"] = "%s%s" % (settings.WEB_ADDRESS,
-                                                   restriction["url"])
-                    SBRestriction(**restriction).save()
-                except(CypherException, IOError):
-                    logger.critical("potential error there may"
-                                    " be missing restrictions")
+                    try:
+                        restriction["url"] = "%s%s" % (settings.WEB_ADDRESS,
+                                                       restriction["url"])
+                        SBRestriction(**restriction).save()
+                    except(CypherException, IOError):
+                        logger.critical("potential error there may"
+                                        " be missing restrictions")
 
     def handle(self, *args, **options):
         self.create_privileges()

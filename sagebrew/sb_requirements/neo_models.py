@@ -4,7 +4,7 @@ from django.conf import settings
 
 from neomodel import (StructuredNode, StringProperty)
 
-from api.utils import post_to_api
+from api.utils import request_to_api
 
 
 class SBRequirement(StructuredNode):
@@ -20,7 +20,7 @@ class SBRequirement(StructuredNode):
 
     #methods
     def check_requirement(self, username):
-        res = post_to_api(self.url, username, req_method='get')
+        res = request_to_api(self.url, username, req_method='get')
         temp_type = type(res[self.key])
         temp_cond = temp_type(self.condition)
         return self.build_check_dict(

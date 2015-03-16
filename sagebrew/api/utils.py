@@ -22,19 +22,32 @@ from plebs.neo_models import Pleb, OauthUser
 from api.alchemyapi import AlchemyAPI
 
 
+def request_to_api(url, username, data=None, headers=None, req_method=None,
+                   internal=True):
+    """
 
-def post_to_api(api_url, username, data=None, headers=None, req_method=None):
+    :param url:
+    :param username:
+    :param data:
+    :param headers:
+    :param req_method:
+    :param internal:
+    :return:
+    """
     if headers is None:
         headers = {}
-    headers['Authorization'] = "%s %s" % ('Bearer', get_oauth_access_token(username))
-    url = "%s%s" % (settings.WEB_ADDRESS, api_url)
+    if internal is False:
+        headers['Authorization'] = "%s %s" % (
+            'Bearer', get_oauth_access_token(username))
+    response = None
     if req_method is None:
         response = requests.post(url, data=dumps(data),
-                            verify=settings.VERIFY_SECURE, headers=headers)
+                                 verify=settings.VERIFY_SECURE,
+                                 headers=headers)
     elif req_method == 'get':
         response = requests.get(url, verify=settings.VERIFY_SECURE,
                                 headers=headers)
-    return response.json()
+    return response
 
 
 def get_oauth_client(username, password, web_address, client_id=None,

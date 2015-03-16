@@ -41,6 +41,8 @@ class Command(BaseCommand):
                         SBRequirement.nodes.get(name=requirement["name"])
                     except(SBRequirement.DoesNotExist, DoesNotExist):
                         try:
+                            requirement["url"] = "%s%s" % (settings.WEB_ADDRESS,
+                                                           requirement["url"])
                             req = SBRequirement(**requirement).save()
                             privilege.requirements.connect(req)
                         except(CypherException, IOError):
@@ -54,6 +56,8 @@ class Command(BaseCommand):
                         SBAction.nodes.get(action=action["action"])
                     except(SBAction.DoesNotExist, DoesNotExist):
                         try:
+                            action["url"] = "%s%s" % (settings.WEB_ADDRESS,
+                                                      action["url"])
                             action = SBAction(**action).save()
                             privilege.actions.connect(action)
                         except(CypherException, IOError):
@@ -69,6 +73,8 @@ class Command(BaseCommand):
                     SBAction.nodes.get(action=action["action"])
                 except(SBAction.DoesNotExist, DoesNotExist):
                     try:
+                        action["url"] = "%s%s" % (settings.WEB_ADDRESS,
+                                                  action["url"])
                         action = SBAction(**action).save()
                     except(CypherException, IOError):
                         logger.critical("potential error there may"
@@ -83,6 +89,8 @@ class Command(BaseCommand):
                     logger.critical("potential error there may"
                           " be missing restrictions")
                 try:
+                    restriction["url"] = "%s%s" % (settings.WEB_ADDRESS,
+                                                   restriction["url"])
                     restriction = SBRestriction(**restriction).save()
                 except(CypherException, IOError):
                     logger.critical("potential error there may"

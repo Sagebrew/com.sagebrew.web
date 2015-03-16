@@ -32,7 +32,7 @@ def edit_object_task(object_uuid, object_type, current_pleb, content):
 @shared_task()
 def edit_question_task(object_uuid, object_type, current_pleb, question_title):
     sb_object = get_object(object_type=object_type, object_uuid=object_uuid)
-    if sb_object.answer_number > 0:
+    if sb_object.solution_number > 0:
         return False
     if isinstance(sb_object, Exception) is True:
         raise edit_question_task.retry(exc=sb_object, countdown=3,

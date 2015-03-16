@@ -24,7 +24,7 @@ class SBQuestion(SBVersioned, SBTagContent):
     down_vote_adjustment = 2
     object_type = "0274a216-644f-11e4-9ad9-080027242395"
 
-    answer_number = IntegerProperty(default=0)
+    solution_number = IntegerProperty(default=0)
     question_title = StringProperty()
     is_closed = BooleanProperty(default=False)
     closed_reason = StringProperty()
@@ -44,7 +44,7 @@ class SBQuestion(SBVersioned, SBTagContent):
     auto_tags = RelationshipTo('sb_tag.neo_models.SBAutoTag',
                                'AUTO_TAGGED_AS', model=TagRelevanceModel)
     closed_by = RelationshipTo('plebs.neo_models.Pleb', 'CLOSED_BY')
-    answer = RelationshipTo('sb_answers.neo_models.SBAnswer',
+    solution = RelationshipTo('sb_solutions.neo_models.SBSolution',
                             'POSSIBLE_ANSWER')
 
     def get_url(self):
@@ -122,9 +122,9 @@ class SBQuestion(SBVersioned, SBTagContent):
 
     @apply_defense
     def get_single_dict(self, pleb=None):
-        from sb_answers.neo_models import SBAnswer
+        from sb_solutions.neo_models import SBSolution
         try:
-            answer_array = []
+            solution_array = []
             comment_array = []
             owner = self.owned_by.all()
             try:
@@ -135,13 +135,13 @@ class SBQuestion(SBVersioned, SBTagContent):
             owner_profile_url = owner.username
             query = 'match (q:SBQuestion) where q.sb_id="%s" ' \
                     'with q ' \
-                    'match (q)-[:POSSIBLE_ANSWER]-(a:SBAnswer) ' \
+                    'match (q)-[:POSSIBLE_ANSWER]-(a:SBSolution) ' \
                     'where a.to_be_deleted=False ' \
                     'return a ' % self.sb_id
-            answers, meta = execute_cypher_query(query)
-            answers = [SBAnswer.inflate(row[0]) for row in answers]
-            for answer in answers:
-                answer_array.append(answer.get_single_dict(pleb))
+            solutions, meta = execute_cypher_query(query)
+            solutions = [SBSolution.inflate(row[0]) for row in solutions]
+            for solution in solutions:
+                solution_array.append(solution.get_single_dict(pleb))
             edit = self.get_most_recent_edit()
             for comment in self.comments.all():
                 comment_array.append(comment.get_single_dict())
@@ -154,7 +154,7 @@ class SBQuestion(SBVersioned, SBTagContent):
                 'content': edit.content,
                 'object_uuid': self.sb_id,
                 'is_closed': self.is_closed,
-                'answer_number': self.answer_number,
+                'solution_number': self.solution_number,
                 'last_edited_on': unicode(self.last_edited_on),
                 'up_vote_number': self.get_upvote_count(),
                 'down_vote_number': self.get_downvote_count(),
@@ -162,7 +162,7 @@ class SBQuestion(SBVersioned, SBTagContent):
                 'owner': owner_name,
                 'owner_profile_url': owner_profile_url,
                 'time_created': unicode(self.date_created),
-                'answers': answer_array,
+                'solutions': solution_array,
                 'comments': comment_array,
                 'current_pleb': pleb,
                 'owner_email': owner.email,
@@ -182,7 +182,7 @@ class SBQuestion(SBVersioned, SBTagContent):
             question_dict = {'question_title': self.question_title,
                              'question_content': self.content[:50]+'...',
                              'is_closed': self.is_closed,
-                             'answer_number': self.answer_number,
+                             'solution_number': self.solution_number,
                              'last_edited_on': self.last_edited_on,
                              'up_vote_number': self.get_upvote_count(),
                              'down_vote_number': self.get_downvote_count(),
@@ -200,7 +200,6 @@ class SBQuestion(SBVersioned, SBTagContent):
     def render_question_page(self, user_email):
         try:
             owner = self.owned_by.all()
-            print owner
             try:
                 owner = owner[0]
             except IndexError as e:
@@ -216,7 +215,7 @@ class SBQuestion(SBVersioned, SBTagContent):
                         'question_title': most_recent.question_title,
                         'question_content': most_recent_content,
                         'is_closed': self.is_closed,
-                        'answer_number': self.answer_number,
+                        'solution_number': self.solution_number,
                         'last_edited_on': self.last_edited_on,
                         'up_vote_number': self.up_vote_number,
                         'down_vote_number': self.down_vote_number,
@@ -249,7 +248,7 @@ class SBQuestion(SBVersioned, SBTagContent):
                 "question_content": self.get_most_recent_edit().content,
                 "question_uuid": self.sb_id,
                 "is_closed": self.is_closed,
-                "answer_number": self.answer_number,
+                "solution_number": self.solution_number,
                 "last_edited_on": self.last_edited_on,
                 "up_vote_number": self.up_vote_number,
                 "down_vote_number": self.down_vote_number,

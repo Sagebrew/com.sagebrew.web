@@ -138,13 +138,13 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.assertEqual(
             self.pleb.object_weight.relationship(self.question).weight, 150)
 
-    def test_update_weight_relationship_task_success_answered_unconnected(self):
+    def test_update_weight_relationship_task_success_solutioned_unconnected(self):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
                 'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
-                'modifier_type': 'answered'}
+                'modifier_type': 'solutioned'}
         res = update_weight_relationship.apply_async(kwargs=data)
         while not res.ready():
             time.sleep(1)
@@ -277,7 +277,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.assertEqual(
             self.pleb.object_weight.relationship(self.question).weight, 157)
 
-    def test_update_weight_relationship_task_success_answered_connected(self):
+    def test_update_weight_relationship_task_success_solutioned_connected(self):
         res = self.pleb.object_weight.connect(self.question)
         res.save()
         self.assertIsNot(res, False)
@@ -287,7 +287,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
                 'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': self.user.email,
-                'modifier_type': 'answered'}
+                'modifier_type': 'solutioned'}
         res = update_weight_relationship.apply_async(kwargs=data)
         while not res.ready():
             time.sleep(1)
@@ -307,7 +307,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
                 'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.sb_id,
                 'current_pleb': str(uuid1()),
-                'modifier_type': 'answered'}
+                'modifier_type': 'solutioned'}
         res = update_weight_relationship.apply_async(kwargs=data)
         while not res.ready():
             time.sleep(1)

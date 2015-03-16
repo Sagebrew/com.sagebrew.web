@@ -33,7 +33,7 @@ Lastly, you'll be able to Concede your Solutions to more viable/invested
 Solutions if you desire. If somebody comes up with a Solution that seems to 
 cover more ground than yours, there is no shame in Conceding to that person's 
 solution! In fact, by Conceding to a better solution, you've shown that you're 
-here to find the best answer to a problem and not to argue a moot point! 
+here to find the best solution to a problem and not to argue a moot point! 
 {% endif %}
 
 Time to stir the brew!  
@@ -46,7 +46,7 @@ you believe to be a problem and would like assistance exploring potential
 solutions to that problem. 
 
 ### What's a good Question look like? ###
-A good Question is a Question that has no clear answer and involves multiple 
+A good Question is a Question that has no clear solution and involves multiple 
 points of view. A good Question should be backed up with facts drawn from 
 reliable sources. 
 
@@ -65,7 +65,7 @@ Sources: http://epa.gov/climatechange/ghgemissions/gases/n2o.html
 ** **
 ### What's a bad Question look like? ###
 A Question is a bad Question if it is: offensive, only has one side, 
-has an obvious answer, is not aimed at finding a solution, does not make 
+has an obvious solution, is not aimed at finding a solution, does not make 
 sense etc. 
 {% if debug == True %}
 If you aren't sure if your Question is good or bad, start a 
@@ -157,10 +157,10 @@ All new users will receive 1 Free Upvote! Use carefully!
 - Great Questions
 - Superb Question
 - Majestic Question
-- Good Answer
-- Great Answer
-- Superb Answer
-- Majestic Answer
+- Good Solution
+- Great Solution
+- Superb Solution
+- Majestic Solution
 - Sort of Popular
 - Popular
 - Way Popular

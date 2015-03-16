@@ -1,10 +1,10 @@
 $( document ).ready(function() {
-    $("a.show_edit_answer-action").click(function(event){
-        var answer_uuid = $(this).data('answer_uuid');
-        $('#show_edit_sb_id_'+answer_uuid).fadeToggle();
+    $("a.show_edit_solution-action").click(function(event){
+        var solution_uuid = $(this).data('solution_uuid');
+        $('#show_edit_sb_id_'+solution_uuid).fadeToggle();
     });
 
-	$("a.edit_answer-action").click(function(event){
+	$("a.edit_solution-action").click(function(event){
 		event.preventDefault();
 		$.ajaxSetup({
 		    beforeSend: function (xhr, settings) {
@@ -14,10 +14,10 @@ $( document ).ready(function() {
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
 			type: "POST",
-			url: "/answers/edit_answer_api/",
+			url: "/solutions/edit_solution_api/",
 			data: JSON.stringify({
-               'content': $('textarea#' + $(this).data('answer_uuid')).val(),
-			   'answer_uuid': $(this).data('answer_uuid'),
+               'content': $('textarea#' + $(this).data('solution_uuid')).val(),
+			   'solution_uuid': $(this).data('solution_uuid'),
                'current_pleb':$(this).data('current_pleb')
 			}),
 			contentType: "application/json; charset=utf-8",

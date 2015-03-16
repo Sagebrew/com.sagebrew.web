@@ -102,7 +102,7 @@ class Pleb(StructuredNode):
         'post': 10, 'comment_on': 5, 'upvote': 3, 'downvote': -3,
         'time': -1, 'proximity_to_you': 10, 'proximity_to_interest': 10,
         'share': 7, 'flag_as_inappropriate': -5, 'flag_as_spam': -100,
-        'flag_as_other': -10, 'answered': 50, 'starred': 150, 'seen_search': 5,
+        'flag_as_other': -10, 'solutioned': 50, 'starred': 150, 'seen_search': 5,
         'seen_page': 20
     }
     gender = StringProperty()
@@ -162,7 +162,7 @@ class Pleb(StructuredNode):
     questions = RelationshipTo('sb_questions.neo_models.SBQuestion',
                                'OWNS_QUESTION',
                                model=PostObjectCreated)
-    answers = RelationshipTo('sb_answers.neo_models.SBAnswer', 'OWNS_ANSWER',
+    solutions = RelationshipTo('sb_solutions.neo_models.SBSolution', 'OWNS_ANSWER',
                              model=PostObjectCreated)
     comments = RelationshipTo('sb_comments.neo_models.SBComment',
                               'OWNS_COMMENT',
@@ -223,7 +223,7 @@ class Pleb(StructuredNode):
             return rel.weight
 
     def get_owned_objects(self):
-        return self.answers.all()+self.questions.all()+\
+        return self.solutions.all()+self.questions.all()+\
                self.posts.all()+self.comments.all()
 
     def get_total_rep(self):
@@ -279,35 +279,35 @@ class Pleb(StructuredNode):
 
     def get_conversation(self, expiry=0, now=0):
         return {"questions": [self.get_questions(expiry, now)],
-                "solutions": [self.get_answers(expiry, now)],
+                "solutions": [self.get_solutions(expiry, now)],
                 "count": self.get_questions(expiry, now)['count']+\
-                    self.get_answers(expiry,now)['count']}
+                    self.get_solutions(expiry,now)['count']}
 
     def get_questions(self, expiry=0, now=0):
         if expiry == 0:
             return self.get_question_dicts(self.questions.all())
         return self.get_question_dicts(self.filter_questions(expiry, now))
 
-    def get_answers(self, expiry=0, now=0):
+    def get_solutions(self, expiry=0, now=0):
         if expiry == 0:
-            return self.get_answer_dicts(self.answers.all())
-        return self.get_answer_dicts(self.filter_answers(expiry, now))
+            return self.get_solution_dicts(self.solutions.all())
+        return self.get_solution_dicts(self.filter_solutions(expiry, now))
 
-    def get_answer_dicts(self, answers):
+    def get_solution_dicts(self, solutions):
         a_dict = {
-            "answers": []
+            "solutions": []
         }
-        for answer in answers:
-            a_dict['answers'].append(answer.get_dict())
-        a_dict['count'] = len(a_dict['answers'])
+        for solution in solutions:
+            a_dict['solutions'].append(solution.get_dict())
+        a_dict['count'] = len(a_dict['solutions'])
         return a_dict
 
-    def filter_answers(self, expiry, now):
-        answers = []
-        for answer in self.answers.all():
-            if (now-answer.date_created).seconds < expiry:
-                answers.append(answer)
-        return answers
+    def filter_solutions(self, expiry, now):
+        solutions = []
+        for solution in self.solutions.all():
+            if (now-solution.date_created).seconds < expiry:
+                solutions.append(solution)
+        return solutions
 
     def filter_questions(self, expiry, now):
         questions = []
@@ -334,8 +334,8 @@ class Pleb(StructuredNode):
     def get_question_count(self):
         return len(self.questions.all())
 
-    def get_answer_count(self):
-        return len(self.answers.all())
+    def get_solution_count(self):
+        return len(self.solutions.all())
 
     def get_post_count(self):
         return len(self.posts.all())

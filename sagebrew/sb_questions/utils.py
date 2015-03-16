@@ -42,7 +42,7 @@ def get_question_by_uuid(question_uuid, current_pleb):
     Sorting util
 
     This function gets a question by a uuid. It calls prepare_get_question_dictionary
-    to create the dictionary of question details and answer details then returns
+    to create the dictionary of question details and solution details then returns
     to the view
 
     :param question_uuid:

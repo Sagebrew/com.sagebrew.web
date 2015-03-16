@@ -46,7 +46,7 @@
 .block,
 .sb_settings_block,
 .sb_alert_block,
-.sb_answer,
+.sb_solution,
 .sb_question,
 .sb_question_summary,
 .sb_registration_block,
@@ -81,12 +81,12 @@
   padding-bottom: 15px;
   margin-bottom: 30px;
 }
-.sb_answer {
+.sb_solution {
   margin-top: 30px;
   margin-bottom: 15px;
   padding-bottom: 15px;
 }
-.sb_answer textarea {
+.sb_solution textarea {
   border-radius: 5px;
   border: 1px #d0e9c6;
   width: 100%;

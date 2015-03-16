@@ -65,7 +65,7 @@ STATICFILES_DIRS = (
     '%s/help_center/static/' % PROJECT_DIR,
     '%s/sagebrew/static/' % PROJECT_DIR,
     '%s/plebs/static/' % PROJECT_DIR,
-    '%s/sb_answers/static/' % PROJECT_DIR,
+    '%s/sb_solutions/static/' % PROJECT_DIR,
     '%s/sb_edits/static/' % PROJECT_DIR,
     '%s/sb_notifications/static/' % PROJECT_DIR,
     '%s/sb_privileges/static/' % PROJECT_DIR,
@@ -142,7 +142,7 @@ TEMPLATE_DIRS = (
     '%s/help_center/templates/' % PROJECT_DIR,
     '%s/plebs/templates/' % PROJECT_DIR,
     '%s/sagebrew/templates/' % PROJECT_DIR,
-    '%s/sb_answers/templates/' % PROJECT_DIR,
+    '%s/sb_solutions/templates/' % PROJECT_DIR,
     '%s/sb_badges/templates/' % PROJECT_DIR,
     '%s/sb_comments/templates/' % PROJECT_DIR,
     '%s/sb_notifications/templates/' % PROJECT_DIR,
@@ -181,7 +181,7 @@ INSTALLED_APPS = (
     'govtrack',
     'neomodel',
     "opbeat.contrib.django",
-    'sb_answers',
+    'sb_solutions',
     'sb_badges',
     'sb_base',
     'sb_comments',
@@ -307,7 +307,7 @@ OBJECT_SEARCH_MODIFIERS = {
     'post': 10, 'comment_on': 5, 'upvote': 3, 'downvote': -3,
     'time': -1, 'proximity_to_you': 10, 'proximity_to_interest': 10,
     'share': 7, 'flag_as_inappropriate': -5, 'flag_as_spam': -100,
-    'flag_as_other': -10, 'answered': 50, 'starred': 150, 'seen_search': 5,
+    'flag_as_other': -10, 'solutioned': 50, 'starred': 150, 'seen_search': 5,
     'seen_page': 20
 }
 
@@ -325,7 +325,7 @@ PAYMENT_PLANS = [
 
 KNOWN_TYPES = [
     ("01bb301a-644f-11e4-9ad9-080027242395", "sb_posts.neo_models.SBPost"),
-    ("02241aee-644f-11e4-9ad9-080027242395", "sb_answers.neo_models.SBAnswer"),
+    ("02241aee-644f-11e4-9ad9-080027242395", "sb_solutions.neo_models.SBSolution"),
     ("0274a216-644f-11e4-9ad9-080027242395",
      "sb_questions.neo_models.SBQuestion"),
     ("02ba1c88-644f-11e4-9ad9-080027242395",
@@ -371,7 +371,7 @@ PRIVILEGE_HTML_TYPES = {
     "write_question": ".submit_question-action",
     "write_post": ".submit_post-action",
     "write_comment": ".comment-action",
-    "write_solution": ".submit_answer-action"
+    "write_solution": ".submit_solution-action"
 }
 
 

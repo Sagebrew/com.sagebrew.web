@@ -78,7 +78,10 @@ def get_question_by_most_recent(range_start=0, range_end=5):
     questions, meta = execute_cypher_query(query)
     if isinstance(questions, Exception):
         return questions
-    questions = [SBQuestion.inflate(row[0]) for row in questions]
+    try:
+        questions = [SBQuestion.inflate(row[0]) for row in questions]
+    except IndexError:
+        questions = []
     return questions
 
 
@@ -102,7 +105,10 @@ def get_question_by_least_recent(range_start=0, range_end=5):
     questions, meta = execute_cypher_query(query)
     if isinstance(questions, Exception):
         return questions
-    questions = [SBQuestion.inflate(row[0]) for row in questions]
+    try:
+        questions = [SBQuestion.inflate(row[0]) for row in questions]
+    except IndexError:
+        questions = []
     return questions
 
 @apply_defense
@@ -114,7 +120,10 @@ def get_question_by_recent_edit(range_start=0, range_end=5):
     questions, meta = execute_cypher_query(query)
     if isinstance(questions, Exception):
         return questions
-    questions = [SBQuestion.inflate(row[0]) for row in questions]
+    try:
+        questions = [SBQuestion.inflate(row[0]) for row in questions]
+    except IndexError:
+        questions = []
     return questions
 
 

@@ -147,7 +147,7 @@ For a more long-winded but more detailed outline of running for federal office,
 the FEC has this [campaign guideline][2].
 
 
-[1]: http://www.fec.gov/ans/solutions_general.shtml
+[1]: http://www.fec.gov/ans/answers_general.shtml
 [2]: http://www.fec.gov/pdf/candgui.pdf
 [3]: /help/campaigns/donation_goals/
 [4]: /help/campaigns/principal_campaign_committee/

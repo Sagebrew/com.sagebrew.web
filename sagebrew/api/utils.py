@@ -31,7 +31,8 @@ def post_to_api(api_url, username, data=None, headers=None, req_method=None):
     url = "%s%s" % (settings.WEB_ADDRESS, api_url)
     if req_method is None:
         response = requests.post(url, data=dumps(data),
-                            verify=settings.VERIFY_SECURE, headers=headers)
+                                 verify=settings.VERIFY_SECURE,
+                                 headers=headers)
     elif req_method == 'get':
         response = requests.get(url, verify=settings.VERIFY_SECURE,
                                 headers=headers)

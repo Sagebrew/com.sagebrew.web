@@ -4,7 +4,10 @@ from os import environ
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['www.sagebrew.com',]
-VERIFY_SECURE = True
+if environ.get("CIRCLECI", "false") == "true":
+    VERIFY_SECURE = False
+else:
+    VERIFY_SECURE = True
 WEB_ADDRESS = "https://www.sagebrew.com"
 
 DATABASES = {

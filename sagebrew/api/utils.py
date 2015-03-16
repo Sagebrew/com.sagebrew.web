@@ -25,7 +25,12 @@ from api.alchemyapi import AlchemyAPI
 def request_to_api(url, username, data=None, headers=None, req_method=None,
                    internal=True):
     """
-
+    This function makes a request to the given endpoint. It's a helper function
+    that enables us to easily include Sagebrew specific headers if we're hitting
+    an internal api but also include headers needed to access an alternative
+    API. A full URL must be provided, this is to enable users to include
+    external endpoints in Requirements and other API dependent resources.
+    
     :param url:
     :param username:
     :param data:

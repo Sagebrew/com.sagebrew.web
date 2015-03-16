@@ -20,7 +20,8 @@ class SBRequirement(StructuredNode):
 
     #methods
     def check_requirement(self, username):
-        res = request_to_api(self.url, username, req_method='get')
+        res = request_to_api(self.url, username, req_method='get',
+                             internal=True)
         # TODO should probably handle any response greater than a 
         # 400 and stop the function as they may have the req just
         # having server issues.

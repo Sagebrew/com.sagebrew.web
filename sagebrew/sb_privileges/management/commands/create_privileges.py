@@ -42,6 +42,8 @@ class Command(BaseCommand):
                         SBRequirement.nodes.get(name=requirement["name"])
                     except(SBRequirement.DoesNotExist, DoesNotExist):
                         try:
+                            requirement["url"] = "%s%s" % (settings.WEB_ADDRESS,
+                                                           requirement["url"])
                             req = SBRequirement(**requirement).save()
                             privilege.requirements.connect(req)
                         except(CypherException, IOError):
@@ -55,6 +57,8 @@ class Command(BaseCommand):
                         SBAction.nodes.get(action=action["action"])
                     except(SBAction.DoesNotExist, DoesNotExist):
                         try:
+                            action["url"] = "%s%s" % (settings.WEB_ADDRESS,
+                                                      action["url"])
                             action = SBAction(**action).save()
                             privilege.actions.connect(action)
                         except(CypherException, IOError):
@@ -70,6 +74,8 @@ class Command(BaseCommand):
                     SBAction.nodes.get(action=action["action"])
                 except(SBAction.DoesNotExist, DoesNotExist):
                     try:
+                        action["url"] = "%s%s" % (settings.WEB_ADDRESS,
+                                                  action["url"])
                         SBAction(**action).save()
                     except(CypherException, IOError):
                         logger.critical("potential error there may"
@@ -81,12 +87,15 @@ class Command(BaseCommand):
                 try:
                     SBRestriction.nodes.get(name=restriction["name"])
                 except(SBRestriction.DoesNotExist, DoesNotExist):
-                    try:
-                        SBRestriction(**restriction).save()
-                    except(CypherException, IOError):
-                        logger.exception("Cypher Exception Reached")
-                        logger.critical("potential error there may"
-                                        " be missing restrictions")
+                    logger.critical("potential error there may"
+                          " be missing restrictions")
+                try:
+                    restriction["url"] = "%s%s" % (settings.WEB_ADDRESS,
+                                                   restriction["url"])
+                    SBRestriction(**restriction).save()
+                except(CypherException, IOError):
+                    logger.critical("potential error there may"
+                                    " be missing restrictions")
 
     def handle(self, *args, **options):
         self.create_privileges()

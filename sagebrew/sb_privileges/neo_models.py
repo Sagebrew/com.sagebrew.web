@@ -2,11 +2,10 @@ import pytz
 import pickle
 from uuid import uuid1
 from datetime import datetime
-
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, BooleanProperty)
 
-from api.utils import post_to_api
+from api.utils import request_to_api
 
 
 class SBPrivilege(StructuredNode):
@@ -112,7 +111,12 @@ class SBRestriction(StructuredNode):
         }
 
     def check_restriction(self, username, start_date):
-        res = post_to_api(self.url, username, req_method='get')
+        res = request_to_api(self.url, username, req_method='get',
+                             internal=True)
+        # TODO should probably handle any response greater than a
+        # 400 and stop the function as they may have the req just
+        # having server issues.
+        res = res.json()
         temp_type = type(res[self.key])
         temp_cond = temp_type(self.condition)
         return self.build_check_dict(

@@ -12,6 +12,7 @@ from sb_requirements.neo_models import SBRequirement
 
 logger = getLogger('loggly_logs')
 
+
 class Command(BaseCommand):
     args = 'None.'
     help = 'Creates privilege, requirement, action and restrictions.'
@@ -58,36 +59,34 @@ class Command(BaseCommand):
                             privilege.actions.connect(action)
                         except(CypherException, IOError):
                             logger.critical("potential error there may"
-                                  " be missing actions")
+                                            " be missing actions")
                     except(CypherException, IOError):
                         logger.critical("potential error there may"
-                              " be missing actions")
-            #for possible future use of single actions not
+                                        " be missing actions")
+            # for possible future use of single actions not
             # connected with a privilege
             for action in data['actions']:
                 try:
                     SBAction.nodes.get(action=action["action"])
                 except(SBAction.DoesNotExist, DoesNotExist):
                     try:
-                        action = SBAction(**action).save()
+                        SBAction(**action).save()
                     except(CypherException, IOError):
                         logger.critical("potential error there may"
-                              " be missing actions")
+                                         "be missing actions")
                 except(CypherException, IOError):
                     logger.critical("potential error there may"
-                          " be missing actions")
+                                    "be missing actions")
             for restriction in data['restrictions']:
                 try:
                     SBRestriction.nodes.get(name=restriction["name"])
                 except(SBRestriction.DoesNotExist, DoesNotExist):
                     try:
-                        restriction = SBRestriction(**restriction).save()
-                    except(CypherException, IOError) as e:
+                        SBRestriction(**restriction).save()
+                    except(CypherException, IOError):
                         logger.exception("Cypher Exception Reached")
                         logger.critical("potential error there may"
-                              " be missing restrictions")
-
-
+                                        " be missing restrictions")
 
     def handle(self, *args, **options):
         self.create_privileges()

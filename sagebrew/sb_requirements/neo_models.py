@@ -21,7 +21,10 @@ class SBRequirement(StructuredNode):
     #methods
     def check_requirement(self, username):
         res = post_to_api(self.url, username, req_method='get')
-        temp_type = type(res[self.key])
+        try:
+            temp_type = type(res[self.key])
+        except KeyError as e:
+            return e
         temp_cond = temp_type(self.condition)
         return self.build_check_dict(
             pickle.loads(self.operator)(res[self.key], temp_cond),

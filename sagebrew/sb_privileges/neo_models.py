@@ -20,11 +20,12 @@ class SBPrivilege(StructuredNode):
     badges = RelationshipTo('sb_badges.neo_models.BadgeBase', "REQUIRES_BADGE")
 
     def check_requirements(self, pleb):
-        req_checks = []
         for req in self.get_requirements():
-            req_checks.append(req.check_requirement(pleb.username)['response'])
-        if False in req_checks:
-            return False
+            req_response = req.check_requirement(pleb.username)
+            if isinstance(req_response, Exception):
+                return False
+            if req_response is False:
+                return False
         return True
 
     def check_badges(self, pleb):

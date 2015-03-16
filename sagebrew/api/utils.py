@@ -26,7 +26,8 @@ from api.alchemyapi import AlchemyAPI
 def post_to_api(api_url, username, data=None, headers=None, req_method=None):
     if headers is None:
         headers = {}
-    headers['Authorization'] = "%s %s" % ('Bearer', get_oauth_access_token(username))
+    headers['Authorization'] = "%s %s" % ('Bearer',
+                                          get_oauth_access_token(username))
     url = "%s%s" % (settings.WEB_ADDRESS, api_url)
     if req_method is None:
         response = requests.post(url, data=dumps(data),

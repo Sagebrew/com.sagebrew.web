@@ -9,6 +9,27 @@ from .neo_models import SBPrivilege, SBAction
 
 
 def manage_privilege_relation(username):
+    """
+    This function checks to see if there are any privileges that a user has
+    gained or lost based on the Requirements needed to obtain that privilege.
+    In both cases the relationship manager is updated.
+
+    TODO How do we track the possibility of having a Privilege multiple times?
+    Do we need to add an additional node to track that? For representatives
+    we could specify a date with a privilege but with core privileges we'll
+    want to be able to track when someone gained/lost/and regained a privilege.
+    Understand the simplicity that storing the current one off in a relationship
+    manager provides. So it may be easiest to just add another node that gets
+    spawned with a snapshot of the relationship when the update occurs and link
+    it between the pleb and the privilege.
+
+    If a user no longer meets the Requirements the privilege is removed.
+
+    The function then updates the middleware to enable quicker access of the
+    actions and and privileges that the user has access to.
+    :param username:
+    :return:
+    """
     try:
         pleb = Pleb.nodes.get(username=username)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
@@ -18,8 +39,8 @@ def manage_privilege_relation(username):
     except CypherException as e:
         return e
     for privilege in privileges:
-        res = privilege.check_requirements(pleb)
-        if not res and privilege in pleb.privileges.all():
+        meets_reqs = privilege.check_requirements(pleb)
+        if not meets_reqs and privilege in pleb.privileges.all():
             rel = pleb.privileges.relationship(privilege)
             if rel.active:
                 rel.active = False
@@ -31,7 +52,7 @@ def manage_privilege_relation(username):
                     rel.active = False
                     rel.lost_on = datetime.now(pytz.utc)
                     rel.save()
-        if not res:
+        if not meets_reqs:
             continue
         rel = pleb.privileges.connect(privilege)
         rel.save()
@@ -39,14 +60,14 @@ def manage_privilege_relation(username):
         pri_dict.pop('requirements', None)
         pri_dict.pop('actions', None)
         pri_dict['parent_object'] = username
-        res = add_object_to_table('privileges', pri_dict)
+        added_privileges = add_object_to_table('privileges', pri_dict)
         for action in privilege.get_actions():
             rel = pleb.actions.connect(action)
             rel.save()
             act_dict = action.get_dict()
             act_dict.pop("possible_restrictions", None)
             act_dict['parent_object'] = username
-            res = add_object_to_table('actions', act_dict)
+            added_actions = add_object_to_table('actions', act_dict)
     return True
 
 

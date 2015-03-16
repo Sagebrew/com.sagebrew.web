@@ -26,7 +26,7 @@ class TagRelationship(StructuredRel):
 class PostObjectCreated(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     rep_gained = IntegerProperty(default=0)
-    rep_lost = IntegerProperty(defaut=0)
+    rep_lost = IntegerProperty(default=0)
 
 
 class ActionActiveRel(StructuredRel):

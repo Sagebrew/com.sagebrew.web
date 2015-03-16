@@ -10,8 +10,8 @@ from sb_requirements.neo_models import SBRequirement
 logger = logging.getLogger('loggly_logs')
 
 
-class TestSavePost(TestCase):
-    def test_save_post(self):
+class TestCreatePrivileges(TestCase):
+    def test_create_privileges(self):
         call_command('create_privileges')
         with open('%s/sb_privileges/management/commands'
                   '/privilege_nodes.json' % settings.PROJECT_DIR,

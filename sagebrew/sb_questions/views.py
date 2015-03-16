@@ -243,7 +243,7 @@ def get_question_view(request):
                                {'object_uuid': answer['object_uuid'],
                                 'object_type': dict(settings.KNOWN_TYPES)[
                                     answer['object_type']]})
-                t = get_template("question_detail.html")
+                t = get_template("question.html")
                 c = Context(res)
                 return Response(t.render(c), status=200)
 

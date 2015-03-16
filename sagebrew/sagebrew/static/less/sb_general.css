@@ -95,12 +95,13 @@
 }
 .sb_question {
   min-height: 250px;
+  height: 100%;
 }
 .sb_question_summary {
   background-color: #f9fff7;
   border: 1px solid #b7bfbb;
   border-radius: 5px;
-  height: 170px;
+  height: 130px;
   padding: 15px;
   margin-bottom: 15px;
 }
@@ -794,12 +795,17 @@
 .sb_post_header_info {
   margin-top: -12px;
 }
-.sb_post_header {
+.sb_post_header,
+.sb_question_header {
   width: auto;
   background-color: #fafcfa;
   border-radius: 5px 5px 5px 5px;
   padding: 15px 15px 0;
   margin-bottom: 15px;
+}
+.sb_question_header {
+  margin-left: 15px;
+  margin-right: 15px;
 }
 .vertical_nav,
 .settings_nav {
@@ -830,6 +836,10 @@
 .sb_up_vote_wrapper {
   margin-bottom: -13px;
 }
+.sb_up_vote_wrapper_summary {
+  margin-top: 0px;
+  margin-bottom: -25px;
+}
 .sb_down_vote_wrapper {
   margin-top: -10px;
   margin-bottom: -15px;
@@ -838,7 +848,8 @@
   padding-left: 0;
   padding-right: 0;
 }
-.sb_post_body {
+.sb_post_body,
+.sb_question_body {
   margin-left: 15px;
   font-size: 12pt;
   padding: 15px;
@@ -849,6 +860,9 @@
   background-color: #fafcfa;
   border: 1px solid #d0e9c6;
   word-wrap: break-word;
+}
+.sb_question_body {
+  margin-left: 12px;
 }
 .sb_post_comments {
   border-style: solid;

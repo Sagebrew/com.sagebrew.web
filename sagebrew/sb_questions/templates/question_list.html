@@ -11,7 +11,7 @@
 
 {% block content %}
 <div class="row-fluid sb_page">
-    <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
+    <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12" style="margin-bottom: 35px; ">
         <div class="sb_wall sb_conversation_wall">
             <div class="row">
                 <div class="col-lg-11 col-md-11 col-sm-12 col-xs-12">
@@ -59,8 +59,9 @@
                     </div>
                 </div>
                 <div id="question_wrapper">
-                  {% block questions %}
-                  {% endblock %}
+                    {% comment %}
+                        Loaded from JS
+                    {% endcomment %}
                 </div>
             </div>
         </div>

@@ -12,6 +12,7 @@ from sb_requirements.neo_models import SBRequirement
 
 logger = getLogger('loggly_logs')
 
+
 class Command(BaseCommand):
     args = 'None.'
     help = 'Creates privilege, requirement, action and restrictions.'
@@ -41,6 +42,8 @@ class Command(BaseCommand):
                         SBRequirement.nodes.get(name=requirement["name"])
                     except(SBRequirement.DoesNotExist, DoesNotExist):
                         try:
+                            requirement["url"] = "%s%s" % (settings.WEB_ADDRESS,
+                                                           requirement["url"])
                             req = SBRequirement(**requirement).save()
                             privilege.requirements.connect(req)
                         except(CypherException, IOError):
@@ -54,40 +57,43 @@ class Command(BaseCommand):
                         SBAction.nodes.get(action=action["action"])
                     except(SBAction.DoesNotExist, DoesNotExist):
                         try:
+                            action["url"] = "%s%s" % (settings.WEB_ADDRESS,
+                                                      action["url"])
                             action = SBAction(**action).save()
                             privilege.actions.connect(action)
                         except(CypherException, IOError):
                             logger.critical("potential error there may"
-                                  " be missing actions")
+                                            " be missing actions")
                     except(CypherException, IOError):
                         logger.critical("potential error there may"
-                              " be missing actions")
-            #for possible future use of single actions not
+                                        " be missing actions")
+            # for possible future use of single actions not
             # connected with a privilege
             for action in data['actions']:
                 try:
                     SBAction.nodes.get(action=action["action"])
                 except(SBAction.DoesNotExist, DoesNotExist):
                     try:
-                        action = SBAction(**action).save()
+                        action["url"] = "%s%s" % (settings.WEB_ADDRESS,
+                                                  action["url"])
+                        SBAction(**action).save()
                     except(CypherException, IOError):
                         logger.critical("potential error there may"
-                              " be missing actions")
+                                         "be missing actions")
                 except(CypherException, IOError):
                     logger.critical("potential error there may"
-                          " be missing actions")
+                                    "be missing actions")
             for restriction in data['restrictions']:
                 try:
-                    SBRestriction.nodes.get(name="name")
+                    SBRestriction.nodes.get(name=restriction["name"])
                 except(SBRestriction.DoesNotExist, DoesNotExist):
-                    logger.critical("potential error there may"
-                          " be missing restrictions")
-                try:
-                    restriction = SBRestriction(**restriction).save()
-                except(CypherException, IOError):
-                    logger.critical("potential error there may"
-                          " be missing restrictions")
-
+                    try:
+                        restriction["url"] = "%s%s" % (settings.WEB_ADDRESS,
+                                                       restriction["url"])
+                        SBRestriction(**restriction).save()
+                    except(CypherException, IOError):
+                        logger.critical("potential error there may"
+                                        " be missing restrictions")
 
     def handle(self, *args, **options):
         self.create_privileges()

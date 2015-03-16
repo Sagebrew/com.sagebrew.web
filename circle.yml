@@ -163,7 +163,7 @@ test:
     # Sleep time based on aws timeout counts. This insures it is possible
     # for the deployed code to be ready within the set amount of time
     # aws will give it.
-    - sleep 50
+    - sleep 90
     - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/
     - docker logs sb_web >> $CIRCLE_ARTIFACTS/sb_web.log
     - docker logs sb_worker >> $CIRCLE_ARTIFACTS/sb_worker.log

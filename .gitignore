@@ -1,4 +1,4 @@
-sagebrew/coverage_results/
+coverage_results/
 bower_components/
 docs/
 *.db

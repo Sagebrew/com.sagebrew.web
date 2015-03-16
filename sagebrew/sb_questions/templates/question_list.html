@@ -38,22 +38,22 @@
             {% endif %}
             <div class="sb_border sb_border_question">
                 <div class="row sb_tertiary_nav">
-                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+                    <div class="col-lg-2 col-md-2 col-sm-2 hidden-xs">
                         <a class="btn sb_tab_question query_questions-action"
                            data-sort_by="most_recent"
                            data-current_pleb="{{ email }}">Most Recent</a>
                     </div>
-                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+                    <div class="col-lg-2 col-md-2 col-sm-2 hidden-xs">
                         <a class="btn sb_tab_question query_questions-action"
                            data-sort_by="least_recent"
                            data-current_pleb="{{ email }}">Least Recent</a>
                     </div>
-                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+                    <div class="col-lg-2 col-md-2 col-sm-2 hidden-xs">
                         <a class="btn sb_tab_question query_questions-action"
                            data-sort_by="recent_edit"
                            data-current_pleb="{{ email }}">Recent Edits</a>
                     </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 col-sm-offset-4 col-md-offset-4 col-lg-offset-4">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 col-sm-offset-2 col-md-offset-2 col-lg-offset-2">
                          <a href="{% url "save_question_page" %}" class='btn btn-block btn-primary sb_btn_fill' style="color: white">
                              Spark a Conversation</a>
                     </div>

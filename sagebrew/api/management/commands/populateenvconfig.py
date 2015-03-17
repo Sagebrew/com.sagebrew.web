@@ -85,9 +85,9 @@ def populate_staging_values(data):
     data = data.replace("<WEB_SECURITY_GROUP>",
                         environ.get("WEB_SECURITY_GROUP_STAGING", ""))
     data = data.replace("<STRIPE_PUBLIC_KEY>",
-                        environ.get("STRIPE_PUBLIC_KEY_TEST", ""))
+                        environ.get("STRIP_PUBLIC_KEY", ""))
     data = data.replace("<STRIPE_SECRET_KEY>",
-                        environ.get("STRIPE_SECRET_KEY_TEST", ""))
+                        environ.get("STRIPE_SECRET_KEY", ""))
     data = data.replace("<MASKED_NAME>",
                         environ.get("MASKED_NAME_STAGING", ""))
     data = data.replace("<OPBEAT_ORG_ID>",
@@ -140,9 +140,9 @@ def populate_production_values(data):
     data = data.replace("<WEB_SECURITY_GROUP>",
                         environ.get("WEB_SECURITY_GROUP_PROD", ""))
     data = data.replace("<STRIPE_PUBLIC_KEY>",
-                        environ.get("STRIPE_PUBLIC_KEY_PROD", ""))
+                        environ.get("STRIP_PUBLIC_KEY_PROD", ""))
     data = data.replace("<STRIPE_SECRET_KEY>",
-                        environ.get("STRIPE_SECRET_KEY_PROD", ""))
+                        environ.get("STRIP_SECRET_KEY_PROD", ""))
     data = data.replace("<MASKED_NAME>",
                         environ.get("MASKED_NAME_PROD", ""))
     data = data.replace("<LOGENT_TOKEN>",
@@ -177,9 +177,9 @@ def populate_test_values(data):
     data = data.replace("<APPLICATION_SECRET_KEY>",
                         environ.get("APPLICATION_SECRET_KEY", ""))
     data = data.replace("<STRIPE_PUBLIC_KEY>",
-                        environ.get("STRIPE_PUBLIC_KEY_TEST", ""))
+                        environ.get("STRIP_PUBLIC_KEY", ""))
     data = data.replace("<STRIPE_SECRET_KEY>",
-                        environ.get("STRIPE_SECRET_KEY_TEST", ""))
+                        environ.get("STRIPE_SECRET_KEY", ""))
     data = data.replace("<MASKED_NAME>",
                         environ.get("MASKED_NAME", ""))
     data = data.replace("<LOGENT_TOKEN>", environ.get("LOGENT_TOKEN", ""))

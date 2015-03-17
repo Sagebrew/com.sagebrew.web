@@ -13,26 +13,26 @@ from sb_base.decorators import apply_defense
 from sb_base.neo_models import SBVersioned
 
 
-class SBAnswer(SBVersioned):
+class SBSolution(SBVersioned):
     object_type = "02241aee-644f-11e4-9ad9-080027242395"
     table = 'public_solutions'
     action = "offered a solution to a question"
     up_vote_adjustment = 10
     down_vote_adjustment = 10
     down_vote_cost = 2
-    sb_name = "answer"
+    sb_name = "solution"
     added_to_search_index = BooleanProperty(default=False)
     search_id = StringProperty()
 
     # relationships
     auto_tags = RelationshipTo('sb_tag.neo_models.SBAutoTag',
                                'AUTO_TAGGED_AS')
-    answer_to = RelationshipTo('sb_questions.neo_models.SBQuestion',
+    solution_to = RelationshipTo('sb_questions.neo_models.SBQuestion',
                                'POSSIBLE_ANSWER_TO')
 
     def get_url(self):
         return reverse("question_detail_page",
-                       kwargs={"question_uuid": self.answer_to.all()[0].sb_id})
+                       kwargs={"question_uuid": self.solution_to.all()[0].sb_id})
 
     def create_notification(self, pleb, sb_object=None):
         return {
@@ -47,11 +47,11 @@ class SBAnswer(SBVersioned):
         if question is None:
             return False
         try:
-            self.answer_to.connect(question)
-            question.answer.connect(self)
-            question.answer_number += 1
+            self.solution_to.connect(question)
+            question.solution.connect(self)
+            question.solution_number += 1
             question.save()
-            rel_from_pleb = pleb.answers.connect(self)
+            rel_from_pleb = pleb.solutions.connect(self)
             rel_from_pleb.save()
             rel_to_pleb = self.owned_by.connect(pleb)
             rel_to_pleb.save()
@@ -63,13 +63,13 @@ class SBAnswer(SBVersioned):
     @apply_defense
     def edit_content(self, content, pleb):
         try:
-            edit_answer = SBAnswer(sb_id=str(uuid1()), original=False,
+            edit_solution = SBSolution(sb_id=str(uuid1()), original=False,
                                    content=content).save()
-            self.edits.connect(edit_answer)
-            edit_answer.edit_to.connect(self)
+            self.edits.connect(edit_solution)
+            edit_solution.edit_to.connect(self)
             self.last_edited_on = datetime.now(pytz.utc)
             self.save()
-            return edit_answer
+            return edit_solution
         except CypherException as e:
             return e
 
@@ -77,20 +77,23 @@ class SBAnswer(SBVersioned):
     def get_single_dict(self, pleb=None):
         try:
             comment_array = []
-            answer_owner = self.owned_by.all()[0]
-            answer_owner_name = answer_owner.first_name +' '+answer_owner.last_name
-            answer_owner_url = answer_owner.username
+            solution_owner = self.owned_by.all()[0]
+            solution_owner_name = solution_owner.first_name +' '+solution_owner.last_name
+            solution_owner_url = solution_owner.username
             for comment in self.comments.all():
                 comment_array.append(comment.get_single_dict())
             try:
-                parent_object = self.answer_to.all()[0].sb_id
+                parent_object = self.solution_to.all()[0].sb_id
             except IndexError:
                 parent_object = ''
             try:
-                html_content = markdown.markdown(self.content)
+                if self.content is None:
+                    html_content = ""
+                else:
+                    html_content = markdown.markdown(self.content)
             except AttributeError:
                 html_content = ""
-            answer_dict = {'content': self.content,
+            solution_dict = {'content': self.content,
                            'current_pleb': pleb,
                            'parent_object': parent_object,
                            'object_uuid': self.sb_id,
@@ -98,15 +101,15 @@ class SBAnswer(SBVersioned):
                            'up_vote_number': self.get_upvote_count(),
                            'down_vote_number': self.get_downvote_count(),
                            'object_vote_count': self.get_vote_count(),
-                           'answer_owner_name': answer_owner_name,
-                           'answer_owner_url': answer_owner.username,
+                           'solution_owner_name': solution_owner_name,
+                           'solution_owner_url': solution_owner.username,
                            'time_created': unicode(self.date_created),
                            'comments': comment_array,
-                           'answer_owner_email': answer_owner.email,
+                           'solution_owner_email': solution_owner.email,
                            'edits': [],
                            'object_type': self.object_type,
-                           'html_content': markdown.markdown(self.content)}
-            return answer_dict
+                           'html_content': html_content}
+            return solution_dict
         except CypherException as e:
             return e
 

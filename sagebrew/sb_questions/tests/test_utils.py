@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.utils.safestring import SafeText
 
 from api.utils import wait_util
-from sb_answers.neo_models import SBAnswer
+from sb_solutions.neo_models import SBSolution
 from sb_questions.utils import (create_question_util,
                                 get_question_by_uuid,
                                 get_question_by_least_recent,
@@ -60,10 +60,10 @@ class TestGetQuestionByUUID(TestCase):
         question.save()
         question.owned_by.connect(self.pleb)
         question.save()
-        answer = SBAnswer(sb_id=str(uuid1())).save()
-        answer.owned_by.connect(self.pleb)
-        answer.save()
-        question.answer.connect(answer)
+        solution = SBSolution(sb_id=str(uuid1())).save()
+        solution.owned_by.connect(self.pleb)
+        solution.save()
+        question.solution.connect(solution)
         question.save()
 
         response = get_question_by_uuid(

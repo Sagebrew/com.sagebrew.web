@@ -1,0 +1,199 @@
+{% comment %}
+    This template is rendered into html through a view and then returned as a
+    result to an endpoint that is called requesting existing posts and their
+    comments. This template is not meant for normal inclusion in a initial
+    render template.
+{% endcomment %}
+<div class="sb_id" data-object_uuid="{{ object_uuid }}"style="display: None"></div>
+<div class="sb_question_header">
+
+    <div class="row">
+        <div class="col-lg-1 hidden-md hidden-sm hidden-xs sb_vote_wrapper">
+            <div class="row vote_wrapper" id="vote_{{ object_uuid }}">
+                <div class="col-lg-12 sb_up_vote_wrapper">
+                    <div style="display: none" class="sb_upvote_count{{ object_uuid }}">{{ up_vote_number }}</div>
+                    {% if vote_type == "false" or vote_type == None %}
+                        <button class="btn sb_btn sb_btn_vote vote_up vote_object-action"
+                           data-object_uuid="{{ object_uuid }}"
+                           data-vote_type=true
+                           data-current_pleb="{{ current_pleb }}"
+                           data-object_type="02241aee-644f-11e4-9ad9-080027242395">
+                            <span class="fui-triangle-up"></span>
+                        </button>
+                    {% else %}
+                        <button class="btn sb_btn sb_btn_vote vote_up vote_up_active vote_object-action"
+                           data-object_uuid="{{ object_uuid }}"
+                           data-vote_type=true
+                           data-current_pleb="{{ current_pleb }}"
+                           data-object_type="02241aee-644f-11e4-9ad9-080027242395">
+                            <span class="fui-triangle-up"></span>
+                        </button>
+                    {% endif %}
+                </div >
+                {% if object_vote_count|length_is:"1" %}
+                    <div class="col-lg-12 col-lg-offset-2 vote_count{{ object_uuid }}" style="margin-left: 16px;">
+                {% elif object_vote_count|length_is:"2" %}
+                    <div class="col-lg-12 col-lg-offset-2 vote_count{{ object_uuid }}">
+                {% elif object_vote_count|length_is:"3" %}
+                    <div class="col-lg-12 col-lg-offset-1 vote_count{{ object_uuid }}">
+                {% elif object_vote_count|length_is:"4" %}
+                    <div class="col-lg-12 col-lg-offset-0 vote_count{{ object_uuid }}">
+                {% else %}
+                    <div class="col-lg-12 col-lg-offset-0 vote_count{{ object_uuid }}">
+                {% endif %}
+                    <h6>
+                        {{ object_vote_count }}
+                    </h6>
+                </div>
+                <div class="col-lg-12 col-md-12 sb_down_vote_wrapper">
+                    {% if vote_type == "true" or vote_type == None %}
+                        <button class="btn sb_btn sb_btn_vote vote_down vote_object-action"
+                           data-object_uuid="{{ object_uuid }}"
+                           data-vote_type=false
+                           data-current_pleb="{{ current_pleb.username }}"
+                           data-object_type="02241aee-644f-11e4-9ad9-080027242395">
+                            <span class="fui-triangle-down"></span>
+                        </button>
+                    {% else %}
+                        <button class="btn sb_btn sb_btn_vote vote_down vote_down_active vote_object-action"
+                           data-object_uuid="{{ object_uuid }}"
+                           data-vote_type=false
+                           data-current_pleb="{{ current_pleb.username }}"
+                           data-object_type="02241aee-644f-11e4-9ad9-080027242395">
+                            <span class="fui-triangle-down"></span>
+                        </button>
+                    {% endif %}
+                    <div style="display: none" class="sb_downvote_count{{ object_uuid }}">{{ down_vote_number }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-10 col-md-11 col-sm-11 col-xs-11 ">
+            <h1 style="font-size:32px;">
+                {{ question_title|linebreaksbr }}
+            </h1>
+        </div>
+            {% if parent_object == user.username %}
+            <div class="col-lg-1 col-md-1 col-sm-1 hidden-xs col-lg-offset-0 col-md-offset-0 col-sm-offset-0">
+                <button class="btn dropdown-toggle sb_btn_icon" type="button"
+                        data-toggle="dropdown">
+                    <span class="sb_dropdown_icon fui-gear"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
+                    role="menu" aria-labelledby="dropdown-menu">
+                    {% if parent_object == user.username %}
+                        <li role="presentation"><a class="sb_post_dropdown_menu show_edit_post_class"
+                                                   data-uuid="{{ object_uuid }}"
+                                                   type="submit">Edit Question</a>
+                        </li>
+                    {% else %}
+                        {% if debug %}
+                            <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action'
+                                                       data-flag_reason='spam'
+                                                       data-current_user="{{ current_user }}"
+                                                       data-object_uuid="{{ object_uuid }}"
+                                                       data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Spam
+                                                       </a>
+                            </li>
+                            <li role="presentation" class="sb_divider"></li>
+                            <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action'
+                                                       data-flag_reason='explicit'
+                                                       data-current_user="{{ current_user }}"
+                                                       data-object_uuid="{{ object_uuid }}"
+                                                       data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Explicit
+                                                       </a>
+                            </li>
+                            <li role="presentation" class="sb_divider"></li>
+                            <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action'
+                                                       data-flag_reason='other'
+                                                       data-current_user="{{ current_user }}"
+                                                       data-object_uuid="{{ object_uuid }}"
+                                                       data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Other
+                                                       </a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+    <div class="row">
+        <div class="col-lg-10 col-md-11 col-sm-11 col-xs-11 col-lg-offset-1 sb_post_wrapper">
+            <div class="sb_question_body" id="sb_content_{{ object_uuid }}">
+                <div class="sb_markdown" id="sb_content_{{ object_uuid }}">
+                    {% autoescape off %}
+                        {{ html_content }}
+                    {% endautoescape %}
+                </div>
+            </div>
+            <div id="edit_container_{{ object_uuid }}" style="display: none">
+                <textarea class="form-control"
+                          id="{{ object_uuid }}"
+                          name="edit_question_input"
+                          rows="5">{{ content }}</textarea>
+                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 col-lg-offset-10">
+                    <btn class="btn sb_btn sb_btn_submit edit_object-action"
+                       data-object_uuid="{{ object_uuid }}"
+                       data-current_pleb="{{ current_pleb }}"
+                       data-object_type="0274a216-644f-11e4-9ad9-080027242395">Submit</btn>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-lg-4 col-md-4 hidden-sm hidden-xs col-lg-offset-9 col-md-offset-9">
+            <small>
+                asked by
+            </small>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-1 col-md-1 hidden-sm hidden-xs col-lg-offset-9 col-md-offset-9"
+             style="padding-right:0; margin-right: -10px">
+            <div class="sb_thumbnail_xs thumbnail"
+                 style="padding-right:0; margin-right: 0;">
+                <img src="{{ profile_pic|default_if_none:'' }}"/>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-2 hidden-sm hidden-xs" style="padding-left:0; margin-top:-10px;">
+            <div>
+                <small>
+                    <a href="{{ the_url }}">{{ owner }}</a>
+                </small>
+            </div>
+            <div style="margin-top:-10px;">
+                <small>
+                    {{ last_edited_on|date:"D d M Y" }}
+                </small>
+            </div>
+        </div>
+        <div class="hidden-lg hidden-md col-sm-11 col-xs-11">
+            <small>
+                asked by <a href="{{ the_url }}">{{ owner }}</a> on {{ last_edited_on|date:"D d M Y" }}
+            </small>
+        </div>
+    </div>
+    <div class="sb_id" data-object_uuid="{{ object_uuid }}"></div>
+    {% url "profile_page" pleb_username=owner_profile_url as the_url %}
+
+    <div id="sb_comments_container_{{ object_uuid }}">
+        {% include "sb_comments.html" %}
+    </div>
+    {% comment %}
+        This area is for inputing a new comment. The include is needed for population of existing comments.
+    {% endcomment %}
+    <div class="row">
+        <form id="commentSubmitForm">
+        <div class="input-group sb_comment">
+            <textarea class="input-group form-control sb_comment_input"
+                      id="post_comment_on_{{ object_uuid }}"
+                      rows="2"
+                      name="comment_content"
+                      placeholder="Write your comment..."></textarea>
+            <a class="btn input-group-btn sb_btn_comment_icon comment-action"
+               data-object_uuid="{{ object_uuid }}"
+               data-object_type="01bb301a-644f-11e4-9ad9-080027242395"><span class="fui-new"></span></a>
+        </div>
+        </form>
+    </div>
+</div>

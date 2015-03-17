@@ -4,6 +4,7 @@ from os import environ
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['www.sagebrew.com',]
+
 VERIFY_SECURE = True
 WEB_ADDRESS = "https://www.sagebrew.com"
 

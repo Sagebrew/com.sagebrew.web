@@ -99,7 +99,7 @@ When should Randomized Controlled Clinical Trials be cited?
 ### Systematic Reviews ###
 Systematic Reviews are literature reviews that attempt to identify, select, 
 appraise, and synthesize all quality research that has been done on a 
-particular issue or question in an effort to answer a greater question about 
+particular issue or question in an effort to solution a greater question about 
 that issue. Systematic Reviews are fantastic because they eliminate the need 
 to sift through poor-quality research because they provide an excellent 
 compilation of all available high-quality research. 
@@ -111,7 +111,7 @@ When should Systematic Reviews be cited?
   evidence on any particular issue, often including multiple Randomized 
   Controlled Clinical Trials
 * When Randomized Controlled Clinical Trials have been conducted, but 
-  there are still questions about the issue to be answered
+  there are still questions about the issue to be solutioned
 
 
 ### Meta-Analysis ###

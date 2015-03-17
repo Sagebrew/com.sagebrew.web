@@ -1,5 +1,6 @@
 from django import forms
 
+
 class SaveQuestionForm(forms.Form):
     question_title = forms.CharField()
     current_pleb = forms.CharField()

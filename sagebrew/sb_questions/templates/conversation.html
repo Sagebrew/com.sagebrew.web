@@ -19,26 +19,69 @@
                     </h3>
                 <div class="sb_border sb_border_question">
                     <h3>Question</h3>
-                    <div id="single_question_wrapper">
-
+                {% if to_be_deleted == True %}
+                    <div class="row">
+                            <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
+                                <div>
+                                    <h1>
+                                        Sorry, the creator of this question has deleted it!
+                                    </h1>
+                                </div>
+                            </div>
                     </div>
-                    <div class="block sb_answer">
-                        <form id="answerSubmitForm">
-                        <div class="row">
-                            <div class="col-lg-12 sb_answer_input">
-                                <textarea class="form-control sb_answer_input_area"
-                                          id="answer_content_id"
-                                          name="answer_content"
-                                          placeholder="Write your answer..."></textarea>
-                                <button class="btn sb_btn sb_btn_submit submit_answer-action"
-                                        id="submit_answer"
-                                        data-object_uuid="{{ uuid }}"
-                                        data-current_pleb="{{ current_pleb }}">
-                                    Answer
-                                </button>
+                {% else %}
+                    <div class="row">
+                        <div id="single_question_wrapper">
+
+                        </div>
+                    </div>
+                    <div class="row-fluid">
+                        <div class="row sb_tertiary_nav">
+                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                <h3>3 Solutions</h3>
+                            </div>
+                            <div class="col-lg-9 col-md-9 col-sm-9 hidden-xs" align="right">
+                                <a class="btn sb_tab_question"
+                                   data-sort_by="most_recent"
+                                   data-current_pleb="{{ email }}">Most Recent</a>
+                                <a class="btn sb_tab_question"
+                                   data-sort_by="least_recent"
+                                   data-current_pleb="{{ email }}">Least Recent</a>
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-lg-12" id="solution_container">
+                        </div>
+                    </div>
+                    <div class="row" style="padding-left: 15px; padding-right: 15px;">
+                        <div class="block sb_solution sb_provide_solution">
+                            <form id="solutionSubmitForm">
+                            <div class="row-fluid">
+                                <h5>Provide a Solution</h5>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <textarea class="form-control sb_solution_input_area"
+                                              id="solution_content_id"
+                                              name="solution_content"
+                                              placeholder="Write your solution..."></textarea>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-4 col-md-4">
+                                    <button class="btn btn-primary sb_btn sb_btn_fill submit_solution-action"
+                                            id="submit_solution"
+                                            data-object_uuid="{{ uuid }}"
+                                            data-url="/solutions/submit_solution_api/"
+                                            data-current_pleb="{{ current_pleb }}">
+                                        Submit
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
                 </div>
             </div>
         </div>
@@ -52,8 +95,8 @@
 {% endblock content %}
 {% block scripts %}
     {{ block.super }}
-    <script src="{% static 'js/save_answer.js' %}"></script>
-    <script src="{% static 'js/edit_answer.js' %}"></script>
+    <script src="{% static 'js/save_solution.js' %}"></script>
+    <script src="{% static 'js/edit_solution.js' %}"></script>
     <script src="{% static 'js/edit_question.js' %}"></script>
     {% comment %}
     <script src="{% static 'js/comment_question.js' %}"></script>
@@ -61,5 +104,5 @@
     <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
     <script src="{% static 'js/query_single_question.js' %}"></script>
     <script src="{% static 'js/create_markdown.js' %}"></script>
-    <script src="{% static 'js/answer_validator.js' %}"></script>
+    <script src="{% static 'js/solution_validator.js' %}"></script>
 {% endblock scripts %}

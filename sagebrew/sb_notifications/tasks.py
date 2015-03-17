@@ -12,7 +12,7 @@ logger = logging.getLogger('loggly_logs')
 @shared_task()
 def spawn_notifications(sb_object, from_pleb, to_plebs, uuid=None):
     '''
-    This function will take an object(post,comment,answer,etc.), the type of
+    This function will take an object(post,comment,solution,etc.), the type of
     the object, from_pleb and a to_pleb. To pleb can be a list of people or
     just a singular pleb and will create a notification about the object
 

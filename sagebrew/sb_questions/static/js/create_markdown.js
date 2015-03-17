@@ -51,5 +51,5 @@ $(document).ready(function () {
                 }
             ]
     });
-    var solution_pagedown = $("textarea#answer_content_id").pagedownBootstrap();
+    var solution_pagedown = $("textarea#solution_content_id").pagedownBootstrap();
 });

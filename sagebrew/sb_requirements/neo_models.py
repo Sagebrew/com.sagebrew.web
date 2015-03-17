@@ -4,11 +4,12 @@ from django.conf import settings
 
 from neomodel import (StructuredNode, StringProperty)
 
-from api.utils import post_to_api
+from api.utils import request_to_api
 
 
 class SBRequirement(StructuredNode):
     sb_id = StringProperty(default=lambda: str(uuid1()), unique_index=True)
+    name = StringProperty(unique_index=True)
     url = StringProperty()
     key = StringProperty()
     # gt, ge, eq, ne, ge, gt
@@ -19,8 +20,16 @@ class SBRequirement(StructuredNode):
 
     #methods
     def check_requirement(self, username):
-        res = post_to_api(self.url, username, req_method='get')
-        temp_type = type(res[self.key])
+        res = request_to_api(self.url, username, req_method='get',
+                             internal=True)
+        # TODO should probably handle any response greater than a 
+        # 400 and stop the function as they may have the req just
+        # having server issues.
+        res = res.json()
+        try:
+            temp_type = type(res[self.key])
+        except KeyError as e:
+            return e
         temp_cond = temp_type(self.condition)
         return self.build_check_dict(
             pickle.loads(self.operator)(res[self.key], temp_cond),

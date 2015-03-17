@@ -18,7 +18,7 @@ from .forms import (SaveCommentForm)
 def save_comment_view(request):
     '''
     Creates the comment, connects it to whatever parent it was posted on(posts,
-    questions, answers)
+    questions, solutions)
 
     Transition from spawning tasks to calling utils to prevent race conditions.
 

@@ -62,7 +62,7 @@ def question_page(request, sort_by="most_recent"):
                   login_url='/registration/profile_information')
 def question_detail_page(request, question_uuid=str(uuid1())):
     '''
-    This is the view that displays a single question with all answers, comments,
+    This is the view that displays a single question with all solutions, comments,
     references and tags.
 
     :param request:
@@ -203,7 +203,6 @@ def get_question_view(request):
                 # TODO Might want to handle this differently
                 return Response(status=500)
             for question in response:
-
                 html_array.append(
                     question.render_question_page(request.user.email))
             return Response(html_array, status=200)
@@ -237,12 +236,12 @@ def get_question_view(request):
                 else:
                     return Response(question_by_uuid, status=200)
             else:
-                for answer in res['answers']:
+                for solution in res['solutions']:
                     spawn_task(update_view_count_task,
-                               {'object_uuid': answer['object_uuid'],
+                               {'object_uuid': solution['object_uuid'],
                                 'object_type': dict(settings.KNOWN_TYPES)[
-                                    answer['object_type']]})
-                t = get_template("question_detail.html")
+                                    solution['object_type']]})
+                t = get_template("question.html")
                 c = Context(res)
                 return Response(t.render(c), status=200)
 

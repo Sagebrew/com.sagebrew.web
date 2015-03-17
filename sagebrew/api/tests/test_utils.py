@@ -24,6 +24,7 @@ class TestLanguageFilterUtil(TestCase):
         self.assertEqual(res, sentence)
 '''
 
+
 class TestAddFailureToQueue(TestCase):
     def setUp(self):
         self.message = {

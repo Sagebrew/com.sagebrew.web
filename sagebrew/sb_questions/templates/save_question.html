@@ -79,9 +79,17 @@
                         TODO determine if this and other "buttons" need to be a tags
                         instead of buttons
                         {% endcomment %}
-                        <button class="btn btn-primary sb_btn sb_btn_submit submit_question-action"
-                               data-current_pleb="{{ request.user.email }}">Create Question</button>
-                        <button class="btn btn-primary sb_btn sb_btn_submit cancel_question-action">Cancel</button>
+                        <div class="row">
+                            <div class="col-lg-3 col-md-4">
+                                <button class="btn btn-primary sb_btn sb_btn_fill submit_question-action"
+                                       data-current_pleb="{{ request.user.email }}"
+                                       data-url="/conversations/submit_question_api/">Create Question</button>
+                            </div>
+                            <div class="col-lg-3 col-md-4">
+                                <button class="btn btn-primary sb_btn sb_btn_fill cancel_question-action">Cancel</button>
+
+                            </div>
+                        </div>
                     </form>
                 </div>
              </div>
@@ -102,6 +110,7 @@
     <script src="{% static 'js/vendor/typeahead.js' %}"></script>
     <script src="{% static 'js/create_markdown.js' %}"></script>
     <script src="{% static 'js/save_question.js' %}"></script>
+    <script src="{% static 'js/comment_validator.js' %}"></script>
     <script src="{% static 'js/get_tags.js' %}"></script>
     <script src="{% static 'js/question_validator.js' %}"></script>
 {% endblock scripts %}

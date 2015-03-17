@@ -2,7 +2,7 @@
   padding-right: 15px;
   min-height: 200px;
 }
-.sb_answer_input_block {
+.sb_solution_input_block {
   margin-top: 15px;
 }
 .sb_question_expanded_data {
@@ -15,22 +15,22 @@
   padding-top: 15px;
   padding-bottom: 15px;
 }
-.sb_answer_content {
+.sb_solution_content {
   font-size: 18px;
   margin-top: 30px;
 }
-.sb_answer_header {
+.sb_solution_header {
   color: #838c92;
   font-size: 26px;
   margin-top: 25px;
 }
-.sb_answer_input {
+.sb_solution_input {
   padding: 10px 15px 10px 15px;
   background-color: #f9fff7;
   border-radius: 5px;
   width: 100%;
 }
-.sb_answer_input_area {
+.sb_solution_input_area {
   border-width: 1px 1px 1px 1px;
   border-radius: 5px;
   border-color: #d0e9c6;
@@ -38,7 +38,7 @@
   width: 100%;
   resize: none;
 }
-.sb_answer_btn {
+.sb_solution_btn {
   padding-top: 15px;
 }
 .sb_question_drop_down {

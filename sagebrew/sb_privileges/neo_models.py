@@ -2,16 +2,15 @@ import pytz
 import pickle
 from uuid import uuid1
 from datetime import datetime
-
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, BooleanProperty)
 
-from api.utils import post_to_api
+from api.utils import request_to_api
 
 
 class SBPrivilege(StructuredNode):
     sb_id = StringProperty(default=lambda: str(uuid1()))
-    privilege_name = StringProperty()
+    name = StringProperty(unique_index=True)
 
     #relationships
     actions = RelationshipTo('sb_privileges.neo_models.SBAction', 'GRANTS')
@@ -20,11 +19,12 @@ class SBPrivilege(StructuredNode):
     badges = RelationshipTo('sb_badges.neo_models.BadgeBase', "REQUIRES_BADGE")
 
     def check_requirements(self, pleb):
-        req_checks = []
         for req in self.get_requirements():
-            req_checks.append(req.check_requirement(pleb.username)['response'])
-        if False in req_checks:
-            return False
+            req_response = req.check_requirement(pleb.username)
+            if isinstance(req_response, Exception):
+                return False
+            if req_response is False:
+                return False
         return True
 
     def check_badges(self, pleb):
@@ -48,10 +48,10 @@ class SBPrivilege(StructuredNode):
             requirements.append(req.get_dict())
         return {
             "sb_id": self.sb_id,
-            "name": self.privilege_name,
+            "name": self.name,
             "actions": actions,
             "requirements": requirements,
-            "privilege": self.privilege_name
+            "privilege": self.name
         }
 
 
@@ -86,7 +86,7 @@ class SBAction(StructuredNode):
 class SBRestriction(StructuredNode):
     sb_id = StringProperty(default=lambda: str(uuid1()), unique_index=True)
     base = BooleanProperty(default=False)
-    name = StringProperty()
+    name = StringProperty(unique_index=True)
     url = StringProperty()
     key = StringProperty()
     operator = StringProperty(default="") #gt, ge, eq, ne, ge, gt
@@ -111,7 +111,12 @@ class SBRestriction(StructuredNode):
         }
 
     def check_restriction(self, username, start_date):
-        res = post_to_api(self.url, username, req_method='get')
+        res = request_to_api(self.url, username, req_method='get',
+                             internal=True)
+        # TODO should probably handle any response greater than a
+        # 400 and stop the function as they may have the req just
+        # having server issues.
+        res = res.json()
         temp_type = type(res[self.key])
         temp_cond = temp_type(self.condition)
         return self.build_check_dict(

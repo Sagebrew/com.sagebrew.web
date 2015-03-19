@@ -86,21 +86,6 @@
         "type": "S"
     },
     {
-        "table_name": "policies",
-        "hash_key": "parent_object",
-        "range_key": "object_uuid"
-    },
-    {
-        "table_name": "experiences",
-        "hash_key": "parent_object",
-        "range_key": "object_uuid"
-    },
-    {
-        "table_name": "education",
-        "hash_key": "parent_object",
-        "range_key": "object_uuid"
-    },
-    {
         "table_name": "general_reps",
         "hash_key": "object_uuid"
     },
@@ -112,10 +97,6 @@
     {
         "table_name": "images",
         "hash_key": "object_uuid"
-    },
-    {
-        "table_name": "notifications",
-        "hash_key": "parent_object"
     },
     {
         "table_name": "reputation",

@@ -121,6 +121,10 @@ $(document).ready(function(){
             gov_phone: {
                 group: 'gov_phone_wrapper',
                 validators: {
+                    phone: {
+                        country: "US",
+                        message: "This is not a valid US phone number"
+                    },
                     notEmpty: {
                         message: "Gov Phone is required"
                     },

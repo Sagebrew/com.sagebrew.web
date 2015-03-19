@@ -19,7 +19,8 @@ $(document).ready(function(){
                     },
                     stringLength: {
                         min: 15,
-                        message: "Title must be at least 15 characters long"
+                        max: 140,
+                        message: "Title must be between 15 and 140 characters long"
                     }
                 }
             },

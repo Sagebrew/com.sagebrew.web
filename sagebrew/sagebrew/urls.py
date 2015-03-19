@@ -80,8 +80,7 @@ if settings.DEBUG is True:
         (r'^robots.txt$', TemplateView.as_view(
             template_name='robots_staging.txt', content_type='text/plain')),
     )
-
-if environ.get("CIRCLE_BRANCH", "") == "staging" and settings.DEBUG is False:
+elif environ.get("CIRCLE_BRANCH", "") == "staging" and settings.DEBUG is False:
     urlpatterns += patterns(
         (r'^admin/', include('admin_honeypot.urls')),
         (r'^secret/', include(admin.site.urls)),

@@ -51,9 +51,10 @@ def save_goal_task(rep_id, vote_req, money_req, initial, description, goal_id):
     return True
 
 @shared_task()
-def create_rep_task(pleb_username, rep_type, rep_id, recipient_id,
+def create_rep_task(pleb_username, rep_type, rep_id, recipient_id, gov_phone,
                customer_id=None):
-    rep = save_rep(pleb_username, rep_type, rep_id, recipient_id, customer_id)
+    rep = save_rep(pleb_username, rep_type, rep_id, recipient_id, gov_phone,
+                   customer_id)
     if isinstance(rep, Exception):
         raise create_rep_task.retry(exc=rep, countdown=3, max_retries=None)
     return True

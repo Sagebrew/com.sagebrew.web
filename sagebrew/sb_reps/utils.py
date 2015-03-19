@@ -121,7 +121,8 @@ def get_rep_type(rep_type):
     return sb_object
 
 @apply_defense
-def save_rep(pleb_username, rep_type, rep_id, recipient_id, customer_id=None):
+def save_rep(pleb_username, rep_type, rep_id, recipient_id, gov_phone,
+             customer_id=None):
     try:
         pleb = Pleb.nodes.get(username=pleb_username)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
@@ -133,7 +134,7 @@ def save_rep(pleb_username, rep_type, rep_id, recipient_id, customer_id=None):
     except CypherException as e:
         return e
     except (rep_type.DoesNotExist, DoesNotExist):
-        rep = rep_type(sb_id=rep_id).save()
+        rep = rep_type(sb_id=rep_id, gov_phone=gov_phone).save()
     try:
         rep.pleb.connect(pleb)
         pleb.official.connect(rep)

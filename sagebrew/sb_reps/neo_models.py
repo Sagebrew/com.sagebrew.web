@@ -50,6 +50,9 @@ class BaseOfficial(Pleb):
                 "district": self.district,
                 "current": self.current}
 
+    def generate_username(self):
+        pass
+
 
 class Bill(StructuredNode):
     bill_id = StringProperty(unique_index=True)

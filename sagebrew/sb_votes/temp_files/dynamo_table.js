@@ -1,7 +1,7 @@
 [
     {
         "table_name": "users_full",
-        "hash_key": "email"
+        "hash_key": "username"
     },
     {
         "table_name": "comments",
@@ -18,11 +18,11 @@
     },
     {
         "table_name": "users_barebones",
-        "hash_key": "email"
+        "hash_key": "username"
     },
     {
         "table_name": "friends",
-        "hash_key": "email"
+        "hash_key": "username"
     },
     {
         "table_name": "private_questions",
@@ -49,7 +49,7 @@
     },
     {
         "table_name": "news_feed",
-        "hash_key": "email"
+        "hash_key": "username"
     },
     {
         "table_name": "flags",
@@ -61,7 +61,7 @@
     },
     {
         "table_name": "notifications",
-        "hash_key": "email"
+        "hash_key": "username"
     },
     {
         "table_name": "location",
@@ -70,7 +70,7 @@
     },
     {
         "table_name": "house_reps",
-        "hash_key": "email",
+        "hash_key": "username",
         "range_key": "state",
         "local_index_name": "DistrictIndex",
         "local_index": "district",
@@ -78,7 +78,7 @@
     },
     {
         "table_name": "senators",
-        "hash_key": "email",
+        "hash_key": "username",
         "range_key": "state"
     },
     {

@@ -30,7 +30,8 @@ urlpatterns = patterns(
     url(r'^password_reset/done/$',
         'django.contrib.auth.views.password_reset_done',
         name="password_reset_done"),
-    url(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+    url(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/'
+        r'(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         'django.contrib.auth.views.password_reset_confirm',
         {"template_name": "password_reset/password_change_form.html"},
         name="password_reset_confirm"),
@@ -75,18 +76,20 @@ urlpatterns = patterns(
 if settings.DEBUG is True:
     urlpatterns += patterns(
         (r'^admin/', include('admin_honeypot.urls')),
-        (r'^secret/', include(admin.site.urls))
+        (r'^secret/', include(admin.site.urls)),
+        (r'^robots.txt$', TemplateView.as_view(
+            template_name='robots_staging.txt', content_type='text/plain')),
     )
 
 if environ.get("CIRCLE_BRANCH", "") == "staging" and settings.DEBUG is False:
     urlpatterns += patterns(
         (r'^admin/', include('admin_honeypot.urls')),
         (r'^secret/', include(admin.site.urls)),
-        (r'^robots.txt$', RedirectView.as_view(url="%srobots_staging.txt" % (
-            settings.STATIC_URL))),
+        (r'^robots.txt$', TemplateView.as_view(
+            template_name='robots_staging.txt', content_type='text/plain')),
     )
 else:
     urlpatterns += patterns(
-        (r'^robots.txt$', RedirectView.as_view(url="%srobots.txt" % (
-            settings.STATIC_URL))),
+        (r'^robots.txt$', TemplateView.as_view(template_name='robots.txt',
+                                               content_type='text/plain')),
     )

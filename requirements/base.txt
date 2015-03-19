@@ -55,3 +55,4 @@ textblob==0.9.0
 urllib3==1.10.2
 wsgiref==0.1.2
 django-ses==0.7.0
+bcrypt==1.1.1

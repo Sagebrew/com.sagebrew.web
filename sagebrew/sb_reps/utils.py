@@ -140,7 +140,7 @@ def save_rep(pleb_username, rep_type, rep_id, recipient_id, gov_phone,
         pleb.official.connect(rep)
         rep.save()
         pleb.save()
-    except CypherException as e:
+    except (CypherException, IOError) as e:
         return e
     try:
         rep.recipient_id = recipient_id

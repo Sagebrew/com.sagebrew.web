@@ -28,7 +28,6 @@ $(document).ready(function(){
                 }
             }
         });
-
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 ajax_security(xhr, settings)
@@ -43,7 +42,7 @@ $(document).ready(function(){
                 'parent_object': uuid,
                 'object_uuid': uuid,
                 'object_type': type,
-                'datetime': $(this).data('datetime')
+                'datetime': timestamp
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",

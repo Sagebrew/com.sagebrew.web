@@ -57,7 +57,10 @@ class SBComment(SBNonVersioned):
     @apply_defense
     def get_single_dict(self, pleb=None):
         try:
-            comment_owner = self.is_owned_by.all()[0]
+            try:
+                comment_owner = self.is_owned_by.all()[0]
+            except IndexError:
+                comment_owner = ""
             comment_dict = {'content': self.content,
                             'up_vote_number': self.get_upvote_count(),
                             'object_vote_count': self.get_vote_count(),
@@ -69,6 +72,7 @@ class SBComment(SBNonVersioned):
                             'comment_owner': comment_owner.first_name + ' '
                                              + comment_owner.last_name,
                             'comment_owner_email': comment_owner.email,
+                            'owner_username': comment_owner.username,
                             'current_user': pleb,
                             'datetime': unicode(self.date_created),
                             'edits': [],

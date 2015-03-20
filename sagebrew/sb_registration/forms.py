@@ -236,6 +236,7 @@ class RepRegistrationForm(forms.Form):
     district = forms.IntegerField()
     seat_number = forms.IntegerField()
     gov_email = forms.EmailField()
+    gov_phone = forms.CharField()
     account_type = forms.ChoiceField(choices=settings.PAYMENT_PLANS)
     stripeBankToken = forms.CharField()
     credit_card = forms.IntegerField(required=False)

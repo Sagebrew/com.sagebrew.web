@@ -132,8 +132,6 @@ def query_parent_object_table(object_uuid, get_all=False, table_name='edits'):
 def update_doc(table, object_uuid, update_data, parent_object="",
                obj_datetime=""):
     table_name = get_table_name(table)
-    print table_name
-    print parent_object, obj_datetime, object_uuid, update_data
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
@@ -155,6 +153,25 @@ def update_doc(table, object_uuid, update_data, parent_object="",
     res.partial_save()
     return res
 
+@apply_defense
+def get_solution_doc(question_uuid, solution_uuid,
+                     solution_table="public_solutions"):
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
+    try:
+        solution_table = Table(table_name=get_table_name(solution_table),
+                               connection=conn)
+    except JSONResponseError as e:
+        return e
+    try:
+        solution = solution_table.get_item(parent_object=question_uuid,
+                                           object_uuid=solution_uuid)
+    except JSONResponseError as e:
+        return e
+    except ItemNotFound:
+        return False
+    return dict(solution)
 
 @apply_defense
 def get_question_doc(question_uuid, question_table, solution_table):
@@ -371,7 +388,6 @@ def get_wall_docs(parent_object):
     if len(posts) == 0:
         return False
     for post in posts:
-        print post['parent_object'], post['datetime'], type(post['datetime'])
         comment_list = []
         post = dict(post)
         post['up_vote_number'] = get_vote_count(post['object_uuid'], 1)
@@ -644,3 +660,16 @@ def build_privileges(username):
             rest_dict['parent_object'] = username
             restriction.put_item(rest_dict)
     return True
+
+
+def get_dynamo_table(table_name):
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
+    try:
+        table = Table(table_name=get_table_name(table_name),
+                      connection=conn)
+    except JSONResponseError as e:
+        return e
+
+    return table

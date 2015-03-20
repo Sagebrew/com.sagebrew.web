@@ -1,18 +1,19 @@
 import markdown
 from uuid import uuid1
+from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
-from rest_framework.generics import ListAPIView
+
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 from api.utils import spawn_task
+from sb_docstore.utils import get_solution_doc
+from sb_registration.utils import verify_completed_registration
 
 from .forms import (SaveSolutionForm)
 from .tasks import (save_solution_task)
-from .serializers import SolutionSerializer
-from .dynamo_table import SolutionModel
-
 
 
 
@@ -65,27 +66,12 @@ def save_solution_view(request):
     else:
         return Response({'detail': 'failed to post an solution'}, status=400)
 
+@login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
+def edit_solution_view(request, question_uuid, solution_uuid):
+    res = get_solution_doc(question_uuid, solution_uuid)
+    if isinstance(res, Exception):
+        return redirect("404_Error")
+    return render(request, 'edit_solution.html', res)
 
-class QuestionSolutionList(ListAPIView):
-    serializer_class = SolutionSerializer
-    permission_classes = (IsAuthenticated,)
-    lookup_field = "parent_object"
-    lookup_url_kwarg = "uuid"
-
-    def get_queryset(self):
-        """
-        This view should return a list of all the purchases for
-        the user as determined by the username portion of the URL.
-        """
-        queryset = SolutionModel.query(parent_object=self.kwargs[
-            self.lookup_url_kwarg])
-        created = self.request.QUERY_PARAMS.get('created', None)
-        if created is not None:
-            queryset = sorted(queryset, key=lambda k: k['time_created'])
-        modified = self.request.QUERY_PARAMS.get('modified', None)
-        if modified is not None:
-            queryset = sorted(queryset, key=lambda k: k['last_edited_on'])
-        return queryset
-
-    def perform_create(self, serializer):
-        instance = serializer.save(owner=self.request.user)

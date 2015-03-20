@@ -1,5 +1,6 @@
-import logging
 import pytz
+import logging
+import markdown
 from datetime import datetime
 from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
@@ -28,13 +29,19 @@ def edit_object_view(request):
     if valid_form:
         current_datetime = unicode(datetime.now(pytz.utc))
         choice_dict = dict(settings.KNOWN_TYPES)
+        try:
+            html_content = markdown.markdown(
+                edit_object_form.cleaned_data['content'])
+        except IndexError:
+            html_content = ""
         dynamo_data = {
                 'parent_object': edit_object_form.cleaned_data['object_uuid'],
                 'datetime': current_datetime,
                 'content': edit_object_form.cleaned_data['content'],
                 'user': request.user.email,
                 'object_type':
-                    choice_dict[edit_object_form.cleaned_data['object_type']]
+                    choice_dict[edit_object_form.cleaned_data['object_type']],
+                'html_content': html_content
             }
         updates = [
             {'update_key': 'content',
@@ -42,6 +49,9 @@ def edit_object_view(request):
             {'update_key': 'last_edited_on',
              'update_value': current_datetime}
         ]
+        if html_content:
+            updates.append({"update_key": "html_content",
+                            "update_value": html_content})
         table = settings.KNOWN_TABLES[
                              edit_object_form.cleaned_data['object_type']]
         if table == 'posts' or table=='comments':
@@ -92,9 +102,20 @@ def edit_question_title_view(request):
             'task_func': edit_question_task,
             'task_param': task_data
         }
+
         spawned = spawn_task(task_func=get_pleb_task, task_param=pleb_data)
         if isinstance(spawned, Exception):
             return Response({"detail": "server error"}, status=500)
+        table = settings.KNOWN_TABLES[
+                             edit_question_form.cleaned_data['object_type']]
+        updates = [
+            {'update_key': 'question_title',
+             'update_value': edit_question_form.cleaned_data[
+                 'question_title']}]
+        res = update_doc(table, edit_question_form.cleaned_data['object_uuid'],
+                         updates)
+        if isinstance(res, Exception):
+            return Response({"detail": "server error"}, 500)
         dynamo_data = {
             'table': 'edits', 'object_data':
             {

@@ -27,6 +27,7 @@ class BaseOfficial(Pleb):
     start_date = DateTimeProperty()
     end_date = DateTimeProperty()
     full_name = StringProperty()
+    gov_phone = StringProperty()
 
     #relationships
     policy = RelationshipTo('sb_reps.neo_models.Policy', "HAS_POLICY")

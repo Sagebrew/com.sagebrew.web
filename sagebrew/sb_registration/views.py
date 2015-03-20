@@ -370,7 +370,8 @@ def rep_reg_page(request):
                 'rep_type': cleaned['office'],
                 'rep_id': uuid,
                 'customer_id': customer_id,
-                'recipient_id': recipient_id
+                'recipient_id': recipient_id,
+                'gov_phone': cleaned['gov_phone']
             }
             res = spawn_task(create_rep_task, task_data)
             if isinstance(res, Exception):

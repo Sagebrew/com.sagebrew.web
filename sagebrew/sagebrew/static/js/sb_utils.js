@@ -263,27 +263,18 @@ function edit_question_title() {
 
 function show_edit_question() {
     $("a.show_edit_question-action").click(function(event){
-        $(".sb_object_dropdown").each(function(i, obj){
-            $(obj).attr("disabled", "disabled");
-        });
-        var question_uuid = $(this).data('object_uuid');
-        $('#sb_content_'+question_uuid).hide();
-        $("#edit_container_"+question_uuid).show();
-        var markdown = $("textarea#"+question_uuid).pagedownBootstrap();
-        markdown.attr("id", question_uuid);
+        event.preventDefault();
+        window.location.href = window.location.href+"edit/";
     });
 }
 
 function show_edit_solution() {
     $("a.show_edit_solution-action").click(function(event){
-        $(".sb_object_dropdown").each(function(i, obj){
-            $(obj).attr("disabled", "disabled");
-        });
-        var solution_uuid = $(this).data('object_uuid');
-        $('#sb_content_'+solution_uuid).hide();
-        $('#edit_container_'+solution_uuid).show();
-        var markdown = $("textarea#"+solution_uuid).pagedownBootstrap();
-        markdown.attr("id", solution_uuid)
+        event.preventDefault();
+        var root = window.location.href.split("conversations/")[0];
+        var question_uuid = window.location.href.split("conversations/")[1].split('/')[0];
+        var solution_uuid = $(this).data("object_uuid");
+        window.location.href = root+"solutions/"+question_uuid+'/'+solution_uuid+'/edit/'
     });
 }
 

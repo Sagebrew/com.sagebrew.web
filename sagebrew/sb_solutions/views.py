@@ -1,14 +1,17 @@
 import markdown
 from uuid import uuid1
+from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 from .forms import (SaveSolutionForm)
 from .tasks import (save_solution_task)
 from api.utils import spawn_task
-
+from sb_docstore.utils import get_solution_doc
+from sb_registration.utils import verify_completed_registration
 
 
 @api_view(['POST'])
@@ -59,3 +62,12 @@ def save_solution_view(request):
                          'html': html}, status=200)
     else:
         return Response({'detail': 'failed to post an solution'}, status=400)
+
+@login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
+def edit_solution_view(request, question_uuid, solution_uuid):
+    res = get_solution_doc(question_uuid, solution_uuid)
+    if isinstance(res, Exception):
+        return redirect("404_Error")
+    return render(request, 'edit_solution.html', res)

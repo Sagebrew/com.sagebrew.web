@@ -289,3 +289,17 @@ def get_question_search_view(request, question_uuid=str(uuid1())):
     elif response is False:
         return Response(status=404)
     return Response({'html': response}, status=200)
+
+@login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
+def edit_question_view(request, question_uuid):
+    res = get_question_doc(question_uuid, 'public_questions',
+                     'public_solutions')
+    template_dict = {"title": res['question_title'],
+                     "content": res['content'],
+                     "edit": True,
+                     "object_uuid": res['object_uuid'],
+                     "object_type": res['object_type'],
+                     "time_created": unicode(res['time_created'])}
+    return render(request, 'save_question.html', template_dict)

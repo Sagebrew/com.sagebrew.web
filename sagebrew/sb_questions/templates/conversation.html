@@ -52,6 +52,9 @@
                     </div>
                     <div class="row">
                         <div class="col-lg-12" id="solution_container">
+                            {% for solution in solutions %}
+                                {% include 'solution_detail.html' %}
+                            {% endfor %}
                         </div>
                     </div>
                     <div class="row" style="padding-left: 15px; padding-right: 15px;">
@@ -79,6 +82,7 @@
                                     </button>
                                 </div>
                             </div>
+                            </form>
                         </div>
                     </div>
                 {% endif %}
@@ -104,5 +108,5 @@
     <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
     <script src="{% static 'js/query_single_question.js' %}"></script>
     <script src="{% static 'js/create_markdown.js' %}"></script>
-    <script src="{% static 'js/solution_validator.js' %}"></script>
+
 {% endblock scripts %}

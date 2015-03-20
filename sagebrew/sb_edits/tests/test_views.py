@@ -74,12 +74,20 @@ class TestEditQuestionTitleView(TestCase):
         self.user = User.objects.get(email=self.email)
 
     def test_edit_question_title_success(self):
+        uuid = str(uuid1())
         data = {
             'question_title': 'testquestiontitleedit',
             'current_pleb': self.email,
             'object_type': '0274a216-644f-11e4-9ad9-080027242395',
-            'object_uuid': str(uuid1())
+            'object_uuid': uuid
         }
+        table_data = {
+            'question_title': 'test fake title',
+            'content': 'fake content',
+            'object_uuid': uuid
+        }
+        res = add_object_to_table('public_questions', table_data)
+        self.assertTrue(res)
         request = self.factory.post('/edit/edit_question_title_api/',
                                     data=data,
                                     format='json')

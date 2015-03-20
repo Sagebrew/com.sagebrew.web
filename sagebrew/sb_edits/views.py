@@ -77,7 +77,6 @@ def edit_object_view(request):
                          "html_object": html_string},
                         status=200)
     else:
-        print edit_object_form.errors
         return Response({"detail": "invalid form"}, status=400)
 
 

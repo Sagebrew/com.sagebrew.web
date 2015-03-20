@@ -157,7 +157,6 @@ def update_doc(table, object_uuid, update_data, parent_object="",
 def get_solution_doc(question_uuid, solution_uuid,
                      solution_table="public_solutions"):
     conn = connect_to_dynamo()
-    print conn
     if isinstance(conn, Exception):
         return conn
     try:
@@ -165,7 +164,6 @@ def get_solution_doc(question_uuid, solution_uuid,
                                connection=conn)
     except JSONResponseError as e:
         return e
-    print solution_table
     try:
         solution = solution_table.get_item(parent_object=question_uuid,
                                            object_uuid=solution_uuid)

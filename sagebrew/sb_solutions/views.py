@@ -4,10 +4,15 @@ from django.template.loader import render_to_string
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
+from rest_framework.generics import ListAPIView
+
+from api.utils import spawn_task
 
 from .forms import (SaveSolutionForm)
 from .tasks import (save_solution_task)
-from api.utils import spawn_task
+from .serializers import SolutionSerializer
+from .dynamo_table import SolutionModel
+
 
 
 
@@ -59,3 +64,28 @@ def save_solution_view(request):
                          'html': html}, status=200)
     else:
         return Response({'detail': 'failed to post an solution'}, status=400)
+
+
+class QuestionSolutionList(ListAPIView):
+    serializer_class = SolutionSerializer
+    permission_classes = (IsAuthenticated,)
+    lookup_field = "parent_object"
+    lookup_url_kwarg = "uuid"
+
+    def get_queryset(self):
+        """
+        This view should return a list of all the purchases for
+        the user as determined by the username portion of the URL.
+        """
+        queryset = SolutionModel.query(parent_object=self.kwargs[
+            self.lookup_url_kwarg])
+        created = self.request.QUERY_PARAMS.get('created', None)
+        if created is not None:
+            queryset = sorted(queryset, key=lambda k: k['time_created'])
+        modified = self.request.QUERY_PARAMS.get('modified', None)
+        if modified is not None:
+            queryset = sorted(queryset, key=lambda k: k['last_edited_on'])
+        return queryset
+
+    def perform_create(self, serializer):
+        instance = serializer.save(owner=self.request.user)

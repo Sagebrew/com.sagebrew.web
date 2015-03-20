@@ -93,22 +93,24 @@ class SBSolution(SBVersioned):
                     html_content = markdown.markdown(self.content)
             except AttributeError:
                 html_content = ""
-            solution_dict = {'content': self.content,
-                           'current_pleb': pleb,
-                           'parent_object': parent_object,
-                           'object_uuid': self.sb_id,
-                           'last_edited_on': unicode(self.last_edited_on),
-                           'up_vote_number': self.get_upvote_count(),
-                           'down_vote_number': self.get_downvote_count(),
-                           'object_vote_count': self.get_vote_count(),
-                           'solution_owner_name': solution_owner_name,
-                           'solution_owner_url': solution_owner.username,
-                           'time_created': unicode(self.date_created),
-                           'comments': comment_array,
-                           'solution_owner_email': solution_owner.email,
-                           'edits': [],
-                           'object_type': self.object_type,
-                           'html_content': html_content}
+            solution_dict = {
+                'content': self.content,
+                'current_pleb': pleb,
+                'parent_object': parent_object,
+                'object_uuid': self.sb_id,
+                'last_edited_on': unicode(self.last_edited_on),
+                'up_vote_number': self.get_upvote_count(),
+                'down_vote_number': self.get_downvote_count(),
+                'object_vote_count': self.get_vote_count(),
+                'solution_owner_name': solution_owner_name,
+                'solution_owner_url': solution_owner.username,
+                'time_created': unicode(self.date_created),
+                'comments': comment_array,
+                'solution_owner_email': solution_owner.email,
+                'edits': [],
+                'object_type': self.object_type,
+                'html_content': html_content
+            }
             return solution_dict
         except CypherException as e:
             return e

@@ -45,6 +45,8 @@ BROKER_URL = 'amqp://%s:%s@%s:%s//' % (environ.get("QUEUE_USERNAME", ""),
                                        environ.get("QUEUE_PORT", ""))
 CELERY_IGNORE_RESULT = False
 REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS':
+        'rest_framework.pagination.LimitOffsetPagination',
     'DEFAULT_MODEL_SERIALIZER_CLASS':
         'rest_framework.serializers.HyperlinkedModelSerializer',
     'DEFAULT_AUTHENTICATION_CLASSES': (

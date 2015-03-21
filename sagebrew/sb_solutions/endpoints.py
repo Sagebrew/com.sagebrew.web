@@ -1,6 +1,4 @@
-from datetime import datetime
-
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, ListCreateAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from sb_docstore.utils import get_dynamo_table
@@ -11,7 +9,7 @@ from .serializers import SolutionSerializer
 from .utils import convert_dynamo_solution
 
 
-class QuestionSolutionsList(ListAPIView):
+class QuestionSolutionsList(ListCreateAPIView):
     serializer_class = SolutionSerializer
     permission_classes = (IsAuthenticated,)
     lookup_field = "parent_object"

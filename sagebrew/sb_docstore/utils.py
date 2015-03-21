@@ -242,8 +242,8 @@ def get_question_doc(question_uuid, question_table, solution_table):
                                       :len(comment['last_edited_on'])-6],
                                       '%Y-%m-%d %H:%M:%S.%f')
             comment['time_created'] = datetime.strptime(comment[
-                                      'time_created'][
-                                      :len(comment['time_created'])-6],
+                                      'datetime'][
+                                      :len(comment['datetime'])-6],
                                       '%Y-%m-%d %H:%M:%S.%f')
             comment['object_vote_count'] = str(comment['up_vote_number']
                                                - comment['down_vote_number'])

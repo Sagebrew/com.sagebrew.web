@@ -44,6 +44,7 @@ def request_to_api(url, username, data=None, headers=None, req_method=None,
     if internal is True:
         headers['Authorization'] = "%s %s" % (
             'Bearer', get_oauth_access_token(username))
+    print headers
     response = None
     if req_method is None:
         response = requests.post(url, data=dumps(data),

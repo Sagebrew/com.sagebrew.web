@@ -42,18 +42,16 @@ def convert_dynamo_solution(raw_solutions, request):
                                                     1)
         solution['down_vote_number'] = get_vote_count(solution['object_uuid'],
                                                       0)
-        solution['last_edited_on'] = datetime.strptime(solution[
-                                      'last_edited_on'][
-                                      :len(solution['last_edited_on'])-6],
-                                      '%Y-%m-%d %H:%M:%S.%f')
-        solution['time_created'] = datetime.strptime(solution['time_created'][
-                                      :len(solution['time_created'])-6],
-                                      '%Y-%m-%d %H:%M:%S.%f')
-        solution['object_vote_count'] = str(solution['up_vote_number']-
-                                          solution['down_vote_number'])
+        solution['last_edited_on'] = datetime.strptime(
+            solution['last_edited_on'][:len(solution['last_edited_on']) - 6],
+            '%Y-%m-%d %H:%M:%S.%f')
+        solution['time_created'] = datetime.strptime(
+            solution['time_created'][:len(solution['time_created']) - 6],
+            '%Y-%m-%d %H:%M:%S.%f')
+        solution['object_vote_count'] = str(
+            solution['up_vote_number'] - solution['down_vote_number'])
         url = reverse('solution-detail-comments', kwargs={
             'uuid': solution['object_uuid']}, request=request)
-        print request.user.username
         response = request_to_api(url, request.user.username, req_method="GET")
         solution["comments"] = response.json()
         solution_list.append(solution)

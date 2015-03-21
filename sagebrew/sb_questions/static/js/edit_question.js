@@ -1,7 +1,6 @@
 $( document ).ready(function() {
     $("a.show_edit_question-action").click(function(event){
-        var question_uuid = $(this).data('question_uuid');
-        $('#edit_question_'+question_uuid).fadeToggle();
+        window.location.href = window.location.href+"edit/";
     });
     $("#sb_comment_link").click(function () {
         $(this).show("#sb_comment_container");

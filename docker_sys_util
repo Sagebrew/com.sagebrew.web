@@ -22,4 +22,5 @@ CMD chown {{APP_USER}} /etc/rsyslog.d/ && \
     python manage.py create_privileges && \
     python manage.py create_oauth_client && \
     python manage.py create_prepopulated_tags && \
-    python manage.py createsite
+    python manage.py createsite && \
+    python manage.py clearsessions

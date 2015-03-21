@@ -41,7 +41,7 @@ def request_to_api(url, username, data=None, headers=None, req_method=None,
     """
     if headers is None:
         headers = {}
-    if internal is False:
+    if internal is True:
         headers['Authorization'] = "%s %s" % (
             'Bearer', get_oauth_access_token(username))
     response = None
@@ -49,7 +49,8 @@ def request_to_api(url, username, data=None, headers=None, req_method=None,
         response = requests.post(url, data=dumps(data),
                                  verify=settings.VERIFY_SECURE,
                                  headers=headers)
-    elif req_method == 'get':
+    elif req_method == 'get' or req_method == "GET":
+        print headers
         response = requests.get(url, verify=settings.VERIFY_SECURE,
                                 headers=headers)
     return response
@@ -103,7 +104,7 @@ def get_oauth_access_token(username, web_address=None):
     pleb = Pleb.nodes.get(username=username)
     try:
         oauth_creds = [oauth_user for oauth_user in pleb.oauth.all()
-                  if oauth_user.web_address == web_address][0]
+                       if oauth_user.web_address == web_address][0]
     except IndexError as e:
         return e
     if check_oauth_expires_in(oauth_creds):
@@ -118,6 +119,7 @@ def get_oauth_access_token(username, web_address=None):
         oauth_creds.save()
 
     return decrypt(oauth_creds.access_token)
+
 
 def generate_oauth_user(username, password, web_address=None):
     if web_address is None:

@@ -162,11 +162,8 @@ function save_solution() {
 		event.preventDefault();
 		$.ajaxSetup({
 		    beforeSend: function(xhr, settings) {
-				var csrftoken = $.cookie('csrftoken');
-		        if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
-		            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-		        }
-		    }
+                ajax_security(xhr, settings)
+            }
 		});
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
@@ -669,11 +666,8 @@ function submit_requirement() {
     });
 }
 
-
 function activate_montage(){
-    var $container = $('#am-container').masonry();
-    // initialize Masonry after all images have loaded
-    $container.imagesLoaded( function() {
+    var $container = $('#container').imagesLoaded( function() {
       $container.packery({
           gutter: 0,
           itemSelector: '.post_images',

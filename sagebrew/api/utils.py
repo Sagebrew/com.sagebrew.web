@@ -129,9 +129,10 @@ def generate_oauth_user(username, password, web_address=None):
     creds = get_oauth_client(username, password, web_address)
     try:
         oauth_obj = OauthUser(access_token=encrypt(creds['access_token']),
-                          token_type=creds['token_type'],
-                          expires_in=creds['expires_in'],
-                          refresh_token=encrypt(creds['refresh_token'])).save()
+                              token_type=creds['token_type'],
+                              expires_in=creds['expires_in'],
+                              refresh_token=encrypt(creds['refresh_token'])
+                              ).save()
     except CypherException as e:
         return e
     try:

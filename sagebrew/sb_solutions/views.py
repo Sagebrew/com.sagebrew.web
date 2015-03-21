@@ -5,13 +5,16 @@ from django.template.loader import render_to_string
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
+
 from django.contrib.auth.decorators import login_required, user_passes_test
 
-from .forms import (SaveSolutionForm)
-from .tasks import (save_solution_task)
 from api.utils import spawn_task
 from sb_docstore.utils import get_solution_doc
 from sb_registration.utils import verify_completed_registration
+
+from .forms import (SaveSolutionForm)
+from .tasks import (save_solution_task)
+
 
 
 @api_view(['POST'])
@@ -71,3 +74,4 @@ def edit_solution_view(request, question_uuid, solution_uuid):
     if isinstance(res, Exception):
         return redirect("404_Error")
     return render(request, 'edit_solution.html', res)
+

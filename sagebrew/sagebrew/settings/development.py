@@ -8,7 +8,6 @@ ALLOWED_HOSTS = ['*']
 INTERNAL_IPS = ('192.168.56.1', '127.0.0.1', '192.168.56.101',
                 '192.168.56.101:8080')
 WEB_ADDRESS = "https://192.168.56.101"
-API_PASSWORD = "admin"
 VERIFY_SECURE = False
 MEDIA_ROOT = PROJECT_DIR.child("media")
 STATIC_ROOT = PROJECT_DIR.child("static")
@@ -45,10 +44,12 @@ BROKER_URL = 'amqp://%s:%s@%s:%s//' % (environ.get("QUEUE_USERNAME", ""),
                                        environ.get("QUEUE_PORT", ""))
 CELERY_IGNORE_RESULT = False
 REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS':
+        'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 50,
     'DEFAULT_MODEL_SERIALIZER_CLASS':
         'rest_framework.serializers.HyperlinkedModelSerializer',
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'oauth2_provider.ext.rest_framework.OAuth2Authentication',
     )

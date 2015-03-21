@@ -233,9 +233,9 @@ def get_question_doc(question_uuid, question_table, solution_table):
         a_comments = []
         solution = dict(solution)
         solution['up_vote_number'] = get_vote_count(solution['object_uuid'],
-                                                  1)
+                                                    1)
         solution['down_vote_number'] = get_vote_count(solution['object_uuid'],
-                                                    0)
+                                                      0)
         solution['last_edited_on'] = datetime.strptime(solution[
                                       'last_edited_on'][
                                       :len(solution['last_edited_on'])-6],
@@ -660,3 +660,16 @@ def build_privileges(username):
             rest_dict['parent_object'] = username
             restriction.put_item(rest_dict)
     return True
+
+
+def get_dynamo_table(table_name):
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
+    try:
+        table = Table(table_name=get_table_name(table_name),
+                      connection=conn)
+    except JSONResponseError as e:
+        return e
+
+    return table

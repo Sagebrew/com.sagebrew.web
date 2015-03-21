@@ -43,7 +43,6 @@ class QuestionSolutionsList(ListCreateAPIView):
 
 
 class SolutionCommentList(ListAPIView):
-    serializer_class = CommentSerializer
     permission_classes = (IsAuthenticated,)
     lookup_field = "parent_object"
     lookup_url_kwarg = "uuid"

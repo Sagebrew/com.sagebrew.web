@@ -22,7 +22,7 @@ class SolutionSerializer(serializers.Serializer):
     time_created = serializers.DateTimeField(read_only=True)
     # May want to change this to a url field and then query from the front end
     # all the comments associated with a given solution
-    #comments = CommentSerializer(many=True)
+    #comments = serializers.ListSerializer(child=serializers.DictField())
     # Auto gathered from request.user.email
     solution_owner_email = serializers.CharField()
     # TODO need to make edits into a list of http urls that allow us to query

@@ -53,6 +53,6 @@ def convert_dynamo_solution(raw_solutions, request):
         url = reverse('solution-detail-comments', kwargs={
             'uuid': solution['object_uuid']}, request=request)
         response = request_to_api(url, request.user.username, req_method="GET")
-        solution["comments"] = response.json()
+        #solution["comments"] = response.json()
         solution_list.append(solution)
     return solution_list

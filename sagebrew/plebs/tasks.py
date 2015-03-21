@@ -1,5 +1,5 @@
 from uuid import uuid1
-from time import strptime
+
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from celery import shared_task
 from django.conf import settings
@@ -9,7 +9,7 @@ from django.template import Context
 from neomodel import DoesNotExist, CypherException
 
 from api.utils import spawn_task
-from api.tasks import add_object_to_search_index
+from api.tasks import add_object_to_search_index, generate_oauth_info
 from sb_base.utils import defensive_exception
 from sb_search.tasks import add_user_to_custom_index
 from sb_wall.neo_models import SBWall
@@ -18,6 +18,7 @@ from sb_registration.models import token_gen
 from sb_privileges.tasks import check_privileges
 
 from .neo_models import Pleb, BetaUser
+
 
 @shared_task()
 def send_email_task(source, to, subject, html_content):
@@ -134,15 +135,15 @@ def create_wall_task(user_instance=None):
 
 
 @shared_task()
-def create_pleb_task(user_instance=None, birthday=None):
-    #We do a check to make sure that a user with the email given does not exist
-    #in the registration view, so if you are calling this function without
-    #using that view there is a potential UniqueProperty error which can get
-    #thrown.
+def create_pleb_task(user_instance=None, birthday=None, password=None):
+    # We do a check to make sure that a user with the email given does not exist
+    # in the registration view, so if you are calling this function without
+    # using that view there is a potential UniqueProperty error which can get
+    # thrown.
     if user_instance is None:
         return None
     try:
-        pleb = Pleb.nodes.get(username=user_instance.username)
+        Pleb.nodes.get(username=user_instance.username)
     except (Pleb.DoesNotExist, DoesNotExist):
         try:
             pleb = Pleb(email=user_instance.email,
@@ -160,7 +161,14 @@ def create_pleb_task(user_instance=None, birthday=None):
     if isinstance(task_info, Exception) is True:
         raise create_pleb_task.retry(exc=task_info, countdown=3,
                                      max_retries=None)
+    oauth_res = spawn_task(task_func=generate_oauth_info,
+                           task_param={'username': user_instance.username,
+                                       'password': password})
+    if isinstance(oauth_res, Exception):
+        raise create_pleb_task.retry(exc=oauth_res, countdown=3,
+                                     max_retries=None)
     return task_info
+
 
 @shared_task()
 def create_beta_user(email):
@@ -174,10 +182,11 @@ def create_beta_user(email):
         raise create_beta_user.retry(exc=e, countdown=3, max_retries=None)
     return True
 
+
 @shared_task()
 def deactivate_user_task(username):
     try:
-        pleb = Pleb.nodes.get(username=username)
+        Pleb.nodes.get(username=username)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
         raise deactivate_user_task.retry(exc=e, countdown=3, max_retries=None)
 

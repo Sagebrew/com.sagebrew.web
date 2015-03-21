@@ -183,16 +183,16 @@
     {% endcomment %}
     <div class="row">
         <form id="commentSubmitForm">
-            <div class="input-group sb_comment">
-                <textarea class="input-group form-control sb_comment_input"
-                          id="post_comment_on_{{ object_uuid }}"
-                          rows="2"
-                          name="comment_content"
-                          placeholder="Write your comment..."></textarea>
-                <a class="btn input-group-btn sb_btn_comment_icon comment-action"
-                   data-object_uuid="{{ object_uuid }}"
-                   data-object_type="01bb301a-644f-11e4-9ad9-080027242395"><span class="fui-new"></span></a>
-            </div>
+        <div class="input-group sb_comment">
+            <textarea class="input-group form-control sb_comment_input"
+                      id="post_comment_on_{{ object_uuid }}"
+                      rows="2"
+                      name="comment_content"
+                      placeholder="Write your comment..."></textarea>
+            <a class="btn input-group-btn sb_btn_comment_icon comment-action"
+               data-object_uuid="{{ object_uuid }}"
+               data-object_type="{{ object_type }}"><span class="fui-new"></span></a>
+        </div>
         </form>
     </div>
     <div class="row">

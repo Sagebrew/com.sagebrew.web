@@ -63,7 +63,8 @@ def save_comment_view(request):
                 "datetime": datetime.now(pytz.utc),
                 "comment_owner": "%s %s"%(request.user.first_name,
                                          request.user.last_name),
-                "last_edited_on": datetime.now(pytz.utc)
+                "last_edited_on": datetime.now(pytz.utc),
+                "owner_username": request.user.username
             }],
             "parent_object": request.user.username
         }

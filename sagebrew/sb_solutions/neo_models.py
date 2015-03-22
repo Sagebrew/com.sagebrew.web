@@ -28,11 +28,11 @@ class SBSolution(SBVersioned):
     auto_tags = RelationshipTo('sb_tag.neo_models.SBAutoTag',
                                'AUTO_TAGGED_AS')
     solution_to = RelationshipTo('sb_questions.neo_models.SBQuestion',
-                               'POSSIBLE_ANSWER_TO')
+                                 'POSSIBLE_ANSWER_TO')
 
     def get_url(self):
         return reverse("question_detail_page",
-                       kwargs={"question_uuid": self.solution_to.all()[0].sb_id})
+                       kwargs={"question_uuid": self.solution_to.all()[0].object_uuid})
 
     def create_notification(self, pleb, sb_object=None):
         return {
@@ -63,7 +63,7 @@ class SBSolution(SBVersioned):
     @apply_defense
     def edit_content(self, content, pleb):
         try:
-            edit_solution = SBSolution(sb_id=str(uuid1()), original=False,
+            edit_solution = SBSolution(object_uuid=str(uuid1()), original=False,
                                    content=content).save()
             self.edits.connect(edit_solution)
             edit_solution.edit_to.connect(self)
@@ -83,7 +83,7 @@ class SBSolution(SBVersioned):
             for comment in self.comments.all():
                 comment_array.append(comment.get_single_dict())
             try:
-                parent_object = self.solution_to.all()[0].sb_id
+                parent_object = self.solution_to.all()[0].object_uuid
             except IndexError:
                 parent_object = ''
             try:
@@ -97,14 +97,14 @@ class SBSolution(SBVersioned):
                 'content': self.content,
                 'current_pleb': pleb,
                 'parent_object': parent_object,
-                'object_uuid': self.sb_id,
+                'object_uuid': self.object_uuid,
                 'last_edited_on': unicode(self.last_edited_on),
                 'up_vote_number': self.get_upvote_count(),
                 'down_vote_number': self.get_downvote_count(),
                 'object_vote_count': self.get_vote_count(),
                 'solution_owner_name': solution_owner_name,
                 'solution_owner_url': solution_owner.username,
-                'time_created': unicode(self.date_created),
+                'created': unicode(self.created),
                 'comments': comment_array,
                 'solution_owner_email': solution_owner.email,
                 'edits': [],

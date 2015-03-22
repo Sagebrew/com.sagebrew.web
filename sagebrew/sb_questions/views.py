@@ -300,5 +300,5 @@ def edit_question_view(request, question_uuid):
                      "edit": True,
                      "object_uuid": res['object_uuid'],
                      "object_type": res['object_type'],
-                     "time_created": unicode(res['time_created'])}
+                     "created": unicode(res['created'])}
     return render(request, 'save_question.html', template_dict)

@@ -34,11 +34,11 @@ class TestCreateQuestion(TestCase):
 
     def test_save_question_twice(self):
         question = SBQuestion(question_title="Test question",
-                              content="test post", sb_id=self.uuid)
+                              content="test post", object_uuid=self.uuid)
         question.save()
         response = create_question_util(**self.question_info_dict)
 
-        self.assertEqual(response.sb_id, question.sb_id)
+        self.assertEqual(response.object_uuid, question.object_uuid)
 
 
 class TestGetQuestionByUUID(TestCase):
@@ -55,19 +55,19 @@ class TestGetQuestionByUUID(TestCase):
 
     def test_get_question_by_uuid_success(self):
         self.question_info_dict.pop('question_uuid',None)
-        self.question_info_dict['sb_id']=str(uuid1())
-        question = SBQuestion(sb_id=str(uuid1()))
+        self.question_info_dict['object_uuid']=str(uuid1())
+        question = SBQuestion(object_uuid=str(uuid1()))
         question.save()
         question.owned_by.connect(self.pleb)
         question.save()
-        solution = SBSolution(sb_id=str(uuid1())).save()
+        solution = SBSolution(object_uuid=str(uuid1())).save()
         solution.owned_by.connect(self.pleb)
         solution.save()
         question.solution.connect(solution)
         question.save()
 
         response = get_question_by_uuid(
-            question.sb_id, current_pleb=self.question_info_dict['current_pleb'])
+            question.object_uuid, current_pleb=self.question_info_dict['current_pleb'])
         self.assertIsInstance(response, SafeText)
 
     def test_get_question_by_uuid_failure_question_does_not_exist(self):
@@ -111,19 +111,19 @@ class TestPrepareQuestionSearchHTML(TestCase):
         self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'question_title': "Test question",
                                    'content': 'test post',
-                                   'sb_id': str(uuid1())}
+                                   'object_uuid': str(uuid1())}
         self.pleb.first_name = "Tyler"
         self.pleb.last_name = "Wiersing"
         self.pleb.save()
 
     def test_prepare_question_search_html_success(self):
-        self.question_info_dict['sb_id'] = str(uuid1())
+        self.question_info_dict['object_uuid'] = str(uuid1())
         question = SBQuestion(**self.question_info_dict)
         question.save()
         question.owned_by.connect(self.pleb)
         question.save()
 
-        res = prepare_question_search_html(question.sb_id)
+        res = prepare_question_search_html(question.object_uuid)
 
         self.assertTrue(res)
 

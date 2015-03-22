@@ -23,7 +23,7 @@ def add_solution_to_search_index(solution):
             es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
             res = es.get(index='full-search-base',
                          doc_type='sb_solutions.neo_models.SBSolution',
-                         id=solution.sb_id)
+                         id=solution.object_uuid)
             return True
         except NotFoundError:
             pass
@@ -38,8 +38,8 @@ def add_solution_to_search_index(solution):
                                                    max_retries=None)
         search_dict = {'solution_content': solution.content,
                        'user': solution_owner,
-                       'object_uuid': solution.sb_id,
-                       'post_date': solution.date_created,
+                       'object_uuid': solution.object_uuid,
+                       'post_date': solution.created,
                        'related_user': ''}
         task_data = {"object_type": 'sb_solutions.neo_models.SBSolution',
                      'object_data': search_dict}
@@ -89,7 +89,7 @@ def save_solution_task(current_pleb, question_uuid, content, solution_uuid):
         raise save_solution_task.retry(exc=spawned, countdown=3, max_retries=None)
 
     try:
-        question = SBQuestion.nodes.get(sb_id=question_uuid)
+        question = SBQuestion.nodes.get(object_uuid=question_uuid)
     except(CypherException, SBQuestion.DoesNotExist, DoesNotExist) as e:
         raise save_solution_task.retry(exc=e, countdown=3, max_retries=None)
     try:

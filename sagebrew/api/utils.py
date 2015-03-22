@@ -262,7 +262,7 @@ def get_object(object_type, object_uuid):
         sb_module = importlib.import_module(module_name)
         sb_object = getattr(sb_module, class_name)
         try:
-            return sb_object.nodes.get(sb_id=object_uuid)
+            return sb_object.nodes.get(object_uuid=object_uuid)
         except (sb_object.DoesNotExist, DoesNotExist):
             return TypeError("%s.DoesNotExist" % object_type)
     except (NameError, ValueError, ImportError, AttributeError):

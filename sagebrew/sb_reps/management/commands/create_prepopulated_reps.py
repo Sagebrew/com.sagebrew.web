@@ -45,7 +45,7 @@ class Command(BaseCommand):
                                        start_date=role.startdate,
                                        end_date=role.enddate,
                                        full_name=person.name,
-                                       sb_id=str(uuid1()))
+                                       object_uuid=str(uuid1()))
                     rep.save()
                     reps.append(rep)
                 except (CypherException, IOError) as e:

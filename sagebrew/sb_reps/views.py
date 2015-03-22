@@ -36,7 +36,7 @@ def representative_page(request, rep_type="", rep_id=""):
         spawn_task(build_rep_page_task, {"rep_id": rep_id})
         try:
             temp_type = get_rep_type(dict(settings.BASE_REP_TYPES)[rep_type])
-            official = temp_type.nodes.get(sb_id=rep_id)
+            official = temp_type.nodes.get(object_uuid=rep_id)
         except (temp_type.DoesNotExist, DoesNotExist, CypherException):
             return redirect('profile_page', request.user.username)
         pleb = official.pleb.all()[0]
@@ -70,7 +70,7 @@ def get_rep_info(request):
         goal_list = []
         spawn_task(build_rep_page_task, {"rep_id": rep_id})
         try:
-            official = BaseOfficial.nodes.get(sb_id=rep_id)
+            official = BaseOfficial.nodes.get(object_uuid=rep_id)
         except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException):
             return redirect('profile_page', request.user.username)
         policies = official.policy.all()

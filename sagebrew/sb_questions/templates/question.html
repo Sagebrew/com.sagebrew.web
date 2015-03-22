@@ -4,7 +4,7 @@
     comments. This template is not meant for normal inclusion in a initial
     render template.
 {% endcomment %}
-<div class="sb_id" data-object_uuid="{{ object_uuid }}" style="display: None"></div>
+<div class="object_uuid" data-object_uuid="{{ object_uuid }}" style="display: None"></div>
 <div class="sb_question_header">
     <div class="row">
         <div class="col-lg-1 hidden-md hidden-sm hidden-xs sb_vote_wrapper">
@@ -172,7 +172,7 @@
             </small>
         </div>
     </div>
-    <div class="sb_id" data-object_uuid="{{ object_uuid }}"></div>
+    <div class="object_uuid" data-object_uuid="{{ object_uuid }}"></div>
     {% url "profile_page" pleb_username=owner_profile_url as the_url %}
 
     <div id="sb_comments_container_{{ object_uuid }}">

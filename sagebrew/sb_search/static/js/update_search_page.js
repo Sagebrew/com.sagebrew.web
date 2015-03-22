@@ -22,7 +22,7 @@ $( document ).ready(function() {
                 var data_list = data['html'];
                 $.each(data_list, function(i, item) {
                     if (data_list[i].type == 'question') {
-                        var sb_id = data_list[i].question_uuid;
+                        var object_uuid = data_list[i].question_uuid;
                         $.ajaxSetup({
                             beforeSend: function (xhr, settings) {
                                 ajax_security(xhr, settings)
@@ -31,7 +31,7 @@ $( document ).ready(function() {
                         $.ajax({
                             xhrFields: {withCredentials: true},
                             type: "GET",
-                            url: "/conversations/search/" + sb_id + '/',
+                            url: "/conversations/search/" + object_uuid + '/',
                             contentType: "application/json; charset=utf-8",
                             dataType: "json",
                             success: function (data) {

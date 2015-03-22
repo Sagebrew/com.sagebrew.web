@@ -31,10 +31,10 @@ class TestSaveSolutionTask(TestCase):
 
 
     def test_save_solution_task(self):
-        self.question_info_dict['sb_id']=str(uuid1())
+        self.question_info_dict['object_uuid']=str(uuid1())
         question = SBQuestion(**self.question_info_dict).save()
         question.owned_by.connect(self.pleb)
-        self.solution_info_dict['question_uuid'] = question.sb_id
+        self.solution_info_dict['question_uuid'] = question.object_uuid
         save_response = save_solution_task.apply_async(
             kwargs=self.solution_info_dict)
 
@@ -57,10 +57,10 @@ class TestSaveSolutionTask(TestCase):
         self.assertIsInstance(save_response, Exception)
 
     def test_save_solution_task_pleb_does_not_exist(self):
-        self.question_info_dict['sb_id']=str(uuid1())
+        self.question_info_dict['object_uuid']=str(uuid1())
         question = SBQuestion(**self.question_info_dict).save()
         question.owned_by.connect(self.pleb)
-        self.solution_info_dict['question_uuid'] = question.sb_id
+        self.solution_info_dict['question_uuid'] = question.object_uuid
         self.solution_info_dict['current_pleb'] = str(uuid1())
         self.solution_info_dict['solution_uuid'] = str(uuid1())
         save_response = save_solution_task.apply_async(
@@ -87,7 +87,7 @@ class TestAddSolutionToSearchIndexTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_add_solution_to_search_index_success(self):
-        solution = SBSolution(sb_id=str(uuid1()),
+        solution = SBSolution(object_uuid=str(uuid1()),
                           content='this is fake content').save()
         solution.owned_by.connect(self.pleb)
         data = {"solution": solution}
@@ -98,7 +98,7 @@ class TestAddSolutionToSearchIndexTask(TestCase):
         self.assertTrue(res.result)
 
     def test_add_solution_to_search_index_solution_already_added(self):
-        solution = SBSolution(sb_id=str(uuid1()),
+        solution = SBSolution(object_uuid=str(uuid1()),
                           content='this is fake content',
                           added_to_search_index=True).save()
         solution.owned_by.connect(self.pleb)
@@ -110,7 +110,7 @@ class TestAddSolutionToSearchIndexTask(TestCase):
         self.assertTrue(res.result)
 
     def test_add_solution_to_search_index_no_owner(self):
-        solution = SBSolution(sb_id=str(uuid1()),
+        solution = SBSolution(object_uuid=str(uuid1()),
                           content='this is fake content').save()
         data = {"solution": solution}
         res = add_solution_to_search_index.apply_async(kwargs=data)

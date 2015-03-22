@@ -8,7 +8,7 @@ from api.utils import request_to_api
 
 
 class SBRequirement(StructuredNode):
-    sb_id = StringProperty(default=lambda: str(uuid1()), unique_index=True)
+    object_uuid = StringProperty(default=lambda: str(uuid1()), unique_index=True)
     name = StringProperty(unique_index=True)
     url = StringProperty()
     key = StringProperty()
@@ -45,13 +45,13 @@ class SBRequirement(StructuredNode):
                         self.get_operator_string(), self.condition, 'flags',
                         current)}
         else:
-            return {"detail": "The requirement %s was met" % (self.sb_id),
+            return {"detail": "The requirement %s was met" % (self.object_uuid),
                     "key": self.key,
                     "operator": pickle.loads(self.operator),
                     "response": check}
 
     def get_dict(self):
-        return {"req_id": self.sb_id,
+        return {"req_id": self.object_uuid,
                 "url": self.url,
                 "key": self.key,
                 "operator": self.operator,

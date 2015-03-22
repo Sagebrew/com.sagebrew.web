@@ -31,13 +31,13 @@ def create_notification_util(sb_object, from_pleb, to_plebs,
     try:
         try:
             notification = NotificationBase.nodes.get(
-                sb_id=notification_id)
+                object_uuid=notification_id)
             if notification.sent is True:
                 return True
 
         except (NotificationBase.DoesNotExist, DoesNotExist):
             notification = NotificationBase(
-                sb_id=notification_id,
+                object_uuid=notification_id,
                 notification_about=sb_object.sb_name).save()
 
         notification.notification_from.connect(from_pleb)

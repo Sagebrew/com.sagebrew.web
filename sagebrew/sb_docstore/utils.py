@@ -23,8 +23,9 @@ def get_table_name(name):
         return name
     return "%s-%s" % (branch, name)
 
+
 def connect_to_dynamo():
-    '''
+    """
     This function gets the connection to dynamodb.
 
     The only possibly exception it will throw is IOError and there is not
@@ -36,7 +37,7 @@ def connect_to_dynamo():
     be down. Also there will be three instances of dynamo on our AWS cloud.
 
     :return:
-    '''
+    """
     try:
         if settings.DYNAMO_IP is None:
             conn = DynamoDBConnection(
@@ -72,14 +73,14 @@ def get_rep_info(parent_object, table_name):
 
 
 def add_object_to_table(table_name, object_data):
-    '''
+    """
     This function will attempt to add an object to a table, this will be
     used to build each table and build the docstore. This is a generalized
     function and will work for every table
     :param table_name:
     :param object_data:
     :return:
-    '''
+    """
     table_name = get_table_name(table_name)
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
@@ -186,7 +187,7 @@ def get_question_doc(question_uuid, question_table, solution_table):
         solutions = Table(table_name=get_table_name(solution_table),
                           connection=conn)
         comment_table = Table(table_name=get_table_name("comments"),
-                         connection=conn)
+                              connection=conn)
     except JSONResponseError as e:
         return e
     try:
@@ -207,25 +208,24 @@ def get_question_doc(question_uuid, question_table, solution_table):
                                                 1)
     question['down_vote_number'] = get_vote_count(question['object_uuid'],
                                                   0)
-    question['last_edited_on'] = datetime.strptime(question['last_edited_on'][
-                                      :len(question['last_edited_on'])-6],
-                                      '%Y-%m-%d %H:%M:%S.%f')
-    question['time_created'] = datetime.strptime(question['time_created'][
-                                      :len(question['time_created'])-6],
-                                      '%Y-%m-%d %H:%M:%S.%f')
+    question['last_edited_on'] = datetime.strptime(
+        question['last_edited_on'][:len(question['last_edited_on']) - 6],
+        '%Y-%m-%d %H:%M:%S.%f')
+    question['created'] = datetime.strptime(
+        question['created'][:len(question['created']) - 6],
+        '%Y-%m-%d %H:%M:%S.%f')
     question['object_vote_count'] = str(question['up_vote_number']
                                         - question['down_vote_number'])
     for comment in comments:
         comment = dict(comment)
         comment['up_vote_number'] = get_vote_count(comment['object_uuid'],1)
         comment['down_vote_number'] = get_vote_count(comment['object_uuid'],0)
-        comment['last_edited_on'] = datetime.strptime(comment[
-                                      'last_edited_on'][
-                                      :len(comment['last_edited_on'])-6],
-                                      '%Y-%m-%d %H:%M:%S.%f')
-        comment['time_created'] = datetime.strptime(comment['time_created'][
-                                      :len(comment['time_created'])-6],
-                                      '%Y-%m-%d %H:%M:%S.%f')
+        comment['last_edited_on'] = datetime.strptime(
+            comment['last_edited_on'][:len(comment['last_edited_on']) - 6],
+            '%Y-%m-%d %H:%M:%S.%f')
+        comment['created'] = datetime.strptime(
+            comment['created'][:len(comment['created']) - 6],
+            '%Y-%m-%d %H:%M:%S.%f')
         comment['object_vote_count'] = str(comment['up_vote_number']
                                            - comment['down_vote_number'])
         q_comments.append(comment)
@@ -236,15 +236,14 @@ def get_question_doc(question_uuid, question_table, solution_table):
                                                     1)
         solution['down_vote_number'] = get_vote_count(solution['object_uuid'],
                                                       0)
-        solution['last_edited_on'] = datetime.strptime(solution[
-                                      'last_edited_on'][
-                                      :len(solution['last_edited_on'])-6],
-                                      '%Y-%m-%d %H:%M:%S.%f')
-        solution['time_created'] = datetime.strptime(solution['time_created'][
-                                      :len(solution['time_created'])-6],
-                                      '%Y-%m-%d %H:%M:%S.%f')
-        solution['object_vote_count'] = str(solution['up_vote_number']-
-                                          solution['down_vote_number'])
+        solution['last_edited_on'] = datetime.strptime(
+            solution['last_edited_on'][:len(solution['last_edited_on']) - 6],
+            '%Y-%m-%d %H:%M:%S.%f')
+        solution['created'] = datetime.strptime(
+            solution['created'][:len(solution['created']) - 6],
+            '%Y-%m-%d %H:%M:%S.%f')
+        solution['object_vote_count'] = str(
+            solution['up_vote_number'] - solution['down_vote_number'])
         solution_comments = comment_table.query_2(
             parent_object__eq=solution['object_uuid'],
             datetime__gte="0"
@@ -254,16 +253,14 @@ def get_question_doc(question_uuid, question_table, solution_table):
             comment['up_vote_number'] = get_vote_count(comment['object_uuid'],1)
             comment['down_vote_number'] = get_vote_count(
                 comment['object_uuid'],0)
-            comment['last_edited_on'] = datetime.strptime(comment[
-                                      'last_edited_on'][
-                                      :len(comment['last_edited_on'])-6],
-                                      '%Y-%m-%d %H:%M:%S.%f')
-            comment['time_created'] = datetime.strptime(comment[
-                                      'time_created'][
-                                      :len(comment['time_created'])-6],
-                                      '%Y-%m-%d %H:%M:%S.%f')
-            comment['object_vote_count'] = str(comment['up_vote_number']
-                                               - comment['down_vote_number'])
+            comment['last_edited_on'] = datetime.strptime(
+                comment['last_edited_on'][:len(comment['last_edited_on']) - 6],
+                '%Y-%m-%d %H:%M:%S.%f')
+            comment['created'] = datetime.strptime(
+                comment['created'][:len(comment['created']) - 6],
+                '%Y-%m-%d %H:%M:%S.%f')
+            comment['object_vote_count'] = str(
+                comment['up_vote_number'] - comment['down_vote_number'])
             a_comments.append(comment)
         solution['comments'] = a_comments
         solution_list.append(solution)
@@ -291,7 +288,7 @@ def build_question_page(question_uuid, question_table, solution_table):
     :return:
     '''
     try:
-        question = SBQuestion.nodes.get(sb_id=question_uuid)
+        question = SBQuestion.nodes.get(object_uuid=question_uuid)
     except (SBQuestion.DoesNotExist, DoesNotExist) as e:
         return e
     question_dict = question.get_single_dict()
@@ -434,7 +431,7 @@ def build_wall_docs(username):
         except ConditionalCheckFailedException as e:
             return e
         for comment in comments:
-            comment['parent_object'] = post.sb_id
+            comment['parent_object'] = post.object_uuid
             comment_table.put_item(comment)
 
     return True
@@ -483,13 +480,13 @@ def build_rep_page(rep_id, rep_type=None):
         return e
     if rep_type is None:
         try:
-            rep = BaseOfficial.nodes.get(sb_id=rep_id)
+            rep = BaseOfficial.nodes.get(object_uuid=rep_id)
         except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException) as e:
             return e
     else:
         r_type = get_rep_type(dict(settings.BASE_REP_TYPES)[rep_type])
         try:
-            rep = r_type.nodes.get(sb_id=rep_id)
+            rep = r_type.nodes.get(object_uuid=rep_id)
         except (r_type.DoesNotExist, DoesNotExist, CypherException) as e:
             return e
     policies = rep.policy.all()
@@ -499,17 +496,17 @@ def build_rep_page(rep_id, rep_type=None):
     except IndexError as e:
         return e
     rep_data = {
-        'object_uuid': str(rep.sb_id),
+        'object_uuid': str(rep.object_uuid),
         'name': "%s %s"%(pleb.first_name, pleb.last_name),
         'full': '%s %s %s'%(rep.title, pleb.first_name, pleb.last_name),
-        'username': pleb.username, 'rep_id': str(rep.sb_id),
+        'username': pleb.username, 'rep_id': str(rep.object_uuid),
         "bio": str(rep.bio), 'title': rep.title
     }
     rep_table.put_item(rep_data)
     for policy in policies:
         data = {
-            'parent_object': rep.sb_id,
-            'object_uuid': policy.sb_id,
+            'parent_object': rep.object_uuid,
+            'object_uuid': policy.object_uuid,
             'category': policy.category,
             'description': policy.description
         }
@@ -517,8 +514,8 @@ def build_rep_page(rep_id, rep_type=None):
 
     for experience in experiences:
         data = {
-            'parent_object': rep.sb_id,
-            'object_uuid': experience.sb_id,
+            'parent_object': rep.object_uuid,
+            'object_uuid': experience.object_uuid,
             'title': experience.title,
             'start_date': unicode(experience.start_date),
             'end_date': unicode(experience.end_date),

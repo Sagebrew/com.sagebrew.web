@@ -49,7 +49,7 @@ class SBQuestion(SBVersioned, SBTagContent):
 
     def get_url(self):
         return reverse("question_detail_page",
-                       kwargs={"question_uuid": self.sb_id})
+                       kwargs={"question_uuid": self.object_uuid})
 
     def create_notification(self, pleb, sb_object=None):
         return {
@@ -133,11 +133,11 @@ class SBQuestion(SBVersioned, SBTagContent):
                 return e
             owner_name = owner.first_name + ' ' + owner.last_name
             owner_profile_url = owner.username
-            query = 'match (q:SBQuestion) where q.sb_id="%s" ' \
+            query = 'match (q:SBQuestion) where q.object_uuid="%s" ' \
                     'with q ' \
                     'match (q)-[:POSSIBLE_ANSWER]-(a:SBSolution) ' \
                     'where a.to_be_deleted=False ' \
-                    'return a ' % self.sb_id
+                    'return a ' % self.object_uuid
             solutions, meta = execute_cypher_query(query)
             solutions = [SBSolution.inflate(row[0]) for row in solutions]
             for solution in solutions:
@@ -152,7 +152,7 @@ class SBQuestion(SBVersioned, SBTagContent):
             return {
                 'question_title': edit.question_title,
                 'content': edit.content,
-                'object_uuid': self.sb_id,
+                'object_uuid': self.object_uuid,
                 'is_closed': self.is_closed,
                 'solution_number': self.solution_number,
                 'last_edited_on': unicode(self.last_edited_on),
@@ -161,7 +161,7 @@ class SBQuestion(SBVersioned, SBTagContent):
                 'object_vote_count': self.get_vote_count(),
                 'owner': owner_name,
                 'owner_profile_url': owner_profile_url,
-                'time_created': unicode(self.date_created),
+                'created': unicode(self.created),
                 'solutions': solution_array,
                 'comments': comment_array,
                 'current_pleb': pleb,
@@ -188,8 +188,8 @@ class SBQuestion(SBVersioned, SBTagContent):
                              'down_vote_number': self.get_downvote_count(),
                              'vote_count': self.get_vote_count(),
                              'owner': owner,
-                             'time_created': self.date_created,
-                             'question_url': '/conversations/%s' % self.sb_id,
+                             'created': self.created,
+                             'question_url': '/conversations/%s' % self.object_uuid,
                              'current_pleb': pleb
                         }
             return question_dict
@@ -220,8 +220,8 @@ class SBQuestion(SBVersioned, SBTagContent):
                         'up_vote_number': self.up_vote_number,
                         'down_vote_number': self.down_vote_number,
                         'owner': owner,
-                        'time_created': self.date_created,
-                        'question_url': self.sb_id,
+                        'created': self.created,
+                        'question_url': self.object_uuid,
                         'current_pleb': user_email
                     }
                 else:
@@ -246,7 +246,7 @@ class SBQuestion(SBVersioned, SBTagContent):
             question_dict = {
                 "question_title": self.get_most_recent_edit().question_title,
                 "question_content": self.get_most_recent_edit().content,
-                "question_uuid": self.sb_id,
+                "question_uuid": self.object_uuid,
                 "is_closed": self.is_closed,
                 "solution_number": self.solution_number,
                 "last_edited_on": self.last_edited_on,
@@ -254,7 +254,7 @@ class SBQuestion(SBVersioned, SBTagContent):
                 "down_vote_number": self.down_vote_number,
                 "owner": owner_name,
                 "owner_profile_url": owner_profile_url,
-                "time_created": self.date_created,
+                "created": self.created,
                 "owner_email": owner.email}
             rendered = render_to_string('question_search.html', question_dict)
             return rendered
@@ -288,7 +288,7 @@ class SBQuestion(SBVersioned, SBTagContent):
             results, columns = self.cypher('start q=node({self}) '
                                            'match q-[:EDIT]-(n:SBQuestion) '
                                            'with n '
-                                           'ORDER BY n.date_created DESC'
+                                           'ORDER BY n.created DESC'
                                            ' return n')
             edits = [self.inflate(row[0]) for row in results]
             if not edits:

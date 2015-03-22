@@ -20,7 +20,8 @@ class EditRelationshipModel(StructuredRel):
 class PostedOnRel(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     rep_gained = IntegerProperty(default=0)
-    rep_lost = IntegerProperty(defaut=0)
+    rep_lost = IntegerProperty(default=0)
+
 
 class PostReceivedRel(StructuredRel):
     received = BooleanProperty()
@@ -36,15 +37,16 @@ class VoteRelationship(StructuredRel):
     active = BooleanProperty(default=True)
     vote_type = BooleanProperty() # True is up False is down
     rep_adjust = IntegerProperty()
-    date_created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
 
 class SBVoteableContent(StructuredNode):
     up_vote_adjustment = 0
     down_vote_adjustment = 0
-    sb_id = StringProperty(unique_index=True, default=lambda: str(uuid1()))
+    object_uuid = StringProperty(unique_index=True,
+                                 default=lambda: str(uuid1()))
     content = StringProperty()
-    date_created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
     #relationships
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'OWNED_BY',

@@ -19,13 +19,13 @@ def create_question_util(content, question_title, question_uuid):
     :return:
     '''
     try:
-        question = SBQuestion.nodes.get(sb_id=question_uuid)
+        question = SBQuestion.nodes.get(object_uuid=question_uuid)
     except (SBQuestion.DoesNotExist, DoesNotExist):
         content_blob = TextBlob(content)
         title_blob = TextBlob(question_title)
         question = SBQuestion(content=content,
                               question_title=question_title,
-                              sb_id=question_uuid)
+                              object_uuid=question_uuid)
         question.subjectivity = content_blob.subjectivity
         question.positivity = content_blob.polarity
         question.title_polarity = title_blob.polarity
@@ -50,7 +50,7 @@ def get_question_by_uuid(question_uuid, current_pleb):
     :return:
     '''
     try:
-        question = SBQuestion.nodes.get(sb_id=question_uuid)
+        question = SBQuestion.nodes.get(object_uuid=question_uuid)
     except (SBQuestion.DoesNotExist, DoesNotExist):
         return False
     except CypherException as e:
@@ -72,7 +72,7 @@ def get_question_by_most_recent(range_start=0, range_end=5):
     :return:
     '''
     query = 'match (q:SBQuestion) where q.to_be_deleted=False and q.original=True ' \
-            'with q order by q.date_created desc ' \
+            'with q order by q.created desc ' \
             'with q skip %s limit %s ' \
             'return q' % (range_start, range_end)
     questions, meta = execute_cypher_query(query)
@@ -99,7 +99,7 @@ def get_question_by_least_recent(range_start=0, range_end=5):
     :return:
     '''
     query = 'match (q:SBQuestion) where q.to_be_deleted=False and q.original=True ' \
-            'with q order by q.date_created ' \
+            'with q order by q.created ' \
             'with q skip %s limit %s ' \
             'return q' % (range_start, range_end)
     questions, meta = execute_cypher_query(query)
@@ -130,7 +130,7 @@ def get_question_by_recent_edit(range_start=0, range_end=5):
 @apply_defense
 def prepare_question_search_html(question_uuid):
     try:
-        my_question = SBQuestion.nodes.get(sb_id=question_uuid)
+        my_question = SBQuestion.nodes.get(object_uuid=question_uuid)
     except (SBQuestion.DoesNotExist, DoesNotExist):
         return False
     except CypherException:

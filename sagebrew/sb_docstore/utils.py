@@ -216,10 +216,13 @@ def get_question_doc(question_uuid, question_table, solution_table, user=""):
         '%Y-%m-%d %H:%M:%S.%f')
     question['object_vote_count'] = str(question['up_vote_number']
                                         - question['down_vote_number'])
-    question['vote_type'] = get_vote(question['object_uuid'], user)
-    if question['vote_type'] is not None:
-        question['vote_type'] = str(bool(question['vote_type']['status']))\
-            .lower()
+    vote_type = get_vote(question['object_uuid'], user)
+    if vote_type is not None:
+        if vote_type['status'] == 2:
+            vote_type = None
+        else:
+            vote_type = str(bool(vote_type['status'])).lower()
+    question['vote_type'] = vote_type
     for comment in comments:
         comment = dict(comment)
         try:
@@ -235,10 +238,13 @@ def get_question_doc(question_uuid, question_table, solution_table, user=""):
                 '%Y-%m-%d %H:%M:%S.%f')
             comment['object_vote_count'] = str(comment['up_vote_number']
                                                - comment['down_vote_number'])
-            comment['vote_type'] = get_vote(comment['object_uuid'], user)
-            if comment['vote_type'] is not None or comment['vote_type']!=2:
-                comment['vote_type'] = str(bool(comment['vote_type']['status']))\
-                    .lower()
+            vote_type = get_vote(comment['object_uuid'], user)
+            if vote_type is not None:
+                if vote_type['status'] == 2:
+                    vote_type = None
+                else:
+                    vote_type = str(bool(vote_type['status'])).lower()
+            comment['vote_type'] = vote_type
             q_comments.append(comment)
         except KeyError:
             continue
@@ -258,10 +264,13 @@ def get_question_doc(question_uuid, question_table, solution_table, user=""):
                 '%Y-%m-%d %H:%M:%S.%f')
             solution['object_vote_count'] = str(
                 solution['up_vote_number'] - solution['down_vote_number'])
-            solution['vote_type'] = get_vote(solution['object_uuid'], user)
-            if solution['vote_type'] is not None:
-                solution['vote_type'] = str(bool(solution['vote_type']['status']))\
-                    .lower()
+            vote_type = get_vote(solution['object_uuid'], user)
+            if vote_type is not None:
+                if vote_type['status'] == 2:
+                    vote_type = None
+                else:
+                    vote_type = str(bool(vote_type['status'])).lower()
+            solution['vote_type'] = vote_type
             solution_comments = comment_table.query_2(
                 parent_object__eq=solution['object_uuid'],
                 datetime__gte="0"
@@ -284,10 +293,13 @@ def get_question_doc(question_uuid, question_table, solution_table, user=""):
                     '%Y-%m-%d %H:%M:%S.%f')
                 comment['object_vote_count'] = str(
                     comment['up_vote_number'] - comment['down_vote_number'])
-                comment['vote_type'] = get_vote(comment['object_uuid'], user)
-                if comment['vote_type'] is not None or comment['vote_type']!=2:
-                    comment['vote_type'] = str(bool(comment['vote_type']['status']))\
-                        .lower()
+                vote_type = get_vote(comment['object_uuid'], user)
+                if vote_type is not None:
+                    if vote_type['status'] == 2:
+                        vote_type = None
+                    else:
+                        vote_type = str(bool(vote_type['status'])).lower()
+                comment['vote_type'] = vote_type
                 a_comments.append(comment)
             except KeyError:
                 continue
@@ -418,12 +430,13 @@ def get_wall_docs(parent_object, user=''):
         post = dict(post)
         post['up_vote_number'] = get_vote_count(post['object_uuid'], 1)
         post['down_vote_number'] = get_vote_count(post['object_uuid'], 0)
-        post['vote_type'] = get_vote(post['object_uuid'], user)
-        if post['vote_type'] is not None or post['vote_type']!=2:
-            post['vote_type'] = str(bool(post['vote_type']['status']))\
-                .lower()
-        else:
-            post['vote_type'] = None
+        vote_type = get_vote(post['object_uuid'], user)
+        if vote_type is not None:
+            if vote_type['status'] == 2:
+                vote_type = None
+            else:
+                vote_type = str(bool(vote_type['status'])).lower()
+        post['vote_type'] = vote_type
         comments = comments_table.query_2(
             parent_object__eq=post['object_uuid'],
             datetime__gte='0')
@@ -434,12 +447,13 @@ def get_wall_docs(parent_object, user=''):
                 comment['object_uuid'], 1)
             comment['down_vote_number'] = get_vote_count(
                 comment['object_uuid'], 0)
-            comment['vote_type'] = get_vote(comment['object_uuid'], user)
-            if comment['vote_type'] is not None or comment['vote_type']!=2:
-                comment['vote_type'] = str(bool(
-                    comment['vote_type']['status'])).lower()
-            else:
-                comment['vote_type'] = None
+            vote_type = get_vote(comment['object_uuid'], user)
+            if vote_type is not None:
+                if vote_type['status'] == 2:
+                    vote_type = None
+                else:
+                    vote_type = str(bool(vote_type['status'])).lower()
+            comment['vote_type'] = vote_type
             comment_list.append(comment)
 
         post['comments'] = comment_list

@@ -37,7 +37,7 @@ def get_pleb_posts(pleb_email, range_end, range_start=0):
 
 
 @apply_defense
-def save_post(content, post_uuid, datetime):
+def save_post(content, post_uuid, created):
     '''
     saves a post and creates the relationships between the wall
     and the poster of the comment
@@ -55,7 +55,7 @@ def save_post(content, post_uuid, datetime):
         sb_post = SBPost.nodes.get(object_uuid=post_uuid)
     except(SBPost.DoesNotExist, DoesNotExist):
         sb_post = SBPost(content=content, object_uuid=post_uuid,
-                         last_edited_on=datetime, created=datetime)
+                         last_edited_on=created, created=created)
         try:
             sb_post.save()
         except(CypherException, IOError) as e:

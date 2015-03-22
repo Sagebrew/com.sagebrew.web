@@ -118,7 +118,7 @@ def query_parent_object_table(object_uuid, get_all=False, table_name='edits'):
         return e
     res = edits.query_2(
         parent_object__eq=object_uuid,
-        datetime__gte='0',
+        created__gte='0',
         reverse=True
     )
     if get_all:
@@ -131,7 +131,7 @@ def query_parent_object_table(object_uuid, get_all=False, table_name='edits'):
 
 @apply_defense
 def update_doc(table, object_uuid, update_data, parent_object="",
-               obj_datetime=""):
+               obj_created=""):
     table_name = get_table_name(table)
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
@@ -140,9 +140,9 @@ def update_doc(table, object_uuid, update_data, parent_object="",
         db_table = Table(table_name=table_name, connection=conn)
     except JSONResponseError as e:
         return e
-    if obj_datetime != "" and parent_object != "":
+    if obj_created != "" and parent_object != "":
         res = db_table.get_item(parent_object=parent_object,
-                                datetime=obj_datetime)
+                                created=obj_created)
     elif parent_object!="":
         res = db_table.get_item(parent_object=parent_object,
                                 object_uuid=object_uuid)
@@ -201,7 +201,7 @@ def get_question_doc(question_uuid, question_table, solution_table, user=""):
     )
     comments = comment_table.query_2(
         parent_object__eq=question_uuid,
-        datetime__gte="0"
+        created__gte="0"
     )
     question = dict(question)
     question['up_vote_number'] = get_vote_count(question['object_uuid'],
@@ -273,7 +273,7 @@ def get_question_doc(question_uuid, question_table, solution_table, user=""):
             solution['vote_type'] = vote_type
             solution_comments = comment_table.query_2(
                 parent_object__eq=solution['object_uuid'],
-                datetime__gte="0"
+                created__gte="0"
             )
         except KeyError:
             continue
@@ -419,7 +419,7 @@ def get_wall_docs(parent_object, user=''):
         return e
     posts = posts_table.query_2(
         parent_object__eq=parent_object,
-        datetime__gte='0',
+        created__gte='0',
         reverse=True
     )
     posts = list(posts)
@@ -439,7 +439,7 @@ def get_wall_docs(parent_object, user=''):
         post['vote_type'] = vote_type
         comments = comments_table.query_2(
             parent_object__eq=post['object_uuid'],
-            datetime__gte='0')
+            created__gte='0')
         comments = list(comments)
         for comment in comments:
             comment = dict(comment)
@@ -622,7 +622,7 @@ def get_notification_docs(username):
         return e
     res = notification_table.query_2(
                             parent_object__eq=username,
-                            datetime__gte='0')
+                            created__gte='0')
     for notification in res:
         notification_list.append(dict(notification))
     return notification_list

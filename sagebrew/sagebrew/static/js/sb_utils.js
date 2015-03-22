@@ -208,7 +208,7 @@ function edit_object() {
                 'parent_object': $(this).data('parent_object'),
                 'object_uuid': uuid,
                 'object_type': $(this).data('object_type'),
-                'datetime': $(this).data('datetime')
+                'created': $(this).data('created')
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",

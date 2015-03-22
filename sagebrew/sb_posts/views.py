@@ -31,7 +31,7 @@ def save_post_view(request):
     :param request:
     :return:
     '''
-    datetime_preunicode = datetime.now(pytz.utc)
+    created_preunicode = datetime.now(pytz.utc)
     post_data = request.DATA
     if type(post_data) != dict:
         return Response({"details": "Please Provide a JSON Object"}, status=400)
@@ -44,7 +44,7 @@ def save_post_view(request):
     if valid_form:
         #post_data['content'] = language_filter(post_data['content'])
         post_form.cleaned_data['post_uuid'] = str(uuid1())
-        post_form.cleaned_data['datetime'] = datetime_preunicode
+        post_form.cleaned_data['created'] = created_preunicode
         html_content = markdown.markdown(post_form.cleaned_data['content'])
         spawned = spawn_task(task_func=save_post_task,
                              task_param=post_form.cleaned_data)
@@ -54,7 +54,7 @@ def save_post_view(request):
         post_data = {
             "object_uuid": post_form.cleaned_data['post_uuid'],
             "parent_object": request.user.username,
-            "datetime": unicode(datetime_preunicode),
+            "created": unicode(created_preunicode),
             "last_edited_on": datetime.now(pytz.utc),
             "post_owner": request.user.first_name + " " +
                           request.user.last_name,
@@ -125,12 +125,12 @@ def get_user_posts(request):
                 }
                 spawn_task(update_view_count_task, task_data)
                 for item in post["comments"]:
-                    item['last_edited_on'] = \
-                    datetime.strptime(item['last_edited_on'][
-                                      :len(item['last_edited_on'])-6],
-                                      '%Y-%m-%d %H:%M:%S.%f')
-                    item['object_vote_count'] = str(item['up_vote_number'] - \
-                                                item['down_vote_number'])
+                    item['last_edited_on'] = datetime.strptime(
+                        item['last_edited_on'][:len(
+                            item['last_edited_on']) - 6],
+                        '%Y-%m-%d %H:%M:%S.%f')
+                    item['object_vote_count'] = str(
+                        item['up_vote_number'] - item['down_vote_number'])
                 c = RequestContext(request, post)
                 html = render_to_string('post.html', post,
                                         context_instance=c)

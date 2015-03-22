@@ -99,7 +99,7 @@ class SolutionViewSet(viewsets.GenericViewSet):
         if request.method == "GET":
             queryset = table.query_2(
                 parent_object__eq=object_uuid,
-                datetime__gte="0"
+                created__gte="0"
             )
             serializer = CommentSerializer(
                 convert_dynamo_comments(queryset), context={"request": request},
@@ -130,11 +130,10 @@ class SolutionViewSet(viewsets.GenericViewSet):
                         "parent_object": parent_uuid,
                         "object_uuid": uuid,
                         "content": serializer.validated_data["content"],
-                        "datetime": created,
+                        "created": created,
                         "comment_owner": request.user.get_full_name(),
                         "comment_owner_email": request.user.email,
                         "last_edited_on": created,
-                        "created": created,
                     }
                 )
                 return Response(serializer.validated_data,

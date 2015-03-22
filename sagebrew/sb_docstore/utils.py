@@ -236,7 +236,7 @@ def get_question_doc(question_uuid, question_table, solution_table, user=""):
             comment['object_vote_count'] = str(comment['up_vote_number']
                                                - comment['down_vote_number'])
             comment['vote_type'] = get_vote(comment['object_uuid'], user)
-            if comment['vote_type'] is not None:
+            if comment['vote_type'] is not None or comment['vote_type']!=2:
                 comment['vote_type'] = str(bool(comment['vote_type']['status']))\
                     .lower()
             q_comments.append(comment)
@@ -285,7 +285,7 @@ def get_question_doc(question_uuid, question_table, solution_table, user=""):
                 comment['object_vote_count'] = str(
                     comment['up_vote_number'] - comment['down_vote_number'])
                 comment['vote_type'] = get_vote(comment['object_uuid'], user)
-                if comment['vote_type'] is not None:
+                if comment['vote_type'] is not None or comment['vote_type']!=2:
                     comment['vote_type'] = str(bool(comment['vote_type']['status']))\
                         .lower()
                 a_comments.append(comment)
@@ -419,10 +419,11 @@ def get_wall_docs(parent_object, user=''):
         post['up_vote_number'] = get_vote_count(post['object_uuid'], 1)
         post['down_vote_number'] = get_vote_count(post['object_uuid'], 0)
         post['vote_type'] = get_vote(post['object_uuid'], user)
-        if post['vote_type'] is not None:
+        if post['vote_type'] is not None or post['vote_type']!=2:
             post['vote_type'] = str(bool(post['vote_type']['status']))\
                 .lower()
-        print post['vote_type']
+        else:
+            post['vote_type'] = None
         comments = comments_table.query_2(
             parent_object__eq=post['object_uuid'],
             datetime__gte='0')
@@ -434,9 +435,11 @@ def get_wall_docs(parent_object, user=''):
             comment['down_vote_number'] = get_vote_count(
                 comment['object_uuid'], 0)
             comment['vote_type'] = get_vote(comment['object_uuid'], user)
-            if comment['vote_type'] is not None:
+            if comment['vote_type'] is not None or comment['vote_type']!=2:
                 comment['vote_type'] = str(bool(
                     comment['vote_type']['status'])).lower()
+            else:
+                comment['vote_type'] = None
             comment_list.append(comment)
 
         post['comments'] = comment_list

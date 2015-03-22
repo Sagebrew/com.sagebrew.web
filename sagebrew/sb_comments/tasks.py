@@ -66,11 +66,11 @@ def create_comment_relations(current_pleb, comment, sb_object):
                                                  max_retries=None)
         try:
             for pleb in sb_object.owned_by.all():
-                to_plebs.append(pleb.email)
+                to_plebs.append(pleb.username)
         except CypherException:
             raise create_comment_relations.retry(exc=res, countdown=3,
                                                  max_retries=None)
-        data = {'from_pleb': current_pleb.email, 'to_plebs': to_plebs,
+        data = {'from_pleb': current_pleb.username, 'to_plebs': to_plebs,
                 'sb_object': comment}
         spawned = spawn_task(task_func=spawn_notifications, task_param=data)
         if isinstance(spawned, Exception) is True:

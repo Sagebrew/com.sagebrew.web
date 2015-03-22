@@ -250,7 +250,7 @@ def get_question_doc(question_uuid, question_table, solution_table):
                 solution['up_vote_number'] - solution['down_vote_number'])
             solution_comments = comment_table.query_2(
                 parent_object__eq=solution['object_uuid'],
-                datetime__gte="0"
+                created__gte="0"
             )
         except KeyError:
             continue

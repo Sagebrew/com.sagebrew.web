@@ -27,13 +27,11 @@ django-oauth-toolkit==0.7.2
 django-oauth2-provider==0.2.6.1
 django-secure==1.0.1
 django-storages==1.1.8
-djangorestframework==3.1
 elasticsearch==1.4.0
 gunicorn==19.3.0
 kombu==3.0.24
 mdx-cite==1.0
 meld3==1.0.0
--e git+http://github.com/robinedwards/neomodel.git@282d522c9ed5b6a08e4258008d07d29fca3aed45#egg=neomodel-dev
 newrelic==2.44.0.36
 nltk==3.0.1
 oauthlib==0.7.2

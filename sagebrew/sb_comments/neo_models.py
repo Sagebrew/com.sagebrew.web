@@ -38,7 +38,7 @@ class SBComment(SBNonVersioned):
         try:
             return reverse("question_detail_page",
                            kwargs={"question_uuid": self.solution_to.all()[
-                               0].sb_id})
+                               0].object_uuid})
         except IndexError:
             return False
 
@@ -63,7 +63,7 @@ class SBComment(SBNonVersioned):
             comment_dict = {'content': self.content,
                             'up_vote_number': self.get_upvote_count(),
                             'object_vote_count': self.get_vote_count(),
-                            'object_uuid': self.sb_id,
+                            'object_uuid': self.object_uuid,
                             'down_vote_number':
                                 self.get_downvote_count(),
                             'last_edited_on':
@@ -73,7 +73,7 @@ class SBComment(SBNonVersioned):
                             'comment_owner_email': comment_owner.email,
                             'owner_username': comment_owner.username,
                             'current_user': pleb,
-                            'created': unicode(self.date_created),
+                            'datetime': unicode(self.created),
                             'edits': [],
                             'object_type': self.object_type}
             self.view_count += 1

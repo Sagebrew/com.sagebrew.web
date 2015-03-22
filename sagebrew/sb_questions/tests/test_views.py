@@ -131,7 +131,7 @@ class TestGetQuestionView(TestCase):
 
     def test_get_question_view_success_most_recent(self):
         for item in range(0,5):
-            question = SBQuestion(sb_id=str(uuid1()), content='test',
+            question = SBQuestion(object_uuid=str(uuid1()), content='test',
                                   question_title='test title').save()
             question.owned_by.connect(self.pleb)
 
@@ -147,13 +147,13 @@ class TestGetQuestionView(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_get_question_view_success_uuid(self):
-        question = SBQuestion(sb_id=str(uuid1()), content='test',
-                                  question_title='test title').save()
+        question = SBQuestion(object_uuid=str(uuid1()), content='test',
+                              question_title='test title').save()
         question.owned_by.connect(self.pleb)
 
         my_dict = {'current_pleb': self.user.email,
                    'sort_by': 'uuid',
-                   'question_uuid': question.sb_id}
+                   'question_uuid': question.object_uuid}
         request = self.factory.post('/conversations/query_questions_api/',
                                     data=my_dict,
                                     format='json')
@@ -168,7 +168,8 @@ class TestGetQuestionView(TestCase):
     def test_get_question_view_success_least_recent(self):
         for item in range(0,5):
             question = SBQuestion(
-                sb_id=str(uuid1()), content='test', question_title='test title',
+                object_uuid=str(uuid1()), content='test',
+                question_title='test title',
                 created=datetime.datetime.now() -
                 datetime.timedelta(days=3*365)).save()
             question.owned_by.connect(self.pleb)
@@ -268,11 +269,11 @@ class TestGetQuestionSearchView(TestCase):
         self.client.force_authenticate(user=self.user)
 
     def test_get_question_search_view_success(self):
-        question = SBQuestion(sb_id=str(uuid1()), content='test',
+        question = SBQuestion(object_uuid=str(uuid1()), content='test',
                               question_title='test title').save()
         question.owned_by.connect(self.pleb)
 
-        res = self.client.get('/conversations/search/%s/' % question.sb_id)
+        res = self.client.get('/conversations/search/%s/' % question.object_uuid)
         res = res.render()
 
         self.assertIn('| Solution: 0 | Upvotes: 0 | Downvotes: 0 |',

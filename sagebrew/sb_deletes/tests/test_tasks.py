@@ -27,10 +27,10 @@ class TestDeleteObjectTask(TestCase):
     def test_delete_object_task_success(self):
         question = SBQuestion(question_title='test title for delete',
                               content='this is before delete',
-                              sb_id=str(uuid1())).save()
+                              object_uuid=str(uuid1())).save()
         task_data = {
             'object_type': 'sb_questions.neo_models.SBQuestion',
-            'object_uuid': question.sb_id,
+            'object_uuid': question.object_uuid,
             'current_pleb': self.pleb
         }
         res = delete_object_task.apply_async(kwargs=task_data)
@@ -42,10 +42,10 @@ class TestDeleteObjectTask(TestCase):
     def test_delete_object_task_get_object_fail(self):
         question = SBQuestion(question_title='test title for delete',
                               content='this is before delete',
-                              sb_id=str(uuid1())).save()
+                              object_uuid=str(uuid1())).save()
         task_data = {
             'object_type': 'SBQuestion',
-            'object_uuid': question.sb_id,
+            'object_uuid': question.object_uuid,
             'current_pleb': self.pleb
         }
         res = delete_object_task.apply_async(kwargs=task_data)

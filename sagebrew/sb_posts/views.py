@@ -62,7 +62,7 @@ def save_post_view(request):
             "downvote_number": 0,
             "content": post_form.cleaned_data['content'],
             "object_vote_count": "0",
-            "vote_type": "true",
+            "vote_type": None,
             "html_content": html_content
         }
         c = RequestContext(request, post_data)
@@ -102,7 +102,7 @@ def get_user_posts(request):
                     post_form.cleaned_data['current_user']))
                 task_data = {
                     "object_type": dict(settings.KNOWN_TYPES)[post.object_type],
-                    "object_uuid": post.sb_id
+                    "object_uuid": post.object_uuid
                 }
                 spawn_task(update_view_count_task, task_data)
             task_dict = {'username': request.user.username}

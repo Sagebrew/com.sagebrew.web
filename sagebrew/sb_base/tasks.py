@@ -16,7 +16,7 @@ def create_object_relations_task(sb_object, current_pleb, question=None,
     try:
         current_pleb = Pleb.nodes.get(username=current_pleb)
         if wall_pleb is not None:
-            wall_pleb = Pleb.nodes.get(email=wall_pleb)
+            wall_pleb = Pleb.nodes.get(username=wall_pleb)
             wall = wall_pleb.wall.all()[0]
         else:
             wall = None
@@ -26,7 +26,7 @@ def create_object_relations_task(sb_object, current_pleb, question=None,
 
     if question is not None:
         try:
-            question = SBQuestion.nodes.get(sb_id=question)
+            question = SBQuestion.nodes.get(object_uuid=question)
         except(CypherException, DoesNotExist, SBQuestion.DoesNotExist) as e:
             raise create_object_relations_task.retry(exc=e, countdown=3,
                                                      max_retries=None)
@@ -45,7 +45,7 @@ def create_object_relations_task(sb_object, current_pleb, question=None,
         raise create_object_relations_task.retry(exc=object_data, countdown=3,
                                                  max_retries=None)
     try:
-        object_data['parent_object'] = question.sb_id
+        object_data['parent_object'] = question.object_uuid
     except AttributeError:
         pass
     table_data = {'table': sb_object.get_table(),

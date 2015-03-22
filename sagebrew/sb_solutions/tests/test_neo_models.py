@@ -18,9 +18,9 @@ class TestSBSolutionNeoModel(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.solution = SBSolution(content="test solution content",
-                               sb_id=str(uuid1())).save()
+                               object_uuid=str(uuid1())).save()
         self.question = SBQuestion(content='test question content',
-                                   sb_id=str(uuid1())).save()
+                                   object_uuid=str(uuid1())).save()
 
     def test_edit_content(self):
         self.assertFalse(isinstance(self.solution.edit_content('test edit',

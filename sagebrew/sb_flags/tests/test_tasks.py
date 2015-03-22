@@ -25,10 +25,10 @@ class TestFlagObjectTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_flag_object_task_success(self):
-        question = SBQuestion(sb_id=str(uuid1())).save()
+        question = SBQuestion(object_uuid=str(uuid1())).save()
         task_data = {
             'current_pleb': self.pleb,
-            'object_uuid': question.sb_id,
+            'object_uuid': question.object_uuid,
             'object_type': 'sb_questions.neo_models.SBQuestion',
             'flag_reason': 'spam',
             'description': ''
@@ -41,10 +41,10 @@ class TestFlagObjectTask(TestCase):
         self.assertIsInstance(res.result, SBQuestion)
 
     def test_flag_object_task_get_object_failure(self):
-        question = SBQuestion(sb_id=str(uuid1())).save()
+        question = SBQuestion(object_uuid=str(uuid1())).save()
         task_data = {
             'current_pleb': self.pleb,
-            'object_uuid': question.sb_id,
+            'object_uuid': question.object_uuid,
             'object_type': 'SBQuestion',
             'flag_reason': 'spam',
             'description': ''

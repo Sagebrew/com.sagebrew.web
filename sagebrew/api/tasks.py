@@ -81,8 +81,8 @@ def save_search_id(search_data, object_type, object_data, object_added):
         "doc_id": search_data['_id'],
         "doc_type": search_data['_type']
     }
-    # TODO We may need to change username to sb_id internally for pleb. That
-    # way the following will work and we can potentially just pass around
+    # TODO We may need to change username to object_uuid internally for pleb.
+    # That way the following will work and we can potentially just pass around
     # the username as the object_uuid.
     sb_object = get_object(object_type, object_data['object_uuid'])
     if isinstance(sb_object, Exception) is True:

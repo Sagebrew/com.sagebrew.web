@@ -12,7 +12,7 @@ function ajax_security(xhr, settings) {
 
 function save_comment() {
     $(".comment-action").click(function (event) {
-        var sb_id = $(this).data('object_uuid');
+        var object_uuid = $(this).data('object_uuid');
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -24,7 +24,7 @@ function save_comment() {
             type: "POST",
             url: "/comments/submit_comment/",
             data: JSON.stringify({
-                'content': $('textarea#post_comment_on_' + sb_id).val(),
+                'content': $('textarea#post_comment_on_' + object_uuid).val(),
                 'object_uuid': $(this).data('object_uuid'),
                 'object_type': $(this).data('object_type'),
                 'current_pleb': $(this).data('current_pleb')
@@ -32,9 +32,9 @@ function save_comment() {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-                var comment_container = $("#sb_comments_container_"+sb_id);
+                var comment_container = $("#sb_comments_container_"+object_uuid);
                 comment_container.append(data['html']);
-                $('textarea#post_comment_on_' + sb_id).val("");
+                $('textarea#post_comment_on_' + object_uuid).val("");
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 if(XMLHttpRequest.status === 500){
@@ -47,9 +47,9 @@ function save_comment() {
 
 function show_edit_post() {
     $("a.show_edit_post_class").click(function (event) {
-        var sb_id = $(this).data('uuid');
-        $("#sb_content_"+sb_id).hide();
-        $('#edit_container_' + sb_id).show();
+        var object_uuid = $(this).data('uuid');
+        $("#sb_content_"+object_uuid).hide();
+        $('#edit_container_' + object_uuid).show();
         var textarea = $('textarea#' + $(this).data('uuid'));
         textarea.height( textarea[0].scrollHeight );
     });
@@ -58,9 +58,9 @@ function show_edit_post() {
 
 function show_edit_comment() {
     $("a.show_edit_comment_class").click(function () {
-        var sb_id = $(this).data('comment_uuid');
-        $("#sb_content_"+sb_id).hide();
-        $('#edit_container_' + sb_id).show();
+        var object_uuid = $(this).data('comment_uuid');
+        $("#sb_content_"+object_uuid).hide();
+        $('#edit_container_' + object_uuid).show();
         var textarea = $('textarea#' + $(this).data('comment_uuid'));
         textarea.height( textarea[0].scrollHeight );
     });
@@ -306,7 +306,7 @@ function delete_object() {
 function page_leave_endpoint() {
     $(window).on('unload', function() {
         var object_list = [];
-        $(".sb_id").each(function(){
+        $(".object_uuid").each(function(){
             object_list.push($(this).data('object_uuid'))
         });
         $.ajaxSetup({

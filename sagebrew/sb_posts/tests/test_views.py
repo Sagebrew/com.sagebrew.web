@@ -105,8 +105,8 @@ class TestGetUserPosts(TestCase):
 
     def test_get_user_posts(self):
         for item in range(0,3):
-            post = SBPost(content='test', sb_id=str(uuid1()),
-                          date_created=
+            post = SBPost(content='test', object_uuid=str(uuid1()),
+                          created=
                           (datetime.now(pytz.utc) + timedelta(hours=10))).save()
             rel = post.owned_by.connect(self.pleb)
             rel.save()

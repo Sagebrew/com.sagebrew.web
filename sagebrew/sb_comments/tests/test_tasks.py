@@ -27,10 +27,10 @@ class TestSaveCommentTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_save_comment_on_object_task_success(self):
-        question = SBQuestion(sb_id=str(uuid1())).save()
+        question = SBQuestion(object_uuid=str(uuid1())).save()
         task_param = {'content': 'test comment',
                       'current_pleb': self.pleb,
-                      'object_uuid': question.sb_id,
+                      'object_uuid': question.object_uuid,
                       'object_type': 'sb_questions.neo_models.SBQuestion',
                       'comment_uuid': str(uuid1())}
         response = save_comment_on_object.apply_async(kwargs=task_param)
@@ -40,10 +40,10 @@ class TestSaveCommentTask(TestCase):
         self.assertTrue(response.result)
 
     def test_save_comment_on_object_task_get_object_fail(self):
-        question = SBQuestion(sb_id=str(uuid1())).save()
+        question = SBQuestion(object_uuid=str(uuid1())).save()
         task_param = {'content': 'test comment',
                       'current_pleb': self.pleb,
-                      'object_uuid': question.sb_id,
+                      'object_uuid': question.object_uuid,
                       'object_type': 'SBQuestion',
                       'comment_uuid': str(uuid1())}
         response = save_comment_on_object.apply_async(kwargs=task_param)
@@ -66,8 +66,8 @@ class TestCreateCommentRelationsTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_create_comment_relations_task_success(self):
-        question = SBQuestion(sb_id=str(uuid1())).save()
-        comment = SBComment(sb_id=str(uuid1())).save()
+        question = SBQuestion(object_uuid=str(uuid1())).save()
+        comment = SBComment(object_uuid=str(uuid1())).save()
         task_data = {
             'current_pleb': self.pleb,
             'comment': comment,

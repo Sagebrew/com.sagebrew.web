@@ -30,7 +30,7 @@ def add_question_to_indices_task(question, tags):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         res = es.get(index='full-search-base',
                      doc_type='sb_questions.neo_models.SBQuestion',
-                     id=question.sb_id)
+                     id=question.object_uuid)
         return True
     except NotFoundError:
         pass
@@ -43,8 +43,8 @@ def add_question_to_indices_task(question, tags):
                    'user': question.owned_by.all()[0].email,
                    'question_title': question.question_title,
                    'tags': tags,
-                   'object_uuid': question.sb_id,
-                   'post_date': question.date_created,
+                   'object_uuid': question.object_uuid,
+                   'post_date': question.created,
                    'related_user': ''}
     task_data = {"object_type": "sb_questions.neo_models.SBQuestion",
                  "object_data": search_dict}

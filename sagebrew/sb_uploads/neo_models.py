@@ -15,7 +15,7 @@ class Image(SBContent):
     sizes = RelationshipTo('sb_uploads.neo_models.SubImage', "RESIZE")
 
 class SubImage(SBContent):
-    sb_id = StringProperty(unique_index=True)
+    object_uuid = StringProperty(unique_index=True)
     url = StringProperty()
     height = IntegerProperty()
     width = IntegerProperty()

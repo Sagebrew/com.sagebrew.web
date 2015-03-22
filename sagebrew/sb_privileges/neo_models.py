@@ -9,7 +9,7 @@ from api.utils import request_to_api
 
 
 class SBPrivilege(StructuredNode):
-    sb_id = StringProperty(default=lambda: str(uuid1()))
+    object_uuid = StringProperty(default=lambda: str(uuid1()))
     name = StringProperty(unique_index=True)
 
     #relationships
@@ -47,7 +47,7 @@ class SBPrivilege(StructuredNode):
         for req in self.get_requirements():
             requirements.append(req.get_dict())
         return {
-            "sb_id": self.sb_id,
+            "object_uuid": self.object_uuid,
             "name": self.name,
             "actions": actions,
             "requirements": requirements,
@@ -56,7 +56,7 @@ class SBPrivilege(StructuredNode):
 
 
 class SBAction(StructuredNode):
-    sb_id = StringProperty(default=lambda: str(uuid1()))
+    object_uuid = StringProperty(default=lambda: str(uuid1()))
     action = StringProperty(default="")
     object_type = StringProperty()#one of the object types specified in settings.KNOWN_TYPES
     url = StringProperty()
@@ -72,7 +72,7 @@ class SBAction(StructuredNode):
         possible_restrictions = []
         for restriction in self.get_restrictions():
             possible_restrictions.append(restriction.get_dict)
-        return {"sb_id": self.sb_id,
+        return {"object_uuid": self.object_uuid,
                 "action": self.action,
                 "object_type": self.object_type,
                 "url": self.url,
@@ -84,7 +84,7 @@ class SBAction(StructuredNode):
 
 
 class SBRestriction(StructuredNode):
-    sb_id = StringProperty(default=lambda: str(uuid1()), unique_index=True)
+    object_uuid = StringProperty(default=lambda: str(uuid1()), unique_index=True)
     base = BooleanProperty(default=False)
     name = StringProperty(unique_index=True)
     url = StringProperty()
@@ -99,7 +99,7 @@ class SBRestriction(StructuredNode):
     #methods
     def get_dict(self):
         return {
-            "sb_id": self.sb_id,
+            "object_uuid": self.object_uuid,
             "restriction": self.name,
             "key": self.key,
             "operator": self.operator,
@@ -135,7 +135,7 @@ class SBRestriction(StructuredNode):
                         self.get_operator_string(), self.condition, 'flags',
                         current)}
         else:
-            return {"detail": "The restriction %s was met"%(self.sb_id),
+            return {"detail": "The restriction %s was met"%(self.object_uuid),
                     "key": self.key,
                     "operator": pickle.loads(self.operator),
                     "response": check}

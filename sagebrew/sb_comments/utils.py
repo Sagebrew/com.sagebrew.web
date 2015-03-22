@@ -18,9 +18,9 @@ def save_comment(content, comment_uuid):
     :return:
     '''
     try:
-        my_comment = SBComment.nodes.get(sb_id=comment_uuid)
+        my_comment = SBComment.nodes.get(object_uuid=comment_uuid)
     except (SBComment.DoesNotExist, DoesNotExist):
-        my_comment = SBComment(content=content, sb_id=comment_uuid)
+        my_comment = SBComment(content=content, object_uuid=comment_uuid)
         my_comment.save()
     except CypherException as e:
         return e
@@ -50,7 +50,7 @@ def convert_dynamo_comments(raw_comments):
             comment['last_edited_on'][:len(comment['last_edited_on']) - 6],
             '%Y-%m-%d %H:%M:%S.%f')
         comment['created'] = datetime.strptime(
-            comment['time_created'][:len(comment['time_created']) - 6],
+            comment['created'][:len(comment['created']) - 6],
             '%Y-%m-%d %H:%M:%S.%f')
         comment['object_vote_count'] = str(
             comment['up_vote_number'] - comment['down_vote_number'])

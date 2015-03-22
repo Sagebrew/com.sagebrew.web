@@ -23,7 +23,7 @@ def get_pleb_posts(pleb_email, range_end, range_start=0):
                      'MATCH (wall)-[:HAS_POST]-(posts:SBPost) ' \
                      'WHERE posts.to_be_deleted=False ' \
                      'WITH posts ' \
-                     'ORDER BY posts.date_created DESC ' \
+                     'ORDER BY posts.created DESC ' \
                      'SKIP %s LIMIT %s ' \
                      'RETURN posts'\
                      % (pleb_email, str(range_start), str(range_end))
@@ -52,10 +52,10 @@ def save_post(content, post_uuid, created):
             else returns SBPost object
     '''
     try:
-        sb_post = SBPost.nodes.get(sb_id=post_uuid)
+        sb_post = SBPost.nodes.get(object_uuid=post_uuid)
     except(SBPost.DoesNotExist, DoesNotExist):
-        sb_post = SBPost(content=content, sb_id=post_uuid,
-                         last_edited_on=created, date_created=created)
+        sb_post = SBPost(content=content, object_uuid=post_uuid,
+                         last_edited_on=created, created=created)
         try:
             sb_post.save()
         except(CypherException, IOError) as e:

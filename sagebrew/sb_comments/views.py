@@ -57,6 +57,7 @@ def save_comment_view(request):
             "comments": [{
                 "object_uuid": task_data['comment_uuid'],
                 "content": comment_form.cleaned_data['content'],
+                "vote_type": None,
                 "up_vote_number": 0,
                 "down_vote_number": 0,
                 "vote_count": str(0),

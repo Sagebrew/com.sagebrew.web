@@ -3,13 +3,11 @@ from uuid import uuid1
 import pytz
 from logging import getLogger
 
-from rest_framework.generics import ListAPIView, ListCreateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework import mixins
 
 from neomodel import CypherException
 
@@ -19,8 +17,7 @@ from sb_docstore.utils import get_dynamo_table
 from sb_comments.utils import convert_dynamo_comments
 from sb_comments.serializers import CommentSerializer
 
-from .serializers import SolutionSerializerDynamo, SolutionSerializerNeo
-from .utils import convert_dynamo_solutions, convert_dynamo_solution
+from .serializers import SolutionSerializerNeo
 from .neo_models import SBSolution
 
 
@@ -38,6 +35,7 @@ class SolutionViewSet(viewsets.GenericViewSet):
     """
     serializer_class = SolutionSerializerNeo
     lookup_field = "object_uuid"
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         try:
@@ -105,7 +103,7 @@ class SolutionViewSet(viewsets.GenericViewSet):
                 parent_object__eq=object_uuid,
                 datetime__gte="0"
             )
-            serializer = SolutionSerializerDynamo(
+            serializer = CommentSerializer(
                 convert_dynamo_comments(queryset), context={"request": request},
                 many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -134,10 +132,11 @@ class SolutionViewSet(viewsets.GenericViewSet):
                         "parent_object": parent_uuid,
                         "object_uuid": uuid,
                         "content": serializer.validated_data["content"],
-                        "created": created,
-                        "last_edited_on": created,
+                        "datetime": created,
                         "comment_owner": request.user.get_full_name(),
-                        "comment_owner_email": request.user.email
+                        "comment_owner_email": request.user.email,
+                        "last_edited_on": created,
+                        "created": created,
                     }
                 )
                 return Response(serializer.validated_data,
@@ -145,36 +144,3 @@ class SolutionViewSet(viewsets.GenericViewSet):
 
             return Response(serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
-
-
-class QuestionSolutionsList(ListCreateAPIView):
-    serializer_class = SolutionSerializerDynamo
-    permission_classes = (IsAuthenticated,)
-    lookup_field = "parent_object"
-    lookup_url_kwarg = "uuid"
-
-    def get_queryset(self):
-        """
-        This view should return a list of all the purchases for
-        the user as determined by the username portion of the URL.
-        """
-
-        table = get_dynamo_table("public_solutions")
-        if isinstance(table, Exception) is True:
-            return table
-
-        queryset = table.query_2(parent_object__eq=self.kwargs[
-            self.lookup_url_kwarg])
-        queryset = convert_dynamo_solutions(queryset, self.request)
-        sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
-        if sort_by == "created":
-            queryset = sorted(
-                queryset,
-                key=lambda k: k['created'])
-        elif sort_by == "edited":
-            queryset = sorted(
-                queryset,
-                key=lambda k: k['last_edited_on'])
-        else:
-            queryset = sorted(queryset, key=lambda k: k['object_vote_count'])
-        return queryset

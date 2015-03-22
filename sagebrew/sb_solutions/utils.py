@@ -49,10 +49,10 @@ def convert_dynamo_solution(raw_solution, request):
         '%Y-%m-%d %H:%M:%S.%f')
     solution['object_vote_count'] = str(
         solution['up_vote_number'] - solution['down_vote_number'])
-    url = reverse('solution-detail-comments', kwargs={
-        'uuid': solution['object_uuid']}, request=request)
+    url = reverse('solutions-comments', kwargs={
+        'object_uuid': solution['object_uuid']}, request=request)
     response = request_to_api(url, request.user.username, req_method="GET")
-    #solution["comments"] = response.json()
+    solution["comments"] = response.json()
 
     return solution
 

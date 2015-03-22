@@ -183,16 +183,16 @@
     {% endcomment %}
     <div class="row">
         <form id="commentSubmitForm">
-            <div class="input-group sb_comment">
-                <textarea class="input-group form-control sb_comment_input"
-                          id="post_comment_on_{{ object_uuid }}"
-                          rows="2"
-                          name="comment_content"
-                          placeholder="Write your comment..."></textarea>
-                <a class="btn input-group-btn sb_btn_comment_icon comment-action"
-                   data-object_uuid="{{ object_uuid }}"
-                   data-object_type="01bb301a-644f-11e4-9ad9-080027242395"><span class="fui-new"></span></a>
-            </div>
+        <div class="input-group sb_comment">
+            <textarea class="input-group form-control sb_comment_input"
+                      id="post_comment_on_{{ object_uuid }}"
+                      rows="2"
+                      name="comment_content"
+                      placeholder="Write your comment..."></textarea>
+            <a class="btn input-group-btn sb_btn_comment_icon comment-action"
+               data-object_uuid="{{ object_uuid }}"
+               data-object_type="{{ object_type }}"><span class="fui-new"></span></a>
+        </div>
         </form>
     </div>
     <div class="row">
@@ -200,6 +200,21 @@
             {% for solution in solutions %}
                 {% include "solution_detail.html" %}
             {% endfor %}
+        </div>
+    </div>
+</div>
+<div class="row-fluid">
+    <div class="row sb_tertiary_nav">
+        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+            <h3>{{ solution_number }} Solutions</h3>
+        </div>
+        <div class="col-lg-9 col-md-9 col-sm-9 hidden-xs" align="right">
+            <a class="btn sb_tab_question"
+               data-sort_by="most_recent"
+               data-current_pleb="{{ email }}">Most Recent</a>
+            <a class="btn sb_tab_question"
+               data-sort_by="least_recent"
+               data-current_pleb="{{ email }}">Least Recent</a>
         </div>
     </div>
 </div>

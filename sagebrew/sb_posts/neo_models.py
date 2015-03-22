@@ -59,7 +59,7 @@ class SBPost(SBNonVersioned):
             query = 'MATCH (p:SBPost) WHERE p.object_uuid="%s" ' \
                     'WITH p MATCH (p) - [:HAS_A] - (c:SBComment) ' \
                     'WHERE c.to_be_deleted=False ' \
-                    'WITH c ORDER BY c.created_on ' \
+                    'WITH c ORDER BY c.created ' \
                     'RETURN c' % self.object_uuid
             post_comments, meta = execute_cypher_query(query)
             post_comments = [SBComment.inflate(row[0]) for row in post_comments]

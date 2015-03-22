@@ -218,50 +218,59 @@ def get_question_doc(question_uuid, question_table, solution_table):
                                         - question['down_vote_number'])
     for comment in comments:
         comment = dict(comment)
-        comment['up_vote_number'] = get_vote_count(comment['object_uuid'],1)
-        comment['down_vote_number'] = get_vote_count(comment['object_uuid'],0)
-        comment['last_edited_on'] = datetime.strptime(
-            comment['last_edited_on'][:len(comment['last_edited_on']) - 6],
-            '%Y-%m-%d %H:%M:%S.%f')
-        comment['created'] = datetime.strptime(
-            comment['created'][:len(comment['created']) - 6],
-            '%Y-%m-%d %H:%M:%S.%f')
-        comment['object_vote_count'] = str(comment['up_vote_number']
-                                           - comment['down_vote_number'])
-        q_comments.append(comment)
-    for solution in solutions:
-        a_comments = []
-        solution = dict(solution)
-        solution['up_vote_number'] = get_vote_count(solution['object_uuid'],
-                                                    1)
-        solution['down_vote_number'] = get_vote_count(solution['object_uuid'],
-                                                      0)
-        solution['last_edited_on'] = datetime.strptime(
-            solution['last_edited_on'][:len(solution['last_edited_on']) - 6],
-            '%Y-%m-%d %H:%M:%S.%f')
-        solution['created'] = datetime.strptime(
-            solution['created'][:len(solution['created']) - 6],
-            '%Y-%m-%d %H:%M:%S.%f')
-        solution['object_vote_count'] = str(
-            solution['up_vote_number'] - solution['down_vote_number'])
-        solution_comments = comment_table.query_2(
-            parent_object__eq=solution['object_uuid'],
-            datetime__gte="0"
-        )
-        for ans_comment in solution_comments:
-            comment = dict(ans_comment)
+        try:
             comment['up_vote_number'] = get_vote_count(comment['object_uuid'],1)
-            comment['down_vote_number'] = get_vote_count(
-                comment['object_uuid'],0)
+            comment['down_vote_number'] = get_vote_count(comment['object_uuid'],0)
             comment['last_edited_on'] = datetime.strptime(
                 comment['last_edited_on'][:len(comment['last_edited_on']) - 6],
                 '%Y-%m-%d %H:%M:%S.%f')
             comment['created'] = datetime.strptime(
                 comment['created'][:len(comment['created']) - 6],
                 '%Y-%m-%d %H:%M:%S.%f')
-            comment['object_vote_count'] = str(
-                comment['up_vote_number'] - comment['down_vote_number'])
-            a_comments.append(comment)
+            comment['object_vote_count'] = str(comment['up_vote_number']
+                                               - comment['down_vote_number'])
+            q_comments.append(comment)
+        except KeyError:
+            continue
+    for solution in solutions:
+        a_comments = []
+        try:
+            solution = dict(solution)
+            solution['up_vote_number'] = get_vote_count(solution['object_uuid'],
+                                                        1)
+            solution['down_vote_number'] = get_vote_count(solution['object_uuid'],
+                                                          0)
+            solution['last_edited_on'] = datetime.strptime(
+                solution['last_edited_on'][:len(solution['last_edited_on']) - 6],
+                '%Y-%m-%d %H:%M:%S.%f')
+            solution['created'] = datetime.strptime(
+                solution['created'][:len(solution['created']) - 6],
+                '%Y-%m-%d %H:%M:%S.%f')
+            solution['object_vote_count'] = str(
+                solution['up_vote_number'] - solution['down_vote_number'])
+            solution_comments = comment_table.query_2(
+                parent_object__eq=solution['object_uuid'],
+                datetime__gte="0"
+            )
+        except KeyError:
+            continue
+        for ans_comment in solution_comments:
+            try:
+                comment = dict(ans_comment)
+                comment['up_vote_number'] = get_vote_count(comment['object_uuid'],1)
+                comment['down_vote_number'] = get_vote_count(
+                    comment['object_uuid'],0)
+                comment['last_edited_on'] = datetime.strptime(
+                    comment['last_edited_on'][:len(comment['last_edited_on']) - 6],
+                    '%Y-%m-%d %H:%M:%S.%f')
+                comment['created'] = datetime.strptime(
+                    comment['created'][:len(comment['created']) - 6],
+                    '%Y-%m-%d %H:%M:%S.%f')
+                comment['object_vote_count'] = str(
+                    comment['up_vote_number'] - comment['down_vote_number'])
+                a_comments.append(comment)
+            except KeyError:
+                continue
         solution['comments'] = a_comments
         solution_list.append(solution)
     question['solutions'] = solution_list

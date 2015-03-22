@@ -117,7 +117,6 @@ def get_user_posts(request):
                 post['object_vote_count'] = str(post[
                                                          'up_vote_number'] -\
                                                  post['down_vote_number'])
-                post['vote_type'] = ""
                 post['current_pleb'] = request.user
                 task_data = {
                     "object_type": dict(

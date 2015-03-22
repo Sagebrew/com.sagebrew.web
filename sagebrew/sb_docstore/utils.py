@@ -422,6 +422,7 @@ def get_wall_docs(parent_object, user=''):
         if post['vote_type'] is not None:
             post['vote_type'] = str(bool(post['vote_type']['status']))\
                 .lower()
+        print post['vote_type']
         comments = comments_table.query_2(
             parent_object__eq=post['object_uuid'],
             datetime__gte='0')

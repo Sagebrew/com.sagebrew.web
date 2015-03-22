@@ -8,11 +8,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from .forms import VoteObjectForm
-from .tasks import vote_object_task
 from .utils import determine_update_values
-from api.utils import spawn_task
-from api.tasks import get_pleb_task
-from sb_base.utils import defensive_exception
 from sb_docstore.utils import get_vote, add_object_to_table, update_vote
 
 logger = logging.getLogger('loggly_logs')
@@ -41,7 +37,7 @@ def vote_object_view(request):
                  "time": now
                  }
         res = get_vote(vote_object_form.cleaned_data['object_uuid'],
-                       user=request.user.email)
+                       user=request.user.username)
         if isinstance(res, Exception) is True:
             return Response({"detail": "server error"}, status=500)
         if not res:
@@ -55,7 +51,7 @@ def vote_object_view(request):
         else:
             prev_vote = dict(res)
             update = update_vote(vote_object_form.cleaned_data['object_uuid'],
-                                 request.user.email,
+                                 request.user.username,
                                  status, now)
             if isinstance(update, Exception) is True:
                 return Response({"detail": "server error"}, status=500)

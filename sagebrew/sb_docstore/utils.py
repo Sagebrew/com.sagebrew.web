@@ -117,7 +117,7 @@ def query_parent_object_table(object_uuid, get_all=False, table_name='edits'):
         return e
     res = edits.query_2(
         parent_object__eq=object_uuid,
-        datetime__gte='0',
+        created__gte='0',
         reverse=True
     )
     if get_all:
@@ -130,7 +130,7 @@ def query_parent_object_table(object_uuid, get_all=False, table_name='edits'):
 
 @apply_defense
 def update_doc(table, object_uuid, update_data, parent_object="",
-               obj_datetime=""):
+               obj_created=""):
     table_name = get_table_name(table)
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
@@ -139,9 +139,9 @@ def update_doc(table, object_uuid, update_data, parent_object="",
         db_table = Table(table_name=table_name, connection=conn)
     except JSONResponseError as e:
         return e
-    if obj_datetime != "" and parent_object != "":
+    if obj_created != "" and parent_object != "":
         res = db_table.get_item(parent_object=parent_object,
-                                datetime=obj_datetime)
+                                created=obj_created)
     elif parent_object!="":
         res = db_table.get_item(parent_object=parent_object,
                                 object_uuid=object_uuid)
@@ -200,34 +200,33 @@ def get_question_doc(question_uuid, question_table, solution_table):
     )
     comments = comment_table.query_2(
         parent_object__eq=question_uuid,
-        datetime__gte="0"
+        created__gte="0"
     )
     question = dict(question)
     question['up_vote_number'] = get_vote_count(question['object_uuid'],
                                                 1)
     question['down_vote_number'] = get_vote_count(question['object_uuid'],
                                                   0)
-    question['last_edited_on'] = datetime.strptime(question['last_edited_on'][
-                                      :len(question['last_edited_on'])-6],
-                                      '%Y-%m-%d %H:%M:%S.%f')
-    question['time_created'] = datetime.strptime(question['time_created'][
-                                      :len(question['time_created'])-6],
-                                      '%Y-%m-%d %H:%M:%S.%f')
-    question['object_vote_count'] = str(question['up_vote_number']
-                                        - question['down_vote_number'])
+    question['last_edited_on'] = datetime.strptime(
+        question['last_edited_on'][:len(question['last_edited_on']) - 6],
+        '%Y-%m-%d %H:%M:%S.%f')
+    question['created'] = datetime.strptime(
+        question['created'][:len(question['created']) - 6],
+        '%Y-%m-%d %H:%M:%S.%f')
+    question['object_vote_count'] = str(
+        question['up_vote_number'] - question['down_vote_number'])
     for comment in comments:
         comment = dict(comment)
         comment['up_vote_number'] = get_vote_count(comment['object_uuid'],1)
         comment['down_vote_number'] = get_vote_count(comment['object_uuid'],0)
-        comment['last_edited_on'] = datetime.strptime(comment[
-                                      'last_edited_on'][
-                                      :len(comment['last_edited_on'])-6],
-                                      '%Y-%m-%d %H:%M:%S.%f')
-        comment['time_created'] = datetime.strptime(comment['datetime'][
-                                      :len(comment['datetime'])-6],
-                                      '%Y-%m-%d %H:%M:%S.%f')
-        comment['object_vote_count'] = str(comment['up_vote_number']
-                                           - comment['down_vote_number'])
+        comment['last_edited_on'] = datetime.strptime(
+            comment['last_edited_on'][:len(comment['last_edited_on']) - 6],
+            '%Y-%m-%d %H:%M:%S.%f')
+        comment['created'] = datetime.strptime(
+            comment['created'][:len(comment['created']) - 6],
+            '%Y-%m-%d %H:%M:%S.%f')
+        comment['object_vote_count'] = str(
+            comment['up_vote_number'] - comment['down_vote_number'])
         q_comments.append(comment)
     for solution in solutions:
         a_comments = []
@@ -236,34 +235,32 @@ def get_question_doc(question_uuid, question_table, solution_table):
                                                     1)
         solution['down_vote_number'] = get_vote_count(solution['object_uuid'],
                                                       0)
-        solution['last_edited_on'] = datetime.strptime(solution[
-                                      'last_edited_on'][
-                                      :len(solution['last_edited_on'])-6],
-                                      '%Y-%m-%d %H:%M:%S.%f')
-        solution['time_created'] = datetime.strptime(solution['time_created'][
-                                      :len(solution['time_created'])-6],
-                                      '%Y-%m-%d %H:%M:%S.%f')
-        solution['object_vote_count'] = str(solution['up_vote_number']-
-                                          solution['down_vote_number'])
+        solution['last_edited_on'] = datetime.strptime(
+            solution['last_edited_on'][:len(solution['last_edited_on']) - 6],
+            '%Y-%m-%d %H:%M:%S.%f')
+        solution['created'] = datetime.strptime(
+            solution['created'][:len(solution['created']) - 6],
+            '%Y-%m-%d %H:%M:%S.%f')
+        solution['object_vote_count'] = str(
+            solution['up_vote_number'] - solution['down_vote_number'])
         solution_comments = comment_table.query_2(
             parent_object__eq=solution['object_uuid'],
-            datetime__gte="0"
+            created__gte="0"
         )
         for ans_comment in solution_comments:
             comment = dict(ans_comment)
-            comment['up_vote_number'] = get_vote_count(comment['object_uuid'],1)
+            comment['up_vote_number'] = get_vote_count(
+                comment['object_uuid'], 1)
             comment['down_vote_number'] = get_vote_count(
                 comment['object_uuid'],0)
-            comment['last_edited_on'] = datetime.strptime(comment[
-                                      'last_edited_on'][
-                                      :len(comment['last_edited_on'])-6],
-                                      '%Y-%m-%d %H:%M:%S.%f')
-            comment['time_created'] = datetime.strptime(comment[
-                                      'datetime'][
-                                      :len(comment['datetime'])-6],
-                                      '%Y-%m-%d %H:%M:%S.%f')
-            comment['object_vote_count'] = str(comment['up_vote_number']
-                                               - comment['down_vote_number'])
+            comment['last_edited_on'] = datetime.strptime(
+                comment['last_edited_on'][:len(comment['last_edited_on']) - 6],
+                '%Y-%m-%d %H:%M:%S.%f')
+            comment['created'] = datetime.strptime(
+                comment['created'][:len(comment['created']) - 6],
+                '%Y-%m-%d %H:%M:%S.%f')
+            comment['object_vote_count'] = str(
+                comment['up_vote_number'] - comment['down_vote_number'])
             a_comments.append(comment)
         solution['comments'] = a_comments
         solution_list.append(solution)
@@ -381,7 +378,7 @@ def get_wall_docs(parent_object):
         return e
     posts = posts_table.query_2(
         parent_object__eq=parent_object,
-        datetime__gte='0',
+        created__gte='0',
         reverse=True
     )
     posts = list(posts)
@@ -394,7 +391,7 @@ def get_wall_docs(parent_object):
         post['down_vote_number'] = get_vote_count(post['object_uuid'], 0)
         comments = comments_table.query_2(
             parent_object__eq=post['object_uuid'],
-            datetime__gte='0')
+            created__gte='0')
         comments = list(comments)
         for comment in comments:
             comment = dict(comment)
@@ -569,7 +566,7 @@ def get_notification_docs(username):
         return e
     res = notification_table.query_2(
                             parent_object__eq=username,
-                            datetime__gte='0')
+                            created__gte='0')
     for notification in res:
         notification_list.append(dict(notification))
     return notification_list

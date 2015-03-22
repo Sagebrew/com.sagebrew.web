@@ -107,7 +107,7 @@ class TestGetUserPosts(TestCase):
         for item in range(0,3):
             post = SBPost(content='test', sb_id=str(uuid1()),
                           date_created=
-                          (datetime.now(pytz.utc)+timedelta(hours=10))).save()
+                          (datetime.now(pytz.utc) + timedelta(hours=10))).save()
             rel = post.owned_by.connect(self.pleb)
             rel.save()
             self.pleb.wall.all()[0].post.connect(post)

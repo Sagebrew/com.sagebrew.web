@@ -45,8 +45,8 @@ def convert_dynamo_solution(raw_solutions, request):
         solution['last_edited_on'] = datetime.strptime(
             solution['last_edited_on'][:len(solution['last_edited_on']) - 6],
             '%Y-%m-%d %H:%M:%S.%f')
-        solution['time_created'] = datetime.strptime(
-            solution['time_created'][:len(solution['time_created']) - 6],
+        solution['created'] = datetime.strptime(
+            solution['created'][:len(solution['created']) - 6],
             '%Y-%m-%d %H:%M:%S.%f')
         solution['object_vote_count'] = str(
             solution['up_vote_number'] - solution['down_vote_number'])

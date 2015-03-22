@@ -20,7 +20,6 @@ class SBComment(SBNonVersioned):
     action = "commented on your "
     sb_name = "comment"
     object_type = "02ba1c88-644f-11e4-9ad9-080027242395"
-    created_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     up_vote_number = IntegerProperty(default=0)
     down_vote_number = IntegerProperty(default=0)
     view_count = IntegerProperty(default=0)
@@ -74,7 +73,7 @@ class SBComment(SBNonVersioned):
                             'comment_owner_email': comment_owner.email,
                             'owner_username': comment_owner.username,
                             'current_user': pleb,
-                            'datetime': unicode(self.date_created),
+                            'created': unicode(self.date_created),
                             'edits': [],
                             'object_type': self.object_type}
             self.view_count += 1

@@ -58,7 +58,7 @@ class SolutionCommentList(ListAPIView):
             return table
         queryset = table.query_2(
             parent_object__eq=self.kwargs[self.lookup_url_kwarg],
-            datetime__gte="0"
+            created__gte="0"
         )
 
         return convert_dynamo_comments(queryset)

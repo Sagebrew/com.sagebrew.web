@@ -169,7 +169,7 @@ class TestGetQuestionView(TestCase):
         for item in range(0,5):
             question = SBQuestion(
                 sb_id=str(uuid1()), content='test', question_title='test title',
-                date_created=datetime.datetime.now() -
+                created=datetime.datetime.now() -
                 datetime.timedelta(days=3*365)).save()
             question.owned_by.connect(self.pleb)
 

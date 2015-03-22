@@ -354,7 +354,7 @@ class TestSearchResultAPIReturns(TestCase):
                                last_edited_on=datetime.now(pytz.utc),
                                up_vote_number=0,
                                down_vote_number=0,
-                               date_created=datetime.now(pytz.utc))
+                               created=datetime.now(pytz.utc))
         question1.save()
         question1.owned_by.connect(self.pleb)
         index_res = es.index(index='full-search-user-specific-1',
@@ -385,7 +385,7 @@ class TestSearchResultAPIReturns(TestCase):
                                last_edited_on=datetime.now(pytz.utc),
                                up_vote_number=0,
                                down_vote_number=0,
-                               date_created=datetime.now(pytz.utc))
+                               created=datetime.now(pytz.utc))
         question1.save()
         question1.owned_by.connect(self.pleb)
         es.index(index='full-search-user-specific-1',
@@ -424,7 +424,7 @@ class TestSearchResultAPIReturns(TestCase):
                                last_edited_on=datetime.now(pytz.utc),
                                up_vote_number=0,
                                down_vote_number=0,
-                               date_created=datetime.now(pytz.utc))
+                               created=datetime.now(pytz.utc))
         question1.save()
         question1.owned_by.connect(self.pleb)
         es.index(index='full-search-user-specific-1',
@@ -471,7 +471,7 @@ class TestSearchResultAPIReturns(TestCase):
                                last_edited_on=datetime.now(pytz.utc),
                                up_vote_number=0,
                                down_vote_number=0,
-                               date_created=datetime.now(pytz.utc))
+                               created=datetime.now(pytz.utc))
         question1.save()
         question1.owned_by.connect(pleb)
         es.index(index='full-search-user-specific-1',
@@ -516,7 +516,7 @@ class TestSearchResultAPIReturns(TestCase):
                                last_edited_on=datetime.now(pytz.utc),
                                up_vote_number=0,
                                down_vote_number=0,
-                               date_created=datetime.now(pytz.utc))
+                               created=datetime.now(pytz.utc))
         question1.save()
         question1.owned_by.connect(self.pleb)
         es.index(index='full-search-user-specific-1',
@@ -561,7 +561,7 @@ class TestSearchResultAPIReturns(TestCase):
                                last_edited_on=datetime.now(pytz.utc),
                                up_vote_number=0,
                                down_vote_number=0,
-                               date_created=datetime.now(pytz.utc))
+                               created=datetime.now(pytz.utc))
         question1.save()
         question1.owned_by.connect(pleb)
         es.index(index='full-search-user-specific-1',

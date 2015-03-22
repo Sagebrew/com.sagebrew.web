@@ -23,7 +23,7 @@ class TestSavePostTask(TestCase):
                                'wall_pleb': self.pleb.email,
                                'content': 'test post',
                                'post_uuid': str(uuid1()),
-                               'datetime': datetime.now()}
+                               'created': datetime.now()}
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
@@ -54,7 +54,7 @@ class TestMultipleTasks(TestCase):
         for num in range(1, 10):
             uuid = str(uuid1())
             self.post_info_dict['post_uuid'] = uuid
-            self.post_info_dict['datetime'] = datetime.now()
+            self.post_info_dict['created'] = datetime.now()
             save_response = save_post_task.apply_async(
                 kwargs=self.post_info_dict)
             while not save_response.ready():

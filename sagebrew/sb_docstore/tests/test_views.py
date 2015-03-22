@@ -28,12 +28,12 @@ class TestGetUpdatesFromDynamo(TestCase):
         now = unicode(datetime.now(pytz.utc))
 
         edit_data = {'parent_object': post_id, 'content': "s;dlkfja;skdjf",
-                     'datetime': now, 'user': self.email,
+                     'created': now, 'user': self.email,
                      'object_type': '1'}
         res = add_object_to_table('edits', edit_data)
         self.assertTrue(res)
         vote_data = {'parent_object': post_id, 'user': self.email,
-                     'status': 1, 'datetime': now, 'object_type': '1'}
+                     'status': 1, 'created': now, 'object_type': '1'}
         res = add_object_to_table('votes', vote_data)
         self.assertTrue(res)
         data = {'object_uuids': [post_id]}

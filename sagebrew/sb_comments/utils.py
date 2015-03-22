@@ -49,7 +49,7 @@ def convert_dynamo_comments(raw_comments):
         comment['last_edited_on'] = datetime.strptime(
             comment['last_edited_on'][:len(comment['last_edited_on']) - 6],
             '%Y-%m-%d %H:%M:%S.%f')
-        comment['time_created'] = datetime.strptime(
+        comment['created'] = datetime.strptime(
             comment['time_created'][:len(comment['time_created']) - 6],
             '%Y-%m-%d %H:%M:%S.%f')
         comment['object_vote_count'] = str(

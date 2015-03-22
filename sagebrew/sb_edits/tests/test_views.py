@@ -26,13 +26,13 @@ class TestEditObjectView(TestCase):
     def test_edit_view_success(self):
         timestamp = unicode(datetime.now(pytz.utc))
         uuid = str(uuid1())
-        data = {'parent_object': uuid, 'datetime': timestamp,
+        data = {'parent_object': uuid, 'created': timestamp,
                 'content': "12312312312312312",}
         res = add_object_to_table('posts', data)
         self.assertTrue(res)
         test_data = {'content': 'test contentasdfas',
                      'object_type': '01bb301a-644f-11e4-9ad9-080027242395',
-                     'object_uuid': uuid, 'datetime': timestamp,
+                     'object_uuid': uuid, 'created': timestamp,
                      'parent_object': uuid}
         request = self.factory.post('/edit/edit_object_content_api/',
                                     data=test_data,

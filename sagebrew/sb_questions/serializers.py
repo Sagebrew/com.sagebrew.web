@@ -9,7 +9,8 @@ class QuestionSerializerDynamo(serializers.Serializer):
     # multiple
     parent_object = serializers.CharField()
     href = serializers.HyperlinkedIdentityField(view_name='questions-detail',
-                                                lookup_field="object_uuid")
+                                                lookup_field="object_uuid",
+                                                id_field="object_uuid")
     content = serializers.CharField()
 
     last_edited_on = serializers.DateTimeField(read_only=True)
@@ -48,7 +49,8 @@ class QuestionSerializerDynamo(serializers.Serializer):
 class QuestionSerializerNeo(serializers.Serializer):
     object_uuid = serializers.CharField(read_only=True)
     href = serializers.HyperlinkedIdentityField(view_name='questions-detail',
-                                                lookup_field="object_uuid")
+                                                lookup_field="object_uuid",
+                                                id_field="object_uuid")
     content = serializers.CharField()
 
     last_edited_on = serializers.DateTimeField(read_only=True)

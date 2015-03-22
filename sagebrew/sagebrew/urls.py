@@ -57,8 +57,7 @@ urlpatterns = patterns(
     (r'^user/', include('plebs.urls')),
     (r'^conversations/', include('sb_questions.urls')),
     (r'^solutions/', include('sb_solutions.urls')),
-    (r'^v1/', include('sb_questions.apis')),
-    (r'^v1/', include('sb_solutions.apis')),
+
     (r'^badges/', include('sb_badges.urls')),
     (r'^search/', include('sb_search.urls')),
     (r'^tags/', include('sb_tag.urls')),
@@ -72,6 +71,8 @@ urlpatterns = patterns(
     (r'^privilege/', include('sb_privileges.urls')),
     (r'^action/', include('sb_public_official.urls')),
     url(r'^signup/$', signup_view, name="signup"),
+    (r'^v1/', include('sb_questions.apis.v1')),
+    (r'^v1/', include('sb_solutions.apis.v1')),
     url(r'^$', beta_page, name='beta_page'),
 )
 

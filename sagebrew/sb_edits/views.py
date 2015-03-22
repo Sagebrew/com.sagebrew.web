@@ -36,7 +36,7 @@ def edit_object_view(request):
             html_content = ""
         dynamo_data = {
                 'parent_object': edit_object_form.cleaned_data['object_uuid'],
-                'datetime': current_datetime,
+                'created': current_datetime,
                 'content': edit_object_form.cleaned_data['content'],
                 'user': request.user.email,
                 'object_type':
@@ -55,16 +55,16 @@ def edit_object_view(request):
         table = settings.KNOWN_TABLES[
                              edit_object_form.cleaned_data['object_type']]
         if table == 'posts' or table=='comments':
-            obj_datetime = unicode(edit_object_form.cleaned_data['datetime'])
+            obj_created = unicode(edit_object_form.cleaned_data['created'])
             parent_object = edit_object_form.cleaned_data['parent_object']
         else:
-            obj_datetime = ""
+            obj_created = ""
             parent_object = edit_object_form.cleaned_data['parent_object']
         res = update_doc(table,
                          edit_object_form.cleaned_data['object_uuid'],
                          updates,
                          parent_object,
-                         obj_datetime)
+                         obj_created)
         if isinstance(res, Exception) is True:
             return Response({"detail": "server error"}, status=500)
         res = add_object_to_table('edits', dynamo_data)
@@ -121,7 +121,7 @@ def edit_question_title_view(request):
             {
                 'parent_object': edit_question_form.cleaned_data
                 ['object_uuid'],
-                'datetime': unicode(datetime.now(pytz.utc)),
+                'created': unicode(datetime.now(pytz.utc)),
                 'question_title': edit_question_form.cleaned_data
                 ['question_title']
             }

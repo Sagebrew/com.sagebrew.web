@@ -5,8 +5,6 @@ $(document).ready(function(){
         var title_success;
         var uuid = $(this).data('object_uuid');
         var type = $(this).data("object_type");
-        var timestamp = $(this).data("datetime");
-        console.log("test in click");
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 ajax_security(xhr, settings)

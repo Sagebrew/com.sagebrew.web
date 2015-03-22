@@ -91,7 +91,7 @@ class SBPost(SBNonVersioned):
                     'post_owner_email': post_owner_email,
                     'comments': comment_array,
                     'current_user': pleb,
-                    'datetime': unicode(self.created),
+                    'created': unicode(self.created),
                     'object_type': self.object_type,
                     'view_count': self.get_view_count()}
         except CypherException as e:

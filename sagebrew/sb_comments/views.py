@@ -61,7 +61,7 @@ def save_comment_view(request):
                 "up_vote_number": 0,
                 "down_vote_number": 0,
                 "vote_count": str(0),
-                "datetime": datetime.now(pytz.utc),
+                "created": datetime.now(pytz.utc),
                 "comment_owner": "%s %s"%(request.user.first_name,
                                          request.user.last_name),
                 "last_edited_on": datetime.now(pytz.utc),

@@ -50,7 +50,7 @@ class TestDocstoreUtils(TestCase):
     def test_query_parent_object_table_get_one(self):
         uuid = str(uuid1())
         timestamp = unicode(datetime.now(pytz.utc))
-        data = {'parent_object': uuid, "datetime": timestamp, "content": '123',
+        data = {'parent_object': uuid, "created": timestamp, "content": '123',
                 'user': self.pleb.email}
         res = add_object_to_table('edits', object_data=data)
         self.assertTrue(res)
@@ -88,7 +88,7 @@ class TestDocstoreUtils(TestCase):
     def test_update_doc_datetime(self):
         uuid = str(uuid1())
         now = unicode(datetime.now(pytz.utc))
-        data = {"parent_object": uuid, "datetime": now, "user": self.pleb.email,
+        data = {"parent_object": uuid, "created": now, "user": self.pleb.email,
                 "status": 1, "object_uuid": uuid}
         update_data = [{'update_key': 'status', 'update_value': 2}]
         res = add_object_to_table('posts', data)
@@ -130,7 +130,7 @@ class TestDocstoreUtils(TestCase):
             'parent_object': uuid,
             'user': self.pleb.email,
             'status': 1,
-            'datetime': now
+            'created': now
         }
         res = add_object_to_table('votes', vote_data)
         self.assertTrue(res)
@@ -147,7 +147,7 @@ class TestDocstoreUtils(TestCase):
             'parent_object': uuid,
             'user': self.pleb.email,
             'status': 1,
-            'datetime': now
+            'created': now
         }
         res = add_object_to_table('votes', vote_data)
         self.assertTrue(res)
@@ -163,7 +163,7 @@ class TestDocstoreUtils(TestCase):
             'parent_object': uuid,
             'user': self.pleb.email,
             'status': 1,
-            'datetime': now
+            'created': now
         }
         res = add_object_to_table('votes', vote_data)
         self.assertTrue(res)
@@ -177,12 +177,12 @@ class TestDocstoreUtils(TestCase):
         comment_id = str(uuid1())
         now = unicode(datetime.now(pytz.utc))
         post_data = {
-            'parent_object': self.pleb.email, 'datetime': now,
+            'parent_object': self.pleb.email, 'created': now,
             'object_uuid': post_id, 'content': 'a3lk4jq;w2jr'
         }
         comment_data = {
             'parent_object': post_id, 'object_uuid': comment_id,
-            'datetime': now, 'content': 'a;sldkf;lajsdkfjas;df'
+            'created': now, 'content': 'a;sldkf;lajsdkfjas;df'
         }
         post_res = add_object_to_table('posts', post_data)
         self.assertTrue(post_res)

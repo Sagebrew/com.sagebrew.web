@@ -12,7 +12,8 @@ class SolutionSerializerDynamo(serializers.Serializer):
     # multiple
     parent_object = serializers.CharField()
     href = serializers.HyperlinkedIdentityField(view_name='solutions-detail',
-                                                lookup_field="object_uuid")
+                                                lookup_field="object_uuid",
+                                                id_field="object_uuid")
     content = serializers.CharField()
 
     last_edited_on = serializers.DateTimeField(read_only=True)
@@ -51,7 +52,8 @@ class SolutionSerializerDynamo(serializers.Serializer):
 class SolutionSerializerNeo(serializers.Serializer):
     object_uuid = serializers.CharField(read_only=True)
     href = serializers.HyperlinkedIdentityField(view_name='solutions-detail',
-                                                lookup_field="object_uuid")
+                                                lookup_field="object_uuid",
+                                                id_field="object_uuid")
     content = serializers.CharField()
 
     last_edited_on = serializers.DateTimeField(read_only=True)

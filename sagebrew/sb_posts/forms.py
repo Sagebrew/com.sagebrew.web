@@ -7,7 +7,7 @@ class PostForm(forms.Form):
 
 
 class SavePostForm(PostForm):
-    wall_pleb = forms.EmailField()
+    wall_pleb = forms.CharField()
 
 
 class GetPostForm(forms.Form):

@@ -93,7 +93,7 @@ def save_solution_task(current_pleb, question_uuid, content, solution_uuid):
     except(CypherException, SBQuestion.DoesNotExist, DoesNotExist) as e:
         raise save_solution_task.retry(exc=e, countdown=3, max_retries=None)
     try:
-        to_pleb = [question.owned_by.all()[0].email]
+        to_pleb = [question.owned_by.all()[0].username]
     except IndexError as e:
         raise save_solution_task.retry(exc=e, countdown=3, max_retries=None)
 

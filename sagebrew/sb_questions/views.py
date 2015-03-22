@@ -236,7 +236,6 @@ def get_question_view(request):
                 else:
                     return Response(question_by_uuid, status=200)
             else:
-                print res
                 for solution in res['solutions']:
                     spawn_task(update_view_count_task,
                                {'object_uuid': solution['object_uuid'],

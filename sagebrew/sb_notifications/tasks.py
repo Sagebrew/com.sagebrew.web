@@ -23,7 +23,6 @@ def spawn_notifications(sb_object, from_pleb, to_plebs, uuid=None):
     :return:
     '''
     plebeians = []
-    print from_pleb, to_plebs
     try:
         from_pleb = Pleb.nodes.get(username=from_pleb)
     except(CypherException, Pleb.DoesNotExist, DoesNotExist) as e:
@@ -31,7 +30,7 @@ def spawn_notifications(sb_object, from_pleb, to_plebs, uuid=None):
 
     for plebeian in to_plebs:
         try:
-            to_pleb = Pleb.nodes.get(email=plebeian)
+            to_pleb = Pleb.nodes.get(username=plebeian)
             plebeians.append(to_pleb)
         except(CypherException, Pleb.DoesNotExist, DoesNotExist) as e:
             raise spawn_notifications.retry(exc=e, countdown=3,

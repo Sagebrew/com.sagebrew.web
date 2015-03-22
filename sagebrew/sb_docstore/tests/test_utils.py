@@ -103,23 +103,23 @@ class TestDocstoreUtils(TestCase):
         now = unicode(datetime.now(pytz.utc))
         data = {'object_uuid': uuid, 'content': '1231231231',
                 'user': self.pleb.email, 'last_edited_on': now,
-                "time_created": now}
+                "created": now}
         res = add_object_to_table('public_questions', data)
         self.assertTrue(res)
         solution_uuid = str(uuid1())
         solution_data = {'parent_object': uuid, 'object_uuid': solution_uuid,
                          'content': '12312312',  'last_edited_on': now,
-                         "time_created": now}
+                         "created": now}
         sol_res = add_object_to_table('public_solutions', solution_data)
         self.assertTrue(sol_res)
         res = get_question_doc(uuid, 'public_questions', 'public_solutions')
         self.assertIsInstance(res, dict)
 
     def test_build_question_page(self):
-        question = SBQuestion(sb_id=str(uuid1()), content="1231",
+        question = SBQuestion(object_uuid=str(uuid1()), content="1231",
                               question_title="12312312").save()
         question.owned_by.connect(self.pleb)
-        res = build_question_page(question.sb_id, 'public_questions',
+        res = build_question_page(question.object_uuid, 'public_questions',
                                   'public_solutions')
         self.assertTrue(res)
 
@@ -195,10 +195,10 @@ class TestDocstoreUtils(TestCase):
         self.assertFalse(isinstance(res, Exception))
 
     def test_build_wall_docs(self):
-        post = SBPost(sb_id=str(uuid1()), content='a;sdlkfj;asd').save()
+        post = SBPost(object_uuid=str(uuid1()), content='a;sdlkfj;asd').save()
         post.owned_by.connect(self.pleb)
         post.posted_on_wall.connect(self.pleb.wall.all()[0])
-        comment = SBComment(sb_id=str(uuid1()),
+        comment = SBComment(object_uuid=str(uuid1()),
                             content='A:KFj;LKAJFD:Sk').save()
         post.comments.connect(comment)
         comment.owned_by.connect(self.pleb)

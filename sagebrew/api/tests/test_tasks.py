@@ -57,7 +57,7 @@ class TestAddObjectToSearchIndex(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question = SBQuestion(sb_id=str(uuid1()))
+        self.question = SBQuestion(object_uuid=str(uuid1()))
         self.question.save()
         settings.CELERY_ALWAYS_EAGER = True
 
@@ -68,7 +68,7 @@ class TestAddObjectToSearchIndex(TestCase):
         task_data = {
             'object_type': 'sb_questions.neo_models.SBQuestion',
             'object_data': {'content': 'fake',
-                            'object_uuid': self.question.sb_id}
+                            'object_uuid': self.question.object_uuid}
         }
 
         res = add_object_to_search_index.apply_async(kwargs=task_data)
@@ -83,7 +83,7 @@ class TestAddObjectToSearchIndex(TestCase):
         task_data = {
             'object_type': 'sb_questions.neo_models.SBQuestion',
             'object_data': {'content': 'fake',
-                            'object_uuid': self.question.sb_id}
+                            'object_uuid': self.question.object_uuid}
         }
 
         res = add_object_to_search_index.apply_async(kwargs=task_data)

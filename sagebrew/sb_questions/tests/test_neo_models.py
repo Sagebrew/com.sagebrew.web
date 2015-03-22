@@ -17,7 +17,7 @@ class TestSBQuestionNeoModel(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.question = SBQuestion(content='test content',
-                                   sb_id=str(uuid1())).save()
+                                   object_uuid=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
 
     def test_get_multiple_question_dict(self):
@@ -40,7 +40,7 @@ class TestSBQuestionNeoModel(TestCase):
         self.assertIsInstance(self.question.get_original(), SBQuestion)
 
     def test_get_original_edit_to(self):
-        question = SBQuestion(content="test", sb_id=str(uuid1()),
+        question = SBQuestion(content="test", object_uuid=str(uuid1()),
                               original=False).save()
 
         question.edit_to.connect(self.question)

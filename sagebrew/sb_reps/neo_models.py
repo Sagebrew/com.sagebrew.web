@@ -15,7 +15,7 @@ class CongressVoteRelationship(StructuredRel):
 class BaseOfficial(Pleb):
     title = StringProperty()
     type_str = "f46fbcda-9da8-11e4-9233-080027242395"
-    sb_id = StringProperty(unique_index=True, default=str(uuid1()))
+    object_uuid = StringProperty(unique_index=True, default=str(uuid1()))
     bio = StringProperty(default="")
     recipient_id = StringProperty()
     customer_id = StringProperty()
@@ -43,7 +43,7 @@ class BaseOfficial(Pleb):
     gt_role = RelationshipTo('govtrack.neo_models.GTRole', 'GTROLE')
 
     def get_dict(self):
-        return {"object_uuid": self.sb_id,
+        return {"object_uuid": self.object_uuid,
                 "full_name": self.full_name,
                 "start_date": unicode(self.start_date),
                 "end_date": unicode(self.end_date),
@@ -84,7 +84,7 @@ class USPresident(BaseOfficial):
     vetoed = RelationshipTo(Bill, "VETOED")
 
 class Policy(StructuredNode):
-    sb_id = StringProperty(default=lambda: str(uuid1()))
+    object_uuid = StringProperty(default=lambda: str(uuid1()))
     category = StringProperty()
     description = StringProperty()
 
@@ -132,7 +132,7 @@ class PositionRequirements(StructuredNode):
     term_limit = IntegerProperty()
 
 class Experience(StructuredNode):
-    sb_id = StringProperty(unique_index=True)
+    object_uuid = StringProperty(unique_index=True)
     title = StringProperty()
     start_date = DateProperty()
     end_date = DateProperty()
@@ -156,7 +156,7 @@ class Experience(StructuredNode):
                 "location": self.location_s}
 
 class Education(StructuredNode):
-    sb_id = StringProperty(unique_index=True)
+    object_uuid = StringProperty(unique_index=True)
     school_s = StringProperty()
     start_date = DateProperty()
     end_date = DateProperty()
@@ -167,14 +167,14 @@ class Education(StructuredNode):
 
     @apply_defense
     def get_dict(self):
-        return {"object_uuid": self.sb_id,
+        return {"object_uuid": self.object_uuid,
                 "start_date": unicode(self.start_date),
                 "end_date": unicode(self.end_date),
                 "school": self.school_s,
                 "degree": self.degree}
 
 class Goal(StructuredNode):
-    sb_id = StringProperty(unique_index=True)
+    object_uuid = StringProperty(unique_index=True)
     initial = BooleanProperty(default=False)
     description = StringProperty()
     vote_req = IntegerProperty()
@@ -182,7 +182,7 @@ class Goal(StructuredNode):
 
     @apply_defense
     def get_dict(self):
-        return {"object_uuid": self.sb_id,
+        return {"object_uuid": self.object_uuid,
                 "initial": self.initial,
                 "description": self.description,
                 "money_req": self.money_req,

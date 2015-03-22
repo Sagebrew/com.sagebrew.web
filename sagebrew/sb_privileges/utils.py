@@ -81,7 +81,7 @@ def create_privilege(privilege_data, actions, requirements):
             return e
     for action in actions:
         try:
-            sb_action = SBAction.nodes.get(sb_id=action['object_uuid'])
+            sb_action = SBAction.nodes.get(object_uuid=action['object_uuid'])
         except (CypherException, IOError, SBAction.DoesNotExist,
                 DoesNotExist) as e:
             return e
@@ -94,7 +94,7 @@ def create_privilege(privilege_data, actions, requirements):
         try:
             try:
                 sb_requirement = SBRequirement.nodes.get(
-                    sb_id=requirement['object_uuid'])
+                    object_uuid=requirement['object_uuid'])
             except (SBRequirement.DoesNotExist, DoesNotExist) as e:
                 return e
             privilege.requirements.connect(sb_requirement)

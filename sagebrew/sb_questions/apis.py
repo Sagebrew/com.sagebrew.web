@@ -1,11 +1,14 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import patterns, url, include
 
-from sb_solutions.endpoints import QuestionSolutionsList
+from rest_framework import routers
 
+from .endpoints import QuestionViewSet
+
+router = routers.SimpleRouter()
+
+router.register(r'questions', QuestionViewSet, base_name="questions")
 
 urlpatterns = patterns(
     'sb_questions.views',
-    url(r'^(?P<uuid>[A-Za-z0-9.@_%+-]{36})/solutions/$',
-        QuestionSolutionsList.as_view(),
-        name='question-detail-solutions'),
+    url(r'^', include(router.urls)),
 )

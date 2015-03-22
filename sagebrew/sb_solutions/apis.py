@@ -1,11 +1,14 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import patterns, url, include
 
-from .endpoints import SolutionCommentList
+from rest_framework import routers
 
+from .endpoints import SolutionViewSet
+
+router = routers.SimpleRouter()
+
+router.register(r'solutions', SolutionViewSet, base_name="solutions")
 
 urlpatterns = patterns(
     'sb_solutions.views',
-    url(r'^(?P<uuid>[A-Za-z0-9.@_%+-]{36})/comments/$',
-        SolutionCommentList.as_view(),
-        name='solution-detail-comments'),
+    url(r'^', include(router.urls)),
 )

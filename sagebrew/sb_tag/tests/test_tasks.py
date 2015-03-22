@@ -27,7 +27,7 @@ class TestTagTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_add_tag_success(self):
-        question = SBQuestion(sb_id=uuid1())
+        question = SBQuestion(object_uuid=uuid1())
         question.save()
         tags = 'test,tag,please,do,not,fail,in,testing'
         task_dict = {'question': question,
@@ -53,7 +53,7 @@ class TestAutoTagTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_add_auto_tag_success(self):
-        question = SBQuestion(sb_id=uuid1())
+        question = SBQuestion(object_uuid=uuid1())
         question.save()
         task_dict = {
             'question': question,

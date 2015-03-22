@@ -58,7 +58,7 @@ def create_comment_relations(current_pleb, comment, sb_object):
             raise create_comment_relations.retry(exc=res, countdown=3,
                                                  max_retries=None)
         dynamo_data = comment.get_single_dict()
-        dynamo_data['parent_object'] = sb_object.sb_id
+        dynamo_data['parent_object'] = sb_object.object_uuid
         res = add_object_to_table(table_name='comments',
                                   object_data=dynamo_data)
         if isinstance(res, Exception):

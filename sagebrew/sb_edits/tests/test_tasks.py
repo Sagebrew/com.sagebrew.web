@@ -27,9 +27,9 @@ class TestEditObjectTask(TestCase):
     def test_edit_object_task_success(self):
         question = SBQuestion(question_title='test title for edit',
                               content='this is before edit',
-                              sb_id=str(uuid1())).save()
+                              object_uuid=str(uuid1())).save()
         task_data = {
-            'object_uuid': question.sb_id,
+            'object_uuid': question.object_uuid,
             'object_type': 'sb_questions.neo_models.SBQuestion',
             'current_pleb': self.pleb,
             'content': 'this is post edit content'
@@ -44,9 +44,9 @@ class TestEditObjectTask(TestCase):
     def test_edit_object_task_get_object_fail(self):
         question = SBQuestion(question_title='test title for edit',
                               content='this is before edit',
-                              sb_id=str(uuid1())).save()
+                              object_uuid=str(uuid1())).save()
         task_data = {
-            'object_uuid': question.sb_id,
+            'object_uuid': question.object_uuid,
             'object_type': 'SBQuestion',
             'current_pleb': self.pleb,
             'content': 'this is post edit content'
@@ -61,9 +61,9 @@ class TestEditObjectTask(TestCase):
     def test_edit_object_task_edit_content_fail(self):
         question = SBQuestion(question_title='test title for edit',
                               content='this is before edit',
-                              sb_id=str(uuid1())).save()
+                              object_uuid=str(uuid1())).save()
         task_data = {
-            'object_uuid': question.sb_id,
+            'object_uuid': question.object_uuid,
             'object_type': 'SBQuestion',
             'current_pleb': self.pleb.email,
             'content': 'this is post edit content'
@@ -91,9 +91,9 @@ class TestEditQuestionTitleTask(TestCase):
     def test_edit_question_title_success(self):
         question = SBQuestion(question_title='test title for edit',
                               content='this is before edit',
-                              sb_id=str(uuid1())).save()
+                              object_uuid=str(uuid1())).save()
         task_data = {
-            'object_uuid': question.sb_id,
+            'object_uuid': question.object_uuid,
             'object_type': 'sb_questions.neo_models.SBQuestion',
             'current_pleb': self.pleb,
             'question_title': 'this is post edit title'
@@ -108,9 +108,9 @@ class TestEditQuestionTitleTask(TestCase):
     def test_edit_question_title_get_object_failure(self):
         question = SBQuestion(question_title='test title for edit',
                               content='this is before edit',
-                              sb_id=str(uuid1())).save()
+                              object_uuid=str(uuid1())).save()
         task_data = {
-            'object_uuid': question.sb_id,
+            'object_uuid': question.object_uuid,
             'object_type': 'SBQuestion',
             'current_pleb': self.pleb,
             'question_title': 'this is post edit content'

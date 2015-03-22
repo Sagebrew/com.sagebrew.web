@@ -45,10 +45,10 @@ class TestBuildQuestionPageTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_build_question_page_task(self):
-        question = SBQuestion(sb_id=str(uuid1()), content='as;dlkfja;s').save()
+        question = SBQuestion(object_uuid=str(uuid1()), content='as;dlkfja;s').save()
         question.owned_by.connect(self.pleb)
 
-        data = {'question_uuid': question.sb_id,
+        data = {'question_uuid': question.object_uuid,
                 'question_table': 'public_questions',
                 'solution_table': 'public_solutions'}
         res = build_question_page_task.apply_async(kwargs=data)

@@ -79,7 +79,7 @@
             {% include "solution_dropdown.html" %}
         </div>
     </div>
-    <div class="sb_id" data-object_uuid="{{ object_uuid }}"
+    <div class="object_uuid" data-object_uuid="{{ object_uuid }}"
              style="display: None"></div>
     {% url "profile_page" pleb_username=solution.solution_owner_url as owner_url %}
 
@@ -109,5 +109,5 @@
 </div>
 
 {% comment %}
- <div style="display: none">Written by: <a href="{{ owner_url }}">{{ solution.solution_owner_name }}</a> | Posted: {{ solution.time_created }} | Last edited: {{ solution.last_edited_on }}</div>
+ <div style="display: none">Written by: <a href="{{ owner_url }}">{{ solution.solution_owner_name }}</a> | Posted: {{ solution.created }} | Last edited: {{ solution.last_edited_on }}</div>
 {% endcomment %}

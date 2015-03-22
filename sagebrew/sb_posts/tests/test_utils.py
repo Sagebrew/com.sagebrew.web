@@ -25,7 +25,7 @@ class TestSavePost(TestCase):
         post_info_dict = {'content': 'test post',
                           'post_uuid': str(uuid1())}
 
-        prev_post = SBPost(content='test', sb_id=post_info_dict['post_uuid'])
+        prev_post = SBPost(content='test', object_uuid=post_info_dict['post_uuid'])
         prev_post.save()
         post = save_post(post_uuid=post_info_dict['post_uuid'],
                          content='test post', datetime=datetime.now())

@@ -305,14 +305,14 @@ class Pleb(StructuredNode):
     def filter_solutions(self, expiry, now):
         solutions = []
         for solution in self.solutions.all():
-            if (now-solution.date_created).seconds < expiry:
+            if (now-solution.created).seconds < expiry:
                 solutions.append(solution)
         return solutions
 
     def filter_questions(self, expiry, now):
         questions = []
         for question in self.questions.all():
-            if (now-question.date_created).seconds < expiry:
+            if (now-question.created).seconds < expiry:
                 questions.append(question)
         return questions
 
@@ -409,7 +409,7 @@ class District(StructuredNode):
 
 
 class OauthUser(StructuredNode):
-    sb_id = StringProperty(default=lambda: str(uuid1()))
+    object_uuid = StringProperty(default=lambda: str(uuid1()))
     web_address = StringProperty(
         default=lambda: settings.WEB_ADDRESS+'/o/token/')
     access_token = StringProperty()

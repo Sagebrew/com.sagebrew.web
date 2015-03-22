@@ -102,7 +102,7 @@ def get_user_posts(request):
                     post_form.cleaned_data['current_user']))
                 task_data = {
                     "object_type": dict(settings.KNOWN_TYPES)[post.object_type],
-                    "object_uuid": post.sb_id
+                    "object_uuid": post.object_uuid
                 }
                 spawn_task(update_view_count_task, task_data)
             task_dict = {'username': request.user.username}

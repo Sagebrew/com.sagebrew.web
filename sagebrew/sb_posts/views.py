@@ -92,7 +92,7 @@ def get_user_posts(request):
     except AttributeError:
         return Response(status=404)
     if valid_form:
-        posts = get_wall_docs(request.user.username)
+        posts = get_wall_docs(request.user.username, request.user.username)
         if not posts:
             posts = get_pleb_posts(request.user.email,
                                    post_form.cleaned_data['range_end'],

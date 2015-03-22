@@ -175,7 +175,7 @@ def get_solution_doc(question_uuid, solution_uuid,
     return dict(solution)
 
 @apply_defense
-def get_question_doc(question_uuid, question_table, solution_table):
+def get_question_doc(question_uuid, question_table, solution_table, user=""):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
@@ -216,11 +216,17 @@ def get_question_doc(question_uuid, question_table, solution_table):
         '%Y-%m-%d %H:%M:%S.%f')
     question['object_vote_count'] = str(question['up_vote_number']
                                         - question['down_vote_number'])
+    question['vote_type'] = get_vote(question['object_uuid'], user)
+    if question['vote_type'] is not None:
+        question['vote_type'] = str(bool(question['vote_type']['status']))\
+            .lower()
     for comment in comments:
         comment = dict(comment)
         try:
-            comment['up_vote_number'] = get_vote_count(comment['object_uuid'],1)
-            comment['down_vote_number'] = get_vote_count(comment['object_uuid'],0)
+            comment['up_vote_number'] = get_vote_count(comment['object_uuid']
+                                                       ,1)
+            comment['down_vote_number'] = get_vote_count(
+                comment['object_uuid'],0)
             comment['last_edited_on'] = datetime.strptime(
                 comment['last_edited_on'][:len(comment['last_edited_on']) - 6],
                 '%Y-%m-%d %H:%M:%S.%f')
@@ -229,6 +235,10 @@ def get_question_doc(question_uuid, question_table, solution_table):
                 '%Y-%m-%d %H:%M:%S.%f')
             comment['object_vote_count'] = str(comment['up_vote_number']
                                                - comment['down_vote_number'])
+            comment['vote_type'] = get_vote(comment['object_uuid'], user)
+            if comment['vote_type'] is not None:
+                comment['vote_type'] = str(bool(comment['vote_type']['status']))\
+                    .lower()
             q_comments.append(comment)
         except KeyError:
             continue
@@ -248,6 +258,10 @@ def get_question_doc(question_uuid, question_table, solution_table):
                 '%Y-%m-%d %H:%M:%S.%f')
             solution['object_vote_count'] = str(
                 solution['up_vote_number'] - solution['down_vote_number'])
+            solution['vote_type'] = get_vote(solution['object_uuid'], user)
+            if solution['vote_type'] is not None:
+                solution['vote_type'] = str(bool(solution['vote_type']['status']))\
+                    .lower()
             solution_comments = comment_table.query_2(
                 parent_object__eq=solution['object_uuid'],
                 datetime__gte="0"
@@ -257,17 +271,23 @@ def get_question_doc(question_uuid, question_table, solution_table):
         for ans_comment in solution_comments:
             try:
                 comment = dict(ans_comment)
-                comment['up_vote_number'] = get_vote_count(comment['object_uuid'],1)
+                comment['up_vote_number'] = get_vote_count(
+                    comment['object_uuid'],1)
                 comment['down_vote_number'] = get_vote_count(
                     comment['object_uuid'],0)
                 comment['last_edited_on'] = datetime.strptime(
-                    comment['last_edited_on'][:len(comment['last_edited_on']) - 6],
+                    comment['last_edited_on'][:len(
+                        comment['last_edited_on']) - 6],
                     '%Y-%m-%d %H:%M:%S.%f')
                 comment['created'] = datetime.strptime(
                     comment['created'][:len(comment['created']) - 6],
                     '%Y-%m-%d %H:%M:%S.%f')
                 comment['object_vote_count'] = str(
                     comment['up_vote_number'] - comment['down_vote_number'])
+                comment['vote_type'] = get_vote(comment['object_uuid'], user)
+                if comment['vote_type'] is not None:
+                    comment['vote_type'] = str(bool(comment['vote_type']['status']))\
+                        .lower()
                 a_comments.append(comment)
             except KeyError:
                 continue
@@ -328,7 +348,7 @@ def get_vote(object_uuid, user):
         )
         return vote
     except ItemNotFound:
-        return False
+        return None
 
 
 @apply_defense
@@ -373,7 +393,7 @@ def get_vote_count(object_uuid, vote_type):
 
 
 @apply_defense
-def get_wall_docs(parent_object):
+def get_wall_docs(parent_object, user=''):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
@@ -398,6 +418,10 @@ def get_wall_docs(parent_object):
         post = dict(post)
         post['up_vote_number'] = get_vote_count(post['object_uuid'], 1)
         post['down_vote_number'] = get_vote_count(post['object_uuid'], 0)
+        post['vote_type'] = get_vote(post['object_uuid'], user)
+        if post['vote_type'] is not None:
+            post['vote_type'] = str(bool(post['vote_type']['status']))\
+                .lower()
         comments = comments_table.query_2(
             parent_object__eq=post['object_uuid'],
             datetime__gte='0')
@@ -408,7 +432,12 @@ def get_wall_docs(parent_object):
                 comment['object_uuid'], 1)
             comment['down_vote_number'] = get_vote_count(
                 comment['object_uuid'], 0)
+            comment['vote_type'] = get_vote(comment['object_uuid'], user)
+            if comment['vote_type'] is not None:
+                comment['vote_type'] = str(bool(
+                    comment['vote_type']['status'])).lower()
             comment_list.append(comment)
+
         post['comments'] = comment_list
         post_list.append(post)
     return post_list

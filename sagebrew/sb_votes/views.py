@@ -36,7 +36,7 @@ def vote_object_view(request):
                  "object_type": choice_dict[
                     vote_object_form.cleaned_data['object_type']],
                  "parent_object": vote_object_form.cleaned_data['object_uuid'],
-                 "user": request.user.email,
+                 "user": request.user.username,
                  "status": status,
                  "time": now
                  }

@@ -213,7 +213,8 @@ def get_question_view(request):
                              "0274a216-644f-11e4-9ad9-080027242395"]}
             spawn_task(update_view_count_task, task_data)
             res = get_question_doc(question_data['question_uuid'],
-                                   'public_questions', 'public_solutions')
+                                   'public_questions', 'public_solutions',
+                                   request.user.username)
             if res == {}:
                 question_by_uuid = get_question_by_uuid(
                     question_data['question_uuid'], request.user.email)

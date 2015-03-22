@@ -52,6 +52,7 @@ def save_solution_view(request):
                 "up_vote_number": 0,
                 "down_vote_number": 0,
                 "object_vote_count": str(0),
+                "vote_type": None,
                 "content": solution_form.cleaned_data['content'],
                 "html_content": markdown.markdown(
                     solution_form.cleaned_data['content']),

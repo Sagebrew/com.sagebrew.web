@@ -5,6 +5,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.pagination import LimitOffsetPagination
 
 from neomodel import CypherException
 
@@ -24,6 +25,7 @@ class QuestionViewSet(viewsets.GenericViewSet):
     serializer_class = QuestionSerializerNeo
     lookup_field = "object_uuid"
     permission_classes = (IsAuthenticated,)
+    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         try:

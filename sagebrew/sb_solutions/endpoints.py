@@ -8,6 +8,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.pagination import LimitOffsetPagination
 
 from neomodel import CypherException
 
@@ -26,16 +27,12 @@ logger = getLogger('loggly_logs')
 
 class SolutionViewSet(viewsets.GenericViewSet):
     """
-    Notes on reasoning:
-        Appears that ModelViewSet requires a pk value to be set. Otherwise
-        it cannot find the url of a hyperlinked relation/identifier. I would
-        expect the system to utilize the lookup_field but based on the code
-        it appears that it uses the pk value to ensure the model has been
-        stored and is in the DB.
+
     """
     serializer_class = SolutionSerializerNeo
     lookup_field = "object_uuid"
     permission_classes = (IsAuthenticated,)
+    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         try:
@@ -52,6 +49,7 @@ class SolutionViewSet(viewsets.GenericViewSet):
             queryset = sorted(queryset, key=lambda k: k.last_edited_on)
         else:
             queryset = sorted(queryset, key=lambda k: k.get_vote_count())
+
         return queryset
 
     def get_object(self, object_uuid=None):

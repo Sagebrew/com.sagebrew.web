@@ -1,11 +1,14 @@
 from django import forms
 
+
 class PolicyForm(forms.Form):
     policies = forms.CharField(max_length=150)
     description = forms.CharField(widget=forms.Textarea)
 
+
 class AgendaForm(forms.Form):
     agenda = forms.CharField(widget=forms.Textarea)
+
 
 class ExperienceForm(forms.Form):
     title = forms.CharField()
@@ -16,9 +19,11 @@ class ExperienceForm(forms.Form):
     location = forms.CharField(required=False)
     description = forms.CharField(widget=forms.Textarea, required=False)
 
+
 class DonationForm(forms.Form):
     cost = forms.FloatField()
     description = forms.CharField()
+
 
 class EducationForm(forms.Form):
     school = forms.CharField()
@@ -26,8 +31,10 @@ class EducationForm(forms.Form):
     end_date = forms.DateField()
     degree = forms.CharField()
 
+
 class BioForm(forms.Form):
     bio = forms.CharField(max_length=200, widget=forms.Textarea)
+
 
 class GoalForm(forms.Form):
     vote_req = forms.IntegerField()

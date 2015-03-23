@@ -139,9 +139,9 @@ class SBContent(SBVoteableContent):
     subjectivity = FloatProperty()
     view_count = IntegerProperty(default=0)
 
-
     # relationships
-    view_count_node = RelationshipTo('sb_stats.neo_models.SBViewCount', 'VIEW_COUNT')
+    view_count_node = RelationshipTo('sb_stats.neo_models.SBViewCount',
+                                     'VIEW_COUNT')
     flagged_by = RelationshipTo('plebs.neo_models.Pleb', 'FLAGGED_BY')
     flags = RelationshipTo('sb_flags.neo_models.SBFlag', 'HAS_FLAG')
     received_by = RelationshipTo('plebs.neo_models.Pleb', 'RECEIVED',
@@ -152,8 +152,8 @@ class SBContent(SBVoteableContent):
                                     'AUTO_TAGGED_AS')
     rel_weight = RelationshipTo('plebs.neo_models.Pleb', 'HAS_WEIGHT',
                                 model=RelationshipWeight)
-    notifications = RelationshipTo('sb_notifications.neo_models.NotificationBase',
-                                   'NOTIFICATIONS')
+    notifications = RelationshipTo(
+        'sb_notifications.neo_models.NotificationBase', 'NOTIFICATIONS')
 
     @classmethod
     def get_model_name(cls):
@@ -308,12 +308,15 @@ class SBNonVersioned(SBContent):
 
 
 class SBTagContent(StructuredNode):
-    #relationships
+    """
+
+    """
+    # relationships
     tagged_as = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS')
     auto_tags = RelationshipTo('sb_tag.neo_models.SBAutoTag',
                                'AUTO_TAGGED_AS')
 
-    #methods
+    # methods
     @apply_defense
     def add_tags(self, tags):
         """

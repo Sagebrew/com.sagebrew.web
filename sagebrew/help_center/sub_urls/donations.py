@@ -45,6 +45,23 @@ urlpatterns = patterns(
             "category": "citizens"
         },
         name="pledging_votes"),
+    url(r'^contributions/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": "Why we think you should pledge a vote for your "
+                     "Representative",
+            "description": "There are rules and regulations in place when it "
+                           "comes to donating money to a political campaign. "
+                           "These rules and regulations are set in an effort to"
+                           " keep campaigning fair and to place a barrier "
+                           "between money and political sway. The basic "
+                           "contribution limits are detailed here.",
+            "content_path":
+                "%scampaign_contribution_rules.html" % (
+                    settings.HELP_DOCS_PATH),
+            "category": "citizens"
+        },
+        name="campaign_contribution_rules"),
 )
 
 if settings.DEBUG is True:

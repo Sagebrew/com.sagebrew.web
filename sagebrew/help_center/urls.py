@@ -18,7 +18,7 @@ urlpatterns = patterns(
         'help_center.sub_urls.reputation_and_moderation')),
     (r'^conversation/', include('help_center.sub_urls.conversation')),
     (r'^privileges/', include('help_center.sub_urls.privileges')),
-    (r'^donating/', include('help_center.sub_urls.citizens')),
+    (r'^donating/', include('help_center.sub_urls.donations')),
     (r'^campaigns/', include('help_center.sub_urls.representatives')),
     (r'^reputation/', include(
         'help_center.sub_urls.reputation_and_moderation')),

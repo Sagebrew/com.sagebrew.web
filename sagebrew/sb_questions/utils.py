@@ -49,6 +49,8 @@ def get_question_by_uuid(question_uuid, current_pleb):
     :param current_pleb:
     :return:
     '''
+    # TODO this should be handled with the REST endpoint now and the
+    # render_single method in question can be deleted once that happens.
     try:
         question = SBQuestion.nodes.get(object_uuid=question_uuid)
     except (SBQuestion.DoesNotExist, DoesNotExist):

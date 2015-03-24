@@ -2,10 +2,14 @@ import datetime
 from uuid import uuid1
 from json import loads
 from base64 import b64encode
-from rest_framework.test import APIRequestFactory, APIClient
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.conf import settings
+
+from rest_framework.test import APIRequestFactory, APIClient
+from rest_framework.test import force_authenticate
+
 
 from sb_questions.neo_models import SBQuestion
 from api.utils import wait_util
@@ -150,17 +154,14 @@ class TestGetQuestionView(TestCase):
         question = SBQuestion(object_uuid=str(uuid1()), content='test',
                               title='test title').save()
         question.owned_by.connect(self.pleb)
-
-        my_dict = {'current_pleb': self.user.email,
-                   'sort_by': 'uuid',
+        my_dict = {'sort_by': 'uuid',
                    'question_uuid': question.object_uuid}
         request = self.factory.post('/conversations/query_questions_api/',
                                     data=my_dict,
                                     format='json')
-        request.user = self.user
+        force_authenticate(request, user=self.user)
         response = get_question_view(request)
         response = response.render()
-        print response
         self.assertIn('<div class=\\"sb_question_header\\">',
                       response.content)
         self.assertEqual(response.status_code, 200)

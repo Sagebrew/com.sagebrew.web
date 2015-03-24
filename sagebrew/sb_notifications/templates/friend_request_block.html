@@ -4,12 +4,17 @@
             <div class="thumbnail sb_thumbnail_sm"></div>
         </div>
         <div class="col-lg-4 col-md-4">
-           <p>Jordan Welton</p>
+           <p>{{ request.from_name }}</p>
         </div>
         <div align="right" class="col-lg-6 col-md-6">
             <div class="btn-group">
-                 <button class="btn btn-primary sb_btn sb_btn_friend">Confirm</button>
-                 <button class="btn btn-primary sb_btn  sb_btn_friend">Delete</button>
+                <button class="btn btn-primary sb_btn sb_btn_friend respond_friend_request-action"
+                        data-response="accept" data-request_id="{{ request.request_id }}">Confirm</button>
+                <button class="btn btn-primary sb_btn  sb_btn_friend respond_friend_request-action"
+                        data-response="deny"
+                        data-request_id="{{ request.request_id }}">Delete</button>
+                <button class="btn btn-primary sb_btn sb_btn_friend respond_friend_request-action"
+                        data-response="block" data-request_id="{{ request.request_id }}">Confirm</button>
             </div>
         </div>
     </div>

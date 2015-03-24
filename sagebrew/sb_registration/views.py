@@ -3,7 +3,7 @@ from django.conf import settings
 from uuid import uuid1
 from django.core.urlresolvers import reverse
 from django.http import (HttpResponse, HttpResponseNotFound,
-                         HttpResponseServerError, Http404)
+                         HttpResponseServerError)
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
@@ -46,6 +46,7 @@ def signup_view(request):
         return redirect('beta_page')
 
     return render(request, 'sign_up_page/index.html')
+
 
 @api_view(['POST'])
 def signup_view_api(request):
@@ -239,12 +240,10 @@ def profile_information(request):
             # TODO this is just a place holder, what should we really be doing
             # here?
             return render(request, 'profile_info.html',
-                  {'profile_information_form': profile_information_form,
-                   'address_information_form': address_information_form})
+                  {'address_information_form': address_information_form})
 
     return render(request, 'profile_info.html',
-                  {'profile_information_form': profile_information_form,
-                   'address_information_form': address_information_form})
+                  {'address_information_form': address_information_form})
 
 
 @login_required()
@@ -305,6 +304,7 @@ def profile_picture(request):
                     {'profile_picture_form': profile_picture_form,
                      'pleb': citizen})
 
+
 @api_view(['POST'])
 def profile_picture_api(request):
     profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
@@ -328,6 +328,7 @@ def profile_picture_api(request):
         return Response({"url": url}, 200)
     else:
         return Response({"detail": "invalid form"}, 400)
+
 
 @login_required()
 @user_passes_test(verify_completed_registration,

@@ -1,3 +1,5 @@
+from django.contrib.auth.models import User
+
 from rest_framework import serializers
 
 from .neo_models import SBSolution
@@ -10,20 +12,17 @@ class SolutionSerializerDynamo(serializers.Serializer):
     # This should then enable us to combine the serializers rather than needing
     # multiple
     parent_object = serializers.CharField()
-    href = serializers.HyperlinkedIdentityField(view_name='solutions-detail',
-                                                lookup_field="object_uuid",
-                                                id_field="object_uuid")
+    href = serializers.HyperlinkedIdentityField(view_name='solution-detail',
+                                                lookup_field="object_uuid")
     content = serializers.CharField()
 
     last_edited_on = serializers.DateTimeField(read_only=True)
     up_vote_number = serializers.CharField(read_only=True)
     down_vote_number = serializers.CharField(read_only=True)
     object_vote_count = serializers.CharField(read_only=True)
-    # Auto generated from request.user.get_full_name()
-    # TODO probably just want to point to the owner and get the attributes
-    # from there
-    solution_owner_name = serializers.CharField()
-    solution_owner_url = serializers.CharField()
+    owner = serializers.HyperlinkedRelatedField(queryset=User.objects.all(),
+                                                view_name='user-detail',
+                                                lookup_field="username")
     created = serializers.DateTimeField(read_only=True)
     # May want to change this to a url field and then query from the front end
     # all the comments associated with a given solution
@@ -50,9 +49,8 @@ class SolutionSerializerDynamo(serializers.Serializer):
 
 class SolutionSerializerNeo(serializers.Serializer):
     object_uuid = serializers.CharField(read_only=True)
-    href = serializers.HyperlinkedIdentityField(view_name='solutions-detail',
-                                                lookup_field="object_uuid",
-                                                id_field="object_uuid")
+    href = serializers.HyperlinkedIdentityField(view_name='solution-detail',
+                                                lookup_field="object_uuid")
     content = serializers.CharField()
 
     last_edited_on = serializers.DateTimeField(read_only=True)

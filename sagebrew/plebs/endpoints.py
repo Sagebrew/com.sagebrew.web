@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 
 from rest_framework import viewsets
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 
 from api.permissions import IsSelfOrReadOnly
 
@@ -13,6 +13,5 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     lookup_field = 'username'
 
-    permission_classes = (IsAdminUser, IsSelfOrReadOnly)
-
+    permission_classes = (IsAuthenticated, IsSelfOrReadOnly)
 

@@ -229,8 +229,8 @@ function edit_object() {
     });
 }
 
-function edit_question_title() {
-    $("a.edit_question_title-action").click(function (event) {
+function edit_title() {
+    $("a.edit_title-action").click(function (event) {
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -242,7 +242,7 @@ function edit_question_title() {
             type: "POST",
             url: "/edit/edit_object_content_api/",
             data: JSON.stringify({
-                'question_title': $(this).val(),
+                'title': $(this).val(),
                 'current_pleb': $(this).data('pleb'),
                 'object_uuid': $(this).data('post_uuid'),
                 'object_type': $(this).data('object_type')
@@ -698,7 +698,7 @@ function enable_post_functionality() {
     flag_object();
     vote_object();
     edit_object();
-    edit_question_title();
+    edit_title();
     save_comment();
     show_edit_question();
     show_edit_post();

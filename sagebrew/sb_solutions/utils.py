@@ -35,6 +35,7 @@ def save_solution_util(content, solution_uuid):
     return solution
 
 
+# TODO see if this can be replaced with convert_dynamo_content_with_comments
 def convert_dynamo_solution(raw_solution, request):
     solution = dict(raw_solution)
     solution['up_vote_number'] = get_vote_count(solution['object_uuid'],
@@ -49,7 +50,7 @@ def convert_dynamo_solution(raw_solution, request):
         '%Y-%m-%d %H:%M:%S.%f')
     solution['object_vote_count'] = str(
         solution['up_vote_number'] - solution['down_vote_number'])
-    url = reverse('solutions-comments', kwargs={
+    url = reverse('solution-comments', kwargs={
         'object_uuid': solution['object_uuid']}, request=request)
     response = request_to_api(url, request.user.username, req_method="GET")
     solution["comments"] = response.json()

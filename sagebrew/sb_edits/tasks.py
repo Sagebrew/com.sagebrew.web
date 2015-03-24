@@ -38,9 +38,9 @@ def edit_object_task(object_uuid, object_type, username, content):
         return res
 
 @shared_task()
-def edit_question_task(object_uuid, object_type, question_title):
+def edit_question_task(object_uuid, object_type, title):
     sb_object = get_object(object_type=object_type, object_uuid=object_uuid)
-    if sb_object.solution_number > 0:
+    if sb_object.solution_count > 0:
         return False
     if isinstance(sb_object, Exception) is True:
         raise edit_question_task.retry(exc=sb_object, countdown=3,
@@ -48,7 +48,7 @@ def edit_question_task(object_uuid, object_type, question_title):
     elif sb_object is False:
         return sb_object
 
-    res = sb_object.edit_title(title=question_title)
+    res = sb_object.edit_title(title=title)
 
     if isinstance(res, Exception) is True:
         raise edit_question_task.retry(exc=res, countdown=3, max_retries=None)

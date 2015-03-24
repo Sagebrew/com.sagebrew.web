@@ -20,11 +20,6 @@ class TestSBQuestionNeoModel(TestCase):
                                    object_uuid=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
 
-    def test_get_multiple_question_dict(self):
-        res = self.question.get_multiple_question_dict(self.pleb)
-
-        self.assertIsInstance(res, dict)
-
     def test_add_tags(self):
         res = self.question.add_tags('thisisatesttag1,thisisatesttag2')
 

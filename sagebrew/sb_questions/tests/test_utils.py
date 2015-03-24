@@ -23,7 +23,7 @@ class TestCreateQuestion(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.uuid = str(uuid1())
-        self.question_info_dict = {'question_title': "Test question",
+        self.question_info_dict = {'title': "Test question",
                                    'content': 'test post',
                                    'question_uuid': self.uuid}
 
@@ -33,7 +33,7 @@ class TestCreateQuestion(TestCase):
         self.assertIsNotNone(response)
 
     def test_save_question_twice(self):
-        question = SBQuestion(question_title="Test question",
+        question = SBQuestion(title="Test question",
                               content="test post", object_uuid=self.uuid)
         question.save()
         response = create_question_util(**self.question_info_dict)
@@ -50,7 +50,7 @@ class TestGetQuestionByUUID(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.user.email,
-                                   'question_title': "Test question",
+                                   'title': "Test question",
                                    'content': 'test post'}
 
     def test_get_question_by_uuid_success(self):
@@ -86,7 +86,7 @@ class TestGetQuestionByLeastRecent(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question_info_dict = {'question_title': "Test question",
+        self.question_info_dict = {'title': "Test question",
                                    'content': 'test post',
                                    'question_uuid': str(uuid1())}
 
@@ -109,7 +109,7 @@ class TestPrepareQuestionSearchHTML(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question_info_dict = {'question_title': "Test question",
+        self.question_info_dict = {'title': "Test question",
                                    'content': 'test post',
                                    'object_uuid': str(uuid1())}
         self.pleb.first_name = "Tyler"

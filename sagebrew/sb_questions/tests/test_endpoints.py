@@ -9,21 +9,21 @@ from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from sb_oauth.models import SBApplication
+from sb_questions.neo_models import SBQuestion
 
-
-class ApplicationTests(APITestCase):
+'''
+class QuestionEndpointTests(APITestCase):
     def setUp(self):
         self.user = User.objects.create(username='lauren', password='secret')
         self.user.is_staff = True
         self.user.is_superuser = True
         self.user.save()
-        self.unit_under_test = SBApplication.objects.create(
-            user=self.user, web_hook="http://www.google.com")
-        self.unit_under_test_name = "application"
-        self.user_url_end = reverse("user-detail", kwargs={
+        self.unit_under_test = SBQuestion()
+        self.unit_under_test_name = "question"
+        self.unit_under_test_url_end = reverse("question-detail", kwargs={
             "username": self.user.username})
-        self.user_url = "%s%s" % ("http://testserver", self.user_url_end)
+        self.unit_under_test_url = "%s%s" % ("http://testserver",
+                                  self.unit_under_test_url_end)
 
     def test_unauthorized(self):
         url = reverse('%s-list' % self.unit_under_test_name)
@@ -252,3 +252,5 @@ class ApplicationTests(APITestCase):
         )
         self.assertEqual(response.data, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+'''

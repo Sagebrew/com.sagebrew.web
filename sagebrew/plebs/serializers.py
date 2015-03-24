@@ -20,6 +20,8 @@ class UserSerializer(serializers.Serializer):
     password = serializers.CharField(max_length=128, required=True,
                                      write_only=True)
     birthday = serializers.DateTimeField(write_only=True)
+    href = serializers.HyperlinkedIdentityField(view_name='user-detail',
+                                                lookup_field="username")
 
     def create(self, validated_data):
         response = create_user_util(**validated_data)

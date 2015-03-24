@@ -8,7 +8,7 @@ from .models import SBApplication, generate_client_id, generate_client_secret
 class ApplicationSerializer(serializers.Serializer):
     client_id = serializers.CharField(read_only=True)
     user = serializers.HyperlinkedRelatedField(queryset=User.objects.all(),
-                                               view_name="users-detail",
+                                               view_name="user-detail",
                                                lookup_field="username")
     redirect_uris = serializers.CharField(required=False)
     client_type = serializers.ChoiceField(required=True,
@@ -19,8 +19,7 @@ class ApplicationSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=255, required=False)
     web_hook = serializers.URLField(required=True)
     reset_credentials = serializers.BooleanField(required=False,
-                                                 write_only=True,
-                                                 default=False)
+                                                 write_only=True)
 
     def create(self, validated_data):
         validated_data["client_id"] = generate_client_id()
@@ -31,6 +30,7 @@ class ApplicationSerializer(serializers.Serializer):
         instance.redirect_uris = validated_data.get(
             'redirect_uris', instance.redirect_uris)
         instance.name = validated_data.get('name', instance.name)
+        instance.web_hook = validated_data.get('web_hook', instance.web_hook)
         if validated_data.get('reset_credentials', False) is True:
             instance.client_id = generate_client_id()
             instance.client_secret = generate_client_secret()

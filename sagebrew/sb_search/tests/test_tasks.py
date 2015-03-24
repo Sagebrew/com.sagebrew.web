@@ -432,7 +432,7 @@ class TestUpdateUserIndices(TestCase):
 
     def test_update_user_indices_success(self):
         search_dict = {'question_content': 'test_c', 'user': self.user.email,
-                       'question_title': 'test_t', 'tags': ['test','tag'],
+                       'title': 'test_t', 'tags': ['test','tag'],
                        'question_uuid': str(uuid1()),
                        'post_date': datetime.now(pytz.utc),
                        'related_user': ''}

@@ -1,30 +1,30 @@
-from uuid import uuid1
 from textblob import TextBlob
 
 from neomodel import DoesNotExist, CypherException
 
 from api.utils import execute_cypher_query
-from .neo_models import SBQuestion
 from sb_base.decorators import apply_defense
+
+from .neo_models import SBQuestion
 
 
 @apply_defense
-def create_question_util(content, question_title, question_uuid):
+def create_question_util(content, title, question_uuid):
     '''
     This util creates the question and attaches it to the user who asked it
 
     :param content:
     :param current_pleb:
-    :param question_title:
+    :param title:
     :return:
     '''
     try:
         question = SBQuestion.nodes.get(object_uuid=question_uuid)
     except (SBQuestion.DoesNotExist, DoesNotExist):
         content_blob = TextBlob(content)
-        title_blob = TextBlob(question_title)
+        title_blob = TextBlob(title)
         question = SBQuestion(content=content,
-                              question_title=question_title,
+                              title=title,
                               object_uuid=question_uuid)
         question.subjectivity = content_blob.subjectivity
         question.positivity = content_blob.polarity
@@ -111,6 +111,7 @@ def get_question_by_least_recent(range_start=0, range_end=5):
         questions = []
     return questions
 
+
 @apply_defense
 def get_question_by_recent_edit(range_start=0, range_end=5):
     query = 'match (q:SBQuestion) where q.to_be_deleted=False and q.original=True ' \
@@ -137,3 +138,14 @@ def prepare_question_search_html(question_uuid):
         return None
 
     return my_question.render_search()
+
+
+def clean_question_for_rest(single_object):
+    # TODO Need to cast these somewhere other than here
+    single_object["is_closed"] = int(single_object["is_closed"])
+
+    # Probably don't need this in the docstore? If we do we still probably
+    # don't need to open it up to the world and just need it internally
+    single_object.pop('to_be_deleted', None)
+
+    return single_object

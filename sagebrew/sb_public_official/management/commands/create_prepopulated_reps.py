@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 from neomodel import CypherException
 
 from govtrack.neo_models import  GTRole
-from sb_reps.neo_models import BaseOfficial
+from sb_public_official.neo_models import BaseOfficial
 from sb_docstore.utils import add_object_to_table
 
 logger = getLogger('loggly_logs')

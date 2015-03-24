@@ -47,8 +47,6 @@ class SearchQuery(StructuredNode):
     trending = BooleanProperty(default=False)
 
     #relationships
-    trending_weights = RelationshipTo('sb_trends.neo_models.TrendingWeight',
-                                      'TRENDING_WEIGHT')
     searched_by = Relationship('plebs.neo_models.Pleb', 'SEARCHED_BY')
     keywords = RelationshipTo(KeyWord, 'KEYWORDS', model=KeyWordRel)
     results = RelationshipTo(SearchResult, 'RESULT')

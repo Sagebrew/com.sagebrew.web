@@ -95,7 +95,6 @@ class TestEditQuestionTitleTask(TestCase):
         task_data = {
             'object_uuid': question.object_uuid,
             'object_type': 'sb_questions.neo_models.SBQuestion',
-            'username': self.pleb.username,
             'title': 'this is post edit title'
         }
 
@@ -112,7 +111,6 @@ class TestEditQuestionTitleTask(TestCase):
         task_data = {
             'object_uuid': question.object_uuid,
             'object_type': 'SBQuestion',
-            'current_pleb': self.pleb,
             'title': 'this is post edit content'
         }
 

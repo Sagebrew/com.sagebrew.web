@@ -73,7 +73,7 @@ STATICFILES_DIRS = (
     '%s/sb_questions/static/' % PROJECT_DIR,
     '%s/sb_registration/static/' % PROJECT_DIR,
     '%s/sb_relationships/static/' % PROJECT_DIR,
-    '%s/sb_reps/static/' % PROJECT_DIR,
+    '%s/sb_public_official/static/' % PROJECT_DIR,
     '%s/sb_search/static/' % PROJECT_DIR,
     '%s/sb_tag/static/' % PROJECT_DIR,
     '%s/sb_uploads/static/' % PROJECT_DIR,
@@ -148,7 +148,6 @@ TEMPLATE_DIRS = (
     '%s/sb_public_official/templates/' % PROJECT_DIR,
     '%s/sb_questions/templates/' % PROJECT_DIR,
     '%s/sb_registration/templates/' % PROJECT_DIR,
-    '%s/sb_reps/templates/' % PROJECT_DIR,
     '%s/sb_requirements/templates/' % PROJECT_DIR,
     '%s/sb_search/templates/' % PROJECT_DIR,
     '%s/sb_tag/templates/' % PROJECT_DIR,
@@ -193,7 +192,6 @@ INSTALLED_APPS = (
     'sb_questions',
     'sb_registration',
     'sb_relationships',
-    'sb_reps',
     'sb_requirements',
     'sb_search',
     'sb_stats',
@@ -322,7 +320,8 @@ PAYMENT_PLANS = [
 
 KNOWN_TYPES = [
     ("01bb301a-644f-11e4-9ad9-080027242395", "sb_posts.neo_models.SBPost"),
-    ("02241aee-644f-11e4-9ad9-080027242395", "sb_solutions.neo_models.SBSolution"),
+    ("02241aee-644f-11e4-9ad9-080027242395",
+     "sb_solutions.neo_models.SBSolution"),
     ("0274a216-644f-11e4-9ad9-080027242395",
      "sb_questions.neo_models.SBQuestion"),
     ("02ba1c88-644f-11e4-9ad9-080027242395",
@@ -330,13 +329,16 @@ KNOWN_TYPES = [
 ]
 
 BASE_REP_TYPES = [
-    ("f2729db2-9da8-11e4-9233-080027242395", "sb_reps.neo_models.USSenator"),
-    ("f3aeebe0-9da8-11e4-9233-080027242395", "sb_reps.neo_models.USPresident"),
+    ("f2729db2-9da8-11e4-9233-080027242395",
+     "sb_public_official.neo_models.USSenator"),
+    ("f3aeebe0-9da8-11e4-9233-080027242395",
+     "sb_public_official.neo_models.USPresident"),
     ("f46fbcda-9da8-11e4-9233-080027242395",
-     "sb_reps.neo_models.BaseOfficial"),
+     "sb_public_official.neo_models.BaseOfficial"),
     ("628c138a-9da9-11e4-9233-080027242395",
-     "sb_reps.neo_models.USHouseRepresentative"),
-    ("786dcf40-9da9-11e4-9233-080027242395", "sb_reps.neo_models.Governor")
+     "sb_public_official.neo_models.USHouseRepresentative"),
+    ("786dcf40-9da9-11e4-9233-080027242395",
+     "sb_public_official.neo_models.Governor")
 ]
 
 KNOWN_TABLES = {

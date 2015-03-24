@@ -33,7 +33,8 @@ class ApplicationTests(APITestCase):
             'detail': 'Authentication credentials were not provided.'
         }
         self.assertEqual(response.data, unauthorized)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
+                                             status.HTTP_403_FORBIDDEN])
 
     def test_missing_data(self):
         self.client.force_authenticate(user=self.user)

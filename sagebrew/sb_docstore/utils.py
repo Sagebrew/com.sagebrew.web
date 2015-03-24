@@ -359,7 +359,7 @@ def get_vote(object_uuid, user):
             user=user
         )
         return vote
-    except ItemNotFound:
+    except (ItemNotFound, JSONResponseError, ValidationException):
         return None
 
 

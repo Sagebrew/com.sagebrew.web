@@ -41,7 +41,7 @@ def add_question_to_indices_task(question, tags):
 
     search_dict = {'question_content': question.content,
                    'user': question.owned_by.all()[0].email,
-                   'question_title': question.question_title,
+                   'title': question.title,
                    'tags': tags,
                    'object_uuid': question.object_uuid,
                    'post_date': question.created,
@@ -125,7 +125,7 @@ def add_tags_to_question_task(question, tags):
 
 
 @shared_task()
-def create_question_task(content, current_pleb, question_title, question_uuid,
+def create_question_task(content, current_pleb, title, question_uuid,
                          tags=None):
     '''
     This task calls the util to create a question, if the util fails the
@@ -138,7 +138,7 @@ def create_question_task(content, current_pleb, question_title, question_uuid,
 
     :param content:
     :param current_pleb:
-    :param question_title:
+    :param title:
     :return:
             If the create_question_util succeeds return True
 
@@ -150,7 +150,7 @@ def create_question_task(content, current_pleb, question_title, question_uuid,
         tags = tags.split(',')
 
     question = create_question_util(content=content,
-                                    question_title=question_title,
+                                    title=title,
                                     question_uuid=question_uuid)
     if isinstance(question, Exception) is True:
         raise create_question_task.retry(exc=question, countdown=5,

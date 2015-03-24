@@ -21,6 +21,23 @@ from .neo_models import Pleb, BetaUser
 
 
 @shared_task()
+def pleb_user_update(username, first_name, last_name, email):
+    try:
+        pleb = Pleb.nodes.get(username=username)
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
+        raise pleb_user_update.retry(exc=e, countdown=3, max_retries=None)
+    try:
+        pleb.first_name = first_name
+        pleb.last_name = last_name
+        pleb.email = email
+        pleb.save()
+    except(CypherException, IOError) as e:
+        raise pleb_user_update.retry(exc=e, countdown=3, max_retries=None)
+
+    return True
+
+
+@shared_task()
 def send_email_task(source, to, subject, html_content):
     from sb_registration.utils import sb_send_email
     try:

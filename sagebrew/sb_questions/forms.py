@@ -2,7 +2,7 @@ from django import forms
 
 
 class SaveQuestionForm(forms.Form):
-    question_title = forms.CharField()
+    title = forms.CharField()
     current_pleb = forms.CharField()
     content = forms.CharField()
     tags = forms.CharField()

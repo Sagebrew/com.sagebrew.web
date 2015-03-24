@@ -23,14 +23,17 @@ class TestCreatePlebTask(TestCase):
         self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
         try:
-            pleb = Pleb.nodes.get(email='suppressionlist@simulator.amazonses.com')
+            pleb = Pleb.nodes.get(
+                email='suppressionlist@simulator.amazonses.com')
             pleb.delete()
-            user = User.objects.get(email='suppressionlist@simulator.amazonses.com')
+            user = User.objects.get(
+                email='suppressionlist@simulator.amazonses.com')
             user.delete()
         except (Pleb.DoesNotExist, User.DoesNotExist):
             self.fake_user = User.objects.create_user(
                 first_name='test', last_name='test',
-                email='suppressionlist@simulator.amazonses.com', password='fakepass',
+                email='suppressionlist@simulator.amazonses.com',
+                password='fakepass',
                 username='thisisafakeusername')
             self.fake_user.save()
 
@@ -152,7 +155,8 @@ class TestFinalizeCitizenCreationTask(TestCase):
             pass
         self.fake_user = User.objects.create_user(
             first_name='fake', last_name='user',
-            email='suppressionlist@simulator.amazonses.com', password='fakepass',
+            email='suppressionlist@simulator.amazonses.com',
+            password='fakepass',
             username='thisisafakeusername1')
         self.fake_user.save()
         self.fake_pleb = Pleb(email=self.fake_user.email,
@@ -198,15 +202,18 @@ class TestSendEmailTask(TestCase):
         self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
         try:
-            pleb = Pleb.nodes.get(email='suppressionlist@simulator.amazonses.com')
+            pleb = Pleb.nodes.get(
+                email='suppressionlist@simulator.amazonses.com')
             pleb.delete()
-            user = User.objects.get(email='suppressionlist@simulator.amazonses.com')
+            user = User.objects.get(
+                email='suppressionlist@simulator.amazonses.com')
             user.delete()
         except (Pleb.DoesNotExist, User.DoesNotExist):
             pass
         self.fake_user = User.objects.create_user(
             first_name='test', last_name='test',
-            email='suppressionlist@simulator.amazonses.com', password='fakepass',
+            email='suppressionlist@simulator.amazonses.com',
+            password='fakepass',
             username='thisisafakeusername')
         self.fake_user.save()
         self.fake_pleb = Pleb(email=self.fake_user.email,

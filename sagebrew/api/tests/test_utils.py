@@ -37,7 +37,7 @@ class TestAddFailureToQueue(TestCase):
 
 class TestGetObject(TestCase):
     def test_bad_class(self):
-        question = SBQuestion(question_title='test title for delete',
+        question = SBQuestion(title='test title for delete',
                               content='this is before delete',
                               object_uuid=str(uuid1())).save()
         test_object = get_object('sb_questions.neo_bad.SBQuestion',
@@ -46,7 +46,7 @@ class TestGetObject(TestCase):
         self.assertFalse(test_object)
 
     def test_bad_module_class(self):
-        question = SBQuestion(question_title='test title for delete',
+        question = SBQuestion(title='test title for delete',
                               content='this is before delete',
                               object_uuid=str(uuid1())).save()
 
@@ -63,7 +63,7 @@ class TestGetObject(TestCase):
         self.assertIsInstance(test_object, Exception)
 
     def test_valid_object(self):
-        question = SBQuestion(question_title='test title for delete',
+        question = SBQuestion(title='test title for delete',
                               content='this is before delete',
                               object_uuid=str(uuid1())).save()
         test_object = get_object('sb_questions.neo_models.SBQuestion',

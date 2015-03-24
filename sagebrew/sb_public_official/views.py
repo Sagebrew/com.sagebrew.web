@@ -16,11 +16,9 @@ from sb_docstore.utils import add_object_to_table, get_rep_docs, update_doc
 from sb_docstore.tasks import build_rep_page_task
 from sb_registration.utils import (verify_completed_registration)
 
-from .forms import (EducationForm, ExperienceForm, PolicyForm, BioForm,
-                    GoalForm)
+from .forms import (ExperienceForm, BioForm, GoalForm)
 from .neo_models import BaseOfficial
-from .tasks import (save_policy_task, save_experience_task,
-                    save_education_task, save_bio_task, save_goal_task)
+from .tasks import (save_experience_task, save_bio_task, save_goal_task)
 from .utils import get_rep_type
 
 

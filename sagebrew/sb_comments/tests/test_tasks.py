@@ -29,7 +29,7 @@ class TestSaveCommentTask(TestCase):
     def test_save_comment_on_object_task_success(self):
         question = SBQuestion(object_uuid=str(uuid1())).save()
         task_param = {'content': 'test comment',
-                      'current_pleb': self.pleb,
+                      'username': self.pleb.username,
                       'object_uuid': question.object_uuid,
                       'object_type': 'sb_questions.neo_models.SBQuestion',
                       'comment_uuid': str(uuid1())}
@@ -42,7 +42,7 @@ class TestSaveCommentTask(TestCase):
     def test_save_comment_on_object_task_get_object_fail(self):
         question = SBQuestion(object_uuid=str(uuid1())).save()
         task_param = {'content': 'test comment',
-                      'current_pleb': self.pleb,
+                      'username': self.pleb.username,
                       'object_uuid': question.object_uuid,
                       'object_type': 'SBQuestion',
                       'comment_uuid': str(uuid1())}

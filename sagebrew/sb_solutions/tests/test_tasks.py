@@ -20,7 +20,7 @@ class TestSaveSolutionTask(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question_info_dict = {'question_title': "Test question",
+        self.question_info_dict = {'title': "Test question",
                                    'content': 'test post',}
         self.solution_info_dict = {'current_pleb': self.email,
                                  'content': 'test solution'}

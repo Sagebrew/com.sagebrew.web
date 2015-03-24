@@ -1,13 +1,15 @@
 import logging
+
 from django.conf import settings
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
+from api.utils import spawn_task
+
 from .forms import DeleteObjectForm
 from .tasks import delete_object_task
-from api.utils import spawn_task
-from api.tasks import get_pleb_task
 
 logger = logging.getLogger('loggly_logs')
 
@@ -25,14 +27,10 @@ def delete_object_view(request):
         task_data = {
             "object_type": choice_dict[
                 delete_object_form.cleaned_data['object_type']],
-            "object_uuid": delete_object_form.cleaned_data['object_uuid']
-        }
-        pleb_task_data = {
+            "object_uuid": delete_object_form.cleaned_data['object_uuid'],
             'username': request.user.username,
-            'task_func': delete_object_task,
-            'task_param': task_data
         }
-        spawned = spawn_task(task_func=get_pleb_task, task_param=pleb_task_data)
+        spawned = spawn_task(task_func=delete_object_task, task_param=task_data)
         if isinstance(spawned, Exception):
             return Response(status=500)
         return Response(status=200)

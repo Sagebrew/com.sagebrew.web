@@ -20,8 +20,8 @@ class SBComment(SBNonVersioned):
     action = "commented on your "
     sb_name = "comment"
     object_type = "02ba1c88-644f-11e4-9ad9-080027242395"
-    up_vote_number = IntegerProperty(default=0)
-    down_vote_number = IntegerProperty(default=0)
+    upvotes = IntegerProperty(default=0)
+    downvotes = IntegerProperty(default=0)
     view_count = IntegerProperty(default=0)
 
     # relationships
@@ -61,10 +61,10 @@ class SBComment(SBNonVersioned):
             except IndexError:
                 comment_owner = ""
             comment_dict = {'content': self.content,
-                            'up_vote_number': self.get_upvote_count(),
-                            'object_vote_count': self.get_vote_count(),
+                            'upvotes': self.get_upvote_count(),
+                            'vote_count': self.get_vote_count(),
                             'object_uuid': self.object_uuid,
-                            'down_vote_number':
+                            'downvotes':
                                 self.get_downvote_count(),
                             'last_edited_on':
                                 str(self.last_edited_on),

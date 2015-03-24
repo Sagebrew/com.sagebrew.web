@@ -4,28 +4,11 @@ from celery import shared_task
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import (ElasticsearchException, TransportError,
                                       ConnectionError, RequestError)
-from neomodel import DoesNotExist, CypherException
+from neomodel import CypherException
 
 from sb_base.utils import defensive_exception
-from api.utils import spawn_task, get_object
-from plebs.neo_models import Pleb
-from .utils import generate_oauth_user
 
-@shared_task()
-def get_pleb_task(username, task_func, task_param):
-    try:
-        pleb = Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist) as e:
-        raise get_pleb_task.retry(exc=e, countdown=3, max_retries=None)
-    except CypherException as e:
-        raise get_pleb_task.retry(exc=e, countdown=3, max_retries=None)
-    task_param['current_pleb'] = pleb
-    success = spawn_task(task_func=task_func, task_param=task_param)
-
-    if isinstance(success, Exception) is True:
-        raise get_pleb_task.retry(exc=success, countdown=3, max_retries=None)
-    else:
-        return success
+from .utils import generate_oauth_user, spawn_task, get_object
 
 
 @shared_task()
@@ -115,7 +98,6 @@ def save_search_id(search_data, object_type, object_data, object_added):
 def generate_oauth_info(username, password, web_address=None):
     res = generate_oauth_user(username, password, web_address)
     if isinstance(res, Exception):
-        raise generate_oauth_info.retry(exc=res, countdown=3,
-                                        max_retries=None)
+        raise generate_oauth_info.retry(exc=res, countdown=3, max_retries=None)
 
     return True

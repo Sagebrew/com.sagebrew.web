@@ -11,8 +11,8 @@ $(document).ready(function(){
         live: 'enabled',
         submitButtons: '.submit_question-action',
         fields: {
-            question_title: {
-                group: 'question_title_input',
+            title: {
+                group: 'title_input',
                 validators: {
                     notEmpty: {
                         message: "Title is required"

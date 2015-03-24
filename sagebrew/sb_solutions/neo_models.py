@@ -49,7 +49,7 @@ class SBSolution(SBVersioned):
         try:
             self.solution_to.connect(question)
             question.solution.connect(self)
-            question.solution_number += 1
+            question.solution_count += 1
             question.save()
             rel_from_pleb = pleb.solutions.connect(self)
             rel_from_pleb.save()
@@ -78,8 +78,6 @@ class SBSolution(SBVersioned):
         try:
             comment_array = []
             solution_owner = self.owned_by.all()[0]
-            solution_owner_name = solution_owner.first_name +' '+solution_owner.last_name
-            solution_owner_url = solution_owner.username
             for comment in self.comments.all():
                 comment_array.append(comment.get_single_dict())
             try:
@@ -95,18 +93,15 @@ class SBSolution(SBVersioned):
                 html_content = ""
             solution_dict = {
                 'content': self.content,
-                'current_pleb': pleb,
                 'parent_object': parent_object,
                 'object_uuid': self.object_uuid,
                 'last_edited_on': unicode(self.last_edited_on),
-                'up_vote_number': self.get_upvote_count(),
-                'down_vote_number': self.get_downvote_count(),
-                'object_vote_count': self.get_vote_count(),
-                'solution_owner_name': solution_owner_name,
-                'solution_owner_url': solution_owner.username,
+                'upvotes': self.get_upvote_count(),
+                'downvotes': self.get_downvote_count(),
+                'vote_count': self.get_vote_count(),
+                'owner': solution_owner.username,
                 'created': unicode(self.created),
                 'comments': comment_array,
-                'solution_owner_email': solution_owner.email,
                 'edits': [],
                 'object_type': self.object_type,
                 'html_content': html_content

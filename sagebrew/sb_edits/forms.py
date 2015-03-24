@@ -10,6 +10,6 @@ class EditObjectForm(forms.Form):
 
 
 class EditQuestionForm(forms.Form):
-    question_title = forms.CharField(min_length=6)
+    title = forms.CharField(min_length=6)
     object_type = forms.CharField()
     object_uuid = forms.CharField()

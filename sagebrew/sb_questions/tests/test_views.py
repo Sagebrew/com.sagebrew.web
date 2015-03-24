@@ -2,10 +2,14 @@ import datetime
 from uuid import uuid1
 from json import loads
 from base64 import b64encode
-from rest_framework.test import APIRequestFactory, APIClient
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.conf import settings
+
+from rest_framework.test import APIRequestFactory, APIClient
+from rest_framework.test import force_authenticate
+
 
 from sb_questions.neo_models import SBQuestion
 from api.utils import wait_util
@@ -28,7 +32,7 @@ class SaveQuestionViewTests(TestCase):
     def test_save_question_view_correct_data(self):
         my_dict = {'content': 'aosdfhao',
                    'current_pleb': self.user.email,
-                   'question_title': 'How do we end the war in Iraq?',
+                   'title': 'How do we end the war in Iraq?',
                    'tags': 'these,are,test,tags'}
         request = self.factory.post('/conversations/submit_question_api/',
                                     data=my_dict,
@@ -40,7 +44,7 @@ class SaveQuestionViewTests(TestCase):
 
     def test_save_question_view_missing_data(self):
         my_dict = {'content': 'aosdfhao',
-                   'question_title': 'How do we end the war in Iraq?'}
+                   'title': 'How do we end the war in Iraq?'}
         request = self.factory.post('/conversations/submit_question_api/',
                                     data=my_dict,
                                     format='json')
@@ -132,7 +136,7 @@ class TestGetQuestionView(TestCase):
     def test_get_question_view_success_most_recent(self):
         for item in range(0,5):
             question = SBQuestion(object_uuid=str(uuid1()), content='test',
-                                  question_title='test title').save()
+                                  title='test title').save()
             question.owned_by.connect(self.pleb)
 
         my_dict = {'current_pleb': self.user.email,
@@ -148,19 +152,16 @@ class TestGetQuestionView(TestCase):
 
     def test_get_question_view_success_uuid(self):
         question = SBQuestion(object_uuid=str(uuid1()), content='test',
-                              question_title='test title').save()
+                              title='test title').save()
         question.owned_by.connect(self.pleb)
-
-        my_dict = {'current_pleb': self.user.email,
-                   'sort_by': 'uuid',
+        my_dict = {'sort_by': 'uuid',
                    'question_uuid': question.object_uuid}
         request = self.factory.post('/conversations/query_questions_api/',
                                     data=my_dict,
                                     format='json')
-        request.user = self.user
+        force_authenticate(request, user=self.user)
         response = get_question_view(request)
         response = response.render()
-
         self.assertIn('<div class=\\"sb_question_header\\">',
                       response.content)
         self.assertEqual(response.status_code, 200)
@@ -169,7 +170,7 @@ class TestGetQuestionView(TestCase):
         for item in range(0,5):
             question = SBQuestion(
                 object_uuid=str(uuid1()), content='test',
-                question_title='test title',
+                title='test title',
                 created=datetime.datetime.now() -
                 datetime.timedelta(days=3*365)).save()
             question.owned_by.connect(self.pleb)
@@ -270,7 +271,7 @@ class TestGetQuestionSearchView(TestCase):
 
     def test_get_question_search_view_success(self):
         question = SBQuestion(object_uuid=str(uuid1()), content='test',
-                              question_title='test title').save()
+                              title='test title').save()
         question.owned_by.connect(self.pleb)
 
         res = self.client.get('/conversations/search/%s/' % question.object_uuid)

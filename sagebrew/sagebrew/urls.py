@@ -72,6 +72,8 @@ urlpatterns = patterns(
     url(r'^signup/$', signup_view, name="signup"),
     (r'^v1/', include('sb_questions.apis.v1')),
     (r'^v1/', include('sb_solutions.apis.v1')),
+    (r'^v1/', include('sb_oauth.apis.v1')),
+    (r'^v1/', include('plebs.apis.v1')),
     url(r'^$', beta_page, name='beta_page'),
 )
 

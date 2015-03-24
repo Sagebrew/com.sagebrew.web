@@ -10,7 +10,7 @@ from api.utils import wait_util
 from sb_registration.utils import create_user_util_test
 from sb_docstore.utils import add_object_to_table
 
-from sb_edits.views import edit_question_title_view, edit_object_view
+from sb_edits.views import edit_title_view, edit_object_view
 
 
 class TestEditObjectView(TestCase):
@@ -73,50 +73,50 @@ class TestEditQuestionTitleView(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
-    def test_edit_question_title_success(self):
+    def test_edit_title_success(self):
         uuid = str(uuid1())
         data = {
-            'question_title': 'testquestiontitleedit',
+            'title': 'testquestiontitleedit',
             'current_pleb': self.email,
             'object_type': '0274a216-644f-11e4-9ad9-080027242395',
             'object_uuid': uuid
         }
         table_data = {
-            'question_title': 'test fake title',
+            'title': 'test fake title',
             'content': 'fake content',
             'object_uuid': uuid
         }
         res = add_object_to_table('public_questions', table_data)
         self.assertTrue(res)
-        request = self.factory.post('/edit/edit_question_title_api/',
+        request = self.factory.post('/edit/edit_title_api/',
                                     data=data,
                                     format='json')
         request.user = self.user
-        res = edit_question_title_view(request)
+        res = edit_title_view(request)
 
         self.assertEqual(res.status_code, 200)
 
-    def test_edit_question_title_invalid_form(self):
+    def test_edit_title_invalid_form(self):
         data = {
             'contsdafent': 'testquestiontitleedit',
             'current_pleb': self.email,
             'object_type': '0274a216-644f-11e4-9ad9-080027242395',
             'object_uuid': str(uuid1())
         }
-        request = self.factory.post('/edit/edit_question_title_api/',
+        request = self.factory.post('/edit/edit_title_api/',
                                     data=data,
                                     format='json')
         request.user = self.user
-        res = edit_question_title_view(request)
+        res = edit_title_view(request)
 
         self.assertEqual(res.status_code, 400)
 
-    def test_edit_question_title_invalid_data_type(self):
+    def test_edit_title_invalid_data_type(self):
         data = 1231243151
-        request = self.factory.post('/edit/edit_question_title_api/',
+        request = self.factory.post('/edit/edit_title_api/',
                                     data=data,
                                     format='json')
         request.user = self.user
-        res = edit_question_title_view(request)
+        res = edit_title_view(request)
 
         self.assertEqual(res.status_code, 400)

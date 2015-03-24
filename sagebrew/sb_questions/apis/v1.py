@@ -6,7 +6,7 @@ from sb_questions.endpoints import QuestionViewSet
 
 router = routers.SimpleRouter()
 
-router.register(r'questions', QuestionViewSet, base_name="questions")
+router.register(r'questions', QuestionViewSet, base_name="question")
 
 urlpatterns = patterns(
     'sb_questions.views',

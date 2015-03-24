@@ -6,7 +6,7 @@ from sb_solutions.endpoints import SolutionViewSet
 
 router = routers.SimpleRouter()
 
-router.register(r'solutions', SolutionViewSet, base_name="solutions")
+router.register(r'solutions', SolutionViewSet, base_name="solution")
 
 urlpatterns = patterns(
     'sb_solutions.views',

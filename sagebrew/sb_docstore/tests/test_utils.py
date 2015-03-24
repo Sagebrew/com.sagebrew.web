@@ -117,7 +117,7 @@ class TestDocstoreUtils(TestCase):
 
     def test_build_question_page(self):
         question = SBQuestion(object_uuid=str(uuid1()), content="1231",
-                              question_title="12312312").save()
+                              title="12312312").save()
         question.owned_by.connect(self.pleb)
         res = build_question_page(question.object_uuid, 'public_questions',
                                   'public_solutions')

@@ -30,15 +30,22 @@ class BaseOfficial(Pleb):
     gov_phone = StringProperty()
 
     # relationships
-    policy = RelationshipTo('sb_reps.neo_models.Policy', "HAS_POLICY")
+    policy = RelationshipTo('sb_public_official.neo_models.Policy',
+                            "HAS_POLICY")
     pleb = RelationshipTo('plebs.neo_models.Pleb', 'IS')
-    sponsored = RelationshipTo('sb_reps.neo_models.Bill', "SPONSORED")
-    co_sponsored = RelationshipTo('sb_reps.neo_models.Bill', "COSPONSORED")
-    proposed = RelationshipTo('sb_reps.neo_models.Bill', "PROPOSED")
-    hearings = RelationshipTo('sb_reps.neo_models.Hearing', "ATTENDED")
-    experience = RelationshipTo('sb_reps.neo_models.Experience', "EXPERIENCED")
-    education = RelationshipTo('sb_reps.neo_models.Education', 'EDUCATION')
-    goal = RelationshipTo('sb_reps.neo_models.Goal', 'GOAL')
+    sponsored = RelationshipTo('sb_public_official.neo_models.Bill',
+                               "SPONSORED")
+    co_sponsored = RelationshipTo('sb_public_official.neo_models.Bill',
+                                  "COSPONSORED")
+    proposed = RelationshipTo('sb_public_official.neo_models.Bill',
+                              "PROPOSED")
+    hearings = RelationshipTo('sb_public_official.neo_models.Hearing',
+                              "ATTENDED")
+    experience = RelationshipTo('sb_public_official.neo_models.Experience',
+                                "EXPERIENCED")
+    education = RelationshipTo('sb_public_official.neo_models.Education',
+                               'EDUCATION')
+    goal = RelationshipTo('sb_public_official.neo_models.Goal', 'GOAL')
     gt_person = RelationshipTo('govtrack.neo_models.GTPerson', 'GTPERSON')
     gt_role = RelationshipTo('govtrack.neo_models.GTRole', 'GTROLE')
 
@@ -75,7 +82,8 @@ class USSenator(BaseOfficial):
     is_minority_leader = BooleanProperty(default=False)
 
     # relationships
-    committee = RelationshipTo('sb_reps.neo_models.Committee', "PART_OF")
+    committee = RelationshipTo('sb_public_official.neo_models.Committee',
+                               "PART_OF")
 
 
 class USPresident(BaseOfficial):
@@ -107,7 +115,8 @@ class USHouseRepresentative(BaseOfficial):
     is_minority_leader = BooleanProperty(default=False)
 
     # relationships
-    vote = RelationshipTo('sb_reps.neo_models.Bill', 'VOTED_ON',)
+    vote = RelationshipTo('sb_public_official.neo_models.Bill',
+                          'VOTED_ON',)
 
 
 class Committee(StructuredNode):
@@ -124,7 +133,8 @@ class Governor(BaseOfficial):
     # relationships
     vetoed = RelationshipTo(Bill, "VETOED")
     passed = RelationshipTo(Bill, "PASSED")
-    committee = RelationshipTo('sb_reps.neo_models.Committee', "STARTED")
+    committee = RelationshipTo('sb_public_official.neo_models.Committee',
+                               "STARTED")
 
 
 class PositionRequirements(StructuredNode):

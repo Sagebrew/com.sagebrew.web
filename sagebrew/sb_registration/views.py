@@ -18,7 +18,7 @@ from neomodel import (DoesNotExist, CypherException)
 from api.utils import spawn_task
 from plebs.tasks import send_email_task, create_beta_user
 from plebs.neo_models import Pleb, BetaUser
-from sb_reps.tasks import create_rep_task
+from sb_public_official.tasks import create_rep_task
 from sb_docstore.tasks import build_rep_page_task
 from sb_uploads.tasks import crop_image_task
 

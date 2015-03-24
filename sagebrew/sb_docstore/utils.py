@@ -13,8 +13,8 @@ from neomodel import DoesNotExist, CypherException
 from plebs.neo_models import Pleb
 from sb_base.decorators import apply_defense
 from sb_questions.neo_models import SBQuestion
-from sb_reps.neo_models import BaseOfficial
-from sb_reps.utils import get_rep_type
+from sb_public_official.neo_models import BaseOfficial
+from sb_public_official.utils import get_rep_type
 
 
 def get_table_name(name):

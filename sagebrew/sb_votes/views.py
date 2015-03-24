@@ -8,11 +8,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from .forms import VoteObjectForm
-from .tasks import vote_object_task
 from .utils import determine_update_values
-from api.utils import spawn_task
-from api.tasks import get_pleb_task
-from sb_base.utils import defensive_exception
+
 from sb_docstore.utils import get_vote, add_object_to_table, update_vote
 
 logger = logging.getLogger('loggly_logs')

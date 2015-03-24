@@ -1,6 +1,5 @@
 from rest_framework import serializers
 
-from sb_comments.serializers import CommentSerializer
 from .neo_models import SBSolution
 
 

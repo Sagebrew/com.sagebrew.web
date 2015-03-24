@@ -1,34 +1,13 @@
-from django.contrib.auth.models import User
-
-from rest_framework.decorators import api_view
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from rest_framework.reverse import reverse
-from rest_framework.response import Response
+from rest_framework.permissions import IsAdminUser
+from api.permissions import IsUser
 
-from .models import PSApplication
-from .serializers import ApplicationSerializer, StorefrontSerializer
-
-
-@api_view(('GET',))
-def registration_root(request, format=None):
-    return Response({
-        'owners': reverse('users-list', request=request,
-                          format=format),
-    })
+from .models import SBApplication
+from .serializers import ApplicationSerializer
 
 
 class ApplicationViewSet(viewsets.ModelViewSet):
-    queryset = PSApplication.objects.all()
+    queryset = SBApplication.objects.all()
     serializer_class = ApplicationSerializer
     lookup_field = 'client_id'
-    permission_classes = (IsAuthenticated, IsAdminUser)
-
-
-class StorefrontViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = StorefrontSerializer
-    lookup_field = 'username'
-
-    permission_classes = (IsAuthenticated, IsAdminUser)
-
+    permission_classes = (IsAdminUser, IsUser)

@@ -1,35 +1,38 @@
+from django.contrib.auth.models import User
+
 from rest_framework import serializers
 
-from sb_registration.utils import create_user_util
+from .models import SBApplication, generate_client_id, generate_client_secret
 
 
-class BetaUserSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    invited = serializers.BooleanField()
-    signup_date = serializers.DateTimeField()
-
-
-class UserSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=30, read_only=True)
-    first_name = serializers.CharField(required=False)
-    last_name = serializers.CharField(required=True)
-    email = serializers.EmailField(required=True)
-    password = serializers.CharField(max_length=128, required=True,
-                                     write_only=True)
-    birthday = serializers.DateTimeField(write_only=True)
+class ApplicationSerializer(serializers.Serializer):
+    client_id = serializers.CharField(read_only=True)
+    user = serializers.HyperlinkedRelatedField(queryset=User.objects.all(),
+                                               view_name="users-detail",
+                                               lookup_field="username")
+    redirect_uris = serializers.CharField(required=False)
+    client_type = serializers.ChoiceField(required=True,
+                                          choices=SBApplication.CLIENT_TYPES)
+    authorization_grant_type = serializers.ChoiceField(
+        required=True, choices=SBApplication.GRANT_TYPES)
+    client_secret = serializers.CharField(read_only=True)
+    name = serializers.CharField(max_length=255, required=False)
+    web_hook = serializers.URLField(required=True)
+    reset_credentials = serializers.BooleanField(required=False,
+                                                 write_only=True,
+                                                 default=False)
 
     def create(self, validated_data):
-        response = create_user_util(**validated_data)
-        if isinstance(response, Exception) is True:
-            return response
-        return response["user"]
+        validated_data["client_id"] = generate_client_id()
+        validated_data["client_secret"] = generate_client_secret()
+        return SBApplication.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
-        instance.first_name = validated_data.get('first_name',
-                                                 instance.first_name)
-        instance.last_name = validated_data.get('last_name',
-                                                instance.last_name)
-        instance.email = validated_data.get('email', instance.email)
-        instance.set_password(validated_data.get('password', instance.email))
+        instance.redirect_uris = validated_data.get(
+            'redirect_uris', instance.redirect_uris)
+        instance.name = validated_data.get('name', instance.name)
+        if validated_data.get('reset_credentials', False) is True:
+            instance.client_id = generate_client_id()
+            instance.client_secret = generate_client_secret()
         instance.save()
         return instance

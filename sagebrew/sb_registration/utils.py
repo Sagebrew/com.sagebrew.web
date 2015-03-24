@@ -362,7 +362,7 @@ def create_user_util(first_name, last_name, email, password, birthday):
     if isinstance(res, Exception) is True:
         return res
     else:
-        return {"task_id": res, "username": username}
+        return {"task_id": res, "username": username, "user": user}
 
 
 def create_user_util_test(email):

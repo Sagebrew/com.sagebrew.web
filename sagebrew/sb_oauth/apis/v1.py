@@ -2,13 +2,13 @@ from django.conf.urls import patterns, url, include
 
 from rest_framework import routers
 
-from plebs.endpoints import UserViewSet
+from sb_oauth.endpoints import ApplicationViewSet
 
 router = routers.SimpleRouter()
 
-router.register(r'users', UserViewSet, base_name="users")
+router.register(r'applications', ApplicationViewSet, base_name="application")
 
 urlpatterns = patterns(
-    'plebs.views',
+    'sb_oauth.views',
     url(r'^', include(router.urls)),
 )

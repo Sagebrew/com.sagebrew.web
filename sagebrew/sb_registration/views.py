@@ -22,7 +22,7 @@ from sb_public_official.tasks import create_rep_task
 from sb_docstore.tasks import build_rep_page_task
 from sb_uploads.tasks import crop_image_task
 
-from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
+from .forms import (AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm, RepRegistrationForm,
                     LoginForm, BetaSignupForm)
 from .utils import (verify_completed_registration, verify_verified_email,
@@ -193,7 +193,7 @@ def email_verification(request, confirmation):
                   login_url='/registration/signup/confirm/')
 def profile_information(request):
     '''
-    Creates both a ProfileInfoForm and AddressInfoForm which populates the
+    Creates both a AddressInfoForm which populates the
     fields with what the user enters. If this function gets a valid POST
     request it
     will update the pleb. It then validates the address, through

@@ -144,8 +144,4 @@ def clean_question_for_rest(single_object):
     # TODO Need to cast these somewhere other than here
     single_object["is_closed"] = int(single_object["is_closed"])
 
-    # Probably don't need this in the docstore? If we do we still probably
-    # don't need to open it up to the world and just need it internally
-    single_object.pop('to_be_deleted', None)
-
     return single_object

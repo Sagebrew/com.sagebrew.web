@@ -61,7 +61,7 @@ def save_post_view(request):
             "upvote_number": 0,
             "downvote_number": 0,
             "content": post_form.cleaned_data['content'],
-            "object_vote_count": "0",
+            "vote_count": "0",
             "vote_type": None,
             "html_content": html_content
         }
@@ -114,9 +114,9 @@ def get_user_posts(request):
                     datetime.strptime(post['last_edited_on'][
                                       :len(post['last_edited_on'])-6],
                                       '%Y-%m-%d %H:%M:%S.%f')
-                post['object_vote_count'] = str(post[
-                                                         'up_vote_number'] -\
-                                                 post['down_vote_number'])
+                post['vote_count'] = str(post[
+                                                         'upvotes'] -\
+                                                 post['downvotes'])
                 post['vote_type'] = ""
                 post['current_pleb'] = request.user
                 task_data = {
@@ -130,8 +130,8 @@ def get_user_posts(request):
                         item['last_edited_on'][:len(
                             item['last_edited_on']) - 6],
                         '%Y-%m-%d %H:%M:%S.%f')
-                    item['object_vote_count'] = str(
-                        item['up_vote_number'] - item['down_vote_number'])
+                    item['vote_count'] = str(
+                        item['upvotes'] - item['downvotes'])
                 c = RequestContext(request, post)
                 html = render_to_string('post.html', post,
                                         context_instance=c)

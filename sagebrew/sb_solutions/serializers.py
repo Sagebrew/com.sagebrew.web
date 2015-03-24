@@ -17,9 +17,9 @@ class SolutionSerializerDynamo(serializers.Serializer):
     content = serializers.CharField()
 
     last_edited_on = serializers.DateTimeField(read_only=True)
-    up_vote_number = serializers.CharField(read_only=True)
-    down_vote_number = serializers.CharField(read_only=True)
-    object_vote_count = serializers.CharField(read_only=True)
+    upvotes = serializers.CharField(read_only=True)
+    downvotes = serializers.CharField(read_only=True)
+    vote_count = serializers.CharField(read_only=True)
     owner = serializers.HyperlinkedRelatedField(queryset=User.objects.all(),
                                                 view_name='user-detail',
                                                 lookup_field="username")
@@ -54,8 +54,8 @@ class SolutionSerializerNeo(serializers.Serializer):
     content = serializers.CharField()
 
     last_edited_on = serializers.DateTimeField(read_only=True)
-    up_vote_number = serializers.CharField(read_only=True)
-    down_vote_number = serializers.CharField(read_only=True)
+    upvotes = serializers.CharField(read_only=True)
+    downvotes = serializers.CharField(read_only=True)
 
     def create(self, validated_data):
         # TODO should store in dynamo and then spawn task to store in Neo

@@ -17,7 +17,7 @@ from neomodel import CypherException
 from sagebrew import errors
 
 from api.utils import request_to_api
-from sb_docstore.utils import (get_dynamo_table, convert_dynamo_contents)
+from sb_docstore.utils import (get_dynamo_table, convert_dynamo_content)
 from sb_solutions.utils import convert_dynamo_solutions
 from sb_comments.serializers import CommentSerializer
 from sb_comments.utils import convert_dynamo_comments
@@ -84,15 +84,15 @@ class QuestionViewSet(viewsets.GenericViewSet):
             logger.exception("QuestionsViewSet get_object")
             return Response(errors.DYNAMO_TABLE_EXCEPTION,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        queryset = table.query_2(object_uuid__eq=object_uuid)
+        queryset = table.get_item(object_uuid=object_uuid)
 
         expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
         try:
             if expand == "false":
-                single_object = convert_dynamo_contents(queryset)[0]
+                single_object = convert_dynamo_content(queryset)
             else:
-                single_object = convert_dynamo_contents(queryset, self.request,
-                                                        "question-comments")[0]
+                single_object = convert_dynamo_content(queryset, self.request,
+                                                       "question-comments")
         except IndexError as e:
             raise NotFound
         # TODO need to just store username for question and solution, can
@@ -149,7 +149,7 @@ class QuestionViewSet(viewsets.GenericViewSet):
                 queryset,
                 key=lambda k: k['last_edited_on'])
         else:
-            queryset = sorted(queryset, key=lambda k: k['object_vote_count'])
+            queryset = sorted(queryset, key=lambda k: k['vote_count'])
         # TODO probably want to replace with a serializer if we want to get
         # any urls returned. Or these could be stored off into dynamo based on
         # the initial pass on the serializer

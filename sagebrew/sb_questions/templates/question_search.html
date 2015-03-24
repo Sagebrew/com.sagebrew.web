@@ -1,3 +1,3 @@
 {% url 'profile_page' pleb_username=owner_profile_url as the_url %}
 <h2><a href="/conversations/{{ question_uuid }}">{{ title }}</a></h2>
-<div style="font-weight: bold">Content: {{ question_content }} | Asked by: <a href="{{ the_url }}">{{ owner }}</a> | Posted: {{ created }} | Solution: {{ solution_count }} | Upvotes: {{ up_vote_number }} | Downvotes: {{ down_vote_number }} | Last Edited: {{ last_edited_on }}</div>
+<div style="font-weight: bold">Content: {{ question_content }} | Asked by: <a href="{{ the_url }}">{{ owner }}</a> | Posted: {{ created }} | Solution: {{ solution_count }} | Upvotes: {{ upvotes }} | Downvotes: {{ downvotes }} | Last Edited: {{ last_edited_on }}</div>

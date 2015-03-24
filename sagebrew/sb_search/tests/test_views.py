@@ -352,8 +352,8 @@ class TestSearchResultAPIReturns(TestCase):
                                content=self.q1dict['question_content'],
                                is_closed=False, solution_count=0,
                                last_edited_on=datetime.now(pytz.utc),
-                               up_vote_number=0,
-                               down_vote_number=0,
+                               upvotes=0,
+                               downvotes=0,
                                created=datetime.now(pytz.utc))
         question1.save()
         question1.owned_by.connect(self.pleb)
@@ -383,8 +383,8 @@ class TestSearchResultAPIReturns(TestCase):
                                content=self.q1dict['question_content'],
                                is_closed=False, solution_count=0,
                                last_edited_on=datetime.now(pytz.utc),
-                               up_vote_number=0,
-                               down_vote_number=0,
+                               upvotes=0,
+                               downvotes=0,
                                created=datetime.now(pytz.utc))
         question1.save()
         question1.owned_by.connect(self.pleb)
@@ -422,8 +422,8 @@ class TestSearchResultAPIReturns(TestCase):
                                content=self.q1dict['question_content'],
                                is_closed=False, solution_count=0,
                                last_edited_on=datetime.now(pytz.utc),
-                               up_vote_number=0,
-                               down_vote_number=0,
+                               upvotes=0,
+                               downvotes=0,
                                created=datetime.now(pytz.utc))
         question1.save()
         question1.owned_by.connect(self.pleb)
@@ -469,8 +469,8 @@ class TestSearchResultAPIReturns(TestCase):
                                question_content=self.q1dict['question_content'],
                                is_closed=False, solution_count=0,
                                last_edited_on=datetime.now(pytz.utc),
-                               up_vote_number=0,
-                               down_vote_number=0,
+                               upvotes=0,
+                               downvotes=0,
                                created=datetime.now(pytz.utc))
         question1.save()
         question1.owned_by.connect(pleb)
@@ -514,8 +514,8 @@ class TestSearchResultAPIReturns(TestCase):
                                question_content=self.q1dict['question_content'],
                                is_closed=False, solution_count=0,
                                last_edited_on=datetime.now(pytz.utc),
-                               up_vote_number=0,
-                               down_vote_number=0,
+                               upvotes=0,
+                               downvotes=0,
                                created=datetime.now(pytz.utc))
         question1.save()
         question1.owned_by.connect(self.pleb)
@@ -559,8 +559,8 @@ class TestSearchResultAPIReturns(TestCase):
                                content=self.q1dict['question_content'],
                                is_closed=False, solution_count=0,
                                last_edited_on=datetime.now(pytz.utc),
-                               up_vote_number=0,
-                               down_vote_number=0,
+                               upvotes=0,
+                               downvotes=0,
                                created=datetime.now(pytz.utc))
         question1.save()
         question1.owned_by.connect(pleb)

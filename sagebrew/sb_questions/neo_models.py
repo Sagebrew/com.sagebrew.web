@@ -152,8 +152,6 @@ class SBQuestion(SBVersioned, SBTagContent):
                 html_content = markdown.markdown(self.content)
             return {
                 'title': edit.title,
-                # TODO do we need to return the current pleb?
-                'current_pleb': pleb,
                 'content': edit.content,
                 'object_uuid': self.object_uuid,
                 'is_closed': self.is_closed,
@@ -196,8 +194,8 @@ class SBQuestion(SBVersioned, SBTagContent):
                         'is_closed': self.is_closed,
                         'solution_count': self.solution_count,
                         'last_edited_on': self.last_edited_on,
-                        'up_vote_number': self.up_vote_number,
-                        'down_vote_number': self.down_vote_number,
+                        'upvotes': self.upvotes,
+                        'downvotes': self.downvotes,
                         'owner': owner,
                         'created': self.created,
                         'question_url': self.object_uuid,
@@ -229,8 +227,8 @@ class SBQuestion(SBVersioned, SBTagContent):
                 "is_closed": self.is_closed,
                 "solution_count": self.solution_count,
                 "last_edited_on": self.last_edited_on,
-                "up_vote_number": self.up_vote_number,
-                "down_vote_number": self.down_vote_number,
+                "upvotes": self.upvotes,
+                "downvotes": self.downvotes,
                 "owner": owner_name,
                 "owner_profile_url": owner_profile_url,
                 "created": self.created,

@@ -93,8 +93,6 @@ class SBSolution(SBVersioned):
                 html_content = ""
             solution_dict = {
                 'content': self.content,
-                # TODO do we need to return the current pleb?
-                'current_pleb': pleb,
                 'parent_object': parent_object,
                 'object_uuid': self.object_uuid,
                 'last_edited_on': unicode(self.last_edited_on),

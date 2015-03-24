@@ -43,8 +43,8 @@ def convert_dynamo_comments(raw_comments):
     comments = []
     for comment in raw_comments:
         comment = dict(comment)
-        comment['up_vote_number'] = get_vote_count(comment['object_uuid'],1)
-        comment['down_vote_number'] = get_vote_count(
+        comment['upvotes'] = get_vote_count(comment['object_uuid'],1)
+        comment['downvotes'] = get_vote_count(
             comment['object_uuid'],0)
         comment['last_edited_on'] = datetime.strptime(
             comment['last_edited_on'][:len(comment['last_edited_on']) - 6],
@@ -52,7 +52,7 @@ def convert_dynamo_comments(raw_comments):
         comment['created'] = datetime.strptime(
             comment['created'][:len(comment['created']) - 6],
             '%Y-%m-%d %H:%M:%S.%f')
-        comment['object_vote_count'] = str(
-            comment['up_vote_number'] - comment['down_vote_number'])
+        comment['vote_count'] = str(
+            comment['upvotes'] - comment['downvotes'])
         comments.append(comment)
     return comments

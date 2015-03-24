@@ -38,9 +38,9 @@ def save_solution_util(content, solution_uuid):
 # TODO see if this can be replaced with convert_dynamo_content_with_comments
 def convert_dynamo_solution(raw_solution, request):
     solution = dict(raw_solution)
-    solution['up_vote_number'] = get_vote_count(solution['object_uuid'],
+    solution['upvotes'] = get_vote_count(solution['object_uuid'],
                                                 1)
-    solution['down_vote_number'] = get_vote_count(solution['object_uuid'],
+    solution['downvotes'] = get_vote_count(solution['object_uuid'],
                                                   0)
     solution['last_edited_on'] = datetime.strptime(
         solution['last_edited_on'][:len(solution['last_edited_on']) - 6],
@@ -48,8 +48,8 @@ def convert_dynamo_solution(raw_solution, request):
     solution['created'] = datetime.strptime(
         solution['created'][:len(solution['created']) - 6],
         '%Y-%m-%d %H:%M:%S.%f')
-    solution['object_vote_count'] = str(
-        solution['up_vote_number'] - solution['down_vote_number'])
+    solution['vote_count'] = str(
+        solution['upvotes'] - solution['downvotes'])
     url = reverse('solution-comments', kwargs={
         'object_uuid': solution['object_uuid']}, request=request)
     response = request_to_api(url, request.user.username, req_method="GET")

@@ -33,6 +33,7 @@ def get_notifications(request):
     except AttributeError:
         return Response({"details": "Invalid Form"}, status=400)
     if valid_form:
+        html_array = []
         res = get_notification_docs(request.user.username)
         if isinstance(res, Exception):
             return Response({"detail": "fail"}, status=400)
@@ -61,7 +62,11 @@ def get_notifications(request):
                 notification_array.append(notification_dict)
             html = render_to_string('notifications.html', notification_array)
         else:
-            html = render_to_string('notifications.html',
+            for notification in res:
+                html_array.append(render_to_string('notification_detail.html',
+                    {"notification": notification}))
+            print html_array
+            html = render_to_string('notification_detail.html',
                                     {'notifications': res})
         return Response({'html': html}, status=200)
     else:

@@ -1,29 +1,10 @@
 import importlib
-from dateutil import parser
 from django.conf import settings
 from neomodel import (DoesNotExist, CypherException)
 
-from api.utils import spawn_task
 from plebs.neo_models import Pleb
-from .neo_models import Policy, BaseOfficial, Experience, Education, Goal
+from .neo_models import (BaseOfficial, Experience, Goal)
 from sb_base.decorators import apply_defense
-
-@apply_defense
-def save_policy(rep_id, category, description, object_uuid):
-    try:
-        policy = Policy(category=category, description=description,
-                        object_uuid=object_uuid).save()
-    except CypherException as e:
-        return e
-    try:
-        rep = BaseOfficial.nodes.get(object_uuid=rep_id)
-    except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException) as e:
-        return e
-    try:
-        rep.policy.connect(policy)
-    except CypherException as e:
-        return e
-    return policy
 
 
 @apply_defense
@@ -52,30 +33,6 @@ def save_experience(rep_id, title, start_date, end_date, current,
         except CypherException as e:
             return e
         return experience
-
-@apply_defense
-def save_education(rep_id, school, start_date, end_date, degree, edu_id):
-    try:
-        education = Education.nodes.get(object_uuid=edu_id)
-        return True
-    except CypherException as e:
-        return e
-    except (Education.DoesNotExist, DoesNotExist):
-        try:
-            rep = BaseOfficial.nodes.get(object_uuid=rep_id)
-        except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException) as e:
-            return e
-        try:
-            education = Education(object_uuid=edu_id, school_s=school,
-                                  end_date=end_date, start_date=start_date,
-                                  degree=degree).save()
-        except CypherException as e:
-            return e
-        try:
-            rep.education.connect(education)
-        except CypherException as e:
-            return e
-        return education
 
 @apply_defense
 def save_bio(rep_id, bio):

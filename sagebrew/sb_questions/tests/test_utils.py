@@ -63,7 +63,7 @@ class TestGetQuestionByUUID(TestCase):
         solution = SBSolution(object_uuid=str(uuid1())).save()
         solution.owned_by.connect(self.pleb)
         solution.save()
-        question.solution.connect(solution)
+        question.solutions.connect(solution)
         question.save()
 
         response = get_question_by_uuid(

@@ -3,8 +3,7 @@ from datetime import datetime
 
 from neomodel import (BooleanProperty, DateTimeProperty, StringProperty,
                       StructuredNode, IntegerProperty, Relationship,
-                      StructuredRel, JSONProperty, FloatProperty,
-                      RelationshipTo)
+                      StructuredRel, FloatProperty, RelationshipTo)
 
 
 class ResultClickedRel(StructuredRel):

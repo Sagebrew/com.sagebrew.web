@@ -67,7 +67,10 @@ def representative_page(request, rep_type="", rep_id=""):
             official = temp_type.nodes.get(object_uuid=rep_id)
         except (temp_type.DoesNotExist, DoesNotExist, CypherException):
             return redirect('profile_page', request.user.username)
-        pleb = official.pleb.all()[0]
+        try:
+            pleb = official.pleb.all()[0]
+        except IndexError:
+            return render("404_Error")
         name = pleb.first_name+' '+pleb.last_name
         full = official.title+pleb.first_name+' '+pleb.last_name
         username = pleb.username
@@ -183,76 +186,6 @@ def get_experience_form(request):
         rendered = render_to_string('experience_form.html',
                                     {'experience_form': experience_form})
         return Response({"rendered": rendered}, 200)
-
-
-@api_view(['GET','POST'])
-@permission_classes((IsAuthenticated,))
-def get_policy_form(request):
-    policy_form = PolicyForm(request.DATA or None)
-    if request.method == "POST":
-        if policy_form.is_valid():
-            rep_id = request.DATA['rep_id']
-            data = {
-                'rep_id': rep_id,
-                'category': policy_form.cleaned_data['policies'],
-                'description': policy_form.cleaned_data['description'],
-                'object_uuid': str(uuid1())
-            }
-            res = spawn_task(save_policy_task, data)
-            if isinstance(res, Exception):
-                return Response({"detail": "error"}, 400)
-            data['parent_object'] = str(rep_id)
-            res = add_object_to_table('policies', data)
-            if isinstance(res, Exception):
-                return Response({"detail": "error"}, 400)
-            rendered = render_to_string('policy_detail.html', {'policy': data})
-            return Response({"detail": "success",
-                             "rendered": rendered}, 200)
-    else:
-        rendered = render_to_string('policy_form.html',
-                          {'policy_form': policy_form})
-        return Response({"rendered": rendered}, 200)
-
-
-@api_view(['GET', 'POST'])
-@permission_classes((IsAuthenticated,))
-def get_education_form(request):
-    education_form = EducationForm(request.DATA or None)
-    if request.method == "POST":
-        if education_form.is_valid():
-            rep_id = str(request.DATA['rep_id'])
-            uuid = str(uuid1())
-            data = {
-                'rep_id': rep_id,
-                'school': education_form.cleaned_data['school'],
-                'start_date': education_form.cleaned_data['start_date'],
-                'end_date': education_form.cleaned_data['end_date'],
-                'degree': education_form.cleaned_data['degree'],
-                'edu_id': uuid
-            }
-            res = spawn_task(save_education_task, data)
-            if isinstance(res, Exception):
-                return Response({"detail": "error"}, 400)
-
-            data = {
-                'parent_object': rep_id,
-                'school': education_form.cleaned_data['school'],
-                'start_date': unicode(
-                    education_form.cleaned_data['start_date']),
-                'end_date': unicode(education_form.cleaned_data['end_date']),
-                'degree': education_form.cleaned_data['degree'],
-                'object_uuid': uuid
-            }
-            res = add_object_to_table('education', data)
-            if isinstance(res, Exception):
-                return Response({"detail": "error"}, 400)
-            rendered = render_to_string('education_detail.html',
-                                        {'education': data})
-            return Response({"rendered": rendered}, 200)
-    else:
-        rendered = render_to_string('education_form.html',
-                                    {'education_form': education_form})
-        return Response({'rendered': rendered}, 200)
 
 
 @api_view(['GET', 'POST'])

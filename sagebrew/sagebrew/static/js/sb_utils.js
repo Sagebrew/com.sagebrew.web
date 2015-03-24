@@ -424,73 +424,6 @@ function cloneForm(selector, type) {
     $(selector).after(newElement);
 }
 
-function submit_policy() {
-    $(".submit_policy-action").click(function(event){
-        event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
-                ajax_security(xhr, settings)
-            }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/reps/policy/",
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({
-                'rep_id': $("#rep_id").data('rep_id'),
-                'policies': $('#id_policies').val(),
-                'description': $('#id_description').val()
-            }),
-            dataType: "json",
-            success: function(data){
-                $('.add_policy').removeAttr('disabled');
-                $('.add_policy_wrapper').remove();
-                $("#policy_list").append(data['rendered']);
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
-}
-
-function submit_education() {
-    $(".submit_education-action").click(function(event){
-        event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
-                ajax_security(xhr, settings)
-            }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/reps/education/",
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({
-                'rep_id': $("#rep_id").data('rep_id'),
-                'start_date': $('#id_start_date').val(),
-                'end_date': $('#id_end_date').val(),
-                'school': $('#id_school').val(),
-                'degree': $('#id_degree').val()
-            }),
-            dataType: "json",
-            success: function(data){
-                $('.add_education').removeAttr('disabled');
-                $('.add_education_wrapper').remove();
-                $("#education_list").append(data['rendered']);
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
-}
 
 function submit_bio() {
     $(".submit_bio-action").click(function(event){
@@ -707,8 +640,6 @@ function enable_post_functionality() {
     delete_object();
     page_leave_endpoint();
     submit_experience();
-    submit_policy();
-    submit_education();
     submit_bio();
     submit_goal();
     comment_validator();

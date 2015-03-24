@@ -40,11 +40,10 @@ class SBQuestion(SBVersioned, SBTagContent):
     added_to_search_index = BooleanProperty(default=False)
 
     # relationships
-    tags = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS')
     auto_tags = RelationshipTo('sb_tag.neo_models.SBAutoTag',
                                'AUTO_TAGGED_AS', model=TagRelevanceModel)
     closed_by = RelationshipTo('plebs.neo_models.Pleb', 'CLOSED_BY')
-    solution = RelationshipTo('sb_solutions.neo_models.SBSolution',
+    solutions = RelationshipTo('sb_solutions.neo_models.SBSolution',
                             'POSSIBLE_ANSWER')
 
     def get_url(self):

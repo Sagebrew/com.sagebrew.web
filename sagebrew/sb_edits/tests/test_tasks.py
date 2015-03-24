@@ -31,7 +31,7 @@ class TestEditObjectTask(TestCase):
         task_data = {
             'object_uuid': question.object_uuid,
             'object_type': 'sb_questions.neo_models.SBQuestion',
-            'current_pleb': self.pleb,
+            'username': self.pleb.username,
             'content': 'this is post edit content'
         }
 
@@ -48,7 +48,7 @@ class TestEditObjectTask(TestCase):
         task_data = {
             'object_uuid': question.object_uuid,
             'object_type': 'SBQuestion',
-            'current_pleb': self.pleb,
+            'username': self.pleb.username,
             'content': 'this is post edit content'
         }
 
@@ -65,7 +65,7 @@ class TestEditObjectTask(TestCase):
         task_data = {
             'object_uuid': question.object_uuid,
             'object_type': 'SBQuestion',
-            'current_pleb': self.pleb.email,
+            'username': self.pleb.username,
             'content': 'this is post edit content'
         }
 
@@ -95,7 +95,7 @@ class TestEditQuestionTitleTask(TestCase):
         task_data = {
             'object_uuid': question.object_uuid,
             'object_type': 'sb_questions.neo_models.SBQuestion',
-            'current_pleb': self.pleb,
+            'username': self.pleb.username,
             'title': 'this is post edit title'
         }
 

@@ -46,7 +46,7 @@ class TestDeleteObjectTask(TestCase):
         task_data = {
             'object_type': 'SBQuestion',
             'object_uuid': question.object_uuid,
-            'current_pleb': self.pleb
+            'username': self.pleb.username
         }
         res = delete_object_task.apply_async(kwargs=task_data)
         while not res.ready():

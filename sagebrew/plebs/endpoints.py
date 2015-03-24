@@ -22,4 +22,6 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer_class = self.get_serializer_class()
         serializer = serializer_class(single_object, context={
             'request': request})
+        # add profile picture to data, we should also link to a profile (aka
+        # the pleb/other info)
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -49,7 +49,7 @@ class TestGetQuestionByUUID(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question_info_dict = {'current_pleb': self.user.email,
+        self.question_info_dict = {'current_pleb': self.pleb,
                                    'title': "Test question",
                                    'content': 'test post'}
 
@@ -67,13 +67,14 @@ class TestGetQuestionByUUID(TestCase):
         question.save()
 
         response = get_question_by_uuid(
-            question.object_uuid, current_pleb=self.question_info_dict['current_pleb'])
+            question.object_uuid,
+            current_pleb=self.pleb)
         self.assertIsInstance(response, SafeText)
 
     def test_get_question_by_uuid_failure_question_does_not_exist(self):
 
         question_uuid = get_question_by_uuid(
-            str(uuid1()), current_pleb=self.question_info_dict['current_pleb'])
+            str(uuid1()), current_pleb=self.pleb)
 
         self.assertFalse(question_uuid, False)
 

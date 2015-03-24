@@ -208,7 +208,6 @@ def profile_information(request):
     we provided the user previously based on the previous
     smarty streets ordering.
     '''
-    profile_information_form = ProfileInfoForm(request.POST or None)
     address_information_form = AddressInfoForm(request.POST or None)
     try:
         citizen = Pleb.nodes.get(username=request.user.username)
@@ -216,15 +215,6 @@ def profile_information(request):
         return HttpResponseServerError('Server Error')
     if citizen.completed_profile_info:
         return redirect("interests")
-    if profile_information_form.is_valid():
-        citizen.home_town = profile_information_form.cleaned_data["home_town"]
-        #citizen.high_school = profile_information_form.cleaned_data.get(
-        #   "high_school", "")
-        #citizen.college = profile_information_form.cleaned_data.get(
-        #    "college", "")
-        #citizen.employer = profile_information_form.cleaned_data.get(
-        #    "employer", "")
-        citizen.save()
     if address_information_form.is_valid():
         address_clean = address_information_form.cleaned_data
         address_clean['country'] = 'USA'

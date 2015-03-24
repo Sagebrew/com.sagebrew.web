@@ -134,14 +134,6 @@ class InterestForm(forms.Form):
     )
 
 
-class ProfileInfoForm(forms.Form):
-    home_town = forms.CharField(
-        label="Hometown",
-        max_length=40,
-        required=False,
-    )
-
-
 class AddressInfoForm(forms.Form):
     primary_address = forms.CharField(
         label="Address Line 1",

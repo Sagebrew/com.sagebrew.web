@@ -352,11 +352,13 @@ those you've gained through achieving [Tribune][7] status. This privilege is
 suspended after your sophomore year term 
 
 ## L. Definitions ##
-- Post
-- Content
-- Question 
-- Solution 
-- Conversation Platform ("Conversation") 
+- Post: a post made to your own or a friend's wall. 
+- Content: (is this supposed to be context? comment?)
+- Context: information that accompanies a Question. Context should inform readers about the circumstances and importance of your Question. 
+- Question: A question posed in either the public or private Conversation. A Question includes context to provide a background to your question and inform others why your Question is important. 
+- Solution: A solution posed in response to a Question in the Conversation. 
+- Comment: A comment left on a Question or Solution that attempts to add relevent information. 
+- Conversation Platform ("Conversation"): A separate area for conversation. The "Conversation" refers to the format of dialogue in which one user poses a Question and other users provide potential Solutions. 
 - Tribune
 
 

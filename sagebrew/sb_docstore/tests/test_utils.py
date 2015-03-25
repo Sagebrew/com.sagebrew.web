@@ -51,7 +51,7 @@ class TestDocstoreUtils(TestCase):
         uuid = str(uuid1())
         timestamp = unicode(datetime.now(pytz.utc))
         data = {'parent_object': uuid, "created": timestamp, "content": '123',
-                'user': self.pleb.email}
+                'user': self.pleb.username}
         res = add_object_to_table('edits', object_data=data)
         self.assertTrue(res)
 
@@ -62,7 +62,7 @@ class TestDocstoreUtils(TestCase):
     def test_update_doc(self):
         uuid = str(uuid1())
         now = unicode(datetime.now(pytz.utc))
-        data = {"parent_object": uuid, "time": now, "user": self.pleb.email,
+        data = {"parent_object": uuid, "time": now, "user": self.pleb.username,
                 "status": 1, "object_uuid": uuid}
         update_data = [{'update_key': 'status', 'update_value': 2}]
         res = add_object_to_table('public_questions', data)
@@ -75,7 +75,7 @@ class TestDocstoreUtils(TestCase):
     def test_update_doc_parent_object(self):
         uuid = str(uuid1())
         now = unicode(datetime.now(pytz.utc))
-        data = {"parent_object": uuid, "time": now, "user": self.pleb.email,
+        data = {"parent_object": uuid, "time": now, "user": self.pleb.username,
                 "status": 1, "object_uuid": uuid}
         update_data = [{'update_key': 'status', 'update_value': 2}]
         res = add_object_to_table('public_solutions', data)
@@ -88,7 +88,7 @@ class TestDocstoreUtils(TestCase):
     def test_update_doc_datetime(self):
         uuid = str(uuid1())
         now = unicode(datetime.now(pytz.utc))
-        data = {"parent_object": uuid, "created": now, "user": self.pleb.email,
+        data = {"parent_object": uuid, "created": now, "user": self.pleb.username,
                 "status": 1, "object_uuid": uuid}
         update_data = [{'update_key': 'status', 'update_value': 2}]
         res = add_object_to_table('posts', data)
@@ -102,7 +102,7 @@ class TestDocstoreUtils(TestCase):
         uuid = str(uuid1())
         now = unicode(datetime.now(pytz.utc))
         data = {'object_uuid': uuid, 'content': '1231231231',
-                'user': self.pleb.email, 'last_edited_on': now,
+                'user': self.pleb.username, 'last_edited_on': now,
                 "created": now}
         res = add_object_to_table('public_questions', data)
         self.assertTrue(res)
@@ -128,14 +128,14 @@ class TestDocstoreUtils(TestCase):
         now = unicode(datetime.now(pytz.utc))
         vote_data = {
             'parent_object': uuid,
-            'user': self.pleb.email,
+            'user': self.pleb.username,
             'status': 1,
             'created': now
         }
         res = add_object_to_table('votes', vote_data)
         self.assertTrue(res)
 
-        res = get_vote(uuid, self.pleb.email)
+        res = get_vote(uuid, self.pleb.username)
 
         self.assertNotEqual(res, False)
         self.assertFalse(isinstance(res, Exception))
@@ -145,14 +145,14 @@ class TestDocstoreUtils(TestCase):
         now = unicode(datetime.now(pytz.utc))
         vote_data = {
             'parent_object': uuid,
-            'user': self.pleb.email,
+            'user': self.pleb.username,
             'status': 1,
             'created': now
         }
         res = add_object_to_table('votes', vote_data)
         self.assertTrue(res)
 
-        res = update_vote(uuid, self.pleb.email, 0, now)
+        res = update_vote(uuid, self.pleb.username, 0, now)
         self.assertNotEqual(res, False)
         self.assertFalse(isinstance(res, Exception))
 
@@ -161,7 +161,7 @@ class TestDocstoreUtils(TestCase):
         now = unicode(datetime.now(pytz.utc))
         vote_data = {
             'parent_object': uuid,
-            'user': self.pleb.email,
+            'user': self.pleb.username,
             'status': 1,
             'created': now
         }

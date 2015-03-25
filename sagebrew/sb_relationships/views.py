@@ -34,13 +34,13 @@ def create_friend_request(request):
         # TODO Think we're moving this kind of stuff out to the JS system
         # But until then needs to come after the form since it can cause
         # Type errors if someone passes something other than a dict
-        friend_request_uuid = str(uuid1())
+        object_uuid = str(uuid1())
         valid_form = request_form.is_valid()
     except AttributeError:
         return Response({'detail': 'attribute error'}, status=400)
 
     if valid_form is True:
-        request_form.cleaned_data["friend_request_uuid"] = friend_request_uuid
+        request_form.cleaned_data["object_uuid"] = object_uuid
         task_data = {
             "data": request_form.cleaned_data
         }
@@ -49,7 +49,7 @@ def create_friend_request(request):
         if isinstance(spawned, Exception) is True:
             return Response({'detail': 'server error'}, status=500)
         return Response({"action": True,
-                         "friend_request_id": friend_request_uuid}, status=200)
+                         "friend_request_id": object_uuid}, status=200)
     else:
         return Response({'detail': 'invalid form'}, status=400)
 
@@ -81,7 +81,7 @@ def get_friend_requests(request):
         friend_requests = [FriendRequest.inflate(row[0])
                            for row in friend_requests]
         for friend_request in friend_requests:
-            request_id = friend_request.friend_request_uuid
+            request_id = friend_request.object_uuid
             request_dict = {
                 'from_name': request.user.get_full_name(),
                 'from_email': request.user.email,
@@ -116,7 +116,7 @@ def respond_friend_request(request):
     if valid_form is True:
         try:
             friend_request = FriendRequest.nodes.get(
-                friend_request_uuid=form.cleaned_data['request_id'])
+                object_uuid=form.cleaned_data['request_id'])
             to_pleb = friend_request.request_to.all()[0]
             from_pleb = friend_request.request_from.all()[0]
         except (FriendRequest.DoesNotExist, Pleb.DoesNotExist, IndexError):

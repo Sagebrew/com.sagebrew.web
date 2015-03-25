@@ -14,9 +14,7 @@ $(document).ready(function(){
         }),
         dataType: "json",
         success: function(data){
-            $("#policy_list").append(data['policy_html']);
             $("#experience_list").append(data['experience_html']);
-            $("#education_list").append(data['education_html'])
         }
     });
 });

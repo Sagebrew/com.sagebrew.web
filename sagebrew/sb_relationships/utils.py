@@ -37,8 +37,8 @@ def create_friend_request_util(data):
         data.pop('from_pleb', None)
         data.pop('to_pleb', None)
 
-        friend_request = FriendRequest(friend_request_uuid=data[
-            'friend_request_uuid'])
+        friend_request = FriendRequest(object_uuid=data[
+            'object_uuid'])
         friend_request.save()
         friend_request.request_from.connect(from_citizen)
         friend_request.request_to.connect(to_citizen)

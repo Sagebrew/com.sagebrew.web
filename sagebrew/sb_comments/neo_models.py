@@ -2,12 +2,12 @@ import pytz
 from datetime import datetime
 from django.core.urlresolvers import reverse
 
-from neomodel import (StructuredNode, StringProperty, IntegerProperty,
-                      DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, CypherException)
+from neomodel import (IntegerProperty, DateTimeProperty, RelationshipTo,
+                      StructuredRel, CypherException)
 
 from sb_base.decorators import apply_defense
 from sb_base.neo_models import SBNonVersioned
+
 
 class CommentedOnRel(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
@@ -31,8 +31,8 @@ class SBComment(SBNonVersioned):
                                model=CommentedOnRel)
     shared_with = RelationshipTo('plebs.neo_models.Pleb', 'SHARED_WITH',
                                  model=CommentedOnRel)
-    #TODO Implement the user_referenced, post_referenced, etc. relationships
-    #TODO Implement referenced_by_users, referenced_by_post, etc. relationships
+    # TODO Implement the user_referenced, post_referenced, etc. relationships
+    # TODO Implement referenced_by_users, referenced_by_post, etc. relationships
 
     def get_url(self):
         try:

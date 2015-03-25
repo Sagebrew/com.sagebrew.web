@@ -55,7 +55,7 @@ def get_notifications(request):
                              for row in notifications]
             for notification in notifications:
                 from_user = notification.notification_from.all()[0]
-                notification_dict = {'notification_about': notification.notification_about,
+                notification_dict = {'about': notification.about,
                         'time_sent': notification.time_sent,
                         'from_user': from_user.first_name+' '+from_user.last_name}
                 notification_array.append(notification_dict)

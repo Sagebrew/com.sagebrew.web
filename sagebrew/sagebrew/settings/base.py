@@ -196,7 +196,6 @@ INSTALLED_APPS = (
     'sb_search',
     'sb_stats',
     'sb_tag',
-    'sb_trends',
     'sb_uploads',
     'sb_votes',
     'sb_wall',

@@ -3,7 +3,7 @@ from django.conf import settings
 from uuid import uuid1
 from django.core.urlresolvers import reverse
 from django.http import (HttpResponse, HttpResponseNotFound,
-                         HttpResponseServerError, Http404)
+                         HttpResponseServerError)
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
@@ -22,7 +22,7 @@ from sb_public_official.tasks import create_rep_task
 from sb_docstore.tasks import build_rep_page_task
 from sb_uploads.tasks import crop_image_task
 
-from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
+from .forms import (AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm, RepRegistrationForm,
                     LoginForm, BetaSignupForm)
 from .utils import (verify_completed_registration, verify_verified_email,
@@ -46,6 +46,7 @@ def signup_view(request):
         return redirect('beta_page')
 
     return render(request, 'sign_up_page/index.html')
+
 
 @api_view(['POST'])
 def signup_view_api(request):
@@ -193,7 +194,7 @@ def email_verification(request, confirmation):
                   login_url='/registration/signup/confirm/')
 def profile_information(request):
     '''
-    Creates both a ProfileInfoForm and AddressInfoForm which populates the
+    Creates both a AddressInfoForm which populates the
     fields with what the user enters. If this function gets a valid POST
     request it
     will update the pleb. It then validates the address, through
@@ -208,7 +209,6 @@ def profile_information(request):
     we provided the user previously based on the previous
     smarty streets ordering.
     '''
-    profile_information_form = ProfileInfoForm(request.POST or None)
     address_information_form = AddressInfoForm(request.POST or None)
     try:
         citizen = Pleb.nodes.get(username=request.user.username)
@@ -216,15 +216,6 @@ def profile_information(request):
         return HttpResponseServerError('Server Error')
     if citizen.completed_profile_info:
         return redirect("interests")
-    if profile_information_form.is_valid():
-        citizen.home_town = profile_information_form.cleaned_data["home_town"]
-        #citizen.high_school = profile_information_form.cleaned_data.get(
-        #   "high_school", "")
-        #citizen.college = profile_information_form.cleaned_data.get(
-        #    "college", "")
-        #citizen.employer = profile_information_form.cleaned_data.get(
-        #    "employer", "")
-        citizen.save()
     if address_information_form.is_valid():
         address_clean = address_information_form.cleaned_data
         address_clean['country'] = 'USA'
@@ -249,12 +240,10 @@ def profile_information(request):
             # TODO this is just a place holder, what should we really be doing
             # here?
             return render(request, 'profile_info.html',
-                  {'profile_information_form': profile_information_form,
-                   'address_information_form': address_information_form})
+                  {'address_information_form': address_information_form})
 
     return render(request, 'profile_info.html',
-                  {'profile_information_form': profile_information_form,
-                   'address_information_form': address_information_form})
+                  {'address_information_form': address_information_form})
 
 
 @login_required()
@@ -315,6 +304,7 @@ def profile_picture(request):
                     {'profile_picture_form': profile_picture_form,
                      'pleb': citizen})
 
+
 @api_view(['POST'])
 def profile_picture_api(request):
     profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
@@ -338,6 +328,7 @@ def profile_picture_api(request):
         return Response({"url": url}, 200)
     else:
         return Response({"detail": "invalid form"}, 400)
+
 
 @login_required()
 @user_passes_test(verify_completed_registration,

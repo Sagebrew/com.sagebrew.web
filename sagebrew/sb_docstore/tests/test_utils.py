@@ -177,7 +177,7 @@ class TestDocstoreUtils(TestCase):
         comment_id = str(uuid1())
         now = unicode(datetime.now(pytz.utc))
         post_data = {
-            'parent_object': self.pleb.email, 'created': now,
+            'parent_object': self.pleb.username, 'created': now,
             'object_uuid': post_id, 'content': 'a3lk4jq;w2jr'
         }
         comment_data = {

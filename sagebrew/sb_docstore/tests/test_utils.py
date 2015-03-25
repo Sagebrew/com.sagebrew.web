@@ -189,7 +189,7 @@ class TestDocstoreUtils(TestCase):
         comment_res = add_object_to_table('comments', comment_data)
         self.assertTrue(comment_res)
 
-        res = get_wall_docs(self.pleb.username)
+        res = get_wall_docs(self.pleb.username, self.pleb.username)
 
         self.assertNotEqual(res, False)
         self.assertFalse(isinstance(res, Exception))

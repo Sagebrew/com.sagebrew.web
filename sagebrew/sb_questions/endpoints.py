@@ -58,7 +58,7 @@ class QuestionViewSet(viewsets.GenericViewSet):
         try:
             queryset = SBQuestion.nodes.get(object_uuid=object_uuid)
         except(CypherException, IOError):
-            logger.exception("QuestionViewSet queryset")
+            logger.exception("QuestionViewSet get_object")
             return Response(errors.CYPHER_EXCEPTION,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return queryset

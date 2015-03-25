@@ -83,14 +83,6 @@ def finalize_citizen_creation(user_instance=None):
     task_list["add_user_to_custom_index"] = spawn_task(
         task_func=add_user_to_custom_index,
         task_param=task_data)
-    dynamo_data = {'table': 'users_barebones', 'object_data':
-        {'email': pleb.email,
-         'first_name': pleb.first_name,
-         'last_name': pleb.last_name,
-         'username': pleb.username,
-         'type': 'standard'}}
-    task_list["add_object_to_table_task"] = spawn_task(
-        task_func=add_object_to_table_task, task_param=dynamo_data)
     task_list["check_privileges_task"] = spawn_task(
         task_func=check_privileges, task_param={"username": username})
     if not pleb.initial_verification_email_sent:

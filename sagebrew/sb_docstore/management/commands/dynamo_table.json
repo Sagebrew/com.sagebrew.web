@@ -17,10 +17,6 @@
         "type": "N"
     },
     {
-        "table_name": "users_barebones",
-        "hash_key": "email"
-    },
-    {
         "table_name": "friends",
         "hash_key": "email"
     },

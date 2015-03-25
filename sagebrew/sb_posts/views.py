@@ -92,9 +92,11 @@ def get_user_posts(request):
     except AttributeError:
         return Response(status=404)
     if valid_form:
-        posts = get_wall_docs(request.user.username)
+        posts = get_wall_docs(
+            post_form.cleaned_data['current_user'],
+            request.user.username)
         if not posts:
-            posts = get_pleb_posts(request.user.email,
+            posts = get_pleb_posts(request.user.username,
                                    post_form.cleaned_data['range_end'],
                                    post_form.cleaned_data['range_start'])
             for post in posts:
@@ -110,10 +112,9 @@ def get_user_posts(request):
         else:
             for post in posts:
                 post['user'] = request.user
-                post['last_edited_on'] = \
-                    datetime.strptime(post['last_edited_on'][
-                                      :len(post['last_edited_on'])-6],
-                                      '%Y-%m-%d %H:%M:%S.%f')
+                post['last_edited_on'] = datetime.strptime(
+                    post['last_edited_on'][:len(
+                        post['last_edited_on']) - 6], '%Y-%m-%d %H:%M:%S.%f')
                 post['vote_count'] = str(
                     post['upvotes'] - post['downvotes'])
 

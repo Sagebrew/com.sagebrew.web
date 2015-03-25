@@ -443,7 +443,7 @@ def get_vote_count(object_uuid, vote_type):
 
 
 @apply_defense
-def get_wall_docs(username):
+def get_wall_docs(current_user, username):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
@@ -456,7 +456,7 @@ def get_wall_docs(username):
     except JSONResponseError as e:
         return e
     posts = posts_table.query_2(
-        parent_object__eq=username,
+        parent_object__eq=current_user,
         created__gte='0',
         reverse=True
     )

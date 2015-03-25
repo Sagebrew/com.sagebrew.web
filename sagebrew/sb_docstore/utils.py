@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from django.conf import settings
+
 from boto.dynamodb2.layer1 import DynamoDBConnection
 from boto.dynamodb2.table import Table
 from boto.dynamodb2.exceptions import (JSONResponseError, ItemNotFound,
@@ -8,13 +8,18 @@ from boto.dynamodb2.exceptions import (JSONResponseError, ItemNotFound,
                                        ValidationException,
                                        ResourceNotFoundException)
 
+from django.conf import settings
+
 from neomodel import DoesNotExist, CypherException
 
+from rest_framework.reverse import reverse
+
+from api.utils import request_to_api
 from plebs.neo_models import Pleb
 from sb_base.decorators import apply_defense
 from sb_questions.neo_models import SBQuestion
-from sb_reps.neo_models import BaseOfficial
-from sb_reps.utils import get_rep_type
+from sb_public_official.neo_models import BaseOfficial
+from sb_public_official.utils import get_rep_type
 
 
 def get_table_name(name):
@@ -174,6 +179,39 @@ def get_solution_doc(question_uuid, solution_uuid,
         return False
     return dict(solution)
 
+
+def convert_dynamo_content(raw_content, request=None, comment_view=None):
+    content = dict(raw_content)
+    content['upvotes'] = get_vote_count(content['object_uuid'],
+                                                1)
+    content['downvotes'] = get_vote_count(content['object_uuid'],
+                                                  0)
+    content['last_edited_on'] = datetime.strptime(
+        content['last_edited_on'][:len(content['last_edited_on']) - 6],
+        '%Y-%m-%d %H:%M:%S.%f')
+    content['created'] = datetime.strptime(
+        content['created'][:len(content['created']) - 6],
+        '%Y-%m-%d %H:%M:%S.%f')
+    content['vote_count'] = str(
+        content['upvotes'] - content['downvotes'])
+    if comment_view is not None and request is not None:
+        url = reverse("%s" % comment_view, kwargs={
+            'object_uuid': content['object_uuid']}, request=request)
+        response = request_to_api(url, request.user.username, req_method="GET")
+        content["comments"] = response.json()
+
+    return content
+
+
+def convert_dynamo_contents(raw_contents, request=None, comment_view=None):
+    content_list = []
+    for content in raw_contents:
+        converted_content = convert_dynamo_content(content, request,
+                                                   comment_view)
+        content_list.append(converted_content)
+    return content_list
+
+
 @apply_defense
 def get_question_doc(question_uuid, question_table, solution_table, user=""):
     conn = connect_to_dynamo()
@@ -204,9 +242,9 @@ def get_question_doc(question_uuid, question_table, solution_table, user=""):
         created__gte="0"
     )
     question = dict(question)
-    question['up_vote_number'] = get_vote_count(question['object_uuid'],
+    question['upvotes'] = get_vote_count(question['object_uuid'],
                                                 1)
-    question['down_vote_number'] = get_vote_count(question['object_uuid'],
+    question['downvotes'] = get_vote_count(question['object_uuid'],
                                                   0)
     question['last_edited_on'] = datetime.strptime(
         question['last_edited_on'][:len(question['last_edited_on']) - 6],
@@ -214,8 +252,8 @@ def get_question_doc(question_uuid, question_table, solution_table, user=""):
     question['created'] = datetime.strptime(
         question['created'][:len(question['created']) - 6],
         '%Y-%m-%d %H:%M:%S.%f')
-    question['object_vote_count'] = str(question['up_vote_number']
-                                        - question['down_vote_number'])
+    question['vote_count'] = str(question['upvotes']
+                                        - question['downvotes'])
     vote_type = get_vote(question['object_uuid'], user)
     if vote_type is not None:
         if vote_type['status'] == 2:
@@ -226,18 +264,18 @@ def get_question_doc(question_uuid, question_table, solution_table, user=""):
     for comment in comments:
         comment = dict(comment)
         try:
-            comment['up_vote_number'] = get_vote_count(comment['object_uuid']
-                                                       ,1)
-            comment['down_vote_number'] = get_vote_count(
-                comment['object_uuid'],0)
+            comment['upvotes'] = get_vote_count(
+                comment['object_uuid'] , 1)
+            comment['downvotes'] = get_vote_count(
+                comment['object_uuid'], 0)
             comment['last_edited_on'] = datetime.strptime(
                 comment['last_edited_on'][:len(comment['last_edited_on']) - 6],
                 '%Y-%m-%d %H:%M:%S.%f')
             comment['created'] = datetime.strptime(
                 comment['created'][:len(comment['created']) - 6],
                 '%Y-%m-%d %H:%M:%S.%f')
-            comment['object_vote_count'] = str(comment['up_vote_number']
-                                               - comment['down_vote_number'])
+            comment['vote_count'] = str(
+                comment['upvotes'] - comment['downvotes'])
             vote_type = get_vote(comment['object_uuid'], user)
             if vote_type is not None:
                 if vote_type['status'] == 2:
@@ -252,9 +290,9 @@ def get_question_doc(question_uuid, question_table, solution_table, user=""):
         a_comments = []
         try:
             solution = dict(solution)
-            solution['up_vote_number'] = get_vote_count(solution['object_uuid'],
+            solution['upvotes'] = get_vote_count(solution['object_uuid'],
                                                         1)
-            solution['down_vote_number'] = get_vote_count(solution['object_uuid'],
+            solution['downvotes'] = get_vote_count(solution['object_uuid'],
                                                           0)
             solution['last_edited_on'] = datetime.strptime(
                 solution['last_edited_on'][:len(solution['last_edited_on']) - 6],
@@ -262,8 +300,8 @@ def get_question_doc(question_uuid, question_table, solution_table, user=""):
             solution['created'] = datetime.strptime(
                 solution['created'][:len(solution['created']) - 6],
                 '%Y-%m-%d %H:%M:%S.%f')
-            solution['object_vote_count'] = str(
-                solution['up_vote_number'] - solution['down_vote_number'])
+            solution['vote_count'] = str(
+                solution['upvotes'] - solution['downvotes'])
             vote_type = get_vote(solution['object_uuid'], user)
             if vote_type is not None:
                 if vote_type['status'] == 2:
@@ -280,10 +318,10 @@ def get_question_doc(question_uuid, question_table, solution_table, user=""):
         for ans_comment in solution_comments:
             try:
                 comment = dict(ans_comment)
-                comment['up_vote_number'] = get_vote_count(
-                    comment['object_uuid'],1)
-                comment['down_vote_number'] = get_vote_count(
-                    comment['object_uuid'],0)
+                comment['upvotes'] = get_vote_count(
+                    comment['object_uuid'], 1)
+                comment['downvotes'] = get_vote_count(
+                    comment['object_uuid'], 0)
                 comment['last_edited_on'] = datetime.strptime(
                     comment['last_edited_on'][:len(
                         comment['last_edited_on']) - 6],
@@ -291,8 +329,8 @@ def get_question_doc(question_uuid, question_table, solution_table, user=""):
                 comment['created'] = datetime.strptime(
                     comment['created'][:len(comment['created']) - 6],
                     '%Y-%m-%d %H:%M:%S.%f')
-                comment['object_vote_count'] = str(
-                    comment['up_vote_number'] - comment['down_vote_number'])
+                comment['vote_count'] = str(
+                    comment['upvotes'] - comment['downvotes'])
                 vote_type = get_vote(comment['object_uuid'], user)
                 if vote_type is not None:
                     if vote_type['status'] == 2:
@@ -405,7 +443,7 @@ def get_vote_count(object_uuid, vote_type):
 
 
 @apply_defense
-def get_wall_docs(parent_object, user=''):
+def get_wall_docs(username):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
@@ -418,7 +456,7 @@ def get_wall_docs(parent_object, user=''):
     except JSONResponseError as e:
         return e
     posts = posts_table.query_2(
-        parent_object__eq=parent_object,
+        parent_object__eq=username,
         created__gte='0',
         reverse=True
     )
@@ -428,9 +466,9 @@ def get_wall_docs(parent_object, user=''):
     for post in posts:
         comment_list = []
         post = dict(post)
-        post['up_vote_number'] = get_vote_count(post['object_uuid'], 1)
-        post['down_vote_number'] = get_vote_count(post['object_uuid'], 0)
-        vote_type = get_vote(post['object_uuid'], user)
+        post['upvotes'] = get_vote_count(post['object_uuid'], 1)
+        post['downvotes'] = get_vote_count(post['object_uuid'], 0)
+        vote_type = get_vote(post['object_uuid'], username)
         if vote_type is not None:
             if vote_type['status'] == 2:
                 vote_type = None
@@ -443,11 +481,11 @@ def get_wall_docs(parent_object, user=''):
         comments = list(comments)
         for comment in comments:
             comment = dict(comment)
-            comment['up_vote_number'] = get_vote_count(
+            comment['upvotes'] = get_vote_count(
                 comment['object_uuid'], 1)
-            comment['down_vote_number'] = get_vote_count(
+            comment['downvotes'] = get_vote_count(
                 comment['object_uuid'], 0)
-            vote_type = get_vote(comment['object_uuid'], user)
+            vote_type = get_vote(comment['object_uuid'], username)
             if vote_type is not None:
                 if vote_type['status'] == 2:
                     vote_type = None

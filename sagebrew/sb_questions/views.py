@@ -89,7 +89,7 @@ def save_question_view(request):
             request.DATA or request.body = {
                 'content': '',
                 'current_pleb': 'example@email.com'
-                'question_title': ''
+                'title': ''
             }
 
     :return:
@@ -242,7 +242,7 @@ def get_question_view(request):
                                {'object_uuid': solution['object_uuid'],
                                 'object_type': dict(settings.KNOWN_TYPES)[
                                     solution['object_type']]})
-                res['solution_number'] = len(res['solutions'])
+                res['solution_count'] = len(res['solutions'])
                 t = get_template("question.html")
                 c = Context(res)
                 return Response(t.render(c), status=200)
@@ -297,7 +297,7 @@ def get_question_search_view(request, question_uuid=str(uuid1())):
 def edit_question_view(request, question_uuid):
     res = get_question_doc(question_uuid, 'public_questions',
                      'public_solutions')
-    template_dict = {"title": res['question_title'],
+    template_dict = {"title": res['title'],
                      "content": res['content'],
                      "edit": True,
                      "object_uuid": res['object_uuid'],

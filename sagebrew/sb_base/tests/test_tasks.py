@@ -43,7 +43,7 @@ class TestCreateObjectRelationsTask(TestCase):
     def test_question_is_not_none(self):
         question_uuid = str(uuid1())
         solution_uuid = str(uuid1())
-        SBQuestion(content="fake content", question_title="fake title",
+        SBQuestion(content="fake content", title="fake title",
                    object_uuid=question_uuid).save()
         solution = SBSolution(content="fake solution", object_uuid=solution_uuid).save()
         post_info_dict = {'content': 'test post', 'object_uuid': str(uuid1())}

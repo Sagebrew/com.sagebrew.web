@@ -3,7 +3,7 @@
         <div class="col-lg-1 hidden-md hidden-sm hidden-xs sb_vote_wrapper">
                 <div class="row vote_wrapper" id="vote_{{ solution.object_uuid }}">
                     <div class="col-lg-12 sb_up_vote_wrapper">
-                        <div style="display: none" class="sb_upvote_count{{ solution.object_uuid }}">{{ solution.up_vote_number }}</div>
+                        <div style="display: none" class="sb_upvote_count{{ solution.object_uuid }}">{{ solution.upvotes }}</div>
                         {% if solution.vote_type == "false" or solution.vote_type == None %}
                             <button class="btn sb_btn sb_btn_vote vote_up vote_object-action"
                                data-object_uuid="{{ solution.object_uuid }}"
@@ -22,19 +22,19 @@
                             </button>
                         {% endif %}
                     </div >
-                    {% if object_vote_count|length_is:"1" %}
+                    {% if vote_count|length_is:"1" %}
                         <div class="col-lg-12 col-lg-offset-2 vote_count{{ solution.object_uuid }}" style="margin-left: 16px;">
-                    {% elif object_vote_count|length_is:"2" %}
+                    {% elif vote_count|length_is:"2" %}
                         <div class="col-lg-12 col-lg-offset-2 vote_count{{ solution.object_uuid }}">
-                    {% elif object_vote_count|length_is:"3" %}
+                    {% elif vote_count|length_is:"3" %}
                         <div class="col-lg-12 col-lg-offset-1 vote_count{{ solution.object_uuid }}">
-                    {% elif object_vote_count|length_is:"4" %}
+                    {% elif vote_count|length_is:"4" %}
                         <div class="col-lg-12 col-lg-offset-0 vote_count{{ solution.object_uuid }}">
                     {% else %}
                         <div class="col-lg-12 col-lg-offset-0 vote_count{{ solution.object_uuid }}">
                     {% endif %}
                         <h6>
-                            {{ solution.object_vote_count }}
+                            {{ solution.vote_count }}
                         </h6>
                     </div>
                     <div class="col-lg-12 col-md-12 sb_down_vote_wrapper">
@@ -55,7 +55,7 @@
                                 <span class="fui-triangle-down"></span>
                             </button>
                         {% endif %}
-                        <div style="display: none" class="sb_downvote_count{{ solution.object_uuid }}">{{ solution.down_vote_number }}</div>
+                        <div style="display: none" class="sb_downvote_count{{ solution.object_uuid }}">{{ solution.downvotes }}</div>
                     </div>
                 </div>
             </div>

@@ -29,13 +29,13 @@ class TestCreateFriendRequestUtil(TestCase):
     def test_create_friend_request_util_success(self):
         data = {'from_pleb': self.pleb1.email,
                 'to_pleb': self.pleb2.email,
-                'friend_request_uuid': str(uuid1())}
+                'object_uuid': str(uuid1())}
         res = create_friend_request_util(data)
 
         self.assertTrue(res)
 
     def test_create_friend_request_util_success_already_sent(self):
-        friend_request = FriendRequest(friend_request_uuid=str(uuid1()))
+        friend_request = FriendRequest(object_uuid=str(uuid1()))
         friend_request.save()
         self.pleb1.friend_requests_sent.connect(friend_request)
         self.pleb2.friend_requests_recieved.connect(friend_request)
@@ -44,7 +44,7 @@ class TestCreateFriendRequestUtil(TestCase):
 
         data = {'from_pleb': self.pleb1.email,
                 'to_pleb': self.pleb2.email,
-                'friend_request_uuid': str(uuid1())}
+                'object_uuid': str(uuid1())}
         res = create_friend_request_util(data)
 
         self.assertTrue(res)
@@ -52,7 +52,7 @@ class TestCreateFriendRequestUtil(TestCase):
     def test_create_friend_request_util_fail_pleb_does_not_exist(self):
         data = {'from_pleb': self.pleb1.email,
                 'to_pleb': str(uuid1()),
-                'friend_request_uuid': str(uuid1())}
+                'object_uuid': str(uuid1())}
         res = create_friend_request_util(data)
 
         self.assertIsInstance(res, DoesNotExist)
@@ -60,7 +60,7 @@ class TestCreateFriendRequestUtil(TestCase):
     def test_create_friend_request_util_fail_pleb_does_not_exist_pickle(self):
         data = {'from_pleb': self.pleb1.email,
                 'to_pleb': str(uuid1()),
-                'friend_request_uuid': str(uuid1())}
+                'object_uuid': str(uuid1())}
         res = create_friend_request_util(data)
         pickle_instance = pickle.dumps(res)
         self.assertTrue(pickle_instance)

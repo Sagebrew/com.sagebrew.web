@@ -24,7 +24,7 @@ class TestSaveQuestionTask(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.user.email,
-                                   'question_title': "Test question",
+                                   'title': "Test question",
                                    'content': 'test post',
                                    'tags': "this,is,a,test",
                                    'question_uuid': str(uuid1())}
@@ -73,7 +73,7 @@ class TestAddQuestionToIndicesTask(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.question = SBQuestion(content="fake content",
-                                   question_title="fake title",
+                                   title="fake title",
                                    object_uuid=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
 
@@ -119,7 +119,7 @@ class TestAddTagsToQuestionTask(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.question = SBQuestion(content="fake content",
-                                   question_title="fake title",
+                                   title="fake title",
                                    object_uuid=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
 
@@ -160,7 +160,7 @@ class TestMultipleTasks(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.pleb.email,
-                                   'question_title': "Test question",
+                                   'title': "Test question",
                                    'content': 'test post',
                                    'question_uuid': str(uuid1())}
 
@@ -178,11 +178,11 @@ class TestMultipleTasks(TestCase):
         self.assertNotIn(False, response_array)
 
     def test_create_same_question_twice(self):
-        question = SBQuestion(content="test question", question_title="title",
+        question = SBQuestion(content="test question", title="title",
                               object_uuid=str(uuid1()))
         question.save()
         post_info_dict = {'current_pleb': self.pleb.email,
-                          'question_title': 'Question Title',
+                          'title': 'Question Title',
                           'content': 'test question',
                           'question_uuid': question.object_uuid,}
         response2 = create_question_task.apply_async(kwargs=post_info_dict)

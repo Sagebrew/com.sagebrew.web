@@ -33,7 +33,7 @@ class TestCreateFriendRequestTask(TestCase):
                     {
                         'from_pleb': self.pleb1.email,
                         'to_pleb': self.pleb2.email,
-                        'friend_request_uuid': str(uuid1())
+                        'object_uuid': str(uuid1())
                     }
         }
         res = create_friend_request_task.apply_async(kwargs=data)
@@ -49,7 +49,7 @@ class TestCreateFriendRequestTask(TestCase):
                     {
                         'from_pleb': 'totallyfakepleb@gmail.com',
                         'to_pleb': self.pleb2.email,
-                        'friend_request_uuid': str(uuid1())
+                        'object_uuid': str(uuid1())
                     }
         }
         res = create_friend_request_task.apply_async(kwargs=data)

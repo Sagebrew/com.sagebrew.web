@@ -13,9 +13,9 @@ $(document).ready(function(){
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
-            url: "/edit/edit_question_title_api/",
+            url: "/edit/edit_title_api/",
             data: JSON.stringify({
-                'question_title': $("#question_title_id").val(),
+                'title': $("#title_id").val(),
                 'object_uuid': uuid,
                 'object_type': type
             }),

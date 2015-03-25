@@ -2,18 +2,19 @@ import pytz
 import logging
 import markdown
 from datetime import datetime
+
 from django.conf import settings
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-from .forms import EditObjectForm, EditQuestionForm
-from .tasks import edit_object_task, edit_question_task
-
 from api.utils import spawn_task
-from api.tasks import get_pleb_task
-from sb_docstore.utils import add_object_to_table, update_doc, get_table_name
+from sb_docstore.utils import add_object_to_table, update_doc
 from sb_docstore.tasks import add_object_to_table_task
+
+from .forms import EditObjectForm, EditQuestionForm
+from .tasks import edit_question_task
 
 logger = logging.getLogger('loggly_logs')
 
@@ -83,7 +84,7 @@ def edit_object_view(request):
 
 @api_view(["POST"])
 @permission_classes((IsAuthenticated,))
-def edit_question_title_view(request):
+def edit_title_view(request):
     try:
         edit_question_form = EditQuestionForm(request.DATA)
         valid_form = edit_question_form.is_valid()
@@ -95,23 +96,17 @@ def edit_question_title_view(request):
             "object_type": choice_dict[
                 edit_question_form.cleaned_data['object_type']],
             "object_uuid": edit_question_form.cleaned_data['object_uuid'],
-            "question_title": edit_question_form.cleaned_data['question_title']
+            "title": edit_question_form.cleaned_data['title'],
         }
-        pleb_data = {
-            'username': request.user.username,
-            'task_func': edit_question_task,
-            'task_param': task_data
-        }
-
-        spawned = spawn_task(task_func=get_pleb_task, task_param=pleb_data)
+        spawned = spawn_task(task_func=edit_question_task, task_param=task_data)
         if isinstance(spawned, Exception):
             return Response({"detail": "server error"}, status=500)
         table = settings.KNOWN_TABLES[
                              edit_question_form.cleaned_data['object_type']]
         updates = [
-            {'update_key': 'question_title',
+            {'update_key': 'title',
              'update_value': edit_question_form.cleaned_data[
-                 'question_title']}]
+                 'title']}]
         res = update_doc(table, edit_question_form.cleaned_data['object_uuid'],
                          updates)
         if isinstance(res, Exception):
@@ -122,8 +117,8 @@ def edit_question_title_view(request):
                 'parent_object': edit_question_form.cleaned_data
                 ['object_uuid'],
                 'created': unicode(datetime.now(pytz.utc)),
-                'question_title': edit_question_form.cleaned_data
-                ['question_title']
+                'title': edit_question_form.cleaned_data
+                ['title']
             }
         }
         res = spawn_task(task_func=add_object_to_table_task,

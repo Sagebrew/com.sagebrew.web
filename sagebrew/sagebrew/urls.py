@@ -66,13 +66,14 @@ urlpatterns = patterns(
     (r'^edit/', include('sb_edits.urls')),
     (r'^delete/', include('sb_deletes.urls')),
     (r'^docstore/', include('sb_docstore.urls')),
-    (r'^reps/', include('sb_reps.urls')),
     (r'^upload/', include('sb_uploads.urls')),
     (r'^privilege/', include('sb_privileges.urls')),
     (r'^action/', include('sb_public_official.urls')),
     url(r'^signup/$', signup_view, name="signup"),
     (r'^v1/', include('sb_questions.apis.v1')),
     (r'^v1/', include('sb_solutions.apis.v1')),
+    (r'^v1/', include('sb_oauth.apis.v1')),
+    (r'^v1/', include('plebs.apis.v1')),
     url(r'^$', beta_page, name='beta_page'),
 )
 

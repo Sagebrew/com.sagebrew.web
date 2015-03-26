@@ -213,7 +213,7 @@ def convert_dynamo_contents(raw_contents, request=None, comment_view=None):
 
 
 @apply_defense
-def get_question_doc(question_uuid, question_table, solution_table):
+def get_question_doc(question_uuid, question_table, solution_table, user=""):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
@@ -254,19 +254,35 @@ def get_question_doc(question_uuid, question_table, solution_table):
         '%Y-%m-%d %H:%M:%S.%f')
     question['vote_count'] = str(question['upvotes']
                                         - question['downvotes'])
+    vote_type = get_vote(question['object_uuid'], user)
+    if vote_type is not None:
+        if vote_type['status'] == 2:
+            vote_type = None
+        else:
+            vote_type = str(bool(vote_type['status'])).lower()
+    question['vote_type'] = vote_type
     for comment in comments:
         comment = dict(comment)
         try:
-            comment['upvotes'] = get_vote_count(comment['object_uuid'],1)
-            comment['downvotes'] = get_vote_count(comment['object_uuid'],0)
+            comment['upvotes'] = get_vote_count(
+                comment['object_uuid'] , 1)
+            comment['downvotes'] = get_vote_count(
+                comment['object_uuid'], 0)
             comment['last_edited_on'] = datetime.strptime(
                 comment['last_edited_on'][:len(comment['last_edited_on']) - 6],
                 '%Y-%m-%d %H:%M:%S.%f')
             comment['created'] = datetime.strptime(
                 comment['created'][:len(comment['created']) - 6],
                 '%Y-%m-%d %H:%M:%S.%f')
-            comment['vote_count'] = str(comment['upvotes']
-                                               - comment['downvotes'])
+            comment['vote_count'] = str(
+                comment['upvotes'] - comment['downvotes'])
+            vote_type = get_vote(comment['object_uuid'], user)
+            if vote_type is not None:
+                if vote_type['status'] == 2:
+                    vote_type = None
+                else:
+                    vote_type = str(bool(vote_type['status'])).lower()
+            comment['vote_type'] = vote_type
             q_comments.append(comment)
         except KeyError:
             continue
@@ -286,6 +302,13 @@ def get_question_doc(question_uuid, question_table, solution_table):
                 '%Y-%m-%d %H:%M:%S.%f')
             solution['vote_count'] = str(
                 solution['upvotes'] - solution['downvotes'])
+            vote_type = get_vote(solution['object_uuid'], user)
+            if vote_type is not None:
+                if vote_type['status'] == 2:
+                    vote_type = None
+                else:
+                    vote_type = str(bool(vote_type['status'])).lower()
+            solution['vote_type'] = vote_type
             solution_comments = comment_table.query_2(
                 parent_object__eq=solution['object_uuid'],
                 created__gte="0"
@@ -295,17 +318,26 @@ def get_question_doc(question_uuid, question_table, solution_table):
         for ans_comment in solution_comments:
             try:
                 comment = dict(ans_comment)
-                comment['upvotes'] = get_vote_count(comment['object_uuid'],1)
+                comment['upvotes'] = get_vote_count(
+                    comment['object_uuid'], 1)
                 comment['downvotes'] = get_vote_count(
-                    comment['object_uuid'],0)
+                    comment['object_uuid'], 0)
                 comment['last_edited_on'] = datetime.strptime(
-                    comment['last_edited_on'][:len(comment['last_edited_on']) - 6],
+                    comment['last_edited_on'][:len(
+                        comment['last_edited_on']) - 6],
                     '%Y-%m-%d %H:%M:%S.%f')
                 comment['created'] = datetime.strptime(
                     comment['created'][:len(comment['created']) - 6],
                     '%Y-%m-%d %H:%M:%S.%f')
                 comment['vote_count'] = str(
                     comment['upvotes'] - comment['downvotes'])
+                vote_type = get_vote(comment['object_uuid'], user)
+                if vote_type is not None:
+                    if vote_type['status'] == 2:
+                        vote_type = None
+                    else:
+                        vote_type = str(bool(vote_type['status'])).lower()
+                comment['vote_type'] = vote_type
                 a_comments.append(comment)
             except KeyError:
                 continue
@@ -365,8 +397,8 @@ def get_vote(object_uuid, user):
             user=user
         )
         return vote
-    except ItemNotFound:
-        return False
+    except (ItemNotFound, JSONResponseError, ValidationException):
+        return None
 
 
 @apply_defense
@@ -411,7 +443,7 @@ def get_vote_count(object_uuid, vote_type):
 
 
 @apply_defense
-def get_wall_docs(parent_object):
+def get_wall_docs(current_user, username):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
@@ -424,7 +456,7 @@ def get_wall_docs(parent_object):
     except JSONResponseError as e:
         return e
     posts = posts_table.query_2(
-        parent_object__eq=parent_object,
+        parent_object__eq=current_user,
         created__gte='0',
         reverse=True
     )
@@ -436,6 +468,13 @@ def get_wall_docs(parent_object):
         post = dict(post)
         post['upvotes'] = get_vote_count(post['object_uuid'], 1)
         post['downvotes'] = get_vote_count(post['object_uuid'], 0)
+        vote_type = get_vote(post['object_uuid'], username)
+        if vote_type is not None:
+            if vote_type['status'] == 2:
+                vote_type = None
+            else:
+                vote_type = str(bool(vote_type['status'])).lower()
+        post['vote_type'] = vote_type
         comments = comments_table.query_2(
             parent_object__eq=post['object_uuid'],
             created__gte='0')
@@ -446,7 +485,15 @@ def get_wall_docs(parent_object):
                 comment['object_uuid'], 1)
             comment['downvotes'] = get_vote_count(
                 comment['object_uuid'], 0)
+            vote_type = get_vote(comment['object_uuid'], username)
+            if vote_type is not None:
+                if vote_type['status'] == 2:
+                    vote_type = None
+                else:
+                    vote_type = str(bool(vote_type['status'])).lower()
+            comment['vote_type'] = vote_type
             comment_list.append(comment)
+
         post['comments'] = comment_list
         post_list.append(post)
     return post_list

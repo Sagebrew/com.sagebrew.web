@@ -95,7 +95,6 @@ def get_user_posts(request):
         posts = get_wall_docs(
             post_form.cleaned_data['current_user'],
             request.user.username)
-        print posts
         if not posts:
             posts = get_pleb_posts(request.user.username,
                                    post_form.cleaned_data['range_end'],

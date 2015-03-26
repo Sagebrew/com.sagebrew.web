@@ -48,7 +48,7 @@ class SBSolution(SBVersioned):
             return False
         try:
             self.solution_to.connect(question)
-            question.solution.connect(self)
+            question.solutions.connect(self)
             question.solution_count += 1
             question.save()
             rel_from_pleb = pleb.solutions.connect(self)

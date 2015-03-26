@@ -25,7 +25,7 @@ from sb_comments.utils import convert_dynamo_comments
 
 from .serializers import QuestionSerializerNeo
 from .neo_models import SBQuestion
-from .utils import clean_question_for_rest
+from .utils import clean_question_for_rest, render_question_object
 
 
 logger = getLogger('loggly_logs')
@@ -85,8 +85,10 @@ class QuestionViewSet(viewsets.GenericViewSet):
             return Response(errors.DYNAMO_TABLE_EXCEPTION,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         queryset = table.get_item(object_uuid=object_uuid)
-
+        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
         expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
+        if html == "true":
+            expand = "true"
         try:
             if expand == "false":
                 single_object = convert_dynamo_content(queryset)
@@ -95,13 +97,18 @@ class QuestionViewSet(viewsets.GenericViewSet):
                                                        "question-comments")
         except IndexError as e:
             raise NotFound
+
+        print queryset
+        if html == "true":
+            rendered_html = render_question_object(single_object)
+            print rendered_html
         # TODO need to just store username for question and solution, can
         # determine url paths dynamically here
         user_url = reverse('user-detail', kwargs={
-            'username': single_object["owner_profile_url"]}, request=request)
+            'username': single_object["owner"]}, request=request)
         single_object["profile_url"] = reverse(
             'profile_page', kwargs={
-                'pleb_username': single_object["owner_profile_url"]
+                'pleb_username': single_object["owner"]
             }, request=request)
 
         # TODO hopefully can clear out most of this and just use it to eliminate

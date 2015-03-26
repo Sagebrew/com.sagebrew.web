@@ -326,6 +326,7 @@ class OauthUser(StructuredNode):
     expires_in = IntegerProperty()
     refresh_token = StringProperty()
     token_type = StringProperty(default="Bearer")
+    last_modified = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
 
 class BetaUser(StructuredNode):

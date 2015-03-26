@@ -9,10 +9,10 @@ from rest_framework.response import Response
 from .forms import FlagObjectForm
 from .tasks import flag_object_task
 from api.utils import spawn_task
-from api.tasks import get_pleb_task
 from sb_docstore.utils import add_object_to_table
 
 logger = logging.getLogger("loggly_logs")
+
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
@@ -29,14 +29,10 @@ def flag_object_view(request):
             "object_uuid": flag_object_form.cleaned_data['object_uuid'],
             "object_type": choice_dict[
                 flag_object_form.cleaned_data['object_type']],
-            "flag_reason": flag_object_form.cleaned_data['flag_reason']
-        }
-        pleb_data = {
+            "flag_reason": flag_object_form.cleaned_data['flag_reason'],
             'username': request.user.username,
-            'task_func': flag_object_task,
-            'task_param': task_data
         }
-        spawned = spawn_task(task_func=get_pleb_task, task_param=pleb_data)
+        spawned = spawn_task(task_func=flag_object_task, task_param=task_data)
         dynamo_data = {
             'parent_object': flag_object_form.cleaned_data['object_uuid'],
             'user': request.user.email,

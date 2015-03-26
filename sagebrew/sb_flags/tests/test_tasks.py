@@ -27,7 +27,7 @@ class TestFlagObjectTask(TestCase):
     def test_flag_object_task_success(self):
         question = SBQuestion(object_uuid=str(uuid1())).save()
         task_data = {
-            'current_pleb': self.pleb,
+            'username': self.pleb.username,
             'object_uuid': question.object_uuid,
             'object_type': 'sb_questions.neo_models.SBQuestion',
             'flag_reason': 'spam',
@@ -43,7 +43,7 @@ class TestFlagObjectTask(TestCase):
     def test_flag_object_task_get_object_failure(self):
         question = SBQuestion(object_uuid=str(uuid1())).save()
         task_data = {
-            'current_pleb': self.pleb,
+            'username': self.pleb.username,
             'object_uuid': question.object_uuid,
             'object_type': 'SBQuestion',
             'flag_reason': 'spam',

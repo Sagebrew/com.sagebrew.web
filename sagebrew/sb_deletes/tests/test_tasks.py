@@ -25,7 +25,7 @@ class TestDeleteObjectTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_delete_object_task_success(self):
-        question = SBQuestion(question_title='test title for delete',
+        question = SBQuestion(title='test title for delete',
                               content='this is before delete',
                               object_uuid=str(uuid1())).save()
         task_data = {
@@ -40,13 +40,13 @@ class TestDeleteObjectTask(TestCase):
         self.assertTrue(res.result)
 
     def test_delete_object_task_get_object_fail(self):
-        question = SBQuestion(question_title='test title for delete',
+        question = SBQuestion(title='test title for delete',
                               content='this is before delete',
                               object_uuid=str(uuid1())).save()
         task_data = {
             'object_type': 'SBQuestion',
             'object_uuid': question.object_uuid,
-            'current_pleb': self.pleb
+            'username': self.pleb.username
         }
         res = delete_object_task.apply_async(kwargs=task_data)
         while not res.ready():

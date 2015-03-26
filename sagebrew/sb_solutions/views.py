@@ -49,9 +49,9 @@ def save_solution_view(request):
         solution_data = {
             "solution": {
                 "object_uuid": solution_form.cleaned_data['solution_uuid'],
-                "up_vote_number": 0,
-                "down_vote_number": 0,
-                "object_vote_count": str(0),
+                "upvotes": 0,
+                "downvotes": 0,
+                "vote_count": str(0),
                 "content": solution_form.cleaned_data['content'],
                 "html_content": markdown.markdown(
                     solution_form.cleaned_data['content']),

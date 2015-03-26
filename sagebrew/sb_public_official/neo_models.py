@@ -13,12 +13,10 @@ class CongressVoteRelationship(StructuredRel):
 
 
 class BaseOfficial(Pleb):
-    title = StringProperty()
     type_str = "f46fbcda-9da8-11e4-9233-080027242395"
+    title = StringProperty()
     object_uuid = StringProperty(unique_index=True, default=str(uuid1()))
     bio = StringProperty(default="")
-    recipient_id = StringProperty()
-    customer_id = StringProperty()
     name_mod = StringProperty()
     current = BooleanProperty()
     district = IntegerProperty()
@@ -28,10 +26,11 @@ class BaseOfficial(Pleb):
     end_date = DateTimeProperty()
     full_name = StringProperty()
     gov_phone = StringProperty()
+    # recipient_id and customer_id are stripe specific attributes
+    recipient_id = StringProperty()
+    customer_id = StringProperty()
 
     # relationships
-    policy = RelationshipTo('sb_public_official.neo_models.Policy',
-                            "HAS_POLICY")
     pleb = RelationshipTo('plebs.neo_models.Pleb', 'IS')
     sponsored = RelationshipTo('sb_public_official.neo_models.Bill',
                                "SPONSORED")
@@ -43,8 +42,6 @@ class BaseOfficial(Pleb):
                               "ATTENDED")
     experience = RelationshipTo('sb_public_official.neo_models.Experience',
                                 "EXPERIENCED")
-    education = RelationshipTo('sb_public_official.neo_models.Education',
-                               'EDUCATION')
     goal = RelationshipTo('sb_public_official.neo_models.Goal', 'GOAL')
     gt_person = RelationshipTo('govtrack.neo_models.GTPerson', 'GTPERSON')
     gt_role = RelationshipTo('govtrack.neo_models.GTRole', 'GTROLE')
@@ -75,78 +72,11 @@ class Hearing(StructuredNode):
     attendees = RelationshipTo(BaseOfficial, "HEARING_ATTENDEES")
 
 
-class USSenator(BaseOfficial):
-    title = "Senator "
-    type_str = "f2729db2-9da8-11e4-9233-080027242395"
-    is_majority_leader = BooleanProperty(default=False)
-    is_minority_leader = BooleanProperty(default=False)
-
-    # relationships
-    committee = RelationshipTo('sb_public_official.neo_models.Committee',
-                               "PART_OF")
-
-
-class USPresident(BaseOfficial):
-    title = "President "
-    type_str = "f3aeebe0-9da8-11e4-9233-080027242395"
-    number = IntegerProperty()
-
-    # relationships
-    vetoed = RelationshipTo(Bill, "VETOED")
-
-
-class Policy(StructuredNode):
-    object_uuid = StringProperty(default=lambda: str(uuid1()))
-    category = StringProperty()
-    description = StringProperty()
-
-    @apply_defense
-    def get_dict(self):
-        return {"category": self.category,
-                "description": self.description}
-
-
-class USHouseRepresentative(BaseOfficial):
-    title = "Representative "
-    type_str = "628c138a-9da9-11e4-9233-080027242395"
-    seat = IntegerProperty(unique_index=True)
-    is_speaker = BooleanProperty(default=False)
-    is_majority_leader = BooleanProperty(default=False)
-    is_minority_leader = BooleanProperty(default=False)
-
-    # relationships
-    vote = RelationshipTo('sb_public_official.neo_models.Bill',
-                          'VOTED_ON',)
-
-
 class Committee(StructuredNode):
     committee_number = IntegerProperty(unique_index=True)
 
     # relationships
     members = RelationshipTo(BaseOfficial, "COMMITTEE_MEMBERS")
-
-
-class Governor(BaseOfficial):
-    title = "Governor "
-    type_str = "786dcf40-9da9-11e4-9233-080027242395"
-
-    # relationships
-    vetoed = RelationshipTo(Bill, "VETOED")
-    passed = RelationshipTo(Bill, "PASSED")
-    committee = RelationshipTo('sb_public_official.neo_models.Committee',
-                               "STARTED")
-
-
-class PositionRequirements(StructuredNode):
-    position = StringProperty(unique_index=True)
-    age = IntegerProperty()
-    res_of_state = BooleanProperty(default=True)
-    citizen_years = IntegerProperty()
-    cannot_be_felon = BooleanProperty(default=True)
-    registered_to_vote = BooleanProperty()
-    registered_to_vote_years = IntegerProperty()
-    natural_born_resident = BooleanProperty(default=False)
-    term_limit = IntegerProperty()
 
 
 class Experience(StructuredNode):
@@ -172,25 +102,6 @@ class Experience(StructuredNode):
                 "current": self.current,
                 "company": self.company_s,
                 "location": self.location_s}
-
-
-class Education(StructuredNode):
-    object_uuid = StringProperty(unique_index=True)
-    school_s = StringProperty()
-    start_date = DateProperty()
-    end_date = DateProperty()
-    degree = StringProperty()
-
-    # relationships
-    school = RelationshipTo('plebs.neo_models.School', 'SCHOOL')
-
-    @apply_defense
-    def get_dict(self):
-        return {"object_uuid": self.object_uuid,
-                "start_date": unicode(self.start_date),
-                "end_date": unicode(self.end_date),
-                "school": self.school_s,
-                "degree": self.degree}
 
 
 class Goal(StructuredNode):

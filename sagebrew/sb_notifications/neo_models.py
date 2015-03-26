@@ -11,18 +11,12 @@ class NotificationBase(StructuredNode):
     seen = BooleanProperty(default=False)
     time_sent = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     time_seen = DateTimeProperty(default=None)
-    notification_about = StringProperty()
-    notification_about_id = StringProperty()
+    about = StringProperty()
+    about_id = StringProperty()
     sent = BooleanProperty(default=False)
 
     # relationships
-
     notification_from = RelationshipTo('plebs.neo_models.Pleb',
                                        'NOTIFICATION_FROM')
     notification_to = RelationshipTo('plebs.neo_models.Pleb',
                                      'NOTIFICATION_TO')
-
-class NotificationAction(NotificationBase):
-    url = StringProperty()
-
-    #relationships

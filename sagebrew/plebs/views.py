@@ -16,7 +16,7 @@ from sb_registration.utils import (get_friends, generate_profile_pic_url,
                                    verify_completed_registration)
 from .utils import prepare_user_search_html
 from .forms import GetUserSearchForm
-from .serializer import BetaUserSerializer
+from .serializers import BetaUserSerializer
 
 def root_profile_page(request):
     if request.user.is_authenticated() is True:

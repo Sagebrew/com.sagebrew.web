@@ -16,7 +16,9 @@ class UserSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=30, read_only=True)
     first_name = serializers.CharField(required=False)
     last_name = serializers.CharField(required=True)
-    email = serializers.EmailField(required=True)
+    # We can probably add something to the retrieve that if a friend wants
+    # to request viewing this the user can allow them to.
+    email = serializers.EmailField(required=True, write_only=True)
     password = serializers.CharField(max_length=128, required=True,
                                      write_only=True)
     birthday = serializers.DateTimeField(write_only=True)
@@ -43,3 +45,11 @@ class UserSerializer(serializers.Serializer):
             "last_name": instance.last_name, "email": instance.email
         })
         return instance
+
+
+class PlebSerializerNeo(serializers.Serializer):
+    base_user = serializers.HyperlinkedIdentityField(view_name='user-detail',
+                                                     lookup_field="username")
+    href = serializers.HyperlinkedIdentityField(
+        view_name='profile-detail', lookup_field="username")
+    profile_pic = serializers.CharField(read_only=True)

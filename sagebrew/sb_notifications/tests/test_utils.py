@@ -21,8 +21,6 @@ class TestNotificationUtils(TestCase):
         self.user = User.objects.get(email=self.email)
         self.email2= "bounce@simulator.amazonses.com"
         res = create_user_util_test(self.email2)
-        # TODO review these and make sure it's checking it's not an instance
-        # of exception
         self.assertNotIsInstance(res, Exception)
         wait_util(res)
         self.pleb2 = Pleb.nodes.get(email=self.email2)

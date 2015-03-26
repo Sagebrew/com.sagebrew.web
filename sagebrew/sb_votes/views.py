@@ -33,12 +33,12 @@ def vote_object_view(request):
                  "object_type": choice_dict[
                     vote_object_form.cleaned_data['object_type']],
                  "parent_object": vote_object_form.cleaned_data['object_uuid'],
-                 "user": request.user.email,
+                 "user": request.user.username,
                  "status": status,
                  "time": now
                  }
         res = get_vote(vote_object_form.cleaned_data['object_uuid'],
-                       user=request.user.email)
+                       user=request.user.username)
         if isinstance(res, Exception) is True:
             return Response({"detail": "server error"}, status=500)
         if not res:
@@ -52,7 +52,7 @@ def vote_object_view(request):
         else:
             prev_vote = dict(res)
             update = update_vote(vote_object_form.cleaned_data['object_uuid'],
-                                 request.user.email,
+                                 request.user.username,
                                  status, now)
             if isinstance(update, Exception) is True:
                 return Response({"detail": "server error"}, status=500)

@@ -27,10 +27,9 @@ class TestCreateFriendRequestUtil(TestCase):
         self.user2 = User.objects.get(email=self.email2)
 
     def test_create_friend_request_util_success(self):
-        data = {'from_pleb': self.pleb1.email,
-                'to_pleb': self.pleb2.email,
-                'object_uuid': str(uuid1())}
-        res = create_friend_request_util(data)
+        res = create_friend_request_util(self.pleb1.username,
+                                         self.pleb2.username,
+                                         str(uuid1()))
 
         self.assertTrue(res)
 
@@ -42,26 +41,23 @@ class TestCreateFriendRequestUtil(TestCase):
         friend_request.request_to.connect(self.pleb2)
         friend_request.request_from.connect(self.pleb1)
 
-        data = {'from_pleb': self.pleb1.email,
-                'to_pleb': self.pleb2.email,
-                'object_uuid': str(uuid1())}
-        res = create_friend_request_util(data)
+        res = create_friend_request_util(self.pleb1.username,
+                                         self.pleb2.username,
+                                         str(uuid1()))
 
         self.assertTrue(res)
 
     def test_create_friend_request_util_fail_pleb_does_not_exist(self):
-        data = {'from_pleb': self.pleb1.email,
-                'to_pleb': str(uuid1()),
-                'object_uuid': str(uuid1())}
-        res = create_friend_request_util(data)
+        res = create_friend_request_util(from_username=self.pleb1.username,
+                                         to_username=str(uuid1()),
+                                         object_uuid=str(uuid1()))
 
         self.assertIsInstance(res, DoesNotExist)
 
     def test_create_friend_request_util_fail_pleb_does_not_exist_pickle(self):
-        data = {'from_pleb': self.pleb1.email,
-                'to_pleb': str(uuid1()),
-                'object_uuid': str(uuid1())}
-        res = create_friend_request_util(data)
+        res = create_friend_request_util(from_username=self.pleb1.username,
+                                         to_username=str(uuid1()),
+                                         object_uuid=str(uuid1()))
         pickle_instance = pickle.dumps(res)
         self.assertTrue(pickle_instance)
         self.assertTrue(pickle.loads(pickle_instance))

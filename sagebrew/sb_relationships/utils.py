@@ -22,7 +22,7 @@ def create_friend_request_util(from_username, to_username, object_uuid):
         except(CypherException, IOError) as e:
             return e
 
-        query = 'match (p:Pleb) where p.email="%s" ' \
+        query = 'match (p:Pleb) where p.username="%s" ' \
                 'with p ' \
                 'match (p)-[:SENT_A_REQUEST]-(r:FriendRequest) ' \
                 'with p, r ' \

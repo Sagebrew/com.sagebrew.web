@@ -2,8 +2,8 @@ from django import forms
 
 
 class SubmitFriendRequestForm(forms.Form):
-    from_user = forms.CharField()
-    to_user = forms.CharField()
+    from_username = forms.CharField()
+    to_username = forms.CharField()
 
 
 class GetFriendRequestForm(forms.Form):

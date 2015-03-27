@@ -41,8 +41,8 @@ def create_friend_request(request):
 
     if valid_form is True:
         task_data = {
-            "from_username": request_form.cleaned_data['from_user'],
-            "to_username": request_form.cleaned_data['to_user'],
+            "from_username": request_form.cleaned_data['from_username'],
+            "to_username": request_form.cleaned_data['to_username'],
             "object_uuid": object_uuid
         }
         spawned = spawn_task(task_func=create_friend_request_task,

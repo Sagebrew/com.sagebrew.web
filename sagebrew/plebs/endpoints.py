@@ -15,7 +15,7 @@ from neomodel import CypherException
 from sagebrew import errors
 
 from api.utils import request_to_api
-from api.permissions import IsSelfOrReadOnly
+from api.permissions import IsSelfOrReadOnly, IsSelf
 from sb_comments.serializers import CommentSerializer
 
 from .serializers import UserSerializer, PlebSerializerNeo
@@ -130,6 +130,90 @@ class ProfileViewSet(viewsets.GenericViewSet):
                         status=status.HTTP_501_NOT_IMPLEMENTED)
 
     @detail_route(methods=['get'])
-    def defriend(self, request, username=None):
+    def unfriend(self, request, username=None):
         return Response({"detail": "TBD"},
                         status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    @detail_route(methods=['get'])
+    def friends(self, request, username=None):
+        # Discuss, does it make more sense to have friends here or have a
+        # separate endpoint /v1/friends/ that just
+        # lists all the friends for the user who is making the query? I think
+        # both places are valid. /v1/profiles/username/friends does enable you
+        # to look at friends of friends more easily
+        # However /v1/friends/username/ allows for a simpler defriend and
+        # accessing method as you're able to go from
+        # /v1/friends/ to /v1/friends/username/ to your method rather than
+        # /v1/profiles/username/friends/ to /v1/profiles/username/ to your
+        # method. But maybe we make both available.
+        single_object = self.get_object(username=username)
+        if isinstance(single_object, Response):
+            return single_object
+        try:
+            friends = single_object.get_friends()
+        except(CypherException, IOError) as e:
+            logger.exception("ProfileGenericViewSet friends")
+            return Response(errors.CYPHER_EXCEPTION,
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        serializer = self.serializer_class(
+            friends, context={"request": request}, many=True)
+        # TODO implement expand functionality
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
+    def friend_requests(self, request, username=None):
+        single_object = self.get_object(username=username)
+        if isinstance(single_object, Response):
+            return single_object
+        try:
+            friend_requests = single_object.get_friend_requests_received()
+        except(CypherException, IOError) as e:
+            logger.exception("ProfileGenericViewSet friends")
+            return Response(errors.CYPHER_EXCEPTION,
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
+        for friend_request in friend_requests:
+            if expand == "false":
+                friend_request["from"] = reverse(
+                    'profile-detail',
+                    kwargs={'username': friend_request["from"]},
+                    request=request)
+            else:
+                friend_url = reverse('profile-detail',
+                    kwargs={'username': friend_request["from"]},
+                    request=request)
+                response = request_to_api(friend_url, request.user.username,
+                                          req_method="GET")
+                friend_request["from"] = response.json()
+
+        return Response(friend_requests, status=status.HTTP_200_OK)
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
+    def notifications(self, request, username=None):
+        single_object = self.get_object(username=username)
+        if isinstance(single_object, Response):
+            return single_object
+
+        try:
+            notifications = single_object.get_notifications()
+        except(CypherException, IOError) as e:
+            logger.exception("ProfileGenericViewSet friends")
+            return Response(errors.CYPHER_EXCEPTION,
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
+        for notification in notifications:
+            if expand == "false":
+                notification["from"] = reverse(
+                    'profile-detail',
+                    kwargs={'username': notification["from"]},
+                    request=request)
+            else:
+                friend_url = reverse('profile-detail',
+                    kwargs={'username': notification["from"]},
+                    request=request)
+                response = request_to_api(friend_url, request.user.username,
+                                          req_method="GET")
+                notification["from"] = response.json()
+
+        return Response(notifications, status=status.HTTP_200_OK)

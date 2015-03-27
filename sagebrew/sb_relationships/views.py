@@ -25,7 +25,7 @@ def create_friend_request(request):
     :return:
     '''
     # TODO return uuid of friend request and add to javascript hide button
-    # when uuid recieved
+    # when uuid received
     # if action is True hide friend request button and show a delete friend
     # request button
     friend_request_data = request.DATA
@@ -40,9 +40,10 @@ def create_friend_request(request):
         return Response({'detail': 'attribute error'}, status=400)
 
     if valid_form is True:
-        request_form.cleaned_data["object_uuid"] = object_uuid
         task_data = {
-            "data": request_form.cleaned_data
+            "from_username": request_form.cleaned_data['from_user'],
+            "to_username": request_form.cleaned_data['to_user'],
+            "object_uuid": object_uuid
         }
         spawned = spawn_task(task_func=create_friend_request_task,
                              task_param=task_data)

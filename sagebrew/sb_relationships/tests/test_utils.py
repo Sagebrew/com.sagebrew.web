@@ -38,7 +38,7 @@ class TestCreateFriendRequestUtil(TestCase):
         friend_request = FriendRequest(object_uuid=str(uuid1()))
         friend_request.save()
         self.pleb1.friend_requests_sent.connect(friend_request)
-        self.pleb2.friend_requests_recieved.connect(friend_request)
+        self.pleb2.friend_requests_received.connect(friend_request)
         friend_request.request_to.connect(self.pleb2)
         friend_request.request_from.connect(self.pleb1)
 

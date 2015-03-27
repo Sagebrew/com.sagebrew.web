@@ -78,7 +78,7 @@ def profile_page(request, pleb_username=""):
 
     return render(request, 'sb_plebs_base/profile_page.html', {
         'pleb_info': citizen,
-        'current_user': current_user.email,
+        'current_user': current_user,
         'page_user': page_user,
         #'senator_names': sen_array,
         #'rep_name': rep_array,

@@ -245,7 +245,7 @@ class TestRespondFriendRequestView(TestCase):
         friend_request.request_to.connect(pleb2)
         friend_request.request_from.connect(pleb)
         pleb.friend_requests_sent.connect(friend_request)
-        pleb2.friend_requests_recieved.connect(friend_request)
+        pleb2.friend_requests_received.connect(friend_request)
 
         request = self.factory.post('/relationships/respond_friend_request/',
                                     data=data, format='json')
@@ -268,7 +268,7 @@ class TestRespondFriendRequestView(TestCase):
         friend_request.request_to.connect(pleb2)
         friend_request.request_from.connect(pleb)
         pleb.friend_requests_sent.connect(friend_request)
-        pleb2.friend_requests_recieved.connect(friend_request)
+        pleb2.friend_requests_received.connect(friend_request)
 
         request = self.factory.post('/relationships/respond_friend_request/',
                                     data=data, format='json')
@@ -291,7 +291,7 @@ class TestRespondFriendRequestView(TestCase):
         friend_request.request_to.connect(pleb2)
         friend_request.request_from.connect(pleb)
         pleb.friend_requests_sent.connect(friend_request)
-        pleb2.friend_requests_recieved.connect(friend_request)
+        pleb2.friend_requests_received.connect(friend_request)
 
         request = self.factory.post('/relationships/respond_friend_request/',
                                     data=data, format='json')

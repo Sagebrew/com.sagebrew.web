@@ -13,10 +13,6 @@
         "type": "N"
     },
     {
-        "table_name": "friends",
-        "hash_key": "email"
-    },
-    {
         "table_name": "public_questions",
         "hash_key": "object_uuid"
     },

@@ -26,21 +26,6 @@ class TestDocstoreUtils(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
-    def test_add_object_to_table_success(self):
-        data = {"email": self.pleb.email, "username": self.pleb.username,
-                "first_name": self.pleb.first_name,
-                "last_name": self.pleb.last_name}
-        res = add_object_to_table("users_full", data)
-
-        self.assertTrue(res)
-
-    def test_add_object_to_table_failure(self):
-        data = {"username": self.pleb.username,
-                "first_name": self.pleb.first_name}
-        res = add_object_to_table("users_full", data)
-
-        self.assertIsInstance(res, Exception)
-
     def test_query_parent_object_table_success(self):
         uuid = str(uuid1())
         res = query_parent_object_table(uuid, True)

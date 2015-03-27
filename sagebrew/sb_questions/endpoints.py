@@ -52,7 +52,8 @@ class QuestionViewSet(viewsets.GenericViewSet):
         elif sort_by == "edited":
             queryset = sorted(queryset, key=lambda k: k.last_edited_on)
         else:
-            queryset = sorted(queryset, key=lambda k: k.get_vote_count())
+            queryset = sorted(queryset, key=lambda k: k.vote_count,
+                              reverse=True)
         return queryset
 
     def get_object(self, object_uuid=None):

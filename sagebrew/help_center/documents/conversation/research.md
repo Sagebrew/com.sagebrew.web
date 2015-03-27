@@ -104,7 +104,7 @@ Same as Randomized Controlled Clinical Trials.
 
 When should Double Blind Randomized Controlled Clinical Trials be cited?
 
-*Whenever possible: these trials deliver hard, conclusive evidence of causation
+* Whenever possible: these trials deliver hard, conclusive evidence of causation
 
 
 ### Systematic Reviews ###

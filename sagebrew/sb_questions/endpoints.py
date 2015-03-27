@@ -45,7 +45,6 @@ class QuestionViewSet(viewsets.GenericViewSet):
             logger.exception("QuestionGenericViewSet queryset")
             return Response(errors.CYPHER_EXCEPTION,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
         sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
         if sort_by == "created":
             queryset = sorted(queryset, key=lambda k: k.created)
@@ -66,12 +65,20 @@ class QuestionViewSet(viewsets.GenericViewSet):
         return queryset
 
     def list(self, request):
+        html_array = []
         queryset = self.get_queryset()
         if isinstance(queryset, Response):
             return queryset
-        serializer = self.serializer_class(
-            queryset, context={"request": request}, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        html = self.request.QUERY_PARAMS.get("html", "false")
+        if html == "false":
+            serializer = self.serializer_class(
+                queryset, context={"request": request}, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            for question in queryset:
+                html_array.append(
+                    question.render_question_page(request.user.username))
+            return Response(html_array, status=status.HTTP_200_OK)
 
     def create(self, request):
         serializer = self.serializer_class(data=request.data)

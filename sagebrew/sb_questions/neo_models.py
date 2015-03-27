@@ -175,7 +175,8 @@ class SBQuestion(SBVersioned, SBTagContent):
 
     # TODO should be able to remove this and instead use the new endpoints
     @apply_defense
-    def render_question_page(self, user_email):
+    def render_question_page(self, username):
+        from sb_docstore.utils import get_vote
         try:
             owner = self.owned_by.all()
             try:
@@ -189,6 +190,9 @@ class SBQuestion(SBVersioned, SBTagContent):
             if most_recent is not None:
                 most_recent_content = most_recent.content
                 if most_recent_content is not None:
+                    vote_count = str(self.vote_count)
+                    if vote_count == 'None':
+                        vote_count = "0"
                     question_dict = {
                         'title': most_recent.title,
                         'question_content': most_recent_content,
@@ -200,8 +204,16 @@ class SBQuestion(SBVersioned, SBTagContent):
                         'owner': owner,
                         'created': self.created,
                         'question_url': self.object_uuid,
-                        'current_pleb': user_email
+                        'vote_count': vote_count
                     }
+                    vote_type = get_vote(question_dict['question_url'],
+                                         username)
+                    if vote_type is not None:
+                        if vote_type['status'] == 2:
+                            vote_type = None
+                        else:
+                            vote_type = str(bool(vote_type['status'])).lower()
+                    question_dict['vote_type'] = vote_type
                 else:
                     question_dict = {"detail": "failed"}
             else:

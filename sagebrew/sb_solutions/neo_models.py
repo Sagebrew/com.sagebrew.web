@@ -100,6 +100,8 @@ class SBSolution(SBVersioned):
                 'downvotes': self.get_downvote_count(),
                 'vote_count': self.get_vote_count(),
                 'owner': solution_owner.username,
+                'owner_full_name': "%s %s" % (
+                    solution_owner.first_name, solution_owner.last_name),
                 'created': unicode(self.created),
                 'comments': comment_array,
                 'edits': [],

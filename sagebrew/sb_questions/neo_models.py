@@ -160,6 +160,8 @@ class SBQuestion(SBVersioned, SBTagContent):
                 'downvotes': self.get_downvote_count(),
                 'vote_count': self.get_vote_count(),
                 'owner': owner.username,
+                'owner_full_name': "%s %s" % (
+                    owner.first_name, owner.last_name),
                 'created': unicode(self.created),
                 'solutions': solution_array,
                 'comments': comment_array,

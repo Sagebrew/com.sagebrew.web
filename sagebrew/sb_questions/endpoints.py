@@ -17,7 +17,8 @@ from neomodel import CypherException
 from sagebrew import errors
 
 from api.utils import request_to_api
-from sb_docstore.utils import (get_dynamo_table, convert_dynamo_content)
+from sb_docstore.utils import (get_dynamo_table, convert_dynamo_content,
+                               get_vote)
 from sb_solutions.utils import convert_dynamo_solutions
 from sb_comments.serializers import CommentSerializer
 from sb_comments.utils import convert_dynamo_comments
@@ -98,10 +99,6 @@ class QuestionViewSet(viewsets.GenericViewSet):
         except IndexError as e:
             raise NotFound
 
-        print queryset
-        if html == "true":
-            rendered_html = render_question_object(single_object)
-            print rendered_html
         # TODO need to just store username for question and solution, can
         # determine url paths dynamically here
         user_url = reverse('user-detail', kwargs={
@@ -124,6 +121,24 @@ class QuestionViewSet(viewsets.GenericViewSet):
             response = request_to_api(user_url, request.user.username,
                                       req_method="GET")
             single_object["owner"] = response.json()
+
+        if html == "true":
+            response = request_to_api(
+                reverse('question-solutions',
+                        kwargs={'object_uuid': single_object['object_uuid']},
+                        request=request),
+                request.user.username, req_method='GET')
+            vote_type = get_vote(single_object['object_uuid'],
+                                 request.user.username)
+            if vote_type is not None:
+                if vote_type['status'] == 2:
+                    vote_type = None
+                else:
+                    vote_type = str(bool(vote_type['status'])).lower()
+            single_object['vote_type'] = vote_type
+            single_object['solutions'] = response.json()
+            rendered_html = render_question_object(single_object)
+            return Response(rendered_html, status=status.HTTP_200_OK)
 
         return Response(single_object, status=status.HTTP_200_OK)
 
@@ -176,10 +191,23 @@ class QuestionViewSet(viewsets.GenericViewSet):
                 parent_object__eq=object_uuid,
                 created__gte="0"
             )
-            serializer = CommentSerializer(
-                convert_dynamo_comments(queryset), context={"request": request},
-                many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            converted = convert_dynamo_comments(queryset)
+            for comment in converted:
+                response = request_to_api(
+                    reverse('user-detail',
+                            kwargs={'username': comment["owner"]},
+                            request=request),
+                    request.user.username, req_method="GET")
+                comment['owner'] = response.json()
+                vote_type = get_vote(comment['object_uuid'],
+                                 request.user.username)
+                if vote_type is not None:
+                    if vote_type['status'] == 2:
+                        vote_type = None
+                    else:
+                        vote_type = str(bool(vote_type['status'])).lower()
+                comment['vote_type'] = vote_type
+            return Response(converted, status=status.HTTP_200_OK)
         else:
             # TODO should be able to move all this to comment helpers and
             # place in solutions, posts, questions, etc.

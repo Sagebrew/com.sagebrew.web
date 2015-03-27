@@ -81,7 +81,7 @@
     </div>
     <div class="object_uuid" data-object_uuid="{{ object_uuid }}"
              style="display: None"></div>
-    {% url "profile_page" pleb_username=solution.solution_owner_url as owner_url %}
+    {% url "profile_page" pleb_username=solution.owner as owner_url %}
 
     <div class="row">
         <div class="col-lg-6">
@@ -92,7 +92,7 @@
         <div class="col-lg-6 sb_question_data"
              align="right">
             <small>
-                written by <a href="{{ the_url }}">{{ owner }}</a>
+                written by <a href="{{ the_url }}">{{ solution.owner_full_name }}</a>
             </small>
         </div>
     </div>

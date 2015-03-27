@@ -5,7 +5,7 @@ from rest_framework.reverse import reverse
 
 from sb_base.decorators import apply_defense
 from api.utils import request_to_api
-from sb_docstore.utils import get_vote_count
+from sb_docstore.utils import get_vote_count, get_vote
 
 from .neo_models import SBSolution
 
@@ -62,5 +62,14 @@ def convert_dynamo_solutions(raw_solutions, request):
     solution_list = []
     for solution in raw_solutions:
         solution = convert_dynamo_solution(solution, request)
+        vote_type = get_vote(solution['object_uuid'],
+                                 request.user.username)
+        if vote_type is not None:
+            if vote_type['status'] == 2:
+                vote_type = None
+            else:
+                vote_type = str(bool(vote_type['status'])).lower()
+        solution['vote_type'] = vote_type
         solution_list.append(solution)
     return solution_list
+

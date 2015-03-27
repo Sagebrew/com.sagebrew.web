@@ -69,7 +69,7 @@ know why you're the right candidate for the job!
 ### Epic ###
 In this section you'll be able to outline your political policies, highlighting
 the issues that are most important to you. You'll also be able to
-plan your political agenda (what you plan to do once/if you reach office).
+plan your political agenda (what you plan to do once/if you reach office) as well as anything else you want the public to know about you.
 
 ### Bio ###
 This is where you have a chance to express yourself on a personal level.

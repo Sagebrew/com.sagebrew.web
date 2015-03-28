@@ -84,7 +84,7 @@ def profile_page(request, pleb_username=""):
         'pleb_info': citizen,
         'current_user': current_user.email,
         'page_user': page_user,
-        'house_reps': [reps['house_rep']],
+        'house_reps': reps['house_rep'],
         'senators': reps['senators'],
         #'senator_names': sen_array,
         #'rep_name': rep_array,

@@ -113,7 +113,7 @@ class Pleb(StructuredNode):
         'sb_notifications.neo_models.NotificationBase', 'RECEIVED_A')
     friend_requests_sent = RelationshipTo(
         'sb_relationships.neo_models.FriendRequest', 'SENT_A_REQUEST')
-    friend_requests_recieved = RelationshipTo(
+    friend_requests_received = RelationshipTo(
         'sb_relationships.neo_models.FriendRequest', 'RECEIVED_A_REQUEST')
     user_weight = RelationshipTo('Pleb', 'WEIGHTED_USER',
                                  model=UserWeightRelationship)
@@ -288,17 +288,62 @@ class Pleb(StructuredNode):
     def get_friends(self):
         return self.friends.all()
 
-    def get_friend_requests_sent(self):
+    def get_friend_requests_received(self):
         request_list = []
-        for request in self.friend_requests_sent.all():
+        for request in self.friend_requests_received.all():
             try:
-                request_list.append(request.request_to.all()[0].username)
+                if request.response is None:
+                    # TODO see if we can do this with a serializer instead
+                    request_dict = {
+                        "object_uuid": request.object_uuid,
+                        "from": request.request_from.all()[0].username,
+                        "date_sent": request.time_sent,
+                        "date_seen": request.time_seen,
+                        "seen": request.seen
+                    }
+                    request_list.append(request_dict)
+                else:
+                    continue
             except IndexError:
                 continue
         return request_list
 
+    def get_friend_requests_sent(self):
+        try:
+            request_list = []
+            for request in self.friend_requests_sent.all():
+                try:
+                    request_list.append(request.request_to.all()[0].username)
+                except IndexError:
+                    continue
+        except(CypherException, IOError) as e:
+            raise e
+        return request_list
+
     def determine_reps(self):
         pass
+
+    def get_notifications(self):
+        try:
+            notification_list = []
+            for notification in self.notifications.all():
+                try:
+                    # TODO see if we can do this with a serializer instead
+                    notification_dict = {
+                            "object_uuid": notification.object_uuid,
+                            "from": notification.notification_from.all()[0],
+                            "date_sent": notification.time_sent,
+                            "date_seen": notification.time_seen,
+                            "seen": notification.seen,
+                            "about": notification.about,
+                            "about_id": notification.about_id,
+                        }
+                    notification_list.append(notification_dict)
+                except IndexError:
+                    continue
+        except(CypherException, IOError) as e:
+            raise e
+        return notification_list
 
 
 class Address(StructuredNode):

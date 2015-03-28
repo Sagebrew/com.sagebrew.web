@@ -29,7 +29,6 @@ class FriendRequest(StructuredNode):
     time_seen = DateTimeProperty(default=None)
     response = StringProperty(default=None)
 
-
     # relationships
     request_from = RelationshipTo('plebs.neo_models.Pleb', 'REQUEST_FROM')
     request_to = RelationshipTo('plebs.neo_models.Pleb', 'REQUEST_TO')

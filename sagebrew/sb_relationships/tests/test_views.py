@@ -31,9 +31,8 @@ class TestCreateFriendRequestView(TestCase):
 
     def test_create_friend_request_view_success(self):
         data = {
-            'from_pleb': self.user.email,
-            'to_pleb': self.user2.email,
-            'object_uuid': ''
+            'from_username': self.user.username,
+            'to_username': self.user2.username,
         }
         request = self.factory.post('/relationships/create_friend_request',
                                     data=data, format='json')
@@ -48,8 +47,8 @@ class TestCreateFriendRequestView(TestCase):
 
     def test_create_friend_request_view_invalid_form(self):
         data = {
-            'from_pleb': self.user.email,
-            'totallyincorrectform': self.user2.email,
+            'from_username': self.user.username,
+            'totallyincorrectform': self.user2.username,
             'object_uuid': ''
         }
         request = self.factory.post('/relationships/create_friend_request',
@@ -245,7 +244,7 @@ class TestRespondFriendRequestView(TestCase):
         friend_request.request_to.connect(pleb2)
         friend_request.request_from.connect(pleb)
         pleb.friend_requests_sent.connect(friend_request)
-        pleb2.friend_requests_recieved.connect(friend_request)
+        pleb2.friend_requests_received.connect(friend_request)
 
         request = self.factory.post('/relationships/respond_friend_request/',
                                     data=data, format='json')
@@ -268,7 +267,7 @@ class TestRespondFriendRequestView(TestCase):
         friend_request.request_to.connect(pleb2)
         friend_request.request_from.connect(pleb)
         pleb.friend_requests_sent.connect(friend_request)
-        pleb2.friend_requests_recieved.connect(friend_request)
+        pleb2.friend_requests_received.connect(friend_request)
 
         request = self.factory.post('/relationships/respond_friend_request/',
                                     data=data, format='json')
@@ -291,7 +290,7 @@ class TestRespondFriendRequestView(TestCase):
         friend_request.request_to.connect(pleb2)
         friend_request.request_from.connect(pleb)
         pleb.friend_requests_sent.connect(friend_request)
-        pleb2.friend_requests_recieved.connect(friend_request)
+        pleb2.friend_requests_received.connect(friend_request)
 
         request = self.factory.post('/relationships/respond_friend_request/',
                                     data=data, format='json')

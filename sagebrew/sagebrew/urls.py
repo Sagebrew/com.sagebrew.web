@@ -9,6 +9,8 @@ from plebs.views import ListBetaUsers, RetrieveBetaUsers, invite_beta_user
 
 from sb_registration.views import (login_view, logout_view, signup_view,
                                    beta_page)
+from plebs.views import (get_friend_requests, create_friend_request,
+                         respond_friend_request)
 
 
 urlpatterns = patterns(
@@ -53,7 +55,12 @@ urlpatterns = patterns(
     (r'^comments/', include('sb_comments.urls')),
     (r'^posts/', include('sb_posts.urls')),
     (r'^notifications/', include('sb_notifications.urls')),
-    (r'^relationships/', include('sb_relationships.urls')),
+    url(r'^relationships/query_friend_requests/$', get_friend_requests,
+        name="get_friend_requests"),
+    url(r'^relationships/create_friend_request/$', create_friend_request,
+        name="create_friend_request"),
+    url(r'^relationships/respond_friend_request/$', respond_friend_request,
+        name="respond_friend_request")
     (r'^user/', include('plebs.urls')),
     (r'^conversations/', include('sb_questions.urls')),
     (r'^solutions/', include('sb_solutions.urls')),

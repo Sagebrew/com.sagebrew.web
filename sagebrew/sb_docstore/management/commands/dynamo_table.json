@@ -91,10 +91,6 @@
         "range_key": "object_uuid"
     },
     {
-        "table_name": "images",
-        "hash_key": "object_uuid"
-    },
-    {
         "table_name": "reputation",
         "hash_key": "parent_object"
     },
@@ -112,9 +108,5 @@
         "table_name": "restrictions",
         "hash_key": "parent_object",
         "range_key": "restriction"
-    },
-    {
-        "table_name": "view_counts",
-        "hash_key": "parent_object"
     }
 ]

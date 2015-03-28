@@ -36,9 +36,7 @@ dependencies:
     - sudo supervisorctl reread
     - sudo supervisorctl reload:
         background: true
-    - sudo supervisorctl restart all:
-        background: true
-    - sleep 10
+    - sleep 5
     - python ~/com.sagebrew.web/sagebrew/manage.py create_dynamo_tables
     - python /home/ubuntu/$CIRCLE_PROJECT_REPONAME/sagebrew/manage.py collectstatic --noinput
     - python ~/com.sagebrew.web/sagebrew/manage.py runserver 127.0.0.1:8080:

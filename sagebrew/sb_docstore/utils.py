@@ -15,7 +15,7 @@ from neomodel import DoesNotExist, CypherException
 from rest_framework.reverse import reverse
 
 from api.utils import request_to_api
-from plebs.neo_models import Pleb
+
 from sb_base.decorators import apply_defense
 from sb_questions.neo_models import SBQuestion
 from sb_public_official.neo_models import BaseOfficial
@@ -499,7 +499,7 @@ def get_wall_docs(page_user, username):
     return post_list
 
 
-def build_wall_docs(username):
+def build_wall_docs(pleb_obj):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
@@ -509,10 +509,6 @@ def build_wall_docs(username):
         comment_table = Table(table_name=get_table_name('comments'),
                               connection=conn)
     except JSONResponseError as e:
-        return e
-    try:
-        pleb_obj = Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
         return e
     try:
         posts = pleb_obj.wall.all()[0].post.all()
@@ -706,14 +702,11 @@ def get_action(username, action):
     return dict(action_object)
 
 @apply_defense
-def build_privileges(username):
+def build_privileges(pleb):
     conn = connect_to_dynamo()
+    username = pleb.username
     if isinstance(conn, Exception):
         return conn
-    try:
-        pleb = Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
-        return e
     try:
         action_table = Table(table_name=get_table_name('actions'),
                              connection=conn)

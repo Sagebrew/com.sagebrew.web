@@ -37,18 +37,6 @@ class UserWeightRelationship(StructuredRel):
     weight = IntegerProperty(default=settings.USER_RELATIONSHIP_BASE['seen'])
 
 
-class FriendRequest(StructuredNode):
-    object_uuid = StringProperty(unique_index=True)
-    seen = BooleanProperty(default=False)
-    time_sent = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
-    time_seen = DateTimeProperty(default=None)
-    response = StringProperty(default=None)
-
-    # relationships
-    request_from = RelationshipTo('plebs.neo_models.Pleb', 'REQUEST_FROM')
-    request_to = RelationshipTo('plebs.neo_models.Pleb', 'REQUEST_TO')
-
-
 class TagRelationship(StructuredRel):
     total = IntegerProperty(default=0)
     rep_gained = IntegerProperty(default=0)
@@ -143,9 +131,9 @@ class Pleb(StructuredNode):
     notifications = RelationshipTo(
         'sb_notifications.neo_models.NotificationBase', 'RECEIVED_A')
     friend_requests_sent = RelationshipTo(
-        FriendRequest, 'SENT_A_REQUEST')
+        "plebs.neo_models.FriendRequest", 'SENT_A_REQUEST')
     friend_requests_received = RelationshipTo(
-        FriendRequest, 'RECEIVED_A_REQUEST')
+        "plebs.neo_models.FriendRequest", 'RECEIVED_A_REQUEST')
     user_weight = RelationshipTo('Pleb', 'WEIGHTED_USER',
                                  model=UserWeightRelationship)
     object_weight = RelationshipTo(
@@ -395,10 +383,22 @@ class Address(StructuredNode):
     address = RelationshipTo("Pleb", 'LIVES_IN')
 
 
+class FriendRequest(StructuredNode):
+    object_uuid = StringProperty(unique_index=True)
+    seen = BooleanProperty(default=False)
+    time_sent = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    time_seen = DateTimeProperty(default=None)
+    response = StringProperty(default=None)
+
+    # relationships
+    request_from = RelationshipTo('plebs.neo_models.Pleb', 'REQUEST_FROM')
+    request_to = RelationshipTo('plebs.neo_models.Pleb', 'REQUEST_TO')
+
+
 class OauthUser(StructuredNode):
     object_uuid = StringProperty(default=lambda: str(uuid1()))
     web_address = StringProperty(
-        default=lambda: settings.WEB_ADDRESS+'/o/token/')
+        default=lambda: settings.WEB_ADDRESS + '/o/token/')
     access_token = StringProperty()
     expires_in = IntegerProperty()
     refresh_token = StringProperty()

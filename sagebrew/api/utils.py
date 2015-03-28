@@ -87,9 +87,10 @@ def refresh_oauth_access_token(refresh_token, url, client_id=None,
     return response.json()
 
 
-def check_oauth_expires_in(oauth_client):
+def check_oauth_needs_refresh(oauth_client):
     elapsed = datetime.now(pytz.utc) - oauth_client.last_modified
-    if elapsed.total_seconds() >= 37800:
+    expiration = oauth_client.expires_in - 600
+    if elapsed.total_seconds() >= expiration:
         return True
     return False
 
@@ -106,7 +107,7 @@ def get_oauth_access_token(username, web_address=None):
                        if oauth_user.web_address == web_address][0]
     except IndexError as e:
         return e
-    if check_oauth_expires_in(oauth_creds):
+    if check_oauth_needs_refresh(oauth_creds) is True:
         refresh_token = decrypt(oauth_creds.refresh_token)
         updated_creds = refresh_oauth_access_token(refresh_token,
                                           oauth_creds.web_address)

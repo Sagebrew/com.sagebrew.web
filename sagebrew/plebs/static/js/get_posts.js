@@ -9,8 +9,7 @@ $( document ).ready(function() {
 			type: "POST",
 			url: "/posts/query_posts/",
 			data: JSON.stringify({
-               'current_user': $('#pleb_info').data('current_user_email'),
-               'email': $('#pleb_info').data('page_user_email'),
+               'page_user': $('#user_info').data('page_user_username'),
 			   'range_start': 0,
                'range_end':10
 			}),

@@ -13,8 +13,8 @@ $( document ).ready(function() {
 			url: "/posts/submit_post/",
 			data: JSON.stringify({
 			   'content': $('textarea#post_input_id').val(),
-               'current_pleb':$(this).data('current_pleb'),
-               'wall_pleb':$(this).data('wall_pleb')
+               'current_user':$(this).data('current_user'),
+               'page_user':$(this).data('page_user')
 			}),
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",

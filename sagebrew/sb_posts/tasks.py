@@ -11,7 +11,7 @@ logger = getLogger('loggly_logs')
 
 
 @shared_task()
-def save_post_task(content, current_pleb, wall_pleb, post_uuid, created):
+def save_post_task(content, current_user, page_user, post_uuid, created):
     """
     Saves the post with the content sent to the task
 
@@ -29,15 +29,15 @@ def save_post_task(content, current_pleb, wall_pleb, post_uuid, created):
         raise save_post_task.retry(exc=my_post, countdown=3, max_retries=None)
 
     relation_data = {'sb_object': my_post,
-                     'current_pleb': current_pleb,
-                     'wall_pleb': wall_pleb}
+                     'current_pleb': current_user,
+                     'wall_pleb': page_user}
     spawned = spawn_task(task_func=create_object_relations_task,
                          task_param=relation_data)
     if isinstance(spawned, Exception):
         raise save_post_task.retry(exc=spawned, countdown=3, max_retries=None)
     notification_data = {'sb_object': my_post,
-                         'from_pleb': current_pleb,
-                         'to_plebs': [wall_pleb,]}
+                         'from_pleb': current_user,
+                         'to_plebs': [page_user,]}
     spawned = spawn_task(task_func=spawn_notifications,
                          task_param=notification_data)
     if isinstance(spawned, Exception):

@@ -69,19 +69,11 @@ def profile_page(request, pleb_username=""):
     if page_user_pleb.username in citizen.get_friend_requests_sent():
         friend_request_sent = True
 
-
-    # TODO deal with address and senator/rep in a util + task
-    # TODO Create a cypher query to get addresses to replace traverse
-    #address = citizen.traverse('address').run()[0]
-    #sen_array = determine_senators(address)
-    #rep_array = determine_reps(address)
-
     return render(request, 'sb_plebs_base/profile_page.html', {
-        'pleb_info': citizen,
+        'user_profile': citizen,
+        'page_profile': page_user_pleb,
         'current_user': current_user,
         'page_user': page_user,
-        #'senator_names': sen_array,
-        #'rep_name': rep_array,
         'is_owner': is_owner,
         'is_friend': is_friend,
         'friends_list': friends_list,

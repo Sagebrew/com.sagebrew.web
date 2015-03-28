@@ -6,7 +6,7 @@ from sb_base.decorators import apply_defense
 
 
 @apply_defense
-def get_pleb_posts(username, range_end, range_start=0):
+def get_page_user_posts(username, range_end, range_start=0):
     '''
     Gets all the posts which are attached to the page users wall as well as the
     comments associated with the posts

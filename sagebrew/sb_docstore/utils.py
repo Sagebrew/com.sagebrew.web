@@ -17,7 +17,6 @@ from rest_framework.reverse import reverse
 from api.utils import request_to_api
 
 from sb_base.decorators import apply_defense
-from sb_questions.neo_models import SBQuestion
 from sb_public_official.neo_models import BaseOfficial
 from sb_public_official.utils import get_rep_type
 
@@ -349,7 +348,7 @@ def get_question_doc(question_uuid, question_table, solution_table, user=""):
 
 
 @apply_defense
-def build_question_page(question_uuid, question_table, solution_table):
+def build_question_page(question, question_table, solution_table):
     '''
     This function will build a question page in the docstore,
     it will take the question table and solution table which will be:
@@ -366,10 +365,6 @@ def build_question_page(question_uuid, question_table, solution_table):
     :param solution_table:
     :return:
     '''
-    try:
-        question = SBQuestion.nodes.get(object_uuid=question_uuid)
-    except (SBQuestion.DoesNotExist, DoesNotExist) as e:
-        return e
     question_dict = question.get_single_dict()
     solution_dicts = question_dict.pop('solutions', None)
     add_object_to_table(table_name=get_table_name(question_table),

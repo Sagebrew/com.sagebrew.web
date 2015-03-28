@@ -43,11 +43,6 @@
         "type": "S"
     },
     {
-        "table_name": "notifications",
-        "hash_key": "parent_object",
-        "range_key": "created"
-    },
-    {
         "table_name": "location",
         "hash_key": "state",
         "range_key": "district"

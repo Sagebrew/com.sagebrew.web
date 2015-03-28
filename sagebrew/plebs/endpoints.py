@@ -1,5 +1,6 @@
 from logging import getLogger
 
+from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 
 from rest_framework.permissions import IsAuthenticated
@@ -178,7 +179,6 @@ class ProfileViewSet(viewsets.GenericViewSet):
             expand = 'true'
 
         for friend_request in friend_requests:
-            friend_request['from_username'] = friend_request['from']
             if expand == "false":
                 friend_request["from"] = reverse(
                     'profile-detail',
@@ -191,7 +191,15 @@ class ProfileViewSet(viewsets.GenericViewSet):
                 response = request_to_api(friend_url, request.user.username,
                                           req_method="GET")
                 friend_request["from"] = response.json()
-
+            if html == 'true':
+                full_from_user = request_to_api(
+                    friend_request['from']['base_user'], request.user.username,
+                    req_method='GET')
+                friend_request['full_from_user'] = full_from_user.json()
+        if html == 'true':
+            html = render_to_string('friend_request_wrapper.html',
+                                    {"requests": friend_requests})
+            return Response(html, status=status.HTTP_200_OK)
         return Response(friend_requests, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))

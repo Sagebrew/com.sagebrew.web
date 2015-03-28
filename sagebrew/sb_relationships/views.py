@@ -52,6 +52,7 @@ def create_friend_request(request):
         return Response({"action": True,
                          "friend_request_id": object_uuid}, status=200)
     else:
+        print request_form.errors
         return Response({'detail': 'invalid form'}, status=400)
 
 

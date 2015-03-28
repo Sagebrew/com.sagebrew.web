@@ -173,7 +173,12 @@ class ProfileViewSet(viewsets.GenericViewSet):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
+        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
+        if html == 'true':
+            expand = 'true'
+
         for friend_request in friend_requests:
+            friend_request['from_username'] = friend_request['from']
             if expand == "false":
                 friend_request["from"] = reverse(
                     'profile-detail',

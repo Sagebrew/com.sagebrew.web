@@ -11,8 +11,8 @@ $(document).ready(function () {
             type: "POST",
             url: "/relationships/create_friend_request/",
             data: JSON.stringify({
-                'from_user': $(this).data('from_user'),
-                'to_user': $(this).data('to_user')
+                'from_username': $(this).data('from_username'),
+                'to_username': $(this).data('to_username')
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",

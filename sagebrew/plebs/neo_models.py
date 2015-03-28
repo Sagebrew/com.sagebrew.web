@@ -10,7 +10,6 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       BooleanProperty, FloatProperty, ZeroOrOne,
                       CypherException, DoesNotExist)
 
-from sb_base.neo_models import RelationshipWeight
 from sb_search.neo_models import SearchCount
 from sb_tag.neo_models import SBTag
 
@@ -141,9 +140,9 @@ class Pleb(StructuredNode):
         'sb_relationships.neo_models.FriendRequest', 'RECEIVED_A_REQUEST')
     user_weight = RelationshipTo('Pleb', 'WEIGHTED_USER',
                                  model=UserWeightRelationship)
-    object_weight = RelationshipTo('sb_base.neo_models.SBContent',
-                                   'OBJECT_WEIGHT',
-                                   model=RelationshipWeight)
+    object_weight = RelationshipTo(
+        'sb_base.neo_models.SBContent', 'OBJECT_WEIGHT',
+        model='sb_base.neo_models.RelationshipWeight')
     searches = RelationshipTo('sb_search.neo_models.SearchQuery', 'SEARCHED',
                               model=SearchCount)
     clicked_results = RelationshipTo('sb_search.neo_models.SearchResult',

@@ -48,7 +48,7 @@ class SBVoteableContent(StructuredNode):
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'OWNED_BY',
                               model=PostedOnRel)
     votes = RelationshipFrom('plebs.neo_models.Pleb', 'PLEB_VOTES',
-                                model=VoteRelationship)
+                             model=VoteRelationship)
     # counsel_vote = RelationshipTo('sb_counsel.neo_models.SBCounselVote',
     #                              'VOTE')
     # views = RelationshipTo('sb_views.neo_models.SBView', 'VIEWS')

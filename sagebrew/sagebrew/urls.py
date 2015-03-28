@@ -60,7 +60,7 @@ urlpatterns = patterns(
     url(r'^relationships/create_friend_request/$', create_friend_request,
         name="create_friend_request"),
     url(r'^relationships/respond_friend_request/$', respond_friend_request,
-        name="respond_friend_request")
+        name="respond_friend_request"),
     (r'^user/', include('plebs.urls')),
     (r'^conversations/', include('sb_questions.urls')),
     (r'^solutions/', include('sb_solutions.urls')),

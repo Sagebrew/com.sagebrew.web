@@ -145,9 +145,9 @@ class Pleb(StructuredNode):
     notifications = RelationshipTo(
         'sb_notifications.neo_models.NotificationBase', 'RECEIVED_A')
     friend_requests_sent = RelationshipTo(
-        'sb_relationships.neo_models.FriendRequest', 'SENT_A_REQUEST')
+        FriendRequest, 'SENT_A_REQUEST')
     friend_requests_received = RelationshipTo(
-        'sb_relationships.neo_models.FriendRequest', 'RECEIVED_A_REQUEST')
+        FriendRequest, 'RECEIVED_A_REQUEST')
     user_weight = RelationshipTo('Pleb', 'WEIGHTED_USER',
                                  model=UserWeightRelationship)
     object_weight = RelationshipTo(

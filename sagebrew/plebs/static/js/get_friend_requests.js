@@ -1,21 +1,21 @@
 $(document).ready(function () {
-    $("a.friend-action").click(function (event) {
-        event.preventDefault();
-        $.ajaxSetup({
+    var username = $(".show_friend_request-action").data("username");
+    $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 ajax_security(xhr, settings)
             }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/api/friend_request/",
-            data: JSON.stringify({
-                'action': $(this).data('action'),
-                'friend_uid': $(this).data('friendid')
-            }),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json"
-        });
+    });
+    $.ajax({
+        xhrFields: {withCredentials: true},
+        type: "GET",
+        url: "/v1/profiles/"+username+"/friend_requests/?html=true",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (data) {
+            var container = $("#friend_requests");
+            container.empty();
+            container.append(data);
+            respond_friend_request();
+        }
     });
 });

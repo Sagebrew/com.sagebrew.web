@@ -10,8 +10,6 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       BooleanProperty, FloatProperty, ZeroOrOne,
                       CypherException, DoesNotExist)
 
-from sb_tag.neo_models import SBTag
-
 
 class RelationshipWeight(StructuredRel):
     weight = IntegerProperty(default=150)
@@ -223,6 +221,7 @@ class Pleb(StructuredNode):
         pass
 
     def update_tag_rep(self, base_tags, tags):
+        from sb_tag.neo_models import SBTag
         for item in tags:
             try:
                 tag = SBTag.nodes.get(tag_name=item)

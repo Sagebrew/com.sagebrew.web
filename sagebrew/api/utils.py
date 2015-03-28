@@ -7,7 +7,7 @@ import hashlib
 import shortuuid
 from uuid import uuid1
 from json import dumps
-from datetime import  datetime
+from datetime import datetime
 from django.core import signing
 from boto.sqs.message import Message
 from bomberman.client import Client, RateLimitExceeded
@@ -18,7 +18,7 @@ from django.conf import settings
 
 from sb_base.utils import defensive_exception
 from sb_base.decorators import apply_defense
-from plebs.neo_models import Pleb, OauthUser
+
 from api.alchemyapi import AlchemyAPI
 
 
@@ -95,13 +95,13 @@ def check_oauth_needs_refresh(oauth_client):
     return False
 
 
-def get_oauth_access_token(username, web_address=None):
+def get_oauth_access_token(pleb, web_address=None):
     # TODO need to be able to pass creds rather than the username. That way
     # someone can add their creds to the Restriction/Action/etc and use those
     # rather than our internal ones.
     if web_address is None:
         web_address = settings.WEB_ADDRESS + '/o/token/'
-    pleb = Pleb.nodes.get(username=username)
+
     try:
         oauth_creds = [oauth_user for oauth_user in pleb.oauth.all()
                        if oauth_user.web_address == web_address][0]
@@ -121,38 +121,27 @@ def get_oauth_access_token(username, web_address=None):
     return decrypt(oauth_creds.access_token)
 
 
-def generate_oauth_user(username, password, web_address=None):
+def generate_oauth_user(pleb, password, web_address=None):
     if web_address is None:
         web_address = settings.WEB_ADDRESS + '/o/token/'
-    try:
-        pleb = Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
-        return e
-    creds = get_oauth_client(username, password, web_address)
-    try:
-        oauth_obj = OauthUser(access_token=encrypt(creds['access_token']),
-                              token_type=creds['token_type'],
-                              expires_in=creds['expires_in'],
-                              refresh_token=encrypt(creds['refresh_token']))
-        oauth_obj.save()
-    except(CypherException, IOError) as e:
-        return e
-    try:
-        pleb.oauth.connect(oauth_obj)
-    except(CypherException, IOError) as e:
-        return e
-    return True
+    creds = get_oauth_client(pleb.username, password, web_address)
+
+    return creds
+
 
 def encrypt(data):
     return signing.dumps(data)
 
+
 def decrypt(data):
     return signing.loads(data)
+
 
 def generate_short_token():
     short_hash = hashlib.sha1(shortuuid.uuid())
     short_hash.update(settings.SECRET_KEY)
     return short_hash.hexdigest()[::2]
+
 
 def generate_long_token():
     long_hash = hashlib.sha1(shortuuid.uuid())

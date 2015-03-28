@@ -10,9 +10,18 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       BooleanProperty, FloatProperty, ZeroOrOne,
                       CypherException, DoesNotExist)
 
-from sb_base.neo_models import RelationshipWeight
-from sb_search.neo_models import SearchCount
 from sb_tag.neo_models import SBTag
+
+
+class RelationshipWeight(StructuredRel):
+    weight = IntegerProperty(default=150)
+    status = StringProperty(default='seen')
+    seen = BooleanProperty(default=True)
+
+
+class SearchCount(StructuredRel):
+    times_searched = IntegerProperty(default=1)
+    last_searched = DateTimeProperty(default=datetime.now(pytz.utc))
 
 
 class FriendRelationship(StructuredRel):

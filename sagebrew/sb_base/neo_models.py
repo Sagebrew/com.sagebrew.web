@@ -11,7 +11,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       RelationshipFrom, DoesNotExist)
 
 from sb_base.decorators import apply_defense
-
+from plebs.neo_models import RelationshipWeight
 
 class EditRelationshipModel(StructuredRel):
     time_edited = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
@@ -21,12 +21,6 @@ class PostedOnRel(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     rep_gained = IntegerProperty(default=0)
     rep_lost = IntegerProperty(default=0)
-
-
-class RelationshipWeight(StructuredRel):
-    weight = IntegerProperty(default=150)
-    status = StringProperty(default='seen')
-    seen = BooleanProperty(default=True)
 
 
 class VoteRelationship(StructuredRel):

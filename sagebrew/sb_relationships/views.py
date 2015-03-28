@@ -91,7 +91,6 @@ def get_friend_requests(request):
             requests.append(request_dict)
         html = render_to_string('friend_request_wrapper.html',
             {"requests": requests})
-        print html
         return Response(requests, status=200)
     else:
         return Response({"detail": "invalid form"}, status=400)

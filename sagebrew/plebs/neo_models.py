@@ -10,6 +10,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       BooleanProperty, FloatProperty, ZeroOrOne,
                       CypherException, DoesNotExist)
 
+from sb_base.neo_models import RelationshipWeight
 from sb_search.neo_models import SearchCount
 from sb_tag.neo_models import SBTag
 
@@ -127,7 +128,7 @@ class Pleb(StructuredNode):
                                model=PostObjectCreated)
     solutions = RelationshipTo('sb_solutions.neo_models.SBSolution',
                                'OWNS_ANSWER',
-                             model=PostObjectCreated)
+                               model=PostObjectCreated)
     comments = RelationshipTo('sb_comments.neo_models.SBComment',
                               'OWNS_COMMENT',
                               model=PostObjectCreated)
@@ -142,7 +143,7 @@ class Pleb(StructuredNode):
                                  model=UserWeightRelationship)
     object_weight = RelationshipTo(
         'sb_base.neo_models.SBContent', 'OBJECT_WEIGHT',
-        model='sb_base.neo_models.RelationshipWeight')
+        model=RelationshipWeight)
     searches = RelationshipTo('sb_search.neo_models.SearchQuery', 'SEARCHED',
                               model=SearchCount)
     clicked_results = RelationshipTo('sb_search.neo_models.SearchResult',

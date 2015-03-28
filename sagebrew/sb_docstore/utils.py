@@ -10,15 +10,11 @@ from boto.dynamodb2.exceptions import (JSONResponseError, ItemNotFound,
 
 from django.conf import settings
 
-from neomodel import DoesNotExist, CypherException
-
 from rest_framework.reverse import reverse
 
 from api.utils import request_to_api
 
 from sb_base.decorators import apply_defense
-from sb_public_official.neo_models import BaseOfficial
-from sb_public_official.utils import get_rep_type
 
 
 def get_table_name(name):
@@ -551,7 +547,7 @@ def get_user_updates(username, object_uuid, table_name):
 
 
 @apply_defense
-def build_rep_page(rep_id, rep_type=None):
+def build_rep_page(rep):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
@@ -564,17 +560,6 @@ def build_rep_page(rep_id, rep_type=None):
                                  connection=conn)
     except JSONResponseError as e:
         return e
-    if rep_type is None:
-        try:
-            rep = BaseOfficial.nodes.get(object_uuid=rep_id)
-        except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException) as e:
-            return e
-    else:
-        r_type = get_rep_type(dict(settings.BASE_REP_TYPES)[rep_type])
-        try:
-            rep = r_type.nodes.get(object_uuid=rep_id)
-        except (r_type.DoesNotExist, DoesNotExist, CypherException) as e:
-            return e
     policies = rep.policy.all()
     experiences = rep.experience.all()
     try:

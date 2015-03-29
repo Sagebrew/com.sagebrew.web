@@ -66,6 +66,40 @@ class OfficialRelationship(StructuredRel):
     end_date = DateTimeProperty()
 
 
+class OauthUser(StructuredNode):
+    object_uuid = StringProperty(default=lambda: str(uuid1()))
+    web_address = StringProperty(
+        default=lambda: settings.WEB_ADDRESS + '/o/token/')
+    access_token = StringProperty()
+    expires_in = IntegerProperty()
+    refresh_token = StringProperty()
+    last_modified = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    token_type = StringProperty(default="Bearer")
+
+
+class BetaUser(StructuredNode):
+    email = StringProperty(unique_index=True)
+    invited = BooleanProperty(default=False)
+    signup_date = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+
+    def invite(self):
+        from sb_registration.utils import sb_send_email
+        if self.invited is True:
+            return True
+        self.invited = True
+        self.save()
+        template_dict = {
+            "signup_url": "%s%s%s"%(settings.WEB_ADDRESS, "/signup/?user=",
+                                    self.email)
+        }
+        html_content = get_template(
+            'email_templates/email_beta_invite.html').render(
+            Context(template_dict))
+        sb_send_email("support@sagebrew.com", self.email, "Sagebrew Beta",
+                      html_content)
+        return True
+
+
 class Pleb(StructuredNode):
     search_modifiers = {
         'post': 10, 'comment_on': 5, 'upvote': 3, 'downvote': -3,
@@ -402,40 +436,4 @@ class FriendRequest(StructuredNode):
     # relationships
     request_from = RelationshipTo('plebs.neo_models.Pleb', 'REQUEST_FROM')
     request_to = RelationshipTo('plebs.neo_models.Pleb', 'REQUEST_TO')
-
-
-class OauthUser(StructuredNode):
-    object_uuid = StringProperty(default=lambda: str(uuid1()))
-    web_address = StringProperty(
-        default=lambda: settings.WEB_ADDRESS + '/o/token/')
-    access_token = StringProperty()
-    expires_in = IntegerProperty()
-    refresh_token = StringProperty()
-    last_modified = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
-    token_type = StringProperty(default="Bearer")
-    last_modified = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
-
-
-
-class BetaUser(StructuredNode):
-    email = StringProperty(unique_index=True)
-    invited = BooleanProperty(default=False)
-    signup_date = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
-
-    def invite(self):
-        from sb_registration.utils import sb_send_email
-        if self.invited is True:
-            return True
-        self.invited = True
-        self.save()
-        template_dict = {
-            "signup_url": "%s%s%s"%(settings.WEB_ADDRESS, "/signup/?user=",
-                                    self.email)
-        }
-        html_content = get_template(
-            'email_templates/email_beta_invite.html').render(
-            Context(template_dict))
-        sb_send_email("support@sagebrew.com", self.email, "Sagebrew Beta",
-                      html_content)
-        return True
 

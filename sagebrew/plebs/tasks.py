@@ -13,11 +13,12 @@ from api.tasks import add_object_to_search_index, generate_oauth_info
 from sb_base.utils import defensive_exception
 from sb_search.tasks import add_user_to_custom_index
 from sb_wall.neo_models import SBWall
-from sb_docstore.tasks import add_object_to_table_task
+
 from sb_registration.models import token_gen
 from sb_privileges.tasks import check_privileges
 
 from .neo_models import Pleb, BetaUser
+from .utils import create_friend_request_util
 
 
 @shared_task()
@@ -212,3 +213,11 @@ def deactivate_user_task(username):
     except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
         raise deactivate_user_task.retry(exc=e, countdown=3, max_retries=None)
 
+
+@shared_task()
+def create_friend_request_task(from_username, to_username, object_uuid):
+    res = create_friend_request_util(from_username, to_username, object_uuid)
+    if isinstance(res, Exception):
+        return create_friend_request_task.retry(exc=res, countdown=3,
+                                                max_retries=None)
+    return res

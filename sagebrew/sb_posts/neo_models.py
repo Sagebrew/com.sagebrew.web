@@ -8,7 +8,6 @@ from sb_base.neo_models import SBNonVersioned
 from sb_base.decorators import apply_defense
 
 
-
 class SBPost(SBNonVersioned):
     sb_name = "post"
     table = 'posts'
@@ -16,6 +15,7 @@ class SBPost(SBNonVersioned):
     object_type = "01bb301a-644f-11e4-9ad9-080027242395"
     # relationships
     posted_on_wall = RelationshipTo('sb_wall.neo_models.SBWall', 'POSTED_ON')
+
     #TODO Implement referenced_by_... relationships
     #TODO Implement ..._referenced relationships
 
@@ -55,7 +55,7 @@ class SBPost(SBNonVersioned):
         }
 
     @apply_defense
-    def get_single_dict(self, pleb=None):
+    def get_single_dict(self):
         from sb_comments.neo_models import SBComment
         try:
             comment_array = []
@@ -68,42 +68,48 @@ class SBPost(SBNonVersioned):
             post_comments = [SBComment.inflate(row[0]) for row in post_comments]
             try:
                 post_owner = self.owned_by.all()[0]
-                post_owner_name = post_owner.first_name + ' ' + \
-                                  post_owner.last_name
-                post_owner_email = post_owner.email
-            except IndexError:
-                post_owner_name = ""
-                post_owner_email = ""
+            except IndexError as e:
+                return e
 
             self.view_count += 1
             self.save()
+            for comment in post_comments:
+                comment_array.append(comment.get_single_dict())
             try:
                 parent_object = self.posted_on_wall.all()[
-                    0].owner.all()[0].username
-            except IndexError:
-                parent_object = ""
-            for comment in post_comments:
-                comment_array.append(comment.get_single_dict(pleb))
-            return {'content': self.content, 'object_uuid': self.object_uuid,
-                    'parent_object': parent_object,
-                    'vote_count': self.get_vote_count(),
-                    'upvotes': self.get_upvote_count(),
-                    'downvotes': self.get_downvote_count(),
-                    'last_edited_on': unicode(self.last_edited_on),
-                    'post_owner': post_owner_name,
-                    'post_owner_email': post_owner_email,
-                    'comments': comment_array,
-                    'current_user': pleb,
-                    'created': unicode(self.created),
-                    'object_type': self.object_type,
-                    'view_count': self.get_view_count()}
+                                    0].owner.all()[0].username
+                print parent_object
+            except(CypherException, IOError, IndexError) as e:
+                return e
+            return {
+                'content': self.content, 'object_uuid': self.object_uuid,
+                'vote_count': self.get_vote_count(),
+                'upvotes': self.get_upvote_count(),
+                'downvotes': self.get_downvote_count(),
+                'last_edited_on': unicode(self.last_edited_on),
+                'post_owner_full_name': "%s %s" % (post_owner.first_name,
+                                                   post_owner.last_name),
+                'post_owner_username': post_owner.username,
+                "profile_pic": post_owner.profile_pic,
+                'comments': comment_array,
+                'created': unicode(self.created),
+                # Username of the owner of the wall the object is post on
+                'parent_object': parent_object,
+                'object_type': self.object_type,
+            }
         except CypherException as e:
             return e
 
     @apply_defense
-    def render_post_wall_html(self, pleb):
+    def render_post_wall_html(self, user):
         try:
-            return render_to_string('post.html',
-                                    self.get_single_dict(pleb))
-        except CypherException as e:
+            try:
+                owner = self.owner.all()[0]
+            except IndexError as e:
+                return e
+            post_dict = self.get_single_dict(owner)
+            post_dict["user"] = {"username": user.username}
+            return render_to_string('post.html', post_dict)
+
+        except(CypherException, IOError) as e:
             return e

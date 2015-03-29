@@ -1,4 +1,3 @@
-import os
 import time
 from json import loads
 from django.core.management.base import BaseCommand

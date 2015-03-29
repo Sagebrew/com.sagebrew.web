@@ -10,16 +10,11 @@ from boto.dynamodb2.exceptions import (JSONResponseError, ItemNotFound,
 
 from django.conf import settings
 
-from neomodel import DoesNotExist, CypherException
-
 from rest_framework.reverse import reverse
 
 from api.utils import request_to_api
-from plebs.neo_models import Pleb
+
 from sb_base.decorators import apply_defense
-from sb_questions.neo_models import SBQuestion
-from sb_public_official.neo_models import BaseOfficial
-from sb_public_official.utils import get_rep_type
 
 
 def get_table_name(name):
@@ -349,7 +344,7 @@ def get_question_doc(question_uuid, question_table, solution_table, user=""):
 
 
 @apply_defense
-def build_question_page(question_uuid, question_table, solution_table):
+def build_question_page(question, question_table, solution_table):
     '''
     This function will build a question page in the docstore,
     it will take the question table and solution table which will be:
@@ -366,10 +361,6 @@ def build_question_page(question_uuid, question_table, solution_table):
     :param solution_table:
     :return:
     '''
-    try:
-        question = SBQuestion.nodes.get(object_uuid=question_uuid)
-    except (SBQuestion.DoesNotExist, DoesNotExist) as e:
-        return e
     question_dict = question.get_single_dict()
     solution_dicts = question_dict.pop('solutions', None)
     add_object_to_table(table_name=get_table_name(question_table),
@@ -424,7 +415,7 @@ def get_vote_count(object_uuid, vote_type):
 
 
 @apply_defense
-def get_wall_docs(current_user, username):
+def get_wall_docs(page_user, username):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
@@ -437,7 +428,7 @@ def get_wall_docs(current_user, username):
     except JSONResponseError as e:
         return e
     posts = posts_table.query_2(
-        parent_object__eq=current_user,
+        parent_object__eq=page_user,
         created__gte='0',
         reverse=True
     )
@@ -480,19 +471,16 @@ def get_wall_docs(current_user, username):
     return post_list
 
 
-def build_wall_docs(username):
+def build_wall_docs(pleb_obj):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
     try:
-        post_table = Table(table_name=get_table_name('posts'), connection=conn)
+        post_table = Table(table_name=get_table_name('posts'),
+                           connection=conn)
         comment_table = Table(table_name=get_table_name('comments'),
                               connection=conn)
     except JSONResponseError as e:
-        return e
-    try:
-        pleb_obj = Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
         return e
     try:
         posts = pleb_obj.wall.all()[0].post.all()
@@ -540,7 +528,7 @@ def get_user_updates(username, object_uuid, table_name):
 
 
 @apply_defense
-def build_rep_page(rep_id, rep_type=None):
+def build_rep_page(rep):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
         return conn
@@ -553,17 +541,6 @@ def build_rep_page(rep_id, rep_type=None):
                                  connection=conn)
     except JSONResponseError as e:
         return e
-    if rep_type is None:
-        try:
-            rep = BaseOfficial.nodes.get(object_uuid=rep_id)
-        except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException) as e:
-            return e
-    else:
-        r_type = get_rep_type(dict(settings.BASE_REP_TYPES)[rep_type])
-        try:
-            rep = r_type.nodes.get(object_uuid=rep_id)
-        except (r_type.DoesNotExist, DoesNotExist, CypherException) as e:
-            return e
     policies = rep.policy.all()
     experiences = rep.experience.all()
     try:
@@ -686,14 +663,11 @@ def get_action(username, action):
     return dict(action_object)
 
 @apply_defense
-def build_privileges(username):
+def build_privileges(pleb):
     conn = connect_to_dynamo()
+    username = pleb.username
     if isinstance(conn, Exception):
         return conn
-    try:
-        pleb = Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
-        return e
     try:
         action_table = Table(table_name=get_table_name('actions'),
                              connection=conn)

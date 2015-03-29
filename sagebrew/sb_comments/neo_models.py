@@ -24,16 +24,6 @@ class SBComment(SBNonVersioned):
     downvotes = IntegerProperty(default=0)
     view_count = IntegerProperty(default=0)
 
-    # relationships
-    is_owned_by = RelationshipTo('plebs.neo_models.Pleb', 'OWNED_BY',
-                                 model=CommentedOnRel)
-    shared_by = RelationshipTo('plebs.neo_models.Pleb', 'SHARED_BY',
-                               model=CommentedOnRel)
-    shared_with = RelationshipTo('plebs.neo_models.Pleb', 'SHARED_WITH',
-                                 model=CommentedOnRel)
-    # TODO Implement the user_referenced, post_referenced, etc. relationships
-    # TODO Implement referenced_by_users, referenced_by_post, etc. relationships
-
     def get_url(self):
         try:
             return reverse("question_detail_page",
@@ -54,28 +44,33 @@ class SBComment(SBNonVersioned):
         pass
 
     @apply_defense
-    def get_single_dict(self, pleb=None):
+    def get_single_dict(self):
         try:
             try:
-                comment_owner = self.is_owned_by.all()[0]
+                comment_owner = self.owned_by.all()[0]
             except IndexError:
                 comment_owner = ""
-            comment_dict = {'content': self.content,
-                            'upvotes': self.get_upvote_count(),
-                            'vote_count': self.get_vote_count(),
-                            'object_uuid': self.object_uuid,
-                            'downvotes':
-                                self.get_downvote_count(),
-                            'last_edited_on':
-                                str(self.last_edited_on),
-                            'owner_full_name': "%s %s" % (
+            comment_dict = {
+                'content': self.content,
+                'upvotes': self.get_upvote_count(),
+                'vote_count': self.get_vote_count(),
+                'object_uuid': self.object_uuid,
+                'downvotes':
+                    self.get_downvote_count(),
+                'last_edited_on':
+                    str(self.last_edited_on),
+                'comment_owner': comment_owner.first_name + ' '
+                                 + comment_owner.last_name,
+                'comment_owner_email': comment_owner.email,
+                'owner_username': comment_owner.username,
+                'owner_full_name': "%s %s" % (
                                 comment_owner.first_name,
                                 comment_owner.last_name),
-                            'owner': comment_owner.username,
-                            'current_user': pleb,
-                            'created': unicode(self.created),
-                            'edits': [],
-                            'object_type': self.object_type}
+                'owner': comment_owner.username,
+                'created': unicode(self.created),
+                'edits': [],
+                'object_type': self.object_type
+            }
             self.view_count += 1
             self.save()
             return comment_dict

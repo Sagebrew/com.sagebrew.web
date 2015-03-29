@@ -14,11 +14,6 @@ class KeyWordRel(StructuredRel):
     relevance = FloatProperty(default=0)
 
 
-class SearchCount(StructuredRel):
-    times_searched = IntegerProperty(default=1)
-    last_searched = DateTimeProperty(default=datetime.now(pytz.utc))
-
-
 class SearchResult(StructuredNode):
     result_id = StringProperty(unique_index=True)
     object_type = StringProperty()

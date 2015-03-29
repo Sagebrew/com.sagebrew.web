@@ -10,11 +10,31 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       BooleanProperty, FloatProperty, ZeroOrOne,
                       CypherException, DoesNotExist)
 
-from sb_relationships.neo_models import (FriendRelationship,
-                                         UserWeightRelationship)
-from sb_base.neo_models import RelationshipWeight
-from sb_search.neo_models import SearchCount
-from sb_tag.neo_models import SBTag
+
+class RelationshipWeight(StructuredRel):
+    weight = IntegerProperty(default=150)
+    status = StringProperty(default='seen')
+    seen = BooleanProperty(default=True)
+
+
+class SearchCount(StructuredRel):
+    times_searched = IntegerProperty(default=1)
+    last_searched = DateTimeProperty(default=datetime.now(pytz.utc))
+
+
+class FriendRelationship(StructuredRel):
+    since = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    friend_type = StringProperty(default="friends")
+    currently_friends = BooleanProperty(default=True)
+    time_unfriended = DateTimeProperty(default=None)
+    who_unfriended = StringProperty()
+    # who_unfriended = RelationshipTo("Pleb", "")
+
+
+class UserWeightRelationship(StructuredRel):
+    interaction = StringProperty(default='seen')
+    page_view_count = IntegerProperty(default=0)
+    weight = IntegerProperty(default=settings.USER_RELATIONSHIP_BASE['seen'])
 
 
 class TagRelationship(StructuredRel):
@@ -44,7 +64,6 @@ class OfficialRelationship(StructuredRel):
     active = BooleanProperty(default=False)
     start_date = DateTimeProperty()
     end_date = DateTimeProperty()
-
 
 
 class Pleb(StructuredNode):
@@ -104,7 +123,7 @@ class Pleb(StructuredNode):
                                model=PostObjectCreated)
     solutions = RelationshipTo('sb_solutions.neo_models.SBSolution',
                                'OWNS_ANSWER',
-                             model=PostObjectCreated)
+                               model=PostObjectCreated)
     comments = RelationshipTo('sb_comments.neo_models.SBComment',
                               'OWNS_COMMENT',
                               model=PostObjectCreated)
@@ -112,14 +131,14 @@ class Pleb(StructuredNode):
     notifications = RelationshipTo(
         'sb_notifications.neo_models.NotificationBase', 'RECEIVED_A')
     friend_requests_sent = RelationshipTo(
-        'sb_relationships.neo_models.FriendRequest', 'SENT_A_REQUEST')
+        "plebs.neo_models.FriendRequest", 'SENT_A_REQUEST')
     friend_requests_received = RelationshipTo(
-        'sb_relationships.neo_models.FriendRequest', 'RECEIVED_A_REQUEST')
+        "plebs.neo_models.FriendRequest", 'RECEIVED_A_REQUEST')
     user_weight = RelationshipTo('Pleb', 'WEIGHTED_USER',
                                  model=UserWeightRelationship)
-    object_weight = RelationshipTo('sb_base.neo_models.SBContent',
-                                   'OBJECT_WEIGHT',
-                                   model=RelationshipWeight)
+    object_weight = RelationshipTo(
+        'sb_base.neo_models.SBContent', 'OBJECT_WEIGHT',
+        model=RelationshipWeight)
     searches = RelationshipTo('sb_search.neo_models.SearchQuery', 'SEARCHED',
                               model=SearchCount)
     clicked_results = RelationshipTo('sb_search.neo_models.SearchResult',
@@ -190,6 +209,7 @@ class Pleb(StructuredNode):
         pass
 
     def update_tag_rep(self, base_tags, tags):
+        from sb_tag.neo_models import SBTag
         for item in tags:
             try:
                 tag = SBTag.nodes.get(tag_name=item)
@@ -372,15 +392,29 @@ class Address(StructuredNode):
     address = RelationshipTo("Pleb", 'LIVES_IN')
 
 
+class FriendRequest(StructuredNode):
+    object_uuid = StringProperty(unique_index=True)
+    seen = BooleanProperty(default=False)
+    time_sent = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    time_seen = DateTimeProperty(default=None)
+    response = StringProperty(default=None)
+
+    # relationships
+    request_from = RelationshipTo('plebs.neo_models.Pleb', 'REQUEST_FROM')
+    request_to = RelationshipTo('plebs.neo_models.Pleb', 'REQUEST_TO')
+
+
 class OauthUser(StructuredNode):
     object_uuid = StringProperty(default=lambda: str(uuid1()))
     web_address = StringProperty(
-        default=lambda: settings.WEB_ADDRESS+'/o/token/')
+        default=lambda: settings.WEB_ADDRESS + '/o/token/')
     access_token = StringProperty()
     expires_in = IntegerProperty()
     refresh_token = StringProperty()
+    last_modified = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     token_type = StringProperty(default="Bearer")
     last_modified = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+
 
 
 class BetaUser(StructuredNode):

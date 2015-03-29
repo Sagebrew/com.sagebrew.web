@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from django.template.loader import render_to_string
+
 from neomodel import CypherException, DoesNotExist
 from rest_framework.reverse import reverse
 
@@ -73,3 +75,6 @@ def convert_dynamo_solutions(raw_solutions, request):
         solution_list.append(solution)
     return solution_list
 
+
+def render_solutions(solution_dict):
+    return render_to_string('solutions.html', solution_dict)

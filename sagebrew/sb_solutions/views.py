@@ -30,7 +30,7 @@ def save_solution_view(request):
 
     :return:
     '''
-    solution_data = request.DATA
+    solution_data = request.data
     if type(solution_data) != dict:
         return Response({'detail': 'Please provide a valid JSON object'},
                         status=400)
@@ -46,20 +46,18 @@ def save_solution_view(request):
                              task_param=solution_form.cleaned_data)
         if isinstance(spawned, Exception) is True:
             return Response({'detail': 'failed to post an solution'}, status=500)
-        solution_data = {
-            "solution": {
-                "object_uuid": solution_form.cleaned_data['solution_uuid'],
-                "upvotes": 0,
-                "downvotes": 0,
-                "vote_count": str(0),
-                "vote_type": None,
-                "content": solution_form.cleaned_data['content'],
-                "html_content": markdown.markdown(
-                    solution_form.cleaned_data['content']),
-                "solution_owner_url": request.user.username,
-                "parent_object": solution_form.cleaned_data['question_uuid'],
-                "owner": request.user.first_name + " " + request.user.last_name
-            }
+        solution_data['solution'] = {
+            "object_uuid": solution_form.cleaned_data['solution_uuid'],
+            "upvotes": 0,
+            "downvotes": 0,
+            "vote_count": str(0),
+            "vote_type": None,
+            "content": solution_form.cleaned_data['content'],
+            "html_content": markdown.markdown(
+                solution_form.cleaned_data['content']),
+            "solution_owner_url": request.user.username,
+            "parent_object": solution_form.cleaned_data['question_uuid'],
+            "owner": request.user.first_name + " " + request.user.last_name
         }
         html = render_to_string('solution_detail.html', solution_data)
         return Response({'detail': 'successfully posted an solution',

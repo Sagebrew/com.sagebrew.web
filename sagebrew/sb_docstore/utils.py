@@ -372,25 +372,6 @@ def build_question_page(question, question_table, solution_table):
     return True
 
 
-@apply_defense
-def get_vote(object_uuid, user):
-    conn = connect_to_dynamo()
-    if isinstance(conn, Exception):
-        return conn
-    try:
-        votes_table = Table(table_name=get_table_name('votes'),
-                            connection=conn)
-    except JSONResponseError as e:
-        return e
-    try:
-        vote = votes_table.get_item(
-            parent_object=object_uuid,
-            user=user
-        )
-        return vote
-    except (ItemNotFound, JSONResponseError, ValidationException):
-        return None
-
 
 @apply_defense
 def update_vote(object_uuid, user, vote_type, time):
@@ -738,3 +719,22 @@ def get_dynamo_table(table_name):
         return e
 
     return table
+
+@apply_defense
+def get_vote(object_uuid, user):
+    conn = connect_to_dynamo()
+    if isinstance(conn, Exception):
+        return conn
+    try:
+        votes_table = Table(table_name=get_table_name('votes'),
+                            connection=conn)
+    except JSONResponseError as e:
+        return e
+    try:
+        vote = votes_table.get_item(
+            parent_object=object_uuid,
+            user=user
+        )
+        return vote
+    except (ItemNotFound, JSONResponseError, ValidationException):
+        return None

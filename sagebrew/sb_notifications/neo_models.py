@@ -14,6 +14,8 @@ class NotificationBase(StructuredNode):
     about = StringProperty()
     about_id = StringProperty()
     sent = BooleanProperty(default=False)
+    url = StringProperty()
+    action = StringProperty()
 
     # relationships
     notification_from = RelationshipTo('plebs.neo_models.Pleb',

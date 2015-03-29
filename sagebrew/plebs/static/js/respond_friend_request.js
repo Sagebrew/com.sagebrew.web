@@ -1,5 +1,5 @@
-$(document).ready(function () {
-    $("a.friend-action").click(function (event) {
+$("#friend_request_div").on("mouseenter", "a", function () {
+    $(".respond_friend_request-action").click(function (event) {
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -9,10 +9,10 @@ $(document).ready(function () {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
-            url: "/api/friend_request/",
+            url: "/relationships/respond_friend_request/",
             data: JSON.stringify({
-                'action': $(this).data('action'),
-                'friend_uid': $(this).data('friendid')
+                'response': $(this).data('response'),
+                'request_id': $(this).data('request_id')
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json"

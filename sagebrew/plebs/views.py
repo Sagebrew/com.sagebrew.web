@@ -5,6 +5,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.http import HttpResponse
+from django.template.loader import render_to_string
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
@@ -78,6 +80,8 @@ def profile_page(request, pleb_username=""):
         'page_profile': page_user_pleb,
         'current_user': current_user,
         'page_user': page_user,
+        'house_reps': [],#reps['house_rep'],
+        'senators': [],#reps['senators'],
         'is_owner': is_owner,
         'is_friend': is_friend,
         'friends_list': friends_list,
@@ -418,6 +422,7 @@ def create_friend_request(request):
     # request button
     friend_request_data = request.DATA
     try:
+        request.DATA['from_pleb'] = request.user.username
         request_form = SubmitFriendRequestForm(friend_request_data)
         # TODO Think we're moving this kind of stuff out to the JS system
         # But until then needs to come after the form since it can cause
@@ -476,6 +481,8 @@ def get_friend_requests(request):
                 'from_email': request.user.email,
                 'request_id': request_id}
             requests.append(request_dict)
+        html = render_to_string('friend_request_wrapper.html',
+            {"requests": requests})
         return Response(requests, status=200)
     else:
         return Response({"detail": "invalid form"}, status=400)

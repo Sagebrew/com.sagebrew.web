@@ -45,10 +45,13 @@ class SBPost(SBNonVersioned):
 
     def create_notification(self, pleb, sb_object=None):
         return {
-            "profile_pic": pleb.profile_pic,
-            "full_name": pleb.get_full_name(),
             "action": self.action,
-            "url": self.get_url()
+            "url": self.get_url(),
+            "from": {
+                "profile_pic": pleb.profile_pic,
+                "full_name": pleb.get_full_name(),
+                "username": pleb.username
+            }
         }
 
     @apply_defense

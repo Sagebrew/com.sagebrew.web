@@ -60,10 +60,12 @@ def save_comment_view(request):
                 "downvotes": 0,
                 "vote_count": str(0),
                 "created": datetime.now(pytz.utc),
-                "comment_owner": "%s %s" % (request.user.first_name,
-                                            request.user.last_name),
                 "last_edited_on": datetime.now(pytz.utc),
-                "owner_username": request.user.username
+                "owner": {
+                    "username": request.user.username,
+                    "first_name": request.user.first_name,
+                    "last_name": request.user.last_name
+                },
             }],
             "parent_object": request.user.username
         }

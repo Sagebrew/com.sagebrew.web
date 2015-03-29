@@ -1,3 +1,4 @@
+from django.template.loader import render_to_string
 from textblob import TextBlob
 
 from neomodel import DoesNotExist, CypherException
@@ -147,3 +148,6 @@ def clean_question_for_rest(single_object):
     single_object["is_closed"] = int(single_object["is_closed"])
 
     return single_object
+
+def render_question_object(question_object):
+    return render_to_string('question.html', question_object)

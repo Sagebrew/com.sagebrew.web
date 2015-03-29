@@ -1,9 +1,5 @@
 [
     {
-        "table_name": "users_full",
-        "hash_key": "email"
-    },
-    {
         "table_name": "comments",
         "hash_key": "parent_object",
         "range_key": "created"
@@ -15,10 +11,6 @@
         "local_index_name": "VoteStatusIndex",
         "local_index": "status",
         "type": "N"
-    },
-    {
-        "table_name": "friends",
-        "hash_key": "email"
     },
     {
         "table_name": "public_questions",
@@ -33,6 +25,10 @@
         "table_name": "posts",
         "hash_key": "parent_object",
         "range_key": "created"
+    },
+    {
+        "table_name": "friends",
+        "hash_key": "username"
     },
     {
         "table_name": "flags",

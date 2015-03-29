@@ -17,7 +17,8 @@ from neomodel import CypherException
 from sagebrew import errors
 
 from api.utils import request_to_api
-from sb_docstore.utils import (get_dynamo_table, convert_dynamo_content)
+from sb_docstore.utils import (get_dynamo_table, convert_dynamo_content,
+                               get_vote)
 from sb_solutions.utils import convert_dynamo_solutions
 from sb_comments.serializers import CommentSerializer
 from sb_comments.utils import convert_dynamo_comments
@@ -25,7 +26,7 @@ from sb_comments.utils import convert_dynamo_comments
 
 from .serializers import QuestionSerializerNeo
 from .neo_models import SBQuestion
-from .utils import clean_question_for_rest
+from .utils import clean_question_for_rest, render_question_object
 
 
 logger = getLogger('loggly_logs')
@@ -44,14 +45,14 @@ class QuestionViewSet(viewsets.GenericViewSet):
             logger.exception("QuestionGenericViewSet queryset")
             return Response(errors.CYPHER_EXCEPTION,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
         sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
         if sort_by == "created":
             queryset = sorted(queryset, key=lambda k: k.created)
         elif sort_by == "edited":
             queryset = sorted(queryset, key=lambda k: k.last_edited_on)
         else:
-            queryset = sorted(queryset, key=lambda k: k.get_vote_count())
+            queryset = sorted(queryset, key=lambda k: k.vote_count,
+                              reverse=True)
         return queryset
 
     def get_object(self, object_uuid=None):
@@ -67,9 +68,18 @@ class QuestionViewSet(viewsets.GenericViewSet):
         queryset = self.get_queryset()
         if isinstance(queryset, Response):
             return queryset
+        html = self.request.QUERY_PARAMS.get("html", "false").lower()
+        if html == "true":
+            html_array = []
+            for question in queryset:
+                html_array.append(
+                    question.render_question_page(request.user.username))
+            return Response(html_array, status=status.HTTP_200_OK)
+
         serializer = self.serializer_class(
             queryset, context={"request": request}, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
     def create(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -85,8 +95,10 @@ class QuestionViewSet(viewsets.GenericViewSet):
             return Response(errors.DYNAMO_TABLE_EXCEPTION,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         queryset = table.get_item(object_uuid=object_uuid)
-
+        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
         expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
+        if html == "true":
+            expand = "true"
         try:
             if expand == "false":
                 single_object = convert_dynamo_content(queryset)
@@ -95,13 +107,14 @@ class QuestionViewSet(viewsets.GenericViewSet):
                                                        "question-comments")
         except IndexError as e:
             raise NotFound
+
         # TODO need to just store username for question and solution, can
         # determine url paths dynamically here
         user_url = reverse('user-detail', kwargs={
-            'username': single_object["owner_profile_url"]}, request=request)
+            'username': single_object["owner"]}, request=request)
         single_object["profile_url"] = reverse(
             'profile_page', kwargs={
-                'pleb_username': single_object["owner_profile_url"]
+                'pleb_username': single_object["owner"]
             }, request=request)
 
         # TODO hopefully can clear out most of this and just use it to eliminate
@@ -117,6 +130,24 @@ class QuestionViewSet(viewsets.GenericViewSet):
             response = request_to_api(user_url, request.user.username,
                                       req_method="GET")
             single_object["owner"] = response.json()
+
+        if html == "true":
+            response = request_to_api(
+                reverse('question-solutions',
+                        kwargs={'object_uuid': single_object['object_uuid']},
+                        request=request),
+                request.user.username, req_method='GET')
+            vote_type = get_vote(single_object['object_uuid'],
+                                 request.user.username)
+            if vote_type is not None:
+                if vote_type['status'] == 2:
+                    vote_type = None
+                else:
+                    vote_type = str(bool(vote_type['status'])).lower()
+            single_object['vote_type'] = vote_type
+            single_object['solutions'] = response.json()
+            rendered_html = render_question_object(single_object)
+            return Response(rendered_html, status=status.HTTP_200_OK)
 
         return Response(single_object, status=status.HTTP_200_OK)
 
@@ -169,10 +200,23 @@ class QuestionViewSet(viewsets.GenericViewSet):
                 parent_object__eq=object_uuid,
                 created__gte="0"
             )
-            serializer = CommentSerializer(
-                convert_dynamo_comments(queryset), context={"request": request},
-                many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            converted = convert_dynamo_comments(queryset)
+            for comment in converted:
+                response = request_to_api(
+                    reverse('user-detail',
+                            kwargs={'username': comment["owner"]},
+                            request=request),
+                    request.user.username, req_method="GET")
+                comment['owner'] = response.json()
+                vote_type = get_vote(comment['object_uuid'],
+                                 request.user.username)
+                if vote_type is not None:
+                    if vote_type['status'] == 2:
+                        vote_type = None
+                    else:
+                        vote_type = str(bool(vote_type['status'])).lower()
+                comment['vote_type'] = vote_type
+            return Response(converted, status=status.HTTP_200_OK)
         else:
             # TODO should be able to move all this to comment helpers and
             # place in solutions, posts, questions, etc.

@@ -65,6 +65,7 @@
 
 {% block scripts %}
     {{ block.super }}
+    <script src="{% static 'js/conversation_scroll_load.js' %}"></script>
     <script src="{% static 'js/query_questions.js' %}"></script>
     <script src="{% static 'js/question_ui.js' %}"></script>
 {% endblock scripts %}

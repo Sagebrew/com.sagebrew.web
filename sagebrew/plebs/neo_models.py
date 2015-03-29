@@ -71,7 +71,7 @@ class Pleb(StructuredNode):
         'post': 10, 'comment_on': 5, 'upvote': 3, 'downvote': -3,
         'time': -1, 'proximity_to_you': 10, 'proximity_to_interest': 10,
         'share': 7, 'flag_as_inappropriate': -5, 'flag_as_spam': -100,
-        'flag_as_other': -10, 'solutioned': 50, 'starred': 150, 'seen_search': 5,
+        'flag_as_other': -10, 'solutions': 50, 'starred': 150, 'seen_search': 5,
         'seen_page': 20
     }
     gender = StringProperty()
@@ -341,7 +341,9 @@ class Pleb(StructuredNode):
         return request_list
 
     def determine_reps(self):
-        pass
+        from sb_public_official.utils import determine_reps
+        return determine_reps(self.username)
+
 
     def get_notifications(self):
         try:
@@ -349,9 +351,16 @@ class Pleb(StructuredNode):
             for notification in self.notifications.all():
                 try:
                     # TODO see if we can do this with a serializer instead
+                    from_user = notification.notification_from.all()[0]
                     notification_dict = {
                             "object_uuid": notification.object_uuid,
-                            "from": notification.notification_from.all()[0],
+                            "from_info": {
+                                "profile_pic": from_user.profile_pic,
+                                "full_name": from_user.get_full_name(),
+                                "username": from_user.username
+                            },
+                            "action": notification.action,
+                            "url": notification.url,
                             "date_sent": notification.time_sent,
                             "date_seen": notification.time_seen,
                             "seen": notification.seen,
@@ -404,6 +413,7 @@ class OauthUser(StructuredNode):
     refresh_token = StringProperty()
     last_modified = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     token_type = StringProperty(default="Bearer")
+    last_modified = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
 
 

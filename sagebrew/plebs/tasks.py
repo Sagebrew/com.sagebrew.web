@@ -52,6 +52,16 @@ def send_email_task(source, to, subject, html_content):
                                   send_email_task.retry(exc=e, countdown=3,
                                                         max_retries=None))
 
+@shared_task()
+def determine_pleb_reps(username):
+    try:
+        pleb = Pleb.nodes.get(username=username)
+    except (Pleb.DoesNotExist, DoesNotExist) as e:
+        raise determine_pleb_reps.retry(exc=e, countdown=3, max_retries=None)
+    res = pleb.determine_reps()
+    if isinstance(res, Exception):
+        raise determine_pleb_reps.retry(exc=e, countdown=3, max_retries=None)
+    return True
 
 @shared_task()
 def finalize_citizen_creation(user_instance=None):
@@ -86,6 +96,9 @@ def finalize_citizen_creation(user_instance=None):
         task_param=task_data)
     task_list["check_privileges_task"] = spawn_task(
         task_func=check_privileges, task_param={"username": username})
+    task_list["determine_pleb_reps"] = spawn_task(
+        task_func=determine_pleb_reps, task_param={"username": username}
+    )
     if not pleb.initial_verification_email_sent:
         generated_token = token_gen.make_token(user_instance, pleb)
         template_dict = {

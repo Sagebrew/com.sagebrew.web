@@ -6,8 +6,8 @@ machine:
 
 dependencies:
   pre:
-    - pip install pip --upgrade
-    - pip install setuptools --upgrade
+    - pip install pip==6.0.8
+    - pip install setuptools==12.3
     - pip install awscli
     - sudo apt-get -y install libjpeg-dev
   cache_directories:

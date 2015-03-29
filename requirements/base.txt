@@ -52,6 +52,6 @@ supervisor==3.1.3
 textblob==0.9.0
 urllib3==1.10.2
 wsgiref==0.1.2
---e git+http://github.com/robinedwards/neomodel.git@282d522c9ed5b6a08e4258008d07d29fca3aed45#egg=neomodel-dev
+-e git+http://github.com/robinedwards/neomodel.git@282d522c9ed5b6a08e4258008d07d29fca3aed45#egg=neomodel-dev
 django-ses==0.7.0
 bcrypt==1.1.1

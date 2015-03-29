@@ -1,9 +1,9 @@
 # I want to contribute to a candidate running for office....Where do I begin? #
-First, you should make sure to check out the Action Pages of each of the 
+First, you should make sure to check out the Action Areas of each of the 
 candidates running in your area as to gain a full scope of the race. A 
-candidate's Action Page will detail their goals and ideas, as well as their plan 
+candidate's Action Area will detail their goals and ideas, as well as their plan 
 if they win the election. Once you've made your well-informed decision on which
-candidate to support, on their Action Page you'll see a "Donate" button 
+candidate to support, on their Action Area you'll see a "Donate" button 
 next to their name and their short biography. You can view their campaign 
 plans and [Donation Goals][1] and decide to contribute as much or little as you'd 
 like. If you don't want to contribute money, you can see if your candidate is 

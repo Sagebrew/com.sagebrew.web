@@ -60,8 +60,9 @@ def determine_pleb_reps(username):
         raise determine_pleb_reps.retry(exc=e, countdown=3, max_retries=None)
     res = pleb.determine_reps()
     if isinstance(res, Exception):
-        raise determine_pleb_reps.retry(exc=e, countdown=3, max_retries=None)
+        raise determine_pleb_reps.retry(exc=res, countdown=3, max_retries=None)
     return True
+
 
 @shared_task()
 def finalize_citizen_creation(user_instance=None):

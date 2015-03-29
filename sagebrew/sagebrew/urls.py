@@ -5,23 +5,15 @@ from django.conf import settings
 from django.contrib import admin
 from django.views.generic.base import TemplateView, RedirectView
 from django.conf.urls import patterns, url
-from plebs.views import ListBetaUsers, RetrieveBetaUsers, invite_beta_user
 
 from sb_registration.views import (login_view, logout_view, signup_view,
                                    beta_page)
-from plebs.views import (get_friend_requests, create_friend_request,
-                         respond_friend_request)
 
 
 urlpatterns = patterns(
     '',
     (r'^favicon.ico$', RedirectView.as_view(url="%sfavicon.ico" % (
         settings.STATIC_URL))),
-    url(r'^v1/betausers/$', ListBetaUsers.as_view(), name='betauser-list'),
-    url(r'^v1/betausers/(?P<email>[A-Za-z0-9.@_%+-]{1,90})/$',
-        RetrieveBetaUsers.as_view(), name='betauser-detail'),
-    url(r'^v1/betausers/(?P<email>[A-Za-z0-9.@_%+-]{1,90})/invite/$',
-        invite_beta_user, name="betauser-invite"),
     url(r'^login/$', login_view, name="login"),
     url(r'^logout/$', logout_view, name="logout"),
     url(r'^password_reset/', 'django.contrib.auth.views.password_reset',
@@ -55,16 +47,10 @@ urlpatterns = patterns(
     (r'^comments/', include('sb_comments.urls')),
     (r'^posts/', include('sb_posts.urls')),
     (r'^notifications/', include('sb_notifications.urls')),
-    url(r'^relationships/query_friend_requests/$', get_friend_requests,
-        name="get_friend_requests"),
-    url(r'^relationships/create_friend_request/$', create_friend_request,
-        name="create_friend_request"),
-    url(r'^relationships/respond_friend_request/$', respond_friend_request,
-        name="respond_friend_request"),
+    (r'^relationships/', include('plebs.relation_urls')),
     (r'^user/', include('plebs.urls')),
     (r'^conversations/', include('sb_questions.urls')),
     (r'^solutions/', include('sb_solutions.urls')),
-
     (r'^badges/', include('sb_badges.urls')),
     (r'^search/', include('sb_search.urls')),
     (r'^tags/', include('sb_tag.urls')),
@@ -81,6 +67,7 @@ urlpatterns = patterns(
     (r'^v1/', include('sb_solutions.apis.v1')),
     (r'^v1/', include('sb_oauth.apis.v1')),
     (r'^v1/', include('plebs.apis.v1')),
+    (r'^v1/', include('plebs.apis.beta_urls')),
     url(r'^$', beta_page, name='beta_page'),
 )
 

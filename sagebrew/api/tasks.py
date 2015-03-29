@@ -98,14 +98,17 @@ def save_search_id(search_data, object_type, object_data, object_added):
 
 @shared_task
 def generate_oauth_info(username, password, web_address=None):
+
     try:
         pleb = Pleb.nodes.get(username=username)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
         raise generate_oauth_info.retry(exc=e, countdown=3, max_retries=None)
-    creds = generate_oauth_user(pleb, password, web_address)
+
+    creds = generate_oauth_user(username, password, web_address)
     if isinstance(creds, Exception):
         raise generate_oauth_info.retry(exc=creds, countdown=3,
                                         max_retries=None)
+
     try:
         oauth_obj = OauthUser(access_token=signing.dumps(creds['access_token']),
                               token_type=creds['token_type'],
@@ -115,6 +118,7 @@ def generate_oauth_info(username, password, web_address=None):
         oauth_obj.save()
     except(CypherException, IOError) as e:
         return e
+
     try:
         pleb.oauth.connect(oauth_obj)
     except(CypherException, IOError) as e:

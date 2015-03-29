@@ -29,12 +29,10 @@ class TestCreateFriendRequestTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_create_friend_request_task_success(self):
-        data = {'data':
-                    {
-                        'from_pleb': self.pleb1.email,
-                        'to_pleb': self.pleb2.email,
-                        'friend_request_uuid': str(uuid1())
-                    }
+        data = {
+            'from_username': self.pleb1.email,
+            'to_username': self.pleb2.email,
+            'object_uuid': str(uuid1())
         }
         res = create_friend_request_task.apply_async(kwargs=data)
 
@@ -45,27 +43,10 @@ class TestCreateFriendRequestTask(TestCase):
         self.assertTrue(res)
 
     def test_create_friend_request_task_failure_pleb_does_not_exist(self):
-        data = {'data':
-                    {
-                        'from_pleb': 'totallyfakepleb@gmail.com',
-                        'to_pleb': self.pleb2.email,
-                        'friend_request_uuid': str(uuid1())
-                    }
-        }
-        res = create_friend_request_task.apply_async(kwargs=data)
-
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.assertIsInstance(res, Exception)
-
-    def test_create_friend_request_task_failure_missing_key(self):
-        data = {'data':
-                    {
-                        'from_pleb': self.pleb1.email,
-                        'to_pleb': self.pleb2.email
-                    }
+        data = {
+            'from_username': 'totallyfakepleb@gmail.com',
+            'to_username': self.pleb2.email,
+            'object_uuid': str(uuid1())
         }
         res = create_friend_request_task.apply_async(kwargs=data)
 

@@ -20,10 +20,10 @@ def get_updates_from_dynamo(request):
     except CypherException:
         return Response(status=500)
     for object_uuid in request.DATA['object_uuids']:
-        edit_res.append(get_user_updates(username=pleb.email,
+        edit_res.append(get_user_updates(username=pleb.username,
                                         object_uuid=object_uuid,
                                         table_name='edits'))
-        vote_res.append(get_user_updates(username=pleb.email,
+        vote_res.append(get_user_updates(username=pleb.username,
                                         object_uuid=object_uuid,
                                         table_name='votes'))
     for item in edit_res:

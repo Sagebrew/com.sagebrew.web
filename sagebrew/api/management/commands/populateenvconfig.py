@@ -85,9 +85,9 @@ def populate_staging_values(data):
     data = data.replace("<WEB_SECURITY_GROUP>",
                         environ.get("WEB_SECURITY_GROUP_STAGING", ""))
     data = data.replace("<STRIPE_PUBLIC_KEY>",
-                        environ.get("STRIPE_PUBLIC_KEY_TEST", ""))
+                        environ.get("STRIP_PUBLIC_KEY", ""))
     data = data.replace("<STRIPE_SECRET_KEY>",
-                        environ.get("STRIPE_SECRET_KEY_TEST", ""))
+                        environ.get("STRIPE_SECRET_KEY", ""))
     data = data.replace("<MASKED_NAME>",
                         environ.get("MASKED_NAME_STAGING", ""))
     data = data.replace("<OPBEAT_ORG_ID>",
@@ -104,9 +104,9 @@ def populate_staging_values(data):
                         environ.get("OAUTH_CLIENT_ID_STAGING", ""))
     data = data.replace("<OAUTH_CLIENT_SECRET>",
                         environ.get("OAUTH_CLIENT_SECRET_STAGING", ""))
-    data = data.replace("<OAUTH_CLIENT_ID>",
+    data = data.replace("<OAUTH_CLIENT_ID_CRED>",
                         environ.get("OAUTH_CLIENT_ID_CRED_STAGING", ""))
-    data = data.replace("<OAUTH_CLIENT_SECRET>",
+    data = data.replace("<OAUTH_CLIENT_SECRET_CRED>",
                         environ.get("OAUTH_CLIENT_SECRET_CRED_STAGING", ""))
     return data
 
@@ -140,9 +140,9 @@ def populate_production_values(data):
     data = data.replace("<WEB_SECURITY_GROUP>",
                         environ.get("WEB_SECURITY_GROUP_PROD", ""))
     data = data.replace("<STRIPE_PUBLIC_KEY>",
-                        environ.get("STRIPE_PUBLIC_KEY_PROD", ""))
+                        environ.get("STRIP_PUBLIC_KEY_PROD", ""))
     data = data.replace("<STRIPE_SECRET_KEY>",
-                        environ.get("STRIPE_SECRET_KEY_PROD", ""))
+                        environ.get("STRIP_SECRET_KEY_PROD", ""))
     data = data.replace("<MASKED_NAME>",
                         environ.get("MASKED_NAME_PROD", ""))
     data = data.replace("<LOGENT_TOKEN>",
@@ -159,9 +159,9 @@ def populate_production_values(data):
                         environ.get("OAUTH_CLIENT_ID_PROD", ""))
     data = data.replace("<ENV_OAUTH_CLIENT_SECRET>",
                         environ.get("OAUTH_CLIENT_SECRET_PROD", ""))
-    data = data.replace("<OAUTH_CLIENT_ID>",
+    data = data.replace("<OAUTH_CLIENT_ID_CRED>",
                         environ.get("OAUTH_CLIENT_ID_CRED_PROD", ""))
-    data = data.replace("<OAUTH_CLIENT_SECRET>",
+    data = data.replace("<OAUTH_CLIENT_SECRET_CRED>",
                         environ.get("OAUTH_CLIENT_SECRET_CRED_PROD", ""))
     return data
 
@@ -177,9 +177,9 @@ def populate_test_values(data):
     data = data.replace("<APPLICATION_SECRET_KEY>",
                         environ.get("APPLICATION_SECRET_KEY", ""))
     data = data.replace("<STRIPE_PUBLIC_KEY>",
-                        environ.get("STRIPE_PUBLIC_KEY_TEST", ""))
+                        environ.get("STRIP_PUBLIC_KEY", ""))
     data = data.replace("<STRIPE_SECRET_KEY>",
-                        environ.get("STRIPE_SECRET_KEY_TEST", ""))
+                        environ.get("STRIPE_SECRET_KEY", ""))
     data = data.replace("<MASKED_NAME>",
                         environ.get("MASKED_NAME", ""))
     data = data.replace("<LOGENT_TOKEN>", environ.get("LOGENT_TOKEN", ""))
@@ -188,9 +188,9 @@ def populate_test_values(data):
                         environ.get("OAUTH_CLIENT_ID", ""))
     data = data.replace("<OAUTH_CLIENT_SECRET>",
                         environ.get("OAUTH_CLIENT_SECRET", ""))
-    data = data.replace("<OAUTH_CLIENT_ID>",
+    data = data.replace("<OAUTH_CLIENT_ID_CRED>",
                         environ.get("OAUTH_CLIENT_ID_CRED", ""))
-    data = data.replace("<OAUTH_CLIENT_SECRET>",
+    data = data.replace("<OAUTH_CLIENT_SECRET_CRED>",
                         environ.get("OAUTH_CLIENT_SECRET_CRED", ""))
     return data
 

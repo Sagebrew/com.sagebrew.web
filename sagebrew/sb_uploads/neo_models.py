@@ -1,12 +1,8 @@
-from uuid import uuid1
-
-from sb_base.decorators import apply_defense
 from sb_base.neo_models import SBContent
 
-from neomodel import (StructuredNode, StringProperty, IntegerProperty,
-                      DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty, CypherException,
-                      RelationshipFrom, DoesNotExist, DateProperty)
+from neomodel import (StringProperty, IntegerProperty, RelationshipTo,
+                      FloatProperty)
+
 
 class Image(SBContent):
     url = StringProperty()
@@ -14,8 +10,9 @@ class Image(SBContent):
     #relationships
     sizes = RelationshipTo('sb_uploads.neo_models.SubImage', "RESIZE")
 
+
 class SubImage(SBContent):
-    sb_id = StringProperty(unique_index=True)
+    object_uuid = StringProperty(unique_index=True)
     url = StringProperty()
     height = IntegerProperty()
     width = IntegerProperty()

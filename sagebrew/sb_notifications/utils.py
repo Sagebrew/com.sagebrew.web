@@ -31,14 +31,14 @@ def create_notification_util(sb_object, from_pleb, to_plebs,
     try:
         try:
             notification = NotificationBase.nodes.get(
-                sb_id=notification_id)
+                object_uuid=notification_id)
             if notification.sent is True:
                 return True
 
         except (NotificationBase.DoesNotExist, DoesNotExist):
             notification = NotificationBase(
-                sb_id=notification_id,
-                notification_about=sb_object.sb_name).save()
+                object_uuid=notification_id,
+                about=sb_object.sb_name).save()
 
         notification.notification_from.connect(from_pleb)
         for pleb in to_plebs:
@@ -46,7 +46,7 @@ def create_notification_util(sb_object, from_pleb, to_plebs,
             pleb.notifications.connect(notification)
             res = sb_object.create_notification(from_pleb)
             res['parent_object'] = pleb.username
-            res['datetime'] = str(datetime.now(pytz.utc))
+            res['created'] = str(datetime.now(pytz.utc))
             add_object_to_table('notifications', res)
         notification.sent = True
         notification.save()

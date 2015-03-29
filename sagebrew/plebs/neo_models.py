@@ -26,7 +26,7 @@ class TagRelationship(StructuredRel):
 class PostObjectCreated(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     rep_gained = IntegerProperty(default=0)
-    rep_lost = IntegerProperty(defaut=0)
+    rep_lost = IntegerProperty(default=0)
 
 
 class ActionActiveRel(StructuredRel):
@@ -46,63 +46,13 @@ class OfficialRelationship(StructuredRel):
     end_date = DateTimeProperty()
 
 
-class School(StructuredNode):
-    name = StringProperty()
-    address = RelationshipTo("Address", "LOCATED_AT")
-    established = DateTimeProperty()
-    population = IntegerProperty()
-
-
-class Company(StructuredNode):
-    name = StringProperty()
-    address = RelationshipTo("Address", "LOCATED_AT")
-    company_size = IntegerProperty()
-    established = DateTimeProperty()
-    industry = RelationshipTo("Industry", "PART_OF")
-
-
-class HighSchool(School):
-    district_name = StringProperty()
-    school_name = StringProperty()
-    phone_number = IntegerProperty()
-    state = StringProperty()
-    street = StringProperty()
-    city = StringProperty()
-    latitude = FloatProperty()
-    longitude = FloatProperty()
-    county = StringProperty()
-
-
-class University(School):
-    institution_name = StringProperty()
-    univ_address = StringProperty()
-    city = StringProperty()
-    state = StringProperty()
-    zipcode = StringProperty()
-    chief_name = StringProperty()
-    chief_title = StringProperty()
-    website_url = StringProperty()
-    admin_url = StringProperty()
-    financial_url = StringProperty()
-    app_url = StringProperty()
-    county = StringProperty()
-    longitude = FloatProperty()
-    latitude = FloatProperty()
-
-
-class ReceivedEducationRel(StructuredRel):
-    started = DateTimeProperty()
-    ended = DateTimeProperty()
-    currently_attending = BooleanProperty()
-    awarded = StringProperty()
-
 
 class Pleb(StructuredNode):
     search_modifiers = {
         'post': 10, 'comment_on': 5, 'upvote': 3, 'downvote': -3,
         'time': -1, 'proximity_to_you': 10, 'proximity_to_interest': 10,
         'share': 7, 'flag_as_inappropriate': -5, 'flag_as_spam': -100,
-        'flag_as_other': -10, 'answered': 50, 'starred': 150, 'seen_search': 5,
+        'flag_as_other': -10, 'solutions': 50, 'starred': 150, 'seen_search': 5,
         'seen_page': 20
     }
     gender = StringProperty()
@@ -110,7 +60,7 @@ class Pleb(StructuredNode):
     username = StringProperty(unique_index=True, default=None)
     first_name = StringProperty()
     last_name = StringProperty()
-    age = IntegerProperty()
+    middle_name = StringProperty()
     email = StringProperty(unique_index=True)
     date_of_birth = DateTimeProperty()
     primary_phone = StringProperty()
@@ -118,12 +68,12 @@ class Pleb(StructuredNode):
     profile_pic = StringProperty()
     profile_pic_uuid = StringProperty()
     completed_profile_info = BooleanProperty(default=False)
-    home_town = StringProperty()
     reputation = IntegerProperty(default=0)
     is_rep = BooleanProperty(default=False)
     is_admin = BooleanProperty(default=False)
     is_sage = BooleanProperty(default=False)
     search_index = StringProperty()
+    # base_index_id is the plebs id in the base elasticsearch index
     base_index_id = StringProperty()
     email_verified = BooleanProperty(default=False)
     populated_es_index = BooleanProperty(default=False)
@@ -144,27 +94,16 @@ class Pleb(StructuredNode):
     tags = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGS',
                           model=TagRelationship)
     voted_on = RelationshipTo('sb_base.neo_models.SBVoteableContent', 'VOTES')
-    home_town_address = RelationshipTo("Address", "GREW_UP_AT")
-    high_school = RelationshipTo("HighSchool", "ATTENDED_HS",
-                                 model=ReceivedEducationRel)
-    university = RelationshipTo("University", "ATTENDED_UNIV",
-                                model=ReceivedEducationRel)
-    employer = RelationshipTo("Company", "WORKS_AT")
     address = RelationshipTo("Address", "LIVES_AT", cardinality=ZeroOrOne)
     interests = RelationshipTo("sb_tag.neo_models.SBTag", "INTERESTED_IN")
     friends = RelationshipTo("Pleb", "FRIENDS_WITH", model=FriendRelationship)
-    #senator = RelationshipTo("govtrack.neo_models.GTRole",
-    #                         "HAS_SENATOR")
-    #house_rep = RelationshipTo("govtrack.neo_models.GTRole",
-    #                           "HAS_REPRESENTATIVE")
-    house_rep = RelationshipTo("sb_reps.neo_models.BaseOfficial", "HOUSE_REP")
-    senator = RelationshipTo("sb_reps.neo_models.BaseOfficial", "SENATOR")
     posts = RelationshipTo('sb_posts.neo_models.SBPost', 'OWNS_POST',
                            model=PostObjectCreated)
     questions = RelationshipTo('sb_questions.neo_models.SBQuestion',
                                'OWNS_QUESTION',
                                model=PostObjectCreated)
-    answers = RelationshipTo('sb_answers.neo_models.SBAnswer', 'OWNS_ANSWER',
+    solutions = RelationshipTo('sb_solutions.neo_models.SBSolution',
+                               'OWNS_ANSWER',
                              model=PostObjectCreated)
     comments = RelationshipTo('sb_comments.neo_models.SBComment',
                               'OWNS_COMMENT',
@@ -174,7 +113,7 @@ class Pleb(StructuredNode):
         'sb_notifications.neo_models.NotificationBase', 'RECEIVED_A')
     friend_requests_sent = RelationshipTo(
         'sb_relationships.neo_models.FriendRequest', 'SENT_A_REQUEST')
-    friend_requests_recieved = RelationshipTo(
+    friend_requests_received = RelationshipTo(
         'sb_relationships.neo_models.FriendRequest', 'RECEIVED_A_REQUEST')
     user_weight = RelationshipTo('Pleb', 'WEIGHTED_USER',
                                  model=UserWeightRelationship)
@@ -185,8 +124,8 @@ class Pleb(StructuredNode):
                               model=SearchCount)
     clicked_results = RelationshipTo('sb_search.neo_models.SearchResult',
                                      'CLICKED_RESULT')
-    official = RelationshipTo('sb_reps.neo_models.BaseOfficial', 'IS',
-                              model=OfficialRelationship)
+    official = RelationshipTo('sb_public_official.neo_models.BaseOfficial',
+                              'IS', model=OfficialRelationship)
 
     def deactivate(self):
         return
@@ -225,7 +164,7 @@ class Pleb(StructuredNode):
             return rel.weight
 
     def get_owned_objects(self):
-        return self.answers.all()+self.questions.all()+\
+        return self.solutions.all()+self.questions.all()+\
                self.posts.all()+self.comments.all()
 
     def get_total_rep(self):
@@ -281,43 +220,44 @@ class Pleb(StructuredNode):
 
     def get_conversation(self, expiry=0, now=0):
         return {"questions": [self.get_questions(expiry, now)],
-                "solutions": [self.get_answers(expiry, now)],
+                "solutions": [self.get_solutions(expiry, now)],
                 "count": self.get_questions(expiry, now)['count']+\
-                    self.get_answers(expiry,now)['count']}
+                    self.get_solutions(expiry,now)['count']}
 
     def get_questions(self, expiry=0, now=0):
         if expiry == 0:
             return self.get_question_dicts(self.questions.all())
         return self.get_question_dicts(self.filter_questions(expiry, now))
 
-    def get_answers(self, expiry=0, now=0):
+    def get_solutions(self, expiry=0, now=0):
         if expiry == 0:
-            return self.get_answer_dicts(self.answers.all())
-        return self.get_answer_dicts(self.filter_answers(expiry, now))
+            return self.get_solution_dicts(self.solutions.all())
+        return self.get_solution_dicts(self.filter_solutions(expiry, now))
 
-    def get_answer_dicts(self, answers):
+    def get_solution_dicts(self, solutions):
         a_dict = {
-            "answers": []
+            "solutions": []
         }
-        for answer in answers:
-            a_dict['answers'].append(answer.get_dict())
-        a_dict['count'] = len(a_dict['answers'])
+        for solution in solutions:
+            a_dict['solutions'].append(solution.get_dict())
+        a_dict['count'] = len(a_dict['solutions'])
         return a_dict
 
-    def filter_answers(self, expiry, now):
-        answers = []
-        for answer in self.answers.all():
-            if (now-answer.date_created).seconds < expiry:
-                answers.append(answer)
-        return answers
+    def filter_solutions(self, expiry, now):
+        solutions = []
+        for solution in self.solutions.all():
+            if (now-solution.created).seconds < expiry:
+                solutions.append(solution)
+        return solutions
 
     def filter_questions(self, expiry, now):
         questions = []
         for question in self.questions.all():
-            if (now-question.date_created).seconds < expiry:
+            if (now-question.created).seconds < expiry:
                 questions.append(question)
         return questions
 
+    # TODO Can we get rid of this now that we have an endpoint we can use?
     def get_question_dicts(self, questions):
         q_dict = {
             'questions': []
@@ -336,8 +276,8 @@ class Pleb(StructuredNode):
     def get_question_count(self):
         return len(self.questions.all())
 
-    def get_answer_count(self):
-        return len(self.answers.all())
+    def get_solution_count(self):
+        return len(self.solutions.all())
 
     def get_post_count(self):
         return len(self.posts.all())
@@ -348,19 +288,64 @@ class Pleb(StructuredNode):
     def get_friends(self):
         return self.friends.all()
 
-    def get_friend_requests_sent(self):
+    def get_friend_requests_received(self):
         request_list = []
-        for request in self.friend_requests_sent.all():
+        for request in self.friend_requests_received.all():
             try:
-                request_list.append(request.request_to.all()[0].username)
+                if request.response is None:
+                    # TODO see if we can do this with a serializer instead
+                    request_dict = {
+                        "object_uuid": request.object_uuid,
+                        "from": request.request_from.all()[0].username,
+                        "date_sent": request.time_sent,
+                        "date_seen": request.time_seen,
+                        "seen": request.seen
+                    }
+                    request_list.append(request_dict)
+                else:
+                    continue
             except IndexError:
                 continue
         return request_list
 
+    def get_friend_requests_sent(self):
+        try:
+            request_list = []
+            for request in self.friend_requests_sent.all():
+                try:
+                    request_list.append(request.request_to.all()[0].username)
+                except IndexError:
+                    continue
+        except(CypherException, IOError) as e:
+            raise e
+        return request_list
+
     def determine_reps(self):
-        from sb_reps.utils import determine_reps
+        from sb_public_official.utils import determine_reps
         return determine_reps(self.username)
 
+
+    def get_notifications(self):
+        try:
+            notification_list = []
+            for notification in self.notifications.all():
+                try:
+                    # TODO see if we can do this with a serializer instead
+                    notification_dict = {
+                            "object_uuid": notification.object_uuid,
+                            "from": notification.notification_from.all()[0],
+                            "date_sent": notification.time_sent,
+                            "date_seen": notification.time_seen,
+                            "seen": notification.seen,
+                            "about": notification.about,
+                            "about_id": notification.about_id,
+                        }
+                    notification_list.append(notification_dict)
+                except IndexError:
+                    continue
+        except(CypherException, IOError) as e:
+            raise e
+        return notification_list
 
 
 class Address(StructuredNode):
@@ -380,40 +365,8 @@ class Address(StructuredNode):
     address = RelationshipTo("Pleb", 'LIVES_IN')
 
 
-class Country(StructuredNode):
-    name = StringProperty(unique_index=True)
-    abbreviation = StringProperty()
-
-    #relationships
-    states = RelationshipTo('plebs.neo_models.State', 'HAS')
-
-
-class State(StructuredNode):
-    name = StringProperty(unique_index=True)
-    abbreviation = StringProperty()
-
-    #relationships
-    capitol = RelationshipTo('plebs.neo_models.City', 'CAPITOL')
-
-class County(StructuredNode):
-    name = StringProperty()
-
-    #relationships
-    city = RelationshipTo('plebs.neo_models.City', "HAS")
-
-class City(StructuredNode):
-    name = StringProperty()
-
-    #relationships
-    district = RelationshipTo('plebs.neo_models.District', "RESIDES_IN")
-
-
-class District(StructuredNode):
-    number = IntegerProperty()
-
-
 class OauthUser(StructuredNode):
-    sb_id = StringProperty(default=lambda: str(uuid1()))
+    object_uuid = StringProperty(default=lambda: str(uuid1()))
     web_address = StringProperty(
         default=lambda: settings.WEB_ADDRESS+'/o/token/')
     access_token = StringProperty()

@@ -52,7 +52,7 @@ def update_weight_relationship(document_id, index, object_type,
                                object_uuid, current_pleb, modifier_type):
     '''
     This task handles creating and updating the weight relationship between
-    users and: other users, questions, answers and posts. These relationships
+    users and: other users, questions, solutions and posts. These relationships
     are used in generating more personalized search results via the
     point system
 

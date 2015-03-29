@@ -22,19 +22,37 @@ from plebs.neo_models import Pleb, OauthUser
 from api.alchemyapi import AlchemyAPI
 
 
+def request_to_api(url, username, data=None, headers=None, req_method=None,
+                   internal=True):
+    """
+    This function makes a request to the given endpoint. It's a helper function
+    that enables us to easily include Sagebrew specific headers if we're hitting
+    an internal api but also include headers needed to access an alternative
+    API. A full URL must be provided, this is to enable users to include
+    external endpoints in Requirements and other API dependent resources.
 
-def post_to_api(api_url, username, data=None, headers=None, req_method=None):
+    :param url:
+    :param username:
+    :param data:
+    :param headers:
+    :param req_method:
+    :param internal:
+    :return:
+    """
     if headers is None:
         headers = {}
-    headers['Authorization'] = "%s %s" % ('Bearer', get_oauth_access_token(username))
-    url = "%s%s" % (settings.WEB_ADDRESS, api_url)
+    if internal is True:
+        headers['Authorization'] = "%s %s" % (
+            'Bearer', get_oauth_access_token(username))
+    response = None
     if req_method is None:
         response = requests.post(url, data=dumps(data),
-                            verify=settings.VERIFY_SECURE, headers=headers)
-    elif req_method == 'get':
+                                 verify=settings.VERIFY_SECURE,
+                                 headers=headers)
+    elif req_method == 'get' or req_method == "GET":
         response = requests.get(url, verify=settings.VERIFY_SECURE,
                                 headers=headers)
-    return response.json()
+    return response
 
 
 def get_oauth_client(username, password, web_address, client_id=None,
@@ -77,14 +95,17 @@ def check_oauth_expires_in(oauth_client):
 
 
 def get_oauth_access_token(username, web_address=None):
+    # TODO need to be able to pass creds rather than the username. That way
+    # someone can add their creds to the Restriction/Action/etc and use those
+    # rather than our internal ones.
     if web_address is None:
         web_address = settings.WEB_ADDRESS + '/o/token/'
     pleb = Pleb.nodes.get(username=username)
     try:
         oauth_creds = [oauth_user for oauth_user in pleb.oauth.all()
-                  if oauth_user.web_address == web_address][0]
-    except IndexError:
-        return
+                       if oauth_user.web_address == web_address][0]
+    except IndexError as e:
+        return e
     if check_oauth_expires_in(oauth_creds):
         refresh_token = decrypt(oauth_creds.refresh_token)
         updated_creds = refresh_oauth_access_token(refresh_token,
@@ -98,6 +119,7 @@ def get_oauth_access_token(username, web_address=None):
 
     return decrypt(oauth_creds.access_token)
 
+
 def generate_oauth_user(username, password, web_address=None):
     if web_address is None:
         web_address = settings.WEB_ADDRESS + '/o/token/'
@@ -108,14 +130,15 @@ def generate_oauth_user(username, password, web_address=None):
     creds = get_oauth_client(username, password, web_address)
     try:
         oauth_obj = OauthUser(access_token=encrypt(creds['access_token']),
-                          token_type=creds['token_type'],
-                          expires_in=creds['expires_in'],
-                          refresh_token=encrypt(creds['refresh_token'])).save()
-    except CypherException as e:
+                              token_type=creds['token_type'],
+                              expires_in=creds['expires_in'],
+                              refresh_token=encrypt(creds['refresh_token']))
+        oauth_obj.save()
+    except(CypherException, IOError) as e:
         return e
     try:
         pleb.oauth.connect(oauth_obj)
-    except CypherException as e:
+    except(CypherException, IOError) as e:
         return e
     return True
 
@@ -239,7 +262,7 @@ def get_object(object_type, object_uuid):
         sb_module = importlib.import_module(module_name)
         sb_object = getattr(sb_module, class_name)
         try:
-            return sb_object.nodes.get(sb_id=object_uuid)
+            return sb_object.nodes.get(object_uuid=object_uuid)
         except (sb_object.DoesNotExist, DoesNotExist):
             return TypeError("%s.DoesNotExist" % object_type)
     except (NameError, ValueError, ImportError, AttributeError):

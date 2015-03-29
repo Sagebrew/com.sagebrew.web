@@ -20,10 +20,7 @@ class EditRelationshipModel(StructuredRel):
 class PostedOnRel(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     rep_gained = IntegerProperty(default=0)
-    rep_lost = IntegerProperty(defaut=0)
-
-class PostReceivedRel(StructuredRel):
-    received = BooleanProperty()
+    rep_lost = IntegerProperty(default=0)
 
 
 class RelationshipWeight(StructuredRel):
@@ -36,24 +33,25 @@ class VoteRelationship(StructuredRel):
     active = BooleanProperty(default=True)
     vote_type = BooleanProperty() # True is up False is down
     rep_adjust = IntegerProperty()
-    date_created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
 
 class SBVoteableContent(StructuredNode):
     up_vote_adjustment = 0
     down_vote_adjustment = 0
-    sb_id = StringProperty(unique_index=True, default=lambda: str(uuid1()))
+    object_uuid = StringProperty(unique_index=True,
+                                 default=lambda: str(uuid1()))
     content = StringProperty()
-    date_created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
-    #relationships
+    # relationships
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'OWNED_BY',
                               model=PostedOnRel)
     votes = RelationshipFrom('plebs.neo_models.Pleb', 'PLEB_VOTES',
                                 model=VoteRelationship)
-    #counsel_vote = RelationshipTo('sb_counsel.neo_models.SBCounselVote',
+    # counsel_vote = RelationshipTo('sb_counsel.neo_models.SBCounselVote',
     #                              'VOTE')
-    #views = RelationshipTo('sb_views.neo_models.SBView', 'VIEWS')
+    # views = RelationshipTo('sb_views.neo_models.SBView', 'VIEWS')
 
     #methods
     @apply_defense
@@ -127,8 +125,8 @@ class SBVoteableContent(StructuredNode):
 class SBContent(SBVoteableContent):
     table = ''
     allowed_flags = []
-    up_vote_number = IntegerProperty(default=0)
-    down_vote_number = IntegerProperty(default=0)
+    upvotes = IntegerProperty(default=0)
+    downvotes = IntegerProperty(default=0)
     last_edited_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     edited = BooleanProperty(default=False)
     to_be_deleted = BooleanProperty(default=False)
@@ -137,21 +135,19 @@ class SBContent(SBVoteableContent):
     subjectivity = FloatProperty()
     view_count = IntegerProperty(default=0)
 
-
     # relationships
-    view_count_node = RelationshipTo('sb_stats.neo_models.SBViewCount', 'VIEW_COUNT')
+    view_count_node = RelationshipTo('sb_stats.neo_models.SBViewCount',
+                                     'VIEW_COUNT')
     flagged_by = RelationshipTo('plebs.neo_models.Pleb', 'FLAGGED_BY')
     flags = RelationshipTo('sb_flags.neo_models.SBFlag', 'HAS_FLAG')
-    received_by = RelationshipTo('plebs.neo_models.Pleb', 'RECEIVED',
-                                 model=PostReceivedRel)
     comments = RelationshipTo('sb_comments.neo_models.SBComment', 'HAS_A',
                               model=PostedOnRel)
     auto_tagged_as = RelationshipTo('sb_tag.neo_models.SBTag',
                                     'AUTO_TAGGED_AS')
     rel_weight = RelationshipTo('plebs.neo_models.Pleb', 'HAS_WEIGHT',
                                 model=RelationshipWeight)
-    notifications = RelationshipTo('sb_notifications.neo_models.NotificationBase',
-                                   'NOTIFICATIONS')
+    notifications = RelationshipTo(
+        'sb_notifications.neo_models.NotificationBase', 'NOTIFICATIONS')
 
     @classmethod
     def get_model_name(cls):
@@ -252,7 +248,7 @@ class SBVersioned(SBContent):
     original = BooleanProperty(default=True)
     draft = BooleanProperty(default=False)
 
-    #relationships
+    # relationships
     tagged_as = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS')
     edits = RelationshipTo(SBContent.get_model_name(), 'EDIT')
     edit_to = RelationshipTo(SBContent.get_model_name(), 'EDIT_TO')
@@ -286,13 +282,9 @@ class SBVersioned(SBContent):
         }
 
 
-
-
 class SBNonVersioned(SBContent):
     allowed_flags = ["explicit", "spam", "other"]
-    #relationships
-    auto_tagged_as = RelationshipTo('sb_tag.neo_models.SBTag',
-                                    'AUTO_TAGGED_AS')
+    # relationships
 
     @apply_defense
     def edit_content(self, content, pleb):
@@ -306,12 +298,12 @@ class SBNonVersioned(SBContent):
 
 
 class SBTagContent(StructuredNode):
-    #relationships
+    # relationships
     tagged_as = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS')
     auto_tags = RelationshipTo('sb_tag.neo_models.SBAutoTag',
                                'AUTO_TAGGED_AS')
 
-    #methods
+    # methods
     @apply_defense
     def add_tags(self, tags):
         """

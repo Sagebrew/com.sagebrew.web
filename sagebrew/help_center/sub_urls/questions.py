@@ -74,7 +74,7 @@ urlpatterns = patterns(
         kwargs={
             "title": "What types of Questions should I avoid asking?",
             "description": "There are certain questions that can be easily "
-                           "answered through a Google search; these are not "
+                           "solutioned through a Google search; these are not "
                            "meant for Sagebrew.",
             "content_path":
                 "%squestions_avoid_asking.html" % (settings.HELP_DOCS_PATH),

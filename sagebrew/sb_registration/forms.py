@@ -134,14 +134,6 @@ class InterestForm(forms.Form):
     )
 
 
-class ProfileInfoForm(forms.Form):
-    home_town = forms.CharField(
-        label="Hometown",
-        max_length=40,
-        required=False,
-    )
-
-
 class AddressInfoForm(forms.Form):
     primary_address = forms.CharField(
         label="Address Line 1",
@@ -236,6 +228,7 @@ class RepRegistrationForm(forms.Form):
     district = forms.IntegerField()
     seat_number = forms.IntegerField()
     gov_email = forms.EmailField()
+    gov_phone = forms.CharField()
     account_type = forms.ChoiceField(choices=settings.PAYMENT_PLANS)
     stripeBankToken = forms.CharField()
     credit_card = forms.IntegerField(required=False)

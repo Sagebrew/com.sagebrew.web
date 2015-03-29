@@ -27,7 +27,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question = SBQuestion(sb_id=str(uuid1()))
+        self.question = SBQuestion(object_uuid=str(uuid1()))
         self.question.save()
 
     def tearDown(self):
@@ -37,7 +37,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
                 'object_type': 'sb_questions.neo_models.SBQuestion',
-                'object_uuid': self.question.sb_id,
+                'object_uuid': self.question.object_uuid,
                 'current_pleb': self.user.email,
                 'modifier_type': 'search_seen'}
         res = update_weight_relationship.apply_async(kwargs=data)
@@ -58,7 +58,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
                 'object_type': 'sb_questions.neo_models.SBQuestion',
-                'object_uuid': self.question.sb_id,
+                'object_uuid': self.question.object_uuid,
                 'current_pleb': self.user.email,
                 'modifier_type': 'comment_on'}
         res = update_weight_relationship.apply_async(kwargs=data)
@@ -79,7 +79,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
                 'object_type': 'sb_questions.neo_models.SBQuestion',
-                'object_uuid': self.question.sb_id,
+                'object_uuid': self.question.object_uuid,
                 'current_pleb': self.user.email,
                 'modifier_type': 'flag_as_inappropriate'}
         res = update_weight_relationship.apply_async(kwargs=data)
@@ -100,7 +100,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
                 'object_type': 'sb_questions.neo_models.SBQuestion',
-                'object_uuid': self.question.sb_id,
+                'object_uuid': self.question.object_uuid,
                 'current_pleb': self.user.email,
                 'modifier_type': 'flag_as_spam'}
         res = update_weight_relationship.apply_async(kwargs=data)
@@ -121,7 +121,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
                 'object_type': 'sb_questions.neo_models.SBQuestion',
-                'object_uuid': self.question.sb_id,
+                'object_uuid': self.question.object_uuid,
                 'current_pleb': self.user.email,
                 'modifier_type': 'share'}
         res = update_weight_relationship.apply_async(kwargs=data)
@@ -138,13 +138,13 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.assertEqual(
             self.pleb.object_weight.relationship(self.question).weight, 150)
 
-    def test_update_weight_relationship_task_success_answered_unconnected(self):
+    def test_update_weight_relationship_task_success_solutioned_unconnected(self):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
                 'object_type': 'sb_questions.neo_models.SBQuestion',
-                'object_uuid': self.question.sb_id,
+                'object_uuid': self.question.object_uuid,
                 'current_pleb': self.user.email,
-                'modifier_type': 'answered'}
+                'modifier_type': 'solutioned'}
         res = update_weight_relationship.apply_async(kwargs=data)
         while not res.ready():
             time.sleep(1)
@@ -165,7 +165,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
                 'object_type': 'sb_questions.neo_models.SBQuestion',
-                'object_uuid': self.question.sb_id,
+                'object_uuid': self.question.object_uuid,
                 'current_pleb': self.user.email,
                 'modifier_type': 'seen_search'}
         res = update_weight_relationship.apply_async(kwargs=data)
@@ -189,7 +189,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
                 'object_type': 'sb_questions.neo_models.SBQuestion',
-                'object_uuid': self.question.sb_id,
+                'object_uuid': self.question.object_uuid,
                 'current_pleb': self.user.email,
                 'modifier_type': 'comment_on'}
         res = update_weight_relationship.apply_async(kwargs=data)
@@ -213,7 +213,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
                 'object_type': 'sb_questions.neo_models.SBQuestion',
-                'object_uuid': self.question.sb_id,
+                'object_uuid': self.question.object_uuid,
                 'current_pleb': self.user.email,
                 'modifier_type': 'flag_as_inappropriate'}
         res = update_weight_relationship.apply_async(kwargs=data)
@@ -237,7 +237,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
                 'object_type': 'sb_questions.neo_models.SBQuestion',
-                'object_uuid': self.question.sb_id,
+                'object_uuid': self.question.object_uuid,
                 'current_pleb': self.user.email,
                 'modifier_type': 'flag_as_spam'}
         res = update_weight_relationship.apply_async(kwargs=data)
@@ -261,7 +261,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
                 'object_type': 'sb_questions.neo_models.SBQuestion',
-                'object_uuid': self.question.sb_id,
+                'object_uuid': self.question.object_uuid,
                 'current_pleb': self.user.email,
                 'modifier_type': 'share'}
         res = update_weight_relationship.apply_async(kwargs=data)
@@ -277,7 +277,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         self.assertEqual(
             self.pleb.object_weight.relationship(self.question).weight, 157)
 
-    def test_update_weight_relationship_task_success_answered_connected(self):
+    def test_update_weight_relationship_task_success_solutioned_connected(self):
         res = self.pleb.object_weight.connect(self.question)
         res.save()
         self.assertIsNot(res, False)
@@ -285,9 +285,9 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
                 'object_type': 'sb_questions.neo_models.SBQuestion',
-                'object_uuid': self.question.sb_id,
+                'object_uuid': self.question.object_uuid,
                 'current_pleb': self.user.email,
-                'modifier_type': 'answered'}
+                'modifier_type': 'solutioned'}
         res = update_weight_relationship.apply_async(kwargs=data)
         while not res.ready():
             time.sleep(1)
@@ -305,9 +305,9 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
         data = {"document_id": str(uuid1()),
                 'index': 'full-search-user-specific-1',
                 'object_type': 'sb_questions.neo_models.SBQuestion',
-                'object_uuid': self.question.sb_id,
+                'object_uuid': self.question.object_uuid,
                 'current_pleb': str(uuid1()),
-                'modifier_type': 'answered'}
+                'modifier_type': 'solutioned'}
         res = update_weight_relationship.apply_async(kwargs=data)
         while not res.ready():
             time.sleep(1)
@@ -432,7 +432,7 @@ class TestUpdateUserIndices(TestCase):
 
     def test_update_user_indices_success(self):
         search_dict = {'question_content': 'test_c', 'user': self.user.email,
-                       'question_title': 'test_t', 'tags': ['test','tag'],
+                       'title': 'test_t', 'tags': ['test','tag'],
                        'question_uuid': str(uuid1()),
                        'post_date': datetime.now(pytz.utc),
                        'related_user': ''}

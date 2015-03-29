@@ -4,6 +4,7 @@ from os import environ
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['www.sagebrew.com',]
+
 VERIFY_SECURE = True
 WEB_ADDRESS = "https://www.sagebrew.com"
 
@@ -43,7 +44,7 @@ STATICFILES_STORAGE = 'sagebrew.s3utils.StaticRootS3BotoStorage'
 
 S3_URL = 'https://%s.s3.amazonaws.com/' % (AWS_STORAGE_BUCKET_NAME)
 CELERY_IGNORE_RESULT = True
-STATIC_URL = "%s" % (S3_URL)
+STATIC_URL = "%s%s" % (S3_URL, "static/")
 MEDIA_URL = "%s%s" % (S3_URL, "media/")
 
 BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 43200,
@@ -56,6 +57,9 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
     ),
+    'DEFAULT_PAGINATION_CLASS':
+        'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 25,
     'DEFAULT_MODEL_SERIALIZER_CLASS':
         'rest_framework.serializers.HyperlinkedModelSerializer',
     'DEFAULT_AUTHENTICATION_CLASSES': (

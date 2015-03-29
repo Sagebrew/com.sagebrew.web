@@ -1,6 +1,6 @@
 $(document).ready(function () {
     $("a.comment-action").click(function (event) {
-        var sb_id = $(this).data('post_uuid');
+        var object_uuid = $(this).data('post_uuid');
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -12,7 +12,7 @@ $(document).ready(function () {
             type: "POST",
             url: "/comments/submit_comment/",
             data: JSON.stringify({
-                'content': $('textarea#post_comment_on_' + sb_id).val(),
+                'content': $('textarea#post_comment_on_' + object_uuid).val(),
                 'post_uuid': $(this).data('post_uuid'),
                 'pleb': $(this).data('pleb')
             }),

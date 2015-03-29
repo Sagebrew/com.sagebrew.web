@@ -16,7 +16,7 @@ class TestSBCommentsNeoModel(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.comment = SBComment(content='test content', sb_id=str(uuid1())).\
+        self.comment = SBComment(content='test content', object_uuid=str(uuid1())).\
             save()
         self.comment.is_owned_by.connect(self.pleb)
 

@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from api.utils import wait_util
 from sb_posts.neo_models import SBPost
 from sb_questions.neo_models import SBQuestion
-from sb_answers.neo_models import SBAnswer
+from sb_solutions.neo_models import SBSolution
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
@@ -28,7 +28,7 @@ class TestCreateObjectRelationsTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_wall_pleb_is_not_none(self):
-        post_info_dict = {'content': 'test post', 'sb_id': str(uuid1())}
+        post_info_dict = {'content': 'test post', 'object_uuid': str(uuid1())}
         post = SBPost(**post_info_dict)
         post.save()
 
@@ -43,10 +43,10 @@ class TestCreateObjectRelationsTask(TestCase):
     def test_question_is_not_none(self):
         question_uuid = str(uuid1())
         solution_uuid = str(uuid1())
-        SBQuestion(content="fake content", question_title="fake title",
-                   sb_id=question_uuid).save()
-        solution = SBAnswer(content="fake solution", sb_id=solution_uuid).save()
-        post_info_dict = {'content': 'test post', 'sb_id': str(uuid1())}
+        SBQuestion(content="fake content", title="fake title",
+                   object_uuid=question_uuid).save()
+        solution = SBSolution(content="fake solution", object_uuid=solution_uuid).save()
+        post_info_dict = {'content': 'test post', 'object_uuid': str(uuid1())}
         post = SBPost(**post_info_dict)
         post.save()
 

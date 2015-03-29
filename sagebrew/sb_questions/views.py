@@ -62,7 +62,7 @@ def question_page(request, sort_by="most_recent"):
                   login_url='/registration/profile_information')
 def question_detail_page(request, question_uuid=str(uuid1())):
     '''
-    This is the view that displays a single question with all answers, comments,
+    This is the view that displays a single question with all solutions, comments,
     references and tags.
 
     :param request:
@@ -89,7 +89,7 @@ def save_question_view(request):
             request.DATA or request.body = {
                 'content': '',
                 'current_pleb': 'example@email.com'
-                'question_title': ''
+                'title': ''
             }
 
     :return:
@@ -203,7 +203,6 @@ def get_question_view(request):
                 # TODO Might want to handle this differently
                 return Response(status=500)
             for question in response:
-
                 html_array.append(
                     question.render_question_page(request.user.email))
             return Response(html_array, status=200)
@@ -214,7 +213,8 @@ def get_question_view(request):
                              "0274a216-644f-11e4-9ad9-080027242395"]}
             spawn_task(update_view_count_task, task_data)
             res = get_question_doc(question_data['question_uuid'],
-                                   'public_questions', 'public_solutions')
+                                   'public_questions', 'public_solutions',
+                                   request.user.username)
             if res == {}:
                 question_by_uuid = get_question_by_uuid(
                     question_data['question_uuid'], request.user.email)
@@ -237,12 +237,13 @@ def get_question_view(request):
                 else:
                     return Response(question_by_uuid, status=200)
             else:
-                for answer in res['answers']:
+                for solution in res['solutions']:
                     spawn_task(update_view_count_task,
-                               {'object_uuid': answer['object_uuid'],
+                               {'object_uuid': solution['object_uuid'],
                                 'object_type': dict(settings.KNOWN_TYPES)[
-                                    answer['object_type']]})
-                t = get_template("question_detail.html")
+                                    solution['object_type']]})
+                res['solution_count'] = len(res['solutions'])
+                t = get_template("question.html")
                 c = Context(res)
                 return Response(t.render(c), status=200)
 
@@ -289,3 +290,17 @@ def get_question_search_view(request, question_uuid=str(uuid1())):
     elif response is False:
         return Response(status=404)
     return Response({'html': response}, status=200)
+
+@login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
+def edit_question_view(request, question_uuid):
+    res = get_question_doc(question_uuid, 'public_questions',
+                     'public_solutions')
+    template_dict = {"title": res['title'],
+                     "content": res['content'],
+                     "edit": True,
+                     "object_uuid": res['object_uuid'],
+                     "object_type": res['object_type'],
+                     "created": unicode(res['created'])}
+    return render(request, 'save_question.html', template_dict)

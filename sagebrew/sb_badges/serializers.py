@@ -3,7 +3,7 @@ from .neo_models import BadgeBase
 
 
 class BadgeSerializer(serializers.Serializer):
-    sb_id = serializers.CharField(read_only=True)
+    object_uuid = serializers.CharField(read_only=True)
     badge_name = serializers.CharField()
     image_color = serializers.CharField()
     image_grey = serializers.CharField()

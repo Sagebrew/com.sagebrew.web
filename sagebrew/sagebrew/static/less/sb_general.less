@@ -31,8 +31,8 @@
     font-weight: bold;
     font-size: 20px;
     color: @sb_dark_blue;
-    margin-top: 0px;
-    margin-bottom: 0px;
+    margin-top: 0;
+    margin-bottom: 0;
   }
   p{
     font-size: 18px;
@@ -41,7 +41,7 @@
   small{
     font-size: @sb_data_text;
   }
-  a{
+  a {
     color: @sb_green;
   }
 }
@@ -78,7 +78,7 @@
   padding-bottom: 15px;
   margin-bottom: 30px;
 }
-.sb_answer{
+.sb_solution{
   &:extend(.block);
   margin-top: 30px;
   margin-bottom: 15px;
@@ -91,16 +91,24 @@
     resize: vertical;
   }
 }
+.sb_provide_solution{
+  &:extend(.block);
+  background-color: @sb_grey_light;
+}
 .sb_question{
   &:extend(.block);
   min-height: 250px;
+  height: 100%;
 }
 .sb_question_summary{
   &:extend(.block);
   background-color: @sb_grey_extra_light;
   border: 1px solid @sb_grey;
   border-radius: @sb_common_radius;
-  height: 170px;
+  margin-left: 15px;
+  margin-right: 15px;
+  height: 100%;
+  min-height: 120px;
   padding: @sb_common_padding_positive;
   margin-bottom: @sb_common_margin_positive;
 }
@@ -174,7 +182,7 @@
 }
 .sb_side_nav_block{
   background-color: @sb_green_extra_light;
-  padding: 15px 0 15px 0px;
+  padding: 15px 0 15px 0;
   margin-bottom: 15px;
   border: 1px solid @sb_grey;
   h5{
@@ -202,10 +210,10 @@
     }
   }
   ul{
-    padding-left: 0px;
+    padding-left: 0;
   }
   p{
-    margin-bottom: 0px;
+    margin-bottom: 0;
   }
 }
 .sb_search_vote_block{
@@ -498,7 +506,7 @@
     height: @sb_input_height;
     margin-top: 6px;
     // This fixes firefox border issue with input
-    border: 0px @sb_grey;
+    border: 0 @sb_grey;
     border-right: 1px none;
     border-left-width: 1px;
   }
@@ -547,12 +555,12 @@
 .sb_secondary_nav_bar{
   &:extend(.sb_secondary_nav);
   background-color: @sb_grey_light;
-  padding: 0 0 30px 0px;
+  padding: 0 0 30px 0;
 }
 .sb_secondary_nav_transparent{
   &:extend(.sb_secondary_nav);
   background-color: transparent;
-  padding: 0 0 30px 0px;
+  padding: 0 0 30px 0;
 }
 .sb_tertiary_nav {
   &:extend(.sb_secondary_nav);
@@ -611,7 +619,7 @@
     background-color: @sb_off_white;
     color: @sb_green;
     // Firefox fix for button being placed differently in navbar
-    padding-top: 0px;
+    padding-top: 0;
     padding-bottom: 5px;
   }
 }
@@ -851,8 +859,14 @@
   width: auto;
   background-color: @sb_off_white;
   border-radius: 5px 5px 5px 5px;
-  padding: @sb_common_padding_positive @sb_common_padding_positive 0px;
+  padding: @sb_common_padding_positive @sb_common_padding_positive 0;
   margin-bottom: 15px;
+}
+
+.sb_question_header{
+  &:extend(.sb_post_header);
+  margin-left: 15px;
+  margin-right: 15px;
 }
 
 // Proposed additions to default schema
@@ -873,8 +887,8 @@
 }
 .sb_divider{
   color: @sb_green;
-  margin-top: 0px;
-  margin-bottom: 0px;
+  margin-top: 0;
+  margin-bottom: 0;
   height: 2px;
   overflow: hidden;
   background-color: rgba(202,206,209,.5);
@@ -889,6 +903,10 @@
 }
 .sb_up_vote_wrapper{
   margin-bottom: -13px;
+}
+.sb_up_vote_wrapper_summary{
+  margin-top: 0px;
+  margin-bottom: -25px;
 }
 .sb_down_vote_wrapper{
   margin-top: -10px;
@@ -909,6 +927,10 @@
   background-color: @sb_off_white;
   border: 1px solid @sb_green_light;
   word-wrap: break-word;
+}
+.sb_question_body{
+  &:extend(.sb_post_body);
+  margin-left: 12px;
 }
 .sb_post_comments{
   border-style: solid;
@@ -940,7 +962,7 @@
     }
 }
 .sb_comment_wrapper{
-  padding-right: 0px;
+  padding-right: 0;
 
 }
 .sb_comments_container{
@@ -1008,20 +1030,20 @@ textarea.sb_comment_input{
       color: @sb_dark_blue;
     }
 }
-.conversation_logo {
+.conversation_logo{
   &:extend(.sb_dropdown_icon);
   color: white;
   background-repeat: no-repeat;
   padding-top: 5px;
-  padding-bottom: 0px;
+  padding-bottom: 0;
   margin-left: 30px;
   padding-right: 25px;
 }
-.grid-sizer {
+.grid-sizer{
   width: 20%;
 }
 
-.post_images {
+.post_images{
   height: 125px;
   margin-left: -3px;
 }

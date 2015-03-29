@@ -25,13 +25,13 @@ class TestEditObjectTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_edit_object_task_success(self):
-        question = SBQuestion(question_title='test title for edit',
+        question = SBQuestion(title='test title for edit',
                               content='this is before edit',
-                              sb_id=str(uuid1())).save()
+                              object_uuid=str(uuid1())).save()
         task_data = {
-            'object_uuid': question.sb_id,
+            'object_uuid': question.object_uuid,
             'object_type': 'sb_questions.neo_models.SBQuestion',
-            'current_pleb': self.pleb,
+            'username': self.pleb.username,
             'content': 'this is post edit content'
         }
 
@@ -42,13 +42,13 @@ class TestEditObjectTask(TestCase):
         self.assertIsInstance(res.result, SBQuestion)
 
     def test_edit_object_task_get_object_fail(self):
-        question = SBQuestion(question_title='test title for edit',
+        question = SBQuestion(title='test title for edit',
                               content='this is before edit',
-                              sb_id=str(uuid1())).save()
+                              object_uuid=str(uuid1())).save()
         task_data = {
-            'object_uuid': question.sb_id,
+            'object_uuid': question.object_uuid,
             'object_type': 'SBQuestion',
-            'current_pleb': self.pleb,
+            'username': self.pleb.username,
             'content': 'this is post edit content'
         }
 
@@ -59,13 +59,13 @@ class TestEditObjectTask(TestCase):
         self.assertFalse(res.result)
 
     def test_edit_object_task_edit_content_fail(self):
-        question = SBQuestion(question_title='test title for edit',
+        question = SBQuestion(title='test title for edit',
                               content='this is before edit',
-                              sb_id=str(uuid1())).save()
+                              object_uuid=str(uuid1())).save()
         task_data = {
-            'object_uuid': question.sb_id,
+            'object_uuid': question.object_uuid,
             'object_type': 'SBQuestion',
-            'current_pleb': self.pleb.email,
+            'username': self.pleb.username,
             'content': 'this is post edit content'
         }
 
@@ -88,15 +88,14 @@ class TestEditQuestionTitleTask(TestCase):
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
 
-    def test_edit_question_title_success(self):
-        question = SBQuestion(question_title='test title for edit',
+    def test_edit_title_success(self):
+        question = SBQuestion(title='test title for edit',
                               content='this is before edit',
-                              sb_id=str(uuid1())).save()
+                              object_uuid=str(uuid1())).save()
         task_data = {
-            'object_uuid': question.sb_id,
+            'object_uuid': question.object_uuid,
             'object_type': 'sb_questions.neo_models.SBQuestion',
-            'current_pleb': self.pleb,
-            'question_title': 'this is post edit title'
+            'title': 'this is post edit title'
         }
 
         res = edit_question_task.apply_async(kwargs=task_data)
@@ -105,15 +104,14 @@ class TestEditQuestionTitleTask(TestCase):
 
         self.assertIsInstance(res.result, SBQuestion)
 
-    def test_edit_question_title_get_object_failure(self):
-        question = SBQuestion(question_title='test title for edit',
+    def test_edit_title_get_object_failure(self):
+        question = SBQuestion(title='test title for edit',
                               content='this is before edit',
-                              sb_id=str(uuid1())).save()
+                              object_uuid=str(uuid1())).save()
         task_data = {
-            'object_uuid': question.sb_id,
+            'object_uuid': question.object_uuid,
             'object_type': 'SBQuestion',
-            'current_pleb': self.pleb,
-            'question_title': 'this is post edit content'
+            'title': 'this is post edit content'
         }
 
         res = edit_question_task.apply_async(kwargs=task_data)

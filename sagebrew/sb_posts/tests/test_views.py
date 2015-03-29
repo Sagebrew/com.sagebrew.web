@@ -104,16 +104,15 @@ class TestGetUserPosts(TestCase):
         self.user = User.objects.get(email=self.email)
 
     def test_get_user_posts(self):
-        for item in range(0,3):
-            post = SBPost(content='test', sb_id=str(uuid1()),
-                          date_created=
-                          (datetime.now(pytz.utc)+timedelta(hours=10))).save()
+        for item in range(0, 3):
+            post = SBPost(
+                content='test', object_uuid=str(uuid1()),
+                created=(datetime.now(pytz.utc) + timedelta(hours=10))).save()
             rel = post.owned_by.connect(self.pleb)
             rel.save()
             self.pleb.wall.all()[0].post.connect(post)
 
-        data = {'current_user': self.pleb.email,
-                'email': self.pleb.email,
+        data = {'current_user': self.pleb.username,
                 'range_end': 1,
                 'range_start': 0}
         request = self.factory.post('/posts/query_posts/', data=data,

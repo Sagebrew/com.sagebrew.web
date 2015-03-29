@@ -2,12 +2,12 @@ import pytz
 from datetime import datetime
 from django.core.urlresolvers import reverse
 
-from neomodel import (StructuredNode, StringProperty, IntegerProperty,
-                      DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, CypherException)
+from neomodel import (IntegerProperty, DateTimeProperty, RelationshipTo,
+                      StructuredRel, CypherException)
 
 from sb_base.decorators import apply_defense
 from sb_base.neo_models import SBNonVersioned
+
 
 class CommentedOnRel(StructuredRel):
     shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
@@ -20,9 +20,8 @@ class SBComment(SBNonVersioned):
     action = "commented on your "
     sb_name = "comment"
     object_type = "02ba1c88-644f-11e4-9ad9-080027242395"
-    created_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
-    up_vote_number = IntegerProperty(default=0)
-    down_vote_number = IntegerProperty(default=0)
+    upvotes = IntegerProperty(default=0)
+    downvotes = IntegerProperty(default=0)
     view_count = IntegerProperty(default=0)
 
     # relationships
@@ -32,14 +31,14 @@ class SBComment(SBNonVersioned):
                                model=CommentedOnRel)
     shared_with = RelationshipTo('plebs.neo_models.Pleb', 'SHARED_WITH',
                                  model=CommentedOnRel)
-    #TODO Implement the user_referenced, post_referenced, etc. relationships
-    #TODO Implement referenced_by_users, referenced_by_post, etc. relationships
+    # TODO Implement the user_referenced, post_referenced, etc. relationships
+    # TODO Implement referenced_by_users, referenced_by_post, etc. relationships
 
     def get_url(self):
         try:
             return reverse("question_detail_page",
-                           kwargs={"question_uuid": self.answer_to.all()[
-                               0].sb_id})
+                           kwargs={"question_uuid": self.solution_to.all()[
+                               0].object_uuid})
         except IndexError:
             return False
 
@@ -57,20 +56,24 @@ class SBComment(SBNonVersioned):
     @apply_defense
     def get_single_dict(self, pleb=None):
         try:
-            comment_owner = self.is_owned_by.all()[0]
+            try:
+                comment_owner = self.is_owned_by.all()[0]
+            except IndexError:
+                comment_owner = ""
             comment_dict = {'content': self.content,
-                            'up_vote_number': self.get_upvote_count(),
-                            'object_vote_count': self.get_vote_count(),
-                            'object_uuid': self.sb_id,
-                            'down_vote_number':
+                            'upvotes': self.get_upvote_count(),
+                            'vote_count': self.get_vote_count(),
+                            'object_uuid': self.object_uuid,
+                            'downvotes':
                                 self.get_downvote_count(),
                             'last_edited_on':
                                 str(self.last_edited_on),
                             'comment_owner': comment_owner.first_name + ' '
                                              + comment_owner.last_name,
                             'comment_owner_email': comment_owner.email,
+                            'owner_username': comment_owner.username,
                             'current_user': pleb,
-                            'datetime': unicode(self.date_created),
+                            'datetime': unicode(self.created),
                             'edits': [],
                             'object_type': self.object_type}
             self.view_count += 1

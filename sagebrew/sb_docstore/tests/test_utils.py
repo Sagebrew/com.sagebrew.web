@@ -50,8 +50,8 @@ class TestDocstoreUtils(TestCase):
     def test_query_parent_object_table_get_one(self):
         uuid = str(uuid1())
         timestamp = unicode(datetime.now(pytz.utc))
-        data = {'parent_object': uuid, "datetime": timestamp, "content": '123',
-                'user': self.pleb.email}
+        data = {'parent_object': uuid, "created": timestamp, "content": '123',
+                'user': self.pleb.username}
         res = add_object_to_table('edits', object_data=data)
         self.assertTrue(res)
 
@@ -62,7 +62,7 @@ class TestDocstoreUtils(TestCase):
     def test_update_doc(self):
         uuid = str(uuid1())
         now = unicode(datetime.now(pytz.utc))
-        data = {"parent_object": uuid, "time": now, "user": self.pleb.email,
+        data = {"parent_object": uuid, "time": now, "user": self.pleb.username,
                 "status": 1, "object_uuid": uuid}
         update_data = [{'update_key': 'status', 'update_value': 2}]
         res = add_object_to_table('public_questions', data)
@@ -75,7 +75,7 @@ class TestDocstoreUtils(TestCase):
     def test_update_doc_parent_object(self):
         uuid = str(uuid1())
         now = unicode(datetime.now(pytz.utc))
-        data = {"parent_object": uuid, "time": now, "user": self.pleb.email,
+        data = {"parent_object": uuid, "time": now, "user": self.pleb.username,
                 "status": 1, "object_uuid": uuid}
         update_data = [{'update_key': 'status', 'update_value': 2}]
         res = add_object_to_table('public_solutions', data)
@@ -88,7 +88,7 @@ class TestDocstoreUtils(TestCase):
     def test_update_doc_datetime(self):
         uuid = str(uuid1())
         now = unicode(datetime.now(pytz.utc))
-        data = {"parent_object": uuid, "datetime": now, "user": self.pleb.email,
+        data = {"parent_object": uuid, "created": now, "user": self.pleb.username,
                 "status": 1, "object_uuid": uuid}
         update_data = [{'update_key': 'status', 'update_value': 2}]
         res = add_object_to_table('posts', data)
@@ -102,24 +102,24 @@ class TestDocstoreUtils(TestCase):
         uuid = str(uuid1())
         now = unicode(datetime.now(pytz.utc))
         data = {'object_uuid': uuid, 'content': '1231231231',
-                'user': self.pleb.email, 'last_edited_on': now,
-                "time_created": now}
+                'user': self.pleb.username, 'last_edited_on': now,
+                "created": now}
         res = add_object_to_table('public_questions', data)
         self.assertTrue(res)
         solution_uuid = str(uuid1())
         solution_data = {'parent_object': uuid, 'object_uuid': solution_uuid,
                          'content': '12312312',  'last_edited_on': now,
-                         "time_created": now}
+                         "created": now}
         sol_res = add_object_to_table('public_solutions', solution_data)
         self.assertTrue(sol_res)
         res = get_question_doc(uuid, 'public_questions', 'public_solutions')
         self.assertIsInstance(res, dict)
 
     def test_build_question_page(self):
-        question = SBQuestion(sb_id=str(uuid1()), content="1231",
-                              question_title="12312312").save()
+        question = SBQuestion(object_uuid=str(uuid1()), content="1231",
+                              title="12312312").save()
         question.owned_by.connect(self.pleb)
-        res = build_question_page(question.sb_id, 'public_questions',
+        res = build_question_page(question.object_uuid, 'public_questions',
                                   'public_solutions')
         self.assertTrue(res)
 
@@ -128,14 +128,14 @@ class TestDocstoreUtils(TestCase):
         now = unicode(datetime.now(pytz.utc))
         vote_data = {
             'parent_object': uuid,
-            'user': self.pleb.email,
+            'user': self.pleb.username,
             'status': 1,
-            'datetime': now
+            'created': now
         }
         res = add_object_to_table('votes', vote_data)
         self.assertTrue(res)
 
-        res = get_vote(uuid, self.pleb.email)
+        res = get_vote(uuid, self.pleb.username)
 
         self.assertNotEqual(res, False)
         self.assertFalse(isinstance(res, Exception))
@@ -145,14 +145,14 @@ class TestDocstoreUtils(TestCase):
         now = unicode(datetime.now(pytz.utc))
         vote_data = {
             'parent_object': uuid,
-            'user': self.pleb.email,
+            'user': self.pleb.username,
             'status': 1,
-            'datetime': now
+            'created': now
         }
         res = add_object_to_table('votes', vote_data)
         self.assertTrue(res)
 
-        res = update_vote(uuid, self.pleb.email, 0, now)
+        res = update_vote(uuid, self.pleb.username, 0, now)
         self.assertNotEqual(res, False)
         self.assertFalse(isinstance(res, Exception))
 
@@ -161,9 +161,9 @@ class TestDocstoreUtils(TestCase):
         now = unicode(datetime.now(pytz.utc))
         vote_data = {
             'parent_object': uuid,
-            'user': self.pleb.email,
+            'user': self.pleb.username,
             'status': 1,
-            'datetime': now
+            'created': now
         }
         res = add_object_to_table('votes', vote_data)
         self.assertTrue(res)
@@ -177,28 +177,28 @@ class TestDocstoreUtils(TestCase):
         comment_id = str(uuid1())
         now = unicode(datetime.now(pytz.utc))
         post_data = {
-            'parent_object': self.pleb.email, 'datetime': now,
+            'parent_object': self.pleb.username, 'created': now,
             'object_uuid': post_id, 'content': 'a3lk4jq;w2jr'
         }
         comment_data = {
             'parent_object': post_id, 'object_uuid': comment_id,
-            'datetime': now, 'content': 'a;sldkf;lajsdkfjas;df'
+            'created': now, 'content': 'a;sldkf;lajsdkfjas;df'
         }
         post_res = add_object_to_table('posts', post_data)
         self.assertTrue(post_res)
         comment_res = add_object_to_table('comments', comment_data)
         self.assertTrue(comment_res)
 
-        res = get_wall_docs(self.pleb.email)
+        res = get_wall_docs(self.pleb.username, self.pleb.username)
 
         self.assertNotEqual(res, False)
         self.assertFalse(isinstance(res, Exception))
 
     def test_build_wall_docs(self):
-        post = SBPost(sb_id=str(uuid1()), content='a;sdlkfj;asd').save()
+        post = SBPost(object_uuid=str(uuid1()), content='a;sdlkfj;asd').save()
         post.owned_by.connect(self.pleb)
         post.posted_on_wall.connect(self.pleb.wall.all()[0])
-        comment = SBComment(sb_id=str(uuid1()),
+        comment = SBComment(object_uuid=str(uuid1()),
                             content='A:KFj;LKAJFD:Sk').save()
         post.comments.connect(comment)
         comment.owned_by.connect(self.pleb)

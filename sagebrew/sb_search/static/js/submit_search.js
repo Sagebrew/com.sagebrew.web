@@ -12,7 +12,7 @@ $( document ).ready(function() {
 			type: "POST",
 			url: "/search/results/q=" + search_param + "&page=1",
 			data: JSON.stringify({
-               'question_title': $('textarea#question_title_id').val(),
+               'title': $('textarea#title_id').val(),
 			   'content': $('textarea#question_content_id').val(),
                'current_pleb':$(this).data('current_pleb')
 			}),

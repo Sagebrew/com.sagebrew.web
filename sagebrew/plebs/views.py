@@ -17,7 +17,7 @@ from sb_registration.utils import (get_friends, generate_profile_pic_url,
 from sb_docstore.utils import get_barebones_user, get_profile_rep_docs
 from .utils import prepare_user_search_html
 from .forms import GetUserSearchForm
-from .serializer import BetaUserSerializer
+from .serializers import BetaUserSerializer
 
 def root_profile_page(request):
     if request.user.is_authenticated() is True:
@@ -82,7 +82,7 @@ def profile_page(request, pleb_username=""):
 
     return render(request, 'sb_plebs_base/profile_page.html', {
         'pleb_info': citizen,
-        'current_user': current_user.email,
+        'current_user': current_user,
         'page_user': page_user,
         'house_reps': reps['house_rep'],
         'senators': reps['senators'],

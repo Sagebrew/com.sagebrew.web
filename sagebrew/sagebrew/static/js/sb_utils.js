@@ -12,7 +12,7 @@ function ajax_security(xhr, settings) {
 
 function save_comment() {
     $(".comment-action").click(function (event) {
-        var sb_id = $(this).data('object_uuid');
+        var object_uuid = $(this).data('object_uuid');
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -24,7 +24,7 @@ function save_comment() {
             type: "POST",
             url: "/comments/submit_comment/",
             data: JSON.stringify({
-                'content': $('textarea#post_comment_on_' + sb_id).val(),
+                'content': $('textarea#post_comment_on_' + object_uuid).val(),
                 'object_uuid': $(this).data('object_uuid'),
                 'object_type': $(this).data('object_type'),
                 'current_pleb': $(this).data('current_pleb')
@@ -32,9 +32,9 @@ function save_comment() {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-                var comment_container = $("#sb_comments_container_"+sb_id);
+                var comment_container = $("#sb_comments_container_"+object_uuid);
                 comment_container.append(data['html']);
-                $('textarea#post_comment_on_' + sb_id).val("");
+                $('textarea#post_comment_on_' + object_uuid).val("");
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 if(XMLHttpRequest.status === 500){
@@ -47,9 +47,9 @@ function save_comment() {
 
 function show_edit_post() {
     $("a.show_edit_post_class").click(function (event) {
-        var sb_id = $(this).data('uuid');
-        $("#sb_content_"+sb_id).hide();
-        $('#edit_container_' + sb_id).show();
+        var object_uuid = $(this).data('uuid');
+        $("#sb_content_"+object_uuid).hide();
+        $('#edit_container_' + object_uuid).show();
         var textarea = $('textarea#' + $(this).data('uuid'));
         textarea.height( textarea[0].scrollHeight );
     });
@@ -58,9 +58,9 @@ function show_edit_post() {
 
 function show_edit_comment() {
     $("a.show_edit_comment_class").click(function () {
-        var sb_id = $(this).data('comment_uuid');
-        $("#sb_content_"+sb_id).hide();
-        $('#edit_container_' + sb_id).show();
+        var object_uuid = $(this).data('comment_uuid');
+        $("#sb_content_"+object_uuid).hide();
+        $('#edit_container_' + object_uuid).show();
         var textarea = $('textarea#' + $(this).data('comment_uuid'));
         textarea.height( textarea[0].scrollHeight );
     });
@@ -157,23 +157,20 @@ function vote_object() {
     });
 }
 
-function save_answer() {
-    $(".submit_answer-action").click(function(event){
+function save_solution() {
+    $(".submit_solution-action").click(function(event){
 		event.preventDefault();
 		$.ajaxSetup({
 		    beforeSend: function(xhr, settings) {
-				var csrftoken = $.cookie('csrftoken');
-		        if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
-		            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-		        }
-		    }
+                ajax_security(xhr, settings)
+            }
 		});
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
 			type: "POST",
 			url: $(this).data('url'),
 			data: JSON.stringify({
-			   'content': $('textarea.sb_answer_input_area').val(),
+			   'content': $('textarea.sb_solution_input_area').val(),
                'current_pleb': $(this).data('current_pleb'),
                'question_uuid': $(this).data('object_uuid')
 			}),
@@ -181,8 +178,8 @@ function save_answer() {
 			dataType: "json",
             success: function (data) {
                 $("#solution_container").append(data['html']);
-                $('textarea.sb_answer_input_area').val("");
-                enable_single_answer_functionality();
+                $('textarea.sb_solution_input_area').val("");
+                enable_single_solution_functionality();
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 if(XMLHttpRequest.status === 500){
@@ -211,7 +208,7 @@ function edit_object() {
                 'parent_object': $(this).data('parent_object'),
                 'object_uuid': uuid,
                 'object_type': $(this).data('object_type'),
-                'datetime': $(this).data('datetime')
+                'created': $(this).data('created')
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
@@ -232,8 +229,8 @@ function edit_object() {
     });
 }
 
-function edit_question_title() {
-    $("a.edit_question_title-action").click(function (event) {
+function edit_title() {
+    $("a.edit_title-action").click(function (event) {
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -245,7 +242,7 @@ function edit_question_title() {
             type: "POST",
             url: "/edit/edit_object_content_api/",
             data: JSON.stringify({
-                'question_title': $(this).val(),
+                'title': $(this).val(),
                 'current_pleb': $(this).data('pleb'),
                 'object_uuid': $(this).data('post_uuid'),
                 'object_type': $(this).data('object_type')
@@ -263,27 +260,18 @@ function edit_question_title() {
 
 function show_edit_question() {
     $("a.show_edit_question-action").click(function(event){
-        $(".sb_object_dropdown").each(function(i, obj){
-            $(obj).attr("disabled", "disabled");
-        });
-        var question_uuid = $(this).data('object_uuid');
-        $('#sb_content_'+question_uuid).hide();
-        $("#edit_container_"+question_uuid).show();
-        var markdown = $("textarea#"+question_uuid).pagedownBootstrap();
-        markdown.attr("id", question_uuid);
+        event.preventDefault();
+        window.location.href = window.location.href+"edit/";
     });
 }
 
-function show_edit_answer() {
-    $("a.show_edit_answer-action").click(function(event){
-        $(".sb_object_dropdown").each(function(i, obj){
-            $(obj).attr("disabled", "disabled");
-        });
-        var answer_uuid = $(this).data('object_uuid');
-        $('#sb_content_'+answer_uuid).hide();
-        $('#edit_container_'+answer_uuid).show();
-        var markdown = $("textarea#"+answer_uuid).pagedownBootstrap();
-        markdown.attr("id", answer_uuid)
+function show_edit_solution() {
+    $("a.show_edit_solution-action").click(function(event){
+        event.preventDefault();
+        var root = window.location.href.split("conversations/")[0];
+        var question_uuid = window.location.href.split("conversations/")[1].split('/')[0];
+        var solution_uuid = $(this).data("object_uuid");
+        window.location.href = root+"solutions/"+question_uuid+'/'+solution_uuid+'/edit/'
     });
 }
 
@@ -318,7 +306,7 @@ function delete_object() {
 function page_leave_endpoint() {
     $(window).on('unload', function() {
         var object_list = [];
-        $(".sb_id").each(function(){
+        $(".object_uuid").each(function(){
             object_list.push($(this).data('object_uuid'))
         });
         $.ajaxSetup({
@@ -436,73 +424,6 @@ function cloneForm(selector, type) {
     $(selector).after(newElement);
 }
 
-function submit_policy() {
-    $(".submit_policy-action").click(function(event){
-        event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
-                ajax_security(xhr, settings)
-            }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/reps/policy/",
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({
-                'rep_id': $("#rep_id").data('rep_id'),
-                'policies': $('#id_policies').val(),
-                'description': $('#id_description').val()
-            }),
-            dataType: "json",
-            success: function(data){
-                $('.add_policy').removeAttr('disabled');
-                $('.add_policy_wrapper').remove();
-                $("#policy_list").append(data['rendered']);
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
-}
-
-function submit_education() {
-    $(".submit_education-action").click(function(event){
-        event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
-                ajax_security(xhr, settings)
-            }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/reps/education/",
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({
-                'rep_id': $("#rep_id").data('rep_id'),
-                'start_date': $('#id_start_date').val(),
-                'end_date': $('#id_end_date').val(),
-                'school': $('#id_school').val(),
-                'degree': $('#id_degree').val()
-            }),
-            dataType: "json",
-            success: function(data){
-                $('.add_education').removeAttr('disabled');
-                $('.add_education_wrapper').remove();
-                $("#education_list").append(data['rendered']);
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
-}
 
 function submit_bio() {
     $(".submit_bio-action").click(function(event){
@@ -678,11 +599,8 @@ function submit_requirement() {
     });
 }
 
-
 function activate_montage(){
-    var $container = $('#am-container').masonry();
-    // initialize Masonry after all images have loaded
-    $container.imagesLoaded( function() {
+    var $container = $('#container').imagesLoaded( function() {
       $container.packery({
           gutter: 0,
           itemSelector: '.post_images',
@@ -700,30 +618,28 @@ function enable_single_post_functionality() {
     show_edit_post();
 }
 
-function enable_single_answer_functionality() {
+function enable_single_solution_functionality() {
     flag_object();
     vote_object();
     edit_object();
     save_comment();
-    show_edit_answer();
+    show_edit_solution();
 }
 
 function enable_post_functionality() {
-    save_answer();
+    save_solution();
     flag_object();
     vote_object();
     edit_object();
-    edit_question_title();
+    edit_title();
     save_comment();
     show_edit_question();
     show_edit_post();
     show_edit_comment();
-    show_edit_answer();
+    show_edit_solution();
     delete_object();
     page_leave_endpoint();
     submit_experience();
-    submit_policy();
-    submit_education();
     submit_bio();
     submit_goal();
     comment_validator();

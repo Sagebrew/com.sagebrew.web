@@ -24,7 +24,7 @@ class TestSaveQuestionTask(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.user.email,
-                                   'question_title': "Test question",
+                                   'title': "Test question",
                                    'content': 'test post',
                                    'tags': "this,is,a,test",
                                    'question_uuid': str(uuid1())}
@@ -50,10 +50,10 @@ class TestSaveQuestionTask(TestCase):
         self.assertTrue(response.result)
 
     def test_save_question_task_question_exists(self):
-        question = SBQuestion(sb_id=str(uuid1()))
+        question = SBQuestion(object_uuid=str(uuid1()))
         question.save()
 
-        self.question_info_dict['question_uuid'] = question.sb_id
+        self.question_info_dict['question_uuid'] = question.object_uuid
 
         res = create_question_task.apply_async(kwargs=self.question_info_dict)
         while not res.ready():
@@ -73,8 +73,8 @@ class TestAddQuestionToIndicesTask(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.question = SBQuestion(content="fake content",
-                                   question_title="fake title",
-                                   sb_id=str(uuid1())).save()
+                                   title="fake title",
+                                   object_uuid=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
 
     def tearDown(self):
@@ -95,7 +95,7 @@ class TestAddQuestionToIndicesTask(TestCase):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         es.index(index='full-search-base',
                  doc_type='sb_questions.neo_models.SBQuestion',
-                 id=self.question.sb_id,
+                 id=self.question.object_uuid,
                  body={'content': self.question.content})
         task_data = {
             'question': self.question,
@@ -119,8 +119,8 @@ class TestAddTagsToQuestionTask(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.question = SBQuestion(content="fake content",
-                                   question_title="fake title",
-                                   sb_id=str(uuid1())).save()
+                                   title="fake title",
+                                   object_uuid=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
 
     def tearDown(self):
@@ -160,7 +160,7 @@ class TestMultipleTasks(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.question_info_dict = {'current_pleb': self.pleb.email,
-                                   'question_title': "Test question",
+                                   'title': "Test question",
                                    'content': 'test post',
                                    'question_uuid': str(uuid1())}
 
@@ -178,13 +178,13 @@ class TestMultipleTasks(TestCase):
         self.assertNotIn(False, response_array)
 
     def test_create_same_question_twice(self):
-        question = SBQuestion(content="test question", question_title="title",
-                              sb_id=str(uuid1()))
+        question = SBQuestion(content="test question", title="title",
+                              object_uuid=str(uuid1()))
         question.save()
         post_info_dict = {'current_pleb': self.pleb.email,
-                          'question_title': 'Question Title',
+                          'title': 'Question Title',
                           'content': 'test question',
-                          'question_uuid': question.sb_id,}
+                          'question_uuid': question.object_uuid,}
         response2 = create_question_task.apply_async(kwargs=post_info_dict)
         same_question = wait_util({"task_id": response2})
         self.assertTrue(same_question)

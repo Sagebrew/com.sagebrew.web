@@ -9,11 +9,11 @@ from neomodel import (StructuredNode, StringProperty, DateTimeProperty,
 
 class FriendRelationship(StructuredRel):
     since = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
-    type = StringProperty(default="friends")
+    friend_type = StringProperty(default="friends")
     currently_friends = BooleanProperty(default=True)
     time_unfriended = DateTimeProperty(default=None)
     who_unfriended = StringProperty()
-    #who_unfriended = RelationshipTo("Pleb", "")
+    # who_unfriended = RelationshipTo("Pleb", "")
 
 
 class UserWeightRelationship(StructuredRel):
@@ -23,12 +23,11 @@ class UserWeightRelationship(StructuredRel):
 
 
 class FriendRequest(StructuredNode):
-    friend_request_uuid = StringProperty(unique_index=True)
+    object_uuid = StringProperty(unique_index=True)
     seen = BooleanProperty(default=False)
     time_sent = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     time_seen = DateTimeProperty(default=None)
     response = StringProperty(default=None)
-
 
     # relationships
     request_from = RelationshipTo('plebs.neo_models.Pleb', 'REQUEST_FROM')

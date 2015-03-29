@@ -6,7 +6,7 @@ from sb_base.decorators import apply_defense
 
 
 @apply_defense
-def get_pleb_posts(pleb_email, range_end, range_start=0):
+def get_pleb_posts(username, range_end, range_start=0):
     '''
     Gets all the posts which are attached to the page users wall as well as the
     comments associated with the posts
@@ -16,17 +16,17 @@ def get_pleb_posts(pleb_email, range_end, range_start=0):
     :return:
     '''
     try:
-        post_query = 'MATCH (pleb:Pleb) WHERE pleb.email="%s" ' \
+        post_query = 'MATCH (pleb:Pleb) WHERE pleb.username="%s" ' \
                      'WITH pleb ' \
                      'MATCH (pleb)-[:OWNS_WALL]-(wall) ' \
                      'WITH wall ' \
                      'MATCH (wall)-[:HAS_POST]-(posts:SBPost) ' \
                      'WHERE posts.to_be_deleted=False ' \
                      'WITH posts ' \
-                     'ORDER BY posts.date_created DESC ' \
+                     'ORDER BY posts.created DESC ' \
                      'SKIP %s LIMIT %s ' \
                      'RETURN posts'\
-                     % (pleb_email, str(range_start), str(range_end))
+                     % (username, str(range_start), str(range_end))
         pleb_posts, meta = execute_cypher_query(post_query)
         if isinstance(pleb_posts, Exception):
             return pleb_posts
@@ -37,7 +37,7 @@ def get_pleb_posts(pleb_email, range_end, range_start=0):
 
 
 @apply_defense
-def save_post(content, post_uuid, datetime):
+def save_post(content, post_uuid, created):
     '''
     saves a post and creates the relationships between the wall
     and the poster of the comment
@@ -52,10 +52,10 @@ def save_post(content, post_uuid, datetime):
             else returns SBPost object
     '''
     try:
-        sb_post = SBPost.nodes.get(sb_id=post_uuid)
+        sb_post = SBPost.nodes.get(object_uuid=post_uuid)
     except(SBPost.DoesNotExist, DoesNotExist):
-        sb_post = SBPost(content=content, sb_id=post_uuid,
-                         last_edited_on=datetime, date_created=datetime)
+        sb_post = SBPost(content=content, object_uuid=post_uuid,
+                         last_edited_on=created, created=created)
         try:
             sb_post.save()
         except(CypherException, IOError) as e:

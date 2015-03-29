@@ -132,7 +132,7 @@ not settle any claim, demand, suit or proceeding unless the settlement
 unconditionally releases Sagebrew of all liability); and (c) provides to You 
 all reasonable assistance, at Your expense.
 
-The look and feel of the Service is copyright ©2014 Sagebrew LLC. All rights 
+The look and feel of the Service is copyright ©2015 Sagebrew LLC. All rights 
 reserved. You may not duplicate, copy, or reuse any portion of the HTML/CSS, 
 Javascript, or visual design elements or concepts without express written 
 permission from Sagebrew.

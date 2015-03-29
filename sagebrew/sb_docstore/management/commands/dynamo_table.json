@@ -6,7 +6,7 @@
     {
         "table_name": "comments",
         "hash_key": "parent_object",
-        "range_key": "datetime"
+        "range_key": "created"
     },
     {
         "table_name": "votes",
@@ -36,7 +36,7 @@
     {
         "table_name": "posts",
         "hash_key": "parent_object",
-        "range_key": "datetime"
+        "range_key": "created"
     },
     {
         "table_name": "flags",
@@ -49,7 +49,7 @@
     {
         "table_name": "notifications",
         "hash_key": "parent_object",
-        "range_key": "datetime"
+        "range_key": "created"
     },
     {
         "table_name": "location",
@@ -72,7 +72,7 @@
     {
         "table_name": "edits",
         "hash_key": "parent_object",
-        "range_key": "datetime",
+        "range_key": "created",
         "local_index_name": "UserIndex",
         "local_index": "user",
         "type": "S"
@@ -86,21 +86,6 @@
         "type": "S"
     },
     {
-        "table_name": "policies",
-        "hash_key": "parent_object",
-        "range_key": "object_uuid"
-    },
-    {
-        "table_name": "experiences",
-        "hash_key": "parent_object",
-        "range_key": "object_uuid"
-    },
-    {
-        "table_name": "education",
-        "hash_key": "parent_object",
-        "range_key": "object_uuid"
-    },
-    {
         "table_name": "general_reps",
         "hash_key": "object_uuid"
     },
@@ -112,10 +97,6 @@
     {
         "table_name": "images",
         "hash_key": "object_uuid"
-    },
-    {
-        "table_name": "notifications",
-        "hash_key": "parent_object"
     },
     {
         "table_name": "reputation",

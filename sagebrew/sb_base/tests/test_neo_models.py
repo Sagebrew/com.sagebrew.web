@@ -17,7 +17,7 @@ class TestSBVoteableContentNeoModel(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.post = SBPost(content='test', sb_id=str(uuid1())).save()
+        self.post = SBPost(content='test', object_uuid=str(uuid1())).save()
         self.post.owned_by.connect(self.pleb)
 
     def test_vote_content(self):
@@ -92,8 +92,8 @@ class TestSBContentNeoModel(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.content = SBContent(content='test', sb_id=str(uuid1())).save()
-        self.post = SBPost(content='fake content', sb_id=str(uuid1())).save()
+        self.content = SBContent(content='test', object_uuid=str(uuid1())).save()
+        self.post = SBPost(content='fake content', object_uuid=str(uuid1())).save()
 
     def test_create_relations(self):
         res = self.content.create_relations(self.pleb)
@@ -125,7 +125,7 @@ class TestSBNonVersionedContent(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.post = SBPost(content='fake content', sb_id=str(uuid1())).save()
+        self.post = SBPost(content='fake content', object_uuid=str(uuid1())).save()
 
     def test_edit_content(self):
         res = self.post.edit_content('test edit', self.pleb)

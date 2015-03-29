@@ -54,13 +54,14 @@
                    <h3>Conversations</h3>
                 </div>
                 <div class="sb_border sb_markdown">
-                    <h3>Submit Question</h3>
+                    <h3>{% if not edit %}Submit Question{% else %} Edit Question{% endif %}</h3>
                     <form id="questionInputForm">
-                        <div class="question_title_input">
+                        <div class="title_input">
                             <input class="form-control" style="margin-bottom: 10px;"
-                                      id="question_title_id"
-                                      name="question_title"
-                                      placeholder="Question Title"/>
+                                      id="title_id"
+                                      name="title"
+                                      placeholder="Question Title"
+                                      value="{{ title }}"/>
                         </div>
                         <div class="question_content_input">
                             <textarea class="form-control"
@@ -68,20 +69,37 @@
                                       name="question_content"
                                       cols="20"
                                       rows="8"
-                                      placeholder="Question Context"></textarea>
+                                      placeholder="Question Context">{{ content }}</textarea>
                         </div>
+                        {% if not edit %}
                         <div class="row">
                             <div class="col-lg-12">
                                 {% include "tag_box.html" %}
                             </div>
                         </div>
+                        {% endif %}
                         {% comment %}
                         TODO determine if this and other "buttons" need to be a tags
                         instead of buttons
                         {% endcomment %}
-                        <button class="btn btn-primary sb_btn sb_btn_submit submit_question-action"
-                               data-current_pleb="{{ request.user.email }}">Create Question</button>
-                        <button class="btn btn-primary sb_btn sb_btn_submit cancel_question-action">Cancel</button>
+                        <div class="row">
+                            <div class="col-lg-3 col-md-4">
+                                {% if not edit %}
+                                <button class="btn btn-primary sb_btn sb_btn_fill submit_question-action"
+                                       data-current_pleb="{{ request.user.email }}"
+                                       data-url="/conversations/submit_question_api/">Create Question</button>
+                                {% else %}
+                                <button class="btn btn-primary sb_btn sb_btn_fill submit_edit-action"
+                                        data-object_uuid="{{ object_uuid }}"
+                                        data-object_type="{{ object_type }}"
+                                        data-created="{{ created }}">Edit Question</button>
+                                {% endif %}
+                            </div>
+                            <div class="col-lg-3 col-md-4">
+                                <button class="btn btn-primary sb_btn sb_btn_fill cancel_question-action">Cancel</button>
+
+                            </div>
+                        </div>
                     </form>
                 </div>
              </div>
@@ -102,6 +120,10 @@
     <script src="{% static 'js/vendor/typeahead.js' %}"></script>
     <script src="{% static 'js/create_markdown.js' %}"></script>
     <script src="{% static 'js/save_question.js' %}"></script>
+    <script src="{% static 'js/comment_validator.js' %}"></script>
     <script src="{% static 'js/get_tags.js' %}"></script>
     <script src="{% static 'js/question_validator.js' %}"></script>
+    {% if edit %}
+        <script src="{% static 'js/submit_edit_question.js' %}"></script>
+    {% endif %}
 {% endblock scripts %}

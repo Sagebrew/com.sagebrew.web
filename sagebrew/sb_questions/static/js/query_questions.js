@@ -40,6 +40,9 @@ $( document ).ready(function() {
                 $("#question_wrapper").empty();
                 $("#question_wrapper").append(data);
                 enable_post_functionality()
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                console.log(XMLHttpRequest.responseJSON["detail"]);
             }
 		});
 	});

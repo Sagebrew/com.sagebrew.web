@@ -24,8 +24,8 @@ class SBQuestion(SBVersioned, SBTagContent):
     down_vote_adjustment = 2
     object_type = "0274a216-644f-11e4-9ad9-080027242395"
 
-    answer_number = IntegerProperty(default=0)
-    question_title = StringProperty()
+    solution_count = IntegerProperty(default=0)
+    title = StringProperty()
     is_closed = BooleanProperty(default=False)
     closed_reason = StringProperty()
     is_private = BooleanProperty()
@@ -40,16 +40,15 @@ class SBQuestion(SBVersioned, SBTagContent):
     added_to_search_index = BooleanProperty(default=False)
 
     # relationships
-    tags = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS')
     auto_tags = RelationshipTo('sb_tag.neo_models.SBAutoTag',
                                'AUTO_TAGGED_AS', model=TagRelevanceModel)
     closed_by = RelationshipTo('plebs.neo_models.Pleb', 'CLOSED_BY')
-    answer = RelationshipTo('sb_answers.neo_models.SBAnswer',
+    solutions = RelationshipTo('sb_solutions.neo_models.SBSolution',
                             'POSSIBLE_ANSWER')
 
     def get_url(self):
         return reverse("question_detail_page",
-                       kwargs={"question_uuid": self.sb_id})
+                       kwargs={"question_uuid": self.object_uuid})
 
     def create_notification(self, pleb, sb_object=None):
         return {
@@ -74,7 +73,7 @@ class SBQuestion(SBVersioned, SBTagContent):
     def edit_content(self, pleb, content):
         from sb_questions.utils import create_question_util
         try:
-            edit_question = create_question_util(content, self.question_title,
+            edit_question = create_question_util(content, self.title,
                                                  str(uuid1()))
 
             if isinstance(edit_question, Exception) is True:
@@ -113,7 +112,7 @@ class SBQuestion(SBVersioned, SBTagContent):
     def delete_content(self, pleb):
         try:
             self.content = ""
-            self.question_title = ""
+            self.title = ""
             self.to_be_deleted = True
             self.save()
             return self
@@ -122,26 +121,27 @@ class SBQuestion(SBVersioned, SBTagContent):
 
     @apply_defense
     def get_single_dict(self, pleb=None):
-        from sb_answers.neo_models import SBAnswer
+        from sb_solutions.neo_models import SBSolution
         try:
-            answer_array = []
+            solution_array = []
             comment_array = []
             owner = self.owned_by.all()
             try:
                 owner = owner[0]
             except IndexError as e:
                 return e
-            owner_name = owner.first_name + ' ' + owner.last_name
-            owner_profile_url = owner.username
-            query = 'match (q:SBQuestion) where q.sb_id="%s" ' \
+            # TODO is this used for storing solutions and comments
+            # into dynamo? Or can we get rid of it and just return
+            # the question specific data?
+            query = 'match (q:SBQuestion) where q.object_uuid="%s" ' \
                     'with q ' \
-                    'match (q)-[:POSSIBLE_ANSWER]-(a:SBAnswer) ' \
+                    'match (q)-[:POSSIBLE_ANSWER]-(a:SBSolution) ' \
                     'where a.to_be_deleted=False ' \
-                    'return a ' % self.sb_id
-            answers, meta = execute_cypher_query(query)
-            answers = [SBAnswer.inflate(row[0]) for row in answers]
-            for answer in answers:
-                answer_array.append(answer.get_single_dict(pleb))
+                    'return a ' % self.object_uuid
+            solutions, meta = execute_cypher_query(query)
+            solutions = [SBSolution.inflate(row[0]) for row in solutions]
+            for solution in solutions:
+                solution_array.append(solution.get_single_dict(pleb))
             edit = self.get_most_recent_edit()
             for comment in self.comments.all():
                 comment_array.append(comment.get_single_dict())
@@ -150,22 +150,19 @@ class SBQuestion(SBVersioned, SBTagContent):
             else:
                 html_content = markdown.markdown(self.content)
             return {
-                'question_title': edit.question_title,
+                'title': edit.title,
                 'content': edit.content,
-                'object_uuid': self.sb_id,
+                'object_uuid': self.object_uuid,
                 'is_closed': self.is_closed,
-                'answer_number': self.answer_number,
+                'solution_count': self.solution_count,
                 'last_edited_on': unicode(self.last_edited_on),
-                'up_vote_number': self.get_upvote_count(),
-                'down_vote_number': self.get_downvote_count(),
-                'object_vote_count': self.get_vote_count(),
-                'owner': owner_name,
-                'owner_profile_url': owner_profile_url,
-                'time_created': unicode(self.date_created),
-                'answers': answer_array,
+                'upvotes': self.get_upvote_count(),
+                'downvotes': self.get_downvote_count(),
+                'vote_count': self.get_vote_count(),
+                'owner': owner.username,
+                'created': unicode(self.created),
+                'solutions': solution_array,
                 'comments': comment_array,
-                'current_pleb': pleb,
-                'owner_email': owner.email,
                 'edits': [],
                 'object_type': self.object_type,
                 'to_be_deleted': self.to_be_deleted,
@@ -173,29 +170,7 @@ class SBQuestion(SBVersioned, SBTagContent):
         except (CypherException, IOError) as e:
             return e
 
-    @apply_defense
-    def get_multiple_question_dict(self, pleb):
-        try:
-            owner = self.owned_by.all()
-            owner = owner[0]
-            owner = owner.first_name + ' ' + owner.last_name
-            question_dict = {'question_title': self.question_title,
-                             'question_content': self.content[:50]+'...',
-                             'is_closed': self.is_closed,
-                             'answer_number': self.answer_number,
-                             'last_edited_on': self.last_edited_on,
-                             'up_vote_number': self.get_upvote_count(),
-                             'down_vote_number': self.get_downvote_count(),
-                             'vote_count': self.get_vote_count(),
-                             'owner': owner,
-                             'time_created': self.date_created,
-                             'question_url': '/conversations/%s' % self.sb_id,
-                             'current_pleb': pleb
-                        }
-            return question_dict
-        except CypherException as e:
-            return e
-
+    # TODO should be able to remove this and instead use the new endpoints
     @apply_defense
     def render_question_page(self, user_email):
         try:
@@ -211,19 +186,17 @@ class SBQuestion(SBVersioned, SBTagContent):
             if most_recent is not None:
                 most_recent_content = most_recent.content
                 if most_recent_content is not None:
-                    if len(most_recent_content) > 50:
-                        most_recent_content = most_recent_content[:50] + '...'
                     question_dict = {
-                        'question_title': most_recent.question_title,
+                        'title': most_recent.title,
                         'question_content': most_recent_content,
                         'is_closed': self.is_closed,
-                        'answer_number': self.answer_number,
+                        'solution_count': self.solution_count,
                         'last_edited_on': self.last_edited_on,
-                        'up_vote_number': self.up_vote_number,
-                        'down_vote_number': self.down_vote_number,
+                        'upvotes': self.upvotes,
+                        'downvotes': self.downvotes,
                         'owner': owner,
-                        'time_created': self.date_created,
-                        'question_url': self.sb_id,
+                        'created': self.created,
+                        'question_url': self.object_uuid,
                         'current_pleb': user_email
                     }
                 else:
@@ -246,34 +219,34 @@ class SBQuestion(SBVersioned, SBTagContent):
             owner_name = "%s %s" % (owner.first_name, owner.last_name)
             owner_profile_url = owner.username
             question_dict = {
-                "question_title": self.get_most_recent_edit().question_title,
+                "title": self.get_most_recent_edit().title,
                 "question_content": self.get_most_recent_edit().content,
-                "question_uuid": self.sb_id,
+                "question_uuid": self.object_uuid,
                 "is_closed": self.is_closed,
-                "answer_number": self.answer_number,
+                "solution_count": self.solution_count,
                 "last_edited_on": self.last_edited_on,
-                "up_vote_number": self.up_vote_number,
-                "down_vote_number": self.down_vote_number,
+                "upvotes": self.upvotes,
+                "downvotes": self.downvotes,
                 "owner": owner_name,
                 "owner_profile_url": owner_profile_url,
-                "time_created": self.date_created,
+                "created": self.created,
                 "owner_email": owner.email}
             rendered = render_to_string('question_search.html', question_dict)
             return rendered
         except CypherException as e:
             return e
 
+    def render_multiple(self, pleb):
+        pass
+
     @apply_defense
     def render_single(self, pleb):
         try:
-            t = get_template("question_detail.html")
+            t = get_template("question.html")
             c = Context(self.get_single_dict(pleb))
             return t.render(c)
         except CypherException as e:
             return e
-
-    def render_multiple(self, pleb):
-        pass
 
     @apply_defense
     def get_original(self):
@@ -290,7 +263,7 @@ class SBQuestion(SBVersioned, SBTagContent):
             results, columns = self.cypher('start q=node({self}) '
                                            'match q-[:EDIT]-(n:SBQuestion) '
                                            'with n '
-                                           'ORDER BY n.date_created DESC'
+                                           'ORDER BY n.created DESC'
                                            ' return n')
             edits = [self.inflate(row[0]) for row in results]
             if not edits:

@@ -31,7 +31,7 @@ def save_post_view(request):
     :param request:
     :return:
     '''
-    datetime_preunicode = datetime.now(pytz.utc)
+    created_preunicode = datetime.now(pytz.utc)
     post_data = request.DATA
     if type(post_data) != dict:
         return Response({"details": "Please Provide a JSON Object"}, status=400)
@@ -44,7 +44,7 @@ def save_post_view(request):
     if valid_form:
         #post_data['content'] = language_filter(post_data['content'])
         post_form.cleaned_data['post_uuid'] = str(uuid1())
-        post_form.cleaned_data['datetime'] = datetime_preunicode
+        post_form.cleaned_data['created'] = created_preunicode
         html_content = markdown.markdown(post_form.cleaned_data['content'])
         spawned = spawn_task(task_func=save_post_task,
                              task_param=post_form.cleaned_data)
@@ -54,15 +54,15 @@ def save_post_view(request):
         post_data = {
             "object_uuid": post_form.cleaned_data['post_uuid'],
             "parent_object": request.user.username,
-            "datetime": unicode(datetime_preunicode),
+            "created": unicode(created_preunicode),
             "last_edited_on": datetime.now(pytz.utc),
             "post_owner": request.user.first_name + " " +
                           request.user.last_name,
             "upvote_number": 0,
             "downvote_number": 0,
             "content": post_form.cleaned_data['content'],
-            "object_vote_count": "0",
-            "vote_type": "true",
+            "vote_count": "0",
+            "vote_type": None,
             "html_content": html_content
         }
         c = RequestContext(request, post_data)
@@ -92,9 +92,11 @@ def get_user_posts(request):
     except AttributeError:
         return Response(status=404)
     if valid_form:
-        posts = get_wall_docs(request.user.username)
+        posts = get_wall_docs(
+            post_form.cleaned_data['current_user'],
+            request.user.username)
         if not posts:
-            posts = get_pleb_posts(request.user.email,
+            posts = get_pleb_posts(request.user.username,
                                    post_form.cleaned_data['range_end'],
                                    post_form.cleaned_data['range_start'])
             for post in posts:
@@ -102,40 +104,41 @@ def get_user_posts(request):
                     post_form.cleaned_data['current_user']))
                 task_data = {
                     "object_type": dict(settings.KNOWN_TYPES)[post.object_type],
-                    "object_uuid": post.sb_id
+                    "object_uuid": post.object_uuid
                 }
                 spawn_task(update_view_count_task, task_data)
             task_dict = {'username': request.user.username}
             spawn_task(task_func=build_wall_task, task_param=task_dict)
         else:
             for post in posts:
-                post['user'] = request.user
-                post['last_edited_on'] = \
-                    datetime.strptime(post['last_edited_on'][
-                                      :len(post['last_edited_on'])-6],
-                                      '%Y-%m-%d %H:%M:%S.%f')
-                post['object_vote_count'] = str(post[
-                                                         'up_vote_number'] -\
-                                                 post['down_vote_number'])
-                post['vote_type'] = ""
-                post['current_pleb'] = request.user
-                task_data = {
-                    "object_type": dict(
-                        settings.KNOWN_TYPES)[post['object_type']],
-                    'object_uuid': post['object_uuid']
-                }
-                spawn_task(update_view_count_task, task_data)
-                for item in post["comments"]:
-                    item['last_edited_on'] = \
-                    datetime.strptime(item['last_edited_on'][
-                                      :len(item['last_edited_on'])-6],
-                                      '%Y-%m-%d %H:%M:%S.%f')
-                    item['object_vote_count'] = str(item['up_vote_number'] - \
-                                                item['down_vote_number'])
-                c = RequestContext(request, post)
-                html = render_to_string('post.html', post,
-                                        context_instance=c)
-                html_array.append(html)
+                try:
+                    post['user'] = request.user
+                    post['last_edited_on'] = datetime.strptime(
+                        post['last_edited_on'][:len(
+                            post['last_edited_on']) - 6], '%Y-%m-%d %H:%M:%S.%f')
+                    post['vote_count'] = str(
+                        post['upvotes'] - post['downvotes'])
+
+                    post['current_pleb'] = request.user
+                    task_data = {
+                        "object_type": dict(
+                            settings.KNOWN_TYPES)[post['object_type']],
+                        'object_uuid': post['object_uuid']
+                    }
+                    spawn_task(update_view_count_task, task_data)
+                    for item in post["comments"]:
+                        item['last_edited_on'] = datetime.strptime(
+                            item['last_edited_on'][:len(
+                                item['last_edited_on']) - 6],
+                            '%Y-%m-%d %H:%M:%S.%f')
+                        item['vote_count'] = str(
+                            item['upvotes'] - item['downvotes'])
+                    c = RequestContext(request, post)
+                    html = render_to_string('post.html', post,
+                                            context_instance=c)
+                    html_array.append(html)
+                except KeyError:
+                    continue
 
         return Response({'html': html_array}, status=200)
     else:

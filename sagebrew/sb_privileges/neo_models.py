@@ -2,16 +2,15 @@ import pytz
 import pickle
 from uuid import uuid1
 from datetime import datetime
-
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, BooleanProperty)
 
-from api.utils import post_to_api
+from api.utils import request_to_api
 
 
 class SBPrivilege(StructuredNode):
-    sb_id = StringProperty(default=lambda: str(uuid1()))
-    privilege_name = StringProperty()
+    object_uuid = StringProperty(default=lambda: str(uuid1()))
+    name = StringProperty(unique_index=True)
 
     #relationships
     actions = RelationshipTo('sb_privileges.neo_models.SBAction', 'GRANTS')
@@ -20,11 +19,12 @@ class SBPrivilege(StructuredNode):
     badges = RelationshipTo('sb_badges.neo_models.BadgeBase', "REQUIRES_BADGE")
 
     def check_requirements(self, pleb):
-        req_checks = []
         for req in self.get_requirements():
-            req_checks.append(req.check_requirement(pleb.username)['response'])
-        if False in req_checks:
-            return False
+            req_response = req.check_requirement(pleb.username)
+            if isinstance(req_response, Exception):
+                return False
+            if req_response is False:
+                return False
         return True
 
     def check_badges(self, pleb):
@@ -47,16 +47,16 @@ class SBPrivilege(StructuredNode):
         for req in self.get_requirements():
             requirements.append(req.get_dict())
         return {
-            "sb_id": self.sb_id,
-            "name": self.privilege_name,
+            "object_uuid": self.object_uuid,
+            "name": self.name,
             "actions": actions,
             "requirements": requirements,
-            "privilege": self.privilege_name
+            "privilege": self.name
         }
 
 
 class SBAction(StructuredNode):
-    sb_id = StringProperty(default=lambda: str(uuid1()))
+    object_uuid = StringProperty(default=lambda: str(uuid1()))
     action = StringProperty(default="")
     object_type = StringProperty()#one of the object types specified in settings.KNOWN_TYPES
     url = StringProperty()
@@ -72,7 +72,7 @@ class SBAction(StructuredNode):
         possible_restrictions = []
         for restriction in self.get_restrictions():
             possible_restrictions.append(restriction.get_dict)
-        return {"sb_id": self.sb_id,
+        return {"object_uuid": self.object_uuid,
                 "action": self.action,
                 "object_type": self.object_type,
                 "url": self.url,
@@ -84,9 +84,9 @@ class SBAction(StructuredNode):
 
 
 class SBRestriction(StructuredNode):
-    sb_id = StringProperty(default=lambda: str(uuid1()), unique_index=True)
+    object_uuid = StringProperty(default=lambda: str(uuid1()), unique_index=True)
     base = BooleanProperty(default=False)
-    name = StringProperty()
+    name = StringProperty(unique_index=True)
     url = StringProperty()
     key = StringProperty()
     operator = StringProperty(default="") #gt, ge, eq, ne, ge, gt
@@ -99,7 +99,7 @@ class SBRestriction(StructuredNode):
     #methods
     def get_dict(self):
         return {
-            "sb_id": self.sb_id,
+            "object_uuid": self.object_uuid,
             "restriction": self.name,
             "key": self.key,
             "operator": self.operator,
@@ -111,7 +111,12 @@ class SBRestriction(StructuredNode):
         }
 
     def check_restriction(self, username, start_date):
-        res = post_to_api(self.url, username, req_method='get')
+        res = request_to_api(self.url, username, req_method='get',
+                             internal=True)
+        # TODO should probably handle any response greater than a
+        # 400 and stop the function as they may have the req just
+        # having server issues.
+        res = res.json()
         temp_type = type(res[self.key])
         temp_cond = temp_type(self.condition)
         return self.build_check_dict(
@@ -130,7 +135,7 @@ class SBRestriction(StructuredNode):
                         self.get_operator_string(), self.condition, 'flags',
                         current)}
         else:
-            return {"detail": "The restriction %s was met"%(self.sb_id),
+            return {"detail": "The restriction %s was met"%(self.object_uuid),
                     "key": self.key,
                     "operator": pickle.loads(self.operator),
                     "response": check}

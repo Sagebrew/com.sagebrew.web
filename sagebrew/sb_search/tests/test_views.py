@@ -295,7 +295,7 @@ class TestSearchResultAPIReturns(TestCase):
         self.pleb.first_name='Tyler'
         self.pleb.last_name='Wiersing'
         self.pleb.save()
-        self.q1dict = {'question_title': 'Are current battery-powered '
+        self.q1dict = {'title': 'Are current battery-powered '
                                     'cars really more eco-friendly '
                                     'than cars that run '
                                     'off fossil fuels?',
@@ -318,7 +318,7 @@ class TestSearchResultAPIReturns(TestCase):
                                       'needed to power them, are '
                                       'both heavy proponents of '
                                       'greenhouse gas emissions. '}
-        self.q2dict = {'question_title': 'How can we reduce the amount of'
+        self.q2dict = {'title': 'How can we reduce the amount of'
                                          ' NO2 pollution in the '
                                          'atmosphere?',
                        'question_content':  'NO2 is a greenhouse gas 300 '
@@ -347,21 +347,21 @@ class TestSearchResultAPIReturns(TestCase):
 
     def test_search_result_api_returns_expected(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        question1 = SBQuestion(sb_id=str(uuid1()),
-                               question_title=self.q1dict['question_title'],
+        question1 = SBQuestion(object_uuid=str(uuid1()),
+                               title=self.q1dict['title'],
                                content=self.q1dict['question_content'],
-                               is_closed=False, answer_number=0,
+                               is_closed=False, solution_count=0,
                                last_edited_on=datetime.now(pytz.utc),
-                               up_vote_number=0,
-                               down_vote_number=0,
-                               date_created=datetime.now(pytz.utc))
+                               upvotes=0,
+                               downvotes=0,
+                               created=datetime.now(pytz.utc))
         question1.save()
         question1.owned_by.connect(self.pleb)
         index_res = es.index(index='full-search-user-specific-1',
                              doc_type='sb_questions.neo_models.SBQuestion',
                              body={
-                                 'object_uuid': question1.sb_id,
-                                 'question_title': question1.question_title,
+                                 'object_uuid': question1.object_uuid,
+                                 'title': question1.title,
                                  'question_content': question1.content,
                                  'related_user': self.user.email
                              })
@@ -378,21 +378,21 @@ class TestSearchResultAPIReturns(TestCase):
 
     def test_search_result_api_returns_multi_expected(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        question1 = SBQuestion(sb_id=str(uuid1()),
-                               question_title=self.q1dict['question_title'],
+        question1 = SBQuestion(object_uuid=str(uuid1()),
+                               title=self.q1dict['title'],
                                content=self.q1dict['question_content'],
-                               is_closed=False, answer_number=0,
+                               is_closed=False, solution_count=0,
                                last_edited_on=datetime.now(pytz.utc),
-                               up_vote_number=0,
-                               down_vote_number=0,
-                               date_created=datetime.now(pytz.utc))
+                               upvotes=0,
+                               downvotes=0,
+                               created=datetime.now(pytz.utc))
         question1.save()
         question1.owned_by.connect(self.pleb)
         es.index(index='full-search-user-specific-1',
                  doc_type='sb_questions.neo_models.SBQuestion',
                  body={
-                     'object_uuid': question1.sb_id,
-                     'question_title': question1.question_title,
+                     'object_uuid': question1.object_uuid,
+                     'title': question1.title,
                      'question_content': question1.content,
                      'related_user': self.user.email
                  })
@@ -400,8 +400,8 @@ class TestSearchResultAPIReturns(TestCase):
             es.index(index='full-search-user-specific-1',
                      doc_type='sb_questions.neo_models.SBQuestion',
                      body={
-                         'object_uuid': question1.sb_id,
-                         'question_title': question1.question_title,
+                         'object_uuid': question1.object_uuid,
+                         'title': question1.title,
                          'question_content': question1.content,
                          'related_user': self.user.email
                      })
@@ -417,21 +417,21 @@ class TestSearchResultAPIReturns(TestCase):
 
     def test_search_result_api_returns_page_2(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        question1 = SBQuestion(sb_id=str(uuid1()),
-                               question_title=self.q1dict['question_title'],
+        question1 = SBQuestion(object_uuid=str(uuid1()),
+                               title=self.q1dict['title'],
                                content=self.q1dict['question_content'],
-                               is_closed=False, answer_number=0,
+                               is_closed=False, solution_count=0,
                                last_edited_on=datetime.now(pytz.utc),
-                               up_vote_number=0,
-                               down_vote_number=0,
-                               date_created=datetime.now(pytz.utc))
+                               upvotes=0,
+                               downvotes=0,
+                               created=datetime.now(pytz.utc))
         question1.save()
         question1.owned_by.connect(self.pleb)
         es.index(index='full-search-user-specific-1',
                  doc_type='sb_questions.neo_models.SBQuestion',
                  body={
-                     'object_uuid': question1.sb_id,
-                     'question_title': question1.question_title,
+                     'object_uuid': question1.object_uuid,
+                     'title': question1.title,
                      'question_content': question1.content,
                      'related_user': self.user.email
                  })
@@ -439,8 +439,8 @@ class TestSearchResultAPIReturns(TestCase):
             es.index(index='full-search-user-specific-1',
                      doc_type='sb_questions.neo_models.SBQuestion',
                      body={
-                         'object_uuid': question1.sb_id,
-                         'question_title': question1.question_title,
+                         'object_uuid': question1.object_uuid,
+                         'title': question1.title,
                          'question_content': question1.content,
                          'related_user': self.user.email
                      })
@@ -464,21 +464,21 @@ class TestSearchResultAPIReturns(TestCase):
         user = User.objects.create_user(pleb.username, email, 'testpassword')
 
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        question1 = SBQuestion(sb_id=str(uuid1()),
-                               question_title=self.q1dict['question_title'],
+        question1 = SBQuestion(object_uuid=str(uuid1()),
+                               title=self.q1dict['title'],
                                question_content=self.q1dict['question_content'],
-                               is_closed=False, answer_number=0,
+                               is_closed=False, solution_count=0,
                                last_edited_on=datetime.now(pytz.utc),
-                               up_vote_number=0,
-                               down_vote_number=0,
-                               date_created=datetime.now(pytz.utc))
+                               upvotes=0,
+                               downvotes=0,
+                               created=datetime.now(pytz.utc))
         question1.save()
         question1.owned_by.connect(pleb)
         es.index(index='full-search-user-specific-1',
                  doc_type='sb_questions.neo_models.SBQuestion',
                  body={
-                     'object_uuid': question1.sb_id,
-                     'question_title': question1.question_title,
+                     'object_uuid': question1.object_uuid,
+                     'title': question1.title,
                      'question_content': question1.question_content,
                      'related_user': user.email
                  })
@@ -486,8 +486,8 @@ class TestSearchResultAPIReturns(TestCase):
             es.index(index='full-search-user-specific-1',
                      doc_type='sb_questions.neo_models.SBQuestion',
                      body={
-                         'object_uuid': question1.sb_id,
-                         'question_title': question1.question_title,
+                         'object_uuid': question1.object_uuid,
+                         'title': question1.title,
                          'question_content': question1.question_content,
                          'related_user': user.email
                      })
@@ -509,21 +509,21 @@ class TestSearchResultAPIReturns(TestCase):
         pleb.save()
         user = User.objects.create_user(shortuuid.uuid(), email, 'testpassword')
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        question1 = SBQuestion(sb_id=str(uuid1()),
-                               question_title=self.q1dict['question_title'],
+        question1 = SBQuestion(object_uuid=str(uuid1()),
+                               title=self.q1dict['title'],
                                question_content=self.q1dict['question_content'],
-                               is_closed=False, answer_number=0,
+                               is_closed=False, solution_count=0,
                                last_edited_on=datetime.now(pytz.utc),
-                               up_vote_number=0,
-                               down_vote_number=0,
-                               date_created=datetime.now(pytz.utc))
+                               upvotes=0,
+                               downvotes=0,
+                               created=datetime.now(pytz.utc))
         question1.save()
         question1.owned_by.connect(self.pleb)
         es.index(index='full-search-user-specific-1',
                  doc_type='sb_questions.neo_models.SBQuestion',
                  body={
-                     'object_uuid': question1.sb_id,
-                     'question_title': question1.question_title,
+                     'object_uuid': question1.object_uuid,
+                     'title': question1.title,
                      'question_content': question1.question_content,
                      'related_user': str(uuid1()).strip('-')
                  })
@@ -531,8 +531,8 @@ class TestSearchResultAPIReturns(TestCase):
             es.index(index='full-search-user-specific-1',
                      doc_type='sb_questions.neo_models.SBQuestion',
                      body={
-                         'object_uuid': question1.sb_id,
-                         'question_title': question1.question_title,
+                         'object_uuid': question1.object_uuid,
+                         'title': question1.title,
                          'question_content': question1.question_content,
                          'related_user': str(uuid1()).strip('-')
                      })
@@ -554,27 +554,27 @@ class TestSearchResultAPIReturns(TestCase):
         self.user.email = email
         self.user.save()
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        question1 = SBQuestion(sb_id=str(uuid1()),
-                               question_title=self.q1dict['question_title'],
+        question1 = SBQuestion(object_uuid=str(uuid1()),
+                               title=self.q1dict['title'],
                                content=self.q1dict['question_content'],
-                               is_closed=False, answer_number=0,
+                               is_closed=False, solution_count=0,
                                last_edited_on=datetime.now(pytz.utc),
-                               up_vote_number=0,
-                               down_vote_number=0,
-                               date_created=datetime.now(pytz.utc))
+                               upvotes=0,
+                               downvotes=0,
+                               created=datetime.now(pytz.utc))
         question1.save()
         question1.owned_by.connect(pleb)
         es.index(index='full-search-user-specific-1',
                  doc_type='sb_questions.neo_models.SBQuestion',
                  body={
-                     'object_uuid': question1.sb_id,
-                     'question_title': question1.question_title,
+                     'object_uuid': question1.object_uuid,
+                     'title': question1.title,
                      'question_content': question1.content,
                      'related_user': self.user.email
                  })
 
-        question2 = SBQuestion(sb_id=str(uuid1()),
-                               question_title='Should we ban the use '
+        question2 = SBQuestion(object_uuid=str(uuid1()),
+                               title='Should we ban the use '
                                               'of fossil fuels?',
                                content='With battery-powered cars '
                                                 'becoming more and more '
@@ -591,9 +591,9 @@ class TestSearchResultAPIReturns(TestCase):
         question2.save()
         es.index(index='full-search-user-specific-1',
                  doc_type='sb_questions.neo_models.SBQuestion',
-                 body={'object_uuid': question2.sb_id,
+                 body={'object_uuid': question2.object_uuid,
                        'question_content': question2.content,
-                       'question_title': question2.question_title,
+                       'title': question2.title,
                        'related_user': self.user.email})
         time.sleep(3)
         self.client.login(username=self.user.username, password='testpassword')
@@ -602,16 +602,16 @@ class TestSearchResultAPIReturns(TestCase):
                                                   'page': '1'}))
         result_dict = loads(request.content)
 
-        res1 = SBQuestion.nodes.get(sb_id=result_dict['html'][0]['question_uuid'])
-        res2 = SBQuestion.nodes.get(sb_id=result_dict['html'][1]['question_uuid'])
-        self.assertEqual(res1.question_title, question2.question_title)
-        self.assertEqual(res2.question_title, question1.question_title)
+        res1 = SBQuestion.nodes.get(object_uuid=result_dict['html'][0]['question_uuid'])
+        res2 = SBQuestion.nodes.get(object_uuid=result_dict['html'][1]['question_uuid'])
+        self.assertEqual(res1.title, question2.title)
+        self.assertEqual(res2.title, question1.title)
         self.assertEqual(request.status_code, 200)
 
 
 '''
-question2 = SBQuestion(sb_id=str(uuid1()),
-                       question_title='How can we reduce the amount of'
+question2 = SBQuestion(object_uuid=str(uuid1()),
+                       title='How can we reduce the amount of'
                                       ' NO2 pollution in the '
                                       'atmosphere?',
                        question_content='NO2 is a greenhouse gas 300 '
@@ -630,8 +630,8 @@ question2.owned_by.connect(self.pleb)
 es.index(index='full-search-user-specific-1',
          doc_type='question',
          body={
-             'question_uuid': question2.sb_id,
-             'question_title': question2.question_title,
+             'question_uuid': question2.object_uuid,
+             'title': question2.title,
              'question_content': question2.question_content,
              'related_user': self.user.email
          })

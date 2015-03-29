@@ -56,11 +56,11 @@ class SBPost(SBNonVersioned):
         from sb_comments.neo_models import SBComment
         try:
             comment_array = []
-            query = 'MATCH (p:SBPost) WHERE p.sb_id="%s" ' \
+            query = 'MATCH (p:SBPost) WHERE p.object_uuid="%s" ' \
                     'WITH p MATCH (p) - [:HAS_A] - (c:SBComment) ' \
                     'WHERE c.to_be_deleted=False ' \
-                    'WITH c ORDER BY c.created_on ' \
-                    'RETURN c' % self.sb_id
+                    'WITH c ORDER BY c.created ' \
+                    'RETURN c' % self.object_uuid
             post_comments, meta = execute_cypher_query(query)
             post_comments = [SBComment.inflate(row[0]) for row in post_comments]
             try:
@@ -81,17 +81,17 @@ class SBPost(SBNonVersioned):
                 parent_object = ""
             for comment in post_comments:
                 comment_array.append(comment.get_single_dict(pleb))
-            return {'content': self.content, 'object_uuid': self.sb_id,
+            return {'content': self.content, 'object_uuid': self.object_uuid,
                     'parent_object': parent_object,
-                    'object_vote_count': self.get_vote_count(),
-                    'up_vote_number': self.get_upvote_count(),
-                    'down_vote_number': self.get_downvote_count(),
+                    'vote_count': self.get_vote_count(),
+                    'upvotes': self.get_upvote_count(),
+                    'downvotes': self.get_downvote_count(),
                     'last_edited_on': unicode(self.last_edited_on),
                     'post_owner': post_owner_name,
                     'post_owner_email': post_owner_email,
                     'comments': comment_array,
                     'current_user': pleb,
-                    'datetime': unicode(self.date_created),
+                    'created': unicode(self.created),
                     'object_type': self.object_type,
                     'view_count': self.get_view_count()}
         except CypherException as e:

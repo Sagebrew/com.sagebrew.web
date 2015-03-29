@@ -1,31 +1,31 @@
-from uuid import uuid1
 from textblob import TextBlob
 
 from neomodel import DoesNotExist, CypherException
 
 from api.utils import execute_cypher_query
-from .neo_models import SBQuestion
 from sb_base.decorators import apply_defense
+
+from .neo_models import SBQuestion
 
 
 @apply_defense
-def create_question_util(content, question_title, question_uuid):
+def create_question_util(content, title, question_uuid):
     '''
     This util creates the question and attaches it to the user who asked it
 
     :param content:
     :param current_pleb:
-    :param question_title:
+    :param title:
     :return:
     '''
     try:
-        question = SBQuestion.nodes.get(sb_id=question_uuid)
+        question = SBQuestion.nodes.get(object_uuid=question_uuid)
     except (SBQuestion.DoesNotExist, DoesNotExist):
         content_blob = TextBlob(content)
-        title_blob = TextBlob(question_title)
+        title_blob = TextBlob(title)
         question = SBQuestion(content=content,
-                              question_title=question_title,
-                              sb_id=question_uuid)
+                              title=title,
+                              object_uuid=question_uuid)
         question.subjectivity = content_blob.subjectivity
         question.positivity = content_blob.polarity
         question.title_polarity = title_blob.polarity
@@ -42,15 +42,17 @@ def get_question_by_uuid(question_uuid, current_pleb):
     Sorting util
 
     This function gets a question by a uuid. It calls prepare_get_question_dictionary
-    to create the dictionary of question details and answer details then returns
+    to create the dictionary of question details and solution details then returns
     to the view
 
     :param question_uuid:
     :param current_pleb:
     :return:
     '''
+    # TODO this should be handled with the REST endpoint now and the
+    # render_single method in question can be deleted once that happens.
     try:
-        question = SBQuestion.nodes.get(sb_id=question_uuid)
+        question = SBQuestion.nodes.get(object_uuid=question_uuid)
     except (SBQuestion.DoesNotExist, DoesNotExist):
         return False
     except CypherException as e:
@@ -72,13 +74,16 @@ def get_question_by_most_recent(range_start=0, range_end=5):
     :return:
     '''
     query = 'match (q:SBQuestion) where q.to_be_deleted=False and q.original=True ' \
-            'with q order by q.date_created desc ' \
+            'with q order by q.created desc ' \
             'with q skip %s limit %s ' \
             'return q' % (range_start, range_end)
     questions, meta = execute_cypher_query(query)
     if isinstance(questions, Exception):
         return questions
-    questions = [SBQuestion.inflate(row[0]) for row in questions]
+    try:
+        questions = [SBQuestion.inflate(row[0]) for row in questions]
+    except IndexError:
+        questions = []
     return questions
 
 
@@ -96,14 +101,18 @@ def get_question_by_least_recent(range_start=0, range_end=5):
     :return:
     '''
     query = 'match (q:SBQuestion) where q.to_be_deleted=False and q.original=True ' \
-            'with q order by q.date_created ' \
+            'with q order by q.created ' \
             'with q skip %s limit %s ' \
             'return q' % (range_start, range_end)
     questions, meta = execute_cypher_query(query)
     if isinstance(questions, Exception):
         return questions
-    questions = [SBQuestion.inflate(row[0]) for row in questions]
+    try:
+        questions = [SBQuestion.inflate(row[0]) for row in questions]
+    except IndexError:
+        questions = []
     return questions
+
 
 @apply_defense
 def get_question_by_recent_edit(range_start=0, range_end=5):
@@ -114,17 +123,27 @@ def get_question_by_recent_edit(range_start=0, range_end=5):
     questions, meta = execute_cypher_query(query)
     if isinstance(questions, Exception):
         return questions
-    questions = [SBQuestion.inflate(row[0]) for row in questions]
+    try:
+        questions = [SBQuestion.inflate(row[0]) for row in questions]
+    except IndexError:
+        questions = []
     return questions
 
 
 @apply_defense
 def prepare_question_search_html(question_uuid):
     try:
-        my_question = SBQuestion.nodes.get(sb_id=question_uuid)
+        my_question = SBQuestion.nodes.get(object_uuid=question_uuid)
     except (SBQuestion.DoesNotExist, DoesNotExist):
         return False
     except CypherException:
         return None
 
     return my_question.render_search()
+
+
+def clean_question_for_rest(single_object):
+    # TODO Need to cast these somewhere other than here
+    single_object["is_closed"] = int(single_object["is_closed"])
+
+    return single_object

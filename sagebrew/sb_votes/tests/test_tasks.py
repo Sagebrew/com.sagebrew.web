@@ -25,10 +25,10 @@ class TestVoteObjectTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_vote_object_task_success(self):
-        question = SBQuestion(sb_id=str(uuid1())).save()
+        question = SBQuestion(object_uuid=str(uuid1())).save()
         task_data = {
             'object_type': 'sb_questions.neo_models.SBQuestion',
-            'object_uuid': question.sb_id,
+            'object_uuid': question.object_uuid,
             'current_pleb': self.pleb,
             'vote_type': True
         }
@@ -39,10 +39,10 @@ class TestVoteObjectTask(TestCase):
         self.assertIsInstance(res.result, SBQuestion)
 
     def test_vote_object_task_get_object_failure(self):
-        question = SBQuestion(sb_id=str(uuid1())).save()
+        question = SBQuestion(object_uuid=str(uuid1())).save()
         task_data = {
             'object_type': 'SBQuestion',
-            'object_uuid': question.sb_id,
+            'object_uuid': question.object_uuid,
             'current_pleb': self.pleb,
             'vote_type': True
         }

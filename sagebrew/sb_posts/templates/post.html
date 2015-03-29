@@ -4,7 +4,7 @@
     comments. This template is not meant for normal inclusion in a initial
     render template.
 {% endcomment %}
-<div class="sb_id" data-object_uuid="{{ object_uuid }}"style="display: None"></div>
+<div class="object_uuid" data-object_uuid="{{ object_uuid }}"style="display: None"></div>
 <div class="sb_post_header">
     <div class="row">
         <div class="col-lg-1 col-md-1 col-sm-1 hidden-xs">
@@ -82,13 +82,13 @@
             <div class="col-lg-1 hidden-md hidden-sm hidden-xs sb_vote_wrapper">
                 <div class="row vote_wrapper" id="vote_{{ object_uuid }}">
                     <div class="col-lg-12 sb_up_vote_wrapper">
-                        <div style="display: none" class="sb_upvote_count{{ object_uuid }}">{{ up_vote_number }}</div>
+                        <div style="display: none" class="sb_upvote_count{{ object_uuid }}">{{ upvotes }}</div>
                         {% if vote_type == "false" or vote_type == None %}
                             <button class="btn sb_btn sb_btn_vote vote_up vote_object-action"
                                data-object_uuid="{{ object_uuid }}"
                                data-vote_type=true
                                data-current_pleb="{{ current_pleb }}"
-                               data-object_type="02241aee-644f-11e4-9ad9-080027242395">
+                               data-object_type="{{ object_type }}">
                                 <span class="fui-triangle-up"></span>
                             </button>
                         {% else %}
@@ -96,24 +96,24 @@
                                data-object_uuid="{{ object_uuid }}"
                                data-vote_type=true
                                data-current_pleb="{{ current_pleb }}"
-                               data-object_type="02241aee-644f-11e4-9ad9-080027242395">
+                               data-object_type="{{ object_type }}">
                                 <span class="fui-triangle-up"></span>
                             </button>
                         {% endif %}
                     </div >
-                    {% if object_vote_count|length_is:"1" %}
+                    {% if vote_count|length_is:"1" %}
                         <div class="col-lg-12 col-lg-offset-2 vote_count vote_count{{ object_uuid }}" style="margin-left: 16px;">
-                    {% elif object_vote_count|length_is:"2" %}
+                    {% elif vote_count|length_is:"2" %}
                         <div class="col-lg-12 col-lg-offset-2 vote_count vote_count{{ object_uuid }}">
-                    {% elif object_vote_count|length_is:"3" %}
+                    {% elif vote_count|length_is:"3" %}
                         <div class="col-lg-12 col-lg-offset-1 vote_count vote_count{{ object_uuid }}">
-                    {% elif object_vote_count|length_is:"4" %}
+                    {% elif vote_count|length_is:"4" %}
                         <div class="col-lg-12 col-lg-offset-0 vote_count vote_count{{ object_uuid }}">
                     {% else %}
                         <div class="col-lg-12 col-lg-offset-0 vote_count vote_count{{ object_uuid }}">
                     {% endif %}
                         <h6>
-                            {{ object_vote_count }}
+                            {{ vote_count }}
                         </h6>
                     </div>
                     <div class="col-lg-12 col-md-12 sb_down_vote_wrapper">
@@ -122,7 +122,7 @@
                                data-object_uuid="{{ object_uuid }}"
                                data-vote_type=false
                                data-current_pleb="{{ current_pleb.username }}"
-                               data-object_type="02241aee-644f-11e4-9ad9-080027242395">
+                               data-object_type="{{ object_type }}">
                                 <span class="fui-triangle-down"></span>
                             </button>
                         {% else %}
@@ -130,11 +130,11 @@
                                data-object_uuid="{{ object_uuid }}"
                                data-vote_type=false
                                data-current_pleb="{{ current_pleb.username }}"
-                               data-object_type="02241aee-644f-11e4-9ad9-080027242395">
+                               data-object_type="{{ object_type }}">
                                 <span class="fui-triangle-down"></span>
                             </button>
                         {% endif %}
-                        <div style="display: none" class="sb_downvote_count{{ object_uuid }}">{{ down_vote_number }}</div>
+                        <div style="display: none" class="sb_downvote_count{{ object_uuid }}">{{ downvotes }}</div>
                     </div>
                 </div>
             </div>
@@ -156,7 +156,7 @@
                            data-object_type="01bb301a-644f-11e4-9ad9-080027242395"
                            data-parent_object="{{ parent_object }}"
                            data-object_uuid="{{ object_uuid }}"
-                           data-datetime="{{ datetime }}">Edit Post</button>
+                           data-created="{{ created }}">Edit Post</button>
                     </div>
                 </div>
             </div>

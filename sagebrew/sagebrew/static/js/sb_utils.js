@@ -532,6 +532,7 @@ function submit_action() {
                 data[this.name] = this.value || '';
             }
         });
+        console.log(data);
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 ajax_security(xhr, settings)

@@ -242,3 +242,9 @@ class ProfileViewSet(viewsets.GenericViewSet):
                                 {"notifications": notifications})
             return Response(html, status=status.HTTP_200_OK)
         return Response(notifications, status=status.HTTP_200_OK)
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
+    def public_officials(self, request, username=None):
+        single_object = self.get_object(username=username)
+        if isinstance(single_object, Response):
+            return single_object

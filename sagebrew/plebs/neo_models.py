@@ -374,6 +374,16 @@ class Pleb(StructuredNode):
             raise e
         return notification_list
 
+    def get_public_officials(self):
+        sen_array = []
+        rep_array = []
+        try:
+            for official in self.official.all():
+                pass
+        except (IOError, CypherException) as e:
+            return e
+
+
 
 class Address(StructuredNode):
     street = StringProperty()

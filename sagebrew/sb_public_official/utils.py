@@ -2,6 +2,7 @@ import importlib
 from django.conf import settings
 from neomodel import (DoesNotExist, CypherException)
 
+from api.utils import execute_cypher_query
 from plebs.neo_models import Pleb
 from .neo_models import (BaseOfficial, Experience, Goal)
 from sb_base.decorators import apply_defense
@@ -110,8 +111,6 @@ def save_rep(pleb_username, rep_type, rep_id, recipient_id, gov_phone,
 
 @apply_defense
 def determine_reps(username):
-    from sb_docstore.utils import update_base_user_reps
-    senators = []
     try:
         pleb = Pleb.nodes.get(username=username)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException):
@@ -129,19 +128,17 @@ def determine_reps(username):
         return False
     reps = [BaseOfficial.inflate(row[0]) for row in reps]
     for rep in reps:
+        print rep.district, pleb_district
         if rep.district == pleb_district:
+            print 'in same district'
             try:
                 pleb.house_rep.connect(rep)
             except (CypherException, IOError):
                 return False
-            house_rep = rep.sb_id
-        elif rep.district is None:
+        if rep.district == 0:
+            print 'in 0 district'
             try:
-                pleb.senator.connect(rep)
-            except(CypherException, IOError):
+                pleb.senators.connect(rep)
+            except (CypherException, IOError):
                 return False
-            senators.append(rep.sb_id)
-    res = update_base_user_reps(username, house_rep, senators)
-    if isinstance(res, Exception):
-        return res
     return True

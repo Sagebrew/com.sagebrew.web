@@ -5,30 +5,9 @@
         </div>
         <div class="sb_profile_rep_content">
             <h5>Senators</h5>
-                {% if senators %}
-                {% for senator in senators %}
-                    <div class="row block_vertical">
-                        <div class="col-lg-2 col-md-2">
-                            <div class="thumbnail sb_thumbnail_rep sb_thumbnail_xs">
-                                <img src="{{ senator.public_picture }}"> {% comment %} Link to their S3 public image{% endcomment %}
-                            </div>
-                        </div>
-                        <div class="col-lg-8 col-md-10 vertical_nav">
-                            <ul>
-                                <li>
-                                    <a href="{% url 'action_saga' username=senator.object_uuid %}">{{ senator.full_name }}</a>
-                                </li>
-                                {% comment %}
-                                Django may have a better solution but see:
-                                http://stackoverflow.com/questions/9647202/ordinal-numbers-replacement
-                                for convertign a number into the necessary ordinal (1st, 2nd, 3rd)
-                                {% endcomment %}
-                                <li class="sb_rep_info">{{ senator.term }} term</li>
-                            </ul>
-                        </div>
-                    </div>
-                {% endfor %}
-                {% endif %}
+                <div id="senator_wrapper">
+
+                </div>
                 {% comment %}
                 <!-- Begin place holder Senator info -->
                 <div class="row block_vertical">
@@ -61,28 +40,9 @@
                 <!-- End place holder Senator info -->
                 {% endcomment %}
                 <h5>House Representative</h5>
-                    {% if house_rep %}
-                    <div class="row block_vertical">
-                        <div class="col-lg-2 col-md-2">
-                            <div class="thumbnail sb_thumbnail_rep sb_thumbnail_xs">
-                                <img src="{{ house_rep.public_picture }}"> {% comment %} Link to their S3 public image{% endcomment %}
-                            </div>
-                        </div>
-                    <div class="col-lg-8 col-md-10 vertical_nav">
-                        <ul>
-                            <li>
-                                <a href="{% url 'action_saga' username=house_rep.object_uuid %}">{{ house_rep.full_name }}</a>
-                            </li>
-                            {% comment %}
-                            Django may have a better solution but see:
-                            http://stackoverflow.com/questions/9647202/ordinal-numbers-replacement
-                            for convertign a number into the necessary ordinal (1st, 2nd, 3rd)
-                            {% endcomment %}
-                            <li class="sb_rep_info">{{ house_rep.term }} term</li>
-                        </ul>
+                    <div id="house_rep_wrapper">
+
                     </div>
-                </div>
-                {% endif %}
                 {% comment %}
                 <div class="row block_vertical">
                     <div class="col-lg-2 col-md-2">

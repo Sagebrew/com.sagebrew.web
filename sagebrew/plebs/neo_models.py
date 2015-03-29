@@ -145,6 +145,10 @@ class Pleb(StructuredNode):
                                      'CLICKED_RESULT')
     official = RelationshipTo('sb_public_official.neo_models.BaseOfficial',
                               'IS', model=OfficialRelationship)
+    senators = RelationshipTo('sb_public_official.neo_models.BaseOfficial',
+                             'HAS_SEN')
+    house_rep = RelationshipTo('sb_public_official.neo_models.BaseOfficial',
+                               'HAS_REP')
 
     def deactivate(self):
         return
@@ -376,17 +380,13 @@ class Pleb(StructuredNode):
 
     def get_public_officials(self):
         sen_array = []
-        rep_array = []
         try:
-            for official in self.official.all():
-                official_dict = official.get_dict()
-                if not official_dict['district']:
-                    rep_array.append(official_dict)
-                else:
-                    sen_array.append(official_dict)
+            rep = self.house_rep.all()[0]
+            for sen in self.senators.all():
+                sen_array.append(sen.get_dict())
         except (IOError, CypherException) as e:
             return e
-        return {"senators": sen_array, "house_reps": rep_array}
+        return {"senators": sen_array, "house_reps": rep.get_dict()}
 
 
 

@@ -5,6 +5,7 @@
         </div>
         <div class="sb_profile_rep_content">
             <h5>Senators</h5>
+                {% if senators %}
                 {% for senator in senators %}
                     <div class="row block_vertical">
                         <div class="col-lg-2 col-md-2">
@@ -27,6 +28,7 @@
                         </div>
                     </div>
                 {% endfor %}
+                {% endif %}
                 {% comment %}
                 <!-- Begin place holder Senator info -->
                 <div class="row block_vertical">
@@ -59,6 +61,7 @@
                 <!-- End place holder Senator info -->
                 {% endcomment %}
                 <h5>House Representative</h5>
+                    {% if house_rep %}
                     <div class="row block_vertical">
                         <div class="col-lg-2 col-md-2">
                             <div class="thumbnail sb_thumbnail_rep sb_thumbnail_xs">
@@ -79,6 +82,7 @@
                         </ul>
                     </div>
                 </div>
+                {% endif %}
                 {% comment %}
                 <div class="row block_vertical">
                     <div class="col-lg-2 col-md-2">

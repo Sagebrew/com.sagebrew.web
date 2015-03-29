@@ -128,15 +128,12 @@ def determine_reps(username):
         return False
     reps = [BaseOfficial.inflate(row[0]) for row in reps]
     for rep in reps:
-        print rep.district, pleb_district
         if rep.district == pleb_district:
-            print 'in same district'
             try:
                 pleb.house_rep.connect(rep)
             except (CypherException, IOError):
                 return False
         if rep.district == 0:
-            print 'in 0 district'
             try:
                 pleb.senators.connect(rep)
             except (CypherException, IOError):

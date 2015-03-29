@@ -9,7 +9,7 @@ $( document ).ready(function() {
 			type: "POST",
 			url: "/posts/query_posts/",
 			data: JSON.stringify({
-               'current_user': $('#user_info').data('current_user_username'),
+               'page_user': $('#user_info').data('page_user_username'),
 			   'range_start': 0,
                'range_end':10
 			}),
@@ -19,6 +19,11 @@ $( document ).ready(function() {
                 var wall_container = $('#wall_app');
                 wall_container.append(data['html']);
                 enable_post_functionality()
-        }
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
+            }
     });
 });

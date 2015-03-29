@@ -21,6 +21,8 @@ from sb_base.decorators import apply_defense
 
 from api.alchemyapi import AlchemyAPI
 
+from plebs.neo_models import Pleb
+
 
 def request_to_api(url, username, data=None, headers=None, req_method=None,
                    internal=True):
@@ -42,8 +44,15 @@ def request_to_api(url, username, data=None, headers=None, req_method=None,
     if headers is None:
         headers = {}
     if internal is True:
+        # TODO we should put the token and expiration into a cache so that we
+        # can just check if it needs to be updated and only then do we
+        # query neo.
+        try:
+            pleb = Pleb.nodes.get(username=username)
+        except(CypherException, IOError) as e:
+            raise e
         headers['Authorization'] = "%s %s" % (
-            'Bearer', get_oauth_access_token(username))
+            'Bearer', get_oauth_access_token(pleb))
     response = None
     if req_method is None:
         response = requests.post(url, data=dumps(data),

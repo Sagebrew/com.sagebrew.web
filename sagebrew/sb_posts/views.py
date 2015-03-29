@@ -91,7 +91,7 @@ def get_page_posts(request):
     :return:
     '''
     html_array = []
-    post_form = GetPostForm(request.DATA)
+    post_form = GetPostForm(request.data)
 
     if post_form.is_valid():
         posts = get_wall_docs(

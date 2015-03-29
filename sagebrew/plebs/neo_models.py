@@ -379,9 +379,15 @@ class Pleb(StructuredNode):
         rep_array = []
         try:
             for official in self.official.all():
-                pass
+                official_dict = official.get_dict()
+                if not official_dict['district']:
+                    rep_array.append(official_dict)
+                else:
+                    sen_array.append(official_dict)
         except (IOError, CypherException) as e:
             return e
+        return {"senators": sen_array, "house_reps": rep_array}
+
 
 
 

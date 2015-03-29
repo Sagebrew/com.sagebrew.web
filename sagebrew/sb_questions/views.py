@@ -204,7 +204,7 @@ def get_question_view(request):
                 return Response(status=500)
             for question in response:
                 html_array.append(
-                    question.render_question_page(request.user.email))
+                    question.render_question_page(request.user.username))
             return Response(html_array, status=200)
 
         elif question_data['sort_by'] == 'uuid':
@@ -255,7 +255,7 @@ def get_question_view(request):
             # None?
             for question in response:
                 html_array.append(
-                    question.render_question_page(request.user.email))
+                    question.render_question_page(request.user.username))
             # TODO if question is empty we should be returning a 404
             return Response(html_array, status=200)
         # TODO if cannot perform the above TODOs need to at least add
@@ -267,7 +267,7 @@ def get_question_view(request):
                 return Response(status=500)
             for question in response:
                 html_array.append(
-                    question.render_question_page(request.user.email))
+                    question.render_question_page(request.user.username))
             return Response(html_array, 200)
     return Response({"detail": "fail"}, status=400)
 

@@ -5,6 +5,7 @@
         </div>
         <div class="sb_profile_rep_content">
             <h5>Senators</h5>
+                {% if senators %}
                 {% for senator in senators %}
                     <div class="row block_vertical">
                         <div class="col-lg-2 col-md-2">
@@ -15,7 +16,7 @@
                         <div class="col-lg-8 col-md-10 vertical_nav">
                             <ul>
                                 <li>
-                                    <a href="{% url 'action_page' senator.username %}">{{ senator.first_name }} {{ senator.last_name }}</a>
+                                    <a href="{% url 'action_saga' username=senator.object_uuid %}">{{ senator.full_name }}</a>
                                 </li>
                                 {% comment %}
                                 Django may have a better solution but see:
@@ -27,6 +28,8 @@
                         </div>
                     </div>
                 {% endfor %}
+                {% endif %}
+                {% comment %}
                 <!-- Begin place holder Senator info -->
                 <div class="row block_vertical">
                     <div class="col-lg-2 col-md-2">
@@ -56,8 +59,9 @@
                     </div>
                 </div>
                 <!-- End place holder Senator info -->
+                {% endcomment %}
                 <h5>House Representative</h5>
-                {% for house_rep in house_reps %}
+                    {% if house_rep %}
                     <div class="row block_vertical">
                         <div class="col-lg-2 col-md-2">
                             <div class="thumbnail sb_thumbnail_rep sb_thumbnail_xs">
@@ -67,7 +71,7 @@
                     <div class="col-lg-8 col-md-10 vertical_nav">
                         <ul>
                             <li>
-                                <a href="{% url 'action_saga' house_rep.username %}">{{ house_rep.first_name }} {{ house_rep.last_name }}</a>
+                                <a href="{% url 'action_saga' username=house_rep.object_uuid %}">{{ house_rep.full_name }}</a>
                             </li>
                             {% comment %}
                             Django may have a better solution but see:
@@ -78,7 +82,8 @@
                         </ul>
                     </div>
                 </div>
-                {% endfor %}
+                {% endif %}
+                {% comment %}
                 <div class="row block_vertical">
                     <div class="col-lg-2 col-md-2">
                         <div class="sb_thumbnail_rep sb_thumbnail_xs thumbnail"></div>
@@ -93,6 +98,7 @@
                         {{ rep_name }}
                     </div>
                 </div>
+                {% endcomment %}
         </div>
     </div>
 </div>

@@ -27,6 +27,10 @@
         "range_key": "created"
     },
     {
+        "table_name": "friends",
+        "hash_key": "username"
+    },
+    {
         "table_name": "flags",
         "hash_key": "parent_object",
         "range_key": "user",

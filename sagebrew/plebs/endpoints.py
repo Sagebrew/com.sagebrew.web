@@ -1,5 +1,6 @@
 from logging import getLogger
 
+from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 
 from rest_framework.permissions import IsAuthenticated
@@ -15,8 +16,10 @@ from neomodel import CypherException
 from sagebrew import errors
 
 from api.utils import request_to_api
+from sb_docstore.utils import get_notification_docs
 from api.permissions import IsSelfOrReadOnly, IsSelf
 from sb_comments.serializers import CommentSerializer
+
 
 from .serializers import UserSerializer, PlebSerializerNeo
 from .neo_models import Pleb
@@ -173,6 +176,10 @@ class ProfileViewSet(viewsets.GenericViewSet):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
+        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
+        if html == 'true':
+            expand = 'true'
+
         for friend_request in friend_requests:
             if expand == "false":
                 friend_request["from"] = reverse(
@@ -186,7 +193,15 @@ class ProfileViewSet(viewsets.GenericViewSet):
                 response = request_to_api(friend_url, request.user.username,
                                           req_method="GET")
                 friend_request["from"] = response.json()
-
+            if html == 'true':
+                full_from_user = request_to_api(
+                    friend_request['from']['base_user'], request.user.username,
+                    req_method='GET')
+                friend_request['full_from_user'] = full_from_user.json()
+        if html == 'true':
+            html = render_to_string('friend_request_wrapper.html',
+                                    {"requests": friend_requests})
+            return Response(html, status=status.HTTP_200_OK)
         return Response(friend_requests, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
@@ -194,7 +209,6 @@ class ProfileViewSet(viewsets.GenericViewSet):
         single_object = self.get_object(username=username)
         if isinstance(single_object, Response):
             return single_object
-
         try:
             notifications = single_object.get_notifications()
         except(CypherException, IOError) as e:
@@ -202,18 +216,29 @@ class ProfileViewSet(viewsets.GenericViewSet):
             return Response(errors.CYPHER_EXCEPTION,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
+        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
+        if html == 'true':
+            expand = 'true'
         for notification in notifications:
             if expand == "false":
                 notification["from"] = reverse(
                     'profile-detail',
-                    kwargs={'username': notification["from"]},
+                    kwargs={'username': notification["from_info"]["username"]},
                     request=request)
             else:
                 friend_url = reverse('profile-detail',
-                    kwargs={'username': notification["from"]},
+                    kwargs={'username': notification["from_info"]["username"]},
                     request=request)
                 response = request_to_api(friend_url, request.user.username,
                                           req_method="GET")
                 notification["from"] = response.json()
-
+            if html == 'true':
+                from_user_response = request_to_api(
+                    notification['from']['base_user'], request.user.username,
+                    req_method='GET')
+                notification['from'] = from_user_response.json()
+        if html == 'true':
+            html = render_to_string('notifications.html',
+                                {"notifications": notifications})
+            return Response(html, status=status.HTTP_200_OK)
         return Response(notifications, status=status.HTTP_200_OK)

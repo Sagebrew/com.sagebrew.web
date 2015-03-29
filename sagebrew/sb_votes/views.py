@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from .forms import VoteObjectForm
 from .utils import determine_update_values
 
-from sb_docstore.utils import get_vote, add_object_to_table, update_vote
+from sb_docstore.utils import add_object_to_table, update_vote, get_vote
 
 logger = logging.getLogger('loggly_logs')
 

@@ -1,5 +1,9 @@
 [
     {
+        "table_name": "users_full",
+        "hash_key": "email"
+    },
+    {
         "table_name": "comments",
         "hash_key": "parent_object",
         "range_key": "created"

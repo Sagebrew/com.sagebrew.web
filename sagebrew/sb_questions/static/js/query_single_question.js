@@ -14,6 +14,11 @@ $( document ).ready(function() {
         success: function (data) {
             $("#single_question_wrapper").append(data);
             enable_post_functionality()
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            if(XMLHttpRequest.status === 500){
+                $("#server_error").show();
+            }
         }
     });
 });

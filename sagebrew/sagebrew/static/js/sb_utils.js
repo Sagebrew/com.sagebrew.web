@@ -627,7 +627,15 @@ function respond_friend_request(){
                 'request_id': $(this).data('request_id')
             }),
             contentType: "application/json; charset=utf-8",
-            dataType: "json"
+            dataType: "json",
+            success: function(data){
+                $("#friend_request_div").fadeToggle();
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
+            }
         });
     });
 }

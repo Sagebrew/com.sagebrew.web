@@ -17,7 +17,12 @@ $(document).ready(function () {
                     'request_id': $(this).data('request_id')
                 }),
                 contentType: "application/json; charset=utf-8",
-                dataType: "json"
+                dataType: "json",
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    if(XMLHttpRequest.status === 500){
+                        $("#server_error").show();
+                    }
+                }
             });
         });
     });

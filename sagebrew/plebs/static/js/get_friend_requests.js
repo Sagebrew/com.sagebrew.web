@@ -16,6 +16,11 @@ $(document).ready(function () {
             container.empty();
             container.append(data);
             respond_friend_request();
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            if(XMLHttpRequest.status === 500){
+                $("#server_error").show();
+            }
         }
     });
 });

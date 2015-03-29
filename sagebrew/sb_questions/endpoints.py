@@ -65,20 +65,21 @@ class QuestionViewSet(viewsets.GenericViewSet):
         return queryset
 
     def list(self, request):
-        html_array = []
         queryset = self.get_queryset()
         if isinstance(queryset, Response):
             return queryset
-        html = self.request.QUERY_PARAMS.get("html", "false")
-        if html == "false":
-            serializer = self.serializer_class(
-                queryset, context={"request": request}, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
+        html = self.request.QUERY_PARAMS.get("html", "false").lower()
+        if html == "true":
+            html_array = []
             for question in queryset:
                 html_array.append(
                     question.render_question_page(request.user.username))
             return Response(html_array, status=status.HTTP_200_OK)
+
+        serializer = self.serializer_class(
+            queryset, context={"request": request}, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
     def create(self, request):
         serializer = self.serializer_class(data=request.data)

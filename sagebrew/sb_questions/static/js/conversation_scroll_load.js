@@ -25,6 +25,11 @@ $(document).ready(function(){
                             question_wrapper.append("<div class='load_next_page' style='display: none' data-next='"+data['next']+"'></div>")
                         }
                         question_wrapper.append(data);
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        if(XMLHttpRequest.status === 500){
+                            $("#server_error").show();
+                        }
                     }
                 });
             }

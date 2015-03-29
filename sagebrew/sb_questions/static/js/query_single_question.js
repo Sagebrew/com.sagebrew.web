@@ -8,11 +8,11 @@ $( document ).ready(function() {
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
-        url: "/v1/questions/"+$(".div_data_hidden").data('question_uuid')+"/solutions/?html=true",
+        url: "/v1/questions/"+$(".div_data_hidden").data('question_uuid')+"/?html=true",
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
-            $("#solution_container").append(data);
+            $("#single_question_wrapper").append(data);
             enable_post_functionality()
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {

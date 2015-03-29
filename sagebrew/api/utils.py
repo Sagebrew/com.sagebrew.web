@@ -21,8 +21,6 @@ from sb_base.decorators import apply_defense
 
 from api.alchemyapi import AlchemyAPI
 
-from plebs.neo_models import Pleb
-
 
 def request_to_api(url, username, data=None, headers=None, req_method=None,
                    internal=True):
@@ -41,6 +39,9 @@ def request_to_api(url, username, data=None, headers=None, req_method=None,
     :param internal:
     :return:
     """
+    # TODO need to remove this as we shouldn't be needing to call a pleb object
+    # into api.utils. It has the potential to cause a circular dependency 
+    from plebs.neo_models import Pleb
     if headers is None:
         headers = {}
     if internal is True:
@@ -119,7 +120,7 @@ def get_oauth_access_token(pleb, web_address=None):
     if check_oauth_needs_refresh(oauth_creds) is True:
         refresh_token = decrypt(oauth_creds.refresh_token)
         updated_creds = refresh_oauth_access_token(refresh_token,
-                                          oauth_creds.web_address)
+                                                   oauth_creds.web_address)
         oauth_creds.last_modified = datetime.now(pytz.utc)
         oauth_creds.access_token = encrypt(updated_creds['access_token'])
         oauth_creds.token_type = updated_creds['token_type']

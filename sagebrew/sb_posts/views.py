@@ -150,5 +150,4 @@ def get_page_posts(request):
                     continue
         return Response({'html': html_array}, status=200)
     else:
-        print post_form.errors
         return Response(status=400)

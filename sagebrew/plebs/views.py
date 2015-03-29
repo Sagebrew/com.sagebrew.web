@@ -14,7 +14,6 @@ from neomodel import DoesNotExist, CypherException
 from plebs.neo_models import Pleb, BetaUser
 from sb_registration.utils import (get_friends, generate_profile_pic_url,
                                    verify_completed_registration)
-from sb_docstore.utils import get_barebones_user, get_profile_rep_docs
 from .utils import prepare_user_search_html
 from .forms import GetUserSearchForm
 from .serializers import BetaUserSerializer
@@ -59,9 +58,6 @@ def profile_page(request, pleb_username=""):
         return HttpResponse('Server Error', status=500)
     current_user = request.user
     page_user = User.objects.get(email=page_user_pleb.email)
-    page_user_barebones = get_barebones_user(page_user_pleb.username)
-    reps = get_profile_rep_docs(page_user_barebones['house_rep'],
-                                page_user_barebones['senators'].split(","))
     is_owner = False
     is_friend = False
     friend_request_sent = False
@@ -84,10 +80,8 @@ def profile_page(request, pleb_username=""):
         'pleb_info': citizen,
         'current_user': current_user,
         'page_user': page_user,
-        'house_reps': reps['house_rep'],
-        'senators': reps['senators'],
-        #'senator_names': sen_array,
-        #'rep_name': rep_array,
+        #'house_reps': reps['house_rep'],
+        #'senators': reps['senators'],
         'is_owner': is_owner,
         'is_friend': is_friend,
         'friends_list': friends_list,

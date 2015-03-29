@@ -168,9 +168,8 @@ class SBQuestion(SBVersioned, SBTagContent):
                 'edits': [],
                 'object_type': self.object_type,
                 'to_be_deleted': self.to_be_deleted,
-                'html_content': html_content
-            }
-        except CypherException as e:
+                'html_content': html_content}
+        except (CypherException, IOError) as e:
             return e
 
     # TODO should be able to remove this and instead use the new endpoints

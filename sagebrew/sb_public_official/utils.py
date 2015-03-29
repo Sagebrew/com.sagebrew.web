@@ -107,3 +107,41 @@ def save_rep(pleb_username, rep_type, rep_id, recipient_id, gov_phone,
     except CypherException as e:
         return e
     return rep
+
+@apply_defense
+def determine_reps(username):
+    from sb_docstore.utils import update_base_user_reps
+    senators = []
+    try:
+        pleb = Pleb.nodes.get(username=username)
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException):
+        return False
+    try:
+        address = pleb.address.all()[0]
+    except (CypherException, IOError, IndexError):
+        return False
+    pleb_state = address.state
+    pleb_district = int(address.congressional_district)
+    query = 'match (n:BaseOfficial) where n.state="%s" ' \
+            ' return n' % pleb_state
+    reps, meta = execute_cypher_query(query)
+    if isinstance(reps, Exception):
+        return False
+    reps = [BaseOfficial.inflate(row[0]) for row in reps]
+    for rep in reps:
+        if rep.district == pleb_district:
+            try:
+                pleb.house_rep.connect(rep)
+            except (CypherException, IOError):
+                return False
+            house_rep = rep.sb_id
+        elif rep.district is None:
+            try:
+                pleb.senator.connect(rep)
+            except(CypherException, IOError):
+                return False
+            senators.append(rep.sb_id)
+    res = update_base_user_reps(username, house_rep, senators)
+    if isinstance(res, Exception):
+        return res
+    return True

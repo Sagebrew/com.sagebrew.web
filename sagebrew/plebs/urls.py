@@ -6,7 +6,6 @@ from .views import (profile_page, get_user_search_view,
                     get_user_conversation, get_user_age, deactivate_user,
                     root_profile_page, general_settings)
 
-
 urlpatterns = patterns(
     'plebs.views',
     url(r'^v1/profile/conversation/', get_user_conversation,

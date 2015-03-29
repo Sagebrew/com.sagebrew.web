@@ -10,6 +10,7 @@ class QuestionSerializerNeo(serializers.Serializer):
     last_edited_on = serializers.DateTimeField(read_only=True)
     upvotes = serializers.CharField(read_only=True)
     downvotes = serializers.CharField(read_only=True)
+    vote_count = serializers.IntegerField(read_only=True)
 
     def create(self, validated_data):
         # TODO should store in dynamo and then spawn task to store in Neo

@@ -5,7 +5,7 @@
                 type="button"
                 id="sb_friend"
                 data-toggle="dropdown"
-                data-email="{{ request.user.email }}">
+                data-username="{{ request.user.username }}">
         <span class="sb_btn_icon fui-star"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-right"
@@ -41,7 +41,7 @@
                 type="button"
                 id="sb_friend"
                 data-toggle="dropdown"
-                data-email="{{ request.user.email }}">
+                data-username="{{ request.user.username }}">
         <span class="sb_btn_icon fui-user"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-right"
@@ -50,16 +50,7 @@
             <li role="presentation">
                 <div class="sb_dropdown_container">
                     <div class="sb_dropdown_label">Friend Requests</div>
-                    <div class="sb_dropdown_content">
-                        {% include "friend_request_block.html" %}
-                        {% include "friend_request_block.html" %}
-                        {% include "friend_request_block.html" %}
-                        {% include "friend_request_block.html" %}
-                        {% include "friend_request_block.html" %}
-                        {% include "general_notification_block.html" %}
-                        {% include "general_notification_block.html" %}
-                        {% include "general_notification_block.html" %}
-                        {% include "general_notification_block.html" %}
+                    <div class="sb_dropdown_content" id="friend_requests">
                     </div>
                 </div>
             </li>
@@ -70,7 +61,7 @@
                 type="button"
                 id="dropdownMenu1"
                 data-toggle="dropdown"
-                data-email="{{ request.user.email }}">
+                data-username="{{ request.user.username }}">
         <span class="sb_btn_icon fui-eye"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-right"

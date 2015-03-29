@@ -1,5 +1,5 @@
 $("#friend_request_div").on("mouseenter", "a", function () {
-    $("a.respond_friend_request-action").click(function (event) {
+    $(".respond_friend_request-action").click(function (event) {
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {

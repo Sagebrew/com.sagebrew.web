@@ -329,9 +329,16 @@ class Pleb(StructuredNode):
             for notification in self.notifications.all():
                 try:
                     # TODO see if we can do this with a serializer instead
+                    from_user = notification.notification_from.all()[0]
                     notification_dict = {
                             "object_uuid": notification.object_uuid,
-                            "from": notification.notification_from.all()[0],
+                            "from_info": {
+                                "profile_pic": from_user.profile_pic,
+                                "full_name": from_user.get_full_name(),
+                                "username": from_user.username
+                            },
+                            "action": notification.action,
+                            "url": notification.url,
                             "date_sent": notification.time_sent,
                             "date_seen": notification.time_seen,
                             "seen": notification.seen,
@@ -371,6 +378,7 @@ class OauthUser(StructuredNode):
     expires_in = IntegerProperty()
     refresh_token = StringProperty()
     token_type = StringProperty(default="Bearer")
+    last_modified = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
 
 class BetaUser(StructuredNode):

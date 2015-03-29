@@ -65,7 +65,6 @@ def get_notifications(request):
             for notification in res:
                 html_array.append(render_to_string('notification_detail.html',
                     {"notification": notification}))
-            print html_array
             html = render_to_string('notification_detail.html',
                                     {'notifications': res})
         return Response({'html': html}, status=200)

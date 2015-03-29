@@ -38,16 +38,15 @@ def create_notification_util(sb_object, from_pleb, to_plebs,
         except (NotificationBase.DoesNotExist, DoesNotExist):
             notification = NotificationBase(
                 object_uuid=notification_id,
-                about=sb_object.sb_name).save()
+                about=sb_object.sb_name,
+                about_id=sb_object.object_uuid,
+                url=sb_object.get_url(),
+                action=sb_object.action).save()
 
         notification.notification_from.connect(from_pleb)
         for pleb in to_plebs:
             notification.notification_to.connect(pleb)
             pleb.notifications.connect(notification)
-            res = sb_object.create_notification(from_pleb)
-            res['parent_object'] = pleb.username
-            res['created'] = str(datetime.now(pytz.utc))
-            add_object_to_table('notifications', res)
         notification.sent = True
         notification.save()
 

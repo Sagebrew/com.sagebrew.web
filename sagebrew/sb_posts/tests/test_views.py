@@ -1,6 +1,3 @@
-import pytz
-from uuid import uuid1
-from datetime import datetime, timedelta
 from base64 import b64encode
 from rest_framework.test import APIRequestFactory
 from django.contrib.auth.models import User
@@ -11,7 +8,6 @@ from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_posts.views import (save_post_view)
 from sb_registration.utils import create_user_util_test
-from sb_posts.neo_models import SBPost
 
 
 class SavePostViewTests(TestCase):
@@ -26,8 +22,8 @@ class SavePostViewTests(TestCase):
 
     def test_save_post_view_correct_data(self):
         my_dict = {'content': 'aosdfhao',
-                   'current_pleb': self.user.email,
-                   'wall_pleb': self.user.email}
+                   'current_user': self.user.email,
+                   'page_user': self.user.email}
         request = self.factory.post('/posts/submit_post/', data=my_dict,
                                     format='json')
         request.user = self.user
@@ -36,8 +32,8 @@ class SavePostViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_save_post_view_missing_data(self):
-        my_dict = {'current_pleb': self.user.email,
-                   'wall_pleb': self.user.email}
+        my_dict = {'current_user': self.user.email,
+                   'page_user': self.user.email}
         request = self.factory.post('/posts/submit_post/', data=my_dict,
                                     format='json')
         request.user = self.user

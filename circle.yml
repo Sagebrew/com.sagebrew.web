@@ -2,7 +2,6 @@ machine:
   services:
     - rabbitmq-server
     - docker
-    - neo4j
 
 dependencies:
   pre:
@@ -14,6 +13,8 @@ dependencies:
     - elasticsearch-1.3.2.tar.gz
     - dynamodb_local_latest.tar.gz
   post:
+    - sudo sed -i "s|dbms.security.auth_enabled=true|dbms.security.auth_enabled=false|g" /etc/neo4j/neo4j-server.properties
+    - sudo service neo4j-service start
     - pip install git+http://github.com/bleib1dj/django-rest-framework.git@improvement_id_field_hyperlinkedrelatedfield --upgrade
     - pip install -r ~/com.sagebrew.web/requirements/test.txt
     - sudo chown ubuntu /etc/rsyslog.d/

@@ -26,7 +26,7 @@ dependencies:
     - tar -xvf dynamodb_local_latest.tar.gz
     - if [[ ! -e artifact.php\?name\=neo4j-community-2.1.7-unix.tar.gz ]]; then wget http://neo4j.com/artifact.php?name=neo4j-community-2.1.7-unix.tar.gz; fi
     - tar -xvf artifact.php\?name\=neo4j-community-2.1.7-unix.tar.gz
-    - bin/neo4j start:
+    - neo4j-community-2.1.7/bin/neo4j start:
         background: true
     - java  -Xmx1024m -Djava.library.path=DynamoDBLocal_lib/DynamoDBLocal_lib -jar DynamoDBLocal.jar:
         background: true

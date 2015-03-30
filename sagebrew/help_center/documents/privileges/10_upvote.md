@@ -3,7 +3,7 @@
 
 ## Description ##
 You’re fairly familiar with the site and how it works. To get more involved 
-you now have the ability to Upvote Questions, Solutions, and Comments on in the Public
+you now have the ability to Upvote Questions, Solutions, and Comments in the Public
 Conversation Area. Upvote the Questions that you believe are 
 important topics that you'd like to see conversation surround. Upvote Solutions
 you believe are the best out of those provided. The more Upvotes a

@@ -78,7 +78,6 @@ class SBPost(SBNonVersioned):
             try:
                 parent_object = self.posted_on_wall.all()[
                                     0].owner.all()[0].username
-                print parent_object
             except(CypherException, IOError, IndexError) as e:
                 return e
             return {

@@ -3,7 +3,6 @@ import markdown
 from uuid import uuid1
 from datetime import datetime
 from api.utils import execute_cypher_query
-from django.conf import settings
 from django.template import Context
 from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string, get_template

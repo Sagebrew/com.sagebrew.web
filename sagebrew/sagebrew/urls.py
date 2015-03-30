@@ -46,7 +46,6 @@ urlpatterns = patterns(
     (r'^help/', include('help_center.urls')),
     (r'^comments/', include('sb_comments.urls')),
     (r'^posts/', include('sb_posts.urls')),
-    (r'^notifications/', include('sb_notifications.urls')),
     (r'^relationships/', include('plebs.relation_urls')),
     (r'^user/', include('plebs.urls')),
     (r'^conversations/', include('sb_questions.urls')),

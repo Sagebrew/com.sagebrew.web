@@ -105,7 +105,7 @@ class Pleb(StructuredNode):
         'post': 10, 'comment_on': 5, 'upvote': 3, 'downvote': -3,
         'time': -1, 'proximity_to_you': 10, 'proximity_to_interest': 10,
         'share': 7, 'flag_as_inappropriate': -5, 'flag_as_spam': -100,
-        'flag_as_other': -10, 'solutions': 50, 'starred': 150, 'seen_search': 5,
+        'flag_as_other': -10, 'solution': 50, 'starred': 150, 'seen_search': 5,
         'seen_page': 20
     }
     gender = StringProperty()
@@ -200,7 +200,7 @@ class Pleb(StructuredNode):
 
     def relate_comment(self, comment):
         try:
-            rel_to_pleb = comment.is_owned_by.connect(self)
+            rel_to_pleb = comment.owned_by.connect(self)
             rel_to_pleb.save()
             rel_from_pleb = self.comments.connect(comment)
             rel_from_pleb.save()

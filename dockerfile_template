@@ -7,7 +7,7 @@ RUN chown -R {{APP_USER}}:{{APP_USER}} /home/apps/
 WORKDIR /home/apps/{{PROJECT_REPONAME}}/
 RUN git submodule update --init --recursive
 RUN mkdir /home/apps/{{PROJECT_REPONAME}}/{{PROJECT_NAME}}/static/
-RUN pip install pip install pip==6.0.8
+RUN pip install pip==6.0.8
 RUN pip install setuptools==12.3
 RUN pip install -r /home/apps/{{PROJECT_REPONAME}}/requirements/{{REQUIREMENTS_FILE}}.txt
 RUN pip install git+http://github.com/bleib1dj/django-rest-framework.git@improvement_id_field_hyperlinkedrelatedfield --upgrade

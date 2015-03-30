@@ -21,6 +21,6 @@ class TestSBCommentsNeoModel(TestCase):
         self.comment.owned_by.connect(self.pleb)
 
     def test_get_single_dict(self):
-        res = self.comment.get_single_dict(self.pleb)
+        res = self.comment.get_single_dict()
 
         self.assertIsInstance(res, dict)

@@ -10,7 +10,7 @@ from django.conf import settings
 from sb_comments.neo_models import SBComment
 from sb_posts.neo_models import SBPost
 from plebs.neo_models import Pleb, FriendRequest
-from plebs.views import (profile_page, friends_page, about_page,
+from plebs.views import (profile_page, about_page,
                          reputation_page, create_friend_request,
                          get_friend_requests, respond_friend_request)
 from sb_registration.utils import create_user_util_test

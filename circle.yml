@@ -13,7 +13,6 @@ dependencies:
     - elasticsearch-1.3.2
     - DynamoDBLocal_lib
     - neo4j-community-2.1.7
-    - /etc/supervisor/
   post:
     - pip install git+http://github.com/bleib1dj/django-rest-framework.git@improvement_id_field_hyperlinkedrelatedfield --upgrade
     - pip install -r ~/com.sagebrew.web/requirements/test.txt
@@ -30,7 +29,7 @@ dependencies:
         background: true
     - elasticsearch-1.3.2/bin/elasticsearch:
         background: true
-    - if [[ ! -e /etc/supervisor/ ]]; then sudo apt-get install supervisor; fi
+    - sudo apt-get install supervisor
     - sudo chown -R ubuntu /etc/supervisor/conf.d/
     - python ~/com.sagebrew.web/sagebrew/manage.py populatesupervisor worker-test ubuntu
     - sudo chown -R root /etc/supervisor/conf.d/

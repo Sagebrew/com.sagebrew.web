@@ -2,7 +2,6 @@ machine:
   services:
     - rabbitmq-server
     - docker
-    - neo4j
 
 dependencies:
   pre:
@@ -13,9 +12,8 @@ dependencies:
   cache_directories:
     - elasticsearch-1.3.2.tar.gz
     - dynamodb_local_latest.tar.gz
+    - artifact.php\?name\=neo4j-community-2.1.7-unix.tar.gz
   post:
-    - sudo sed -i "s|dbms.security.auth_enabled=true|dbms.security.auth_enabled=false|g" /etc/neo4j/neo4j-server.properties
-    - sudo service neo4j-service start
     - pip install git+http://github.com/bleib1dj/django-rest-framework.git@improvement_id_field_hyperlinkedrelatedfield --upgrade
     - pip install -r ~/com.sagebrew.web/requirements/test.txt
     - sudo chown ubuntu /etc/rsyslog.d/
@@ -26,6 +24,10 @@ dependencies:
     - tar -xvf elasticsearch-1.3.2.tar.gz
     - if [[ ! -e dynamodb_local_latest.tar.gz ]]; then wget http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest.tar.gz; fi
     - tar -xvf dynamodb_local_latest.tar.gz
+    - if [[ ! -e artifact.php\?name\=neo4j-community-2.1.7-unix.tar.gz ]]; then wget http://neo4j.com/artifact.php?name=neo4j-community-2.1.7-unix.tar.gz; fi
+    - tar -xvf artifact.php\?name\=neo4j-community-2.1.7-unix.tar.gz
+    - bin/neo4j start:
+        background: true
     - java  -Xmx1024m -Djava.library.path=DynamoDBLocal_lib/DynamoDBLocal_lib -jar DynamoDBLocal.jar:
         background: true
     - elasticsearch-1.3.2/bin/elasticsearch:

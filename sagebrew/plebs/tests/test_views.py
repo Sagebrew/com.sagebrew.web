@@ -312,40 +312,6 @@ class TestProfilePageReputationPage(TestCase):
 
         self.assertEqual(response.status_code, 302)
 
-class TestProfilePageFriendPage(TestCase):
-    def setUp(self):
-        self.factory = APIRequestFactory()
-        self.email = "success@simulator.amazonses.com"
-        self.password = "testpassword"
-        res = create_user_util_test(self.email)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        self.pleb.completed_profile_info = True
-        self.pleb.email_verified = True
-        self.pleb.save()
-
-    def test_profile_friend_page_success(self):
-        request = self.factory.get('/%s/friends/' % self.pleb.username)
-        request.user = self.user
-        response = friends_page(request, self.pleb.username)
-        self.assertEqual(response.status_code, 200)
-
-    def test_profile_friend_page_unauthenticated(self):
-        request = self.factory.get('/%s/friends/' % self.pleb.username)
-        request.user = AnonymousUser()
-        response = friends_page(request, self.pleb.username)
-        self.assertEqual(response.status_code, 302)
-
-    def test_pleb_does_not_exist(self):
-        request = self.factory.get('/fake_username')
-        request.user = self.user
-        response = friends_page(request, 'fake_username')
-
-        self.assertEqual(response.status_code, 302)
-
 
 class TestCreateFriendRequestView(TestCase):
     def setUp(self):

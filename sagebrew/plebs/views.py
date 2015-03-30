@@ -256,63 +256,6 @@ def reputation_page(request, pleb_username):
         'friends_list': friends_list,
     })
 
-@login_required()
-def friends_page(request, pleb_username):
-    '''
-    Displays the users profile_page. This is where we call the functions to
-    determine
-    who the senators are for the plebs state and which representative for
-    the plebs
-    district. Checks to see if the user currently accessing the page is the
-    same user
-    as the one who owns the page. if so it loads the page fully, if the user
-    is a firend
-    of the owner of the page then it allows them to see posts and comments
-    on posts on the
-    owners wall. If the user is neither the owner nor a friend then it only
-    shows the users
-    name, congressmen, reputation and profile pictures along with a button
-    that allows
-    them to send a friend request.
-
-    :param request:
-    :return:
-    '''
-    try:
-        citizen = Pleb.nodes.get(username=pleb_username)
-    except (Pleb.DoesNotExist, DoesNotExist):
-        return redirect("404_Error")
-    except CypherException:
-        return HttpResponse('Server Error', status=500)
-    current_user = request.user
-    page_user = User.objects.get(email=citizen.email)
-    is_owner = False
-    is_friend = False
-    friends_list = get_friends(citizen.username)
-    if current_user.email == page_user.email:
-        is_owner = True
-    elif citizen.friends.search(email=current_user.email):
-        is_friend = True
-
-    # TODO check for index error
-    # TODO deal with address and senator/rep in a util + task
-    # TODO Create a cypher query to get addresses to replace traverse
-    #address = citizen.traverse('address').run()[0]
-    #sen_array = determine_senators(address)
-    #rep_array = determine_reps(address)
-
-    citizen.profile_pic = generate_profile_pic_url(citizen.profile_pic_uuid)
-    citizen.save()
-    return render(request, 'sb_friends_section/sb_friends.html', {
-        'pleb_info': citizen,
-        'current_user': current_user.email,
-        'page_user': page_user,
-        #'senator_names': sen_array,
-        #'rep_name': rep_array,
-        'is_owner': is_owner,
-        'is_friend': is_friend,
-        'friends_list': friends_list,
-    })
 
 #@protected_resource(['read']) # Add TokenHasScope back into @permission_classes to use this
 @api_view(['GET'])
@@ -420,21 +363,18 @@ def create_friend_request(request):
     # when uuid received
     # if action is True hide friend request button and show a delete friend
     # request button
-    friend_request_data = request.DATA
-    try:
-        request.DATA['from_pleb'] = request.user.username
-        request_form = SubmitFriendRequestForm(friend_request_data)
-        # TODO Think we're moving this kind of stuff out to the JS system
-        # But until then needs to come after the form since it can cause
-        # Type errors if someone passes something other than a dict
-        object_uuid = str(uuid1())
-        valid_form = request_form.is_valid()
-    except AttributeError:
+    friend_request_data = request.data
+    if isinstance(friend_request_data, dict) is False:
         return Response({'detail': 'attribute error'}, status=400)
+    request_form = SubmitFriendRequestForm(friend_request_data)
+    # TODO Think we're moving this kind of stuff out to the JS system
+    # But until then needs to come after the form since it can cause
+    # Type errors if someone passes something other than a dict
+    object_uuid = str(uuid1())
 
-    if valid_form is True:
+    if request_form.is_valid() is True:
         task_data = {
-            "from_username": request_form.cleaned_data['from_username'],
+            "from_username": request.user.username,
             "to_username": request_form.cleaned_data['to_username'],
             "object_uuid": object_uuid
         }

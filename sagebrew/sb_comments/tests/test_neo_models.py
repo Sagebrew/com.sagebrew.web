@@ -18,7 +18,7 @@ class TestSBCommentsNeoModel(TestCase):
         self.user = User.objects.get(email=self.email)
         self.comment = SBComment(content='test content', object_uuid=str(uuid1())).\
             save()
-        self.comment.is_owned_by.connect(self.pleb)
+        self.comment.owned_by.connect(self.pleb)
 
     def test_get_single_dict(self):
         res = self.comment.get_single_dict(self.pleb)

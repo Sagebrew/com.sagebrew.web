@@ -200,7 +200,7 @@ class Pleb(StructuredNode):
 
     def relate_comment(self, comment):
         try:
-            rel_to_pleb = comment.is_owned_by.connect(self)
+            rel_to_pleb = comment.owned_by.connect(self)
             rel_to_pleb.save()
             rel_from_pleb = self.comments.connect(comment)
             rel_from_pleb.save()

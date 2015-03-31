@@ -114,9 +114,10 @@ def get_page_posts(request):
         else:
             for post in posts:
                 try:
-                    post['user'] = post['parent_object']
+                    post["current_user"] = request.user.username
                     user_url = reverse(
-                        'profile-detail', kwargs={'username': post['user']},
+                        'profile-detail', kwargs={
+                            'username': post['post_owner_username']},
                         request=request)
                     response = request_to_api(user_url, request.user.username,
                                               req_method="GET")
@@ -146,6 +147,7 @@ def get_page_posts(request):
                                             context_instance=c)
                     html_array.append(html)
                 except KeyError as e:
+                    print e.message
                     continue
         return Response({'html': html_array}, status=200)
     else:

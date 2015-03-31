@@ -74,7 +74,7 @@ class SBSolution(SBVersioned):
             return e
 
     @apply_defense
-    def get_single_dict(self, pleb=None):
+    def get_single_dict(self):
         try:
             comment_array = []
             solution_owner = self.owned_by.all()[0]

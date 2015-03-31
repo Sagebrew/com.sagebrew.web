@@ -144,11 +144,5 @@ def prepare_question_search_html(question_uuid):
     return my_question.render_search()
 
 
-def clean_question_for_rest(single_object):
-    # TODO Need to cast these somewhere other than here
-    single_object["is_closed"] = int(single_object["is_closed"])
-
-    return single_object
-
 def render_question_object(question_object):
     return render_to_string('question.html', question_object)

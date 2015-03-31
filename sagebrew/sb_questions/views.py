@@ -94,7 +94,7 @@ def save_question_view(request):
 
     :return:
     '''
-    question_data = request.DATA
+    question_data = request.data
     if type(question_data) != dict:
         return Response({"details": "Please provide a valid JSON object"},
                         status=400)
@@ -184,15 +184,11 @@ def get_question_view(request):
 
     :return:
     '''
-    question_data = request.DATA
+    question_data = request.data
     if isinstance(question_data, dict) is False:
         return Response({"please pass a valid JSON Object"}, status=400)
-    try:
-        question_form = GetQuestionForm(question_data)
-        valid_form = question_form.is_valid()
-    except AttributeError:
-        return Response(status=400)
-    if valid_form is True:
+    question_form = GetQuestionForm(question_data)
+    if question_form.is_valid() is True:
         html_array = []
         # TODO Can we generalize this so that we don't need the ifs?
         # TODO Can we also make the form a choice form that only allows
@@ -290,6 +286,7 @@ def get_question_search_view(request, question_uuid=str(uuid1())):
     elif response is False:
         return Response(status=404)
     return Response({'html': response}, status=200)
+
 
 @login_required()
 @user_passes_test(verify_completed_registration,

@@ -88,10 +88,10 @@
   padding-bottom: 15px;
 }
 .sb_solution textarea {
+  margin-bottom: 25px;
   border-radius: 5px;
-  border: 1px #d0e9c6;
   width: 100%;
-  height: 200px;
+  height: 250px;
   resize: vertical;
 }
 .sb_provide_solution {

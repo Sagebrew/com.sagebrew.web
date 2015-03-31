@@ -216,6 +216,9 @@ LOGOUT_URL = '/logout/'
 
 ANONYMOUS_USER_ID = -1
 OAUTH2_PROVIDER_APPLICATION_MODEL='sb_oauth.SBApplication'
+OAUTH2_PROVIDER = {
+    'APPLICATION_MODEL': 'sb_oauth.SBApplication',
+}
 LOGIN_REDIRECT_URL = '/registration/profile_information/'
 EMAIL_USE_TLS = True
 #CSRF_COOKIE_HTTPONLY = True

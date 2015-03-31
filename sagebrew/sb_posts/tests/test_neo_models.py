@@ -26,11 +26,11 @@ class TestSBPostNeoModels(TestCase):
         self.assertFalse(isinstance(res, Exception))
 
     def test_get_single_dict(self):
-        res = self.post.get_single_dict(self.pleb)
+        res = self.post.get_single_dict()
 
         self.assertIsInstance(res, dict)
 
     def test_render_post_wall_html(self):
-        res = self.post.render_post_wall_html(self.pleb)
+        res = self.post.render_post_wall_html()
 
         self.assertTrue(res)

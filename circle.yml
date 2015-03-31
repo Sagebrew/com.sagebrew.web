@@ -2,29 +2,29 @@ machine:
   services:
     - rabbitmq-server
     - docker
-    - neo4j
 
 dependencies:
   pre:
-    - pip install pip --upgrade
-    - pip install setuptools --upgrade
+    - pip install pip==6.0.8
+    - pip install setuptools==12.3
     - pip install awscli
-    - pip install git+http://github.com/bleib1dj/django-rest-framework.git@improvement_id_field_hyperlinkedrelatedfield --upgrade
-    - pip install git+http://github.com/robinedwards/neomodel.git@282d522c9ed5b6a08e4258008d07d29fca3aed45
     - sudo apt-get -y install libjpeg-dev
   cache_directories:
-    - elasticsearch-1.3.2.tar.gz
-    - dynamodb_local_latest.tar.gz
+    - elasticsearch-1.3.2
+    - DynamoDBLocal_lib
+    - neo4j-community-2.1.7
   post:
+    - pip install git+http://github.com/bleib1dj/django-rest-framework.git@improvement_id_field_hyperlinkedrelatedfield --upgrade
     - pip install -r ~/com.sagebrew.web/requirements/test.txt
     - sudo chown ubuntu /etc/rsyslog.d/
     - python ~/com.sagebrew.web/sagebrew/manage.py logglypopulation
     - sudo chown root /etc/rsyslog.d/
     - sudo service rsyslog restart
-    - if [[ ! -e elasticsearch-1.3.2.tar.gz ]]; then wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.3.2.tar.gz; fi
-    - tar -xvf elasticsearch-1.3.2.tar.gz
-    - if [[ ! -e dynamodb_local_latest.tar.gz ]]; then wget http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest.tar.gz; fi
-    - tar -xvf dynamodb_local_latest.tar.gz
+    - if [[ ! -e elasticsearch-1.3.2.tar.gz ]]; then wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.3.2.tar.gz && tar -xvf elasticsearch-1.3.2.tar.gz; fi
+    - if [[ ! -e dynamodb_local_latest.tar.gz ]]; then wget http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest.tar.gz && tar -xvf dynamodb_local_latest.tar.gz; fi
+    - if [[ ! -e artifact.php\?name\=neo4j-community-2.1.7-unix.tar.gz ]]; then wget http://neo4j.com/artifact.php?name=neo4j-community-2.1.7-unix.tar.gz && tar -xvf artifact.php\?name\=neo4j-community-2.1.7-unix.tar.gz; fi
+    - neo4j-community-2.1.7/bin/neo4j start:
+        background: true
     - java  -Xmx1024m -Djava.library.path=DynamoDBLocal_lib/DynamoDBLocal_lib -jar DynamoDBLocal.jar:
         background: true
     - elasticsearch-1.3.2/bin/elasticsearch:

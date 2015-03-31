@@ -6,7 +6,6 @@ class GetUserSearchForm(forms.Form):
 
 
 class SubmitFriendRequestForm(forms.Form):
-    from_username = forms.CharField()
     to_username = forms.CharField()
 
 

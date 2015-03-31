@@ -19,7 +19,7 @@ from sagebrew import errors
 from api.utils import request_to_api
 from sb_docstore.utils import (get_dynamo_table, convert_dynamo_content,
                                get_vote)
-from sb_solutions.utils import convert_dynamo_solutions
+from sb_solutions.utils import convert_dynamo_solutions, render_solutions
 from sb_comments.serializers import CommentSerializer
 from sb_comments.utils import convert_dynamo_comments
 
@@ -132,11 +132,6 @@ class QuestionViewSet(viewsets.GenericViewSet):
             single_object["owner"] = response.json()
 
         if html == "true":
-            response = request_to_api(
-                reverse('question-solutions',
-                        kwargs={'object_uuid': single_object['object_uuid']},
-                        request=request),
-                request.user.username, req_method='GET')
             vote_type = get_vote(single_object['object_uuid'],
                                  request.user.username)
             if vote_type is not None:
@@ -145,9 +140,8 @@ class QuestionViewSet(viewsets.GenericViewSet):
                 else:
                     vote_type = str(bool(vote_type['status'])).lower()
             single_object['vote_type'] = vote_type
-            single_object['solutions'] = response.json()
-            rendered_html = render_question_object(single_object)
-            return Response(rendered_html, status=status.HTTP_200_OK)
+            return Response(render_question_object(single_object),
+                            status=status.HTTP_200_OK)
 
         return Response(single_object, status=status.HTTP_200_OK)
 
@@ -184,6 +178,16 @@ class QuestionViewSet(viewsets.GenericViewSet):
         # TODO probably want to replace with a serializer if we want to get
         # any urls returned. Or these could be stored off into dynamo based on
         # the initial pass on the serializer
+        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
+        if html == "true":
+            solution_dict = {
+                "solution_count": len(queryset),
+                "solutions": queryset,
+                "email": request.user.email,
+                "current_user_username": request.user.username,
+            }
+            return Response(render_solutions(solution_dict),
+                            status=status.HTTP_200_OK)
         return Response(queryset, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], serializer_class=CommentSerializer)

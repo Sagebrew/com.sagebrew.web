@@ -1,5 +1,6 @@
-from django.template.loader import render_to_string
 from textblob import TextBlob
+
+from django.template.loader import render_to_string
 
 from neomodel import DoesNotExist, CypherException
 

@@ -4,13 +4,15 @@ from neomodel import (DoesNotExist, CypherException)
 
 from api.utils import execute_cypher_query
 from plebs.neo_models import Pleb
-from .neo_models import (BaseOfficial, Experience, Goal)
+from api.utils import execute_cypher_query
 from sb_base.decorators import apply_defense
+
+from .neo_models import (BaseOfficial, Experience, Goal)
 
 
 @apply_defense
 def save_experience(rep_id, title, start_date, end_date, current,
-                         company, location, exp_id, description):
+                    company, location, exp_id, description):
     try:
         exp = Experience.nodes.get(object_uuid=exp_id)
         return True
@@ -48,6 +50,7 @@ def save_bio(rep_id, bio):
         return e
     return bio
 
+
 @apply_defense
 def save_goal(rep_id, vote_req, money_req, initial, description, goal_id):
     try:
@@ -70,6 +73,7 @@ def save_goal(rep_id, vote_req, money_req, initial, description, goal_id):
         except CypherException as e:
             return e
     return goal
+
 
 def get_rep_type(rep_type):
     cls = rep_type
@@ -109,8 +113,10 @@ def save_rep(pleb_username, rep_type, rep_id, recipient_id, gov_phone,
         return e
     return rep
 
+
 @apply_defense
 def determine_reps(username):
+    senators = []
     try:
         pleb = Pleb.nodes.get(username=username)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException):

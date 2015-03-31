@@ -103,6 +103,7 @@ def generate_oauth_info(username, password, web_address=None):
     except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
         raise generate_oauth_info.retry(exc=e, countdown=3, max_retries=None)
     creds = generate_oauth_user(pleb, password, web_address)
+
     if isinstance(creds, Exception):
         raise generate_oauth_info.retry(exc=creds, countdown=3,
                                         max_retries=None)
@@ -115,6 +116,7 @@ def generate_oauth_info(username, password, web_address=None):
         oauth_obj.save()
     except(CypherException, IOError) as e:
         return e
+
     try:
         pleb.oauth.connect(oauth_obj)
     except(CypherException, IOError) as e:

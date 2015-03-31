@@ -216,6 +216,9 @@ LOGOUT_URL = '/logout/'
 
 ANONYMOUS_USER_ID = -1
 OAUTH2_PROVIDER_APPLICATION_MODEL='sb_oauth.SBApplication'
+OAUTH2_PROVIDER = {
+    'APPLICATION_MODEL': 'sb_oauth.SBApplication',
+}
 LOGIN_REDIRECT_URL = '/registration/profile_information/'
 EMAIL_USE_TLS = True
 #CSRF_COOKIE_HTTPONLY = True
@@ -299,7 +302,7 @@ OBJECT_SEARCH_MODIFIERS = {
     'post': 10, 'comment_on': 5, 'upvote': 3, 'downvote': -3,
     'time': -1, 'proximity_to_you': 10, 'proximity_to_interest': 10,
     'share': 7, 'flag_as_inappropriate': -5, 'flag_as_spam': -100,
-    'flag_as_other': -10, 'solutioned': 50, 'starred': 150, 'seen_search': 5,
+    'flag_as_other': -10, 'solution': 50, 'starred': 150, 'seen_search': 5,
     'seen_page': 20
 }
 

@@ -144,7 +144,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
                 'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.object_uuid,
                 'current_pleb': self.user.email,
-                'modifier_type': 'solutioned'}
+                'modifier_type': 'solution'}
         res = update_weight_relationship.apply_async(kwargs=data)
         while not res.ready():
             time.sleep(1)
@@ -287,7 +287,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
                 'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.object_uuid,
                 'current_pleb': self.user.email,
-                'modifier_type': 'solutioned'}
+                'modifier_type': 'solution'}
         res = update_weight_relationship.apply_async(kwargs=data)
         while not res.ready():
             time.sleep(1)
@@ -307,7 +307,7 @@ class TestUpdateWeightRelationshipTaskQuestion(TestCase):
                 'object_type': 'sb_questions.neo_models.SBQuestion',
                 'object_uuid': self.question.object_uuid,
                 'current_pleb': str(uuid1()),
-                'modifier_type': 'solutioned'}
+                'modifier_type': 'solution'}
         res = update_weight_relationship.apply_async(kwargs=data)
         while not res.ready():
             time.sleep(1)

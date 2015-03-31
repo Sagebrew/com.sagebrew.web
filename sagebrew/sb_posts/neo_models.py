@@ -103,7 +103,7 @@ class SBPost(SBNonVersioned):
     def render_post_wall_html(self, user):
         try:
             try:
-                owner = self.owner.all()[0]
+                owner = self.owned_by.all()[0]
             except IndexError as e:
                 return e
             post_dict = self.get_single_dict(owner)

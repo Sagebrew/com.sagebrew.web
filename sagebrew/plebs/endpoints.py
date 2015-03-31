@@ -263,3 +263,17 @@ class ProfileViewSet(viewsets.GenericViewSet):
             return Response({"rep_html": rep_html, "sen_html": sen_html},
                             status=status.HTTP_200_OK)
         return Response(officials, status=status.HTTP_200_OK)
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
+    def senators(self, request, username=None):
+        sen_html = []
+        single_object = self.get_object(username=username)
+        if isinstance(single_object, Response):
+            return single_object
+        senators = single_object.get_senators()
+        if senators:
+            for sen in senators:
+                sen_html.append(
+                    render_to_string('sb_home_section/sb_senator_block.html',
+                                     sen))
+        return Response(sen_html, status=status.HTTP_200_OK)

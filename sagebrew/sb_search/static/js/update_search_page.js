@@ -40,7 +40,8 @@ $( document ).ready(function() {
                         });
                     }
                     if (data_list[i].type == 'pleb'){
-                        var pleb_username = data_list[i].username;
+                        console.log(data_list);
+                        var pleb_username = data_list[i].object_uuid;
                         $.ajaxSetup({
                             beforeSend: function (xhr, settings) {
                                 ajax_security(xhr, settings)

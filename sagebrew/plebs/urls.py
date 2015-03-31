@@ -1,9 +1,9 @@
 from django.conf.urls import patterns, url
 
 from .views import (profile_page, get_user_search_view,
-                    about_page, friends_page,
+                    about_page,
                     reputation_page, get_user_rep, get_user_questions,
-                    get_user_conversation, get_user_age, deactivate_user,
+                    get_user_conversation, deactivate_user,
                     root_profile_page, general_settings)
 
 urlpatterns = patterns(
@@ -19,8 +19,6 @@ urlpatterns = patterns(
        profile_page, name="profile_page"),
     url(r'^(?P<pleb_username>[A-Za-z0-9.@_%+-]{1,30})/about/$',
        about_page, name="about_page"),
-    url(r'^(?P<pleb_username>[A-Za-z0-9.@_%+-]{1,30})/friends/$',
-       friends_page, name="friends_page"),
     url(r'^(?P<pleb_username>[A-Za-z0-9.@_%+-]{1,30})/reputation/$',
        reputation_page, name="reputation_page"),
     url(r'^search/(?P<pleb_username>[A-Za-z0-9.@_%+-]{1,30})/$',

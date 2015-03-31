@@ -196,26 +196,4 @@
         </div>
         </form>
     </div>
-    <div class="row">
-        <div class="col-lg-12" id="solution_container">
-            {% for solution in solutions %}
-                {% include "solution_detail.html" %}
-            {% endfor %}
-        </div>
-    </div>
-</div>
-<div class="row-fluid">
-    <div class="row sb_tertiary_nav">
-        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-            <h3>{{ solution_count }} Solutions</h3>
-        </div>
-        <div class="col-lg-9 col-md-9 col-sm-9 hidden-xs" align="right">
-            <a class="btn sb_tab_question"
-               data-sort_by="most_recent"
-               data-current_pleb="{{ email }}">Most Recent</a>
-            <a class="btn sb_tab_question"
-               data-sort_by="least_recent"
-               data-current_pleb="{{ email }}">Least Recent</a>
-        </div>
-    </div>
 </div>

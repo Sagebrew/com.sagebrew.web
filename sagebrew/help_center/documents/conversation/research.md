@@ -125,7 +125,7 @@ When should Systematic Reviews be cited?
   evidence on any particular issue, often including multiple Randomized 
   Controlled Clinical Trials
 * When Randomized Controlled Clinical Trials have been conducted, but 
-  there are still questions about the issue to be solutioned
+  there are still questions about the issue to be solved
 
 
 ### Meta-Analysis ###

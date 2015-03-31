@@ -52,7 +52,6 @@ def save_post_view(request):
         spawned = spawn_task(task_func=save_post_task,
                              task_param=post_form.cleaned_data)
         if isinstance(spawned, Exception):
-            print spawned.message
             return Response({"detail": "Failed to create post"},
                             status=500)
         post_data = {

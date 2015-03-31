@@ -1,8 +1,10 @@
 from django.contrib.auth.models import User
 
 from rest_framework import serializers
+from oauth2_provider.generators import (generate_client_id,
+                                        generate_client_secret)
 
-from .models import SBApplication, generate_client_id, generate_client_secret
+from .models import SBApplication
 
 
 class ApplicationSerializer(serializers.Serializer):

@@ -2,6 +2,7 @@ import importlib
 from django.conf import settings
 from neomodel import (DoesNotExist, CypherException)
 
+from api.utils import execute_cypher_query
 from plebs.neo_models import Pleb
 from api.utils import execute_cypher_query
 from sb_base.decorators import apply_defense
@@ -138,10 +139,9 @@ def determine_reps(username):
                 pleb.house_rep.connect(rep)
             except (CypherException, IOError):
                 return False
-        elif rep.district is None:
+        if rep.district == 0:
             try:
-                pleb.senator.connect(rep)
-            except(CypherException, IOError):
+                pleb.senators.connect(rep)
+            except (CypherException, IOError):
                 return False
-            senators.append(rep.sb_id)
     return True

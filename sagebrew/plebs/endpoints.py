@@ -242,3 +242,52 @@ class ProfileViewSet(viewsets.GenericViewSet):
                                 {"notifications": notifications})
             return Response(html, status=status.HTTP_200_OK)
         return Response(notifications, status=status.HTTP_200_OK)
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
+    def local_representatives(self, request, username=None):
+        pass
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
+    def senators(self, request, username=None):
+        single_object = self.get_object(username=username)
+        if isinstance(single_object, Response):
+            return single_object
+        senators = single_object.get_senators()
+        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
+        if html == 'true':
+            sen_html = []
+            for sen in senators:
+                sen_html.append(
+                    render_to_string('sb_home_section/sb_senator_block.html',
+                                     sen))
+            return Response(sen_html, status=status.HTTP_200_OK)
+        return Response(senators, status=status.HTTP_200_OK)
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
+    def house_rep(self, request, username=None):
+        single_object = self.get_object(username=username)
+        if isinstance(single_object, Response):
+            return single_object
+        house_rep = single_object.get_house_rep()
+        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
+        if html == 'true':
+            house_rep_html = render_to_string(
+                'sb_home_section/sb_house_rep_block.html', house_rep)
+            return Response(house_rep_html, status=status.HTTP_200_OK)
+        return Response(house_rep, status=status.HTTP_200_OK)
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
+    def campaigning_senators(self, request, username=None):
+        pass
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
+    def campaigning_representatives(self, request, username=None):
+        pass
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
+    def campaigning_presidents(self, request, username=None):
+        pass
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
+    def campaigning_local_representatives(self, request, username=None):
+        pass

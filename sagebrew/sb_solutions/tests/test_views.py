@@ -21,20 +21,19 @@ class TestSaveSolutionView(TestCase):
         self.user = User.objects.get(email=self.email)
 
     def test_save_solution_view_correct_data(self):
-        my_dict = {'content': 'test solution', 'current_pleb': self.user.email,
-                   'question_uuid': '12312', 'to_pleb': self.user.email}
+        my_dict = {'content': 'test solution', 'question_uuid': '12312'}
 
         request = self.factory.post('/solutions/submit_solution_api/', data=my_dict,
                                     format='json')
         request.user = self.user
 
         response = save_solution_view(request)
-
+        # TODO need to figure out the best way to assert that only one solution
+        # is being saved and returned.
         self.assertEqual(response.status_code, 200)
 
     def test_save_solution_view_missing_data(self):
-        my_dict = {'current_pleb': self.user.email,
-                   'question_uuid': '12312', 'to_pleb': self.user.email}
+        my_dict = {'question_uuid': '12312'}
 
         request = self.factory.post('/solutions/submit_solution_api/', data=my_dict,
                                     format='json')

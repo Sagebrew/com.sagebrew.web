@@ -79,9 +79,9 @@ def save_solution_view(request):
             "current_user_username": request.user.username
         }
 
-        html = render_to_string('solution.html', solution)
         return Response({'detail': 'successfully posted an solution',
-                         'html': html}, status=200)
+                         'html': render_to_string('solution.html', solution)},
+                        status=200)
     else:
         return Response({'detail': 'failed to post an solution'}, status=400)
 

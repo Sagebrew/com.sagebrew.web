@@ -153,4 +153,24 @@
             </small>
         </div>
     </div>
+    <div id="sb_comments_container_{{ solution.object_uuid }}">
+        {% include "sb_comments.html" %}
+    </div>
+    {% comment %}
+        This area is for inputing a new comment. The include is needed for population of existing comments.
+    {% endcomment %}
+    <div class="row">
+        <form id="commentSubmitForm">
+        <div class="input-group sb_comment">
+            <textarea class="input-group form-control sb_comment_input"
+                      id="post_comment_on_{{ solution.object_uuid }}"
+                      rows="2"
+                      name="comment_content"
+                      placeholder="Write your comment..."></textarea>
+            <a class="btn input-group-btn sb_btn_comment_icon comment-action"
+               data-object_uuid="{{ solution.object_uuid }}"
+               data-object_type="{{ solution.object_type }}"><span class="fui-new"></span></a>
+        </div>
+        </form>
+    </div>
 </div>

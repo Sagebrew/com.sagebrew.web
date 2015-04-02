@@ -1,5 +1,8 @@
 from base64 import b64encode
 from rest_framework.test import APIRequestFactory
+
+import requests_mock
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.conf import settings
@@ -20,21 +23,33 @@ class TestSaveSolutionView(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
-    def test_save_solution_view_correct_data(self):
-        my_dict = {'content': 'test solution', 'current_pleb': self.user.email,
-                   'question_uuid': '12312', 'to_pleb': self.user.email}
+    @requests_mock.mock()
+    def test_save_solution_view_correct_data(self, m):
+        my_dict = {'content': 'test solution', 'question_uuid': '12312'}
 
         request = self.factory.post('/solutions/submit_solution_api/', data=my_dict,
                                     format='json')
         request.user = self.user
-
+        m.get('http://testserver/v1/users/test_test/?expand=True',
+              json={
+                  'username': 'test_test',
+                  'profile': {
+                      'profile_pic': None,
+                      'base_user': 'https://192.168.56.101/v1/users/test_test/',
+                      'href': 'https://192.168.56.101/v1/profiles/test_test/',
+                      'profile_url': 'https://192.168.56.101/user/test_test/'
+                   },
+                  'first_name': 'test',
+                  'last_name': 'test',
+                  'href': 'https://192.168.56.101/v1/users/test_test/'
+            })
         response = save_solution_view(request)
-
+        # TODO need to figure out the best way to assert that only one solution
+        # is being saved and returned.
         self.assertEqual(response.status_code, 200)
 
     def test_save_solution_view_missing_data(self):
-        my_dict = {'current_pleb': self.user.email,
-                   'question_uuid': '12312', 'to_pleb': self.user.email}
+        my_dict = {'question_uuid': '12312'}
 
         request = self.factory.post('/solutions/submit_solution_api/', data=my_dict,
                                     format='json')

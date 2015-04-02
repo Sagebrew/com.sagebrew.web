@@ -10,7 +10,6 @@ from plebs.neo_models import Pleb
 from .utils import save_comment, comment_relations
 
 
-
 @shared_task()
 def save_comment_on_object(content, username, object_uuid, object_type,
                            comment_uuid):
@@ -49,7 +48,6 @@ def save_comment_on_object(content, username, object_uuid, object_type,
         raise save_comment_on_object.retry(exc=spawned, countdown=5,
                                            max_retries=None)
     return spawned
-
 
 
 @shared_task()

@@ -1,5 +1,7 @@
 import time
+from logging import getLogger
 import pytz
+from os import environ
 import boto.sqs
 import importlib
 import requests
@@ -20,6 +22,8 @@ from sb_base.utils import defensive_exception
 from sb_base.decorators import apply_defense
 
 from api.alchemyapi import AlchemyAPI
+
+logger = getLogger('loggly_logs')
 
 
 def request_to_api(url, username, data=None, headers=None, req_method=None,
@@ -43,7 +47,7 @@ def request_to_api(url, username, data=None, headers=None, req_method=None,
     # into api.utils. It has the potential to cause a circular dependency
     from plebs.neo_models import Pleb
     if headers is None:
-        headers = {}
+        headers = {"content-type": "application/json"}
     if internal is True:
         # TODO we should put the token and expiration into a cache so that we
         # can just check if it needs to be updated and only then do we
@@ -55,13 +59,18 @@ def request_to_api(url, username, data=None, headers=None, req_method=None,
         headers['Authorization'] = "%s %s" % (
             'Bearer', get_oauth_access_token(pleb))
     response = None
-    if req_method is None:
-        response = requests.post(url, data=dumps(data),
-                                 verify=settings.VERIFY_SECURE,
-                                 headers=headers)
-    elif req_method == 'get' or req_method == "GET":
-        response = requests.get(url, verify=settings.VERIFY_SECURE,
-                                headers=headers)
+    try:
+        if req_method is None or req_method == "POST" or req_method == "post":
+            response = requests.post(url, data=dumps(data),
+                                     verify=settings.VERIFY_SECURE,
+                                     headers=headers)
+        elif req_method == 'get' or req_method == "GET":
+            response = requests.get(url, verify=settings.VERIFY_SECURE,
+                                    headers=headers)
+    except requests.ConnectionError as e:
+        logger.exception("ConnectionError ")
+        raise e
+
     return response
 
 

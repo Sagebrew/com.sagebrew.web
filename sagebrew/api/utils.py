@@ -43,7 +43,7 @@ def request_to_api(url, username, data=None, headers=None, req_method=None,
     # into api.utils. It has the potential to cause a circular dependency
     from plebs.neo_models import Pleb
     if headers is None:
-        headers = {}
+        headers = {"content-type": "application/json"}
     if internal is True:
         # TODO we should put the token and expiration into a cache so that we
         # can just check if it needs to be updated and only then do we

@@ -71,49 +71,47 @@
                 {{ title|linebreaksbr }}
             </h1>
         </div>
-            {% if parent_object == user.username %}
-            <div class="col-lg-1 col-md-1 col-sm-1 hidden-xs col-lg-offset-0 col-md-offset-0 col-sm-offset-0">
-                <button class="btn dropdown-toggle sb_btn_icon" type="button"
-                        data-toggle="dropdown">
-                    <span class="sb_dropdown_icon fui-gear"></span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
-                    role="menu" aria-labelledby="dropdown-menu">
-                    {% if parent_object == user.username %}
-                        <li role="presentation"><a class="sb_post_dropdown_menu show_edit_question-action"
-                                                   data-uuid="{{ object_uuid }}"
-                                                   type="submit">Edit Question</a>
+        <div class="col-lg-1 col-md-1 col-sm-1 hidden-xs col-lg-offset-0 col-md-offset-0 col-sm-offset-0">
+            <button class="btn dropdown-toggle sb_btn_icon" type="button"
+                    data-toggle="dropdown">
+                <span class="sb_dropdown_icon fui-gear"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
+                role="menu" aria-labelledby="dropdown-menu">
+                {% if current_user_username == owner_object.username %}
+                    <li role="presentation"><a class="sb_post_dropdown_menu show_edit_question-action"
+                                               data-uuid="{{ object_uuid }}"
+                                               type="submit">Edit Question</a>
+                    </li>
+                {% else %}
+                    {% if debug %}
+                        <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action'
+                                                   data-flag_reason='spam'
+                                                   data-current_user="{{ current_user }}"
+                                                   data-object_uuid="{{ object_uuid }}"
+                                                   data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Spam
+                                                   </a>
                         </li>
-                    {% else %}
-                        {% if debug %}
-                            <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action'
-                                                       data-flag_reason='spam'
-                                                       data-current_user="{{ current_user }}"
-                                                       data-object_uuid="{{ object_uuid }}"
-                                                       data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Spam
-                                                       </a>
-                            </li>
-                            <li role="presentation" class="sb_divider"></li>
-                            <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action'
-                                                       data-flag_reason='explicit'
-                                                       data-current_user="{{ current_user }}"
-                                                       data-object_uuid="{{ object_uuid }}"
-                                                       data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Explicit
-                                                       </a>
-                            </li>
-                            <li role="presentation" class="sb_divider"></li>
-                            <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action'
-                                                       data-flag_reason='other'
-                                                       data-current_user="{{ current_user }}"
-                                                       data-object_uuid="{{ object_uuid }}"
-                                                       data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Other
-                                                       </a>
-                            </li>
-                        {% endif %}
+                        <li role="presentation" class="sb_divider"></li>
+                        <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action'
+                                                   data-flag_reason='explicit'
+                                                   data-current_user="{{ current_user }}"
+                                                   data-object_uuid="{{ object_uuid }}"
+                                                   data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Explicit
+                                                   </a>
+                        </li>
+                        <li role="presentation" class="sb_divider"></li>
+                        <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action'
+                                                   data-flag_reason='other'
+                                                   data-current_user="{{ current_user }}"
+                                                   data-object_uuid="{{ object_uuid }}"
+                                                   data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Other
+                                                   </a>
+                        </li>
                     {% endif %}
-                </ul>
-            </div>
-        {% endif %}
+                {% endif %}
+            </ul>
+        </div>
     </div>
     <div class="row">
         <div class="col-lg-10 col-md-11 col-sm-11 col-xs-11 col-lg-offset-1 sb_post_wrapper">
@@ -122,18 +120,6 @@
                     {% autoescape off %}
                         {{ html_content }}
                     {% endautoescape %}
-                </div>
-            </div>
-            <div id="edit_container_{{ object_uuid }}" style="display: none">
-                <textarea class="form-control"
-                          id="{{ object_uuid }}"
-                          name="edit_question_input"
-                          rows="5">{{ content }}</textarea>
-                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 col-lg-offset-10">
-                    <button class="btn sb_btn sb_btn_submit edit_object-action"
-                       data-object_uuid="{{ object_uuid }}"
-                       data-current_pleb="{{ current_pleb }}"
-                       data-object_type="0274a216-644f-11e4-9ad9-080027242395">Submit</button>
                 </div>
             </div>
         </div>
@@ -146,19 +132,17 @@
             </small>
         </div>
     </div>
-    {% url "profile_page" pleb_username=owner.username as the_url %}
     <div class="row">
         <div class="col-lg-1 col-md-1 hidden-sm hidden-xs col-lg-offset-9 col-md-offset-9"
              style="padding-right:0; margin-right: -10px">
-            <div class="sb_thumbnail_xs thumbnail"
-                 style="padding-right:0; margin-right: 0;">
-                <img src="{{ profile_pic|default_if_none:'' }}"/>
+            <div class="sb_thumbnail_xs thumbnail">
+                <img src="{{ profile.profile_pic|default_if_none:'' }}"/>
             </div>
         </div>
-        <div class="col-lg-2 col-md-2 hidden-sm hidden-xs" style="padding-left:0; margin-top:-10px;">
+        <div class="col-lg-2 col-md-2 hidden-sm hidden-xs" style="padding-left:0; margin-top:-10px; margin-left: 2px">
             <div>
                 <small>
-                    <a href="{{ the_url }}">{{ owner.first_name }} {{ owner.last_name }}</a>
+                    <a href="{{ profile.profile_url }}">{{ owner_object.first_name }} {{ owner_object.last_name }}</a>
                 </small>
             </div>
             <div style="margin-top:-10px;">
@@ -169,7 +153,7 @@
         </div>
         <div class="hidden-lg hidden-md col-sm-11 col-xs-11">
             <small>
-                asked by <a href="{{ the_url }}">{{ owner.first_name }} {{ owner.last_name }}</a> on {{ last_edited_on|date:"D d M Y" }}
+                asked by <a href="{{ profile.profile_url }}">{{ owner_object.first_name }} {{ owner_object.last_name }}</a> on {{ last_edited_on|date:"D d M Y" }}
             </small>
         </div>
     </div>

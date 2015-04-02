@@ -12,7 +12,6 @@ $( document ).ready(function() {
 			url: $(this).data('url'),
 			data: JSON.stringify({
 			   'content': $('textarea.sb_solution_input_area').val(),
-               'current_pleb': $(this).data('current_pleb'),
                'question_uuid': $(this).data('question_uuid')
 			}),
 			contentType: "application/json; charset=utf-8",

@@ -26,7 +26,7 @@ from sb_comments.utils import convert_dynamo_comments
 
 from .serializers import QuestionSerializerNeo
 from .neo_models import SBQuestion
-from .utils import clean_question_for_rest, render_question_object
+from .utils import render_question_object
 
 
 logger = getLogger('loggly_logs')
@@ -80,7 +80,6 @@ class QuestionViewSet(viewsets.GenericViewSet):
             queryset, context={"request": request}, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
     def create(self, request):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
@@ -108,28 +107,34 @@ class QuestionViewSet(viewsets.GenericViewSet):
         except IndexError as e:
             raise NotFound
 
-        # TODO need to just store username for question and solution, can
-        # determine url paths dynamically here
-        user_url = reverse('user-detail', kwargs={
-            'username': single_object["owner"]}, request=request)
-        single_object["profile_url"] = reverse(
+
+        single_object["profile"] = reverse(
             'profile_page', kwargs={
                 'pleb_username': single_object["owner"]
             }, request=request)
 
         # TODO hopefully can clear out most of this and just use it to eliminate
         # any data only used for server side logic
-        single_object = clean_question_for_rest(single_object)
+        user_url = reverse('user-detail', kwargs={
+            'username': single_object["owner"]}, request=request)
 
-        if expand == "false":
-            single_object["owner"] = user_url
+        single_object["is_closed"] = int(single_object["is_closed"])
+
+        if expand == "true":
+            user_url = "%s%s" % (user_url, "?expand=True")
+            response = request_to_api(user_url,
+                                      request.user.username,
+                                      req_method="GET")
+            response_json = response.json()
+            single_object["profile"] = response_json.pop("profile", None)
+            single_object["owner_object"] = response_json
+        else:
+            single_object["owner_object"] = user_url
+            single_object["profile"] = reverse('profile-detail', kwargs={
+                'username': single_object["owner"]}, request=request)
             single_object["comments"] = reverse(
                 "question-comments", kwargs={'object_uuid': object_uuid},
                 request=request)
-        else:
-            response = request_to_api(user_url, request.user.username,
-                                      req_method="GET")
-            single_object["owner"] = response.json()
 
         if html == "true":
             vote_type = get_vote(single_object['object_uuid'],
@@ -140,6 +145,7 @@ class QuestionViewSet(viewsets.GenericViewSet):
                 else:
                     vote_type = str(bool(vote_type['status'])).lower()
             single_object['vote_type'] = vote_type
+            single_object["current_user_username"] = request.user.username
             return Response(render_question_object(single_object),
                             status=status.HTTP_200_OK)
 
@@ -166,15 +172,14 @@ class QuestionViewSet(viewsets.GenericViewSet):
         queryset = convert_dynamo_solutions(queryset, self.request)
         sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
         if sort_by == "created":
-            queryset = sorted(
-                queryset,
-                key=lambda k: k['created'])
+            queryset = sorted(queryset, key=lambda k: k['created'],
+                              reverse=True)
         elif sort_by == "edited":
-            queryset = sorted(
-                queryset,
-                key=lambda k: k['last_edited_on'])
+            queryset = sorted(queryset, key=lambda k: k['last_edited_on'],
+                              reverse=True)
         else:
-            queryset = sorted(queryset, key=lambda k: k['vote_count'])
+            queryset = sorted(queryset, key=lambda k: k['vote_count'],
+                              reverse=True)
         # TODO probably want to replace with a serializer if we want to get
         # any urls returned. Or these could be stored off into dynamo based on
         # the initial pass on the serializer

@@ -19,6 +19,7 @@ $( document ).ready(function() {
                 if (data['next'] != ""){
                     search_results.append("<div class='load_next_page' style='display: none' data-next='"+data['next']+"'></div>")
                 }
+                console.log(data);
                 var data_list = data['html'];
                 $.each(data_list, function(i, item) {
                     if (data_list[i].type == 'question') {

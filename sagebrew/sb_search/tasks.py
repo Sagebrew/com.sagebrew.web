@@ -161,6 +161,7 @@ def add_user_to_custom_index(username=None, index="full-search-user-specific-1")
         for item in res:
             item['_source']['related_user'] = pleb.email
             item['_source']['sb_score'] = 0
+            print item
             if item['_type'] == 'SBQuestion':
                 result = es.index(index=index, doc_type='question',
                                   body=item['_source'])

@@ -19,7 +19,7 @@ class BaseOfficial(Pleb):
     bio = StringProperty(default="")
     name_mod = StringProperty()
     current = BooleanProperty()
-    district = IntegerProperty()
+    district = IntegerProperty(default=0)
     state = StringProperty()
     website = StringProperty()
     start_date = DateTimeProperty()

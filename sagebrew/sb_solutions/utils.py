@@ -5,8 +5,8 @@ from django.template.loader import render_to_string
 from neomodel import CypherException, DoesNotExist
 from rest_framework.reverse import reverse
 
-from sb_base.decorators import apply_defense
 from api.utils import request_to_api
+from sb_base.decorators import apply_defense
 from sb_docstore.utils import get_vote_count, get_vote
 
 from .neo_models import SBSolution
@@ -40,32 +40,39 @@ def save_solution_util(content, solution_uuid):
 # TODO see if this can be replaced with convert_dynamo_content_with_comments
 def convert_dynamo_solution(raw_solution, request):
     solution = dict(raw_solution)
-    solution['upvotes'] = get_vote_count(solution['object_uuid'],
-                                                1)
-    solution['downvotes'] = get_vote_count(solution['object_uuid'],
-                                                  0)
+    solution['upvotes'] = get_vote_count(solution['object_uuid'], 1)
+    solution['downvotes'] = get_vote_count(solution['object_uuid'], 0)
     solution['last_edited_on'] = datetime.strptime(
         solution['last_edited_on'][:len(solution['last_edited_on']) - 6],
         '%Y-%m-%d %H:%M:%S.%f')
     solution['created'] = datetime.strptime(
         solution['created'][:len(solution['created']) - 6],
         '%Y-%m-%d %H:%M:%S.%f')
-    solution['vote_count'] = str(
-        solution['upvotes'] - solution['downvotes'])
+    solution['vote_count'] = str(solution['upvotes'] - solution['downvotes'])
     url = reverse('solution-comments', kwargs={
         'object_uuid': solution['object_uuid']}, request=request)
     response = request_to_api(url, request.user.username, req_method="GET")
     solution["comments"] = response.json()
+    user_endpoint = reverse("user-detail",
+                            kwargs={"username": solution["owner"]},
+                            request=request)
+    user_endpoint = "%s%s" % (user_endpoint, "?expand=True")
+    response = request_to_api(user_endpoint, request.user.username,
+                              req_method="GET")
+    response_json = response.json()
+    solution["profile"] = response_json["profile"]
+    response_json.pop("profile", None)
+    solution["owner_object"] = response_json
 
     return solution
 
 
 def convert_dynamo_solutions(raw_solutions, request):
     solution_list = []
+    raw_solutions = list(raw_solutions)
     for solution in raw_solutions:
         solution = convert_dynamo_solution(solution, request)
-        vote_type = get_vote(solution['object_uuid'],
-                                 request.user.username)
+        vote_type = get_vote(solution['object_uuid'], request.user.username)
         if vote_type is not None:
             if vote_type['status'] == 2:
                 vote_type = None

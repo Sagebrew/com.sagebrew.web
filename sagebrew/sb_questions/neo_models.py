@@ -119,7 +119,7 @@ class SBQuestion(SBVersioned, SBTagContent):
             return e
 
     @apply_defense
-    def get_single_dict(self, pleb=None):
+    def get_single_dict(self):
         from sb_solutions.neo_models import SBSolution
         try:
             solution_array = []
@@ -140,7 +140,7 @@ class SBQuestion(SBVersioned, SBTagContent):
             solutions, meta = execute_cypher_query(query)
             solutions = [SBSolution.inflate(row[0]) for row in solutions]
             for solution in solutions:
-                solution_array.append(solution.get_single_dict(pleb))
+                solution_array.append(solution.get_single_dict())
             edit = self.get_most_recent_edit()
             for comment in self.comments.all():
                 comment_array.append(comment.get_single_dict())

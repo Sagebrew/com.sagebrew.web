@@ -8,6 +8,7 @@ from plebs.neo_models import Address
 
 from .utils import create_address_long_hash
 
+
 @shared_task()
 def update_interests(email, interests):
     try:
@@ -69,6 +70,7 @@ def store_address(username, address_clean):
     except (CypherException, IOError) as e:
         raise store_address.retry(exc=e, countdown=3, max_retries=None)
     return True
+
 
 @shared_task()
 def save_profile_picture(url, username):

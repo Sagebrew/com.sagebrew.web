@@ -17,7 +17,7 @@ class Command(BaseCommand):
         try:
             oauth_user = User.objects.get(username=environ.get("APP_USER",""))
         except User.DoesNotExist:
-            oauth_user = User.objects.create(username=environ.get(
+            oauth_user = User.objects.create_user(username=environ.get(
                 "APP_USER", ""), password=password)
 
         try:
@@ -36,10 +36,9 @@ class Command(BaseCommand):
             oauth_user2 = User.objects.get(username=environ.get(
                 "CRED_USER", ""))
         except User.DoesNotExist:
-            password = (signing.dumps(str(uuid1()))+signing.dumps(str(uuid1())))[
-                   :128]
-            oauth_user2 = User(username=environ.get("CRED_USER", ""),
-                               password=password)
+            oauth_user2 = User.objects.create_user(
+                username=environ.get("CRED_USER", ""),
+                password=environ.get("CRED_PASSWORD"))
             oauth_user2.is_superuser = True
             oauth_user2.is_staff = True
             oauth_user2.save()
@@ -50,9 +49,9 @@ class Command(BaseCommand):
                 client_id=settings.OAUTH_CLIENT_ID_CRED, user=oauth_user2,
                 redirect_uris="%s%s" % (settings.WEB_ADDRESS, '/login'),
                 client_type='confidential',
-                authorization_grant_type="client-credentials",
+                authorization_grant_type="password",
                 client_secret=settings.OAUTH_CLIENT_SECRET_CRED,
-                name=oauth_user2.username)
+                name=oauth_user2.username, web_hook="http://localhost")
 
     def handle(self, *args, **options):
         self.create_oauth_client()

@@ -98,8 +98,6 @@ class ProfileViewSet(viewsets.GenericViewSet):
         # The cast to dict is necessary as serializer.data is immutable
         # Won't be necessary when we transition this to dynamo
         rest_response = dict(serializer.data)
-        rest_response["profile_url"] = reverse(
-            'profile_page', kwargs={'pleb_username': username}, request=request)
         if expand != "false":
             user_url = reverse(
                 'user-detail', kwargs={'username': username}, request=request)

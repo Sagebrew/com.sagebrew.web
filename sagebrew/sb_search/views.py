@@ -44,7 +44,7 @@ def search_view(request):
     except CypherException:
         # TODO Make sure to return an actual page
         return Response(status=500)
-    return render(request, 'search_page.html', {"pleb_info": pleb})
+    return render(request, 'search.html', {"pleb_info": pleb})
 
 
 @login_required()
@@ -75,12 +75,12 @@ def search_result_view(request, query_param, display_num=5, page=1,
                    'range_end': range_end}
     search_form = SearchForm(search_data)
     if search_form.is_valid():
-        return render(request, 'search_result.html',
+        return render(request, 'search.html',
                       {'search_param': search_form.cleaned_data['query_param'],
                        'page': search_form.cleaned_data['page'],
                        'pleb_info': pleb}, status=200)
     else:
-        return render(request, 'search_result.html', {'pleb_info': pleb},status=400)
+        return render(request, 'search.html', {'pleb_info': pleb},status=400)
 
 
 @api_view(['GET'])
@@ -190,7 +190,7 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                         item['_source']['object_uuid']))
                 elif item['_type'] == 'pleb':
                     results.append(prepare_user_search_html(
-                        item['_source']['pleb_email']))
+                        item['_source']['pleb_username']))
         try:
             next_page_num = page.next_page_number()
         except EmptyPage:

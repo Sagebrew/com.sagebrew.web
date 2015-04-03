@@ -27,7 +27,7 @@ def prepare_user_search_html(pleb=""):
         'reputation': 0, 'username': pleb.username,
         'mutual_friends': 0
     }
-    html = render_to_string('sb_search_section/pleb_search.html', pleb_data)
+    html = render_to_string('user_search_block.html', pleb_data)
     return html
 
 

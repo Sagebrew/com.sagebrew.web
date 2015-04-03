@@ -1,3 +1,6 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block content %}
 <div class="row-fluid sb_page">
     <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-lg-offset-3 col-md-offset-3 col-sm-offset-0 col-xs-offset-0">
         <div class="sb_nav sb_secondary_nav sb_search_nav">
@@ -17,17 +20,16 @@
             </ul>
         </div>
         <div class="sb_wall sb_search_wall">
+            <div id="search_result_div">
+                <div id="search_param" data-search_param="{{ search_param }}" data-search_page="{{ page }}"></div>
+            </div>
             {% include "general_search_block.html" %}
-            {% include "user_search_block.html" %}
-            {% include "user_search_block.html" %}
-            {% include "user_search_block.html" %}
-            {% include "user_search_block.html" %}
-            {% include "user_search_block.html" %}
             {% include "saga_search_block.html" %}
-            {% include "saga_search_block.html" %}
-            {% include "saga_search_block.html" %}
-            {% include "saga_search_block.html" %}
-            {% include "conversation_block.html" %}
         </div>
     </div>
 </div>
+{% endblock %}
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/update_search_page.js' %}"></script>
+{% endblock %}

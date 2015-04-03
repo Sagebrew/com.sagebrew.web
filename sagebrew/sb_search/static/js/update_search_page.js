@@ -42,7 +42,7 @@ $( document ).ready(function() {
                     }
                     if (data_list[i].type == 'pleb'){
                         console.log(data_list);
-                        var pleb_username = data_list[i].object_uuid;
+                        var pleb_username = data_list[i].pleb_username;
                         $.ajaxSetup({
                             beforeSend: function (xhr, settings) {
                                 ajax_security(xhr, settings)

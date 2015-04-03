@@ -234,17 +234,19 @@ class SBQuestion(SBVersioned, SBTagContent):
             question_dict = {
                 "title": self.get_most_recent_edit().title,
                 "question_content": self.get_most_recent_edit().content,
-                "question_uuid": self.object_uuid,
+                "object_uuid": self.object_uuid,
                 "is_closed": self.is_closed,
                 "solution_count": self.solution_count,
                 "last_edited_on": self.last_edited_on,
                 "upvotes": self.upvotes,
                 "downvotes": self.downvotes,
+                "vote_count": self.get_vote_count(),
                 "owner": owner_name,
                 "owner_profile_url": owner_profile_url,
                 "created": self.created,
-                "owner_email": owner.email}
-            rendered = render_to_string('question_search.html', question_dict)
+                "owner_email": owner.email,
+                "views": len(self.view_count_node.all())}
+            rendered = render_to_string('conversation_block.html', question_dict)
             return rendered
         except CypherException as e:
             return e

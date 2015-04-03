@@ -7,7 +7,7 @@ $( document ).ready(function() {
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
-        url: "/v1/questions/?html=true",
+        url: "/v1/questions/?expand=true&html=true",
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
@@ -25,7 +25,7 @@ $( document ).ready(function() {
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
 			type: "GET",
-			url: "/v1/questions/?html=true&sort_by=" + $(this).data('sort_by') + "",
+			url: "/v1/questions/?expand=true&html=true&sort_by=" + $(this).data('sort_by') + "",
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
             success: function (data) {

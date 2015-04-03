@@ -30,19 +30,25 @@ class QuestionSerializerNeo(serializers.Serializer):
         pass
 
     def get_owner(self, obj):
+        request = self.context['request']
         if isinstance(obj, dict) is True:
             return obj
         try:
             owner = obj.owned_by.all()[0]
         except(CypherException, IOError):
             return None
-        profile = PlebSerializerNeo(
-            owner, context={'request': self.context['request']}).data
-        owner_user = User.objects.get(username=owner.username)
-        owner_dict = UserSerializer(
-            owner_user, context={'request': self.context['request']}).data
-        owner_dict["profile"] = profile
-
+        expand = request.QUERY_PARAMS.get('expand', "false")
+        if expand == "true":
+            profile = PlebSerializerNeo(
+                owner, context={'request': request}).data
+            owner_user = User.objects.get(username=owner.username)
+            owner_dict = UserSerializer(
+                owner_user, context={'request': self.context['request']}).data
+            owner_dict["profile"] = profile
+        else:
+            owner_dict = reverse('user-detail',
+                                 kwargs={"username": owner.username},
+                                 request=request)
         return owner_dict
 
     def get_content(self, obj):

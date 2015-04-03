@@ -1,11 +1,11 @@
 from base64 import b64encode
-from rest_framework.test import APIRequestFactory
-
 import requests_mock
 
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.conf import settings
+
+from rest_framework.test import APIRequestFactory
 
 from api.utils import wait_util
 from sb_solutions.views import save_solution_view
@@ -37,7 +37,7 @@ class TestSaveSolutionView(TestCase):
                       'profile_pic': None,
                       'base_user': 'https://192.168.56.101/v1/users/test_test/',
                       'href': 'https://192.168.56.101/v1/profiles/test_test/',
-                      'profile_url': 'https://192.168.56.101/user/test_test/'
+                      'url': 'https://192.168.56.101/user/test_test/'
                    },
                   'first_name': 'test',
                   'last_name': 'test',

@@ -8,8 +8,9 @@ from django.template.loader import render_to_string
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 
-from api.utils import spawn_task
+from api.utils import spawn_task, request_to_api
 
 from .tasks import save_comment_on_object
 from .forms import (SaveCommentForm)
@@ -35,13 +36,9 @@ def save_comment_view(request):
     if (type(request.DATA) != dict):
         return Response({"details": "Please Provide a JSON Object"},
                         status=400)
-    try:
-        request.DATA['current_pleb'] = request.user.email
-        comment_form = SaveCommentForm(request.DATA)
-        valid_form = comment_form.is_valid()
-    except AttributeError:
-        return Response({"details": "Invalid Form"}, status=400)
-    if valid_form is True:
+    comment_form = SaveCommentForm(request.DATA)
+
+    if comment_form.is_valid() is True:
         choice_dict = dict(settings.KNOWN_TYPES)
         task_data = {
             "object_uuid": comment_form.cleaned_data['object_uuid'],
@@ -51,6 +48,12 @@ def save_comment_view(request):
             'comment_uuid': str(uuid1()),
             'username': request.user.username
         }
+        owner_url = "%s?expand=true" % reverse(
+            'user-detail', kwargs={'username': request.user.username},
+            request=request)
+        comment_owner = request_to_api(
+            owner_url, username=request.user.username,
+            req_method="GET")
         comment_data = {
             "comments": [{
                 "object_uuid": task_data['comment_uuid'],
@@ -61,11 +64,7 @@ def save_comment_view(request):
                 "vote_count": str(0),
                 "created": datetime.now(pytz.utc),
                 "last_edited_on": datetime.now(pytz.utc),
-                "owner": {
-                    "username": request.user.username,
-                    "first_name": request.user.first_name,
-                    "last_name": request.user.last_name
-                },
+                "owner": comment_owner.json(),
             }],
             "parent_object": request.user.username
         }

@@ -2,7 +2,7 @@ from django import forms
 
 
 class EditObjectForm(forms.Form):
-    content = forms.CharField(min_length=15)
+    content = forms.CharField()
     object_type = forms.CharField()
     object_uuid = forms.CharField()
     created = forms.CharField(initial=None, required=False)

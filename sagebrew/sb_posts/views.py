@@ -142,6 +142,13 @@ def get_page_posts(request):
                             '%Y-%m-%d %H:%M:%S.%f')
                         item['vote_count'] = str(
                             item['upvotes'] - item['downvotes'])
+                        owner_url = "%s?expand=true" % reverse(
+                            'user-detail', kwargs={'username': item['owner']},
+                            request=request)
+                        comment_owner = request_to_api(
+                            owner_url, username=request.user.username,
+                            req_method="GET")
+                        item["owner"] = comment_owner.json()
                     c = RequestContext(request, post)
                     html = render_to_string('post.html', post,
                                             context_instance=c)

@@ -117,6 +117,8 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                                       'query_param'])
         current_page = int(search_form.cleaned_data['page'])
         results=[]
+        query_filter = request.QUERY_PARAMS.get('filter', 'false').lower()
+        print query_filter
         current_user_email = request.user.email
         current_user_email,current_user_address = current_user_email.split('@')
         # TODO surround ES query with proper exception handling and ensure

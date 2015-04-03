@@ -135,7 +135,6 @@ function vote_object() {
             url: "/vote/vote_object_api/",
             data: JSON.stringify({
                 'vote_type': vote_type,
-                'current_pleb': $(this).data('current_pleb'),
                 'object_uuid': $(this).data('object_uuid'),
                 'object_type': $(this).data('object_type'),
                 'downvote_count': downvote_count,

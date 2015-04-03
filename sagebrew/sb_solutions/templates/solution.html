@@ -138,7 +138,7 @@
         <div class="col-lg-2 col-md-2 hidden-sm hidden-xs" style="padding-left:0; margin-top:-10px; margin-left: 2px">
             <div>
                 <small>
-                    <a href="{{ solution.profile.profile_url }}">{{ solution.owner_full_name }}</a>
+                    <a href="{{ solution.profile.url }}">{{ solution.owner_full_name }}</a>
                 </small>
             </div>
             <div style="margin-top:-10px;">
@@ -149,7 +149,7 @@
         </div>
         <div class="hidden-lg hidden-md col-sm-11 col-xs-11">
             <small>
-                written by <a href="{{ solution.profile.profile_url }}">{{ solution.owner_full_name }}</a> on {{ solution.last_edited_on|date:"D d M Y" }}
+                written by <a href="{{ solution.profile.url }}">{{ solution.owner_full_name }}</a> on {{ solution.last_edited_on|date:"D d M Y" }}
             </small>
         </div>
     </div>

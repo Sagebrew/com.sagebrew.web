@@ -384,7 +384,6 @@ class Pleb(StructuredNode):
         from sb_public_official.utils import determine_reps
         return determine_reps(self.username)
 
-
     def get_notifications(self):
         try:
             notification_list = []
@@ -442,8 +441,6 @@ class Pleb(StructuredNode):
             return house_rep.get_dict()
         except (IOError, CypherException) as e:
             return e
-
-
 
 
 class Address(StructuredNode):

@@ -243,6 +243,14 @@ class ProfileViewSet(viewsets.GenericViewSet):
             return Response(html, status=status.HTTP_200_OK)
         return Response(notifications, status=status.HTTP_200_OK)
 
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
+    def reputation(self, request, username=None):
+        single_object = self.get_object(username=username)
+        if isinstance(single_object, Response):
+            return single_object
+        reputation = {"reputation": single_object.reputation}
+        return Response(reputation, status=status.HTTP_200_OK)
+
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def local_representatives(self, request, username=None):
         pass

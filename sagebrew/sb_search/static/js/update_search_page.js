@@ -77,7 +77,7 @@ $( document ).ready(function() {
                 $.ajax({
                     xhrFields: {withCredentials: true},
                     type: "GET",
-                    url: "/search/api/q=" + search_param + '&page='+next_page,
+                    url: "/search/api/q=" + search_param + '&page='+next_page+"?filter=" + filter,
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (data) {

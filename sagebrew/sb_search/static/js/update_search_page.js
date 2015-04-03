@@ -3,6 +3,10 @@ $( document ).ready(function() {
     var search_id = $('#search_param');
     var search_param = search_id.data('search_param');
     var search_page = search_id.data('search_page');
+    var filter = getUrlParameter('filter');
+    if (filter === 'undefined'){
+        filter = "";
+    }
     var scrolled = false;
     $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -12,14 +16,13 @@ $( document ).ready(function() {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "GET",
-            url: "/search/api/q=" + search_param + '&page=' + search_page,
+            url: "/search/api/q=" + search_param + '&page=' + search_page+"?filter="+filter,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
                 if (data['next'] != ""){
                     search_results.append("<div class='load_next_page' style='display: none' data-next='"+data['next']+"'></div>")
                 }
-                console.log(data);
                 var data_list = data['html'];
                 $.each(data_list, function(i, item) {
                     if (data_list[i].type == 'question') {
@@ -91,5 +94,18 @@ $( document ).ready(function() {
     });
 });
 
+function getUrlParameter(sParam)
+{
+    var sPageURL = window.location.search.substring(1);
+    var sURLVariables = sPageURL.split('&');
+    for (var i = 0; i < sURLVariables.length; i++)
+    {
+        var sParameterName = sURLVariables[i].split('=');
+        if (sParameterName[0] == sParam)
+        {
+            return sParameterName[1];
+        }
+    }
+}
 
 

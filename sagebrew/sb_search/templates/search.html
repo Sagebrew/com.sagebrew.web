@@ -6,16 +6,16 @@
         <div class="sb_nav sb_secondary_nav sb_search_nav">
             <ul>
                 <li>
-                    <a href="#">General </a>
+                    <a id="search_filter" data-filter="">General </a>
                 </li>
                 <li>
-                    <a href="#">Conversations</a>
+                    <a id="search_filter" data-filter="conversations">Conversations</a>
                 </li>
                 <li>
-                    <a href="#">Sagas</a>
+                    <a id="search_filter" data-filter="sagas">Sagas</a>
                 </li>
                 <li>
-                    <a href="#">People</a>
+                    <a id="search_filter" data-filter="users">People</a>
                 </li>
             </ul>
         </div>
@@ -30,4 +30,5 @@
 {% block scripts %}
     {{ block.super }}
     <script src="{% static 'js/update_search_page.js' %}"></script>
+    <script src="{% static 'js/update_filter.js' %}"></script>
 {% endblock %}

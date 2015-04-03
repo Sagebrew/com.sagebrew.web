@@ -26,8 +26,7 @@ function save_comment() {
             data: JSON.stringify({
                 'content': $('textarea#post_comment_on_' + object_uuid).val(),
                 'object_uuid': $(this).data('object_uuid'),
-                'object_type': $(this).data('object_type'),
-                'current_pleb': $(this).data('current_pleb')
+                'object_type': $(this).data('object_type')
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",

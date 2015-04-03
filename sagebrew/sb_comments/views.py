@@ -35,13 +35,9 @@ def save_comment_view(request):
     if (type(request.DATA) != dict):
         return Response({"details": "Please Provide a JSON Object"},
                         status=400)
-    try:
-        request.DATA['current_pleb'] = request.user.email
-        comment_form = SaveCommentForm(request.DATA)
-        valid_form = comment_form.is_valid()
-    except AttributeError:
-        return Response({"details": "Invalid Form"}, status=400)
-    if valid_form is True:
+    comment_form = SaveCommentForm(request.DATA)
+
+    if comment_form.is_valid() is True:
         choice_dict = dict(settings.KNOWN_TYPES)
         task_data = {
             "object_uuid": comment_form.cleaned_data['object_uuid'],

@@ -100,9 +100,7 @@
                     {% else %}
                         <div class="col-lg-12 col-lg-offset-0 vote_count{{ comment.object_uuid }}">
                     {% endif %}
-                        <small>
-                            {{ comment.vote_count|default_if_none:"0" }}
-                        </small>
+                        {{ comment.vote_count|default_if_none:"0" }}
                     </div>
                     <div class="col-lg-12 col-md-12 sb_down_vote_wrapper">
                         {% if comment.vote_type == "true" or comment.vote_type == None %}
@@ -126,7 +124,7 @@
             </div>
         <div class="col-lg-8 col-md-10 col-sm-10 col-xs-12 col-md-offset-1 col-sm-offset-1">
             <div class="sb_comment_body" id="sb_content_{{ comment.object_uuid }}">
-                <p>{{ comment.content|linebreaksbr }}</p>
+                {{ comment.content|linebreaksbr }}
             </div>
             <div id="edit_container_{{ comment.object_uuid }}" style="display: none">
                 <div class="row-fluid">

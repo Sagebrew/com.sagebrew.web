@@ -3,7 +3,7 @@ from django.conf import settings
 
 
 class SaveCommentForm(forms.Form):
-    content = forms.CharField(min_length=10)
+    content = forms.CharField(min_length=1)
     object_uuid = forms.CharField()
     object_type = forms.ChoiceField(choices=settings.KNOWN_TYPES)
 

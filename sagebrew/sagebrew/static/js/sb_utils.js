@@ -215,9 +215,9 @@ function edit_object() {
                 $(data['html_object']).text(data['content']);
                 $("#edit_container_"+uuid).hide();
                 $("#sb_content_"+uuid).show();
-                $(".sb_object_dropdown").each(function(i, obj){
-                    $(obj).removeAttr("disabled");
-                });
+                //$(".sb_object_dropdown").each(function(i, obj){
+                //    $(obj).removeAttr("disabled");
+                //});
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 if(XMLHttpRequest.status === 500){

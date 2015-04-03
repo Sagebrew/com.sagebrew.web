@@ -915,7 +915,7 @@
   width: auto;
   margin-top: -8px;
 }
-.sb_comment_body p {
+.sb_comment_body {
   font-size: 10pt;
 }
 .sb_comment {

@@ -24,12 +24,8 @@ $( document ).ready(function() {
 		});
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
-			type: "POST",
-			url: "/conversations/query_questions_api/",
-			data: JSON.stringify({
-               'current_pleb': $(this).data('current_pleb'),
-               'sort_by': $(this).data('sort_by')
-			}),
+			type: "GET",
+			url: "/v1/questions/?html=true&sort_by=" + $(this).data('sort_by') + "",
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
             success: function (data) {

@@ -171,57 +171,6 @@ class SBQuestion(SBVersioned, SBTagContent):
         except (CypherException, IOError) as e:
             return e
 
-    # TODO should be able to remove this and instead use the new endpoints
-    @apply_defense
-    def render_question_page(self, username):
-        from sb_docstore.utils import get_vote
-        try:
-            owner = self.owned_by.all()
-            try:
-                owner = owner[0]
-            except IndexError as e:
-                return e
-            owner = "%s %s" % (owner.first_name, owner.last_name)
-            most_recent = self.get_most_recent_edit()
-            if isinstance(most_recent, Exception):
-                return most_recent
-            if most_recent is not None:
-                most_recent_content = most_recent.content
-                if most_recent_content is not None:
-                    vote_count = str(self.vote_count)
-                    if vote_count == 'None':
-                        vote_count = "0"
-                    question_dict = {
-                        'title': most_recent.title,
-                        'question_content': most_recent_content,
-                        'is_closed': self.is_closed,
-                        'solution_count': self.solution_count,
-                        'last_edited_on': self.last_edited_on,
-                        'upvotes': self.upvotes,
-                        'downvotes': self.downvotes,
-                        'owner': owner,
-                        'created': self.created,
-                        'question_url': self.object_uuid,
-                        'vote_count': vote_count
-                    }
-                    vote_type = get_vote(question_dict['question_url'],
-                                         username)
-                    if vote_type is not None:
-                        if vote_type['status'] == 2:
-                            vote_type = None
-                        else:
-                            vote_type = str(bool(vote_type['status'])).lower()
-                    question_dict['vote_type'] = vote_type
-                else:
-                    question_dict = {"detail": "failed"}
-            else:
-                question_dict = {"detail": "failed"}
-            t = get_template("question_summary.html")
-            c = Context(question_dict)
-            return t.render(c)
-        except (CypherException, IOError) as e:
-            return e
-
     @apply_defense
     def render_search(self):
         try:

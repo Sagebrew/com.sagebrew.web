@@ -142,7 +142,7 @@
         <div class="col-lg-2 col-md-2 hidden-sm hidden-xs" style="padding-left:0; margin-top:-10px; margin-left: 2px">
             <div>
                 <small>
-                    <a href="{{ profile.profile_url }}">{{ owner_object.first_name }} {{ owner_object.last_name }}</a>
+                    <a href="{{ profile.url }}">{{ owner_object.first_name }} {{ owner_object.last_name }}</a>
                 </small>
             </div>
             <div style="margin-top:-10px;">
@@ -153,7 +153,7 @@
         </div>
         <div class="hidden-lg hidden-md col-sm-11 col-xs-11">
             <small>
-                asked by <a href="{{ profile.profile_url }}">{{ owner_object.first_name }} {{ owner_object.last_name }}</a> on {{ last_edited_on|date:"D d M Y" }}
+                asked by <a href="{{ profile.url }}">{{ owner_object.first_name }} {{ owner_object.last_name }}</a> on {{ last_edited_on|date:"D d M Y" }}
             </small>
         </div>
     </div>

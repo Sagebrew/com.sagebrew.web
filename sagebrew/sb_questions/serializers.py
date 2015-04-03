@@ -1,16 +1,25 @@
+from django.contrib.auth.models import User
+
 from rest_framework import serializers
+from rest_framework.reverse import reverse
+
+from neomodel.exception import CypherException
+from plebs.serializers import PlebSerializerNeo, UserSerializer
 
 
 class QuestionSerializerNeo(serializers.Serializer):
     object_uuid = serializers.CharField(read_only=True)
     href = serializers.HyperlinkedIdentityField(view_name='question-detail',
                                                 lookup_field="object_uuid")
-    content = serializers.CharField()
-
+    content = serializers.SerializerMethodField()
+    title = serializers.CharField(required=False)
     last_edited_on = serializers.DateTimeField(read_only=True)
     upvotes = serializers.CharField(read_only=True)
     downvotes = serializers.CharField(read_only=True)
     vote_count = serializers.IntegerField(read_only=True)
+    owner = serializers.SerializerMethodField()
+    url = serializers.SerializerMethodField()
+    solution_count = serializers.CharField(read_only=True)
 
     def create(self, validated_data):
         # TODO should store in dynamo and then spawn task to store in Neo
@@ -19,3 +28,30 @@ class QuestionSerializerNeo(serializers.Serializer):
     def update(self, instance, validated_data):
         # TODO get from dynamo and then spawn task to store in Neo
         pass
+
+    def get_owner(self, obj):
+        if isinstance(obj, dict) is True:
+            return obj
+        try:
+            owner = obj.owned_by.all()[0]
+        except(CypherException, IOError):
+            return None
+        profile = PlebSerializerNeo(
+            owner, context={'request': self.context['request']}).data
+        owner_user = User.objects.get(username=owner.username)
+        owner_dict = UserSerializer(
+            owner_user, context={'request': self.context['request']}).data
+        owner_dict["profile"] = profile
+
+        return owner_dict
+
+    def get_content(self, obj):
+        most_recent = obj.get_most_recent_edit()
+        if isinstance(most_recent, Exception):
+            return None
+        return most_recent.content
+
+    def get_url(self, obj):
+        return reverse('question_detail_page',
+                       kwargs={'question_uuid': obj.object_uuid},
+                       request=self.context['request'])

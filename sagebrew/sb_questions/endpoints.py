@@ -3,6 +3,8 @@ from datetime import datetime
 import pytz
 from logging import getLogger
 
+from django.template.loader import render_to_string, get_template
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
@@ -22,7 +24,7 @@ from sb_docstore.utils import (get_dynamo_table, convert_dynamo_content,
 from sb_solutions.utils import convert_dynamo_solutions, render_solutions
 from sb_comments.serializers import CommentSerializer
 from sb_comments.utils import convert_dynamo_comments
-
+from sb_votes.utils import determine_vote_type
 
 from .serializers import QuestionSerializerNeo
 from .neo_models import SBQuestion
@@ -46,13 +48,17 @@ class QuestionViewSet(viewsets.GenericViewSet):
             return Response(errors.CYPHER_EXCEPTION,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
-        if sort_by == "created":
+        if sort_by == "most_recent":
             queryset = sorted(queryset, key=lambda k: k.created)
-        elif sort_by == "edited":
-            queryset = sorted(queryset, key=lambda k: k.last_edited_on)
+        elif sort_by == "least_recent":
+            queryset = sorted(queryset, key=lambda k: k.created, reverse=True)
+        elif sort_by == "recent_edit":
+            queryset = sorted(queryset, key=lambda k: k.last_edited_on,
+                              reverse=True)
         else:
             queryset = sorted(queryset, key=lambda k: k.vote_count,
                               reverse=True)
+
         return queryset
 
     def get_object(self, object_uuid=None):
@@ -69,11 +75,18 @@ class QuestionViewSet(viewsets.GenericViewSet):
         if isinstance(queryset, Response):
             return queryset
         html = self.request.QUERY_PARAMS.get("html", "false").lower()
+        questions = self.serializer_class(queryset, many=True,
+                                          context={"request": request})
         if html == "true":
             html_array = []
-            for question in queryset:
-                html_array.append(
-                    question.render_question_page(request.user.username))
+            for question in questions.data:
+                question['last_edited_on'] = datetime.strptime(
+                    question[
+                        'last_edited_on'][:len(question['last_edited_on']) - 6],
+                    '%Y-%m-%dT%H:%M:%S.%f')
+
+                html_array.append(render_to_string('question_summary.html',
+                                                   question))
             return Response(html_array, status=status.HTTP_200_OK)
 
         serializer = self.serializer_class(
@@ -107,7 +120,6 @@ class QuestionViewSet(viewsets.GenericViewSet):
         except IndexError as e:
             raise NotFound
 
-
         single_object["profile"] = reverse(
             'profile_page', kwargs={
                 'pleb_username': single_object["owner"]
@@ -137,14 +149,8 @@ class QuestionViewSet(viewsets.GenericViewSet):
                 request=request)
 
         if html == "true":
-            vote_type = get_vote(single_object['object_uuid'],
-                                 request.user.username)
-            if vote_type is not None:
-                if vote_type['status'] == 2:
-                    vote_type = None
-                else:
-                    vote_type = str(bool(vote_type['status'])).lower()
-            single_object['vote_type'] = vote_type
+            single_object['vote_type'] = determine_vote_type(
+                single_object['object_uuid'], request.user.username)
             single_object["current_user_username"] = request.user.username
             return Response(render_question_object(single_object),
                             status=status.HTTP_200_OK)

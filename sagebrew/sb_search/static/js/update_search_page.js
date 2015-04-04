@@ -3,7 +3,7 @@ $( document ).ready(function() {
     var search_id = $('#search_param');
     var search_param = search_id.data('search_param');
     var search_page = search_id.data('search_page');
-    var filter = getUrlParameter('filter');
+    var filter = search_id.data('filter');
     if (filter === 'undefined'){
         filter = "";
     }
@@ -16,7 +16,7 @@ $( document ).ready(function() {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "GET",
-            url: "/search/api/q=" + search_param + '&page=' + search_page+"?filter="+filter,
+            url: "/search/api/" + search_param + "/" + search_page+"/"+filter,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
@@ -77,14 +77,14 @@ $( document ).ready(function() {
                 $.ajax({
                     xhrFields: {withCredentials: true},
                     type: "GET",
-                    url: "/search/api/q=" + search_param + '&page='+next_page+"?filter=" + filter,
+                    url: "/search/api/" + search_param + "/" + next_page + "/" + filter,
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (data) {
                         scrolled = false;
                         $(".load_next_page").remove();
                         if (data['next'] != ""){
-                            search_results.append("<div class='load_next_page' style='display: none' data-next='"+data['next']+"'></div>")
+                            search_results.append("<div class='load_next_page' style='display: none' data-next='"+data['next']+" data-filter='"+data['filter']+"'></div>")
                         }
                         search_results.append(data['html']);
                     }

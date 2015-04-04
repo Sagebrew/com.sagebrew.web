@@ -14,7 +14,7 @@ $( document ).ready(function() {
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
 			type: "GET",
-			url: "/search/api/q=" + search_param + "&page=1?filter="+filter,
+			url: "/search/api/" + search_param + "/1/"+filter,
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
             success: function (data) {

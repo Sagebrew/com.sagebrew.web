@@ -194,6 +194,9 @@ def convert_dynamo_content(raw_content, request=None, comment_view=None):
             'object_uuid': content['object_uuid']}, request=request)
         response = request_to_api(url, request.user.username, req_method="GET")
         content["comments"] = response.json()
+        for item in content["comments"]:
+            item["last_edited_on"] = datetime.strptime(
+                item['last_edited_on'], '%Y-%m-%dT%H:%M:%S.%f')
 
     return content
 

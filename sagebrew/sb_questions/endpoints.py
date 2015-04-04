@@ -82,6 +82,8 @@ class QuestionViewSet(viewsets.GenericViewSet):
             html_array = []
             id_array = []
             for question in questions.data:
+                question['vote_type'] = determine_vote_type(
+                    question['object_uuid'], request.user.username)
                 question['last_edited_on'] = datetime.strptime(
                     question[
                         'last_edited_on'][:len(question['last_edited_on']) - 6],
@@ -227,14 +229,14 @@ class QuestionViewSet(viewsets.GenericViewSet):
             )
             converted = convert_dynamo_comments(queryset)
             for comment in converted:
-                response = request_to_api(
-                    reverse('user-detail',
-                            kwargs={'username': comment["owner"]},
-                            request=request),
-                    request.user.username, req_method="GET")
+                user_url = "%s?expand=true" % reverse(
+                    'user-detail', kwargs={'username': comment["owner"]},
+                    request=request)
+                response = request_to_api(user_url, request.user.username,
+                                          req_method="GET")
                 comment['owner'] = response.json()
                 vote_type = get_vote(comment['object_uuid'],
-                                 request.user.username)
+                                     request.user.username)
                 if vote_type is not None:
                     if vote_type['status'] == 2:
                         vote_type = None

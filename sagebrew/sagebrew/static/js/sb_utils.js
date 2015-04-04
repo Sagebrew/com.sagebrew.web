@@ -182,6 +182,7 @@ function vote_object(vote_area){
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 if(XMLHttpRequest.status === 500){
                     $("#server_error").show();
+                    //alert(textStatus);
                 }
             }
         });
@@ -220,6 +221,12 @@ function save_solution() {
             success: function (data) {
                 $("#solution_container").append(data['html']);
                 $('textarea.sb_solution_input_area').val("");
+                var solution_count_text = $("#solution_count").text();
+                if(solution_count_text != "") {
+                    var solution_count = parseInt(solution_count_text) + 1;
+                    $("#solution_count").text(solution_count.toString());
+                }
+                $('#wmd-preview-0').html("");
                 enable_single_post_functionality(data["ids"]);
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {

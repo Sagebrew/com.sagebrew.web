@@ -4,6 +4,8 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 from neomodel.exception import CypherException
+
+from sb_docstore.utils import get_vote_count
 from plebs.serializers import PlebSerializerNeo, UserSerializer
 
 
@@ -16,7 +18,7 @@ class QuestionSerializerNeo(serializers.Serializer):
     last_edited_on = serializers.DateTimeField(read_only=True)
     upvotes = serializers.CharField(read_only=True)
     downvotes = serializers.CharField(read_only=True)
-    vote_count = serializers.IntegerField(read_only=True)
+    vote_count = serializers.SerializerMethodField()
     owner = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
     solution_count = serializers.CharField(read_only=True)
@@ -35,7 +37,7 @@ class QuestionSerializerNeo(serializers.Serializer):
             return obj
         try:
             owner = obj.owned_by.all()[0]
-        except(CypherException, IOError):
+        except(CypherException, IOError, IndexError):
             return None
         html = request.QUERY_PARAMS.get('html', 'false').lower()
         expand = request.QUERY_PARAMS.get('expand', "false").lower()
@@ -64,3 +66,8 @@ class QuestionSerializerNeo(serializers.Serializer):
         return reverse('question_detail_page',
                        kwargs={'question_uuid': obj.object_uuid},
                        request=self.context['request'])
+
+    def get_vote_count(self, obj):
+        upvotes = get_vote_count(obj.object_uuid, 1)
+        downvotes = get_vote_count(obj.object_uuid, 0)
+        return str(upvotes - downvotes)

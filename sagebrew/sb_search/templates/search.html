@@ -6,7 +6,7 @@
         <div class="sb_nav sb_secondary_nav sb_search_nav">
             <ul>
                 <li>
-                    <button id="search_filter" data-filter="">General </button>
+                    <button id="search_filter" data-filter="general">General </button>
                 </li>
                 <li>
                     <button id="search_filter" data-filter="conversations">Conversations</button>
@@ -21,7 +21,7 @@
         </div>
         <div class="sb_wall sb_search_wall">
             <div id="search_result_div">
-                <div id="search_param" data-search_param="{{ search_param }}" data-search_page="{{ page }}"></div>
+                <div id="search_param" data-search_param="{{ search_param }}" data-search_page="{{ page }}" data-filter="{{ filter }}"></div>
             </div>
             {% include "general_search_block.html" %}
             {% include "saga_search_block.html" %}

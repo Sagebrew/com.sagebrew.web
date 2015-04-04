@@ -51,7 +51,7 @@ def search_view(request):
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def search_result_view(request, query_param, display_num=5, page=1,
-                       range_start=0, range_end=10):
+                       range_start=0, range_end=10, search_filter=None):
     '''
     This view serves the page that holds the search results.
 
@@ -78,7 +78,8 @@ def search_result_view(request, query_param, display_num=5, page=1,
         return render(request, 'search.html',
                       {'search_param': search_form.cleaned_data['query_param'],
                        'page': search_form.cleaned_data['page'],
-                       'pleb_info': pleb}, status=200)
+                       'pleb_info': pleb, 'filter': search_filter},
+                      status=200)
     else:
         return render(request, 'search.html', {'pleb_info': pleb},status=400)
 

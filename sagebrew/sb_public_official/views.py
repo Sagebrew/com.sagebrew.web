@@ -19,7 +19,7 @@ from sb_registration.utils import (verify_completed_registration)
 from .forms import (ExperienceForm, BioForm, GoalForm)
 from .neo_models import BaseOfficial
 from .tasks import (save_experience_task, save_bio_task, save_goal_task)
-from .utils import get_rep_type
+from .utils import get_rep_type, prepare_official_search_html
 
 
 
@@ -245,3 +245,13 @@ def get_goal_form(request):
     else:
         rendered = render_to_string('goal_form.html', {'goal_form': goal_form})
         return Response({"rendered": rendered}, 200)
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def get_search_html(request, username):
+    response = prepare_official_search_html(username)
+    if response is None:
+        return Response('Server Error', status=500)
+    elif response is False:
+        return Response('Bad Email', status=400)
+    return Response({'html': response}, status=200)

@@ -49,9 +49,12 @@ class BaseOfficial(Pleb):
     def get_dict(self):
         return {"object_uuid": self.object_uuid,
                 "full_name": self.full_name,
+                "first_name": self.first_name,
+                "last_name": self.last_name,
                 "start_date": unicode(self.start_date),
                 "end_date": unicode(self.end_date),
                 "state": self.state,
+                "title": self.title,
                 "district": self.district,
                 "current": self.current}
 

@@ -37,12 +37,12 @@
                     <div class="col-lg-12 col-lg-offset-1 vote_count{{ object_uuid }}">
                 {% elif vote_count|length_is:"4" %}
                     <div class="col-lg-12 col-lg-offset-0 vote_count{{ object_uuid }}">
+                {% elif vote_count == None %}
+                    <div class="col-lg-12 col-lg-offset-2 vote_count{{ object_uuid }}" style="margin-left: 16px;">
                 {% else %}
                     <div class="col-lg-12 col-lg-offset-0 vote_count{{ object_uuid }}">
                 {% endif %}
-                    <h6>
-                        {{ vote_count }}
-                    </h6>
+                        {{ vote_count|default_if_none:"0" }}
                 </div>
                 <div class="col-lg-12 col-md-12 sb_down_vote_wrapper">
                     {% if vote_type == "true" or vote_type == None %}

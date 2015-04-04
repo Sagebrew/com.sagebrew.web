@@ -153,6 +153,11 @@ class QuestionViewSet(viewsets.GenericViewSet):
             queryset = self.get_object(object_uuid)
             single_object = QuestionSerializerNeo(
                 queryset, context={'request': request}).data
+            single_object["last_edited_on"] = datetime.strptime(
+                    single_object[
+                        'last_edited_on'][:len(
+                        single_object['last_edited_on']) - 6],
+                    '%Y-%m-%dT%H:%M:%S.%f')
             # TODO if get here should spawn task to repopulate question
 
         if html == "true":

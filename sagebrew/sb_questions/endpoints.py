@@ -2,8 +2,9 @@ from uuid import uuid1
 from datetime import datetime
 import pytz
 from logging import getLogger
+from boto.dynamodb2.exceptions import ItemNotFound
 
-from django.template.loader import render_to_string, get_template
+from django.template.loader import render_to_string
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
@@ -79,6 +80,7 @@ class QuestionViewSet(viewsets.GenericViewSet):
                                           context={"request": request})
         if html == "true":
             html_array = []
+            id_array = []
             for question in questions.data:
                 question['last_edited_on'] = datetime.strptime(
                     question[
@@ -87,7 +89,10 @@ class QuestionViewSet(viewsets.GenericViewSet):
 
                 html_array.append(render_to_string('question_summary.html',
                                                    question))
-            return Response(html_array, status=status.HTTP_200_OK)
+                id_array.append(question["object_uuid"])
+
+            return Response({"html": html_array, "ids": id_array},
+                            status=status.HTTP_200_OK)
 
         serializer = self.serializer_class(
             queryset, context={"request": request}, many=True)
@@ -106,53 +111,54 @@ class QuestionViewSet(viewsets.GenericViewSet):
             logger.exception("QuestionsViewSet get_object")
             return Response(errors.DYNAMO_TABLE_EXCEPTION,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        queryset = table.get_item(object_uuid=object_uuid)
         html = self.request.QUERY_PARAMS.get('html', 'false').lower()
         expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
         if html == "true":
             expand = "true"
         try:
-            if expand == "false":
-                single_object = convert_dynamo_content(queryset)
-            else:
-                single_object = convert_dynamo_content(queryset, self.request,
-                                                       "question-comments")
-        except IndexError as e:
-            raise NotFound
-
-        single_object["profile"] = reverse(
-            'profile_page', kwargs={
-                'pleb_username': single_object["owner"]
-            }, request=request)
-
-        # TODO hopefully can clear out most of this and just use it to eliminate
-        # any data only used for server side logic
-        user_url = reverse('user-detail', kwargs={
-            'username': single_object["owner"]}, request=request)
-
-        single_object["is_closed"] = int(single_object["is_closed"])
-
-        if expand == "true":
-            user_url = "%s%s" % (user_url, "?expand=True")
-            response = request_to_api(user_url,
-                                      request.user.username,
-                                      req_method="GET")
-            response_json = response.json()
-            single_object["profile"] = response_json.pop("profile", None)
-            single_object["owner_object"] = response_json
-        else:
-            single_object["owner_object"] = user_url
-            single_object["profile"] = reverse('profile-detail', kwargs={
+            queryset = table.get_item(object_uuid=object_uuid)
+            try:
+                if expand == "false":
+                    single_object = convert_dynamo_content(queryset)
+                else:
+                    single_object = convert_dynamo_content(
+                        queryset, self.request, "question-comments")
+            except IndexError as e:
+                raise NotFound
+            single_object["profile"] = reverse(
+                'profile_page', kwargs={
+                    'pleb_username': single_object["owner"]
+                }, request=request)
+            user_url = reverse('user-detail', kwargs={
                 'username': single_object["owner"]}, request=request)
-            single_object["comments"] = reverse(
-                "question-comments", kwargs={'object_uuid': object_uuid},
-                request=request)
+            single_object["is_closed"] = int(single_object["is_closed"])
+            if expand == "true":
+                user_url = "%s%s" % (user_url, "?expand=True")
+                response = request_to_api(user_url,
+                                          request.user.username,
+                                          req_method="GET")
+                response_json = response.json()
+                single_object["profile"] = response_json.pop("profile", None)
+                single_object["owner_object"] = response_json
+            else:
+                single_object["owner_object"] = user_url
+                single_object["profile"] = reverse('profile-detail', kwargs={
+                    'username': single_object["owner"]}, request=request)
+                single_object["comments"] = reverse(
+                    "question-comments", kwargs={'object_uuid': object_uuid},
+                    request=request)
+        except ItemNotFound:
+            queryset = self.get_object(object_uuid)
+            single_object = QuestionSerializerNeo(
+                queryset, context={'request': request}).data
+            # TODO if get here should spawn task to repopulate question
 
         if html == "true":
             single_object['vote_type'] = determine_vote_type(
                 single_object['object_uuid'], request.user.username)
             single_object["current_user_username"] = request.user.username
-            return Response(render_question_object(single_object),
+            return Response({"html": render_question_object(single_object),
+                             "ids": [single_object["object_uuid"]]},
                             status=status.HTTP_200_OK)
 
         return Response(single_object, status=status.HTTP_200_OK)
@@ -190,6 +196,9 @@ class QuestionViewSet(viewsets.GenericViewSet):
         # any urls returned. Or these could be stored off into dynamo based on
         # the initial pass on the serializer
         html = self.request.QUERY_PARAMS.get('html', 'false').lower()
+        id_array = []
+        for item in queryset:
+            id_array.append(item["object_uuid"])
         if html == "true":
             solution_dict = {
                 "solution_count": len(queryset),
@@ -197,7 +206,8 @@ class QuestionViewSet(viewsets.GenericViewSet):
                 "email": request.user.email,
                 "current_user_username": request.user.username,
             }
-            return Response(render_solutions(solution_dict),
+            return Response({"html": render_solutions(solution_dict),
+                             "ids":id_array},
                             status=status.HTTP_200_OK)
         return Response(queryset, status=status.HTTP_200_OK)
 

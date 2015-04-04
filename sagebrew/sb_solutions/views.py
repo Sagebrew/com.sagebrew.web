@@ -81,7 +81,8 @@ def save_solution_view(request):
         }
 
         return Response({'detail': 'successfully posted an solution',
-                         'html': render_to_string('solution.html', solution)},
+                         'html': render_to_string('solution.html', solution),
+                         "ids": [solution_form.cleaned_data['solution_uuid']]},
                         status=200)
     else:
         return Response({'detail': 'failed to post an solution'}, status=400)

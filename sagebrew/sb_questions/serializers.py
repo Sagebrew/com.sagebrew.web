@@ -37,7 +37,10 @@ class QuestionSerializerNeo(serializers.Serializer):
             owner = obj.owned_by.all()[0]
         except(CypherException, IOError):
             return None
-        expand = request.QUERY_PARAMS.get('expand', "false")
+        html = request.QUERY_PARAMS.get('html', 'false').lower()
+        expand = request.QUERY_PARAMS.get('expand', "false").lower()
+        if html == "true":
+            expand = "true"
         if expand == "true":
             profile = PlebSerializerNeo(
                 owner, context={'request': request}).data

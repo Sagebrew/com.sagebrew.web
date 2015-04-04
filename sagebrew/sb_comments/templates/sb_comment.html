@@ -39,7 +39,7 @@
                     </li>
                 {% else %}
                     {% if debug %}
-                        <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action'
+                        <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action flag_{{ comment.object_uuid }}'
                                                    data-flag_reason='spam'
                                                    data-current_user="{{ current_user }}"
                                                    data-object_uuid="{{ comment.object_uuid }}"
@@ -47,7 +47,7 @@
                                                    </a>
                         </li>
                         <li role="presentation" class="sb_divider"></li>
-                        <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action'
+                        <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action flag_{{ comment.object_uuid }}'
                                                    data-flag_reason='explicit'
                                                    data-current_user="{{ current_user }}"
                                                    data-object_uuid="{{ comment.object_uuid }}"
@@ -55,7 +55,7 @@
                                                    </a>
                         </li>
                         <li role="presentation" class="sb_divider"></li>
-                        <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action'
+                        <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action flag_{{ comment.object_uuid }}'
                                                    data-flag_reason='other'
                                                    data-current_user="{{ current_user }}"
                                                    data-object_uuid="{{ comment.object_uuid }}"
@@ -74,14 +74,14 @@
                     <div class="col-lg-12 sb_up_vote_wrapper">
                         <div style="display: none" class="sb_upvote_count{{ comment.object_uuid }}">{{ comment.upvotes }}</div>
                         {% if comment.vote_type == "false" or comment.vote_type == None %}
-                            <button class="btn sb_btn sb_btn_vote vote_up vote_up_small vote_object-action"
+                            <button class="btn sb_btn sb_btn_vote vote_up vote_up_small vote_object-action vote_{{ comment.object_uuid }}"
                                data-object_uuid="{{ comment.object_uuid }}"
                                data-vote_type=true
                                data-object_type="{{ comment.object_type }}">
                                 <span class="fui-triangle-up"></span>
                             </button>
                         {% else %}
-                            <button class="btn sb_btn sb_btn_vote vote_up vote_up_small vote_up_active vote_object-action"
+                            <button class="btn sb_btn sb_btn_vote vote_up vote_up_small vote_up_active vote_object-action vote_{{ comment.object_uuid }}"
                                data-object_uuid="{{ comment.object_uuid }}"
                                data-vote_type=true
                                data-object_type="{{ comment.object_type }}">
@@ -104,14 +104,14 @@
                     </div>
                     <div class="col-lg-12 col-md-12 sb_down_vote_wrapper">
                         {% if comment.vote_type == "true" or comment.vote_type == None %}
-                            <button class="btn sb_btn sb_btn_vote vote_down vote_down_small vote_object-action"
+                            <button class="btn sb_btn sb_btn_vote vote_down vote_down_small vote_object-action vote_{{ comment.object_uuid }}"
                                data-object_uuid="{{ comment.object_uuid }}"
                                data-vote_type=false
                                data-object_type="{{ comment.object_type }}">
                                 <span class="fui-triangle-down"></span>
                             </button>
                         {% else %}
-                            <button class="btn sb_btn sb_btn_vote vote_down vote_down_small vote_down_active vote_object-action"
+                            <button class="btn sb_btn sb_btn_vote vote_down vote_down_small vote_down_active vote_object-action vote_{{ comment.object_uuid }}"
                                data-object_uuid="{{ comment.object_uuid }}"
                                data-vote_type=false
                                data-object_type="{{ comment.object_type }}">
@@ -135,7 +135,7 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-5 col-md-5 col-sm-4 col-xs-12 col-lg-offset-7 col-md-offset-7 col-sm-offset-8">
-                        <button class='btn btn-block btn-primary sb_btn_fill edit_object-action'
+                        <button class='btn btn-block btn-primary sb_btn_fill edit_object-action edit_{{ comment.object_uuid }}'
                            id="edit_comment_button_id_{{ comment.object_uuid }}"
                            data-object_type="{{ comment.object_type }}"
                            data-parent_object="{{ object_uuid }}"

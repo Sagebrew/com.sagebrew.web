@@ -149,7 +149,7 @@ function vote_object() {
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 if(XMLHttpRequest.status === 500){
                     $("#server_error").show();
-                    alert(textStatus);
+                    //alert(textStatus);
                 }
             }
         });

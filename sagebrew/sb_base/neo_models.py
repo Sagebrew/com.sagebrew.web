@@ -66,7 +66,6 @@ class SBVoteableContent(StructuredNode):
                 if vote_type == 2:
                     rel.active = False
                 rel.save()
-            print "vote content updated"
             return self
         except CypherException as e:
             return e
@@ -82,7 +81,6 @@ class SBVoteableContent(StructuredNode):
                     vote_count += 1
                 elif rel.vote_type == 0:
                     vote_count -= 1
-            print "vote count updated"
             self.vote_count = vote_count
             self.save()
             return True

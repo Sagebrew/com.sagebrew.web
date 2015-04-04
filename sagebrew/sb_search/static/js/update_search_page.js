@@ -16,12 +16,13 @@ $( document ).ready(function() {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "GET",
-            url: "/search/api/" + search_param + "/" + search_page+"/"+filter,
+            url: "/search/api/" + search_param + "/" +
+                search_page + "/" + filter,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
                 if (data['next'] != ""){
-                    search_results.append("<div class='load_next_page' style='display: none' data-next='"+data['next']+"'></div>")
+                    search_results.append("<div class='load_next_page' style='display: none' data-next='"+data['next']+" data-filter='"+data['filter']+"'></div>")
                 }
                 var data_list = data['html'];
                 $.each(data_list, function(i, item) {
@@ -62,6 +63,24 @@ $( document ).ready(function() {
                             }
                         });
                     }
+                    if (data_list[i].type == 'sagas'){
+                        var saga_uuid = data_list[i].object_uuid;
+                        $.ajaxSetup({
+                            beforeSend: function (xhr, settings) {
+                                ajax_security(xhr, settings)
+                            }
+                        });
+                        $.ajax({
+                            xhrFields: {withCredentials: true},
+                            type: "GET",
+                            url: "/action/" + saga_uuid + '/search',
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function (data) {
+                                search_results.append(data["html"]);
+                            }
+                        });
+                    }
                 });
             }
         });
@@ -94,18 +113,5 @@ $( document ).ready(function() {
     });
 });
 
-function getUrlParameter(sParam)
-{
-    var sPageURL = window.location.search.substring(1);
-    var sURLVariables = sPageURL.split('&');
-    for (var i = 0; i < sURLVariables.length; i++)
-    {
-        var sParameterName = sURLVariables[i].split('=');
-        if (sParameterName[0] == sParam)
-        {
-            return sParameterName[1];
-        }
-    }
-}
 
 

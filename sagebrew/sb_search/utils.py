@@ -93,5 +93,9 @@ def process_search_result(item):
                 "type": "pleb",
                 "temp_score": item['_score']*item['_source']['sb_score'],
                 "score": item['_score']}
+    elif item['_type'] == 'sagas':
+        return {"object_uuid": item['_source']['object_uuid'],
+                'type': 'sagas', 'temp_score': item['_score'],
+                'score': item['_score']}
     else:
         return {'temp_score': 0}

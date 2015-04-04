@@ -148,7 +148,7 @@ def add_user_to_custom_index(username=None, index="full-search-user-specific-1")
         es.indices.create('full-search-base')
 
     scanres = es.search(index='full-search-base', search_type="scan",
-                        scroll="10m", size=50, body={
+                        scroll="10m",  body={
         "query": {
             "match_all": {}
         }
@@ -157,17 +157,31 @@ def add_user_to_custom_index(username=None, index="full-search-user-specific-1")
 
     results = es.scroll(scroll_id=scrollid, scroll='10m')
     res = results['hits']['hits']
+    saga_res = es.search(index='full-search-base', size=50,
+                         doc_type='sagas',
+                         body=
+                         {"query":
+                              {"query_string":
+                                   {"default_field":"_type",
+                                    "query": "sagas"}
+                              }
+                         })
+    sagas = saga_res['hits']['hits']
     try:
         for item in res:
             item['_source']['related_user'] = pleb.email
             item['_source']['sb_score'] = 0
-            print item
             if item['_type'] == 'SBQuestion':
                 result = es.index(index=index, doc_type='question',
                                   body=item['_source'])
             if item['_type'] == 'pleb':
                 result = es.index(index=index, doc_type='pleb',
                                   body=item['_source'])
+        for item in sagas:
+            item['_source']['related_user'] = pleb.email
+            item['_source']['sb_score'] = 0
+            es.index(index=index, doc_type='sagas',
+                     body=item['_source'])
         pleb.populated_personal_index = True
         pleb.save()
         return True

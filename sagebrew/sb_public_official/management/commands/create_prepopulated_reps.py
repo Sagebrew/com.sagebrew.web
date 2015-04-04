@@ -5,6 +5,8 @@ from django.core.management.base import BaseCommand
 
 from neomodel import CypherException
 
+from api.utils import spawn_task
+from api.tasks import add_object_to_search_index
 from govtrack.neo_models import  GTRole
 from sb_public_official.neo_models import BaseOfficial
 from sb_docstore.utils import add_object_to_table
@@ -52,7 +54,14 @@ class Command(BaseCommand):
                     logger.exception(e)
                     continue
         for rep in reps:
-            add_object_to_table("general_reps", rep.get_dict())
+            rep_dict = rep.get_dict()
+            add_object_to_table("general_reps", rep_dict)
+            task_data = {
+                "object_type": "sagas",
+                "object_data": rep_dict
+            }
+            spawn_task(add_object_to_search_index, task_data)
+
 
 
     def handle(self, *args, **options):

@@ -1,5 +1,7 @@
 import importlib
 from django.conf import settings
+from django.template.loader import render_to_string
+
 from neomodel import (DoesNotExist, CypherException)
 
 from plebs.neo_models import Pleb
@@ -145,3 +147,14 @@ def determine_reps(username):
                 return False
             senators.append(rep.sb_id)
     return True
+
+@apply_defense
+def prepare_official_search_html(object_uuid):
+    try:
+        official = BaseOfficial.nodes.get(object_uuid=object_uuid)
+    except (BaseOfficial.DoesNotExist, DoesNotExist):
+        return False
+    except (CypherException, IOError):
+        return False
+    official_data = official.get_dict()
+    return render_to_string("saga_search_block.html", official_data)

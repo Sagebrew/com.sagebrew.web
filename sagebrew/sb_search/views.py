@@ -22,6 +22,7 @@ from plebs.utils import prepare_user_search_html
 from sb_search.tasks import (spawn_weight_relationships)
 from sb_questions.utils import prepare_question_search_html
 from sb_registration.utils import verify_completed_registration
+from sb_public_official.utils import prepare_official_search_html
 
 
 
@@ -87,7 +88,7 @@ def search_result_view(request, query_param, display_num=5, page=1,
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def search_result_api(request, query_param="", display_num=10, page=1,
-                      filter_type="", filter_param=""):
+                      filter_type=""):
     '''
     This is the general search rest api endpoint. It takes the query parameter
     how many results to return and the current page, as well as a filter type
@@ -104,8 +105,7 @@ def search_result_api(request, query_param="", display_num=10, page=1,
     # TODO Make sure calling function knows what to do with a 500 status
     # TODO can we move any of this into a util?
     data = {'query_param': query_param, 'display_num': display_num,
-            'page': int(page),
-            'filter_type': filter_type, 'filter_param': filter_param}
+            'page': int(page), 'filter_param': filter_type}
     try:
         search_form = SearchFormApi(data)
         valid_form = search_form.is_valid()
@@ -113,13 +113,12 @@ def search_result_api(request, query_param="", display_num=10, page=1,
         # TODO Return something relevant
         return Response(status=400)
     if valid_form is True:
+        search_type_dict = dict(settings.SEARCH_TYPES)
         alchemyapi = AlchemyAPI()
         response = alchemyapi.keywords("text", search_form.cleaned_data[
                                       'query_param'])
         current_page = int(search_form.cleaned_data['page'])
         results=[]
-        query_filter = request.QUERY_PARAMS.get('filter', 'false').lower()
-        print query_filter
         current_user_email = request.user.email
         current_user_email,current_user_address = current_user_email.split('@')
         # TODO surround ES query with proper exception handling and ensure
@@ -129,21 +128,40 @@ def search_result_api(request, query_param="", display_num=10, page=1,
         #if what they have searched is an email address or a name so that
         #the first search result is that user
         #TODO implement filtering on auto generated keywords from alchemyapi
-        res = es.search(index='full-search-user-specific-1', size=50,
-                        body=
-                        {
-                            "query": {
-                                "query_string": {
-                                    "query": search_form.cleaned_data[
-                                        'query_param']
+        if search_form.cleaned_data['filter_param'] == 'general':
+            res = es.search(index='full-search-user-specific-1', size=50,
+                            body=
+                            {
+                                "query": {
+                                    "query_string": {
+                                        "query": search_form.cleaned_data[
+                                            'query_param']
+                                    }
+                                },
+                                "filter": {
+                                    "term": {
+                                        "related_user": current_user_email
+                                    }
                                 }
-                            },
-                            "filter": {
-                                "term": {
-                                    "related_user": current_user_email
+                            })
+        else:
+            res = es.search(index='full-search-user-specific-1', size=50,
+                            doc_type=search_type_dict[
+                                search_form.cleaned_data['filter_param']],
+                            body=
+                            {
+                                "query": {
+                                    "query_string": {
+                                        "query": search_form.cleaned_data[
+                                            'query_param']
+                                    }
+                                },
+                                "filter": {
+                                    "term": {
+                                        "related_user": current_user_email
+                                    }
                                 }
-                            }
-                        })
+                            })
         res = res['hits']['hits']
         task_param = {"pleb": request.user.email, "query_param":
                       search_form.cleaned_data['query_param'],
@@ -171,7 +189,6 @@ def search_result_api(request, query_param="", display_num=10, page=1,
             return Response({'detail': 'server error'}, status=500)
         if current_page == 1:
             pool = Pool(3)
-
             try:
                 results = pool.map(process_search_result, page.object_list)
             except RuntimeError:
@@ -194,6 +211,9 @@ def search_result_api(request, query_param="", display_num=10, page=1,
                 elif item['_type'] == 'pleb':
                     results.append(prepare_user_search_html(
                         item['_source']['pleb_username']))
+                elif item['_type'] == 'sagas':
+                    results.append(prepare_official_search_html(
+                        item['_source']['object_uuid']))
         try:
             next_page_num = page.next_page_number()
         except EmptyPage:

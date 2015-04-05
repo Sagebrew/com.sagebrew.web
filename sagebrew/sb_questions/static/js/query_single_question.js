@@ -14,7 +14,8 @@ $( document ).ready(function() {
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (data) {
-                    $("#single_question_wrapper").append(data);
+                    $("#single_question_wrapper").append(data['html']);
+                    enable_question_functionality(data["ids"])
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
                     timeOutId = setTimeout(ajaxFn, 1000);

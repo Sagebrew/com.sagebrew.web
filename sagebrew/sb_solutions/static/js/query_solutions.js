@@ -12,8 +12,8 @@ $( document ).ready(function() {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
-            $("#solution_container").append(data);
-            enable_post_functionality()
+            $("#solution_container").append(data['html']);
+            enable_solution_functionality(data['ids'])
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
             if(XMLHttpRequest.status === 500){

@@ -1,3 +1,5 @@
+import markdown
+
 from django.contrib.auth.models import User
 
 from rest_framework import serializers
@@ -13,15 +15,17 @@ class QuestionSerializerNeo(serializers.Serializer):
     object_uuid = serializers.CharField(read_only=True)
     href = serializers.HyperlinkedIdentityField(view_name='question-detail',
                                                 lookup_field="object_uuid")
-    content = serializers.SerializerMethodField()
+    content = serializers.CharField()
     title = serializers.CharField(required=False)
     last_edited_on = serializers.DateTimeField(read_only=True)
     upvotes = serializers.CharField(read_only=True)
     downvotes = serializers.CharField(read_only=True)
     vote_count = serializers.SerializerMethodField()
-    owner = serializers.SerializerMethodField()
+    owner_object = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
     solution_count = serializers.CharField(read_only=True)
+    html_content = serializers.SerializerMethodField()
+    profile = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         # TODO should store in dynamo and then spawn task to store in Neo
@@ -31,7 +35,7 @@ class QuestionSerializerNeo(serializers.Serializer):
         # TODO get from dynamo and then spawn task to store in Neo
         pass
 
-    def get_owner(self, obj):
+    def get_owner_object(self, obj):
         request = self.context['request']
         if isinstance(obj, dict) is True:
             return obj
@@ -39,25 +43,40 @@ class QuestionSerializerNeo(serializers.Serializer):
             owner = obj.owned_by.all()[0]
         except(CypherException, IOError, IndexError):
             return None
-        expand = request.QUERY_PARAMS.get('expand', "false")
+        html = request.QUERY_PARAMS.get('html', 'false').lower()
+        expand = request.QUERY_PARAMS.get('expand', "false").lower()
+        if html == "true":
+            expand = "true"
         if expand == "true":
-            profile = PlebSerializerNeo(
-                owner, context={'request': request}).data
             owner_user = User.objects.get(username=owner.username)
             owner_dict = UserSerializer(
                 owner_user, context={'request': self.context['request']}).data
-            owner_dict["profile"] = profile
         else:
             owner_dict = reverse('user-detail',
                                  kwargs={"username": owner.username},
                                  request=request)
         return owner_dict
 
-    def get_content(self, obj):
-        most_recent = obj.get_most_recent_edit()
-        if isinstance(most_recent, Exception):
+    def get_profile(self, obj):
+        request = self.context['request']
+        if isinstance(obj, dict) is True:
+            return obj
+        try:
+            owner = obj.owned_by.all()[0]
+        except(CypherException, IOError, IndexError):
             return None
-        return most_recent.content
+        html = request.QUERY_PARAMS.get('html', 'false').lower()
+        expand = request.QUERY_PARAMS.get('expand', "false").lower()
+        if html == "true":
+            expand = "true"
+        if expand == "true":
+            profile_dict = PlebSerializerNeo(
+                owner, context={'request': request}).data
+        else:
+            profile_dict = reverse('profile-detail',
+                                   kwargs={"username": owner.username},
+                                   request=request)
+        return profile_dict
 
     def get_url(self, obj):
         return reverse('question_detail_page',
@@ -68,3 +87,6 @@ class QuestionSerializerNeo(serializers.Serializer):
         upvotes = get_vote_count(obj.object_uuid, 1)
         downvotes = get_vote_count(obj.object_uuid, 0)
         return str(upvotes - downvotes)
+
+    def get_html_content(self, obj):
+        return markdown.markdown(obj.content)

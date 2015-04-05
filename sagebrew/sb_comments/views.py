@@ -75,7 +75,8 @@ def save_comment_view(request):
             return Response({"detail": "Failed to create comment task"},
                             status=500)
         return Response({
-            "detail": "Comment successfully created", "html": html},
+            "detail": "Comment successfully created", "html": html,
+            "ids": [task_data['comment_uuid']]},
             status=200)
     else:
         return Response({'detail': "invalid form"}, status=400)

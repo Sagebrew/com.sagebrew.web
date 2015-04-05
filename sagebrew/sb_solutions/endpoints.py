@@ -1,11 +1,8 @@
-from datetime import datetime
-from uuid import uuid1
-import pytz
 from logging import getLogger
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
-from rest_framework.decorators import detail_route
+
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import LimitOffsetPagination
@@ -13,10 +10,6 @@ from rest_framework.pagination import LimitOffsetPagination
 from neomodel import CypherException
 
 from sagebrew import errors
-
-from sb_docstore.utils import get_dynamo_table
-from sb_comments.utils import convert_dynamo_comments
-from sb_comments.serializers import CommentSerializer
 
 from .serializers import SolutionSerializerNeo
 from .neo_models import SBSolution
@@ -97,56 +90,3 @@ class SolutionViewSet(viewsets.GenericViewSet):
 
     def destroy(self, request, object_uuid=None):
         pass
-
-    @detail_route(methods=['get', 'post'], serializer_class=CommentSerializer)
-    def comments(self, request, object_uuid=None):
-        table = get_dynamo_table("comments")
-        if isinstance(table, Exception) is True:
-            logger.exception("SolutionGenericViewSet comment")
-            return Response(errors.DYNAMO_TABLE_EXCEPTION,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        if request.method == "GET":
-            queryset = table.query_2(
-                parent_object__eq=object_uuid,
-                created__gte="0"
-            )
-            serializer = CommentSerializer(
-                convert_dynamo_comments(queryset), context={"request": request},
-                many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            parent_uuid = object_uuid
-            serializer = CommentSerializer(data=request.data)
-            if serializer.is_valid():
-                # TODO should probably spawn neo connection off into task
-                # and instead make relation in dynamo. Can include the given
-                # uuid in the task spawned off. Also as mentioned in the
-                # serializer, we should capture the user from the request,
-                # get the pleb (maybe in the task) and use that to call
-                # comment_relations
-                instance = serializer.save()
-                parent_object = self.get_object(object_uuid)
-                parent_object.comments.connect(instance)
-                parent_object.save()
-                # TODO should really define this in CommentSerializerDynamo
-                # and require all these as inputs or dynamically generated
-                # and then pass the necessary additional attributes on along
-                # to a task to create connections in neo
-                created = str(datetime.now(pytz.utc))
-                uuid = str(uuid1())
-                table.put_item(
-                    data={
-                        "parent_object": parent_uuid,
-                        "object_uuid": uuid,
-                        "content": serializer.validated_data["content"],
-                        "created": created,
-                        "comment_owner": request.user.get_full_name(),
-                        "comment_owner_email": request.user.email,
-                        "last_edited_on": created,
-                    }
-                )
-                return Response(serializer.validated_data,
-                                status=status.HTTP_201_CREATED)
-
-            return Response(serializer.errors,
-                            status=status.HTTP_400_BAD_REQUEST)

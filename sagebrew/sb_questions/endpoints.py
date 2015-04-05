@@ -1,6 +1,4 @@
-from uuid import uuid1
 from datetime import datetime
-import pytz
 from logging import getLogger
 from boto.dynamodb2.exceptions import ItemNotFound
 
@@ -19,11 +17,8 @@ from neomodel import CypherException
 from sagebrew import errors
 
 from api.utils import request_to_api
-from sb_docstore.utils import (get_dynamo_table, convert_dynamo_content,
-                               get_vote)
+from sb_docstore.utils import (get_dynamo_table, convert_dynamo_content)
 from sb_solutions.utils import convert_dynamo_solutions, render_solutions
-from sb_comments.serializers import CommentSerializer
-from sb_comments.utils import convert_dynamo_comments
 from sb_votes.utils import determine_vote_type
 
 from .serializers import QuestionSerializerNeo
@@ -214,76 +209,6 @@ class QuestionViewSet(viewsets.GenericViewSet):
                             status=status.HTTP_200_OK)
         return Response(queryset, status=status.HTTP_200_OK)
 
-    @detail_route(methods=['get'], serializer_class=CommentSerializer)
-    def comments(self, request, object_uuid=None):
-        # TODO should be able to move all this to comment helpers and
-        # place in solutions, posts, questions, etc.
-        table = get_dynamo_table("comments")
-        if isinstance(table, Exception) is True:
-            logger.exception("QuestionGenericViewSet comment")
-            return Response(errors.DYNAMO_TABLE_EXCEPTION,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        if request.method == "GET":
-            queryset = table.query_2(
-                parent_object__eq=object_uuid,
-                created__gte="0"
-            )
-            converted = convert_dynamo_comments(queryset)
-            for comment in converted:
-                user_url = "%s?expand=true" % reverse(
-                    'user-detail', kwargs={'username': comment["owner"]},
-                    request=request)
-                response = request_to_api(user_url, request.user.username,
-                                          req_method="GET")
-                comment['owner'] = response.json()
-                vote_type = get_vote(comment['object_uuid'],
-                                     request.user.username)
-                if vote_type is not None:
-                    if vote_type['status'] == 2:
-                        vote_type = None
-                    else:
-                        vote_type = str(bool(vote_type['status'])).lower()
-                comment['vote_type'] = vote_type
-            return Response(converted, status=status.HTTP_200_OK)
-        else:
-            # TODO should be able to move all this to comment helpers and
-            # place in solutions, posts, questions, etc.
-            parent_uuid = object_uuid
-            serializer = CommentSerializer(data=request.data)
-            if serializer.is_valid():
-                # TODO should probably spawn neo connection off into task
-                # and instead make relation in dynamo. Can include the given
-                # uuid in the task spawned off. Also as mentioned in the
-                # serializer, we should capture the user from the request,
-                # get the pleb (maybe in the task) and use that to call
-                # comment_relations
-                instance = serializer.save()
-                parent_object = self.get_object(object_uuid)
-                parent_object.comments.connect(instance)
-                parent_object.save()
-                # TODO should really define this in CommentSerializerDynamo
-                # and require all these as inputs or dynamically generated
-                # and then pass the necessary additional attributes on along
-                # to a task to create connections in neo
-                created = str(datetime.now(pytz.utc))
-                uuid = str(uuid1())
-                table.put_item(
-                    data={
-                        "parent_object": parent_uuid,
-                        "object_uuid": uuid,
-                        "content": serializer.validated_data["content"],
-                        "created": created,
-                        "comment_owner": request.user.get_full_name(),
-                        "comment_owner_email": request.user.email,
-                        "last_edited_on": created,
-                    }
-                )
-                return Response(serializer.validated_data,
-                                status=status.HTTP_201_CREATED)
-
-            return Response(serializer.errors,
-                            status=status.HTTP_400_BAD_REQUEST)
-
     @detail_route(methods=['get'])
     def upvote(self, request, object_uuid=None):
         return Response({"detail": "TBD"},
@@ -305,7 +230,7 @@ class QuestionViewSet(viewsets.GenericViewSet):
                         status=status.HTTP_501_NOT_IMPLEMENTED)
 
     @list_route(methods=['get'])
-    def renderer(self, request):
+    def render(self, request):
         '''
         This is a intermediate step on the way to utilizing a JS Framework to
         handle template rendering.

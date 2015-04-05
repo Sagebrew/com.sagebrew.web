@@ -51,13 +51,6 @@ class SBComment(SBNonVersioned):
                     self.get_downvote_count(),
                 'last_edited_on':
                     str(self.last_edited_on),
-                'comment_owner': comment_owner.first_name + ' '
-                                 + comment_owner.last_name,
-                'comment_owner_email': comment_owner.email,
-                'owner_username': comment_owner.username,
-                'owner_full_name': "%s %s" % (
-                                comment_owner.first_name,
-                                comment_owner.last_name),
                 'owner': comment_owner.username,
                 'created': unicode(self.created),
                 'edits': [],

@@ -148,6 +148,7 @@ class SBQuestion(SBVersioned, SBTagContent):
                 html_content = ""
             else:
                 html_content = markdown.markdown(self.content)
+            # TODO this should be replaced with the serializer
             return {
                 'title': edit.title,
                 'content': edit.content,
@@ -195,18 +196,6 @@ class SBQuestion(SBVersioned, SBTagContent):
                 "owner_email": owner.email}
             rendered = render_to_string('question_search.html', question_dict)
             return rendered
-        except CypherException as e:
-            return e
-
-    def render_multiple(self, pleb):
-        pass
-
-    @apply_defense
-    def render_single(self, pleb):
-        try:
-            t = get_template("question.html")
-            c = Context(self.get_single_dict(pleb))
-            return t.render(c)
         except CypherException as e:
             return e
 

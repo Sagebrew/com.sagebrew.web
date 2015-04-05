@@ -8,7 +8,7 @@ from django.template.loader import render_to_string
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework import status
@@ -83,35 +83,13 @@ class QuestionViewSet(viewsets.GenericViewSet):
             return queryset
         queryset = self.filter_queryset(queryset)
         page = self.paginate_queryset(queryset)
-        html = self.request.QUERY_PARAMS.get("html", "false").lower()
-        if page is not None and html == "false":
+
+        if page is not None:
             serializer = self.get_serializer(page, many=True,
                                              context={"request": request})
             return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(
             queryset, context={"request": request}, many=True)
-
-        # ##### TODO TO BE moved to ember/angular ########
-        if html == "true":
-            html_array = []
-            id_array = []
-            for question in serializer.data:
-                # If necessary these could be moved to separate endpoint queries
-                # or we could properly format the time prior to returning.
-                question['vote_type'] = determine_vote_type(
-                    question['object_uuid'], request.user.username)
-                question['last_edited_on'] = datetime.strptime(
-                    question[
-                        'last_edited_on'][:len(question['last_edited_on']) - 6],
-                    '%Y-%m-%dT%H:%M:%S.%f')
-
-                html_array.append(render_to_string('question_summary.html',
-                                                   question))
-                id_array.append(question["object_uuid"])
-
-            return Response({"html": html_array, "ids": id_array},
-                            status=status.HTTP_200_OK)
-        ################################################
         
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -176,6 +154,8 @@ class QuestionViewSet(viewsets.GenericViewSet):
             # TODO if get here should spawn task to repopulate question
 
         if html == "true":
+            # This will be moved to JS Framework but don't need intermediate
+            # step at the time being as this doesn't require pagination
             single_object['vote_type'] = determine_vote_type(
                 single_object['object_uuid'], request.user.username)
             single_object["current_user_username"] = request.user.username
@@ -218,10 +198,11 @@ class QuestionViewSet(viewsets.GenericViewSet):
         # any urls returned. Or these could be stored off into dynamo based on
         # the initial pass on the serializer
         html = self.request.QUERY_PARAMS.get('html', 'false').lower()
-        id_array = []
-        for item in queryset:
-            id_array.append(item["object_uuid"])
+
         if html == "true":
+            id_array = []
+            for item in queryset:
+                id_array.append(item["object_uuid"])
             solution_dict = {
                 "solution_count": len(queryset),
                 "solutions": queryset,
@@ -322,3 +303,26 @@ class QuestionViewSet(viewsets.GenericViewSet):
     def protect(self, request, object_uuid=None):
         return Response({"detail": "TBD"},
                         status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    @list_route(methods=['get'])
+    def renderer(self, request):
+        '''
+        This is a intermediate step on the way to utilizing a JS Framework to
+        handle template rendering.
+        '''
+        html_array = []
+        id_array = []
+        questions = self.list(request)
+
+        for question in questions.data['results']:
+            question['vote_type'] = determine_vote_type(
+                question['object_uuid'], request.user.username)
+            question['last_edited_on'] = datetime.strptime(
+                question[
+                    'last_edited_on'][:len(question['last_edited_on']) - 6],
+                '%Y-%m-%dT%H:%M:%S.%f')
+            html_array.append(render_to_string('question_summary.html',
+                                               question))
+            id_array.append(question["object_uuid"])
+        questions.data['results'] = {"html": html_array, "ids": id_array}
+        return Response(questions.data, status=status.HTTP_200_OK)

@@ -1,12 +1,12 @@
 from uuid import uuid1
 
 from django.shortcuts import render
-from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, user_passes_test
 
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.reverse import reverse
 
 from api.utils import spawn_task
 from sb_docstore.utils import get_question_doc

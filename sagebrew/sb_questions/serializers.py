@@ -26,6 +26,8 @@ class QuestionSerializerNeo(serializers.Serializer):
     solution_count = serializers.CharField(read_only=True)
     html_content = serializers.SerializerMethodField()
     profile = serializers.SerializerMethodField()
+    is_closed = serializers.BooleanField(read_only=True)
+    to_be_deleted = serializers.BooleanField(read_only=True)
 
     def create(self, validated_data):
         # TODO should store in dynamo and then spawn task to store in Neo

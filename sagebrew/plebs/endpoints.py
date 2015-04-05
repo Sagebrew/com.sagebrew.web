@@ -16,7 +16,6 @@ from neomodel import CypherException
 from sagebrew import errors
 
 from api.utils import request_to_api
-from sb_docstore.utils import get_notification_docs
 from api.permissions import IsSelfOrReadOnly, IsSelf
 from sb_comments.serializers import CommentSerializer
 

@@ -626,23 +626,6 @@ def get_notification_docs(username):
         notification_list.append(dict(notification))
     return notification_list
 
-@apply_defense
-def get_user_reputation(username):
-    conn = connect_to_dynamo()
-    if isinstance(conn, Exception):
-        return conn
-    try:
-        reputation_table = Table(table_name=get_table_name('reputation'),
-                                 connection=conn)
-    except JSONResponseError as e:
-        return e
-    try:
-        res = reputation_table.get_item(
-            parent_object=username
-        )
-    except ItemNotFound:
-        return False
-    return dict(res)
 
 @apply_defense
 def get_action(username, action):

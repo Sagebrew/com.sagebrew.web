@@ -1,56 +1,5 @@
 <div class="block sb_solution">
-    <div class="row">
-        <div class="col-lg-1 col-md-1 col-sm-1 hidden-xs col-lg-offset-11 col-md-offset-11 col-sm-offset-11">
-            <button class="btn dropdown-toggle sb_btn_icon" type="button"
-                    data-toggle="dropdown">
-                <span class="sb_dropdown_icon fui-gear"></span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
-                role="menu" aria-labelledby="dropdown-menu">
-                {% if current_user_username == solution.owner_object.username %}
-                    <li role="presentation">
-                        <a class="sb_post_dropdown_menu show_edit_solution-action"
-                                   data-object_uuid="{{ solution.object_uuid }}"
-                                   data-parent_object="{{ solution.parent_object }}"
-                                   type="submit">Edit Solution</a>
-                    </li>
-                    <li role="presentation" class="sb_divider"></li>
-                    <li role="presentation">
-                        <a class="btn sb_post_dropdown_menu delete_object-action"
-                                   data-object_uuid="{{ solution.object_uuid }}"
-                                   data-object_type="02241aee-644f-11e4-9ad9-080027242395"
-                                   data-current_pleb="{{ solution.current_pleb }}">Delete</a>
-                    </li>
-                {% else %}
-                    {% if debug %}
-                        <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action flag_{{ solution.object_uuid }}'
-                                                   data-flag_reason='spam'
-                                                   data-current_user="{{ current_user }}"
-                                                   data-object_uuid="{{ object_uuid }}"
-                                                   data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Spam
-                                                   </a>
-                        </li>
-                        <li role="presentation" class="sb_divider"></li>
-                        <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action flag_{{ object_uuid }}'
-                                                   data-flag_reason='explicit'
-                                                   data-current_user="{{ current_user }}"
-                                                   data-object_uuid="{{ object_uuid }}"
-                                                   data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Explicit
-                                                   </a>
-                        </li>
-                        <li role="presentation" class="sb_divider"></li>
-                        <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action flag_{{ object_uuid }}'
-                                                   data-flag_reason='other'
-                                                   data-current_user="{{ current_user }}"
-                                                   data-object_uuid="{{ object_uuid }}"
-                                                   data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Other
-                                                   </a>
-                        </li>
-                    {% endif %}
-                {% endif %}
-            </ul>
-        </div>
-    </div>
+
     <div class="row">
         <div class="col-lg-1 hidden-md hidden-sm hidden-xs sb_vote_wrapper">
                 <div class="row vote_wrapper" id="vote_{{ solution.object_uuid }}">
@@ -75,21 +24,19 @@
                         {% endif %}
                     </div >
                     {% if solution.vote_count|length_is:"1" %}
-                        <div class="col-lg-12 col-lg-offset-2 vote_count{{ solution.object_uuid }}" style="margin-left: 16px;">
+                        <div class="col-lg-12 col-lg-offset-2 vote_count_large vote_count{{ solution.object_uuid }}">
                     {% elif solution.vote_count|length_is:"2" %}
-                        <div class="col-lg-12 col-lg-offset-2 vote_count{{ solution.object_uuid }}">
+                        <div class="col-lg-12 col-lg-offset-2 vote_count_large vote_count{{ solution.object_uuid }}">
                     {% elif solution.vote_count|length_is:"3" %}
-                        <div class="col-lg-12 col-lg-offset-1 vote_count{{ solution.object_uuid }}">
+                        <div class="col-lg-12 col-lg-offset-1 vote_count_large vote_count{{ solution.object_uuid }}">
                     {% elif solution.vote_count|length_is:"4" %}
-                        <div class="col-lg-12 col-lg-offset-0 vote_count{{ solution.object_uuid }}">
+                        <div class="col-lg-12 col-lg-offset-0 vote_count_large vote_count{{ solution.object_uuid }}">
                     {% elif solution.vote_count == None %}
-                        <div class="col-lg-12 col-lg-offset-2 vote_count{{ solution.object_uuid }}" style="margin-left: 16px;">
+                        <div class="col-lg-12 col-lg-offset-2 vote_count_large vote_count{{ solution.object_uuid }}">
                     {% else %}
-                        <div class="col-lg-12 col-lg-offset-0 vote_count{{ solution.object_uuid }}">
+                        <div class="col-lg-12 col-lg-offset-0 vote_count_large vote_count{{ solution.object_uuid }}">
                     {% endif %}
-                        <h6>
-                            {{ solution.vote_count|default_if_none:"0" }}
-                        </h6>
+                        {{ solution.vote_count|default_if_none:"0" }}
                     </div>
                     <div class="col-lg-12 col-md-12 sb_down_vote_wrapper">
                         {% if solution.vote_type == "true" or solution.vote_type == None %}
@@ -121,6 +68,57 @@
                     {% endautoescape %}
                 </div>
             </div>
+        </div>
+        <div class="col-lg-1 col-md-1 col-sm-1 hidden-xs">
+            <button class="btn dropdown-toggle sb_btn_icon" type="button"
+                    data-toggle="dropdown">
+                <span class="sb_dropdown_icon fui-gear"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
+                role="menu" aria-labelledby="dropdown-menu">
+                {% if current_user_username == solution.owner_object.username %}
+                    <li role="presentation">
+                        <a class="sb_post_dropdown_menu show_edit_solution-action"
+                                   data-object_uuid="{{ solution.object_uuid }}"
+                                   data-parent_object="{{ solution.parent_object }}"
+                                   type="submit">Edit Solution</a>
+                    </li>
+                    <li role="presentation" class="sb_divider"></li>
+                    <li role="presentation">
+                        <a class="btn sb_post_dropdown_menu delete_object-action"
+                                   data-object_uuid="{{ solution.object_uuid }}"
+                                   data-object_type="02241aee-644f-11e4-9ad9-080027242395">
+                            Delete
+                        </a>
+                    </li>
+                {% else %}
+                    {% if debug %}
+                        <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action flag_{{ solution.object_uuid }}'
+                                                   data-flag_reason='spam'
+                                                   data-current_user="{{ current_user }}"
+                                                   data-object_uuid="{{ object_uuid }}"
+                                                   data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Spam
+                                                   </a>
+                        </li>
+                        <li role="presentation" class="sb_divider"></li>
+                        <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action flag_{{ object_uuid }}'
+                                                   data-flag_reason='explicit'
+                                                   data-current_user="{{ current_user }}"
+                                                   data-object_uuid="{{ object_uuid }}"
+                                                   data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Explicit
+                                                   </a>
+                        </li>
+                        <li role="presentation" class="sb_divider"></li>
+                        <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action flag_{{ object_uuid }}'
+                                                   data-flag_reason='other'
+                                                   data-current_user="{{ current_user }}"
+                                                   data-object_uuid="{{ object_uuid }}"
+                                                   data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Other
+                                                   </a>
+                        </li>
+                    {% endif %}
+                {% endif %}
+            </ul>
         </div>
     </div>
     <div class="row">

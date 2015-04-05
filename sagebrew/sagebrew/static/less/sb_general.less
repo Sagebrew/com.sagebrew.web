@@ -433,16 +433,15 @@
 .vote_down_active{
   color: @sb_violet;
 }
-.vote_count{
-  padding-right: 0;
-  h6{
-    font-size: 12pt;
-  }
-  p{
-    font-weight: bold;
-    margin-bottom: -5px;
-    margin-top: -5px;
-  }
+.vote_count_large{
+  margin-left: 15px;
+  font-size: 15pt;
+  font-weight: bold;
+}
+
+.vote_count_medium{
+  font-weight: bold;
+  margin-left: 9px;
 }
 
 .vote_count_small{
@@ -902,6 +901,9 @@
   margin-left: -5px;
   margin-top: -15px;
 }
+.sb_votes{
+  margin-left:-7px;
+}
 .sb_vote_wrapper_small{
   margin-left: 2px;
   margin-top: -15px;
@@ -940,6 +942,7 @@
 .sb_question_body{
   &:extend(.sb_post_body);
   margin-left: 12px;
+  margin-right: -7px;
 }
 .sb_post_comments{
   border-style: solid;

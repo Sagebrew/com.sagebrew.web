@@ -6,7 +6,6 @@ from django.utils.safestring import SafeText
 from api.utils import wait_util
 from sb_solutions.neo_models import SBSolution
 from sb_questions.utils import (create_question_util,
-                                get_question_by_uuid,
                                 get_question_by_least_recent,
                                 prepare_question_search_html)
 from sb_questions.neo_models import SBQuestion
@@ -39,44 +38,6 @@ class TestCreateQuestion(TestCase):
         response = create_question_util(**self.question_info_dict)
 
         self.assertEqual(response.object_uuid, question.object_uuid)
-
-
-class TestGetQuestionByUUID(TestCase):
-    def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        self.question_info_dict = {'current_pleb': self.pleb,
-                                   'title': "Test question",
-                                   'content': 'test post'}
-
-    def test_get_question_by_uuid_success(self):
-        self.question_info_dict.pop('question_uuid',None)
-        self.question_info_dict['object_uuid']=str(uuid1())
-        question = SBQuestion(object_uuid=str(uuid1()))
-        question.save()
-        question.owned_by.connect(self.pleb)
-        question.save()
-        solution = SBSolution(object_uuid=str(uuid1())).save()
-        solution.owned_by.connect(self.pleb)
-        solution.save()
-        question.solutions.connect(solution)
-        question.save()
-
-        response = get_question_by_uuid(
-            question.object_uuid,
-            current_pleb=self.pleb)
-        self.assertIsInstance(response, SafeText)
-
-    def test_get_question_by_uuid_failure_question_does_not_exist(self):
-
-        question_uuid = get_question_by_uuid(
-            str(uuid1()), current_pleb=self.pleb)
-
-        self.assertFalse(question_uuid, False)
 
 
 class TestGetQuestionByLeastRecent(TestCase):

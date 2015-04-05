@@ -51,7 +51,7 @@ class QuestionViewSet(viewsets.GenericViewSet):
             logger.exception("QuestionGenericViewSet queryset")
             return Response(errors.CYPHER_EXCEPTION,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        sort_by = self.request.QUERY_PARAMS.get('ordering', None)
+        sort_by = self.request.query_params.get('ordering', None)
         if sort_by == "created":
             queryset = sorted(queryset, key=lambda k: k.created)
         elif sort_by == "-created":
@@ -106,8 +106,8 @@ class QuestionViewSet(viewsets.GenericViewSet):
             logger.exception("QuestionsViewSet get_object")
             return Response(errors.DYNAMO_TABLE_EXCEPTION,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
-        expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
+        html = self.request.query_params.get('html', 'false').lower()
+        expand = self.request.query_params.get('expand', "false").lower()
         if html == "true":
             expand = "true"
         try:
@@ -184,7 +184,7 @@ class QuestionViewSet(viewsets.GenericViewSet):
 
         queryset = table.query_2(parent_object__eq=object_uuid)
         queryset = convert_dynamo_solutions(queryset, self.request)
-        sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
+        sort_by = self.request.query_params.get('sort_by', None)
         if sort_by == "created":
             queryset = sorted(queryset, key=lambda k: k['created'],
                               reverse=True)
@@ -197,7 +197,7 @@ class QuestionViewSet(viewsets.GenericViewSet):
         # TODO probably want to replace with a serializer if we want to get
         # any urls returned. Or these could be stored off into dynamo based on
         # the initial pass on the serializer
-        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
+        html = self.request.query_params.get('html', 'false').lower()
 
         if html == "true":
             id_array = []

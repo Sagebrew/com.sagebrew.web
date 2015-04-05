@@ -42,7 +42,7 @@ class SolutionViewSet(viewsets.GenericViewSet):
             return Response(errors.CYPHER_EXCEPTION,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
+        sort_by = self.request.query_params.get('sort_by', None)
         if sort_by == "created":
             queryset = sorted(queryset, key=lambda k: k.created)
         elif sort_by == "edited":

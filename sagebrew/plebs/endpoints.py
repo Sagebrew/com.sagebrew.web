@@ -81,9 +81,18 @@ class ProfileViewSet(viewsets.GenericViewSet):
 
     def list(self, request):
         queryset = self.get_queryset()
+        # As a note this if is the only difference between this list
+        # implementation and the default ListModelMixin. Not sure if we need
+        # to redefine everything...
         if isinstance(queryset, Response):
             return queryset
-        serializer = self.serializer_class(
+        queryset = self.filter_queryset(queryset)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True,
+                                             context={"request": request})
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(
             queryset, context={"request": request}, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

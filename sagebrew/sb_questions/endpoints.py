@@ -13,7 +13,6 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework import status
 from rest_framework.exceptions import NotFound
-from rest_framework.pagination import LimitOffsetPagination
 
 from neomodel import CypherException
 
@@ -39,7 +38,11 @@ class QuestionViewSet(viewsets.GenericViewSet):
     serializer_class = QuestionSerializerNeo
     lookup_field = "object_uuid"
     permission_classes = (IsAuthenticated,)
-    pagination_class = LimitOffsetPagination
+    # Tried a filtering class but it requires a order_by method to be defined
+    # on the given queryset. Since django provides an actual QuerySet rather
+    # than a plain list this works with the ORM but would require additional
+    # implementation in neomodel. May be something we want to look into to
+    # simplify the sorting logic in our queryset methods
 
     def get_queryset(self):
         try:
@@ -48,12 +51,12 @@ class QuestionViewSet(viewsets.GenericViewSet):
             logger.exception("QuestionGenericViewSet queryset")
             return Response(errors.CYPHER_EXCEPTION,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
-        if sort_by == "most_recent":
+        sort_by = self.request.QUERY_PARAMS.get('ordering', None)
+        if sort_by == "created":
             queryset = sorted(queryset, key=lambda k: k.created)
-        elif sort_by == "least_recent":
+        elif sort_by == "-created":
             queryset = sorted(queryset, key=lambda k: k.created, reverse=True)
-        elif sort_by == "recent_edit":
+        elif sort_by == "last_edited_on":
             queryset = sorted(queryset, key=lambda k: k.last_edited_on,
                               reverse=True)
         else:
@@ -73,15 +76,28 @@ class QuestionViewSet(viewsets.GenericViewSet):
 
     def list(self, request):
         queryset = self.get_queryset()
+        # As a note this if is the only difference between this list
+        # implementation and the default ListModelMixin. Not sure if we need
+        # to redefine everything...
         if isinstance(queryset, Response):
             return queryset
+        queryset = self.filter_queryset(queryset)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True,
+                                             context={"request": request})
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(
+            queryset, context={"request": request}, many=True)
+
+        # ##### TODO TO BE moved to ember/angular ########
         html = self.request.QUERY_PARAMS.get("html", "false").lower()
-        questions = self.serializer_class(queryset, many=True,
-                                          context={"request": request})
         if html == "true":
             html_array = []
             id_array = []
-            for question in questions.data:
+            for question in serializer.data:
+                # If necessary these could be moved to separate endpoint queries
+                # or we could properly format the time prior to returning.
                 question['vote_type'] = determine_vote_type(
                     question['object_uuid'], request.user.username)
                 question['last_edited_on'] = datetime.strptime(
@@ -95,16 +111,15 @@ class QuestionViewSet(viewsets.GenericViewSet):
 
             return Response({"html": html_array, "ids": id_array},
                             status=status.HTTP_200_OK)
-
-        serializer = self.serializer_class(
-            queryset, context={"request": request}, many=True)
+        ################################################
+        
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request):
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             instance = serializer.save()
-            instance = self.serializer_class(instance)
+            instance = self.get_serializer(instance)
             return Response(instance.data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, object_uuid=None):

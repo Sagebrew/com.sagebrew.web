@@ -85,8 +85,8 @@ class SolutionViewSet(viewsets.GenericViewSet):
         single_object = self.get_object(object_uuid)
         if isinstance(single_object, Response):
             return single_object
-        serializer = self.serializer_class(single_object,
-                                           context={"request": request})
+        serializer = self.get_serializer(single_object,
+                                         context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def update(self, request, object_uuid=None):

@@ -36,7 +36,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         single_object = self.get_object()
-        serializer = self.serializer_class(single_object, context={
+        serializer = self.get_serializer(single_object, context={
             'request': request})
         expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
         rest_response = dict(serializer.data)
@@ -100,8 +100,8 @@ class ProfileViewSet(viewsets.GenericViewSet):
         single_object = self.get_object(username=username)
         if isinstance(single_object, Response):
             return single_object
-        serializer = self.serializer_class(single_object,
-                                           context={'request': request})
+        serializer = self.get_serializer(single_object,
+                                         context={'request': request})
         expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
 
         # The cast to dict is necessary as serializer.data is immutable
@@ -165,7 +165,7 @@ class ProfileViewSet(viewsets.GenericViewSet):
             logger.exception("ProfileGenericViewSet friends")
             return Response(errors.CYPHER_EXCEPTION,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        serializer = self.serializer_class(
+        serializer = self.get_serializer(
             friends, context={"request": request}, many=True)
         # TODO implement expand functionality
         return Response(serializer.data, status=status.HTTP_200_OK)

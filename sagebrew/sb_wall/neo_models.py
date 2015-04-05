@@ -6,4 +6,4 @@ class SBWall(StructuredNode):
 
     # relationships
     owner = RelationshipTo('plebs.neo_models.Pleb', 'IS_OWNED_BY')
-    post = RelationshipTo('sb_posts.neo_models.SBPost', 'HAS_POST')
+    posts = RelationshipTo('sb_posts.neo_models.SBPost', 'HAS_POST')

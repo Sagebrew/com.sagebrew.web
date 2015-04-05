@@ -12,7 +12,7 @@ router = routers.SimpleRouter()
 router.register(r'questions', QuestionViewSet, base_name="question")
 
 urlpatterns = patterns(
-    'sb_questions.views',
+    'sb_questions.endpoints',
     url(r'^', include(router.urls)),
     url(r'^questions/(?P<object_uuid>[A-Za-z0-9.@_%+-]{36,36})/comments/$',
         ObjectCommentsListCreate.as_view(), name="question-comments"),

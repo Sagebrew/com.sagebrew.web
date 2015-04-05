@@ -30,6 +30,7 @@ class CommentSerializer(serializers.Serializer):
         owner = validated_data.pop('owner', None)
         comment = SBComment(**validated_data).save()
         comment.owned_by.connect(owner)
+        owner.comments.connect(comment)
         return comment
 
     def update(self, instance, validated_data):

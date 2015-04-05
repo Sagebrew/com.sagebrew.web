@@ -54,6 +54,7 @@ class SolutionSerializerNeo(serializers.Serializer):
     content = serializers.CharField()
 
     last_edited_on = serializers.DateTimeField(read_only=True)
+    created = serializers.DateTimeField(read_only=True)
     upvotes = serializers.CharField(read_only=True)
     downvotes = serializers.CharField(read_only=True)
 

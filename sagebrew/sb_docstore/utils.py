@@ -486,7 +486,7 @@ def build_wall_docs(pleb_obj):
     except JSONResponseError as e:
         return e
     try:
-        posts = pleb_obj.wall.all()[0].post.all()
+        posts = pleb_obj.wall.all()[0].posts.all()
     except IndexError as e:
         return e
     for post in posts:

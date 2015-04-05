@@ -83,7 +83,8 @@ class QuestionViewSet(viewsets.GenericViewSet):
             return queryset
         queryset = self.filter_queryset(queryset)
         page = self.paginate_queryset(queryset)
-        if page is not None:
+        html = self.request.QUERY_PARAMS.get("html", "false").lower()
+        if page is not None and html == "false":
             serializer = self.get_serializer(page, many=True,
                                              context={"request": request})
             return self.get_paginated_response(serializer.data)
@@ -91,7 +92,6 @@ class QuestionViewSet(viewsets.GenericViewSet):
             queryset, context={"request": request}, many=True)
 
         # ##### TODO TO BE moved to ember/angular ########
-        html = self.request.QUERY_PARAMS.get("html", "false").lower()
         if html == "true":
             html_array = []
             id_array = []

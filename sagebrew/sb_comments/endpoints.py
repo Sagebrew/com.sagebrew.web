@@ -165,7 +165,8 @@ def comment_renderer(request, object_uuid=None):
             comment[
                 'last_edited_on'][:len(comment['last_edited_on']) - 6],
             '%Y-%m-%dT%H:%M:%S.%f')
-        html_array.append(render_to_string('question_summary.html',  comment))
+        comment["current_user_username"] = request.user.username
+        html_array.append(render_to_string('sb_comments.html',  comment))
         id_array.append(comment["object_uuid"])
     comments.data['results'] = {"html": html_array, "ids": id_array}
     return Response(comments.data, status=status.HTTP_200_OK)

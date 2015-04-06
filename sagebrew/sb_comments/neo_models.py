@@ -1,8 +1,7 @@
 import pytz
 from datetime import datetime
-from django.core.urlresolvers import reverse
 
-from neomodel import (IntegerProperty, DateTimeProperty, RelationshipTo,
+from neomodel import (IntegerProperty, DateTimeProperty,
                       StructuredRel, CypherException)
 
 from sb_base.decorators import apply_defense
@@ -29,7 +28,7 @@ class SBComment(SBNonVersioned):
             "profile_pic": pleb.profile_pic,
             "full_name": pleb.get_full_name(),
             "action": self.action + sb_object.sb_name,
-            "url": self.get_url()
+            "url": sb_object.get_url()
         }
 
     def comment_on(self, comment):

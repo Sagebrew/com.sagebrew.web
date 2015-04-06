@@ -127,6 +127,119 @@ function flag_object(flag_area) {
     });
 }
 
+function populate_comment(object_uuid){
+    $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+    });
+    $.ajax({
+        xhrFields: {withCredentials: true},
+        type: "GET",
+        // TODO should really set a limit of 3 initially and then have a
+        // link people can click to see all the comments.
+        url: "/v1/posts/" + object_uuid + "/comments/render/?expand=true&html=true&limit=3",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (data) {
+            var comment_container = $('#sb_comments_container_' + object_uuid);
+            comment_container.append(data['results']['html']);
+            if(data['count'] > 3){
+                // TODO this may break in IE
+                comment_container.append(
+                    '<div class="row">' +
+                        '<div class="col-lg-5 col-lg-offset-1">' +
+                             '<a href="javascript:;" class="additional_comments" id="additional_comments_' + object_uuid + '">More Comments ...</a>' +
+                        '</div>' +
+                    '</div>');
+                $('#additional_comments_' + object_uuid).click(function() {
+                    $.ajaxSetup({
+                        beforeSend: function (xhr, settings) {
+                                ajax_security(xhr, settings)
+                            }
+                        });
+                    $.ajax({
+                        xhrFields: {withCredentials: true},
+                        type: "GET",
+                        // TODO should really set a limit of 3 initially and then have a
+                        // link people can click to see all the comments.
+                        url: "/v1/posts/" + object_uuid + "/comments/render/?expand=true&html=true&limit=" + data["count"] + "&offset=3",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (data) {
+                            var comment_container = $('#sb_comments_container_' + object_uuid);
+                            $('#additional_comments_' + object_uuid).remove();
+                            comment_container.append(data['results']['html']);
+                            enable_comment_functionality(data['results']['ids']);
+                        },
+                        error: function(XMLHttpRequest, textStatus, errorThrown) {
+                            if(XMLHttpRequest.status === 500){
+                                $("#server_error").show();
+                            }
+                        }
+                    });
+                });
+
+            }
+            enable_comment_functionality(data['results']['ids']);
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            if(XMLHttpRequest.status === 500){
+                $("#server_error").show();
+            }
+        }
+    });
+}
+
+function populate_comments(object_uuids){
+    if(typeof object_uuids !== 'undefined' && object_uuids.length > 0){
+        for (i = 0; i < object_uuids.length; i++) {
+            populate_comment(object_uuids[i]);
+        }
+    }
+}
+
+
+function loadPosts(limit, offset){
+    $.ajaxSetup({
+    beforeSend: function (xhr, settings) {
+            ajax_security(xhr, settings)
+        }
+    });
+    $.ajax({
+        xhrFields: {withCredentials: true},
+        type: "GET",
+        url: "/v1/profiles/" + $('#user_info').data('page_user_username') + "/wall/render/?limit="+ limit + "&offset=" + offset + "&expand=true",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (data) {
+            var wall_container = $('#wall_app');
+            wall_container.append(data['results']['html']);
+            var count_element = document.getElementById('post_count');
+            var total = limit + offset;
+            // TODO Went with this approach as the scrolling approach resulted
+            // in the posts getting out of order. It also had some interesting
+            // functionality that wasn't intuitive. Hopefully transitioning to
+            // a JS Framework allows us to better handle this feature.
+            if(total <= data["count"] && total < 100){
+                loadPosts(limit, offset + limit)
+            }
+            if (count_element == null) {
+                wall_container.append('<div id="post_count" style="display: None;" data-total_count=' + data['count'] + '></div>')
+            }
+            enable_single_post_functionality(data['results']['ids']);
+            // TODO This can probably be changed to grab the href and append
+            // `comments/` to the end of it.
+            populate_comments(data['results']['ids'])
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            if(XMLHttpRequest.status === 500){
+                $("#server_error").show();
+            }
+        }
+    });
+}
+
 function vote_object(vote_area){
     $(vote_area).click(function (event) {
         var id = $(this).parents('div.vote_wrapper').attr('id').split('_')[1];
@@ -363,36 +476,6 @@ function delete_object() {
     });
 }
 
-function page_leave_endpoint() {
-    $(window).on('unload', function() {
-        var object_list = [];
-        $(".object_uuid").each(function(){
-            object_list.push($(this).data('object_uuid'))
-        });
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
-            }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            async: false,
-            url: "/docstore/update_neo_api/",
-            data: JSON.stringify({
-                'object_uuids': object_list
-            }),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
-}
-
 // TODO is this needed still?
 function add_new(){
     $('.add_policy').on('click', function(){
@@ -470,8 +553,6 @@ function submit_experience(){
 function cloneForm(selector, type) {
     var newElement = $(selector).clone(true);
     var total = $('#id_'+type+'_TOTAL_FORMS').val();
-    console.log(newElement);
-    console.log(total);
     newElement.find(':input').each(function(){
         var name = $(this).attr('name').replace('-' + (total-1) + '-','-'+total+'-');
         var id = 'id_'+name;
@@ -594,7 +675,6 @@ function submit_action() {
                 data[this.name] = this.value || '';
             }
         });
-        console.log(data);
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 ajax_security(xhr, settings)
@@ -635,7 +715,6 @@ function submit_requirement() {
                 data[this.name] = this.value || '';
             }
         });
-        console.log(data);
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 ajax_security(xhr, settings)
@@ -708,7 +787,6 @@ function enable_object_functionality(populated_ids) {
     vote_objects(populated_ids);
     edit_objects(populated_ids);
     delete_object();
-    page_leave_endpoint();
 }
 
 

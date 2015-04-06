@@ -50,7 +50,7 @@ class CommentSerializer(serializers.Serializer):
         expand = request.query_params.get('expand', "false").lower()
         if html == "true":
             expand = "true"
-        print expand
+
         if expand == "true":
             owner_user = User.objects.get(username=owner.username)
             owner_dict = UserSerializer(

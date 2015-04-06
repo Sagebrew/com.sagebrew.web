@@ -15,7 +15,7 @@ from .neo_models import SBPost
 
 class PostSerializerNeo(serializers.Serializer):
     object_uuid = serializers.CharField(read_only=True)
-    href = serializers.HyperlinkedIdentityField(view_name='question-detail',
+    href = serializers.HyperlinkedIdentityField(view_name='post-detail',
                                                 lookup_field="object_uuid")
     content = serializers.CharField()
     created = serializers.DateTimeField(read_only=True)
@@ -23,6 +23,9 @@ class PostSerializerNeo(serializers.Serializer):
     downvotes = serializers.CharField(read_only=True)
     vote_count = serializers.SerializerMethodField()
     owner_object = serializers.SerializerMethodField()
+    # Keeping url as a shortcut, incase the user doesn't want to
+    # expand out the profile and gather the url through the profile
+    # object.
     url = serializers.SerializerMethodField()
     profile = serializers.SerializerMethodField()
     last_edited_on = serializers.DateTimeField(read_only=True)
@@ -90,20 +93,19 @@ class PostSerializerNeo(serializers.Serializer):
         return profile_dict
 
     def get_url(self, obj):
-        return reverse('question_detail_page',
-                       kwargs={'question_uuid': obj.object_uuid},
+        # TODO can we add anchors?
+        try:
+            owner = obj.owned_by.all()[0]
+        except(CypherException, IOError, IndexError):
+            return None
+        return reverse('profile_page',
+                       kwargs={'pleb_username': owner.username},
                        request=self.context['request'])
 
     def get_vote_count(self, obj):
         upvotes = get_vote_count(obj.object_uuid, 1)
         downvotes = get_vote_count(obj.object_uuid, 0)
         return str(upvotes - downvotes)
-
-    def get_html_content(self, obj):
-        if obj.content is not None:
-            return markdown.markdown(obj.content)
-        else:
-            return ""
 
     def get_wall_owner(self, obj):
         # TODO can we move all this into a util? It's getting copied and pasted

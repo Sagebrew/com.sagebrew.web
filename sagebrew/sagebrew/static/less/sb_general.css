@@ -992,3 +992,6 @@ textarea.sb_comment_input {
   padding-top: 100px;
   padding-bottom: 400px;
 }
+.additional_comments {
+  font-size: 13px;
+}

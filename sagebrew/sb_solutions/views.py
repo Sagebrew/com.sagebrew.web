@@ -57,26 +57,23 @@ def save_solution_view(request):
         profile_data = response_json["profile"]
         response_json.pop("profile", None)
         solution = {
-            "solution": {
-                "object_uuid": solution_form.cleaned_data['solution_uuid'],
-                "upvotes": '0',
-                "downvotes": '0',
-                "vote_count": '0',
-                "vote_type": None,
-                "content": solution_form.cleaned_data['content'],
-                "html_content": markdown.markdown(
-                    solution_form.cleaned_data['content']),
-                "parent_object": solution_form.cleaned_data['question_uuid'],
-                "last_edited_on": created_at,
-                "owner": request.user.username,
-                "owner_full_name": request.user.get_full_name(),
-                "created": created_at,
-                "comments": [],
-                "edits": [],
-                'object_type': "02241aee-644f-11e4-9ad9-080027242395",
-                "profile": profile_data,
-                "owner_object": response_json
-            },
+            "object_uuid": solution_form.cleaned_data['solution_uuid'],
+            "upvotes": '0',
+            "downvotes": '0',
+            "vote_count": '0',
+            "vote_type": None,
+            "content": solution_form.cleaned_data['content'],
+            "html_content": markdown.markdown(
+                solution_form.cleaned_data['content']),
+            "parent_object": solution_form.cleaned_data['question_uuid'],
+            "last_edited_on": created_at,
+            "owner": request.user.username,
+            "owner_full_name": request.user.get_full_name(),
+            "created": created_at,
+            "edits": [],
+            'object_type': "02241aee-644f-11e4-9ad9-080027242395",
+            "profile": profile_data,
+            "owner_object": response_json,
             "current_user_username": request.user.username
         }
 

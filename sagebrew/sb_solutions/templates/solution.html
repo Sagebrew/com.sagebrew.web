@@ -2,69 +2,65 @@
 
     <div class="row">
         <div class="col-lg-1 hidden-md hidden-sm hidden-xs sb_vote_wrapper">
-                <div class="row vote_wrapper" id="vote_{{ solution.object_uuid }}">
+                <div class="row vote_wrapper" id="vote_{{ object_uuid }}">
                     <div class="col-lg-12 sb_up_vote_wrapper">
-                        <div style="display: none" class="sb_upvote_count{{ solution.object_uuid }}">{{ solution.upvotes }}</div>
-                        {% if solution.vote_type == "false" or solution.vote_type == None %}
-                            <button class="btn sb_btn sb_btn_vote vote_up vote_object-action vote_{{ solution.object_uuid }}"
-                               data-object_uuid="{{ solution.object_uuid }}"
+                        <div style="display: none" class="sb_upvote_count{{ object_uuid }}">{{ upvotes }}</div>
+                        {% if vote_type == "false" or vote_type == None %}
+                            <button class="btn sb_btn sb_btn_vote vote_up vote_object-action vote_{{ object_uuid }}"
+                               data-object_uuid="{{ object_uuid }}"
                                data-vote_type=true
-                               data-current_user_username="{{ current_user_username }}"
                                data-object_type="02241aee-644f-11e4-9ad9-080027242395">
                                 <span class="fui-triangle-up"></span>
                             </button>
                         {% else %}
-                            <button class="btn sb_btn sb_btn_vote vote_up vote_up_active vote_object-action vote_{{ solution.object_uuid }}"
-                               data-object_uuid="{{ solution.object_uuid }}"
+                            <button class="btn sb_btn sb_btn_vote vote_up vote_up_active vote_object-action vote_{{ object_uuid }}"
+                               data-object_uuid="{{ object_uuid }}"
                                data-vote_type=true
-                               data-current_user_username="{{ current_user_username }}"
                                data-object_type="02241aee-644f-11e4-9ad9-080027242395">
                                 <span class="fui-triangle-up"></span>
                             </button>
                         {% endif %}
                     </div >
-                    {% if solution.vote_count|length_is:"1" %}
-                        <div class="col-lg-12 col-lg-offset-2 vote_count_large vote_count{{ solution.object_uuid }}">
-                    {% elif solution.vote_count|length_is:"2" %}
-                        <div class="col-lg-12 col-lg-offset-2 vote_count_large vote_count{{ solution.object_uuid }}">
-                    {% elif solution.vote_count|length_is:"3" %}
-                        <div class="col-lg-12 col-lg-offset-1 vote_count_large vote_count{{ solution.object_uuid }}">
-                    {% elif solution.vote_count|length_is:"4" %}
-                        <div class="col-lg-12 col-lg-offset-0 vote_count_large vote_count{{ solution.object_uuid }}">
-                    {% elif solution.vote_count == None %}
-                        <div class="col-lg-12 col-lg-offset-2 vote_count_large vote_count{{ solution.object_uuid }}">
+                    {% if vote_count|length_is:"1" %}
+                        <div class="col-lg-12 col-lg-offset-2 vote_count_large vote_count{{ object_uuid }}">
+                    {% elif vote_count|length_is:"2" %}
+                        <div class="col-lg-12 col-lg-offset-2 vote_count_large vote_count{{ object_uuid }}">
+                    {% elif vote_count|length_is:"3" %}
+                        <div class="col-lg-12 col-lg-offset-1 vote_count_large vote_count{{ object_uuid }}">
+                    {% elif vote_count|length_is:"4" %}
+                        <div class="col-lg-12 col-lg-offset-0 vote_count_large vote_count{{ object_uuid }}">
+                    {% elif vote_count == None %}
+                        <div class="col-lg-12 col-lg-offset-2 vote_count_large vote_count{{ object_uuid }}">
                     {% else %}
-                        <div class="col-lg-12 col-lg-offset-0 vote_count_large vote_count{{ solution.object_uuid }}">
+                        <div class="col-lg-12 col-lg-offset-0 vote_count_large vote_count{{ object_uuid }}">
                     {% endif %}
-                        {{ solution.vote_count|default_if_none:"0" }}
+                        {{ vote_count|default_if_none:"0" }}
                     </div>
                     <div class="col-lg-12 col-md-12 sb_down_vote_wrapper">
-                        {% if solution.vote_type == "true" or solution.vote_type == None %}
-                            <button class="btn sb_btn sb_btn_vote vote_down vote_object-action vote_{{ solution.object_uuid }}"
-                               data-object_uuid="{{ solution.object_uuid }}"
+                        {% if vote_type == "true" or vote_type == None %}
+                            <button class="btn sb_btn sb_btn_vote vote_down vote_object-action vote_{{ object_uuid }}"
+                               data-object_uuid="{{ object_uuid }}"
                                data-vote_type=false
-                               data-current_user_username="{{ current_user_username }}"
                                data-object_type="02241aee-644f-11e4-9ad9-080027242395">
                                 <span class="fui-triangle-down"></span>
                             </button>
                         {% else %}
-                            <button class="btn sb_btn sb_btn_vote vote_down vote_down_active vote_object-action vote_{{ solution.object_uuid }}"
-                               data-object_uuid="{{ solution.object_uuid }}"
+                            <button class="btn sb_btn sb_btn_vote vote_down vote_down_active vote_object-action vote_{{ object_uuid }}"
+                               data-object_uuid="{{ object_uuid }}"
                                data-vote_type=false
-                               data-current_user_username="{{ current_user_username }}"
                                data-object_type="02241aee-644f-11e4-9ad9-080027242395">
                                 <span class="fui-triangle-down"></span>
                             </button>
                         {% endif %}
-                        <div style="display: none" class="sb_downvote_count{{ solution.object_uuid }}">{{ solution.downvotes }}</div>
+                        <div style="display: none" class="sb_downvote_count{{ object_uuid }}">{{ downvotes }}</div>
                     </div>
                 </div>
             </div>
         <div class="col-lg-10 col-md-11 col-sm-11 col-xs-11 sb_question_body">
             <div class="sb_solution_content">
-                <div class="sb_markdown" id="sb_content_{{ solution.object_uuid }}">
+                <div class="sb_markdown" id="sb_content_{{ object_uuid }}">
                     {% autoescape off %}
-                        {{ solution.html_content }}
+                        {{ html_content }}
                     {% endautoescape %}
                 </div>
             </div>
@@ -76,42 +72,39 @@
             </button>
             <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
                 role="menu" aria-labelledby="dropdown-menu">
-                {% if current_user_username == solution.owner_object.username %}
+                {% if current_user_username == owner_object.username %}
                     <li role="presentation">
                         <a class="sb_post_dropdown_menu show_edit_solution-action"
-                                   data-object_uuid="{{ solution.object_uuid }}"
-                                   data-parent_object="{{ solution.parent_object }}"
+                                   data-object_uuid="{{ object_uuid }}"
+                                   data-parent_object="{{ parent_object }}"
                                    type="submit">Edit Solution</a>
                     </li>
                     <li role="presentation" class="sb_divider"></li>
                     <li role="presentation">
                         <a class="btn sb_post_dropdown_menu delete_object-action"
-                                   data-object_uuid="{{ solution.object_uuid }}"
+                                   data-object_uuid="{{ object_uuid }}"
                                    data-object_type="02241aee-644f-11e4-9ad9-080027242395">
                             Delete
                         </a>
                     </li>
                 {% else %}
                     {% if debug %}
-                        <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action flag_{{ solution.object_uuid }}'
+                        <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action flag_{{ object_uuid }}'
                                                    data-flag_reason='spam'
-                                                   data-current_user="{{ current_user }}"
                                                    data-object_uuid="{{ object_uuid }}"
-                                                   data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Spam
+                                                   data-object_type="02241aee-644f-11e4-9ad9-080027242395">Flag as Spam
                                                    </a>
                         </li>
                         <li role="presentation" class="sb_divider"></li>
                         <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action flag_{{ object_uuid }}'
                                                    data-flag_reason='explicit'
-                                                   data-current_user="{{ current_user }}"
                                                    data-object_uuid="{{ object_uuid }}"
-                                                   data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Explicit
+                                                   data-object_type="02241aee-644f-11e4-9ad9-080027242395">Flag as Explicit
                                                    </a>
                         </li>
                         <li role="presentation" class="sb_divider"></li>
                         <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action flag_{{ object_uuid }}'
                                                    data-flag_reason='other'
-                                                   data-current_user="{{ current_user }}"
                                                    data-object_uuid="{{ object_uuid }}"
                                                    data-object_type="01bb301a-644f-11e4-9ad9-080027242395">Flag as Other
                                                    </a>
@@ -132,29 +125,28 @@
         <div class="col-lg-1 col-md-1 hidden-sm hidden-xs col-lg-offset-9 col-md-offset-9"
              style="padding-right:0; margin-right: -10px">
             <div class="sb_thumbnail_xs thumbnail">
-                <img src="{{ solution.profile.profile_pic|default_if_none:'' }}"/>
+                <img src="{{ profile.profile_pic|default_if_none:'' }}"/>
             </div>
         </div>
         <div class="col-lg-2 col-md-2 hidden-sm hidden-xs" style="padding-left:0; margin-top:-10px; margin-left: 2px">
             <div>
                 <small>
-                    <a href="{{ solution.profile.url }}">{{ solution.owner_full_name }}</a>
+                    <a href="{{ profile.url }}">{{ owner_object.first_name }} {{ owner_object.last_name }}</a>
                 </small>
             </div>
             <div style="margin-top:-10px;">
                 <small>
-                    {{ solution.last_edited_on|date:"D d M Y" }}
+                    {{ last_edited_on|date:"D d M Y" }}
                 </small>
             </div>
         </div>
         <div class="hidden-lg hidden-md col-sm-11 col-xs-11">
             <small>
-                written by <a href="{{ solution.profile.url }}">{{ solution.owner_full_name }}</a> on {{ solution.last_edited_on|date:"D d M Y" }}
+                written by <a href="{{ profile.url }}">{{ owner_object.first_name }} {{ owner_object.last_name }}</a> on {{ last_edited_on|date:"D d M Y" }}
             </small>
         </div>
     </div>
-    <div id="sb_comments_container_{{ solution.object_uuid }}">
-        {% include "sb_comments.html" %}
+    <div id="sb_comments_container_{{ object_uuid }}">
     </div>
     {% comment %}
         This area is for inputing a new comment. The include is needed for population of existing comments.
@@ -163,13 +155,13 @@
         <form id="commentSubmitForm">
         <div class="input-group sb_comment">
             <textarea class="input-group form-control sb_comment_input"
-                      id="post_comment_on_{{ solution.object_uuid }}"
+                      id="post_comment_on_{{ object_uuid }}"
                       rows="2"
                       name="comment_content"
                       placeholder="Write your comment..."></textarea>
-            <a class="btn input-group-btn sb_btn_comment_icon comment-action comment_{{ solution.object_uuid }}"
-               data-object_uuid="{{ solution.object_uuid }}"
-               data-object_type="{{ solution.object_type }}"><span class="fui-new"></span></a>
+            <a class="btn input-group-btn sb_btn_comment_icon comment-action comment_{{ object_uuid }}"
+               data-object_uuid="{{ object_uuid }}"
+               data-object_type="02241aee-644f-11e4-9ad9-080027242395"><span class="fui-new"></span></a>
         </div>
         </form>
     </div>

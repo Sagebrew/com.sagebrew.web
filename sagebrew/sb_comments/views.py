@@ -65,7 +65,7 @@ def save_comment_view(request):
             "vote_count": str(0),
             "created": datetime.now(pytz.utc),
             "last_edited_on": datetime.now(pytz.utc),
-            "owner": comment_owner,
+            "owner_object": comment_owner,
             "profile": profile,
             "parent_object": request.user.username
         }

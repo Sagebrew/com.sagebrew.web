@@ -18,7 +18,6 @@ from sagebrew import errors
 
 from api.utils import request_to_api
 from sb_docstore.utils import (get_dynamo_table, convert_dynamo_content)
-from sb_solutions.utils import convert_dynamo_solutions, render_solutions
 from sb_votes.utils import determine_vote_type
 
 from .serializers import QuestionSerializerNeo
@@ -121,6 +120,10 @@ class QuestionViewSet(viewsets.GenericViewSet):
                 }, request=request)
             user_url = reverse('user-detail', kwargs={
                 'username': single_object["owner"]}, request=request)
+            single_object["solution_count"] = int(
+                single_object["solution_count"])
+            single_object["to_be_deleted"] = int(
+                single_object["to_be_deleted"])
             single_object["is_closed"] = int(single_object["is_closed"])
             if expand == "true":
                 user_url = "%s%s" % (user_url, "?expand=True")
@@ -142,10 +145,9 @@ class QuestionViewSet(viewsets.GenericViewSet):
             single_object = QuestionSerializerNeo(
                 queryset, context={'request': request}).data
             single_object["last_edited_on"] = datetime.strptime(
-                    single_object[
-                        'last_edited_on'][:len(
-                        single_object['last_edited_on']) - 6],
-                    '%Y-%m-%dT%H:%M:%S.%f')
+                single_object['last_edited_on'][:len(
+                    single_object['last_edited_on']) - 6],
+                '%Y-%m-%dT%H:%M:%S.%f')
             # TODO if get here should spawn task to repopulate question
 
         if html == "true":
@@ -155,7 +157,8 @@ class QuestionViewSet(viewsets.GenericViewSet):
                 single_object['object_uuid'], request.user.username)
             single_object["current_user_username"] = request.user.username
             return Response({"html": render_question_object(single_object),
-                             "ids": [single_object["object_uuid"]]},
+                             "ids": [single_object["object_uuid"]],
+                             "solution_count": single_object['solution_count']},
                             status=status.HTTP_200_OK)
 
         return Response(single_object, status=status.HTTP_200_OK)
@@ -170,44 +173,27 @@ class QuestionViewSet(viewsets.GenericViewSet):
         pass
 
     @detail_route(methods=['get'])
-    def solutions(self, request, object_uuid=None):
-        table = get_dynamo_table("public_solutions")
-        if isinstance(table, Exception) is True:
-            logger.exception("QuestionsViewSet solutions")
-            return Response(errors.DYNAMO_TABLE_EXCEPTION,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        queryset = table.query_2(parent_object__eq=object_uuid)
-        queryset = convert_dynamo_solutions(queryset, self.request)
-        sort_by = self.request.query_params.get('sort_by', None)
-        if sort_by == "created":
-            queryset = sorted(queryset, key=lambda k: k['created'],
-                              reverse=True)
-        elif sort_by == "edited":
-            queryset = sorted(queryset, key=lambda k: k['last_edited_on'],
-                              reverse=True)
-        else:
-            queryset = sorted(queryset, key=lambda k: k['vote_count'],
-                              reverse=True)
-        # TODO probably want to replace with a serializer if we want to get
-        # any urls returned. Or these could be stored off into dynamo based on
-        # the initial pass on the serializer
-        html = self.request.query_params.get('html', 'false').lower()
-
-        if html == "true":
-            id_array = []
-            for item in queryset:
-                id_array.append(item["object_uuid"])
-            solution_dict = {
-                "solution_count": len(queryset),
-                "solutions": queryset,
-                "email": request.user.email,
-                "current_user_username": request.user.username,
-            }
-            return Response({"html": render_solutions(solution_dict),
-                             "ids":id_array},
+    def solution_count(self, request, object_uuid=None):
+        # TODO count in dynamo is not being updated at this time.
+        '''
+        try:
+            table = get_dynamo_table("public_solutions")
+            queryset = table.query_2(parent_object__eq=object_uuid)
+            solution_count = len(list(queryset))
+            if solution_count == 0:
+                raise AttributeError
+            return Response({"solution_count": solution_count},
                             status=status.HTTP_200_OK)
-        return Response(queryset, status=status.HTTP_200_OK)
+        except(ItemNotFound, AttributeError, IOError):
+        '''
+        try:
+            question = SBQuestion.nodes.get(object_uuid=object_uuid)
+            return Response({"solution_count": len(question.solutions.all())},
+                            status=status.HTTP_200_OK)
+        except(CypherException, IOError) as e:
+            logger.exception("CommentGenericViewSet queryset")
+            return Response(errors.CYPHER_EXCEPTION,
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @detail_route(methods=['get'])
     def upvote(self, request, object_uuid=None):

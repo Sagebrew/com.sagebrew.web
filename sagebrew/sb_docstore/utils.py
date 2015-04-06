@@ -189,14 +189,6 @@ def convert_dynamo_content(raw_content, request=None, comment_view=None):
         '%Y-%m-%d %H:%M:%S.%f')
     content['vote_count'] = str(
         content['upvotes'] - content['downvotes'])
-    if comment_view is not None and request is not None:
-        url = reverse("%s" % comment_view, kwargs={
-            'object_uuid': content['object_uuid']}, request=request)
-        response = request_to_api(url, request.user.username, req_method="GET")
-        content["comments"] = response.json()
-        for item in content["comments"]:
-            item["last_edited_on"] = datetime.strptime(
-                item['last_edited_on'], '%Y-%m-%dT%H:%M:%S.%f')
 
     return content
 

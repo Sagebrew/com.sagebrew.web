@@ -51,8 +51,6 @@ function save_comments(populated_ids){
         for (i = 0; i < populated_ids.length; i++) {
             save_comment(".comment_" + populated_ids[i]);
         }
-    } else {
-            save_comment(".comment-action");
     }
 }
 
@@ -93,8 +91,6 @@ function flag_objects(populated_ids){
         for (i = 0; i < populated_ids.length; i++) {
             flag_object(".flag_" + populated_ids[i]);
         }
-    } else {
-        flag_object(".flag_object-action");
     }
 }
 
@@ -215,7 +211,6 @@ function loadPosts(limit, offset){
         success: function (data) {
             var wall_container = $('#wall_app');
             wall_container.append(data['results']['html']);
-            var count_element = document.getElementById('post_count');
             var total = limit + offset;
             // TODO Went with this approach as the scrolling approach resulted
             // in the posts getting out of order. It also had some interesting
@@ -223,9 +218,6 @@ function loadPosts(limit, offset){
             // a JS Framework allows us to better handle this feature.
             if(total <= data["count"] && total < 100){
                 loadPosts(limit, offset + limit)
-            }
-            if (count_element == null) {
-                wall_container.append('<div id="post_count" style="display: None;" data-total_count=' + data['count'] + '></div>')
             }
             enable_single_post_functionality(data['results']['ids']);
             // TODO This can probably be changed to grab the href and append
@@ -239,6 +231,106 @@ function loadPosts(limit, offset){
         }
     });
 }
+
+
+function loadQuestion(){
+    $.ajaxSetup({
+    beforeSend: function (xhr, settings) {
+            ajax_security(xhr, settings)
+        }
+    });
+    var timeOutId = 0;
+    var ajaxFn = function () {
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "GET",
+            url: "/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/?html=true&expand=true",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                var question_container = $('#single_question_wrapper');
+                question_container.append(data['html']);
+                loadSolutionCount();
+                enable_question_functionality(data['ids']);
+                populate_comments(data['ids']);
+                loadSolutions(2, 0);
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                     timeOutId = setTimeout(ajaxFn, 1000);
+                    $("#server_error").show();
+                }
+            }
+        });
+    };
+    ajaxFn();
+}
+
+function loadSolutionCount(){
+    $.ajaxSetup({
+    beforeSend: function (xhr, settings) {
+            ajax_security(xhr, settings)
+        }
+    });
+    $.ajax({
+        xhrFields: {withCredentials: true},
+        type: "GET",
+        url: "/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/solution_count/",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (data) {
+            $('#solution_count').html("");
+            $('#solution_count').append(data['solution_count']);
+            if(data["solution_count"] != '1'){
+                $('#solution_plural').append('s');
+            }
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            if(XMLHttpRequest.status === 500){
+                $("#server_error").show();
+            }
+        }
+    });
+}
+
+
+
+function loadSolutions(limit, offset){
+    $.ajaxSetup({
+    beforeSend: function (xhr, settings) {
+            ajax_security(xhr, settings)
+        }
+    });
+    $.ajax({
+        xhrFields: {withCredentials: true},
+        type: "GET",
+        url: "/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/solutions/render/?limit="+ limit + "&offset=" + offset + "&expand=true",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (data) {
+            var solution_container = $('#solution_container');
+            solution_container.append(data['results']['html']);
+            var total = limit + offset;
+            // TODO Went with this approach as the scrolling approach resulted
+            // in the posts getting out of order. It also had some interesting
+            // functionality that wasn't intuitive. Hopefully transitioning to
+            // a JS Framework allows us to better handle this feature.
+            if(total <= data["count"] && total < 150){
+                loadSolutions(limit, offset + limit);
+            }
+            enable_solution_functionality(data['results']['ids']);
+            // TODO This can probably be changed to grab the href and append
+            // `comments/` to the end of it.
+            populate_comments(data['results']['ids']);
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            if(XMLHttpRequest.status === 500){
+                $("#server_error").show();
+            }
+        }
+    });
+}
+
 
 function vote_object(vote_area){
     $(vote_area).click(function (event) {
@@ -307,8 +399,6 @@ function vote_objects(populated_ids) {
         for (i = 0; i < populated_ids.length; i++) {
             vote_object(".vote_" + populated_ids[i]);
         }
-    } else {
-        vote_object(".vote_object-action");
     }
 }
 
@@ -397,8 +487,6 @@ function edit_objects(populated_ids){
         for (i = 0; i < populated_ids.length; i++) {
             edit_object(".edit_" + populated_ids[i]);
         }
-    } else {
-        edit_object(".edit_object-action");
     }
 }
 

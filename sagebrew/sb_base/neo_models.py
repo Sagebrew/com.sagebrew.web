@@ -123,7 +123,10 @@ class SBVoteableContent(StructuredNode):
     def get_vote_count(self):
         upvotes = doc_vote_count(self.object_uuid, 1)
         downvotes = doc_vote_count(self.object_uuid, 0)
-        return upvotes - downvotes
+        vote_count = upvotes - downvotes
+        if vote_count == 0:
+            vote_count = self.get_upvote_count() - self.get_downvote_count()
+        return vote_count
 
 
     @apply_defense

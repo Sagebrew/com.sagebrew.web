@@ -6,6 +6,6 @@ $( document ).ready(function() {
         var search_param = search_id.data('search_param');
         var search_page = search_id.data('search_page');
         var filter = $(this).data("filter");
-        window.location.href = "/search/" + search_param + "/1/" + filter
+        window.location.href = "/search/?q=" + search_param + "&page=1&filter=" + filter
     });
 });

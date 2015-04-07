@@ -29,30 +29,8 @@ from sb_public_official.utils import prepare_official_search_html
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
-def search_view(request):
-    '''
-    This view serves the main search page. This page may be removed later
-    because having the search results and search bar on the same page may be
-    beneficial and easier to lay out.
-
-    :param request:
-    :return:
-    '''
-    try:
-        pleb = Pleb.nodes.get(email=request.user.email)
-    except (Pleb.DoesNotExist, DoesNotExist):
-        return redirect('404_error')
-    except CypherException:
-        # TODO Make sure to return an actual page
-        return Response(status=500)
-    return render(request, 'search.html', {"pleb_info": pleb})
-
-
-@login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
-def search_result_view(request, query_param, display_num=5, page=1,
-                       range_start=0, range_end=10, search_filter=None):
+def search_result_view(request, display_num=5,
+                       range_start=0, range_end=10):
     '''
     This view serves the page that holds the search results.
 
@@ -71,6 +49,9 @@ def search_result_view(request, query_param, display_num=5, page=1,
         return Response(status=404)
     except CypherException:
         return Response(status=500)
+    query_param = request.GET.get('q', "")
+    page = request.GET.get('page', 1)
+    search_filter = request.GET.get('filter', 'general')
     search_data = {'query_param': query_param, 'page': page, 'display_num':
                    display_num, 'range_start': range_start,
                    'range_end': range_end}
@@ -87,8 +68,7 @@ def search_result_view(request, query_param, display_num=5, page=1,
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
-def search_result_api(request, query_param="", display_num=10, page=1,
-                      filter_type=""):
+def search_result_api(request, display_num=10):
     '''
     This is the general search rest api endpoint. It takes the query parameter
     how many results to return and the current page, as well as a filter type
@@ -104,6 +84,9 @@ def search_result_api(request, query_param="", display_num=10, page=1,
     '''
     # TODO Make sure calling function knows what to do with a 500 status
     # TODO can we move any of this into a util?
+    query_param = request.query_params.get('q', "")
+    page = request.query_params.get('page', 1)
+    filter_type = request.query_params.get('filter', 'general')
     data = {'query_param': query_param, 'display_num': display_num,
             'page': int(page), 'filter_param': filter_type}
     try:

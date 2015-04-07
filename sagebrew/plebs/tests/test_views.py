@@ -51,7 +51,7 @@ class ProfilePageTest(TestCase):
         test_post.save()
         wall = self.pleb.wall.all()[0]
         test_post.posted_on_wall.connect(wall)
-        wall.post.connect(test_post)
+        wall.posts.connect(test_post)
         rel = test_post.owned_by.connect(self.pleb)
         rel.save()
         rel_from_pleb = self.pleb.posts.connect(test_post)
@@ -67,7 +67,7 @@ class ProfilePageTest(TestCase):
         test_post.save()
         wall = self.pleb.wall.all()[0]
         test_post.posted_on_wall.connect(wall)
-        wall.post.connect(test_post)
+        wall.posts.connect(test_post)
         rel = test_post.owned_by.connect(self.pleb)
         rel.save()
         rel_from_pleb = self.pleb.posts.connect(test_post)
@@ -94,7 +94,7 @@ class ProfilePageTest(TestCase):
         test_post.save()
         wall = self.pleb.wall.all()[0]
         test_post.posted_on_wall.connect(wall)
-        wall.post.connect(test_post)
+        wall.posts.connect(test_post)
         rel = test_post.owned_by.connect(self.pleb)
         rel.save()
         rel_from_pleb = self.pleb.posts.connect(test_post)

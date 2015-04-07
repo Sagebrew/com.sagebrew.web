@@ -137,9 +137,6 @@ class QuestionViewSet(viewsets.GenericViewSet):
                 single_object["owner_object"] = user_url
                 single_object["profile"] = reverse('profile-detail', kwargs={
                     'username': single_object["owner"]}, request=request)
-                single_object["comments"] = reverse(
-                    "question-comments", kwargs={'object_uuid': object_uuid},
-                    request=request)
         except ItemNotFound:
             queryset = self.get_object(object_uuid)
             single_object = QuestionSerializerNeo(

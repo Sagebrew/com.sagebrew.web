@@ -98,17 +98,3 @@ class SBPost(SBNonVersioned):
             }
         except CypherException as e:
             return e
-
-    @apply_defense
-    def render_post_wall_html(self, user):
-        try:
-            try:
-                owner = self.owned_by.all()[0]
-            except IndexError as e:
-                return e
-            post_dict = self.get_single_dict(owner)
-            post_dict["user"] = {"username": user.username}
-            return render_to_string('post.html', post_dict)
-
-        except(CypherException, IOError) as e:
-            return e

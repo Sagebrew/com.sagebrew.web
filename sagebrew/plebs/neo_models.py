@@ -223,8 +223,8 @@ class Pleb(StructuredNode):
             return rel.weight
 
     def get_owned_objects(self):
-        return self.solutions.all()+self.questions.all()+\
-               self.posts.all()+self.comments.all()
+        return self.solutions.all() + \
+               self.questions.all() + self.posts.all() + self.comments.all()
 
     def get_total_rep(self):
         rep_list = []
@@ -277,55 +277,6 @@ class Pleb(StructuredNode):
                 rel.total = base_tags[item]
                 rel.save()
         return True
-
-    def get_conversation(self, expiry=0, now=0):
-        return {"questions": [self.get_questions(expiry, now)],
-                "solutions": [self.get_solutions(expiry, now)],
-                "count": self.get_questions(expiry, now)['count']+\
-                    self.get_solutions(expiry,now)['count']}
-
-    def get_questions(self, expiry=0, now=0):
-        if expiry == 0:
-            return self.get_question_dicts(self.questions.all())
-        return self.get_question_dicts(self.filter_questions(expiry, now))
-
-    def get_solutions(self, expiry=0, now=0):
-        if expiry == 0:
-            return self.get_solution_dicts(self.solutions.all())
-        return self.get_solution_dicts(self.filter_solutions(expiry, now))
-
-    def get_solution_dicts(self, solutions):
-        a_dict = {
-            "solutions": []
-        }
-        for solution in solutions:
-            a_dict['solutions'].append(solution.get_dict())
-        a_dict['count'] = len(a_dict['solutions'])
-        return a_dict
-
-    def filter_solutions(self, expiry, now):
-        solutions = []
-        for solution in self.solutions.all():
-            if (now-solution.created).seconds < expiry:
-                solutions.append(solution)
-        return solutions
-
-    def filter_questions(self, expiry, now):
-        questions = []
-        for question in self.questions.all():
-            if (now-question.created).seconds < expiry:
-                questions.append(question)
-        return questions
-
-    # TODO Can we get rid of this now that we have an endpoint we can use?
-    def get_question_dicts(self, questions):
-        q_dict = {
-            'questions': []
-        }
-        for question in questions:
-            q_dict['questions'].append(question.get_single_dict())
-        q_dict['count'] = len(q_dict['questions'])
-        return q_dict
 
     def get_available_flags(self):
         pass

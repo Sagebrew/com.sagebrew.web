@@ -8,12 +8,11 @@ from django.template.loader import render_to_string
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework import status
 from rest_framework.exceptions import NotFound
-from rest_framework.pagination import LimitOffsetPagination
 
 from neomodel import CypherException
 
@@ -39,7 +38,11 @@ class QuestionViewSet(viewsets.GenericViewSet):
     serializer_class = QuestionSerializerNeo
     lookup_field = "object_uuid"
     permission_classes = (IsAuthenticated,)
-    pagination_class = LimitOffsetPagination
+    # Tried a filtering class but it requires a order_by method to be defined
+    # on the given queryset. Since django provides an actual QuerySet rather
+    # than a plain list this works with the ORM but would require additional
+    # implementation in neomodel. May be something we want to look into to
+    # simplify the sorting logic in our queryset methods
 
     def get_queryset(self):
         try:
@@ -48,12 +51,12 @@ class QuestionViewSet(viewsets.GenericViewSet):
             logger.exception("QuestionGenericViewSet queryset")
             return Response(errors.CYPHER_EXCEPTION,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
-        if sort_by == "most_recent":
+        sort_by = self.request.query_params.get('ordering', None)
+        if sort_by == "created":
             queryset = sorted(queryset, key=lambda k: k.created)
-        elif sort_by == "least_recent":
+        elif sort_by == "-created":
             queryset = sorted(queryset, key=lambda k: k.created, reverse=True)
-        elif sort_by == "recent_edit":
+        elif sort_by == "last_edited_on":
             queryset = sorted(queryset, key=lambda k: k.last_edited_on,
                               reverse=True)
         else:
@@ -73,38 +76,28 @@ class QuestionViewSet(viewsets.GenericViewSet):
 
     def list(self, request):
         queryset = self.get_queryset()
+        # As a note this if is the only difference between this list
+        # implementation and the default ListModelMixin. Not sure if we need
+        # to redefine everything...
         if isinstance(queryset, Response):
             return queryset
-        html = self.request.QUERY_PARAMS.get("html", "false").lower()
-        questions = self.serializer_class(queryset, many=True,
-                                          context={"request": request})
-        if html == "true":
-            html_array = []
-            id_array = []
-            for question in questions.data:
-                question['vote_type'] = determine_vote_type(
-                    question['object_uuid'], request.user.username)
-                question['last_edited_on'] = datetime.strptime(
-                    question[
-                        'last_edited_on'][:len(question['last_edited_on']) - 6],
-                    '%Y-%m-%dT%H:%M:%S.%f')
+        queryset = self.filter_queryset(queryset)
+        page = self.paginate_queryset(queryset)
 
-                html_array.append(render_to_string('question_summary.html',
-                                                   question))
-                id_array.append(question["object_uuid"])
-
-            return Response({"html": html_array, "ids": id_array},
-                            status=status.HTTP_200_OK)
-
-        serializer = self.serializer_class(
+        if page is not None:
+            serializer = self.get_serializer(page, many=True,
+                                             context={"request": request})
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(
             queryset, context={"request": request}, many=True)
+        
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request):
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             instance = serializer.save()
-            instance = self.serializer_class(instance)
+            instance = self.get_serializer(instance)
             return Response(instance.data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, object_uuid=None):
@@ -113,8 +106,8 @@ class QuestionViewSet(viewsets.GenericViewSet):
             logger.exception("QuestionsViewSet get_object")
             return Response(errors.DYNAMO_TABLE_EXCEPTION,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
-        expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
+        html = self.request.query_params.get('html', 'false').lower()
+        expand = self.request.query_params.get('expand', "false").lower()
         if html == "true":
             expand = "true"
         try:
@@ -161,6 +154,8 @@ class QuestionViewSet(viewsets.GenericViewSet):
             # TODO if get here should spawn task to repopulate question
 
         if html == "true":
+            # This will be moved to JS Framework but don't need intermediate
+            # step at the time being as this doesn't require pagination
             single_object['vote_type'] = determine_vote_type(
                 single_object['object_uuid'], request.user.username)
             single_object["current_user_username"] = request.user.username
@@ -189,7 +184,7 @@ class QuestionViewSet(viewsets.GenericViewSet):
 
         queryset = table.query_2(parent_object__eq=object_uuid)
         queryset = convert_dynamo_solutions(queryset, self.request)
-        sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
+        sort_by = self.request.query_params.get('sort_by', None)
         if sort_by == "created":
             queryset = sorted(queryset, key=lambda k: k['created'],
                               reverse=True)
@@ -202,11 +197,12 @@ class QuestionViewSet(viewsets.GenericViewSet):
         # TODO probably want to replace with a serializer if we want to get
         # any urls returned. Or these could be stored off into dynamo based on
         # the initial pass on the serializer
-        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
-        id_array = []
-        for item in queryset:
-            id_array.append(item["object_uuid"])
+        html = self.request.query_params.get('html', 'false').lower()
+
         if html == "true":
+            id_array = []
+            for item in queryset:
+                id_array.append(item["object_uuid"])
             solution_dict = {
                 "solution_count": len(queryset),
                 "solutions": queryset,
@@ -307,3 +303,26 @@ class QuestionViewSet(viewsets.GenericViewSet):
     def protect(self, request, object_uuid=None):
         return Response({"detail": "TBD"},
                         status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    @list_route(methods=['get'])
+    def renderer(self, request):
+        '''
+        This is a intermediate step on the way to utilizing a JS Framework to
+        handle template rendering.
+        '''
+        html_array = []
+        id_array = []
+        questions = self.list(request)
+
+        for question in questions.data['results']:
+            question['vote_type'] = determine_vote_type(
+                question['object_uuid'], request.user.username)
+            question['last_edited_on'] = datetime.strptime(
+                question[
+                    'last_edited_on'][:len(question['last_edited_on']) - 6],
+                '%Y-%m-%dT%H:%M:%S.%f')
+            html_array.append(render_to_string('question_summary.html',
+                                               question))
+            id_array.append(question["object_uuid"])
+        questions.data['results'] = {"html": html_array, "ids": id_array}
+        return Response(questions.data, status=status.HTTP_200_OK)

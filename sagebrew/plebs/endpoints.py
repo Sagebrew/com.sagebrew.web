@@ -16,7 +16,6 @@ from neomodel import CypherException
 from sagebrew import errors
 
 from api.utils import request_to_api
-from sb_docstore.utils import get_notification_docs
 from api.permissions import IsSelfOrReadOnly, IsSelf
 from sb_comments.serializers import CommentSerializer
 
@@ -36,7 +35,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         single_object = self.get_object()
-        serializer = self.serializer_class(single_object, context={
+        serializer = self.get_serializer(single_object, context={
             'request': request})
         expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
         rest_response = dict(serializer.data)
@@ -81,9 +80,18 @@ class ProfileViewSet(viewsets.GenericViewSet):
 
     def list(self, request):
         queryset = self.get_queryset()
+        # As a note this if is the only difference between this list
+        # implementation and the default ListModelMixin. Not sure if we need
+        # to redefine everything...
         if isinstance(queryset, Response):
             return queryset
-        serializer = self.serializer_class(
+        queryset = self.filter_queryset(queryset)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True,
+                                             context={"request": request})
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(
             queryset, context={"request": request}, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -91,8 +99,8 @@ class ProfileViewSet(viewsets.GenericViewSet):
         single_object = self.get_object(username=username)
         if isinstance(single_object, Response):
             return single_object
-        serializer = self.serializer_class(single_object,
-                                           context={'request': request})
+        serializer = self.get_serializer(single_object,
+                                         context={'request': request})
         expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
 
         # The cast to dict is necessary as serializer.data is immutable
@@ -156,7 +164,7 @@ class ProfileViewSet(viewsets.GenericViewSet):
             logger.exception("ProfileGenericViewSet friends")
             return Response(errors.CYPHER_EXCEPTION,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        serializer = self.serializer_class(
+        serializer = self.get_serializer(
             friends, context={"request": request}, many=True)
         # TODO implement expand functionality
         return Response(serializer.data, status=status.HTTP_200_OK)

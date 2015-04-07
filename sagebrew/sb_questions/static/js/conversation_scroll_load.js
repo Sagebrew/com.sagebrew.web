@@ -19,12 +19,11 @@ $(document).ready(function(){
                     dataType: "json",
                     success: function (data) {
                         scrolled = false;
-                        console.log(data);
                         $(".load_next_page").remove();
                         if (data['next'] != ""){
                             question_wrapper.append("<div class='load_next_page' style='display: none' data-next='"+data['next']+"'></div>")
                         }
-                        question_wrapper.append(data);
+                        question_wrapper.append(data["html"]);
                     },
                     error: function(XMLHttpRequest, textStatus, errorThrown) {
                         if(XMLHttpRequest.status === 500){

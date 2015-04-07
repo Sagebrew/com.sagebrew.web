@@ -194,6 +194,9 @@ def convert_dynamo_content(raw_content, request=None, comment_view=None):
             'object_uuid': content['object_uuid']}, request=request)
         response = request_to_api(url, request.user.username, req_method="GET")
         content["comments"] = response.json()
+        for item in content["comments"]:
+            item["last_edited_on"] = datetime.strptime(
+                item['last_edited_on'], '%Y-%m-%dT%H:%M:%S.%f')
 
     return content
 
@@ -623,23 +626,6 @@ def get_notification_docs(username):
         notification_list.append(dict(notification))
     return notification_list
 
-@apply_defense
-def get_user_reputation(username):
-    conn = connect_to_dynamo()
-    if isinstance(conn, Exception):
-        return conn
-    try:
-        reputation_table = Table(table_name=get_table_name('reputation'),
-                                 connection=conn)
-    except JSONResponseError as e:
-        return e
-    try:
-        res = reputation_table.get_item(
-            parent_object=username
-        )
-    except ItemNotFound:
-        return False
-    return dict(res)
 
 @apply_defense
 def get_action(username, action):

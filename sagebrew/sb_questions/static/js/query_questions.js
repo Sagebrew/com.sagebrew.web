@@ -7,12 +7,12 @@ $( document ).ready(function() {
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
-        url: "/v1/questions/?html=true",
+        url: "/v1/questions/renderer/?limit=5&offset=0&expand=true",
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
-            $("#question_wrapper").append(data);
-            enable_post_functionality()
+            $("#question_wrapper").append(data['results']["html"]);
+            enable_question_functionality([data['results']["ids"]]);
         }
     });
 	$("a.query_questions-action").click(function(event){
@@ -24,18 +24,14 @@ $( document ).ready(function() {
 		});
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
-			type: "POST",
-			url: "/conversations/query_questions_api/",
-			data: JSON.stringify({
-               'current_pleb': $(this).data('current_pleb'),
-               'sort_by': $(this).data('sort_by')
-			}),
+			type: "GET",
+			url: "/v1/questions/renderer/?limit=5&offset=0&expand=true&ordering=" + $(this).data('sort_by') + "",
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
             success: function (data) {
                 $("#question_wrapper").empty();
-                $("#question_wrapper").append(data);
-                enable_post_functionality()
+                $("#question_wrapper").append(data['results']["html"]);
+                enable_question_functionality([data['results']["ids"]]);
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 console.log(XMLHttpRequest.responseJSON["detail"]);

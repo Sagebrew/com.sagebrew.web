@@ -24,14 +24,6 @@ class SBComment(SBNonVersioned):
     downvotes = IntegerProperty(default=0)
     view_count = IntegerProperty(default=0)
 
-    def get_url(self):
-        try:
-            return reverse("question_detail_page",
-                           kwargs={"question_uuid": self.solution_to.all()[
-                               0].object_uuid})
-        except IndexError:
-            return False
-
     def create_notification(self, pleb, sb_object=None):
         return {
             "profile_pic": pleb.profile_pic,

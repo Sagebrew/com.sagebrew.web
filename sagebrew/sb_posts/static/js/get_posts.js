@@ -18,7 +18,7 @@ $( document ).ready(function() {
             success: function (data) {
                 var wall_container = $('#wall_app');
                 wall_container.append(data['html']);
-                enable_post_functionality()
+                enable_single_post_functionality(data['ids'])
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 if(XMLHttpRequest.status === 500){

@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 
 from api.utils import spawn_task
 from sb_registration.utils import create_user_util
@@ -53,3 +54,10 @@ class PlebSerializerNeo(serializers.Serializer):
     href = serializers.HyperlinkedIdentityField(
         view_name='profile-detail', lookup_field="username")
     profile_pic = serializers.CharField(read_only=True)
+    reputation = serializers.IntegerField(read_only=True)
+    url = serializers.SerializerMethodField()
+
+    def get_url(self, obj):
+        return reverse(
+            'profile_page', kwargs={'pleb_username': obj.username},
+            request=self.context['request'])

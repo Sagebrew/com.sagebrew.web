@@ -42,7 +42,7 @@ class SolutionViewSet(viewsets.GenericViewSet):
             return Response(errors.CYPHER_EXCEPTION,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
+        sort_by = self.request.query_params.get('sort_by', None)
         if sort_by == "created":
             queryset = sorted(queryset, key=lambda k: k.created)
         elif sort_by == "edited":
@@ -63,9 +63,18 @@ class SolutionViewSet(viewsets.GenericViewSet):
 
     def list(self, request):
         queryset = self.get_queryset()
+        # As a note this if is the only difference between this list
+        # implementation and the default ListModelMixin. Not sure if we need
+        # to redefine everything...
         if isinstance(queryset, Response):
             return queryset
-        serializer = self.serializer_class(
+        queryset = self.filter_queryset(queryset)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True,
+                                             context={"request": request})
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(
             queryset, context={"request": request}, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -76,8 +85,8 @@ class SolutionViewSet(viewsets.GenericViewSet):
         single_object = self.get_object(object_uuid)
         if isinstance(single_object, Response):
             return single_object
-        serializer = self.serializer_class(single_object,
-                                           context={"request": request})
+        serializer = self.get_serializer(single_object,
+                                         context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def update(self, request, object_uuid=None):

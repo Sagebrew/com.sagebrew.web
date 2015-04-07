@@ -1,10 +1,15 @@
 <div class="block sb_notification_block sb_reputation_block">
     <div class="row-fluid">
-        <div class="col-lg-8 col-md-2">
+        <div class="col-lg-8 col-md-8">
             <p>Current Reputation:</p>
         </div>
         <div class="col-lg-4 col-md-4">
-            <p>33</p>
+            {% comment %}
+                This is replaced by a ajax call that fetches the reputation of a
+                given user.
+            {% endcomment %}
+            <div id="reputation_total"
+                    data-username="{{ request.user.username }}"></div>
         </div>
     </div>
 </div>

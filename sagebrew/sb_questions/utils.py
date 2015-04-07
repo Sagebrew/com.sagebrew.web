@@ -39,30 +39,6 @@ def create_question_util(content, title, question_uuid):
 
 
 @apply_defense
-def get_question_by_uuid(question_uuid, current_pleb):
-    '''
-    Sorting util
-
-    This function gets a question by a uuid. It calls prepare_get_question_dictionary
-    to create the dictionary of question details and solution details then returns
-    to the view
-
-    :param question_uuid:
-    :param current_pleb:
-    :return:
-    '''
-    # TODO this should be handled with the REST endpoint now and the
-    # render_single method in question can be deleted once that happens.
-    try:
-        question = SBQuestion.nodes.get(object_uuid=question_uuid)
-    except (SBQuestion.DoesNotExist, DoesNotExist):
-        return False
-    except CypherException as e:
-        return e
-    return question.render_single(current_pleb)
-
-
-@apply_defense
 def get_question_by_most_recent(range_start=0, range_end=5):
     '''
     Sorting util

@@ -75,7 +75,8 @@ def save_post_view(request):
 
         return Response({
             "action": "filtered", "filtered_content": post_data,
-            "html": html}, status=200)
+            "html": html, "ids": [post_form.cleaned_data["post_uuid"]]},
+            status=200)
     else:
         return Response(post_form.errors, status=400)
 
@@ -90,6 +91,7 @@ def get_page_posts(request):
     :return:
     '''
     html_array = []
+    id_array = []
     post_form = GetPostForm(request.data)
 
     if post_form.is_valid():
@@ -102,6 +104,7 @@ def get_page_posts(request):
                                         post_form.cleaned_data['range_start'])
             for post in posts:
                 html_array.append(post.render_post_wall_html(request.user))
+                id_array.append(post.object_uuid)
                 task_data = {
                     "object_type": dict(settings.KNOWN_TYPES)[post.object_type],
                     "object_uuid": post.object_uuid,
@@ -109,8 +112,7 @@ def get_page_posts(request):
                 spawn_task(update_view_count_task, task_data)
             task_dict = {'username': post_form.cleaned_data['page_user']}
             spawn_task(task_func=build_wall_task, task_param=task_dict)
-            # TODO Shouldn't we return something here other than a 400? We
-            # should be able to populate based on Neo
+            return Response({'html': html_array, "ids": id_array}, status=200)
         else:
             for post in posts:
                 try:
@@ -142,13 +144,21 @@ def get_page_posts(request):
                             '%Y-%m-%d %H:%M:%S.%f')
                         item['vote_count'] = str(
                             item['upvotes'] - item['downvotes'])
+                        owner_url = "%s?expand=true" % reverse(
+                            'user-detail', kwargs={'username': item['owner']},
+                            request=request)
+                        comment_owner = request_to_api(
+                            owner_url, username=request.user.username,
+                            req_method="GET")
+                        item["owner"] = comment_owner.json()
                     c = RequestContext(request, post)
                     html = render_to_string('post.html', post,
                                             context_instance=c)
                     html_array.append(html)
+                    id_array.append(post["object_uuid"])
                 except KeyError as e:
                     print e.message
                     continue
-        return Response({'html': html_array}, status=200)
+        return Response({'html': html_array, "ids": id_array}, status=200)
     else:
         return Response(status=400)

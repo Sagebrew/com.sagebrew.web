@@ -29,8 +29,7 @@ from sb_public_official.utils import prepare_official_search_html
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
-def search_result_view(request, display_num=5,
-                       range_start=0, range_end=10):
+def search_result_view(request):
     '''
     This view serves the page that holds the search results.
 
@@ -52,9 +51,11 @@ def search_result_view(request, display_num=5,
     query_param = request.GET.get('q', "")
     page = request.GET.get('page', 1)
     search_filter = request.GET.get('filter', 'general')
+    display_num = request.GET.get('max_page_size', 10)
+    if int(display_num) > 100:
+        display_num = 100
     search_data = {'query_param': query_param, 'page': page, 'display_num':
-                   display_num, 'range_start': range_start,
-                   'range_end': range_end}
+                   display_num}
     search_form = SearchForm(search_data)
     if search_form.is_valid():
         return render(request, 'search.html',
@@ -68,7 +69,7 @@ def search_result_view(request, display_num=5,
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
-def search_result_api(request, display_num=10):
+def search_result_api(request):
     '''
     This is the general search rest api endpoint. It takes the query parameter
     how many results to return and the current page, as well as a filter type
@@ -87,8 +88,12 @@ def search_result_api(request, display_num=10):
     query_param = request.query_params.get('q', "")
     page = request.query_params.get('page', 1)
     filter_type = request.query_params.get('filter', 'general')
+    display_num = request.GET.get('max_page_size', 10)
+    if int(display_num) > 100:
+        display_num = 100
     data = {'query_param': query_param, 'display_num': display_num,
             'page': int(page), 'filter_param': filter_type}
+
     try:
         search_form = SearchFormApi(data)
         valid_form = search_form.is_valid()

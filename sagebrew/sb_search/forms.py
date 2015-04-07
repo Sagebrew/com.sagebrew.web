@@ -3,8 +3,6 @@ from django.conf import settings
 
 class SearchForm(forms.Form):
     display_num = forms.IntegerField()
-    range_start = forms.IntegerField()
-    range_end = forms.IntegerField()
     query_param = forms.CharField()
     page = forms.IntegerField()
 

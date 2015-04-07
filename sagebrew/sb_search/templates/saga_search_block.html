@@ -7,7 +7,7 @@
         </div>
         <div class="col-lg-8 col-md-7 col-sm-12 col-xs-12">
             {% url "action_saga" username=object_uuid as the_url %}
-            <a href={{ the_url }}>{{ first_name }} {{ last_name }}</a>
+            <a href="{{ the_url }}">{{ first_name }} {{ last_name }}</a>
         </div>
         <div class="col-lg-8 col-md-12 col-sm-12 col-xs-12">
             <p>{{ state }}</p>

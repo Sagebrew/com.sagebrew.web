@@ -27,7 +27,7 @@ from .utils import get_rep_type, prepare_official_search_html
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def saga(request, username):
-    representative = {"username": username}
+    representative = {"object_uuid": username}
     return render(request, 'action_page.html',
                   {"representative": representative,
                    "registered": False})
@@ -37,7 +37,7 @@ def saga(request, username):
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def updates(request, username):
-    representative = {"username": username}
+    representative = {"object_uuid": username}
     return render(request, 'action_page.html',
                   {"representative": representative,
                    "registered": False})
@@ -47,7 +47,7 @@ def updates(request, username):
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def about(request, username):
-    representative = {"username": username}
+    representative = {"object_uuid": username}
     return render(request, 'action_page.html',
                   {"representative": representative, "registered": False})
 

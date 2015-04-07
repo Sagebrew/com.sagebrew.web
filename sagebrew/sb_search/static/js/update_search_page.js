@@ -16,8 +16,8 @@ $( document ).ready(function() {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "GET",
-            url: "/search/api/" + search_param + "/" +
-                search_page + "/" + filter,
+            url: "/search/api/?q=" + search_param + "&page=" +
+                search_page + "&filter=" + filter,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
@@ -96,7 +96,7 @@ $( document ).ready(function() {
                 $.ajax({
                     xhrFields: {withCredentials: true},
                     type: "GET",
-                    url: "/search/api/" + search_param + "/" + next_page + "/" + filter,
+                    url: "/search/api/?q=" + search_param + "&page=" + next_page + "&filter=" + filter,
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (data) {

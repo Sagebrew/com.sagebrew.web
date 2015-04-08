@@ -1,4 +1,3 @@
-from django.template.loader import render_to_string
 from django.core.urlresolvers import reverse
 
 from neomodel import (RelationshipTo, CypherException)
@@ -16,16 +15,13 @@ class SBPost(SBNonVersioned):
     # relationships
     posted_on_wall = RelationshipTo('sb_wall.neo_models.SBWall', 'POSTED_ON')
 
-    #TODO Implement referenced_by_... relationships
-    #TODO Implement ..._referenced relationships
-
     @apply_defense
     def create_relations(self, pleb, question=None, wall=None):
         if wall is None:
             return False
         try:
             self.posted_on_wall.connect(wall)
-            wall.post.connect(self)
+            wall.posts.connect(self)
             rel = self.owned_by.connect(pleb)
             rel.save()
             rel_from_pleb = pleb.posts.connect(self)

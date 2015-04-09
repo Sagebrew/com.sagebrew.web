@@ -1,5 +1,6 @@
 import math
 import pytz
+from logging import getLogger
 from uuid import uuid1
 from datetime import datetime
 from django.conf import settings
@@ -12,7 +13,11 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
 
 from sb_docstore.utils import get_vote_count as doc_vote_count
 from sb_base.decorators import apply_defense
-from plebs.neo_models import RelationshipWeight
+from sb_votes.utils import determine_vote_type
+from plebs.neo_models import RelationshipWeight, Pleb
+
+logger = getLogger('loggly_logs')
+
 
 class EditRelationshipModel(StructuredRel):
     time_edited = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
@@ -36,7 +41,6 @@ class SBVoteableContent(StructuredNode):
     down_vote_adjustment = 0
     object_uuid = StringProperty(unique_index=True,
                                  default=lambda: str(uuid1()))
-    vote_count = IntegerProperty()
     content = StringProperty()
     created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
@@ -88,8 +92,6 @@ class SBVoteableContent(StructuredNode):
         except (CypherException, IOError) as e:
             return e
 
-
-
     @apply_defense
     def remove_vote(self, rel):
         try:
@@ -101,33 +103,58 @@ class SBVoteableContent(StructuredNode):
 
     @apply_defense
     def get_upvote_count(self):
+        try:
+            return int(doc_vote_count(self.object_uuid, 1))
+        except(TypeError, IOError):
+            logger.exception("DynamoDB Error: ")
+
         query = 'start s=node({self}) match s-[r:PLEB_VOTES]-(p:Pleb) ' \
                 'where r.vote_type=true and r.active=true return r'
         try:
             res, col = self.cypher(query)
             return len(res)
         except CypherException as e:
+            logger.exception("Cypher Error: ")
             return e
 
     @apply_defense
     def get_downvote_count(self):
+        try:
+            return int(doc_vote_count(self.object_uuid, 0))
+        except(TypeError, IOError):
+            logger.exception("DynamoDB Error: ")
+
         query = 'start s=node({self}) match s-[r:PLEB_VOTES]-(p:Pleb) ' \
                 'where r.vote_type=false and r.active=true return r'
         try:
             res, col = self.cypher(query)
             return len(res)
         except CypherException as e:
+            logger.exception("Cypher Error: ")
             return e
 
     @apply_defense
     def get_vote_count(self):
-        upvotes = doc_vote_count(self.object_uuid, 1)
-        downvotes = doc_vote_count(self.object_uuid, 0)
-        vote_count = upvotes - downvotes
-        if vote_count == 0:
-            vote_count = self.get_upvote_count() - self.get_downvote_count()
-        return vote_count
+        return int(self.get_upvote_count() - self.get_downvote_count())
 
+    @apply_defense
+    def get_vote_type(self, username):
+        try:
+            return determine_vote_type(self.object_uuid, username)
+        except(TypeError, IOError):
+            logger.exception("DynamoDB Error: ")
+        try:
+            pleb = Pleb.nodes.get(username=username)
+            if self.votes.is_connected(pleb):
+                rel = self.votes.relationship(pleb)
+            else:
+                return None
+        except(CypherException, IOError) as e:
+            logger.exception("Cypher Error: ")
+            return e
+        if rel.active is False:
+            return None
+        return rel.vote_type
 
     @apply_defense
     def get_rep_breakout(self):
@@ -143,8 +170,6 @@ class SBVoteableContent(StructuredNode):
 class SBContent(SBVoteableContent):
     table = ''
     allowed_flags = []
-    upvotes = IntegerProperty(default=0)
-    downvotes = IntegerProperty(default=0)
     last_edited_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     edited = BooleanProperty(default=False)
     to_be_deleted = BooleanProperty(default=False)

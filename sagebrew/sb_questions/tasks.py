@@ -11,7 +11,7 @@ from api.utils import spawn_task, create_auto_tags
 from api.tasks import add_object_to_search_index
 from sb_tag.tasks import add_auto_tags, add_tags
 from sb_base.tasks import create_object_relations_task
-from sb_docstore.tasks import build_question_page_task
+
 from .utils import create_question_util
 
 

@@ -47,7 +47,7 @@ def convert_dynamo_comments(raw_comments):
     comments = []
     for comment in raw_comments:
         comment = dict(comment)
-        comment['upvotes'] = get_vote_count(comment['object_uuid'],1)
+        comment['upvotes'] = get_vote_count(comment['object_uuid'], 1)
         comment['downvotes'] = get_vote_count(comment['object_uuid'], 0)
         time_format = '%Y-%m-%dT%H:%M:%S.%f'
         try:

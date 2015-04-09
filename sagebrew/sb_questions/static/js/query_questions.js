@@ -13,15 +13,15 @@ $( document ).ready(function() {
             dataType: "json",
             success: function (data) {
                 $("#question_wrapper").append(data['results']["html"]);
-                enable_question_functionality([data['results']["ids"]]);
                 var total = limit + offset;
                 // TODO Went with this approach as the scrolling approach resulted
                 // in the posts getting out of order. It also had some interesting
                 // functionality that wasn't intuitive. Hopefully transitioning to
                 // a JS Framework allows us to better handle this feature.
                 if(total <= data["count"] && total < 150){
-                    loadQuestionSummaries(limit, offset + limit);
+                    loadQuestionSummaries(limit, total);
                 }
+                enable_question_summary_functionality(data['results']["ids"]);
             }
         });
     }

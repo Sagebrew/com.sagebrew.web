@@ -1,7 +1,7 @@
 import pytz
 from datetime import datetime
 
-from neomodel import (IntegerProperty, DateTimeProperty,
+from neomodel import (RelationshipTo, DateTimeProperty,
                       StructuredRel, CypherException)
 
 from sb_base.decorators import apply_defense
@@ -19,9 +19,8 @@ class SBComment(SBNonVersioned):
     action = "commented on your "
     sb_name = "comment"
     object_type = "02ba1c88-644f-11e4-9ad9-080027242395"
-    upvotes = IntegerProperty(default=0)
-    downvotes = IntegerProperty(default=0)
-    view_count = IntegerProperty(default=0)
+    comment_on = RelationshipTo('sb_base.neo_models.SBContent',
+                                'COMMENT_ON')
 
     def create_notification(self, pleb, sb_object=None):
         return {
@@ -30,9 +29,6 @@ class SBComment(SBNonVersioned):
             "action": self.action + sb_object.sb_name,
             "url": sb_object.get_url()
         }
-
-    def comment_on(self, comment):
-        pass
 
     @apply_defense
     def get_single_dict(self):

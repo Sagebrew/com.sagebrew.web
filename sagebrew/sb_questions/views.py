@@ -9,7 +9,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.reverse import reverse
 
 from api.utils import spawn_task
-from sb_docstore.utils import get_question_doc
 from sb_registration.utils import verify_completed_registration
 
 from .utils import (prepare_question_search_html)
@@ -133,18 +132,3 @@ def get_question_search_view(request, question_uuid=str(uuid1())):
     elif response is False:
         return Response(status=404)
     return Response({'html': response}, status=200)
-
-
-@login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
-def edit_question_view(request, question_uuid):
-    res = get_question_doc(question_uuid, 'public_questions',
-                     'public_solutions')
-    template_dict = {"title": res['title'],
-                     "content": res['content'],
-                     "edit": True,
-                     "object_uuid": res['object_uuid'],
-                     "object_type": res['object_type'],
-                     "created": unicode(res['created'])}
-    return render(request, 'save_question.html', template_dict)

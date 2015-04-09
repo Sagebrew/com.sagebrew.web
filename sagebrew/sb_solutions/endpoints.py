@@ -17,7 +17,6 @@ from neomodel import CypherException
 
 from sagebrew import errors
 from sb_questions.neo_models import SBQuestion
-from sb_votes.utils import determine_vote_type
 
 from .serializers import SolutionSerializerNeo
 from .neo_models import SBSolution
@@ -208,8 +207,9 @@ def solution_renderer(request, object_uuid=None):
     kwargs = {"object_uuid": object_uuid}
     solutions = ObjectSolutionsListCreate.as_view()(request, *args, **kwargs)
     for solution in solutions.data['results']:
-        solution['vote_type'] = determine_vote_type(
-            solution['object_uuid'], request.user.username)
+        # This is a work around for django templates and our current
+        # implementation of spacing for vote count in the template.
+        solution["vote_count"] = str(solution["vote_count"])
         solution['last_edited_on'] = datetime.strptime(
             solution['last_edited_on'][:len(solution['last_edited_on']) - 6],
             '%Y-%m-%dT%H:%M:%S.%f')

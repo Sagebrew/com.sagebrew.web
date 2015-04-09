@@ -1,5 +1,3 @@
-import markdown
-
 from django.contrib.auth.models import User
 
 from rest_framework import serializers
@@ -7,28 +5,15 @@ from rest_framework.reverse import reverse
 
 from neomodel.exception import CypherException
 
-from sb_docstore.utils import get_vote_count
+from sb_base.serializers import ContentSerializer
 from plebs.serializers import PlebSerializerNeo, UserSerializer
 
 from .neo_models import SBPost
 
 
-class PostSerializerNeo(serializers.Serializer):
-    object_uuid = serializers.CharField(read_only=True)
+class PostSerializerNeo(ContentSerializer):
     href = serializers.HyperlinkedIdentityField(view_name='post-detail',
                                                 lookup_field="object_uuid")
-    content = serializers.CharField()
-    created = serializers.DateTimeField(read_only=True)
-    upvotes = serializers.CharField(read_only=True)
-    downvotes = serializers.CharField(read_only=True)
-    vote_count = serializers.SerializerMethodField()
-    owner_object = serializers.SerializerMethodField()
-    # Keeping url as a shortcut, incase the user doesn't want to
-    # expand out the profile and gather the url through the profile
-    # object.
-    url = serializers.SerializerMethodField()
-    profile = serializers.SerializerMethodField()
-    last_edited_on = serializers.DateTimeField(read_only=True)
     wall_owner = serializers.SerializerMethodField()
     wall_owner_profile = serializers.SerializerMethodField()
 
@@ -49,51 +34,8 @@ class PostSerializerNeo(serializers.Serializer):
         # TODO get from dynamo and then spawn task to store in Neo
         pass
 
-    def get_owner_object(self, obj):
-        request = self.context['request']
-        if isinstance(obj, dict) is True:
-            return obj
-        try:
-            owner = obj.owned_by.all()[0]
-        except(CypherException, IOError, IndexError):
-            return None
-        html = request.query_params.get('html', 'false').lower()
-        expand = request.query_params.get('expand', "false").lower()
-        if html == "true":
-            expand = "true"
-        if expand == "true":
-            owner_user = User.objects.get(username=owner.username)
-            owner_dict = UserSerializer(
-                owner_user, context={'request': self.context['request']}).data
-        else:
-            owner_dict = reverse('user-detail',
-                                 kwargs={"username": owner.username},
-                                 request=request)
-        return owner_dict
-
-    def get_profile(self, obj):
-        request = self.context['request']
-        if isinstance(obj, dict) is True:
-            return obj
-        try:
-            owner = obj.owned_by.all()[0]
-        except(CypherException, IOError, IndexError):
-            return None
-        html = request.query_params.get('html', 'false').lower()
-        expand = request.query_params.get('expand', "false").lower()
-        if html == "true":
-            expand = "true"
-        if expand == "true":
-            profile_dict = PlebSerializerNeo(
-                owner, context={'request': request}).data
-        else:
-            profile_dict = reverse('profile-detail',
-                                   kwargs={"username": owner.username},
-                                   request=request)
-        return profile_dict
-
     def get_url(self, obj):
-        # TODO can we add anchors?
+        # TODO can we add anchors or should we make the one off post page?
         try:
             owner = obj.owned_by.all()[0]
         except(CypherException, IOError, IndexError):
@@ -101,11 +43,6 @@ class PostSerializerNeo(serializers.Serializer):
         return reverse('profile_page',
                        kwargs={'pleb_username': owner.username},
                        request=self.context['request'])
-
-    def get_vote_count(self, obj):
-        upvotes = get_vote_count(obj.object_uuid, 1)
-        downvotes = get_vote_count(obj.object_uuid, 0)
-        return str(upvotes - downvotes)
 
     def get_wall_owner(self, obj):
         # TODO can we move all this into a util? It's getting copied and pasted

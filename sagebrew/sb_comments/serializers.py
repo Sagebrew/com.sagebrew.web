@@ -1,83 +1,45 @@
-from django.contrib.auth.models import User
-
-from rest_framework import serializers
 from rest_framework.reverse import reverse
+from rest_framework import serializers
 
 from neomodel.exception import CypherException
 
-from plebs.serializers import PlebSerializerNeo, UserSerializer
-
+from sb_base.serializers import ContentSerializer
 from .neo_models import SBComment
 
 
-class CommentSerializer(serializers.Serializer):
-    object_uuid = serializers.CharField(read_only=True)
-    object_type = serializers.CharField(read_only=True)
-    parent_object = serializers.CharField(read_only=True)
-    content = serializers.CharField()
-    last_edited_on = serializers.DateTimeField(read_only=True)
-    created = serializers.DateTimeField(read_only=True)
-    vote_count = serializers.CharField(read_only=True)
-    upvotes = serializers.IntegerField(read_only=True)
-    downvotes = serializers.IntegerField(read_only=True)
-    owner_object = serializers.SerializerMethodField()
-    profile = serializers.SerializerMethodField()
-
-    # TODO add owner pleb and utilize def perform_create(self, serializer)
-    # to store off owner of comment
+class CommentSerializer(ContentSerializer):
+    comment_on = serializers.SerializerMethodField()
 
     def create(self, validated_data):
+        # Connection of the comment to the object it is on is handled in the
+        # create method of the endpoint as it is easier to gather the related
+        # object from there.
         owner = validated_data.pop('owner', None)
         comment = SBComment(**validated_data).save()
         comment.owned_by.connect(owner)
         owner.comments.connect(comment)
+
         return comment
 
     def update(self, instance, validated_data):
         # TODO get from dynamo and then spawn task to store in Neo
         pass
 
-    def get_owner_object(self, obj):
-        request = self.context['request']
-        if isinstance(obj, dict) is True:
-            owner = obj["owner"]
-        else:
-            try:
-                owner = obj.owned_by.all()[0]
-            except(CypherException, IOError, IndexError):
-                return None
-        html = request.query_params.get('html', 'false').lower()
-        expand = request.query_params.get('expand', "false").lower()
-        if html == "true":
-            expand = "true"
-
-        if expand == "true":
-            owner_user = User.objects.get(username=owner.username)
-            owner_dict = UserSerializer(
-                owner_user, context={'request': self.context['request']}).data
-        else:
-            owner_dict = reverse('user-detail',
-                                 kwargs={"username": owner.username},
-                                 request=request)
-        return owner_dict
-
-    def get_profile(self, obj):
-        request = self.context['request']
-        if isinstance(obj, dict) is True:
-            return obj
+    def get_url(self, obj):
+        # TODO @tyler is there a cleaner way you can think to do this?
         try:
-            owner = obj.owned_by.all()[0]
-        except(CypherException, IOError, IndexError):
+            parent_object = obj.comment_on.all()[0]
+        except(IOError, IndexError, CypherException):
             return None
-        html = request.query_params.get('html', 'false').lower()
-        expand = request.query_params.get('expand', "false").lower()
-        if html == "true":
-            expand = "true"
-        if expand == "true":
-            profile_dict = PlebSerializerNeo(
-                owner, context={'request': request}).data
-        else:
-            profile_dict = reverse('profile-detail',
-                                   kwargs={"username": owner.username},
-                                   request=request)
-        return profile_dict
+        return reverse('%s-detail' % parent_object.sb_name,
+                       kwargs={'object_uuid': parent_object.object_uuid},
+                       request=self.context['request'])
+
+    def get_comment_on(self, obj):
+        try:
+            parent_object = obj.comment_on.all()[0]
+        except(IOError, IndexError, CypherException):
+            return None
+        return reverse('%s-detail' % parent_object.sb_name,
+                       kwargs={'object_uuid': parent_object.object_uuid},
+                       request=self.context['request'])

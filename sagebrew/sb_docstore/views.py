@@ -10,6 +10,7 @@ from sb_edits.tasks import edit_object_task
 from sb_votes.tasks import vote_object_task
 from plebs.neo_models import Pleb
 
+
 @api_view(["POST"])
 @permission_classes((IsAuthenticated,))
 def get_updates_from_dynamo(request):

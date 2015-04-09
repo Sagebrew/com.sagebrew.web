@@ -1,6 +1,5 @@
 from datetime import datetime
 from logging import getLogger
-from boto.dynamodb2.exceptions import ItemNotFound
 
 from django.template.loader import render_to_string
 
@@ -8,17 +7,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
 from rest_framework import status
-from rest_framework.exceptions import NotFound
 
 from neomodel import CypherException
 
 from sagebrew import errors
 
-from api.utils import request_to_api
-from sb_docstore.utils import (get_dynamo_table, convert_dynamo_content)
-from sb_votes.utils import determine_vote_type
+from sb_docstore.utils import (get_dynamo_table)
 
 from .serializers import QuestionSerializerNeo
 from .neo_models import SBQuestion
@@ -54,7 +49,7 @@ class QuestionViewSet(viewsets.GenericViewSet):
             queryset = sorted(queryset, key=lambda k: k.last_edited_on,
                               reverse=True)
         else:
-            queryset = sorted(queryset, key=lambda k: k.vote_count,
+            queryset = sorted(queryset, key=lambda k: k.get_vote_count(),
                               reverse=True)
 
         return queryset
@@ -101,57 +96,18 @@ class QuestionViewSet(viewsets.GenericViewSet):
             return Response(errors.DYNAMO_TABLE_EXCEPTION,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         html = self.request.query_params.get('html', 'false').lower()
-        expand = self.request.query_params.get('expand', "false").lower()
-        if html == "true":
-            expand = "true"
-        try:
-            queryset = table.get_item(object_uuid=object_uuid)
-            try:
-                if expand == "false":
-                    single_object = convert_dynamo_content(queryset)
-                else:
-                    single_object = convert_dynamo_content(
-                        queryset, self.request, "question-comments")
-            except IndexError as e:
-                raise NotFound
-            single_object["profile"] = reverse(
-                'profile_page', kwargs={
-                    'pleb_username': single_object["owner"]
-                }, request=request)
-            user_url = reverse('user-detail', kwargs={
-                'username': single_object["owner"]}, request=request)
-            single_object["solution_count"] = int(
-                single_object["solution_count"])
-            single_object["to_be_deleted"] = int(
-                single_object["to_be_deleted"])
-            single_object["is_closed"] = int(single_object["is_closed"])
-            if expand == "true":
-                user_url = "%s%s" % (user_url, "?expand=True")
-                response = request_to_api(user_url,
-                                          request.user.username,
-                                          req_method="GET")
-                response_json = response.json()
-                single_object["profile"] = response_json.pop("profile", None)
-                single_object["owner_object"] = response_json
-            else:
-                single_object["owner_object"] = user_url
-                single_object["profile"] = reverse('profile-detail', kwargs={
-                    'username': single_object["owner"]}, request=request)
-        except ItemNotFound:
-            queryset = self.get_object(object_uuid)
-            single_object = QuestionSerializerNeo(
-                queryset, context={'request': request}).data
-            single_object["last_edited_on"] = datetime.strptime(
-                single_object['last_edited_on'][:len(
-                    single_object['last_edited_on']) - 6],
-                '%Y-%m-%dT%H:%M:%S.%f')
-            # TODO if get here should spawn task to repopulate question
+
+        queryset = self.get_object(object_uuid)
+        single_object = QuestionSerializerNeo(
+            queryset, context={'request': request}).data
+        single_object["last_edited_on"] = datetime.strptime(
+            single_object['last_edited_on'][:len(
+                single_object['last_edited_on']) - 6],
+            '%Y-%m-%dT%H:%M:%S.%f')
 
         if html == "true":
             # This will be moved to JS Framework but don't need intermediate
             # step at the time being as this doesn't require pagination
-            single_object['vote_type'] = determine_vote_type(
-                single_object['object_uuid'], request.user.username)
             single_object["current_user_username"] = request.user.username
             return Response({"html": render_question_object(single_object),
                              "ids": [single_object["object_uuid"]],
@@ -214,17 +170,18 @@ class QuestionViewSet(viewsets.GenericViewSet):
 
     @list_route(methods=['get'])
     def render(self, request):
-        '''
+        """
         This is a intermediate step on the way to utilizing a JS Framework to
         handle template rendering.
-        '''
+        """
         html_array = []
         id_array = []
         questions = self.list(request)
 
         for question in questions.data['results']:
-            question['vote_type'] = determine_vote_type(
-                question['object_uuid'], request.user.username)
+            # This is a work around for django templates and our current
+            # implementation of spacing for vote count in the template.
+            question["vote_count"] = str(question["vote_count"])
             question['last_edited_on'] = datetime.strptime(
                 question[
                     'last_edited_on'][:len(question['last_edited_on']) - 6],

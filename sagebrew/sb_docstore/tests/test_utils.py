@@ -7,15 +7,12 @@ from django.contrib.auth.models import User
 from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
-from sb_questions.neo_models import SBQuestion
-from sb_posts.neo_models import SBPost
-from sb_comments.neo_models import SBComment
+
 from sb_docstore.utils import (add_object_to_table,
                                query_parent_object_table, update_doc,
-                               get_question_doc, build_question_page,
                                get_vote, update_vote, get_vote_count,
-                               get_wall_docs, build_wall_docs,
                                get_user_updates)
+
 
 class TestDocstoreUtils(TestCase):
     def setUp(self):
@@ -83,31 +80,6 @@ class TestDocstoreUtils(TestCase):
 
         self.assertFalse(isinstance(res, Exception))
 
-    def test_get_question_doc(self):
-        uuid = str(uuid1())
-        now = unicode(datetime.now(pytz.utc))
-        data = {'object_uuid': uuid, 'content': '1231231231',
-                'user': self.pleb.username, 'last_edited_on': now,
-                "created": now}
-        res = add_object_to_table('public_questions', data)
-        self.assertTrue(res)
-        solution_uuid = str(uuid1())
-        solution_data = {'parent_object': uuid, 'object_uuid': solution_uuid,
-                         'content': '12312312',  'last_edited_on': now,
-                         "created": now}
-        sol_res = add_object_to_table('public_solutions', solution_data)
-        self.assertTrue(sol_res)
-        res = get_question_doc(uuid, 'public_questions', 'public_solutions')
-        self.assertIsInstance(res, dict)
-
-    def test_build_question_page(self):
-        question = SBQuestion(object_uuid=str(uuid1()), content="1231",
-                              title="12312312").save()
-        question.owned_by.connect(self.pleb)
-        res = build_question_page(question.object_uuid, 'public_questions',
-                                  'public_solutions')
-        self.assertTrue(res)
-
     def test_get_vote(self):
         uuid = str(uuid1())
         now = unicode(datetime.now(pytz.utc))
@@ -156,41 +128,6 @@ class TestDocstoreUtils(TestCase):
         res = get_vote_count(uuid, 1)
 
         self.assertEqual(res, 1)
-
-    def test_get_wall_doc(self):
-        post_id = str(uuid1())
-        comment_id = str(uuid1())
-        now = unicode(datetime.now(pytz.utc))
-        post_data = {
-            'parent_object': self.pleb.username, 'created': now,
-            'object_uuid': post_id, 'content': 'a3lk4jq;w2jr'
-        }
-        comment_data = {
-            'parent_object': post_id, 'object_uuid': comment_id,
-            'created': now, 'content': 'a;sldkf;lajsdkfjas;df'
-        }
-        post_res = add_object_to_table('posts', post_data)
-        self.assertTrue(post_res)
-        comment_res = add_object_to_table('comments', comment_data)
-        self.assertTrue(comment_res)
-
-        res = get_wall_docs(self.pleb.username, self.pleb.username)
-
-        self.assertNotEqual(res, False)
-        self.assertFalse(isinstance(res, Exception))
-
-    def test_build_wall_docs(self):
-        post = SBPost(object_uuid=str(uuid1()), content='a;sdlkfj;asd').save()
-        post.owned_by.connect(self.pleb)
-        post.posted_on_wall.connect(self.pleb.wall.all()[0])
-        comment = SBComment(object_uuid=str(uuid1()),
-                            content='A:KFj;LKAJFD:Sk').save()
-        post.comments.connect(comment)
-        comment.owned_by.connect(self.pleb)
-
-        res = build_wall_docs(self.pleb)
-
-        self.assertTrue(res)
 
     def test_get_user_updates_edits(self):
         res = get_user_updates(self.pleb.username, str(uuid1()), 'edits')

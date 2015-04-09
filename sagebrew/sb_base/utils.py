@@ -45,14 +45,6 @@ def custom_exception_handler(exc, context):
 
     if response is not None:
         response.data['status_code'] = response.status_code
-        if "developer_message" not in response.data:
-            response.data['developer_message'] = "Sorry we don't currently " \
-                                                 "have a suggestion for this " \
-                                                 "issue. Please feel free to " \
-                                                 "ping us at " \
-                                                 "support@sagebrew.com and " \
-                                                 "let us know what you're " \
-                                                 "seeing."
 
     return response
 

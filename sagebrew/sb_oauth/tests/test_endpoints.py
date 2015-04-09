@@ -115,7 +115,8 @@ class ApplicationTests(APITestCase):
             "web_hook": "http://google.com"
         }
         response = self.client.post(url, data, format='json')
-        response_data = {'detail': 'Method "POST" not allowed.'}
+        response_data = {'detail': 'Method "POST" not allowed.',
+                         'status_code': 405}
         self.assertEqual(response.data, response_data)
         self.assertEqual(response.status_code,
                          status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -187,7 +188,8 @@ class ApplicationTests(APITestCase):
     def test_update_list(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('%s-list' % self.unit_under_test_name)
-        data = {'detail': 'Method "PUT" not allowed.'}
+        data = {'detail': 'Method "PUT" not allowed.',
+                'status_code': 405}
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.data, data)
         self.assertEqual(response.status_code,
@@ -205,7 +207,8 @@ class ApplicationTests(APITestCase):
     def test_delete_list(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('%s-list' % self.unit_under_test_name)
-        data = {'detail': 'Method "DELETE" not allowed.'}
+        data = {'detail': 'Method "DELETE" not allowed.',
+                'status_code': 405}
         response = self.client.delete(url, format='json')
         self.assertEqual(response.data, data)
         self.assertEqual(response.status_code,

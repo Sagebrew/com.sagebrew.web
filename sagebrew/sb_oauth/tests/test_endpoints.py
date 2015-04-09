@@ -29,10 +29,8 @@ class ApplicationTests(APITestCase):
         url = reverse('%s-list' % self.unit_under_test_name)
         data = {}
         response = self.client.post(url, data, format='json')
-        unauthorized = {
-            'detail': 'Authentication credentials were not provided.'
-        }
-        self.assertEqual(response.data, unauthorized)
+        unauthorized = 'Authentication credentials were not provided.'
+        self.assertEqual(response.data['detail'], unauthorized)
         self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
                                              status.HTTP_403_FORBIDDEN])
 
@@ -116,7 +114,7 @@ class ApplicationTests(APITestCase):
         }
         response = self.client.post(url, data, format='json')
         response_data = {'detail': 'Method "POST" not allowed.',
-                         'status_code': 405}
+                         'status_code': status.HTTP_405_METHOD_NOT_ALLOWED}
         self.assertEqual(response.data, response_data)
         self.assertEqual(response.status_code,
                          status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -180,7 +178,8 @@ class ApplicationTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('%s-detail' % self.unit_under_test_name,
                       kwargs={"client_id": str(uuid1())})
-        data = {'detail': 'Not found.'}
+        data = {'detail': 'Not found.',
+                'status_code': status.HTTP_404_NOT_FOUND}
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.data, data)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -189,7 +188,7 @@ class ApplicationTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('%s-list' % self.unit_under_test_name)
         data = {'detail': 'Method "PUT" not allowed.',
-                'status_code': 405}
+                'status_code': status.HTTP_405_METHOD_NOT_ALLOWED}
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.data, data)
         self.assertEqual(response.status_code,
@@ -208,7 +207,7 @@ class ApplicationTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('%s-list' % self.unit_under_test_name)
         data = {'detail': 'Method "DELETE" not allowed.',
-                'status_code': 405}
+                'status_code': status.HTTP_405_METHOD_NOT_ALLOWED}
         response = self.client.delete(url, format='json')
         self.assertEqual(response.data, data)
         self.assertEqual(response.status_code,

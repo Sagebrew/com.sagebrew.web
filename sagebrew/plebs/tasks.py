@@ -22,7 +22,7 @@ from .utils import create_friend_request_util
 
 
 @shared_task()
-def pleb_user_update(username, first_name, last_name, email, birthday):
+def pleb_user_update(username, first_name, last_name, email):
     try:
         pleb = Pleb.nodes.get(username=username)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
@@ -32,7 +32,6 @@ def pleb_user_update(username, first_name, last_name, email, birthday):
         pleb.last_name = last_name
         pleb.email = email
 
-        pleb.date_of_birth = birthday
         pleb.save()
     except(CypherException, IOError) as e:
         raise pleb_user_update.retry(exc=e, countdown=3, max_retries=None)

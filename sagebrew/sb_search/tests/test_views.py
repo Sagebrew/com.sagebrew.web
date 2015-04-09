@@ -33,210 +33,12 @@ class TestSearchResultView(TestCase):
         self.pleb.save()
 
     def test_search_result_view_success(self):
-        request = self.factory.post('/search/q=test')
+        request = self.factory.post('/search/?q=test')
         request.user = self.user
 
-        response = search_result_view(request, 'test')
+        response = search_result_view(request)
 
         self.assertEqual(response.status_code, 200)
-
-    def test_search_result_view_missing_data(self):
-        request = self.factory.post('/search/q=test')
-        request.user = self.user
-
-        self.assertRaises(TypeError, search_result_view, request)
-
-    def test_search_result_incorrect_data_page_string(self):
-        request = self.factory.post('/search/q=test')
-        request.user = self.user
-
-        response = search_result_view(request, 'test', page='string')
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_search_result_incorrect_data_page_list(self):
-        request = self.factory.post('/search/q=test')
-        request.user = self.user
-
-        response = search_result_view(request, 'test', page=[])
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_search_result_incorrect_data_page_dict(self):
-        request = self.factory.post('/search/q=test')
-        request.user = self.user
-
-        response = search_result_view(request, 'test', page={})
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_search_result_incorrect_data_page_float(self):
-        request = self.factory.post('/search/q=test')
-        request.user = self.user
-
-        response = search_result_view(request, 'test', page=8.51651)
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_search_result_incorrect_data_page_image(self):
-        with open(settings.PROJECT_DIR + "/sb_posts/" +
-                  "tests/images/test_image.jpg", "rb") as image_file:
-            image = b64encode(image_file.read())
-
-        request = self.factory.post('/search/q=test')
-        request.user = self.user
-
-        response = search_result_view(request, 'test', page=image)
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_search_result_incorrect_data_display_num_string(self):
-        request = self.factory.post('/search/q=test')
-        request.user = self.user
-
-        response = search_result_view(request, 'test', display_num='string')
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_search_result_incorrect_data_display_num_list(self):
-        request = self.factory.post('/search/q=test')
-        request.user = self.user
-
-        response = search_result_view(request, 'test', display_num=[])
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_search_result_incorrect_data_display_num_dict(self):
-        request = self.factory.post('/search/q=test')
-        request.user = self.user
-
-        response = search_result_view(request, 'test', display_num={})
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_search_result_incorrect_data_display_num_float(self):
-        request = self.factory.post('/search/q=test')
-        request.user = self.user
-
-        response = search_result_view(request, 'test', display_num=8.51651)
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_search_result_incorrect_data_display_num_image(self):
-        with open(settings.PROJECT_DIR + "/sb_posts/" +
-                  "tests/images/test_image.jpg", "rb") as image_file:
-            image = b64encode(image_file.read())
-
-        request = self.factory.post('/search/q=test')
-        request.user = self.user
-
-        response = search_result_view(request, 'test', display_num=image)
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_search_result_incorrect_data_query_list(self):
-        request = self.factory.post('/search/q=test')
-        request.user = self.user
-
-        response = search_result_view(request, [], page=1)
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_search_result_incorrect_data_query_dict(self):
-        request = self.factory.post('/search/q=test')
-        request.user = self.user
-
-        response = search_result_view(request, {}, page=1)
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_search_result_incorrect_data_range_start_string(self):
-        request = self.factory.post('/search/q=test')
-        request.user = self.user
-
-        response = search_result_view(request, 'test', range_start='string')
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_search_result_incorrect_data_range_start_list(self):
-        request = self.factory.post('/search/q=test')
-        request.user = self.user
-
-        response = search_result_view(request, 'test', range_start=[])
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_search_result_incorrect_data_range_start_dict(self):
-        request = self.factory.post('/search/q=test')
-        request.user = self.user
-
-        response = search_result_view(request, 'test', range_start={})
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_search_result_incorrect_data_range_start_float(self):
-        request = self.factory.post('/search/q=test')
-        request.user = self.user
-
-        response = search_result_view(request, 'test', range_start=8.51651)
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_search_result_incorrect_data_range_start_image(self):
-        with open(settings.PROJECT_DIR + "/sb_posts/" +
-                  "tests/images/test_image.jpg", "rb") as image_file:
-            image = b64encode(image_file.read())
-
-        request = self.factory.post('/search/q=test')
-        request.user = self.user
-
-        response = search_result_view(request, 'test', range_start=image)
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_search_result_incorrect_data_range_end_string(self):
-        request = self.factory.post('/search/q=test')
-        request.user = self.user
-
-        response = search_result_view(request, 'test', range_end='string')
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_search_result_incorrect_data_range_end_list(self):
-        request = self.factory.post('/search/q=test')
-        request.user = self.user
-
-        response = search_result_view(request, 'test', range_end=[])
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_search_result_incorrect_data_range_end_dict(self):
-        request = self.factory.post('/search/q=test')
-        request.user = self.user
-
-        response = search_result_view(request, 'test', range_end={})
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_search_result_incorrect_data_range_end_float(self):
-        request = self.factory.post('/search/q=test')
-        request.user = self.user
-
-        response = search_result_view(request, 'test', range_end=8.51651)
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_search_result_incorrect_data_range_end_image(self):
-        with open(settings.PROJECT_DIR + "/sb_posts/" +
-                  "tests/images/test_image.jpg", "rb") as image_file:
-            image = b64encode(image_file.read())
-
-        request = self.factory.post('/search/q=test')
-        request.user = self.user
-
-        response = search_result_view(request, 'test', range_end=image)
-
-        self.assertEqual(response.status_code, 400)
 
 
 class TestSearchResultAPI(TestCase):
@@ -261,8 +63,7 @@ class TestSearchResultAPI(TestCase):
 
         self.client.login(username=self.user.username,
                           password='testpassword')
-        request = self.client.get(reverse('search_result_api',kwargs={
-            'query_param': 'test', 'page': '1'}))
+        request = self.client.get(reverse('search_result_api'))
 
         self.assertEqual(request.status_code, 200)
 
@@ -276,8 +77,7 @@ class TestSearchResultAPI(TestCase):
             res_array.append(res)
 
         self.client.login(username=self.user.username, password='asdfa')
-        request = self.client.get(reverse('search_result_api',kwargs={
-            'query_param':'test', 'page': '1'}))
+        request = self.client.get(reverse('search_result_api'))
 
         self.assertEqual(request.status_code, 401)
 
@@ -369,10 +169,7 @@ class TestSearchResultAPIReturns(TestCase):
         time.sleep(2)
         self.client.login(username=self.user.username,
                           password='testpassword')
-        request = self.client.get(reverse('search_result_api',
-                                          kwargs={'query_param':
-                                                      'battery-powered',
-                                                  'page': '1'}))
+        request = self.client.get('/search/api/?q=battery-powered')
         self.assertEqual(request.status_code, 200)
         self.assertIn('question_uuid', request.content)
 
@@ -407,10 +204,7 @@ class TestSearchResultAPIReturns(TestCase):
                      })
         time.sleep(2)
         self.client.login(username=self.user.username, password='testpassword')
-        request = self.client.get(reverse('search_result_api',
-                                          kwargs={'query_param':
-                                                      'battery-powered',
-                                                  'page': '1'}))
+        request = self.client.get('/search/api/?q=battery-powered')
         self.assertGreaterEqual(len(loads(request.content)['html']), 1)
         self.assertEqual(request.status_code, 200)
         self.assertIn('question_uuid', request.content)
@@ -446,9 +240,7 @@ class TestSearchResultAPIReturns(TestCase):
                      })
         time.sleep(2)
         self.client.login(username=self.user.username, password='testpassword')
-        request = self.client.get(reverse('search_result_api',
-                                          kwargs={'query_param':'battery-powered',
-                                                  'page': '2'}))
+        request = self.client.get('/search/api/?q=battery-powered&page=2')
 
         self.assertEqual(len(loads(request.content)['html']), 10)
         self.assertEqual(request.status_code, 200)
@@ -494,10 +286,7 @@ class TestSearchResultAPIReturns(TestCase):
         time.sleep(3)
 
         self.client.login(username=user.username, password='testpassword')
-        request = self.client.get(reverse('search_result_api',
-                                          kwargs={'query_param':
-                                                      'battery-powered',
-                                                  'page': '3'}))
+        request = self.client.get('/search/api/?q=battery-powered&page=3')
 
         self.assertEqual(len(loads(request.content)['html']), 10)
         self.assertEqual(request.status_code, 200)
@@ -538,10 +327,7 @@ class TestSearchResultAPIReturns(TestCase):
                      })
         time.sleep(2)
         self.client.login(username=user.username, password='testpassword')
-        request = self.client.get(reverse('search_result_api',
-                                          kwargs={'query_param':
-                                                      'battery-powered',
-                                                  'page': '1'}))
+        request = self.client.get('/search/api/?q=battery-powered')
 
         self.assertEqual(request.status_code, 200)
         self.assertIn('<div>Sorry! There seems to be nothing here!</div>',
@@ -597,9 +383,7 @@ class TestSearchResultAPIReturns(TestCase):
                        'related_user': self.user.email})
         time.sleep(3)
         self.client.login(username=self.user.username, password='testpassword')
-        request = self.client.get(reverse('search_result_api',
-                                          kwargs={'query_param':'fossil fuels',
-                                                  'page': '1'}))
+        request = self.client.get('/search/api/?q=fossil fuels')
         result_dict = loads(request.content)
 
         res1 = SBQuestion.nodes.get(object_uuid=result_dict['html'][0]['question_uuid'])

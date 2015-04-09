@@ -123,7 +123,7 @@ class TestProfileInfoView(TestCase):
         addresses = Address.nodes.all()
         for address in addresses:
             if self.pleb.address.is_connected(address):
-                address.owner.disconnect(self.pleb)
+                address.owned_by.disconnect(self.pleb)
                 self.pleb.address.disconnect(address)
 
 

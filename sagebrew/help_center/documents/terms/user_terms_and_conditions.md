@@ -352,12 +352,17 @@ those you've gained through achieving [Tribune][7] status. This privilege is
 suspended after your sophomore year term 
 
 ## L. Definitions ##
-- Post
-- Content
-- Question 
-- Solution 
-- Conversation Platform ("Conversation") 
-- Tribune
+- Reputation: Reputation is Sagebrew's system of credibility. Reputation is gained by participating in the public Conversation.
+- Post: a post made to your own or a friend's wall. 
+- Content: (is this supposed to be context? comment?)
+- Context: information that accompanies a Question. Context should inform readers about the circumstances and importance of your Question. 
+- Question: A question posed in either the public or private Conversation. A Question includes context to provide a background to your question and inform others why your Question is important. 
+- Solution: A solution posed in response to a Question in the Conversation. 
+- Comment: A comment left on a Question or Solution that attempts to add relevent information. 
+- Conversation Platform ("Conversation"): A separate area for conversation. The "Conversation" refers to the format of dialogue in which one user poses a Question and other users provide potential Solutions. 
+- Flag: A flag is used to alert the Admin Council that there is something wrong with a Post, Question, Solution, or Comment. Flagged material will be reviewed by the Admin Council.  
+- Tribune: A Tribune is a member who has reached 12500 Reputation and can create groups and organizations. 
+- Tag: Tags can be attached to Questions. Tags help categorize Questions for optimal searchability. Examples of Tags are: Science, Economic, Social etc...
 
 
 

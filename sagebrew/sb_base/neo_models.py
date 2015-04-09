@@ -24,7 +24,7 @@ class EditRelationshipModel(StructuredRel):
 
 
 class PostedOnRel(StructuredRel):
-    shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    shared_on = DateTimeProperty(default=datetime.now(pytz.utc))
     rep_gained = IntegerProperty(default=0)
     rep_lost = IntegerProperty(default=0)
 
@@ -33,16 +33,16 @@ class VoteRelationship(StructuredRel):
     active = BooleanProperty(default=True)
     vote_type = BooleanProperty() # True is up False is down
     rep_adjust = IntegerProperty()
-    created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    created = DateTimeProperty(default=datetime.now(pytz.utc))
 
 
 class SBVoteableContent(StructuredNode):
     up_vote_adjustment = 0
     down_vote_adjustment = 0
     object_uuid = StringProperty(unique_index=True,
-                                 default=lambda: str(uuid1()))
+                                 default=str(uuid1()))
     content = StringProperty()
-    created = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    created = DateTimeProperty(default=datetime.now(pytz.utc))
 
     # relationships
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'OWNED_BY',
@@ -53,7 +53,7 @@ class SBVoteableContent(StructuredNode):
     #                              'VOTE')
     # views = RelationshipTo('sb_views.neo_models.SBView', 'VIEWS')
 
-    #methods
+    # methods
     @apply_defense
     def vote_content(self, vote_type, pleb):
         try:

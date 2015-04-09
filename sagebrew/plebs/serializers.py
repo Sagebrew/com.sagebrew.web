@@ -2,7 +2,8 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 from api.utils import spawn_task
-from sb_registration.utils import create_user_util
+from sb_registration.utils import create_user_util, create_address_long_hash
+from plebs.neo_models import Address
 
 from .tasks import pleb_user_update
 
@@ -38,7 +39,9 @@ class UserSerializer(serializers.Serializer):
         instance.last_name = validated_data.get('last_name',
                                                 instance.last_name)
         instance.email = validated_data.get('email', instance.email)
-        instance.set_password(validated_data.get('password', instance.email))
+        # TODO @tyler we need to test if this password logic works or if we
+        # should only set password if something is passed
+        instance.set_password(validated_data.get('password', instance.password))
         instance.save()
         spawn_task(task_func=pleb_user_update, task_param={
             "username": instance.username,
@@ -70,21 +73,39 @@ class PlebSerializerNeo(serializers.Serializer):
 
 
 class AddressSerializer(serializers.Serializer):
-    uuid = serializers.CharField(max_length=36)
+    object_uuid = serializers.CharField(read_only=True)
+    address_hash = serializers.CharField(read_only=True)
     url = serializers.HyperlinkedIdentityField(read_only=True,
-                                                view_name="address-detail",
-                                                lookup_field="uuid")
-    address = serializers.CharField(max_length=120)
-    address_additional = serializers.CharField(required=False, allow_blank=True,
-                                               allow_null=True, max_length=100)
+                                               view_name="address-detail",
+                                               lookup_field="object_uuid")
+    street = serializers.CharField(max_length=125)
+    street_additional = serializers.CharField(required=False, allow_blank=True,
+                                              allow_null=True, max_length=125)
     city = serializers.CharField(max_length=150)
-    state = serializers.CharField(max_length=2)
-    zipcode = serializers.CharField(max_length=10)
-    country = serializers.CharField(max_length=2, required=False,
-                                    allow_blank=True, allow_null=True)
+    state = serializers.CharField(max_length=50)
+    postal_code = serializers.CharField(max_length=15)
+    country = serializers.CharField()
+    latitude = serializers.FloatField()
+    longitude = serializers.FloatField()
+    congressional_district = serializers.CharField()
+    validated = serializers.BooleanField(required=False, read_only=True)
 
     def create(self, validated_data):
-        pass
+        address_hash = create_address_long_hash(validated_data)
+        validated_data["address_hash"] = address_hash
+        return Address(**validated_data).save()
 
     def update(self, instance, validated_data):
-        pass
+        instance.street = validated_data.get('street', instance.street)
+        instance.street_additional = validated_data.get(
+            'street_additional', instance.street_additional)
+        instance.city = validated_data.get("city", instance.city)
+        instance.state = validated_data.get("state", instance.state)
+        instance.postal_code = validated_data.get("postal_code",
+                                                  instance.postal_code)
+        instance.country = validated_data.get("country", instance.country)
+        # TODO need to re-evaluate where their district is and all that good
+        # stuff when they update. @Tyler we should rediscuss the address
+        # hashing and how this will affect that.
+        instance.save()
+        return instance

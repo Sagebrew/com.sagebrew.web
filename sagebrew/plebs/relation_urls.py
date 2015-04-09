@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 
 from .views import (get_friend_requests, create_friend_request,
-                         respond_friend_request)
+                    respond_friend_request)
 
 urlpatterns = patterns(
     'plebs.views',

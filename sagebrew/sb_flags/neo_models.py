@@ -7,7 +7,7 @@ from sb_base.neo_models import SBVoteableContent
 
 
 class FlagRelationship(StructuredRel):
-    flag_time = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    flag_time = DateTimeProperty(default=datetime.now(pytz.utc))
 
 
 class SBFlag(SBVoteableContent):

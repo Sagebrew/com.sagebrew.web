@@ -9,7 +9,7 @@ from sb_base.neo_models import SBNonVersioned
 
 
 class CommentedOnRel(StructuredRel):
-    shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    shared_on = DateTimeProperty(default=datetime.now(pytz.utc))
 
 
 class SBComment(SBNonVersioned):

@@ -16,14 +16,29 @@ from neomodel import CypherException
 from sagebrew import errors
 
 from api.utils import request_to_api
-from api.permissions import IsSelfOrReadOnly, IsSelf
+from api.permissions import IsSelfOrReadOnly, IsSelf, IsUserOrAdmin
 from sb_comments.serializers import CommentSerializer
 
-
-from .serializers import UserSerializer, PlebSerializerNeo
-from .neo_models import Pleb
+from .serializers import UserSerializer, PlebSerializerNeo, AddressSerializer
+from .neo_models import Pleb, Address
 
 logger = getLogger('loggly_logs')
+
+
+class AddressViewSet(viewsets.ModelViewSet):
+    queryset = Address.nodes.all()
+    serializer_class = AddressSerializer
+    lookup_field = 'object_uuid'
+
+    permission_classes = (IsAuthenticated, IsUserOrAdmin)
+
+    def perform_create(self, serializer):
+        pleb = Pleb.nodes.get(username=self.request.user.username)
+        instance = serializer.save()
+        instance.owner.connect(pleb)
+        instance.save()
+        pleb.address.connect(instance)
+        pleb.save()
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -77,6 +92,18 @@ class ProfileViewSet(viewsets.GenericViewSet):
             return Response(errors.CYPHER_EXCEPTION,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return queryset
+
+    def create(self, request):
+        """
+        Currently a profile is generated for a user when the base user is
+        created. We currently don't support creating a profile through an
+        endpoint due to the confirmation process and links that need to be
+        made.
+        :param request:
+        :return:
+        """
+        return Response({"detail": "TBD"},
+                        status=status.HTTP_501_NOT_IMPLEMENTED)
 
     def list(self, request):
         queryset = self.get_queryset()
@@ -171,12 +198,17 @@ class ProfileViewSet(viewsets.GenericViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def friend_requests(self, request, username=None):
+        # TODO we should probably make some sort of "notification" list view
+        # or it can be more specific and be a friend request list view. But
+        # that way we can get the pagination functionality easily and break out
+        # html rendering. We can wait on it though until we transition to
+        # JS framework
         single_object = self.get_object(username=username)
         if isinstance(single_object, Response):
             return single_object
         try:
             friend_requests = single_object.get_friend_requests_received()
-        except(CypherException, IOError) as e:
+        except(CypherException, IOError):
             logger.exception("ProfileGenericViewSet friends")
             return Response(errors.CYPHER_EXCEPTION,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -194,8 +226,9 @@ class ProfileViewSet(viewsets.GenericViewSet):
                     request=request)
             else:
                 friend_url = reverse('profile-detail',
-                    kwargs={'username': friend_request["from"]},
-                    request=request)
+                                     kwargs={
+                                     'username': friend_request["from"]},
+                                     request=request)
                 response = request_to_api(friend_url, request.user.username,
                                           req_method="GET")
                 friend_request["from"] = response.json()
@@ -233,8 +266,10 @@ class ProfileViewSet(viewsets.GenericViewSet):
                     request=request)
             else:
                 friend_url = reverse('profile-detail',
-                    kwargs={'username': notification["from_info"]["username"]},
-                    request=request)
+                                     kwargs={
+                                     'username': notification["from_info"][
+                                         "username"]},
+                                     request=request)
                 response = request_to_api(friend_url, request.user.username,
                                           req_method="GET")
                 notification["from"] = response.json()
@@ -245,7 +280,7 @@ class ProfileViewSet(viewsets.GenericViewSet):
                 notification['from'] = from_user_response.json()
         if html == 'true':
             html = render_to_string('notifications.html',
-                                {"notifications": notifications})
+                                    {"notifications": notifications})
             return Response(html, status=status.HTTP_200_OK)
         return Response(notifications, status=status.HTTP_200_OK)
 
@@ -305,3 +340,17 @@ class ProfileViewSet(viewsets.GenericViewSet):
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def campaigning_local_representatives(self, request, username=None):
         pass
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
+    def address(self, request, username=None):
+        single_object = self.get_object(username=username)
+        if isinstance(single_object, Response):
+            return single_object
+        try:
+            address = single_object.address.all()[0]
+        except(CypherException, IOError, IndexError):
+            return Response(errors.CYPHER_EXCEPTION,
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        address_serializer = AddressSerializer(address,
+                                               context={'request': request})
+        return Response(address_serializer.data, status=status.HTTP_200_OK)

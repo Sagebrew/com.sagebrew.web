@@ -9,7 +9,7 @@ from api.utils import request_to_api
 
 
 class SBPrivilege(StructuredNode):
-    object_uuid = StringProperty(default=lambda: str(uuid1()))
+    object_uuid = StringProperty(default=str(uuid1()))
     name = StringProperty(unique_index=True)
 
     #relationships
@@ -56,7 +56,7 @@ class SBPrivilege(StructuredNode):
 
 
 class SBAction(StructuredNode):
-    object_uuid = StringProperty(default=lambda: str(uuid1()))
+    object_uuid = StringProperty(default=str(uuid1()))
     action = StringProperty(default="")
     object_type = StringProperty()#one of the object types specified in settings.KNOWN_TYPES
     url = StringProperty()
@@ -84,7 +84,7 @@ class SBAction(StructuredNode):
 
 
 class SBRestriction(StructuredNode):
-    object_uuid = StringProperty(default=lambda: str(uuid1()), unique_index=True)
+    object_uuid = StringProperty(default=str(uuid1()), unique_index=True)
     base = BooleanProperty(default=False)
     name = StringProperty(unique_index=True)
     url = StringProperty()

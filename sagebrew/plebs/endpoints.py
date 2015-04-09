@@ -102,32 +102,32 @@ class ProfileViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_501_NOT_IMPLEMENTED)
 
     @detail_route(methods=['get'])
-    def solutions(self, request):
+    def solutions(self, request, username=None):
         return Response({"detail": "TBD"},
                         status=status.HTTP_501_NOT_IMPLEMENTED)
 
     @detail_route(methods=['get'])
-    def questions(self, request):
+    def questions(self, request, username=None):
         return Response({"detail": "TBD"},
                         status=status.HTTP_501_NOT_IMPLEMENTED)
 
     @detail_route(methods=['get'], serializer_class=CommentSerializer)
-    def comments(self, request):
+    def comments(self, request, username=None):
         return Response({"detail": "TBD"},
                         status=status.HTTP_501_NOT_IMPLEMENTED)
 
     @detail_route(methods=['get'])
-    def friend(self, request):
+    def friend(self, request, username=None):
         return Response({"detail": "TBD"},
                         status=status.HTTP_501_NOT_IMPLEMENTED)
 
     @detail_route(methods=['get'])
-    def unfriend(self, request):
+    def unfriend(self, request, username=None):
         return Response({"detail": "TBD"},
                         status=status.HTTP_501_NOT_IMPLEMENTED)
 
     @detail_route(methods=['get'])
-    def friends(self, request):
+    def friends(self, request, username=None):
         # Discuss, does it make more sense to have friends here or have a
         # separate endpoint /v1/friends/ that just
         # lists all the friends for the user who is making the query? I think
@@ -146,7 +146,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
-    def friend_requests(self, request):
+    def friend_requests(self, request, username=None):
         # TODO we should probably make some sort of "notification" list view
         # or it can be more specific and be a friend request list view. But
         # that way we can get the pagination functionality easily and break out
@@ -188,7 +188,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return Response(friend_requests, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
-    def notifications(self, request):
+    def notifications(self, request, username=None):
         single_object = self.get_object()
         if isinstance(single_object, Response):
             return single_object
@@ -223,10 +223,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return Response(notifications, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
-    def reputation(self, request):
+    def reputation(self, request, username=None):
         single_object = self.get_object()
-        if isinstance(single_object, Response):
-            return single_object
         reputation = {"reputation": single_object.reputation}
         return Response(reputation, status=status.HTTP_200_OK)
 
@@ -235,7 +233,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         pass
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
-    def senators(self, request):
+    def senators(self, request, username=None):
         single_object = self.get_object()
         if isinstance(single_object, Response):
             return single_object
@@ -251,7 +249,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return Response(senators, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
-    def house_rep(self, request):
+    def house_rep(self, request, username=None):
         single_object = self.get_object()
         if isinstance(single_object, Response):
             return single_object
@@ -280,7 +278,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         pass
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
-    def address(self, request):
+    def address(self, request, username=None):
         single_object = self.get_object()
         try:
             address = single_object.address.all()[0]

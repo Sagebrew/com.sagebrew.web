@@ -41,7 +41,6 @@ class ProfilePageTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_without_post(self):
-        wall = self.pleb.wall.all()[0]
         request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
         response = profile_page(request, self.pleb.username)
@@ -52,7 +51,7 @@ class ProfilePageTest(TestCase):
         test_post.save()
         wall = self.pleb.wall.all()[0]
         test_post.posted_on_wall.connect(wall)
-        wall.post.connect(test_post)
+        wall.posts.connect(test_post)
         rel = test_post.owned_by.connect(self.pleb)
         rel.save()
         rel_from_pleb = self.pleb.posts.connect(test_post)
@@ -68,7 +67,7 @@ class ProfilePageTest(TestCase):
         test_post.save()
         wall = self.pleb.wall.all()[0]
         test_post.posted_on_wall.connect(wall)
-        wall.post.connect(test_post)
+        wall.posts.connect(test_post)
         rel = test_post.owned_by.connect(self.pleb)
         rel.save()
         rel_from_pleb = self.pleb.posts.connect(test_post)
@@ -95,7 +94,7 @@ class ProfilePageTest(TestCase):
         test_post.save()
         wall = self.pleb.wall.all()[0]
         test_post.posted_on_wall.connect(wall)
-        wall.post.connect(test_post)
+        wall.posts.connect(test_post)
         rel = test_post.owned_by.connect(self.pleb)
         rel.save()
         rel_from_pleb = self.pleb.posts.connect(test_post)
@@ -123,7 +122,7 @@ class ProfilePageTest(TestCase):
             test_post = SBPost(content='test', object_uuid=str(uuid1()))
             test_post.save()
             test_post.posted_on_wall.connect(wall)
-            wall.post.connect(test_post)
+            wall.posts.connect(test_post)
             rel = test_post.owned_by.connect(self.pleb)
             rel.save()
             rel_from_pleb = self.pleb.posts.connect(test_post)
@@ -131,8 +130,9 @@ class ProfilePageTest(TestCase):
             post_array.append(test_post)
         self.client.login(username=self.username, password=self.password)
         response = self.client.get(reverse("profile_page",
-                                           kwargs={"pleb_username":
-                                                       self.pleb.username}),
+                                           kwargs={
+                                               "pleb_username":
+                                                   self.pleb.username}),
                                    follow=True)
         self.assertEqual(response.status_code, 200)
         for post in post_array:
@@ -150,7 +150,7 @@ class ProfilePageTest(TestCase):
                 test_post = SBPost(content='test', object_uuid=str(uuid1()))
                 test_post.save()
                 test_post.posted_on_wall.connect(wall)
-                wall.post.connect(test_post)
+                wall.posts.connect(test_post)
                 rel = test_post.owned_by.connect(test_pleb)
                 rel.save()
                 rel_from_pleb = test_pleb.posts.connect(test_post)
@@ -159,7 +159,7 @@ class ProfilePageTest(TestCase):
         test_post = SBPost(content='test', object_uuid=str(uuid1()))
         test_post.save()
         test_post.posted_on_wall.connect(wall)
-        wall.post.connect(test_post)
+        wall.posts.connect(test_post)
         rel = test_post.owned_by.connect(self.pleb)
         rel.save()
         rel_from_pleb = self.pleb.posts.connect(test_post)
@@ -187,7 +187,7 @@ class ProfilePageTest(TestCase):
                 test_post = SBPost(content='test', object_uuid=str(uuid1()))
                 test_post.save()
                 test_post.posted_on_wall.connect(wall)
-                wall.post.connect(test_post)
+                wall.posts.connect(test_post)
                 rel = test_post.owned_by.connect(test_pleb)
                 rel.save()
                 rel_from_pleb = test_pleb.posts.connect(test_post)
@@ -217,7 +217,7 @@ class ProfilePageTest(TestCase):
         test_post = SBPost(content='test', object_uuid=str(uuid1()))
         test_post.save()
         test_post.posted_on_wall.connect(wall)
-        wall.post.connect(test_post)
+        wall.posts.connect(test_post)
         rel = test_post.owned_by.connect(self.pleb)
         rel.save()
         rel_from_pleb = self.pleb.posts.connect(test_post)
@@ -240,7 +240,6 @@ class ProfilePageTest(TestCase):
         response = profile_page(request, 'fake_username')
 
         self.assertEqual(response.status_code, 302)
-
 
 
 class TestProfilePageAbout(TestCase):
@@ -322,7 +321,7 @@ class TestCreateFriendRequestView(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.email2= "bounce@simulator.amazonses.com"
+        self.email2 = "bounce@simulator.amazonses.com"
         res = create_user_util_test(self.email2)
         self.assertNotEqual(res, False)
         wait_util(res)
@@ -420,6 +419,7 @@ class TestCreateFriendRequestView(TestCase):
 
         self.assertEqual(res.status_code, 400)
 
+
 class TestGetFriendRequestsView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
@@ -429,7 +429,7 @@ class TestGetFriendRequestsView(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.email2= "bounce@simulator.amazonses.com"
+        self.email2 = "bounce@simulator.amazonses.com"
         res = create_user_util_test(self.email2)
         self.assertNotEqual(res, False)
         wait_util(res)
@@ -516,6 +516,7 @@ class TestGetFriendRequestsView(TestCase):
 
         self.assertEqual(res.status_code, 400)
 
+
 class TestRespondFriendRequestView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
@@ -525,7 +526,7 @@ class TestRespondFriendRequestView(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.email2= "bounce@simulator.amazonses.com"
+        self.email2 = "bounce@simulator.amazonses.com"
         res = create_user_util_test(self.email2)
         self.assertNotEqual(res, False)
         wait_util(res)

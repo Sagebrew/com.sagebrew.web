@@ -3,6 +3,8 @@ from django.conf.urls import patterns, url, include
 from rest_framework import routers
 
 from plebs.endpoints import UserViewSet, ProfileViewSet
+from sb_posts.endpoints import (WallPostsListCreate,
+                                WallPostsRetrieveUpdateDestroy, post_renderer)
 
 router = routers.SimpleRouter()
 
@@ -14,6 +16,15 @@ router.register(r'users', UserViewSet, base_name="user")
 router.register(r'profiles', ProfileViewSet, base_name="profile")
 
 urlpatterns = patterns(
-    'plebs.views',
+    'plebs.endpoints',
     url(r'^', include(router.urls)),
+    url(r'^profiles/(?P<username>[A-Za-z0-9.@_%+-]{1,30})/wall/$',
+        WallPostsListCreate.as_view(), name="profile-wall"),
+    url(r'^profiles/(?P<username>[A-Za-z0-9.@_%+-]{1,30})/'
+        r'wall/render/$',
+        post_renderer, name="profile-wall-html"),
+    url(r'^profiles/(?P<username>[A-Za-z0-9.@_%+-]{1,30})/wall/'
+        r'(?P<post_uuuid>[A-Za-z0-9.@_%+-]{36,36})/$',
+        WallPostsRetrieveUpdateDestroy.as_view(),
+        name="profile-post"),
 )

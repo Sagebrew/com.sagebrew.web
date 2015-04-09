@@ -26,6 +26,7 @@ class QuestionSerializerNeo(serializers.Serializer):
     solution_count = serializers.CharField(read_only=True)
     html_content = serializers.SerializerMethodField()
     profile = serializers.SerializerMethodField()
+    created = serializers.DateTimeField(read_only=True)
     is_closed = serializers.BooleanField(read_only=True)
     to_be_deleted = serializers.BooleanField(read_only=True)
 
@@ -45,8 +46,8 @@ class QuestionSerializerNeo(serializers.Serializer):
             owner = obj.owned_by.all()[0]
         except(CypherException, IOError, IndexError):
             return None
-        html = request.QUERY_PARAMS.get('html', 'false').lower()
-        expand = request.QUERY_PARAMS.get('expand', "false").lower()
+        html = request.query_params.get('html', 'false').lower()
+        expand = request.query_params.get('expand', "false").lower()
         if html == "true":
             expand = "true"
         if expand == "true":
@@ -67,8 +68,8 @@ class QuestionSerializerNeo(serializers.Serializer):
             owner = obj.owned_by.all()[0]
         except(CypherException, IOError, IndexError):
             return None
-        html = request.QUERY_PARAMS.get('html', 'false').lower()
-        expand = request.QUERY_PARAMS.get('expand', "false").lower()
+        html = request.query_params.get('html', 'false').lower()
+        expand = request.query_params.get('expand', "false").lower()
         if html == "true":
             expand = "true"
         if expand == "true":
@@ -91,4 +92,7 @@ class QuestionSerializerNeo(serializers.Serializer):
         return str(upvotes - downvotes)
 
     def get_html_content(self, obj):
-        return markdown.markdown(obj.content)
+        if obj.content is not None:
+            return markdown.markdown(obj.content)
+        else:
+            return ""

@@ -54,18 +54,19 @@ def save_comment_view(request):
         comment_owner = request_to_api(
             owner_url, username=request.user.username,
             req_method="GET")
+        comment_owner = comment_owner.json()
+        profile = comment_owner.pop("profile", None)
         comment_data = {
-            "comments": [{
-                "object_uuid": task_data['comment_uuid'],
-                "content": comment_form.cleaned_data['content'],
-                "vote_type": None,
-                "upvotes": 0,
-                "downvotes": 0,
-                "vote_count": str(0),
-                "created": datetime.now(pytz.utc),
-                "last_edited_on": datetime.now(pytz.utc),
-                "owner": comment_owner.json(),
-            }],
+            "object_uuid": task_data['comment_uuid'],
+            "content": comment_form.cleaned_data['content'],
+            "vote_type": None,
+            "upvotes": 0,
+            "downvotes": 0,
+            "vote_count": str(0),
+            "created": datetime.now(pytz.utc),
+            "last_edited_on": datetime.now(pytz.utc),
+            "owner_object": comment_owner,
+            "profile": profile,
             "parent_object": request.user.username
         }
         html = render_to_string("sb_comments.html", comment_data)

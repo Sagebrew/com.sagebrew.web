@@ -61,3 +61,30 @@ class PlebSerializerNeo(serializers.Serializer):
         return reverse(
             'profile_page', kwargs={'pleb_username': obj.username},
             request=self.context['request'])
+
+    def create(self, validated_data):
+        pass
+
+    def update(self, instance, validated_data):
+        pass
+
+
+class AddressSerializer(serializers.Serializer):
+    uuid = serializers.CharField(max_length=36)
+    url = serializers.HyperlinkedIdentityField(read_only=True,
+                                                view_name="address-detail",
+                                                lookup_field="uuid")
+    address = serializers.CharField(max_length=120)
+    address_additional = serializers.CharField(required=False, allow_blank=True,
+                                               allow_null=True, max_length=100)
+    city = serializers.CharField(max_length=150)
+    state = serializers.CharField(max_length=2)
+    zipcode = serializers.CharField(max_length=10)
+    country = serializers.CharField(max_length=2, required=False,
+                                    allow_blank=True, allow_null=True)
+
+    def create(self, validated_data):
+        pass
+
+    def update(self, instance, validated_data):
+        pass

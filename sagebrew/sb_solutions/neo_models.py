@@ -32,7 +32,8 @@ class SBSolution(SBVersioned):
 
     def get_url(self):
         return reverse("question_detail_page",
-                       kwargs={"question_uuid": self.solution_to.all()[0].object_uuid})
+                       kwargs={"question_uuid":
+                                   self.solution_to.all()[0].object_uuid})
 
     def create_notification(self, pleb, sb_object=None):
         return {

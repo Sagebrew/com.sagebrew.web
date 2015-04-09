@@ -10,6 +10,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       BooleanProperty, FloatProperty, CypherException,
                       RelationshipFrom, DoesNotExist)
 
+from sb_docstore.utils import get_vote_count as doc_vote_count
 from sb_base.decorators import apply_defense
 from plebs.neo_models import RelationshipWeight
 
@@ -120,10 +121,13 @@ class SBVoteableContent(StructuredNode):
 
     @apply_defense
     def get_vote_count(self):
-        try:
-            return self.get_upvote_count() - self.get_downvote_count()
-        except CypherException as e:
-            return e
+        upvotes = doc_vote_count(self.object_uuid, 1)
+        downvotes = doc_vote_count(self.object_uuid, 0)
+        vote_count = upvotes - downvotes
+        if vote_count == 0:
+            vote_count = self.get_upvote_count() - self.get_downvote_count()
+        return vote_count
+
 
     @apply_defense
     def get_rep_breakout(self):

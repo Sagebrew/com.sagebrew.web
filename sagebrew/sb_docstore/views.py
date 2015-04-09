@@ -21,11 +21,11 @@ def get_updates_from_dynamo(request):
         return Response(status=500)
     for object_uuid in request.DATA['object_uuids']:
         edit_res.append(get_user_updates(username=pleb.username,
-                                        object_uuid=object_uuid,
-                                        table_name='edits'))
+                                         object_uuid=object_uuid,
+                                         table_name='edits'))
         vote_res.append(get_user_updates(username=pleb.username,
-                                        object_uuid=object_uuid,
-                                        table_name='votes'))
+                                         object_uuid=object_uuid,
+                                         table_name='votes'))
     for item in edit_res:
         for edit in item:
             task_data = {

@@ -61,6 +61,3 @@ class PlebSerializerNeo(serializers.Serializer):
         return reverse(
             'profile_page', kwargs={'pleb_username': obj.username},
             request=self.context['request'])
-
-    def update():
-        pass

@@ -23,6 +23,8 @@ class UserSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True, write_only=True)
     password = serializers.CharField(max_length=128, required=True,
                                      write_only=True)
+    new_password = serializers.CharField(max_length=128, required=False,
+                                         write_only=True)
     birthday = serializers.DateTimeField(write_only=True)
     href = serializers.HyperlinkedIdentityField(view_name='user-detail',
                                                 lookup_field="username")
@@ -41,7 +43,9 @@ class UserSerializer(serializers.Serializer):
         instance.email = validated_data.get('email', instance.email)
         # TODO @tyler we need to test if this password logic works or if we
         # should only set password if something is passed
-        instance.set_password(validated_data.get('password', instance.password))
+        if instance.check_password(validated_data.get('password', "")) is True:
+            instance.set_password(validated_data.get(
+                'new_password', validated_data.get('password', "")))
         instance.save()
         spawn_task(task_func=pleb_user_update, task_param={
             "username": instance.username,

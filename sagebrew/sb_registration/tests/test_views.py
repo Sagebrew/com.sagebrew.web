@@ -126,7 +126,6 @@ class TestProfileInfoView(TestCase):
                 address.owned_by.disconnect(self.pleb)
                 self.pleb.address.disconnect(address)
 
-
     def test_user_info_population_no_birthday(self):
         my_dict = {'date_of_birth': [u'']}
         request = self.factory.post('/registration/profile_information',

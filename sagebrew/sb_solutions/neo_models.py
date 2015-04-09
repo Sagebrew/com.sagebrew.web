@@ -17,10 +17,10 @@ class SBSolution(SBVersioned):
     object_type = "02241aee-644f-11e4-9ad9-080027242395"
     table = 'public_solutions'
     action = "offered a solution to a question"
+    sb_name = "solution"
     up_vote_adjustment = 10
     down_vote_adjustment = 10
     down_vote_cost = 2
-    sb_name = "solution"
     added_to_search_index = BooleanProperty(default=False)
     search_id = StringProperty()
 
@@ -32,8 +32,9 @@ class SBSolution(SBVersioned):
 
     def get_url(self):
         return reverse("question_detail_page",
-                       kwargs={"question_uuid":
-                                   self.solution_to.all()[0].object_uuid})
+                       kwargs={
+                           "question_uuid":
+                               self.solution_to.all()[0].object_uuid})
 
     def create_notification(self, pleb, sb_object=None):
         return {
@@ -65,7 +66,7 @@ class SBSolution(SBVersioned):
     def edit_content(self, content, pleb):
         try:
             edit_solution = SBSolution(object_uuid=str(uuid1()), original=False,
-                                   content=content).save()
+                                       content=content).save()
             self.edits.connect(edit_solution)
             edit_solution.edit_to.connect(self)
             self.last_edited_on = datetime.now(pytz.utc)
@@ -112,5 +113,3 @@ class SBSolution(SBVersioned):
             return solution_dict
         except CypherException as e:
             return e
-
-

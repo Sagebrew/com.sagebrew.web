@@ -19,6 +19,7 @@ from sb_base.decorators import apply_defense
 class SBQuestion(SBVersioned, SBTagContent):
     table = 'public_questions'
     action = "asked a question"
+    sb_name = "question"
     up_vote_adjustment = 5
     down_vote_adjustment = 2
     object_type = "0274a216-644f-11e4-9ad9-080027242395"
@@ -188,8 +189,9 @@ class SBQuestion(SBVersioned, SBTagContent):
                 "is_closed": self.is_closed,
                 "solution_count": self.solution_count,
                 "last_edited_on": self.last_edited_on,
-                "upvotes": self.upvotes,
-                "downvotes": self.downvotes,
+                "upvotes": self.get_upvote_count(),
+                "downvotes": self.get_downvote_count(),
+                "vote_count": self.get_vote_count(),
                 "owner": owner_name,
                 "owner_profile_url": owner_profile_url,
                 "created": self.created,

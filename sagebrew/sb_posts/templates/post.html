@@ -77,7 +77,7 @@
                 <div class="row sb_votes vote_wrapper" id="vote_{{ object_uuid }}">
                     <div class="col-lg-12 sb_up_vote_wrapper">
                         <div style="display: none" class="sb_upvote_count{{ object_uuid }}">{{ upvotes }}</div>
-                        {% if vote_type == "false" or vote_type == None %}
+                        {% if not vote_type or vote_type == None %}
                             <button class="btn sb_btn sb_btn_vote vote_up vote_up_small vote_object-action vote_{{ object_uuid }}"
                                data-object_uuid="{{ object_uuid }}"
                                data-vote_type=true
@@ -107,7 +107,7 @@
                         {{ vote_count }}
                     </div>
                     <div class="col-lg-12 col-md-12 sb_down_vote_wrapper">
-                        {% if vote_type == "true" or vote_type == None %}
+                        {% if vote_type or vote_type == None %}
                             <button class="btn sb_btn sb_btn_vote vote_down vote_down_small vote_object-action vote_{{ object_uuid }}"
                                data-object_uuid="{{ object_uuid }}"
                                data-vote_type=false

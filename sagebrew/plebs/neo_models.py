@@ -11,6 +11,10 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       CypherException, DoesNotExist)
 
 
+def get_current_time():
+    return datetime.now(pytz.utc)
+
+
 class RelationshipWeight(StructuredRel):
     weight = IntegerProperty(default=150)
     status = StringProperty(default='seen')
@@ -19,11 +23,11 @@ class RelationshipWeight(StructuredRel):
 
 class SearchCount(StructuredRel):
     times_searched = IntegerProperty(default=1)
-    last_searched = DateTimeProperty(default=datetime.now(pytz.utc))
+    last_searched = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
 
 class FriendRelationship(StructuredRel):
-    since = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    since = DateTimeProperty(default=get_current_time)
     friend_type = StringProperty(default="friends")
     currently_friends = BooleanProperty(default=True)
     time_unfriended = DateTimeProperty(default=None)
@@ -44,19 +48,19 @@ class TagRelationship(StructuredRel):
 
 
 class PostObjectCreated(StructuredRel):
-    shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    shared_on = DateTimeProperty(default=get_current_time)
     rep_gained = IntegerProperty(default=0)
     rep_lost = IntegerProperty(default=0)
 
 
 class ActionActiveRel(StructuredRel):
-    gained_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    gained_on = DateTimeProperty(default=get_current_time)
     active = BooleanProperty(default=True)
     lost_on = DateTimeProperty()
 
 
 class RestrictionRel(StructuredRel):
-    gained_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    gained_on = DateTimeProperty(default=get_current_time)
     active = BooleanProperty()
 
 
@@ -67,20 +71,19 @@ class OfficialRelationship(StructuredRel):
 
 
 class OauthUser(StructuredNode):
-    object_uuid = StringProperty(default=lambda: str(uuid1()))
-    web_address = StringProperty(
-        default=lambda: settings.WEB_ADDRESS + '/o/token/')
+    object_uuid = StringProperty(default=uuid1, unique_index=True)
+    web_address = StringProperty(default=settings.WEB_ADDRESS + '/o/token/')
     access_token = StringProperty()
     expires_in = IntegerProperty()
     refresh_token = StringProperty()
-    last_modified = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    last_modified = DateTimeProperty(default=get_current_time)
     token_type = StringProperty(default="Bearer")
 
 
 class BetaUser(StructuredNode):
     email = StringProperty(unique_index=True)
     invited = BooleanProperty(default=False)
-    signup_date = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    signup_date = DateTimeProperty(default=get_current_time)
 
     def invite(self):
         from sb_registration.utils import sb_send_email
@@ -343,20 +346,20 @@ class Pleb(StructuredNode):
                     # TODO see if we can do this with a serializer instead
                     from_user = notification.notification_from.all()[0]
                     notification_dict = {
-                            "object_uuid": notification.object_uuid,
-                            "from_info": {
-                                "profile_pic": from_user.profile_pic,
-                                "full_name": from_user.get_full_name(),
-                                "username": from_user.username
-                            },
-                            "action": notification.action,
-                            "url": notification.url,
-                            "date_sent": notification.time_sent,
-                            "date_seen": notification.time_seen,
-                            "seen": notification.seen,
-                            "about": notification.about,
-                            "about_id": notification.about_id,
-                        }
+                        "object_uuid": notification.object_uuid,
+                        "from_info": {
+                            "profile_pic": from_user.profile_pic,
+                            "full_name": from_user.get_full_name(),
+                            "username": from_user.username
+                        },
+                        "action": notification.action,
+                        "url": notification.url,
+                        "date_sent": notification.time_sent,
+                        "date_seen": notification.time_seen,
+                        "seen": notification.seen,
+                        "about": notification.about,
+                        "about_id": notification.about_id,
+                    }
                     notification_list.append(notification_dict)
                 except IndexError:
                     continue
@@ -395,6 +398,7 @@ class Pleb(StructuredNode):
 
 
 class Address(StructuredNode):
+    object_uuid = StringProperty(default=uuid1, unique_index=True)
     street = StringProperty()
     street_additional = StringProperty()
     city = StringProperty()
@@ -404,17 +408,16 @@ class Address(StructuredNode):
     latitude = FloatProperty()
     longitude = FloatProperty()
     congressional_district = StringProperty()
-    address_hash = StringProperty(unique_index=True)
     validated = BooleanProperty(default=True)
 
     # Relationships
-    address = RelationshipTo("Pleb", 'LIVES_IN')
+    owned_by = RelationshipTo("Pleb", 'LIVES_IN')
 
 
 class FriendRequest(StructuredNode):
-    object_uuid = StringProperty(unique_index=True)
+    object_uuid = StringProperty(default=uuid1, unique_index=True)
     seen = BooleanProperty(default=False)
-    time_sent = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    time_sent = DateTimeProperty(default=get_current_time)
     time_seen = DateTimeProperty(default=None)
     response = StringProperty(default=None)
 

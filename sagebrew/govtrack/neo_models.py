@@ -21,12 +21,12 @@ class GTPersonHistorical(StructuredNode):
     bioguideid = StringProperty()
     cspandid = IntegerProperty()
     gt_id = IntegerProperty(index=True)
-    object_uuid = StringProperty(unique_index=True, default=lambda: uuid1())
+    object_uuid = StringProperty(unique_index=True, default=uuid1)
 
 
 class GTPerson(StructuredNode):
     bioguideid = StringProperty(default="")
-    birthday = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    birthday = DateTimeProperty(default=datetime.now(pytz.utc))
     cspanid = IntegerProperty()
     firstname = StringProperty(default="")
     gender = StringProperty(default="")
@@ -54,7 +54,7 @@ class GTRole(StructuredNode):
     current = BooleanProperty(index=True)
     description = StringProperty()
     district = IntegerProperty(index=True)
-    enddate = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    enddate = DateTimeProperty(default=datetime.now(pytz.utc))
     role_id = IntegerProperty(unique_index=True)
     leadership_title = StringProperty()
     party = StringProperty(index=True)
@@ -65,7 +65,7 @@ class GTRole(StructuredNode):
     senator_class_label = StringProperty()
     senator_rank = StringProperty()
     senator_rank_label = StringProperty()
-    startdate = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    startdate = DateTimeProperty(default=datetime.now(pytz.utc))
     state = StringProperty(index=True)
     title = StringProperty(index=True)
     title_long = StringProperty()

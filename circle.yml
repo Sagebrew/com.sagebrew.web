@@ -38,7 +38,6 @@ dependencies:
         background: true
     - sleep 5
     - python ~/com.sagebrew.web/sagebrew/manage.py create_dynamo_tables
-    - python /home/ubuntu/$CIRCLE_PROJECT_REPONAME/sagebrew/manage.py collectstatic --noinput
 
 checkout:
   post:

@@ -316,7 +316,7 @@ function loadSolutions(limit, offset){
             // functionality that wasn't intuitive. Hopefully transitioning to
             // a JS Framework allows us to better handle this feature.
             if(total <= data["count"] && total < 150){
-                loadSolutions(limit, offset + limit);
+                loadSolutions(limit, total);
             }
             enable_solution_functionality(data['results']['ids']);
             // TODO This can probably be changed to grab the href and append
@@ -886,6 +886,10 @@ function enable_comment_functionality(populated_ids){
     enable_object_functionality(populated_ids);
     show_edit_comment(populated_ids);
     comment_validator();
+}
+
+function enable_question_summary_functionality(populated_ids) {
+    vote_objects(populated_ids);
 }
 
 function enable_question_functionality(populated_ids) {

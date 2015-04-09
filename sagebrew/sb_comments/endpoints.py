@@ -14,8 +14,6 @@ from neomodel.exception import CypherException
 
 from sagebrew import errors
 from sb_base.neo_models import SBContent
-from sb_docstore.utils import (get_dynamo_table)
-from sb_votes.utils import determine_vote_type
 from plebs.neo_models import Pleb
 
 from .neo_models import SBComment
@@ -91,7 +89,7 @@ class ObjectCommentsListCreate(ListCreateAPIView):
             queryset = SBContent.nodes.get(
                 object_uuid=self.kwargs[self.lookup_field])
             queryset = queryset.comments.all()
-        except(CypherException, IOError) as e:
+        except(CypherException, IOError):
             logger.exception("CommentGenericViewSet queryset")
             return Response(errors.CYPHER_EXCEPTION,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -120,28 +118,22 @@ class ObjectCommentsListCreate(ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         comment_data = request.data
         comment_data['parent_object'] = self.kwargs[self.lookup_field]
-
-        serializer = CommentSerializer(data=comment_data,
-                                       context={"request": request})
+        serializer = self.get_serializer(data=comment_data)
         if serializer.is_valid():
-            # TODO should probably spawn neo connection off into task
-            # and instead make relation in dynamo. Can include the given
-            # uuid in the task spawned off. Also as mentioned in the
-            # serializer, we should capture the user from the request,
-            # get the pleb (maybe in the task) and use that to call
-            # comment_relations
-            instance = serializer.save(
-                owner=Pleb.nodes.get(username=request.user.username))
+            pleb = Pleb.nodes.get(username=request.user.username)
             parent_object = SBContent.nodes.get(
                 object_uuid=self.kwargs[self.lookup_field])
-            parent_object.comments.connect(instance)
-            parent_object.save()
+            serializer.save(owner=pleb, parent_object=parent_object)
+
+            """
+            # This is more to what we'd like to do with the dynamo middleware
             serializer = CommentSerializer(instance,
                                            context={"request": request})
             put_item = dict(serializer.data)
             put_item['parent_object'] = parent_object.object_uuid
             table = get_dynamo_table("comments")
             table.put_item(data=put_item)
+            """
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -159,13 +151,14 @@ def comment_renderer(request, object_uuid=None):
     kwargs = {"object_uuid": object_uuid}
     comments = ObjectCommentsListCreate.as_view()(request, *args, **kwargs)
     for comment in comments.data['results']:
-        comment['vote_type'] = determine_vote_type(
-            comment['object_uuid'], request.user.username)
         comment['last_edited_on'] = datetime.strptime(
             comment[
                 'last_edited_on'][:len(comment['last_edited_on']) - 6],
             '%Y-%m-%dT%H:%M:%S.%f')
         comment["current_user_username"] = request.user.username
+        # This is a work around for django templates and our current
+        # implementation of spacing for vote count in the template.
+        comment["vote_count"] = str(comment["vote_count"])
         html_array.append(render_to_string('sb_comments.html',  comment))
         id_array.append(comment["object_uuid"])
     comments.data['results'] = {"html": html_array, "ids": id_array}

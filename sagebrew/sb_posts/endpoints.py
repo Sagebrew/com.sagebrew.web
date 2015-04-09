@@ -16,7 +16,6 @@ from neomodel import CypherException
 from sagebrew import errors
 
 from sb_docstore.utils import (get_dynamo_table)
-from sb_votes.utils import determine_vote_type
 from plebs.neo_models import Pleb
 
 from .serializers import PostSerializerNeo
@@ -191,8 +190,6 @@ class WallPostsListCreate(ListCreateAPIView):
                 html_array = []
                 id_array = []
                 post = dict(serializer.data)
-                post['vote_type'] = determine_vote_type(
-                    post['object_uuid'], request.user.username)
                 post['last_edited_on'] = datetime.strptime(
                     post['last_edited_on'][:len(post['last_edited_on']) - 6],
                     '%Y-%m-%dT%H:%M:%S.%f')
@@ -218,8 +215,9 @@ def post_renderer(request, username=None):
     kwargs = {"username": username}
     posts = WallPostsListCreate.as_view()(request, *args, **kwargs)
     for post in posts.data['results']:
-        post['vote_type'] = determine_vote_type(
-            post['object_uuid'], request.user.username)
+        # This is a work around for django templates and our current
+        # implementation of spacing for vote count in the template.
+        post["vote_count"] = str(post["vote_count"])
         post['last_edited_on'] = datetime.strptime(
             post['last_edited_on'][:len(post['last_edited_on']) - 6],
             '%Y-%m-%dT%H:%M:%S.%f')

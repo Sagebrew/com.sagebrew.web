@@ -14,11 +14,11 @@
                         # TODO BETA ADD IN feature
                     {% endcomment %}
                     <li>
-                        <a href="{% url 'about_page' page_user.username %}">
+                        <a href='#'>
                             About</a>
                     </li>
                     <li>
-                        <a href="{% url 'reputation_page' page_user.username %}">
+                        <a href='#'>
                             Reputation</a>
                     </li>
                     <li>
@@ -27,7 +27,7 @@
                 {% endif %}
 
         </ul>
-    {% elif is_friend == False and page_user.username != request.user.username %}
+    {% elif not is_friend and page_user.username != request.user.username %}
         <div class="sb_friend_btn_wrapper">
            <div class="col-lg-3 col-md-3 col-lg-offset-9 col-md-offset-9">
            {% comment %}

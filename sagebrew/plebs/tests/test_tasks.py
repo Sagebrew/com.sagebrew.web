@@ -108,7 +108,7 @@ class TestCreateWallTask(TestCase):
 
     def test_create_wall_task_pleb_has_wall(self):
         wall = SBWall(wall_id=str(uuid1())).save()
-        wall.owner.connect(self.fake_pleb)
+        wall.owned_by.connect(self.fake_pleb)
         self.fake_pleb.wall.connect(wall)
         task_data = {
             'user_instance': self.fake_user,
@@ -123,7 +123,7 @@ class TestCreateWallTask(TestCase):
     def test_create_wall_task_pleb_has_more_than_one_wall(self):
         wall = SBWall(wall_id=str(uuid1())).save()
         wall2 = SBWall(wall_id=str(uuid1())).save()
-        wall.owner.connect(self.fake_pleb)
+        wall.owned_by.connect(self.fake_pleb)
         self.fake_pleb.wall.connect(wall)
         self.fake_pleb.wall.connect(wall2)
         task_data = {

@@ -73,7 +73,7 @@ class SBPost(SBNonVersioned):
                 comment_array.append(comment.get_single_dict())
             try:
                 parent_object = self.posted_on_wall.all()[
-                                    0].owner.all()[0].username
+                                    0].owned_by.all()[0].username
             except(CypherException, IOError, IndexError) as e:
                 return e
             return {

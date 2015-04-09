@@ -1,4 +1,5 @@
 import pytz
+from uuid import uuid1
 
 from datetime import datetime
 
@@ -6,10 +7,14 @@ from neomodel import (StructuredNode, StringProperty, DateTimeProperty,
                       RelationshipTo, BooleanProperty)
 
 
+def get_current_time():
+    return datetime.now(pytz.utc)
+
+
 class NotificationBase(StructuredNode):
-    object_uuid = StringProperty(unique_index=True)
+    object_uuid = StringProperty(default=uuid1, unique_index=True)
     seen = BooleanProperty(default=False)
-    time_sent = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    time_sent = DateTimeProperty(default=get_current_time)
     time_seen = DateTimeProperty(default=None)
     about = StringProperty()
     about_id = StringProperty()

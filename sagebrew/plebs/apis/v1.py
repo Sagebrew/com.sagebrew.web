@@ -2,7 +2,7 @@ from django.conf.urls import patterns, url, include
 
 from rest_framework import routers
 
-from plebs.endpoints import UserViewSet, ProfileViewSet
+from plebs.endpoints import UserViewSet, ProfileViewSet, AddressViewSet
 from sb_posts.endpoints import (WallPostsListCreate,
                                 WallPostsRetrieveUpdateDestroy, post_renderer)
 
@@ -14,6 +14,7 @@ router = routers.SimpleRouter()
 # that may need additional endpoints
 router.register(r'users', UserViewSet, base_name="user")
 router.register(r'profiles', ProfileViewSet, base_name="profile")
+router.register(r'addresses', AddressViewSet, base_name="address")
 
 urlpatterns = patterns(
     'plebs.endpoints',

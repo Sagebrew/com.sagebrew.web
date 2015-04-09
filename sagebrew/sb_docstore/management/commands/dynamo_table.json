@@ -1,25 +1,11 @@
 [
     {
-        "table_name": "comments",
-        "hash_key": "parent_object",
-        "range_key": "created"
-    },
-    {
         "table_name": "votes",
         "hash_key": "parent_object",
         "range_key": "user",
         "local_index_name": "VoteStatusIndex",
         "local_index": "status",
         "type": "N"
-    },
-    {
-        "table_name": "public_questions",
-        "hash_key": "object_uuid"
-    },
-    {
-        "table_name": "public_solutions",
-        "hash_key": "parent_object",
-        "range_key": "object_uuid"
     },
     {
         "table_name": "posts",

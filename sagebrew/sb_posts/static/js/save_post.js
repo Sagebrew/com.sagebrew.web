@@ -1,6 +1,7 @@
 $( document ).ready(function() {
     // This function hits the SBPost API and saves off a given post from a user
 	$(".post-action").click(function(event){
+        $("#sb_btn_post").attr("disabled", "disabled");
 		event.preventDefault();
 		$.ajaxSetup({
 		    beforeSend: function (xhr, settings) {
@@ -19,7 +20,11 @@ $( document ).ready(function() {
             success: function(data) {
                 $('textarea#post_input_id').val("");
                 $("#wall_app").prepend(data['html']);
-                enable_single_post_functionality(data["object_uuid"]);
+                $("#sb_btn_post").removeAttr("disabled");
+                enable_single_post_functionality(data["ids"]);
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                $("#sb_btn_post").removeAttr("disabled");
             }
 		});
 	});

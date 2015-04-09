@@ -53,7 +53,7 @@ class PostSerializerNeo(ContentSerializer):
             return obj
         try:
             owner_wall = obj.posted_on_wall.all()[0]
-            wall_owner = owner_wall.owner.all()[0]
+            wall_owner = owner_wall.owned_by.all()[0]
         except(CypherException, IOError, IndexError):
             return None
         html = request.query_params.get('html', 'false').lower()
@@ -76,7 +76,7 @@ class PostSerializerNeo(ContentSerializer):
             return obj
         try:
             owner_wall = obj.posted_on_wall.all()[0]
-            wall_owner = owner_wall.owner.all()[0]
+            wall_owner = owner_wall.owned_by.all()[0]
         except(CypherException, IOError, IndexError):
             return None
         html = request.query_params.get('html', 'false').lower()

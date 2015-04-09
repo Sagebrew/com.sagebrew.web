@@ -33,7 +33,7 @@ class AddressViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         pleb = Pleb.nodes.get(username=self.request.user.username)
         instance = serializer.save()
-        instance.owner.connect(pleb)
+        instance.owned_by.connect(pleb)
         instance.save()
         pleb.address.connect(instance)
         pleb.save()

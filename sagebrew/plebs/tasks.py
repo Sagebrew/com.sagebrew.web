@@ -147,7 +147,7 @@ def create_wall_task(user_instance=None):
     else:
         try:
             wall = SBWall(wall_id=str(uuid1())).save()
-            wall.owner.connect(pleb)
+            wall.owned_by.connect(pleb)
             pleb.wall.connect(wall)
         except(CypherException, IOError) as e:
             raise create_wall_task.retry(exc=e, countdown=3,

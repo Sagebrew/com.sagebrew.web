@@ -411,7 +411,7 @@ class Address(StructuredNode):
     validated = BooleanProperty(default=True)
 
     # Relationships
-    owner = RelationshipTo("Pleb", 'LIVES_IN')
+    owned_by = RelationshipTo("Pleb", 'LIVES_IN')
 
 
 class FriendRequest(StructuredNode):

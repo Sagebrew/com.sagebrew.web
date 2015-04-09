@@ -6,12 +6,12 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        return obj.owner == request.user
+        return obj.owned_by.username == request.user.username
 
 
 class IsOwnerOrAdmin(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if (obj.owner.username == request.user.username or
+        if (obj.owned_by.username == request.user.username or
                 request.user.is_staff()):
             return True
         else:
@@ -23,12 +23,12 @@ class IsSelfOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        return obj == request.user
+        return obj.username == request.user.username
 
 
 class IsSelf(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        return obj == request.user
+        return obj.username == request.user.username
 
 
 class IsUserOrReadOnly(permissions.BasePermission):

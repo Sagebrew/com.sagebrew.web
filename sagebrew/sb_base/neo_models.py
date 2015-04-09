@@ -19,12 +19,16 @@ from plebs.neo_models import RelationshipWeight, Pleb
 logger = getLogger('loggly_logs')
 
 
+def get_current_time():
+    return datetime.now(pytz.utc)
+
+
 class EditRelationshipModel(StructuredRel):
     time_edited = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
 
 class PostedOnRel(StructuredRel):
-    shared_on = DateTimeProperty(default=datetime.now(pytz.utc))
+    shared_on = DateTimeProperty(default=get_current_time)
     rep_gained = IntegerProperty(default=0)
     rep_lost = IntegerProperty(default=0)
 
@@ -33,16 +37,15 @@ class VoteRelationship(StructuredRel):
     active = BooleanProperty(default=True)
     vote_type = BooleanProperty() # True is up False is down
     rep_adjust = IntegerProperty()
-    created = DateTimeProperty(default=datetime.now(pytz.utc))
+    created = DateTimeProperty(default=get_current_time)
 
 
 class SBVoteableContent(StructuredNode):
     up_vote_adjustment = 0
     down_vote_adjustment = 0
-    object_uuid = StringProperty(unique_index=True,
-                                 default=str(uuid1()))
+    object_uuid = StringProperty(unique_index=True, default=uuid1)
     content = StringProperty()
-    created = DateTimeProperty(default=datetime.now(pytz.utc))
+    created = DateTimeProperty(default=get_current_time)
 
     # relationships
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'OWNED_BY',

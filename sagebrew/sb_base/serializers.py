@@ -5,8 +5,6 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from neomodel.exception import CypherException
-
 from plebs.serializers import PlebSerializerNeo, UserSerializer
 
 
@@ -34,7 +32,7 @@ class ContentSerializer(serializers.Serializer):
             return obj
         try:
             owner = obj.owned_by.all()[0]
-        except(CypherException, IOError, IndexError):
+        except(IOError):
             return None
         html = request.query_params.get('html', 'false').lower()
         expand = request.query_params.get('expand', "false").lower()
@@ -56,7 +54,7 @@ class ContentSerializer(serializers.Serializer):
             return obj
         try:
             owner = obj.owned_by.all()[0]
-        except(CypherException, IOError, IndexError):
+        except(IOError):
             return None
         html = request.query_params.get('html', 'false').lower()
         expand = request.query_params.get('expand', "false").lower()

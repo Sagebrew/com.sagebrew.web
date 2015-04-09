@@ -21,7 +21,7 @@ class GTPersonHistorical(StructuredNode):
     bioguideid = StringProperty()
     cspandid = IntegerProperty()
     gt_id = IntegerProperty(index=True)
-    object_uuid = StringProperty(unique_index=True, default=str(uuid1()))
+    object_uuid = StringProperty(unique_index=True, default=uuid1)
 
 
 class GTPerson(StructuredNode):

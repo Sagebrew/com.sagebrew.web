@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from api.utils import spawn_task
-from sb_registration.utils import create_user_util, create_address_long_hash
+from api.utils import spawn_task, request_to_api
+from sb_registration.utils import create_user_util
 from plebs.neo_models import Address
 
 from .tasks import pleb_user_update
@@ -52,18 +52,12 @@ class UserSerializer(serializers.Serializer):
 
 
 class PlebSerializerNeo(serializers.Serializer):
-    base_user = serializers.HyperlinkedIdentityField(view_name='user-detail',
-                                                     lookup_field="username")
+    base_user = serializers.SerializerMethodField()
     href = serializers.HyperlinkedIdentityField(
         view_name='profile-detail', lookup_field="username")
     profile_pic = serializers.CharField(read_only=True)
     reputation = serializers.IntegerField(read_only=True)
     url = serializers.SerializerMethodField()
-
-    def get_url(self, obj):
-        return reverse(
-            'profile_page', kwargs={'pleb_username': obj.username},
-            request=self.context['request'])
 
     def create(self, validated_data):
         pass
@@ -71,10 +65,26 @@ class PlebSerializerNeo(serializers.Serializer):
     def update(self, instance, validated_data):
         pass
 
+    def get_url(self, obj):
+        return reverse(
+            'profile_page', kwargs={'pleb_username': obj.username},
+            request=self.context['request'])
+
+    def get_base_user(self, obj):
+        request = self.context['request']
+        expand = request.query_params.get('expand', 'false').lower()
+        username = obj.username
+        user_url = reverse(
+            'user-detail', kwargs={'username': username}, request=request)
+        if expand == "true":
+            response = request_to_api(user_url, obj.username, req_method="GET")
+            return response.json()
+        else:
+            return user_url
+
 
 class AddressSerializer(serializers.Serializer):
     object_uuid = serializers.CharField(read_only=True)
-    address_hash = serializers.CharField(read_only=True)
     url = serializers.HyperlinkedIdentityField(read_only=True,
                                                view_name="address-detail",
                                                lookup_field="object_uuid")
@@ -91,8 +101,6 @@ class AddressSerializer(serializers.Serializer):
     validated = serializers.BooleanField(required=False, read_only=True)
 
     def create(self, validated_data):
-        address_hash = create_address_long_hash(validated_data)
-        validated_data["address_hash"] = address_hash
         return Address(**validated_data).save()
 
     def update(self, instance, validated_data):

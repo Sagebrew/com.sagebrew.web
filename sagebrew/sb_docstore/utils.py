@@ -151,27 +151,6 @@ def update_doc(table, object_uuid, update_data, parent_object="",
     return res
 
 
-@apply_defense
-def get_solution_doc(question_uuid, solution_uuid,
-                     solution_table="public_solutions"):
-    conn = connect_to_dynamo()
-    if isinstance(conn, Exception):
-        return conn
-    try:
-        solution_table = Table(table_name=get_table_name(solution_table),
-                               connection=conn)
-    except JSONResponseError as e:
-        return e
-    try:
-        solution = solution_table.get_item(parent_object=question_uuid,
-                                           object_uuid=solution_uuid)
-    except JSONResponseError as e:
-        return e
-    except ItemNotFound:
-        return False
-    return dict(solution)
-
-
 def convert_dynamo_content(raw_content):
     content = dict(raw_content)
     content['upvotes'] = get_vote_count(content['object_uuid'], 1)

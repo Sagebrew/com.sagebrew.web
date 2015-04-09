@@ -4,7 +4,7 @@ from neomodel import (StructuredNode, StringProperty, RelationshipTo)
 
 
 class BadgeBase(StructuredNode):
-    object_uuid = StringProperty(default=str(uuid1()), unique_index=True)
+    object_uuid = StringProperty(default=uuid1, unique_index=True)
     badge_name = StringProperty()
     image_color = StringProperty()
     image_grey = StringProperty()
@@ -39,7 +39,7 @@ class BadgeBase(StructuredNode):
 
 
 class BadgeGroup(StructuredNode):
-    object_uuid = StringProperty(default=str(uuid1()), unique_index=True)
+    object_uuid = StringProperty(default=uuid1, unique_index=True)
     group_name = StringProperty()
     description = StringProperty()
 

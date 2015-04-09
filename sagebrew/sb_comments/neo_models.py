@@ -8,8 +8,12 @@ from sb_base.decorators import apply_defense
 from sb_base.neo_models import SBNonVersioned
 
 
+def get_current_time():
+    return datetime.now(pytz.utc)
+
+
 class CommentedOnRel(StructuredRel):
-    shared_on = DateTimeProperty(default=datetime.now(pytz.utc))
+    shared_on = DateTimeProperty(default=get_current_time)
 
 
 class SBComment(SBNonVersioned):

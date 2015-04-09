@@ -41,32 +41,6 @@ class TestDocstoreUtils(TestCase):
 
         self.assertEqual(res, data)
 
-    def test_update_doc(self):
-        uuid = str(uuid1())
-        now = unicode(datetime.now(pytz.utc))
-        data = {"parent_object": uuid, "time": now, "user": self.pleb.username,
-                "status": 1, "object_uuid": uuid}
-        update_data = [{'update_key': 'status', 'update_value': 2}]
-        res = add_object_to_table('public_questions', data)
-        self.assertTrue(res)
-
-        res = update_doc('public_questions', uuid, update_data)
-
-        self.assertFalse(isinstance(res, Exception))
-
-    def test_update_doc_parent_object(self):
-        uuid = str(uuid1())
-        now = unicode(datetime.now(pytz.utc))
-        data = {"parent_object": uuid, "time": now, "user": self.pleb.username,
-                "status": 1, "object_uuid": uuid}
-        update_data = [{'update_key': 'status', 'update_value': 2}]
-        res = add_object_to_table('public_solutions', data)
-        self.assertTrue(res)
-
-        res = update_doc('public_solutions', uuid, update_data, uuid)
-
-        self.assertFalse(isinstance(res, Exception))
-
     def test_update_doc_datetime(self):
         uuid = str(uuid1())
         now = unicode(datetime.now(pytz.utc))

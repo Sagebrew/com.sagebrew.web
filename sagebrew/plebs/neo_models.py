@@ -11,6 +11,10 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       CypherException, DoesNotExist)
 
 
+def get_current_time():
+    return datetime.now(pytz.utc)
+
+
 class RelationshipWeight(StructuredRel):
     weight = IntegerProperty(default=150)
     status = StringProperty(default='seen')
@@ -23,7 +27,7 @@ class SearchCount(StructuredRel):
 
 
 class FriendRelationship(StructuredRel):
-    since = DateTimeProperty(default=datetime.now(pytz.utc))
+    since = DateTimeProperty(default=get_current_time)
     friend_type = StringProperty(default="friends")
     currently_friends = BooleanProperty(default=True)
     time_unfriended = DateTimeProperty(default=None)
@@ -44,19 +48,19 @@ class TagRelationship(StructuredRel):
 
 
 class PostObjectCreated(StructuredRel):
-    shared_on = DateTimeProperty(default=datetime.now(pytz.utc))
+    shared_on = DateTimeProperty(default=get_current_time)
     rep_gained = IntegerProperty(default=0)
     rep_lost = IntegerProperty(default=0)
 
 
 class ActionActiveRel(StructuredRel):
-    gained_on = DateTimeProperty(default=datetime.now(pytz.utc))
+    gained_on = DateTimeProperty(default=get_current_time)
     active = BooleanProperty(default=True)
     lost_on = DateTimeProperty()
 
 
 class RestrictionRel(StructuredRel):
-    gained_on = DateTimeProperty(default=datetime.now(pytz.utc))
+    gained_on = DateTimeProperty(default=get_current_time)
     active = BooleanProperty()
 
 
@@ -67,20 +71,19 @@ class OfficialRelationship(StructuredRel):
 
 
 class OauthUser(StructuredNode):
-    object_uuid = StringProperty(default=str(uuid1()),
-                                 unique_index=True)
+    object_uuid = StringProperty(default=uuid1, unique_index=True)
     web_address = StringProperty(default=settings.WEB_ADDRESS + '/o/token/')
     access_token = StringProperty()
     expires_in = IntegerProperty()
     refresh_token = StringProperty()
-    last_modified = DateTimeProperty(default=datetime.now(pytz.utc))
+    last_modified = DateTimeProperty(default=get_current_time)
     token_type = StringProperty(default="Bearer")
 
 
 class BetaUser(StructuredNode):
     email = StringProperty(unique_index=True)
     invited = BooleanProperty(default=False)
-    signup_date = DateTimeProperty(default=datetime.now(pytz.utc))
+    signup_date = DateTimeProperty(default=get_current_time)
 
     def invite(self):
         from sb_registration.utils import sb_send_email
@@ -395,7 +398,7 @@ class Pleb(StructuredNode):
 
 
 class Address(StructuredNode):
-    object_uuid = StringProperty(default=str(uuid1()), unique_index=True)
+    object_uuid = StringProperty(default=uuid1, unique_index=True)
     street = StringProperty()
     street_additional = StringProperty()
     city = StringProperty()
@@ -405,7 +408,6 @@ class Address(StructuredNode):
     latitude = FloatProperty()
     longitude = FloatProperty()
     congressional_district = StringProperty()
-    address_hash = StringProperty()
     validated = BooleanProperty(default=True)
 
     # Relationships
@@ -413,9 +415,9 @@ class Address(StructuredNode):
 
 
 class FriendRequest(StructuredNode):
-    object_uuid = StringProperty(default=str(uuid1()), unique_index=True)
+    object_uuid = StringProperty(default=uuid1, unique_index=True)
     seen = BooleanProperty(default=False)
-    time_sent = DateTimeProperty(default=datetime.now(pytz.utc))
+    time_sent = DateTimeProperty(default=get_current_time)
     time_seen = DateTimeProperty(default=None)
     response = StringProperty(default=None)
 

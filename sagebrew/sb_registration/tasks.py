@@ -6,8 +6,6 @@ from plebs.neo_models import Pleb
 from sb_tag.neo_models import SBTag
 from plebs.neo_models import Address
 
-from .utils import create_address_long_hash
-
 
 @shared_task()
 def update_interests(email, interests):
@@ -39,26 +37,18 @@ def store_address(username, address_clean):
         raise store_address.retry(exc=e, countdown=3, max_retries=None)
     except (CypherException, IOError) as e:
         raise store_address.retry(exc=e, countdown=3, max_retries=None)
-    address_hash = create_address_long_hash(address_clean)
-
     try:
-        address = Address.nodes.get(address_hash=address_hash)
-    except (Address.DoesNotExist, DoesNotExist):
-        try:
-            address = Address(address_hash=address_hash,
-                              street=address_clean['primary_address'],
-                              street_aditional=address_clean[
-                                  'street_additional'],
-                              city=address_clean['city'],
-                              state=address_clean['state'],
-                              postal_code=address_clean['postal_code'],
-                              latitude=address_clean['latitude'],
-                              longitude=address_clean['longitude'],
-                              congressional_district=address_clean[
-                                  'congressional_district'])
-            address.save()
-        except (CypherException, IOError) as e:
-            raise store_address.retry(exc=e, countdown=3, max_retries=None)
+        address = Address(street=address_clean['primary_address'],
+                          street_aditional=address_clean[
+                              'street_additional'],
+                          city=address_clean['city'],
+                          state=address_clean['state'],
+                          postal_code=address_clean['postal_code'],
+                          latitude=address_clean['latitude'],
+                          longitude=address_clean['longitude'],
+                          congressional_district=address_clean[
+                              'congressional_district'])
+        address.save()
     except (CypherException, IOError) as e:
         raise store_address.retry(exc=e, countdown=3, max_retries=None)
 

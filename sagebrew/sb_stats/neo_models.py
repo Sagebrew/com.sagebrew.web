@@ -5,7 +5,7 @@ from neomodel import (StringProperty, IntegerProperty, CypherException,
 
 
 class SBViewCount(StructuredNode):
-    object_uuid = StringProperty(unique_index=True, default=str(uuid1()))
+    object_uuid = StringProperty(unique_index=True, default=uuid1)
     view_count = IntegerProperty(default=0)
 
     def increment(self):

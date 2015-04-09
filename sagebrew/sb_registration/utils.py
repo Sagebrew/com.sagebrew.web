@@ -29,35 +29,6 @@ def calc_age(birthday):
                                          < (birthday.month - birthday.day))
 
 
-def create_address_long_hash(address):
-    if "street" in address:
-        address["primary_address"] = address.pop("street", None)
-    if "street_additional" in address:
-        address_string = "%s%s%s%s%s%s%f%f%s" % (address["primary_address"],
-                                                 address["street_additional"],
-                                                 address["city"],
-                                                 address["state"],
-                                                 address["postal_code"],
-                                                 address["country"],
-                                                 address["latitude"],
-                                                 address["longitude"],
-                                                 address[
-                                                     "congressional_district"])
-    else:
-        address_string = "%s%s%s%s%s%f%f%s" % (address["primary_address"],
-                                               address["city"],
-                                               address["state"],
-                                               address["postal_code"],
-                                               address["country"],
-                                               address["latitude"],
-                                               address["longitude"],
-                                               address[
-                                                   "congressional_district"])
-    address_hash = hashlib.sha224(address_string).hexdigest()
-
-    return address_hash
-
-
 @apply_defense
 def upload_image(folder_name, file_uuid, image_file):
     '''

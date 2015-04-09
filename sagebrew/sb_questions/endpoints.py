@@ -13,8 +13,6 @@ from neomodel import CypherException
 
 from sagebrew import errors
 
-from sb_docstore.utils import (get_dynamo_table)
-
 from .serializers import QuestionSerializerNeo
 from .neo_models import SBQuestion
 from .utils import render_question_object
@@ -90,11 +88,6 @@ class QuestionViewSet(viewsets.GenericViewSet):
             return Response(instance.data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, object_uuid=None):
-        table = get_dynamo_table("public_questions")
-        if isinstance(table, Exception) is True:
-            logger.exception("QuestionsViewSet get_object")
-            return Response(errors.DYNAMO_TABLE_EXCEPTION,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         html = self.request.query_params.get('html', 'false').lower()
 
         queryset = self.get_object(object_uuid)

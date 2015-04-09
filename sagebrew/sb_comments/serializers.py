@@ -1,8 +1,6 @@
 from rest_framework.reverse import reverse
 from rest_framework import serializers
 
-from neomodel.exception import CypherException
-
 from sb_base.serializers import ContentSerializer
 from .neo_models import SBComment
 
@@ -15,21 +13,32 @@ class CommentSerializer(ContentSerializer):
         # create method of the endpoint as it is easier to gather the related
         # object from there.
         owner = validated_data.pop('owner', None)
+        parent_object = validated_data.pop('parent_object', None)
         comment = SBComment(**validated_data).save()
-        comment.owned_by.connect(owner)
-        owner.comments.connect(comment)
-
+        if owner is not None:
+            comment.owned_by.connect(owner)
+            owner.comments.connect(comment)
+        if parent_object is not None:
+            parent_object.comments.connect(comment)
+            comment.comment_on.connect(parent_object)
         return comment
 
     def update(self, instance, validated_data):
-        # TODO get from dynamo and then spawn task to store in Neo
-        pass
+        instance.meta = validated_data.get('meta', instance.meta)
+        instance.name = validated_data.get('name', instance.name)
+        instance.assets = validated_data.get('assets', instance.assets)
+        instance.project_type = validated_data.get("project_type",
+                                                   instance.project_type)
+        instance.combo_product = validated_data.get("combo_product",
+                                                    instance.combo_product)
+        instance.save()
+        return instance
 
     def get_url(self, obj):
         # TODO @tyler is there a cleaner way you can think to do this?
         try:
             parent_object = obj.comment_on.all()[0]
-        except(IOError, IndexError, CypherException):
+        except(IndexError):
             return None
         return reverse('%s-detail' % parent_object.sb_name,
                        kwargs={'object_uuid': parent_object.object_uuid},
@@ -38,7 +47,7 @@ class CommentSerializer(ContentSerializer):
     def get_comment_on(self, obj):
         try:
             parent_object = obj.comment_on.all()[0]
-        except(IOError, IndexError, CypherException):
+        except(IndexError):
             return None
         return reverse('%s-detail' % parent_object.sb_name,
                        kwargs={'object_uuid': parent_object.object_uuid},

@@ -1,6 +1,14 @@
 import logging
 from json import dumps
 
+from rest_framework.views import exception_handler
+from rest_framework import status
+from rest_framework.response import Response
+
+from sagebrew import errors
+
+from neomodel.exception import CypherException
+
 logger = logging.getLogger('loggly_logs')
 
 
@@ -27,4 +35,24 @@ def defensive_exception(function_name, exception, return_value, message=None):
     return return_value
 
 
+def custom_exception_handler(exc, context):
+    if isinstance(exc, CypherException) or isinstance(exc, IOError):
+        data = errors.CYPHER_EXCEPTION
+        logger.exception("%s Cypher Exception" % context['view'])
+        return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    response = exception_handler(exc, context)
+
+    if response is not None:
+        response.data['status_code'] = response.status_code
+        if "developer_message" not in response.data:
+            response.data['developer_message'] = "Sorry we don't currently " \
+                                                 "have a suggestion for this " \
+                                                 "issue. Please feel free to " \
+                                                 "ping us at " \
+                                                 "support@sagebrew.com and " \
+                                                 "let us know what you're " \
+                                                 "seeing."
+
+    return response
 

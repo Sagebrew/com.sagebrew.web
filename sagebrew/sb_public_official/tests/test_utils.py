@@ -3,6 +3,7 @@ from uuid import uuid1
 from datetime import datetime
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.utils.safestring import SafeText
 
 from neomodel import CypherException
 
@@ -42,4 +43,4 @@ class TestPrepareSearchHTML(TestCase):
             pass
 
         res = prepare_official_search_html(test_official.object_uuid)
-        self.assertIsInstance(res, str)
+        self.assertIsInstance(res, SafeText)

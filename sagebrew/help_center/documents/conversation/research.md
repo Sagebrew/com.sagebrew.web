@@ -97,7 +97,10 @@ When should Randomized Controlled Clinical Trials be cited?
 * Whenever possible: these trials deliver hard, conclusive evidence of causation
  
 ### Double Blind Randomized Controlled Clinical Trials ###
-Double Blind Randomized Controlled Clinical Trials are just like Randomized Controlled Clinical Trials, but in these trials not even the conductors of the trial know which participants recieve the placebo. This removes any bias that might result on behalf of those conducting the experiment. 
+Double Blind Randomized Controlled Clinical Trials are just like Randomized 
+Controlled Clinical Trials, but in these trials not even the conductors of the 
+trial know which participants receive the placebo. This removes any bias that 
+might result on behalf of those conducting the experiment. 
 
 #### Limitations/Reservations ####
 Same as Randomized Controlled Clinical Trials. 

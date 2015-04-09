@@ -2,7 +2,6 @@
 {% load staticfiles %}
 {% block title %}{{ page_user.first_name}} {{ page_user.last_name }}{% endblock title %}
 {% block content %}
-{%  include "search.html" %}
 <div class="row-fluid sb_page">
     <div class="col-lg-10 col-lg-offset-1 col-md-12 col-sm-12 col-xs-12">
         <div class="sb_wall sb_settings_wall">
@@ -44,37 +43,56 @@
                                 <h5>Update Address</h5>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <input type="text"
-                                       placeholder="Street Address"
-                                       class="form-control input-lg">
+                        <form id="address">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <input type="text"
+                                           id="sb_primary"
+                                           placeholder="Street Address"
+                                           class="form-control input-lg">
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <input type="text"
-                                       placeholder="Address Line 2"
-                                       class="form-control input-lg">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <input type="text"
+                                           id="sb_secondary"
+                                           placeholder="Address Line 2"
+                                           class="form-control input-lg">
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-4 col-md-4">
+                            <div class="row">
+                                <div class="col-lg-4 col-md-4">
+                                    <input type="text"
+                                           id="sb_city"
+                                           placeholder="City"
+                                           class="form-control input-lg">
+                                </div>
+                                <div class="col-lg-4 col-md-4">
+                                    <input type="text"
+                                           id="sb_state"
+                                           placeholder="State"
+                                           class="form-control input-lg">
+                                </div>
+                                <div class="col-lg-4 col-md-4">
+                                    <input type="text"
+                                           id="sb_zip"
+                                           placeholder="Zip Code"
+                                           class="form-control input-lg">
+                                </div>
                                 <input type="text"
-                                       placeholder="City"
-                                       class="form-control input-lg">
-                            </div>
-                            <div class="col-lg-4 col-md-4">
+                                        id="id_valid"
+                                        style="display: none">
                                 <input type="text"
-                                       placeholder="State"
-                                       class="form-control input-lg">
-                            </div>
-                            <div class="col-lg-4 col-md-4">
+                                        id="id_congressional_district"
+                                        style="display: none">
                                 <input type="text"
-                                       placeholder="Zip Code"
-                                       class="form-control input-lg">
+                                        id="id_latitude"
+                                        style="display: none">
+                                <input type="text"
+                                        id="id_longitude"
+                                        style="display: none">
                             </div>
-                        </div>
+                        </form>
                         <div class="row">
                             <div class="col-lg-12">
                                 <h5>Change Password</h5>
@@ -127,10 +145,14 @@
         </div>
     </div>
 </div>
+
 {% endblock %}
 {% block footer %}
 {% endblock %}
 {% block scripts %}
     {{ block.super }}
-
+    <script src="{% static 'js/address_validation.js' %}"></script>
 {% endblock scripts %}
+{% block external_scripts %}
+    <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/2.4/jquery.liveaddress.min.js"></script>
+{% endblock external_scripts %}

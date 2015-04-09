@@ -68,6 +68,14 @@ class UserViewSet(viewsets.ModelViewSet):
 
         return Response(rest_response, status=status.HTTP_200_OK)
 
+    def perform_destroy(self, instance):
+        instance.is_active = False
+        instance.save()
+        # TODO we can also go and delete the pleb and content from here
+        # or require additional requests but think we could spawn a task
+        # that did all that deconstruction work rather than requiring an
+        # app the hit a thousand endpoints.
+
 
 class ProfileViewSet(viewsets.GenericViewSet):
     serializer_class = PlebSerializerNeo

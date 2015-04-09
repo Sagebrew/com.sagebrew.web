@@ -79,23 +79,6 @@ class SBVoteableContent(StructuredNode):
             return e
 
     @apply_defense
-    def update_vote_count(self):
-        vote_count = 0
-        try:
-            votes = self.votes.all()
-            for vote in votes:
-                rel = self.votes.relationship(vote)
-                if rel.vote_type == 1:
-                    vote_count += 1
-                elif rel.vote_type == 0:
-                    vote_count -= 1
-            self.vote_count = vote_count
-            self.save()
-            return True
-        except (CypherException, IOError) as e:
-            return e
-
-    @apply_defense
     def remove_vote(self, rel):
         try:
             rel.active = False

@@ -14,6 +14,9 @@ from neomodel import (StringProperty, IntegerProperty,
 from sb_base.neo_models import SBVersioned, SBTagContent
 from sb_tag.neo_models import TagRelevanceModel
 from sb_base.decorators import apply_defense
+from plebs.serializers import UserSerializer, PlebSerializerNeo
+
+from .serializers import QuestionSerializerNeo
 
 
 class SBQuestion(SBVersioned, SBTagContent):
@@ -233,7 +236,6 @@ class SBQuestion(SBVersioned, SBTagContent):
             owner_profile_url = owner.username
             question_dict = {
                 "title": self.get_most_recent_edit().title,
-                "question_content": self.get_most_recent_edit().content,
                 "object_uuid": self.object_uuid,
                 "is_closed": self.is_closed,
                 "solution_count": self.solution_count,
@@ -241,7 +243,7 @@ class SBQuestion(SBVersioned, SBTagContent):
                 "upvotes": self.upvotes,
                 "downvotes": self.downvotes,
                 "vote_count": self.get_vote_count(),
-                "owner": owner_name,
+                "full_name": owner_name,
                 "owner_profile_url": owner_profile_url,
                 "created": self.created,
                 "owner_email": owner.email,

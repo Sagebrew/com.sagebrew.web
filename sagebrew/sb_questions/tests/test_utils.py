@@ -1,10 +1,10 @@
 from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
-from django.utils.safestring import SafeText
+
+from rest_framework.test import APIRequestFactory, APIClient
 
 from api.utils import wait_util
-from sb_solutions.neo_models import SBSolution
 from sb_questions.utils import (create_question_util,
                                 get_question_by_least_recent,
                                 prepare_question_search_html)
@@ -65,6 +65,7 @@ class TestGetQuestionByLeastRecent(TestCase):
 
 class TestPrepareQuestionSearchHTML(TestCase):
     def setUp(self):
+        self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
@@ -79,17 +80,23 @@ class TestPrepareQuestionSearchHTML(TestCase):
         self.pleb.save()
 
     def test_prepare_question_search_html_success(self):
+        request = self.factory.post('/questions/search/')
+        request.user = self.user
         self.question_info_dict['object_uuid'] = str(uuid1())
         question = SBQuestion(**self.question_info_dict)
         question.save()
         question.owned_by.connect(self.pleb)
         question.save()
+        
 
-        res = prepare_question_search_html(question.object_uuid)
+        res = prepare_question_search_html(question.object_uuid, request)
 
         self.assertTrue(res)
 
-    def test_prepare_question_search_html_failure_question_does_not_exist(self):
-        res = prepare_question_search_html(str(uuid1()))
+    def test_prepare_question_search_html_failure_question_does_not_exist(
+            self):
+        request = self.factory.post('/questions/search/')
+        request.user = self.user
+        res = prepare_question_search_html(str(uuid1()), request)
 
         self.assertFalse(res)

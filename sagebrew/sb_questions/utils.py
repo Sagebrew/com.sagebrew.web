@@ -114,8 +114,6 @@ def prepare_question_search_html(question_uuid, request):
         my_question = SBQuestion.nodes.get(object_uuid=question_uuid)
     except (SBQuestion.DoesNotExist, DoesNotExist):
         return False
-    except CypherException:
-        return None
 
     return my_question.render_search(request)
 

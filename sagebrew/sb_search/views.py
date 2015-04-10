@@ -196,7 +196,7 @@ def search_result_api(request):
                 # TODO Handle spawned response correctly
                 if item['_type'] == 'sb_questions.neo_models.SBQuestion':
                     results.append(prepare_question_search_html(
-                        item['_source']['object_uuid']))
+                        item['_source']['object_uuid'], request))
                 elif item['_type'] == 'pleb':
                     results.append(prepare_user_search_html(
                         item['_source']['pleb_username']))

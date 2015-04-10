@@ -179,21 +179,15 @@ class SBQuestion(SBVersioned, SBTagContent):
 
     @apply_defense
     def render_search(self, request):
-        try:
-            try:
-                owner = self.owned_by.all()[0]
-            except IndexError as e:
-                return e
-            question_dict = QuestionSerializerNeo(self,
-                                                  context=
-                                                  {"request": request}).data
-            question_dict['first_name'] = owner.first_name
-            question_dict['last_name'] = owner.last_name
-            rendered = render_to_string('conversation_block.html',
-                                        question_dict)
-            return rendered
-        except CypherException as e:
-            return e
+        owner = self.owned_by.all()[0]
+        question_dict = QuestionSerializerNeo(self,
+                                              context=
+                                              {"request": request}).data
+        question_dict['first_name'] = owner.first_name
+        question_dict['last_name'] = owner.last_name
+        rendered = render_to_string('conversation_block.html',
+                                    question_dict)
+        return rendered
 
     @apply_defense
     def get_original(self):

@@ -126,7 +126,7 @@ def get_question_search_view(request, question_uuid=str(uuid1())):
     :param request:
     :return:
     '''
-    response = prepare_question_search_html(question_uuid)
+    response = prepare_question_search_html(question_uuid, request)
     if response is None:
         return Response(status=500)
     elif response is False:

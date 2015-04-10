@@ -89,7 +89,7 @@ def process_search_result(item):
                        "temp_score": item['_score']*item['_source']['sb_score'],
                        "score": item['_score']}
     elif item['_type'] == 'pleb':
-        return {"pleb_email": item['_source']['pleb_email'],
+        return {"pleb_username": item['_source']['object_uuid'],
                 "type": "pleb",
                 "temp_score": item['_score']*item['_source']['sb_score'],
                 "score": item['_score']}

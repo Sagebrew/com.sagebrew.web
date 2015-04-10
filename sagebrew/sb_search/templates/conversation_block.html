@@ -2,16 +2,16 @@
     <div class="row">
         <div class="col-lg-4 col-md-5 col-sm-12 col-xs-12">
             <div class="sb_search_vote_block">
-                <h6>2.5K Votes</h6>
-                <h6>20K Views</h6>
+                <h6>{{ vote_count }} Votes</h6>
+                <h6>{{ view_count }} Views</h6>
             </div>
         </div>
         <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-            <a href="#">Conversation Title</a>
+            <a href="{{ url }}">{{ title }}</a>
         </div>
         <div class="col-lg-8 col-md-12 col-sm-12 col-xs-12">
-            <p>author's name</p>
-            <small>--/--/--</small>
+            <p>{{ first_name }} {{ last_name }}</p>
+            <small>{{ created|date:"D d M Y" }}</small>
         </div>
     </div>
 </div>

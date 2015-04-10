@@ -4,6 +4,7 @@ from uuid import uuid1
 from datetime import datetime
 from api.utils import execute_cypher_query
 from django.template import Context
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string, get_template
 
@@ -14,7 +15,9 @@ from neomodel import (StringProperty, IntegerProperty,
 from sb_base.neo_models import SBVersioned, SBTagContent
 from sb_tag.neo_models import TagRelevanceModel
 from sb_base.decorators import apply_defense
+from plebs.serializers import UserSerializer, PlebSerializerNeo
 
+from .serializers import QuestionSerializerNeo
 
 class SBQuestion(SBVersioned, SBTagContent):
     table = 'public_questions'
@@ -174,29 +177,19 @@ class SBQuestion(SBVersioned, SBTagContent):
             return e
 
     @apply_defense
-    def render_search(self):
+    def render_search(self, request):
         try:
             try:
                 owner = self.owned_by.all()[0]
             except IndexError as e:
                 return e
-            owner_name = "%s %s" % (owner.first_name, owner.last_name)
-            owner_profile_url = owner.username
-            question_dict = {
-                "title": self.get_most_recent_edit().title,
-                "question_content": self.get_most_recent_edit().content,
-                "question_uuid": self.object_uuid,
-                "is_closed": self.is_closed,
-                "solution_count": self.solution_count,
-                "last_edited_on": self.last_edited_on,
-                "upvotes": self.get_upvote_count(),
-                "downvotes": self.get_downvote_count(),
-                "vote_count": self.get_vote_count(),
-                "owner": owner_name,
-                "owner_profile_url": owner_profile_url,
-                "created": self.created,
-                "owner_email": owner.email}
-            rendered = render_to_string('question_search.html', question_dict)
+            question_dict = QuestionSerializerNeo(self,
+                                                  context=
+                                                  {"request": request}).data
+            question_dict['first_name'] = owner.first_name
+            question_dict['last_name'] = owner.last_name
+            rendered = render_to_string('conversation_block.html',
+                                        question_dict)
             return rendered
         except CypherException as e:
             return e

@@ -21,6 +21,8 @@ class ContentSerializer(serializers.Serializer):
     vote_type = serializers.SerializerMethodField()
     vote_count = serializers.SerializerMethodField()
 
+    view_count = serializers.SerializerMethodField()
+
     owner_object = serializers.SerializerMethodField()
     profile = serializers.SerializerMethodField()
 
@@ -83,6 +85,9 @@ class ContentSerializer(serializers.Serializer):
 
     def get_downvotes(self, obj):
         return obj.get_downvote_count()
+
+    def get_view_count(self, obj):
+        return obj.get_view_count()
 
 
 class MarkdownContentSerializer(ContentSerializer):

@@ -63,7 +63,7 @@
                         <form id="address">
                             <div style="display: none"
                                  id="address_uuid"
-                                 data-object_uuid="{{ object_uuid }}"></div>
+                                 data-object_uuid="{{ address.object_uuid }}"></div>
                             <div class="row">
                                 <div class="col-lg-12">
                                     <input type="text"
@@ -184,6 +184,7 @@
 {% block scripts %}
     {{ block.super }}
     <script src="{% static 'js/address_validation.js' %}"></script>
+    <script src="{% static 'js/submit_settings.js' %}"></script>
 {% endblock scripts %}
 {% block external_scripts %}
     <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/2.4/jquery.liveaddress.min.js"></script>

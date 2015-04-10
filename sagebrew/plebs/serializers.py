@@ -116,6 +116,11 @@ class AddressSerializer(serializers.Serializer):
         instance.postal_code = validated_data.get("postal_code",
                                                   instance.postal_code)
         instance.country = validated_data.get("country", instance.country)
+        instance.congressional_district = validated_data.get(
+            "congressional_district", instance.congressional_district)
+        instance.latitude = validated_data.get("latitude", instance.latitude)
+        instance.longitude = validated_data.get("longitude",
+                                                instance.longitude)
         # TODO need to re-evaluate where their district is and all that good
         # stuff when they update. @Tyler we should rediscuss the address
         # hashing and how this will affect that.

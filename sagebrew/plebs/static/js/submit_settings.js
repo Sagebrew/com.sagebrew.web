@@ -48,11 +48,14 @@ $(document).ready(function(){
             type: "PUT",
             url: "/v1/address/" + address_uuid + "/",
             data: JSON.stringify({
-                "street": first_name,
-                "last_name": last_name,
-                "email": email,
-                "password": old_password,
-                "new_password": new_password
+                "street": street,
+                "street_additional": street_additional,
+                "city": city,
+                "state": state,
+                "postal_code": zip,
+                "congressional_district": congressional_district,
+                "latitude": latitude,
+                "longitude": longitude
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",

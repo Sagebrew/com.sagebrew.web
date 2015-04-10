@@ -7,6 +7,7 @@ from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from sb_posts.neo_models import SBPost
 
+
 class TestSBPostNeoModels(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
@@ -29,8 +30,3 @@ class TestSBPostNeoModels(TestCase):
         res = self.post.get_single_dict()
 
         self.assertIsInstance(res, dict)
-
-    def test_render_post_wall_html(self):
-        res = self.post.render_post_wall_html()
-
-        self.assertTrue(res)

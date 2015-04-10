@@ -15,7 +15,7 @@ class CongressVoteRelationship(StructuredRel):
 class BaseOfficial(Pleb):
     type_str = "f46fbcda-9da8-11e4-9233-080027242395"
     title = StringProperty()
-    object_uuid = StringProperty(unique_index=True, default=str(uuid1()))
+    object_uuid = StringProperty(unique_index=True, default=uuid1)
     bio = StringProperty(default="")
     name_mod = StringProperty()
     current = BooleanProperty()

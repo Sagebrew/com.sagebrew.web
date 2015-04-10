@@ -1,12 +1,12 @@
-import pytz
+from logging import getLogger
 from uuid import uuid1
-from datetime import datetime
 
 from neomodel import DoesNotExist, CypherException
 
-from sb_docstore.utils import add_object_to_table
 from .neo_models import NotificationBase
 from sb_base.decorators import apply_defense
+
+logger = getLogger('loggly_logs')
 
 
 @apply_defense
@@ -36,12 +36,19 @@ def create_notification_util(sb_object, from_pleb, to_plebs,
                 return True
 
         except (NotificationBase.DoesNotExist, DoesNotExist):
-            notification = NotificationBase(
-                object_uuid=notification_id,
-                about=sb_object.sb_name,
-                about_id=sb_object.object_uuid,
-                url=sb_object.get_url(),
-                action=sb_object.action).save()
+            try:
+                notification = NotificationBase(
+                    object_uuid=notification_id,
+                    about=sb_object.sb_name,
+                    about_id=sb_object.object_uuid,
+                    url=sb_object.get_url(),
+                    action=sb_object.action).save()
+            except AttributeError:
+                # Currently comments do not support notifications as there is
+                # no easy way to get the object's url that the comment was
+                # made on.
+                logger.exception("Notification failure")
+                return True
 
         notification.notification_from.connect(from_pleb)
         for pleb in to_plebs:

@@ -28,9 +28,4 @@ def vote_object_task(vote_type, current_pleb, object_type, object_uuid):
     if isinstance(res, Exception) is True:
         raise vote_object_task.retry(exc=res, countdown=3, max_retries=None)
 
-    res = sb_object.update_vote_count()
-
-    if isinstance(res, Exception) is True:
-        raise vote_object_task.retry(exc=res, countdown=3, max_retries=None)
-
     return sb_object

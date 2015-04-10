@@ -1,4 +1,5 @@
 from datetime import datetime
+from logging import getLogger
 
 from neomodel import CypherException, DoesNotExist
 
@@ -6,6 +7,9 @@ from sb_base.decorators import apply_defense
 from sb_docstore.utils import get_vote_count
 
 from .neo_models import SBComment
+
+logger = getLogger('loggly_logs')
+
 
 @apply_defense
 def save_comment(content, comment_uuid):
@@ -43,15 +47,22 @@ def convert_dynamo_comments(raw_comments):
     comments = []
     for comment in raw_comments:
         comment = dict(comment)
-        comment['upvotes'] = get_vote_count(comment['object_uuid'],1)
+        comment['upvotes'] = get_vote_count(comment['object_uuid'], 1)
         comment['downvotes'] = get_vote_count(comment['object_uuid'], 0)
-        comment['last_edited_on'] = datetime.strptime(
-            comment['last_edited_on'][:len(comment['last_edited_on']) - 6],
-            '%Y-%m-%d %H:%M:%S.%f')
+        time_format = '%Y-%m-%dT%H:%M:%S.%f'
+        try:
+            time_format = '%Y-%m-%dT%H:%M:%S.%f'
+            comment['last_edited_on'] = datetime.strptime(
+                comment['last_edited_on'][:len(comment['last_edited_on']) - 6],
+                time_format)
+        except ValueError:
+            time_format = '%Y-%m-%d %H:%M:%S.%f'
+            comment['last_edited_on'] = datetime.strptime(
+                comment['last_edited_on'][:len(comment['last_edited_on']) - 6],
+                time_format)
         comment['created'] = datetime.strptime(
-            comment['created'][:len(comment['created']) - 6],
-            '%Y-%m-%d %H:%M:%S.%f')
-        comment['vote_count'] = str(
-            comment['upvotes'] - comment['downvotes'])
+                comment['created'][:len(comment['created']) - 6],
+                time_format)
+        comment['vote_count'] = str(comment['upvotes'] - comment['downvotes'])
         comments.append(comment)
     return comments

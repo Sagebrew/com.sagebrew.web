@@ -123,7 +123,8 @@ class TestGetQuestionSearchView(TestCase):
                               title='test title').save()
         question.owned_by.connect(self.pleb)
 
-        res = self.client.get('/conversations/search/%s/' % question.object_uuid)
+        res = self.client.get('/conversations/search/%s/' %
+                              question.object_uuid)
         res = res.render()
 
         self.assertIn('| Solution: 0 | Upvotes: 0 | Downvotes: 0 |',

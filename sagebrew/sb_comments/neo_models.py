@@ -1,16 +1,19 @@
 import pytz
 from datetime import datetime
-from django.core.urlresolvers import reverse
 
-from neomodel import (IntegerProperty, DateTimeProperty, RelationshipTo,
+from neomodel import (RelationshipTo, DateTimeProperty,
                       StructuredRel, CypherException)
 
 from sb_base.decorators import apply_defense
 from sb_base.neo_models import SBNonVersioned
 
 
+def get_current_time():
+    return datetime.now(pytz.utc)
+
+
 class CommentedOnRel(StructuredRel):
-    shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    shared_on = DateTimeProperty(default=get_current_time)
 
 
 class SBComment(SBNonVersioned):
@@ -20,20 +23,16 @@ class SBComment(SBNonVersioned):
     action = "commented on your "
     sb_name = "comment"
     object_type = "02ba1c88-644f-11e4-9ad9-080027242395"
-    upvotes = IntegerProperty(default=0)
-    downvotes = IntegerProperty(default=0)
-    view_count = IntegerProperty(default=0)
+    comment_on = RelationshipTo('sb_base.neo_models.SBContent',
+                                'COMMENT_ON')
 
     def create_notification(self, pleb, sb_object=None):
         return {
             "profile_pic": pleb.profile_pic,
             "full_name": pleb.get_full_name(),
             "action": self.action + sb_object.sb_name,
-            "url": self.get_url()
+            "url": sb_object.get_url()
         }
-
-    def comment_on(self, comment):
-        pass
 
     @apply_defense
     def get_single_dict(self):
@@ -51,13 +50,6 @@ class SBComment(SBNonVersioned):
                     self.get_downvote_count(),
                 'last_edited_on':
                     str(self.last_edited_on),
-                'comment_owner': comment_owner.first_name + ' '
-                                 + comment_owner.last_name,
-                'comment_owner_email': comment_owner.email,
-                'owner_username': comment_owner.username,
-                'owner_full_name': "%s %s" % (
-                                comment_owner.first_name,
-                                comment_owner.last_name),
                 'owner': comment_owner.username,
                 'created': unicode(self.created),
                 'edits': [],

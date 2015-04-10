@@ -49,10 +49,6 @@ def convert_dynamo_solution(raw_solution, request):
         solution['created'][:len(solution['created']) - 6],
         '%Y-%m-%d %H:%M:%S.%f')
     solution['vote_count'] = str(solution['upvotes'] - solution['downvotes'])
-    url = reverse('solution-comments', kwargs={
-        'object_uuid': solution['object_uuid']}, request=request)
-    response = request_to_api(url, request.user.username, req_method="GET")
-    solution["comments"] = response.json()
     user_endpoint = reverse("user-detail",
                             kwargs={"username": solution["owner"]},
                             request=request)
@@ -81,7 +77,3 @@ def convert_dynamo_solutions(raw_solutions, request):
         solution['vote_type'] = vote_type
         solution_list.append(solution)
     return solution_list
-
-
-def render_solutions(solution_dict):
-    return render_to_string('solutions.html', solution_dict)

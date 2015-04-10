@@ -1,16 +1,17 @@
-import pytz
 import logging
 from datetime import datetime
+import pytz
+
 from django.conf import settings
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
+from sb_docstore.utils import add_object_to_table, update_vote, get_vote
+
 from .forms import VoteObjectForm
 from .utils import determine_update_values
-
-from sb_docstore.utils import add_object_to_table, update_vote, get_vote
 
 logger = logging.getLogger('loggly_logs')
 
@@ -30,13 +31,13 @@ def vote_object_view(request):
         downvote_value = vote_object_form.cleaned_data['downvote_count']
         status = int(vote_object_form.cleaned_data['vote_type'])
         vote_data = {
-                 "object_type": choice_dict[
-                    vote_object_form.cleaned_data['object_type']],
-                 "parent_object": vote_object_form.cleaned_data['object_uuid'],
-                 "user": request.user.username,
-                 "status": status,
-                 "time": now
-                 }
+            "object_type": choice_dict[
+                vote_object_form.cleaned_data['object_type']],
+            "parent_object": vote_object_form.cleaned_data['object_uuid'],
+            "user": request.user.username,
+            "status": status,
+            "time": now
+        }
         res = get_vote(vote_object_form.cleaned_data['object_uuid'],
                        user=request.user.username)
         if isinstance(res, Exception) is True:
@@ -65,7 +66,7 @@ def vote_object_view(request):
         version_add = add_object_to_table("vote_versions", vote_data)
         if isinstance(version_add, Exception) is True:
             return Response({"detail": "server error"}, status=500)
-        total_vote_value = str(upvote_value-downvote_value)
+        total_vote_value = str(upvote_value - downvote_value)
         return Response({"detail": "success", "upvote_value": upvote_value,
                          "downvote_value": downvote_value,
                          "total_value": total_vote_value}, status=200)

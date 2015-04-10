@@ -19,6 +19,7 @@ from plebs.serializers import UserSerializer, PlebSerializerNeo
 
 from .serializers import QuestionSerializerNeo
 
+
 class SBQuestion(SBVersioned, SBTagContent):
     table = 'public_questions'
     action = "asked a question"

@@ -73,28 +73,6 @@ class TestEditQuestionTitleView(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
-    def test_edit_title_success(self):
-        uuid = str(uuid1())
-        data = {
-            'title': 'testquestiontitleedit',
-            'current_pleb': self.email,
-            'object_type': '0274a216-644f-11e4-9ad9-080027242395',
-            'object_uuid': uuid
-        }
-        table_data = {
-            'title': 'test fake title',
-            'content': 'fake content',
-            'object_uuid': uuid
-        }
-        res = add_object_to_table('public_questions', table_data)
-        self.assertTrue(res)
-        request = self.factory.post('/edit/edit_title_api/',
-                                    data=data,
-                                    format='json')
-        request.user = self.user
-        res = edit_title_view(request)
-
-        self.assertEqual(res.status_code, 200)
 
     def test_edit_title_invalid_form(self):
         data = {

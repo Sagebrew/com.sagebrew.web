@@ -1,4 +1,3 @@
-from django.template.loader import render_to_string
 from django.core.urlresolvers import reverse
 
 from neomodel import (RelationshipTo, CypherException)
@@ -16,16 +15,13 @@ class SBPost(SBNonVersioned):
     # relationships
     posted_on_wall = RelationshipTo('sb_wall.neo_models.SBWall', 'POSTED_ON')
 
-    #TODO Implement referenced_by_... relationships
-    #TODO Implement ..._referenced relationships
-
     @apply_defense
     def create_relations(self, pleb, question=None, wall=None):
         if wall is None:
             return False
         try:
             self.posted_on_wall.connect(wall)
-            wall.post.connect(self)
+            wall.posts.connect(self)
             rel = self.owned_by.connect(pleb)
             rel.save()
             rel_from_pleb = pleb.posts.connect(self)
@@ -77,7 +73,7 @@ class SBPost(SBNonVersioned):
                 comment_array.append(comment.get_single_dict())
             try:
                 parent_object = self.posted_on_wall.all()[
-                                    0].owner.all()[0].username
+                                    0].owned_by.all()[0].username
             except(CypherException, IOError, IndexError) as e:
                 return e
             return {
@@ -97,18 +93,4 @@ class SBPost(SBNonVersioned):
                 'object_type': self.object_type,
             }
         except CypherException as e:
-            return e
-
-    @apply_defense
-    def render_post_wall_html(self, user):
-        try:
-            try:
-                owner = self.owned_by.all()[0]
-            except IndexError as e:
-                return e
-            post_dict = self.get_single_dict(owner)
-            post_dict["user"] = {"username": user.username}
-            return render_to_string('post.html', post_dict)
-
-        except(CypherException, IOError) as e:
             return e

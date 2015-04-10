@@ -33,7 +33,7 @@ from .tasks import update_interests, store_address
 
 def signup_view(request):
     if (request.user.is_authenticated() is True and
-                verify_completed_registration(request.user) is True):
+            verify_completed_registration(request.user) is True):
         return redirect('profile_page', pleb_username=request.user.username)
     user = request.GET.get('user', '')
     if not user:
@@ -220,7 +220,7 @@ def profile_information(request):
         address_clean = address_information_form.cleaned_data
         address_clean['country'] = 'USA'
         if(address_clean['valid'] == "valid" or
-                   address_clean.get('original_selected', False) is True):
+                address_clean.get('original_selected', False) is True):
             success = spawn_task(store_address,
                                  {"username": request.user.username,
                                   "address_clean": address_clean})

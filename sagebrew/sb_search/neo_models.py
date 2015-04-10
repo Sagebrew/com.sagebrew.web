@@ -6,6 +6,10 @@ from neomodel import (BooleanProperty, DateTimeProperty, StringProperty,
                       StructuredRel, FloatProperty, RelationshipTo)
 
 
+def get_current_time():
+    return datetime.now(pytz.utc)
+
+
 class ResultClickedRel(StructuredRel):
     date_clicked = DateTimeProperty()
 
@@ -38,7 +42,7 @@ class SearchQuery(StructuredNode):
     weight = IntegerProperty(default=0)
     search_query = StringProperty(unique_index=True)
     times_searched = IntegerProperty(default=1)
-    last_searched = DateTimeProperty(default=datetime.now(pytz.utc))
+    last_searched = DateTimeProperty(default=get_current_time)
     trending = BooleanProperty(default=False)
 
     #relationships

@@ -31,6 +31,7 @@ def pleb_user_update(username, first_name, last_name, email):
         pleb.first_name = first_name
         pleb.last_name = last_name
         pleb.email = email
+
         pleb.save()
     except(CypherException, IOError) as e:
         raise pleb_user_update.retry(exc=e, countdown=3, max_retries=None)
@@ -145,7 +146,7 @@ def create_wall_task(user_instance=None):
     else:
         try:
             wall = SBWall(wall_id=str(uuid1())).save()
-            wall.owner.connect(pleb)
+            wall.owned_by.connect(pleb)
             pleb.wall.connect(wall)
         except(CypherException, IOError) as e:
             raise create_wall_task.retry(exc=e, countdown=3,

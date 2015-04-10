@@ -55,7 +55,7 @@ def edit_object_view(request):
                             "update_value": html_content})
         table = settings.KNOWN_TABLES[
                              edit_object_form.cleaned_data['object_type']]
-        if table == 'posts' or table=='comments':
+        if table == 'posts' or table == 'comments':
             obj_created = unicode(edit_object_form.cleaned_data['created'])
             parent_object = edit_object_form.cleaned_data['parent_object']
         else:

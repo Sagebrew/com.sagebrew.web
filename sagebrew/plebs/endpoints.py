@@ -11,19 +11,32 @@ from rest_framework.reverse import reverse
 from rest_framework import status
 from rest_framework.pagination import LimitOffsetPagination
 
-from neomodel import CypherException
-
 from sagebrew import errors
 
 from api.utils import request_to_api
-from api.permissions import IsSelfOrReadOnly, IsSelf
+from api.permissions import IsSelfOrReadOnly, IsSelf, IsUserOrAdmin
 from sb_comments.serializers import CommentSerializer
 
-
-from .serializers import UserSerializer, PlebSerializerNeo
-from .neo_models import Pleb
+from .serializers import UserSerializer, PlebSerializerNeo, AddressSerializer
+from .neo_models import Pleb, Address
 
 logger = getLogger('loggly_logs')
+
+
+class AddressViewSet(viewsets.ModelViewSet):
+    queryset = Address.nodes.all()
+    serializer_class = AddressSerializer
+    lookup_field = 'object_uuid'
+
+    permission_classes = (IsAuthenticated, IsUserOrAdmin)
+
+    def perform_create(self, serializer):
+        pleb = Pleb.nodes.get(username=self.request.user.username)
+        instance = serializer.save()
+        instance.owned_by.connect(pleb)
+        instance.save()
+        pleb.address.connect(instance)
+        pleb.save()
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -53,68 +66,38 @@ class UserViewSet(viewsets.ModelViewSet):
 
         return Response(rest_response, status=status.HTTP_200_OK)
 
+    def perform_destroy(self, instance):
+        instance.is_active = False
+        instance.save()
+        # TODO we can also go and delete the pleb and content from here
+        # or require additional requests but think we could spawn a task
+        # that did all that deconstruction work rather than requiring an
+        # app the hit a thousand endpoints.
 
-class ProfileViewSet(viewsets.GenericViewSet):
+
+class ProfileViewSet(viewsets.ModelViewSet):
     serializer_class = PlebSerializerNeo
     lookup_field = "username"
+    queryset = Pleb.nodes.all()
     permission_classes = (IsAuthenticated, IsSelfOrReadOnly)
     pagination_class = LimitOffsetPagination
 
-    def get_queryset(self):
-        try:
-            queryset = Pleb.nodes.all()
-        except(CypherException, IOError):
-            logger.exception("ProfileGenericViewSet queryset")
-            return Response(errors.CYPHER_EXCEPTION,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return queryset
+    def get_object(self):
+        return Pleb.nodes.get(username=self.kwargs[self.lookup_field])
 
-    def get_object(self, username=None):
-        try:
-            queryset = Pleb.nodes.get(username=username)
-        except(CypherException, IOError):
-            logger.exception("ProfileViewSet get_object")
-            return Response(errors.CYPHER_EXCEPTION,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return queryset
+    def create(self, request, *args, **kwargs):
+        """
+        Currently a profile is generated for a user when the base user is
+        created. We currently don't support creating a profile through an
+        endpoint due to the confirmation process and links that need to be
+        made.
+        :param request:
+        :return:
+        """
+        return Response({"detail": "TBD"},
+                        status=status.HTTP_501_NOT_IMPLEMENTED)
 
-    def list(self, request):
-        queryset = self.get_queryset()
-        # As a note this if is the only difference between this list
-        # implementation and the default ListModelMixin. Not sure if we need
-        # to redefine everything...
-        if isinstance(queryset, Response):
-            return queryset
-        queryset = self.filter_queryset(queryset)
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True,
-                                             context={"request": request})
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(
-            queryset, context={"request": request}, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def retrieve(self, request, username=None):
-        single_object = self.get_object(username=username)
-        if isinstance(single_object, Response):
-            return single_object
-        serializer = self.get_serializer(single_object,
-                                         context={'request': request})
-        expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
-
-        # The cast to dict is necessary as serializer.data is immutable
-        # Won't be necessary when we transition this to dynamo
-        rest_response = dict(serializer.data)
-        if expand != "false":
-            user_url = reverse(
-                'user-detail', kwargs={'username': username}, request=request)
-            response = request_to_api(user_url, request.user.username,
-                                      req_method="GET")
-            rest_response["base_user"] = response.json()
-        return Response(rest_response, status=status.HTTP_200_OK)
-
-    def destroy(self, request, username=None):
+    def destroy(self, request, *args, **kwargs):
         return Response({"detail": "TBD"},
                         status=status.HTTP_501_NOT_IMPLEMENTED)
 
@@ -155,15 +138,8 @@ class ProfileViewSet(viewsets.GenericViewSet):
         # /v1/friends/ to /v1/friends/username/ to your method rather than
         # /v1/profiles/username/friends/ to /v1/profiles/username/ to your
         # method. But maybe we make both available.
-        single_object = self.get_object(username=username)
-        if isinstance(single_object, Response):
-            return single_object
-        try:
-            friends = single_object.get_friends()
-        except(CypherException, IOError) as e:
-            logger.exception("ProfileGenericViewSet friends")
-            return Response(errors.CYPHER_EXCEPTION,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        single_object = self.get_object()
+        friends = single_object.get_friends()
         serializer = self.get_serializer(
             friends, context={"request": request}, many=True)
         # TODO implement expand functionality
@@ -171,15 +147,15 @@ class ProfileViewSet(viewsets.GenericViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def friend_requests(self, request, username=None):
-        single_object = self.get_object(username=username)
+        # TODO we should probably make some sort of "notification" list view
+        # or it can be more specific and be a friend request list view. But
+        # that way we can get the pagination functionality easily and break out
+        # html rendering. We can wait on it though until we transition to
+        # JS framework
+        single_object = self.get_object()
         if isinstance(single_object, Response):
             return single_object
-        try:
-            friend_requests = single_object.get_friend_requests_received()
-        except(CypherException, IOError) as e:
-            logger.exception("ProfileGenericViewSet friends")
-            return Response(errors.CYPHER_EXCEPTION,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        friend_requests = single_object.get_friend_requests_received()
 
         expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
         html = self.request.QUERY_PARAMS.get('html', 'false').lower()
@@ -193,8 +169,9 @@ class ProfileViewSet(viewsets.GenericViewSet):
                     kwargs={'username': friend_request["from"]},
                     request=request)
             else:
-                friend_url = reverse('profile-detail',
-                    kwargs={'username': friend_request["from"]},
+                friend_url = reverse(
+                    'profile-detail', kwargs={
+                        'username': friend_request["from"]},
                     request=request)
                 response = request_to_api(friend_url, request.user.username,
                                           req_method="GET")
@@ -212,15 +189,10 @@ class ProfileViewSet(viewsets.GenericViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def notifications(self, request, username=None):
-        single_object = self.get_object(username=username)
+        single_object = self.get_object()
         if isinstance(single_object, Response):
             return single_object
-        try:
-            notifications = single_object.get_notifications()
-        except(CypherException, IOError) as e:
-            logger.exception("ProfileGenericViewSet friends")
-            return Response(errors.CYPHER_EXCEPTION,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        notifications = single_object.get_notifications()
         expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
         html = self.request.QUERY_PARAMS.get('html', 'false').lower()
         if html == 'true':
@@ -232,8 +204,9 @@ class ProfileViewSet(viewsets.GenericViewSet):
                     kwargs={'username': notification["from_info"]["username"]},
                     request=request)
             else:
-                friend_url = reverse('profile-detail',
-                    kwargs={'username': notification["from_info"]["username"]},
+                friend_url = reverse(
+                    'profile-detail', kwargs={
+                        'username': notification["from_info"]["username"]},
                     request=request)
                 response = request_to_api(friend_url, request.user.username,
                                           req_method="GET")
@@ -245,15 +218,13 @@ class ProfileViewSet(viewsets.GenericViewSet):
                 notification['from'] = from_user_response.json()
         if html == 'true':
             html = render_to_string('notifications.html',
-                                {"notifications": notifications})
+                                    {"notifications": notifications})
             return Response(html, status=status.HTTP_200_OK)
         return Response(notifications, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def reputation(self, request, username=None):
-        single_object = self.get_object(username=username)
-        if isinstance(single_object, Response):
-            return single_object
+        single_object = self.get_object()
         reputation = {"reputation": single_object.reputation}
         return Response(reputation, status=status.HTTP_200_OK)
 
@@ -263,7 +234,7 @@ class ProfileViewSet(viewsets.GenericViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def senators(self, request, username=None):
-        single_object = self.get_object(username=username)
+        single_object = self.get_object()
         if isinstance(single_object, Response):
             return single_object
         senators = single_object.get_senators()
@@ -279,7 +250,7 @@ class ProfileViewSet(viewsets.GenericViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def house_rep(self, request, username=None):
-        single_object = self.get_object(username=username)
+        single_object = self.get_object()
         if isinstance(single_object, Response):
             return single_object
         house_rep = single_object.get_house_rep()
@@ -305,3 +276,15 @@ class ProfileViewSet(viewsets.GenericViewSet):
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def campaigning_local_representatives(self, request, username=None):
         pass
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
+    def address(self, request, username=None):
+        single_object = self.get_object()
+        try:
+            address = single_object.address.all()[0]
+        except(IndexError):
+            return Response(errors.CYPHER_INDEX_EXCEPTION,
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        address_serializer = AddressSerializer(address,
+                                               context={'request': request})
+        return Response(address_serializer.data, status=status.HTTP_200_OK)

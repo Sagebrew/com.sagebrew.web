@@ -52,37 +52,6 @@ class TestSBVoteableContentNeoModel(TestCase):
 
         self.assertIsInstance(res, SBPost)
 
-    def test_upvote_count(self):
-        rel = self.post.votes.connect(self.pleb)
-        rel.vote_type = True
-        rel.save()
-
-        res = self.post.get_upvote_count()
-
-        self.assertEqual(res, 1)
-
-    def test_downvote_count(self):
-        rel = self.post.votes.connect(self.pleb)
-        rel.vote_type = False
-        rel.save()
-
-        res = self.post.get_downvote_count()
-
-        self.assertEqual(res, 1)
-
-    def test_get_vote_count(self):
-        rel = self.post.votes.connect(self.pleb)
-        rel.vote_type = True
-        rel.save()
-
-        pleb = Pleb(email=str(uuid1())).save()
-        rel2 = self.post.votes.connect(pleb)
-        rel2.vote_type = True
-        rel2.save()
-
-        res = self.post.get_vote_count()
-
-        self.assertEqual(res, 2)
 
 class TestSBContentNeoModel(TestCase):
     def setUp(self):

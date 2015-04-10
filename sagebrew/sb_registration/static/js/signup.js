@@ -22,7 +22,6 @@ $( document ).ready(function() {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data, xhr) {
-                console.log(data);
                 if (data['detail'] === 'success'){
                     window.location.href = "/registration/signup/confirm/";
                 }

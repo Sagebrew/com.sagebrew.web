@@ -8,7 +8,7 @@ from api.utils import request_to_api
 
 
 class SBRequirement(StructuredNode):
-    object_uuid = StringProperty(default=lambda: str(uuid1()), unique_index=True)
+    object_uuid = StringProperty(default=uuid1, unique_index=True)
     name = StringProperty(unique_index=True)
     url = StringProperty()
     key = StringProperty()

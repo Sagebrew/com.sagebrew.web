@@ -10,10 +10,6 @@ from boto.dynamodb2.exceptions import (JSONResponseError, ItemNotFound,
 
 from django.conf import settings
 
-from rest_framework.reverse import reverse
-
-from api.utils import request_to_api
-
 from sb_base.decorators import apply_defense
 
 
@@ -42,14 +38,14 @@ def connect_to_dynamo():
         if settings.DYNAMO_IP is None:
             conn = DynamoDBConnection(
                 aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-                aws_access_key_id=settings.AWS_ACCESS_KEY_ID
+                aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             )
         else:
             conn = DynamoDBConnection(
                 host=settings.DYNAMO_IP,
                 port=8000,
                 aws_secret_access_key='anything',
-                is_secure=False
+                is_secure=False,
             )
         return conn
     except IOError as e:
@@ -143,7 +139,7 @@ def update_doc(table, object_uuid, update_data, parent_object="",
     if obj_created != "" and parent_object != "":
         res = db_table.get_item(parent_object=parent_object,
                                 created=obj_created)
-    elif parent_object!="":
+    elif parent_object != "":
         res = db_table.get_item(parent_object=parent_object,
                                 object_uuid=object_uuid)
     else:
@@ -154,33 +150,11 @@ def update_doc(table, object_uuid, update_data, parent_object="",
     res.partial_save()
     return res
 
-@apply_defense
-def get_solution_doc(question_uuid, solution_uuid,
-                     solution_table="public_solutions"):
-    conn = connect_to_dynamo()
-    if isinstance(conn, Exception):
-        return conn
-    try:
-        solution_table = Table(table_name=get_table_name(solution_table),
-                               connection=conn)
-    except JSONResponseError as e:
-        return e
-    try:
-        solution = solution_table.get_item(parent_object=question_uuid,
-                                           object_uuid=solution_uuid)
-    except JSONResponseError as e:
-        return e
-    except ItemNotFound:
-        return False
-    return dict(solution)
 
-
-def convert_dynamo_content(raw_content, request=None, comment_view=None):
+def convert_dynamo_content(raw_content):
     content = dict(raw_content)
-    content['upvotes'] = get_vote_count(content['object_uuid'],
-                                                1)
-    content['downvotes'] = get_vote_count(content['object_uuid'],
-                                                  0)
+    content['upvotes'] = get_vote_count(content['object_uuid'], 1)
+    content['downvotes'] = get_vote_count(content['object_uuid'], 0)
     content['last_edited_on'] = datetime.strptime(
         content['last_edited_on'][:len(content['last_edited_on']) - 6],
         '%Y-%m-%d %H:%M:%S.%f')
@@ -189,191 +163,16 @@ def convert_dynamo_content(raw_content, request=None, comment_view=None):
         '%Y-%m-%d %H:%M:%S.%f')
     content['vote_count'] = str(
         content['upvotes'] - content['downvotes'])
-    if comment_view is not None and request is not None:
-        url = reverse("%s" % comment_view, kwargs={
-            'object_uuid': content['object_uuid']}, request=request)
-        response = request_to_api(url, request.user.username, req_method="GET")
-        content["comments"] = response.json()
-        for item in content["comments"]:
-            item["last_edited_on"] = datetime.strptime(
-                item['last_edited_on'], '%Y-%m-%dT%H:%M:%S.%f')
 
     return content
 
 
-def convert_dynamo_contents(raw_contents, request=None, comment_view=None):
+def convert_dynamo_contents(raw_contents):
     content_list = []
     for content in raw_contents:
-        converted_content = convert_dynamo_content(content, request,
-                                                   comment_view)
+        converted_content = convert_dynamo_content(content)
         content_list.append(converted_content)
     return content_list
-
-
-@apply_defense
-def get_question_doc(question_uuid, question_table, solution_table, user=""):
-    conn = connect_to_dynamo()
-    if isinstance(conn, Exception):
-        return conn
-    solution_list = []
-    q_comments = []
-    try:
-        questions = Table(table_name=get_table_name(question_table),
-                          connection=conn)
-        solutions = Table(table_name=get_table_name(solution_table),
-                          connection=conn)
-        comment_table = Table(table_name=get_table_name("comments"),
-                              connection=conn)
-    except JSONResponseError as e:
-        return e
-    try:
-        question = questions.get_item(
-            object_uuid=question_uuid
-        )
-    except ItemNotFound:
-        return {}
-    solutions = solutions.query_2(
-        parent_object__eq=question_uuid
-    )
-    comments = comment_table.query_2(
-        parent_object__eq=question_uuid,
-        created__gte="0"
-    )
-    question = dict(question)
-    question['upvotes'] = get_vote_count(question['object_uuid'],
-                                                1)
-    question['downvotes'] = get_vote_count(question['object_uuid'],
-                                                  0)
-    question['last_edited_on'] = datetime.strptime(
-        question['last_edited_on'][:len(question['last_edited_on']) - 6],
-        '%Y-%m-%d %H:%M:%S.%f')
-    question['created'] = datetime.strptime(
-        question['created'][:len(question['created']) - 6],
-        '%Y-%m-%d %H:%M:%S.%f')
-    question['vote_count'] = str(question['upvotes']
-                                        - question['downvotes'])
-    vote_type = get_vote(question['object_uuid'], user)
-    if vote_type is not None:
-        if vote_type['status'] == 2:
-            vote_type = None
-        else:
-            vote_type = str(bool(vote_type['status'])).lower()
-    question['vote_type'] = vote_type
-    for comment in comments:
-        comment = dict(comment)
-        try:
-            comment['upvotes'] = get_vote_count(
-                comment['object_uuid'] , 1)
-            comment['downvotes'] = get_vote_count(
-                comment['object_uuid'], 0)
-            comment['last_edited_on'] = datetime.strptime(
-                comment['last_edited_on'][:len(comment['last_edited_on']) - 6],
-                '%Y-%m-%d %H:%M:%S.%f')
-            comment['created'] = datetime.strptime(
-                comment['created'][:len(comment['created']) - 6],
-                '%Y-%m-%d %H:%M:%S.%f')
-            comment['vote_count'] = str(
-                comment['upvotes'] - comment['downvotes'])
-            vote_type = get_vote(comment['object_uuid'], user)
-            if vote_type is not None:
-                if vote_type['status'] == 2:
-                    vote_type = None
-                else:
-                    vote_type = str(bool(vote_type['status'])).lower()
-            comment['vote_type'] = vote_type
-            q_comments.append(comment)
-        except KeyError:
-            continue
-    for solution in solutions:
-        a_comments = []
-        try:
-            solution = dict(solution)
-            solution['upvotes'] = get_vote_count(solution['object_uuid'],
-                                                        1)
-            solution['downvotes'] = get_vote_count(solution['object_uuid'],
-                                                          0)
-            solution['last_edited_on'] = datetime.strptime(
-                solution['last_edited_on'][:len(solution['last_edited_on']) - 6],
-                '%Y-%m-%d %H:%M:%S.%f')
-            solution['created'] = datetime.strptime(
-                solution['created'][:len(solution['created']) - 6],
-                '%Y-%m-%d %H:%M:%S.%f')
-            solution['vote_count'] = str(
-                solution['upvotes'] - solution['downvotes'])
-            vote_type = get_vote(solution['object_uuid'], user)
-            if vote_type is not None:
-                if vote_type['status'] == 2:
-                    vote_type = None
-                else:
-                    vote_type = str(bool(vote_type['status'])).lower()
-            solution['vote_type'] = vote_type
-            solution_comments = comment_table.query_2(
-                parent_object__eq=solution['object_uuid'],
-                created__gte="0"
-            )
-        except KeyError:
-            continue
-        for ans_comment in solution_comments:
-            try:
-                comment = dict(ans_comment)
-                comment['upvotes'] = get_vote_count(
-                    comment['object_uuid'], 1)
-                comment['downvotes'] = get_vote_count(
-                    comment['object_uuid'], 0)
-                comment['last_edited_on'] = datetime.strptime(
-                    comment['last_edited_on'][:len(
-                        comment['last_edited_on']) - 6],
-                    '%Y-%m-%d %H:%M:%S.%f')
-                comment['created'] = datetime.strptime(
-                    comment['created'][:len(comment['created']) - 6],
-                    '%Y-%m-%d %H:%M:%S.%f')
-                comment['vote_count'] = str(
-                    comment['upvotes'] - comment['downvotes'])
-                vote_type = get_vote(comment['object_uuid'], user)
-                if vote_type is not None:
-                    if vote_type['status'] == 2:
-                        vote_type = None
-                    else:
-                        vote_type = str(bool(vote_type['status'])).lower()
-                comment['vote_type'] = vote_type
-                a_comments.append(comment)
-            except KeyError:
-                continue
-        solution['comments'] = a_comments
-        solution_list.append(solution)
-    question['solutions'] = solution_list
-    question['comments'] = q_comments
-    return question
-
-
-@apply_defense
-def build_question_page(question, question_table, solution_table):
-    '''
-    This function will build a question page in the docstore,
-    it will take the question table and solution table which will be:
-    'private_questions'
-    'private_solutions'
-    'public_questions'
-    'public_solutions'
-    Then it will build the page into the docstore.
-    This includes getting the question object, all the comments associated
-    with it and all the solutions associated with it.
-
-    :param question_uuid:
-    :param question_table:
-    :param solution_table:
-    :return:
-    '''
-    question_dict = question.get_single_dict()
-    solution_dicts = question_dict.pop('solutions', None)
-    add_object_to_table(table_name=get_table_name(question_table),
-                        object_data=question_dict)
-    for solution in solution_dicts:
-        solution['parent_object'] = question_dict['object_uuid']
-        add_object_to_table(table_name=get_table_name(solution_table),
-                            object_data=solution)
-    return True
-
 
 
 @apply_defense
@@ -418,92 +217,6 @@ def get_vote_count(object_uuid, vote_type):
 
 
 @apply_defense
-def get_wall_docs(page_user, username):
-    conn = connect_to_dynamo()
-    if isinstance(conn, Exception):
-        return conn
-    post_list = []
-    try:
-        posts_table = Table(table_name=get_table_name('posts'),
-                            connection=conn)
-        comments_table = Table(table_name=get_table_name('comments'),
-                               connection=conn)
-    except JSONResponseError as e:
-        return e
-    posts = posts_table.query_2(
-        parent_object__eq=page_user,
-        created__gte='0',
-        reverse=True
-    )
-    posts = list(posts)
-    if len(posts) == 0:
-        return False
-    for post in posts:
-        comment_list = []
-        post = dict(post)
-        post['upvotes'] = get_vote_count(post['object_uuid'], 1)
-        post['downvotes'] = get_vote_count(post['object_uuid'], 0)
-        vote_type = get_vote(post['object_uuid'], username)
-        if vote_type is not None:
-            if vote_type['status'] == 2:
-                vote_type = None
-            else:
-                vote_type = str(bool(vote_type['status'])).lower()
-        post['vote_type'] = vote_type
-        comments = comments_table.query_2(
-            parent_object__eq=post['object_uuid'],
-            created__gte='0')
-        comments = list(comments)
-        for comment in comments:
-            comment = dict(comment)
-            comment['upvotes'] = get_vote_count(
-                comment['object_uuid'], 1)
-            comment['downvotes'] = get_vote_count(
-                comment['object_uuid'], 0)
-            vote_type = get_vote(comment['object_uuid'], username)
-            if vote_type is not None:
-                if vote_type['status'] == 2:
-                    vote_type = None
-                else:
-                    vote_type = str(bool(vote_type['status'])).lower()
-            comment['vote_type'] = vote_type
-            comment_list.append(comment)
-
-        post['comments'] = comment_list
-        post_list.append(post)
-    return post_list
-
-
-def build_wall_docs(pleb_obj):
-    conn = connect_to_dynamo()
-    if isinstance(conn, Exception):
-        return conn
-    try:
-        post_table = Table(table_name=get_table_name('posts'),
-                           connection=conn)
-        comment_table = Table(table_name=get_table_name('comments'),
-                              connection=conn)
-    except JSONResponseError as e:
-        return e
-    try:
-        posts = pleb_obj.wall.all()[0].post.all()
-    except IndexError as e:
-        return e
-    for post in posts:
-        post_data = post.get_single_dict()
-        comments = post_data.pop('comments', None)
-        try:
-            post_table.put_item(post_data)
-        except ConditionalCheckFailedException as e:
-            return e
-        for comment in comments:
-            comment['parent_object'] = post.object_uuid
-            comment_table.put_item(comment)
-
-    return True
-
-
-@apply_defense
 def get_user_updates(username, object_uuid, table_name):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
@@ -512,7 +225,7 @@ def get_user_updates(username, object_uuid, table_name):
         table = Table(table_name=get_table_name(table_name), connection=conn)
     except JSONResponseError as e:
         return e
-    if table_name=='edits':
+    if table_name == 'edits':
         res = table.query_2(
             parent_object__eq=object_uuid,
             user__eq=username,
@@ -552,8 +265,8 @@ def build_rep_page(rep):
         return e
     rep_data = {
         'object_uuid': str(rep.object_uuid),
-        'name': "%s %s"%(pleb.first_name, pleb.last_name),
-        'full': '%s %s %s'%(rep.title, pleb.first_name, pleb.last_name),
+        'name': "%s %s" % (pleb.first_name, pleb.last_name),
+        'full': '%s %s %s' % (rep.title, pleb.first_name, pleb.last_name),
         'username': pleb.username, 'rep_id': str(rep.object_uuid),
         "bio": str(rep.bio), 'title': rep.title
     }
@@ -608,24 +321,6 @@ def get_rep_docs(rep_id, rep_only=False):
     return {"rep": rep, "policies": policies, "experiences": experiences,
             'education': education, 'goals': goals}
 
-@apply_defense
-def get_notification_docs(username):
-    notification_list = []
-    conn = connect_to_dynamo()
-    if isinstance(conn, Exception):
-        return conn
-    try:
-        notification_table = Table(table_name=get_table_name('notifications'),
-                                   connection=conn)
-    except JSONResponseError as e:
-        return e
-    res = notification_table.query_2(
-                            parent_object__eq=username,
-                            created__gte='0')
-    for notification in res:
-        notification_list.append(dict(notification))
-    return notification_list
-
 
 @apply_defense
 def get_action(username, action):
@@ -647,6 +342,7 @@ def get_action(username, action):
     except ItemNotFound:
         return False
     return dict(action_object)
+
 
 @apply_defense
 def build_privileges(pleb):
@@ -706,15 +402,18 @@ def get_dynamo_table(table_name):
 
     return table
 
+
 @apply_defense
 def get_vote(object_uuid, user):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
+        # TODO implement fall back on neo
         return conn
     try:
         votes_table = Table(table_name=get_table_name('votes'),
                             connection=conn)
     except JSONResponseError as e:
+        # TODO implement fall back on neo
         return e
     try:
         vote = votes_table.get_item(
@@ -723,4 +422,5 @@ def get_vote(object_uuid, user):
         )
         return vote
     except (ItemNotFound, JSONResponseError, ValidationException):
+        # TODO implement fall back on neo
         return None

@@ -63,7 +63,7 @@ class TestSearchResultAPI(TestCase):
 
         self.client.login(username=self.user.username,
                           password='testpassword')
-        request = self.client.get(reverse('search_result_api'))
+        request = self.client.get(reverse('search_result_api')+"?q=test")
 
         self.assertEqual(request.status_code, 200)
 
@@ -79,7 +79,7 @@ class TestSearchResultAPI(TestCase):
         self.client.login(username=self.user.username, password='asdfa')
         request = self.client.get(reverse('search_result_api'))
 
-        self.assertEqual(request.status_code, 401)
+        self.assertEqual(request.status_code, 403)
 
 
 class TestSearchResultAPIReturns(TestCase):
@@ -244,7 +244,6 @@ class TestSearchResultAPIReturns(TestCase):
 
         self.assertEqual(len(loads(request.content)['html']), 10)
         self.assertEqual(request.status_code, 200)
-        self.assertIn('<h2><a href=\\"/conversations/', request.content)
 
     def test_search_result_api_returns_page_3(self):
         email = "suppressionlist@simulator.amazonses.com"

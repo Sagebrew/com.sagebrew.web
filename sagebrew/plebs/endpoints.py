@@ -14,7 +14,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from sagebrew import errors
 
 from api.utils import request_to_api
-from api.permissions import IsSelfOrReadOnly, IsSelf, IsUserOrAdmin
+from api.permissions import IsSelfOrReadOnly, IsSelf, IsOwnerOrAdmin
 from sb_comments.serializers import CommentSerializer
 
 from .serializers import UserSerializer, PlebSerializerNeo, AddressSerializer
@@ -28,7 +28,10 @@ class AddressViewSet(viewsets.ModelViewSet):
     serializer_class = AddressSerializer
     lookup_field = 'object_uuid'
 
-    permission_classes = (IsAuthenticated, IsUserOrAdmin)
+    permission_classes = (IsAuthenticated, IsOwnerOrAdmin)
+
+    def get_object(self):
+        return Address.nodes.get(object_uuid=self.kwargs[self.lookup_field])
 
     def perform_create(self, serializer):
         pleb = Pleb.nodes.get(username=self.request.user.username)

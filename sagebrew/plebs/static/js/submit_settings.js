@@ -17,6 +17,15 @@ $(document).ready(function(){
         var latitude = $("#id_latitude").val();
         var longitude = $("#id_longitude").val();
         var address_uuid = $("#address_uuid").data("object_uuid");
+        var json_data = {
+                "first_name": first_name,
+                "last_name": last_name,
+                "email": email
+            };
+        if (old_password !== "" && new_password !== ""){
+            json_data['password'] = old_password;
+            json_data['new_password'] = new_password;
+        }
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 ajax_security(xhr, settings)
@@ -24,15 +33,9 @@ $(document).ready(function(){
         });
         $.ajax({
             xhrFields: {withCredentials: true},
-            type: "PUT",
+            type: "PATCH",
             url: "/v1/users/" + username + "/",
-            data: JSON.stringify({
-                "first_name": first_name,
-                "last_name": last_name,
-                "email": email,
-                "password": old_password,
-                "new_password": new_password
-            }),
+            data: JSON.stringify(json_data),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
@@ -46,7 +49,7 @@ $(document).ready(function(){
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "PUT",
-            url: "/v1/address/" + address_uuid + "/",
+            url: "/v1/addresses/" + address_uuid + "/",
             data: JSON.stringify({
                 "street": street,
                 "street_additional": street_additional,

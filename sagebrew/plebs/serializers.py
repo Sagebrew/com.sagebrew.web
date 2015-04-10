@@ -1,3 +1,5 @@
+from django.contrib.auth import update_session_auth_hash
+
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -46,6 +48,7 @@ class UserSerializer(serializers.Serializer):
         if instance.check_password(validated_data.get('password', "")) is True:
             instance.set_password(validated_data.get(
                 'new_password', validated_data.get('password', "")))
+            update_session_auth_hash(self.context['request'], instance)
         instance.save()
         spawn_task(task_func=pleb_user_update, task_param={
             "username": instance.username,
@@ -89,7 +92,7 @@ class PlebSerializerNeo(serializers.Serializer):
 
 class AddressSerializer(serializers.Serializer):
     object_uuid = serializers.CharField(read_only=True)
-    url = serializers.HyperlinkedIdentityField(read_only=True,
+    href = serializers.HyperlinkedIdentityField(read_only=True,
                                                view_name="address-detail",
                                                lookup_field="object_uuid")
     street = serializers.CharField(max_length=125)
@@ -98,7 +101,7 @@ class AddressSerializer(serializers.Serializer):
     city = serializers.CharField(max_length=150)
     state = serializers.CharField(max_length=50)
     postal_code = serializers.CharField(max_length=15)
-    country = serializers.CharField()
+    country = serializers.CharField(allow_null=True, required=False)
     latitude = serializers.FloatField()
     longitude = serializers.FloatField()
     congressional_district = serializers.CharField()

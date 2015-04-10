@@ -1,7 +1,5 @@
 from textblob import TextBlob
 
-from django.template.loader import render_to_string
-
 from neomodel import DoesNotExist, CypherException
 
 from api.utils import execute_cypher_query
@@ -117,6 +115,3 @@ def prepare_question_search_html(question_uuid, request):
 
     return my_question.render_search(request)
 
-
-def render_question_object(question_object):
-    return render_to_string('question.html', question_object)

@@ -132,9 +132,10 @@ function populate_comment(object_uuid){
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
-        // TODO should really set a limit of 3 initially and then have a
-        // link people can click to see all the comments.
-        url: "/v1/posts/" + object_uuid + "/comments/render/?expand=true&html=true&limit=3",
+        // TODO probably want to make a /v1/content/ endpoint so that it's more
+        // explanitory that comments can be on any piece of content.
+        // Then use /posts/questions/solutions where needed
+        url: "/v1/posts/" + object_uuid + "/comments/render/?expand=true&html=true&page_size=3",
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
@@ -157,15 +158,16 @@ function populate_comment(object_uuid){
                     $.ajax({
                         xhrFields: {withCredentials: true},
                         type: "GET",
-                        // TODO should really set a limit of 3 initially and then have a
-                        // link people can click to see all the comments.
-                        url: "/v1/posts/" + object_uuid + "/comments/render/?expand=true&html=true&limit=" + data["count"] + "&offset=3",
+                        url: "/v1/posts/" + object_uuid + "/comments/render/?expand=true&html=true&page_size=3&page=2",
                         contentType: "application/json; charset=utf-8",
                         dataType: "json",
                         success: function (data) {
                             var comment_container = $('#sb_comments_container_' + object_uuid);
                             $('#additional_comments_' + object_uuid).remove();
                             comment_container.append(data['results']['html']);
+                            if (data["next"] !== null) {
+                                queryComments(data["next"], object_uuid)
+                            }
                             enable_comment_functionality(data['results']['ids']);
                         },
                         error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -187,6 +189,34 @@ function populate_comment(object_uuid){
     });
 }
 
+function queryComments(url, object_uuid){
+    $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+        });
+    $.ajax({
+        xhrFields: {withCredentials: true},
+        type: "GET",
+        url: url,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (data) {
+            if (data["next"] !== null) {
+                queryComments(data["next"], object_uuid)
+            }
+            var comment_container = $('#sb_comments_container_' + object_uuid);
+            comment_container.append(data['results']['html']);
+            enable_comment_functionality(data['results']['ids']);
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            if(XMLHttpRequest.status === 500){
+                $("#server_error").show();
+            }
+        }
+    });
+}
+
 function populate_comments(object_uuids){
     if(typeof object_uuids !== 'undefined' && object_uuids.length > 0){
         for (i = 0; i < object_uuids.length; i++) {
@@ -196,7 +226,7 @@ function populate_comments(object_uuids){
 }
 
 
-function loadPosts(limit, offset){
+function loadPosts(url){
     $.ajaxSetup({
     beforeSend: function (xhr, settings) {
             ajax_security(xhr, settings)
@@ -205,19 +235,18 @@ function loadPosts(limit, offset){
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
-        url: "/v1/profiles/" + $('#user_info').data('page_user_username') + "/wall/render/?limit="+ limit + "&offset=" + offset + "&expand=true",
+        url: url,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
             var wall_container = $('#wall_app');
             wall_container.append(data['results']['html']);
-            var total = limit + offset;
             // TODO Went with this approach as the scrolling approach resulted
             // in the posts getting out of order. It also had some interesting
             // functionality that wasn't intuitive. Hopefully transitioning to
             // a JS Framework allows us to better handle this feature.
-            if(total <= data["count"] && total < 100){
-                loadPosts(limit, offset + limit)
+            if (data["next"] !== null) {
+                loadPosts(data["next"])
             }
             enable_single_post_functionality(data['results']['ids']);
             // TODO This can probably be changed to grab the href and append
@@ -253,7 +282,7 @@ function loadQuestion(){
                 loadSolutionCount();
                 enable_question_functionality(data['ids']);
                 populate_comments(data['ids']);
-                loadSolutions(2, 0);
+                loadSolutions("/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/solutions/render/?page_size=2&expand=true");
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 if(XMLHttpRequest.status === 500){
@@ -295,7 +324,7 @@ function loadSolutionCount(){
 
 
 
-function loadSolutions(limit, offset){
+function loadSolutions(url){
     $.ajaxSetup({
     beforeSend: function (xhr, settings) {
             ajax_security(xhr, settings)
@@ -304,19 +333,18 @@ function loadSolutions(limit, offset){
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
-        url: "/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/solutions/render/?limit="+ limit + "&offset=" + offset + "&expand=true",
+        url: url,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
             var solution_container = $('#solution_container');
             solution_container.append(data['results']['html']);
-            var total = limit + offset;
             // TODO Went with this approach as the scrolling approach resulted
             // in the posts getting out of order. It also had some interesting
             // functionality that wasn't intuitive. Hopefully transitioning to
             // a JS Framework allows us to better handle this feature.
-            if(total <= data["count"] && total < 150){
-                loadSolutions(limit, total);
+            if (data["next"] !== null) {
+                loadSolutions(data["next"]);
             }
             enable_solution_functionality(data['results']['ids']);
             // TODO This can probably be changed to grab the href and append

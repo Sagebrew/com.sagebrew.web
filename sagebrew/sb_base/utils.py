@@ -41,6 +41,11 @@ def custom_exception_handler(exc, context):
         logger.exception("%s Cypher Exception" % context['view'])
         return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    if isinstance(exc, IndexError):
+        data = errors.CYPHER_INDEX_EXCEPTION
+        logger.exception("%s Index Exception" % context['view'])
+        return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     response = exception_handler(exc, context)
 
     if response is not None:
@@ -48,3 +53,15 @@ def custom_exception_handler(exc, context):
 
     return response
 
+
+def get_ordering(sort_by):
+    ordering = ""
+    if '-' in sort_by:
+        ordering = "DESC"
+        sort_by = sort_by.replace('-', '')
+    if sort_by == "created" or sort_by == "last_edited_on":
+        sort_by = "ORDER BY n.%s" % sort_by
+    else:
+        sort_by = ""
+
+    return sort_by, ordering

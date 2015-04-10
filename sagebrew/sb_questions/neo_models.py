@@ -2,16 +2,17 @@ import pytz
 import markdown
 from uuid import uuid1
 from datetime import datetime
-from api.utils import execute_cypher_query
+
 from django.template import Context
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.template.loader import render_to_string, get_template
+from django.template.loader import render_to_string
 
 from neomodel import (StringProperty, IntegerProperty,
                       RelationshipTo,  BooleanProperty, FloatProperty,
                       CypherException)
 
+from api.utils import execute_cypher_query
 from sb_base.neo_models import SBVersioned, SBTagContent
 from sb_tag.neo_models import TagRelevanceModel
 from sb_base.decorators import apply_defense
@@ -48,7 +49,7 @@ class SBQuestion(SBVersioned, SBTagContent):
                                'AUTO_TAGGED_AS', model=TagRelevanceModel)
     closed_by = RelationshipTo('plebs.neo_models.Pleb', 'CLOSED_BY')
     solutions = RelationshipTo('sb_solutions.neo_models.SBSolution',
-                            'POSSIBLE_ANSWER')
+                               'POSSIBLE_ANSWER')
 
     def get_url(self):
         return reverse("question_detail_page",
@@ -180,9 +181,8 @@ class SBQuestion(SBVersioned, SBTagContent):
     @apply_defense
     def render_search(self, request):
         owner = self.owned_by.all()[0]
-        question_dict = QuestionSerializerNeo(self,
-                                              context=
-                                              {"request": request}).data
+        question_dict = QuestionSerializerNeo(
+            self, context={"request": request}).data
         question_dict['first_name'] = owner.first_name
         question_dict['last_name'] = owner.last_name
         rendered = render_to_string('conversation_block.html',

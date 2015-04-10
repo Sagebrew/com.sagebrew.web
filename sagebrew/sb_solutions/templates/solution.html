@@ -72,7 +72,7 @@
             </button>
             <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
                 role="menu" aria-labelledby="dropdown-menu">
-                {% if current_user_username == owner_object.username %}
+                {% if request.user.username == owner_object.username %}
                     <li role="presentation">
                         <a class="sb_post_dropdown_menu show_edit_solution-action"
                                    data-object_uuid="{{ object_uuid }}"

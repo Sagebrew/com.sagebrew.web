@@ -1,5 +1,5 @@
 $( document ).ready(function() {
-    function loadQuestionSummaries(limit, offset){
+    function loadQuestionSummaries(url){
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 ajax_security(xhr, settings)
@@ -8,24 +8,19 @@ $( document ).ready(function() {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "GET",
-            url: "/v1/questions/render/?limit="+ limit + "&offset=" + offset + "&expand=true",
+            url: url,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
                 $("#question_wrapper").append(data['results']["html"]);
-                var total = limit + offset;
-                // TODO Went with this approach as the scrolling approach resulted
-                // in the posts getting out of order. It also had some interesting
-                // functionality that wasn't intuitive. Hopefully transitioning to
-                // a JS Framework allows us to better handle this feature.
-                if(total <= data["count"] && total < 150){
-                    loadQuestionSummaries(limit, total);
+                if(data["next"] !== null){
+                    loadQuestionSummaries(url);
                 }
                 enable_question_summary_functionality(data['results']["ids"]);
             }
         });
     }
-    loadQuestionSummaries(2, 0);
+    loadQuestionSummaries("/v1/questions/render/?page_size=2&expand=true");
 	$("a.query_questions-action").click(function(event){
 		event.preventDefault();
 		$.ajaxSetup({

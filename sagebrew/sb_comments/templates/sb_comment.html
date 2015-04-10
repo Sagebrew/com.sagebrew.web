@@ -26,7 +26,7 @@
             </button>
             <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
                 role="menu" aria-labelledby="dropdown-menu">
-                {% if owner_object.username == current_user_username %}
+                {% if owner_object.username == request.user.username %}
                     <li role="presentation"><a class="sb_post_dropdown_menu show_edit_comment_class"
                                                data-comment_uuid="{{ object_uuid }}"
                                                type="submit">Edit Comment</a>

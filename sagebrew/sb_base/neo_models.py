@@ -162,6 +162,13 @@ class SBContent(SBVoteableContent):
     is_explicit = BooleanProperty(default=False)
     polarity = FloatProperty()
     subjectivity = FloatProperty()
+    # Please use get_vote_count rather than this. We have this included so that
+    # we can update it at some future point in time. It hopefully will enable
+    # us to order in the Neo4j query rather than using python if necessary like
+    # we currently do for created and last edited on. However we need to
+    # determine the potential for slippage from dyanmo's count and how we want
+    # to update it. So at the moment it will remain at 0.
+    vote_count = IntegerProperty(default=0)
     view_count = IntegerProperty(default=0)
 
     # relationships

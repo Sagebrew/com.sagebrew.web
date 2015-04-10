@@ -25,7 +25,7 @@ urlpatterns = patterns(
         r'wall/render/$',
         post_renderer, name="profile-wall-html"),
     url(r'^profiles/(?P<username>[A-Za-z0-9.@_%+-]{1,30})/wall/'
-        r'(?P<post_uuuid>[A-Za-z0-9.@_%+-]{36,36})/$',
+        r'(?P<post_uuid>[A-Za-z0-9.@_%+-]{36,36})/$',
         WallPostsRetrieveUpdateDestroy.as_view(),
         name="profile-post"),
 )

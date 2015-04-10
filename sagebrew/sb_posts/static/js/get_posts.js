@@ -1,5 +1,3 @@
 $( document ).ready(function() {
-    var limit = 2;
-    var offset = 0;
-    loadPosts(limit, offset);
+    loadPosts("/v1/profiles/" + $('#user_info').data('page_user_username') + "/wall/render/?page_size="+ 2 + "&expand=true");
 });

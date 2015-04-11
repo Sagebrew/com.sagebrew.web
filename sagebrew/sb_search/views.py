@@ -197,7 +197,7 @@ def search_result_api(request):
                         item['_source']['object_uuid'], request))
                 elif item['_type'] == 'pleb':
                     results.append(prepare_user_search_html(
-                        item['_source']['pleb_username']))
+                        item['_source']['username']))
                 elif item['_type'] == 'sagas':
                     results.append(prepare_official_search_html(
                         item['_source']['object_uuid']))

@@ -451,12 +451,12 @@ function save_solution() {
                 $("#solution_container").append(data['html']);
                 $('textarea.sb_solution_input_area').val("");
                 var solution_count_text = $("#solution_count").text();
-                if(solution_count_text != "") {
+                if(solution_count_text != "--") {
                     var solution_count = parseInt(solution_count_text) + 1;
                     $("#solution_count").text(solution_count.toString());
                 }
                 $('#wmd-preview-0').html("");
-                enable_single_post_functionality(data["ids"]);
+                enable_solution_functionality(data["ids"]);
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 if(XMLHttpRequest.status === 500){
@@ -563,12 +563,13 @@ function show_edit_solution() {
 function delete_objects(url, populated_ids){
     if(typeof populated_ids !== 'undefined' && populated_ids.length > 0){
         for (i = 0; i < populated_ids.length; i++) {
-            delete_object(".delete_" + populated_ids[i], url + populated_ids[i] + "/");
+            delete_object(".delete_" + populated_ids[i],
+                url + populated_ids[i] + "/", populated_ids[i]);
         }
     }
 }
 
-function delete_object(delete_area, url) {
+function delete_object(delete_area, url, object_uuid) {
     $(delete_area).click(function (event) {
         event.preventDefault();
         $.ajaxSetup({
@@ -583,12 +584,14 @@ function delete_object(delete_area, url) {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function(data){
-                $(data['html_object']).text(data['content']);
-                $("#edit_container_"+uuid).hide();
-                $("#sb_content_"+uuid).show();
-                //$(".sb_object_dropdown").each(function(i, obj){
-                //    $(obj).removeAttr("disabled");
-                //});
+                $(".block_" + object_uuid).remove();
+                $('textarea.sb_solution_input_area').val("");
+                var solution_count_text = $("#solution_count").text();
+                if(solution_count_text != "--") {
+                    console.log(solution_count_text);
+                    var solution_count = parseInt(solution_count_text) - 1;
+                    $("#solution_count").text(solution_count.toString());
+                }
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 if(XMLHttpRequest.status === 500){

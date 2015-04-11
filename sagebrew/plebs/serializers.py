@@ -84,7 +84,8 @@ class PlebSerializerNeo(serializers.Serializer):
         user_url = reverse(
             'user-detail', kwargs={'username': username}, request=request)
         if expand == "true":
-            response = request_to_api(user_url, obj.username, req_method="GET")
+            response = request_to_api(user_url, obj.username,
+                                      req_method="GET")
             return response.json()
         else:
             return user_url

@@ -284,8 +284,7 @@ class SBContent(VotableContent):
 
         :return:
         """
-        labels = self.get_child_label()
-        print labels
+        labels = self.get_labels()
         if 'SBVersioned' in labels:
             labels.remove('SBVersioned')
 

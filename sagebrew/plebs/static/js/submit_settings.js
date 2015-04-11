@@ -1,4 +1,23 @@
 $(document).ready(function(){
+    $("#delete_button").click(function(event){
+        event.preventDefault();
+        var username = $("#username").data("username");
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "DELETE",
+            url: "/v1/users/" + username + "/",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                window.location.href = "/logout/"
+            }
+        });
+    });
     $("#submit_settings").click(function(event){
         event.preventDefault();
         var username = $("#username").data("username");

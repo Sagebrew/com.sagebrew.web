@@ -2,6 +2,7 @@ from logging import getLogger
 
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
+from django.contrib.auth import logout
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
@@ -72,6 +73,7 @@ class UserViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         instance.is_active = False
         instance.save()
+        logout(self.request)
         # TODO we can also go and delete the pleb and content from here
         # or require additional requests but think we could spawn a task
         # that did all that deconstruction work rather than requiring an

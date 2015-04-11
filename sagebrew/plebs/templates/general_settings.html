@@ -161,7 +161,37 @@
                                         Once you hit delete, your account is in the arms of the sages (aka dead).
                                     </p>
                                     <button class="btn btn-primary btn-danger"
-                                            id="delete_account">Delete Account</button>
+                                            id="delete_account"
+                                            data-toggle="modal"
+                                            data-target="#myModal">Delete Account</button>
+                                </div>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                  <div class="modal-dialog">
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                        <h4 class="modal-title" id="myModalLabel">Delete Account?</h4>
+                                      </div>
+                                      <div class="modal-body">
+                                        Are you absolutely sure you want to delete your account?
+                                      </div>
+                                      <div class="modal-footer">
+                                        <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                                            <button type="button"
+                                                    class="btn btn-primary sb_btn sb_btn_fill"
+                                                    data-dismiss="modal">GET ME OUT OF HERE!</button>
+                                        </div>
+                                        <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                                            <button type="button"
+                                                    class="btn btn-primary btn-danger"
+                                                    data-dismiss="modal"
+                                                    id="delete_button">DELETE</button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
                             </div>
                         </div>

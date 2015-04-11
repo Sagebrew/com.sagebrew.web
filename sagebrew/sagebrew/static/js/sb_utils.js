@@ -10,9 +10,8 @@ function ajax_security(xhr, settings) {
     }
 }
 
-function save_comment(comment_area) {
+function save_comment(comment_area, url, object_uuid) {
     $(comment_area).click(function (event) {
-        var object_uuid = $(this).data('object_uuid');
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -22,7 +21,7 @@ function save_comment(comment_area) {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
-            url: "/comments/submit_comment/",
+            url: url + "render/",
             data: JSON.stringify({
                 'content': $('textarea#post_comment_on_' + object_uuid).val(),
                 'object_uuid': $(this).data('object_uuid'),
@@ -31,7 +30,7 @@ function save_comment(comment_area) {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-                var comment_container = $("#sb_comments_container_"+object_uuid);
+                var comment_container = $("#sb_comments_container_" + object_uuid);
                 comment_container.append(data['html']);
                 $('textarea#post_comment_on_' + object_uuid).val("");
                 enable_comment_functionality(data["ids"])
@@ -46,10 +45,11 @@ function save_comment(comment_area) {
 }
 
 
-function save_comments(populated_ids){
+function save_comments(populated_ids, url){
     if(typeof populated_ids !== 'undefined' && populated_ids.length > 0){
         for (i = 0; i < populated_ids.length; i++) {
-            save_comment(".comment_" + populated_ids[i]);
+            save_comment(".comment_" + populated_ids[i],
+                url + populated_ids[i] + "/comments/", populated_ids[i]);
         }
     }
 }
@@ -923,20 +923,20 @@ function enable_question_summary_functionality(populated_ids) {
 function enable_question_functionality(populated_ids) {
     enable_object_functionality(populated_ids);
     edit_title();
-    save_comments(populated_ids);
+    save_comments(populated_ids, "/v1/questions/");
     show_edit_question(populated_ids);
     save_solution(populated_ids);
 }
 
 function enable_single_post_functionality(populated_ids) {
     enable_object_functionality(populated_ids);
-    save_comments(populated_ids);
+    save_comments(populated_ids, '/v1/posts/');
     show_edit_posts(populated_ids);
 }
 
 function enable_solution_functionality(populated_ids) {
     enable_object_functionality(populated_ids);
-    save_comments(populated_ids);
+    save_comments(populated_ids, '/v1/solutions/');
     show_edit_solution(populated_ids);
 }
 

@@ -12,7 +12,7 @@ from api.utils import spawn_task
 from api.tasks import add_object_to_search_index
 from sb_notifications.tasks import spawn_notifications
 from sb_base.tasks import create_object_relations_task
-from sb_questions.neo_models import SBQuestion
+from sb_questions.neo_models import Question
 from .utils import (save_solution_util)
 
 
@@ -22,7 +22,7 @@ def add_solution_to_search_index(solution):
         try:
             es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
             res = es.get(index='full-search-base',
-                         doc_type='sb_solutions.neo_models.SBSolution',
+                         doc_type='sb_solutions.neo_models.Solution',
                          id=solution.object_uuid)
             return True
         except NotFoundError:
@@ -41,7 +41,7 @@ def add_solution_to_search_index(solution):
                        'object_uuid': solution.object_uuid,
                        'post_date': solution.created,
                        'related_user': ''}
-        task_data = {"object_type": 'sb_solutions.neo_models.SBSolution',
+        task_data = {"object_type": 'sb_solutions.neo_models.Solution',
                      'object_data': search_dict}
         spawned = spawn_task(task_func=add_object_to_search_index,
                              task_param=task_data)
@@ -89,8 +89,8 @@ def save_solution_task(current_pleb, question_uuid, content, solution_uuid):
         raise save_solution_task.retry(exc=spawned, countdown=3, max_retries=None)
 
     try:
-        question = SBQuestion.nodes.get(object_uuid=question_uuid)
-    except(CypherException, SBQuestion.DoesNotExist, DoesNotExist) as e:
+        question = Question.nodes.get(object_uuid=question_uuid)
+    except(CypherException, Question.DoesNotExist, DoesNotExist) as e:
         raise save_solution_task.retry(exc=e, countdown=3, max_retries=None)
     try:
         to_pleb = [question.owned_by.all()[0].username]

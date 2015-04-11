@@ -18,7 +18,7 @@ from sb_base.utils import get_ordering
 from sb_base.views import ObjectRetrieveUpdateDestroy
 
 from .serializers import SolutionSerializerNeo
-from .neo_models import SBSolution
+from .neo_models import Solution
 
 
 logger = getLogger('loggly_logs')
@@ -32,10 +32,10 @@ class SolutionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         sort_by = self.request.query_params.get('ordering', "")
         sort_by, ordering = get_ordering(sort_by)
-        query = "MATCH (n:`SBSolution`) WHERE n.to_be_deleted=false RETURN " \
+        query = "MATCH (n:`Solution`) WHERE n.to_be_deleted=false RETURN " \
                 "n %s %s" % (sort_by, ordering)
         res, col = db.cypher_query(query)
-        queryset = [SBSolution.inflate(row[0]) for row in res]
+        queryset = [Solution.inflate(row[0]) for row in res]
         if sort_by == "":
             queryset = sorted(queryset, key=lambda k: k.get_vote_count(),
                               reverse=True)
@@ -43,7 +43,7 @@ class SolutionViewSet(viewsets.ModelViewSet):
         return queryset
 
     def get_object(self, object_uuid=None):
-        return SBSolution.nodes.get(object_uuid=object_uuid)
+        return Solution.nodes.get(object_uuid=object_uuid)
 
 
 class ObjectSolutionsRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):
@@ -60,12 +60,12 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
     def get_queryset(self):
         sort_by = self.request.query_params.get('ordering', "")
         sort_by, ordering = get_ordering(sort_by)
-        query = "MATCH (a:SBQuestion {object_uuid:'%s'})-[:POSSIBLE_ANSWER]->" \
-                "(b:SBSolution) WHERE b.to_be_deleted=false" \
+        query = "MATCH (a:Question {object_uuid:'%s'})-[:POSSIBLE_ANSWER]->" \
+                "(b:Solution) WHERE b.to_be_deleted=false" \
                 " RETURN b %s %s" % (self.kwargs[self.lookup_field],
                                      sort_by, ordering)
         res, col = db.cypher_query(query)
-        queryset = [SBSolution.inflate(row[0]) for row in res]
+        queryset = [Solution.inflate(row[0]) for row in res]
         if sort_by == "":
             queryset = sorted(queryset, key=lambda k: k.get_vote_count(),
                               reverse=True)

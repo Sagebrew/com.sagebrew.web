@@ -6,10 +6,10 @@ from django.contrib.auth.models import User
 
 from api.utils import wait_util
 from sb_solutions.tasks import save_solution_task, add_solution_to_search_index
-from sb_questions.neo_models import SBQuestion
+from sb_questions.neo_models import Question
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
-from sb_solutions.neo_models import SBSolution
+from sb_solutions.neo_models import Solution
 
 
 class TestSaveSolutionTask(TestCase):
@@ -32,7 +32,7 @@ class TestSaveSolutionTask(TestCase):
 
     def test_save_solution_task(self):
         self.question_info_dict['object_uuid']=str(uuid1())
-        question = SBQuestion(**self.question_info_dict).save()
+        question = Question(**self.question_info_dict).save()
         question.owned_by.connect(self.pleb)
         self.solution_info_dict['question_uuid'] = question.object_uuid
         save_response = save_solution_task.apply_async(
@@ -58,7 +58,7 @@ class TestSaveSolutionTask(TestCase):
 
     def test_save_solution_task_pleb_does_not_exist(self):
         self.question_info_dict['object_uuid']=str(uuid1())
-        question = SBQuestion(**self.question_info_dict).save()
+        question = Question(**self.question_info_dict).save()
         question.owned_by.connect(self.pleb)
         self.solution_info_dict['question_uuid'] = question.object_uuid
         self.solution_info_dict['current_pleb'] = str(uuid1())
@@ -70,7 +70,7 @@ class TestSaveSolutionTask(TestCase):
             time.sleep(1)
         save_response = save_response.result
 
-        self.assertIsInstance(save_response, SBSolution)
+        self.assertIsInstance(save_response, Solution)
 
 
 class TestAddSolutionToSearchIndexTask(TestCase):
@@ -87,7 +87,7 @@ class TestAddSolutionToSearchIndexTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_add_solution_to_search_index_success(self):
-        solution = SBSolution(object_uuid=str(uuid1()),
+        solution = Solution(object_uuid=str(uuid1()),
                           content='this is fake content').save()
         solution.owned_by.connect(self.pleb)
         data = {"solution": solution}
@@ -98,7 +98,7 @@ class TestAddSolutionToSearchIndexTask(TestCase):
         self.assertTrue(res.result)
 
     def test_add_solution_to_search_index_solution_already_added(self):
-        solution = SBSolution(object_uuid=str(uuid1()),
+        solution = Solution(object_uuid=str(uuid1()),
                           content='this is fake content',
                           added_to_search_index=True).save()
         solution.owned_by.connect(self.pleb)
@@ -110,7 +110,7 @@ class TestAddSolutionToSearchIndexTask(TestCase):
         self.assertTrue(res.result)
 
     def test_add_solution_to_search_index_no_owner(self):
-        solution = SBSolution(object_uuid=str(uuid1()),
+        solution = Solution(object_uuid=str(uuid1()),
                           content='this is fake content').save()
         data = {"solution": solution}
         res = add_solution_to_search_index.apply_async(kwargs=data)

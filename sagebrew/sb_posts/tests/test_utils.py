@@ -4,7 +4,7 @@ from datetime import datetime
 from django.test import TestCase
 
 from sb_posts.utils import save_post
-from sb_posts.neo_models import SBPost
+from sb_posts.neo_models import Post
 
 logger = logging.getLogger('loggly_logs')
 
@@ -21,8 +21,8 @@ class TestSavePost(TestCase):
         post_info_dict = {'content': 'test post',
                           'post_uuid': str(uuid1())}
 
-        prev_post = SBPost(content='test', object_uuid=post_info_dict['post_uuid'])
+        prev_post = Post(content='test', object_uuid=post_info_dict['post_uuid'])
         prev_post.save()
         post = save_post(post_uuid=post_info_dict['post_uuid'],
                          content='test post', created=datetime.now())
-        self.assertIsInstance(post, SBPost)
+        self.assertIsInstance(post, Post)

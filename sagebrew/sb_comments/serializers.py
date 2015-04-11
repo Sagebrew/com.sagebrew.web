@@ -1,26 +1,30 @@
 from rest_framework.reverse import reverse
 from rest_framework import serializers
 
+from api.utils import spawn_task
+from sb_base.utils import get_labels
 from sb_base.serializers import ContentSerializer
-from .neo_models import SBComment
+
+from .tasks import create_comment_relations
+from .neo_models import Comment
 
 
 class CommentSerializer(ContentSerializer):
     comment_on = serializers.SerializerMethodField()
 
     def create(self, validated_data):
-        # Connection of the comment to the object it is on is handled in the
-        # create method of the endpoint as it is easier to gather the related
-        # object from there.
         owner = validated_data.pop('owner', None)
         parent_object = validated_data.pop('parent_object', None)
-        comment = SBComment(**validated_data).save()
+        comment = Comment(**validated_data).save()
         if owner is not None:
             comment.owned_by.connect(owner)
             owner.comments.connect(comment)
         if parent_object is not None:
             parent_object.comments.connect(comment)
             comment.comment_on.connect(parent_object)
+        data = {"username": owner.username, "comment": comment.object_uuid,
+                "parent_object": parent_object.object_uuid}
+        spawn_task(task_func=create_comment_relations, task_param=data)
         return comment
 
     def update(self, instance, validated_data):
@@ -35,20 +39,29 @@ class CommentSerializer(ContentSerializer):
         return instance
 
     def get_url(self, obj):
-        # TODO @tyler is there a cleaner way you can think to do this?
+        request = self.context.get('request', None)
         try:
             parent_object = obj.comment_on.all()[0]
         except(IndexError):
             return None
-        return reverse('%s-detail' % parent_object.sb_name,
+        labels = get_labels(parent_object.__class__.__name__,
+                            self.lookup_field,
+                            self.kwargs[self.lookup_field])
+        # This goes on the assumption that Neo4J returns labels in order of
+        # assignment. Since neomodel assigns these in order of inheritance
+        # the top most parent being first and the bottom child being last
+        # we assume that our actual real commentable object is last.
+        object_type = labels[-1].lower()
+        return reverse('%s-detail' % object_type,
                        kwargs={'object_uuid': parent_object.object_uuid},
-                       request=self.context['request'])
+                       request=request)
 
     def get_comment_on(self, obj):
+        request = self.context.get('request', None)
         try:
             parent_object = obj.comment_on.all()[0]
         except(IndexError):
             return None
         return reverse('%s-detail' % parent_object.sb_name,
                        kwargs={'object_uuid': parent_object.object_uuid},
-                       request=self.context['request'])
+                       request=request)

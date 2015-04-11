@@ -10,7 +10,7 @@ from sb_base.serializers import ContentSerializer
 from plebs.serializers import PlebSerializerNeo, UserSerializer
 from plebs.neo_models import Pleb
 
-from .neo_models import SBPost
+from .neo_models import Post
 
 
 class PostSerializerNeo(ContentSerializer):
@@ -24,7 +24,7 @@ class PostSerializerNeo(ContentSerializer):
         owner = Pleb.nodes.get(username=request.user.username)
         wall_owner_username = validated_data.pop('wall_owner', None)
         wall_owner = Pleb.nodes.get(username=wall_owner_username)
-        post = SBPost(**validated_data).save()
+        post = Post(**validated_data).save()
         post.owned_by.connect(owner)
         owner.posts.connect(post)
         wall = wall_owner.wall.all()[0]

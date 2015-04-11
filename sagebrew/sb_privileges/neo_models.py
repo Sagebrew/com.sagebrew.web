@@ -1,20 +1,19 @@
 import pytz
 import pickle
-from uuid import uuid1
 from datetime import datetime
-from neomodel import (StructuredNode, StringProperty, IntegerProperty,
+from neomodel import (StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, BooleanProperty)
 
 from api.utils import request_to_api
+from api.neo_models import SBObject
 
 
-class SBPrivilege(StructuredNode):
-    object_uuid = StringProperty(default=uuid1)
+class Privilege(SBObject):
     name = StringProperty(unique_index=True)
 
-    #relationships
+    # relationships
     actions = RelationshipTo('sb_privileges.neo_models.SBAction', 'GRANTS')
-    requirements = RelationshipTo('sb_requirements.neo_models.SBRequirement',
+    requirements = RelationshipTo('sb_requirements.neo_models.Requirement',
                                   'REQUIRES')
     badges = RelationshipTo('sb_badges.neo_models.BadgeBase', "REQUIRES_BADGE")
 
@@ -55,17 +54,17 @@ class SBPrivilege(StructuredNode):
         }
 
 
-class SBAction(StructuredNode):
-    object_uuid = StringProperty(default=uuid1)
+class SBAction(SBObject):
     action = StringProperty(default="")
-    object_type = StringProperty()#one of the object types specified in settings.KNOWN_TYPES
+    object_type = StringProperty()  # one of the object types specified in
+    # settings.KNOWN_TYPES
     url = StringProperty()
     html_object = StringProperty()
 
-    #relationships
-    privilege = RelationshipTo('sb_privileges.neo_models.SBPrivilege',
+    # relationships
+    privilege = RelationshipTo('sb_privileges.neo_models.Privilege',
                                'PART_OF')
-    restrictions = RelationshipTo('sb_privileges.neo_models.SBRestriction',
+    restrictions = RelationshipTo('sb_privileges.neo_models.Restriction',
                                   'RESTRICTED_BY')
 
     def get_dict(self):
@@ -83,20 +82,19 @@ class SBAction(StructuredNode):
         return self.restrictions.all()
 
 
-class SBRestriction(StructuredNode):
-    object_uuid = StringProperty(default=uuid1, unique_index=True)
+class Restriction(SBObject):
     base = BooleanProperty(default=False)
     name = StringProperty(unique_index=True)
     url = StringProperty()
     key = StringProperty()
-    operator = StringProperty(default="") #gt, ge, eq, ne, ge, gt
-    condition = StringProperty() #convert to w/e type the return is
+    operator = StringProperty(default="")  # gt, ge, eq, ne, ge, gt
+    condition = StringProperty()  # convert to w/e type the return is
     auth_type = StringProperty()
-    expiry = IntegerProperty() #time in seconds until the restriction is up
+    expiry = IntegerProperty()  # time in seconds until the restriction is up
     end_date = DateTimeProperty()
     recurring = BooleanProperty(default=False)
 
-    #methods
+    # methods
     def get_dict(self):
         return {
             "object_uuid": self.object_uuid,
@@ -131,12 +129,11 @@ class SBRestriction(StructuredNode):
                     "key": self.key,
                     "operator": pickle.loads(self.operator),
                     "response": check,
-                    "reason": "You must have %s %s %s, you have %s"%(
+                    "reason": "You must have %s %s %s, you have %s" % (
                         self.get_operator_string(), self.condition, 'flags',
                         current)}
         else:
-            return {"detail": "The restriction %s was met"%(self.object_uuid),
+            return {"detail": "The restriction %s was met" % (self.object_uuid),
                     "key": self.key,
                     "operator": pickle.loads(self.operator),
                     "response": check}
-

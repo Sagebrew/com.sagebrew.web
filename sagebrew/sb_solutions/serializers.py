@@ -3,7 +3,7 @@ from rest_framework.reverse import reverse
 
 from sb_base.serializers import MarkdownContentSerializer
 
-from .neo_models import SBSolution
+from .neo_models import Solution
 
 
 class SolutionSerializerNeo(MarkdownContentSerializer):
@@ -13,7 +13,7 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
 
     def create(self, validated_data):
         # TODO should store in dynamo and then spawn task to store in Neo
-        solution = SBSolution(**validated_data).save()
+        solution = Solution(**validated_data).save()
         return solution
 
     def update(self, instance, validated_data):

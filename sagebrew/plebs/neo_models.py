@@ -1,5 +1,4 @@
 import pytz
-from uuid import uuid1
 from datetime import datetime
 from django.conf import settings
 from django.template.loader import get_template
@@ -9,6 +8,8 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, ZeroOrOne,
                       CypherException, DoesNotExist)
+
+from api.neo_models import SBObject
 
 
 def get_current_time():
@@ -70,8 +71,7 @@ class OfficialRelationship(StructuredRel):
     end_date = DateTimeProperty()
 
 
-class OauthUser(StructuredNode):
-    object_uuid = StringProperty(default=uuid1, unique_index=True)
+class OauthUser(SBObject):
     web_address = StringProperty(default=settings.WEB_ADDRESS + '/o/token/')
     access_token = StringProperty()
     expires_in = IntegerProperty()
@@ -103,7 +103,7 @@ class BetaUser(StructuredNode):
         return True
 
 
-class Pleb(StructuredNode):
+class Pleb(SBObject):
     search_modifiers = {
         'post': 10, 'comment_on': 5, 'upvote': 3, 'downvote': -3,
         'time': -1, 'proximity_to_you': 10, 'proximity_to_interest': 10,
@@ -139,32 +139,32 @@ class Pleb(StructuredNode):
     stripe_customer_id = StringProperty()
 
     # Relationships
-    privileges = RelationshipTo('sb_privileges.neo_models.SBPrivilege', 'HAS',
+    privileges = RelationshipTo('sb_privileges.neo_models.Privilege', 'HAS',
                                 model=ActionActiveRel)
     actions = RelationshipTo('sb_privileges.neo_models.SBAction', 'CAN',
                              model=ActionActiveRel)
-    restrictions = RelationshipTo('sb_privileges.neo_models.SBRestriction',
+    restrictions = RelationshipTo('sb_privileges.neo_models.Restriction',
                                   'RESTRICTED_BY', model=RestrictionRel)
     badges = RelationshipTo("sb_badges.neo_models.BadgeBase", "BADGES")
     oauth = RelationshipTo("plebs.neo_models.OauthUser", "OAUTH_CLIENT")
-    tags = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGS',
+    tags = RelationshipTo('sb_tag.neo_models.Tag', 'TAGS',
                           model=TagRelationship)
-    voted_on = RelationshipTo('sb_base.neo_models.SBVoteableContent', 'VOTES')
+    voted_on = RelationshipTo('sb_base.neo_models.VotableContent', 'VOTES')
     address = RelationshipTo("Address", "LIVES_AT")
-    interests = RelationshipTo("sb_tag.neo_models.SBTag", "INTERESTED_IN")
+    interests = RelationshipTo("sb_tag.neo_models.Tag", "INTERESTED_IN")
     friends = RelationshipTo("Pleb", "FRIENDS_WITH", model=FriendRelationship)
-    posts = RelationshipTo('sb_posts.neo_models.SBPost', 'OWNS_POST',
+    posts = RelationshipTo('sb_posts.neo_models.Post', 'OWNS_POST',
                            model=PostObjectCreated)
-    questions = RelationshipTo('sb_questions.neo_models.SBQuestion',
+    questions = RelationshipTo('sb_questions.neo_models.Question',
                                'OWNS_QUESTION',
                                model=PostObjectCreated)
-    solutions = RelationshipTo('sb_solutions.neo_models.SBSolution',
+    solutions = RelationshipTo('sb_solutions.neo_models.Solution',
                                'OWNS_ANSWER',
                                model=PostObjectCreated)
-    comments = RelationshipTo('sb_comments.neo_models.SBComment',
+    comments = RelationshipTo('sb_comments.neo_models.Comment',
                               'OWNS_COMMENT',
                               model=PostObjectCreated)
-    wall = RelationshipTo('sb_wall.neo_models.SBWall', 'OWNS_WALL')
+    wall = RelationshipTo('sb_wall.neo_models.Wall', 'OWNS_WALL')
     notifications = RelationshipTo(
         'sb_notifications.neo_models.NotificationBase', 'RECEIVED_A')
     friend_requests_sent = RelationshipTo(
@@ -252,11 +252,11 @@ class Pleb(StructuredNode):
         pass
 
     def update_tag_rep(self, base_tags, tags):
-        from sb_tag.neo_models import SBTag
+        from sb_tag.neo_models import Tag
         for item in tags:
             try:
-                tag = SBTag.nodes.get(tag_name=item)
-            except (SBTag.DoesNotExist, DoesNotExist, CypherException):
+                tag = Tag.nodes.get(tag_name=item)
+            except (Tag.DoesNotExist, DoesNotExist, CypherException):
                 continue
             if self.tags.is_connected(tag):
                 rel = self.tags.relationship(tag)
@@ -268,8 +268,8 @@ class Pleb(StructuredNode):
                 rel.save()
         for item in base_tags:
             try:
-                tag = SBTag.nodes.get(tag_name=item)
-            except (SBTag.DoesNotExist, DoesNotExist, CypherException):
+                tag = Tag.nodes.get(tag_name=item)
+            except (Tag.DoesNotExist, DoesNotExist, CypherException):
                 continue
             if self.tags.is_connected(tag):
                 rel = self.tags.relationship(tag)
@@ -397,8 +397,7 @@ class Pleb(StructuredNode):
             return e
 
 
-class Address(StructuredNode):
-    object_uuid = StringProperty(default=uuid1, unique_index=True)
+class Address(SBObject):
     street = StringProperty()
     street_additional = StringProperty()
     city = StringProperty()
@@ -414,8 +413,7 @@ class Address(StructuredNode):
     owned_by = RelationshipTo("Pleb", 'LIVES_IN')
 
 
-class FriendRequest(StructuredNode):
-    object_uuid = StringProperty(default=uuid1, unique_index=True)
+class FriendRequest(SBObject):
     seen = BooleanProperty(default=False)
     time_sent = DateTimeProperty(default=get_current_time)
     time_seen = DateTimeProperty(default=None)

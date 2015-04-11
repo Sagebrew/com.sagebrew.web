@@ -1,10 +1,10 @@
-from uuid import uuid1
 from sb_base.decorators import apply_defense
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, DateProperty)
 
+from api.neo_models import SBObject
 from plebs.neo_models import Pleb
 
 
@@ -15,7 +15,6 @@ class CongressVoteRelationship(StructuredRel):
 class BaseOfficial(Pleb):
     type_str = "f46fbcda-9da8-11e4-9233-080027242395"
     title = StringProperty()
-    object_uuid = StringProperty(unique_index=True, default=uuid1)
     bio = StringProperty(default="")
     name_mod = StringProperty()
     current = BooleanProperty()
@@ -82,8 +81,7 @@ class Committee(StructuredNode):
     members = RelationshipTo(BaseOfficial, "COMMITTEE_MEMBERS")
 
 
-class Experience(StructuredNode):
-    object_uuid = StringProperty(unique_index=True)
+class Experience(SBObject):
     title = StringProperty()
     start_date = DateProperty()
     end_date = DateProperty()
@@ -107,8 +105,7 @@ class Experience(StructuredNode):
                 "location": self.location_s}
 
 
-class Goal(StructuredNode):
-    object_uuid = StringProperty(unique_index=True)
+class Goal(SBObject):
     initial = BooleanProperty(default=False)
     description = StringProperty()
     vote_req = IntegerProperty()

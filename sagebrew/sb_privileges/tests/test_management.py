@@ -4,8 +4,8 @@ from django.conf import settings
 from django.test import TestCase
 from django.core.management import call_command
 
-from sb_privileges.neo_models import SBPrivilege, SBRestriction, SBAction
-from sb_requirements.neo_models import SBRequirement
+from sb_privileges.neo_models import Privilege, Restriction, SBAction
+from sb_requirements.neo_models import Requirement
 
 logger = logging.getLogger('loggly_logs')
 
@@ -20,16 +20,16 @@ class TestCreatePrivileges(TestCase):
             for privilege in data['privileges']:
                 requirements = privilege.pop('requirements', [])
                 actions = privilege.pop('actions', [])
-                privilege_obj = SBPrivilege.nodes.get(name=privilege["name"])
+                privilege_obj = Privilege.nodes.get(name=privilege["name"])
                 self.assertIsNotNone(privilege_obj)
                 for requirement in requirements:
-                    requirement_obj = SBRequirement.nodes.get(
+                    requirement_obj = Requirement.nodes.get(
                         name=requirement["name"])
                     self.assertIsNotNone(requirement_obj)
                 for action in actions:
                     action_obj = SBAction.nodes.get(action=action["action"])
                     self.assertIsNotNone(action_obj)
                 for restriction in data['restrictions']:
-                    restrict_obj = SBRestriction.nodes.get(
+                    restrict_obj = Restriction.nodes.get(
                         name=restriction["name"])
                     self.assertIsNotNone(restrict_obj)

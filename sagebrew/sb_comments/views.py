@@ -12,7 +12,6 @@ from rest_framework.reverse import reverse
 
 from api.utils import spawn_task, request_to_api
 
-from .tasks import save_comment_on_object
 from .forms import (SaveCommentForm)
 
 
@@ -70,11 +69,7 @@ def save_comment_view(request):
             "parent_object": request.user.username
         }
         html = render_to_string("sb_comments.html", comment_data)
-        spawned = spawn_task(task_func=save_comment_on_object,
-                             task_param=task_data)
-        if isinstance(spawned, Exception):
-            return Response({"detail": "Failed to create comment task"},
-                            status=500)
+
         return Response({
             "detail": "Comment successfully created", "html": html,
             "ids": [task_data['comment_uuid']]},

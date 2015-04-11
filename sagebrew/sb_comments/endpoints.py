@@ -9,13 +9,15 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import (ListCreateAPIView)
+
 from neomodel import db
 
 from sb_base.neo_models import SBContent
 from sb_base.views import ObjectRetrieveUpdateDestroy
+from sb_base.utils import get_labels
 from plebs.neo_models import Pleb
 
-from .neo_models import SBComment
+from .neo_models import Comment
 from .serializers import CommentSerializer
 
 logger = getLogger('loggly_logs')
@@ -34,11 +36,11 @@ class ObjectCommentsListCreate(ListCreateAPIView):
 
     def get_queryset(self):
         query = "MATCH (a:SBContent {object_uuid:'%s'})-[:HAS_A]->" \
-                "(b:SBComment) WHERE b.to_be_deleted=false" \
+                "(b:Comment) WHERE b.to_be_deleted=false" \
                 " RETURN b ORDER BY b.created " \
                 "DESC" % (self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
-        return [SBComment.inflate(row[0]) for row in res]
+        return [Comment.inflate(row[0]) for row in res]
 
     def create(self, request, *args, **kwargs):
         comment_data = request.data
@@ -48,17 +50,25 @@ class ObjectCommentsListCreate(ListCreateAPIView):
             pleb = Pleb.nodes.get(username=request.user.username)
             parent_object = SBContent.nodes.get(
                 object_uuid=self.kwargs[self.lookup_field])
-            serializer.save(owner=pleb, parent_object=parent_object)
 
-            """
-            # This is more to what we'd like to do with the dynamo middleware
-            serializer = CommentSerializer(instance,
-                                           context={"request": request})
-            put_item = dict(serializer.data)
-            put_item['parent_object'] = parent_object.object_uuid
-            table = get_dynamo_table("comments")
-            table.put_item(data=put_item)
-            """
+            instance = serializer.save(owner=pleb, parent_object=parent_object)
+            serializer = self.get_serializer(instance,
+                                             context={"request": request}).data
+
+            html = request.query_params.get('html', 'false').lower()
+            if html == "true":
+                serializer = serializer.data
+                serializer['last_edited_on'] = datetime.strptime(
+                    serializer['last_edited_on'][:len(
+                        serializer['last_edited_on']) - 6],
+                    '%Y-%m-%dT%H:%M:%S.%f')
+                context = RequestContext(request, serializer)
+                return Response(
+                    {
+                        "html": [render_to_string('sb_comment.html', context)],
+                        "ids": [serializer["object_uuid"]]
+                    },
+                    status=status.HTTP_200_OK)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -84,7 +94,7 @@ def comment_renderer(request, object_uuid=None):
         # implementation of spacing for vote count in the template.
         comment["vote_count"] = str(comment["vote_count"])
         context = RequestContext(request, comment)
-        html_array.append(render_to_string('sb_comments.html',  context))
+        html_array.append(render_to_string('sb_comment.html',  context))
         id_array.append(comment["object_uuid"])
     comments.data['results'] = {"html": html_array, "ids": id_array}
     return Response(comments.data, status=status.HTTP_200_OK)

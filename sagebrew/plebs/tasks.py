@@ -12,7 +12,7 @@ from api.utils import spawn_task
 from api.tasks import add_object_to_search_index, generate_oauth_info
 from sb_base.utils import defensive_exception
 from sb_search.tasks import add_user_to_custom_index
-from sb_wall.neo_models import SBWall
+from sb_wall.neo_models import Wall
 
 from sb_registration.models import token_gen
 from sb_privileges.tasks import check_privileges
@@ -146,7 +146,7 @@ def create_wall_task(user_instance=None):
         pass
     else:
         try:
-            wall = SBWall(wall_id=str(uuid1())).save()
+            wall = Wall(wall_id=str(uuid1())).save()
             wall.owned_by.connect(pleb)
             pleb.wall.connect(wall)
         except(CypherException, IOError) as e:

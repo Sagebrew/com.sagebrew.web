@@ -13,10 +13,10 @@ from sb_base.decorators import apply_defense
 from sb_base.neo_models import SBVersioned
 
 
-class SBSolution(SBVersioned):
+class Solution(SBVersioned):
     object_type = "02241aee-644f-11e4-9ad9-080027242395"
     table = 'public_solutions'
-    action = "offered a solution to a question"
+    action_name = "offered a solution to a question"
     sb_name = "solution"
     up_vote_adjustment = 10
     down_vote_adjustment = 10
@@ -25,9 +25,9 @@ class SBSolution(SBVersioned):
     search_id = StringProperty()
 
     # relationships
-    auto_tags = RelationshipTo('sb_tag.neo_models.SBAutoTag',
+    auto_tags = RelationshipTo('sb_tag.neo_models.AutoTag',
                                'AUTO_TAGGED_AS')
-    solution_to = RelationshipTo('sb_questions.neo_models.SBQuestion',
+    solution_to = RelationshipTo('sb_questions.neo_models.Question',
                                  'POSSIBLE_ANSWER_TO')
 
     def get_url(self):
@@ -40,7 +40,7 @@ class SBSolution(SBVersioned):
         return {
             "profile_pic": pleb.profile_pic,
             "full_name": pleb.get_full_name(),
-            "action": self.action,
+            "action_name": self.action_name,
             "url": self.get_url()
         }
 
@@ -65,7 +65,7 @@ class SBSolution(SBVersioned):
     @apply_defense
     def edit_content(self, content, pleb):
         try:
-            edit_solution = SBSolution(object_uuid=str(uuid1()), original=False,
+            edit_solution = Solution(object_uuid=str(uuid1()), original=False,
                                        content=content).save()
             self.edits.connect(edit_solution)
             edit_solution.edit_to.connect(self)

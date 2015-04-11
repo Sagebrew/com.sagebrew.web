@@ -13,17 +13,16 @@ from neomodel import (StringProperty, IntegerProperty,
                       CypherException)
 
 from api.utils import execute_cypher_query
-from sb_base.neo_models import SBVersioned, SBTagContent
+from sb_base.neo_models import SBVersioned, TagContent
 from sb_tag.neo_models import TagRelevanceModel
 from sb_base.decorators import apply_defense
 from plebs.serializers import UserSerializer, PlebSerializerNeo
 
 from .serializers import QuestionSerializerNeo
 
-
-class SBQuestion(SBVersioned, SBTagContent):
+class Question(SBVersioned):
     table = 'public_questions'
-    action = "asked a question"
+    action_name = "asked a question"
     sb_name = "question"
     up_vote_adjustment = 5
     down_vote_adjustment = 2
@@ -45,10 +44,10 @@ class SBQuestion(SBVersioned, SBTagContent):
     added_to_search_index = BooleanProperty(default=False)
 
     # relationships
-    auto_tags = RelationshipTo('sb_tag.neo_models.SBAutoTag',
+    auto_tags = RelationshipTo('sb_tag.neo_models.AutoTag',
                                'AUTO_TAGGED_AS', model=TagRelevanceModel)
     closed_by = RelationshipTo('plebs.neo_models.Pleb', 'CLOSED_BY')
-    solutions = RelationshipTo('sb_solutions.neo_models.SBSolution',
+    solutions = RelationshipTo('sb_solutions.neo_models.Solution',
                                'POSSIBLE_ANSWER')
 
     def get_url(self):
@@ -59,7 +58,7 @@ class SBQuestion(SBVersioned, SBTagContent):
         return {
             "profile_pic": pleb.profile_pic,
             "full_name": pleb.get_full_name(),
-            "action": self.action,
+            "action_name": self.action_name,
             "url": self.get_url()
         }
 
@@ -126,7 +125,7 @@ class SBQuestion(SBVersioned, SBTagContent):
 
     @apply_defense
     def get_single_dict(self):
-        from sb_solutions.neo_models import SBSolution
+        from sb_solutions.neo_models import Solution
         try:
             solution_array = []
             comment_array = []
@@ -138,13 +137,13 @@ class SBQuestion(SBVersioned, SBTagContent):
             # TODO is this used for storing solutions and comments
             # into dynamo? Or can we get rid of it and just return
             # the question specific data?
-            query = 'match (q:SBQuestion) where q.object_uuid="%s" ' \
+            query = 'match (q:Question) where q.object_uuid="%s" ' \
                     'with q ' \
-                    'match (q)-[:POSSIBLE_ANSWER]-(a:SBSolution) ' \
+                    'match (q)-[:POSSIBLE_ANSWER]-(a:Solution) ' \
                     'where a.to_be_deleted=False ' \
                     'return a ' % self.object_uuid
             solutions, meta = execute_cypher_query(query)
-            solutions = [SBSolution.inflate(row[0]) for row in solutions]
+            solutions = [Solution.inflate(row[0]) for row in solutions]
             for solution in solutions:
                 solution_array.append(solution.get_single_dict())
             edit = self.get_most_recent_edit()
@@ -202,7 +201,7 @@ class SBQuestion(SBVersioned, SBTagContent):
     def get_most_recent_edit(self):
         try:
             results, columns = self.cypher('start q=node({self}) '
-                                           'match q-[:EDIT]-(n:SBQuestion) '
+                                           'match q-[:EDIT]-(n:Question) '
                                            'with n '
                                            'ORDER BY n.created DESC'
                                            ' return n')

@@ -15,7 +15,7 @@ from neomodel import db
 from sb_base.utils import get_ordering
 
 from .serializers import QuestionSerializerNeo
-from .neo_models import SBQuestion
+from .neo_models import Question
 
 logger = getLogger('loggly_logs')
 
@@ -33,10 +33,10 @@ class QuestionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         sort_by = self.request.query_params.get('ordering', "")
         sort_by, ordering = get_ordering(sort_by)
-        query = "MATCH (n:`SBQuestion`) WHERE n.to_be_deleted=false RETURN " \
+        query = "MATCH (n:`Question`) WHERE n.to_be_deleted=false RETURN " \
                 "n %s %s" % (sort_by, ordering)
         res, col = db.cypher_query(query)
-        queryset = [SBQuestion.inflate(row[0]) for row in res]
+        queryset = [Question.inflate(row[0]) for row in res]
         if sort_by == "":
             queryset = sorted(queryset, key=lambda k: k.get_vote_count(),
                               reverse=True)
@@ -44,7 +44,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         return queryset
 
     def get_object(self):
-        return SBQuestion.nodes.get(object_uuid=self.kwargs[self.lookup_field])
+        return Question.nodes.get(object_uuid=self.kwargs[self.lookup_field])
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -77,7 +77,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'])
     def solution_count(self, request, object_uuid=None):
-        query = 'MATCH (a:SBQuestion)-->(solutions:SBSolution) ' \
+        query = 'MATCH (a:Question)-->(solutions:Solution) ' \
                 'WHERE (a.object_uuid = "%s" and a.to_be_deleted = false)' \
                 'RETURN count(DISTINCT solutions)' \
                 '' % (self.kwargs[self.lookup_field])

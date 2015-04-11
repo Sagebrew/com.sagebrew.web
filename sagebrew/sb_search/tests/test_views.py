@@ -16,7 +16,7 @@ from elasticsearch import Elasticsearch
 from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_search.views import search_result_view
-from sb_questions.neo_models import SBQuestion
+from sb_questions.neo_models import Question
 from sb_registration.utils import create_user_util_test
 
 
@@ -136,7 +136,7 @@ class TestSearchResultAPIReturns(TestCase):
     def tearDown(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         es.delete_by_query('full-search-user-specific-1',
-                           'sb_questions.neo_models.SBQuestion',
+                           'sb_questions.neo_models.Question',
                            body={
                                'query': {
                                    'query_string': {
@@ -147,7 +147,7 @@ class TestSearchResultAPIReturns(TestCase):
 
     def test_search_result_api_returns_expected(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        question1 = SBQuestion(object_uuid=str(uuid1()),
+        question1 = Question(object_uuid=str(uuid1()),
                                title=self.q1dict['title'],
                                content=self.q1dict['question_content'],
                                is_closed=False, solution_count=0,
@@ -158,7 +158,7 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(self.pleb)
         index_res = es.index(index='full-search-user-specific-1',
-                             doc_type='sb_questions.neo_models.SBQuestion',
+                             doc_type='sb_questions.neo_models.Question',
                              body={
                                  'object_uuid': question1.object_uuid,
                                  'title': question1.title,
@@ -175,7 +175,7 @@ class TestSearchResultAPIReturns(TestCase):
 
     def test_search_result_api_returns_multi_expected(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        question1 = SBQuestion(object_uuid=str(uuid1()),
+        question1 = Question(object_uuid=str(uuid1()),
                                title=self.q1dict['title'],
                                content=self.q1dict['question_content'],
                                is_closed=False, solution_count=0,
@@ -186,7 +186,7 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(self.pleb)
         es.index(index='full-search-user-specific-1',
-                 doc_type='sb_questions.neo_models.SBQuestion',
+                 doc_type='sb_questions.neo_models.Question',
                  body={
                      'object_uuid': question1.object_uuid,
                      'title': question1.title,
@@ -195,7 +195,7 @@ class TestSearchResultAPIReturns(TestCase):
                  })
         for item in range(0,9):
             es.index(index='full-search-user-specific-1',
-                     doc_type='sb_questions.neo_models.SBQuestion',
+                     doc_type='sb_questions.neo_models.Question',
                      body={
                          'object_uuid': question1.object_uuid,
                          'title': question1.title,
@@ -211,7 +211,7 @@ class TestSearchResultAPIReturns(TestCase):
 
     def test_search_result_api_returns_page_2(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        question1 = SBQuestion(object_uuid=str(uuid1()),
+        question1 = Question(object_uuid=str(uuid1()),
                                title=self.q1dict['title'],
                                content=self.q1dict['question_content'],
                                is_closed=False, solution_count=0,
@@ -222,7 +222,7 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(self.pleb)
         es.index(index='full-search-user-specific-1',
-                 doc_type='sb_questions.neo_models.SBQuestion',
+                 doc_type='sb_questions.neo_models.Question',
                  body={
                      'object_uuid': question1.object_uuid,
                      'title': question1.title,
@@ -231,7 +231,7 @@ class TestSearchResultAPIReturns(TestCase):
                  })
         for item in range(0,19):
             es.index(index='full-search-user-specific-1',
-                     doc_type='sb_questions.neo_models.SBQuestion',
+                     doc_type='sb_questions.neo_models.Question',
                      body={
                          'object_uuid': question1.object_uuid,
                          'title': question1.title,
@@ -247,7 +247,7 @@ class TestSearchResultAPIReturns(TestCase):
 
     def test_search_result_api_returns_page_3(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        question1 = SBQuestion(object_uuid=str(uuid1()),
+        question1 = Question(object_uuid=str(uuid1()),
                                title=self.q1dict['title'],
                                question_content=self.q1dict['question_content'],
                                is_closed=False, solution_count=0,
@@ -258,7 +258,7 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(self.pleb)
         es_res = es.index(index='full-search-user-specific-1',
-                 doc_type='sb_questions.neo_models.SBQuestion',
+                 doc_type='sb_questions.neo_models.Question',
                  body={
                      'object_uuid': question1.object_uuid,
                      'title': question1.title,
@@ -267,7 +267,7 @@ class TestSearchResultAPIReturns(TestCase):
                  })
         for item in range(0,39):
             es.index(index='full-search-user-specific-1',
-                     doc_type='sb_questions.neo_models.SBQuestion',
+                     doc_type='sb_questions.neo_models.Question',
                      body={
                          'object_uuid': question1.object_uuid,
                          'title': question1.title,
@@ -287,7 +287,7 @@ class TestSearchResultAPIReturns(TestCase):
         pleb.save()
         user = User.objects.create_user(shortuuid.uuid(), email, 'testpassword')
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        question1 = SBQuestion(object_uuid=str(uuid1()),
+        question1 = Question(object_uuid=str(uuid1()),
                                title=self.q1dict['title'],
                                question_content=self.q1dict['question_content'],
                                is_closed=False, solution_count=0,
@@ -298,7 +298,7 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(self.pleb)
         es.index(index='full-search-user-specific-1',
-                 doc_type='sb_questions.neo_models.SBQuestion',
+                 doc_type='sb_questions.neo_models.Question',
                  body={
                      'object_uuid': question1.object_uuid,
                      'title': question1.title,
@@ -307,7 +307,7 @@ class TestSearchResultAPIReturns(TestCase):
                  })
         for item in range(0,29):
             es.index(index='full-search-user-specific-1',
-                     doc_type='sb_questions.neo_models.SBQuestion',
+                     doc_type='sb_questions.neo_models.Question',
                      body={
                          'object_uuid': question1.object_uuid,
                          'title': question1.title,
@@ -329,7 +329,7 @@ class TestSearchResultAPIReturns(TestCase):
         self.user.email = email
         self.user.save()
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        question1 = SBQuestion(object_uuid=str(uuid1()),
+        question1 = Question(object_uuid=str(uuid1()),
                                title=self.q1dict['title'],
                                content=self.q1dict['question_content'],
                                is_closed=False, solution_count=0,
@@ -340,7 +340,7 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(pleb)
         es.index(index='full-search-user-specific-1',
-                 doc_type='sb_questions.neo_models.SBQuestion',
+                 doc_type='sb_questions.neo_models.Question',
                  body={
                      'object_uuid': question1.object_uuid,
                      'title': question1.title,
@@ -348,7 +348,7 @@ class TestSearchResultAPIReturns(TestCase):
                      'related_user': self.user.username
                  })
 
-        question2 = SBQuestion(object_uuid=str(uuid1()),
+        question2 = Question(object_uuid=str(uuid1()),
                                title='Should we ban the use '
                                               'of fossil fuels?',
                                content='With battery-powered cars '
@@ -365,7 +365,7 @@ class TestSearchResultAPIReturns(TestCase):
                                )
         question2.save()
         es.index(index='full-search-user-specific-1',
-                 doc_type='sb_questions.neo_models.SBQuestion',
+                 doc_type='sb_questions.neo_models.Question',
                  body={'object_uuid': question2.object_uuid,
                        'question_content': question2.content,
                        'title': question2.title,
@@ -375,15 +375,15 @@ class TestSearchResultAPIReturns(TestCase):
         request = self.client.get('/search/api/?q=fossil fuels')
         result_dict = loads(request.content)
 
-        res1 = SBQuestion.nodes.get(object_uuid=result_dict['html'][0]['question_uuid'])
-        res2 = SBQuestion.nodes.get(object_uuid=result_dict['html'][1]['question_uuid'])
+        res1 = Question.nodes.get(object_uuid=result_dict['html'][0]['question_uuid'])
+        res2 = Question.nodes.get(object_uuid=result_dict['html'][1]['question_uuid'])
         self.assertEqual(res1.title, question2.title)
         self.assertEqual(res2.title, question1.title)
         self.assertEqual(request.status_code, 200)
 
 
 '''
-question2 = SBQuestion(object_uuid=str(uuid1()),
+question2 = Question(object_uuid=str(uuid1()),
                        title='How can we reduce the amount of'
                                       ' NO2 pollution in the '
                                       'atmosphere?',

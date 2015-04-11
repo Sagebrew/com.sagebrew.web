@@ -1,11 +1,9 @@
-from uuid import uuid1
+from neomodel import (IntegerProperty, CypherException)
 
-from neomodel import (StringProperty, IntegerProperty, CypherException,
-                      StructuredNode)
+from api.neo_models import SBObject
 
 
-class SBViewCount(StructuredNode):
-    object_uuid = StringProperty(unique_index=True, default=uuid1)
+class SBViewCount(SBObject):
     view_count = IntegerProperty(default=0)
 
     def increment(self):

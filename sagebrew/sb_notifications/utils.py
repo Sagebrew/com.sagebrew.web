@@ -1,17 +1,16 @@
 from logging import getLogger
-from uuid import uuid1
 
 from neomodel import DoesNotExist, CypherException
 
-from .neo_models import NotificationBase
+from .neo_models import NotificationBase, NotificationCapable
 from sb_base.decorators import apply_defense
 
 logger = getLogger('loggly_logs')
 
 
 @apply_defense
-def create_notification_util(sb_object, from_pleb, to_plebs,
-                             notification_id=None):
+def create_notification_util(sb_object, from_pleb, to_plebs, notification_id,
+                             url):
     """
     This function will check to see if there is already a notification
     created about the combination of object, plebs, and action and will add
@@ -24,10 +23,11 @@ def create_notification_util(sb_object, from_pleb, to_plebs,
     :param notification_id:
     :return:
     """
-    if from_pleb in to_plebs:
-        to_plebs.remove(from_pleb)
-    if notification_id is None:
-        notification_id = str(uuid1())
+    try:
+        sb_object = NotificationCapable.nodes.get(object_uuid=sb_object)
+    except (CypherException, IOError) as e:
+        return e
+
     try:
         try:
             notification = NotificationBase.nodes.get(
@@ -36,19 +36,12 @@ def create_notification_util(sb_object, from_pleb, to_plebs,
                 return True
 
         except (NotificationBase.DoesNotExist, DoesNotExist):
-            try:
-                notification = NotificationBase(
-                    object_uuid=notification_id,
-                    about=sb_object.sb_name,
-                    about_id=sb_object.object_uuid,
-                    url=sb_object.get_url(),
-                    action=sb_object.action).save()
-            except AttributeError:
-                # Currently comments do not support notifications as there is
-                # no easy way to get the object's url that the comment was
-                # made on.
-                logger.exception("Notification failure")
-                return True
+            notification = NotificationBase(
+                object_uuid=notification_id,
+                about=sb_object.sb_name,
+                about_id=sb_object.object_uuid,
+                url=url,
+                action_name=sb_object.action_name).save()
 
         notification.notification_from.connect(from_pleb)
         for pleb in to_plebs:

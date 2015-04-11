@@ -5,7 +5,7 @@ from neomodel import (RelationshipTo, DateTimeProperty,
                       StructuredRel, CypherException)
 
 from sb_base.decorators import apply_defense
-from sb_base.neo_models import SBNonVersioned
+from sb_base.neo_models import NonVersioned
 
 
 def get_current_time():
@@ -16,11 +16,11 @@ class CommentedOnRel(StructuredRel):
     shared_on = DateTimeProperty(default=get_current_time)
 
 
-class SBComment(SBNonVersioned):
+class Comment(NonVersioned):
     table = 'comments'
     up_vote_adjustment = 2
     down_vote_adjustment = 1
-    action = "commented on your "
+    action_name = "commented on your "
     sb_name = "comment"
     object_type = "02ba1c88-644f-11e4-9ad9-080027242395"
     comment_on = RelationshipTo('sb_base.neo_models.SBContent',
@@ -30,7 +30,7 @@ class SBComment(SBNonVersioned):
         return {
             "profile_pic": pleb.profile_pic,
             "full_name": pleb.get_full_name(),
-            "action": self.action + sb_object.sb_name,
+            "action_name": "%s %s" % (self.action_name, sb_object.sb_name),
             "url": sb_object.get_url()
         }
 

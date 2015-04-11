@@ -2,15 +2,16 @@ from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from rest_framework.test import APIRequestFactory, APIClient
+from rest_framework.test import APIRequestFactory
 
 from api.utils import wait_util
+from plebs.neo_models import Pleb
+from sb_registration.utils import create_user_util_test
+
 from sb_questions.utils import (create_question_util,
                                 get_question_by_least_recent,
                                 prepare_question_search_html)
-from sb_questions.neo_models import SBQuestion
-from plebs.neo_models import Pleb
-from sb_registration.utils import create_user_util_test
+from sb_questions.neo_models import Question
 
 
 class TestCreateQuestion(TestCase):
@@ -32,8 +33,8 @@ class TestCreateQuestion(TestCase):
         self.assertIsNotNone(response)
 
     def test_save_question_twice(self):
-        question = SBQuestion(title="Test question",
-                              content="test post", object_uuid=self.uuid)
+        question = Question(title="Test question",
+                            content="test post", object_uuid=self.uuid)
         question.save()
         response = create_question_util(**self.question_info_dict)
 
@@ -83,7 +84,7 @@ class TestPrepareQuestionSearchHTML(TestCase):
         request = self.factory.post('/questions/search/')
         request.user = self.user
         self.question_info_dict['object_uuid'] = str(uuid1())
-        question = SBQuestion(**self.question_info_dict)
+        question = Question(**self.question_info_dict)
         question.save()
         question.owned_by.connect(self.pleb)
         question.save()

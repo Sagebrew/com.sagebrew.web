@@ -5,10 +5,10 @@ from django.contrib.auth.models import User
 from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
-from sb_posts.neo_models import SBPost
+from sb_posts.neo_models import Post
 
 
-class TestSBPostNeoModels(TestCase):
+class TestPostNeoModels(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
@@ -16,7 +16,7 @@ class TestSBPostNeoModels(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.post = SBPost(content='test', object_uuid=str(uuid1())).save()
+        self.post = Post(content='test', object_uuid=str(uuid1())).save()
         self.post.posted_on_wall.connect(self.pleb.wall.all()[0])
         self.post.owned_by.connect(self.pleb)
 

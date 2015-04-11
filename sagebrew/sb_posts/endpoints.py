@@ -17,7 +17,7 @@ from api.permissions import IsOwnerOrAdmin
 from sb_base.views import ObjectRetrieveUpdateDestroy
 
 from .serializers import PostSerializerNeo
-from .neo_models import SBPost
+from .neo_models import Post
 
 
 logger = getLogger('loggly_logs')
@@ -26,11 +26,11 @@ logger = getLogger('loggly_logs')
 class PostsViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializerNeo
     permission_classes = (IsAuthenticated, IsOwnerOrAdmin)
-    queryset = SBPost.nodes.all()
+    queryset = Post.nodes.all()
     lookup_field = "object_uuid"
 
     def get_object(self):
-        return SBPost.nodes.get(object_uuid=self.kwargs[self.lookup_field])
+        return Post.nodes.get(object_uuid=self.kwargs[self.lookup_field])
 
     def list(self, request, *args, **kwargs):
         response = {"status": status.HTTP_501_NOT_IMPLEMENTED,
@@ -78,11 +78,11 @@ class WallPostsListCreate(ListCreateAPIView):
         all().
         """
         query = "MATCH (a:Pleb {username:'%s'})-[:OWNS_WALL]->" \
-                "(b:SBWall)-[:HAS_POST]->(c) WHERE c.to_be_deleted=false" \
+                "(b:Wall)-[:HAS_POST]->(c) WHERE c.to_be_deleted=false" \
                 " RETURN c ORDER BY c.created " \
                 "DESC" % (self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
-        return [SBPost.inflate(row[0]) for row in res]
+        return [Post.inflate(row[0]) for row in res]
 
     def create(self, request, *args, **kwargs):
         post_data = request.data
@@ -91,17 +91,8 @@ class WallPostsListCreate(ListCreateAPIView):
         serializer = PostSerializerNeo(data=post_data,
                                        context={"request": request})
         if serializer.is_valid():
-            instance = serializer.save(
-                wall_owner=self.kwargs[self.lookup_field])
+            serializer.save(wall_owner=self.kwargs[self.lookup_field])
 
-            serializer = PostSerializerNeo(instance,
-                                           context={"request": request})
-            """
-            put_item = dict(serializer.data)
-            put_item['parent_object'] = wall_owner.username
-            table = get_dynamo_table("posts")
-            table.put_item(data=put_item)
-            """
             html = request.query_params.get('html', 'false').lower()
             if html == "true":
                 serializer = serializer.data

@@ -9,8 +9,8 @@ from sb_comments.tasks import (save_comment_on_object,
                                create_comment_relations)
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
-from sb_questions.neo_models import SBQuestion
-from sb_comments.neo_models import SBComment
+from sb_questions.neo_models import Question
+from sb_comments.neo_models import Comment
 
 
 class TestSaveCommentTask(TestCase):
@@ -27,11 +27,11 @@ class TestSaveCommentTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_save_comment_on_object_task_success(self):
-        question = SBQuestion(object_uuid=str(uuid1())).save()
+        question = Question(object_uuid=str(uuid1())).save()
         task_param = {'content': 'test comment',
                       'username': self.pleb.username,
                       'object_uuid': question.object_uuid,
-                      'object_type': 'sb_questions.neo_models.SBQuestion',
+                      'object_type': 'sb_questions.neo_models.Question',
                       'comment_uuid': str(uuid1())}
         response = save_comment_on_object.apply_async(kwargs=task_param)
         while not response.ready():
@@ -40,11 +40,11 @@ class TestSaveCommentTask(TestCase):
         self.assertTrue(response.result)
 
     def test_save_comment_on_object_task_get_object_fail(self):
-        question = SBQuestion(object_uuid=str(uuid1())).save()
+        question = Question(object_uuid=str(uuid1())).save()
         task_param = {'content': 'test comment',
                       'username': self.pleb.username,
                       'object_uuid': question.object_uuid,
-                      'object_type': 'SBQuestion',
+                      'object_type': 'Question',
                       'comment_uuid': str(uuid1())}
         response = save_comment_on_object.apply_async(kwargs=task_param)
         while not response.ready():
@@ -66,8 +66,8 @@ class TestCreateCommentRelationsTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_create_comment_relations_task_success(self):
-        question = SBQuestion(object_uuid=str(uuid1())).save()
-        comment = SBComment(object_uuid=str(uuid1())).save()
+        question = Question(object_uuid=str(uuid1())).save()
+        comment = Comment(object_uuid=str(uuid1())).save()
         task_data = {
             'current_pleb': self.pleb,
             'comment': comment,

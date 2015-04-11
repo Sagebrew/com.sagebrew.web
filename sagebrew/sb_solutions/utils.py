@@ -9,7 +9,7 @@ from api.utils import request_to_api
 from sb_base.decorators import apply_defense
 from sb_docstore.utils import get_vote_count, get_vote
 
-from .neo_models import SBSolution
+from .neo_models import Solution
 
 
 @apply_defense
@@ -25,10 +25,10 @@ def save_solution_util(content, solution_uuid):
     :return:
     '''
     try:
-        solution = SBSolution.nodes.get(object_uuid=solution_uuid)
-    except (SBSolution.DoesNotExist, DoesNotExist):
+        solution = Solution.nodes.get(object_uuid=solution_uuid)
+    except (Solution.DoesNotExist, DoesNotExist):
         try:
-            solution = SBSolution(content=content, object_uuid=solution_uuid)
+            solution = Solution(content=content, object_uuid=solution_uuid)
             solution.save()
         except CypherException as e:
             return e

@@ -1,7 +1,6 @@
 import math
 import pytz
 from logging import getLogger
-from uuid import uuid1
 from datetime import datetime
 from django.conf import settings
 from elasticsearch import Elasticsearch
@@ -11,6 +10,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       BooleanProperty, FloatProperty, CypherException,
                       RelationshipFrom, DoesNotExist)
 
+from sb_notifications.neo_models import NotificationCapable
 from sb_docstore.utils import get_vote_count as doc_vote_count
 from sb_base.decorators import apply_defense
 from sb_votes.utils import determine_vote_type
@@ -40,10 +40,9 @@ class VoteRelationship(StructuredRel):
     created = DateTimeProperty(default=get_current_time)
 
 
-class SBVoteableContent(StructuredNode):
+class VotableContent(NotificationCapable):
     up_vote_adjustment = 0
     down_vote_adjustment = 0
-    object_uuid = StringProperty(unique_index=True, default=uuid1)
     content = StringProperty()
     created = DateTimeProperty(default=get_current_time)
 
@@ -153,7 +152,7 @@ class SBVoteableContent(StructuredNode):
         }
 
 
-class SBContent(SBVoteableContent):
+class SBContent(VotableContent):
     table = ''
     allowed_flags = []
     last_edited_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
@@ -175,10 +174,10 @@ class SBContent(SBVoteableContent):
     view_count_node = RelationshipTo('sb_stats.neo_models.SBViewCount',
                                      'VIEW_COUNT')
     flagged_by = RelationshipTo('plebs.neo_models.Pleb', 'FLAGGED_BY')
-    flags = RelationshipTo('sb_flags.neo_models.SBFlag', 'HAS_FLAG')
-    comments = RelationshipTo('sb_comments.neo_models.SBComment', 'HAS_A',
+    flags = RelationshipTo('sb_flags.neo_models.Flag', 'HAS_FLAG')
+    comments = RelationshipTo('sb_comments.neo_models.Comment', 'HAS_A',
                               model=PostedOnRel)
-    auto_tagged_as = RelationshipTo('sb_tag.neo_models.SBTag',
+    auto_tagged_as = RelationshipTo('sb_tag.neo_models.Tag',
                                     'AUTO_TAGGED_AS')
     rel_weight = RelationshipTo('plebs.neo_models.Pleb', 'HAS_WEIGHT',
                                 model=RelationshipWeight)
@@ -224,7 +223,7 @@ class SBContent(SBVoteableContent):
 
     @apply_defense
     def flag_content(self, flag_reason, current_pleb, description=""):
-        from sb_flags.neo_models import SBFlag
+        from sb_flags.neo_models import Flag
         try:
             if flag_reason not in self.allowed_flags:
                 return False
@@ -232,7 +231,7 @@ class SBContent(SBVoteableContent):
             if self.flagged_by.is_connected(current_pleb):
                 return self
 
-            flag = SBFlag(flag_reason=flag_reason, content=description).save()
+            flag = Flag(flag_reason=flag_reason, content=description).save()
             self.flags.connect(flag)
             self.flagged_by.connect(current_pleb)
             return self
@@ -282,7 +281,7 @@ class SBVersioned(SBContent):
     draft = BooleanProperty(default=False)
 
     # relationships
-    tagged_as = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS')
+    tagged_as = RelationshipTo('sb_tag.neo_models.Tag', 'TAGGED_AS')
     edits = RelationshipTo(SBContent.get_model_name(), 'EDIT')
     edit_to = RelationshipTo(SBContent.get_model_name(), 'EDIT_TO')
 
@@ -315,7 +314,7 @@ class SBVersioned(SBContent):
         }
 
 
-class SBNonVersioned(SBContent):
+class NonVersioned(SBContent):
     allowed_flags = ["explicit", "spam", "other"]
     # relationships
 
@@ -330,10 +329,10 @@ class SBNonVersioned(SBContent):
             return e
 
 
-class SBTagContent(StructuredNode):
+class TagContent(StructuredNode):
     # relationships
-    tagged_as = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGGED_AS')
-    auto_tags = RelationshipTo('sb_tag.neo_models.SBAutoTag',
+    tagged_as = RelationshipTo('sb_tag.neo_models.Tag', 'TAGGED_AS')
+    auto_tags = RelationshipTo('sb_tag.neo_models.AutoTag',
                                'AUTO_TAGGED_AS')
 
     # methods
@@ -344,19 +343,19 @@ class SBTagContent(StructuredNode):
                      a , representing the splitting point
         :return:
         """
-        from sb_tag.neo_models import SBTag
+        from sb_tag.neo_models import Tag
         tag_array = []
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         if not tags:
             return False
         for tag in tags:
             try:
-                tag_object = SBTag.nodes.get(tag_name=tag)
+                tag_object = Tag.nodes.get(tag_name=tag)
                 tag_array.append(tag_object)
-            except (SBTag.DoesNotExist, DoesNotExist):
+            except (Tag.DoesNotExist, DoesNotExist):
                 es.index(index='tags', doc_type='tag',
                          body={'tag_name': tag})
-                tag_object = SBTag(tag_name=tag).save()
+                tag_object = Tag(tag_name=tag).save()
                 tag_array.append(tag_object)
             except CypherException as e:
                 return e
@@ -370,15 +369,15 @@ class SBTagContent(StructuredNode):
         return tag_array
 
     def add_auto_tags(self, tag_list):
-        from sb_tag.neo_models import SBAutoTag
+        from sb_tag.neo_models import AutoTag
         tag_array = []
         try:
             for tag in tag_list:
                 try:
-                    tag_object = SBAutoTag.nodes.get(tag_name=tag['tags']
+                    tag_object = AutoTag.nodes.get(tag_name=tag['tags']
                     ['text'])
-                except (SBAutoTag.DoesNotExist, DoesNotExist):
-                    tag_object = SBAutoTag(tag_name=tag['tags']['text']).save()
+                except (AutoTag.DoesNotExist, DoesNotExist):
+                    tag_object = AutoTag(tag_name=tag['tags']['text']).save()
                 if self.auto_tags.is_connected(tag_object):
                     continue
                 rel = self.auto_tags.connect(tag_object)

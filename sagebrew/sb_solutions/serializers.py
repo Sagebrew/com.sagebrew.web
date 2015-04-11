@@ -12,12 +12,10 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
     solution_to = serializers.SerializerMethodField()
 
     def create(self, validated_data):
-        # TODO should store in dynamo and then spawn task to store in Neo
         solution = Solution(**validated_data).save()
         return solution
 
     def update(self, instance, validated_data):
-        # TODO get from dynamo and then spawn task to store in Neo
         pass
 
     def get_url(self, obj):

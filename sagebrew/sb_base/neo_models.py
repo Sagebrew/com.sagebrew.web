@@ -155,7 +155,8 @@ class VotableContent(NotificationCapable):
 
 
 class SBContent(VotableContent):
-    allowed_flags = []
+    allowed_flags = ["explicit", "spam", "duplicate",
+                     "unsupported", "other"]
     last_edited_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     edited = BooleanProperty(default=False)
     to_be_deleted = BooleanProperty(default=False)
@@ -347,8 +348,6 @@ class TaggableContent(SBContent):
 
 
 class SBVersioned(TaggableContent):
-    allowed_flags = ["explicit", "spam", "duplicate",
-                     "unsupported", "other"]
     edit = lambda self: self.__class__.__name__
     original = BooleanProperty(default=True)
     draft = BooleanProperty(default=False)

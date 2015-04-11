@@ -131,10 +131,14 @@ def generate_username(first_name, last_name):
         if users_count > 0:
             username = username[:(30-len(users_count))] + str(users_count)
     elif len(username) < 30 and users_count == 0:
-        username = "%s_%s" % (first_name.lower(), last_name.lower())
+        username = "%s_%s" % (
+            (''.join(e for e in first_name if e.isalnum())).lower(),
+            (''.join(e for e in last_name if e.isalnum())).lower())
     else:
-        username = "%s_%s%d" % (first_name.lower(), last_name.lower(),
-                                users_count)
+        username = "%s_%s%d" % (
+            (''.join(e for e in first_name if e.isalnum())).lower(),
+            (''.join(e for e in last_name if e.isalnum())).lower(),
+            users_count)
     return username
 
 

@@ -89,9 +89,13 @@ def process_search_result(item):
                        "temp_score": item['_score']*item['_source']['sb_score'],
                        "score": item['_score']}
     elif item['_type'] == 'pleb':
-        return {"pleb_email": item['_source']['pleb_email'],
+        return {"username": item['_source']['object_uuid'],
                 "type": "pleb",
                 "temp_score": item['_score']*item['_source']['sb_score'],
                 "score": item['_score']}
+    elif item['_type'] == 'sagas':
+        return {"object_uuid": item['_source']['object_uuid'],
+                'type': 'sagas', 'temp_score': item['_score'],
+                'score': item['_score']}
     else:
         return {'temp_score': 0}

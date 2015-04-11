@@ -35,7 +35,7 @@ class TestProcessSearchResultUtil(TestCase):
         my_dict = {
             '_source': {
                 'sb_score': 100,
-                'pleb_email': str(uuid1()),
+                'object_uuid': str(uuid1()),
                 'related_user': 'tylerwiersing',
             },
             '_type': 'pleb',

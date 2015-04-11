@@ -51,6 +51,10 @@ class ObjectSolutionsRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):
     lookup_field = "object_uuid"
     lookup_url_kwarg = "solution_uuid"
 
+    def get_object(self):
+        return Solution.nodes.get(
+            object_uuid=self.kwargs[self.lookup_url_kwarg])
+
 
 class ObjectSolutionsListCreate(ListCreateAPIView):
     serializer_class = SolutionSerializerNeo

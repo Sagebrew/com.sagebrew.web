@@ -3,14 +3,15 @@ from django.core.urlresolvers import reverse
 from neomodel import (RelationshipTo, CypherException)
 
 from api.utils import execute_cypher_query
-from sb_base.neo_models import NonVersioned
+from sb_base.neo_models import TaggableContent
 from sb_base.decorators import apply_defense
 
 
-class Post(NonVersioned):
+class Post(TaggableContent):
     table = 'posts'
     action_name = "posted on your wall"
     object_type = "01bb301a-644f-11e4-9ad9-080027242395"
+
     # relationships
     posted_on_wall = RelationshipTo('sb_wall.neo_models.Wall', 'POSTED_ON')
 

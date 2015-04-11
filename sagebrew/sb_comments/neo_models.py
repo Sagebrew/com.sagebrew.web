@@ -5,7 +5,7 @@ from neomodel import (RelationshipTo, DateTimeProperty,
                       StructuredRel, CypherException)
 
 from sb_base.decorators import apply_defense
-from sb_base.neo_models import NonVersioned
+from sb_base.neo_models import TaggableContent
 
 
 def get_current_time():
@@ -16,7 +16,7 @@ class CommentedOnRel(StructuredRel):
     shared_on = DateTimeProperty(default=get_current_time)
 
 
-class Comment(NonVersioned):
+class Comment(TaggableContent):
     up_vote_adjustment = 2
     down_vote_adjustment = 1
     action_name = "commented on your "

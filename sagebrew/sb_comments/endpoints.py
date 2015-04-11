@@ -29,6 +29,10 @@ class ObjectCommentsRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):
     lookup_field = "object_uuid"
     lookup_url_kwarg = "comment_uuid"
 
+    def get_object(self):
+        return Comment.nodes.get(
+            object_uuid=self.kwargs[self.lookup_url_kwarg])
+
 
 class ObjectCommentsListCreate(ListCreateAPIView):
     serializer_class = CommentSerializer

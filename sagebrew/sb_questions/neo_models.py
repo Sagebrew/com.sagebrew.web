@@ -3,8 +3,6 @@ import markdown
 from uuid import uuid1
 from datetime import datetime
 
-from django.template import Context
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
 
@@ -13,12 +11,12 @@ from neomodel import (StringProperty, IntegerProperty,
                       CypherException)
 
 from api.utils import execute_cypher_query
-from sb_base.neo_models import SBVersioned, TagContent
+from sb_base.neo_models import SBVersioned
 from sb_tag.neo_models import TagRelevanceModel
 from sb_base.decorators import apply_defense
-from plebs.serializers import UserSerializer, PlebSerializerNeo
 
 from .serializers import QuestionSerializerNeo
+
 
 class Question(SBVersioned):
     table = 'public_questions'

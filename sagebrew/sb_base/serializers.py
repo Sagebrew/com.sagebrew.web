@@ -15,7 +15,6 @@ class ContentSerializer(serializers.Serializer):
 
     created = serializers.DateTimeField(read_only=True)
     last_edited_on = serializers.DateTimeField(read_only=True)
-    to_be_deleted = serializers.BooleanField(read_only=True)
 
     upvotes = serializers.SerializerMethodField()
     downvotes = serializers.SerializerMethodField()

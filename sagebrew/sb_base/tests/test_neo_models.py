@@ -84,20 +84,3 @@ class TestSBContentNeoModel(TestCase):
         res = self.post.flag_content('spam', self.pleb)
 
         self.assertIsInstance(res, Post)
-
-
-class TestNonVersionedContent(TestCase):
-    def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        self.post = Post(content='fake content', object_uuid=str(uuid1())).save()
-
-    def test_edit_content(self):
-        res = self.post.edit_content('test edit', self.pleb)
-
-        self.assertIsInstance(res, Post)
-        self.assertEqual(res.content, 'test edit')

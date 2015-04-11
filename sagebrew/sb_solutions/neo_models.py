@@ -24,8 +24,6 @@ class Solution(SBVersioned):
     search_id = StringProperty()
 
     # relationships
-    auto_tags = RelationshipTo('sb_tag.neo_models.AutoTag',
-                               'AUTO_TAGGED_AS')
     solution_to = RelationshipTo('sb_questions.neo_models.Question',
                                  'POSSIBLE_ANSWER_TO')
 

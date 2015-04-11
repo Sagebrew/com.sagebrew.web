@@ -6,7 +6,7 @@ from datetime import datetime
 from django.conf import settings
 from elasticsearch import Elasticsearch
 
-from neomodel import (StructuredNode, StringProperty, IntegerProperty,
+from neomodel import (StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, CypherException,
                       RelationshipFrom, DoesNotExist)
@@ -193,33 +193,6 @@ class SBContent(VotableContent):
     def create_notification(self, pleb):
         pass
 
-    def create_relations(self, pleb, question=None, wall=None):
-        try:
-            self.owned_by.connect(pleb)
-            return True
-        except CypherException as e:
-            return e
-
-    @apply_defense
-    def comment_on(self, comment):
-        try:
-            rel = self.comments.connect(comment)
-            rel.save()
-
-            return rel
-        except CypherException as e:
-            return e
-
-    @apply_defense
-    def delete_content(self, pleb):
-        try:
-            self.content=""
-            self.to_be_deleted = True
-            self.save()
-            return self
-        except CypherException as e:
-            return e
-
     def reputation_adjust(self):
         pass
 
@@ -240,9 +213,6 @@ class SBContent(VotableContent):
 
         except CypherException as e:
             return e
-
-    def render_single(self, pleb):
-        pass
 
     @apply_defense
     def get_table(self):
@@ -273,85 +243,51 @@ class SBContent(VotableContent):
         except IndexError:
             return 0
 
-    def get_child_label(self):
-        # This goes on the assumption that Neo4J returns labels in order of
-        # assignment. Since neomodel assigns these in order of inheritance
-        # the top most parent being first and the bottom child being last
-        # we assume that our actual real commentable object is last.
-        # Except for Questions. In which case need to do all the following
-        # Might want to add if to handle question but this is the most
-        # generic approach I could think of at the time.
-        query = 'START n=node(%d) RETURN distinct labels(n)' % (self._id)
+    def get_labels(self):
+        query = 'START n=node(%d) RETURN DISTINCT labels(n)' % (self._id)
         res, col = db.cypher_query(query)
-        parents = inspect.getmro(self.__class__)
-        # Creates a generator that enables us to access all the names of the
-        # parent classes
-        parent_array = (o.__name__ for o in parents)
-        child_array = list(set(res[0][0]) - set(parent_array))
-        print child_array
-        if 'TagContent' in child_array:
-            child_array.remove('TagContent')
-        return child_array[0].lower()
+        return res[0][0]
+
+    def get_child_label(self):
+        """
+        With the current setup the actual piece of content is the last
+        label.
+
+        This goes on the assumption that Neo4J returns labels in order of
+        assignment. Since neomodel assigns these in order of inheritance
+        the top most parent being first and the bottom child being last
+        we assume that our actual real commentable object is last.
+
+        This can be accomplished by ensuring that the content is the
+        bottom most child in the hierarchy. Currently this is only used for
+        determining what content a comment is actually associated with for
+        url linking. The commented out logic below can be substituted if with
+        a few additional items if this begins to not work
+
+            def get_child_labels(self):
+                parents = inspect.getmro(self.__class__)
+                # Creates a generator that enables us to access all the
+                # names of the parent classes
+                parent_array = (o.__name__ for o in parents)
+                child_array = list(set(self.get_labels()) - set(parent_array))
+                return child_array
+
+            def get_child_label(self):
+                labels = self.get_labels()
+                # If you want to comment on something the class name must be
+                # listed here
+                content = ['Post', 'Question', 'Solution']
+                try:
+                    set(labels).intersection(content).pop()
+                except KeyError:
+                    return ""
+
+        :return:
+        """
+        return self.get_labels()[-1]
 
 
-class SBVersioned(SBContent):
-    __abstract_node__ = True
-    allowed_flags = ["explicit", "spam", "duplicate",
-                     "unsupported", "other"]
-    edit = lambda self: self.__class__.__name__
-    original = BooleanProperty(default=True)
-    draft = BooleanProperty(default=False)
-
-    # relationships
-    tagged_as = RelationshipTo('sb_tag.neo_models.Tag', 'TAGGED_AS')
-    edits = RelationshipTo(SBContent.get_model_name(), 'EDIT')
-    edit_to = RelationshipTo(SBContent.get_model_name(), 'EDIT_TO')
-
-    def edit_content(self, content, pleb):
-        pass
-
-    def get_name(self):
-        return self.__class__.__name__
-
-    def get_rep_breakout(self):
-        tag_list = []
-        base_tags = []
-        pos_rep = self.get_upvote_count()*self.up_vote_adjustment
-        neg_rep = self.get_downvote_count()*self.down_vote_adjustment
-        for tag in self.tagged_as.all():
-            if tag.base:
-                base_tags.append(tag.tag_name)
-            tag_list.append(tag.tag_name)
-        try:
-            rep_per_tag = math.ceil(float(pos_rep+neg_rep)/len(tag_list))
-        except ZeroDivisionError:
-            rep_per_tag = 0
-        return {
-            "total_rep": pos_rep+neg_rep,
-            "pos_rep": pos_rep,
-            "neg_rep": neg_rep,
-            "tag_list": tag_list,
-            "rep_per_tag": rep_per_tag,
-            "base_tag_list": base_tags
-        }
-
-
-class NonVersioned(SBContent):
-    allowed_flags = ["explicit", "spam", "other"]
-    # relationships
-
-    @apply_defense
-    def edit_content(self, content, pleb):
-        try:
-            self.content = content
-            self.last_edited_on = datetime.now(pytz.utc)
-            self.save()
-            return self
-        except CypherException as e:
-            return e
-
-
-class TagContent(StructuredNode):
+class TaggableContent(SBContent):
     # relationships
     tagged_as = RelationshipTo('sb_tag.neo_models.Tag', 'TAGGED_AS')
     auto_tags = RelationshipTo('sb_tag.neo_models.AutoTag',
@@ -410,4 +346,45 @@ class TagContent(StructuredNode):
         except KeyError as e:
             return e
 
+
+class SBVersioned(TaggableContent):
+    __abstract_node__ = True
+
+    allowed_flags = ["explicit", "spam", "duplicate",
+                     "unsupported", "other"]
+    edit = lambda self: self.__class__.__name__
+    original = BooleanProperty(default=True)
+    draft = BooleanProperty(default=False)
+
+    # relationships
+    edits = RelationshipTo(SBContent.get_model_name(), 'EDIT')
+    edit_to = RelationshipTo(SBContent.get_model_name(), 'EDIT_TO')
+
+    def edit_content(self, content, pleb):
+        pass
+
+    def get_name(self):
+        return self.__class__.__name__
+
+    def get_rep_breakout(self):
+        tag_list = []
+        base_tags = []
+        pos_rep = self.get_upvote_count()*self.up_vote_adjustment
+        neg_rep = self.get_downvote_count()*self.down_vote_adjustment
+        for tag in self.tagged_as.all():
+            if tag.base:
+                base_tags.append(tag.tag_name)
+            tag_list.append(tag.tag_name)
+        try:
+            rep_per_tag = math.ceil(float(pos_rep+neg_rep)/len(tag_list))
+        except ZeroDivisionError:
+            rep_per_tag = 0
+        return {
+            "total_rep": pos_rep+neg_rep,
+            "pos_rep": pos_rep,
+            "neg_rep": neg_rep,
+            "tag_list": tag_list,
+            "rep_per_tag": rep_per_tag,
+            "base_tag_list": base_tags
+        }
 

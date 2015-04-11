@@ -1,3 +1,4 @@
+from uuid import uuid1
 from datetime import datetime
 from logging import getLogger
 
@@ -14,7 +15,9 @@ from rest_framework.generics import (ListCreateAPIView)
 from neomodel import db
 
 from api.permissions import IsOwnerOrAdmin
+from api.utils import spawn_task
 from sb_base.views import ObjectRetrieveUpdateDestroy
+from sb_notifications.tasks import spawn_notifications
 
 from .serializers import PostSerializerNeo
 from .neo_models import Post
@@ -66,6 +69,10 @@ class WallPostsRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):
     lookup_field = "object_uuid"
     lookup_url_kwarg = "post_uuid"
 
+    def get_object(self):
+        return Post.nodes.get(
+            object_uuid=self.kwargs[self.lookup_url_kwarg])
+
 
 class WallPostsListCreate(ListCreateAPIView):
     serializer_class = PostSerializerNeo
@@ -92,10 +99,18 @@ class WallPostsListCreate(ListCreateAPIView):
                                        context={"request": request})
         if serializer.is_valid():
             serializer.save(wall_owner=self.kwargs[self.lookup_field])
-
+            serializer = serializer.data
+            data = {
+                "from_pleb": request.user.username,
+                "sb_object": serializer['object_uuid'],
+                "url": serializer['url'],
+                "to_plebs": [self.kwargs[self.lookup_field],],
+                "notification_id": str(uuid1())
+            }
+            spawn_task(task_func=spawn_notifications, task_param=data)
             html = request.query_params.get('html', 'false').lower()
             if html == "true":
-                serializer = serializer.data
+
                 serializer['last_edited_on'] = datetime.strptime(
                     serializer['last_edited_on'][:len(
                         serializer['last_edited_on']) - 6],
@@ -107,7 +122,7 @@ class WallPostsListCreate(ListCreateAPIView):
                         "ids": [serializer["object_uuid"]]
                     },
                     status=status.HTTP_200_OK)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

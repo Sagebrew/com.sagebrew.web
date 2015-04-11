@@ -53,7 +53,7 @@ def store_address(username, address_clean):
         raise store_address.retry(exc=e, countdown=3, max_retries=None)
 
     try:
-        address.owner.connect(citizen)
+        address.owned_by.connect(citizen)
         citizen.address.connect(address)
     except AttemptedCardinalityViolation:
         pass

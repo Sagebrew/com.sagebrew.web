@@ -150,7 +150,7 @@ class Pleb(StructuredNode):
     tags = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGS',
                           model=TagRelationship)
     voted_on = RelationshipTo('sb_base.neo_models.SBVoteableContent', 'VOTES')
-    address = RelationshipTo("Address", "LIVES_AT", cardinality=ZeroOrOne)
+    address = RelationshipTo("Address", "LIVES_AT")
     interests = RelationshipTo("sb_tag.neo_models.SBTag", "INTERESTED_IN")
     friends = RelationshipTo("Pleb", "FRIENDS_WITH", model=FriendRelationship)
     posts = RelationshipTo('sb_posts.neo_models.SBPost', 'OWNS_POST',

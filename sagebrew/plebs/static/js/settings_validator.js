@@ -1,12 +1,12 @@
 $(document).ready(function(){
-    $("#signupForm").bootstrapValidator({
+    $("#settings_form").bootstrapValidator({
         framework: 'bootstrap',
         feedbackIcons: {
             valid: 'glyphicon glyphicon-ok',
             validating: 'glyphicon glyphicon-refresh'
         },
         live: 'enabled',
-        submitButtons: '#submit_signup',
+        submitButtons: '#submit_settings',
         fields: {
             first_name: {
                 group: 'fname',
@@ -44,12 +44,9 @@ $(document).ready(function(){
                     }
                 }
             },
-            password1: {
-                group: 'p1',
+            old_password: {
+                group: 'password1',
                 validators: {
-                    notEmpty: {
-                        message: "Password is required"
-                    },
                     stringLength: {
                         min: 8,
                         max: 128,
@@ -61,32 +58,31 @@ $(document).ready(function(){
                     }
                 }
             },
-            password2: {
-                group: 'p2',
+            new_password: {
+                group: 'password2',
                 validators: {
-                    notEmpty: {
-                        message: "Password 2 is required"
-                    },
                     stringLength: {
                         min: 8,
                         max: 128,
                         message: "Passwords must be between 8 and 128 characters long"
                     },
                     identical: {
-                        field: 'password1',
+                        field: 'new_password_confirm',
                         message: 'Passwords must be the same'
                     }
                 }
             },
-            birthday: {
-                group: 'bday',
+            new_password_confirm: {
+                group: 'password3',
                 validators: {
-                    date: {
-                        format: 'MM/DD/YYYY',
-                        message: 'The value is not a valid date'
+                    stringLength: {
+                        min: 8,
+                        max: 128,
+                        message: "Passwords must be between 8 and 128 characters long"
                     },
-                    notEmpty: {
-                        message: "Birthdate is required"
+                    identical: {
+                        field: 'new_password',
+                        message: 'Passwords must be the same'
                     }
                 }
             }

@@ -64,16 +64,6 @@ class TestSBContentNeoModel(TestCase):
         self.content = SBContent(content='test', object_uuid=str(uuid1())).save()
         self.post = Post(content='fake content', object_uuid=str(uuid1())).save()
 
-    def test_create_relations(self):
-        res = self.content.create_relations(self.pleb)
-
-        self.assertTrue(res)
-
-    def test_delete_content(self):
-        res = self.content.delete_content(self.pleb)
-
-        self.assertIsInstance(res, SBContent)
-
     def test_flag_content_unavailable_flag(self):
         res = self.post.flag_content('changed', self.pleb)
 

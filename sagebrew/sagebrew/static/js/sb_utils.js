@@ -21,7 +21,7 @@ function save_comment(comment_area, url, object_uuid) {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
-            url: url + "render/",
+            url: url + "?html=true",
             data: JSON.stringify({
                 'content': $('textarea#post_comment_on_' + object_uuid).val(),
                 'object_uuid': $(this).data('object_uuid'),
@@ -31,7 +31,7 @@ function save_comment(comment_area, url, object_uuid) {
             dataType: "json",
             success: function (data) {
                 var comment_container = $("#sb_comments_container_" + object_uuid);
-                comment_container.append(data['html']);
+                comment_container.prepend(data['html']);
                 $('textarea#post_comment_on_' + object_uuid).val("");
                 enable_comment_functionality(data["ids"])
             },

@@ -1,4 +1,5 @@
 import math
+import inspect
 import pytz
 from logging import getLogger
 from datetime import datetime
@@ -9,12 +10,14 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, CypherException,
                       RelationshipFrom, DoesNotExist)
+from neomodel import db
 
 from sb_notifications.neo_models import NotificationCapable
 from sb_docstore.utils import get_vote_count as doc_vote_count
-from sb_base.decorators import apply_defense
 from sb_votes.utils import determine_vote_type
 from plebs.neo_models import RelationshipWeight, Pleb
+
+from .decorators import apply_defense
 
 logger = getLogger('loggly_logs')
 
@@ -153,7 +156,6 @@ class VotableContent(NotificationCapable):
 
 
 class SBContent(VotableContent):
-    table = ''
     allowed_flags = []
     last_edited_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     edited = BooleanProperty(default=False)
@@ -270,6 +272,26 @@ class SBContent(VotableContent):
             return self.view_count_node.all()[0].view_count
         except IndexError:
             return 0
+
+    def get_child_label(self):
+        # This goes on the assumption that Neo4J returns labels in order of
+        # assignment. Since neomodel assigns these in order of inheritance
+        # the top most parent being first and the bottom child being last
+        # we assume that our actual real commentable object is last.
+        # Except for Questions. In which case need to do all the following
+        # Might want to add if to handle question but this is the most
+        # generic approach I could think of at the time.
+        query = 'START n=node(%d) RETURN distinct labels(n)' % (self._id)
+        res, col = db.cypher_query(query)
+        parents = inspect.getmro(self.__class__)
+        # Creates a generator that enables us to access all the names of the
+        # parent classes
+        parent_array = (o.__name__ for o in parents)
+        child_array = list(set(res[0][0]) - set(parent_array))
+        print child_array
+        if 'TagContent' in child_array:
+            child_array.remove('TagContent')
+        return child_array[0].lower()
 
 
 class SBVersioned(SBContent):

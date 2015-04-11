@@ -38,7 +38,7 @@ def create_notification_util(sb_object, from_pleb, to_plebs, notification_id,
         except (NotificationBase.DoesNotExist, DoesNotExist):
             notification = NotificationBase(
                 object_uuid=notification_id,
-                about=sb_object.sb_name,
+                about=sb_object.__class__.__name__.lower(),
                 about_id=sb_object.object_uuid,
                 url=url,
                 action_name=sb_object.action_name).save()

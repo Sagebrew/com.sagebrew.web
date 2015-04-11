@@ -8,7 +8,6 @@ from sb_base.decorators import apply_defense
 
 
 class Post(NonVersioned):
-    sb_name = 'post'
     table = 'posts'
     action_name = "posted on your wall"
     object_type = "01bb301a-644f-11e4-9ad9-080027242395"

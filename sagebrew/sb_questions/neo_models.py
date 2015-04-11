@@ -23,7 +23,6 @@ from .serializers import QuestionSerializerNeo
 class Question(SBVersioned):
     table = 'public_questions'
     action_name = "asked a question"
-    sb_name = "question"
     up_vote_adjustment = 5
     down_vote_adjustment = 2
     object_type = "0274a216-644f-11e4-9ad9-080027242395"

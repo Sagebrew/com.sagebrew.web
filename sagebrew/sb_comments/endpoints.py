@@ -12,9 +12,10 @@ from rest_framework.generics import (ListCreateAPIView)
 
 from neomodel import db
 
+from api.utils import spawn_task
+from .tasks import create_comment_relations
 from sb_base.neo_models import SBContent
 from sb_base.views import ObjectRetrieveUpdateDestroy
-from sb_base.utils import get_labels
 from plebs.neo_models import Pleb
 
 from .neo_models import Comment
@@ -44,7 +45,6 @@ class ObjectCommentsListCreate(ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         comment_data = request.data
-        comment_data['parent_object'] = self.kwargs[self.lookup_field]
         serializer = self.get_serializer(data=comment_data)
         if serializer.is_valid():
             pleb = Pleb.nodes.get(username=request.user.username)
@@ -52,24 +52,32 @@ class ObjectCommentsListCreate(ListCreateAPIView):
                 object_uuid=self.kwargs[self.lookup_field])
 
             instance = serializer.save(owner=pleb, parent_object=parent_object)
-            serializer = self.get_serializer(instance,
-                                             context={"request": request}).data
+            serializer_data = self.get_serializer(
+                instance, context={"request": request}).data
+            data = {
+                "username": request.user.username,
+                "comment": serializer_data['object_uuid'],
+                "url": serializer_data['url'],
+                "parent_object": self.kwargs[self.lookup_field]
+            }
+            spawn_task(task_func=create_comment_relations, task_param=data)
 
             html = request.query_params.get('html', 'false').lower()
             if html == "true":
-                serializer = serializer.data
-                serializer['last_edited_on'] = datetime.strptime(
-                    serializer['last_edited_on'][:len(
-                        serializer['last_edited_on']) - 6],
+                serializer_data["vote_count"] = str(
+                    serializer_data["vote_count"])
+                serializer_data['last_edited_on'] = datetime.strptime(
+                    serializer_data['last_edited_on'][:len(
+                        serializer_data['last_edited_on']) - 6],
                     '%Y-%m-%dT%H:%M:%S.%f')
-                context = RequestContext(request, serializer)
+                context = RequestContext(request, serializer_data)
                 return Response(
                     {
                         "html": [render_to_string('sb_comment.html', context)],
-                        "ids": [serializer["object_uuid"]]
+                        "ids": [serializer_data["object_uuid"]]
                     },
                     status=status.HTTP_200_OK)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer_data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

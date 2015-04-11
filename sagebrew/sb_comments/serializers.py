@@ -1,11 +1,8 @@
 from rest_framework.reverse import reverse
 from rest_framework import serializers
 
-from api.utils import spawn_task
-from sb_base.utils import get_labels
 from sb_base.serializers import ContentSerializer
 
-from .tasks import create_comment_relations
 from .neo_models import Comment
 
 
@@ -22,9 +19,7 @@ class CommentSerializer(ContentSerializer):
         if parent_object is not None:
             parent_object.comments.connect(comment)
             comment.comment_on.connect(parent_object)
-        data = {"username": owner.username, "comment": comment.object_uuid,
-                "parent_object": parent_object.object_uuid}
-        spawn_task(task_func=create_comment_relations, task_param=data)
+
         return comment
 
     def update(self, instance, validated_data):
@@ -44,15 +39,7 @@ class CommentSerializer(ContentSerializer):
             parent_object = obj.comment_on.all()[0]
         except(IndexError):
             return None
-        labels = get_labels(parent_object.__class__.__name__,
-                            self.lookup_field,
-                            self.kwargs[self.lookup_field])
-        # This goes on the assumption that Neo4J returns labels in order of
-        # assignment. Since neomodel assigns these in order of inheritance
-        # the top most parent being first and the bottom child being last
-        # we assume that our actual real commentable object is last.
-        object_type = labels[-1].lower()
-        return reverse('%s-detail' % object_type,
+        return reverse('%s-detail' % parent_object.get_child_label(),
                        kwargs={'object_uuid': parent_object.object_uuid},
                        request=request)
 
@@ -62,6 +49,7 @@ class CommentSerializer(ContentSerializer):
             parent_object = obj.comment_on.all()[0]
         except(IndexError):
             return None
-        return reverse('%s-detail' % parent_object.sb_name,
+
+        return reverse('%s-detail' % parent_object.get_child_label(),
                        kwargs={'object_uuid': parent_object.object_uuid},
                        request=request)

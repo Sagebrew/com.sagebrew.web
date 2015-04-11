@@ -5,7 +5,6 @@ from rest_framework.views import exception_handler
 from rest_framework import status
 from rest_framework.response import Response
 
-from neomodel import db
 from neomodel.exception import CypherException
 
 from sagebrew import errors
@@ -68,11 +67,3 @@ def get_ordering(sort_by):
         sort_by = ""
 
     return sort_by, ordering
-
-
-def get_labels(object_type, object_key, object_id):
-    query = 'MATCH (a:%s {%s: "%s"}) RETURN labels(a)' % (
-        object_type, object_key, object_id)
-    res, col = db.cypher_query(query)
-
-    return res[0][0]

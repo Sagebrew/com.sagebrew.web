@@ -17,7 +17,6 @@ class Solution(SBVersioned):
     object_type = "02241aee-644f-11e4-9ad9-080027242395"
     table = 'public_solutions'
     action_name = "offered a solution to a question"
-    sb_name = "solution"
     up_vote_adjustment = 10
     down_vote_adjustment = 10
     down_vote_cost = 2

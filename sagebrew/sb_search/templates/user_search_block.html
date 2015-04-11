@@ -5,7 +5,8 @@
             </div>
         </div>
         <div class="col-lg-8 col-md-7 col-sm-12 col-xs-12">
-            <a href="#">Jordan Welton</a>
+            {% url 'profile_page' pleb_username=username as the_url %}
+            <a href="{{ the_url }}">{{ full_name }}</a>
             <div class="btn btn-primary sb_btn sb_btn_fill">
                 Request Friend
             </div>

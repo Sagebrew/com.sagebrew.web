@@ -317,6 +317,10 @@ PAYMENT_PLANS = [
     ("sub", "Subscription")
 ]
 
+SEARCH_TYPES = [("general", "general"),
+    ("conversations", "sb_questions.neo_models.SBQuestion"),
+    ("people", "pleb"),
+    ("sagas", "sagas")]
 
 KNOWN_TYPES = [
     ("01bb301a-644f-11e4-9ad9-080027242395", "sb_posts.neo_models.SBPost"),

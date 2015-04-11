@@ -26,8 +26,7 @@ class TestPrepareUserSearchHTML(TestCase):
 
     def test_prepare_user_search_html_success(self):
         res = prepare_user_search_html(self.user.username)
-        self.assertIn('<div style="font-weight: bold">Reputation: 0 | '
-                      'Mutual Friends: 0</div>', res)
+        self.assertIn('<div class="col-lg-4 col-md-5 col-sm-4 col-xs-4">', res)
 
     def test_prepare_user_pleb_does_not_exist(self):
         res = prepare_user_search_html("fake_email@fakegoogle.com")

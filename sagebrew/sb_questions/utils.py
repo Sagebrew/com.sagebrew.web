@@ -109,15 +109,13 @@ def get_question_by_recent_edit(range_start=0, range_end=5):
 
 
 @apply_defense
-def prepare_question_search_html(question_uuid):
+def prepare_question_search_html(question_uuid, request):
     try:
         my_question = SBQuestion.nodes.get(object_uuid=question_uuid)
     except (SBQuestion.DoesNotExist, DoesNotExist):
         return False
-    except CypherException:
-        return None
 
-    return my_question.render_search()
+    return my_question.render_search(request)
 
 
 def render_question_object(question_object):

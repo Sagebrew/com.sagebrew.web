@@ -19,133 +19,139 @@
                     <div style="display: none"
                          id="username"
                          data-username="{{ request.user.username }}"></div>
-                        <div class="row">
-                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                                <h5>First Name</h5>
-                                <input type="text"
-                                       id="first_name"
-                                       placeholder="First Name"
-                                       class="form-control input-lg"
-                                       value="{{ request.user.first_name }}">
-                            </div>
-                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                                <h5>Last Name</h5>
-                                <input type="text"
-                                       id="last_name"
-                                       placeholder="Last Name"
-                                       class="form-control input-lg"
-                                       value="{{ request.user.last_name }}">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <h5>Email</h5>
-                                <input type="text"
-                                       id="email"
-                                       placeholder="Email Address"
-                                       class="form-control input-lg"
-                                       value="{{ request.user.email }}">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <h5>Update Address</h5>
-                            </div>
-                        </div>
-                        {% if not address %}
-                        <div class="row">
-                            <div class="col-lg-12">
-                                You do not have a current address set,
-                                please set one here.
-                            </div>
-                        </div>
-                        {% endif %}
-                        <form id="address">
-                            <div style="display: none"
-                                 id="address_uuid"
-                                 data-object_uuid="{{ address.object_uuid }}"></div>
+                        <form id="settings_form">
                             <div class="row">
-                                <div class="col-lg-12">
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 fname">
+                                    <h5>First Name</h5>
                                     <input type="text"
-                                           id="sb_primary"
-                                           placeholder="Street Address"
+                                           id="first_name"
+                                           name="first_name"
+                                           placeholder="First Name"
                                            class="form-control input-lg"
-                                           value="{{ address.street }}">
+                                           value="{{ request.user.first_name }}">
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 lname">
+                                    <h5>Last Name</h5>
+                                    <input type="text"
+                                           id="last_name"
+                                           name="last_name"
+                                           placeholder="Last Name"
+                                           class="form-control input-lg"
+                                           value="{{ request.user.last_name }}">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12 email_class">
+                                    <h5>Email</h5>
+                                    <input type="text"
+                                           id="email"
+                                           name="email"
+                                           placeholder="Email Address"
+                                           class="form-control input-lg"
+                                           value="{{ request.user.email }}">
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-lg-12">
+                                    <h5>Update Address</h5>
+                                </div>
+                            </div>
+                            {% if not address %}
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    You do not have a current address set,
+                                    please set one here.
+                                </div>
+                            </div>
+                            {% endif %}
+                                <div style="display: none"
+                                     id="address_uuid"
+                                     data-object_uuid="{{ address.object_uuid }}"></div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <input type="text"
+                                               id="sb_primary"
+                                               placeholder="Street Address"
+                                               class="form-control input-lg"
+                                               value="{{ address.street }}">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <input type="text"
+                                               id="sb_secondary"
+                                               placeholder="Address Line 2"
+                                               class="form-control input-lg"
+                                                value="{{ address.street_additional }}">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-4 col-md-4">
+                                        <input type="text"
+                                               id="sb_city"
+                                               placeholder="City"
+                                               class="form-control input-lg"
+                                               value="{{ address.city }}">
+                                    </div>
+                                    <div class="col-lg-4 col-md-4">
+                                        <input type="text"
+                                               id="sb_state"
+                                               placeholder="State"
+                                               class="form-control input-lg"
+                                               value="{{ address.state }}">
+                                    </div>
+                                    <div class="col-lg-4 col-md-4">
+                                        <input type="text"
+                                               id="sb_zip"
+                                               placeholder="Zip Code"
+                                               class="form-control input-lg"
+                                               value="{{ address.postal_code }}">
+                                    </div>
                                     <input type="text"
-                                           id="sb_secondary"
-                                           placeholder="Address Line 2"
-                                           class="form-control input-lg"
-                                            value="{{ address.street_additional }}">
+                                            id="id_valid"
+                                            style="display: none">
+                                    <input type="text"
+                                            id="id_congressional_district"
+                                            style="display: none"
+                                            value="{{ address.congressional_district }}">
+                                    <input type="text"
+                                            id="id_latitude"
+                                            style="display: none"
+                                            value="{{ address.latitude }}">
+                                    <input type="text"
+                                            id="id_longitude"
+                                            style="display: none"
+                                            value="{{ address.longitude }}">
+                                </div>
+                            <div class="row">
+                                <div class="col-lg-12 password1">
+                                    <h5>Change Password</h5>
+                                    <input type="password"
+                                           id="old_password"
+                                           name="old_password"
+                                           placeholder="Old Password"
+                                           class="form-control input-lg">
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-lg-4 col-md-4">
-                                    <input type="text"
-                                           id="sb_city"
-                                           placeholder="City"
-                                           class="form-control input-lg"
-                                           value="{{ address.city }}">
+                                <div class="col-lg-12 password2">
+                                    <input type="password"
+                                           id="new_password"
+                                           name="new_password"
+                                           placeholder="New Password"
+                                           class="form-control input-lg">
                                 </div>
-                                <div class="col-lg-4 col-md-4">
-                                    <input type="text"
-                                           id="sb_state"
-                                           placeholder="State"
-                                           class="form-control input-lg"
-                                           value="{{ address.state }}">
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12 password3">
+                                    <input type="password"
+                                           id="new_password_confirm"
+                                           name="new_password_confirm"
+                                           placeholder="Confirm Password"
+                                           class="form-control input-lg">
                                 </div>
-                                <div class="col-lg-4 col-md-4">
-                                    <input type="text"
-                                           id="sb_zip"
-                                           placeholder="Zip Code"
-                                           class="form-control input-lg"
-                                           value="{{ address.postal_code }}">
-                                </div>
-                                <input type="text"
-                                        id="id_valid"
-                                        style="display: none">
-                                <input type="text"
-                                        id="id_congressional_district"
-                                        style="display: none"
-                                        value="{{ address.congressional_district }}">
-                                <input type="text"
-                                        id="id_latitude"
-                                        style="display: none"
-                                        value="{{ address.latitude }}">
-                                <input type="text"
-                                        id="id_longitude"
-                                        style="display: none"
-                                        value="{{ address.longitude }}">
                             </div>
                         </form>
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <h5>Change Password</h5>
-                                <input type="password"
-                                       id="old_password"
-                                       placeholder="Old Password"
-                                       class="form-control input-lg">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <input type="password"
-                                       id="new_password"
-                                       placeholder="New Password"
-                                       class="form-control input-lg">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <input type="password"
-                                       id="new_password_confirm"
-                                       placeholder="Confirm Password"
-                                       class="form-control input-lg">
-                            </div>
-                        </div>
                         <div class="row">
                             <div class="col-lg-12">
                                 <h5>Delete Account</h5>
@@ -184,6 +190,7 @@
 {% endblock %}
 {% block scripts %}
     {{ block.super }}
+    <script src="{% static 'js/settings_validator.js' %}"></script>
     <script src="{% static 'js/address_validation.js' %}"></script>
     <script src="{% static 'js/submit_settings.js' %}"></script>
 {% endblock scripts %}

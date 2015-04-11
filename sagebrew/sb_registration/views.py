@@ -120,7 +120,6 @@ def resend_email_verification(request):
                                         '/')
     }
     subject, to = "Sagebrew Email Verification", request.user.email
-    print to
     # text_content = get_template(
     # 'email_templates/email_verification.txt').render(Context(template_dict))
     html_content = get_template(

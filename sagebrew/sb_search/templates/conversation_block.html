@@ -1,17 +1,17 @@
 <div class="block sb_search_block">
     <div class="row">
-        <div class="col-lg-4 col-md-5 col-sm-12 col-xs-12">
+        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
             <div class="sb_search_vote_block">
                 <h6>{{ vote_count }} Votes</h6>
                 <h6>{{ view_count }} Views</h6>
             </div>
         </div>
-        <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-            <a href="{{ url }}">{{ title }}</a>
-        </div>
-        <div class="col-lg-8 col-md-12 col-sm-12 col-xs-12">
-            <p>{{ first_name }} {{ last_name }}</p>
-            <small>{{ created|date:"D d M Y" }}</small>
+        <div class="col-lg-8 col-md-4 col-sm-4 col-xs-4">
+            <div style="margin-top: 20px;">
+                <a href="{{ url }}">{{ title }}</a>
+                <p>{{ first_name }} {{ last_name }}</p>
+                <small>{{ created|date:"D d M Y" }}</small>
+            </div>
         </div>
     </div>
 </div>

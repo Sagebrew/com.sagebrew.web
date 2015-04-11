@@ -169,7 +169,7 @@ def add_user_to_custom_index(username=None, index="full-search-user-specific-1")
     sagas = saga_res['hits']['hits']
     try:
         for item in res:
-            item['_source']['related_user'] = pleb.email
+            item['_source']['related_user'] = pleb.username
             item['_source']['sb_score'] = 0
             if item['_type'] == 'SBQuestion':
                 result = es.index(index=index, doc_type='question',
@@ -178,7 +178,7 @@ def add_user_to_custom_index(username=None, index="full-search-user-specific-1")
                 result = es.index(index=index, doc_type='pleb',
                                   body=item['_source'])
         for item in sagas:
-            item['_source']['related_user'] = pleb.email
+            item['_source']['related_user'] = pleb.username
             item['_source']['sb_score'] = 0
             es.index(index=index, doc_type='sagas',
                      body=item['_source'])
@@ -213,7 +213,7 @@ def update_user_indices(doc_type, doc_id):
     try:
         for pleb in Pleb.nodes.all():
             #TODO update this to get index name from the users assigned index
-            res['_source']['related_user'] = pleb.email
+            res['_source']['related_user'] = pleb.username
             result = es.index(index='full-search-user-specific-1',
                               doc_type=doc_type, body=res['_source'])
     except (CypherException, IOError) as e:

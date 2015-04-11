@@ -107,8 +107,7 @@ def search_result_api(request):
                                       'query_param'])
         current_page = int(search_form.cleaned_data['page'])
         results=[]
-        current_user_email = request.user.email
-        current_user_email,current_user_address = current_user_email.split('@')
+
         # TODO surround ES query with proper exception handling and ensure
         # each one is handled correctly
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
@@ -128,7 +127,7 @@ def search_result_api(request):
                                 },
                                 "filter": {
                                     "term": {
-                                        "related_user": current_user_email
+                                        "related_user": request.user.username
                                     }
                                 }
                             })
@@ -146,12 +145,11 @@ def search_result_api(request):
                                 },
                                 "filter": {
                                     "term": {
-                                        "related_user": current_user_email
+                                        "related_user": request.user.username
                                     }
                                 }
                             })
         res = res['hits']['hits']
-        print res
         task_param = {"pleb": request.user.email, "query_param":
                       search_form.cleaned_data['query_param'],
                       "keywords": response['keywords']}

@@ -163,7 +163,7 @@ class TestSearchResultAPIReturns(TestCase):
                                  'object_uuid': question1.object_uuid,
                                  'title': question1.title,
                                  'question_content': question1.content,
-                                 'related_user': self.user.email
+                                 'related_user': self.user.username
                              })
         self.assertTrue(index_res['created'])
         time.sleep(2)
@@ -191,7 +191,7 @@ class TestSearchResultAPIReturns(TestCase):
                      'object_uuid': question1.object_uuid,
                      'title': question1.title,
                      'question_content': question1.content,
-                     'related_user': self.user.email
+                     'related_user': self.user.username
                  })
         for item in range(0,9):
             es.index(index='full-search-user-specific-1',
@@ -200,7 +200,7 @@ class TestSearchResultAPIReturns(TestCase):
                          'object_uuid': question1.object_uuid,
                          'title': question1.title,
                          'question_content': question1.content,
-                         'related_user': self.user.email
+                         'related_user': self.user.username
                      })
         time.sleep(2)
         self.client.login(username=self.user.username, password='testpassword')
@@ -227,7 +227,7 @@ class TestSearchResultAPIReturns(TestCase):
                      'object_uuid': question1.object_uuid,
                      'title': question1.title,
                      'question_content': question1.content,
-                     'related_user': self.user.email
+                     'related_user': self.user.username
                  })
         for item in range(0,19):
             es.index(index='full-search-user-specific-1',
@@ -236,7 +236,7 @@ class TestSearchResultAPIReturns(TestCase):
                          'object_uuid': question1.object_uuid,
                          'title': question1.title,
                          'question_content': question1.content,
-                         'related_user': self.user.email
+                         'related_user': self.user.username
                      })
         time.sleep(2)
         self.client.login(username=self.user.username, password='testpassword')
@@ -271,7 +271,7 @@ class TestSearchResultAPIReturns(TestCase):
                      'object_uuid': question1.object_uuid,
                      'title': question1.title,
                      'question_content': question1.question_content,
-                     'related_user': user.email
+                     'related_user': user.username
                  })
         for item in range(0,39):
             es.index(index='full-search-user-specific-1',
@@ -280,7 +280,7 @@ class TestSearchResultAPIReturns(TestCase):
                          'object_uuid': question1.object_uuid,
                          'title': question1.title,
                          'question_content': question1.question_content,
-                         'related_user': user.email
+                         'related_user': user.username
                      })
         time.sleep(3)
 
@@ -354,7 +354,7 @@ class TestSearchResultAPIReturns(TestCase):
                      'object_uuid': question1.object_uuid,
                      'title': question1.title,
                      'question_content': question1.content,
-                     'related_user': self.user.email
+                     'related_user': self.user.username
                  })
 
         question2 = SBQuestion(object_uuid=str(uuid1()),
@@ -378,7 +378,7 @@ class TestSearchResultAPIReturns(TestCase):
                  body={'object_uuid': question2.object_uuid,
                        'question_content': question2.content,
                        'title': question2.title,
-                       'related_user': self.user.email})
+                       'related_user': self.user.username})
         time.sleep(3)
         self.client.login(username=self.user.username, password='testpassword')
         request = self.client.get('/search/api/?q=fossil fuels')

@@ -110,7 +110,7 @@ class WallPostsListCreate(ListCreateAPIView):
             spawn_task(task_func=spawn_notifications, task_param=data)
             html = request.query_params.get('html', 'false').lower()
             if html == "true":
-
+                serializer["vote_count"] = str(serializer["vote_count"])
                 serializer['last_edited_on'] = datetime.strptime(
                     serializer['last_edited_on'][:len(
                         serializer['last_edited_on']) - 6],

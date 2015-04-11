@@ -47,7 +47,6 @@ urlpatterns = patterns(
     (r'^relationships/', include('plebs.relation_urls')),
     (r'^user/', include('plebs.urls')),
     (r'^conversations/', include('sb_questions.urls')),
-    (r'^solutions/', include('sb_solutions.urls')),
     (r'^badges/', include('sb_badges.urls')),
     (r'^search/', include('sb_search.urls')),
     (r'^tags/', include('sb_tag.urls')),

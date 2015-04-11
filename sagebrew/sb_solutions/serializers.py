@@ -26,7 +26,7 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
         solution.owned_by.connect(owner)
         owner.solutions.connect(solution)
         question.solutions.connect(solution)
-        solution.solution_to.conect(question)
+        solution.solution_to.connect(question)
 
         return solution
 

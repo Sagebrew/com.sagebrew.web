@@ -284,7 +284,12 @@ class SBContent(VotableContent):
 
         :return:
         """
-        return self.get_labels()[-1]
+        labels = self.get_child_label()
+        print labels
+        if 'SBVersioned' in labels:
+            labels.remove('SBVersioned')
+
+        return labels[-1]
 
 
 class TaggableContent(SBContent):

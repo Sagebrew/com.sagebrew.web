@@ -441,11 +441,9 @@ function save_solution() {
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
 			type: "POST",
-			url: $(this).data('url'),
+			url: "/v1/questions/" + $(this).data('object_uuid') + "/solutions/?html=true&expand=true",
 			data: JSON.stringify({
-			   'content': $('textarea.sb_solution_input_area').val(),
-               'current_pleb': $(this).data('current_pleb'),
-               'question_uuid': $(this).data('object_uuid')
+			   'content': $('textarea.sb_solution_input_area').val()
 			}),
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",

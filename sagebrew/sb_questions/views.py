@@ -132,3 +132,20 @@ def get_question_search_view(request, question_uuid=str(uuid1())):
     elif response is False:
         return Response(status=404)
     return Response({'html': response}, status=200)
+
+
+@login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
+def solution_edit_page(request, solution_uuid=None):
+    '''
+    This view will get a question based upon the uuid, the request was from a
+    search it will return the html of the question for the search result
+    page, if it was called to display a single question detail it will return
+    the html the question_detail_page expects
+
+    :param request:
+    :return:
+    '''
+    data = {"object_uuid": solution_uuid}
+    return render(request, 'edit_solution.html', data)

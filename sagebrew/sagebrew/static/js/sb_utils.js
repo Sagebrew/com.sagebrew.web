@@ -555,10 +555,8 @@ function show_edit_question() {
 function show_edit_solution() {
     $("a.show_edit_solution-action").click(function(event){
         event.preventDefault();
-        var root = window.location.href.split("conversations/")[0];
-        var question_uuid = window.location.href.split("conversations/")[1].split('/')[0];
         var solution_uuid = $(this).data("object_uuid");
-        window.location.href = root+"solutions/"+question_uuid+'/'+solution_uuid+'/edit/'
+        window.location.href = "/conversations/solutions/" + solution_uuid + '/edit/'
     });
 }
 

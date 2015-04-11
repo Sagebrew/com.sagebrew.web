@@ -413,18 +413,6 @@ class Address(StructuredNode):
     # Relationships
     owned_by = RelationshipTo("Pleb", 'LIVES_IN')
 
-    def get_dict(self):
-        return {"street": self.street,
-                "street_additional": self.street_additional,
-                "city": self.city,
-                "state": self.state,
-                "postal_code": self.postal_code,
-                "country": self.country,
-                "latitude": self.latitude,
-                "longitude": self.longitude,
-                "congressional_district": self.congressional_district,
-                "object_uuid": self.object_uuid}
-
 
 class FriendRequest(StructuredNode):
     object_uuid = StringProperty(default=uuid1, unique_index=True)

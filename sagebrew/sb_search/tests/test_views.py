@@ -246,14 +246,6 @@ class TestSearchResultAPIReturns(TestCase):
         self.assertEqual(request.status_code, 200)
 
     def test_search_result_api_returns_page_3(self):
-        email = "suppressionlist@simulator.amazonses.com"
-        pleb = Pleb(email=email)
-        pleb.first_name = 'Tyler'
-        pleb.last_name = 'Wiersing'
-        pleb.username = str(shortuuid.uuid())
-        pleb.save()
-        user = User.objects.create_user(pleb.username, email, 'testpassword')
-
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         question1 = SBQuestion(object_uuid=str(uuid1()),
                                title=self.q1dict['title'],
@@ -264,14 +256,14 @@ class TestSearchResultAPIReturns(TestCase):
                                downvotes=0,
                                created=datetime.now(pytz.utc))
         question1.save()
-        question1.owned_by.connect(pleb)
-        es.index(index='full-search-user-specific-1',
+        question1.owned_by.connect(self.pleb)
+        es_res = es.index(index='full-search-user-specific-1',
                  doc_type='sb_questions.neo_models.SBQuestion',
                  body={
                      'object_uuid': question1.object_uuid,
                      'title': question1.title,
                      'question_content': question1.question_content,
-                     'related_user': user.username
+                     'related_user': self.user.username
                  })
         for item in range(0,39):
             es.index(index='full-search-user-specific-1',
@@ -280,13 +272,12 @@ class TestSearchResultAPIReturns(TestCase):
                          'object_uuid': question1.object_uuid,
                          'title': question1.title,
                          'question_content': question1.question_content,
-                         'related_user': user.username
+                         'related_user': self.user.username
                      })
         time.sleep(3)
 
-        self.client.login(username=user.username, password='testpassword')
+        self.client.login(username=self.user.username, password='testpassword')
         request = self.client.get('/search/api/?q=battery-powered&page=3')
-        print loads(request.content)
         self.assertEqual(len(loads(request.content)['html']), 10)
         self.assertEqual(request.status_code, 200)
 

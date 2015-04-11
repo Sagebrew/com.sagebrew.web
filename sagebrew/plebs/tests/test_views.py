@@ -271,7 +271,7 @@ class TestCreateFriendRequestView(TestCase):
         res.render()
 
         self.assertEqual(res.status_code, 200)
-        self.assertTrue(loads(res.content)['action_name'])
+        self.assertTrue(loads(res.content)['action'])
 
     def test_create_friend_request_view_invalid_form(self):
         data = {

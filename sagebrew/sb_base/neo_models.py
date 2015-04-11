@@ -1,5 +1,4 @@
 import math
-import inspect
 import pytz
 from logging import getLogger
 from datetime import datetime
@@ -348,8 +347,6 @@ class TaggableContent(SBContent):
 
 
 class SBVersioned(TaggableContent):
-    __abstract_node__ = True
-
     allowed_flags = ["explicit", "spam", "duplicate",
                      "unsupported", "other"]
     edit = lambda self: self.__class__.__name__

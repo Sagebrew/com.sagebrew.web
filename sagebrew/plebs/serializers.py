@@ -94,8 +94,8 @@ class PlebSerializerNeo(serializers.Serializer):
 class AddressSerializer(serializers.Serializer):
     object_uuid = serializers.CharField(read_only=True)
     href = serializers.HyperlinkedIdentityField(read_only=True,
-                                               view_name="address-detail",
-                                               lookup_field="object_uuid")
+                                                view_name="address-detail",
+                                                lookup_field="object_uuid")
     street = serializers.CharField(max_length=125)
     street_additional = serializers.CharField(required=False, allow_blank=True,
                                               allow_null=True, max_length=125)

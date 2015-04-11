@@ -560,8 +560,16 @@ function show_edit_solution() {
     });
 }
 
-function delete_object() {
-    $("a.delete_object-action").click(function (event) {
+function delete_objects(url, populated_ids){
+    if(typeof populated_ids !== 'undefined' && populated_ids.length > 0){
+        for (i = 0; i < populated_ids.length; i++) {
+            delete_object(".delete_" + populated_ids[i], url + populated_ids[i] + "/");
+        }
+    }
+}
+
+function delete_object(delete_area, url) {
+    $(delete_area).click(function (event) {
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -570,15 +578,18 @@ function delete_object() {
         });
         $.ajax({
             xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/delete/delete_object_api/",
-            data: JSON.stringify({
-                'current_pleb': $(this).data('current_pleb'),
-                'object_uuid': $(this).data('object_uuid'),
-                'object_type': $(this).data('object_type')
-            }),
+            type: "DELETE",
+            url: url,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
+            success: function(data){
+                $(data['html_object']).text(data['content']);
+                $("#edit_container_"+uuid).hide();
+                $("#sb_content_"+uuid).show();
+                //$(".sb_object_dropdown").each(function(i, obj){
+                //    $(obj).removeAttr("disabled");
+                //});
+            },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 if(XMLHttpRequest.status === 500){
                     $("#server_error").show();
@@ -898,7 +909,6 @@ function enable_object_functionality(populated_ids) {
     flag_objects(populated_ids);
     vote_objects(populated_ids);
     edit_objects(populated_ids);
-    delete_object();
 }
 
 
@@ -910,6 +920,7 @@ function enable_comment_functionality(populated_ids){
     enable_object_functionality(populated_ids);
     show_edit_comment(populated_ids);
     comment_validator();
+    delete_objects("/v1/comments/", populated_ids);
 }
 
 function enable_question_summary_functionality(populated_ids) {
@@ -922,18 +933,21 @@ function enable_question_functionality(populated_ids) {
     save_comments(populated_ids, "/v1/questions/");
     show_edit_question(populated_ids);
     save_solution(populated_ids);
+    delete_objects("/v1/questions/", populated_ids);
 }
 
 function enable_single_post_functionality(populated_ids) {
     enable_object_functionality(populated_ids);
     save_comments(populated_ids, '/v1/posts/');
     show_edit_posts(populated_ids);
+    delete_objects("/v1/posts/", populated_ids);
 }
 
 function enable_solution_functionality(populated_ids) {
     enable_object_functionality(populated_ids);
     save_comments(populated_ids, '/v1/solutions/');
     show_edit_solution(populated_ids);
+    delete_objects("/v1/solutions/", populated_ids);
 }
 
 function getUrlParameter(sParam)

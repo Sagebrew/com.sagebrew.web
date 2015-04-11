@@ -51,6 +51,12 @@ class SolutionViewSet(viewsets.ModelViewSet):
         return Solution.nodes.get(
             object_uuid=self.kwargs[self.lookup_field])
 
+    def perform_destroy(self, instance):
+        instance.content = ""
+        instance.to_be_deleted = True
+        instance.save()
+        return instance
+
 
 class ObjectSolutionsRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):
     serializer_class = SolutionSerializerNeo

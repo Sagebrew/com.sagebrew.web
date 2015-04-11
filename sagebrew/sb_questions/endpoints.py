@@ -14,7 +14,7 @@ from neomodel import db
 
 from sb_base.utils import get_ordering
 
-from .serializers import QuestionSerializerNeo
+from .serializers import QuestionSerializerNeo, solution_count
 from .neo_models import Question
 
 logger = getLogger('loggly_logs')
@@ -77,15 +77,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'])
     def solution_count(self, request, object_uuid=None):
-        query = 'MATCH (a:Question)-->(solutions:Solution) ' \
-                'WHERE (a.object_uuid = "%s" and a.to_be_deleted = false)' \
-                'RETURN count(DISTINCT solutions)' \
-                '' % (self.kwargs[self.lookup_field])
-        res, col = db.cypher_query(query)
-        try:
-            count = res[0][0]
-        except IndexError:
-            count = 0
+        count = solution_count(self.kwargs[self.lookup_field])
         return Response({"solution_count": count}, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'])

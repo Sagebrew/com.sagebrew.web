@@ -6,13 +6,16 @@
             </div>
         </div>
         <div class="col-lg-8 col-md-7 col-sm-12 col-xs-12">
-            <a href="#">Representative Name</a>
+            {% url "action_saga" username=object_uuid as the_url %}
+            <a href="{{ the_url }}">{{ first_name }} {{ last_name }}</a>
         </div>
         <div class="col-lg-8 col-md-12 col-sm-12 col-xs-12">
-            <p>State</p>
-            <p>Current Office</p>
+            <p>{{ state }}</p>
+            <p>{{ title }}</p>
+            {% comment %}
             <p>Office Running for</p>
             <p>2.54K pledged votes</p>
+            {% endcomment %}
         </div>
     </div>
 </div>

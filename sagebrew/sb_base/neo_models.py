@@ -233,9 +233,6 @@ class SBContent(SBVoteableContent):
         except CypherException as e:
             return e
 
-    def render_search(self):
-        pass
-
     def render_single(self, pleb):
         pass
 

@@ -19,6 +19,8 @@ from api.utils import spawn_task
 from sb_notifications.tasks import spawn_notifications
 from sb_base.utils import get_ordering
 from sb_base.views import ObjectRetrieveUpdateDestroy
+from sb_questions.neo_models import Question
+from plebs.neo_models import Pleb
 
 from .serializers import SolutionSerializerNeo
 from .neo_models import Solution
@@ -85,13 +87,21 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
         serializer = self.get_serializer(data=post_data,
                                          context={"request": request})
         if serializer.is_valid():
-            serializer.save(question=self.kwargs[self.lookup_field])
+            question = Question.nodes.get(
+                object_uuid=self.kwargs[self.lookup_field])
+            serializer.save(question=question)
+            query = "MATCH (a:Question {object_uuid:'%s'})-[:OWNED_BY]->" \
+                    "(b:Pleb) RETURN b" % (self.kwargs[self.lookup_field])
+            res, col = db.cypher_query(query)
+            question_owner = Pleb.inflate(res[0][0])
             serializer = serializer.data
             data = {
                 "from_pleb": request.user.username,
                 "sb_object": serializer['object_uuid'],
                 "url": serializer['url'],
-                "to_plebs": [self.kwargs[self.lookup_field],],
+                # TODO discuss notifying all the people who have provided
+                # solutions on a given question.
+                "to_plebs": [question_owner.username,],
                 "notification_id": str(uuid1())
             }
             spawn_task(task_func=spawn_notifications, task_param=data)
@@ -105,7 +115,7 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
                 context = RequestContext(request, serializer)
                 return Response(
                     {
-                        "html": [render_to_string('post.html', context)],
+                        "html": [render_to_string('solution.html', context)],
                         "ids": [serializer["object_uuid"]]
                     },
                     status=status.HTTP_200_OK)

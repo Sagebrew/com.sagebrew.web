@@ -286,7 +286,7 @@ class TestSearchResultAPIReturns(TestCase):
 
         self.client.login(username=user.username, password='testpassword')
         request = self.client.get('/search/api/?q=battery-powered&page=3')
-
+        print loads(request.content)
         self.assertEqual(len(loads(request.content)['html']), 10)
         self.assertEqual(request.status_code, 200)
 

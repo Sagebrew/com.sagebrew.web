@@ -8,6 +8,7 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
     href = serializers.HyperlinkedIdentityField(view_name='question-detail',
                                                 lookup_field="object_uuid")
     title = serializers.CharField(required=False)
+    # TODO change this to method
     solution_count = serializers.IntegerField(read_only=True)
 
     def create(self, validated_data):

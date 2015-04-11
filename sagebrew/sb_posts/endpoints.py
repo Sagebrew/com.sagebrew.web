@@ -95,8 +95,8 @@ class WallPostsListCreate(ListCreateAPIView):
         post_data = request.data
         post_data['parent_object'] = self.kwargs[self.lookup_field]
 
-        serializer = PostSerializerNeo(data=post_data,
-                                       context={"request": request})
+        serializer = self.get_serializer(data=post_data,
+                                         context={"request": request})
         if serializer.is_valid():
             serializer.save(wall_owner=self.kwargs[self.lookup_field])
             serializer = serializer.data

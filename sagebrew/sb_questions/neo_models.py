@@ -24,7 +24,9 @@ class Question(SBVersioned):
     up_vote_adjustment = 5
     down_vote_adjustment = 2
     object_type = "0274a216-644f-11e4-9ad9-080027242395"
-
+    # This currently isn't maintained please make sure to use the methods
+    # provided in the serializer or in the endpoint
+    #  /v1/questions/uuid/solution_count/
     solution_count = IntegerProperty(default=0)
     title = StringProperty()
     is_closed = BooleanProperty(default=False)

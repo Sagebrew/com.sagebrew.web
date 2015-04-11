@@ -1,3 +1,4 @@
+from uuid import uuid1
 from datetime import datetime
 
 from logging import getLogger
@@ -14,6 +15,8 @@ from rest_framework.generics import (ListCreateAPIView)
 
 from neomodel import db
 
+from api.utils import spawn_task
+from sb_notifications.tasks import spawn_notifications
 from sb_base.utils import get_ordering
 from sb_base.views import ObjectRetrieveUpdateDestroy
 
@@ -74,6 +77,40 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
             queryset = sorted(queryset, key=lambda k: k.get_vote_count(),
                               reverse=True)
         return queryset
+
+    def create(self, request, *args, **kwargs):
+        post_data = request.data
+        post_data['parent_object'] = self.kwargs[self.lookup_field]
+
+        serializer = self.get_serializer(data=post_data,
+                                         context={"request": request})
+        if serializer.is_valid():
+            serializer.save(question=self.kwargs[self.lookup_field])
+            serializer = serializer.data
+            data = {
+                "from_pleb": request.user.username,
+                "sb_object": serializer['object_uuid'],
+                "url": serializer['url'],
+                "to_plebs": [self.kwargs[self.lookup_field],],
+                "notification_id": str(uuid1())
+            }
+            spawn_task(task_func=spawn_notifications, task_param=data)
+            html = request.query_params.get('html', 'false').lower()
+            if html == "true":
+
+                serializer['last_edited_on'] = datetime.strptime(
+                    serializer['last_edited_on'][:len(
+                        serializer['last_edited_on']) - 6],
+                    '%Y-%m-%dT%H:%M:%S.%f')
+                context = RequestContext(request, serializer)
+                return Response(
+                    {
+                        "html": [render_to_string('post.html', context)],
+                        "ids": [serializer["object_uuid"]]
+                    },
+                    status=status.HTTP_200_OK)
+            return Response(serializer, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["GET"])

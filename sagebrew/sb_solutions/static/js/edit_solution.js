@@ -1,7 +1,7 @@
 $(document).ready(function(){
     $(".edit_solution-action").click(function (event) {
         event.preventDefault();
-
+        $("#submit_solution").attr("disabled", "disabled");
         var uuid = $(this).data('object_uuid');
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -18,9 +18,11 @@ $(document).ready(function(){
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function(data){
+                $("#submit_solution").removeAttr("disabled");
                 window.location.href = data['url'];
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
+                $("#submit_solution").removeAttr("disabled");
                 if(XMLHttpRequest.status === 500){
                     $("#server_error").show();
                 }

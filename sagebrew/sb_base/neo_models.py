@@ -48,7 +48,8 @@ class VotableContent(NotificationCapable):
     down_vote_adjustment = 0
     content = StringProperty()
     created = DateTimeProperty(default=get_current_time)
-
+    view_count_node = RelationshipTo('sb_stats.neo_models.SBViewCount',
+                                     'VIEW_COUNT')
     # relationships
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'OWNED_BY',
                               model=PostedOnRel)
@@ -154,6 +155,12 @@ class VotableContent(NotificationCapable):
             "neg_rep": neg_rep,
         }
 
+    def get_view_count(self):
+        try:
+            return self.view_count_node.all()[0].view_count
+        except IndexError:
+            return 0
+
 
 class SBContent(VotableContent):
     allowed_flags = ["explicit", "spam", "duplicate",
@@ -178,8 +185,6 @@ class SBContent(VotableContent):
     view_count = IntegerProperty(default=0)
 
     # relationships
-    view_count_node = RelationshipTo('sb_stats.neo_models.SBViewCount',
-                                     'VIEW_COUNT')
     flagged_by = RelationshipTo('plebs.neo_models.Pleb', 'FLAGGED_BY')
     flags = RelationshipTo('sb_flags.neo_models.Flag', 'HAS_FLAG')
     comments = RelationshipTo('sb_comments.neo_models.Comment', 'HAS_A',
@@ -200,24 +205,6 @@ class SBContent(VotableContent):
 
     def reputation_adjust(self):
         pass
-
-    @apply_defense
-    def flag_content(self, flag_reason, current_pleb, description=""):
-        from sb_flags.neo_models import Flag
-        try:
-            if flag_reason not in self.allowed_flags:
-                return False
-
-            if self.flagged_by.is_connected(current_pleb):
-                return self
-
-            flag = Flag(flag_reason=flag_reason, content=description).save()
-            self.flags.connect(flag)
-            self.flagged_by.connect(current_pleb)
-            return self
-
-        except CypherException as e:
-            return e
 
     @apply_defense
     def get_table(self):
@@ -242,11 +229,13 @@ class SBContent(VotableContent):
         except IndexError:
             return 0
 
-    def get_view_count(self):
-        try:
-            return self.view_count_node.all()[0].view_count
-        except IndexError:
-            return 0
+    def get_flagged_by(self):
+        query = "MATCH (a:SBContent {object_uuid: '%s'})-[:FLAGGED_BY]->(" \
+                "b:Pleb) Return b" % (self.object_uuid)
+        res, col = db.cypher_query(query)
+        if len(res) == 0:
+            return []
+        return res
 
     def get_labels(self):
         query = 'START n=node(%d) RETURN DISTINCT labels(n)' % (self._id)

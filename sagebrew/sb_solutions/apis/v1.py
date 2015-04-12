@@ -7,6 +7,10 @@ from sb_comments.endpoints import (ObjectCommentsListCreate,
                                    ObjectCommentsRetrieveUpdateDestroy,
                                    comment_renderer)
 
+from sb_flags.endpoints import (ObjectFlagsListCreate,
+                                ObjectFlagsRetrieveUpdateDestroy,
+                                flag_renderer)
+
 router = routers.SimpleRouter()
 
 router.register(r'solutions', SolutionViewSet, base_name="solution")
@@ -23,4 +27,15 @@ urlpatterns = patterns(
         r'(?P<comment_uuid>[A-Za-z0-9.@_%+-]{36,36})/$',
         ObjectCommentsRetrieveUpdateDestroy.as_view(),
         name="question-comment"),
+
+    # Flags
+    url(r'^solutions/(?P<object_uuid>[A-Za-z0-9.@_%+-]{36,36})/flags/$',
+        ObjectFlagsListCreate.as_view(), name="solution-flags"),
+    url(r'^solutions/(?P<object_uuid>[A-Za-z0-9.@_%+-]{36,36})/'
+        r'flags/render/$',
+        flag_renderer, name="solution-flag-html"),
+    url(r'^solutions/(?P<object_uuid>[A-Za-z0-9.@_%+-]{36,36})/flags/'
+        r'(?P<flag_uuid>[A-Za-z0-9.@_%+-]{36,36})/$',
+        ObjectFlagsRetrieveUpdateDestroy.as_view(),
+        name="solution-flag"),
 )

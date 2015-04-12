@@ -53,7 +53,7 @@
                         </div>
                     </div>
                     <div class="row" style="padding-left: 15px; padding-right: 15px;">
-                        <div class="block sb_solution sb_provide_solution">
+                        <div class="block sb_markdown sb_solution sb_provide_solution">
                             <form id="solutionSubmitForm">
                             <div class="row-fluid">
                                 <h5>Provide a Solution</h5>
@@ -89,13 +89,14 @@
 <div class="div_data_hidden"
      data-sort_by="uuid"
      data-question_uuid="{{ uuid }}"></div>
+    {% include "flag_modal.html" %}
 {% endblock content %}
 {% block scripts %}
     {{ block.super }}
     <script src="{% static 'js/query_single_question.js' %}"></script>
     <script src="{% static 'js/edit_question.js' %}"></script>
     <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
-
+    <script src="{% static 'js/flag_modal.js' %}"></script>
     <script src="{% static 'js/create_markdown.js' %}"></script>
 
 {% endblock scripts %}

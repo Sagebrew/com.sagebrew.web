@@ -46,6 +46,7 @@
   }
 }
 
+
 //html tag padding fixes
 
 // Blocks
@@ -374,6 +375,22 @@
     color: @sb_green;
   &:hover{
     color: @sb_green;
+    background-color: transparent;
+  }
+}
+.sb_span_icon{
+  margin-left: 8px;
+}
+.sb_btn_icon_purple{
+  color: @sb_violet;
+  background-color: transparent;
+}
+.sb_btn_icon_green_hover{
+    padding: 5px;
+  &:extend(.sb_btn_icon);
+    color: @sb_grey;
+  &:hover{
+    color: @sb_violet;
     background-color: transparent;
   }
 }

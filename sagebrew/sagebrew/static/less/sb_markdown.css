@@ -1,7 +1,8 @@
 @import url(https://fonts.googleapis.com/css?family=Inconsolata);
 .sb_markdown,
 .sb_markdown_disabled,
-.sb_help_article {
+.sb_help_article,
+.sb_modal {
   word-wrap: break-word;
   color: #34495e;
 }
@@ -49,7 +50,6 @@
 .sb_markdown textarea {
   border-radius: 5px;
   width: 100%;
-  height: auto;
   resize: vertical;
   margin-bottom: 25px;
   font-size: 16px;
@@ -103,6 +103,9 @@
   border-radius: 5px;
   background-color: #e0e7e1;
   margin-right: 0;
+}
+.sb_modal {
+  height: 250px;
 }
 .sb_help_article_content {
   height: auto;

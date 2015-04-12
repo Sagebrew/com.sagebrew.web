@@ -34,8 +34,8 @@
             {%  endblock %}
        {% endif %}
     </div>
-{% block profile_picture %}
-    <div class="modal fade" id="myModal"
+    {% comment %} Profile Picture Modal {% endcomment %}
+        <div class="modal fade" id="myModal"
          tabindex="-1"
          role="dialog"
          aria-labelledby="myLargeModalLabel"
@@ -99,8 +99,8 @@
             </div>
         </div>
     </div>
-{% endblock %}
-{% block wallpaper_picture %}
+    {% comment %} End Profile Picture Modal {% endcomment %}
+    {% comment %} Wallpaper Modal {% endcomment %}
     <div class="modal fade" id="myWallpaperModal"
          tabindex="-1"
          role="dialog"
@@ -165,7 +165,8 @@
             </div>
         </div>
     </div>
-{% endblock %}
+    {% comment %} End Wallpaper Modal {% endcomment %}
+    {% include "flag_modal.html" %}
 {% endblock %}
 {% block footer %}
 {% endblock %}
@@ -183,6 +184,8 @@
     <script src="{% static 'js/vendor/cropper.min.js' %}"></script>
     <script src="{% static 'js/update_profile_picture.js' %}"></script>
     <script src="{% static 'js/update_wallpaper_picture.js' %}"></script>
+    <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
+    <script src="{% static 'js/flag_modal.js' %}"></script>
     {% comment %}
     <script src="{% static 'js/get_dropzone.js' %}"></script>
     {% endcomment %}

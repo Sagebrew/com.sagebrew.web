@@ -23,12 +23,10 @@ class CommentSerializer(ContentSerializer):
         owner = validated_data.pop('owner', None)
         parent_object = validated_data.pop('parent_object', None)
         comment = Comment(**validated_data).save()
-        if owner is not None:
-            comment.owned_by.connect(owner)
-            owner.comments.connect(comment)
-        if parent_object is not None:
-            parent_object.comments.connect(comment)
-            comment.comment_on.connect(parent_object)
+        comment.owned_by.connect(owner)
+        owner.comments.connect(comment)
+        parent_object.comments.connect(comment)
+        comment.comment_on.connect(parent_object)
 
         return comment
 

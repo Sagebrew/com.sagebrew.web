@@ -141,6 +141,7 @@ TEMPLATE_DIRS = (
     '%s/sb_solutions/templates/' % PROJECT_DIR,
     '%s/sb_badges/templates/' % PROJECT_DIR,
     '%s/sb_comments/templates/' % PROJECT_DIR,
+    '%s/sb_flag/templates/' % PROJECT_DIR,
     '%s/sb_notifications/templates/' % PROJECT_DIR,
     '%s/sb_posts/templates/' % PROJECT_DIR,
     '%s/sb_privileges/templates/' % PROJECT_DIR,

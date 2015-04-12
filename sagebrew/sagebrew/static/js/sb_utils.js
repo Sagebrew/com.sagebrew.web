@@ -433,6 +433,7 @@ function vote_objects(populated_ids) {
 function save_solution() {
     $(".submit_solution-action").click(function(event){
 		event.preventDefault();
+        $("#submit_solution").attr("disabled", "disabled");
 		$.ajaxSetup({
 		    beforeSend: function(xhr, settings) {
                 ajax_security(xhr, settings)
@@ -455,10 +456,12 @@ function save_solution() {
                     var solution_count = parseInt(solution_count_text) + 1;
                     $("#solution_count").text(solution_count.toString());
                 }
-                $('#wmd-preview-0').html("");
+                $('#wmd-preview-1').html("");
+                $("#submit_solution").removeAttr("disabled");
                 enable_solution_functionality(data["ids"]);
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
+                $("#submit_solution").removeAttr("disabled");
                 if(XMLHttpRequest.status === 500){
                     $("#server_error").show();
                 }

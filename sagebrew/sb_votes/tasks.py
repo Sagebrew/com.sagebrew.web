@@ -1,6 +1,7 @@
 from celery import shared_task
 
-from api.utils import get_object
+from api.utils import get_object, spawn_task
+from plebs.tasks import update_reputation
 
 
 @shared_task()
@@ -26,6 +27,12 @@ def vote_object_task(vote_type, current_pleb, object_type, object_uuid):
     res = sb_object.vote_content(vote_type, current_pleb)
 
     if isinstance(res, Exception) is True:
+        raise vote_object_task.retry(exc=res, countdown=3, max_retries=None)
+
+    res = spawn_task(update_reputation,
+                     {"username": sb_object.owner.all()[0].username})
+
+    if isinstance(res, Exception):
         raise vote_object_task.retry(exc=res, countdown=3, max_retries=None)
 
     return sb_object

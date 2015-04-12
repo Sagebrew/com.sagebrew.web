@@ -12,6 +12,8 @@ from neomodel import db
 
 from api.neo_models import SBObject
 
+from api.neo_models import SBObject
+
 
 def get_current_time():
     return datetime.now(pytz.utc)
@@ -255,6 +257,8 @@ class Pleb(SBObject):
                 for tag in rep_res['tag_list']:
                     tags[tag] = rep_res['rep_per_tag']
             rep_list.append(rep_res)
+        self.reputation = total_rep
+        self.save()
         return {"rep_list": rep_list,
                 "base_tags": base_tags,
                 "tags": tags,

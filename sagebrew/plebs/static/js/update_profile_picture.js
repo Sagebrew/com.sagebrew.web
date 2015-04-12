@@ -5,9 +5,7 @@ $( document ).ready(function() {
     });
     var existingdiv1 = document.getElementById( "sb_profile_photo" );
     $("input#profile_pic_upload").change(function() {
-        console.log($("#profile_pic_upload").files);
         $("#myModal").modal("show");
-        $("#sb_modal_content").append(existingdiv1);
         $("#sb_btn_save").show();
     });
     $("#sb_modal_close").click(function(){
@@ -40,7 +38,10 @@ $( document ).ready(function() {
                     {top:0, left:0, width:200, height:200});
             },
             dragend: function() {
-
+                var coords = image_test.cropper('getData');
+                console.log(coords);
+                console.log(coords.x);
+                getCoords(coords);
             }
         });
 
@@ -73,15 +74,15 @@ $( document ).ready(function() {
             contentType: false,
             processData: false,
             success: function(data){
-                window.location.replace(data['url']);
+                window.location.href = data['url'];
             }
         });
     });
     function getCoords (c){
         $('#image_x1').val(c.x);
-        $('#image_x2').val(c.w);
+        $('#image_x2').val(c.width);
         $('#image_y1').val(c.y);
-        $('#image_y2').val(c.h);
+        $('#image_y2').val(c.height);
     }
 });
 

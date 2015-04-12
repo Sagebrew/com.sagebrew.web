@@ -21,6 +21,7 @@ from plebs.neo_models import Pleb, BetaUser
 from sb_public_official.tasks import create_rep_task
 from sb_docstore.tasks import build_rep_page_task
 from sb_uploads.tasks import crop_image_task
+from sb_uploads.utils import crop_image
 
 from .forms import (AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm, RepRegistrationForm,
@@ -308,21 +309,15 @@ def profile_picture(request):
 @api_view(['POST'])
 def profile_picture_api(request):
     profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
+    pleb = Pleb.nodes.get(username=request.user.username)
     if profile_picture_form.is_valid():
         image_uuid = str(uuid1())
         data = request.FILES['picture']
-        image_data = {
-            "image": data,
-            "x": profile_picture_form.cleaned_data['image_x1'],
-            "y": profile_picture_form.cleaned_data['image_y1'],
-            "width": 200,
-            "height": 200,
-            "f_uuid": image_uuid,
-            "pleb": request.user.username
-        }
-        res = spawn_task(crop_image_task, image_data)
-        if isinstance(res, Exception):
-            return Response({'detail': 'Server Error'}, status=500)
+        res = crop_image(data, 200, 200,
+                         int(profile_picture_form.cleaned_data['image_x1']),
+                         int(profile_picture_form.cleaned_data['image_y1']))
+        pleb.profile_pic = res
+        pleb.save()
         url = reverse('profile_page', kwargs={"pleb_username":
                                                   request.user.username})
         return Response({"url": url}, 200)

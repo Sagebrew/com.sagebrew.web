@@ -83,7 +83,7 @@ def process_search_result(item):
     from sb_search.tasks import update_weight_relationship
     if 'sb_score' not in item['_source']:
             item['_source']['sb_score'] = 0
-    if item['_type'] == 'sb_questions.neo_models.SBQuestion':
+    if item['_type'] == 'sb_questions.neo_models.Question':
         return {"question_uuid": item['_source']['object_uuid'],
                        "type": "question",
                        "temp_score": item['_score']*item['_source']['sb_score'],

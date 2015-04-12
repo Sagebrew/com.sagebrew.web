@@ -10,9 +10,8 @@ function ajax_security(xhr, settings) {
     }
 }
 
-function save_comment(comment_area) {
+function save_comment(comment_area, url, object_uuid) {
     $(comment_area).click(function (event) {
-        var object_uuid = $(this).data('object_uuid');
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -22,7 +21,7 @@ function save_comment(comment_area) {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
-            url: "/comments/submit_comment/",
+            url: url + "?html=true",
             data: JSON.stringify({
                 'content': $('textarea#post_comment_on_' + object_uuid).val(),
                 'object_uuid': $(this).data('object_uuid'),
@@ -31,8 +30,8 @@ function save_comment(comment_area) {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-                var comment_container = $("#sb_comments_container_"+object_uuid);
-                comment_container.append(data['html']);
+                var comment_container = $("#sb_comments_container_" + object_uuid);
+                comment_container.prepend(data['html']);
                 $('textarea#post_comment_on_' + object_uuid).val("");
                 enable_comment_functionality(data["ids"])
             },
@@ -46,10 +45,11 @@ function save_comment(comment_area) {
 }
 
 
-function save_comments(populated_ids){
+function save_comments(populated_ids, url){
     if(typeof populated_ids !== 'undefined' && populated_ids.length > 0){
         for (i = 0; i < populated_ids.length; i++) {
-            save_comment(".comment_" + populated_ids[i]);
+            save_comment(".comment_" + populated_ids[i],
+                url + populated_ids[i] + "/comments/", populated_ids[i]);
         }
     }
 }
@@ -132,9 +132,10 @@ function populate_comment(object_uuid){
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
-        // TODO should really set a limit of 3 initially and then have a
-        // link people can click to see all the comments.
-        url: "/v1/posts/" + object_uuid + "/comments/render/?expand=true&html=true&limit=3",
+        // TODO probably want to make a /v1/content/ endpoint so that it's more
+        // explanitory that comments can be on any piece of content.
+        // Then use /posts/questions/solutions where needed
+        url: "/v1/posts/" + object_uuid + "/comments/render/?expand=true&html=true&page_size=3",
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
@@ -157,15 +158,16 @@ function populate_comment(object_uuid){
                     $.ajax({
                         xhrFields: {withCredentials: true},
                         type: "GET",
-                        // TODO should really set a limit of 3 initially and then have a
-                        // link people can click to see all the comments.
-                        url: "/v1/posts/" + object_uuid + "/comments/render/?expand=true&html=true&limit=" + data["count"] + "&offset=3",
+                        url: "/v1/posts/" + object_uuid + "/comments/render/?expand=true&html=true&page_size=3&page=2",
                         contentType: "application/json; charset=utf-8",
                         dataType: "json",
                         success: function (data) {
                             var comment_container = $('#sb_comments_container_' + object_uuid);
                             $('#additional_comments_' + object_uuid).remove();
                             comment_container.append(data['results']['html']);
+                            if (data["next"] !== null) {
+                                queryComments(data["next"], object_uuid)
+                            }
                             enable_comment_functionality(data['results']['ids']);
                         },
                         error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -187,6 +189,34 @@ function populate_comment(object_uuid){
     });
 }
 
+function queryComments(url, object_uuid){
+    $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+        });
+    $.ajax({
+        xhrFields: {withCredentials: true},
+        type: "GET",
+        url: url,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (data) {
+            if (data["next"] !== null) {
+                queryComments(data["next"], object_uuid)
+            }
+            var comment_container = $('#sb_comments_container_' + object_uuid);
+            comment_container.append(data['results']['html']);
+            enable_comment_functionality(data['results']['ids']);
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            if(XMLHttpRequest.status === 500){
+                $("#server_error").show();
+            }
+        }
+    });
+}
+
 function populate_comments(object_uuids){
     if(typeof object_uuids !== 'undefined' && object_uuids.length > 0){
         for (i = 0; i < object_uuids.length; i++) {
@@ -196,7 +226,7 @@ function populate_comments(object_uuids){
 }
 
 
-function loadPosts(limit, offset){
+function loadPosts(url){
     $.ajaxSetup({
     beforeSend: function (xhr, settings) {
             ajax_security(xhr, settings)
@@ -205,19 +235,18 @@ function loadPosts(limit, offset){
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
-        url: "/v1/profiles/" + $('#user_info').data('page_user_username') + "/wall/render/?limit="+ limit + "&offset=" + offset + "&expand=true",
+        url: url,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
             var wall_container = $('#wall_app');
             wall_container.append(data['results']['html']);
-            var total = limit + offset;
             // TODO Went with this approach as the scrolling approach resulted
             // in the posts getting out of order. It also had some interesting
             // functionality that wasn't intuitive. Hopefully transitioning to
             // a JS Framework allows us to better handle this feature.
-            if(total <= data["count"] && total < 100){
-                loadPosts(limit, offset + limit)
+            if (data["next"] !== null) {
+                loadPosts(data["next"])
             }
             enable_single_post_functionality(data['results']['ids']);
             // TODO This can probably be changed to grab the href and append
@@ -253,7 +282,7 @@ function loadQuestion(){
                 loadSolutionCount();
                 enable_question_functionality(data['ids']);
                 populate_comments(data['ids']);
-                loadSolutions(2, 0);
+                loadSolutions("/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/solutions/render/?page_size=2&expand=true");
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 if(XMLHttpRequest.status === 500){
@@ -295,7 +324,7 @@ function loadSolutionCount(){
 
 
 
-function loadSolutions(limit, offset){
+function loadSolutions(url){
     $.ajaxSetup({
     beforeSend: function (xhr, settings) {
             ajax_security(xhr, settings)
@@ -304,19 +333,18 @@ function loadSolutions(limit, offset){
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
-        url: "/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/solutions/render/?limit="+ limit + "&offset=" + offset + "&expand=true",
+        url: url,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
             var solution_container = $('#solution_container');
             solution_container.append(data['results']['html']);
-            var total = limit + offset;
             // TODO Went with this approach as the scrolling approach resulted
             // in the posts getting out of order. It also had some interesting
             // functionality that wasn't intuitive. Hopefully transitioning to
             // a JS Framework allows us to better handle this feature.
-            if(total <= data["count"] && total < 150){
-                loadSolutions(limit, total);
+            if (data["next"] !== null) {
+                loadSolutions(data["next"]);
             }
             enable_solution_functionality(data['results']['ids']);
             // TODO This can probably be changed to grab the href and append
@@ -413,11 +441,9 @@ function save_solution() {
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
 			type: "POST",
-			url: $(this).data('url'),
+			url: "/v1/questions/" + $(this).data('object_uuid') + "/solutions/?html=true&expand=true",
 			data: JSON.stringify({
-			   'content': $('textarea.sb_solution_input_area').val(),
-               'current_pleb': $(this).data('current_pleb'),
-               'question_uuid': $(this).data('object_uuid')
+			   'content': $('textarea.sb_solution_input_area').val()
 			}),
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
@@ -425,12 +451,12 @@ function save_solution() {
                 $("#solution_container").append(data['html']);
                 $('textarea.sb_solution_input_area').val("");
                 var solution_count_text = $("#solution_count").text();
-                if(solution_count_text != "") {
+                if(solution_count_text != "--") {
                     var solution_count = parseInt(solution_count_text) + 1;
                     $("#solution_count").text(solution_count.toString());
                 }
                 $('#wmd-preview-0').html("");
-                enable_single_post_functionality(data["ids"]);
+                enable_solution_functionality(data["ids"]);
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 if(XMLHttpRequest.status === 500){
@@ -529,15 +555,22 @@ function show_edit_question() {
 function show_edit_solution() {
     $("a.show_edit_solution-action").click(function(event){
         event.preventDefault();
-        var root = window.location.href.split("conversations/")[0];
-        var question_uuid = window.location.href.split("conversations/")[1].split('/')[0];
         var solution_uuid = $(this).data("object_uuid");
-        window.location.href = root+"solutions/"+question_uuid+'/'+solution_uuid+'/edit/'
+        window.location.href = "/conversations/solutions/" + solution_uuid + '/edit/'
     });
 }
 
-function delete_object() {
-    $("a.delete_object-action").click(function (event) {
+function delete_objects(url, populated_ids){
+    if(typeof populated_ids !== 'undefined' && populated_ids.length > 0){
+        for (i = 0; i < populated_ids.length; i++) {
+            delete_object(".delete_" + populated_ids[i],
+                url + populated_ids[i] + "/", populated_ids[i]);
+        }
+    }
+}
+
+function delete_object(delete_area, url, object_uuid) {
+    $(delete_area).click(function (event) {
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -546,15 +579,20 @@ function delete_object() {
         });
         $.ajax({
             xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/delete/delete_object_api/",
-            data: JSON.stringify({
-                'current_pleb': $(this).data('current_pleb'),
-                'object_uuid': $(this).data('object_uuid'),
-                'object_type': $(this).data('object_type')
-            }),
+            type: "DELETE",
+            url: url,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
+            success: function(data){
+                $(".block_" + object_uuid).remove();
+                $('textarea.sb_solution_input_area').val("");
+                var solution_count_text = $("#solution_count").text();
+                if(solution_count_text != "--") {
+                    console.log(solution_count_text);
+                    var solution_count = parseInt(solution_count_text) - 1;
+                    $("#solution_count").text(solution_count.toString());
+                }
+            },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 if(XMLHttpRequest.status === 500){
                     $("#server_error").show();
@@ -874,7 +912,6 @@ function enable_object_functionality(populated_ids) {
     flag_objects(populated_ids);
     vote_objects(populated_ids);
     edit_objects(populated_ids);
-    delete_object();
 }
 
 
@@ -886,6 +923,7 @@ function enable_comment_functionality(populated_ids){
     enable_object_functionality(populated_ids);
     show_edit_comment(populated_ids);
     comment_validator();
+    delete_objects("/v1/comments/", populated_ids);
 }
 
 function enable_question_summary_functionality(populated_ids) {
@@ -895,21 +933,24 @@ function enable_question_summary_functionality(populated_ids) {
 function enable_question_functionality(populated_ids) {
     enable_object_functionality(populated_ids);
     edit_title();
-    save_comments(populated_ids);
+    save_comments(populated_ids, "/v1/questions/");
     show_edit_question(populated_ids);
     save_solution(populated_ids);
+    delete_objects("/v1/questions/", populated_ids);
 }
 
 function enable_single_post_functionality(populated_ids) {
     enable_object_functionality(populated_ids);
-    save_comments(populated_ids);
+    save_comments(populated_ids, '/v1/posts/');
     show_edit_posts(populated_ids);
+    delete_objects("/v1/posts/", populated_ids);
 }
 
 function enable_solution_functionality(populated_ids) {
     enable_object_functionality(populated_ids);
-    save_comments(populated_ids);
+    save_comments(populated_ids, '/v1/solutions/');
     show_edit_solution(populated_ids);
+    delete_objects("/v1/solutions/", populated_ids);
 }
 
 function getUrlParameter(sParam)

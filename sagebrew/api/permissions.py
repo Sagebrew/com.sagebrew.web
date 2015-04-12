@@ -6,12 +6,12 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        return obj.owned_by.username == request.user.username
+        return obj.owned_by.all()[0].username == request.user.username
 
 
 class IsOwnerOrAdmin(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if (obj.owned_by.username == request.user.username or
+        if (obj.owned_by.all()[0].username == request.user.username or
                 request.user.is_staff()):
             return True
         else:

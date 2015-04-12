@@ -192,7 +192,7 @@ def search_result_api(request):
             for item in page.object_list:
                 # TODO Can we generalize this any further?
                 # TODO Handle spawned response correctly
-                if item['_type'] == 'sb_questions.neo_models.SBQuestion':
+                if item['_type'] == 'sb_questions.neo_models.Question':
                     results.append(prepare_question_search_html(
                         item['_source']['object_uuid'], request))
                 elif item['_type'] == 'pleb':

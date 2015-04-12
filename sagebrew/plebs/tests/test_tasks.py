@@ -10,7 +10,7 @@ from sb_registration.utils import create_user_util_test
 from plebs.tasks import (create_pleb_task, create_wall_task,
                          finalize_citizen_creation, send_email_task,
                          create_friend_request_task)
-from sb_wall.neo_models import SBWall
+from sb_wall.neo_models import Wall
 
 
 class TestCreatePlebTask(TestCase):
@@ -107,7 +107,7 @@ class TestCreateWallTask(TestCase):
         self.assertFalse(isinstance(res.result, Exception))
 
     def test_create_wall_task_pleb_has_wall(self):
-        wall = SBWall(wall_id=str(uuid1())).save()
+        wall = Wall(wall_id=str(uuid1())).save()
         wall.owned_by.connect(self.fake_pleb)
         self.fake_pleb.wall.connect(wall)
         task_data = {
@@ -121,8 +121,8 @@ class TestCreateWallTask(TestCase):
         self.assertFalse(isinstance(res.result, Exception))
 
     def test_create_wall_task_pleb_has_more_than_one_wall(self):
-        wall = SBWall(wall_id=str(uuid1())).save()
-        wall2 = SBWall(wall_id=str(uuid1())).save()
+        wall = Wall(wall_id=str(uuid1())).save()
+        wall2 = Wall(wall_id=str(uuid1())).save()
         wall.owned_by.connect(self.fake_pleb)
         self.fake_pleb.wall.connect(wall)
         self.fake_pleb.wall.connect(wall2)

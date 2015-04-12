@@ -5,9 +5,9 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 
 from api.utils import wait_util
-from sb_posts.neo_models import SBPost
-from sb_questions.neo_models import SBQuestion
-from sb_solutions.neo_models import SBSolution
+from sb_posts.neo_models import Post
+from sb_questions.neo_models import Question
+from sb_solutions.neo_models import Solution
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
@@ -29,7 +29,7 @@ class TestCreateObjectRelationsTask(TestCase):
 
     def test_wall_pleb_is_not_none(self):
         post_info_dict = {'content': 'test post', 'object_uuid': str(uuid1())}
-        post = SBPost(**post_info_dict)
+        post = Post(**post_info_dict)
         post.save()
 
         data={'sb_object': post,
@@ -43,11 +43,11 @@ class TestCreateObjectRelationsTask(TestCase):
     def test_question_is_not_none(self):
         question_uuid = str(uuid1())
         solution_uuid = str(uuid1())
-        SBQuestion(content="fake content", title="fake title",
+        Question(content="fake content", title="fake title",
                    object_uuid=question_uuid).save()
-        solution = SBSolution(content="fake solution", object_uuid=solution_uuid).save()
+        solution = Solution(content="fake solution", object_uuid=solution_uuid).save()
         post_info_dict = {'content': 'test post', 'object_uuid': str(uuid1())}
-        post = SBPost(**post_info_dict)
+        post = Post(**post_info_dict)
         post.save()
 
         data={'sb_object': solution,

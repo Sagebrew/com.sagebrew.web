@@ -10,6 +10,8 @@ from api.tasks import add_object_to_search_index
 from govtrack.neo_models import  GTRole
 from sb_public_official.neo_models import BaseOfficial
 from sb_docstore.utils import add_object_to_table
+from sb_public_official.neo_models import BaseOfficial
+from sb_public_official.serializers import PublicOfficialSerializer
 
 logger = getLogger('loggly_logs')
 
@@ -54,11 +56,11 @@ class Command(BaseCommand):
                     logger.exception(e)
                     continue
         for rep in reps:
-            rep_dict = rep.get_dict()
-            add_object_to_table("general_reps", rep_dict)
+            rep_data = PublicOfficialSerializer(rep).data
+            add_object_to_table("general_reps", rep_data)
             task_data = {
                 "object_type": "sagas",
-                "object_data": rep_dict
+                "object_data": rep_data
             }
             spawn_task(add_object_to_search_index, task_data)
 

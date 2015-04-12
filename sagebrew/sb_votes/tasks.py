@@ -7,7 +7,7 @@ from api.utils import get_object
 def vote_object_task(vote_type, current_pleb, object_type, object_uuid):
     '''
     This function takes a pleb object, an
-    sb_object(SBSolution, SBQuestion, SBComment, SBPost), and a
+    sb_object(Solution, Question, Comment, Post), and a
     vote_type(True, False) it will then call a method to handle the vote
     operations on the sb_object.
 

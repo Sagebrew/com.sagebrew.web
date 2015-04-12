@@ -2,7 +2,6 @@
 {% load staticfiles %}
 {% block title %}{{ page_user.first_name}} {{ page_user.last_name }}{% endblock title %}
 {% block content %}
-{%  include "search.html" %}
 <div class="row-fluid sb_page">
     <div class="col-lg-10 col-lg-offset-1 col-md-12 col-sm-12 col-xs-12">
         <div class="sb_wall sb_settings_wall">
@@ -17,86 +16,142 @@
                 </div>
                 <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
                     <div class="block sb_settings_block">
-                        <div class="row">
-                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                                <h5>First Name</h5>
-                                <input type="text"
-                                       placeholder="First Name"
-                                       class="form-control input-lg">
+                    <div style="display: none"
+                         id="username"
+                         data-username="{{ request.user.username }}"></div>
+                        <form id="settings_form">
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 fname">
+                                    <h5>First Name</h5>
+                                    <input type="text"
+                                           id="first_name"
+                                           name="first_name"
+                                           placeholder="First Name"
+                                           class="form-control input-lg"
+                                           value="{{ request.user.first_name }}">
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 lname">
+                                    <h5>Last Name</h5>
+                                    <input type="text"
+                                           id="last_name"
+                                           name="last_name"
+                                           placeholder="Last Name"
+                                           class="form-control input-lg"
+                                           value="{{ request.user.last_name }}">
+                                </div>
                             </div>
-                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                                <h5>Last Name</h5>
-                                <input type="text"
-                                       placeholder="Last Name"
-                                       class="form-control input-lg">
+                            <div class="row">
+                                <div class="col-lg-12 email_class">
+                                    <h5>Email</h5>
+                                    <input type="text"
+                                           id="email"
+                                           name="email"
+                                           placeholder="Email Address"
+                                           class="form-control input-lg"
+                                           value="{{ request.user.email }}">
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <h5>Email</h5>
-                                <input type="text"
-                                       placeholder="Email Address"
-                                       class="form-control input-lg">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <h5>Update Address</h5>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <h5>Update Address</h5>
+                            {% if not address %}
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    You do not have a current address set,
+                                    please set one here.
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <input type="text"
-                                       placeholder="Street Address"
-                                       class="form-control input-lg">
+                            {% endif %}
+                                <div style="display: none"
+                                     id="address_uuid"
+                                     data-object_uuid="{{ address.object_uuid }}"></div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <input type="text"
+                                               id="sb_primary"
+                                               placeholder="Street Address"
+                                               class="form-control input-lg"
+                                               value="{{ address.street }}">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <input type="text"
+                                               id="sb_secondary"
+                                               placeholder="Address Line 2"
+                                               class="form-control input-lg"
+                                                value="{{ address.street_additional }}">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-4 col-md-4">
+                                        <input type="text"
+                                               id="sb_city"
+                                               placeholder="City"
+                                               class="form-control input-lg"
+                                               value="{{ address.city }}">
+                                    </div>
+                                    <div class="col-lg-4 col-md-4">
+                                        <input type="text"
+                                               id="sb_state"
+                                               placeholder="State"
+                                               class="form-control input-lg"
+                                               value="{{ address.state }}">
+                                    </div>
+                                    <div class="col-lg-4 col-md-4">
+                                        <input type="text"
+                                               id="sb_zip"
+                                               placeholder="Zip Code"
+                                               class="form-control input-lg"
+                                               value="{{ address.postal_code }}">
+                                    </div>
+                                    <input type="text"
+                                            id="id_valid"
+                                            style="display: none">
+                                    <input type="text"
+                                            id="id_congressional_district"
+                                            style="display: none"
+                                            value="{{ address.congressional_district }}">
+                                    <input type="text"
+                                            id="id_latitude"
+                                            style="display: none"
+                                            value="{{ address.latitude }}">
+                                    <input type="text"
+                                            id="id_longitude"
+                                            style="display: none"
+                                            value="{{ address.longitude }}">
+                                </div>
+                            <div class="row">
+                                <div class="col-lg-12 password1">
+                                    <h5>Change Password</h5>
+                                    <input type="password"
+                                           id="old_password"
+                                           name="old_password"
+                                           placeholder="Old Password"
+                                           class="form-control input-lg">
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <input type="text"
-                                       placeholder="Address Line 2"
-                                       class="form-control input-lg">
+                            <div class="row">
+                                <div class="col-lg-12 password2">
+                                    <input type="password"
+                                           id="new_password"
+                                           name="new_password"
+                                           placeholder="New Password"
+                                           class="form-control input-lg">
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-4 col-md-4">
-                                <input type="text"
-                                       placeholder="City"
-                                       class="form-control input-lg">
+                            <div class="row">
+                                <div class="col-lg-12 password3">
+                                    <input type="password"
+                                           id="new_password_confirm"
+                                           name="new_password_confirm"
+                                           placeholder="Confirm Password"
+                                           class="form-control input-lg">
+                                </div>
                             </div>
-                            <div class="col-lg-4 col-md-4">
-                                <input type="text"
-                                       placeholder="State"
-                                       class="form-control input-lg">
-                            </div>
-                            <div class="col-lg-4 col-md-4">
-                                <input type="text"
-                                       placeholder="Zip Code"
-                                       class="form-control input-lg">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <h5>Change Password</h5>
-                                <input type="text"
-                                       placeholder="Old Password"
-                                       class="form-control input-lg">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <input type="text"
-                                       placeholder="New Password"
-                                       class="form-control input-lg">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <input type="text"
-                                       placeholder="Confirm Password"
-                                       class="form-control input-lg">
-                            </div>
-                        </div>
+                        </form>
                         <div class="row">
                             <div class="col-lg-12">
                                 <h5>Delete Account</h5>
@@ -105,13 +160,45 @@
                                         Are you sure you would like to delete your Sagebrew account?
                                         Once you hit delete, your account is in the arms of the sages (aka dead).
                                     </p>
-                                    <button class="btn btn-primary btn-danger">Delete Account</button>
+                                    <button class="btn btn-primary btn-danger"
+                                            id="delete_account"
+                                            data-toggle="modal"
+                                            data-target="#myModal">Delete Account</button>
+                                </div>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                  <div class="modal-dialog">
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                        <h4 class="modal-title" id="myModalLabel">Delete Account?</h4>
+                                      </div>
+                                      <div class="modal-body">
+                                        Are you absolutely sure you want to delete your account?
+                                      </div>
+                                      <div class="modal-footer">
+                                        <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                                            <button type="button"
+                                                    class="btn btn-primary sb_btn sb_btn_fill"
+                                                    data-dismiss="modal">GET ME OUT OF HERE!</button>
+                                        </div>
+                                        <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                                            <button type="button"
+                                                    class="btn btn-primary btn-danger"
+                                                    data-dismiss="modal"
+                                                    id="delete_button">DELETE</button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
-                                <button class="btn btn-primary sb_btn sb_btn_fill">
+                                <button class="btn btn-primary sb_btn sb_btn_fill"
+                                        id="submit_settings">
                                     Save Changes
                                 </button>
                             </div>
@@ -127,10 +214,16 @@
         </div>
     </div>
 </div>
+
 {% endblock %}
 {% block footer %}
 {% endblock %}
 {% block scripts %}
     {{ block.super }}
-
+    <script src="{% static 'js/settings_validator.js' %}"></script>
+    <script src="{% static 'js/address_validation.js' %}"></script>
+    <script src="{% static 'js/submit_settings.js' %}"></script>
 {% endblock scripts %}
+{% block external_scripts %}
+    <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/2.4/jquery.liveaddress.min.js"></script>
+{% endblock external_scripts %}

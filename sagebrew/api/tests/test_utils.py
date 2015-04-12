@@ -1,7 +1,7 @@
 from uuid import uuid1
 from django.test import TestCase
 
-from sb_questions.neo_models import SBQuestion
+from sb_questions.neo_models import Question
 from api.utils import (add_failure_to_queue, get_object)
 
 '''
@@ -37,36 +37,36 @@ class TestAddFailureToQueue(TestCase):
 
 class TestGetObject(TestCase):
     def test_bad_class(self):
-        question = SBQuestion(title='test title for delete',
+        question = Question(title='test title for delete',
                               content='this is before delete',
                               object_uuid=str(uuid1())).save()
-        test_object = get_object('sb_questions.neo_bad.SBQuestion',
+        test_object = get_object('sb_questions.neo_bad.Question',
                                  question.object_uuid)
 
         self.assertFalse(test_object)
 
     def test_bad_module_class(self):
-        question = SBQuestion(title='test title for delete',
+        question = Question(title='test title for delete',
                               content='this is before delete',
                               object_uuid=str(uuid1())).save()
 
-        test_object = get_object('sb_questions.neo_models.SBQuestionBad',
+        test_object = get_object('sb_questions.neo_models.QuestionBad',
                                  question.object_uuid)
 
         self.assertFalse(test_object)
 
     def test_does_not_exist(self):
         test_uuid = uuid1()
-        test_object = get_object('sb_questions.neo_models.SBQuestion',
+        test_object = get_object('sb_questions.neo_models.Question',
                                  test_uuid)
 
         self.assertIsInstance(test_object, Exception)
 
     def test_valid_object(self):
-        question = SBQuestion(title='test title for delete',
+        question = Question(title='test title for delete',
                               content='this is before delete',
                               object_uuid=str(uuid1())).save()
-        test_object = get_object('sb_questions.neo_models.SBQuestion',
+        test_object = get_object('sb_questions.neo_models.Question',
                                  question.object_uuid)
 
         self.assertEqual(test_object.object_uuid, question.object_uuid)

@@ -1,4 +1,4 @@
-<div class="block sb_solution">
+<div class="block sb_solution block_{{ object_uuid }}">
 
     <div class="row">
         <div class="col-lg-1 hidden-md hidden-sm hidden-xs sb_vote_wrapper">
@@ -72,7 +72,7 @@
             </button>
             <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
                 role="menu" aria-labelledby="dropdown-menu">
-                {% if current_user_username == owner_object.username %}
+                {% if request.user.username == owner_object.username %}
                     <li role="presentation">
                         <a class="sb_post_dropdown_menu show_edit_solution-action"
                                    data-object_uuid="{{ object_uuid }}"
@@ -81,9 +81,7 @@
                     </li>
                     <li role="presentation" class="sb_divider"></li>
                     <li role="presentation">
-                        <a class="btn sb_post_dropdown_menu delete_object-action"
-                                   data-object_uuid="{{ object_uuid }}"
-                                   data-object_type="02241aee-644f-11e4-9ad9-080027242395">
+                        <a class='sb_post_dropdown_menu delete_object-action delete_{{ object_uuid }}'>
                             Delete
                         </a>
                     </li>

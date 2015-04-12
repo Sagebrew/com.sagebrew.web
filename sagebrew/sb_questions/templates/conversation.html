@@ -71,8 +71,7 @@
                                     <button class="btn btn-primary sb_btn sb_btn_fill submit_solution-action"
                                             id="submit_solution"
                                             data-object_uuid="{{ uuid }}"
-                                            data-url="/solutions/submit_solution_api/"
-                                            data-current_pleb="{{ current_pleb }}">
+                                            data-url="/solutions/submit_solution_api/">
                                         Submit
                                     </button>
                                 </div>
@@ -95,8 +94,6 @@
 {% block scripts %}
     {{ block.super }}
     <script src="{% static 'js/query_single_question.js' %}"></script>
-    <script src="{% static 'js/query_solutions.js' %}"></script>
-    <script src="{% static 'js/edit_solution.js' %}"></script>
     <script src="{% static 'js/edit_question.js' %}"></script>
     <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
 

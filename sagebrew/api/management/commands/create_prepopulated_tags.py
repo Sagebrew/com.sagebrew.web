@@ -5,7 +5,7 @@ from django.conf import settings
 
 from neomodel import DoesNotExist, CypherException
 
-from sb_tag.neo_models import SBTag
+from sb_tag.neo_models import Tag
 
 logger = getLogger('loggly_logs')
 
@@ -20,9 +20,9 @@ class Command(BaseCommand):
             data = loads(data_file.read())
             for tag in data['tags']:
                 try:
-                    tag_node = SBTag.nodes.get(tag_name=tag['tag_name'])
-                except (SBTag.DoesNotExist, DoesNotExist):
-                    tag_node = SBTag(tag_name=tag['tag_name'], base=True).save()
+                    tag_node = Tag.nodes.get(tag_name=tag['tag_name'])
+                except (Tag.DoesNotExist, DoesNotExist):
+                    tag_node = Tag(tag_name=tag['tag_name'], base=True).save()
                 except (CypherException, IOError):
                     logger.exception(
                         dumps(
@@ -31,9 +31,9 @@ class Command(BaseCommand):
                     continue
                 for sub_tag in tag['sub_tags']:
                     try:
-                        sub_tag = SBTag.nodes.get(tag_name=sub_tag)
-                    except (SBTag.DoesNotExist, DoesNotExist):
-                        sub_tag = SBTag(tag_name=sub_tag, base=False).save()
+                        sub_tag = Tag.nodes.get(tag_name=sub_tag)
+                    except (Tag.DoesNotExist, DoesNotExist):
+                        sub_tag = Tag(tag_name=sub_tag, base=False).save()
                     except (CypherException, IOError):
                         logger.exception(
                             dumps(

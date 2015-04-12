@@ -1,11 +1,15 @@
+import pytz
+
+from datetime import datetime
+
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from neomodel.exception import CypherException
-
 from sb_base.serializers import MarkdownContentSerializer
+from plebs.neo_models import Pleb
 
-from .neo_models import SBSolution
+
+from .neo_models import Solution
 
 
 class SolutionSerializerNeo(MarkdownContentSerializer):
@@ -14,28 +18,33 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
     solution_to = serializers.SerializerMethodField()
 
     def create(self, validated_data):
-        # TODO should store in dynamo and then spawn task to store in Neo
-        solution = SBSolution(**validated_data).save()
+        request = self.context["request"]
+        question = validated_data.pop('question', None)
+        owner = Pleb.nodes.get(username=request.user.username)
+
+        solution = Solution(**validated_data).save()
+        solution.owned_by.connect(owner)
+        owner.solutions.connect(solution)
+        question.solutions.connect(solution)
+        solution.solution_to.connect(question)
+
         return solution
 
     def update(self, instance, validated_data):
-        # TODO get from dynamo and then spawn task to store in Neo
-        pass
+        instance.content = validated_data.get('content', instance.content)
+        instance.last_edited_on = datetime.now(pytz.utc)
+        instance.save()
+
+        return instance
 
     def get_url(self, obj):
-        try:
-            question = obj.solution_to.all()[0]
-        except(IOError, IndexError, CypherException):
-            return None
+        question = obj.solution_to.all()[0]
         return reverse('question_detail_page',
                        kwargs={'question_uuid': question.object_uuid},
                        request=self.context['request'])
 
     def get_solution_to(self, obj):
-        try:
-            question = obj.solution_to.all()[0]
-        except(IOError, IndexError, CypherException):
-            return None
+        question = obj.solution_to.all()[0]
         return reverse('question-detail',
                        kwargs={'object_uuid': question.object_uuid},
                        request=self.context['request'])

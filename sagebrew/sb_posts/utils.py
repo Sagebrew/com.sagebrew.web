@@ -1,7 +1,7 @@
 from neomodel.exception import CypherException, DoesNotExist
 
 from api.utils import execute_cypher_query
-from .neo_models import SBPost
+from .neo_models import Post
 from sb_base.decorators import apply_defense
 
 
@@ -20,7 +20,7 @@ def get_page_user_posts(username, range_end, range_start=0):
                      'WITH pleb ' \
                      'MATCH (pleb)-[:OWNS_WALL]-(wall) ' \
                      'WITH wall ' \
-                     'MATCH (wall)-[:HAS_POST]-(posts:SBPost) ' \
+                     'MATCH (wall)-[:HAS_POST]-(posts:Post) ' \
                      'WHERE posts.to_be_deleted=False ' \
                      'WITH posts ' \
                      'ORDER BY posts.created DESC ' \
@@ -30,7 +30,7 @@ def get_page_user_posts(username, range_end, range_start=0):
         pleb_posts, meta = execute_cypher_query(post_query)
         if isinstance(pleb_posts, Exception):
             return pleb_posts
-        posts = [SBPost.inflate(row[0]) for row in pleb_posts]
+        posts = [Post.inflate(row[0]) for row in pleb_posts]
         return posts
     except IndexError as e:
         return e
@@ -49,12 +49,12 @@ def save_post(content, post_uuid, created):
     :param post_uuid: str(uuid1())
     :return:
             if post exists returns None
-            else returns SBPost object
+            else returns Post object
     '''
     try:
-        sb_post = SBPost.nodes.get(object_uuid=post_uuid)
-    except(SBPost.DoesNotExist, DoesNotExist):
-        sb_post = SBPost(content=content, object_uuid=post_uuid,
+        sb_post = Post.nodes.get(object_uuid=post_uuid)
+    except(Post.DoesNotExist, DoesNotExist):
+        sb_post = Post(content=content, object_uuid=post_uuid,
                          last_edited_on=created, created=created)
         try:
             sb_post.save()

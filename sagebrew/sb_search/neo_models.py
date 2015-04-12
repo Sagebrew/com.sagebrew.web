@@ -5,6 +5,7 @@ from neomodel import (BooleanProperty, DateTimeProperty, StringProperty,
                       StructuredNode, IntegerProperty, Relationship,
                       StructuredRel, FloatProperty, RelationshipTo)
 
+from api.neo_models import SBObject
 
 def get_current_time():
     return datetime.now(pytz.utc)
@@ -18,10 +19,9 @@ class KeyWordRel(StructuredRel):
     relevance = FloatProperty(default=0)
 
 
-class SearchResult(StructuredNode):
+class SearchResult(SBObject):
     result_id = StringProperty(unique_index=True)
     object_type = StringProperty()
-    object_uuid = StringProperty()
 
     #relationships
     queries = RelationshipTo('sb_search.neo_models.SearchQuery', 'QUERY')

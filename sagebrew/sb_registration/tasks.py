@@ -3,7 +3,7 @@ from neomodel import (DoesNotExist, AttemptedCardinalityViolation,
                       CypherException)
 
 from plebs.neo_models import Pleb
-from sb_tag.neo_models import SBTag
+from sb_tag.neo_models import Tag
 from plebs.neo_models import Address
 
 
@@ -18,9 +18,9 @@ def update_interests(email, interests):
     for interest in interests:
         if interests[interest] is True:
             try:
-                tag = SBTag.nodes.get(tag_name=interest)
+                tag = Tag.nodes.get(tag_name=interest)
                 citizen.interests.connect(tag)
-            except (SBTag.DoesNotExist, DoesNotExist) as e:
+            except (Tag.DoesNotExist, DoesNotExist) as e:
                 raise update_interests.retry(exc=e, countdown=3,
                                              max_retries=None)
             except (CypherException, IOError) as e:
@@ -53,7 +53,7 @@ def store_address(username, address_clean):
         raise store_address.retry(exc=e, countdown=3, max_retries=None)
 
     try:
-        address.owner.connect(citizen)
+        address.owned_by.connect(citizen)
         citizen.address.connect(address)
     except AttemptedCardinalityViolation:
         pass

@@ -92,7 +92,6 @@ class ContentSerializer(serializers.Serializer):
 
 class MarkdownContentSerializer(ContentSerializer):
     is_closed = serializers.IntegerField(read_only=True)
-    to_be_deleted = serializers.IntegerField(read_only=True)
     html_content = serializers.SerializerMethodField()
 
     def get_html_content(self, obj):

@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 
 from api.utils import wait_util
 from plebs.neo_models import Pleb
-from sb_questions.neo_models import SBQuestion
+from sb_questions.neo_models import Question
 from sb_registration.utils import create_user_util_test
 from api.tasks import add_object_to_search_index
 
@@ -19,7 +19,7 @@ class TestAddObjectToSearchIndex(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question = SBQuestion(object_uuid=str(uuid1()))
+        self.question = Question(object_uuid=str(uuid1()))
         self.question.save()
         settings.CELERY_ALWAYS_EAGER = True
 
@@ -28,7 +28,7 @@ class TestAddObjectToSearchIndex(TestCase):
 
     def test_add_object_to_search_index(self):
         task_data = {
-            'object_type': 'sb_questions.neo_models.SBQuestion',
+            'object_type': 'sb_questions.neo_models.Question',
             'object_data': {'content': 'fake',
                             'object_uuid': self.question.object_uuid}
         }
@@ -43,7 +43,7 @@ class TestAddObjectToSearchIndex(TestCase):
         temp_es = settings.ELASTIC_SEARCH_HOST
         settings.ELASTIC_SEARCH_HOST = [{'host': 'sagebrew.com'}]
         task_data = {
-            'object_type': 'sb_questions.neo_models.SBQuestion',
+            'object_type': 'sb_questions.neo_models.Question',
             'object_data': {'content': 'fake',
                             'object_uuid': self.question.object_uuid}
         }

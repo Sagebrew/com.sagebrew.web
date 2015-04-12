@@ -1,3 +1,5 @@
+from django.contrib.auth import update_session_auth_hash
+
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -46,6 +48,7 @@ class UserSerializer(serializers.Serializer):
         if instance.check_password(validated_data.get('password', "")) is True:
             instance.set_password(validated_data.get(
                 'new_password', validated_data.get('password', "")))
+            update_session_auth_hash(self.context['request'], instance)
         instance.save()
         spawn_task(task_func=pleb_user_update, task_param={
             "username": instance.username,
@@ -81,7 +84,8 @@ class PlebSerializerNeo(serializers.Serializer):
         user_url = reverse(
             'user-detail', kwargs={'username': username}, request=request)
         if expand == "true":
-            response = request_to_api(user_url, obj.username, req_method="GET")
+            response = request_to_api(user_url, request.user.username,
+                                      req_method="GET")
             return response.json()
         else:
             return user_url
@@ -89,16 +93,16 @@ class PlebSerializerNeo(serializers.Serializer):
 
 class AddressSerializer(serializers.Serializer):
     object_uuid = serializers.CharField(read_only=True)
-    url = serializers.HyperlinkedIdentityField(read_only=True,
-                                               view_name="address-detail",
-                                               lookup_field="object_uuid")
+    href = serializers.HyperlinkedIdentityField(read_only=True,
+                                                view_name="address-detail",
+                                                lookup_field="object_uuid")
     street = serializers.CharField(max_length=125)
     street_additional = serializers.CharField(required=False, allow_blank=True,
                                               allow_null=True, max_length=125)
     city = serializers.CharField(max_length=150)
     state = serializers.CharField(max_length=50)
     postal_code = serializers.CharField(max_length=15)
-    country = serializers.CharField()
+    country = serializers.CharField(allow_null=True, required=False)
     latitude = serializers.FloatField()
     longitude = serializers.FloatField()
     congressional_district = serializers.CharField()
@@ -116,6 +120,11 @@ class AddressSerializer(serializers.Serializer):
         instance.postal_code = validated_data.get("postal_code",
                                                   instance.postal_code)
         instance.country = validated_data.get("country", instance.country)
+        instance.congressional_district = validated_data.get(
+            "congressional_district", instance.congressional_district)
+        instance.latitude = validated_data.get("latitude", instance.latitude)
+        instance.longitude = validated_data.get("longitude",
+                                                instance.longitude)
         # TODO need to re-evaluate where their district is and all that good
         # stuff when they update. @Tyler we should rediscuss the address
         # hashing and how this will affect that.

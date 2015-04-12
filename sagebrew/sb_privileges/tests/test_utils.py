@@ -7,8 +7,8 @@ from neomodel.exception import DoesNotExist
 
 from api.utils import wait_util
 from plebs.neo_models import Pleb
-from sb_privileges.neo_models import SBPrivilege, SBRestriction, SBAction
-from sb_requirements.neo_models import SBRequirement
+from sb_privileges.neo_models import Privilege, Restriction, SBAction
+from sb_requirements.neo_models import Requirement
 from sb_registration.utils import create_user_util_test
 
 from sb_privileges.utils import manage_privilege_relation

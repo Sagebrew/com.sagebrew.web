@@ -123,6 +123,7 @@ class Pleb(StructuredNode):
     secondary_phone = StringProperty()
     profile_pic = StringProperty()
     profile_pic_uuid = StringProperty()
+    wallpaper_pic = StringProperty()
     completed_profile_info = BooleanProperty(default=False)
     reputation = IntegerProperty(default=0)
     is_rep = BooleanProperty(default=False)

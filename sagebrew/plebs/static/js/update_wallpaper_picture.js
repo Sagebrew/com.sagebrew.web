@@ -1,11 +1,10 @@
 $( document ).ready(function() {
-    $("#update_profile_pic").click(function(event){
+    $("#update_wallpaper_pic").click(function(event){
         event.preventDefault();
-        $("#myModal").modal("show");
+        $("#myWallpaperModal").modal("show");
     });
-    $("input#profile_pic_upload").change(function() {
-        $("#myModal").modal("show");
-        $("#sb_btn_save").show();
+    $("input#wallpaper_image_uploaded").change(function() {
+        $("#sb_wallpaper_btn_save").show();
     });
     $("#sb_modal_close").click(function(){
         $("#sb_menu").appendTo("#sb_photo_parent");
@@ -20,8 +19,8 @@ $( document ).ready(function() {
         //$("#sb_modal_content").replaceWith('<div id="sb_modal_test"></div>');
         $(".fileinput .fileinput-exists").replaceWith('')
     });
-    $( "#image_uploaded" ).on("mouseenter", "img", function() {
-        var image_test = $("#image_uploaded").children('img');
+    $( "#wallpaper_image_uploaded" ).on("mouseenter", "img", function() {
+        var image_test = $("#wallpaper_image_uploaded").children('img');
         var true_height = image_test.get(0).naturalHeight;
         var true_width = image_test.get(0).naturalWidth;
         /*
@@ -49,15 +48,15 @@ $( document ).ready(function() {
            allowResize: false,
            allowSelect: false,
            onSelect: getCoords,
-           aspectRatio: 1,
+           aspectRatio: 3,
            bgColor: '#26424a',
            bgOpacity: 0.4,
-           setSelect: [ 0, 0, 200, 200 ]
+           setSelect: [ 0, 0, 750, 250]
         });
     });
-    $("#sb_btn_save").click(function(e){
+    $("#sb_wallpaper_btn_save").click(function(e){
         e.preventDefault();
-        var form = new FormData($('#uploadForm')[0]);
+        var form = new FormData($('#wallpaperUploadForm')[0]);
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 ajax_security(xhr, settings)
@@ -66,22 +65,22 @@ $( document ).ready(function() {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
-            url: "/registration/profile_picture_api/",
+            url: "/registration/wallpaper_picture_api/",
             data: form,
             cache: false,
             contentType: false,
             processData: false,
             success: function(data){
-                $("#myModal").modal('hide');
-                $("img#profile_pic").attr("src", data['pic_url'])
+                $("#myWallpaperModal").modal('hide');
+                $("img#wallpaper_pic").attr("src", data['pic_url'])
             }
         });
     });
     function getCoords (c){
-        $('#image_x1').val(c.x);
-        $('#image_x2').val(c.w);
-        $('#image_y1').val(c.y);
-        $('#image_y2').val(c.h);
+        $('#wallpaper_image_x1').val(c.x);
+        $('#wallpaper_image_x2').val(c.w);
+        $('#wallpaper_image_y1').val(c.y);
+        $('#wallpaper_image_y2').val(c.h);
     }
 });
 

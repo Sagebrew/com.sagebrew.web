@@ -324,6 +324,27 @@ def profile_picture_api(request):
     else:
         return Response({"detail": "invalid form"}, 400)
 
+@api_view(['POST'])
+def wallpaper_picture_api(request):
+    profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
+    pleb = Pleb.nodes.get(username=request.user.username)
+    if profile_picture_form.is_valid():
+        image_uuid = str(uuid1())
+        data = request.FILES['picture']
+        res = crop_image(data,
+                         int(profile_picture_form.cleaned_data['image_y2']),
+                         int(profile_picture_form.cleaned_data['image_x2']),
+                         int(profile_picture_form.cleaned_data['image_x1']),
+                         int(profile_picture_form.cleaned_data['image_y1']))
+
+        pleb.wallpaper_pic = res
+        pleb.save()
+        url = reverse('profile_page', kwargs={"pleb_username":
+                                                  request.user.username})
+        return Response({"url": url, "pic_url": res}, 200)
+    else:
+        return Response({"detail": "invalid form"}, 400)
+
 
 @login_required()
 @user_passes_test(verify_completed_registration,

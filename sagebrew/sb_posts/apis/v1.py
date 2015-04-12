@@ -14,12 +14,12 @@ urlpatterns = patterns(
     'sb_posts.endpoints',
     url(r'^', include(router.urls)),
     url(r'^posts/(?P<object_uuid>[A-Za-z0-9.@_%+-]{36,36})/comments/$',
-        ObjectCommentsListCreate.as_view(), name="question-comments"),
+        ObjectCommentsListCreate.as_view(), name="post-comments"),
     url(r'^posts/(?P<object_uuid>[A-Za-z0-9.@_%+-]{36,36})/'
         r'comments/render/$',
-        comment_renderer, name="question-comments-html"),
+        comment_renderer, name="post-comments-html"),
     url(r'^posts/(?P<object_uuid>[A-Za-z0-9.@_%+-]{36,36})/comments/'
         r'(?P<comment_uuid>[A-Za-z0-9.@_%+-]{36,36})/$',
         ObjectCommentsRetrieveUpdateDestroy.as_view(),
-        name="question-comment"),
+        name="post-comment"),
 )

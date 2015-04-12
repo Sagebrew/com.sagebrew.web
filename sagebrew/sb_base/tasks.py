@@ -5,7 +5,7 @@ from neomodel.exception import CypherException, DoesNotExist
 from api.utils import spawn_task
 from sb_docstore.tasks import add_object_to_table_task
 from plebs.neo_models import Pleb
-from sb_questions.neo_models import SBQuestion
+from sb_questions.neo_models import Question
 
 logger = logging.getLogger("loggly_logs")
 
@@ -26,8 +26,8 @@ def create_object_relations_task(sb_object, current_pleb, question=None,
 
     if question is not None:
         try:
-            question = SBQuestion.nodes.get(object_uuid=question)
-        except(CypherException, DoesNotExist, SBQuestion.DoesNotExist) as e:
+            question = Question.nodes.get(object_uuid=question)
+        except(CypherException, DoesNotExist, Question.DoesNotExist) as e:
             raise create_object_relations_task.retry(exc=e, countdown=3,
                                                      max_retries=None)
     res = sb_object.create_relations(current_pleb, question, wall)

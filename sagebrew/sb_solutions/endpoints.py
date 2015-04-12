@@ -1,129 +1,71 @@
+from uuid import uuid1
 from datetime import datetime
 
 from logging import getLogger
 
 from django.template.loader import render_to_string
+from django.template import RequestContext
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.generics import (RetrieveUpdateDestroyAPIView,
-                                     ListCreateAPIView)
+from rest_framework.generics import (ListCreateAPIView)
 
-from neomodel import CypherException
+from neomodel import db
 
-from sagebrew import errors
-from sb_questions.neo_models import SBQuestion
+from api.utils import spawn_task
+from sb_notifications.tasks import spawn_notifications
+from sb_base.utils import get_ordering
+from sb_base.views import ObjectRetrieveUpdateDestroy
+from sb_questions.neo_models import Question
+from plebs.neo_models import Pleb
 
 from .serializers import SolutionSerializerNeo
-from .neo_models import SBSolution
-
+from .neo_models import Solution
+from .tasks import add_solution_to_search_index
 
 logger = getLogger('loggly_logs')
 
 
-class SolutionViewSet(viewsets.GenericViewSet):
-    """
-
-    """
+class SolutionViewSet(viewsets.ModelViewSet):
     serializer_class = SolutionSerializerNeo
     lookup_field = "object_uuid"
     permission_classes = (IsAuthenticated,)
-    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
-        try:
-            queryset = SBSolution.nodes.all()
-        except(CypherException, IOError):
-            logger.exception("SolutionGenericViewSet queryset")
-            return Response(errors.CYPHER_EXCEPTION,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        sort_by = self.request.query_params.get('ordering', None)
-        if sort_by == "-created":
-            queryset = sorted(queryset, key=lambda k: k.created, reverse=True)
-        elif sort_by == "last_edited_on":
-            queryset = sorted(queryset, key=lambda k: k.last_edited_on)
-        else:
-            queryset = sorted(queryset, key=lambda k: k.get_vote_count())
+        sort_by = self.request.query_params.get('ordering', "")
+        sort_by, ordering = get_ordering(sort_by)
+        query = "MATCH (n:`Solution`) WHERE n.to_be_deleted=false RETURN " \
+                "n %s %s" % (sort_by, ordering)
+        res, col = db.cypher_query(query)
+        queryset = [Solution.inflate(row[0]) for row in res]
+        if sort_by == "":
+            queryset = sorted(queryset, key=lambda k: k.get_vote_count(),
+                              reverse=True)
 
         return queryset
 
-    def get_object(self, object_uuid=None):
-        try:
-            queryset = SBSolution.nodes.get(object_uuid=object_uuid)
-        except(CypherException, IOError):
-            logger.exception("SolutionViewSet queryset")
-            return Response(errors.CYPHER_EXCEPTION,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return queryset
+    def get_object(self):
+        return Solution.nodes.get(
+            object_uuid=self.kwargs[self.lookup_field])
 
-    def list(self, request):
-        queryset = self.get_queryset()
-        # As a note this if is the only difference between this list
-        # implementation and the default ListModelMixin. Not sure if we need
-        # to redefine everything...
-        if isinstance(queryset, Response):
-            return queryset
-        queryset = self.filter_queryset(queryset)
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True,
-                                             context={"request": request})
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(
-            queryset, context={"request": request}, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def create(self, request):
-        pass
-
-    def retrieve(self, request, object_uuid=None):
-        single_object = self.get_object(object_uuid)
-        if isinstance(single_object, Response):
-            return single_object
-        serializer = self.get_serializer(single_object,
-                                         context={"request": request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def update(self, request, object_uuid=None):
-        pass
-
-    def partial_update(self, request, object_uuid=None):
-        pass
-
-    def destroy(self, request, object_uuid=None):
-        pass
+    def perform_destroy(self, instance):
+        instance.content = ""
+        instance.to_be_deleted = True
+        instance.save()
+        return instance
 
 
-class ObjectSolutionsRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
+class ObjectSolutionsRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):
     serializer_class = SolutionSerializerNeo
-    permission_classes = (IsAuthenticated,)
     lookup_field = "object_uuid"
     lookup_url_kwarg = "solution_uuid"
 
-    def get_queryset(self):
-        try:
-            queryset = SBSolution.nodes.all()
-        except(CypherException, IOError):
-            logger.exception("CommentGenericViewSet queryset")
-            return Response(errors.CYPHER_EXCEPTION,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        return sorted(queryset, key=lambda k: k.created, reverse=True)
-
     def get_object(self):
-        try:
-            queryset = SBSolution.nodes.get(
-                object_uuid=self.kwargs[self.lookup_url_kwarg])
-        except(CypherException, IOError):
-            logger.exception("CommentRetrieveUpdateDestroy get_object")
-            return Response(errors.CYPHER_EXCEPTION,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return queryset
+        return Solution.nodes.get(
+            object_uuid=self.kwargs[self.lookup_url_kwarg])
 
 
 class ObjectSolutionsListCreate(ListCreateAPIView):
@@ -132,66 +74,62 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
     lookup_field = "object_uuid"
 
     def get_queryset(self):
-        # TODO Commented out because we need to figure out how to do pagination
-        # with the doc store. Right now DRF doesn't work out of the box with
-        # a dictionary type. So we could potentially populate a node object
-        # with the dict and not save it but use it to move the data around
-        # but haven't had time to test this out.
-        '''
-        try:
-            table = get_dynamo_table("public_solutions")
-            if isinstance(table, Exception) is True:
-                logger.exception("QuestionsViewSet solutions")
-                return Response(errors.DYNAMO_TABLE_EXCEPTION,
-                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-            queryset = table.query_2(
-                parent_object__eq=self.kwargs[self.lookup_field])
-            queryset = convert_dynamo_solutions(queryset, self.request)
-            if len(queryset) == 0:
-                raise ItemNotFound
-        except(ItemNotFound, AttributeError, IOError):
-        '''
-        try:
-            question = SBQuestion.nodes.get(
-                object_uuid=self.kwargs[self.lookup_field])
-            queryset = question.solutions.all()
-        except(CypherException, IOError) as e:
-            logger.exception("CommentGenericViewSet queryset")
-            return Response(errors.CYPHER_EXCEPTION,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        ordering = self.request.query_params.get('ordering', None)
-        if ordering == "-created":
-            queryset = sorted(queryset, key=lambda k: k.created,
-                              reverse=True)
-        elif ordering == "-last_edited_on":
-            queryset = sorted(queryset, key=lambda k: k.last_edited_on,
-                              reverse=True)
-        else:
+        sort_by = self.request.query_params.get('ordering', "")
+        sort_by, ordering = get_ordering(sort_by)
+        query = "MATCH (a:Question {object_uuid:'%s'})-[:POSSIBLE_ANSWER]->" \
+                "(b:Solution) WHERE b.to_be_deleted=false" \
+                " RETURN b %s %s" % (self.kwargs[self.lookup_field],
+                                     sort_by, ordering)
+        res, col = db.cypher_query(query)
+        queryset = [Solution.inflate(row[0]) for row in res]
+        if sort_by == "":
             queryset = sorted(queryset, key=lambda k: k.get_vote_count(),
                               reverse=True)
         return queryset
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        # As a note this if is the only difference between this list
-        # implementation and the default ListModelMixin. Not sure if we need
-        # to redefine everything...
-        if isinstance(queryset, Response):
-            return queryset
-        queryset = self.filter_queryset(queryset)
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True,
-                                             context={"request": request})
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(
-            queryset, context={"request": request}, many=True)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
     def create(self, request, *args, **kwargs):
-        pass
+        post_data = request.data
+        post_data['parent_object'] = self.kwargs[self.lookup_field]
+
+        serializer = self.get_serializer(data=post_data,
+                                         context={"request": request})
+        if serializer.is_valid():
+            question = Question.nodes.get(
+                object_uuid=self.kwargs[self.lookup_field])
+            serializer.save(question=question)
+            query = "MATCH (a:Question {object_uuid:'%s'})-[:OWNED_BY]->" \
+                    "(b:Pleb) RETURN b" % (self.kwargs[self.lookup_field])
+            res, col = db.cypher_query(query)
+            question_owner = Pleb.inflate(res[0][0])
+            serializer = serializer.data
+            data = {
+                "from_pleb": request.user.username,
+                "sb_object": serializer['object_uuid'],
+                "url": serializer['url'],
+                # TODO discuss notifying all the people who have provided
+                # solutions on a given question.
+                "to_plebs": [question_owner.username,],
+                "notification_id": str(uuid1())
+            }
+            spawn_task(task_func=spawn_notifications, task_param=data)
+            spawn_task(task_func=add_solution_to_search_index,
+                       task_param=serializer)
+            html = request.query_params.get('html', 'false').lower()
+            if html == "true":
+                serializer["vote_count"] = str(serializer["vote_count"])
+                serializer['last_edited_on'] = datetime.strptime(
+                    serializer['last_edited_on'][:len(
+                        serializer['last_edited_on']) - 6],
+                    '%Y-%m-%dT%H:%M:%S.%f')
+                context = RequestContext(request, serializer)
+                return Response(
+                    {
+                        "html": [render_to_string('solution.html', context)],
+                        "ids": [serializer["object_uuid"]]
+                    },
+                    status=status.HTTP_200_OK)
+            return Response(serializer, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["GET"])
@@ -213,8 +151,8 @@ def solution_renderer(request, object_uuid=None):
         solution['last_edited_on'] = datetime.strptime(
             solution['last_edited_on'][:len(solution['last_edited_on']) - 6],
             '%Y-%m-%dT%H:%M:%S.%f')
-        solution["current_user_username"] = request.user.username
-        html_array.append(render_to_string('solution.html',  solution))
+        context = RequestContext(request, solution)
+        html_array.append(render_to_string('solution.html',  context))
         id_array.append(solution["object_uuid"])
     solutions.data['results'] = {"html": html_array, "ids": id_array}
 

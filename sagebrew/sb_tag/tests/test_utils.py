@@ -3,7 +3,7 @@ from django.test import TestCase
 from api.utils import wait_util
 
 from sb_tag.utils import (create_tag_relations_util)
-from sb_tag.neo_models import SBAutoTag
+from sb_tag.neo_models import AutoTag
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
@@ -20,9 +20,9 @@ class TestCreateTagRelations(TestCase):
         tag_list = ['these fake', 'are fake', 'fake fake', 'tags fake']
         for tag in tag_list:
             try:
-                self.tags.append(SBAutoTag(tag_name=tag).save())
+                self.tags.append(AutoTag(tag_name=tag).save())
             except Exception:
-                self.tags.append(SBAutoTag.nodes.get(tag_name=tag))
+                self.tags.append(AutoTag.nodes.get(tag_name=tag))
 
     def test_create_tag_relations_success(self):
         res = create_tag_relations_util(self.tags)
@@ -30,8 +30,8 @@ class TestCreateTagRelations(TestCase):
         self.assertTrue(res)
 
     def test_create_tag_relations_connected(self):
-        tag1 = SBAutoTag(tag_name="amazing tag").save()
-        tag2 = SBAutoTag(tag_name="another amazing tag").save()
+        tag1 = AutoTag(tag_name="amazing tag").save()
+        tag2 = AutoTag(tag_name="another amazing tag").save()
 
         rel = tag1.frequently_tagged_with.connect(tag2)
         rel.save()

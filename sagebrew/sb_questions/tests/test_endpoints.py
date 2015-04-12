@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from sb_questions.neo_models import SBQuestion
+from sb_questions.neo_models import Question
 
 '''
 class QuestionEndpointTests(APITestCase):
@@ -18,7 +18,7 @@ class QuestionEndpointTests(APITestCase):
         self.user.is_staff = True
         self.user.is_superuser = True
         self.user.save()
-        self.unit_under_test = SBQuestion()
+        self.unit_under_test = Question()
         self.unit_under_test_name = "question"
         self.unit_under_test_url_end = reverse("question-detail", kwargs={
             "username": self.user.username})

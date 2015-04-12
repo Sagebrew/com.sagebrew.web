@@ -1,54 +1,78 @@
+import pytz
+from datetime import datetime
+
 from rest_framework.reverse import reverse
 from rest_framework import serializers
 
+from neomodel import db
+
+from api.utils import request_to_api
 from sb_base.serializers import ContentSerializer
-from .neo_models import SBComment
+from sb_base.neo_models import SBContent
+
+from .neo_models import Comment
 
 
 class CommentSerializer(ContentSerializer):
+    href = serializers.HyperlinkedIdentityField(view_name='comment-detail',
+                                                lookup_field="object_uuid",
+                                                lookup_url_kwarg="comment_uuid")
     comment_on = serializers.SerializerMethodField()
 
     def create(self, validated_data):
-        # Connection of the comment to the object it is on is handled in the
-        # create method of the endpoint as it is easier to gather the related
-        # object from there.
         owner = validated_data.pop('owner', None)
         parent_object = validated_data.pop('parent_object', None)
-        comment = SBComment(**validated_data).save()
+        comment = Comment(**validated_data).save()
         if owner is not None:
             comment.owned_by.connect(owner)
             owner.comments.connect(comment)
         if parent_object is not None:
             parent_object.comments.connect(comment)
             comment.comment_on.connect(parent_object)
+
         return comment
 
     def update(self, instance, validated_data):
-        instance.meta = validated_data.get('meta', instance.meta)
-        instance.name = validated_data.get('name', instance.name)
-        instance.assets = validated_data.get('assets', instance.assets)
-        instance.project_type = validated_data.get("project_type",
-                                                   instance.project_type)
-        instance.combo_product = validated_data.get("combo_product",
-                                                    instance.combo_product)
+        instance.content = validated_data.get('content', instance.content)
+        instance.last_edited_on = datetime.now(pytz.utc)
         instance.save()
         return instance
 
     def get_url(self, obj):
-        # TODO @tyler is there a cleaner way you can think to do this?
-        try:
-            parent_object = obj.comment_on.all()[0]
-        except(IndexError):
-            return None
-        return reverse('%s-detail' % parent_object.sb_name,
-                       kwargs={'object_uuid': parent_object.object_uuid},
-                       request=self.context['request'])
+        request = self.context.get('request', None)
+        parent_object = get_parent_object(obj.object_uuid)
+        parent_url = reverse(
+            '%s-detail' % parent_object.get_child_label().lower(),
+            kwargs={'object_uuid': parent_object.object_uuid},
+            request=request)
+        response = request_to_api(parent_url, request.user.username,
+                                  req_method="GET")
+        return response.json()['url']
 
     def get_comment_on(self, obj):
-        try:
-            parent_object = obj.comment_on.all()[0]
-        except(IndexError):
-            return None
-        return reverse('%s-detail' % parent_object.sb_name,
-                       kwargs={'object_uuid': parent_object.object_uuid},
-                       request=self.context['request'])
+        request = self.context.get('request', None)
+        expand = request.query_params.get('expand', "false").lower()
+        expand_array = request.query_params.get('expand_attr', [])
+        parent_object = get_parent_object(obj.object_uuid)
+        parent_info = reverse(
+            '%s-detail' % parent_object.get_child_label().lower(),
+            kwargs={'object_uuid': parent_object.object_uuid},
+            request=request)
+        # Future proofing this as this is not a common use case but we can still
+        # give users the ability to do so
+        if expand == "true" and "comment_on" in expand_array:
+            response = request_to_api(parent_info, request.user.username,
+                                      req_method="GET")
+            parent_info = response.json()
+
+        return parent_info
+
+
+def get_parent_object(object_uuid):
+    try:
+        query = "MATCH (a:Comment {object_uuid:'%s'})-[:COMMENT_ON]->" \
+                "(b:SBContent) RETURN b" % (object_uuid)
+        res, col = db.cypher_query(query)
+        return SBContent.inflate(res[0][0])
+    except(IndexError):
+        return None

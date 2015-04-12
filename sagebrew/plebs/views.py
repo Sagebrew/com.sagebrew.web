@@ -19,7 +19,7 @@ from .utils import prepare_user_search_html
 from .tasks import create_friend_request_task
 from .forms import (GetUserSearchForm, SubmitFriendRequestForm,
                     RespondFriendRequestForm, GetFriendRequestForm)
-from .serializers import BetaUserSerializer
+from .serializers import BetaUserSerializer, AddressSerializer
 
 
 def root_profile_page(request):
@@ -97,7 +97,7 @@ def general_settings(request):
     district. Checks to see if the user currently accessing the page is the
     same user
     as the one who owns the page. if so it loads the page fully, if the user
-    is a firend
+    is a friend
     of the owner of the page then it allows them to see posts and comments
     on posts on the
     owners wall. If the user is neither the owner nor a friend then it only
@@ -109,7 +109,19 @@ def general_settings(request):
     :param request:
     :return:
     """
-    return render(request, 'general_settings.html', {})
+    try:
+        pleb = Pleb.nodes.get(username=request.user.username)
+    except (DoesNotExist, Pleb.DoesNotExist):
+        return redirect("404_Error")
+    except (CypherException, IOError):
+        return redirect("500_Error")
+    try:
+        address = pleb.address.all()[0]
+        address = AddressSerializer(address, context={'request': request}).data
+    except IndexError:
+        address = False
+    return render(request, 'general_settings.html',
+                  {"address": address})
 
 
 @api_view(['GET'])

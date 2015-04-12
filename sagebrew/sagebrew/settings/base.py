@@ -323,13 +323,13 @@ SEARCH_TYPES = [("general", "general"),
     ("sagas", "sagas")]
 
 KNOWN_TYPES = [
-    ("01bb301a-644f-11e4-9ad9-080027242395", "sb_posts.neo_models.SBPost"),
+    ("01bb301a-644f-11e4-9ad9-080027242395", "sb_posts.neo_models.Post"),
     ("02241aee-644f-11e4-9ad9-080027242395",
-     "sb_solutions.neo_models.SBSolution"),
+     "sb_solutions.neo_models.Solution"),
     ("0274a216-644f-11e4-9ad9-080027242395",
-     "sb_questions.neo_models.SBQuestion"),
+     "sb_questions.neo_models.Question"),
     ("02ba1c88-644f-11e4-9ad9-080027242395",
-     "sb_comments.neo_models.SBComment")
+     "sb_comments.neo_models.Comment")
 ]
 
 BASE_REP_TYPES = [

@@ -1,57 +1,47 @@
+from uuid import uuid1
 from datetime import datetime
 from logging import getLogger
 
 from django.template.loader import render_to_string
+from django.template import RequestContext
 
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.generics import (RetrieveUpdateDestroyAPIView,
-                                     ListCreateAPIView)
+from rest_framework.generics import (ListCreateAPIView)
 
-from neomodel import CypherException
+from neomodel import db
 
-from sagebrew import errors
-
-from sb_docstore.utils import (get_dynamo_table)
-from plebs.neo_models import Pleb
+from api.permissions import IsOwnerOrAdmin
+from api.utils import spawn_task
+from sb_base.views import ObjectRetrieveUpdateDestroy
+from sb_notifications.tasks import spawn_notifications
 
 from .serializers import PostSerializerNeo
-from .neo_models import SBPost
+from .neo_models import Post
 
 
 logger = getLogger('loggly_logs')
 
 
-class PostsViewSet(viewsets.GenericViewSet):
+class PostsViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializerNeo
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsOwnerOrAdmin)
+    queryset = Post.nodes.all()
     lookup_field = "object_uuid"
-    lookup_url_kwarg = "object_uuid"
-
-    def get_queryset(self):
-        try:
-            queryset = SBPost.nodes.all()
-        except(CypherException, IOError):
-            logger.exception("CommentGenericViewSet queryset")
-            return Response(errors.CYPHER_EXCEPTION,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        return sorted(queryset, key=lambda k: k.created, reverse=True)
 
     def get_object(self):
-        try:
-            queryset = SBPost.nodes.get(
-                object_uuid=self.kwargs[self.lookup_url_kwarg])
-        except(CypherException, IOError):
-            logger.exception("CommentRetrieveUpdateDestroy get_object")
-            return Response(errors.CYPHER_EXCEPTION,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return queryset
+        return Post.nodes.get(object_uuid=self.kwargs[self.lookup_field])
 
-    def list(self, request):
+    def perform_destroy(self, instance):
+        instance.content = ""
+        instance.to_be_deleted = True
+        instance.save()
+        return instance
+
+    def list(self, request, *args, **kwargs):
         response = {"status": status.HTTP_501_NOT_IMPLEMENTED,
                     "detail": "We do not allow users to query all the posts on"
                               "the site.",
@@ -67,7 +57,7 @@ class PostsViewSet(viewsets.GenericViewSet):
                         "information"}
         return Response(response, status=status.HTTP_501_NOT_IMPLEMENTED)
 
-    def create(self, request):
+    def create(self, request, *args, **kwargs):
         response = {"status": status.HTTP_501_NOT_IMPLEMENTED,
                     "detail": "We do not allow users to create that are not "
                               "associated with a wall.",
@@ -79,52 +69,15 @@ class PostsViewSet(viewsets.GenericViewSet):
                         "new posts."}
         return Response(response, status=status.HTTP_501_NOT_IMPLEMENTED)
 
-    def retrieve(self, request, object_uuid=None):
-        response = {"status": status.HTTP_501_NOT_IMPLEMENTED,
-                    "detail": "We do not allow users to retrieve specific "
-                              "posts through this endpoint at this time.",
-                    "developer_message": "We do not allow users to retrieve "
-                                         "specific posts from this endpoint "
-                                         "currently. To do so please utilize "
-                                         "the '/v1/profiles/<username>/"
-                                         "wall/<post_uuid>/' endpoint."}
-        return Response(response, status=status.HTTP_200_OK)
 
-    def update(self, request, object_uuid=None):
-        pass
-
-    def partial_update(self, request, object_uuid=None):
-        pass
-
-    def destroy(self, request, object_uuid=None):
-        pass
-
-
-class WallPostsRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
+class WallPostsRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):
     serializer_class = PostSerializerNeo
-    permission_classes = (IsAuthenticated,)
-    lookup_field = "username"
+    lookup_field = "object_uuid"
     lookup_url_kwarg = "post_uuid"
 
-    def get_queryset(self):
-        try:
-            queryset = SBPost.nodes.all()
-        except(CypherException, IOError):
-            logger.exception("CommentGenericViewSet queryset")
-            return Response(errors.CYPHER_EXCEPTION,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        return sorted(queryset, key=lambda k: k.created, reverse=True)
-
     def get_object(self):
-        try:
-            queryset = SBPost.nodes.get(
-                object_uuid=self.kwargs[self.lookup_url_kwarg])
-        except(CypherException, IOError):
-            logger.exception("CommentRetrieveUpdateDestroy get_object")
-            return Response(errors.CYPHER_EXCEPTION,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return queryset
+        return Post.nodes.get(
+            object_uuid=self.kwargs[self.lookup_url_kwarg])
 
 
 class WallPostsListCreate(ListCreateAPIView):
@@ -133,72 +86,49 @@ class WallPostsListCreate(ListCreateAPIView):
     lookup_field = "username"
 
     def get_queryset(self):
-        try:
-            wall = Pleb.nodes.get(username=self.kwargs[self.lookup_field])
-            queryset = wall.posts.all()
-        except(CypherException, IOError) as e:
-            logger.exception("CommentGenericViewSet queryset")
-            return Response(errors.CYPHER_EXCEPTION,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        queryset = sorted(queryset, key=lambda k: k.created, reverse=True)
-
-        return queryset
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        # As a note this if is the only difference between this list
-        # implementation and the default ListModelMixin. Not sure if we need
-        # to redefine everything...
-        if isinstance(queryset, Response):
-            return queryset
-        queryset = self.filter_queryset(queryset)
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True,
-                                             context={"request": request})
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(
-            queryset, context={"request": request}, many=True)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        """
+        Used query because match isn't working and filter doesn't work on
+        all().
+        """
+        query = "MATCH (a:Pleb {username:'%s'})-[:OWNS_WALL]->" \
+                "(b:Wall)-[:HAS_POST]->(c) WHERE c.to_be_deleted=false" \
+                " RETURN c ORDER BY c.created " \
+                "DESC" % (self.kwargs[self.lookup_field])
+        res, col = db.cypher_query(query)
+        return [Post.inflate(row[0]) for row in res]
 
     def create(self, request, *args, **kwargs):
         post_data = request.data
         post_data['parent_object'] = self.kwargs[self.lookup_field]
 
-        serializer = PostSerializerNeo(data=post_data,
-                                       context={"request": request})
+        serializer = self.get_serializer(data=post_data,
+                                         context={"request": request})
         if serializer.is_valid():
-            # TODO should probably spawn neo connection off into task
-            # and instead make relation in dynamo. Can include the given
-            # uuid in the task spawned off. Also as mentioned in the
-            # serializer, we should capture the user from the request,
-            # get the pleb (maybe in the task) and use that to call
-            # comment_relations
-            owner = Pleb.nodes.get(username=request.user.username)
-            wall_owner = Pleb.nodes.get(username=self.kwargs[self.lookup_field])
-            instance = serializer.save(owner=owner, wall_owner=wall_owner)
-
-            serializer = PostSerializerNeo(instance,
-                                           context={"request": request})
-            put_item = dict(serializer.data)
-            put_item['parent_object'] = wall_owner.username
-            table = get_dynamo_table("posts")
-            table.put_item(data=put_item)
+            serializer.save(wall_owner=self.kwargs[self.lookup_field])
+            serializer = serializer.data
+            data = {
+                "from_pleb": request.user.username,
+                "sb_object": serializer['object_uuid'],
+                "url": serializer['url'],
+                "to_plebs": [self.kwargs[self.lookup_field],],
+                "notification_id": str(uuid1())
+            }
+            spawn_task(task_func=spawn_notifications, task_param=data)
             html = request.query_params.get('html', 'false').lower()
             if html == "true":
-                html_array = []
-                id_array = []
-                post = dict(serializer.data)
-                post['last_edited_on'] = datetime.strptime(
-                    post['last_edited_on'][:len(post['last_edited_on']) - 6],
+                serializer["vote_count"] = str(serializer["vote_count"])
+                serializer['last_edited_on'] = datetime.strptime(
+                    serializer['last_edited_on'][:len(
+                        serializer['last_edited_on']) - 6],
                     '%Y-%m-%dT%H:%M:%S.%f')
-                post["current_user"] = request.user.username
-                html_array.append(render_to_string('post.html',  post))
-                id_array.append(post["object_uuid"])
-                return Response({"html": html_array, "ids": id_array},
-                                status=status.HTTP_200_OK)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+                context = RequestContext(request, serializer)
+                return Response(
+                    {
+                        "html": [render_to_string('post.html', context)],
+                        "ids": [serializer["object_uuid"]]
+                    },
+                    status=status.HTTP_200_OK)
+            return Response(serializer, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -221,8 +151,8 @@ def post_renderer(request, username=None):
         post['last_edited_on'] = datetime.strptime(
             post['last_edited_on'][:len(post['last_edited_on']) - 6],
             '%Y-%m-%dT%H:%M:%S.%f')
-        post["current_user"] = request.user.username
-        html_array.append(render_to_string('post.html',  post))
+        context = RequestContext(request, post)
+        html_array.append(render_to_string('post.html',  context))
         id_array.append(post["object_uuid"])
     posts.data['results'] = {"html": html_array, "ids": id_array}
     return Response(posts.data, status=status.HTTP_200_OK)

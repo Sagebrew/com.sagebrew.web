@@ -1,5 +1,5 @@
 $( document ).ready(function() {
-    // This function hits the SBPost API and saves off a given post from a user
+    // This function hits the Post API and saves off a given post from a user
 	$(".post-action").click(function(event){
         $("#sb_btn_post").attr("disabled", "disabled");
 		event.preventDefault();

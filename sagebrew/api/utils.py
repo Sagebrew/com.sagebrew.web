@@ -176,6 +176,7 @@ iron_mq = IronMQ(project_id=settings.IRON_PROJECT_ID,
         queue.post(dumps(info))
 '''
 
+
 def add_failure_to_queue(message_info):
     conn = boto.sqs.connect_to_region(
         "us-west-2",
@@ -204,8 +205,7 @@ def spawn_task(task_func, task_param, countdown=0, task_id=None):
             'failure_uuid': failure_uuid
         }
         add_failure_to_queue(failure_dict)
-        return defensive_exception(spawn_task.__name__, e, e,
-            {"failure_uuid": failure_uuid, "failure": "Unhandled Exception"})
+        raise e
 
 
 def language_filter(content):
@@ -258,7 +258,7 @@ def get_object(object_type, object_uuid):
     AND A CHOICE FIELD CLEARLY LAID OUT.
 
     This function will take the id of an object and the objects class
-    name as a string: SBPost: "SBPost", etc. and return the object.
+    name as a string: Post: "Post", etc. and return the object.
     If the object is not found it will return False
 
     :param object_type:

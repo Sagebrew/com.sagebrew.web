@@ -74,7 +74,7 @@
             </button>
             <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
                 role="menu" aria-labelledby="dropdown-menu">
-                {% if current_user_username == owner_object.username %}
+                {% if request.user.username == owner_object.username %}
                     <li role="presentation"><a class="sb_post_dropdown_menu show_edit_question-action"
                                                data-uuid="{{ object_uuid }}"
                                                type="submit">Edit Question</a>
@@ -83,7 +83,6 @@
                     {% if debug %}
                         <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action flag_{{ object_uuid }}'
                                                    data-flag_reason='spam'
-                                                   data-current_user="{{ current_user }}"
                                                    data-object_uuid="{{ object_uuid }}"
                                                    data-object_type="0274a216-644f-11e4-9ad9-080027242395">Flag as Spam
                                                    </a>
@@ -91,7 +90,6 @@
                         <li role="presentation" class="sb_divider"></li>
                         <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action flag_{{ object_uuid }}'
                                                    data-flag_reason='explicit'
-                                                   data-current_user="{{ current_user }}"
                                                    data-object_uuid="{{ object_uuid }}"
                                                    data-object_type="0274a216-644f-11e4-9ad9-080027242395">Flag as Explicit
                                                    </a>
@@ -99,7 +97,6 @@
                         <li role="presentation" class="sb_divider"></li>
                         <li role="presentation"><a class='sb_post_dropdown_menu flag_object-action flag_{{ object_uuid }}'
                                                    data-flag_reason='other'
-                                                   data-current_user="{{ current_user }}"
                                                    data-object_uuid="{{ object_uuid }}"
                                                    data-object_type="0274a216-644f-11e4-9ad9-080027242395">Flag as Other
                                                    </a>

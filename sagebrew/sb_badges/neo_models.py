@@ -1,10 +1,9 @@
-from uuid import uuid1
+from neomodel import (StringProperty, RelationshipTo)
 
-from neomodel import (StructuredNode, StringProperty, RelationshipTo)
+from api.neo_models import SBObject
 
 
-class BadgeBase(StructuredNode):
-    object_uuid = StringProperty(default=uuid1, unique_index=True)
+class BadgeBase(SBObject):
     badge_name = StringProperty()
     image_color = StringProperty()
     image_grey = StringProperty()
@@ -38,8 +37,7 @@ class BadgeBase(StructuredNode):
         return self.requirements.all()
 
 
-class BadgeGroup(StructuredNode):
-    object_uuid = StringProperty(default=uuid1, unique_index=True)
+class BadgeGroup(SBObject):
     group_name = StringProperty()
     description = StringProperty()
 

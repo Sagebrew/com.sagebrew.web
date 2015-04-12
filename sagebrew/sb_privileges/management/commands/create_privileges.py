@@ -6,8 +6,8 @@ from django.conf import settings
 
 from neomodel import CypherException, DoesNotExist
 
-from sb_privileges.neo_models import (SBPrivilege, SBRestriction, SBAction)
-from sb_requirements.neo_models import SBRequirement
+from sb_privileges.neo_models import (Privilege, Restriction, SBAction)
+from sb_requirements.neo_models import Requirement
 
 
 logger = getLogger('loggly_logs')
@@ -26,11 +26,11 @@ class Command(BaseCommand):
                 requirements = privilege.pop('requirements', [])
                 actions = privilege.pop('actions', [])
                 try:
-                    SBPrivilege.nodes.get(name=privilege[
+                    Privilege.nodes.get(name=privilege[
                         "name"])
-                except(SBPrivilege.DoesNotExist, DoesNotExist):
+                except(Privilege.DoesNotExist, DoesNotExist):
                     try:
-                        privilege = SBPrivilege(**privilege).save()
+                        privilege = Privilege(**privilege).save()
                     except(CypherException, IOError):
                         logger.critical("potential error there may be"
                                         " missing privileges")
@@ -39,12 +39,12 @@ class Command(BaseCommand):
                                     "missing privileges")
                 for requirement in requirements:
                     try:
-                        SBRequirement.nodes.get(name=requirement["name"])
-                    except(SBRequirement.DoesNotExist, DoesNotExist):
+                        Requirement.nodes.get(name=requirement["name"])
+                    except(Requirement.DoesNotExist, DoesNotExist):
                         try:
                             requirement["url"] = "%s%s" % (settings.WEB_ADDRESS,
                                                            requirement["url"])
-                            req = SBRequirement(**requirement).save()
+                            req = Requirement(**requirement).save()
                             privilege.requirements.connect(req)
                         except(CypherException, IOError):
                             logger.critical("potential error there may"
@@ -85,12 +85,12 @@ class Command(BaseCommand):
                                     "be missing actions")
             for restriction in data['restrictions']:
                 try:
-                    SBRestriction.nodes.get(name=restriction["name"])
-                except(SBRestriction.DoesNotExist, DoesNotExist):
+                    Restriction.nodes.get(name=restriction["name"])
+                except(Restriction.DoesNotExist, DoesNotExist):
                     try:
                         restriction["url"] = "%s%s" % (settings.WEB_ADDRESS,
                                                        restriction["url"])
-                        SBRestriction(**restriction).save()
+                        Restriction(**restriction).save()
                     except(CypherException, IOError):
                         logger.critical("potential error there may"
                                         " be missing restrictions")

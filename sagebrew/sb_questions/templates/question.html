@@ -76,7 +76,7 @@
                 role="menu" aria-labelledby="dropdown-menu">
                 {% if request.user.username == owner_object.username %}
                     <li role="presentation"><a class="sb_post_dropdown_menu show_edit_question-action"
-                                               data-uuid="{{ object_uuid }}"
+                                               data-object_uuid="{{ object_uuid }}"
                                                type="submit">Edit Question</a>
                     </li>
                 {% else %}

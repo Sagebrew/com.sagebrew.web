@@ -24,9 +24,11 @@ class UserSerializer(serializers.Serializer):
     # to request viewing this the user can allow them to.
     email = serializers.EmailField(required=True, write_only=True)
     password = serializers.CharField(max_length=128, required=True,
-                                     write_only=True)
+                                     write_only=True,
+                                     style={'input_type': 'password'})
     new_password = serializers.CharField(max_length=128, required=False,
-                                         write_only=True)
+                                         write_only=True,
+                                         style={'input_type': 'password'})
     birthday = serializers.DateTimeField(write_only=True)
     href = serializers.HyperlinkedIdentityField(view_name='user-detail',
                                                 lookup_field="username")

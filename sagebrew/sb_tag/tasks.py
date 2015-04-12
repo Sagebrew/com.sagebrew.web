@@ -1,7 +1,8 @@
 from celery import shared_task
 
 from api.utils import spawn_task
-from .utils import create_tag_relations_util, calc_spheres
+
+from .utils import create_tag_relations_util, calc_spheres, update_tags_util
 
 
 @shared_task()
@@ -60,9 +61,27 @@ def add_auto_tags(question, tag_list):
                                   max_retries=None)
     return response
 
+
 @shared_task()
 def calc_spheres_task():
     res = calc_spheres()
     if isinstance(res, Exception):
         raise calc_spheres.retry(exc=res, countdown=3, max_retries=None)
     return res
+
+
+@shared_task()
+def update_tags(tags):
+    '''
+    Takes a list of tag names that have been utilized on some piece of content
+    and performs the necessary updates. Such as incrementing tag_used by 1
+    and associating the tags with each other as frequently_tagged_with.
+
+    :param tags: List of strings representing tag names
+    :return:
+    '''
+    updates = update_tags_util(tags)
+    if isinstance(updates, Exception):
+        raise update_tags.retry(exc=updates, countdown=3, max_retries=None)
+
+    return updates

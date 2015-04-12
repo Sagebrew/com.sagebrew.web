@@ -3,19 +3,16 @@ import markdown
 from uuid import uuid1
 from datetime import datetime
 
-from django.core.urlresolvers import reverse
-from django.template.loader import render_to_string
-
 from neomodel import (StringProperty, IntegerProperty,
                       RelationshipTo,  BooleanProperty, FloatProperty,
                       CypherException)
+from neomodel import db
 
 from api.utils import execute_cypher_query
 from sb_base.neo_models import SBVersioned
-from sb_tag.neo_models import TagRelevanceModel
-from sb_base.decorators import apply_defense
+from sb_tag.neo_models import Tag
 
-from .serializers import QuestionSerializerNeo
+from sb_base.decorators import apply_defense
 
 
 class Question(SBVersioned):
@@ -30,7 +27,6 @@ class Question(SBVersioned):
     solution_count = IntegerProperty(default=0)
     title = StringProperty()
     is_closed = BooleanProperty(default=False)
-    closed_reason = StringProperty()
     is_private = BooleanProperty()
     is_protected = BooleanProperty(default=False)
     is_mature = BooleanProperty(default=False)
@@ -40,37 +36,18 @@ class Question(SBVersioned):
     title_subjectivity = FloatProperty()
     search_id = StringProperty()
     tags_added = BooleanProperty(default=False)
-    added_to_search_index = BooleanProperty(default=False)
 
     # relationships
-    auto_tags = RelationshipTo('sb_tag.neo_models.AutoTag',
-                               'AUTO_TAGGED_AS', model=TagRelevanceModel)
     closed_by = RelationshipTo('plebs.neo_models.Pleb', 'CLOSED_BY')
     solutions = RelationshipTo('sb_solutions.neo_models.Solution',
                                'POSSIBLE_ANSWER')
 
-    def get_url(self):
-        return reverse("question_detail_page",
-                       kwargs={"question_uuid": self.object_uuid})
-
-    def create_notification(self, pleb, sb_object=None):
-        return {
-            "profile_pic": pleb.profile_pic,
-            "full_name": pleb.get_full_name(),
-            "action_name": self.action_name,
-            "url": self.get_url()
-        }
-
-    @apply_defense
-    def create_relations(self, pleb, question=None, wall=None):
-        try:
-            rel = self.owned_by.connect(pleb)
-            rel.save()
-            rel_from_pleb = pleb.questions.connect(self)
-            rel_from_pleb.save()
-            return True
-        except CypherException as e:
-            return e
+    def get_tags(self):
+        query = "MATCH (a:Question {object_uuid:'%s'})-[:TAGGED_AS]->" \
+                "(b:Tag) RETURN b" % (self.object_uuid)
+        res, col = db.cypher_query(query)
+        queryset = [Tag.inflate(row[0]).tag_name for row in res]
+        return queryset
 
     @apply_defense
     def edit_content(self, pleb, content):
@@ -175,17 +152,6 @@ class Question(SBVersioned):
                 'html_content': html_content}
         except (CypherException, IOError) as e:
             return e
-
-    @apply_defense
-    def render_search(self, request):
-        owner = self.owned_by.all()[0]
-        question_dict = QuestionSerializerNeo(
-            self, context={"request": request}).data
-        question_dict['first_name'] = owner.first_name
-        question_dict['last_name'] = owner.last_name
-        rendered = render_to_string('conversation_block.html',
-                                    question_dict)
-        return rendered
 
     @apply_defense
     def get_original(self):

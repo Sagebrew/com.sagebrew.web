@@ -14,6 +14,7 @@ from neomodel import db
 from sb_notifications.neo_models import NotificationCapable
 from sb_docstore.utils import get_vote_count as doc_vote_count
 from sb_votes.utils import determine_vote_type
+from sb_tag.neo_models import TagRelevanceModel
 from plebs.neo_models import RelationshipWeight, Pleb
 
 from .decorators import apply_defense
@@ -159,8 +160,12 @@ class SBContent(VotableContent):
                      "unsupported", "other"]
     last_edited_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     edited = BooleanProperty(default=False)
+
     to_be_deleted = BooleanProperty(default=False)
     is_explicit = BooleanProperty(default=False)
+    is_removed = BooleanProperty(default=False)
+    moderated_reason = StringProperty()
+
     polarity = FloatProperty()
     subjectivity = FloatProperty()
     # Please use get_vote_count rather than this. We have this included so that
@@ -293,9 +298,10 @@ class SBContent(VotableContent):
 
 class TaggableContent(SBContent):
     # relationships
-    tagged_as = RelationshipTo('sb_tag.neo_models.Tag', 'TAGGED_AS')
+    tags = RelationshipTo('sb_tag.neo_models.Tag', 'TAGGED_AS')
     auto_tags = RelationshipTo('sb_tag.neo_models.AutoTag',
-                               'AUTO_TAGGED_AS')
+                               'AUTO_TAGGED_AS', model=TagRelevanceModel)
+    added_to_search_index = BooleanProperty(default=False)
 
     # methods
     @apply_defense

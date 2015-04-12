@@ -14,7 +14,7 @@ $( document ).ready(function() {
             success: function (data) {
                 $("#question_wrapper").append(data['results']["html"]);
                 if(data["next"] !== null){
-                    loadQuestionSummaries(url);
+                    loadQuestionSummaries(data["next"]);
                 }
                 enable_question_summary_functionality(data['results']["ids"]);
             }

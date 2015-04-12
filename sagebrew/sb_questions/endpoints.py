@@ -12,10 +12,12 @@ from rest_framework import status
 
 from neomodel import db
 
+from api.utils import spawn_task
 from sb_base.utils import get_ordering
 
 from .serializers import QuestionSerializerNeo, solution_count
 from .neo_models import Question
+from .tasks import add_question_to_indices_task
 
 logger = getLogger('loggly_logs')
 
@@ -47,11 +49,35 @@ class QuestionViewSet(viewsets.ModelViewSet):
         return Question.nodes.get(object_uuid=self.kwargs[self.lookup_field])
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        request_data = request.data
+        if "tags" in request_data:
+            if isinstance(request_data['tags'], basestring):
+                request_data['tags'] = request_data['tags'].split(',')
+        print request_data
+        serializer = self.get_serializer(data=request.data,
+                                         context={"request": request})
         if serializer.is_valid():
-            instance = serializer.save()
-            instance = self.get_serializer(instance)
-            return Response(instance.data, status=status.HTTP_201_CREATED)
+            serializer.save()
+            serializer = serializer.data
+            spawn_task(task_func=add_question_to_indices_task,
+                       task_param={"question": serializer})
+            html = request.query_params.get('html', 'false').lower()
+            if html == "true":
+                serializer["vote_count"] = str(serializer["vote_count"])
+                serializer['last_edited_on'] = datetime.strptime(
+                    serializer['last_edited_on'][:len(
+                        serializer['last_edited_on']) - 6],
+                    '%Y-%m-%dT%H:%M:%S.%f')
+                context = RequestContext(request, serializer)
+                return Response(
+                    {
+                        "html": [render_to_string('solution.html', context)],
+                        "ids": [serializer["object_uuid"]]
+                    },
+                    status=status.HTTP_200_OK)
+
+            return Response(serializer, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, *args, **kwargs):
         html = self.request.query_params.get('html', 'false').lower()

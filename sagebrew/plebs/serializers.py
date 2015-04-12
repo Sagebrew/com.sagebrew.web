@@ -63,6 +63,7 @@ class PlebSerializerNeo(serializers.Serializer):
     href = serializers.HyperlinkedIdentityField(
         view_name='profile-detail', lookup_field="username")
     profile_pic = serializers.CharField(read_only=True)
+    wallpaper_pic = serializers.CharField(read_only=True)
     reputation = serializers.IntegerField(read_only=True)
     url = serializers.SerializerMethodField()
 

@@ -1,14 +1,13 @@
 import pickle
-from uuid import uuid1
 from django.conf import settings
 
-from neomodel import (StructuredNode, StringProperty)
+from neomodel import (StringProperty)
 
 from api.utils import request_to_api
+from api.neo_models import SBObject
 
 
-class SBRequirement(StructuredNode):
-    object_uuid = StringProperty(default=uuid1, unique_index=True)
+class Requirement(SBObject):
     name = StringProperty(unique_index=True)
     url = StringProperty()
     key = StringProperty()
@@ -18,7 +17,7 @@ class SBRequirement(StructuredNode):
     condition = StringProperty()
     auth_type = StringProperty()
 
-    #methods
+    # methods
     def check_requirement(self, username):
         res = request_to_api(self.url, username, req_method='get',
                              internal=True)

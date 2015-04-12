@@ -10,7 +10,7 @@ from sb_questions.tasks import (create_question_task,
                                 add_question_to_indices_task,
                                 add_tags_to_question_task)
 from plebs.neo_models import Pleb
-from sb_questions.neo_models import SBQuestion
+from sb_questions.neo_models import Question
 from sb_registration.utils import create_user_util_test
 
 
@@ -50,7 +50,7 @@ class TestSaveQuestionTask(TestCase):
         self.assertTrue(response.result)
 
     def test_save_question_task_question_exists(self):
-        question = SBQuestion(object_uuid=str(uuid1()))
+        question = Question(object_uuid=str(uuid1()))
         question.save()
 
         self.question_info_dict['question_uuid'] = question.object_uuid
@@ -72,7 +72,7 @@ class TestAddQuestionToIndicesTask(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question = SBQuestion(content="fake content",
+        self.question = Question(content="fake content",
                                    title="fake title",
                                    object_uuid=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
@@ -94,7 +94,7 @@ class TestAddQuestionToIndicesTask(TestCase):
     def test_add_question_to_indices_task_added_already(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         es.index(index='full-search-base',
-                 doc_type='sb_questions.neo_models.SBQuestion',
+                 doc_type='sb_questions.neo_models.Question',
                  id=self.question.object_uuid,
                  body={'content': self.question.content})
         task_data = {
@@ -118,7 +118,7 @@ class TestAddTagsToQuestionTask(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question = SBQuestion(content="fake content",
+        self.question = Question(content="fake content",
                                    title="fake title",
                                    object_uuid=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
@@ -178,7 +178,7 @@ class TestMultipleTasks(TestCase):
         self.assertNotIn(False, response_array)
 
     def test_create_same_question_twice(self):
-        question = SBQuestion(content="test question", title="title",
+        question = Question(content="test question", title="title",
                               object_uuid=str(uuid1()))
         question.save()
         post_info_dict = {'current_pleb': self.pleb.email,

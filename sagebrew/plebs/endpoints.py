@@ -80,8 +80,6 @@ class UserViewSet(viewsets.ModelViewSet):
         # app the hit a thousand endpoints.
 
 
-
-
 class ProfileViewSet(viewsets.ModelViewSet):
     serializer_class = PlebSerializerNeo
     lookup_field = "username"
@@ -115,11 +113,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'])
     def questions(self, request, username=None):
-        return Response({"detail": "TBD"},
-                        status=status.HTTP_501_NOT_IMPLEMENTED)
-
-    @detail_route(methods=['get'], serializer_class=CommentSerializer)
-    def comments(self, request, username=None):
         return Response({"detail": "TBD"},
                         status=status.HTTP_501_NOT_IMPLEMENTED)
 

@@ -6,7 +6,7 @@ from django.conf import settings
 
 from plebs.neo_models import Pleb
 from api.utils import wait_util
-from sb_questions.neo_models import SBQuestion
+from sb_questions.neo_models import Question
 from sb_registration.utils import create_user_util_test
 from sb_edits.tasks import edit_question_task, edit_object_task
 
@@ -25,12 +25,12 @@ class TestEditObjectTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_edit_object_task_success(self):
-        question = SBQuestion(title='test title for edit',
+        question = Question(title='test title for edit',
                               content='this is before edit',
                               object_uuid=str(uuid1())).save()
         task_data = {
             'object_uuid': question.object_uuid,
-            'object_type': 'sb_questions.neo_models.SBQuestion',
+            'object_type': 'sb_questions.neo_models.Question',
             'username': self.pleb.username,
             'content': 'this is post edit content'
         }
@@ -39,15 +39,15 @@ class TestEditObjectTask(TestCase):
         while not res.ready():
             time.sleep(1)
 
-        self.assertIsInstance(res.result, SBQuestion)
+        self.assertIsInstance(res.result, Question)
 
     def test_edit_object_task_get_object_fail(self):
-        question = SBQuestion(title='test title for edit',
+        question = Question(title='test title for edit',
                               content='this is before edit',
                               object_uuid=str(uuid1())).save()
         task_data = {
             'object_uuid': question.object_uuid,
-            'object_type': 'SBQuestion',
+            'object_type': 'Question',
             'username': self.pleb.username,
             'content': 'this is post edit content'
         }
@@ -59,12 +59,12 @@ class TestEditObjectTask(TestCase):
         self.assertFalse(res.result)
 
     def test_edit_object_task_edit_content_fail(self):
-        question = SBQuestion(title='test title for edit',
+        question = Question(title='test title for edit',
                               content='this is before edit',
                               object_uuid=str(uuid1())).save()
         task_data = {
             'object_uuid': question.object_uuid,
-            'object_type': 'SBQuestion',
+            'object_type': 'Question',
             'username': self.pleb.username,
             'content': 'this is post edit content'
         }
@@ -89,12 +89,12 @@ class TestEditQuestionTitleTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_edit_title_success(self):
-        question = SBQuestion(title='test title for edit',
+        question = Question(title='test title for edit',
                               content='this is before edit',
                               object_uuid=str(uuid1())).save()
         task_data = {
             'object_uuid': question.object_uuid,
-            'object_type': 'sb_questions.neo_models.SBQuestion',
+            'object_type': 'sb_questions.neo_models.Question',
             'title': 'this is post edit title'
         }
 
@@ -102,15 +102,15 @@ class TestEditQuestionTitleTask(TestCase):
         while not res.ready():
             time.sleep(1)
 
-        self.assertIsInstance(res.result, SBQuestion)
+        self.assertIsInstance(res.result, Question)
 
     def test_edit_title_get_object_failure(self):
-        question = SBQuestion(title='test title for edit',
+        question = Question(title='test title for edit',
                               content='this is before edit',
                               object_uuid=str(uuid1())).save()
         task_data = {
             'object_uuid': question.object_uuid,
-            'object_type': 'SBQuestion',
+            'object_type': 'Question',
             'title': 'this is post edit content'
         }
 

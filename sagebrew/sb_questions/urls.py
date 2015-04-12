@@ -2,7 +2,7 @@ from django.conf.urls import patterns, url
 
 from .views import (save_question_view, submit_question_view_page,
                     question_page, question_detail_page,
-                    get_question_search_view)
+                    get_question_search_view, solution_edit_page)
 
 urlpatterns = patterns(
     'sb_questions.views',
@@ -13,4 +13,6 @@ urlpatterns = patterns(
         name='question_detail_page'),
     url(r'^search/(?P<question_uuid>[A-Za-z0-9.@_%+-]{36})/$',
         get_question_search_view, name='question_search_page'),
+    url(r'^solutions/(?P<solution_uuid>[A-Za-z0-9.@_%+-]{36})/edit/$',
+        solution_edit_page, name='solution-edit')
 )

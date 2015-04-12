@@ -6,7 +6,7 @@ from django.conf import settings
 
 from plebs.neo_models import Pleb
 from api.utils import wait_util
-from sb_questions.neo_models import SBQuestion
+from sb_questions.neo_models import Question
 from sb_registration.utils import create_user_util_test
 from sb_flags.tasks import flag_object_task
 
@@ -25,11 +25,11 @@ class TestFlagObjectTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_flag_object_task_success(self):
-        question = SBQuestion(object_uuid=str(uuid1())).save()
+        question = Question(object_uuid=str(uuid1())).save()
         task_data = {
             'username': self.pleb.username,
             'object_uuid': question.object_uuid,
-            'object_type': 'sb_questions.neo_models.SBQuestion',
+            'object_type': 'sb_questions.neo_models.Question',
             'flag_reason': 'spam',
             'description': ''
         }
@@ -38,14 +38,14 @@ class TestFlagObjectTask(TestCase):
         while not res.ready():
             time.sleep(1)
 
-        self.assertIsInstance(res.result, SBQuestion)
+        self.assertIsInstance(res.result, Question)
 
     def test_flag_object_task_get_object_failure(self):
-        question = SBQuestion(object_uuid=str(uuid1())).save()
+        question = Question(object_uuid=str(uuid1())).save()
         task_data = {
             'username': self.pleb.username,
             'object_uuid': question.object_uuid,
-            'object_type': 'SBQuestion',
+            'object_type': 'Question',
             'flag_reason': 'spam',
             'description': ''
         }

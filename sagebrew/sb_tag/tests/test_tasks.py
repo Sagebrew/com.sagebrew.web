@@ -5,11 +5,11 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 
 from api.utils import wait_util
-from sb_questions.neo_models import SBQuestion
+from sb_questions.neo_models import Question
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
-from sb_tag.neo_models import SBAutoTag
+from sb_tag.neo_models import AutoTag
 from sb_tag.tasks import add_auto_tags, add_tags, create_tag_relations
 
 
@@ -27,7 +27,7 @@ class TestTagTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_add_tag_success(self):
-        question = SBQuestion(object_uuid=uuid1())
+        question = Question(object_uuid=uuid1())
         question.save()
         tags = 'test,tag,please,do,not,fail,in,testing'
         task_dict = {'question': question,
@@ -53,7 +53,7 @@ class TestAutoTagTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_add_auto_tag_success(self):
-        question = SBQuestion(object_uuid=uuid1())
+        question = Question(object_uuid=uuid1())
         question.save()
         task_dict = {
             'question': question,
@@ -82,7 +82,7 @@ class TestCreateAutoTagRelationships(TestCase):
     def test_create_auto_tag_relationship_success(self):
         tag_list = []
         for item in range(0,9):
-            tag = SBAutoTag(tag_name='test_tag'+str(uuid1()))
+            tag = AutoTag(tag_name='test_tag'+str(uuid1()))
             tag.save()
             tag_list.append(tag)
         res = create_tag_relations.apply_async(kwargs={"tag_list": tag_list})
@@ -93,8 +93,8 @@ class TestCreateAutoTagRelationships(TestCase):
         self.assertTrue(res)
 
     def test_create_auto_tag_relationship_frequently_tagged_with(self):
-        tag1 = SBAutoTag(tag_name=str(uuid1())).save()
-        tag2 = SBAutoTag(tag_name=str(uuid1())).save()
+        tag1 = AutoTag(tag_name=str(uuid1())).save()
+        tag2 = AutoTag(tag_name=str(uuid1())).save()
         rel = tag1.frequently_tagged_with.connect(tag2)
         rel.save()
         rel2 = tag2.frequently_tagged_with.connect(tag1)

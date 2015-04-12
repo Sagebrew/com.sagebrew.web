@@ -11,7 +11,7 @@ def flag_object_task(username, object_uuid, object_type, flag_reason,
                      description=""):
     '''
     This function takes a pleb object,
-    sb_object(SBSolution, SBQuestion, SBComment, SBPost), and a flag reason.
+    sb_object(Solution, Question, Comment, Post), and a flag reason.
     It will then call a util to create the flag and add it to the object.
 
     :param current_pleb:

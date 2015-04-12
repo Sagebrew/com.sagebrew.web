@@ -23,7 +23,7 @@ logger = logging.getLogger('loggly_logs')
 @shared_task()
 def spawn_weight_relationships(search_items):
     for item in search_items:
-        if item['_type'] == 'sb_questions.neo_models.SBQuestion':
+        if item['_type'] == 'sb_questions.neo_models.Question':
             spawned = spawn_task(
             update_weight_relationship, task_param=
             {'index': item['_index'],
@@ -171,7 +171,7 @@ def add_user_to_custom_index(username=None, index="full-search-user-specific-1")
         for item in res:
             item['_source']['related_user'] = pleb.username
             item['_source']['sb_score'] = 0
-            if item['_type'] == 'SBQuestion':
+            if item['_type'] == 'Question':
                 result = es.index(index=index, doc_type='question',
                                   body=item['_source'])
             if item['_type'] == 'pleb':

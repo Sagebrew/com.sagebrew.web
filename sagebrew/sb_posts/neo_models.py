@@ -3,17 +3,17 @@ from django.core.urlresolvers import reverse
 from neomodel import (RelationshipTo, CypherException)
 
 from api.utils import execute_cypher_query
-from sb_base.neo_models import SBNonVersioned
+from sb_base.neo_models import TaggableContent
 from sb_base.decorators import apply_defense
 
 
-class SBPost(SBNonVersioned):
-    sb_name = "post"
+class Post(TaggableContent):
     table = 'posts'
-    action = "posted on your wall"
+    action_name = "posted on your wall"
     object_type = "01bb301a-644f-11e4-9ad9-080027242395"
+
     # relationships
-    posted_on_wall = RelationshipTo('sb_wall.neo_models.SBWall', 'POSTED_ON')
+    posted_on_wall = RelationshipTo('sb_wall.neo_models.Wall', 'POSTED_ON')
 
     @apply_defense
     def create_relations(self, pleb, question=None, wall=None):
@@ -41,7 +41,7 @@ class SBPost(SBNonVersioned):
 
     def create_notification(self, pleb, sb_object=None):
         return {
-            "action": self.action,
+            "action_name": self.action_name,
             "url": self.get_url(),
             "from": {
                 "profile_pic": pleb.profile_pic,
@@ -52,16 +52,16 @@ class SBPost(SBNonVersioned):
 
     @apply_defense
     def get_single_dict(self):
-        from sb_comments.neo_models import SBComment
+        from sb_comments.neo_models import Comment
         try:
             comment_array = []
-            query = 'MATCH (p:SBPost) WHERE p.object_uuid="%s" ' \
-                    'WITH p MATCH (p) - [:HAS_A] - (c:SBComment) ' \
+            query = 'MATCH (p:Post) WHERE p.object_uuid="%s" ' \
+                    'WITH p MATCH (p) - [:HAS_A] - (c:Comment) ' \
                     'WHERE c.to_be_deleted=False ' \
                     'WITH c ORDER BY c.created ' \
                     'RETURN c' % self.object_uuid
             post_comments, meta = execute_cypher_query(query)
-            post_comments = [SBComment.inflate(row[0]) for row in post_comments]
+            post_comments = [Comment.inflate(row[0]) for row in post_comments]
             try:
                 post_owner = self.owned_by.all()[0]
             except IndexError as e:

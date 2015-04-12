@@ -43,10 +43,13 @@ BROKER_URL = 'amqp://%s@%s:%s//' % (environ.get("QUEUE_USERNAME", ""),
 
 
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS':
-        'rest_framework.pagination.LimitOffsetPagination',
     'EXCEPTION_HANDLER': 'sb_base.utils.custom_exception_handler',
-    'PAGE_SIZE': 25,
+    'DEFAULT_PAGINATION_CLASS':
+        'rest_framework.pagination.PageNumberPagination',
+    'PAGINATE_BY': 10,
+    'PAGE_SIZE': 15,
+    'MAX_PAGINATE_BY': 100,
+    'PAGINATE_BY_PARAM': 'page_size',
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
     ),

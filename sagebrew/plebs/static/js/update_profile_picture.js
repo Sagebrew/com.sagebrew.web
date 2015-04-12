@@ -25,7 +25,7 @@ $( document ).ready(function() {
         var image_test = $("#image_uploaded").children('img');
         var true_height = image_test.get(0).naturalHeight;
         var true_width = image_test.get(0).naturalWidth;
-
+        /*
         image_test.cropper({
             resizable: false,
             zoomable: false,
@@ -44,9 +44,8 @@ $( document ).ready(function() {
                 getCoords(coords);
             }
         });
-
-        /*
-        var jcrop = $("img").Jcrop({
+        */
+        var jcrop = image_test.Jcrop({
            trueSize: [true_width, true_height],
            allowResize: false,
            allowSelect: false,
@@ -55,7 +54,7 @@ $( document ).ready(function() {
            bgColor: '#26424a',
            bgOpacity: 0.4,
            setSelect: [ 0, 0, 200, 200 ]
-        });*/
+        });
     });
     $("#sb_btn_save").click(function(e){
         e.preventDefault();
@@ -74,15 +73,16 @@ $( document ).ready(function() {
             contentType: false,
             processData: false,
             success: function(data){
-                window.location.href = data['url'];
+                $("#myModal").modal('hide');
+                $("img#profile_pic").attr("src", data['pic_url'])
             }
         });
     });
     function getCoords (c){
         $('#image_x1').val(c.x);
-        $('#image_x2').val(c.width);
+        $('#image_x2').val(c.w);
         $('#image_y1').val(c.y);
-        $('#image_y2').val(c.height);
+        $('#image_y2').val(c.h);
     }
 });
 

@@ -320,7 +320,7 @@ def profile_picture_api(request):
         pleb.save()
         url = reverse('profile_page', kwargs={"pleb_username":
                                                   request.user.username})
-        return Response({"url": url}, 200)
+        return Response({"url": url, "pic_url": res}, 200)
     else:
         return Response({"detail": "invalid form"}, 400)
 

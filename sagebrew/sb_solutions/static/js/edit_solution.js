@@ -29,4 +29,7 @@ $(document).ready(function(){
             }
         });
     });
+    $(".cancel_edit_solution-action").click(function(event){
+		history.back()
+	});
 });

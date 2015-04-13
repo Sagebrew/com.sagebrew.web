@@ -179,12 +179,17 @@ class ProfileViewSet(viewsets.ModelViewSet):
         # /v1/friends/ to /v1/friends/username/ to your method rather than
         # /v1/profiles/username/friends/ to /v1/profiles/username/ to your
         # method. But maybe we make both available.
-        single_object = self.get_object()
-        friends = single_object.get_friends()
-        serializer = self.get_serializer(
-            friends, context={"request": request}, many=True)
-        # TODO implement expand functionality
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        query = 'MATCH (a:Pleb {username: "%s"})-' \
+                '[:FRIENDS_WITH {currently_friends: true}]->' \
+                '(b:Pleb) RETURN b' % (username)
+        res, col = db.cypher_query(query)
+        queryset = [Question.inflate(row[0]) for row in res]
+
+        page = self.paginate_queryset(queryset)
+        serializer = self.get_serializer(page, many=True,
+                                         context={'request': request})
+        return self.get_paginated_response(serializer.data)
+
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def friend_requests(self, request, username=None):

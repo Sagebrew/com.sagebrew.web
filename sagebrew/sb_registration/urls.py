@@ -6,7 +6,7 @@ from .views import (profile_information, interests, profile_picture,
                     signup_view_api, rep_reg_page,
                     login_view_api, email_verification,
                     resend_email_verification, beta_signup,
-                    profile_picture_api)
+                    profile_picture_api, wallpaper_picture_api)
 
 
 urlpatterns = patterns(
@@ -21,6 +21,8 @@ urlpatterns = patterns(
     url(r'^interests/$', interests, name="interests"),
     url(r'^profile_picture/$', profile_picture, name="profile_picture"),
     url(r'^profile_picture_api/$', profile_picture_api, name="profile_picture_api"),
+    url(r'^wallpaper_picture_api/$', wallpaper_picture_api,
+        name="wallpaper_picture_api"),
     url(r'^age_restriction/$', TemplateView.as_view(
         template_name='age_restriction_13.html'),
         name="age_restriction_13"),

@@ -23,7 +23,7 @@ class Command(BaseCommand):
                     try:
                         req = Requirement(**requirement).save()
                         badge.requirements.connect(req)
-                    except CypherException:
+                    except (CypherException, IOError):
                         continue
 
 

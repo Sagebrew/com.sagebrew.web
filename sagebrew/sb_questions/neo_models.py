@@ -9,13 +9,13 @@ from neomodel import (StringProperty, IntegerProperty,
 from neomodel import db
 
 from api.utils import execute_cypher_query
-from sb_base.neo_models import SBVersioned
+from sb_base.neo_models import SBPublicContent
 from sb_tag.neo_models import Tag
 
 from sb_base.decorators import apply_defense
 
 
-class Question(SBVersioned):
+class Question(SBPublicContent):
     table = 'public_questions'
     action_name = "asked a question"
     up_vote_adjustment = 5

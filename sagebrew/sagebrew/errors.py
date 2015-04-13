@@ -29,3 +29,14 @@ CYPHER_INDEX_EXCEPTION = {
         "https://api.sagebrew.com/docs/CypherException/ for additional "
         "information"
 }
+
+QUERY_DETERMINATION_EXCEPTION = {
+    "detail": "Sorry we didn't understand that filter query.",
+    "status": status.HTTP_400_BAD_REQUEST,
+    "developer_message":
+        "We currently have limited support for filter operations. "
+        "We also haven't had a chance to document them yet :/. But once we do"
+        "we'll provide a link here to reference. In the mean time please feel"
+        "free to reach out to us via the intercom or send us a note at "
+        "developers@sagebrew.com."
+}

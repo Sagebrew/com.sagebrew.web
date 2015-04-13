@@ -1,8 +1,11 @@
+import os
 from logging import getLogger
 from json import loads
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
+
+from rest_framework.reverse import reverse
 
 from neomodel import CypherException, DoesNotExist
 
@@ -26,11 +29,10 @@ class Command(BaseCommand):
                 requirements = privilege.pop('requirements', [])
                 actions = privilege.pop('actions', [])
                 try:
-                    Privilege.nodes.get(name=privilege[
-                        "name"])
+                    privilege_obj = Privilege.nodes.get(name=privilege["name"])
                 except(Privilege.DoesNotExist, DoesNotExist):
                     try:
-                        privilege = Privilege(**privilege).save()
+                        privilege_obj = Privilege(**privilege).save()
                     except(CypherException, IOError):
                         logger.critical("potential error there may be"
                                         " missing privileges")
@@ -45,7 +47,7 @@ class Command(BaseCommand):
                             requirement["url"] = "%s%s" % (settings.WEB_ADDRESS,
                                                            requirement["url"])
                             req = Requirement(**requirement).save()
-                            privilege.requirements.connect(req)
+                            privilege_obj.requirements.connect(req)
                         except(CypherException, IOError):
                             logger.critical("potential error there may"
                                             " be missing requirements")
@@ -53,36 +55,46 @@ class Command(BaseCommand):
                         logger.critical("potential error there may"
                                         " be missing requirements")
                 for action in actions:
+                    action_resource = "%s-list" % action["resource"]
+                    action_url = reverse(action_resource)
+                    if "http" not in action_url:
+                        branch = os.environ.get("CIRCLE_BRANCH", None)
+                        circle_ci = os.environ.get("CIRCLECI", False)
+                        if circle_ci == "false":
+                            circle_ci = False
+                        if circle_ci == "true":
+                            circle_ci = True
+
+                        if circle_ci is True:
+                            action_url = "https://localhost%s" % action_url
+                        elif branch is None:
+                            action_url = "https://localhost%s" % action_url
+                        elif "dev" in branch:
+                            action_url = "https://localhost%s" % action_url
+                        elif branch == "staging":
+                            action_url = "https://staging.sagebrew.com%s" % (
+                                action_url)
+                        elif branch == "master":
+                            action_url = "http://www.sagebrew.com%s" % (
+                                action_url)
+                        else:
+                            action_url = "http://www.sagebrew.com%s" % (
+                                action_url)
                     try:
-                        SBAction.nodes.get(action=action["action"])
+                        # Note that this will not always be a unique index and
+                        # may require some tweeking in the future
+                        SBAction.nodes.get(url=action_url)
                     except(SBAction.DoesNotExist, DoesNotExist):
                         try:
-                            action["url"] = "%s%s" % (settings.WEB_ADDRESS,
-                                                      action["url"])
+                            action["url"] = (action_url)
                             action = SBAction(**action).save()
-                            privilege.actions.connect(action)
+                            privilege_obj.actions.connect(action)
                         except(CypherException, IOError):
                             logger.critical("potential error there may"
                                             " be missing actions")
                     except(CypherException, IOError):
                         logger.critical("potential error there may"
                                         " be missing actions")
-            # for possible future use of single actions not
-            # connected with a privilege
-            for action in data['actions']:
-                try:
-                    SBAction.nodes.get(action=action["action"])
-                except(SBAction.DoesNotExist, DoesNotExist):
-                    try:
-                        action["url"] = "%s%s" % (settings.WEB_ADDRESS,
-                                                  action["url"])
-                        SBAction(**action).save()
-                    except(CypherException, IOError):
-                        logger.critical("potential error there may"
-                                         "be missing actions")
-                except(CypherException, IOError):
-                    logger.critical("potential error there may"
-                                    "be missing actions")
             for restriction in data['restrictions']:
                 try:
                     Restriction.nodes.get(name=restriction["name"])

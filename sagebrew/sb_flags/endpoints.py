@@ -112,3 +112,18 @@ def flag_renderer(request, object_uuid=None):
         id_array.append(comment["object_uuid"])
     comments.data['results'] = {"html": html_array, "ids": id_array}
     return Response(comments.data, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes((IsAuthenticated,))
+def flag_list(request):
+    response = {"status": status.HTTP_501_NOT_IMPLEMENTED,
+                "detail": "We do not allow users to query all the Flags on"
+                          "the site.",
+                "developer_message":
+                    "We're working on enabling easier access to flags based."
+                    "However this endpoint currently does not return any "
+                    "flag data. Please use the other content endpoints to "
+                    "reference the flags on them."
+                }
+    return Response(response, status=status.HTTP_501_NOT_IMPLEMENTED)

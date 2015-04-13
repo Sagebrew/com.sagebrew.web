@@ -329,6 +329,7 @@
 .sb_btn_friend,
 .sb_btn_fill,
 .sb_btn_icon_green,
+.sb_btn_icon_violet_hover,
 .sb_btn_icon_green_hover,
 .sb_btn_vote,
 .sb_btn_nav,
@@ -360,6 +361,7 @@
 }
 .sb_btn_icon,
 .sb_btn_icon_green,
+.sb_btn_icon_violet_hover,
 .sb_btn_icon_green_hover,
 .sb_btn_vote,
 .sb_btn_nav,
@@ -390,12 +392,20 @@
   color: #a162ff;
   background-color: transparent;
 }
+.sb_btn_icon_violet_hover {
+  padding: 5px;
+  color: #b7bfbb;
+}
+.sb_btn_icon_violet_hover:hover {
+  color: #a162ff;
+  background-color: transparent;
+}
 .sb_btn_icon_green_hover {
   padding: 5px;
   color: #b7bfbb;
 }
 .sb_btn_icon_green_hover:hover {
-  color: #a162ff;
+  color: #1ba39c;
   background-color: transparent;
 }
 .sb_btn_grey {
@@ -1011,4 +1021,10 @@ textarea.sb_comment_input {
 }
 .additional_comments {
   font-size: 13px;
+}
+.sb_restricted {
+  color: #eaf0e8;
+}
+.sb_restricted :hover {
+  color: #eaf0e8;
 }

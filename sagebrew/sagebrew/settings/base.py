@@ -127,6 +127,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.static",
     "django.core.context_processors.tz",
     "django.contrib.messages.context_processors.messages",
+    "plebs.context_processors.request_profile",
 )
 
 
@@ -361,6 +362,21 @@ OPERATOR_TYPES = [
     ('coperator\nlt\np0\n.', '<'),
     ('coperator\nge\np0\n.', '>=')
 ]
+
+NON_SAFE = ["REMOVE", "DELETE", "CREATE", "SET",
+            "FOREACH", "MERGE", "MATCH", "START"]
+
+REMOVE_CLASSES = ["SBVersioned", "SBPublicContent", "SBPrivateContent",
+                  "VotableContent", "NotificationCapable", "TaggableContent",
+                  "SBContent"]
+
+QUERY_OPERATIONS = {
+    "eq": "=",
+    "le": "<=",
+    "lt": "<",
+    "ge": ">=",
+    "gt": ">",
+}
 
 OPERATOR_DICT = {
     'coperator\neq\np0\n.': 'equal to',

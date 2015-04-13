@@ -8,21 +8,8 @@
         "type": "N"
     },
     {
-        "table_name": "posts",
-        "hash_key": "parent_object",
-        "range_key": "created"
-    },
-    {
         "table_name": "friends",
         "hash_key": "username"
-    },
-    {
-        "table_name": "flags",
-        "hash_key": "parent_object",
-        "range_key": "user",
-        "local_index_name": "FlagTypeIndex",
-        "local_index": "flag_type",
-        "type": "S"
     },
     {
         "table_name": "location",
@@ -70,20 +57,5 @@
     {
         "table_name": "reputation",
         "hash_key": "parent_object"
-    },
-    {
-        "table_name": "actions",
-        "hash_key":  "parent_object",
-        "range_key": "action"
-    },
-    {
-        "table_name": "privileges",
-        "hash_key": "parent_object",
-        "range_key": "privilege"
-    },
-    {
-        "table_name": "restrictions",
-        "hash_key": "parent_object",
-        "range_key": "restriction"
     }
 ]

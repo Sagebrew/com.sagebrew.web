@@ -278,11 +278,7 @@ class SBContent(VotableContent):
 
         :return:
         """
-        labels = self.get_labels()
-        if 'SBVersioned' in labels:
-            labels.remove('SBVersioned')
-
-        return labels[-1]
+        return list(set(self.get_labels()) - set(settings.REMOVE_CLASSES))[0]
 
 
 class TaggableContent(SBContent):
@@ -307,13 +303,12 @@ class TaggableContent(SBContent):
             return False
         for tag in tags:
             try:
-                tag_object = Tag.nodes.get(tag_name=tag)
+                tag_object = Tag.nodes.get(tag_name=tag.lower())
                 tag_array.append(tag_object)
             except (Tag.DoesNotExist, DoesNotExist):
-                es.index(index='tags', doc_type='tag',
-                         body={'tag_name': tag})
-                tag_object = Tag(tag_name=tag).save()
-                tag_array.append(tag_object)
+                # TODO we should only be creating tags if the user has enough
+                # rep
+                pass
             except CypherException as e:
                 return e
         for item in tag_array:
@@ -332,9 +327,10 @@ class TaggableContent(SBContent):
             for tag in tag_list:
                 try:
                     tag_object = AutoTag.nodes.get(tag_name=tag['tags']
-                    ['text'])
+                    ['text'].lower())
                 except (AutoTag.DoesNotExist, DoesNotExist):
-                    tag_object = AutoTag(tag_name=tag['tags']['text']).save()
+                    tag_object = AutoTag(
+                        tag_name=tag['tags']['text'].lower()).save()
                 if self.auto_tags.is_connected(tag_object):
                     continue
                 rel = self.auto_tags.connect(tag_object)
@@ -383,3 +379,12 @@ class SBVersioned(TaggableContent):
             "base_tag_list": base_tags
         }
 
+
+class SBPublicContent(SBVersioned):
+    # Used to distinguish between private conversations and public
+    pass
+
+
+class SBPrivateContent(TaggableContent):
+    # Used to distinguish between private conversations and public
+    pass

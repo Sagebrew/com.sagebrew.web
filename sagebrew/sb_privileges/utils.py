@@ -3,9 +3,11 @@ from datetime import datetime
 from neomodel import (DoesNotExist, CypherException)
 
 from plebs.neo_models import Pleb
-from sb_docstore.utils import add_object_to_table
 from sb_requirements.neo_models import Requirement
+from sb_requirements.serializers import RequirementSerializer
+
 from .neo_models import Privilege, SBAction
+from .serializers import ActionSerializer
 
 
 def manage_privilege_relation(username):
@@ -32,14 +34,20 @@ def manage_privilege_relation(username):
     """
     try:
         pleb = Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
+    except (CypherException, IOError) as e:
         return e
     try:
         privileges = Privilege.nodes.all()
-    except CypherException as e:
+    except(CypherException, IOError) as e:
         return e
+    for item in privileges:
+        print item.name
     for privilege in privileges:
         meets_reqs = privilege.check_requirements(pleb)
+        print "here"
+        print meets_reqs
+        print privilege
+        print pleb.privileges.all()
         if not meets_reqs and privilege in pleb.privileges.all():
             rel = pleb.privileges.relationship(privilege)
             if rel.active:
@@ -52,22 +60,15 @@ def manage_privilege_relation(username):
                     rel.active = False
                     rel.lost_on = datetime.now(pytz.utc)
                     rel.save()
-        if not meets_reqs:
             continue
-        rel = pleb.privileges.connect(privilege)
-        rel.save()
-        pri_dict = privilege.get_dict()
-        pri_dict.pop('requirements', None)
-        pri_dict.pop('actions', None)
-        pri_dict['parent_object'] = username
-        added_privileges = add_object_to_table('privileges', pri_dict)
-        for action in privilege.get_actions():
-            rel = pleb.actions.connect(action)
+        elif not meets_reqs:
+            continue
+        elif meets_reqs:
+            rel = pleb.privileges.connect(privilege)
             rel.save()
-            act_dict = action.get_dict()
-            act_dict.pop("possible_restrictions", None)
-            act_dict['parent_object'] = username
-            added_actions = add_object_to_table('actions', act_dict)
+            for action in privilege.get_actions():
+                rel = pleb.actions.connect(action)
+                rel.save()
     return True
 
 
@@ -124,8 +125,8 @@ def create_requirement(url, key, operator, condition, name, auth_type=None):
     except(Requirement.DoesNotExist, DoesNotExist):
         try:
             requirement = Requirement(url=url, key=key, operator=operator,
-                                        condition=condition, auth_type=auth_type,
-                                        name=name)
+                                      condition=condition, auth_type=auth_type,
+                                      name=name)
             requirement.save()
         except (CypherException, IOError) as e:
             return e
@@ -139,7 +140,7 @@ def get_actions():
     except (CypherException, IOError) as e:
         return e
     for action in actions:
-        action_list.append(action.get_dict())
+        action_list.append(ActionSerializer(action).data)
     return action_list
 
 
@@ -150,5 +151,5 @@ def get_requirements():
     except (CypherException, IOError) as e:
         return e
     for req in requirements:
-        req_list.append(req.get_dict())
+        req_list.append(RequirementSerializer(req).data)
     return req_list

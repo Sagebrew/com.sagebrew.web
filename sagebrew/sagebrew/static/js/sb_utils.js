@@ -86,44 +86,8 @@ function show_edit_comment() {
     });
 }
 
-function flag_objects(populated_ids){
-    if(typeof populated_ids !== 'undefined' && populated_ids.length > 0){
-        for (i = 0; i < populated_ids.length; i++) {
-            flag_object(".flag_" + populated_ids[i]);
-        }
-    }
-}
 
-function flag_object(flag_area) {
-    $(flag_area).click(function (event) {
-        event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
-            }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/flag/flag_object_api/",
-            data: JSON.stringify({
-                'flag_reason': $(this).data('flag_reason'),
-                'current_pleb': $(this).data('current_user'),
-                'object_uuid': $(this).data('object_uuid'),
-                'object_type': $(this).data('object_type')
-            }),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
-}
-
-function populate_comment(object_uuid){
+function populate_comment(object_uuid, resource){
     $.ajaxSetup({
         beforeSend: function (xhr, settings) {
                 ajax_security(xhr, settings)
@@ -135,7 +99,7 @@ function populate_comment(object_uuid){
         // TODO probably want to make a /v1/content/ endpoint so that it's more
         // explanitory that comments can be on any piece of content.
         // Then use /posts/questions/solutions where needed
-        url: "/v1/posts/" + object_uuid + "/comments/render/?expand=true&html=true&page_size=3",
+        url: "/v1/" + resource + "/" + object_uuid + "/comments/render/?expand=true&html=true&page_size=3",
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
@@ -217,10 +181,23 @@ function queryComments(url, object_uuid){
     });
 }
 
-function populate_comments(object_uuids){
+function populate_comments(object_uuids, resource){
     if(typeof object_uuids !== 'undefined' && object_uuids.length > 0){
         for (i = 0; i < object_uuids.length; i++) {
-            populate_comment(object_uuids[i]);
+            populate_comment(object_uuids[i], resource);
+        }
+    }
+}
+
+
+function readyFlag(flag_object){
+    $(flag_object).tooltip()
+}
+
+function readyFlags(object_uuids){
+    if(typeof object_uuids !== 'undefined' && object_uuids.length > 0){
+        for (i = 0; i < object_uuids.length; i++) {
+            readyFlag("#flag_" + object_uuids[i]);
         }
     }
 }
@@ -246,12 +223,12 @@ function loadPosts(url){
             // functionality that wasn't intuitive. Hopefully transitioning to
             // a JS Framework allows us to better handle this feature.
             if (data["next"] !== null) {
-                loadPosts(data["next"])
+                loadPosts(data["next"]);
             }
             enable_single_post_functionality(data['results']['ids']);
             // TODO This can probably be changed to grab the href and append
             // `comments/` to the end of it.
-            populate_comments(data['results']['ids'])
+            populate_comments(data['results']['ids'], "posts")
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
             if(XMLHttpRequest.status === 500){
@@ -281,7 +258,7 @@ function loadQuestion(){
                 question_container.append(data['html']);
                 loadSolutionCount();
                 enable_question_functionality(data['ids']);
-                populate_comments(data['ids']);
+                populate_comments(data['ids'], "questions");
                 loadSolutions("/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/solutions/render/?page_size=2&expand=true");
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -349,7 +326,7 @@ function loadSolutions(url){
             enable_solution_functionality(data['results']['ids']);
             // TODO This can probably be changed to grab the href and append
             // `comments/` to the end of it.
-            populate_comments(data['results']['ids']);
+            populate_comments(data['results']['ids'], "solutions");
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
             if(XMLHttpRequest.status === 500){
@@ -744,8 +721,8 @@ function respond_friend_request(){
 
 
 function enable_object_functionality(populated_ids) {
-    flag_objects(populated_ids);
     vote_objects(populated_ids);
+    readyFlags(populated_ids);
 }
 
 

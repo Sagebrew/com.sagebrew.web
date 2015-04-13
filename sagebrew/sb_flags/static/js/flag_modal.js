@@ -1,7 +1,6 @@
 $(document).ready(function () {
     $("textarea.flag_content_reason").pagedownBootstrap();
-
-    $('#myModal').on('show.bs.modal', function (event) {
+    $('#flagModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
         var flag_target = button.data('href');
         var object_uuid = button.data('object_uuid');
@@ -9,9 +8,8 @@ $(document).ready(function () {
         modal.data('flag_target', flag_target);
         modal.data('object_uuid', object_uuid);
     });
-
     $('#flag_modal_submit').on('click', function (event) {
-        var flag_modal = $('#myModal');
+        var flag_modal = $('#flagModal');
         $("#flag_modal_submit").attr("disabled", "disabled");
         $.ajaxSetup(
             {

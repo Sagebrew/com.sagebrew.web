@@ -70,7 +70,7 @@
                 {% if request.user.username == owner_object.username %}
                     <button class="btn dropdown-toggle sb_btn_icon" type="button"
                         data-toggle="dropdown">
-                        <span class="sb_dropdown_icon fui-gear"></span>
+                        <span class="fui-gear sb_btn_icon_green_hover"></span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
                         role="menu" aria-labelledby="dropdown-menu">
@@ -88,7 +88,11 @@
                         </li>
                     </ul>
                 {% else %}
-                    {% include "flag.html" %}
+                    {% if "flag" in request_profile.actions %}
+                        {% include "flag.html" %}
+                    {% else %}
+                        {% include "flag_restriction.html" %}
+                    {% endif %}
                 {% endif %}
         </div>
     </div>

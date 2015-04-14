@@ -28,7 +28,6 @@ def add_solution_to_search_index(solution):
     if isinstance(spawned, Exception) is True:
         raise add_solution_to_search_index.retry(exc=spawned, countdown=3,
                                                  max_retries=None)
-
     try:
         solution_obj.added_to_search_index = True
         solution_obj.save()

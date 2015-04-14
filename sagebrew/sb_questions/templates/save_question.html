@@ -57,11 +57,19 @@
                     <h3>{% if not edit %}Submit Question{% else %} Edit Question{% endif %}</h3>
                     <form id="questionInputForm">
                         <div class="title_input">
-                            <input class="form-control" style="margin-bottom: 10px;"
+                            {% if edit %}
+                            <input class="form-control title_input" style="margin-bottom: 10px;"
+                                      id="title_id"
+                                      name="title"
+                                      placeholder="Question Title"
+                                      value="{{ title }}" disabled="disabled"/>
+                            {% else %}
+                                <input class="form-control" style="margin-bottom: 10px;"
                                       id="title_id"
                                       name="title"
                                       placeholder="Question Title"
                                       value="{{ title }}"/>
+                            {% endif %}
                         </div>
                         <div class="question_content_input">
                             <textarea class="form-control"
@@ -86,13 +94,10 @@
                             <div class="col-lg-3 col-md-4">
                                 {% if not edit %}
                                 <button class="btn btn-primary sb_btn sb_btn_fill submit_question-action"
-                                       data-current_pleb="{{ request.user.email }}"
-                                       data-url="/conversations/submit_question_api/">Create Question</button>
+                                       data-url="/v1/questions/">Create Question</button>
                                 {% else %}
                                 <button class="btn btn-primary sb_btn sb_btn_fill submit_edit-action"
-                                        data-object_uuid="{{ object_uuid }}"
-                                        data-object_type="{{ object_type }}"
-                                        data-created="{{ created }}">Edit Question</button>
+                                        data-object_uuid="{{ object_uuid }}">Edit Question</button>
                                 {% endif %}
                             </div>
                             <div class="col-lg-3 col-md-4">
@@ -120,10 +125,13 @@
     <script src="{% static 'js/vendor/typeahead.js' %}"></script>
     <script src="{% static 'js/create_markdown.js' %}"></script>
     <script src="{% static 'js/save_question.js' %}"></script>
-    <script src="{% static 'js/comment_validator.js' %}"></script>
+
     <script src="{% static 'js/get_tags.js' %}"></script>
     <script src="{% static 'js/question_validator.js' %}"></script>
     {% if edit %}
-        <script src="{% static 'js/submit_edit_question.js' %}"></script>
+        <script src="{% static 'js/populate_edit_question.js' %}"></script>
+        <script src="{% static 'js/edit_question.js' %}"></script>
+    {% else %}
+        <script src="{% static 'js/comment_validator.js' %}"></script>
     {% endif %}
 {% endblock scripts %}

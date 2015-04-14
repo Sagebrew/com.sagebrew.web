@@ -548,7 +548,7 @@ function edit_title() {
 function show_edit_question() {
     $("a.show_edit_question-action").click(function(event){
         event.preventDefault();
-        window.location.href = window.location.href + "edit/";
+        window.location.href = "/conversations/questions/" + $(this).data('object_uuid') + "/edit/";
     });
 }
 
@@ -588,7 +588,6 @@ function delete_object(delete_area, url, object_uuid) {
                 $('textarea.sb_solution_input_area').val("");
                 var solution_count_text = $("#solution_count").text();
                 if(solution_count_text != "--") {
-                    console.log(solution_count_text);
                     var solution_count = parseInt(solution_count_text) - 1;
                     $("#solution_count").text(solution_count.toString());
                 }

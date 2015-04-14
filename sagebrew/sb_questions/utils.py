@@ -1,10 +1,13 @@
 from textblob import TextBlob
 
+from django.template.loader import render_to_string
+
 from neomodel import DoesNotExist, CypherException
 
 from api.utils import execute_cypher_query
 from sb_base.decorators import apply_defense
 
+from .serializers import QuestionSerializerNeo
 from .neo_models import Question
 
 
@@ -109,9 +112,16 @@ def get_question_by_recent_edit(range_start=0, range_end=5):
 @apply_defense
 def prepare_question_search_html(question_uuid, request):
     try:
-        my_question = Question.nodes.get(object_uuid=question_uuid)
+        question = Question.nodes.get(object_uuid=question_uuid)
     except (Question.DoesNotExist, DoesNotExist):
         return False
 
-    return my_question.render_search(request)
+    owner = question.owned_by.all()[0]
+    question_dict = QuestionSerializerNeo(
+        question, context={"request": request}).data
+    question_dict['first_name'] = owner.first_name
+    question_dict['last_name'] = owner.last_name
+    rendered = render_to_string('conversation_block.html', question_dict)
+
+    return rendered
 

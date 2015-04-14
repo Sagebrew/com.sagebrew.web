@@ -88,10 +88,7 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
         return queryset
 
     def create(self, request, *args, **kwargs):
-        post_data = request.data
-        post_data['parent_object'] = self.kwargs[self.lookup_field]
-
-        serializer = self.get_serializer(data=post_data,
+        serializer = self.get_serializer(data=request.data,
                                          context={"request": request})
         if serializer.is_valid():
             question = Question.nodes.get(
@@ -113,7 +110,7 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
             }
             spawn_task(task_func=spawn_notifications, task_param=data)
             spawn_task(task_func=add_solution_to_search_index,
-                       task_param=serializer)
+                       task_param={"solution": serializer})
             html = request.query_params.get('html', 'false').lower()
             if html == "true":
                 serializer["vote_count"] = str(serializer["vote_count"])

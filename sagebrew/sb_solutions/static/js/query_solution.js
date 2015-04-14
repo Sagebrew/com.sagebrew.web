@@ -14,7 +14,6 @@ $( document ).ready(function() {
                 dataType: "json",
                 success: function (data) {
                     var solution_content = $('#wmd-input-0');
-                    console.log(data);
                     solution_content.html("");
                     solution_content.append(data['content']);
                     var solution_preview = $("#wmd-preview-0");

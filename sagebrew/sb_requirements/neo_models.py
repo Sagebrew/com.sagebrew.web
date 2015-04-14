@@ -19,7 +19,9 @@ class Requirement(SBObject):
 
     # methods
     def check_requirement(self, username):
-        res = request_to_api(self.url, username, req_method='get',
+        # TODO need to elaborate on this
+        url = str(self.url).replace("<username>", username)
+        res = request_to_api(url, username, req_method='get',
                              internal=True)
         # TODO should probably handle any response greater than a 
         # 400 and stop the function as they may have the req just
@@ -35,7 +37,7 @@ class Requirement(SBObject):
             res[self.key])
 
     def build_check_dict(self, check, current):
-        if not check:
+        if check is False:
             return {"detail": False,
                     "key": self.key,
                     "operator": pickle.loads(self.operator),
@@ -48,13 +50,6 @@ class Requirement(SBObject):
                     "key": self.key,
                     "operator": pickle.loads(self.operator),
                     "response": check}
-
-    def get_dict(self):
-        return {"req_id": self.object_uuid,
-                "url": self.url,
-                "key": self.key,
-                "operator": self.operator,
-                "condition": self.condition}
 
     def get_operator_string(self):
         return settings.OPERATOR_DICT[self.operator]

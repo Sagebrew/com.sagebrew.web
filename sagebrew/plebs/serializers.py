@@ -5,9 +5,10 @@ from rest_framework.reverse import reverse
 
 from api.utils import spawn_task, request_to_api
 from sb_registration.utils import create_user_util
-from plebs.neo_models import Address
+from sb_privileges.neo_models import SBAction, Privilege
 
 from .tasks import pleb_user_update
+from .neo_models import Address
 
 
 class BetaUserSerializer(serializers.Serializer):
@@ -64,9 +65,20 @@ class PlebSerializerNeo(serializers.Serializer):
     base_user = serializers.SerializerMethodField()
     href = serializers.HyperlinkedIdentityField(
         view_name='profile-detail', lookup_field="username")
+
+    # These are read only because we force users to use a different endpoint
+    # to set them, as it requires us to manipulate the uploaded image
     profile_pic = serializers.CharField(read_only=True)
     wallpaper_pic = serializers.CharField(read_only=True)
+
     reputation = serializers.IntegerField(read_only=True)
+
+    # Don't think we need restrictions as that logic should be done for the
+    # front end and privileges/actions that are not allowed to be used shouldn't
+    # show up in the list. @Tyler what do you think?
+    privileges = serializers.SerializerMethodField()
+    actions = serializers.SerializerMethodField()
+
     url = serializers.SerializerMethodField()
 
     def create(self, validated_data):
@@ -82,7 +94,10 @@ class PlebSerializerNeo(serializers.Serializer):
 
     def get_base_user(self, obj):
         request = self.context['request']
-        expand = request.query_params.get('expand', 'false').lower()
+        try:
+            expand = request.query_params.get('expand', 'false').lower()
+        except AttributeError:
+            expand = False
         username = obj.username
         user_url = reverse(
             'user-detail', kwargs={'username': username}, request=request)
@@ -92,6 +107,32 @@ class PlebSerializerNeo(serializers.Serializer):
             return response.json()
         else:
             return user_url
+
+    def get_actions(self, obj):
+        res = obj.get_actions()
+        request = self.context['request']
+        try:
+            expand = request.query_params.get('expand', 'false').lower()
+        except AttributeError:
+            expand = False
+        if expand == "true":
+            # TODO not implemented yet for now just return same
+            return [SBAction.inflate(row[0]).resource for row in res]
+        else:
+            return [SBAction.inflate(row[0]).resource for row in res]
+
+    def get_privileges(self, obj):
+        res = obj.get_privileges()
+        request = self.context['request']
+        try:
+            expand = request.query_params.get('expand', 'false').lower()
+        except AttributeError:
+            expand = False
+        if expand == "true":
+            # TODO not implemented yet for now just return same
+            return [Privilege.inflate(row[0]).name for row in res]
+        else:
+            return [Privilege.inflate(row[0]).name for row in res]
 
 
 class AddressSerializer(serializers.Serializer):

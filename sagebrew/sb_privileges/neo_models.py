@@ -22,7 +22,7 @@ class Privilege(SBObject):
             req_response = req.check_requirement(pleb.username)
             if isinstance(req_response, Exception):
                 return False
-            if req_response is False:
+            if req_response['detail'] is False:
                 return False
         return True
 
@@ -38,45 +38,22 @@ class Privilege(SBObject):
     def get_actions(self):
         return self.actions.all()
 
-    def get_dict(self):
-        actions = []
-        requirements = []
-        for action in self.get_actions():
-            actions.append(action.get_dict)
-        for req in self.get_requirements():
-            requirements.append(req.get_dict())
-        return {
-            "object_uuid": self.object_uuid,
-            "name": self.name,
-            "actions": actions,
-            "requirements": requirements,
-            "privilege": self.name
-        }
-
 
 class SBAction(SBObject):
-    action = StringProperty(default="")
-    object_type = StringProperty()  # one of the object types specified in
-    # settings.KNOWN_TYPES
-    url = StringProperty()
-    html_object = StringProperty()
+    resource = StringProperty(index=True)
+    # If a user has write permission we assume they have read as well
+    # this may change in the future but that should only require a search
+    # for all write permissions and change to read/write or association of
+    # read actions with the user. Write = POST, Read = GET, and PUT/PATCH can
+    # always be performed by the user on their own content
+    permission = StringProperty()
+    url = StringProperty(index=True)
 
     # relationships
     privilege = RelationshipTo('sb_privileges.neo_models.Privilege',
                                'PART_OF')
     restrictions = RelationshipTo('sb_privileges.neo_models.Restriction',
                                   'RESTRICTED_BY')
-
-    def get_dict(self):
-        possible_restrictions = []
-        for restriction in self.get_restrictions():
-            possible_restrictions.append(restriction.get_dict)
-        return {"object_uuid": self.object_uuid,
-                "action": self.action,
-                "object_type": self.object_type,
-                "url": self.url,
-                "html_object": self.html_object,
-                "possible_restrictions": possible_restrictions}
 
     def get_restrictions(self):
         return self.restrictions.all()
@@ -93,20 +70,6 @@ class Restriction(SBObject):
     expiry = IntegerProperty()  # time in seconds until the restriction is up
     end_date = DateTimeProperty()
     recurring = BooleanProperty(default=False)
-
-    # methods
-    def get_dict(self):
-        return {
-            "object_uuid": self.object_uuid,
-            "restriction": self.name,
-            "key": self.key,
-            "operator": self.operator,
-            "condition": self.condition,
-            "auth_type": self.auth_type,
-            "end_date": self.end_date,
-            "expiry": self.restriction_expiry,
-            "url": self.url
-        }
 
     def check_restriction(self, username, start_date):
         res = request_to_api(self.url, username, req_method='get',

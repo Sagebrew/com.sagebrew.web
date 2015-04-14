@@ -1,17 +1,13 @@
 import logging
-from json import loads
-from django.conf import settings
+
 from django.test import TestCase
 from django.contrib.auth.models import User
-from neomodel.exception import DoesNotExist
 
 from api.utils import wait_util
 from plebs.neo_models import Pleb
-from sb_privileges.neo_models import Privilege, Restriction, SBAction
-from sb_requirements.neo_models import Requirement
+
 from sb_registration.utils import create_user_util_test
 
-from sb_privileges.utils import manage_privilege_relation
 
 logger = logging.getLogger('loggly_logs')
 

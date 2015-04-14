@@ -53,7 +53,6 @@ class QuestionViewSet(viewsets.ModelViewSet):
         if "tags" in request_data:
             if isinstance(request_data['tags'], basestring):
                 request_data['tags'] = request_data['tags'].split(',')
-        print request_data
         serializer = self.get_serializer(data=request.data,
                                          context={"request": request})
         if serializer.is_valid():

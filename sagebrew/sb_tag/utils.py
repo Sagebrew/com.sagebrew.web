@@ -61,7 +61,7 @@ def update_tags_util(tags):
         # This task should only ever be called after tags have been associated
         # with a user so the Tags should exist
         try:
-            tag = Tag.nodes.get(tag_name=tag_name)
+            tag = Tag.nodes.get(tag_name=tag_name.lower())
             tag.tag_used += 1
             tag.save()
         except(CypherException, IOError) as e:

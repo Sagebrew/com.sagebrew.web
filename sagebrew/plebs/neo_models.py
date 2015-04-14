@@ -161,7 +161,7 @@ class Pleb(SBObject):
                                'OWNS_QUESTION',
                                model=PostObjectCreated)
     solutions = RelationshipTo('sb_solutions.neo_models.Solution',
-                               'OWNS_ANSWER',
+                               'OWNS_SOLUTION',
                                model=PostObjectCreated)
     comments = RelationshipTo('sb_comments.neo_models.Comment',
                               'OWNS_COMMENT',
@@ -208,10 +208,22 @@ class Pleb(SBObject):
         return self.restrictions.all()
 
     def get_actions(self):
-        return self.actions.all()
+        query = 'MATCH (a:Pleb {username: "%s"})-' \
+                '[:CAN {active: true}]->(n:`SBAction`) ' \
+                'RETURN n' % self.username
+        res, col = db.cypher_query(query)
+        if len(res) == 0:
+            return []
+        return res
 
     def get_privileges(self):
-        return self.privileges.all()
+        query = 'MATCH (a:Pleb {username: "%s"})-' \
+                '[:HAS {active: true}]->(n:`Privilege`) ' \
+                'RETURN n' % self.username
+        res, col = db.cypher_query(query)
+        if len(res) == 0:
+            return []
+        return res
 
     def get_badges(self):
         return self.badges.all()

@@ -385,12 +385,21 @@
   color: @sb_violet;
   background-color: transparent;
 }
-.sb_btn_icon_green_hover{
+.sb_btn_icon_violet_hover{
     padding: 5px;
   &:extend(.sb_btn_icon);
     color: @sb_grey;
   &:hover{
     color: @sb_violet;
+    background-color: transparent;
+  }
+}
+.sb_btn_icon_green_hover{
+    padding: 5px;
+  &:extend(.sb_btn_icon);
+    color: @sb_grey;
+  &:hover{
+    color: @sb_green;
     background-color: transparent;
   }
 }
@@ -1082,4 +1091,11 @@ textarea.sb_comment_input{
 
 .additional_comments{
   font-size: 13px;
+}
+
+.sb_restricted{
+  color: @sb_green_extra_light;
+  :hover{
+    color: @sb_green_extra_light;
+  }
 }

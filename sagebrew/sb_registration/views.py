@@ -262,7 +262,9 @@ def interests(request):
     '''
     interest_form = InterestForm(request.POST or None)
     if interest_form.is_valid():
-        data = {"email": request.user.email,
+        if "select_all" in interest_form.cleaned_data:
+            interest_form.cleaned_data.pop('select_all', None)
+        data = {"username": request.user.username,
                 "interests": interest_form.cleaned_data}
         success = spawn_task(update_interests, data)
         if isinstance(success, Exception):

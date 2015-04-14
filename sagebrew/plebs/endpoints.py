@@ -12,10 +12,17 @@ from rest_framework.reverse import reverse
 from rest_framework import status
 from rest_framework.pagination import LimitOffsetPagination
 
+from neomodel import db
+
 from sagebrew import errors
 
 from api.utils import request_to_api
 from api.permissions import IsSelfOrReadOnly, IsSelf, IsOwnerOrAdmin
+from sb_base.utils import get_filter_params
+from sb_base.neo_models import SBContent
+from sb_base.serializers import MarkdownContentSerializer
+from sb_questions.neo_models import Question
+from sb_questions.serializers import QuestionSerializerNeo
 
 from .serializers import UserSerializer, PlebSerializerNeo, AddressSerializer
 from .neo_models import Pleb, Address
@@ -112,8 +119,43 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'])
     def questions(self, request, username=None):
-        return Response({"detail": "TBD"},
-                        status=status.HTTP_501_NOT_IMPLEMENTED)
+        filter_by = request.query_params.get('filter', "")
+        try:
+            additional_params = get_filter_params(filter_by, SBContent())
+        except(IndexError, KeyError, ValueError):
+            return Response(errors.QUERY_DETERMINATION_EXCEPTION,
+                            status=status.HTTP_400_BAD_REQUEST)
+        query = 'MATCH (a:Pleb {username: "%s"})-[:OWNS_QUESTION]->' \
+                '(b:Question) WHERE b.to_be_deleted=false' \
+                ' %s RETURN b' % (username, additional_params)
+        res, col = db.cypher_query(query)
+        queryset = [Question.inflate(row[0]) for row in res]
+
+        page = self.paginate_queryset(queryset)
+        serializer = QuestionSerializerNeo(page, many=True,
+                                           context={'request': request})
+        return self.get_paginated_response(serializer.data)
+
+    @detail_route(methods=['get'])
+    def public_content(self, request, username=None):
+        filter_by = request.query_params.get('filter', "")
+        try:
+            additional_params = get_filter_params(filter_by, SBContent())
+        except(IndexError, KeyError, ValueError):
+            return Response(errors.QUERY_DETERMINATION_EXCEPTION,
+                            status=status.HTTP_400_BAD_REQUEST)
+        query = 'MATCH (b:`SBPublicContent`)-[:OWNED_BY]->(a:Pleb ' \
+                '{username: "%s"}) ' \
+                'WHERE b.to_be_deleted=false ' \
+                ' %s RETURN b' % (username, additional_params)
+
+        res, col = db.cypher_query(query)
+        queryset = [SBContent.inflate(row[0]) for row in res]
+
+        page = self.paginate_queryset(queryset)
+        serializer = MarkdownContentSerializer(page, many=True,
+                                               context={'request': request})
+        return self.get_paginated_response(serializer.data)
 
     @detail_route(methods=['get'])
     def friend(self, request, username=None):
@@ -137,12 +179,17 @@ class ProfileViewSet(viewsets.ModelViewSet):
         # /v1/friends/ to /v1/friends/username/ to your method rather than
         # /v1/profiles/username/friends/ to /v1/profiles/username/ to your
         # method. But maybe we make both available.
-        single_object = self.get_object()
-        friends = single_object.get_friends()
-        serializer = self.get_serializer(
-            friends, context={"request": request}, many=True)
-        # TODO implement expand functionality
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        query = 'MATCH (a:Pleb {username: "%s"})-' \
+                '[:FRIENDS_WITH {currently_friends: true}]->' \
+                '(b:Pleb) RETURN b' % (username)
+        res, col = db.cypher_query(query)
+        queryset = [Question.inflate(row[0]) for row in res]
+
+        page = self.paginate_queryset(queryset)
+        serializer = self.get_serializer(page, many=True,
+                                         context={'request': request})
+        return self.get_paginated_response(serializer.data)
+
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def friend_requests(self, request, username=None):
@@ -287,3 +334,16 @@ class ProfileViewSet(viewsets.ModelViewSet):
         address_serializer = AddressSerializer(address,
                                                context={'request': request})
         return Response(address_serializer.data, status=status.HTTP_200_OK)
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
+    def privileges(self, request, username=None):
+        pass
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
+    def actions(self, request, username=None):
+
+        pass
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
+    def restrictions(self, request, username=None):
+        pass

@@ -2,16 +2,16 @@ import pytz
 from uuid import uuid1
 from datetime import datetime
 
-from neomodel import (StringProperty, RelationshipTo, BooleanProperty,
+from neomodel import (StringProperty, RelationshipTo,
                       CypherException)
 
 from sb_base.decorators import apply_defense
 
 
-from sb_base.neo_models import SBVersioned
+from sb_base.neo_models import SBPublicContent
 
 
-class Solution(SBVersioned):
+class Solution(SBPublicContent):
     object_type = "02241aee-644f-11e4-9ad9-080027242395"
     table = 'public_solutions'
     action_name = "offered a solution to a question"

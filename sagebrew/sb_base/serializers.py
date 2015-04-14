@@ -73,7 +73,9 @@ class VotableContentSerializer(serializers.Serializer):
         return profile_dict
 
     def get_url(self, obj):
-        raise NotImplementedError
+        # TODO should change this to raise NotImplementedError and implement
+        # get_url down the line
+        return None
 
     def get_vote_count(self, obj):
         return obj.get_vote_count()

@@ -1,5 +1,9 @@
+import pytz
+import datetime
 import logging
 from json import dumps
+
+from django.conf import settings
 
 from rest_framework.views import exception_handler
 from rest_framework import status
@@ -8,7 +12,6 @@ from rest_framework.response import Response
 from neomodel.exception import CypherException
 
 from sagebrew import errors
-
 
 
 logger = logging.getLogger('loggly_logs')
@@ -67,3 +70,26 @@ def get_ordering(sort_by):
         sort_by = ""
 
     return sort_by, ordering
+
+
+def get_filter_params(filter_by, sb_instance):
+    additional_params = ""
+    if filter_by != "":
+        query_param = filter_by.split(' ')
+        query_property = query_param[0]
+        if hasattr(sb_instance, query_property):
+            # right now only support filtering by created/last_edited_on
+            if(query_property == "created" or
+                    query_property == "last_edited_on"):
+                query_operation = settings.QUERY_OPERATIONS[
+                    query_param[1]]
+                query_condition = float(query_param[2])
+                current_time = datetime.datetime.now(pytz.utc)
+                time_diff = datetime.timedelta(seconds=query_condition)
+                query_condition = (current_time -
+                                   time_diff).strftime("%s")
+                additional_params = "AND b.%s %s %s" % (
+                    query_property, query_operation, query_condition)
+        else:
+            raise KeyError
+    return additional_params

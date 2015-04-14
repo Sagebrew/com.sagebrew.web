@@ -358,7 +358,7 @@ function vote_object(vote_area, resource){
         } else if(vote_up.hasClass('vote_up_active') && vote_type === false)  {
             vote_down.addClass('vote_down_active');
             vote_up.removeClass('vote_up_active');
-            upvote_count -= 1;
+            upvote_count -= 2;
         } else {
             if(vote_type === true) {
                 $(this).addClass('vote_up_active');
@@ -369,7 +369,6 @@ function vote_object(vote_area, resource){
                 upvote_count -= 1;
             }
         }
-
 
         event.preventDefault();
         $.ajaxSetup({

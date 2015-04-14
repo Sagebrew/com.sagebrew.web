@@ -184,18 +184,9 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 '(b:Pleb) RETURN b' % (username)
         res, col = db.cypher_query(query)
         queryset = [Pleb.inflate(row[0]) for row in res]
-        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
         page = self.paginate_queryset(queryset)
         serializer = self.get_serializer(page, many=True,
                                          context={'request': request})
-        """
-        if expand == 'true':
-            for friend in serializer.data:
-                friend_url = "%s?expand=true" % dict(friend)['base_user']
-                response = request_to_api(friend_url, request.user.username,
-                                          req_method="GET")
-                print response
-        """
         return self.get_paginated_response(serializer.data)
 
 

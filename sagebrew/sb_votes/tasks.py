@@ -30,7 +30,7 @@ def vote_object_task(vote_type, current_pleb, object_type, object_uuid):
         raise vote_object_task.retry(exc=res, countdown=3, max_retries=None)
 
     res = spawn_task(update_reputation,
-                     {"username": sb_object.owner.all()[0].username})
+                     {"username": sb_object.owned_by.all()[0].username})
 
     if isinstance(res, Exception):
         raise vote_object_task.retry(exc=res, countdown=3, max_retries=None)

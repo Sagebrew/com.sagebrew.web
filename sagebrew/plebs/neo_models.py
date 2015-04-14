@@ -6,8 +6,9 @@ from django.template import Context
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty, ZeroOrOne,
+                      BooleanProperty, FloatProperty,
                       CypherException, DoesNotExist)
+from neomodel import db
 
 from api.neo_models import SBObject
 
@@ -189,9 +190,19 @@ class Pleb(SBObject):
                                'HAS_HOUSE_REPRESENTATIVE')
     president = RelationshipTo('sb_public_official.neo_models.BaseOfficial',
                                'HAS_PRESIDENT')
+    flags = RelationshipTo('sb_flags.neo_models.Flag', "FLAGS")
 
     def deactivate(self):
         return
+
+    def has_flagged_object(self, object_uuid):
+        query = "MATCH (a:SBContent {object_uuid: '%s'})-[:FLAGGED_BY]->(" \
+                "b:Pleb {username: '%s'}) Return b" % (
+                    object_uuid, self.username)
+        res, col = db.cypher_query(query)
+        if len(res) == 0:
+            return False
+        return True
 
     def get_restrictions(self):
         return self.restrictions.all()

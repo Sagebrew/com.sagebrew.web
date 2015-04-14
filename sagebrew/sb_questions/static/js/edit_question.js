@@ -53,4 +53,7 @@ $( document ).ready(function() {
                 }
             });
         });
+    $(".cancel_edit_solution-action").click(function(event){
+		window.location.href = "/conversations/";
+	});
 });

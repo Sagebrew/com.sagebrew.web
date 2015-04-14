@@ -433,6 +433,7 @@ function vote_objects(populated_ids) {
 function save_solution() {
     $(".submit_solution-action").click(function(event){
 		event.preventDefault();
+        $("#submit_solution").attr("disabled", "disabled");
 		$.ajaxSetup({
 		    beforeSend: function(xhr, settings) {
                 ajax_security(xhr, settings)
@@ -455,10 +456,12 @@ function save_solution() {
                     var solution_count = parseInt(solution_count_text) + 1;
                     $("#solution_count").text(solution_count.toString());
                 }
-                $('#wmd-preview-0').html("");
+                $('#wmd-preview-1').html("");
+                $("#submit_solution").removeAttr("disabled");
                 enable_solution_functionality(data["ids"]);
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
+                $("#submit_solution").removeAttr("disabled");
                 if(XMLHttpRequest.status === 500){
                     $("#server_error").show();
                 }
@@ -467,83 +470,6 @@ function save_solution() {
 	});
 }
 
-
-function edit_object(edit_area) {
-    $(edit_area).click(function (event) {
-        event.preventDefault();
-        var uuid = $(this).data('object_uuid');
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
-            }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/edit/edit_object_content_api/",
-            data: JSON.stringify({
-                'content': $('textarea#'+uuid).val(),
-                'parent_object': $(this).data('parent_object'),
-                'object_uuid': uuid,
-                'object_type': $(this).data('object_type'),
-                'created': $(this).data('created')
-            }),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function(data){
-                $(data['html_object']).text(data['content']);
-                $("#edit_container_"+uuid).hide();
-                $("#sb_content_"+uuid).show();
-                //$(".sb_object_dropdown").each(function(i, obj){
-                //    $(obj).removeAttr("disabled");
-                //});
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
-}
-
-
-function edit_objects(populated_ids){
-    if(typeof populated_ids !== 'undefined' && populated_ids.length > 0){
-        for (i = 0; i < populated_ids.length; i++) {
-            edit_object(".edit_" + populated_ids[i]);
-        }
-    }
-}
-
-function edit_title() {
-    $("a.edit_title-action").click(function (event) {
-        event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
-            }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/edit/edit_object_content_api/",
-            data: JSON.stringify({
-                'title': $(this).val(),
-                'current_pleb': $(this).data('pleb'),
-                'object_uuid': $(this).data('post_uuid'),
-                'object_type': $(this).data('object_type')
-            }),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
-}
 
 function show_edit_question() {
     $("a.show_edit_question-action").click(function(event){
@@ -559,6 +485,57 @@ function show_edit_solution() {
         window.location.href = "/conversations/solutions/" + solution_uuid + '/edit/'
     });
 }
+
+
+function edit_object(edit_area, url, object_uuid, data_area) {
+    $(edit_area).click(function (event) {
+        event.preventDefault();
+        var edit_button = "#edit_comment_button_id_" + object_uuid;
+        $(edit_button).attr("disabled", "disabled");
+        console.log(data_area);
+        console.log($(data_area));
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "PUT",
+            url: url,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                'content': $(data_area).val()
+            }),
+            dataType: "json",
+            success: function(data){
+                $(edit_button).removeAttr("disabled");
+                var content_container = $("#sb_content_" + object_uuid);
+                content_container.text(data['content']);
+                $("#edit_container_" + object_uuid).hide();
+                content_container.show();
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $(edit_button).removeAttr("disabled");
+                    $("#server_error").show();
+                }
+            }
+        });
+    });
+}
+
+
+function edit_objects(url, populated_ids, data_area){
+    if(typeof populated_ids !== 'undefined' && populated_ids.length > 0){
+        for (i = 0; i < populated_ids.length; i++) {
+            // Eventually we should just be able to get the href
+            edit_object(".edit_" + populated_ids[i],
+                url + populated_ids[i] + "/", populated_ids[i], data_area);
+        }
+    }
+}
+
 
 function delete_objects(url, populated_ids){
     if(typeof populated_ids !== 'undefined' && populated_ids.length > 0){
@@ -601,79 +578,6 @@ function delete_object(delete_area, url, object_uuid) {
     });
 }
 
-// TODO is this needed still?
-function add_new(){
-    $('.add_policy').on('click', function(){
-            cloneForm('div.policy_table:last', 'form');
-    });
-}
-
-// TODO is this needed still?
-function add_experience(){
-    $(".add_experience").click(function (event) {
-        event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
-            }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "GET",
-            url: "/reps/experience/",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function(data){
-                $("#experience_added_form").append(data['rendered']);
-                enable_post_functionality();
-                $(".add_experience").attr('disabled', 'disabled');
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
-}
-
-function submit_experience(){
-    $(".submit_experience-action").click(function(event){
-        event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
-                ajax_security(xhr, settings)
-            }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/reps/experience/",
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({
-                'rep_id': $("#rep_id").data('rep_id'),
-                'title': $('#id_title').val(),
-                'start_date': $('#id_start_date').val(),
-                'end_date': $('#id_end_date').val(),
-                'current': $('#id_current').val(),
-                'company': $('#id_company').val(),
-                'location': $('#id_location').val(),
-                'description': $('#id_description').val()
-            }),
-            dataType: "json",
-            success: function(data){
-                $('.add_experience').removeAttr('disabled');
-                $('.add_experience_wrapper').remove();
-                $("#experience_list").append(data['rendered']);
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
-}
 
 function cloneForm(selector, type) {
     var newElement = $(selector).clone(true);
@@ -690,74 +594,6 @@ function cloneForm(selector, type) {
     total++;
     $('#id_' + type + '-TOTAL_FORMS').val(total);
     $(selector).after(newElement);
-}
-
-
-function submit_bio() {
-    $(".submit_bio-action").click(function(event){
-        event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
-                ajax_security(xhr, settings)
-            }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/reps/bio/",
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({
-                'rep_id': $("#rep_id").data('rep_id'),
-                'bio': $('#id_bio').val()
-            }),
-            dataType: "json",
-            success: function(data){
-                $('.add_bio_wrapper').remove();
-                $("#bio_wrapper").append(data['rendered']);
-
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
-}
-
-function submit_goal() {
-    $(".submit_goal-action").click(function(event){
-        event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
-                ajax_security(xhr, settings)
-            }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/reps/goals/",
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({
-                'rep_id': $("#rep_id").data('rep_id'),
-                'initial': $('#id_initial').val(),
-                'money_req': $('#id_money_req').val(),
-                'vote_req': $("#id_vote_req").val(),
-                'description': $('#id_description').val()
-            }),
-            dataType: "json",
-            success: function(data){
-                $('.add_goal').removeAttr('disabled');
-                $('.add_goal_wrapper').remove();
-                $("#goal_list").append(data['rendered']);
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
 }
 
 function comment_validator() {
@@ -910,7 +746,6 @@ function respond_friend_request(){
 function enable_object_functionality(populated_ids) {
     flag_objects(populated_ids);
     vote_objects(populated_ids);
-    edit_objects(populated_ids);
 }
 
 
@@ -922,6 +757,7 @@ function enable_comment_functionality(populated_ids){
     enable_object_functionality(populated_ids);
     show_edit_comment(populated_ids);
     comment_validator();
+    edit_objects("/v1/comments/", populated_ids, "textarea.edit_comment_input_class");
     delete_objects("/v1/comments/", populated_ids);
 }
 
@@ -931,7 +767,6 @@ function enable_question_summary_functionality(populated_ids) {
 
 function enable_question_functionality(populated_ids) {
     enable_object_functionality(populated_ids);
-    edit_title();
     save_comments(populated_ids, "/v1/questions/");
     show_edit_question(populated_ids);
     save_solution(populated_ids);
@@ -942,6 +777,7 @@ function enable_single_post_functionality(populated_ids) {
     enable_object_functionality(populated_ids);
     save_comments(populated_ids, '/v1/posts/');
     show_edit_posts(populated_ids);
+    edit_objects("/v1/posts/", populated_ids, "textarea.edit_post_input_class");
     delete_objects("/v1/posts/", populated_ids);
 }
 

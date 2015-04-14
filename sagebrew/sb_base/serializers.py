@@ -6,20 +6,21 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 from plebs.serializers import PlebSerializerNeo, UserSerializer
+from plebs.neo_models import Pleb
 
 
-class ContentSerializer(serializers.Serializer):
+class VotableContentSerializer(serializers.Serializer):
     object_uuid = serializers.CharField(read_only=True)
-
     content = serializers.CharField()
 
     created = serializers.DateTimeField(read_only=True)
-    last_edited_on = serializers.DateTimeField(read_only=True)
 
     upvotes = serializers.SerializerMethodField()
     downvotes = serializers.SerializerMethodField()
-    vote_type = serializers.SerializerMethodField()
     vote_count = serializers.SerializerMethodField()
+    # Need to figure out how we want to handle these user specific items
+    # Maybe if no user is provided we just return None or don't include?
+    vote_type = serializers.SerializerMethodField()
 
     view_count = serializers.SerializerMethodField()
 
@@ -88,6 +89,17 @@ class ContentSerializer(serializers.Serializer):
 
     def get_view_count(self, obj):
         return obj.get_view_count()
+
+
+class ContentSerializer(VotableContentSerializer):
+    last_edited_on = serializers.DateTimeField(read_only=True)
+    # Need to figure out how we want to handle these user specific items
+    # Maybe if no user is provided we just return None or don't include?
+    flagged_by = serializers.SerializerMethodField()
+
+    def get_flagged_by(self, obj):
+        res = obj.get_flagged_by()
+        return [Pleb.inflate(row[0]).username for row in res]
 
 
 class MarkdownContentSerializer(ContentSerializer):

@@ -16,7 +16,6 @@ from sagebrew import errors
 
 from api.utils import request_to_api
 from api.permissions import IsSelfOrReadOnly, IsSelf, IsOwnerOrAdmin
-from sb_comments.serializers import CommentSerializer
 
 from .serializers import UserSerializer, PlebSerializerNeo, AddressSerializer
 from .neo_models import Pleb, Address

@@ -1,0 +1,9 @@
+{% if request.user.username in flagged_by %}
+    <i class="fa fa-flag sb_btn_icon sb_btn_icon_purple sb_span_icon"></i>
+{% else %}
+    <button class="btn dropdown-toggle sb_btn_icon" type="button" id="flag_{{ object_uuid }}"
+            data-toggle="modal" data-target="#myModal" data-href="{{ href }}flags/"
+            data-object_uuid="{{ object_uuid }}">
+        <i class="fa fa-flag sb_btn_icon_green_hover"></i>
+    </button>
+{% endif %}

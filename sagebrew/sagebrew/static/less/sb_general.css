@@ -329,6 +329,7 @@
 .sb_btn_friend,
 .sb_btn_fill,
 .sb_btn_icon_green,
+.sb_btn_icon_green_hover,
 .sb_btn_vote,
 .sb_btn_nav,
 .sb_login button,
@@ -359,6 +360,7 @@
 }
 .sb_btn_icon,
 .sb_btn_icon_green,
+.sb_btn_icon_green_hover,
 .sb_btn_vote,
 .sb_btn_nav,
 .sb_btn_icon_settings,
@@ -379,6 +381,21 @@
 }
 .sb_btn_icon_green:hover {
   color: #1ba39c;
+  background-color: transparent;
+}
+.sb_span_icon {
+  margin-left: 8px;
+}
+.sb_btn_icon_purple {
+  color: #a162ff;
+  background-color: transparent;
+}
+.sb_btn_icon_green_hover {
+  padding: 5px;
+  color: #b7bfbb;
+}
+.sb_btn_icon_green_hover:hover {
+  color: #a162ff;
   background-color: transparent;
 }
 .sb_btn_grey {

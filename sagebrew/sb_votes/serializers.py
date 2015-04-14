@@ -11,12 +11,8 @@ class VoteSerializer(serializers.Serializer):
     # of flags that can be placed on a piece of content from a single user to
     # one
     vote_type = serializers.BooleanField()
-    owned_by = serializers.SerializerMethodField()
+    url = serializers.SerializerMethodField()
     vote_on = serializers.SerializerMethodField()
-    # A vote should be castable without knowing the current up or down vote
-    # counts.
-    downvote_count = serializers.IntegerField(required=False)
-    upvote_count = serializers.IntegerField(required=False)
 
     def create(self, validated_data):
         return None
@@ -25,6 +21,11 @@ class VoteSerializer(serializers.Serializer):
         return None
 
     def get_vote_on(self, obj):
+        request = self.context.get('request')
+        # TODO may want to change this to async?
+        expedite = request.query_params.get('expedite', "false").lower()
+        if expedite == "true":
+            return None
         request = self.context.get('request', None)
         parent_object = get_vote_parent(obj.object_uuid)
         parent_href = reverse(
@@ -40,6 +41,10 @@ class VoteSerializer(serializers.Serializer):
         # TODO this is reused multiple places. Might want to look into creating
         # a parent class for relationship specific nodes that can reuse this
         # through inheritance.
+        request = self.context.get('request')
+        expedite = request.query_params.get('expedite', "false").lower()
+        if expedite == "true":
+            return None
         request = self.context.get('request', None)
         parent_object = get_vote_parent(obj.object_uuid)
         parent_href = reverse(

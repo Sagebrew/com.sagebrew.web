@@ -50,7 +50,6 @@ urlpatterns = patterns(
     (r'^badges/', include('sb_badges.urls')),
     (r'^search/', include('sb_search.urls')),
     (r'^tags/', include('sb_tag.urls')),
-    (r'^vote/', include('sb_votes.urls')),
     (r'^edit/', include('sb_edits.urls')),
     (r'^delete/', include('sb_deletes.urls')),
     (r'^docstore/', include('sb_docstore.urls')),

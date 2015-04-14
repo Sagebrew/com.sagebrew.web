@@ -23,6 +23,9 @@
            <img id="wallpaper_pic" class=" wallpaper_profile" src="{{ page_profile.wallpaper_pic|default_if_none:default_wallpaper }}">
            {% if request.user.username == page_user.username %}
                <button class="btn sb_btn_icon sb_btn_icon_green sb_btn_icon_settings" id="update_wallpaper_pic"><span class="fui-photo"></span></button>
+           {% else %}
+               {% comment %} A hack to get non-friend pages to load correctly{% endcomment %}
+               <span class="btn sb_btn_icon sb_btn_icon_green sb_btn_icon_settings" style="margin-bottom: 25px;" hidden="hidden"></span>
            {% endif %}
        </div>
        <div class="sb_nav sb_secondary_nav sb_secondary_nav_bar">
@@ -34,138 +37,10 @@
             {%  endblock %}
        {% endif %}
     </div>
-    {% comment %} Profile Picture Modal {% endcomment %}
-        <div class="modal fade" id="myModal"
-         tabindex="-1"
-         role="dialog"
-         aria-labelledby="myLargeModalLabel"
-         aria-hidden="true">
-        <div class="modal-header">
-            <a id="sb_modal_close"
-               class="fui-cross-inverted close"
-               data-dismiss="modal"></a>
-            <h3>Upload Profile Picture</h3>
-        </div>
-        <div class="modal-body">
-            <div id="sb_modal_content">
-                <form enctype="multipart/form-data"
-                  action="/registration/profile_picture/" method="post" id="uploadForm">
-                                        {% csrf_token %}
-                <div class="row" align="center">
-                    <div id="sb_profile_photo">
-                        <div class="fileinput fileinput-new"
-                             data-provides="fileinput">
-                            <div class="row"
-                                 align="center">
-                                <div class="fileinput-preview fileinput-exists thumbnail jcrop-light"
-                                     id="image_uploaded"
-                                     style="max-width: 500px;
-                                            max-height: 350px;">
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 col-lg-offset-4 col-md-offset-4 col-xs-offset-3 sb_btn_modal">
-
-                                    <span class="btn btn-block btn-lg btn-primary btn-file sb_btn">
-                                        <span id="sb_btn_change" class="fileinput-exists"><span class="fui-gear"></span>Change</span>
-                                        <span id="sb_btn_upload" class="fileinput-new"><span class=""></span>Upload Image</span>
-
-                                        <input id="profile_pic_upload" type="file" name="picture">
-                                        <input id="image_x1" name="image_x1" style="display: none">
-                                        <input id="image_x2" name="image_x2" style="display: none">
-                                        <input id="image_y1" name="image_y1" style="display: none">
-                                        <input id="image_y2" name="image_y2" style="display: none">
-                                    </span>
-                                    <a id="sb_btn_remove"
-                                       href=""
-                                       class="btn btn-block btn-lg btn-primary fileinput-exists sb_btn"
-                                       style=""
-                                       data-dismiss="modal"><span class="fui-trash"></span>Remove</a>
-                                    <a id="sb_btn_save"
-                                       class="btn btn-block btn-lg btn-primary sb_btn"
-                                       style="display:none;">Save Image</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-                <div class="row" align="center" style="margin-bottom: 30px;">
-                    <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12 col-lg-offset-8 col-md-offset-8 col-sm-offset-7">
-
-                    </div>
-                </div>
-            </form>
-            </div>
-        </div>
-    </div>
-    {% comment %} End Profile Picture Modal {% endcomment %}
-    {% comment %} Wallpaper Modal {% endcomment %}
-    <div class="modal fade" id="myWallpaperModal"
-         tabindex="-1"
-         role="dialog"
-         aria-labelledby="myLargeModalLabel"
-         aria-hidden="true">
-        <div class="modal-header">
-            <a id="sb_modal_close"
-               class="fui-cross-inverted close"
-               data-dismiss="modal"></a>
-            <h3>Upload Wallpaper Picture</h3>
-        </div>
-        <div class="modal-body">
-            <div id="sb_modal_content">
-                <form enctype="multipart/form-data"
-                  action="/registration/profile_picture/" method="post" id="wallpaperUploadForm">
-                                        {% csrf_token %}
-                <div class="row" align="center">
-                    <div id="sb_wallpaper_photo">
-                        <div class="fileinput fileinput-new"
-                             data-provides="fileinput">
-                            <div class="row"
-                                 align="center">
-                                <div class="fileinput-preview fileinput-exists thumbnail jcrop-light"
-                                     id="wallpaper_image_uploaded"
-                                     style="max-width: 750px;
-                                            max-height: 250px;">
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 col-lg-offset-4 col-md-offset-4 col-xs-offset-3 sb_btn_modal">
-
-                                    <span class="btn btn-block btn-lg btn-primary btn-file sb_btn">
-                                        <span id="sb_btn_change" class="fileinput-exists"><span class="fui-gear"></span>Change</span>
-                                        <span id="sb_btn_upload" class="fileinput-new"><span class=""></span>Upload Image</span>
-
-                                        <input id="wallpaper_pic_upload" type="file" name="picture">
-                                        <input id="wallpaper_image_x1" name="image_x1" style="display: none">
-                                        <input id="wallpaper_image_x2" name="image_x2" style="display: none">
-                                        <input id="wallpaper_image_y1" name="image_y1" style="display: none">
-                                        <input id="wallpaper_image_y2" name="image_y2" style="display: none">
-                                    </span>
-                                    <a id="sb_btn_remove"
-                                       href=""
-                                       class="btn btn-block btn-lg btn-primary fileinput-exists sb_btn"
-                                       style=""
-                                       data-dismiss="modal"><span class="fui-trash"></span>Remove</a>
-                                    <a id="sb_wallpaper_btn_save"
-                                       class="btn btn-block btn-lg btn-primary sb_btn"
-                                       >Save Image</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-                <div class="row" align="center" style="margin-bottom: 30px;">
-                    <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12 col-lg-offset-8 col-md-offset-8 col-sm-offset-7">
-
-                    </div>
-                </div>
-            </form>
-            </div>
-        </div>
-    </div>
-    {% comment %} End Wallpaper Modal {% endcomment %}
+    {% if request.user.username == page_user.username %}
+        {% include "profile_pic_modal.html" %}
+        {% include "wallpaper_modal.html" %}
+    {% endif %}
     {% include "flag_modal.html" %}
 {% endblock %}
 {% block footer %}

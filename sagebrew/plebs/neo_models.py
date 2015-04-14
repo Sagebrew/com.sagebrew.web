@@ -337,7 +337,7 @@ class Pleb(SBObject):
                         "from": request.request_from.all()[0].username,
                         "date_sent": request.time_sent,
                         "date_seen": request.time_seen,
-                        "seen": request.seen
+                        "seen": request.seen,
                     }
                     request_list.append(request_dict)
                 else:

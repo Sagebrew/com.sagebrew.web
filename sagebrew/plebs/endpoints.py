@@ -183,7 +183,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 '[:FRIENDS_WITH {currently_friends: true}]->' \
                 '(b:Pleb) RETURN b' % (username)
         res, col = db.cypher_query(query)
-        queryset = [Question.inflate(row[0]) for row in res]
+        queryset = [Pleb.inflate(row[0]) for row in res]
 
         page = self.paginate_queryset(queryset)
         serializer = self.get_serializer(page, many=True,
@@ -215,18 +215,13 @@ class ProfileViewSet(viewsets.ModelViewSet):
                     kwargs={'username': friend_request["from"]},
                     request=request)
             else:
-                friend_url = reverse(
+                friend_url = "%s?expand=true" % reverse(
                     'profile-detail', kwargs={
                         'username': friend_request["from"]},
                     request=request)
                 response = request_to_api(friend_url, request.user.username,
                                           req_method="GET")
                 friend_request["from"] = response.json()
-            if html == 'true':
-                full_from_user = request_to_api(
-                    friend_request['from']['base_user'], request.user.username,
-                    req_method='GET')
-                friend_request['full_from_user'] = full_from_user.json()
         if html == 'true':
             html = render_to_string('friend_request_wrapper.html',
                                     {"requests": friend_requests})

@@ -5,7 +5,6 @@ from rest_framework.response import Response
 from neomodel import CypherException
 
 from api.utils import spawn_task
-from sb_edits.tasks import edit_object_task
 from sb_votes.tasks import vote_object_task
 from sb_privileges.tasks import check_privileges
 from plebs.neo_models import Pleb
@@ -16,7 +15,6 @@ from .utils import get_user_updates
 @api_view(["POST"])
 @permission_classes((IsAuthenticated,))
 def get_updates_from_dynamo(request):
-    edit_res = []
     vote_res = []
     try:
         pleb = Pleb.nodes.get(username=request.user.username)

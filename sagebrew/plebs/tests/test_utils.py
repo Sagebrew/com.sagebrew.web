@@ -1,6 +1,5 @@
 from uuid import uuid1
-from os import environ
-from subprocess import check_call
+
 import pickle
 from django.test import TestCase
 from django.contrib.auth.models import User

@@ -312,27 +312,18 @@ BASE_TAGS = ["fiscal", "foreign_policy", "social", "education", "science",
              "environment", "drugs", "agriculture", "defense", "energy",
              "health", "space"]
 
-
-
 PAYMENT_PLANS = [
     ("free", "Free"),
     ("sub", "Subscription")
 ]
 
-SEARCH_TYPES = [("general", "general"),
+SEARCH_TYPES = [
+    ("general", "general"),
     ("conversations", "sb_questions.neo_models.SBQuestion"),
     ("people", "pleb"),
-    ("sagas", "sagas")]
-
-KNOWN_TYPES = [
-    ("01bb301a-644f-11e4-9ad9-080027242395", "sb_posts.neo_models.Post"),
-    ("02241aee-644f-11e4-9ad9-080027242395",
-     "sb_solutions.neo_models.Solution"),
-    ("0274a216-644f-11e4-9ad9-080027242395",
-     "sb_questions.neo_models.Question"),
-    ("02ba1c88-644f-11e4-9ad9-080027242395",
-     "sb_comments.neo_models.Comment")
+    ("sagas", "sagas")
 ]
+
 
 BASE_REP_TYPES = [
     ("f2729db2-9da8-11e4-9233-080027242395",
@@ -346,13 +337,6 @@ BASE_REP_TYPES = [
     ("786dcf40-9da9-11e4-9233-080027242395",
      "sb_public_official.neo_models.Governor")
 ]
-
-KNOWN_TABLES = {
-    "01bb301a-644f-11e4-9ad9-080027242395": "posts",
-    "02241aee-644f-11e4-9ad9-080027242395": "public_solutions",
-    "0274a216-644f-11e4-9ad9-080027242395": "public_questions",
-    "02ba1c88-644f-11e4-9ad9-080027242395": "comments"
-}
 
 OPERATOR_TYPES = [
     ('coperator\neq\np0\n.', '='),
@@ -386,14 +370,5 @@ OPERATOR_DICT = {
     'coperator\nlt\np0\n.': 'less than',
     'coperator\nge\np0\n.': 'at least'
 }
-
-PRIVILEGE_HTML_TYPES = {
-    "write_question": ".submit_question-action",
-    "write_post": ".submit_post-action",
-    "write_comment": ".comment-action",
-    "write_solution": ".submit_solution-action"
-}
-
-
 
 CORS_ORIGIN_ALLOW_ALL = True

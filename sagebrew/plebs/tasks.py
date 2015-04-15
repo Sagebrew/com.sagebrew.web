@@ -224,3 +224,17 @@ def create_friend_request_task(from_username, to_username, object_uuid):
         return create_friend_request_task.retry(exc=res, countdown=3,
                                                 max_retries=None)
     return res
+
+@shared_task()
+def update_reputation(username):
+    try:
+        pleb = Pleb.nodes.get(username=username)
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
+        raise update_reputation.retry(exc=e, countdown=3, max_retries=None)
+
+    res = pleb.get_total_rep()
+
+    if isinstance(res, Exception):
+        raise update_reputation.retry(exc=res, countdown=3, max_retries=None)
+
+    return True

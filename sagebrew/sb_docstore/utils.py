@@ -104,28 +104,6 @@ def add_object_to_table(table_name, object_data):
 
 
 @apply_defense
-def query_parent_object_table(object_uuid, get_all=False, table_name='edits'):
-    conn = connect_to_dynamo()
-    if isinstance(conn, Exception):
-        return conn
-    try:
-        edits = Table(table_name=get_table_name(table_name), connection=conn)
-    except JSONResponseError as e:
-        return e
-    res = edits.query_2(
-        parent_object__eq=object_uuid,
-        created__gte='0',
-        reverse=True
-    )
-    if get_all:
-        return list(res)
-    try:
-        return dict(list(res)[0])
-    except IndexError:
-        return False
-
-
-@apply_defense
 def update_doc(table, object_uuid, update_data, parent_object="",
                obj_created=""):
     table_name = get_table_name(table)

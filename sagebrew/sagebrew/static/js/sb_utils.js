@@ -194,6 +194,19 @@ function readyFlag(flag_object){
     $(flag_object).tooltip()
 }
 
+function readyVote(vote_object){
+    $(vote_object).tooltip()
+}
+
+function readyVotes(object_uuids){
+    if(typeof object_uuids !== 'undefined' && object_uuids.length > 0){
+        for (i = 0; i < object_uuids.length; i++) {
+            readyVote("#upvote_" + object_uuids[i]);
+            readyVote("#downvote_" + object_uuids[i]);
+        }
+    }
+}
+
 function readyFlags(object_uuids){
     if(typeof object_uuids !== 'undefined' && object_uuids.length > 0){
         for (i = 0; i < object_uuids.length; i++) {
@@ -719,6 +732,7 @@ function respond_friend_request(){
 
 function enable_object_functionality(populated_ids) {
     readyFlags(populated_ids);
+    readyVotes(populated_ids)
 }
 
 
@@ -737,6 +751,7 @@ function enable_comment_functionality(populated_ids){
 
 function enable_question_summary_functionality(populated_ids) {
     vote_objects(populated_ids, "questions");
+    readyVotes(populated_ids)
 }
 
 function enable_question_functionality(populated_ids) {

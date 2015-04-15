@@ -1,14 +1,5 @@
 import pytz
 from datetime import datetime
-from logging import getLogger
-
-from rest_framework.decorators import (api_view, permission_classes)
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status
-
-from django.template.loader import render_to_string
-from django.template import RequestContext
 
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.permissions import IsAuthenticated
@@ -16,17 +7,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import (ListCreateAPIView)
 
-from neomodel import db
-
-from api.utils import spawn_task
-from sb_base.neo_models import SBContent
 from sb_base.views import ObjectRetrieveUpdateDestroy
-from plebs.neo_models import Pleb
 from sb_docstore.utils import add_object_to_table, update_vote, get_vote
 
 from .serializers import VoteSerializer
 from .neo_models import Vote
-from .utils import determine_update_values
 
 
 class ObjectVotesRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):

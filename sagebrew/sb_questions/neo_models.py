@@ -89,17 +89,6 @@ class Question(SBPublicContent):
             return e
 
     @apply_defense
-    def delete_content(self, pleb):
-        try:
-            self.content = ""
-            self.title = ""
-            self.to_be_deleted = True
-            self.save()
-            return self
-        except CypherException as e:
-            return e
-
-    @apply_defense
     def get_single_dict(self):
         from sb_solutions.neo_models import Solution
         try:

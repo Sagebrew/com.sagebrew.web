@@ -182,7 +182,6 @@ INSTALLED_APPS = (
     'sb_badges',
     'sb_base',
     'sb_comments',
-    'sb_deletes',
     'sb_docstore',
     'sb_flags',
     'sb_notifications',

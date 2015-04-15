@@ -103,11 +103,6 @@ class TestDocstoreUtils(TestCase):
 
         self.assertEqual(res, 1)
 
-    def test_get_user_updates_edits(self):
-        res = get_user_updates(self.pleb.username, str(uuid1()), 'edits')
-
-        self.assertIsInstance(res, list)
-
     def test_get_user_updates(self):
         res = get_user_updates(self.pleb.username, str(uuid1()), 'votes')
 

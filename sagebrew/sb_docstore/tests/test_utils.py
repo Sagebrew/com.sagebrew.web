@@ -29,18 +29,6 @@ class TestDocstoreUtils(TestCase):
 
         self.assertIsInstance(res, list)
 
-    def test_query_parent_object_table_get_one(self):
-        uuid = str(uuid1())
-        timestamp = unicode(datetime.now(pytz.utc))
-        data = {'parent_object': uuid, "created": timestamp, "content": '123',
-                'user': self.pleb.username}
-        res = add_object_to_table('edits', object_data=data)
-        self.assertTrue(res)
-
-        res = query_parent_object_table(uuid)
-
-        self.assertEqual(res, data)
-
     def test_update_doc_datetime(self):
         uuid = str(uuid1())
         now = unicode(datetime.now(pytz.utc))

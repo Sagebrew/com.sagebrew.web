@@ -184,9 +184,16 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 '(b:Pleb) RETURN b' % (username)
         res, col = db.cypher_query(query)
         queryset = [Pleb.inflate(row[0]) for row in res]
+        html = self.request.query_params.get('html', 'false')
         page = self.paginate_queryset(queryset)
         serializer = self.get_serializer(page, many=True,
                                          context={'request': request})
+        if html == 'true':
+            html_array = []
+            for item in serializer.data:
+                html_array.append(
+                    render_to_string('friend_block.html', dict(item)))
+            return self.get_paginated_response(html_array)
         return self.get_paginated_response(serializer.data)
 
 

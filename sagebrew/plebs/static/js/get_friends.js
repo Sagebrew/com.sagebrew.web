@@ -12,7 +12,7 @@ $(document).ready(function(){
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function(data) {
-            console.log(data);
+            $("#friend_wrapper").append(data['results'])
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
             if(XMLHttpRequest.status === 500){

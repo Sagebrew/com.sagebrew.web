@@ -96,8 +96,12 @@ class PlebSerializerNeo(serializers.Serializer):
         request = self.context['request']
         try:
             expand = request.query_params.get('expand', 'false').lower()
+            html = request.query_params.get('html', 'false').lower()
+            if html == 'true':
+                expand = 'true'
         except AttributeError:
             expand = False
+
         username = obj.username
         user_url = reverse(
             'user-detail', kwargs={'username': username}, request=request)

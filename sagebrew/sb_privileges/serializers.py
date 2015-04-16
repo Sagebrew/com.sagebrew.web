@@ -9,3 +9,5 @@ class ActionSerializer(serializers.Serializer):
 
 class PrivilegeSerializer(serializers.Serializer):
     name = serializers.CharField()
+    href = serializers.HyperlinkedIdentityField(view_name="privilege-detail",
+                                                lookup_field="name")

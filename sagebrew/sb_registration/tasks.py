@@ -18,7 +18,7 @@ def update_interests(username, interests):
     for key, value in interests.iteritems():
         if value is True or value != []:
             try:
-                tag = Tag.nodes.get(tag_name=key.lower())
+                tag = Tag.nodes.get(name=key.lower())
                 citizen.interests.connect(tag)
             except (Tag.DoesNotExist, DoesNotExist) as e:
                 raise update_interests.retry(exc=e, countdown=3,

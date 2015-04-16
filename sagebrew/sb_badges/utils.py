@@ -1,12 +1,12 @@
 from neomodel import DoesNotExist, CypherException
 
 from plebs.neo_models import Pleb
-from .neo_models import BadgeBase
+from .neo_models import Badge
 
 def manage_badges(username):
     earned = []
     try:
-        badges = BadgeBase.nodes.all()
+        badges = Badge.nodes.all()
     except CypherException as e:
         return e
     try:

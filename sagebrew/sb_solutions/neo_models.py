@@ -12,7 +12,6 @@ from sb_base.neo_models import SBPublicContent
 
 
 class Solution(SBPublicContent):
-    object_type = "02241aee-644f-11e4-9ad9-080027242395"
     table = 'public_solutions'
     action_name = "offered a solution to a question"
     up_vote_adjustment = 10

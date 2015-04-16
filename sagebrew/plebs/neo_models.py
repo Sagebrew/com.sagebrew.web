@@ -149,7 +149,7 @@ class Pleb(SBObject):
                              model=ActionActiveRel)
     restrictions = RelationshipTo('sb_privileges.neo_models.Restriction',
                                   'RESTRICTED_BY', model=RestrictionRel)
-    badges = RelationshipTo("sb_badges.neo_models.BadgeBase", "BADGES")
+    badges = RelationshipTo("sb_badges.neo_models.Badge", "BADGES")
     oauth = RelationshipTo("plebs.neo_models.OauthUser", "OAUTH_CLIENT")
     tags = RelationshipTo('sb_tag.neo_models.Tag', 'TAGS',
                           model=TagRelationship)
@@ -283,7 +283,7 @@ class Pleb(SBObject):
         from sb_tag.neo_models import Tag
         for item in tags:
             try:
-                tag = Tag.nodes.get(tag_name=item)
+                tag = Tag.nodes.get(name=item)
             except (Tag.DoesNotExist, DoesNotExist, CypherException):
                 continue
             if self.tags.is_connected(tag):
@@ -296,7 +296,7 @@ class Pleb(SBObject):
                 rel.save()
         for item in base_tags:
             try:
-                tag = Tag.nodes.get(tag_name=item)
+                tag = Tag.nodes.get(name=item)
             except (Tag.DoesNotExist, DoesNotExist, CypherException):
                 continue
             if self.tags.is_connected(tag):

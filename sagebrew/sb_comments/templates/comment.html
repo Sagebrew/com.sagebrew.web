@@ -43,15 +43,17 @@
                                         </a>
                                     </li>
                                 </ul>
-
+                            <p>{{ request.META.HTTP_HOST }}</p>
                             {% else %}
-                                {% if "questions" not in request.path and "solutions" not in request.path %}
-                                    {% include "flag.html" %}
-                                {% elif "flag" in request_profile.actions %}
-                                    {% include "flag.html" %}
-                                {% else %}
-                                    {% include "flag_restriction.html" %}
-                                {% endif %}
+                                {% with request.META.HTTP_HOST|add:"v1/privileges/flag/" as flag_priv %}
+                                    {% if "questions" not in request.path and "solutions" not in request.path %}
+                                        {% include "flag.html" %}
+                                    {% elif flag_priv in request_profile.privileges %}
+                                        {% include "flag.html" %}
+                                    {% else %}
+                                        {% include "flag_restriction.html" %}
+                                    {% endif %}
+                                {% endwith %}
                             {% endif %}
                         </div>
                     </div>

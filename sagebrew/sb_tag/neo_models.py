@@ -13,7 +13,7 @@ class FrequentTagModel(StructuredRel):
 
 
 class Tag(StructuredNode):
-    tag_name = StringProperty(unique_index=True)
+    name = StringProperty(unique_index=True)
     tag_used = IntegerProperty(default=0)
     base = BooleanProperty(default=False)
     

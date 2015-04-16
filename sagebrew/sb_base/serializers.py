@@ -105,7 +105,7 @@ class ContentSerializer(VotableContentSerializer):
 
 
 class MarkdownContentSerializer(ContentSerializer):
-    is_closed = serializers.IntegerField(read_only=True)
+    is_closed = serializers.BooleanField(read_only=True)
     html_content = serializers.SerializerMethodField()
 
     def get_html_content(self, obj):

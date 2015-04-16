@@ -302,7 +302,7 @@ class TaggableContent(SBContent):
             return False
         for tag in tags:
             try:
-                tag_object = Tag.nodes.get(tag_name=tag.lower())
+                tag_object = Tag.nodes.get(name=tag.lower())
                 tag_array.append(tag_object)
             except (Tag.DoesNotExist, DoesNotExist):
                 # TODO we should only be creating tags if the user has enough
@@ -325,11 +325,11 @@ class TaggableContent(SBContent):
         try:
             for tag in tag_list:
                 try:
-                    tag_object = AutoTag.nodes.get(tag_name=tag['tags']
+                    tag_object = AutoTag.nodes.get(name=tag['tags']
                     ['text'].lower())
                 except (AutoTag.DoesNotExist, DoesNotExist):
                     tag_object = AutoTag(
-                        tag_name=tag['tags']['text'].lower()).save()
+                        name=tag['tags']['text'].lower()).save()
                 if self.auto_tags.is_connected(tag_object):
                     continue
                 rel = self.auto_tags.connect(tag_object)
@@ -363,8 +363,8 @@ class SBVersioned(TaggableContent):
         neg_rep = self.get_downvote_count()*self.down_vote_adjustment
         for tag in self.tagged_as.all():
             if tag.base:
-                base_tags.append(tag.tag_name)
-            tag_list.append(tag.tag_name)
+                base_tags.append(tag.name)
+            tag_list.append(tag.name)
         try:
             rep_per_tag = math.ceil(float(pos_rep+neg_rep)/len(tag_list))
         except ZeroDivisionError:

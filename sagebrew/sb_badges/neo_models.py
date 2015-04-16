@@ -3,8 +3,8 @@ from neomodel import (StringProperty, RelationshipTo)
 from api.neo_models import SBObject
 
 
-class BadgeBase(SBObject):
-    badge_name = StringProperty()
+class Badge(SBObject):
+    name = StringProperty()
     image_color = StringProperty()
     image_grey = StringProperty()
 
@@ -29,7 +29,7 @@ class BadgeBase(SBObject):
             requirements.append(req.get_dict())
         return {"image_full": self.image_color,
                 "image_grey": self.image_grey,
-                "badge_name": self.badge_name,
+                "name": self.name,
                 "badge_id": self.object_uuid,
                 "requirements": requirements}
 
@@ -38,11 +38,11 @@ class BadgeBase(SBObject):
 
 
 class BadgeGroup(SBObject):
-    group_name = StringProperty()
+    name = StringProperty()
     description = StringProperty()
 
     #relationships
-    badges = RelationshipTo('sb_badges.neo_models.BadgeBase', "HAS")
+    badges = RelationshipTo('sb_badges.neo_models.Badge', "HAS")
 
     #methods
     def get_badges(self):

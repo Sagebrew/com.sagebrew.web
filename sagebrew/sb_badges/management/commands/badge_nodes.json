@@ -1,6 +1,6 @@
 [
     {
-        "badge_name": "test badge",
+        "name": "test badge",
         "image_color": "1",
         "image_grey": "2",
         "requirements":[

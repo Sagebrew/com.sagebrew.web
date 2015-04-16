@@ -18,7 +18,6 @@ class Question(SBPublicContent):
     action_name = "asked a question"
     up_vote_adjustment = 5
     down_vote_adjustment = 2
-    object_type = "0274a216-644f-11e4-9ad9-080027242395"
     # This currently isn't maintained please make sure to use the methods
     # provided in the serializer or in the endpoint
     #  /v1/questions/uuid/solution_count/
@@ -44,7 +43,7 @@ class Question(SBPublicContent):
         query = "MATCH (a:Question {object_uuid:'%s'})-[:TAGGED_AS]->" \
                 "(b:Tag) RETURN b" % (self.object_uuid)
         res, col = db.cypher_query(query)
-        queryset = [Tag.inflate(row[0]).tag_name for row in res]
+        queryset = [Tag.inflate(row[0]).name for row in res]
         return queryset
 
     @apply_defense

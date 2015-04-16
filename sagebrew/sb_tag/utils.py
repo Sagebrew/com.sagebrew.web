@@ -47,21 +47,21 @@ def calc_spheres():
             tags.pop(index)
     for tag in tags:
         for base_tag in base_tags:
-            query = 'match (from: Tag {tag_name: "%s"}), ' \
-                    '(to: Tag {tag_name: "%s"}) ,' \
+            query = 'match (from: Tag {name: "%s"}), ' \
+                    '(to: Tag {name: "%s"}) ,' \
                     'path = shortestPath((to)-[:FREQUENTLY_TAGGED_WITH*]->(from))' \
                     'with reduce(dist = 0, rel in rels(path) | dist + rel.count) as distance ' \
-                    'return distance'%(tag.tag_name, base_tag.tag_name)
+                    'return distance'%(tag.name, base_tag.name)
             res = execute_cypher_query(query)
 
 
 def update_tags_util(tags):
     tag_list = []
-    for tag_name in tags:
+    for name in tags:
         # This task should only ever be called after tags have been associated
         # with a user so the Tags should exist
         try:
-            tag = Tag.nodes.get(tag_name=tag_name.lower())
+            tag = Tag.nodes.get(name=name.lower())
             tag.tag_used += 1
             tag.save()
         except(CypherException, IOError) as e:
@@ -70,7 +70,7 @@ def update_tags_util(tags):
 
     for current_tag in tag_list:
         for tag in tag_list:
-            if current_tag.tag_name != tag.tag_name:
+            if current_tag.name != tag.name:
                 # TODO @Tyler need some assistance finalizing this
                 # current_tag.frequently_used_with increment count
                 pass

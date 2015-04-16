@@ -222,13 +222,11 @@ function loadPosts(url){
             // in the posts getting out of order. It also had some interesting
             // functionality that wasn't intuitive. Hopefully transitioning to
             // a JS Framework allows us to better handle this feature.
-            if (data["next"] !== null) {
-                loadPosts(data["next"]);
-            }
             enable_single_post_functionality(data['results']['ids']);
             // TODO This can probably be changed to grab the href and append
             // `comments/` to the end of it.
-            populate_comments(data['results']['ids'], "posts")
+            populate_comments(data['results']['ids'], "posts");
+            return data;
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
             if(XMLHttpRequest.status === 500){

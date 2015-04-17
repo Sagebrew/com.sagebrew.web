@@ -155,16 +155,16 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         request = self.context['request']
         solutions = obj.get_solutions()
         solution_urls = []
-        expand = request.query_params.get('expand', 'false')
+        expand = request.query_params.get('expand', 'false').lower()
         if expand == "true":
             for solution in solutions:
-                solution_urls.append(SolutionSerializerNeo(solution,
-                                                           request=request))
+                solution_urls.append(SolutionSerializerNeo(
+                    solution, context={"request":request}).data)
         else:
             for solution in solutions:
                 solution_urls.append(reverse(
-                    'solution-detail', kwargs={'object_uuid':
-                                                   solution.object_uuid},
+                    'solution-detail', kwargs={
+                        'object_uuid': solution.object_uuid},
                     request=request))
 
         return solution_urls

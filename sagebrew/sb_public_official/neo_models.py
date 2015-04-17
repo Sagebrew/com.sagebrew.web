@@ -51,6 +51,10 @@ class BaseOfficial(Pleb):
             full_name = self.full_name[:crop_name]
         except IndexError:
             full_name = self.full_name
+        try:
+            bioguideid = self.gt_person.all()[0].bioguideid
+        except IndexError:
+            bioguideid = None
         return {"object_uuid": self.object_uuid,
                 "full_name": full_name,
                 "first_name": self.first_name,
@@ -61,7 +65,7 @@ class BaseOfficial(Pleb):
                 "title": self.title,
                 "district": self.district,
                 "current": self.current,
-                "bioguide": self.gt_person.all()[0].bioguideid}
+                "bioguide": bioguideid}
 
 
 class Bill(StructuredNode):

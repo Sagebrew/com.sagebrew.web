@@ -11,6 +11,7 @@ from sb_base.neo_models import SBPublicContent
 from sb_tag.neo_models import Tag
 
 from sb_base.decorators import apply_defense
+from sb_solutions.neo_models import Solution
 
 
 class Question(SBPublicContent):
@@ -52,11 +53,7 @@ class Question(SBPublicContent):
             'solutions.to_be_deleted = false)' \
             'RETURN solutions' % (self.object_uuid)
         res, col = db.cypher_query(query)
-        try:
-            solutions = res[0][0]
-        except IndexError:
-            solutions = []
-        return solutions
+        return [Solution.inflate(row[0]) for row in res]
 
     @apply_defense
     def edit_content(self, pleb, content):

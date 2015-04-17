@@ -230,7 +230,6 @@ function loadPosts(url){
             // TODO This can probably be changed to grab the href and append
             // `comments/` to the end of it.
             populate_comments(data['results']['ids'], "posts");
-            return data;
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
             if(XMLHttpRequest.status === 500){

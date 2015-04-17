@@ -188,8 +188,8 @@ class SBContent(VotableContent):
     flags = RelationshipTo('sb_flags.neo_models.Flag', 'HAS_FLAG')
     comments = RelationshipTo('sb_comments.neo_models.Comment', 'HAS_A',
                               model=PostedOnRel)
-    auto_tagged_as = RelationshipTo('sb_tag.neo_models.Tag',
-                                    'AUTO_TAGGED_AS')
+    auto_tags = RelationshipTo('sb_tag.neo_models.Tag',
+                               'AUTO_TAGGED_AS', model=TagRelevanceModel)
     rel_weight = RelationshipTo('plebs.neo_models.Pleb', 'HAS_WEIGHT',
                                 model=RelationshipWeight)
     notifications = RelationshipTo(
@@ -283,8 +283,6 @@ class SBContent(VotableContent):
 class TaggableContent(SBContent):
     # relationships
     tags = RelationshipTo('sb_tag.neo_models.Tag', 'TAGGED_AS')
-    auto_tags = RelationshipTo('sb_tag.neo_models.AutoTag',
-                               'AUTO_TAGGED_AS', model=TagRelevanceModel)
     added_to_search_index = BooleanProperty(default=False)
 
     # methods

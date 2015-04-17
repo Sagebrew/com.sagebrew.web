@@ -103,32 +103,6 @@ def add_object_to_table(table_name, object_data):
     return True
 
 
-@apply_defense
-def update_doc(table, object_uuid, update_data, parent_object="",
-               obj_created=""):
-    table_name = get_table_name(table)
-    conn = connect_to_dynamo()
-    if isinstance(conn, Exception):
-        return conn
-    try:
-        db_table = Table(table_name=table_name, connection=conn)
-    except JSONResponseError as e:
-        return e
-    if obj_created != "" and parent_object != "":
-        res = db_table.get_item(parent_object=parent_object,
-                                created=obj_created)
-    elif parent_object != "":
-        res = db_table.get_item(parent_object=parent_object,
-                                object_uuid=object_uuid)
-    else:
-        res = db_table.get_item(object_uuid=object_uuid)
-
-    for item in update_data:
-        res[item['update_key']] = item['update_value']
-    res.partial_save()
-    return res
-
-
 def convert_dynamo_content(raw_content):
     content = dict(raw_content)
     content['upvotes'] = get_vote_count(content['object_uuid'], 1)

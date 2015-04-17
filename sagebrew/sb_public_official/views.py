@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from neomodel import DoesNotExist, CypherException
 
 from api.utils import spawn_task
-from sb_docstore.utils import add_object_to_table, get_rep_docs, update_doc
+from sb_docstore.utils import add_object_to_table, get_rep_docs
 from sb_docstore.tasks import build_rep_page_task
 from sb_registration.utils import (verify_completed_registration)
 
@@ -198,11 +198,6 @@ def get_bio_form(request):
                 "bio": bio_form.cleaned_data['bio']
             }
             res = spawn_task(save_bio_task, data)
-            if isinstance(res, Exception):
-                return Response({"detail": "error"}, 400)
-            update_data = [{'update_key': 'bio',
-                            'update_value': bio_form.cleaned_data['bio']}]
-            res = update_doc('general_reps', rep_id, update_data)
             if isinstance(res, Exception):
                 return Response({"detail": "error"}, 400)
             rendered = render_to_string('bio_detail.html',

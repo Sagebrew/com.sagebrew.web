@@ -8,7 +8,7 @@ from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
-from sb_docstore.utils import (add_object_to_table, update_doc,
+from sb_docstore.utils import (add_object_to_table,
                                get_vote, update_vote, get_vote_count,
                                get_user_updates)
 
@@ -21,19 +21,6 @@ class TestDocstoreUtils(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-
-    def test_update_doc_datetime(self):
-        uuid = str(uuid1())
-        now = unicode(datetime.now(pytz.utc))
-        data = {"parent_object": uuid, "created": now, "user": self.pleb.username,
-                "status": 1, "object_uuid": uuid}
-        update_data = [{'update_key': 'status', 'update_value': 2}]
-        res = add_object_to_table('posts', data)
-        self.assertTrue(res)
-
-        res = update_doc('posts', uuid, update_data, uuid, now)
-
-        self.assertFalse(isinstance(res, Exception))
 
     def test_get_vote(self):
         uuid = str(uuid1())

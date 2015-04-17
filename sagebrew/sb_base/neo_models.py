@@ -295,6 +295,8 @@ class TaggableContent(SBContent):
         """
         from sb_tag.neo_models import Tag
         tag_array = []
+        if isinstance(tags, basestring) is True:
+            tags = tags.split(',')
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         if not tags:
             return False

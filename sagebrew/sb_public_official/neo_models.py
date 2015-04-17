@@ -47,7 +47,7 @@ class BaseOfficial(Pleb):
 
     def get_dict(self):
         return {"object_uuid": self.object_uuid,
-                "full_name": self.full_name,
+                "full_name": self.full_name[:self.full_name.rfind('[')],
                 "first_name": self.first_name,
                 "last_name": self.last_name,
                 "start_date": unicode(self.start_date),
@@ -55,7 +55,8 @@ class BaseOfficial(Pleb):
                 "state": self.state,
                 "title": self.title,
                 "district": self.district,
-                "current": self.current}
+                "current": self.current,
+                "bioguide": self.gt_person.all()[0].bioguideid}
 
 
 class Bill(StructuredNode):

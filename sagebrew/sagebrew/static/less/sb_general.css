@@ -1044,3 +1044,6 @@ textarea.sb_comment_input {
 .sb_restricted :hover {
   color: #eaf0e8;
 }
+.sb_thumbnail_md_rep {
+  width: 85px;
+}

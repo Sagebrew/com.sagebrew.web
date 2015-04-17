@@ -27,7 +27,7 @@ class TestCreatePrivileges(TestCase):
                         name=requirement["name"])
                     self.assertIsNotNone(requirement_obj)
                 for action in actions:
-                    action_obj = SBAction.nodes.get(action=action["action"])
+                    action_obj = SBAction.nodes.get(resource=action["resource"])
                     self.assertIsNotNone(action_obj)
                 for restriction in data['restrictions']:
                     restrict_obj = Restriction.nodes.get(

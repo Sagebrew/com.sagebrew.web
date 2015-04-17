@@ -109,7 +109,7 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         owner.questions.connect(question)
         for tag in tags:
             try:
-                tag_obj = Tag.nodes.get(tag_name=tag)
+                tag_obj = Tag.nodes.get(name=tag)
             except(Tag.DoesNotExist, DoesNotExist):
                 if settings.DEBUG is True:
                     # TODO this is only here because we don't have a stable
@@ -118,7 +118,7 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
                     # we can remove this.
                     if (request.user.username == "devon_bleibtrey" or
                                 request.user.username == "tyler_wiersing"):
-                        tag_obj = Tag(tag_name=tag).save()
+                        tag_obj = Tag(name=tag).save()
                     else:
                         continue
                 else:

@@ -7,7 +7,6 @@ class CreatePrivilegeForm(forms.Form):
 
 class CreateActionForm(forms.Form):
     action = forms.CharField()
-    object_type = forms.ChoiceField(choices=settings.KNOWN_TYPES)
     url = forms.CharField()
     html_object = forms.CharField(required=False)
 

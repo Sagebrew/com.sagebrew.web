@@ -19,9 +19,9 @@ def get_tag_view(request):
     tag_list = []
     es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
     scan_resp = helpers.scan(client=es, scroll='10m',
-                            index='tags', doc_type='tag')
+                             index='tags', doc_type='tag')
 
     for resp in scan_resp:
-        tag_list.append({"value": resp['_source']['tag_name']})
+        tag_list.append({"value": resp['_source']['name']})
     return Response({'tags': tag_list}, status=200)
 

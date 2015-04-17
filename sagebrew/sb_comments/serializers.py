@@ -50,7 +50,7 @@ class CommentSerializer(ContentSerializer):
     def get_comment_on(self, obj):
         request = self.context.get('request', None)
         expand = request.query_params.get('expand', "false").lower()
-        expand_array = request.query_params.get('expand_attr', [])
+        expand_array = request.query_params.get('expand_attrs', [])
         parent_object = get_parent_object(obj.object_uuid)
         parent_info = reverse(
             '%s-detail' % parent_object.get_child_label().lower(),

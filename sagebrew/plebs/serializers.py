@@ -5,7 +5,7 @@ from rest_framework.reverse import reverse
 
 from api.utils import spawn_task, request_to_api
 from sb_registration.utils import create_user_util
-from sb_privileges.neo_models import SBAction
+from sb_privileges.neo_models import Privilege
 
 from .tasks import pleb_user_update
 from .neo_models import Address
@@ -76,9 +76,7 @@ class PlebSerializerNeo(serializers.Serializer):
     # Don't think we need restrictions as that logic should be done for the
     # front end and privileges/actions that are not allowed to be used shouldn't
     # show up in the list. @Tyler what do you think?
-    privileges = serializers.HyperlinkedRelatedField(
-        view_name='privilege-detail', lookup_field="name")
-    actions = serializers.SerializerMethodField()
+    privileges = serializers.SerializerMethodField()
 
     url = serializers.SerializerMethodField()
 
@@ -109,18 +107,35 @@ class PlebSerializerNeo(serializers.Serializer):
         else:
             return user_url
 
-    def get_actions(self, obj):
-        res = obj.get_actions()
+    def get_privileges(self, obj):
+        res = obj.get_privileges()
         request = self.context['request']
         try:
             expand = request.query_params.get('expand', 'false').lower()
+            expand_array = request.query_params.get('expand_attrs', [])
         except AttributeError:
             expand = False
-        if expand == "true":
-            # TODO not implemented yet for now just return same
-            return [SBAction.inflate(row[0]).resource for row in res]
+            expand_array = []
+        # Future proofing this as this is not a common use case but we can still
+        # give users the ability to do so
+        if expand == "true" and "privileges" in expand_array:
+            priv_array = []
+            for row in res:
+                privilege_url = reverse("privilege-detail",
+                                        kwargs={
+                                            "name":
+                                                Privilege.inflate(row[0]).name
+                                        },
+                                        request=request)
+                response = request_to_api(privilege_url, request.user.username,
+                                          req_method="GET")
+                priv_array.append(response.json())
+            return priv_array
         else:
-            return [SBAction.inflate(row[0]).resource for row in res]
+            return [reverse("privilege-detail",
+                            kwargs={"name": Privilege.inflate(row[0]).name},
+                            request=request)
+                    for row in res]
 
 
 class AddressSerializer(serializers.Serializer):

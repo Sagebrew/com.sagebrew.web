@@ -15,7 +15,7 @@ class Privilege(SBObject):
     actions = RelationshipTo('sb_privileges.neo_models.SBAction', 'GRANTS')
     requirements = RelationshipTo('sb_requirements.neo_models.Requirement',
                                   'REQUIRES')
-    badges = RelationshipTo('sb_badges.neo_models.BadgeBase', "REQUIRES_BADGE")
+    badges = RelationshipTo('sb_badges.neo_models.Badge', "REQUIRES_BADGE")
 
     def check_requirements(self, pleb):
         for req in self.get_requirements():
@@ -100,3 +100,5 @@ class Restriction(SBObject):
                     "key": self.key,
                     "operator": pickle.loads(self.operator),
                     "response": check}
+
+

@@ -7,19 +7,19 @@ from rest_framework.pagination import LimitOffsetPagination
 
 from api.permissions import IsAdminOrReadOnly
 
-from .serializers import PrivilegeSerializer
-from .neo_models import Privilege
+from .serializers import TagSerializer
+from .neo_models import Tag
 
 
-class PrivilegeViewSet(viewsets.ModelViewSet):
-    serializer_class = PrivilegeSerializer
+class TagViewSet(viewsets.ModelViewSet):
+    serializer_class = TagSerializer
     lookup_field = "name"
-    queryset = Privilege.nodes.all()
+    queryset = Tag.nodes.all()
     permission_classes = (IsAuthenticated, IsAdminOrReadOnly)
     pagination_class = LimitOffsetPagination
 
     def get_object(self):
-        return Privilege.nodes.get(name=self.kwargs[self.lookup_field])
+        return Tag.nodes.get(name=self.kwargs[self.lookup_field])
 
     def create(self, request, *args, **kwargs):
         """

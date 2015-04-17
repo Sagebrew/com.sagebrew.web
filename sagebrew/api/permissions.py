@@ -12,7 +12,7 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 class IsOwnerOrAdmin(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if (obj.owned_by.all()[0].username == request.user.username or
-                request.user.is_staff()):
+                request.user.is_staff):
             return True
         else:
             return False
@@ -46,7 +46,15 @@ class IsUser(permissions.BasePermission):
 
 class IsUserOrAdmin(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if obj.user == request.user or request.user.is_staff():
+        if obj.user == request.user or request.user.is_staff:
             return True
         else:
             return False
+
+
+class IsAdminOrReadOnly(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return request.user.is_staff

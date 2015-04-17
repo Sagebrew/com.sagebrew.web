@@ -188,8 +188,8 @@ class SBContent(VotableContent):
     flags = RelationshipTo('sb_flags.neo_models.Flag', 'HAS_FLAG')
     comments = RelationshipTo('sb_comments.neo_models.Comment', 'HAS_A',
                               model=PostedOnRel)
-    auto_tagged_as = RelationshipTo('sb_tag.neo_models.Tag',
-                                    'AUTO_TAGGED_AS')
+    auto_tags = RelationshipTo('sb_tag.neo_models.Tag',
+                               'AUTO_TAGGED_AS', model=TagRelevanceModel)
     rel_weight = RelationshipTo('plebs.neo_models.Pleb', 'HAS_WEIGHT',
                                 model=RelationshipWeight)
     notifications = RelationshipTo(
@@ -283,8 +283,6 @@ class SBContent(VotableContent):
 class TaggableContent(SBContent):
     # relationships
     tags = RelationshipTo('sb_tag.neo_models.Tag', 'TAGGED_AS')
-    auto_tags = RelationshipTo('sb_tag.neo_models.AutoTag',
-                               'AUTO_TAGGED_AS', model=TagRelevanceModel)
     added_to_search_index = BooleanProperty(default=False)
 
     # methods
@@ -297,22 +295,24 @@ class TaggableContent(SBContent):
         """
         from sb_tag.neo_models import Tag
         tag_array = []
+        if isinstance(tags, basestring) is True:
+            tags = tags.split(',')
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         if not tags:
             return False
         for tag in tags:
             try:
-                tag_object = Tag.nodes.get(tag_name=tag.lower())
+                tag_object = Tag.nodes.get(name=tag.lower())
                 tag_array.append(tag_object)
             except (Tag.DoesNotExist, DoesNotExist):
                 # TODO we should only be creating tags if the user has enough
                 # rep
-                pass
+                continue
             except CypherException as e:
                 return e
         for item in tag_array:
             try:
-                self.tagged_as.connect(item)
+                self.tags.connect(item)
                 item.tag_used += 1
                 item.save()
             except CypherException as e:
@@ -325,11 +325,11 @@ class TaggableContent(SBContent):
         try:
             for tag in tag_list:
                 try:
-                    tag_object = AutoTag.nodes.get(tag_name=tag['tags']
+                    tag_object = AutoTag.nodes.get(name=tag['tags']
                     ['text'].lower())
                 except (AutoTag.DoesNotExist, DoesNotExist):
                     tag_object = AutoTag(
-                        tag_name=tag['tags']['text'].lower()).save()
+                        name=tag['tags']['text'].lower()).save()
                 if self.auto_tags.is_connected(tag_object):
                     continue
                 rel = self.auto_tags.connect(tag_object)
@@ -361,10 +361,10 @@ class SBVersioned(TaggableContent):
         base_tags = []
         pos_rep = self.get_upvote_count()*self.up_vote_adjustment
         neg_rep = self.get_downvote_count()*self.down_vote_adjustment
-        for tag in self.tagged_as.all():
+        for tag in self.tags.all():
             if tag.base:
-                base_tags.append(tag.tag_name)
-            tag_list.append(tag.tag_name)
+                base_tags.append(tag.name)
+            tag_list.append(tag.name)
         try:
             rep_per_tag = math.ceil(float(pos_rep+neg_rep)/len(tag_list))
         except ZeroDivisionError:

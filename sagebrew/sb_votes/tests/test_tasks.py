@@ -28,7 +28,6 @@ class TestVoteObjectTask(TestCase):
         question = Question(object_uuid=str(uuid1())).save()
         question.owned_by.connect(self.pleb)
         task_data = {
-            'object_type': 'sb_questions.neo_models.Question',
             'object_uuid': question.object_uuid,
             'current_pleb': self.pleb,
             'vote_type': True
@@ -42,7 +41,6 @@ class TestVoteObjectTask(TestCase):
     def test_vote_object_task_get_object_failure(self):
         question = Question(object_uuid=str(uuid1())).save()
         task_data = {
-            'object_type': 'Question',
             'object_uuid': question.object_uuid,
             'current_pleb': self.pleb,
             'vote_type': True

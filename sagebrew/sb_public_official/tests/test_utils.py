@@ -28,19 +28,19 @@ class TestPrepareSearchHTML(TestCase):
         try:
             test_official = BaseOfficial(
                 object_uuid = str(uuid1()),
-                full_name = "Test Rep",
-                first_name = "Test",
-                last_name = "Rep",
-                start_date = datetime.now(pytz.utc),
-                end_date = datetime.now(pytz.utc),
-                state = "MI",
-                title = "House Rep",
-                district = 11,
-                current = True
+                full_name="Test Rep",
+                first_name="Test",
+                last_name="Rep",
+                start_date=datetime.now(pytz.utc),
+                end_date=datetime.now(pytz.utc),
+                state="MI",
+                title="House Rep",
+                district=11,
+                current=True
             )
             test_official.save()
         except (CypherException, IOError):
-            pass
+            test_official = None
 
         res = prepare_official_search_html(test_official.object_uuid)
         self.assertIsInstance(res, SafeText)

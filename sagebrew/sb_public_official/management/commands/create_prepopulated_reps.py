@@ -52,6 +52,8 @@ class Command(BaseCommand):
                                        object_uuid=str(uuid1()))
                     rep.save()
                     reps.append(rep)
+                    rep.gt_person.connect(person)
+                    rep.gt_role.connect(role)
                 except (CypherException, IOError) as e:
                     logger.exception(e)
                     continue

@@ -146,7 +146,7 @@ def determine_reps(username):
                 pleb.senators.connect(rep)
             except (CypherException, IOError):
                 return False
-            senators.append(rep.sb_id)
+            senators.append(rep.object_uuid)
     return True
 
 @apply_defense

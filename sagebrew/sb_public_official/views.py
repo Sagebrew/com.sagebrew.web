@@ -28,8 +28,13 @@ from .utils import get_rep_type, prepare_official_search_html
                   login_url='/registration/profile_information')
 def saga(request, username):
     representative = {"object_uuid": username}
+    try:
+        official = BaseOfficial.nodes.get(object_uuid=username)
+    except (CypherException, IOError, BaseOfficial.DoesNotExist, DoesNotExist):
+        return redirect("404_Error")
+    official_dict = official.get_dict()
     return render(request, 'action_page.html',
-                  {"representative": representative,
+                  {"representative": official_dict,
                    "registered": False})
 
 

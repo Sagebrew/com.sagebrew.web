@@ -40,7 +40,8 @@ class TestNotificationUtils(TestCase):
     def test_create_post_notification_user_is_same(self):
         post = Post(object_uuid=uuid1(), content='as;ldkfja;')
         post.save()
-        response = create_notification_util(post, self.pleb, [self.pleb],
+        response = create_notification_util(post.object_uuid, self.pleb,
+                                            [self.pleb],
                                             str(uuid1()), self.url)
 
         self.assertTrue(response)
@@ -50,7 +51,8 @@ class TestNotificationUtils(TestCase):
                                         sent=True).save()
         post = Post(object_uuid=uuid1(), content='as;ldkfja;')
         post.save()
-        response = create_notification_util(post, self.pleb, [self.pleb2],
+        response = create_notification_util(post.object_uuid, self.pleb,
+                                            [self.pleb2],
                                             notification.object_uuid, self.url)
         self.assertTrue(response)
 
@@ -58,7 +60,8 @@ class TestNotificationUtils(TestCase):
         notification = NotificationBase(object_uuid=str(uuid1())).save()
         post = Post(object_uuid=uuid1(), content='as;ldkfja;')
         post.save()
-        response = create_notification_util(post, self.pleb, [self.pleb2],
+        response = create_notification_util(post.object_uuid, self.pleb,
+                                            [self.pleb2],
                                             notification.object_uuid, self.url)
 
         self.assertTrue(response)
@@ -69,7 +72,8 @@ class TestNotificationUtils(TestCase):
         comment = Comment(object_uuid=str(uuid1()), content='sdfasd')
         comment.save()
 
-        response = create_notification_util(comment, self.pleb, [self.pleb2],
+        response = create_notification_util(comment.object_uuid, self.pleb,
+                                            [self.pleb2],
                                             str(uuid1()), self.url)
 
         self.assertTrue(response)
@@ -80,7 +84,8 @@ class TestNotificationUtils(TestCase):
         comment = Comment(object_uuid=str(uuid1()), content='sdfasd')
         comment.save()
 
-        response = create_notification_util(comment, self.pleb, [self.pleb],
+        response = create_notification_util(comment.object_uuid, self.pleb,
+                                            [self.pleb],
                                             str(uuid1()), self.url)
 
         self.assertTrue(response)
@@ -92,7 +97,8 @@ class TestNotificationUtils(TestCase):
                                         sent=True).save()
         post = Post(object_uuid=uuid1(), content='as;ldkfja;')
         post.save()
-        response = create_notification_util(comment, self.pleb, [self.pleb2],
+        response = create_notification_util(comment.object_uuid, self.pleb,
+                                            [self.pleb2],
                                             notification.object_uuid, self.url)
         self.assertTrue(response)
 
@@ -102,6 +108,7 @@ class TestNotificationUtils(TestCase):
         notification = NotificationBase(object_uuid=str(uuid1())).save()
         post = Post(object_uuid=uuid1(), content='as;ldkfja;')
         post.save()
-        response = create_notification_util(comment, self.pleb, [self.pleb2],
+        response = create_notification_util(comment.object_uuid, self.pleb,
+                                            [self.pleb2],
                                             notification.object_uuid, self.url)
         self.assertTrue(response)

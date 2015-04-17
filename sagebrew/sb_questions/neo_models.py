@@ -46,6 +46,18 @@ class Question(SBPublicContent):
         queryset = [Tag.inflate(row[0]).name for row in res]
         return queryset
 
+    def get_solutions(self):
+        query = 'MATCH (a:Question)-->(solutions:Solution) ' \
+            'WHERE (a.object_uuid = "%s" and ' \
+            'solutions.to_be_deleted = false)' \
+            'RETURN solutions' % (self.object_uuid)
+        res, col = db.cypher_query(query)
+        try:
+            solutions = res[0][0]
+        except IndexError:
+            solutions = []
+        return solutions
+
     @apply_defense
     def edit_content(self, pleb, content):
         from sb_questions.utils import create_question_util
@@ -55,7 +67,7 @@ class Question(SBPublicContent):
 
             if isinstance(edit_question, Exception) is True:
                 return edit_question
-            
+
             edit_question.original = False
             edit_question.save()
             self.edits.connect(edit_question)

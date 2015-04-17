@@ -27,7 +27,7 @@ class TestPrepareSearchHTML(TestCase):
     def test_prepare_search_html(self):
         try:
             test_official = BaseOfficial(
-                object_uuid = str(uuid1()),
+                object_uuid=str(uuid1()),
                 full_name="Test Rep",
                 first_name="Test",
                 last_name="Rep",

@@ -46,8 +46,13 @@ class BaseOfficial(Pleb):
     gt_role = RelationshipTo('govtrack.neo_models.GTRole', 'GTROLE')
 
     def get_dict(self):
+        crop_name = self.full_name.rfind('[')
+        try:
+            full_name = self.full_name[:crop_name]
+        except IndexError:
+            full_name = self.full_name
         return {"object_uuid": self.object_uuid,
-                "full_name": self.full_name[:self.full_name.rfind('[')],
+                "full_name": full_name,
                 "first_name": self.first_name,
                 "last_name": self.last_name,
                 "start_date": unicode(self.start_date),

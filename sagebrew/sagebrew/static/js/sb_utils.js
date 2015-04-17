@@ -238,10 +238,11 @@ function loadPosts(url){
             if (data["next"] !== null) {
                 loadPosts(data["next"]);
             }
+
             enable_single_post_functionality(data['results']['ids']);
             // TODO This can probably be changed to grab the href and append
             // `comments/` to the end of it.
-            populate_comments(data['results']['ids'], "posts")
+            populate_comments(data['results']['ids'], "posts");
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
             if(XMLHttpRequest.status === 500){

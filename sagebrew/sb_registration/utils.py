@@ -149,7 +149,20 @@ def create_user_util(first_name, last_name, email, password, birthday):
                                     email=email, password=password,
                                     username=username)
     user.save()
-
+    try:
+        Pleb.nodes.get(username=user.username)
+    except (Pleb.DoesNotExist, DoesNotExist):
+        try:
+            pleb = Pleb(email=user.email,
+                        first_name=user.first_name,
+                        last_name=user.last_name,
+                        username=user.username,
+                        birthday=birthday)
+            pleb.save()
+        except(CypherException, IOError) as e:
+            return False
+    except(CypherException, IOError) as e:
+        raise False
     res = spawn_task(task_func=create_pleb_task,
                      task_param={"user_instance": user, "birthday": birthday,
                                  "password": password})

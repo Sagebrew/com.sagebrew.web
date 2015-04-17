@@ -169,17 +169,9 @@ def create_pleb_task(user_instance=None, birthday=None, password=None):
     if user_instance is None:
         return None
     try:
-        Pleb.nodes.get(username=user_instance.username)
-    except (Pleb.DoesNotExist, DoesNotExist):
-        try:
-            pleb = Pleb(email=user_instance.email,
-                        first_name=user_instance.first_name,
-                        last_name=user_instance.last_name,
-                        username=user_instance.username,
-                        birthday=birthday)
-            pleb.save()
-        except(CypherException, IOError) as e:
-            raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
+        pleb = Pleb.nodes.get(username=user_instance.username)
+    except (Pleb.DoesNotExist, DoesNotExist) as e:
+        raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
     except(CypherException, IOError) as e:
         raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
     task_info = spawn_task(task_func=create_wall_task,

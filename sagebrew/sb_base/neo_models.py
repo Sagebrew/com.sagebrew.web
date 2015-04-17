@@ -312,7 +312,7 @@ class TaggableContent(SBContent):
                 return e
         for item in tag_array:
             try:
-                self.tagged_as.connect(item)
+                self.tags.connect(item)
                 item.tag_used += 1
                 item.save()
             except CypherException as e:
@@ -361,7 +361,7 @@ class SBVersioned(TaggableContent):
         base_tags = []
         pos_rep = self.get_upvote_count()*self.up_vote_adjustment
         neg_rep = self.get_downvote_count()*self.down_vote_adjustment
-        for tag in self.tagged_as.all():
+        for tag in self.tags.all():
             if tag.base:
                 base_tags.append(tag.name)
             tag_list.append(tag.name)

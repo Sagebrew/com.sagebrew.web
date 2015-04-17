@@ -426,5 +426,5 @@ def get_parent_votable_content(object_uuid, relation, child_object):
             # the serializers ensure this singleness prior to removing this.
             content = VotableContent.inflate(res[0][0][0])
         return content
-    except(IndexError):
-        return None
+    except(CypherException, IOError, IndexError) as e:
+        return e

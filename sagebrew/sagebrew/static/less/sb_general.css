@@ -337,9 +337,7 @@
 .sb_btn_icon_settings,
 .vote_up,
 .vote_down,
-.sb_btn_icon_settings_profile,
-.vote_up_small,
-.vote_down_small {
+.sb_btn_icon_settings_profile {
   background-color: #1ba39c;
 }
 .sb_btn_disabled {
@@ -368,9 +366,7 @@
 .sb_btn_icon_settings,
 .vote_up,
 .vote_down,
-.sb_btn_icon_settings_profile,
-.vote_up_small,
-.vote_down_small {
+.sb_btn_icon_settings_profile {
   background-color: transparent;
   font-size: 18px;
   padding: 10px;
@@ -428,9 +424,7 @@
 }
 .sb_btn_vote,
 .vote_up,
-.vote_down,
-.vote_up_small,
-.vote_down_small {
+.vote_down {
   color: #b7bfbb;
   padding: 0;
   font-size: 30pt;
@@ -438,20 +432,51 @@
 .sb_btn_vote:hover {
   color: #1ba39c;
 }
+.vote_small button {
+  font-size: 20pt;
+}
+.vote_count_wrapper {
+  font-weight: bold;
+  overflow: hidden;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+.sb_vote_wrapper_solution {
+  margin-left: -20px;
+  margin-top: -15px;
+}
+.sb_vote_wrapper_summary {
+  margin-left: -5px;
+  margin-top: -15px;
+}
+.sb_vote_wrapper {
+  margin-left: -5px;
+  margin-top: -15px;
+}
+.vote_count {
+  font-weight: bold;
+  display: inline-block;
+  padding: 0 10px 0 10px;
+}
+.vote_count_large .vote_count {
+  margin-left: 15px;
+}
+.vote_count_medium .vote_count {
+  margin-left: 4px;
+}
+.vote_count_small span.vote_count {
+  font-size: 13px !important;
+  margin-left: 8px;
+}
 .vote_up:hover {
   color: #1ba39c;
 }
 .vote_up_active {
   color: #1ba39c;
 }
-.vote_up_small {
-  font-size: 20pt;
-}
 .vote_down:hover {
   color: #a162ff;
-}
-.vote_down_small {
-  font-size: 20pt;
 }
 .vote_down_active {
   color: #a162ff;
@@ -459,14 +484,6 @@
 .vote_count_large {
   margin-left: 15px;
   font-size: 15pt;
-  font-weight: bold;
-}
-.vote_count_medium {
-  font-weight: bold;
-  margin-left: 9px;
-}
-.vote_count_small {
-  font-size: 12px;
   font-weight: bold;
 }
 .sb_spy {
@@ -860,12 +877,11 @@
   overflow: hidden;
   background-color: rgba(202, 206, 209, 0.5);
 }
-.sb_vote_wrapper {
-  margin-left: -5px;
-  margin-top: -15px;
-}
 .sb_votes {
   margin-left: -7px;
+}
+.sb_votes .tooltip {
+  padding-right: -30px;
 }
 .sb_vote_wrapper_small {
   margin-left: 2px;
@@ -878,7 +894,7 @@
   margin-bottom: -13px;
 }
 .sb_up_vote_wrapper_summary {
-  margin-top: 0px;
+  margin-top: 0;
   margin-bottom: -25px;
 }
 .sb_down_vote_wrapper {

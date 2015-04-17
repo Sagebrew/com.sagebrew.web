@@ -8,8 +8,7 @@ from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
-from sb_docstore.utils import (add_object_to_table,
-                               query_parent_object_table, update_doc,
+from sb_docstore.utils import (add_object_to_table, update_doc,
                                get_vote, update_vote, get_vote_count,
                                get_user_updates)
 
@@ -22,24 +21,6 @@ class TestDocstoreUtils(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-
-    def test_query_parent_object_table_success(self):
-        uuid = str(uuid1())
-        res = query_parent_object_table(uuid, True)
-
-        self.assertIsInstance(res, list)
-
-    def test_query_parent_object_table_get_one(self):
-        uuid = str(uuid1())
-        timestamp = unicode(datetime.now(pytz.utc))
-        data = {'parent_object': uuid, "created": timestamp, "content": '123',
-                'user': self.pleb.username}
-        res = add_object_to_table('edits', object_data=data)
-        self.assertTrue(res)
-
-        res = query_parent_object_table(uuid)
-
-        self.assertEqual(res, data)
 
     def test_update_doc_datetime(self):
         uuid = str(uuid1())
@@ -102,11 +83,6 @@ class TestDocstoreUtils(TestCase):
         res = get_vote_count(uuid, 1)
 
         self.assertEqual(res, 1)
-
-    def test_get_user_updates_edits(self):
-        res = get_user_updates(self.pleb.username, str(uuid1()), 'edits')
-
-        self.assertIsInstance(res, list)
 
     def test_get_user_updates(self):
         res = get_user_updates(self.pleb.username, str(uuid1()), 'votes')

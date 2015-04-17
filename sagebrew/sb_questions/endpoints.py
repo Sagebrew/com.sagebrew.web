@@ -143,8 +143,9 @@ class QuestionViewSet(viewsets.ModelViewSet):
                 question[
                     'last_edited_on'][:len(question['last_edited_on']) - 6],
                 '%Y-%m-%dT%H:%M:%S.%f')
+            context = RequestContext(request, question)
             html_array.append(render_to_string('question_summary.html',
-                                               question))
+                                               context))
             id_array.append(question["object_uuid"])
         questions.data['results'] = {"html": html_array, "ids": id_array}
         return Response(questions.data, status=status.HTTP_200_OK)

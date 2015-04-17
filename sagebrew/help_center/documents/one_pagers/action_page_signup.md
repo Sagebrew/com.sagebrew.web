@@ -56,20 +56,14 @@ achievable goals you can show your contributors that
 you're good on your word and that you have the dedication
 to achieve your goals and get things done.
 
-### Education and Experiences ###
-This is where you get to brag about your achievements. Let your
-constituents know how much work you've done over the course of your
-life and career and show them that you're the right person for office
-based on your accrued knowledge. Did you graduate from Princeton with
-a degree in Foreign Policy? Have you been a member of your local government
-for 28 years with experience working in a government setting? Let the people
-know why you're the right candidate for the job!
-
 ### Epic ###
-In this section you'll be able to outline your political policies, highlighting
-the issues that are most important to you. You'll also be able to
-plan your political agenda (what you plan to do once/if you reach office) as 
-well as anything else you want the public to know about you..
+In this section you'll be able to outline your political policies, education, 
+experiences, and achievements. By highlighting your history and the issues 
+that matter to you, you'll become more personable to the public.
+
+You'll also be able to
+plan your political agenda (what you plan to do once/if you reach office) 
+as well as anything else you want the public to know about you.
 
 ### Bio ###
 This is where you have a chance to express yourself on a personal level.

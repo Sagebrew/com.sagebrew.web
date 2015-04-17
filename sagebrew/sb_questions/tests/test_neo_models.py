@@ -20,11 +20,6 @@ class TestQuestionNeoModel(TestCase):
                                  object_uuid=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
 
-    def test_add_tags(self):
-        res = self.question.add_tags('thisisatesttag1,thisisatesttag2')
-
-        self.assertTrue(res)
-
     def test_add_auto_tags(self):
         auto_tags = [{'tags': {'text': 'testautotag', 'relevance': 0.10201}}]
         res = self.question.add_auto_tags(auto_tags)

@@ -307,7 +307,7 @@ class TaggableContent(SBContent):
             except (Tag.DoesNotExist, DoesNotExist):
                 # TODO we should only be creating tags if the user has enough
                 # rep
-                pass
+                continue
             except CypherException as e:
                 return e
         for item in tag_array:

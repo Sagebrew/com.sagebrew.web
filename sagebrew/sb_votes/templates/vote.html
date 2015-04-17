@@ -1,0 +1,43 @@
+<div class="row sb_votes vote_wrapper" id="vote_{{ object_uuid }}">
+
+        {% comment %} For beta we'll allow users with 0 rep to upvote to get some initial rep build up{% endcomment %}
+        {% if "questions" not in request.path and "solutions" not in request.path %}
+                {% include "upvote.html" %}
+        {% else %}
+            {% if owner_object.username == request.user.username %}
+                {% include "vote_own_up.html" %}
+            {% else %}
+                {% include "upvote.html" %}
+            {% endif %}
+
+        {% endif %}
+        {% comment %}
+            {% if "questions" not in request.path and "solutions" not in request.path %}
+                    {% include "upvote.html" %}
+            {% elif "upvote" in request_profile.actions %}
+                {% if owner_object.username == request.user.username %}
+                    {% include "vote_own_up.html" %}
+                {% else %}
+                    {% include "upvote.html" %}
+                {% endif %}
+            {% else %}
+                {% include "upvote_restriction.html" %}
+            {% endif %}
+        {% endcomment %}
+
+    <div class="col-lg-12 vote_count_wrapper vote_count{{ object_uuid }}">
+        {% comment %} This works pretty well until we get to 4 Characters like 1000 on posts and comments {% endcomment %}
+        <span class="vote_count" id="vote_count_{{ object_uuid }}">{{ vote_count|default_if_none:"0" }}</span>
+    </div>
+        {% if "questions" not in request.path and "solutions" not in request.path %}
+            {% include "downvote.html" %}
+        {% elif "upvote" in request_profile.actions %}
+            {% if owner_object.username == request.user.username %}
+                {% include "vote_own_down.html" %}
+            {% else %}
+                {% include "downvote.html" %}
+            {% endif %}
+        {% else %}
+            {% include "downvote_restriction.html" %}
+        {% endif %}
+</div>

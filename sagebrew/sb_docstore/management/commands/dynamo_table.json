@@ -30,22 +30,6 @@
         "range_key": "state"
     },
     {
-        "table_name": "edits",
-        "hash_key": "parent_object",
-        "range_key": "created",
-        "local_index_name": "UserIndex",
-        "local_index": "user",
-        "type": "S"
-    },
-    {
-        "table_name": "vote_versions",
-        "hash_key": "parent_object",
-        "range_key": "time",
-        "local_index_name": "UserIndex",
-        "local_index": "user",
-        "type": "S"
-    },
-    {
         "table_name": "general_reps",
         "hash_key": "object_uuid"
     },

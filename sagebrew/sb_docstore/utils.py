@@ -90,7 +90,7 @@ def add_object_to_table(table_name, object_data):
         res = table.put_item(data=object_data)
     except ConditionalCheckFailedException:
         try:
-            user_object = table.get_item(email=object_data['email'])
+            user_object = table.get_item(username=object_data['username'])
             return True
         except (ConditionalCheckFailedException, KeyError):
             return True
@@ -101,28 +101,6 @@ def add_object_to_table(table_name, object_data):
         return e
 
     return True
-
-
-@apply_defense
-def query_parent_object_table(object_uuid, get_all=False, table_name='edits'):
-    conn = connect_to_dynamo()
-    if isinstance(conn, Exception):
-        return conn
-    try:
-        edits = Table(table_name=get_table_name(table_name), connection=conn)
-    except JSONResponseError as e:
-        return e
-    res = edits.query_2(
-        parent_object__eq=object_uuid,
-        created__gte='0',
-        reverse=True
-    )
-    if get_all:
-        return list(res)
-    try:
-        return dict(list(res)[0])
-    except IndexError:
-        return False
 
 
 @apply_defense

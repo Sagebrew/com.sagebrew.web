@@ -1,5 +1,4 @@
 import pytz
-import markdown
 from uuid import uuid1
 from datetime import datetime
 
@@ -8,7 +7,6 @@ from neomodel import (StringProperty, IntegerProperty,
                       CypherException)
 from neomodel import db
 
-from api.utils import execute_cypher_query
 from sb_base.neo_models import SBPublicContent
 from sb_tag.neo_models import Tag
 
@@ -86,71 +84,6 @@ class Question(SBPublicContent):
             self.save()
             return edit_question
         except CypherException as e:
-            return e
-
-    @apply_defense
-    def delete_content(self, pleb):
-        try:
-            self.content = ""
-            self.title = ""
-            self.to_be_deleted = True
-            self.save()
-            return self
-        except CypherException as e:
-            return e
-
-    @apply_defense
-    def get_single_dict(self):
-        from sb_solutions.neo_models import Solution
-        try:
-            solution_array = []
-            comment_array = []
-            owner = self.owned_by.all()
-            try:
-                owner = owner[0]
-            except IndexError as e:
-                return e
-            # TODO is this used for storing solutions and comments
-            # into dynamo? Or can we get rid of it and just return
-            # the question specific data?
-            query = 'match (q:Question) where q.object_uuid="%s" ' \
-                    'with q ' \
-                    'match (q)-[:POSSIBLE_ANSWER]-(a:Solution) ' \
-                    'where a.to_be_deleted=False ' \
-                    'return a ' % self.object_uuid
-            solutions, meta = execute_cypher_query(query)
-            solutions = [Solution.inflate(row[0]) for row in solutions]
-            for solution in solutions:
-                solution_array.append(solution.get_single_dict())
-            edit = self.get_most_recent_edit()
-            for comment in self.comments.all():
-                comment_array.append(comment.get_single_dict())
-            if self.content is None:
-                html_content = ""
-            else:
-                html_content = markdown.markdown(self.content)
-            # TODO this should be replaced with the serializer
-            return {
-                'title': edit.title,
-                'content': edit.content,
-                'object_uuid': self.object_uuid,
-                'is_closed': self.is_closed,
-                'solution_count': self.solution_count,
-                'last_edited_on': unicode(self.last_edited_on),
-                'upvotes': self.get_upvote_count(),
-                'downvotes': self.get_downvote_count(),
-                'vote_count': self.get_vote_count(),
-                'owner': owner.username,
-                'owner_full_name': "%s %s" % (
-                    owner.first_name, owner.last_name),
-                'created': unicode(self.created),
-                'solutions': solution_array,
-                'comments': comment_array,
-                'edits': [],
-                'object_type': self.object_type,
-                'to_be_deleted': self.to_be_deleted,
-                'html_content': html_content}
-        except (CypherException, IOError) as e:
             return e
 
     @apply_defense

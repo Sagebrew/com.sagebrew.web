@@ -5,7 +5,7 @@ from rest_framework.reverse import reverse
 
 from api.utils import spawn_task, request_to_api
 from sb_registration.utils import create_user_util
-from sb_privileges.neo_models import SBAction, Privilege
+from sb_privileges.neo_models import SBAction
 
 from .tasks import pleb_user_update
 from .neo_models import Address
@@ -76,7 +76,8 @@ class PlebSerializerNeo(serializers.Serializer):
     # Don't think we need restrictions as that logic should be done for the
     # front end and privileges/actions that are not allowed to be used shouldn't
     # show up in the list. @Tyler what do you think?
-    privileges = serializers.SerializerMethodField()
+    privileges = serializers.HyperlinkedRelatedField(
+        view_name='privilege-detail', lookup_field="name")
     actions = serializers.SerializerMethodField()
 
     url = serializers.SerializerMethodField()
@@ -124,19 +125,6 @@ class PlebSerializerNeo(serializers.Serializer):
             return [SBAction.inflate(row[0]).resource for row in res]
         else:
             return [SBAction.inflate(row[0]).resource for row in res]
-
-    def get_privileges(self, obj):
-        res = obj.get_privileges()
-        request = self.context['request']
-        try:
-            expand = request.query_params.get('expand', 'false').lower()
-        except AttributeError:
-            expand = False
-        if expand == "true":
-            # TODO not implemented yet for now just return same
-            return [Privilege.inflate(row[0]).name for row in res]
-        else:
-            return [Privilege.inflate(row[0]).name for row in res]
 
 
 class AddressSerializer(serializers.Serializer):

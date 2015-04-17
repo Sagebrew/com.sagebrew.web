@@ -122,7 +122,7 @@ function populate_comment(object_uuid, resource){
                     $.ajax({
                         xhrFields: {withCredentials: true},
                         type: "GET",
-                        url: "/v1/posts/" + object_uuid + "/comments/render/?expand=true&html=true&page_size=3&page=2",
+                        url: "/v1/" + resource + "/" + object_uuid + "/comments/render/?expand=true&html=true&page_size=3&page=2",
                         contentType: "application/json; charset=utf-8",
                         dataType: "json",
                         success: function (data) {
@@ -192,6 +192,19 @@ function populate_comments(object_uuids, resource){
 
 function readyFlag(flag_object){
     $(flag_object).tooltip()
+}
+
+function readyVote(vote_object){
+    $(vote_object).tooltip()
+}
+
+function readyVotes(object_uuids){
+    if(typeof object_uuids !== 'undefined' && object_uuids.length > 0){
+        for (i = 0; i < object_uuids.length; i++) {
+            readyVote("#upvote_" + object_uuids[i]);
+            readyVote("#downvote_" + object_uuids[i]);
+        }
+    }
 }
 
 function readyFlags(object_uuids){
@@ -337,34 +350,39 @@ function loadSolutions(url){
 }
 
 
-function vote_object(vote_area){
+function vote_object(vote_area, resource){
     $(vote_area).click(function (event) {
+        var object_uuid = $(this).data('object_uuid');
         var id = $(this).parents('div.vote_wrapper').attr('id').split('_')[1];
         var vote_type = $(this).hasClass('vote_up') ? true : false;
         var vote_down = $(this).parents('div.vote_wrapper').find(".vote_down");
         var vote_up = $(this).parents('div.vote_wrapper').find(".vote_up");
+        var upvote_count = parseInt($('#vote_count_' + object_uuid).text());
         if(vote_down.hasClass('vote_down_active') && vote_type == true){
             vote_down.removeClass('vote_down_active');
             vote_up.addClass('vote_up_active');
+            upvote_count += 2;
         } else if(vote_down.hasClass('vote_down_active') && vote_type === false)  {
             vote_down.removeClass('vote_down_active');
+            upvote_count += 1;
         } else if(vote_up.hasClass('vote_up_active') && vote_type === true)  {
             vote_up.removeClass('vote_up_active');
+            upvote_count -= 1;
         } else if(vote_up.hasClass('vote_up_active') && vote_type === false)  {
             vote_down.addClass('vote_down_active');
             vote_up.removeClass('vote_up_active');
+            upvote_count -= 2;
         } else {
             if(vote_type === true) {
                 $(this).addClass('vote_up_active');
+                upvote_count += 1;
             }
             else {
                 $(this).addClass('vote_down_active');
+                upvote_count -= 1;
             }
         }
 
-        var uuid = $(this).data('object_uuid');
-        var upvote_count = $('div.sb_upvote_count'+uuid).text();
-        var downvote_count = $('div.sb_downvote_count'+uuid).text();
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -374,20 +392,14 @@ function vote_object(vote_area){
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
-            url: "/vote/vote_object_api/",
+            url: "/v1/" + resource + "/" + object_uuid + "/votes/?expedite=true",
             data: JSON.stringify({
-                'vote_type': vote_type,
-                'object_uuid': $(this).data('object_uuid'),
-                'object_type': $(this).data('object_type'),
-                'downvote_count': downvote_count,
-                'upvote_count': upvote_count
+                'vote_type': vote_type
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function(data){
-                $('div.sb_upvote_count'+uuid).text(data['upvote_value']);
-                $('div.sb_downvote_count'+uuid).text(data['downvote_value']);
-                $('div.vote_count'+uuid).text(data['total_value'])
+                $('#vote_count_' + object_uuid).text(upvote_count)
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 if(XMLHttpRequest.status === 500){
@@ -399,10 +411,10 @@ function vote_object(vote_area){
     });
 }
 
-function vote_objects(populated_ids) {
+function vote_objects(populated_ids, resource) {
     if(typeof populated_ids !== 'undefined' && populated_ids.length > 0){
         for (i = 0; i < populated_ids.length; i++) {
-            vote_object(".vote_" + populated_ids[i]);
+            vote_object(".vote_" + populated_ids[i], resource);
         }
     }
 }
@@ -469,8 +481,6 @@ function edit_object(edit_area, url, object_uuid, data_area) {
         event.preventDefault();
         var edit_button = "#edit_comment_button_id_" + object_uuid;
         $(edit_button).attr("disabled", "disabled");
-        console.log(data_area);
-        console.log($(data_area));
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 ajax_security(xhr, settings)
@@ -721,8 +731,8 @@ function respond_friend_request(){
 
 
 function enable_object_functionality(populated_ids) {
-    vote_objects(populated_ids);
     readyFlags(populated_ids);
+    readyVotes(populated_ids)
 }
 
 
@@ -734,12 +744,14 @@ function enable_comment_functionality(populated_ids){
     enable_object_functionality(populated_ids);
     show_edit_comment(populated_ids);
     comment_validator();
+    vote_objects(populated_ids, "comments");
     edit_objects("/v1/comments/", populated_ids, "textarea.edit_comment_input_class");
     delete_objects("/v1/comments/", populated_ids);
 }
 
 function enable_question_summary_functionality(populated_ids) {
-    vote_objects(populated_ids);
+    vote_objects(populated_ids, "questions");
+    readyVotes(populated_ids)
 }
 
 function enable_question_functionality(populated_ids) {
@@ -747,6 +759,7 @@ function enable_question_functionality(populated_ids) {
     save_comments(populated_ids, "/v1/questions/");
     show_edit_question(populated_ids);
     save_solution(populated_ids);
+    vote_objects(populated_ids, "questions");
     delete_objects("/v1/questions/", populated_ids);
 }
 
@@ -754,6 +767,7 @@ function enable_single_post_functionality(populated_ids) {
     enable_object_functionality(populated_ids);
     save_comments(populated_ids, '/v1/posts/');
     show_edit_posts(populated_ids);
+    vote_objects(populated_ids, "posts");
     edit_objects("/v1/posts/", populated_ids, "textarea.edit_post_input_class");
     delete_objects("/v1/posts/", populated_ids);
 }
@@ -761,6 +775,7 @@ function enable_single_post_functionality(populated_ids) {
 function enable_solution_functionality(populated_ids) {
     enable_object_functionality(populated_ids);
     save_comments(populated_ids, '/v1/solutions/');
+    vote_objects(populated_ids, "solutions");
     show_edit_solution(populated_ids);
     delete_objects("/v1/solutions/", populated_ids);
 }

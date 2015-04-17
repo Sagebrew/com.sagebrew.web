@@ -47,7 +47,6 @@ class VotableContent(NotificationCapable):
     up_vote_adjustment = 0
     down_vote_adjustment = 0
     content = StringProperty()
-    created = DateTimeProperty(default=get_current_time)
     view_count_node = RelationshipTo('sb_stats.neo_models.SBViewCount',
                                      'VIEW_COUNT')
     # relationships
@@ -388,3 +387,44 @@ class SBPublicContent(SBVersioned):
 class SBPrivateContent(TaggableContent):
     # Used to distinguish between private conversations and public
     pass
+
+
+def get_parent_content(object_uuid, relation, child_object):
+    try:
+        query = "MATCH (a:%s {object_uuid:'%s'})-[:%s]->" \
+                "(b:SBContent) RETURN b" % (object_uuid, child_object, relation)
+        res, col = db.cypher_query(query)
+        try:
+            content = SBContent.inflate(res[0][0])
+        except ValueError:
+            # This exception was added while initially implementing the fxn and
+            # may not be possible in production. What happened was multiple
+            # flags/votes got associated with a piece of content causing an
+            # array to be returned instead of a single object which is handled
+            # above. This should be handled now but we should verify that
+            # the serializers ensure this singleness prior to removing this.
+            content = SBContent.inflate(res[0][0][0])
+        return content
+    except(IndexError):
+        return None
+
+
+def get_parent_votable_content(object_uuid, relation, child_object):
+    try:
+        query = "MATCH (a:%s {object_uuid:'%s'})-[:%s]->" \
+                "(b:VotableContent) RETURN b" % (object_uuid, child_object,
+                                                 relation)
+        res, col = db.cypher_query(query)
+        try:
+            content = VotableContent.inflate(res[0][0])
+        except ValueError:
+            # This exception was added while initially implementing the fxn and
+            # may not be possible in production. What happened was multiple
+            # flags/votes got associated with a piece of content causing an
+            # array to be returned instead of a single object which is handled
+            # above. This should be handled now but we should verify that
+            # the serializers ensure this singleness prior to removing this.
+            content = VotableContent.inflate(res[0][0][0])
+        return content
+    except(IndexError):
+        return None

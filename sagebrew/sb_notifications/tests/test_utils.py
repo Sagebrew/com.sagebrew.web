@@ -31,7 +31,8 @@ class TestNotificationUtils(TestCase):
         post = Post(object_uuid=uuid1(), content='as;ldkfja;')
         post.save()
 
-        response = create_notification_util(post, self.pleb, [self.pleb2],
+        response = create_notification_util(post.object_uuid, self.pleb,
+                                            [self.pleb2],
                                             str(uuid1()), self.url)
 
         self.assertTrue(response)

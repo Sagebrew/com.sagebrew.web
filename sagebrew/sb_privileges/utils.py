@@ -40,14 +40,8 @@ def manage_privilege_relation(username):
         privileges = Privilege.nodes.all()
     except(CypherException, IOError) as e:
         return e
-    for item in privileges:
-        print item.name
     for privilege in privileges:
         meets_reqs = privilege.check_requirements(pleb)
-        print "here"
-        print meets_reqs
-        print privilege
-        print pleb.privileges.all()
         if not meets_reqs and privilege in pleb.privileges.all():
             rel = pleb.privileges.relationship(privilege)
             if rel.active:

@@ -2,7 +2,7 @@ import csv
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from plebs.neo_models import University, HighSchool
+
 
 
 class Command(BaseCommand):
@@ -29,8 +29,8 @@ class Command(BaseCommand):
                 if isinstance(item, str):
                     row[item] = row[item].decode('ASCII', 'ignore')
 
-            my_univ = University(**row)
-            my_univ.save()
+            #my_univ = University(**row)
+            #my_univ.save()
 
     def populate_public_schools(self):
         '''
@@ -51,8 +51,8 @@ class Command(BaseCommand):
                     'phone_number'] == 'M' or 'N':  #TODO Add better way to
                     # handle invalid phone_number
                     row['phone_number'] = 0
-                my_school = HighSchool(**row)
-                my_school.save()
+                #my_school = HighSchool(**row)
+                #my_school.save()
 
 
     def handle(self, *args, **options):

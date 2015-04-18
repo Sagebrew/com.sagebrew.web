@@ -12,8 +12,6 @@ from neomodel import db
 
 from api.neo_models import SBObject
 
-from api.neo_models import SBObject
-
 
 def get_current_time():
     return datetime.now(pytz.utc)
@@ -95,8 +93,8 @@ class BetaUser(StructuredNode):
         self.invited = True
         self.save()
         template_dict = {
-            "signup_url": "%s%s%s"%(settings.WEB_ADDRESS, "/signup/?user=",
-                                    self.email)
+            "signup_url": "%s%s%s" % (settings.WEB_ADDRESS, "/signup/?user=",
+                                      self.email)
         }
         html_content = get_template(
             'email_templates/email_beta_invite.html').render(
@@ -193,9 +191,19 @@ class Pleb(SBObject):
     president = RelationshipTo('sb_public_official.neo_models.BaseOfficial',
                                'HAS_PRESIDENT')
     flags = RelationshipTo('sb_flags.neo_models.Flag', "FLAGS")
+    beta_user = RelationshipTo('plebs.neo_models.BetaUser', "BETA_USER")
 
     def deactivate(self):
         return
+
+    def is_beta_user(self):
+        query = "MATCH (a:Pleb {username: '%s'})-[:BETA_USER]->(" \
+                "b:BetaUser {email: '%s'}) " \
+                "RETURN b" % (self.username, self.email)
+        res, col = db.cypher_query(query)
+        if len(res) == 0:
+            return False
+        return True
 
     def has_flagged_object(self, object_uuid):
         query = "MATCH (a:SBContent {object_uuid: '%s'})-[:FLAGGED_BY]->(" \
@@ -212,20 +220,20 @@ class Pleb(SBObject):
     def get_actions(self):
         query = 'MATCH (a:Pleb {username: "%s"})-' \
                 '[:CAN {active: true}]->(n:`SBAction`) ' \
-                'RETURN n' % self.username
+                'RETURN n.resource' % self.username
         res, col = db.cypher_query(query)
         if len(res) == 0:
             return []
-        return res
+        return [row[0] for row in res]
 
     def get_privileges(self):
         query = 'MATCH (a:Pleb {username: "%s"})-' \
                 '[:HAS {active: true}]->(n:`Privilege`) ' \
-                'RETURN n' % self.username
+                'RETURN n.name' % self.username
         res, col = db.cypher_query(query)
         if len(res) == 0:
             return []
-        return res
+        return [row[0] for row in res]
 
     def get_badges(self):
         return self.badges.all()

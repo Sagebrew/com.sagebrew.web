@@ -3,6 +3,7 @@ from neomodel import DoesNotExist, CypherException
 from plebs.neo_models import Pleb
 from .neo_models import Badge
 
+
 def manage_badges(username):
     earned = []
     try:

@@ -1,3 +1,5 @@
+extend ' .progress' has no matches
+extend ' .progress_bar' has no matches
 .sb_general {
   color: #34495e;
   word-wrap: break-word;
@@ -437,10 +439,11 @@
 }
 .vote_count_wrapper {
   font-weight: bold;
-  overflow: hidden;
-  text-align: center;
+  padding-left: 18px;
+  padding-right: 15px;
+  padding-top: 0;
+  padding-bottom: 0;
   margin: 0;
-  padding: 0;
 }
 .sb_vote_wrapper_solution {
   margin-left: -20px;
@@ -457,7 +460,6 @@
 .vote_count {
   font-weight: bold;
   display: inline-block;
-  padding: 0 10px 0 10px;
 }
 .vote_count_large .vote_count {
   margin-left: 15px;
@@ -1043,7 +1045,4 @@ textarea.sb_comment_input {
 }
 .sb_restricted :hover {
   color: #eaf0e8;
-}
-.sb_thumbnail_md_rep {
-  width: 85px;
 }

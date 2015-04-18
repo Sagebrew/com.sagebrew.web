@@ -156,15 +156,20 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         solutions = obj.get_solutions()
         solution_urls = []
         expand = request.query_params.get('expand', 'false').lower()
+        relations = request.query_params.get('relations', 'primaryKey').lower()
         if expand == "true":
             for solution in solutions:
                 solution_urls.append(SolutionSerializerNeo(
                     solution, context={"request":request}).data)
         else:
-            for solution in solutions:
-                solution_urls.append(reverse(
-                    'solution-detail', kwargs={
-                        'object_uuid': solution.object_uuid},
-                    request=request))
+            if relations == "hyperlinked":
+                for solution in solutions:
+                    solution_urls.append(reverse(
+                        'solution-detail', kwargs={
+                            'object_uuid': solution.object_uuid},
+                        request=request))
+            elif relations == "primaryKey":
+                for solution in solutions:
+                    solution_urls.append(solution.object_uuid)
 
         return solution_urls

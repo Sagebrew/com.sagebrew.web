@@ -3,10 +3,11 @@ from rest_framework import serializers
 from neomodel import db
 
 from api.utils import request_to_api
+from api.serializers import SBSerializer
 from sb_base.neo_models import SBContent
 
 
-class VoteSerializer(serializers.Serializer):
+class VoteSerializer(SBSerializer):
     # Need to add validator here or in Votable Content that limits the amount
     # of flags that can be placed on a piece of content from a single user to
     # one

@@ -1,6 +1,5 @@
 $(document).ready(function () {
     $('.action').each(function(i,obj){
-        event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 ajax_security(xhr, settings)

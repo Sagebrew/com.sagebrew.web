@@ -55,6 +55,15 @@ class Question(SBPublicContent):
         res, col = db.cypher_query(query)
         return [Solution.inflate(row[0]) for row in res]
 
+    def get_solution_ids(self):
+        query = 'MATCH (a:Question)-->(solutions:Solution) ' \
+            'WHERE (a.object_uuid = "%s" and ' \
+            'solutions.to_be_deleted = false)' \
+            'RETURN solutions.object_uuid' % (self.object_uuid)
+
+        res, col = db.cypher_query(query)
+        return [row[0] for row in res]
+
     @apply_defense
     def edit_content(self, pleb, content):
         from sb_questions.utils import create_question_util

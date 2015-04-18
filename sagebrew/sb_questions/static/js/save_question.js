@@ -6,6 +6,11 @@ $( document ).ready(function() {
                 ajax_security(xhr, settings)
             }
 		});
+        var tags = $('#sb_tag_box').val();
+        if(tags === ""){
+            tags = []
+        }
+
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
 			type: "POST",
@@ -13,7 +18,7 @@ $( document ).ready(function() {
 			data: JSON.stringify({
                'title': $('input#title_id').val(),
 			   'content': $('textarea#wmd-input-0').val(),
-               'tags': $('#sb_tag_box').val()
+               'tags': tags
 			}),
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",

@@ -160,7 +160,7 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         if expand == "true":
             for solution in solutions:
                 solution_urls.append(SolutionSerializerNeo(
-                    solution, context={"request":request}).data)
+                    solution, context={"request": request}).data)
         else:
             if relations == "hyperlinked":
                 for solution in solutions:
@@ -168,7 +168,7 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
                         'solution-detail', kwargs={
                             'object_uuid': solution.object_uuid},
                         request=request))
-            elif relations == "primaryKey":
+            else:
                 for solution in solutions:
                     solution_urls.append(solution.object_uuid)
 

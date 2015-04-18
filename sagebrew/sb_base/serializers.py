@@ -10,9 +10,11 @@ from plebs.neo_models import Pleb
 
 
 class VotableContentSerializer(serializers.Serializer):
+    # TODO Deprecate in favor of id based on
+    # http://jsonapi.org/format/#document-structure-resource-objects
     object_uuid = serializers.CharField(read_only=True)
-    content = serializers.CharField()
 
+    content = serializers.CharField()
     created = serializers.DateTimeField(read_only=True)
 
     upvotes = serializers.SerializerMethodField()

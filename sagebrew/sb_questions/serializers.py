@@ -13,6 +13,7 @@ from sb_base.serializers import MarkdownContentSerializer
 from plebs.neo_models import Pleb
 from sb_tag.neo_models import Tag
 from sb_tag.tasks import update_tags
+from sb_solutions.serializers import SolutionSerializerNeo
 
 from .neo_models import Question
 from .tasks import add_auto_tags_to_question_task
@@ -95,7 +96,7 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         validators=[limit_5_tags, PopulateTags()],
         child=serializers.CharField(max_length=36),
     )
-
+    # solutions = serializers.SerializerMethodField()
     solution_count = serializers.SerializerMethodField()
 
     def create(self, validated_data):
@@ -149,3 +150,23 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
 
     def get_solution_count(self, obj):
         return solution_count(obj.object_uuid)
+
+    '''
+    def get_solutions(self, obj):
+        request = self.context['request']
+        solutions = obj.get_solutions()
+        solution_urls = []
+        expand = request.query_params.get('expand', 'false').lower()
+        if expand == "true":
+            for solution in solutions:
+                solution_urls.append(SolutionSerializerNeo(
+                    solution, context={"request":request}).data)
+        else:
+            for solution in solutions:
+                solution_urls.append(reverse(
+                    'solution-detail', kwargs={
+                        'object_uuid': solution.object_uuid},
+                    request=request))
+
+        return solution_urls
+    '''

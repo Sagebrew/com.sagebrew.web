@@ -18,7 +18,7 @@ def vote_object_task(vote_type, current_pleb, object_uuid):
     :param sb_object:
     :return:
     '''
-    sb_object = get_parent_votable_content(object_uuid, "VOTE_ON", "Vote")
+    sb_object = get_parent_votable_content(object_uuid)
     if isinstance(sb_object, Exception) is True:
         raise vote_object_task.retry(exc=sb_object, countdown=3,
                                      max_retries=None)

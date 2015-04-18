@@ -1,9 +1,9 @@
 from uuid import uuid1
 
 from django.contrib.auth.models import User
-from django.test import TestCase
 
-from rest_framework.test import APIRequestFactory, APIClient
+from rest_framework.test import APITestCase
+from rest_framework import status
 
 from api.utils import wait_util
 from plebs.neo_models import Pleb
@@ -12,10 +12,8 @@ from sb_registration.utils import create_user_util_test
 from sb_questions.neo_models import Question
 
 
-class TestGetQuestionSearchView(TestCase):
+class TestGetQuestionSearchView(APITestCase):
     def setUp(self):
-        self.factory = APIRequestFactory()
-        self.client = APIClient()
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
@@ -25,15 +23,13 @@ class TestGetQuestionSearchView(TestCase):
         self.pleb.first_name = 'Tyler'
         self.pleb.last_name = 'Wiersing'
         self.pleb.save()
-        self.client.force_authenticate(user=self.user)
 
     def test_get_question_search_view_success(self):
+        self.client.force_authenticate(user=self.user)
         question = Question(object_uuid=str(uuid1()), content='test',
-                              title='test title').save()
+                            title='test title').save()
         question.owned_by.connect(self.pleb)
 
         res = self.client.get('/conversations/search/%s/' %
                               question.object_uuid)
-        res = res.render()
-        self.assertTrue(res.content)
-        self.assertEqual(res.status_code, 200)
+        self.assertTrue(res.status_code, status.HTTP_200_OK)

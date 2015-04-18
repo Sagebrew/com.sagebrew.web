@@ -42,16 +42,6 @@ class TestCreatePlebTask(TestCase):
         self.fake_user.delete()
         settings.CELERY_ALWAYS_EAGER = False
 
-    def test_create_pleb_task_success_pleb_does_not_exist(self):
-        task_data = {'user_instance': self.fake_user}
-
-        res = create_pleb_task.apply_async(kwargs=task_data)
-
-        while not res.ready():
-            time.sleep(1)
-
-        self.assertFalse(isinstance(res.result, Exception))
-
     def test_create_pleb_task_success_pleb_exists(self):
         user_instance = User.objects.get(username=self.username)
         task_data = {'user_instance': user_instance}

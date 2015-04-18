@@ -11,6 +11,7 @@ from sb_base.neo_models import SBPublicContent
 from sb_tag.neo_models import Tag
 
 from sb_base.decorators import apply_defense
+from sb_solutions.neo_models import Solution
 
 
 class Question(SBPublicContent):
@@ -46,6 +47,14 @@ class Question(SBPublicContent):
         queryset = [Tag.inflate(row[0]).name for row in res]
         return queryset
 
+    def get_solutions(self):
+        query = 'MATCH (a:Question)-->(solutions:Solution) ' \
+            'WHERE (a.object_uuid = "%s" and ' \
+            'solutions.to_be_deleted = false)' \
+            'RETURN solutions' % (self.object_uuid)
+        res, col = db.cypher_query(query)
+        return [Solution.inflate(row[0]) for row in res]
+
     @apply_defense
     def edit_content(self, pleb, content):
         from sb_questions.utils import create_question_util
@@ -55,7 +64,7 @@ class Question(SBPublicContent):
 
             if isinstance(edit_question, Exception) is True:
                 return edit_question
-            
+
             edit_question.original = False
             edit_question.save()
             self.edits.connect(edit_question)

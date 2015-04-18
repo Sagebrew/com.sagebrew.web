@@ -49,7 +49,6 @@ class Command(BaseCommand):
                                        start_date=role.startdate,
                                        end_date=role.enddate,
                                        full_name=person.name,
-                                       object_uuid=str(uuid1()),
                                        terms=len(role.congress_numbers.all()),
                                        twitter=person.twitterid,
                                        youtube=person.youtubeid)

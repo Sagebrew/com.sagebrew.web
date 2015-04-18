@@ -28,6 +28,10 @@ class BaseOfficial(Pleb):
     # recipient_id and customer_id are stripe specific attributes
     recipient_id = StringProperty()
     customer_id = StringProperty()
+    terms = IntegerProperty()
+    twitter = StringProperty()
+    youtube = StringProperty()
+    # bioguide is used to get the reps public profile picture
 
     # relationships
     pleb = RelationshipTo('plebs.neo_models.Pleb', 'IS')
@@ -65,7 +69,11 @@ class BaseOfficial(Pleb):
                 "title": self.title,
                 "district": self.district,
                 "current": self.current,
-                "bioguide": bioguideid}
+                "bioguide": bioguideid,
+                "terms": self.terms,
+                "youtube": self.youtube,
+                "twitter": self.twitter,
+                "channel_wallpaper": None}
 
 
 class Bill(StructuredNode):

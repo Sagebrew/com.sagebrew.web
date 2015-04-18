@@ -8,12 +8,13 @@ from rest_framework.reverse import reverse
 
 from neomodel import db, DoesNotExist
 
-from api.utils import spawn_task
+from api.utils import spawn_task, get_node
 from sb_base.serializers import MarkdownContentSerializer
 from plebs.neo_models import Pleb
 from sb_tag.neo_models import Tag
 from sb_tag.tasks import update_tags
 from sb_solutions.serializers import SolutionSerializerNeo
+from sb_solutions.neo_models import Solution
 
 from .neo_models import Question
 from .tasks import add_auto_tags_to_question_task
@@ -153,23 +154,23 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
 
     def get_solutions(self, obj):
         request = self.context['request']
-        solutions = obj.get_solutions()
+        solutions = obj.get_solution_ids()
         solution_urls = []
         expand = request.query_params.get('expand', 'false').lower()
         relations = request.query_params.get('relations', 'primaryKey').lower()
         if expand == "true":
-            for solution in solutions:
+            for solution_uuid in solutions:
                 solution_urls.append(SolutionSerializerNeo(
-                    solution, context={"request": request}).data)
+                    Solution.inflate(get_node(solution_uuid)[0][0]),
+                    context={"request": request}).data)
         else:
             if relations == "hyperlinked":
-                for solution in solutions:
+                for solution_uuid in solutions:
                     solution_urls.append(reverse(
                         'solution-detail', kwargs={
-                            'object_uuid': solution.object_uuid},
+                            'object_uuid': solution_uuid},
                         request=request))
             else:
-                for solution in solutions:
-                    solution_urls.append(solution.object_uuid)
+                return solutions
 
         return solution_urls

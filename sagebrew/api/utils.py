@@ -281,7 +281,17 @@ def get_object(object_type, object_uuid):
 
 
 def execute_cypher_query(query):
+    # Deprecated in DRF views as we handle raises in CypherException and
+    # IOError in the middleware now
     try:
         return db.cypher_query(query)
     except(CypherException, IOError) as e:
         return e
+
+
+def get_node(object_uuid):
+    query = 'MATCH n WHERE ' \
+            'n.object_uuid="%s" RETURN n' % object_uuid
+    res, col = db.cypher_query(query)
+
+    return res

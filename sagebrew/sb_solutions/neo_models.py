@@ -45,7 +45,7 @@ class Solution(SBPublicContent):
     def edit_content(self, content, pleb):
         try:
             edit_solution = Solution(object_uuid=str(uuid1()), original=False,
-                                       content=content).save()
+                                     content=content).save()
             self.edits.connect(edit_solution)
             edit_solution.edit_to.connect(self)
             self.last_edited_on = datetime.now(pytz.utc)

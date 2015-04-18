@@ -250,7 +250,6 @@ extend ' .progress_bar' has no matches
 .sb_wallpaper_action {
   background-color: #9dbbb9;
   height: 500px;
-  margin-top: 100px;
   border-radius: 5px 5px 0 0;
 }
 .sb_questions_side_container {

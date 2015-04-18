@@ -412,7 +412,7 @@ def get_parent_content(object_uuid, relation, child_object):
 def get_parent_votable_content(object_uuid, relation, child_object):
     try:
         query = "MATCH (a:%s {object_uuid:'%s'})-[:%s]->" \
-                "(b:VotableContent) RETURN b" % (object_uuid, child_object,
+                "(b:VotableContent) RETURN b" % (child_object, object_uuid,
                                                  relation)
         res, col = db.cypher_query(query)
         try:

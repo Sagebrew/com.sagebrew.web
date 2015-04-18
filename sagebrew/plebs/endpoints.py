@@ -352,8 +352,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def is_beta_user(self, request, username=None):
-        single_object = self.get_object()
-        return Response({'is_beta_user': single_object.is_beta_user()},
+        return Response({'is_beta_user': self.get_object().is_beta_user()},
                         status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))

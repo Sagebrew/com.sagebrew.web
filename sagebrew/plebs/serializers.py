@@ -6,7 +6,6 @@ from rest_framework.reverse import reverse
 from api.serializers import SBSerializer
 from api.utils import spawn_task, request_to_api
 from sb_registration.utils import create_user_util
-from sb_privileges.neo_models import Privilege
 
 from .tasks import pleb_user_update
 from .neo_models import Address

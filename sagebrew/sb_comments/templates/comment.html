@@ -43,7 +43,6 @@
                                         </a>
                                     </li>
                                 </ul>
-                            <p>{{ request.META.HTTP_HOST }}</p>
                             {% else %}
                                 {% with request.META.HTTP_HOST|add:"v1/privileges/flag/" as flag_priv %}
                                     {% if "questions" not in request.path and "solutions" not in request.path %}

@@ -1,4 +1,7 @@
+{% load staticfiles %}
 <div class="row sb_wallpaper sb_wallpaper_action hidden-xs">
+    {% static 'images/wallpaper_capitol.png' as default_wallpaper %}
+    <img src="{{ representative.channel_wallpaper|default_if_none:default_wallpaper }}">
 </div>
 <div class="row block sb_channel_block">
     <div class="col-lg-1 col-md-2 hidden-sm hidden-xs">

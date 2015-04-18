@@ -59,7 +59,6 @@ class BaseOfficial(Pleb):
             bioguideid = self.gt_person.all()[0].bioguideid
         except IndexError:
             bioguideid = None
-        print self.youtube, self.twitter, self.terms
         return {"object_uuid": self.object_uuid,
                 "full_name": full_name,
                 "first_name": self.first_name,
@@ -73,7 +72,8 @@ class BaseOfficial(Pleb):
                 "bioguide": bioguideid,
                 "terms": self.terms,
                 "youtube": self.youtube,
-                "twitter": self.twitter}
+                "twitter": self.twitter,
+                "channel_wallpaper": None}
 
 
 class Bill(StructuredNode):

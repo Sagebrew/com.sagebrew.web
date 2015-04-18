@@ -76,7 +76,6 @@ class QuestionViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_200_OK)
 
             return Response(serializer, status=status.HTTP_201_CREATED)
-        print serializer.errors
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, *args, **kwargs):

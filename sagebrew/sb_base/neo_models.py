@@ -415,6 +415,7 @@ def get_parent_votable_content(object_uuid, relation, child_object):
                 "(b:VotableContent) RETURN b" % (child_object, object_uuid,
                                                  relation)
         res, col = db.cypher_query(query)
+        print query
         try:
             print "here"
             print res

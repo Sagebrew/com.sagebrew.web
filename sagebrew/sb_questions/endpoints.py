@@ -25,7 +25,7 @@ logger = getLogger('loggly_logs')
 class QuestionViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionSerializerNeo
     lookup_field = "object_uuid"
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
     # Tried a filtering class but it requires a order_by method to be defined
     # on the given queryset. Since django provides an actual QuerySet rather
     # than a plain list this works with the ORM but would require additional
@@ -76,6 +76,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_200_OK)
 
             return Response(serializer, status=status.HTTP_201_CREATED)
+        print serializer.errors
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, *args, **kwargs):

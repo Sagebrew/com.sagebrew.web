@@ -39,7 +39,8 @@ class ObjectVotesListCreate(ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         now = unicode(datetime.now(pytz.utc))
         vote_data = request.data
-        serializer = self.get_serializer(data=vote_data)
+        serializer = self.get_serializer(data=vote_data,
+                                         context={"request": request})
         if serializer.is_valid():
             parent_object_uuid = self.kwargs[self.lookup_field]
 

@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
 
 from sb_registration.utils import verify_completed_registration
 
@@ -62,7 +63,7 @@ def question_detail_page(request, question_uuid=str(uuid1())):
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
-def get_question_search_view(request, question_uuid=str(uuid1())):
+def get_question_search_view(request, question_uuid=None):
     '''
     This view will get a question based upon the uuid, the request was from a
     search it will return the html of the question for the search result
@@ -72,6 +73,8 @@ def get_question_search_view(request, question_uuid=str(uuid1())):
     :param request:
     :return:
     '''
+    if question_uuid is None:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
     response = prepare_question_search_html(question_uuid, request)
     if response is False:
         return Response(status=404)

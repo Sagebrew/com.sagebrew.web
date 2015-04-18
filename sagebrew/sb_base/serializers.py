@@ -5,11 +5,13 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
+from api.serializers import SBSerializer
+
 from plebs.serializers import PlebSerializerNeo, UserSerializer
 from plebs.neo_models import Pleb
 
 
-class VotableContentSerializer(serializers.Serializer):
+class VotableContentSerializer(SBSerializer):
     # TODO Deprecate in favor of id based on
     # http://jsonapi.org/format/#document-structure-resource-objects
     object_uuid = serializers.CharField(read_only=True)

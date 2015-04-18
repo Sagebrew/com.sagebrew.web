@@ -8,7 +8,13 @@ class SBSerializer(serializers.Serializer):
     def get_id(self, obj):
         request = self.context.get('request')
         # TODO may want to change this to async?
-        expedite = request.query_params.get('expedite', "false").lower()
+        try:
+            expedite = request.query_params.get('expedite', "false").lower()
+        except AttributeError:
+            try:
+                expedite = request.GET.get('expedite', "false").lower()
+            except AttributeError:
+                return None
         if expedite == "true":
             return None
         return obj.object_uuid
@@ -16,7 +22,13 @@ class SBSerializer(serializers.Serializer):
     def get_type(self, obj):
         request = self.context.get('request')
         # TODO may want to change this to async?
-        expedite = request.query_params.get('expedite', "false").lower()
+        try:
+            expedite = request.query_params.get('expedite', "false").lower()
+        except AttributeError:
+            try:
+               expedite = request.GET.get('expedite', "false").lower()
+            except AttributeError:
+                return None
         if expedite == "true":
             return None
         return obj.__class__.__name__.lower()

@@ -1,5 +1,4 @@
 from datetime import datetime
-import hashlib
 import boto.ses
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from datetime import date
@@ -12,7 +11,7 @@ from neomodel import DoesNotExist, CypherException
 
 from api.utils import spawn_task
 from plebs.tasks import create_pleb_task
-from plebs.neo_models import Pleb
+from plebs.neo_models import Pleb, BetaUser
 from sb_base.decorators import apply_defense
 
 
@@ -159,6 +158,14 @@ def create_user_util(first_name, last_name, email, password, birthday):
                         username=user.username,
                         birthday=birthday)
             pleb.save()
+            try:
+                beta_user = BetaUser.nodes.get(email=email)
+                pleb.beta_user.connect(beta_user)
+            except(BetaUser.DoesNotExist, DoesNotExist):
+                pass
+            except(CypherException, IOError):
+                return False
+
         except(CypherException, IOError) as e:
             return False
     except(CypherException, IOError) as e:

@@ -81,6 +81,7 @@ class PlebSerializerNeo(SBSerializer):
     # front end and privileges/actions that are not allowed to be used shouldn't
     # show up in the list. @Tyler what do you think?
     privileges = serializers.SerializerMethodField()
+    actions = serializers.SerializerMethodField()
 
     url = serializers.SerializerMethodField()
 
@@ -130,20 +131,17 @@ class PlebSerializerNeo(SBSerializer):
             priv_array = []
             for row in res:
                 privilege_url = reverse("privilege-detail",
-                                        kwargs={
-                                            "name":
-                                                Privilege.inflate(row[0]).name
-                                        },
+                                        kwargs={"name": row},
                                         request=request)
                 response = request_to_api(privilege_url, request.user.username,
                                           req_method="GET")
                 priv_array.append(response.json())
             return priv_array
         else:
-            return [reverse("privilege-detail",
-                            kwargs={"name": Privilege.inflate(row[0]).name},
-                            request=request)
-                    for row in res]
+            return res
+
+    def get_actions(self, obj):
+        return obj.get_actions()
 
 
 class AddressSerializer(SBSerializer):

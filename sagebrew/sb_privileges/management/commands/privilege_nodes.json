@@ -49,7 +49,7 @@
               "actions": [
                   {
                       "resource": "vote",
-                      "permission": "write"
+                      "permission": "upvote"
                   }
               ],
               "requirements": [
@@ -85,7 +85,7 @@
               "actions": [
                   {
                       "resource": "vote",
-                      "permission": "write"
+                      "permission": "downvote"
                   }
               ],
               "requirements": [
@@ -107,6 +107,42 @@
                       "key": "reputation",
                       "operator": "coperator\nge\np0\n.",
                       "condition": 1000
+                  }
+              ]
+          },
+          {
+              "name": "tribune",
+              "actions": [
+                  {
+                      "resource": "intercom",
+                      "permission": "write"
+                  }
+              ],
+              "requirements": [
+                  {
+                      "name": "Total Reputation Profile +12500",
+                      "url": "/v1/profiles/<username>/reputation/",
+                      "key": "reputation",
+                      "operator": "coperator\nge\np0\n.",
+                      "condition": 12500
+                  }
+              ]
+          },
+          {
+              "name": "beta_user",
+              "actions": [
+                  {
+                      "resource": "intercom",
+                      "permission": "write"
+                  }
+              ],
+              "requirements": [
+                  {
+                      "name": "Is Beta User",
+                      "url": "/v1/profiles/<username>/is_beta_user/",
+                      "key": "is_beta_user",
+                      "operator": "coperator\neq\np0\n.",
+                      "condition": true
                   }
               ]
           }

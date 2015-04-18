@@ -351,6 +351,11 @@ class ProfileViewSet(viewsets.ModelViewSet):
         pass
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
+    def is_beta_user(self, request, username=None):
+        return Response({'is_beta_user': self.get_object().is_beta_user()},
+                        status.HTTP_200_OK)
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def votes(self, request, username=None):
         filter_by = request.query_params.get('filter', "")
         try:

@@ -392,7 +392,7 @@ class SBPrivateContent(TaggableContent):
 def get_parent_content(object_uuid, relation, child_object):
     try:
         query = "MATCH (a:%s {object_uuid:'%s'})-[:%s]->" \
-                "(b:SBContent) RETURN b" % (object_uuid, child_object, relation)
+                "(b:SBContent) RETURN b" % (child_object, object_uuid, relation)
         res, col = db.cypher_query(query)
         try:
             content = SBContent.inflate(res[0][0])
@@ -409,16 +409,12 @@ def get_parent_content(object_uuid, relation, child_object):
         return None
 
 
-def get_parent_votable_content(object_uuid, relation, child_object):
+def get_parent_votable_content(object_uuid):
     try:
-        query = "MATCH (a:%s {object_uuid:'%s'})-[:%s]->" \
-                "(b:VotableContent) RETURN b" % (child_object, object_uuid,
-                                                 relation)
+        query = "MATCH (a:VotableContent {object_uuid:'%s'}) RETURN a" % (
+            object_uuid)
         res, col = db.cypher_query(query)
-        print query
         try:
-            print "here"
-            print res
             content = VotableContent.inflate(res[0][0])
         except ValueError:
             # This exception was added while initially implementing the fxn and
@@ -427,8 +423,7 @@ def get_parent_votable_content(object_uuid, relation, child_object):
             # array to be returned instead of a single object which is handled
             # above. This should be handled now but we should verify that
             # the serializers ensure this singleness prior to removing this.
-            print "Second"
             content = VotableContent.inflate(res[0][0][0])
         return content
-    except(CypherException, IOError, IndexError) as e:
-        return e
+    except(CypherException, IOError, IndexError):
+        return None

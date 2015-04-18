@@ -55,6 +55,7 @@ def store_address(username, address_clean):
     try:
         address.owned_by.connect(citizen)
         citizen.address.connect(address)
+        citizen.determine_reps()
     except AttemptedCardinalityViolation:
         pass
     except (CypherException, IOError) as e:

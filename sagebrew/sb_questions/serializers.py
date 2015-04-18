@@ -96,7 +96,7 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         validators=[limit_5_tags, PopulateTags()],
         child=serializers.CharField(max_length=36),
     )
-    solutions = serializers.SerializerMethodField()
+    # solutions = serializers.SerializerMethodField()
     solution_count = serializers.SerializerMethodField()
 
     def create(self, validated_data):
@@ -151,6 +151,7 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
     def get_solution_count(self, obj):
         return solution_count(obj.object_uuid)
 
+    '''
     def get_solutions(self, obj):
         request = self.context['request']
         solutions = obj.get_solutions()
@@ -168,3 +169,4 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
                     request=request))
 
         return solution_urls
+    '''

@@ -46,7 +46,6 @@ def add_object_to_search_index(index="full-search-base", object_type="",
                                   add_object_to_search_index.retry(
                                   exc=e, countdown=3, max_retries=None))
 
-
     search_id_data = {"search_data": res, "object_type": object_type,
                       "object_data": object_data,
                       "object_added": object_added}

@@ -197,7 +197,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
             return self.get_paginated_response(html_array)
         return self.get_paginated_response(serializer.data)
 
-
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def friend_requests(self, request, username=None):
         # TODO we should probably make some sort of "notification" list view

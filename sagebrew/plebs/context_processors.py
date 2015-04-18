@@ -26,7 +26,8 @@ def request_profile(request):
                 pleb = Pleb.nodes.get(username=request.user.username)
                 return {
                     "request_profile":
-                        PlebSerializerNeo(pleb, context={"request": request}).data}
+                        PlebSerializerNeo(pleb,
+                                          context={"request": request}).data}
             except(CypherException, IOError):
                 return default_response
         else:

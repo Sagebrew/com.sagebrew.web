@@ -53,6 +53,7 @@ def send_email_task(source, to, subject, html_content):
                                   send_email_task.retry(exc=e, countdown=3,
                                                         max_retries=None))
 
+
 @shared_task()
 def determine_pleb_reps(username):
     try:
@@ -86,7 +87,7 @@ def finalize_citizen_creation(user_instance=None):
             'pleb_email': pleb.email,
             'pleb_username': pleb.username,
             'object_uuid': pleb.username
-            },
+        },
         'object_type': 'pleb'
     }
     task_list["add_object_to_search_index"] = spawn_task(
@@ -169,7 +170,7 @@ def create_pleb_task(user_instance=None, birthday=None, password=None):
     if user_instance is None:
         return None
     try:
-        pleb = Pleb.nodes.get(username=user_instance.username)
+        Pleb.nodes.get(username=user_instance.username)
     except (Pleb.DoesNotExist, DoesNotExist) as e:
         raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
     except(CypherException, IOError) as e:
@@ -216,6 +217,7 @@ def create_friend_request_task(from_username, to_username, object_uuid):
         return create_friend_request_task.retry(exc=res, countdown=3,
                                                 max_retries=None)
     return res
+
 
 @shared_task()
 def update_reputation(username):

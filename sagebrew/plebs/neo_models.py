@@ -185,7 +185,7 @@ class Pleb(SBObject):
     official = RelationshipTo('sb_public_official.neo_models.BaseOfficial',
                               'IS', model=OfficialRelationship)
     senators = RelationshipTo('sb_public_official.neo_models.BaseOfficial',
-                             'HAS_SENATOR')
+                              'HAS_SENATOR')
     house_rep = RelationshipTo('sb_public_official.neo_models.BaseOfficial',
                                'HAS_HOUSE_REPRESENTATIVE')
     president = RelationshipTo('sb_public_official.neo_models.BaseOfficial',
@@ -259,16 +259,19 @@ class Pleb(SBObject):
             rel.save()
             return rel.weight
 
-    def get_owned_objects(self):
-        return self.solutions.all() + \
-               self.questions.all() + self.posts.all() + self.comments.all()
+    def get_votable_content(self):
+        query = "MATCH (a:Pleb {username: '%s'})<-[:OWNED_BY]-(" \
+                "b:VotableContent) RETURN b" % (self.username)
+        res, col = db.cypher_query(query)
+
+        return [row[0] for row in res]
 
     def get_total_rep(self):
         rep_list = []
         base_tags = {}
         tags = {}
         total_rep = 0
-        for item in self.get_owned_objects():
+        for item in self.get_votable_content():
             rep_res = item.get_rep_breakout()
             total_rep += rep_res['total_rep']
             if 'base_tag_list' in rep_res.keys():
@@ -458,4 +461,3 @@ class FriendRequest(SBObject):
     # relationships
     request_from = RelationshipTo('plebs.neo_models.Pleb', 'REQUEST_FROM')
     request_to = RelationshipTo('plebs.neo_models.Pleb', 'REQUEST_TO')
-

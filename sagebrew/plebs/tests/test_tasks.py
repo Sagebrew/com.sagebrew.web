@@ -236,7 +236,7 @@ class TestCreateFriendRequestTask(TestCase):
         wait_util(res)
         self.pleb1 = Pleb.nodes.get(email=self.email)
         self.user1 = User.objects.get(email=self.email)
-        self.email2= "bounce@simulator.amazonses.com"
+        self.email2 = "bounce@simulator.amazonses.com"
         res = create_user_util_test(self.email2)
         self.assertNotEqual(res, False)
         wait_util(res)

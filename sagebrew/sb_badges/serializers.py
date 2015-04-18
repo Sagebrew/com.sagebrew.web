@@ -1,8 +1,11 @@
 from rest_framework import serializers
+
+from api.serializers import SBSerializer
+
 from .neo_models import Badge
 
 
-class BadgeSerializer(serializers.Serializer):
+class BadgeSerializer(SBSerializer):
     object_uuid = serializers.CharField(read_only=True)
     name = serializers.CharField()
     image_color = serializers.CharField()

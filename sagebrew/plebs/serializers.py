@@ -3,6 +3,7 @@ from django.contrib.auth import update_session_auth_hash
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
+from api.serializers import SBSerializer
 from api.utils import spawn_task, request_to_api
 from sb_registration.utils import create_user_util
 from sb_privileges.neo_models import Privilege
@@ -17,7 +18,7 @@ class BetaUserSerializer(serializers.Serializer):
     signup_date = serializers.DateTimeField()
 
 
-class UserSerializer(serializers.Serializer):
+class UserSerializer(SBSerializer):
     username = serializers.CharField(max_length=30, read_only=True)
     first_name = serializers.CharField(required=False)
     last_name = serializers.CharField(required=True)
@@ -60,8 +61,11 @@ class UserSerializer(serializers.Serializer):
         })
         return instance
 
+    def get_id(self, obj):
+        return obj.username
 
-class PlebSerializerNeo(serializers.Serializer):
+
+class PlebSerializerNeo(SBSerializer):
     base_user = serializers.SerializerMethodField()
     href = serializers.HyperlinkedIdentityField(
         view_name='profile-detail', lookup_field="username")
@@ -142,7 +146,7 @@ class PlebSerializerNeo(serializers.Serializer):
                     for row in res]
 
 
-class AddressSerializer(serializers.Serializer):
+class AddressSerializer(SBSerializer):
     object_uuid = serializers.CharField(read_only=True)
     href = serializers.HyperlinkedIdentityField(read_only=True,
                                                 view_name="address-detail",

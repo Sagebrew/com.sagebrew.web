@@ -416,6 +416,8 @@ def get_parent_votable_content(object_uuid, relation, child_object):
                                                  relation)
         res, col = db.cypher_query(query)
         try:
+            print "here"
+            print res
             content = VotableContent.inflate(res[0][0])
         except ValueError:
             # This exception was added while initially implementing the fxn and
@@ -424,6 +426,7 @@ def get_parent_votable_content(object_uuid, relation, child_object):
             # array to be returned instead of a single object which is handled
             # above. This should be handled now but we should verify that
             # the serializers ensure this singleness prior to removing this.
+            print "Second"
             content = VotableContent.inflate(res[0][0][0])
         return content
     except(CypherException, IOError, IndexError) as e:

@@ -5,7 +5,7 @@ from json import loads
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from rest_framework.reverse import reverse
+from rest_framework.reverse import reverse, NoReverseMatch
 
 from neomodel import CypherException, DoesNotExist
 
@@ -56,7 +56,10 @@ class Command(BaseCommand):
                                         " be missing requirements")
                 for action in actions:
                     action_resource = "%s-list" % action["resource"]
-                    action_url = reverse(action_resource)
+                    try:
+                        action_url = reverse(action_resource)
+                    except NoReverseMatch:
+                        action_url = "/%s" % action["resource"]
                     if "http" not in action_url:
                         branch = os.environ.get("CIRCLE_BRANCH", None)
                         circle_ci = os.environ.get("CIRCLECI", False)

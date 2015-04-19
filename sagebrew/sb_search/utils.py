@@ -39,7 +39,7 @@ def update_search_index_doc_script(document_id, index, field, update_value,
 
 def update_search_index_doc(document_id, index, field, update_value,
                             document_type):
-    '''
+    """
     This function can be used to update an existing document in an elasticsearch
     index. This function uses the .update functionality provided by the
     Elasticsearch python package but is also doable by using the script
@@ -51,7 +51,7 @@ def update_search_index_doc(document_id, index, field, update_value,
     :param update_value:
     :param document_type:
     :return:
-    '''
+    """
     try:
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         body = {
@@ -71,7 +71,7 @@ def update_search_index_doc(document_id, index, field, update_value,
 
 
 def process_search_result(item):
-    '''
+    """
     This util is called to process the search results returned from
     elasticsearch and render them to a hidden <div> element. The hidden
     div element is then accessed by javascript which uses the data in the
@@ -79,7 +79,8 @@ def process_search_result(item):
 
     :param item:
     :return:
-    '''
+    """
+    print item
     if 'sb_score' not in item['_source']:
             item['_source']['sb_score'] = 0
     if item['_type'] == 'question':
@@ -91,7 +92,7 @@ def process_search_result(item):
         }
     elif item['_type'] == 'pleb':
         return {
-            "username": item['_source']['object_uuid'],
+            "username": item['_source']['username'],
             "type": "pleb",
             "temp_score": item['_score'] * item['_source']['sb_score'],
             "score": item['_score']

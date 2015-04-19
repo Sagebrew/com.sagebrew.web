@@ -127,8 +127,7 @@ def search_result_api(request):
                 body={
                     "query": {
                         "query_string": {
-                            "query": search_form.cleaned_data[
-                                'query_param']
+                            "query": search_form.cleaned_data['query_param']
                         }
                     },
                     "filter": {
@@ -145,8 +144,7 @@ def search_result_api(request):
                 body={
                     "query": {
                         "query_string": {
-                            "query": search_form.cleaned_data[
-                                'query_param']
+                            "query": search_form.cleaned_data['query_param']
                         }
                     },
                     "filter": {

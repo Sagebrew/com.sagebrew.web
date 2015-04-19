@@ -105,7 +105,7 @@ def update_weight_relationship(document_id, index, object_type,
                 update_search_index_doc(**update_dict)
             return True
         try:
-            query = 'MATCH (a:SBObject) WHERE a.object_uuid = ' \
+            query = 'MATCH (a:Searchable) WHERE a.object_uuid = ' \
                     '"%s" RETURN a' % (object_uuid)
             res, col = db.cypher_query(query)
             if object_type == "question":

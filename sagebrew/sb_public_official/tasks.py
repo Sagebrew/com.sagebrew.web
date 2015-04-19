@@ -14,6 +14,7 @@ def save_experience_task(rep_id, title, start_date, end_date, current,
                                          max_retries=None)
     return True
 
+
 @shared_task()
 def save_bio_task(rep_id, bio):
     bio = save_bio(rep_id, bio)

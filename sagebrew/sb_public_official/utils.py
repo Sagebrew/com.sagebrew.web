@@ -4,7 +4,6 @@ from django.template.loader import render_to_string
 
 from neomodel import (DoesNotExist, CypherException)
 
-from api.utils import execute_cypher_query
 from plebs.neo_models import Pleb
 from api.utils import execute_cypher_query
 from sb_base.decorators import apply_defense
@@ -16,7 +15,7 @@ from .neo_models import (BaseOfficial, Experience, Goal)
 def save_experience(rep_id, title, start_date, end_date, current,
                     company, location, exp_id, description):
     try:
-        exp = Experience.nodes.get(object_uuid=exp_id)
+        Experience.nodes.get(object_uuid=exp_id)
         return True
     except CypherException as e:
         return e
@@ -38,6 +37,7 @@ def save_experience(rep_id, title, start_date, end_date, current,
         except CypherException as e:
             return e
         return experience
+
 
 @apply_defense
 def save_bio(rep_id, bio):
@@ -83,6 +83,7 @@ def get_rep_type(rep_type):
     sb_module = importlib.import_module(module_name)
     sb_object = getattr(sb_module, class_name)
     return sb_object
+
 
 @apply_defense
 def save_rep(pleb_username, rep_type, rep_id, recipient_id, gov_phone,
@@ -148,6 +149,7 @@ def determine_reps(username):
                 return False
             senators.append(rep.object_uuid)
     return True
+
 
 @apply_defense
 def prepare_official_search_html(object_uuid):

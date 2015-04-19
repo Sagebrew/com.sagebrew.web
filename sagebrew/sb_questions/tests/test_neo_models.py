@@ -25,13 +25,3 @@ class TestQuestionNeoModel(TestCase):
         res = self.question.add_auto_tags(auto_tags)
 
         self.assertIsInstance(res, list)
-
-    def test_get_original(self):
-        self.assertIsInstance(self.question.get_original(), Question)
-
-    def test_get_original_edit_to(self):
-        question = Question(content="test", original=False).save()
-
-        question.edit_to.connect(self.question)
-
-        self.assertEqual(question.get_original(), self.question)

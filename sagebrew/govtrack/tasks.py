@@ -4,9 +4,9 @@ from datetime import datetime
 
 from neomodel import CypherException, DoesNotExist
 
-from .utils import create_gt_role
+from .utils import populate_gt_roles_util
 from govtrack.neo_models import (GTPerson, GTCommittee,
-                                 GT_RCVotes, GTVoteOption, GTCongressNumbers)
+                                 GT_RCVotes, GTVoteOption)
 
 
 @shared_task()
@@ -18,31 +18,10 @@ def populate_gt_role(requesturl):
     saves it
     to the neo4j server.
     """
-    role_request = get(requesturl)
-
-    role_data_dict = role_request.json()
-    congress_number_object = []
-    for rep in role_data_dict['objects']:
-        my_role = create_gt_role(rep)
-        for number in rep['congress_numbers']:
-            try:
-                my_congress_number = GTCongressNumbers.nodes.get(
-                    congress_number=number)
-            except(GTCongressNumbers.DoesNotExist, DoesNotExist):
-                my_congress_number = GTCongressNumbers()
-                my_congress_number.congress_number = number
-                try:
-                    my_congress_number.save()
-                except (CypherException, IOError) as e:
-                    raise populate_gt_role.retry(exc=e, countdown=3,
-                                                 max_retries=None)
-            except (CypherException, IOError) as e:
-                raise populate_gt_role.retry(exc=e, countdown=3,
-                                             max_retries=None)
-            congress_number_object.append(my_congress_number)
-        for item in congress_number_object:
-            my_role.congress_numbers.connect(item)
-        congress_number_object = []
+    population = populate_gt_roles_util(requesturl)
+    if isinstance(population, Exception) is True:
+        raise populate_gt_role.retry(exc=population, countdown=3,
+                                     max_retries=None)
     return True
 
 

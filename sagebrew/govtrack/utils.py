@@ -1,6 +1,7 @@
 from datetime import datetime
+from requests import get
 from neomodel import DoesNotExist, CypherException
-from govtrack.neo_models import (GTPerson, GTRole)
+from govtrack.neo_models import (GTPerson, GTRole, GTCongressNumbers)
 
 
 def create_gt_role(rep):
@@ -46,3 +47,30 @@ def create_gt_person(gt_person):
         return e
 
     return my_person
+
+
+def populate_gt_roles_util(requesturl):
+    role_request = get(requesturl)
+
+    role_data_dict = role_request.json()
+    congress_number_object = []
+    for rep in role_data_dict['objects']:
+        my_role = create_gt_role(rep)
+        for number in rep['congress_numbers']:
+            try:
+                my_congress_number = GTCongressNumbers.nodes.get(
+                    congress_number=number)
+            except(GTCongressNumbers.DoesNotExist, DoesNotExist):
+                my_congress_number = GTCongressNumbers()
+                my_congress_number.congress_number = number
+                try:
+                    my_congress_number.save()
+                except (CypherException, IOError) as e:
+                    return e
+            except (CypherException, IOError) as e:
+                return e
+            congress_number_object.append(my_congress_number)
+        for item in congress_number_object:
+            my_role.congress_numbers.connect(item)
+        congress_number_object = []
+    return True

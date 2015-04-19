@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from govtrack.tasks import populate_gt_role
+from govtrack.utils import populate_gt_roles_util
 
 
 class Command(BaseCommand):
@@ -9,17 +9,12 @@ class Command(BaseCommand):
 
     def populate_gt_reps(self, mi_only=False):
         if mi_only:
-            populate_gt_role.apply_async(
-                kwargs={
-                    "requesturl": "https://www.govtrack.us/api/v2/role?"
-                                  "state=MI&current=true"
-                })
+            url = "https://www.govtrack.us/api/v2/role?" \
+                  "state=MI&current=true"
         else:
-            populate_gt_role.apply_async(
-                kwargs={
-                    "requesturl": "https://www.govtrack.us/api/v2/role?"
-                                  "current=true&limit=600"
-                })
+            url = "https://www.govtrack.us/api/v2/role?" \
+                  "current=true&limit=600"
+        populate_gt_roles_util(url)
         print "Created GT Objects"
 
     def handle(self, *args, **options):

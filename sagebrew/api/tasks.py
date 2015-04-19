@@ -62,8 +62,8 @@ def save_search_id(search_data, object_type, object_data, object_added):
         "doc_type": search_data['_type']
     }
     try:
-        query = "MATCH (a:SBObject) WHERE a.object_uuid = " \
-                "%s RETURN a" % (object_data['object_uuid'])
+        query = 'MATCH (a:SBObject) WHERE a.object_uuid = ' \
+                '"%s" RETURN a' % (object_data['object_uuid'])
         res, col = db.cypher_query(query)
 
         sb_object = SBObject.inflate(res[0][0])

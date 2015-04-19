@@ -1,6 +1,5 @@
 import time
 from django.core.management.base import BaseCommand
-from django.conf import settings
 
 from govtrack.tasks import populate_gt_role
 

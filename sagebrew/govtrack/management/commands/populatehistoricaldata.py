@@ -26,8 +26,7 @@ class Command(BaseCommand):
 
             try:
                 if row['gt_id'] != '':
-                    my_person = GTPersonHistorical.nodes.get(
-                        gt_id=row['gt_id'])
+                    GTPersonHistorical.nodes.get(gt_id=row['gt_id'])
                 else:
                     row['gt_id'] = '0'
                     raise GTPersonHistorical.DoesNotExist
@@ -38,7 +37,6 @@ class Command(BaseCommand):
                         row[item] = row[item].decode('ASCII', 'ignore')
                 my_person = GTPersonHistorical(**row)
                 my_person.save()
-
 
     def handle(self, *args, **options):
         self.populate_historical_people()

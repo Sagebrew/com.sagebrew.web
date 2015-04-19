@@ -36,5 +36,5 @@ def populate_urls():
         urlpatterns.append(item)
     for item in terms:
         urlpatterns.append(item)
-    
+
     return urlpatterns

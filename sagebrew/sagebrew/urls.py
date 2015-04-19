@@ -17,10 +17,11 @@ urlpatterns = patterns(
     url(r'^login/$', login_view, name="login"),
     url(r'^logout/$', logout_view, name="logout"),
     url(r'^password_reset/', 'django.contrib.auth.views.password_reset',
-        {"html_email_template_name":
-             "email_templates/email_password_reset.html",
-         "template_name": "password_reset/password_reset.html"},
-        name="reset_password_page"),
+        {
+            "html_email_template_name":
+                "email_templates/email_password_reset.html",
+            "template_name": "password_reset/password_reset.html"
+        }, name="reset_password_page"),
     url(r'^password_reset/done/$',
         'django.contrib.auth.views.password_reset_done',
         name="password_reset_done"),
@@ -32,8 +33,8 @@ urlpatterns = patterns(
     url(r'^reset/done/$', 'django.contrib.auth.views.password_reset_complete',
         {"template_name": "password_reset/password_reset_done.html"},
         name="password_reset_complete"),
-    url(r'^terms/$',  RedirectView.as_view(
-        url='/help/terms/', permanent=False),name='terms_redirect'),
+    url(r'^terms/$', RedirectView.as_view(
+        url='/help/terms/', permanent=False), name='terms_redirect'),
     url(r'^400/$', TemplateView.as_view(template_name="400.html"),
         name="400_Error"),
     url(r'^404/$', TemplateView.as_view(template_name="404.html"),

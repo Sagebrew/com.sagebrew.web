@@ -8,6 +8,7 @@ from .utils import create_gt_role
 from govtrack.neo_models import (GTPerson, GTCommittee,
                                  GT_RCVotes, GTVoteOption, GTCongressNumbers)
 
+
 @shared_task()
 def populate_gt_role(requesturl):
     '''
@@ -34,7 +35,7 @@ def populate_gt_role(requesturl):
                     my_congress_number.save()
                 except CypherException as e:
                     raise populate_gt_role.retry(exc=e, countdown=3,
-                                             max_retries=None)
+                                                 max_retries=None)
             except CypherException as e:
                 raise populate_gt_role.retry(exc=e, countdown=3,
                                              max_retries=None)
@@ -154,4 +155,3 @@ def populate_gt_votes(requesturl):
         except(CypherException) as e:
             raise populate_gt_votes.retry(exc=e, countdown=3, max_retries=None)
     return True
-

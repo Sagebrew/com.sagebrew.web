@@ -3,7 +3,7 @@ from os import environ
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
-ALLOWED_HOSTS = ['www.sagebrew.com',]
+ALLOWED_HOSTS = ['www.sagebrew.com', ]
 
 VERIFY_SECURE = True
 WEB_ADDRESS = "https://www.sagebrew.com"
@@ -26,12 +26,15 @@ CACHES = {
     }
 }
 
-ELASTIC_SEARCH_HOST = [{'host': environ.get("ELASTIC_SEARCH_HOST", ""),
-                        'port': environ.get("ELASTIC_SEARCH_PORT", ""),
-                        'use_ssl': True,
-                        'http_auth': (environ.get("ELASTIC_SEARCH_USER", ""),
-                                      environ.get("ELASTIC_SEARCH_KEY", ""))
-                       }]
+ELASTIC_SEARCH_HOST = [
+    {
+        'host': environ.get("ELASTIC_SEARCH_HOST", ""),
+        'port': environ.get("ELASTIC_SEARCH_PORT", ""),
+        'use_ssl': True,
+        'http_auth': (environ.get("ELASTIC_SEARCH_USER", ""),
+                      environ.get("ELASTIC_SEARCH_KEY", ""))
+    }
+]
 
 
 BROKER_URL = "sqs://%s:%s@" % (

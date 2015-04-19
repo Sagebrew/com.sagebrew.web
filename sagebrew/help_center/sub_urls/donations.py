@@ -89,4 +89,4 @@ if settings.DEBUG is True:
                     settings.HELP_DOCS_PATH),
             "category": "citizens"
         },
-        name="after_donating_to_a_candidate"),
+        name="after_donating_to_a_candidate")

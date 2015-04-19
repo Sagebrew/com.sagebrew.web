@@ -24,7 +24,7 @@ class TestProcessSearchResultUtil(TestCase):
                 'object_uuid': str(uuid1()),
                 'related_user': 'tylerwiersing',
             },
-            '_type': 'sb_questions.neo_models.Question',
+            '_type': 'question',
             '_score': .92,
             '_id': str(uuid1()),
             '_index': 'full-search-base'

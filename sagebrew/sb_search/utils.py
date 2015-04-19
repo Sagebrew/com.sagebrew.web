@@ -82,7 +82,7 @@ def process_search_result(item):
     '''
     if 'sb_score' not in item['_source']:
             item['_source']['sb_score'] = 0
-    if item['_type'] == 'sb_questions.neo_models.Question':
+    if item['_type'] == 'question':
         return {
             "question_uuid": item['_source']['object_uuid'],
             "type": "question",

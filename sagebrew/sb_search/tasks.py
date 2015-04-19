@@ -25,7 +25,7 @@ logger = logging.getLogger('loggly_logs')
 @shared_task()
 def spawn_weight_relationships(search_items):
     for item in search_items:
-        if item['_type'] == 'sb_questions.neo_models.Question':
+        if item['_type'] == 'question':
             spawned = spawn_task(
                 update_weight_relationship,
                 task_param={

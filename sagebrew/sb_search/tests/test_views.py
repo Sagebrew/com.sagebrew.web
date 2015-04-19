@@ -136,7 +136,7 @@ class TestSearchResultAPIReturns(TestCase):
     def tearDown(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         es.delete_by_query('full-search-user-specific-1',
-                           'sb_questions.neo_models.Question',
+                           'question',
                            body={
                                'query': {
                                    'query_string': {
@@ -158,7 +158,7 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(self.pleb)
         index_res = es.index(index='full-search-user-specific-1',
-                             doc_type='sb_questions.neo_models.Question',
+                             doc_type='question',
                              body={
                                  'object_uuid': question1.object_uuid,
                                  'title': question1.title,
@@ -186,7 +186,7 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(self.pleb)
         es.index(index='full-search-user-specific-1',
-                 doc_type='sb_questions.neo_models.Question',
+                 doc_type='question',
                  body={
                      'object_uuid': question1.object_uuid,
                      'title': question1.title,
@@ -195,7 +195,7 @@ class TestSearchResultAPIReturns(TestCase):
                  })
         for item in range(0, 9):
             es.index(index='full-search-user-specific-1',
-                     doc_type='sb_questions.neo_models.Question',
+                     doc_type='question',
                      body={
                          'object_uuid': question1.object_uuid,
                          'title': question1.title,
@@ -222,7 +222,7 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(self.pleb)
         es.index(index='full-search-user-specific-1',
-                 doc_type='sb_questions.neo_models.Question',
+                 doc_type='question',
                  body={
                      'object_uuid': question1.object_uuid,
                      'title': question1.title,
@@ -231,7 +231,7 @@ class TestSearchResultAPIReturns(TestCase):
                  })
         for item in range(0, 19):
             es.index(index='full-search-user-specific-1',
-                     doc_type='sb_questions.neo_models.Question',
+                     doc_type='question',
                      body={
                          'object_uuid': question1.object_uuid,
                          'title': question1.title,
@@ -258,7 +258,7 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(self.pleb)
         es.index(index='full-search-user-specific-1',
-                 doc_type='sb_questions.neo_models.Question',
+                 doc_type='question',
                  body={
                      'object_uuid': question1.object_uuid,
                      'title': question1.title,
@@ -267,7 +267,7 @@ class TestSearchResultAPIReturns(TestCase):
                  })
         for item in range(0, 39):
             es.index(index='full-search-user-specific-1',
-                     doc_type='sb_questions.neo_models.Question',
+                     doc_type='question',
                      body={
                          'object_uuid': question1.object_uuid,
                          'title': question1.title,
@@ -298,7 +298,7 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(self.pleb)
         es.index(index='full-search-user-specific-1',
-                 doc_type='sb_questions.neo_models.Question',
+                 doc_type='question',
                  body={
                      'object_uuid': question1.object_uuid,
                      'title': question1.title,
@@ -307,7 +307,7 @@ class TestSearchResultAPIReturns(TestCase):
                  })
         for item in range(0, 29):
             es.index(index='full-search-user-specific-1',
-                     doc_type='sb_questions.neo_models.Question',
+                     doc_type='question',
                      body={
                          'object_uuid': question1.object_uuid,
                          'title': question1.title,
@@ -340,7 +340,7 @@ class TestSearchResultAPIReturns(TestCase):
         question1.save()
         question1.owned_by.connect(pleb)
         es.index(index='full-search-user-specific-1',
-                 doc_type='sb_questions.neo_models.Question',
+                 doc_type='question',
                  body={
                      'object_uuid': question1.object_uuid,
                      'title': question1.title,
@@ -365,7 +365,7 @@ class TestSearchResultAPIReturns(TestCase):
                              )
         question2.save()
         es.index(index='full-search-user-specific-1',
-                 doc_type='sb_questions.neo_models.Question',
+                 doc_type='question',
                  body={'object_uuid': question2.object_uuid,
                        'question_content': question2.content,
                        'title': question2.title,

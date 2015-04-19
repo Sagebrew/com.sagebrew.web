@@ -166,7 +166,7 @@ class Pleb(SBObject):
                               model=PostObjectCreated)
     wall = RelationshipTo('sb_wall.neo_models.Wall', 'OWNS_WALL')
     notifications = RelationshipTo(
-        'sb_notifications.neo_models.NotificationBase', 'RECEIVED_A')
+        'sb_notifications.neo_models.Notification', 'RECEIVED_A')
     friend_requests_sent = RelationshipTo(
         "plebs.neo_models.FriendRequest", 'SENT_A_REQUEST')
     friend_requests_received = RelationshipTo(

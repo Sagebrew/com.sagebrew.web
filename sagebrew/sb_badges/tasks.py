@@ -2,6 +2,7 @@ from celery import shared_task
 
 from .utils import manage_badges
 
+
 @shared_task()
 def check_badges(username):
     res = manage_badges(username)

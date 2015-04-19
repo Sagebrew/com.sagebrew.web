@@ -38,7 +38,7 @@ class PostedOnRel(StructuredRel):
 
 class VoteRelationship(StructuredRel):
     active = BooleanProperty(default=True)
-    vote_type = BooleanProperty() # True is up False is down
+    vote_type = BooleanProperty()  # True is up False is down
     rep_adjust = IntegerProperty()
     created = DateTimeProperty(default=get_current_time)
 
@@ -160,10 +160,10 @@ class VotableContent(NotificationCapable):
 
     @apply_defense
     def get_rep_breakout(self):
-        pos_rep = self.get_upvote_count()*self.up_vote_adjustment
-        neg_rep = self.get_downvote_count()*self.down_vote_adjustment
+        pos_rep = self.get_upvote_count() * self.up_vote_adjustment
+        neg_rep = self.get_downvote_count() * self.down_vote_adjustment
         return {
-            "total_rep": pos_rep+neg_rep,
+            "total_rep": pos_rep + neg_rep,
             "pos_rep": pos_rep,
             "neg_rep": neg_rep,
         }
@@ -200,7 +200,7 @@ class SBContent(VotableContent):
     rel_weight = RelationshipTo('plebs.neo_models.Pleb', 'HAS_WEIGHT',
                                 model=RelationshipWeight)
     notifications = RelationshipTo(
-        'sb_notifications.neo_models.NotificationBase', 'NOTIFICATIONS')
+        'sb_notifications.neo_models.Notification', 'NOTIFICATIONS')
 
     @classmethod
     def get_model_name(cls):
@@ -285,7 +285,7 @@ class TaggableContent(SBContent):
         tag_array = []
         if isinstance(tags, basestring) is True:
             tags = tags.split(',')
-        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         if not tags:
             return False
         for tag in tags:
@@ -313,8 +313,8 @@ class TaggableContent(SBContent):
         try:
             for tag in tag_list:
                 try:
-                    tag_object = AutoTag.nodes.get(name=tag['tags']
-                    ['text'].lower())
+                    tag_object = AutoTag.nodes.get(
+                        name=tag['tags']['text'].lower())
                 except (AutoTag.DoesNotExist, DoesNotExist):
                     tag_object = AutoTag(
                         name=tag['tags']['text'].lower()).save()
@@ -347,18 +347,18 @@ class SBVersioned(TaggableContent):
     def get_rep_breakout(self):
         tag_list = []
         base_tags = []
-        pos_rep = self.get_upvote_count()*self.up_vote_adjustment
-        neg_rep = self.get_downvote_count()*self.down_vote_adjustment
+        pos_rep = self.get_upvote_count() * self.up_vote_adjustment
+        neg_rep = self.get_downvote_count() * self.down_vote_adjustment
         for tag in self.tags.all():
             if tag.base:
                 base_tags.append(tag.name)
             tag_list.append(tag.name)
         try:
-            rep_per_tag = math.ceil(float(pos_rep+neg_rep)/len(tag_list))
+            rep_per_tag = math.ceil(float(pos_rep + neg_rep) / len(tag_list))
         except ZeroDivisionError:
             rep_per_tag = 0
         return {
-            "total_rep": pos_rep+neg_rep,
+            "total_rep": pos_rep + neg_rep,
             "pos_rep": pos_rep,
             "neg_rep": neg_rep,
             "tag_list": tag_list,

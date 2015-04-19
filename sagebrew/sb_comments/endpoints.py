@@ -106,7 +106,7 @@ def comment_renderer(request, object_uuid=None):
         # implementation of spacing for vote count in the template.
         comment["vote_count"] = str(comment["vote_count"])
         context = RequestContext(request, comment)
-        html_array.append(render_to_string('comment.html',  context))
+        html_array.append(render_to_string('comment.html', context))
         id_array.append(comment["object_uuid"])
     comments.data['results'] = {"html": html_array, "ids": id_array}
     return Response(comments.data, status=status.HTTP_200_OK)

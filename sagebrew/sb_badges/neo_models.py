@@ -8,12 +8,11 @@ class Badge(SBObject):
     image_color = StringProperty()
     image_grey = StringProperty()
 
-    #relationships
+    # relationships
     requirements = RelationshipTo('sb_requirements.neo_models.Requirement',
                                   "REQUIRES")
 
-
-    #methods
+    # methods
     def check_requirements(self, username):
         req_checks = []
         for req in self.get_requirements():
@@ -41,10 +40,10 @@ class BadgeGroup(SBObject):
     name = StringProperty()
     description = StringProperty()
 
-    #relationships
+    # relationships
     badges = RelationshipTo('sb_badges.neo_models.Badge', "HAS")
 
-    #methods
+    # methods
     def get_badges(self):
         return self.badges.all()
 

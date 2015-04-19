@@ -43,4 +43,3 @@ def spawn_notifications(sb_object, from_pleb, to_plebs, notification_id, url):
         raise spawn_notifications.retry(exc=response, countdown=3,
                                         max_retries=100)
     return response
-

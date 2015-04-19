@@ -2,7 +2,7 @@ from logging import getLogger
 
 from neomodel import DoesNotExist, CypherException
 
-from .neo_models import NotificationBase, NotificationCapable
+from .neo_models import Notification, NotificationCapable
 from sb_base.decorators import apply_defense
 
 logger = getLogger('loggly_logs')
@@ -30,13 +30,13 @@ def create_notification_util(sb_object, from_pleb, to_plebs, notification_id,
 
     try:
         try:
-            notification = NotificationBase.nodes.get(
+            notification = Notification.nodes.get(
                 object_uuid=notification_id)
             if notification.sent is True:
                 return True
 
-        except (NotificationBase.DoesNotExist, DoesNotExist):
-            notification = NotificationBase(
+        except (Notification.DoesNotExist, DoesNotExist):
+            notification = Notification(
                 object_uuid=notification_id,
                 about=sb_object.__class__.__name__.lower(),
                 about_id=sb_object.object_uuid,
@@ -54,4 +54,3 @@ def create_notification_util(sb_object, from_pleb, to_plebs, notification_id,
 
     except CypherException as e:
         return e
-

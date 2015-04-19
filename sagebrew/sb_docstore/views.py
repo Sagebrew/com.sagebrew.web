@@ -39,5 +39,3 @@ def get_updates_from_dynamo(request):
         spawn_task(task_func=check_privileges, task_param={
             "username": request.user.username})
     return Response({'detail': 'success'}, status=200)
-
-

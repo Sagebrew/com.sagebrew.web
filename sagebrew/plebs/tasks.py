@@ -1,15 +1,17 @@
 from uuid import uuid1
 
-from boto.ses.exceptions import SESMaxSendingRateExceededError
-from celery import shared_task
+from django.core import signing
 from django.conf import settings
 from django.template.loader import get_template
 from django.template import Context
 
+from boto.ses.exceptions import SESMaxSendingRateExceededError
+from celery import shared_task
+
 from neomodel import DoesNotExist, CypherException
 
-from api.utils import spawn_task
-from api.tasks import add_object_to_search_index, generate_oauth_info
+from api.utils import spawn_task, generate_oauth_user
+from api.tasks import add_object_to_search_index
 from sb_base.utils import defensive_exception
 from sb_search.tasks import add_user_to_custom_index
 from sb_wall.neo_models import Wall
@@ -17,7 +19,7 @@ from sb_wall.neo_models import Wall
 from sb_registration.models import token_gen
 from sb_privileges.tasks import check_privileges
 
-from .neo_models import Pleb, BetaUser
+from .neo_models import Pleb, BetaUser, OauthUser
 from .utils import create_friend_request_util
 
 
@@ -159,6 +161,35 @@ def create_wall_task(user_instance=None):
         raise create_wall_task.retry(exc=spawned, countdown=3,
                                      max_retries=None)
     return spawned
+
+
+@shared_task
+def generate_oauth_info(username, password, web_address=None):
+    try:
+        pleb = Pleb.nodes.get(username=username)
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
+        raise generate_oauth_info.retry(exc=e, countdown=3, max_retries=None)
+    creds = generate_oauth_user(pleb, password, web_address)
+
+    if isinstance(creds, Exception):
+        raise generate_oauth_info.retry(exc=creds, countdown=3,
+                                        max_retries=None)
+    try:
+        oauth_obj = OauthUser(access_token=signing.dumps(creds['access_token']),
+                              token_type=creds['token_type'],
+                              expires_in=creds['expires_in'],
+                              refresh_token=signing.dumps(
+                                  creds['refresh_token']))
+        oauth_obj.save()
+    except(CypherException, IOError) as e:
+        return e
+
+    try:
+        pleb.oauth.connect(oauth_obj)
+    except(CypherException, IOError) as e:
+        return e
+
+    return True
 
 
 @shared_task()

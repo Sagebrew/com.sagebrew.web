@@ -26,4 +26,8 @@ class Command(BaseCommand):
         print "Created GT Objects"
 
     def handle(self, *args, **options):
-        self.populate_gt_reps(args[0])
+        try:
+            argument = args[0]
+        except IndexError:
+            argument = False
+        self.populate_gt_reps(argument)

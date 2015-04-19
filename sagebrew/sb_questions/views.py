@@ -48,7 +48,7 @@ def question_page(request, sort_by="most_recent"):
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
-def question_detail_page(request, question_uuid=str(uuid1())):
+def question_detail_page(request, question_uuid=None):
     """
     This is the view that displays a single question with all solutions,
     comments,
@@ -57,6 +57,9 @@ def question_detail_page(request, question_uuid=str(uuid1())):
     :param request:
     :return:
     """
+    # TODO is this uuid1 creation necessary?
+    if question_uuid is None:
+        question_uuid = str(uuid1())
     post_data = {'sort_by': 'uuid', 'uuid': question_uuid}
     return render(request, 'conversation.html', post_data)
 

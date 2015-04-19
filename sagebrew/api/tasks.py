@@ -6,9 +6,7 @@ from elasticsearch.exceptions import (ElasticsearchException, TransportError,
                                       ConnectionError, RequestError)
 from neomodel import CypherException, db
 
-from api.neo_models import SBObject
-from sb_base.utils import defensive_exception
-
+from .neo_models import SBObject
 from .utils import spawn_task
 
 
@@ -40,9 +38,8 @@ def add_object_to_search_index(index="full-search-base", object_type="",
         raise add_object_to_search_index.retry(exc=e, countdown=3,
                                                max_retries=None)
     except Exception as e:
-        raise defensive_exception(add_object_to_search_index.__name__, e,
-                                  add_object_to_search_index.retry(
-                                      exc=e, countdown=3, max_retries=None))
+        raise add_object_to_search_index.retry(exc=e, countdown=3,
+                                               max_retries=None)
 
     search_id_data = {
         "search_data": res, "object_type": object_type,

@@ -18,9 +18,7 @@ from neomodel.exception import CypherException
 
 from django.conf import settings
 
-from sb_base.utils import defensive_exception
-
-from api.alchemyapi import AlchemyAPI
+from .alchemyapi import AlchemyAPI
 
 logger = getLogger('loggly_logs')
 
@@ -204,7 +202,8 @@ def create_auto_tags(content):
         keywords = alchemyapi.keywords("text", content)
         return keywords
     except Exception as e:
-        return defensive_exception(create_auto_tags.__name__, e, e)
+        logger.exception("Auto Tag issue with Alchemy: ")
+        return e
 
 
 def wait_util(async_res):

@@ -12,10 +12,10 @@ class Command(BaseCommand):
     args = 'None.'
 
     def create_oauth_client(self):
-        password = (signing.dumps(str(uuid1()))+signing.dumps(str(uuid1())))[
-                   :128]
+        password = (signing.dumps(str(uuid1())) + signing.dumps(
+            str(uuid1())))[:128]
         try:
-            oauth_user = User.objects.get(username=environ.get("APP_USER",""))
+            oauth_user = User.objects.get(username=environ.get("APP_USER", ""))
         except User.DoesNotExist:
             oauth_user = User.objects.create_user(username=environ.get(
                 "APP_USER", ""), password=password)

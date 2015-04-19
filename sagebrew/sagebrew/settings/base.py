@@ -317,7 +317,7 @@ PAYMENT_PLANS = [
 
 SEARCH_TYPES = [
     ("general", "general"),
-    ("conversations", "sb_questions.neo_models.SBQuestion"),
+    ("conversations", "question"),
     ("people", "pleb"),
     ("sagas", "sagas")
 ]

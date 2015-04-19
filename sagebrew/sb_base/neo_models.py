@@ -47,8 +47,11 @@ class VotableContent(NotificationCapable):
     up_vote_adjustment = 0
     down_vote_adjustment = 0
     content = StringProperty()
-    view_count_node = RelationshipTo('sb_stats.neo_models.SBViewCount',
-                                     'VIEW_COUNT')
+    # Please use get_view_count rather than this. This currently has the view
+    # count stored in it but that may change in the future as we transition
+    # to a more discernible metrics approach.
+    view_count = IntegerProperty(default=0)
+
     # relationships
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'OWNED_BY',
                               model=PostedOnRel)
@@ -89,6 +92,17 @@ class VotableContent(NotificationCapable):
         except CypherException as e:
             return e
 
+    def get_view_count(self):
+        return self.view_count
+
+    def increment_view_count(self):
+        try:
+            self.view_count += int(self.view_count) + 1
+            self.save()
+            return self.view_count
+        except IndexError:
+            return 0
+
     @apply_defense
     def get_upvote_count(self):
         try:
@@ -101,7 +115,7 @@ class VotableContent(NotificationCapable):
         try:
             res, col = self.cypher(query)
             return len(res)
-        except CypherException as e:
+        except(CypherException, IOError) as e:
             logger.exception("Cypher Error: ")
             return e
 
@@ -154,12 +168,6 @@ class VotableContent(NotificationCapable):
             "neg_rep": neg_rep,
         }
 
-    def get_view_count(self):
-        try:
-            return self.view_count_node.all()[0].view_count
-        except IndexError:
-            return 0
-
 
 class SBContent(VotableContent):
     allowed_flags = ["explicit", "spam", "duplicate",
@@ -181,7 +189,6 @@ class SBContent(VotableContent):
     # determine the potential for slippage from dyanmo's count and how we want
     # to update it. So at the moment it will remain at 0.
     vote_count = IntegerProperty(default=0)
-    view_count = IntegerProperty(default=0)
 
     # relationships
     flagged_by = RelationshipTo('plebs.neo_models.Pleb', 'FLAGGED_BY')
@@ -208,25 +215,6 @@ class SBContent(VotableContent):
     @apply_defense
     def get_table(self):
         return self.table
-
-    @apply_defense
-    def create_view_count(self):
-        from sb_stats.neo_models import SBViewCount
-        try:
-            count_node = SBViewCount().save()
-        except (CypherException, IOError) as e:
-            return e
-        try:
-            self.view_count_node.connect(count_node)
-        except (CypherException, IOError) as e:
-            return e
-        return True
-
-    def increment_view_count(self):
-        try:
-            return self.view_count_node.all()[0].increment()
-        except IndexError:
-            return 0
 
     def get_flagged_by(self):
         query = "MATCH (a:SBContent {object_uuid: '%s'})-[:FLAGGED_BY]->(" \

@@ -52,8 +52,11 @@ class Command(BaseCommand):
                     except (CypherException, IOError):
                         logger.exception(
                             dumps(
-                                {"detail": "Cypher exception, failed to create tag %s"
-                                           % tag['name']}))
+                                {
+                                    "detail":
+                                        "Cypher exception, failed to create "
+                                        "tag %s" % tag['name']
+                                }))
                         continue
 
     def handle(self, *args, **options):

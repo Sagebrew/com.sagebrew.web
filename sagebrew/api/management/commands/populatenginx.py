@@ -1,4 +1,3 @@
-import socket
 import os
 import multiprocessing
 from subprocess32 import call
@@ -59,8 +58,8 @@ class Command(BaseCommand):
                     domains += "|" + item
                 domains_pipe = domains[1:]
                 domains_space = domains_pipe.replace("|", " ")
-            project_name = settings.PROJECT_DIR[
-                           settings.PROJECT_DIR.rfind('/') + 1:]
+            project_name = settings.PROJECT_DIR[settings.PROJECT_DIR.rfind(
+                '/') + 1:]
             data = data.replace("{{APP_NAME}}", os.environ.get("APP_NAME", ""))
             data = data.replace("{{PROJECT_NAME}}", project_name)
             data = data.replace("{{PROJECT_PATH}}", settings.PROJECT_DIR)

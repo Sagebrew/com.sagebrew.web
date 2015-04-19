@@ -17,7 +17,6 @@ class Solution(SBPublicContent):
     up_vote_adjustment = 10
     down_vote_adjustment = 10
     down_vote_cost = 2
-    search_id = StringProperty()
 
     # relationships
     solution_to = RelationshipTo('sb_questions.neo_models.Question',

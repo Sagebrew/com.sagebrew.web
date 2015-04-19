@@ -1,25 +1,24 @@
 import time
 from logging import getLogger
 import pytz
-from os import environ
 import boto.sqs
-import importlib
 import requests
 import hashlib
 import shortuuid
 from uuid import uuid1
 from json import dumps
 from datetime import datetime
+
 from django.core import signing
+
 from boto.sqs.message import Message
-from bomberman.client import Client, RateLimitExceeded
+
 from neomodel import db
-from neomodel.exception import CypherException, DoesNotExist
+from neomodel.exception import CypherException
 
 from django.conf import settings
 
 from sb_base.utils import defensive_exception
-from sb_base.decorators import apply_defense
 
 from api.alchemyapi import AlchemyAPI
 
@@ -167,15 +166,6 @@ def generate_long_token():
     long_hash.update(settings.SECRET_KEY)
     return long_hash.hexidigest()
 
-'''
-# TODO Add tagging process into git so that we can label point that we deleted this
-iron_mq = IronMQ(project_id=settings.IRON_PROJECT_ID,
-                         token=settings.IRON_TOKEN)
-        queue = iron_mq.queue('sb_failures')
-        info['action'] = attempt_task.__name__
-        queue.post(dumps(info))
-'''
-
 
 def add_failure_to_queue(message_info):
     conn = boto.sqs.connect_to_region(
@@ -208,31 +198,6 @@ def spawn_task(task_func, task_param, countdown=0, task_id=None):
         raise e
 
 
-def language_filter(content):
-    """
-    Filters harsh language from posts and comments using the bomberman
-    client which
-    is initialized each time the function is called.
-
-    :param content:
-    :return:
-    """
-    try:
-        bomberman = Client()
-        if bomberman.is_profane(content):
-            corrected_content = bomberman.censor(content)
-            return corrected_content
-        else:
-            return content
-    except RateLimitExceeded as e:
-        return e
-    except Exception as e:
-        # This is necessary because bomberman can return an exception if it
-        # doesn't have a specific status code handled. This happens when there
-        # is a 503 from the server.
-        return e
-
-
 def create_auto_tags(content):
     try:
         alchemyapi = AlchemyAPI()
@@ -249,35 +214,6 @@ def wait_util(async_res):
     while not async_res['task_id'].result.ready():
         time.sleep(1)
     return async_res['task_id'].result.result
-
-
-@apply_defense
-def get_object(object_type, object_uuid):
-    """
-    DO NOT USE THIS FUNCTION ANYWHERE THAT DOES NOT HAVE A FORM
-    AND A CHOICE FIELD CLEARLY LAID OUT.
-
-    This function will take the id of an object and the objects class
-    name as a string: Post: "Post", etc. and return the object.
-    If the object is not found it will return False
-
-    :param object_type:
-    :param object_uuid:
-    :return:
-    """
-    try:
-        cls = object_type
-        module_name, class_name = cls.rsplit(".", 1)
-        sb_module = importlib.import_module(module_name)
-        sb_object = getattr(sb_module, class_name)
-        try:
-            return sb_object.nodes.get(object_uuid=object_uuid)
-        except (sb_object.DoesNotExist, DoesNotExist):
-            return TypeError("%s.DoesNotExist" % object_type)
-    except (NameError, ValueError, ImportError, AttributeError):
-        return False
-    except CypherException as e:
-        return e
 
 
 def execute_cypher_query(query):

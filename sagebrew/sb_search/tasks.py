@@ -5,17 +5,19 @@ from datetime import datetime
 from django.conf import settings
 
 from celery import shared_task
-from neomodel import DoesNotExist, CypherException
+from neomodel import DoesNotExist, CypherException, db
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import (ElasticsearchException, TransportError,
                                       ConnectionError, RequestError)
 
-from .neo_models import SearchQuery, KeyWord
-from .utils import (update_search_index_doc)
-from api.utils import spawn_task, get_object
+from api.utils import spawn_task
 from plebs.neo_models import Pleb
 
 from sb_base.utils import defensive_exception
+from sb_base.neo_models import SBContent
+
+from .neo_models import SearchQuery, KeyWord
+from .utils import (update_search_index_doc)
 
 logger = logging.getLogger('loggly_logs')
 
@@ -95,10 +97,15 @@ def update_weight_relationship(document_id, index, object_type,
                 update_dict['update_value'] = rel.weight
                 update_search_index_doc(**update_dict)
             return True
+        try:
+            query = "MATCH (a:SBContent) WHERE a.object_uuid = " \
+                    "%s RETURN a" % (object_uuid)
+            res, col = db.cypher_query(query)
 
-        sb_object = get_object(object_type, object_uuid)
-        if isinstance(sb_object, Exception) is True:
-            return sb_object
+            sb_object = SBContent.inflate(res[0][0])
+        except(CypherException, IOError) as e:
+            raise update_weight_relationship.retry(exc=e, countdown=3,
+                                                   max_retries=None)
 
         if pleb.object_weight.is_connected(sb_object):
 
@@ -113,7 +120,7 @@ def update_weight_relationship(document_id, index, object_type,
             update_dict['update_value'] = rel.weight
             update_search_index_doc(**update_dict)
             return True
-    except CypherException as e:
+    except(CypherException, IOError) as e:
         raise update_weight_relationship.retry(exc=e, countdown=3,
                                                max_retries=None)
     except Exception as e:

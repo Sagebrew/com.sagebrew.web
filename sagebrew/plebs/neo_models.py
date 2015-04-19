@@ -134,10 +134,8 @@ class Pleb(SBObject):
     # base_index_id is the plebs id in the base elasticsearch index
     base_index_id = StringProperty()
     email_verified = BooleanProperty(default=False)
-    populated_es_index = BooleanProperty(default=False)
     populated_personal_index = BooleanProperty(default=False)
     initial_verification_email_sent = BooleanProperty(default=False)
-    search_id = StringProperty()
     stripe_customer_id = StringProperty()
 
     # Relationships

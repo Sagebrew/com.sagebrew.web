@@ -78,7 +78,6 @@
                         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 col-lg-offset-8 col-md-offset-8 col-sm-offset-8">
                             <button class='btn btn-block btn-primary sb_btn_fill edit_object-action edit_{{ object_uuid }}'
                                id="edit_post_button_id"
-                               data-object_type="01bb301a-644f-11e4-9ad9-080027242395"
                                data-parent_object="{{ owner_object.username }}"
                                data-object_uuid="{{ object_uuid }}"
                                data-created="{{ created }}">Edit</button>
@@ -101,8 +100,7 @@
                           name="comment_content"
                           placeholder="Write your comment..."></textarea>
                 <a class="btn input-group-btn sb_btn_comment_icon comment-action comment_{{ object_uuid }}"
-                   data-object_uuid="{{ object_uuid }}"
-                   data-object_type="01bb301a-644f-11e4-9ad9-080027242395"><span class="fui-new"></span></a>
+                   data-object_uuid="{{ object_uuid }}"><span class="fui-new"></span></a>
             </div>
             </form>
         </div>

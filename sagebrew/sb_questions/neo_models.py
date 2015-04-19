@@ -32,7 +32,6 @@ class Question(SBPublicContent):
     subjectivity = FloatProperty()
     title_polarity = FloatProperty()
     title_subjectivity = FloatProperty()
-    search_id = StringProperty()
     tags_added = BooleanProperty(default=False)
 
     # relationships

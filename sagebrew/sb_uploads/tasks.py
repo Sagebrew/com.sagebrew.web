@@ -4,6 +4,7 @@ from neomodel import (DoesNotExist, CypherException)
 from plebs.neo_models import Pleb
 from .utils import crop_image
 
+
 @shared_task()
 def crop_image_task(image, height, width, x, y, pleb, f_uuid=None):
     try:

@@ -5,7 +5,7 @@ from django.conf import settings
 
 from neomodel import DoesNotExist, CypherException
 
-from sb_tag.neo_models import Tag
+from sb_tags.neo_models import Tag
 
 logger = getLogger('loggly_logs')
 

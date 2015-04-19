@@ -18,9 +18,8 @@ from sb_registration.utils import (verify_completed_registration)
 
 from .forms import (ExperienceForm, BioForm, GoalForm)
 from .neo_models import BaseOfficial
-from .tasks import (save_experience_task, save_bio_task, save_goal_task)
+from .tasks import (save_bio_task)
 from .utils import get_rep_type, prepare_official_search_html
-
 
 
 @login_required()
@@ -59,6 +58,7 @@ def about(request, username):
     return render(request, 'action_page.html',
                   {"representative": representative, "registered": False})
 
+
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
@@ -77,8 +77,8 @@ def representative_page(request, rep_type="", rep_id=""):
             pleb = official.pleb.all()[0]
         except IndexError:
             return render("404_Error")
-        name = pleb.first_name+' '+pleb.last_name
-        full = official.title+pleb.first_name+' '+pleb.last_name
+        name = "%s %s" % (pleb.first_name, pleb.last_name)
+        full = "%s %s %s" % (official.title, pleb.first_name, pleb.last_name)
         username = pleb.username
         data = {
             "name": name,
@@ -97,7 +97,7 @@ def representative_page(request, rep_type="", rep_id=""):
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def get_rep_info(request):
-    rep_id =  str(request.DATA['rep_id'])
+    rep_id = str(request.DATA['rep_id'])
     res = get_rep_docs(rep_id)
     if isinstance(res, Exception):
         return redirect('404_Error')
@@ -156,30 +156,34 @@ def get_experience_form(request):
         if experience_form.is_valid():
             rep_id = str(request.DATA['rep_id'])
             uuid = str(uuid1())
-            data = {'rep_id': rep_id,
-                    'title': experience_form.cleaned_data['title'],
-                    'start_date': experience_form.cleaned_data['start_date'],
-                    'end_date': experience_form.cleaned_data['end_date'],
-                    'current': experience_form.cleaned_data['current'],
-                    'company': experience_form.cleaned_data['company'],
-                    'location': experience_form.cleaned_data['location'],
-                    'description': experience_form.cleaned_data['description'],
-                    'exp_id': uuid}
-            table_data = {'parent_object': rep_id,
-                    'title': experience_form.cleaned_data['title'],
-                    'start_date': unicode(
-                        experience_form.cleaned_data['start_date']),
-                    'end_date': unicode(
-                        experience_form.cleaned_data['end_date']),
-                    'current': experience_form.cleaned_data['current'],
-                    'company': experience_form.cleaned_data['company'],
-                    'location': experience_form.cleaned_data['location'],
-                    'description': experience_form.cleaned_data['description'],
-                    'object_uuid': uuid}
+            data = {
+                'rep_id': rep_id,
+                'title': experience_form.cleaned_data['title'],
+                'start_date': experience_form.cleaned_data['start_date'],
+                'end_date': experience_form.cleaned_data['end_date'],
+                'current': experience_form.cleaned_data['current'],
+                'company': experience_form.cleaned_data['company'],
+                'location': experience_form.cleaned_data['location'],
+                'description': experience_form.cleaned_data['description'],
+                'exp_id': uuid
+            }
+            table_data = {
+                'parent_object': rep_id,
+                'title': experience_form.cleaned_data['title'],
+                'start_date': unicode(
+                    experience_form.cleaned_data['start_date']),
+                'end_date': unicode(
+                    experience_form.cleaned_data['end_date']),
+                'current': experience_form.cleaned_data['current'],
+                'company': experience_form.cleaned_data['company'],
+                'location': experience_form.cleaned_data['location'],
+                'description': experience_form.cleaned_data['description'],
+                'object_uuid': uuid
+            }
             res = add_object_to_table('experiences', table_data)
             if isinstance(res, Exception):
                 return Response({"detail": "error1"}, 400)
-            res = spawn_task(save_experience_task, data)
+            # res = spawn_task(save_experience_task, data)
             if isinstance(res, Exception):
                 return Response({"detail": "error2"}, 400)
             rendered = render_to_string('experience_detail.html',
@@ -232,9 +236,9 @@ def get_goal_form(request):
                 "description": goal_form.cleaned_data['description'],
                 "goal_id": uuid
             }
-            res = spawn_task(save_goal_task, data)
-            if isinstance(res, Exception):
-                return Response({"detail": "error"}, 400)
+            # res = spawn_task(save_goal_task, data)
+            # if isinstance(res, Exception):
+            #     return Response({"detail": "error"}, 400)
             data['parent_object'] = data['rep_id']
             data['object_uuid'] = data['goal_id']
             res = add_object_to_table('goals', data)
@@ -248,6 +252,7 @@ def get_goal_form(request):
     else:
         rendered = render_to_string('goal_form.html', {'goal_form': goal_form})
         return Response({"rendered": rendered}, 200)
+
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))

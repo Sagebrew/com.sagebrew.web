@@ -30,8 +30,7 @@ class TestQuestionNeoModel(TestCase):
         self.assertIsInstance(self.question.get_original(), Question)
 
     def test_get_original_edit_to(self):
-        question = Question(content="test", object_uuid=str(uuid1()),
-                              original=False).save()
+        question = Question(content="test", original=False).save()
 
         question.edit_to.connect(self.question)
 

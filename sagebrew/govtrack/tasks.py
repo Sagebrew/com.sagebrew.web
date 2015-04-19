@@ -11,13 +11,13 @@ from govtrack.neo_models import (GTPerson, GTCommittee,
 
 @shared_task()
 def populate_gt_role(requesturl):
-    '''
+    """
     This function takes a url which can be converted into a .json file. It
     then converts
     the json into a dict and creates and populates a GTRole object then
     saves it
     to the neo4j server.
-    '''
+    """
     role_request = get(requesturl)
 
     role_data_dict = role_request.json()
@@ -48,7 +48,7 @@ def populate_gt_role(requesturl):
 
 @shared_task()
 def populate_gt_person(requesturl):
-    '''
+    """
     This function takes a url which can be converted into a .json file. It
     then converts
     the json into a dict and creates and populates a GTPerson object then
@@ -56,12 +56,12 @@ def populate_gt_person(requesturl):
     neo4j server.
 
     Will eventually create relationships between GTPerson and GTRole.
-    '''
+    """
     person_request = get(requesturl)
     person_data_dict = person_request.json()
     for person in person_data_dict['objects']:
         try:
-            my_person = GTPerson.nodes.get(gt_id=person["id"])
+            GTPerson.nodes.get(gt_id=person["id"])
         except(GTPerson.DoesNotExist, DoesNotExist):
             person["birthday"] = datetime.strptime(person["birthday"],
                                                    '%Y-%m-%d')
@@ -79,7 +79,7 @@ def populate_gt_person(requesturl):
 
 @shared_task()
 def populate_gt_committee(requesturl):
-    '''
+    """
     This function takes a url which can be converted into a .json file. It
     then converts
     the json into a dict and creates and populates a GTCommittee object then
@@ -87,13 +87,12 @@ def populate_gt_committee(requesturl):
     to the neo4j server.
 
     Will eventually create relationships between sub committees.
-    '''
+    """
     committee_request = get(requesturl)
     committee_data_dict = committee_request.json()
     for committee in committee_data_dict['objects']:
         try:
-            my_committee = GTCommittee.nodes.get(
-                committee_id=committee["id"])
+            GTCommittee.nodes.get(committee_id=committee["id"])
         except(GTCommittee.DoesNotExist, DoesNotExist):
             committee["committee_id"] = committee["id"]
             committee.pop("id", None)
@@ -112,7 +111,7 @@ def populate_gt_committee(requesturl):
 
 @shared_task()
 def populate_gt_votes(requesturl):
-    '''
+    """
     This function takes a url which can be converted into a .json file. It
     then converts
     the json into a dict and creates and populates a GT_RCVotes object. It
@@ -120,18 +119,17 @@ def populate_gt_votes(requesturl):
     multiple GTVoteOption objects which are related to the GT_RCVotes object
     that was created.
     It also creates the relationship between the GT_RCVotes and GTVoteOption.
-    '''
+    """
     vote_request = get(requesturl)
     vote_data_dict = vote_request.json()
     my_votes = []
     for vote in vote_data_dict['objects']:
         try:
-            my_vote = GT_RCVotes.nodes.get(vote_id=vote["id"])
+            GT_RCVotes.nodes.get(vote_id=vote["id"])
         except(GT_RCVotes.DoesNotExistm, DoesNotExist):
             for voteoption in vote['options']:
                 try:
-                    my_vote_option = GTVoteOption.nodes.get(
-                        option_id=voteoption["id"])
+                    GTVoteOption.nodes.get(option_id=voteoption["id"])
                 except GTVoteOption.DoesNotExist:
                     voteoption["option_id"] = voteoption["id"]
                     voteoption.pop("id", None)

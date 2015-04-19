@@ -7,6 +7,7 @@ from plebs.neo_models import Pleb
 from sb_search.utils import process_search_result
 from sb_registration.utils import create_user_util_test
 
+
 class TestProcessSearchResultUtil(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"

@@ -11,8 +11,8 @@ from neomodel import db, DoesNotExist
 from api.utils import spawn_task, get_node
 from sb_base.serializers import MarkdownContentSerializer
 from plebs.neo_models import Pleb
-from sb_tag.neo_models import Tag
-from sb_tag.tasks import update_tags
+from sb_tags.neo_models import Tag
+from sb_tags.tasks import update_tags
 from sb_solutions.serializers import SolutionSerializerNeo
 from sb_solutions.neo_models import Solution
 
@@ -39,7 +39,7 @@ class TitleUpdate:
 
     def __call__(self, value):
         if (self.object_uuid is not None and
-                    solution_count(self.object_uuid) > 0):
+                solution_count(self.object_uuid) > 0):
             message = 'Cannot edit Title when there have ' \
                       'already been solutions provided'
             raise serializers.ValidationError(message)
@@ -119,7 +119,7 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
                     # ansible and we can get tags to register consistently
                     # we can remove this.
                     if (request.user.username == "devon_bleibtrey" or
-                                request.user.username == "tyler_wiersing"):
+                            request.user.username == "tyler_wiersing"):
                         tag_obj = Tag(name=tag).save()
                     else:
                         continue
@@ -135,6 +135,14 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         # TODO do we want to allow for tags to be changed?
         # I don't think we do because of the tight coupling with Reputation
         # and search. I think it could be exploited too easily.
+        """
+        When we start doing versioning:
+        edit = Question(title=validated_data.get('title', instance.title),
+                        content=validated_data.get('content', instance.content))
+        edit.save()
+        instance.edits.connect(edit)
+        edit.edit_to.connect(instance)
+        """
         instance.title = validated_data.get('title', instance.title)
         instance.content = validated_data.get('content', instance.content)
         instance.last_edited_on = datetime.now(pytz.utc)

@@ -7,5 +7,6 @@ from .utils import update_view_count
 def update_view_count_task(object_uuid):
     res = update_view_count(object_uuid)
     if isinstance(res, Exception):
-        raise update_view_count_task.retry(exc=res, countdown=3, max_retries=None)
+        raise update_view_count_task.retry(exc=res, countdown=3,
+                                           max_retries=None)
     return True

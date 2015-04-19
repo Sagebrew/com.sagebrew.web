@@ -123,12 +123,12 @@ def sb_send_email(source, to_email, subject, html_content):
 def generate_username(first_name, last_name):
     users_count = User.objects.filter(first_name__iexact=first_name).filter(
         last_name__iexact=last_name).count()
-    username = "%s_%s" %(first_name.lower(), last_name.lower())
+    username = "%s_%s" % (first_name.lower(), last_name.lower())
     if len(username) > 30:
         username = username[:30]
         users_count = User.objects.filter(username__iexact=username).count()
         if users_count > 0:
-            username = username[:(30-len(users_count))] + str(users_count)
+            username = username[:(30 - len(users_count))] + str(users_count)
     elif len(username) < 30 and users_count == 0:
         username = "%s_%s" % (
             (''.join(e for e in first_name if e.isalnum())).lower(),
@@ -166,9 +166,9 @@ def create_user_util(first_name, last_name, email, password, birthday):
             except(CypherException, IOError):
                 return False
 
-        except(CypherException, IOError) as e:
+        except(CypherException, IOError):
             return False
-    except(CypherException, IOError) as e:
+    except(CypherException, IOError):
         raise False
     res = spawn_task(task_func=create_pleb_task,
                      task_param={"user_instance": user, "birthday": birthday,

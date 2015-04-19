@@ -14,7 +14,6 @@ from sb_public_official.neo_models import BaseOfficial
 from sb_public_official.utils import prepare_official_search_html
 
 
-
 class TestPrepareSearchHTML(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"

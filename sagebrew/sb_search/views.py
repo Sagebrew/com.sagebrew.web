@@ -1,7 +1,7 @@
 from operator import itemgetter
 from django.conf import settings
 from multiprocessing import Pool
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from elasticsearch import Elasticsearch
 from django.template.loader import render_to_string
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -12,9 +12,6 @@ from rest_framework.decorators import (api_view, permission_classes)
 
 from neomodel import DoesNotExist, CypherException
 
-from .tasks import update_search_query
-from .utils import process_search_result
-from .forms import SearchForm, SearchFormApi
 from api.alchemyapi import AlchemyAPI
 from api.utils import (spawn_task)
 from plebs.neo_models import Pleb
@@ -24,13 +21,16 @@ from sb_questions.utils import prepare_question_search_html
 from sb_registration.utils import verify_completed_registration
 from sb_public_official.utils import prepare_official_search_html
 
+from .tasks import update_search_query
+from .utils import process_search_result
+from .forms import SearchForm, SearchFormApi
 
 
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def search_result_view(request):
-    '''
+    """
     This view serves the page that holds the search results.
 
     :param request:
@@ -40,7 +40,7 @@ def search_result_view(request):
     :param range_start:
     :param range_end:
     :return:
-    '''
+    """
     # TODO Need to make sure responses return an actual page if necessary
     try:
         pleb = Pleb.nodes.get(email=request.user.email)
@@ -58,19 +58,21 @@ def search_result_view(request):
                    display_num}
     search_form = SearchForm(search_data)
     if search_form.is_valid():
-        return render(request, 'search.html',
-                      {'search_param': search_form.cleaned_data['query_param'],
-                       'page': search_form.cleaned_data['page'],
-                       'pleb_info': pleb, 'filter': search_filter},
-                      status=200)
+        return render(
+            request, 'search.html',
+            {
+                'search_param': search_form.cleaned_data['query_param'],
+                'page': search_form.cleaned_data['page'],
+                'pleb_info': pleb, 'filter': search_filter
+            }, status=200)
     else:
-        return render(request, 'search.html', {'pleb_info': pleb},status=400)
+        return render(request, 'search.html', {'pleb_info': pleb}, status=400)
 
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def search_result_api(request):
-    '''
+    """
     This is the general search rest api endpoint. It takes the query parameter
     how many results to return and the current page, as well as a filter type
     and filter parameter if they are included.
@@ -82,7 +84,7 @@ def search_result_api(request):
     :param filter_type:
     :param filter_param:
     :return:
-    '''
+    """
     # TODO Make sure calling function knows what to do with a 500 status
     # TODO can we move any of this into a util?
     query_param = request.query_params.get('q', "")
@@ -91,8 +93,12 @@ def search_result_api(request):
     display_num = request.GET.get('max_page_size', 10)
     if int(display_num) > 100:
         display_num = 100
-    data = {'query_param': query_param, 'display_num': display_num,
-            'page': int(page), 'filter_param': filter_type}
+    data = {
+        'query_param': query_param,
+        'display_num': display_num,
+        'page': int(page),
+        'filter_param': filter_type
+    }
 
     try:
         search_form = SearchFormApi(data)
@@ -104,51 +110,51 @@ def search_result_api(request):
         search_type_dict = dict(settings.SEARCH_TYPES)
         alchemyapi = AlchemyAPI()
         response = alchemyapi.keywords("text", search_form.cleaned_data[
-                                      'query_param'])
+            'query_param'])
         current_page = int(search_form.cleaned_data['page'])
-        results=[]
+        results = []
 
         # TODO surround ES query with proper exception handling and ensure
         # each one is handled correctly
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        #TODO run query_param through natural language processor, determine
-        #if what they have searched is an email address or a name so that
-        #the first search result is that user
-        #TODO implement filtering on auto generated keywords from alchemyapi
+        # TODO run query_param through natural language processor, determine
+        # if what they have searched is an email address or a name so that
+        # the first search result is that user
+        # TODO implement filtering on auto generated keywords from alchemyapi
         if search_form.cleaned_data['filter_param'] == 'general':
-            res = es.search(index='full-search-user-specific-1', size=50,
-                            body=
-                            {
-                                "query": {
-                                    "query_string": {
-                                        "query": search_form.cleaned_data[
-                                            'query_param']
-                                    }
-                                },
-                                "filter": {
-                                    "term": {
-                                        "related_user": request.user.username
-                                    }
-                                }
-                            })
+            res = es.search(
+                index='full-search-user-specific-1', size=50,
+                body={
+                    "query": {
+                        "query_string": {
+                            "query": search_form.cleaned_data[
+                                'query_param']
+                        }
+                    },
+                    "filter": {
+                        "term": {
+                            "related_user": request.user.username
+                        }
+                    }
+                })
         else:
-            res = es.search(index='full-search-user-specific-1', size=50,
-                            doc_type=search_type_dict[
-                                search_form.cleaned_data['filter_param']],
-                            body=
-                            {
-                                "query": {
-                                    "query_string": {
-                                        "query": search_form.cleaned_data[
-                                            'query_param']
-                                    }
-                                },
-                                "filter": {
-                                    "term": {
-                                        "related_user": request.user.username
-                                    }
-                                }
-                            })
+            res = es.search(
+                index='full-search-user-specific-1', size=50,
+                doc_type=search_type_dict[search_form.cleaned_data[
+                    'filter_param']],
+                body={
+                    "query": {
+                        "query_string": {
+                            "query": search_form.cleaned_data[
+                                'query_param']
+                        }
+                    },
+                    "filter": {
+                        "term": {
+                            "related_user": request.user.username
+                        }
+                    }
+                })
         res = res['hits']['hits']
         task_param = {"pleb": request.user.email, "query_param":
                       search_form.cleaned_data['query_param'],
@@ -192,7 +198,7 @@ def search_result_api(request):
             for item in page.object_list:
                 # TODO Can we generalize this any further?
                 # TODO Handle spawned response correctly
-                if item['_type'] == 'sb_questions.neo_models.Question':
+                if item['_type'] == 'question':
                     results.append(prepare_question_search_html(
                         item['_source']['object_uuid'], request))
                 elif item['_type'] == 'pleb':

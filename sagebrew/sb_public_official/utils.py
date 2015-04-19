@@ -8,35 +8,7 @@ from plebs.neo_models import Pleb
 from api.utils import execute_cypher_query
 from sb_base.decorators import apply_defense
 
-from .neo_models import (BaseOfficial, Experience, Goal)
-
-
-@apply_defense
-def save_experience(rep_id, title, start_date, end_date, current,
-                    company, location, exp_id, description):
-    try:
-        Experience.nodes.get(object_uuid=exp_id)
-        return True
-    except CypherException as e:
-        return e
-    except (Experience.DoesNotExist, DoesNotExist):
-        try:
-            rep = BaseOfficial.nodes.get(object_uuid=rep_id)
-        except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException) as e:
-            return e
-        try:
-            experience = Experience(object_uuid=exp_id, title=title,
-                                    start_date=start_date, end_date=end_date,
-                                    current=current, company_s=company,
-                                    location_s=location,
-                                    description=description).save()
-        except CypherException as e:
-            return e
-        try:
-            rep.experience.connect(experience)
-        except CypherException as e:
-            return e
-        return experience
+from .neo_models import (BaseOfficial)
 
 
 @apply_defense
@@ -52,7 +24,7 @@ def save_bio(rep_id, bio):
         return e
     return bio
 
-
+'''
 @apply_defense
 def save_goal(rep_id, vote_req, money_req, initial, description, goal_id):
     try:
@@ -66,7 +38,8 @@ def save_goal(rep_id, vote_req, money_req, initial, description, goal_id):
         except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException) as e:
             return e
         try:
-            goal = Goal(object_uuid=goal_id, vote_req=vote_req, money_req=money_req,
+            goal = Goal(object_uuid=goal_id, vote_req=vote_req,
+                        money_req=money_req,
                         initial=initial, description=description).save()
         except CypherException as e:
             return e
@@ -75,6 +48,7 @@ def save_goal(rep_id, vote_req, money_req, initial, description, goal_id):
         except CypherException as e:
             return e
     return goal
+'''
 
 
 def get_rep_type(rep_type):

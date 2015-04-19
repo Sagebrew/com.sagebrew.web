@@ -74,7 +74,7 @@ STATICFILES_DIRS = (
     '%s/sb_registration/static/' % PROJECT_DIR,
     '%s/sb_public_official/static/' % PROJECT_DIR,
     '%s/sb_search/static/' % PROJECT_DIR,
-    '%s/sb_tag/static/' % PROJECT_DIR,
+    '%s/sb_tags/static/' % PROJECT_DIR,
     '%s/sb_uploads/static/' % PROJECT_DIR,
 
 )
@@ -151,7 +151,7 @@ TEMPLATE_DIRS = (
     '%s/sb_registration/templates/' % PROJECT_DIR,
     '%s/sb_requirements/templates/' % PROJECT_DIR,
     '%s/sb_search/templates/' % PROJECT_DIR,
-    '%s/sb_tag/templates/' % PROJECT_DIR,
+    '%s/sb_tags/templates/' % PROJECT_DIR,
 )
 
 
@@ -194,7 +194,7 @@ INSTALLED_APPS = (
     'sb_requirements',
     'sb_search',
     'sb_stats',
-    'sb_tag',
+    'sb_tags',
     'sb_uploads',
     'sb_votes',
     'sb_wall',

@@ -20,7 +20,6 @@ from plebs.tasks import send_email_task, create_beta_user
 from plebs.neo_models import Pleb, BetaUser
 from sb_public_official.tasks import create_rep_task
 from sb_docstore.tasks import build_rep_page_task
-from sb_uploads.tasks import crop_image_task
 from sb_uploads.utils import crop_image
 
 from .forms import (AddressInfoForm, InterestForm,
@@ -99,7 +98,7 @@ def signup_view_api(request):
                                 status=400)
     else:
         return Response({"detail": signup_form.errors.as_json()},
-                         status=400)
+                        status=400)
 
 
 def login_view(request):
@@ -213,7 +212,7 @@ def profile_information(request):
     address_information_form = AddressInfoForm(request.POST or None)
     try:
         citizen = Pleb.nodes.get(username=request.user.username)
-    except (CypherException, IOError) as e:
+    except (CypherException, IOError):
         return HttpResponseServerError('Server Error')
     if citizen.completed_profile_info:
         return redirect("interests")
@@ -240,8 +239,11 @@ def profile_information(request):
         else:
             # TODO this is just a place holder, what should we really be doing
             # here?
-            return render(request, 'profile_info.html',
-                  {'address_information_form': address_information_form})
+            return render(
+                request, 'profile_info.html',
+                {
+                    'address_information_form': address_information_form
+                })
 
     return render(request, 'profile_info.html',
                   {'address_information_form': address_information_form})
@@ -303,9 +305,12 @@ def profile_picture(request):
         return HttpResponse('Server Error', status=500)
     if request.method == 'GET':
         profile_picture_form = ProfilePictureForm()
-        return render(request, 'profile_picture.html',
-                    {'profile_picture_form': profile_picture_form,
-                     'pleb': citizen})
+        return render(
+            request, 'profile_picture.html',
+            {
+                'profile_picture_form': profile_picture_form,
+                'pleb': citizen
+            })
 
 
 @api_view(['POST'])
@@ -313,25 +318,24 @@ def profile_picture_api(request):
     profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
     pleb = Pleb.nodes.get(username=request.user.username)
     if profile_picture_form.is_valid():
-        image_uuid = str(uuid1())
         data = request.FILES['picture']
-        res = crop_image(data, 200, 200,
-                         int(profile_picture_form.cleaned_data['image_x1']),
-                         int(profile_picture_form.cleaned_data['image_y1']))
+        res = crop_image(
+            data, 200, 200, int(profile_picture_form.cleaned_data['image_x1']),
+            int(profile_picture_form.cleaned_data['image_y1']))
         pleb.profile_pic = res
         pleb.save()
-        url = reverse('profile_page', kwargs={"pleb_username":
-                                                  request.user.username})
+        url = reverse('profile_page', kwargs={
+            "pleb_username": request.user.username})
         return Response({"url": url, "pic_url": res}, 200)
     else:
         return Response({"detail": "invalid form"}, 400)
+
 
 @api_view(['POST'])
 def wallpaper_picture_api(request):
     profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
     pleb = Pleb.nodes.get(username=request.user.username)
     if profile_picture_form.is_valid():
-        image_uuid = str(uuid1())
         data = request.FILES['picture']
         res = crop_image(data,
                          int(profile_picture_form.cleaned_data['image_y2']),
@@ -341,8 +345,8 @@ def wallpaper_picture_api(request):
 
         pleb.wallpaper_pic = res
         pleb.save()
-        url = reverse('profile_page', kwargs={"pleb_username":
-                                                  request.user.username})
+        url = reverse('profile_page', kwargs={
+            "pleb_username": request.user.username})
         return Response({"url": url, "pic_url": res}, 200)
     else:
         return Response({"detail": "invalid form"}, 400)

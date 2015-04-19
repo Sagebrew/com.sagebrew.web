@@ -14,7 +14,7 @@ from neomodel import db
 from sb_notifications.neo_models import NotificationCapable
 from sb_docstore.utils import get_vote_count as doc_vote_count
 from sb_votes.utils import determine_vote_type
-from sb_tag.neo_models import TagRelevanceModel
+from sb_tags.neo_models import TagRelevanceModel
 from plebs.neo_models import RelationshipWeight, Pleb
 
 from .decorators import apply_defense
@@ -195,7 +195,7 @@ class SBContent(VotableContent):
     flags = RelationshipTo('sb_flags.neo_models.Flag', 'HAS_FLAG')
     comments = RelationshipTo('sb_comments.neo_models.Comment', 'HAS_A',
                               model=PostedOnRel)
-    auto_tags = RelationshipTo('sb_tag.neo_models.Tag',
+    auto_tags = RelationshipTo('sb_tags.neo_models.Tag',
                                'AUTO_TAGGED_AS', model=TagRelevanceModel)
     rel_weight = RelationshipTo('plebs.neo_models.Pleb', 'HAS_WEIGHT',
                                 model=RelationshipWeight)
@@ -270,7 +270,7 @@ class SBContent(VotableContent):
 
 class TaggableContent(SBContent):
     # relationships
-    tags = RelationshipTo('sb_tag.neo_models.Tag', 'TAGGED_AS')
+    tags = RelationshipTo('sb_tags.neo_models.Tag', 'TAGGED_AS')
     added_to_search_index = BooleanProperty(default=False)
 
     # methods
@@ -281,7 +281,7 @@ class TaggableContent(SBContent):
                      a , representing the splitting point
         :return:
         """
-        from sb_tag.neo_models import Tag
+        from sb_tags.neo_models import Tag
         tag_array = []
         if isinstance(tags, basestring) is True:
             tags = tags.split(',')
@@ -308,7 +308,7 @@ class TaggableContent(SBContent):
         return tag_array
 
     def add_auto_tags(self, tag_list):
-        from sb_tag.neo_models import AutoTag
+        from sb_tags.neo_models import AutoTag
         tag_array = []
         try:
             for tag in tag_list:

@@ -147,11 +147,11 @@ class Pleb(SBObject):
                                   'RESTRICTED_BY', model=RestrictionRel)
     badges = RelationshipTo("sb_badges.neo_models.Badge", "BADGES")
     oauth = RelationshipTo("plebs.neo_models.OauthUser", "OAUTH_CLIENT")
-    tags = RelationshipTo('sb_tag.neo_models.Tag', 'TAGS',
+    tags = RelationshipTo('sb_tags.neo_models.Tag', 'TAGS',
                           model=TagRelationship)
     voted_on = RelationshipTo('sb_base.neo_models.VotableContent', 'VOTES')
     address = RelationshipTo("Address", "LIVES_AT")
-    interests = RelationshipTo("sb_tag.neo_models.Tag", "INTERESTED_IN")
+    interests = RelationshipTo("sb_tags.neo_models.Tag", "INTERESTED_IN")
     friends = RelationshipTo("Pleb", "FRIENDS_WITH", model=FriendRelationship)
     posts = RelationshipTo('sb_posts.neo_models.Post', 'OWNS_POST',
                            model=PostObjectCreated)
@@ -289,7 +289,7 @@ class Pleb(SBObject):
         pass
 
     def update_tag_rep(self, base_tags, tags):
-        from sb_tag.neo_models import Tag
+        from sb_tags.neo_models import Tag
         for item in tags:
             try:
                 tag = Tag.nodes.get(name=item)

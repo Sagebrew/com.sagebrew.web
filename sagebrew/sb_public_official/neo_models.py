@@ -1,10 +1,7 @@
-from sb_base.decorators import apply_defense
-
-from neomodel import (StructuredNode, StringProperty, IntegerProperty,
+from neomodel import (StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, DateProperty)
+                      BooleanProperty)
 
-from api.neo_models import SBObject
 from plebs.neo_models import Pleb
 
 
@@ -35,22 +32,22 @@ class BaseOfficial(Pleb):
 
     # relationships
     pleb = RelationshipTo('plebs.neo_models.Pleb', 'IS')
-    sponsored = RelationshipTo('sb_public_official.neo_models.Bill',
-                               "SPONSORED")
-    co_sponsored = RelationshipTo('sb_public_official.neo_models.Bill',
-                                  "COSPONSORED")
-    proposed = RelationshipTo('sb_public_official.neo_models.Bill',
-                              "PROPOSED")
-    hearings = RelationshipTo('sb_public_official.neo_models.Hearing',
-                              "ATTENDED")
-    experience = RelationshipTo('sb_public_official.neo_models.Experience',
-                                "EXPERIENCED")
-    goal = RelationshipTo('sb_public_official.neo_models.Goal', 'GOAL')
+    # sponsored = RelationshipTo('sb_public_official.neo_models.Bill',
+    #                            "SPONSORED")
+    # co_sponsored = RelationshipTo('sb_public_official.neo_models.Bill',
+    #                               "COSPONSORED")
+    # proposed = RelationshipTo('sb_public_official.neo_models.Bill',
+    #                           "PROPOSED")
+    # hearings = RelationshipTo('sb_public_official.neo_models.Hearing',
+    #                           "ATTENDED")
+    # experience = RelationshipTo('sb_public_official.neo_models.Experience',
+    #                             "EXPERIENCED")
+    goals = RelationshipTo('sb_goals.neo_models.Goal', 'GOAL')
     gt_person = RelationshipTo('govtrack.neo_models.GTPerson', 'GTPERSON')
     gt_role = RelationshipTo('govtrack.neo_models.GTRole', 'GTROLE')
 
     def get_dict(self):
-        crop_name = self.full_name.rfind('[')
+        crop_name = str(self.full_name).rfind('[')
         try:
             full_name = self.full_name[:crop_name]
         except IndexError:
@@ -59,23 +56,25 @@ class BaseOfficial(Pleb):
             bioguideid = self.gt_person.all()[0].bioguideid
         except IndexError:
             bioguideid = None
-        return {"object_uuid": self.object_uuid,
-                "full_name": full_name,
-                "first_name": self.first_name,
-                "last_name": self.last_name,
-                "start_date": unicode(self.start_date),
-                "end_date": unicode(self.end_date),
-                "state": self.state,
-                "title": self.title,
-                "district": self.district,
-                "current": self.current,
-                "bioguide": bioguideid,
-                "terms": self.terms,
-                "youtube": self.youtube,
-                "twitter": self.twitter,
-                "channel_wallpaper": None}
+        return {
+            "object_uuid": self.object_uuid,
+            "full_name": full_name,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "start_date": unicode(self.start_date),
+            "end_date": unicode(self.end_date),
+            "state": self.state,
+            "title": self.title,
+            "district": self.district,
+            "current": self.current,
+            "bioguide": bioguideid,
+            "terms": self.terms,
+            "youtube": self.youtube,
+            "twitter": self.twitter,
+            "channel_wallpaper": None
+        }
 
-
+'''
 class Bill(StructuredNode):
     bill_id = StringProperty(unique_index=True)
 
@@ -97,42 +96,4 @@ class Committee(StructuredNode):
 
     # relationships
     members = RelationshipTo(BaseOfficial, "COMMITTEE_MEMBERS")
-
-
-class Experience(SBObject):
-    title = StringProperty()
-    start_date = DateProperty()
-    end_date = DateProperty()
-    description = StringProperty()
-    current = BooleanProperty()
-    company_s = StringProperty()
-    location_s = StringProperty()
-
-    # relationships
-    company = RelationshipTo('plebs.neo_models.Company', 'EXPERIENCED_AT')
-    location = RelationshipTo('plebs.neo_models.Address', "LOCATION")
-
-    @apply_defense
-    def get_dict(self):
-        return {"title": self.title,
-                "start_date": unicode(self.start_date),
-                "end_date": unicode(self.end_date),
-                "description": self.description,
-                "current": self.current,
-                "company": self.company_s,
-                "location": self.location_s}
-
-
-class Goal(SBObject):
-    initial = BooleanProperty(default=False)
-    description = StringProperty()
-    vote_req = IntegerProperty()
-    money_req = IntegerProperty()
-
-    @apply_defense
-    def get_dict(self):
-        return {"object_uuid": self.object_uuid,
-                "initial": self.initial,
-                "description": self.description,
-                "money_req": self.money_req,
-                "vote_req": self.vote_req}
+'''

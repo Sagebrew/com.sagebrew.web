@@ -31,4 +31,4 @@ class Notification(SBObject):
 
 class NotificationCapable(SBObject):
     action_name = ''
-    views = RelationshipTo('sb_stats.neo_models.SBViewCount', 'VIEWED')
+    views = RelationshipTo('sb_stats.neo_models.Impression', 'VIEWED')

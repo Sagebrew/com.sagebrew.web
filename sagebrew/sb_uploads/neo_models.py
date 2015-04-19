@@ -7,7 +7,7 @@ from neomodel import (StringProperty, IntegerProperty, RelationshipTo,
 class Image(SBContent):
     url = StringProperty()
 
-    #relationships
+    # relationships
     sizes = RelationshipTo('sb_uploads.neo_models.SubImage', "RESIZE")
 
 
@@ -17,5 +17,3 @@ class SubImage(SBContent):
     height = IntegerProperty()
     width = IntegerProperty()
     file_size = FloatProperty()
-
-

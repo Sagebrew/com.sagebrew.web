@@ -55,12 +55,12 @@ def update_search_index_doc(document_id, index, field, update_value,
     try:
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         body = {
-            "doc" : {
-                field : update_value
+            "doc": {
+                field: update_value
             }
         }
-        res = es.update(index=index, fields=["_source"], doc_type=document_type,
-                        id=document_id, body=body)
+        es.update(index=index, fields=["_source"], doc_type=document_type,
+                  id=document_id, body=body)
         return True
     except HTTPError:
         logger.error({"function": update_search_index_doc.__name__,
@@ -80,22 +80,27 @@ def process_search_result(item):
     :param item:
     :return:
     '''
-    from sb_search.tasks import update_weight_relationship
     if 'sb_score' not in item['_source']:
             item['_source']['sb_score'] = 0
     if item['_type'] == 'sb_questions.neo_models.Question':
-        return {"question_uuid": item['_source']['object_uuid'],
-                       "type": "question",
-                       "temp_score": item['_score']*item['_source']['sb_score'],
-                       "score": item['_score']}
+        return {
+            "question_uuid": item['_source']['object_uuid'],
+            "type": "question",
+            "temp_score": item['_score'] * item['_source']['sb_score'],
+            "score": item['_score']
+        }
     elif item['_type'] == 'pleb':
-        return {"username": item['_source']['object_uuid'],
-                "type": "pleb",
-                "temp_score": item['_score']*item['_source']['sb_score'],
-                "score": item['_score']}
+        return {
+            "username": item['_source']['object_uuid'],
+            "type": "pleb",
+            "temp_score": item['_score'] * item['_source']['sb_score'],
+            "score": item['_score']
+        }
     elif item['_type'] == 'sagas':
-        return {"object_uuid": item['_source']['object_uuid'],
-                'type': 'sagas', 'temp_score': item['_score'],
-                'score': item['_score']}
+        return {
+            "object_uuid": item['_source']['object_uuid'],
+            'type': 'sagas', 'temp_score': item['_score'],
+            'score': item['_score']
+        }
     else:
         return {'temp_score': 0}

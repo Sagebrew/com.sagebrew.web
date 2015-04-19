@@ -92,7 +92,7 @@ def process_search_result(item):
         }
     elif item['_type'] == 'pleb':
         return {
-            "username": item['_source']['username'],
+            "username": item['_source']['related_user'],
             "type": "pleb",
             "temp_score": item['_score'] * item['_source']['sb_score'],
             "score": item['_score']

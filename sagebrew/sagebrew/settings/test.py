@@ -27,7 +27,6 @@ CACHES = {
 }
 
 
-
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 DEFAULT_FILE_STORAGE = 'sagebrew.s3utils.MediaRootS3BotoStorage'
 STATICFILES_STORAGE = 'sagebrew.s3utils.StaticRootS3BotoStorage'

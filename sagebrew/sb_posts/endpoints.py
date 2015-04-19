@@ -110,7 +110,7 @@ class WallPostsListCreate(ListCreateAPIView):
                 "from_pleb": request.user.username,
                 "sb_object": serializer['object_uuid'],
                 "url": serializer['url'],
-                "to_plebs": [self.kwargs[self.lookup_field],],
+                "to_plebs": [self.kwargs[self.lookup_field], ],
                 "notification_id": str(uuid1())
             }
             spawn_task(task_func=spawn_notifications, task_param=data)
@@ -152,7 +152,7 @@ def post_renderer(request, username=None):
             post['last_edited_on'][:len(post['last_edited_on']) - 6],
             '%Y-%m-%dT%H:%M:%S.%f')
         context = RequestContext(request, post)
-        html_array.append(render_to_string('post.html',  context))
+        html_array.append(render_to_string('post.html', context))
         id_array.append(post["object_uuid"])
     posts.data['results'] = {"html": html_array, "ids": id_array}
     return Response(posts.data, status=status.HTTP_200_OK)

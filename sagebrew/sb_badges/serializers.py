@@ -19,7 +19,8 @@ class BadgeSerializer(SBSerializer):
 
     def update(self, instance, validated_data):
         """
-        Update and return an existing `Snippet` instance, given the validated data.
+        Update and return an existing `Snippet` instance, given the
+        validated data.
         """
         instance.name = validated_data.get('title', instance.title)
         instance.image_color = validated_data.get('code', instance.code)

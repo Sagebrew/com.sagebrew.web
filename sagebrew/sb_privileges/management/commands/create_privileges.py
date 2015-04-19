@@ -54,6 +54,7 @@ class Command(BaseCommand):
                     except(CypherException, IOError):
                         logger.critical("potential error there may"
                                         " be missing requirements")
+                action_obj = None
                 for action in actions:
                     action_resource = "%s-list" % action["resource"]
                     try:
@@ -86,18 +87,20 @@ class Command(BaseCommand):
                     try:
                         # Note that this will not always be a unique index and
                         # may require some tweeking in the future
-                        SBAction.nodes.get(url=action_url)
+                        action_obj = SBAction.nodes.get(url=action_url)
                     except(SBAction.DoesNotExist, DoesNotExist):
                         try:
                             action["url"] = (action_url)
-                            action = SBAction(**action).save()
-                            privilege_obj.actions.connect(action)
+                            action_obj = SBAction(**action).save()
                         except(CypherException, IOError):
                             logger.critical("potential error there may"
                                             " be missing actions")
                     except(CypherException, IOError):
                         logger.critical("potential error there may"
                                         " be missing actions")
+                    if action_obj is not None:
+                        privilege_obj.actions.connect(action_obj)
+                    action_obj = None
             for restriction in data['restrictions']:
                 try:
                     Restriction.nodes.get(name=restriction["name"])

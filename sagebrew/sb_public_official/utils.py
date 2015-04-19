@@ -4,55 +4,28 @@ from django.template.loader import render_to_string
 
 from neomodel import (DoesNotExist, CypherException)
 
-from api.utils import execute_cypher_query
 from plebs.neo_models import Pleb
 from api.utils import execute_cypher_query
 from sb_base.decorators import apply_defense
 
-from .neo_models import (BaseOfficial, Experience, Goal)
+from .neo_models import (BaseOfficial)
 
-
-@apply_defense
-def save_experience(rep_id, title, start_date, end_date, current,
-                    company, location, exp_id, description):
-    try:
-        exp = Experience.nodes.get(object_uuid=exp_id)
-        return True
-    except CypherException as e:
-        return e
-    except (Experience.DoesNotExist, DoesNotExist):
-        try:
-            rep = BaseOfficial.nodes.get(object_uuid=rep_id)
-        except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException) as e:
-            return e
-        try:
-            experience = Experience(object_uuid=exp_id, title=title,
-                                    start_date=start_date, end_date=end_date,
-                                    current=current, company_s=company,
-                                    location_s=location,
-                                    description=description).save()
-        except CypherException as e:
-            return e
-        try:
-            rep.experience.connect(experience)
-        except CypherException as e:
-            return e
-        return experience
 
 @apply_defense
 def save_bio(rep_id, bio):
     try:
         rep = BaseOfficial.nodes.get(object_uuid=rep_id)
-    except (CypherException, BaseOfficial.DoesNotExist, DoesNotExist) as e:
+    except (CypherException, BaseOfficial.DoesNotExist, DoesNotExist,
+            IOError) as e:
         return e
     try:
         rep.bio = bio
         rep.save()
-    except CypherException as e:
+    except (CypherException, IOError) as e:
         return e
     return bio
 
-
+'''
 @apply_defense
 def save_goal(rep_id, vote_req, money_req, initial, description, goal_id):
     try:
@@ -66,7 +39,8 @@ def save_goal(rep_id, vote_req, money_req, initial, description, goal_id):
         except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException) as e:
             return e
         try:
-            goal = Goal(object_uuid=goal_id, vote_req=vote_req, money_req=money_req,
+            goal = Goal(object_uuid=goal_id, vote_req=vote_req,
+                        money_req=money_req,
                         initial=initial, description=description).save()
         except CypherException as e:
             return e
@@ -75,6 +49,7 @@ def save_goal(rep_id, vote_req, money_req, initial, description, goal_id):
         except CypherException as e:
             return e
     return goal
+'''
 
 
 def get_rep_type(rep_type):
@@ -84,18 +59,19 @@ def get_rep_type(rep_type):
     sb_object = getattr(sb_module, class_name)
     return sb_object
 
+
 @apply_defense
 def save_rep(pleb_username, rep_type, rep_id, recipient_id, gov_phone,
              customer_id=None):
     try:
         pleb = Pleb.nodes.get(username=pleb_username)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
         return e
     temp_type = dict(settings.BASE_REP_TYPES)[rep_type]
     rep_type = get_rep_type(temp_type)
     try:
         rep = rep_type.nodes.get(object_uuid=rep_id)
-    except CypherException as e:
+    except (CypherException, IOError) as e:
         return e
     except (rep_type.DoesNotExist, DoesNotExist):
         rep = rep_type(object_uuid=rep_id, gov_phone=gov_phone).save()
@@ -111,7 +87,7 @@ def save_rep(pleb_username, rep_type, rep_id, recipient_id, gov_phone,
         if customer_id is not None:
             rep.customer_id = customer_id
         rep.save()
-    except CypherException as e:
+    except (CypherException, IOError) as e:
         return e
     return rep
 
@@ -121,7 +97,7 @@ def determine_reps(username):
     senators = []
     try:
         pleb = Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException):
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError):
         return False
     try:
         address = pleb.address.all()[0]
@@ -148,6 +124,7 @@ def determine_reps(username):
                 return False
             senators.append(rep.object_uuid)
     return True
+
 
 @apply_defense
 def prepare_official_search_html(object_uuid):

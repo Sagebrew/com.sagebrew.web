@@ -100,5 +100,3 @@ class Restriction(SBObject):
                     "key": self.key,
                     "operator": pickle.loads(self.operator),
                     "response": check}
-
-

@@ -2,8 +2,8 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from api.utils import wait_util
 
-from sb_tag.utils import (create_tag_relations_util)
-from sb_tag.neo_models import AutoTag
+from sb_tags.utils import (create_tag_relations_util)
+from sb_tags.neo_models import AutoTag
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
@@ -43,4 +43,3 @@ class TestCreateTagRelations(TestCase):
     def test_create_tag_relations_empty(self):
         res = create_tag_relations_util([])
         self.assertFalse(res)
-

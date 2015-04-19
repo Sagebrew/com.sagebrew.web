@@ -16,4 +16,3 @@ class GetFriendRequestForm(forms.Form):
 class RespondFriendRequestForm(forms.Form):
     request_id = forms.CharField()
     response = forms.CharField()
-

@@ -1,6 +1,6 @@
 from django import forms
 from django.conf import settings
-from localflavor.us.forms import  USZipCodeField, USStateField
+from localflavor.us.forms import USZipCodeField, USStateField
 
 
 class InterestForm(forms.Form):
@@ -207,8 +207,10 @@ class ProfilePageForm(forms.Form):
 
 
 class SignupForm(forms.Form):
-    first_name = forms.CharField(required=True, max_length=30, label="First Name")
-    last_name = forms.CharField(required=True, max_length=30, label="Last Name")
+    first_name = forms.CharField(required=True, max_length=30,
+                                 label="First Name")
+    last_name = forms.CharField(required=True, max_length=30,
+                                label="Last Name")
     email = forms.EmailField(required=True, label="Email")
     password = forms.CharField(required=True, min_length=6, max_length=56)
     password2 = forms.CharField(required=True, min_length=6, max_length=56)
@@ -218,6 +220,7 @@ class SignupForm(forms.Form):
 class LoginForm(forms.Form):
     email = forms.EmailField(required=True)
     password = forms.CharField(required=True, min_length=6)
+
 
 class RepRegistrationForm(forms.Form):
     ssn = forms.CharField()
@@ -236,6 +239,7 @@ class RepRegistrationForm(forms.Form):
     exp_month = forms.IntegerField(required=False)
     exp_year = forms.IntegerField(required=False)
     cvv = forms.IntegerField(required=False)
+
 
 class BetaSignupForm(forms.Form):
     email = forms.CharField()

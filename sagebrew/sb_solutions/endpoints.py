@@ -32,7 +32,7 @@ logger = getLogger('loggly_logs')
 class SolutionViewSet(viewsets.ModelViewSet):
     serializer_class = SolutionSerializerNeo
     lookup_field = "object_uuid"
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         sort_by = self.request.query_params.get('ordering', "")
@@ -105,7 +105,7 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
                 "url": serializer['url'],
                 # TODO discuss notifying all the people who have provided
                 # solutions on a given question.
-                "to_plebs": [question_owner.username,],
+                "to_plebs": [question_owner.username, ],
                 "notification_id": str(uuid1())
             }
             spawn_task(task_func=spawn_notifications, task_param=data)
@@ -149,7 +149,7 @@ def solution_renderer(request, object_uuid=None):
             solution['last_edited_on'][:len(solution['last_edited_on']) - 6],
             '%Y-%m-%dT%H:%M:%S.%f')
         context = RequestContext(request, solution)
-        html_array.append(render_to_string('solution.html',  context))
+        html_array.append(render_to_string('solution.html', context))
         id_array.append(solution["object_uuid"])
     solutions.data['results'] = {"html": html_array, "ids": id_array}
 

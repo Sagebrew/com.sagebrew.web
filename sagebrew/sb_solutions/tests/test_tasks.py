@@ -1,5 +1,4 @@
 import time
-from uuid import uuid1
 from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
@@ -25,8 +24,7 @@ class TestAddSolutionToSearchIndexTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_add_solution_to_search_index_success(self):
-        solution = Solution(object_uuid=str(uuid1()),
-                          content='this is fake content').save()
+        solution = Solution(content='this is fake content').save()
         solution.owned_by.connect(self.pleb)
         data = {"solution": solution}
         res = add_solution_to_search_index.apply_async(kwargs=data)
@@ -36,9 +34,8 @@ class TestAddSolutionToSearchIndexTask(TestCase):
         self.assertTrue(res.result)
 
     def test_add_solution_to_search_index_solution_already_added(self):
-        solution = Solution(object_uuid=str(uuid1()),
-                          content='this is fake content',
-                          added_to_search_index=True).save()
+        solution = Solution(content='this is fake content',
+                            added_to_search_index=True).save()
         solution.owned_by.connect(self.pleb)
         data = {"solution": solution}
         res = add_solution_to_search_index.apply_async(kwargs=data)
@@ -48,8 +45,7 @@ class TestAddSolutionToSearchIndexTask(TestCase):
         self.assertTrue(res.result)
 
     def test_add_solution_to_search_index_no_owner(self):
-        solution = Solution(object_uuid=str(uuid1()),
-                          content='this is fake content').save()
+        solution = Solution(content='this is fake content').save()
         data = {"solution": solution}
         res = add_solution_to_search_index.apply_async(kwargs=data)
         while not res.ready():

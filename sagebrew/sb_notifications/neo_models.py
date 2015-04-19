@@ -6,13 +6,14 @@ from neomodel import (StringProperty, DateTimeProperty, RelationshipTo,
                       BooleanProperty)
 
 from api.neo_models import SBObject
+from sb_search.neo_models import Searchable
 
 
 def get_current_time():
     return datetime.now(pytz.utc)
 
 
-class NotificationBase(SBObject):
+class Notification(SBObject):
     seen = BooleanProperty(default=False)
     time_sent = DateTimeProperty(default=get_current_time)
     time_seen = DateTimeProperty(default=None)
@@ -29,5 +30,6 @@ class NotificationBase(SBObject):
                                      'NOTIFICATION_TO')
 
 
-class NotificationCapable(SBObject):
+class NotificationCapable(SBObject, Searchable):
     action_name = ''
+    views = RelationshipTo('sb_stats.neo_models.Impression', 'VIEWED')

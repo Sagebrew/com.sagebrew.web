@@ -28,7 +28,7 @@ class TestAddObjectToSearchIndex(TestCase):
 
     def test_add_object_to_search_index(self):
         task_data = {
-            'object_type': 'sb_questions.neo_models.Question',
+            'object_type': 'question',
             'object_data': {'content': 'fake',
                             'object_uuid': self.question.object_uuid}
         }
@@ -43,7 +43,7 @@ class TestAddObjectToSearchIndex(TestCase):
         temp_es = settings.ELASTIC_SEARCH_HOST
         settings.ELASTIC_SEARCH_HOST = [{'host': 'sagebrew.com'}]
         task_data = {
-            'object_type': 'sb_questions.neo_models.Question',
+            'object_type': 'question',
             'object_data': {'content': 'fake',
                             'object_uuid': self.question.object_uuid}
         }
@@ -53,7 +53,6 @@ class TestAddObjectToSearchIndex(TestCase):
             time.sleep(1)
         settings.ELASTIC_SEARCH_HOST = temp_es
         self.assertIsInstance(res.result, Exception)
-
 
     def test_add_object_to_search_index_pleb_already_populated(self):
         task_data = {
@@ -82,5 +81,3 @@ class TestAddObjectToSearchIndex(TestCase):
             time.sleep(1)
 
         self.assertFalse(res.result)
-
-

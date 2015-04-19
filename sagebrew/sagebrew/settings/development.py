@@ -75,8 +75,7 @@ DEBUG_TOOLBAR_PANELS = (
     # 'cache_panel.panel.CacheDebugPanel',
 )
 
-ELASTIC_SEARCH_HOST = [{'host': environ.get("ELASTIC_SEARCH_HOST", "")
-                       }]
+ELASTIC_SEARCH_HOST = [{'host': environ.get("ELASTIC_SEARCH_HOST", "")}]
 
 
 def custom_show_toolbar(request):
@@ -96,7 +95,7 @@ DEBUG_TOOLBAR_CONFIG = {
     'ENABLE_STACKTRACES': True,
 }
 
-#INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar', )
+# INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar', )
 # MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + (
 # 'debug_toolbar.middleware.DebugToolbarMiddleware',)
 

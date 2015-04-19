@@ -79,7 +79,7 @@ class ObjectFlagsListCreate(ListCreateAPIView):
                 context = RequestContext(request, serializer_data)
                 return Response(
                     {
-                        "html": [render_to_string('sb_comment.html', context)],
+                        "html": [render_to_string('comment.html', context)],
                         "ids": [serializer_data["object_uuid"]]
                     },
                     status=status.HTTP_200_OK)
@@ -90,10 +90,10 @@ class ObjectFlagsListCreate(ListCreateAPIView):
 @api_view(["GET"])
 @permission_classes((IsAuthenticated,))
 def flag_renderer(request, object_uuid=None):
-    '''
+    """
     This is a intermediate step on the way to utilizing a JS Framework to
     handle template rendering.
-    '''
+    """
     html_array = []
     id_array = []
     args = []
@@ -108,7 +108,7 @@ def flag_renderer(request, object_uuid=None):
         # implementation of spacing for vote count in the template.
         comment["vote_count"] = str(comment["vote_count"])
         context = RequestContext(request, comment)
-        html_array.append(render_to_string('sb_comment.html',  context))
+        html_array.append(render_to_string('comment.html', context))
         id_array.append(comment["object_uuid"])
     comments.data['results'] = {"html": html_array, "ids": id_array}
     return Response(comments.data, status=status.HTTP_200_OK)
@@ -117,13 +117,13 @@ def flag_renderer(request, object_uuid=None):
 @api_view(["GET"])
 @permission_classes((IsAuthenticated,))
 def flag_list(request):
-    response = {"status": status.HTTP_501_NOT_IMPLEMENTED,
-                "detail": "We do not allow users to query all the Flags on"
-                          "the site.",
-                "developer_message":
-                    "We're working on enabling easier access to flags based."
-                    "However this endpoint currently does not return any "
-                    "flag data. Please use the other content endpoints to "
-                    "reference the flags on them."
-                }
+    response = {
+        "status": status.HTTP_501_NOT_IMPLEMENTED,
+        "detail": "We do not allow users to query all the Flags on the site.",
+        "developer_message":
+            "We're working on enabling easier access to flags based."
+            "However this endpoint currently does not return any "
+            "flag data. Please use the other content endpoints to "
+            "reference the flags on them."
+    }
     return Response(response, status=status.HTTP_501_NOT_IMPLEMENTED)

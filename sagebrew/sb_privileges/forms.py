@@ -1,6 +1,7 @@
 from django import forms
 from django.conf import settings
 
+
 class CreatePrivilegeForm(forms.Form):
     name = forms.CharField()
 
@@ -26,11 +27,3 @@ class SelectActionForm(forms.Form):
 
 class SelectRequirementForm(forms.Form):
     object_uuid = forms.CharField()
-
-
-class CreateRestrictionForm(forms.Form):
-    pass
-
-
-class CheckActionForm(forms.Form):
-    action = forms.CharField()

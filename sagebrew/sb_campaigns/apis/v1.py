@@ -2,5 +2,5 @@ from django.conf.urls import patterns
 
 
 urlpatterns = patterns(
-    'campaigns.endpoints',
+    'sb_campaigns.endpoints',
 )

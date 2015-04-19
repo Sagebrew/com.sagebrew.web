@@ -24,8 +24,7 @@ function save_comment(comment_area, url, object_uuid) {
             url: url + "?html=true",
             data: JSON.stringify({
                 'content': $('textarea#post_comment_on_' + object_uuid).val(),
-                'object_uuid': $(this).data('object_uuid'),
-                'object_type': $(this).data('object_type')
+                'object_uuid': $(this).data('object_uuid')
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",

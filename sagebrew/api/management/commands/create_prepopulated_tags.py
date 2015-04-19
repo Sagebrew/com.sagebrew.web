@@ -5,7 +5,7 @@ from django.conf import settings
 
 from neomodel import DoesNotExist, CypherException
 
-from sb_tag.neo_models import Tag
+from sb_tags.neo_models import Tag
 
 logger = getLogger('loggly_logs')
 
@@ -52,8 +52,11 @@ class Command(BaseCommand):
                     except (CypherException, IOError):
                         logger.exception(
                             dumps(
-                                {"detail": "Cypher exception, failed to create tag %s"
-                                           % tag['name']}))
+                                {
+                                    "detail":
+                                        "Cypher exception, failed to create "
+                                        "tag %s" % tag['name']
+                                }))
                         continue
 
     def handle(self, *args, **options):

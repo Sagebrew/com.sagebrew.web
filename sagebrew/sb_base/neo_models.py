@@ -14,7 +14,7 @@ from neomodel import db
 from sb_notifications.neo_models import NotificationCapable
 from sb_docstore.utils import get_vote_count as doc_vote_count
 from sb_votes.utils import determine_vote_type
-from sb_tag.neo_models import TagRelevanceModel
+from sb_tags.neo_models import TagRelevanceModel
 from plebs.neo_models import RelationshipWeight, Pleb
 
 from .decorators import apply_defense
@@ -38,7 +38,7 @@ class PostedOnRel(StructuredRel):
 
 class VoteRelationship(StructuredRel):
     active = BooleanProperty(default=True)
-    vote_type = BooleanProperty() # True is up False is down
+    vote_type = BooleanProperty()  # True is up False is down
     rep_adjust = IntegerProperty()
     created = DateTimeProperty(default=get_current_time)
 
@@ -47,8 +47,11 @@ class VotableContent(NotificationCapable):
     up_vote_adjustment = 0
     down_vote_adjustment = 0
     content = StringProperty()
-    view_count_node = RelationshipTo('sb_stats.neo_models.SBViewCount',
-                                     'VIEW_COUNT')
+    # Please use get_view_count rather than this. This currently has the view
+    # count stored in it but that may change in the future as we transition
+    # to a more discernible metrics approach.
+    view_count = IntegerProperty(default=0)
+
     # relationships
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'OWNED_BY',
                               model=PostedOnRel)
@@ -77,7 +80,7 @@ class VotableContent(NotificationCapable):
                     rel.active = False
                 rel.save()
             return self
-        except CypherException as e:
+        except (CypherException, IOError) as e:
             return e
 
     @apply_defense
@@ -86,8 +89,19 @@ class VotableContent(NotificationCapable):
             rel.active = False
             rel.save()
             return self
-        except CypherException as e:
+        except (CypherException, IOError) as e:
             return e
+
+    def get_view_count(self):
+        return self.view_count
+
+    def increment_view_count(self):
+        try:
+            self.view_count += int(self.view_count) + 1
+            self.save()
+            return self.view_count
+        except IndexError:
+            return 0
 
     @apply_defense
     def get_upvote_count(self):
@@ -101,7 +115,7 @@ class VotableContent(NotificationCapable):
         try:
             res, col = self.cypher(query)
             return len(res)
-        except CypherException as e:
+        except(CypherException, IOError) as e:
             logger.exception("Cypher Error: ")
             return e
 
@@ -117,7 +131,7 @@ class VotableContent(NotificationCapable):
         try:
             res, col = self.cypher(query)
             return len(res)
-        except CypherException as e:
+        except (CypherException, IOError) as e:
             logger.exception("Cypher Error: ")
             return e
 
@@ -146,19 +160,13 @@ class VotableContent(NotificationCapable):
 
     @apply_defense
     def get_rep_breakout(self):
-        pos_rep = self.get_upvote_count()*self.up_vote_adjustment
-        neg_rep = self.get_downvote_count()*self.down_vote_adjustment
+        pos_rep = self.get_upvote_count() * self.up_vote_adjustment
+        neg_rep = self.get_downvote_count() * self.down_vote_adjustment
         return {
-            "total_rep": pos_rep+neg_rep,
+            "total_rep": pos_rep + neg_rep,
             "pos_rep": pos_rep,
             "neg_rep": neg_rep,
         }
-
-    def get_view_count(self):
-        try:
-            return self.view_count_node.all()[0].view_count
-        except IndexError:
-            return 0
 
 
 class SBContent(VotableContent):
@@ -181,19 +189,18 @@ class SBContent(VotableContent):
     # determine the potential for slippage from dyanmo's count and how we want
     # to update it. So at the moment it will remain at 0.
     vote_count = IntegerProperty(default=0)
-    view_count = IntegerProperty(default=0)
 
     # relationships
     flagged_by = RelationshipTo('plebs.neo_models.Pleb', 'FLAGGED_BY')
     flags = RelationshipTo('sb_flags.neo_models.Flag', 'HAS_FLAG')
     comments = RelationshipTo('sb_comments.neo_models.Comment', 'HAS_A',
                               model=PostedOnRel)
-    auto_tags = RelationshipTo('sb_tag.neo_models.Tag',
+    auto_tags = RelationshipTo('sb_tags.neo_models.Tag',
                                'AUTO_TAGGED_AS', model=TagRelevanceModel)
     rel_weight = RelationshipTo('plebs.neo_models.Pleb', 'HAS_WEIGHT',
                                 model=RelationshipWeight)
     notifications = RelationshipTo(
-        'sb_notifications.neo_models.NotificationBase', 'NOTIFICATIONS')
+        'sb_notifications.neo_models.Notification', 'NOTIFICATIONS')
 
     @classmethod
     def get_model_name(cls):
@@ -208,25 +215,6 @@ class SBContent(VotableContent):
     @apply_defense
     def get_table(self):
         return self.table
-
-    @apply_defense
-    def create_view_count(self):
-        from sb_stats.neo_models import SBViewCount
-        try:
-            count_node = SBViewCount().save()
-        except (CypherException, IOError) as e:
-            return e
-        try:
-            self.view_count_node.connect(count_node)
-        except (CypherException, IOError) as e:
-            return e
-        return True
-
-    def increment_view_count(self):
-        try:
-            return self.view_count_node.all()[0].increment()
-        except IndexError:
-            return 0
 
     def get_flagged_by(self):
         query = "MATCH (a:SBContent {object_uuid: '%s'})-[:FLAGGED_BY]->(" \
@@ -282,7 +270,7 @@ class SBContent(VotableContent):
 
 class TaggableContent(SBContent):
     # relationships
-    tags = RelationshipTo('sb_tag.neo_models.Tag', 'TAGGED_AS')
+    tags = RelationshipTo('sb_tags.neo_models.Tag', 'TAGGED_AS')
     added_to_search_index = BooleanProperty(default=False)
 
     # methods
@@ -293,11 +281,11 @@ class TaggableContent(SBContent):
                      a , representing the splitting point
         :return:
         """
-        from sb_tag.neo_models import Tag
+        from sb_tags.neo_models import Tag
         tag_array = []
         if isinstance(tags, basestring) is True:
             tags = tags.split(',')
-        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         if not tags:
             return False
         for tag in tags:
@@ -308,25 +296,25 @@ class TaggableContent(SBContent):
                 # TODO we should only be creating tags if the user has enough
                 # rep
                 continue
-            except CypherException as e:
+            except (CypherException, IOError) as e:
                 return e
         for item in tag_array:
             try:
                 self.tags.connect(item)
                 item.tag_used += 1
                 item.save()
-            except CypherException as e:
+            except (CypherException, IOError) as e:
                 return e
         return tag_array
 
     def add_auto_tags(self, tag_list):
-        from sb_tag.neo_models import AutoTag
+        from sb_tags.neo_models import AutoTag
         tag_array = []
         try:
             for tag in tag_list:
                 try:
-                    tag_object = AutoTag.nodes.get(name=tag['tags']
-                    ['text'].lower())
+                    tag_object = AutoTag.nodes.get(
+                        name=tag['tags']['text'].lower())
                 except (AutoTag.DoesNotExist, DoesNotExist):
                     tag_object = AutoTag(
                         name=tag['tags']['text'].lower()).save()
@@ -359,18 +347,18 @@ class SBVersioned(TaggableContent):
     def get_rep_breakout(self):
         tag_list = []
         base_tags = []
-        pos_rep = self.get_upvote_count()*self.up_vote_adjustment
-        neg_rep = self.get_downvote_count()*self.down_vote_adjustment
+        pos_rep = self.get_upvote_count() * self.up_vote_adjustment
+        neg_rep = self.get_downvote_count() * self.down_vote_adjustment
         for tag in self.tags.all():
             if tag.base:
                 base_tags.append(tag.name)
             tag_list.append(tag.name)
         try:
-            rep_per_tag = math.ceil(float(pos_rep+neg_rep)/len(tag_list))
+            rep_per_tag = math.ceil(float(pos_rep + neg_rep) / len(tag_list))
         except ZeroDivisionError:
             rep_per_tag = 0
         return {
-            "total_rep": pos_rep+neg_rep,
+            "total_rep": pos_rep + neg_rep,
             "pos_rep": pos_rep,
             "neg_rep": neg_rep,
             "tag_list": tag_list,

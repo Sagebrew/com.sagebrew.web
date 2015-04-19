@@ -18,7 +18,7 @@ def get_updates_from_dynamo(request):
     vote_res = []
     try:
         pleb = Pleb.nodes.get(username=request.user.username)
-    except CypherException:
+    except (CypherException, IOError):
         return Response(status=500)
     for object_uuid in request.DATA['object_uuids']:
         vote_res.append(get_user_updates(username=pleb.username,
@@ -39,5 +39,3 @@ def get_updates_from_dynamo(request):
         spawn_task(task_func=check_privileges, task_param={
             "username": request.user.username})
     return Response({'detail': 'success'}, status=200)
-
-

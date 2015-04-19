@@ -3,19 +3,20 @@ from neomodel.exception import CypherException
 
 from sb_base.decorators import apply_defense
 from api.utils import execute_cypher_query
-from sb_tag.neo_models import Tag
+from sb_tags.neo_models import Tag
 
 logger = logging.getLogger('loggly_logs')
 
+
 @apply_defense
 def create_tag_relations_util(tags):
-    '''
+    """
     This function creates and manages the relationships between tags, such as
     the frequently_tagged_with relationship.
 
     :param tags:
     :return:
-    '''
+    """
     if not tags:
         return False
 
@@ -33,7 +34,7 @@ def create_tag_relations_util(tags):
                     rel.save()
         return True
 
-    except CypherException as e:
+    except (CypherException, IOError) as e:
         return e
 
 
@@ -49,10 +50,13 @@ def calc_spheres():
         for base_tag in base_tags:
             query = 'match (from: Tag {name: "%s"}), ' \
                     '(to: Tag {name: "%s"}) ,' \
-                    'path = shortestPath((to)-[:FREQUENTLY_TAGGED_WITH*]->(from))' \
-                    'with reduce(dist = 0, rel in rels(path) | dist + rel.count) as distance ' \
-                    'return distance'%(tag.name, base_tag.name)
-            res = execute_cypher_query(query)
+                    'path = shortestPath(' \
+                    '(to)-[:FREQUENTLY_TAGGED_WITH*]->(from))' \
+                    'with ' \
+                    'reduce(dist = 0, rel in rels(path) | dist + rel.count' \
+                    ') as distance ' \
+                    'return distance' % (tag.name, base_tag.name)
+            execute_cypher_query(query)
 
 
 def update_tags_util(tags):

@@ -133,7 +133,7 @@ class TestProfileInfoView(TestCase):
         request.user = self.user
         response = profile_information(request)
 
-        self.assertIn(response.status_code, [200,302])
+        self.assertIn(response.status_code, [200, 302])
 
     def test_user_info_population_incorrect_birthday(self):
         my_dict = {"city": ["Walled Lake"], "home_town": [],
@@ -141,14 +141,15 @@ class TestProfileInfoView(TestCase):
                    "address_additional": [], "employer": [],
                    "state": "MI", "date_of_birth": ["06"],
                    "college": [], "primary_address": ["125 Glenwood Dr"],
-                   "high_school": [], "postal_code": ["48390"], "valid": "valid",
+                   "high_school": [], "postal_code": ["48390"],
+                   "valid": "valid",
                    "congressional_district": 11, "longitude": -83.4965,
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',
                                     data=my_dict)
         request.user = self.user
         response = profile_information(request)
-        self.assertIn(response.status_code, [200,302])
+        self.assertIn(response.status_code, [200, 302])
 
     def test_address_validation_util_invalid_no_zipcode(self):
         my_dict = {"city": ["Walled Lake"], "home_town": [],
@@ -163,7 +164,7 @@ class TestProfileInfoView(TestCase):
                                     data=my_dict)
         request.user = self.user
         response = profile_information(request)
-        self.assertIn(response.status_code, [200,302])
+        self.assertIn(response.status_code, [200, 302])
 
     def test_address_validation_util_invalid_no_primary(self):
         my_dict = {"city": ["Walled Lake"], "home_town": [],
@@ -171,28 +172,30 @@ class TestProfileInfoView(TestCase):
                    "address_additional": [], "employer": [],
                    "state": "MI", "date_of_birth": ["06/04/94"],
                    "college": [],
-                   "high_school": [], "postal_code": ["48390"], "valid": "valid",
+                   "high_school": [], "postal_code": ["48390"],
+                   "valid": "valid",
                    "congressional_district": 11, "longitude": -83.4965,
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',
                                     data=my_dict)
         request.user = self.user
         response = profile_information(request)
-        self.assertIn(response.status_code, [200,302])
+        self.assertIn(response.status_code, [200, 302])
 
     def test_address_validation_util_invalid_no_country(self):
         my_dict = {"city": ["Walled Lake"], "home_town": [],
                    "address_additional": [], "employer": [],
                    "state": "MI", "date_of_birth": ["06/04/94"],
                    "college": [], "primary_address": ["125 Glenwood Dr"],
-                   "high_school": [], "postal_code": ["48390"], "valid": "valid",
+                   "high_school": [], "postal_code": ["48390"],
+                   "valid": "valid",
                    "congressional_district": 11, "longitude": -83.4965,
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',
                                     data=my_dict)
         request.user = self.user
         response = profile_information(request)
-        self.assertIn(response.status_code, [200,302])
+        self.assertIn(response.status_code, [200, 302])
 
     def test_address_validation_util_invalid_no_city(self):
         my_dict = {"home_town": [],
@@ -208,7 +211,7 @@ class TestProfileInfoView(TestCase):
                                     data=my_dict)
         request.user = self.user
         response = profile_information(request)
-        self.assertIn(response.status_code, [200,302])
+        self.assertIn(response.status_code, [200, 302])
 
     def test_address_validation_util_valid(self):
         my_dict = {"city": ["Walled Lake"], "home_town": [],
@@ -216,14 +219,15 @@ class TestProfileInfoView(TestCase):
                    "address_additional": [], "employer": [],
                    "state": "MI", "date_of_birth": ["06/04/94"],
                    "college": [], "primary_address": ["125 Glenwood Dr"],
-                   "high_school": [], "postal_code": ["48390"], "valid": "valid",
+                   "high_school": [], "postal_code": ["48390"],
+                   "valid": "valid",
                    "congressional_district": 11, "longitude": -83.4965,
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',
                                     data=my_dict)
         request.user = self.user
         response = profile_information(request)
-        self.assertIn(response.status_code, [200,302])
+        self.assertIn(response.status_code, [200, 302])
 
     def test_profile_information_success(self):
         my_dict = {"city": ["Walled Lake"], "home_town": [],
@@ -231,7 +235,8 @@ class TestProfileInfoView(TestCase):
                    "address_additional": [], "employer": [],
                    "state": "MI", "date_of_birth": ["06/04/94"],
                    "college": [], "primary_address": ["125 Glenwood Dr"],
-                   "high_school": [], "postal_code": ["48390"], "valid": "valid",
+                   "high_school": [], "postal_code": ["48390"],
+                   "valid": "valid",
                    "congressional_district": 11, "longitude": -83.4965,
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',
@@ -253,7 +258,7 @@ class TestProfileInfoView(TestCase):
         request.user = self.user
         response = profile_information(request)
 
-        self.assertIn(response.status_code, [200,302])
+        self.assertIn(response.status_code, [200, 302])
 
     def test_profile_information_address_has_no_suggestions(self):
         my_dict = {"city": ["We"], "home_town": [],
@@ -267,7 +272,7 @@ class TestProfileInfoView(TestCase):
         request.user = self.user
         response = profile_information(request)
 
-        self.assertIn(response.status_code, [200,302])
+        self.assertIn(response.status_code, [200, 302])
 
     def test_profile_information_address_has_multiple_suggestions(self):
         my_dict = {"city": ["Baltimore"], "home_town": [],
@@ -281,7 +286,7 @@ class TestProfileInfoView(TestCase):
         request.user = self.user
         response = profile_information(request)
 
-        self.assertIn(response.status_code, [200,302])
+        self.assertIn(response.status_code, [200, 302])
 
     def test_profile_information_pleb_does_not_exist(self):
         my_dict = {"city": ["Walled Lake"], "home_town": [],
@@ -289,7 +294,8 @@ class TestProfileInfoView(TestCase):
                    "address_additional": [], "employer": [],
                    "state": "MI", "date_of_birth": ["06/04/94"],
                    "college": [], "primary_address": ["125 Glenwood Dr"],
-                   "high_school": [], "postal_code": ["48390"], "valid": "valid",
+                   "high_school": [], "postal_code": ["48390"],
+                   "valid": "valid",
                    "congressional_district": 11, "longitude": -83.4965,
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',
@@ -309,7 +315,8 @@ class TestProfileInfoView(TestCase):
                    "address_additional": [], "employer": [],
                    "state": "MI", "date_of_birth": ["06/04/94"],
                    "college": [], "primary_address": ["125 Glenwood Dr"],
-                   "high_school": [], "postal_code": ["48390"], "valid": "valid",
+                   "high_school": [], "postal_code": ["48390"],
+                   "valid": "valid",
                    "congressional_district": 11, "longitude": -83.4965,
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',
@@ -327,11 +334,12 @@ class TestProfileInfoView(TestCase):
         my_dict = {"city": ["Walled Lake"], "home_town": [],
                    "country": ["United States"],
                    "address_additional": [], "employer": [],
-                   "state": "MI", "date_of_birth": [datetime.datetime.now()-
+                   "state": "MI", "date_of_birth": [datetime.datetime.now() -
                                                     datetime.timedelta(
-                                                        days=12*365)],
+                                                        days=12 * 365)],
                    "college": [], "primary_address": ["125 Glenwood Dr"],
-                   "high_school": [], "postal_code": ["48390"], "valid": "valid",
+                   "high_school": [], "postal_code": ["48390"],
+                   "valid": "valid",
                    "congressional_district": 11, "longitude": -83.4965,
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',
@@ -348,7 +356,8 @@ class TestProfileInfoView(TestCase):
                    "address_additional": [], "employer": [],
                    "state": "MI", "date_of_birth": ["06/04/94"],
                    "college": [], "primary_address": ["125 Glenwood Dr"],
-                   "high_school": [], "postal_code": ["48390"], "valid": "valid",
+                   "high_school": [], "postal_code": ["48390"],
+                   "valid": "valid",
                    "congressional_district": 11, "longitude": -83.4965,
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',
@@ -453,7 +462,6 @@ class TestSignupAPIView(TestCase):
         self.assertEqual(res.status_code, 200)
 
     def test_signup_view_api_failure_user_exists(self):
-
         signup_dict = {
             'first_name': self.user.first_name,
             'last_name': self.user.last_name,
@@ -496,7 +504,6 @@ class TestSignupAPIView(TestCase):
         self.assertEqual(res.status_code, 401)
 
 
-
 class TestLoginView(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
@@ -537,7 +544,7 @@ class TestLoginAPIView(TestCase):
 
         request = self.factory.post('/registration/login/api/', data=login_data,
                                     format='json')
-        s=SessionStore()
+        s = SessionStore()
         s.save()
         request.session = s
 
@@ -557,7 +564,7 @@ class TestLoginAPIView(TestCase):
         self.user.save()
         request = self.factory.post('/registration/login/api/', data=login_data,
                                     format='json')
-        s=SessionStore()
+        s = SessionStore()
         s.save()
         request.session = s
 
@@ -575,7 +582,7 @@ class TestLoginAPIView(TestCase):
         }
         request = self.factory.post('/registration/login/api/', data=login_data,
                                     format='json')
-        s=SessionStore()
+        s = SessionStore()
         s.save()
         request.session = s
 
@@ -593,7 +600,7 @@ class TestLoginAPIView(TestCase):
         }
         request = self.factory.post('/registration/login/api/', data=login_data,
                                     format='json')
-        s=SessionStore()
+        s = SessionStore()
         s.save()
         request.session = s
 
@@ -607,7 +614,7 @@ class TestLoginAPIView(TestCase):
     def test_login_api_view_incorrect_data_int(self):
         request = self.factory.post('/registration/login/api/', data=1231,
                                     format='json')
-        s=SessionStore()
+        s = SessionStore()
         s.save()
         request.session = s
 
@@ -616,9 +623,10 @@ class TestLoginAPIView(TestCase):
         self.assertEqual(res.status_code, 400)
 
     def test_login_api_view_incorrect_data_string(self):
-        request = self.factory.post('/registration/login/api/', data='teststring',
+        request = self.factory.post('/registration/login/api/',
+                                    data='teststring',
                                     format='json')
-        s=SessionStore()
+        s = SessionStore()
         s.save()
         request.session = s
 
@@ -629,7 +637,7 @@ class TestLoginAPIView(TestCase):
     def test_login_api_view_incorrect_data_float(self):
         request = self.factory.post('/registration/login/api/', data=1.1234,
                                     format='json')
-        s=SessionStore()
+        s = SessionStore()
         s.save()
         request.session = s
 
@@ -640,7 +648,7 @@ class TestLoginAPIView(TestCase):
     def test_login_api_view_incorrect_data_image(self):
         request = self.factory.post('/registration/login/api/', data=1231,
                                     format='json')
-        s=SessionStore()
+        s = SessionStore()
         s.save()
         request.session = s
 
@@ -826,6 +834,7 @@ class TestAgeRestrictionView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.client.logout()
 
+
 class TestProfilePictureView(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
@@ -837,6 +846,8 @@ class TestProfilePictureView(TestCase):
         self.user = User.objects.get(email=self.email)
         self.pleb.completed_profile_info = True
         self.pleb.save()
+
+
 '''
     def test_profile_picture_view(self):
         self.client.login(username=self.user.username, password='testpassword')

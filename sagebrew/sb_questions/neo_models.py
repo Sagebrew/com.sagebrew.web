@@ -1,16 +1,10 @@
-import pytz
-from uuid import uuid1
-from datetime import datetime
-
 from neomodel import (StringProperty, IntegerProperty,
-                      RelationshipTo,  BooleanProperty, FloatProperty,
-                      CypherException)
+                      RelationshipTo, BooleanProperty, FloatProperty)
 from neomodel import db
 
 from sb_base.neo_models import SBPublicContent
-from sb_tag.neo_models import Tag
+from sb_tags.neo_models import Tag
 
-from sb_base.decorators import apply_defense
 from sb_solutions.neo_models import Solution
 
 
@@ -32,7 +26,6 @@ class Question(SBPublicContent):
     subjectivity = FloatProperty()
     title_polarity = FloatProperty()
     title_subjectivity = FloatProperty()
-    search_id = StringProperty()
     tags_added = BooleanProperty(default=False)
 
     # relationships
@@ -63,66 +56,3 @@ class Question(SBPublicContent):
 
         res, col = db.cypher_query(query)
         return [row[0] for row in res]
-
-    @apply_defense
-    def edit_content(self, pleb, content):
-        from sb_questions.utils import create_question_util
-        try:
-            edit_question = create_question_util(content, self.title,
-                                                 str(uuid1()))
-
-            if isinstance(edit_question, Exception) is True:
-                return edit_question
-
-            edit_question.original = False
-            edit_question.save()
-            self.edits.connect(edit_question)
-            edit_question.edit_to.connect(self)
-            self.last_edited_on = datetime.now(pytz.utc)
-            self.save()
-            return edit_question
-        except (CypherException, AttributeError) as e:
-            return e
-
-    @apply_defense
-    def edit_title(self, title):
-        from sb_questions.utils import create_question_util
-        try:
-            edit_question = create_question_util(self.content, title,
-                                                 str(uuid1()))
-
-            if isinstance(edit_question, Exception) is True:
-                return edit_question
-            edit_question.original = False
-            edit_question.save()
-            self.edits.connect(edit_question)
-            edit_question.edit_to.connect(self)
-            self.last_edited_on = datetime.now(pytz.utc)
-            self.save()
-            return edit_question
-        except CypherException as e:
-            return e
-
-    @apply_defense
-    def get_original(self):
-        try:
-            if self.original is True:
-                return self
-            return self.edit_to.all()[0]
-        except CypherException as e:
-            return e
-
-    @apply_defense
-    def get_most_recent_edit(self):
-        try:
-            results, columns = self.cypher('start q=node({self}) '
-                                           'match q-[:EDIT]-(n:Question) '
-                                           'with n '
-                                           'ORDER BY n.created DESC'
-                                           ' return n')
-            edits = [self.inflate(row[0]) for row in results]
-            if not edits:
-                return self
-            return edits[0]
-        except CypherException as e:
-            return e

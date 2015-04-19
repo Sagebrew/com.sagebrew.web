@@ -26,7 +26,7 @@ class SBSerializer(serializers.Serializer):
             expedite = request.query_params.get('expedite', "false").lower()
         except AttributeError:
             try:
-               expedite = request.GET.get('expedite', "false").lower()
+                expedite = request.GET.get('expedite', "false").lower()
             except AttributeError:
                 return None
         if expedite == "true":

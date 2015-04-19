@@ -17,10 +17,11 @@ urlpatterns = patterns(
     url(r'^login/$', login_view, name="login"),
     url(r'^logout/$', logout_view, name="logout"),
     url(r'^password_reset/', 'django.contrib.auth.views.password_reset',
-        {"html_email_template_name":
-             "email_templates/email_password_reset.html",
-         "template_name": "password_reset/password_reset.html"},
-        name="reset_password_page"),
+        {
+            "html_email_template_name":
+                "email_templates/email_password_reset.html",
+            "template_name": "password_reset/password_reset.html"
+        }, name="reset_password_page"),
     url(r'^password_reset/done/$',
         'django.contrib.auth.views.password_reset_done',
         name="password_reset_done"),
@@ -32,8 +33,8 @@ urlpatterns = patterns(
     url(r'^reset/done/$', 'django.contrib.auth.views.password_reset_complete',
         {"template_name": "password_reset/password_reset_done.html"},
         name="password_reset_complete"),
-    url(r'^terms/$',  RedirectView.as_view(
-        url='/help/terms/', permanent=False),name='terms_redirect'),
+    url(r'^terms/$', RedirectView.as_view(
+        url='/help/terms/', permanent=False), name='terms_redirect'),
     url(r'^400/$', TemplateView.as_view(template_name="400.html"),
         name="400_Error"),
     url(r'^404/$', TemplateView.as_view(template_name="404.html"),
@@ -48,7 +49,7 @@ urlpatterns = patterns(
     (r'^user/', include('plebs.urls')),
     (r'^conversations/', include('sb_questions.urls')),
     (r'^search/', include('sb_search.urls')),
-    (r'^tags/', include('sb_tag.urls')),
+    (r'^tags/', include('sb_tags.urls')),
     (r'^docstore/', include('sb_docstore.urls')),
     (r'^upload/', include('sb_uploads.urls')),
     (r'^privilege/', include('sb_privileges.urls')),
@@ -64,7 +65,7 @@ urlpatterns = patterns(
     (r'^v1/', include('sb_flags.apis.v1')),
     (r'^v1/', include('sb_votes.apis.v1')),
     (r'^v1/', include('sb_privileges.apis.v1')),
-    (r'^v1/', include('sb_tag.apis.v1')),
+    (r'^v1/', include('sb_tags.apis.v1')),
     url(r'^$', beta_page, name='beta_page'),
 )
 

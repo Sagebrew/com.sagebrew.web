@@ -39,4 +39,3 @@ class TestCreateCommentRelationsTask(TestCase):
             time.sleep(1)
 
         self.assertTrue(res.result)
-

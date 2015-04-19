@@ -30,6 +30,7 @@ class TestPrepareUserSearchHTML(TestCase):
     def test_prepare_user_pleb_does_not_exist(self):
         res = prepare_user_search_html("fake_email@fakegoogle.com")
         self.assertFalse(res)
+
 # TODO add this back in
 '''
     Until we have a stable version of Neo4J in circle and everywhere else
@@ -47,10 +48,11 @@ class TestPrepareUserSearchHTML(TestCase):
             self.assertIsNone(res)
 '''
 
+
 class TestPleb(TestCase):
     def test_pickle_does_not_exist(self):
         try:
-            from_citizen = Pleb.nodes.get(email="notanemail@example.com")
+            Pleb.nodes.get(email="notanemail@example.com")
         except(Pleb.DoesNotExist, DoesNotExist) as e:
             pickle_instance = pickle.dumps(e)
             self.assertTrue(pickle_instance)
@@ -65,7 +67,7 @@ class TestCreateFriendRequestUtil(TestCase):
         wait_util(res)
         self.pleb1 = Pleb.nodes.get(email=self.email)
         self.user1 = User.objects.get(email=self.email)
-        self.email2= "bounce@simulator.amazonses.com"
+        self.email2 = "bounce@simulator.amazonses.com"
         res = create_user_util_test(self.email2)
         self.assertNotEqual(res, False)
         wait_util(res)

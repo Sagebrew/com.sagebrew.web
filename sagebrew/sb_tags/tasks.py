@@ -13,7 +13,6 @@ def add_tags(question, tags):
     them then creates the relationship between them.
 
     :param object_uuid:
-    :param object_type:
     :param tags:
     :return:
     '''

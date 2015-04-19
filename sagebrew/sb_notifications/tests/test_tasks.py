@@ -38,9 +38,11 @@ class TestNotificationTasks(TestCase):
         post = Post(**self.post_info_dict)
         post.save()
 
-        data={'sb_object': post,
-              'from_pleb': self.pleb.email,
-              'to_plebs': [self.pleb2.email,]}
+        data = {
+            'sb_object': post,
+            'from_pleb': self.pleb.email,
+            'to_plebs': [self.pleb2.email, ]
+        }
         response = spawn_notifications.apply_async(kwargs=data)
         while not response.ready():
             time.sleep(3)
@@ -49,11 +51,13 @@ class TestNotificationTasks(TestCase):
     def test_create_notification_comment_task(self):
         post = Post(**self.post_info_dict)
         post.save()
-        comment = Comment(object_uuid=str(uuid1()), content='sdfasd')
+        comment = Comment(content='sdfasd')
         comment.save()
 
-        data = {'from_pleb':self.pleb.email, 'to_plebs': [self.pleb2.email,],
-                'sb_object': comment}
+        data = {
+            'from_pleb': self.pleb.email, 'to_plebs': [self.pleb2.email, ],
+            'sb_object': comment
+        }
 
         response = spawn_notifications.apply_async(kwargs=data)
         while not response.ready():
@@ -64,9 +68,11 @@ class TestNotificationTasks(TestCase):
         post = Post(**self.post_info_dict)
         post.save()
 
-        data={'sb_object': post,
-              'from_pleb': self.pleb.email,
-              'to_plebs': [self.pleb2.email, 'fakeemail1@fake.com']}
+        data = {
+            'sb_object': post,
+            'from_pleb': self.pleb.email,
+            'to_plebs': [self.pleb2.email, 'fakeemail1@fake.com']
+        }
         response = spawn_notifications.apply_async(kwargs=data)
         while not response.ready():
             time.sleep(1)

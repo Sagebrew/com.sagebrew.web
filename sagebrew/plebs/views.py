@@ -78,11 +78,12 @@ def profile_page(request, pleb_username=""):
         'current_user': current_user,
         'page_user': page_user,
         'house_reps': [],  # reps['house_rep'],
-        'senators': [],  #reps['senators'],
+        'senators': [],  # reps['senators'],
         'is_owner': is_owner,
         'is_friend': is_friend,
         'friend_request_sent': friend_request_sent
     })
+
 
 @login_required()
 def friend_page(request, pleb_username):
@@ -104,18 +105,20 @@ def friend_page(request, pleb_username):
         is_friend = True
     if page_user_pleb.username in citizen.get_friend_requests_sent():
         friend_request_sent = True
-    return render(request, 'sb_friends_section/sb_friends.html',
-                  {
-        'user_profile': citizen,
-        'page_profile': page_user_pleb,
-        'current_user': current_user,
-        'page_user': page_user,
-        'house_reps': [],  # reps['house_rep'],
-        'senators': [],  #reps['senators'],
-        'is_owner': is_owner,
-        'is_friend': is_friend,
-        'friend_request_sent': friend_request_sent
-    })
+    return render(
+        request, 'sb_friends_section/sb_friends.html',
+        {
+            'user_profile': citizen,
+            'page_profile': page_user_pleb,
+            'current_user': current_user,
+            'page_user': page_user,
+            'house_reps': [],  # reps['house_rep'],
+            'senators': [],  # reps['senators'],
+            'is_owner': is_owner,
+            'is_friend': is_friend,
+            'friend_request_sent': friend_request_sent
+        })
+
 
 @login_required()
 def general_settings(request):
@@ -308,7 +311,7 @@ def respond_friend_request(request):
         except (FriendRequest.DoesNotExist, Pleb.DoesNotExist, IndexError):
             # TODO should we be doing something different for an index error?
             return Response(status=404)
-        except CypherException:
+        except (CypherException, IOError):
             return Response(status=500)
 
         if form.cleaned_data['response'] == 'accept':

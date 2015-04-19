@@ -87,10 +87,10 @@ def add_object_to_table(table_name, object_data):
     except (JSONResponseError, ResourceNotFoundException) as e:
         return e
     try:
-        res = table.put_item(data=object_data)
+        table.put_item(data=object_data)
     except ConditionalCheckFailedException:
         try:
-            user_object = table.get_item(username=object_data['username'])
+            table.get_item(username=object_data['username'])
             return True
         except (ConditionalCheckFailedException, KeyError):
             return True
@@ -272,74 +272,6 @@ def get_rep_docs(rep_id, rep_only=False):
     goals = get_rep_info(rep_id, 'goals')
     return {"rep": rep, "policies": policies, "experiences": experiences,
             'education': education, 'goals': goals}
-
-
-@apply_defense
-def get_action(username, action):
-    conn = connect_to_dynamo()
-    if isinstance(conn, Exception):
-        return conn
-    try:
-        action_table = Table(table_name=get_table_name('actions'),
-                             connection=conn)
-    except JSONResponseError as e:
-        return e
-    try:
-        action_object = action_table.get_item(
-            parent_object=username,
-            action=action
-        )
-    except JSONResponseError as e:
-        return e
-    except ItemNotFound:
-        return False
-    return dict(action_object)
-
-
-@apply_defense
-def build_privileges(pleb):
-    conn = connect_to_dynamo()
-    username = pleb.username
-    if isinstance(conn, Exception):
-        return conn
-    try:
-        action_table = Table(table_name=get_table_name('actions'),
-                             connection=conn)
-        privilege_table = Table(table_name=get_table_name('privileges'),
-                                connection=conn)
-        restriction_table = Table(table_name=get_table_name('restrictions'),
-                                  connection=conn)
-    except JSONResponseError as e:
-        return e
-
-    for privilege in pleb.privileges.all():
-        rel = pleb.privileges.relationship(privilege)
-        if rel.active:
-            privilege_dict = privilege.get_dict()
-            privilege_dict['parent_object'] = username
-            privilege_table.put_item(privilege_dict, True)
-
-    for action in pleb.actions.all():
-        rel = pleb.actions.relationship(action)
-        if rel.active:
-            for restriction in action.get_restrictions():
-                if pleb.restrictions.is_connected(restriction):
-                    rel = pleb.restrictions.relationship(restriction)
-                    if rel.active:
-                        restriction_dict = restriction.get_dict()
-                        restriction_dict['parent_object'] = username
-                        restriction_table.put_item(restriction, True)
-            action_dict = action.get_dict()
-            action_dict['parent_object'] = username
-            action_table.put_item(action_dict, True)
-
-    for restriction in pleb.restrictions.all():
-        rel = pleb.restrictions.relationship(restriction)
-        if rel.active:
-            rest_dict = restriction.get_dict()
-            rest_dict['parent_object'] = username
-            restriction.put_item(rest_dict)
-    return True
 
 
 def get_dynamo_table(table_name):

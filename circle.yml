@@ -49,7 +49,7 @@ test:
     - coverage run --source='.' manage.py test --failfast
     - coverage html --fail-under=50
     - coveralls --rcfile=$CIRCLE_ARTIFACTS
-    #- flake8 ~/com.sagebrew.web/sagebrew/
+    - flake8 ~/com.sagebrew.web/sagebrew/ --ignore C901
   post:
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
     - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg

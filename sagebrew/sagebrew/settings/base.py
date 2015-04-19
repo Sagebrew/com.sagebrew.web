@@ -16,7 +16,7 @@ TEMPLATE_DEBUG = DEBUG
 ADMINS = (
     ('Devon Bleibtrey', 'devon@sagebrew.com'),
 )
-worker_count = (multiprocessing.cpu_count() *2) + 1
+worker_count = (multiprocessing.cpu_count() * 2) + 1
 if worker_count > 12 and environ.get("CIRCLECI", False):
     worker_count = 12
 environ['WEB_WORKER_COUNT'] = str(worker_count)
@@ -74,7 +74,7 @@ STATICFILES_DIRS = (
     '%s/sb_registration/static/' % PROJECT_DIR,
     '%s/sb_public_official/static/' % PROJECT_DIR,
     '%s/sb_search/static/' % PROJECT_DIR,
-    '%s/sb_tag/static/' % PROJECT_DIR,
+    '%s/sb_tags/static/' % PROJECT_DIR,
     '%s/sb_uploads/static/' % PROJECT_DIR,
 
 )
@@ -151,7 +151,7 @@ TEMPLATE_DIRS = (
     '%s/sb_registration/templates/' % PROJECT_DIR,
     '%s/sb_requirements/templates/' % PROJECT_DIR,
     '%s/sb_search/templates/' % PROJECT_DIR,
-    '%s/sb_tag/templates/' % PROJECT_DIR,
+    '%s/sb_tags/templates/' % PROJECT_DIR,
 )
 
 
@@ -194,7 +194,7 @@ INSTALLED_APPS = (
     'sb_requirements',
     'sb_search',
     'sb_stats',
-    'sb_tag',
+    'sb_tags',
     'sb_uploads',
     'sb_votes',
     'sb_wall',
@@ -216,13 +216,13 @@ LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/'
 
 ANONYMOUS_USER_ID = -1
-OAUTH2_PROVIDER_APPLICATION_MODEL='sb_oauth.SBApplication'
+OAUTH2_PROVIDER_APPLICATION_MODEL = 'sb_oauth.SBApplication'
 OAUTH2_PROVIDER = {
     'APPLICATION_MODEL': 'sb_oauth.SBApplication',
 }
 LOGIN_REDIRECT_URL = '/registration/profile_information/'
 EMAIL_USE_TLS = True
-#CSRF_COOKIE_HTTPONLY = True
+# CSRF_COOKIE_HTTPONLY = True
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
@@ -260,7 +260,7 @@ STRIPE_SECRET_KEY = environ.get("STRIPE_SECRET_KEY", '')
 MASKED_NAME = environ.get("MASKED_NAME", "")
 OAUTH_CLIENT_ID = environ.get("OAUTH_CLIENT_ID", '')
 OAUTH_CLIENT_SECRET = environ.get("OAUTH_CLIENT_SECRET", "")
-OAUTH_CLIENT_ID_CRED  = environ.get("OAUTH_CLIENT_ID_CRED", '')
+OAUTH_CLIENT_ID_CRED = environ.get("OAUTH_CLIENT_ID_CRED", '')
 OAUTH_CLIENT_SECRET_CRED = environ.get("OAUTH_CLIENT_SECRET_CRED", "")
 
 DYNAMO_IP = environ.get("DYNAMO_IP", None)
@@ -318,7 +318,7 @@ PAYMENT_PLANS = [
 
 SEARCH_TYPES = [
     ("general", "general"),
-    ("conversations", "sb_questions.neo_models.SBQuestion"),
+    ("conversations", "question"),
     ("people", "pleb"),
     ("sagas", "sagas")
 ]
@@ -351,7 +351,7 @@ NON_SAFE = ["REMOVE", "DELETE", "CREATE", "SET",
 
 REMOVE_CLASSES = ["SBVersioned", "SBPublicContent", "SBPrivateContent",
                   "VotableContent", "NotificationCapable", "TaggableContent",
-                  "SBContent"]
+                  "SBContent", "SBObject"]
 
 QUERY_OPERATIONS = {
     "eq": "=",

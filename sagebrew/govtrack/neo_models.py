@@ -1,10 +1,10 @@
-from neomodel import (StructuredNode, StringProperty, IntegerProperty,
-                      BooleanProperty, DateTimeProperty,
-                      JSONProperty, RelationshipTo,
-                      Relationship)
 from uuid import uuid1
 from datetime import datetime
 import pytz
+
+from neomodel import (StructuredNode, StringProperty, IntegerProperty,
+                      BooleanProperty, DateTimeProperty,
+                      JSONProperty, RelationshipTo)
 
 
 class GTCongressNumbers(StructuredNode):
@@ -121,7 +121,3 @@ class GTCommittee(StructuredNode):
 
     # relationships
     committee = RelationshipTo('GTCommittee', 'HAS_A_SUB')
-
-
-
-

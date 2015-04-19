@@ -40,7 +40,7 @@ def signup_view(request):
         return redirect('beta_page')
     try:
         beta_user = BetaUser.nodes.get(email=user)
-    except (BetaUser.DoesNotExist, DoesNotExist, CypherException):
+    except (BetaUser.DoesNotExist, DoesNotExist, CypherException, IOError):
         return redirect('beta_page')
     if not beta_user.invited:
         return redirect('beta_page')
@@ -184,7 +184,7 @@ def email_verification(request, confirmation):
             return HttpResponse('Unauthorized', status=401)
     except (Pleb.DoesNotExist, DoesNotExist):
         return redirect('logout')
-    except(CypherException):
+    except(CypherException, IOError):
         # TODO Actually redirect to 500 page
         return HttpResponse('Server Error', status=500)
 
@@ -301,7 +301,7 @@ def profile_picture(request):
         citizen = Pleb.nodes.get(username=request.user.username)
     except(Pleb.DoesNotExist, DoesNotExist):
         return render(request, 'login.html')
-    except CypherException:
+    except (CypherException, IOError):
         return HttpResponse('Server Error', status=500)
     if request.method == 'GET':
         profile_picture_form = ProfilePictureForm()

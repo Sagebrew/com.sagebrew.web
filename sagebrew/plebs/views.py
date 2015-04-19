@@ -311,7 +311,7 @@ def respond_friend_request(request):
         except (FriendRequest.DoesNotExist, Pleb.DoesNotExist, IndexError):
             # TODO should we be doing something different for an index error?
             return Response(status=404)
-        except CypherException:
+        except (CypherException, IOError):
             return Response(status=500)
 
         if form.cleaned_data['response'] == 'accept':

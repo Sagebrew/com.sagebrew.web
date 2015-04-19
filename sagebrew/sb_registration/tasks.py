@@ -67,11 +67,11 @@ def store_address(username, address_clean):
 def save_profile_picture(url, username):
     try:
         pleb = Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
         raise save_profile_picture.retry(exc=e, countdown=3, max_retries=None)
     try:
         pleb.profile_pic = url
         pleb.save()
-    except CypherException as e:
+    except (CypherException, IOError) as e:
         raise save_profile_picture.retry(exc=e, countdown=3, max_retries=None)
     return True

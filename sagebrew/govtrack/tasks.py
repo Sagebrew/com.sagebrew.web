@@ -33,10 +33,10 @@ def populate_gt_role(requesturl):
                 my_congress_number.congress_number = number
                 try:
                     my_congress_number.save()
-                except CypherException as e:
+                except (CypherException, IOError) as e:
                     raise populate_gt_role.retry(exc=e, countdown=3,
                                                  max_retries=None)
-            except CypherException as e:
+            except (CypherException, IOError) as e:
                 raise populate_gt_role.retry(exc=e, countdown=3,
                                              max_retries=None)
             congress_number_object.append(my_congress_number)
@@ -70,9 +70,9 @@ def populate_gt_person(requesturl):
             my_person = GTPerson(**person)
             try:
                 my_person.save()
-            except CypherException as e:
+            except (CypherException, IOError) as e:
                 populate_gt_person.retry(exc=e, countdown=3, max_retries=None)
-        except CypherException as e:
+        except (CypherException, IOError) as e:
             populate_gt_person.retry(exc=e, countdown=3, max_retries=None)
     return True
 
@@ -100,10 +100,10 @@ def populate_gt_committee(requesturl):
             my_committee = GTCommittee(**committee)
             try:
                 my_committee.save()
-            except CypherException as e:
+            except (CypherException, IOError) as e:
                 populate_gt_committee.retry(exc=e,
                                             countdown=3, max_retries=None)
-        except CypherException as e:
+        except (CypherException, IOError) as e:
             populate_gt_committee.retry(exc=e, countdown=3,
                                         max_retries=None)
     return True
@@ -146,10 +146,10 @@ def populate_gt_votes(requesturl):
                 my_vote.save()
                 for item in my_votes:
                     my_vote.option.connect(item)
-            except CypherException as e:
+            except (CypherException, IOError) as e:
                 raise populate_gt_votes.retry(exc=e, countdown=3,
                                               max_retries=None)
             my_votes = []
-        except(CypherException) as e:
+        except(CypherException, IOError) as e:
             raise populate_gt_votes.retry(exc=e, countdown=3, max_retries=None)
     return True

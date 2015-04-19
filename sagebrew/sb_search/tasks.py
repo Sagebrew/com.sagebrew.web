@@ -330,5 +330,5 @@ def create_keyword(text, relevance, query_param):
             search_query.save()
             keyword.save()
             return True
-    except CypherException as e:
+    except (CypherException, IOError) as e:
         raise create_keyword.retry(exc=e, countdown=3, max_retries=None)

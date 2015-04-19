@@ -294,7 +294,7 @@ class Pleb(SBObject):
         for item in tags:
             try:
                 tag = Tag.nodes.get(name=item)
-            except (Tag.DoesNotExist, DoesNotExist, CypherException):
+            except (Tag.DoesNotExist, DoesNotExist, CypherException, IOError):
                 continue
             if self.tags.is_connected(tag):
                 rel = self.tags.relationship(tag)
@@ -307,7 +307,7 @@ class Pleb(SBObject):
         for item in base_tags:
             try:
                 tag = Tag.nodes.get(name=item)
-            except (Tag.DoesNotExist, DoesNotExist, CypherException):
+            except (Tag.DoesNotExist, DoesNotExist, CypherException, IOError):
                 continue
             if self.tags.is_connected(tag):
                 rel = self.tags.relationship(tag)

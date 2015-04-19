@@ -8,11 +8,11 @@ def manage_badges(username):
     earned = []
     try:
         badges = Badge.nodes.all()
-    except CypherException as e:
+    except (CypherException, IOError) as e:
         return e
     try:
         pleb = Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
         return e
     for badge in badges:
         if badge in pleb.badges.all():

@@ -80,7 +80,7 @@ class VotableContent(NotificationCapable):
                     rel.active = False
                 rel.save()
             return self
-        except CypherException as e:
+        except (CypherException, IOError) as e:
             return e
 
     @apply_defense
@@ -89,7 +89,7 @@ class VotableContent(NotificationCapable):
             rel.active = False
             rel.save()
             return self
-        except CypherException as e:
+        except (CypherException, IOError) as e:
             return e
 
     def get_view_count(self):
@@ -131,7 +131,7 @@ class VotableContent(NotificationCapable):
         try:
             res, col = self.cypher(query)
             return len(res)
-        except CypherException as e:
+        except (CypherException, IOError) as e:
             logger.exception("Cypher Error: ")
             return e
 
@@ -296,14 +296,14 @@ class TaggableContent(SBContent):
                 # TODO we should only be creating tags if the user has enough
                 # rep
                 continue
-            except CypherException as e:
+            except (CypherException, IOError) as e:
                 return e
         for item in tag_array:
             try:
                 self.tags.connect(item)
                 item.tag_used += 1
                 item.save()
-            except CypherException as e:
+            except (CypherException, IOError) as e:
                 return e
         return tag_array
 

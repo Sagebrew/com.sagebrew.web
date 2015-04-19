@@ -74,13 +74,13 @@ def save_search_id(search_data, object_type, object_data, object_added):
         object_added.search_id = search_data['_id']
         try:
             object_added.save()
-        except CypherException as e:
+        except(CypherException, IOError) as e:
             raise save_search_id.retry(exc=e, countdown=3, max_retries=None)
     else:
         sb_object.search_id = search_data['_id']
         try:
             sb_object.save()
-        except CypherException as e:
+        except(CypherException, IOError) as e:
             raise save_search_id.retry(exc=e, countdown=3, max_retries=None)
 
     spawned = spawn_task(task_func=update_user_indices, task_param=task_data)

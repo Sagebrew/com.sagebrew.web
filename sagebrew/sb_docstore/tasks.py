@@ -24,14 +24,16 @@ def build_rep_page_task(rep_id, rep_type=None):
     if rep_type is None:
         try:
             rep = BaseOfficial.nodes.get(object_uuid=rep_id)
-        except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException) as e:
+        except (BaseOfficial.DoesNotExist, DoesNotExist,
+                CypherException, IOError) as e:
             raise build_rep_page_task.retry(exc=e, countdown=3,
                                             max_retries=None)
     else:
         r_type = get_rep_type(dict(settings.BASE_REP_TYPES)[rep_type])
         try:
             rep = r_type.nodes.get(object_uuid=rep_id)
-        except (r_type.DoesNotExist, DoesNotExist, CypherException) as e:
+        except (r_type.DoesNotExist, DoesNotExist,
+                CypherException, IOError) as e:
             return e
     res = build_rep_page(rep)
     if isinstance(res, Exception):

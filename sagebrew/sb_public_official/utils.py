@@ -15,12 +15,13 @@ from .neo_models import (BaseOfficial)
 def save_bio(rep_id, bio):
     try:
         rep = BaseOfficial.nodes.get(object_uuid=rep_id)
-    except (CypherException, BaseOfficial.DoesNotExist, DoesNotExist) as e:
+    except (CypherException, BaseOfficial.DoesNotExist, DoesNotExist,
+            IOError) as e:
         return e
     try:
         rep.bio = bio
         rep.save()
-    except CypherException as e:
+    except (CypherException, IOError) as e:
         return e
     return bio
 
@@ -64,13 +65,13 @@ def save_rep(pleb_username, rep_type, rep_id, recipient_id, gov_phone,
              customer_id=None):
     try:
         pleb = Pleb.nodes.get(username=pleb_username)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
         return e
     temp_type = dict(settings.BASE_REP_TYPES)[rep_type]
     rep_type = get_rep_type(temp_type)
     try:
         rep = rep_type.nodes.get(object_uuid=rep_id)
-    except CypherException as e:
+    except (CypherException, IOError) as e:
         return e
     except (rep_type.DoesNotExist, DoesNotExist):
         rep = rep_type(object_uuid=rep_id, gov_phone=gov_phone).save()
@@ -86,7 +87,7 @@ def save_rep(pleb_username, rep_type, rep_id, recipient_id, gov_phone,
         if customer_id is not None:
             rep.customer_id = customer_id
         rep.save()
-    except CypherException as e:
+    except (CypherException, IOError) as e:
         return e
     return rep
 
@@ -96,7 +97,7 @@ def determine_reps(username):
     senators = []
     try:
         pleb = Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException):
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError):
         return False
     try:
         address = pleb.address.all()[0]

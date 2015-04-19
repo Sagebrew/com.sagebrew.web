@@ -74,7 +74,7 @@ def verify_completed_registration(user):
     try:
         pleb = Pleb.nodes.get(username=user.username)
         return pleb.completed_profile_info
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException):
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError):
         return False
 
 
@@ -91,7 +91,7 @@ def verify_verified_email(user):
         return pleb.email_verified
     except (Pleb.DoesNotExist, DoesNotExist):
         return False
-    except CypherException as e:
+    except (CypherException, IOError) as e:
         return e
 
 

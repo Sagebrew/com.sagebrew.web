@@ -34,7 +34,7 @@ def create_tag_relations_util(tags):
                     rel.save()
         return True
 
-    except CypherException as e:
+    except (CypherException, IOError) as e:
         return e
 
 

@@ -52,5 +52,5 @@ def create_notification_util(sb_object, from_pleb, to_plebs, notification_id,
 
         return True
 
-    except CypherException as e:
+    except (CypherException, IOError) as e:
         return e

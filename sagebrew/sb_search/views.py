@@ -46,7 +46,7 @@ def search_result_view(request):
         pleb = Pleb.nodes.get(email=request.user.email)
     except(Pleb.DoesNotExist, DoesNotExist):
         return Response(status=404)
-    except CypherException:
+    except (CypherException, IOError):
         return Response(status=500)
     query_param = request.GET.get('q', "")
     page = request.GET.get('page', 1)

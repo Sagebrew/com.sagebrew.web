@@ -167,7 +167,7 @@ def create_wall_task(user_instance=None):
 def generate_oauth_info(username, password, web_address=None):
     try:
         pleb = Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
         raise generate_oauth_info.retry(exc=e, countdown=3, max_retries=None)
     creds = generate_oauth_user(pleb, password, web_address)
 
@@ -228,7 +228,7 @@ def create_beta_user(email):
     except (BetaUser.DoesNotExist, DoesNotExist):
         beta_user = BetaUser(email=email)
         beta_user.save()
-    except CypherException as e:
+    except (CypherException, IOError) as e:
         raise create_beta_user.retry(exc=e, countdown=3, max_retries=None)
     return True
 
@@ -237,7 +237,7 @@ def create_beta_user(email):
 def deactivate_user_task(username):
     try:
         Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
         raise deactivate_user_task.retry(exc=e, countdown=3, max_retries=None)
 
 

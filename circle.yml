@@ -92,6 +92,10 @@ test:
         -e OAUTH_CLIENT_ID=$OAUTH_CLIENT_ID
         -e OAUTH_CLIENT_SECRET=$OAUTH_CLIENT_SECRET
         -e DYNAMO_IP=$DYNAMO_IP
+        -e CRED_PASSWORD=development
+        -e CRED_USER=test_username
+        -e OAUTH_CLIENT_SECRET_CRED=test_env_this_is_it
+        -e OAUTH_CLIENT_ID_CRED=test_env_client_id
         -d -t sagebrew/sys_util:$CIRCLE_SHA1
     - docker run -h box-worker --name sb_worker -P --link db:db
         -e DB_USER=docker -e DB_DOCKER_NAME=docker
@@ -125,6 +129,10 @@ test:
         -e OAUTH_CLIENT_ID=$OAUTH_CLIENT_ID
         -e OAUTH_CLIENT_SECRET=$OAUTH_CLIENT_SECRET
         -e DYNAMO_IP=$DYNAMO_IP
+        -e CRED_PASSWORD=development
+        -e CRED_USER=test_username
+        -e OAUTH_CLIENT_SECRET_CRED=test_env_this_is_it
+        -e OAUTH_CLIENT_ID_CRED=test_env_client_id
         -d -t sagebrew/sb_worker:$CIRCLE_SHA1
     # It appears if two migrations run at the same time they cause a
     - docker run -h box-webapp --name sb_web -P --link db:db
@@ -159,12 +167,17 @@ test:
         -e OAUTH_CLIENT_ID=$OAUTH_CLIENT_ID
         -e OAUTH_CLIENT_SECRET=$OAUTH_CLIENT_SECRET
         -e DYNAMO_IP=$DYNAMO_IP
+        -e CRED_PASSWORD=development
+        -e CRED_USER=test_username
+        -e OAUTH_CLIENT_SECRET_CRED=test_env_this_is_it
+        -e OAUTH_CLIENT_ID_CRED=test_env_client_id
         -d -t sagebrew/sb_web:$CIRCLE_SHA1
     # Sleep time based on aws timeout counts. This insures it is possible
     # for the deployed code to be ready within the set amount of time
     # aws will give it.
     - sleep 90
     - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/
+    - curl -X POST -d "grant_type=password&username=test_username&password=development&client_id=test_env_client_id&client_secret=test_env_this_is_it" https://localhost/o/token/ --insecure
     - docker logs sb_web >> $CIRCLE_ARTIFACTS/sb_web.log
     - docker logs sb_worker >> $CIRCLE_ARTIFACTS/sb_worker.log
     - docker logs sb_sys_util >> $CIRCLE_ARTIFACTS/sys_util.log

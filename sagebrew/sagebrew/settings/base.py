@@ -66,7 +66,6 @@ STATICFILES_DIRS = (
     '%s/sagebrew/static/' % PROJECT_DIR,
     '%s/plebs/static/' % PROJECT_DIR,
     '%s/sb_solutions/static/' % PROJECT_DIR,
-    '%s/sb_edits/static/' % PROJECT_DIR,
     '%s/sb_notifications/static/' % PROJECT_DIR,
     '%s/sb_privileges/static/' % PROJECT_DIR,
     '%s/sb_posts/static/' % PROJECT_DIR,

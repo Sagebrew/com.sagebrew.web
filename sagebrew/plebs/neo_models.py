@@ -258,11 +258,12 @@ class Pleb(SBObject):
             return rel.weight
 
     def get_votable_content(self):
+        from sb_base.neo_models import VotableContent
         query = "MATCH (a:Pleb {username: '%s'})<-[:OWNED_BY]-(" \
                 "b:VotableContent) RETURN b" % (self.username)
         res, col = db.cypher_query(query)
 
-        return [row[0] for row in res]
+        return [VotableContent.inflate(row[0]) for row in res]
 
     def get_total_rep(self):
         rep_list = []

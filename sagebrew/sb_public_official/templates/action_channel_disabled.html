@@ -1,4 +1,7 @@
-<div class="row sb_wallpaper sb_wallpaper_action hidden-xs">
+{% load staticfiles %}
+<div class="row sb_wallpaper hidden-xs">
+    {% static 'images/wallpaper_capitol.png' as default_wallpaper %}
+    <img class="sb_wallpaper_action" src="{{ representative.channel_wallpaper|default_if_none:default_wallpaper }}">
 </div>
 <div class="row block sb_channel_block">
     <div class="col-lg-1 col-md-2 hidden-sm hidden-xs">
@@ -7,7 +10,7 @@
     <div class="col-lg-6 col-md-6 col-sm-12 cl-xs-12">
         <div class="block sb_bio_block sb_markdown_disabled">
             <h2>{{ representative.full_name }}</h2>
-            <p>This representative has not yet joined Sagebrew. If this is your representative, please contact them and request that they register.</p>
+            <p>This representative has not yet joined Sagebrew.</p>
         </div>
     </div>
     <div class="col-lg-5 col-md-4 col-sm-12">
@@ -18,8 +21,16 @@
         <div align="right" class="block sb_channel_social row-fluid hidden-md hidden-sm hidden-xs">
             <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fui-facebook"></span></button>
             <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fui-linkedin"></span></button>
-            <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fui-youtube"></span></button>
-            <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fui-twitter"></span></button>
+            {% if not representative.youtube %}
+                <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fui-youtube"></span></button>
+            {% else %}
+                <button onclick="location.href='http://youtube.com/{{ representative.youtube }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fui-youtube"></span></button>
+            {% endif %}
+            {% if not representative.twitter %}
+                <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fui-twitter"></span></button>
+            {% else %}
+                <button onclick="location.href='http://twitter.com/{{ representative.twitter }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fui-twitter"></span></button>
+            {% endif %}
         </div>
     </div>
 </div>

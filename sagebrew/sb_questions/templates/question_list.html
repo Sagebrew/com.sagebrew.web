@@ -11,22 +11,23 @@
                     <h3>Conversations</h3>
                 </div>
                 {% if debug == True %}
-                    {% comment %}
-                        # TODO BETA ADD IN feature
-                    {% endcomment %}
                     <div class="col-lg-1 col-md-1 hidden-sm hidden-xs"
                          align="right">
-                        <button class="btn sb_btn sb_btn_icon sb_btn_icon_green">
-                            <span class="fa fa-th-large"></span>
+                        <button class="btn sb_btn sb_btn_icon sb_btn_icon_green"
+                                id="advanced_filters">
+                            <span class="fui-list-large-thumbnails"></span>
                         </button>
                     </div>
                 {% endif %}
             </div>
             {% if debug == True %}
-                {% comment %}
-                    # TODO BETA ADD IN feature
-                {% endcomment %}
-                <div class="hidden-sm hidden-xs sb_border sb_border_categories">
+                <div class="hidden-sm hidden-xs sb_border sb_border_categories"
+                     style="display:none;"
+                     id="filter_box">
+                {% for tag in base_tags %}
+                    <a class="btn sb_tab_question query_questions-action"
+                           data-sort_by="{{ tag.default }}">{{ tag.display|title }}</a>
+                {% endfor %}
                 </div>
             {% endif %}
             <div class="sb_border sb_border_question">
@@ -64,4 +65,5 @@
     {{ block.super }}
     <script src="{% static 'js/query_questions.js' %}"></script>
     <script src="{% static 'js/question_ui.js' %}"></script>
+    <script src="{% static 'js/toggle_filters.js' %}"></script>
 {% endblock scripts %}

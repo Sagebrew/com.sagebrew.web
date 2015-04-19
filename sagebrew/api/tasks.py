@@ -6,7 +6,8 @@ from elasticsearch.exceptions import (ElasticsearchException, TransportError,
                                       ConnectionError, RequestError)
 from neomodel import CypherException, db
 
-from .neo_models import SBObject
+from sb_search.neo_models import Searchable
+
 from .utils import spawn_task
 
 
@@ -62,11 +63,11 @@ def save_search_id(search_data, object_type, object_data, object_added):
         "doc_type": search_data['_type']
     }
     try:
-        query = 'MATCH (a:SBObject) WHERE a.object_uuid = ' \
+        query = 'MATCH (a:Searchable) WHERE a.object_uuid = ' \
                 '"%s" RETURN a' % (object_data['object_uuid'])
         res, col = db.cypher_query(query)
 
-        sb_object = SBObject.inflate(res[0][0])
+        sb_object = Searchable.inflate(res[0][0])
     except(CypherException, IOError) as e:
         raise save_search_id.retry(exc=e, countdown=3, max_retries=None)
 

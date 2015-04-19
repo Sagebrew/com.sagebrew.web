@@ -80,7 +80,6 @@ def process_search_result(item):
     :param item:
     :return:
     """
-    print item
     if 'sb_score' not in item['_source']:
             item['_source']['sb_score'] = 0
     # TODO can we swap out question_uuid for object_uuid?

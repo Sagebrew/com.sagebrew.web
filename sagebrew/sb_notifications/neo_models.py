@@ -6,6 +6,7 @@ from neomodel import (StringProperty, DateTimeProperty, RelationshipTo,
                       BooleanProperty)
 
 from api.neo_models import SBObject
+from sb_search.neo_models import Searchable
 
 
 def get_current_time():
@@ -29,6 +30,6 @@ class Notification(SBObject):
                                      'NOTIFICATION_TO')
 
 
-class NotificationCapable(SBObject):
+class NotificationCapable(SBObject, Searchable):
     action_name = ''
     views = RelationshipTo('sb_stats.neo_models.Impression', 'VIEWED')

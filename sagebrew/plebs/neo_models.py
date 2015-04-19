@@ -11,6 +11,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
 from neomodel import db
 
 from api.neo_models import SBObject
+from sb_search.neo_models import Searchable
 
 
 def get_current_time():
@@ -104,7 +105,7 @@ class BetaUser(StructuredNode):
         return True
 
 
-class Pleb(SBObject):
+class Pleb(SBObject, Searchable):
     search_modifiers = {
         'post': 10, 'comment_on': 5, 'upvote': 3, 'downvote': -3,
         'time': -1, 'proximity_to_you': 10, 'proximity_to_interest': 10,

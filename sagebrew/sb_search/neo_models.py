@@ -50,3 +50,8 @@ class SearchQuery(StructuredNode):
     searched_by = Relationship('plebs.neo_models.Pleb', 'SEARCHED_BY')
     keywords = RelationshipTo(KeyWord, 'KEYWORDS', model=KeyWordRel)
     results = RelationshipTo(SearchResult, 'RESULT')
+
+
+class Searchable(StructuredNode):
+    search_id = StringProperty()
+    populated_es_index = BooleanProperty(default=False)

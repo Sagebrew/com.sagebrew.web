@@ -181,13 +181,13 @@ class Pleb(SBObject, Searchable):
                               model=SearchCount)
     clicked_results = RelationshipTo('sb_search.neo_models.SearchResult',
                                      'CLICKED_RESULT')
-    official = RelationshipTo('sb_public_official.neo_models.BaseOfficial',
-                              'IS', model=OfficialRelationship)
-    senators = RelationshipTo('sb_public_official.neo_models.BaseOfficial',
+    official = RelationshipTo('sb_public_official.neo_models.PublicOfficial',
+                              'IS_AUTHORIZED_AS', model=OfficialRelationship)
+    senators = RelationshipTo('sb_public_official.neo_models.PublicOfficial',
                               'HAS_SENATOR')
-    house_rep = RelationshipTo('sb_public_official.neo_models.BaseOfficial',
+    house_rep = RelationshipTo('sb_public_official.neo_models.PublicOfficial',
                                'HAS_HOUSE_REPRESENTATIVE')
-    president = RelationshipTo('sb_public_official.neo_models.BaseOfficial',
+    president = RelationshipTo('sb_public_official.neo_models.PublicOfficial',
                                'HAS_PRESIDENT')
     flags = RelationshipTo('sb_flags.neo_models.Flag', "FLAGS")
     beta_user = RelationshipTo('plebs.neo_models.BetaUser', "BETA_USER")

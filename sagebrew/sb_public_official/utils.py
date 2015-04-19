@@ -8,14 +8,14 @@ from plebs.neo_models import Pleb
 from api.utils import execute_cypher_query
 from sb_base.decorators import apply_defense
 
-from .neo_models import (BaseOfficial)
+from .neo_models import (PublicOfficial)
 
 
 @apply_defense
 def save_bio(rep_id, bio):
     try:
-        rep = BaseOfficial.nodes.get(object_uuid=rep_id)
-    except (CypherException, BaseOfficial.DoesNotExist, DoesNotExist,
+        rep = PublicOfficial.nodes.get(object_uuid=rep_id)
+    except (CypherException, PublicOfficial.DoesNotExist, DoesNotExist,
             IOError) as e:
         return e
     try:
@@ -35,8 +35,8 @@ def save_goal(rep_id, vote_req, money_req, initial, description, goal_id):
         return e
     except (Goal.DoesNotExist, DoesNotExist):
         try:
-            rep = BaseOfficial.nodes.get(object_uuid=rep_id)
-        except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException) as e:
+            rep = PublicOfficial.nodes.get(object_uuid=rep_id)
+        except (PublicOfficial.DoesNotExist, DoesNotExist, CypherException) as e:
             return e
         try:
             goal = Goal(object_uuid=goal_id, vote_req=vote_req,
@@ -105,12 +105,12 @@ def determine_reps(username):
         return False
     pleb_state = address.state
     pleb_district = int(address.congressional_district)
-    query = 'match (n:BaseOfficial) where n.state="%s" ' \
+    query = 'match (n:PublicOfficial) where n.state="%s" ' \
             ' return n' % pleb_state
     reps, meta = execute_cypher_query(query)
     if isinstance(reps, Exception):
         return False
-    reps = [BaseOfficial.inflate(row[0]) for row in reps]
+    reps = [PublicOfficial.inflate(row[0]) for row in reps]
     for rep in reps:
         if rep.district == pleb_district:
             try:
@@ -129,8 +129,8 @@ def determine_reps(username):
 @apply_defense
 def prepare_official_search_html(object_uuid):
     try:
-        official = BaseOfficial.nodes.get(object_uuid=object_uuid)
-    except (BaseOfficial.DoesNotExist, DoesNotExist):
+        official = PublicOfficial.nodes.get(object_uuid=object_uuid)
+    except (PublicOfficial.DoesNotExist, DoesNotExist):
         return False
     except (CypherException, IOError):
         return False

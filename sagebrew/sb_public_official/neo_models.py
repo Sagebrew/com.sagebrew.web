@@ -2,15 +2,31 @@ from neomodel import (StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty)
 
-from plebs.neo_models import Pleb
+from api.neo_models import SBObject
 
 
 class CongressVoteRelationship(StructuredRel):
     pass
 
 
-class BaseOfficial(Pleb):
+class PublicOfficial(SBObject):
+    """
+    The PublicOfficial does not inherit from Pleb as Plebs must be associated with
+    a user. PublicOfficial is a node that is dynamically populated based on our
+    integrations with external services. It cannot be modified by users of the
+    web app. Plebs can be attached to a PublicOfficial though if they are that
+    individual. Public Officials should also always be available whether or not
+    a user exits or joins the system so that we can always make the public
+    information known and populate action areas for officials that are not
+    yet signed up.
+    """
     type_str = "f46fbcda-9da8-11e4-9233-080027242395"
+    first_name = StringProperty()
+    last_name = StringProperty()
+    middle_name = StringProperty()
+    gender = StringProperty()
+    date_of_birth = DateTimeProperty()
+    email = StringProperty(unique_index=True)
     title = StringProperty()
     bio = StringProperty(default="")
     name_mod = StringProperty()
@@ -31,7 +47,7 @@ class BaseOfficial(Pleb):
     # bioguide is used to get the reps public profile picture
 
     # relationships
-    pleb = RelationshipTo('plebs.neo_models.Pleb', 'IS')
+    pleb = RelationshipTo('plebs.neo_models.Pleb', 'AUTHORIZED_AS')
     # sponsored = RelationshipTo('sb_public_official.neo_models.Bill',
     #                            "SPONSORED")
     # co_sponsored = RelationshipTo('sb_public_official.neo_models.Bill',
@@ -42,7 +58,6 @@ class BaseOfficial(Pleb):
     #                           "ATTENDED")
     # experience = RelationshipTo('sb_public_official.neo_models.Experience',
     #                             "EXPERIENCED")
-    goals = RelationshipTo('sb_goals.neo_models.Goal', 'GOAL')
     gt_person = RelationshipTo('govtrack.neo_models.GTPerson', 'GTPERSON')
     gt_role = RelationshipTo('govtrack.neo_models.GTRole', 'GTROLE')
 
@@ -79,21 +94,21 @@ class Bill(StructuredNode):
     bill_id = StringProperty(unique_index=True)
 
     # relationships
-    proposer = RelationshipTo(BaseOfficial, "PROPOSED_BY")
-    sponsor = RelationshipTo(BaseOfficial, "SPONSORED_BY")
-    co_sponsor = RelationshipTo(BaseOfficial, "COSPONSORED_BY")
+    proposer = RelationshipTo(PublicOfficial, "PROPOSED_BY")
+    sponsor = RelationshipTo(PublicOfficial, "SPONSORED_BY")
+    co_sponsor = RelationshipTo(PublicOfficial, "COSPONSORED_BY")
 
 
 class Hearing(StructuredNode):
     hearing_id = StringProperty(unique_index=True)
 
     # relationships
-    attendees = RelationshipTo(BaseOfficial, "HEARING_ATTENDEES")
+    attendees = RelationshipTo(PublicOfficial, "HEARING_ATTENDEES")
 
 
 class Committee(StructuredNode):
     committee_number = IntegerProperty(unique_index=True)
 
     # relationships
-    members = RelationshipTo(BaseOfficial, "COMMITTEE_MEMBERS")
+    members = RelationshipTo(PublicOfficial, "COMMITTEE_MEMBERS")
 '''

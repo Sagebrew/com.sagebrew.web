@@ -329,7 +329,7 @@ BASE_REP_TYPES = [
     ("f3aeebe0-9da8-11e4-9233-080027242395",
      "sb_public_official.neo_models.USPresident"),
     ("f46fbcda-9da8-11e4-9233-080027242395",
-     "sb_public_official.neo_models.BaseOfficial"),
+     "sb_public_official.neo_models.PublicOfficial"),
     ("628c138a-9da9-11e4-9233-080027242395",
      "sb_public_official.neo_models.USHouseRepresentative"),
     ("786dcf40-9da9-11e4-9233-080027242395",

@@ -9,7 +9,7 @@ from api.tasks import add_object_to_search_index
 from govtrack.neo_models import GTRole
 from sb_docstore.utils import add_object_to_table
 
-from sb_public_official.neo_models import BaseOfficial
+from sb_public_official.neo_models import PublicOfficial
 from sb_public_official.serializers import PublicOfficialSerializer
 
 logger = getLogger('loggly_logs')
@@ -35,7 +35,7 @@ class Command(BaseCommand):
                     logger.exception(e)
                     continue
                 try:
-                    rep = BaseOfficial(first_name=person.firstname,
+                    rep = PublicOfficial(first_name=person.firstname,
                                        last_name=person.lastname,
                                        gender=person.gender,
                                        date_of_birth=person.birthday,

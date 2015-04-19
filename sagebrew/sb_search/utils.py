@@ -82,10 +82,9 @@ def process_search_result(item):
     """
     if 'sb_score' not in item['_source']:
             item['_source']['sb_score'] = 0
-    # TODO can we swap out question_uuid for object_uuid?
     if item['_type'] == 'question':
         return {
-            "question_uuid": item['_source']['question_uuid'],
+            "question_uuid": item['_source']['object_uuid'],
             "type": "question",
             "temp_score": item['_score'] * item['_source']['sb_score'],
             "score": item['_score']

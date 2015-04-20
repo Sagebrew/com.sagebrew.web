@@ -27,7 +27,7 @@ class PublicOfficial(SBObject, Searchable):
     middle_name = StringProperty()
     gender = StringProperty()
     date_of_birth = DateTimeProperty()
-    role_id = StringProperty(index=True)
+    gt_id = StringProperty(index=True)
     title = StringProperty()
     bio = StringProperty(default="")
     name_mod = StringProperty()

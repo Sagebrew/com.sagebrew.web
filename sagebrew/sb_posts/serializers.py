@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
+from api.utils import gather_request_data
 from sb_base.serializers import ContentSerializer
 from plebs.serializers import PlebSerializerNeo, UserSerializer
 from plebs.neo_models import Pleb
@@ -45,22 +46,18 @@ class PostSerializerNeo(ContentSerializer):
         owner = obj.owned_by.all()[0]
         return reverse('profile_page',
                        kwargs={'pleb_username': owner.username},
-                       request=self.context['request'])
+                       request=self.context.get('request', None))
 
     def get_wall_owner(self, obj):
-        request = self.context['request']
+        request, expand, _, _, _ = gather_request_data(self.context)
         if isinstance(obj, dict) is True:
             return obj
         owner_wall = obj.posted_on_wall.all()[0]
         wall_owner = owner_wall.owned_by.all()[0]
-        html = request.query_params.get('html', 'false').lower()
-        expand = request.query_params.get('expand', "false").lower()
-        if html == "true":
-            expand = "true"
         if expand == "true":
             owner_user = User.objects.get(username=wall_owner.username)
             owner_dict = UserSerializer(
-                owner_user, context={'request': self.context['request']}).data
+                owner_user, context={'request': request}).data
         else:
             owner_dict = reverse('user-detail',
                                  kwargs={"username": wall_owner.username},
@@ -68,16 +65,11 @@ class PostSerializerNeo(ContentSerializer):
         return owner_dict
 
     def get_wall_owner_profile(self, obj):
-        request = self.context['request']
+        request, expand, _, _, _ = gather_request_data(self.context)
         if isinstance(obj, dict) is True:
             return obj
         owner_wall = obj.posted_on_wall.all()[0]
         wall_owner = owner_wall.owned_by.all()[0]
-
-        html = request.query_params.get('html', 'false').lower()
-        expand = request.query_params.get('expand', "false").lower()
-        if html == "true":
-            expand = "true"
         if expand == "true":
             profile_dict = PlebSerializerNeo(
                 wall_owner, context={'request': request}).data

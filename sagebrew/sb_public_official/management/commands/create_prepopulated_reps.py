@@ -35,7 +35,7 @@ class Command(BaseCommand):
                     logger.exception(e)
                     continue
                 try:
-                    rep = PublicOfficial.nodes.get(role_id=person.role_id)
+                    rep = PublicOfficial.nodes.get(gt_id=person.gt_id)
                 except(DoesNotExist, PublicOfficial.DoesNotExist):
                     rep = PublicOfficial(first_name=person.firstname,
                                          last_name=person.lastname,
@@ -54,7 +54,7 @@ class Command(BaseCommand):
                                          terms=len(role.congress_numbers.all()),
                                          twitter=person.twitterid,
                                          youtube=person.youtubeid,
-                                         role_id=person.role_id)
+                                         gt_id=person.gt_id)
                     rep.save()
                     reps.append(rep)
                 except (CypherException, IOError) as e:

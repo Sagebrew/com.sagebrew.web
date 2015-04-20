@@ -43,8 +43,11 @@ class CommentSerializer(ContentSerializer):
             '%s-detail' % parent_object.get_child_label().lower(),
             kwargs={'object_uuid': parent_object.object_uuid},
             request=request)
-        response = request_to_api(parent_url, request.user.username,
-                                  req_method="GET")
+        if request is not None:
+            response = request_to_api(parent_url, request.user.username,
+                                      req_method="GET")
+        else:
+            return None
         return response.json()['url']
 
     def get_comment_on(self, obj):
@@ -58,7 +61,8 @@ class CommentSerializer(ContentSerializer):
             request=request)
         # Future proofing this as this is not a common use case but we can still
         # give users the ability to do so
-        if expand == "true" and "comment_on" in expand_array:
+        if expand == "true" and "comment_on" in expand_array and \
+                request is not None:
             response = request_to_api(parent_info, request.user.username,
                                       req_method="GET")
             parent_info = response.json()

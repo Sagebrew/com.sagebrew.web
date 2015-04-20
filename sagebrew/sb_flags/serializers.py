@@ -50,18 +50,21 @@ class FlagSerializer(VotableContentSerializer):
 
     def get_flag_on(self, obj):
         request = self.context.get('request', None)
+        if request is None:
+            return None
         parent_object = get_flag_parent(obj.object_uuid)
         parent_href = reverse(
             '%s-detail' % parent_object.get_child_label().lower(),
             kwargs={'object_uuid': parent_object.object_uuid},
             request=request)
-
         response = request_to_api(parent_href, request.user.username,
                                   req_method="GET")
         return response.json()['href']
 
     def get_url(self, obj):
         request = self.context.get('request', None)
+        if request is None:
+            return None
         parent_object = get_flag_parent(obj.object_uuid)
         parent_href = reverse(
             '%s-detail' % parent_object.get_child_label().lower(),

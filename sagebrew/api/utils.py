@@ -230,3 +230,30 @@ def get_node(object_uuid):
     res, col = db.cypher_query(query)
 
     return res
+
+
+def gather_request_data(context):
+    try:
+        request = context['request']
+        try:
+            expand = request.query_params.get('expand', 'false').lower()
+            expedite = request.query_params.get('expedite', "false").lower()
+            relations = request.query_params.get(
+                'relations', 'primaryKey').lower()
+            html = request.query_params.get('html', 'false').lower()
+            expand_array = request.query_params.get('expand_attrs', [])
+            if html == 'true':
+                expand = 'true'
+        except AttributeError:
+            expedite = "false"
+            expand = "false"
+            relations = "false"
+            expand_array = []
+    except(KeyError):
+        expedite = "false"
+        expand = "false"
+        relations = "false"
+        request = None
+        expand_array = []
+
+    return request, expand, expand_array, relations, expedite

@@ -7,10 +7,39 @@ from rest_framework.reverse import reverse
 from neomodel.exception import DoesNotExist
 
 from api.serializers import SBSerializer
-from api.utils import spawn_task, request_to_api
+from api.utils import spawn_task, request_to_api, gather_request_data
 
 from .neo_models import Address, Pleb, BetaUser
 from .tasks import create_pleb_task, pleb_user_update
+
+
+def generate_username(first_name, last_name):
+    users_count = User.objects.filter(first_name__iexact=first_name).filter(
+        last_name__iexact=last_name).count()
+    username = "%s_%s" % (first_name.lower(), last_name.lower())
+    if len(username) > 30:
+        username = username[:30]
+        users_count = User.objects.filter(username__iexact=username).count()
+        if users_count > 0:
+            username = username[:(30 - len(users_count))] + str(users_count)
+    elif len(username) < 30 and users_count == 0:
+        username = "%s_%s" % (
+            (''.join(e for e in first_name if e.isalnum())).lower(),
+            (''.join(e for e in last_name if e.isalnum())).lower())
+    else:
+        username = "%s_%s%d" % (
+            (''.join(e for e in first_name if e.isalnum())).lower(),
+            (''.join(e for e in last_name if e.isalnum())).lower(),
+            users_count)
+    return username
+
+
+def check_beta_user(email, pleb):
+    try:
+        beta_user = BetaUser.nodes.get(email=email)
+        pleb.beta_user.connect(beta_user)
+    except(BetaUser.DoesNotExist, DoesNotExist):
+        pass
 
 
 class BetaUserSerializer(serializers.Serializer):
@@ -33,8 +62,7 @@ class UserSerializer(SBSerializer):
                                          write_only=True,
                                          style={'input_type': 'password'})
     birthday = serializers.DateTimeField(write_only=True)
-    href = serializers.HyperlinkedIdentityField(view_name='user-detail',
-                                                lookup_field="username")
+    href = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         username = generate_username(validated_data['first_name'],
@@ -87,11 +115,15 @@ class UserSerializer(SBSerializer):
     def get_id(self, obj):
         return obj.username
 
+    def get_href(self, obj):
+        request, expand, _, _, _ = gather_request_data(self.context)
+        return reverse(
+            'user-detail', kwargs={'username': obj.username}, request=request)
+
 
 class PlebSerializerNeo(SBSerializer):
     base_user = serializers.SerializerMethodField()
-    href = serializers.HyperlinkedIdentityField(
-        view_name='profile-detail', lookup_field="username")
+    href = serializers.SerializerMethodField()
 
     # These are read only because we force users to use a different endpoint
     # to set them, as it requires us to manipulate the uploaded image
@@ -130,7 +162,7 @@ class PlebSerializerNeo(SBSerializer):
             request=request)
 
     def get_base_user(self, obj):
-        request, expand, _ = gather_request_data(self.context)
+        request, expand, _, _, _ = gather_request_data(self.context)
 
         username = obj.username
         user_url = reverse(
@@ -144,7 +176,7 @@ class PlebSerializerNeo(SBSerializer):
 
     def get_privileges(self, obj):
         res = obj.get_privileges()
-        request, expand, expand_array = gather_request_data(self.context)
+        request, expand, expand_array, _, _ = gather_request_data(self.context)
 
         # Future proofing this as this is not a common use case but we can still
         # give users the ability to do so
@@ -164,12 +196,16 @@ class PlebSerializerNeo(SBSerializer):
     def get_actions(self, obj):
         return obj.get_actions()
 
+    def get_href(self, obj):
+        request, expand, _, _, _ = gather_request_data(self.context)
+        return reverse(
+            'profile-detail', kwargs={'username': obj.username},
+            request=request)
+
 
 class AddressSerializer(SBSerializer):
     object_uuid = serializers.CharField(read_only=True)
-    href = serializers.HyperlinkedIdentityField(read_only=True,
-                                                view_name="address-detail",
-                                                lookup_field="object_uuid")
+    href = serializers.SerializerMethodField()
     street = serializers.CharField(max_length=125)
     street_additional = serializers.CharField(required=False, allow_blank=True,
                                               allow_null=True, max_length=125)
@@ -205,51 +241,8 @@ class AddressSerializer(SBSerializer):
         instance.save()
         return instance
 
-
-def gather_request_data(context):
-    try:
-        request = context['request']
-        try:
-            expand = request.query_params.get('expand', 'false').lower()
-            html = request.query_params.get('html', 'false').lower()
-            expand_array = request.query_params.get('expand_attrs', [])
-            if html == 'true':
-                expand = 'true'
-        except AttributeError:
-            expand = "false"
-            expand_array = []
-    except(KeyError):
-        expand = "false"
-        request = None
-        expand_array = []
-
-    return request, expand, expand_array
-
-
-def generate_username(first_name, last_name):
-    users_count = User.objects.filter(first_name__iexact=first_name).filter(
-        last_name__iexact=last_name).count()
-    username = "%s_%s" % (first_name.lower(), last_name.lower())
-    if len(username) > 30:
-        username = username[:30]
-        users_count = User.objects.filter(username__iexact=username).count()
-        if users_count > 0:
-            username = username[:(30 - len(users_count))] + str(users_count)
-    elif len(username) < 30 and users_count == 0:
-        username = "%s_%s" % (
-            (''.join(e for e in first_name if e.isalnum())).lower(),
-            (''.join(e for e in last_name if e.isalnum())).lower())
-    else:
-        username = "%s_%s%d" % (
-            (''.join(e for e in first_name if e.isalnum())).lower(),
-            (''.join(e for e in last_name if e.isalnum())).lower(),
-            users_count)
-    return username
-
-
-def check_beta_user(email, pleb):
-    try:
-        beta_user = BetaUser.nodes.get(email=email)
-        pleb.beta_user.connect(beta_user)
-    except(BetaUser.DoesNotExist, DoesNotExist):
-        pass
+    def get_href(self, obj):
+        request, expand, _, _, _ = gather_request_data(self.context)
+        return reverse(
+            "address-detail", kwargs={'object_uuid': obj.object_uuid},
+            request=request)

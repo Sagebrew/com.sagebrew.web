@@ -8,7 +8,7 @@ from rest_framework.reverse import reverse
 
 from neomodel import db, DoesNotExist
 
-from api.utils import spawn_task, get_node
+from api.utils import spawn_task, get_node, gather_request_data
 from sb_base.serializers import MarkdownContentSerializer
 from plebs.neo_models import Pleb
 from sb_tags.neo_models import Tag
@@ -86,8 +86,7 @@ def limit_5_tags(value):
 
 class QuestionSerializerNeo(MarkdownContentSerializer):
     content = serializers.CharField(min_length=15)
-    href = serializers.HyperlinkedIdentityField(view_name='question-detail',
-                                                lookup_field="object_uuid")
+    href = serializers.SerializerMethodField()
     title = serializers.CharField(required=False,
                                   validators=[TitleUpdate(), ],
                                   min_length=15, max_length=140)
@@ -153,19 +152,18 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         return instance
 
     def get_url(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
         return reverse('question_detail_page',
                        kwargs={'question_uuid': obj.object_uuid},
-                       request=self.context['request'])
+                       request=request)
 
     def get_solution_count(self, obj):
         return solution_count(obj.object_uuid)
 
     def get_solutions(self, obj):
-        request = self.context['request']
+        request, expand, _, relations, _ = gather_request_data(self.context)
         solutions = obj.get_solution_ids()
         solution_urls = []
-        expand = request.query_params.get('expand', 'false').lower()
-        relations = request.query_params.get('relations', 'primaryKey').lower()
         if expand == "true":
             for solution_uuid in solutions:
                 solution_urls.append(SolutionSerializerNeo(
@@ -182,3 +180,9 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
                 return solutions
 
         return solution_urls
+
+    def get_href(self, obj):
+        request, expand, _, _, _ = gather_request_data(self.context)
+        return reverse(
+            'question-detail', kwargs={'object_uuid': obj.object_uuid},
+            request=request)

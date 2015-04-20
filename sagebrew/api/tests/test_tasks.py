@@ -61,14 +61,13 @@ class TestAddObjectToSearchIndex(TestCase):
         self.assertIsInstance(res.result, Exception)
 
     def test_add_object_to_search_index_pleb_already_populated(self):
-        fake_uuid = str(uuid1())
         task_data = {
-            'object_uuid': fake_uuid,
+            'object_uuid': self.pleb.object_uuid,
             'object_data': {
-                'type': 'question',
-                'id': self.question.object_uuid,
+                'type': 'pleb',
+                'id': self.pleb.username,
                 'email': self.email,
-                "object_uuid": fake_uuid
+                "object_uuid": self.pleb.object_uuid
             },
         }
         self.pleb.populated_es_index = True

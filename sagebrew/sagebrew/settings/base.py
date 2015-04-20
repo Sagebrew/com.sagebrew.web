@@ -318,8 +318,8 @@ PAYMENT_PLANS = [
 SEARCH_TYPES = [
     ("general", "general"),
     ("conversations", "question"),
-    ("people", "pleb"),
-    ("sagas", "sagas")
+    ("people", "profile"),
+    ("sagas", "public_official")
 ]
 
 

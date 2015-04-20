@@ -199,10 +199,10 @@ def search_result_api(request):
                 if item['_type'] == 'question':
                     results.append(prepare_question_search_html(
                         item['_source']['object_uuid'], request))
-                elif item['_type'] == 'pleb':
+                elif item['_type'] == 'profile':
                     results.append(prepare_user_search_html(
                         item['_source']['username']))
-                elif item['_type'] == 'sagas':
+                elif item['_type'] == 'public_official':
                     results.append(prepare_official_search_html(
                         item['_source']['object_uuid']))
         try:

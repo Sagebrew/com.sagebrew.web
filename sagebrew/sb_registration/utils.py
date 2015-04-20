@@ -121,6 +121,17 @@ def sb_send_email(source, to_email, subject, html_content):
 
 
 def generate_username(first_name, last_name):
+    """
+    DEPRECATED
+    Please use User serializer from now on. This function is no longer necessary
+    Functionality found in plebs/serializers.py
+    :param first_name:
+    :param last_name:
+    :param email:
+    :param password:
+    :param birthday:
+    :return:
+    """
     users_count = User.objects.filter(first_name__iexact=first_name).filter(
         last_name__iexact=last_name).count()
     username = "%s_%s" % (first_name.lower(), last_name.lower())
@@ -143,6 +154,17 @@ def generate_username(first_name, last_name):
 
 @apply_defense
 def create_user_util(first_name, last_name, email, password, birthday):
+    """
+    DEPRECATED
+    Please use User serializer from now on. This function is no longer necessary
+    Functionality found in plebs/serializers.py
+    :param first_name:
+    :param last_name:
+    :param email:
+    :param password:
+    :param birthday:
+    :return:
+    """
     username = generate_username(first_name, last_name)
     user = User.objects.create_user(first_name=first_name, last_name=last_name,
                                     email=email, password=password,

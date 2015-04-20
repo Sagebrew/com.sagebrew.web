@@ -3,13 +3,14 @@ from neomodel import (StringProperty, IntegerProperty,
                       BooleanProperty)
 
 from api.neo_models import SBObject
+from sb_search.neo_models import Searchable
 
 
 class CongressVoteRelationship(StructuredRel):
     pass
 
 
-class PublicOfficial(SBObject):
+class PublicOfficial(SBObject, Searchable):
     """
     The PublicOfficial does not inherit from Pleb as Plebs must be associated with
     a user. PublicOfficial is a node that is dynamically populated based on our

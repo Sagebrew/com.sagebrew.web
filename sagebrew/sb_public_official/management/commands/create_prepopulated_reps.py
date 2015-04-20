@@ -36,22 +36,22 @@ class Command(BaseCommand):
                     continue
                 try:
                     rep = PublicOfficial(first_name=person.firstname,
-                                       last_name=person.lastname,
-                                       gender=person.gender,
-                                       date_of_birth=person.birthday,
-                                       namemod=person.namemod,
-                                       current=role.current,
-                                       bio=role.description,
-                                       district=role.district,
-                                       state=role.state,
-                                       title=role.title,
-                                       website=role.website,
-                                       start_date=role.startdate,
-                                       end_date=role.enddate,
-                                       full_name=person.name,
-                                       terms=len(role.congress_numbers.all()),
-                                       twitter=person.twitterid,
-                                       youtube=person.youtubeid)
+                                         last_name=person.lastname,
+                                         gender=person.gender,
+                                         date_of_birth=person.birthday,
+                                         namemod=person.namemod,
+                                         current=role.current,
+                                         bio=role.description,
+                                         district=role.district,
+                                         state=role.state,
+                                         title=role.title,
+                                         website=role.website,
+                                         start_date=role.startdate,
+                                         end_date=role.enddate,
+                                         full_name=person.name,
+                                         terms=len(role.congress_numbers.all()),
+                                         twitter=person.twitterid,
+                                         youtube=person.youtubeid)
                     rep.save()
                     reps.append(rep)
                     rep.gt_person.connect(person)

@@ -70,6 +70,7 @@ def determine_pleb_reps(username):
 
 @shared_task()
 def finalize_citizen_creation(user_instance=None):
+    from .serializers import PlebSerializerNeo
     # TODO look into celery chaining and/or grouping
     if user_instance is None:
         return None
@@ -81,16 +82,8 @@ def finalize_citizen_creation(user_instance=None):
                                               max_retries=None)
     task_list = {}
     task_data = {
-        'object_added': pleb,
-        'object_data': {
-            'first_name': pleb.first_name,
-            'last_name': pleb.last_name,
-            'full_name': "%s %s" % (pleb.first_name, pleb.last_name),
-            'pleb_email': pleb.email,
-            'pleb_username': pleb.username,
-            'object_uuid': pleb.username
-        },
-        'object_type': 'pleb'
+        "object_uuid": pleb.object_uuid,
+        'object_data': PlebSerializerNeo(pleb).data
     }
     task_list["add_object_to_search_index"] = spawn_task(
         task_func=add_object_to_search_index,

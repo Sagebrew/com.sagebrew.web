@@ -39,7 +39,7 @@ class TestProcessSearchResultUtil(TestCase):
                 'object_uuid': str(uuid1()),
                 'related_user': 'tylerwiersing',
             },
-            '_type': 'pleb',
+            '_type': 'profile',
             '_score': .92,
             '_id': str(uuid1()),
             '_index': 'full-search-base'

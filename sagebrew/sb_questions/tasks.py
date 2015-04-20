@@ -27,8 +27,10 @@ def add_question_to_indices_task(question):
         raise add_question_to_indices_task.retry(exc=e, countdown=3,
                                                  max_retries=None)
 
-    task_data = {"object_type": "question",
-                 "object_data": question}
+    task_data = {
+        "object_uuid": question['object_uuid'],
+        'object_data': question
+    }
     spawned = spawn_task(task_func=add_object_to_search_index,
                          task_param=task_data)
     if isinstance(spawned, Exception) is True:

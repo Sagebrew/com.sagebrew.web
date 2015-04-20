@@ -2,7 +2,7 @@ from rest_framework.reverse import reverse
 from rest_framework import serializers
 from neomodel import db
 
-from api.utils import request_to_api
+from api.utils import request_to_api, gather_request_data
 from api.serializers import SBSerializer
 from sb_base.neo_models import SBContent
 
@@ -22,12 +22,9 @@ class VoteSerializer(SBSerializer):
         return None
 
     def get_vote_on(self, obj):
-        request = self.context.get('request')
-        # TODO may want to change this to async?
-        expedite = request.query_params.get('expedite', "false").lower()
+        request, _, _, _, expedite = gather_request_data(self.context)
         if expedite == "true":
             return None
-        request = self.context.get('request', None)
         parent_object = get_vote_parent(obj.object_uuid)
         parent_href = reverse(
             '%s-detail' % parent_object.get_child_label().lower(),
@@ -39,11 +36,7 @@ class VoteSerializer(SBSerializer):
         return response.json()['href']
 
     def get_url(self, obj):
-        # TODO this is reused multiple places. Might want to look into creating
-        # a parent class for relationship specific nodes that can reuse this
-        # through inheritance.
-        request = self.context.get('request')
-        expedite = request.query_params.get('expedite', "false").lower()
+        request, _, _, _, expedite = gather_request_data(self.context)
         if expedite == "true":
             return None
         request = self.context.get('request', None)

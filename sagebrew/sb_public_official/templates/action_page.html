@@ -18,8 +18,6 @@
             {% else %}
                 {% include "updates_disabled.html" %}
             {% endif %}
-        {% elif "about" in request.path %}
-            {% include "action_about.html" %}
         {% else %}
             {% if registered == True %}
                 {% include "saga.html" %}

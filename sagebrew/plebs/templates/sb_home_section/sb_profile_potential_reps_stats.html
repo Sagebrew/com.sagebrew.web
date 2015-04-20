@@ -21,32 +21,7 @@
                     </div>
                 </div>
             {% endfor %}
-            <!-- Begin place holder Senator info -->
-            <div class="row block_vertical">
-                <div class="col-lg-2 col-md-2">
-                    <div class="thumbnail sb_thumbnail_xs sb_thumbnail_potential_rep"></div>
-                </div>
-                <div class="sb_rep col-lg-10 col-md-10 vertical_nav">
-                    <ul>
-                        <li>
-                            <a href="{% url 'action_saga' page_profile.username %}">John Doe</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="row block_vertical">
-                <div class="col-lg-2 col-md-2">
-                    <div class="thumbnail sb_thumbnail_xs sb_thumbnail_potential_rep"></div>
-                </div>
-                <div class="sb_rep col-lg-10 col-md-10 vertical_nav">
-                    <ul>
-                        <li>
-                             <a href="{% url 'action_saga' page_profile.username %}">Deltriasha Johnson</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <!-- End place holder Senator info -->
+            <small>Currently No Registered Campaigning Senators In Your Area</small>
             <h5>House Representatives</h5>
             {% for house_rep in candidate_representatives %}
                 <div class="row block_vertical">
@@ -64,18 +39,7 @@
                     </div>
                 </div>
             {% endfor %}
-                <div class="row block_vertical">
-                    <div class="col-lg-2 col-md-2">
-                        <div class="thumbnail sb_thumbnail_xs sb_thumbnail_potential_rep"></div>
-                    </div>
-                    <div class="sb_rep col-lg-10 col-md-10 vertical_nav">
-                        <ul>
-                            <li>
-                                <a href="{% url 'action_saga' page_profile.username %}">Johnny Downer</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+            <small>Currently No Registered Campaigning Representatives In Your Area</small>
         </div>
     </div>
 </div>

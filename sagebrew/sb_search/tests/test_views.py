@@ -57,7 +57,7 @@ class TestSearchResultAPI(TestCase):
         res_array = []
         for item in range(0, 9):
             res = es.index(index='full-search-user-specific-1',
-                           doc_type='pleb',
+                           doc_type='profile',
                            body={'content': 'test content'})
             res_array.append(res)
 
@@ -72,7 +72,7 @@ class TestSearchResultAPI(TestCase):
         res_array = []
         for item in range(0, 9):
             res = es.index(index='full-search-user-specific-1',
-                           doc_type='pleb',
+                           doc_type='profile',
                            body={'content': 'test content'})
             res_array.append(res)
 

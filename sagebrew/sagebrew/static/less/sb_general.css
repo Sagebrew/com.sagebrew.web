@@ -240,6 +240,7 @@ extend ' .progress_bar' has no matches
 .sb_wallpaper_action {
   background-color: #f9fff7;
   width: 100%;
+  border-radius: 5px 5px 0 0;
 }
 .wallpaper_profile {
   height: 250px;
@@ -690,7 +691,6 @@ extend ' .progress_bar' has no matches
 }
 .sb_thumbnail_md,
 .sb_thumbnail_search {
-  height: 100px;
   width: 100px;
 }
 .sb_thumbnail_lg {

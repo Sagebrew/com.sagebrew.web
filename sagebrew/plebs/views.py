@@ -166,7 +166,7 @@ def get_user_search_view(request, pleb_username=""):
     in a search.
 
     :param request:
-    :param pleb_email:
+    :param pleb_username:
     :return:
     """
     form = GetUserSearchForm({"username": pleb_username})

@@ -184,9 +184,7 @@
 {% endblock %}
 {% block scripts %}
     {{ block.super }}
+    <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/2.4/jquery.liveaddress.min.js"></script>
     <script src="{% static 'js/address_validation.js' %}"></script>
 
 {% endblock scripts %}
-{% block external_scripts %}
-    <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/2.4/jquery.liveaddress.min.js"></script>
-{% endblock external_scripts %}

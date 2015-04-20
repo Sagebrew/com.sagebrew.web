@@ -257,3 +257,7 @@ def gather_request_data(context):
         expand_array = []
 
     return request, expand, expand_array, relations, expedite
+
+
+def create_user_util_test(email):
+    pass

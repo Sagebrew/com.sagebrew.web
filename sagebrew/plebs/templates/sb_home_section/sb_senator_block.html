@@ -1,0 +1,21 @@
+{% load humanize %}
+<div class="row block_vertical">
+    <div class="col-lg-2 col-md-2">
+        <div class="thumbnail sb_thumbnail_md_rep">
+            <img src="https://theunitedstates.io/images/congress/original/{{ bioguide }}.jpg"> {% comment %} Link to their S3 public image{% endcomment %}
+        </div>
+    </div>
+    <div class="col-lg-8 col-md-10 vertical_nav">
+        <ul>
+            <li>
+                <a href="{% url 'action_saga' username=object_uuid %}">{{ full_name }}</a>
+            </li>
+            {% comment %}
+            Django may have a better solution but see:
+            http://stackoverflow.com/questions/9647202/ordinal-numbers-replacement
+            for convertign a number into the necessary ordinal (1st, 2nd, 3rd)
+            {% endcomment %}
+            <li class="sb_rep_info">{{ terms|ordinal }} term</li>
+        </ul>
+    </div>
+</div>

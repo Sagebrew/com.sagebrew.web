@@ -1,15 +1,22 @@
 <div class="block sb_notification_block">
     <div class="row">
         <div class="col-lg-2 col-md-2">
-            <div class="thumbnail sb_thumbnail_sm"></div>
+            <div class="thumbnail sb_thumbnail_sm"><img src="{{ friend_request.from.profile_pic }}"></div>
         </div>
         <div class="col-lg-4 col-md-4">
-           <p>Jordan Welton</p>
+           <p>{{ friend_request.from.base_user.first_name }} {{ friend_request.from.base_user.last_name }}</p>
         </div>
         <div align="right" class="col-lg-6 col-md-6">
             <div class="btn-group">
-                 <button class="btn btn-primary sb_btn sb_btn_friend">Confirm</button>
-                 <button class="btn btn-primary sb_btn  sb_btn_friend">Delete</button>
+                <button class="btn btn-primary sb_btn sb_btn_friend respond_friend_request-action"
+                        data-response="accept" data-request_id="{{ friend_request.object_uuid }}">Confirm</button>
+                <button class="btn btn-primary sb_btn  sb_btn_friend respond_friend_request-action"
+                        data-response="deny"
+                        data-request_id="{{ friend_request.object_uuid }}">Delete</button>
+                {% comment %}
+                <button class="btn btn-primary sb_btn sb_btn_friend respond_friend_request-action"
+                        data-response="block" data-request_id="{{ request.object_uuid }}">Block</button>
+                {% endcomment %}
             </div>
         </div>
     </div>

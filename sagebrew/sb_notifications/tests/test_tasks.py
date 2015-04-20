@@ -6,8 +6,8 @@ from django.contrib.auth.models import User
 
 from api.utils import wait_util
 from sb_notifications.tasks import (spawn_notifications)
-from sb_posts.neo_models import SBPost
-from sb_comments.neo_models import SBComment
+from sb_posts.neo_models import Post
+from sb_comments.neo_models import Comment
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
@@ -28,32 +28,36 @@ class TestNotificationTasks(TestCase):
         self.user2 = User.objects.get(email=self.email2)
 
         self.post_info_dict = {'content': 'test post',
-                               'sb_id': str(uuid1())}
+                               'object_uuid': str(uuid1())}
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_create_notification_post_task(self):
-        post = SBPost(**self.post_info_dict)
+        post = Post(**self.post_info_dict)
         post.save()
 
-        data={'sb_object': post,
-              'from_pleb': self.pleb.email,
-              'to_plebs': [self.pleb2.email,]}
+        data = {
+            'sb_object': post,
+            'from_pleb': self.pleb.email,
+            'to_plebs': [self.pleb2.email, ]
+        }
         response = spawn_notifications.apply_async(kwargs=data)
         while not response.ready():
             time.sleep(3)
         self.assertTrue(response.result)
 
     def test_create_notification_comment_task(self):
-        post = SBPost(**self.post_info_dict)
+        post = Post(**self.post_info_dict)
         post.save()
-        comment = SBComment(sb_id=str(uuid1()), content='sdfasd')
+        comment = Comment(content='sdfasd')
         comment.save()
 
-        data = {'from_pleb':self.pleb.email, 'to_plebs': [self.pleb2.email,],
-                'sb_object': comment}
+        data = {
+            'from_pleb': self.pleb.email, 'to_plebs': [self.pleb2.email, ],
+            'sb_object': comment
+        }
 
         response = spawn_notifications.apply_async(kwargs=data)
         while not response.ready():
@@ -61,12 +65,14 @@ class TestNotificationTasks(TestCase):
         self.assertTrue(response.result)
 
     def test_create_notification_task_failure(self):
-        post = SBPost(**self.post_info_dict)
+        post = Post(**self.post_info_dict)
         post.save()
 
-        data={'sb_object': post,
-              'from_pleb': self.pleb.email,
-              'to_plebs': [self.pleb2.email, 'fakeemail1@fake.com']}
+        data = {
+            'sb_object': post,
+            'from_pleb': self.pleb.email,
+            'to_plebs': [self.pleb2.email, 'fakeemail1@fake.com']
+        }
         response = spawn_notifications.apply_async(kwargs=data)
         while not response.ready():
             time.sleep(1)

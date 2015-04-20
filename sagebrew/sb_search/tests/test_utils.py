@@ -7,6 +7,7 @@ from plebs.neo_models import Pleb
 from sb_search.utils import process_search_result
 from sb_registration.utils import create_user_util_test
 
+
 class TestProcessSearchResultUtil(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
@@ -23,7 +24,7 @@ class TestProcessSearchResultUtil(TestCase):
                 'object_uuid': str(uuid1()),
                 'related_user': 'tylerwiersing',
             },
-            '_type': 'sb_questions.neo_models.SBQuestion',
+            '_type': 'question',
             '_score': .92,
             '_id': str(uuid1()),
             '_index': 'full-search-base'
@@ -35,7 +36,7 @@ class TestProcessSearchResultUtil(TestCase):
         my_dict = {
             '_source': {
                 'sb_score': 100,
-                'pleb_email': str(uuid1()),
+                'object_uuid': str(uuid1()),
                 'related_user': 'tylerwiersing',
             },
             '_type': 'pleb',

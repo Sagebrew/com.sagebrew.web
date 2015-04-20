@@ -3,7 +3,7 @@ from django.conf import settings
 from uuid import uuid1
 from django.core.urlresolvers import reverse
 from django.http import (HttpResponse, HttpResponseNotFound,
-                         HttpResponseServerError, Http404)
+                         HttpResponseServerError)
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
@@ -18,11 +18,11 @@ from neomodel import (DoesNotExist, CypherException)
 from api.utils import spawn_task
 from plebs.tasks import send_email_task, create_beta_user
 from plebs.neo_models import Pleb, BetaUser
-from sb_reps.tasks import create_rep_task
+from sb_public_official.tasks import create_rep_task
 from sb_docstore.tasks import build_rep_page_task
-from sb_uploads.tasks import crop_image_task
+from sb_uploads.utils import crop_image
 
-from .forms import (ProfileInfoForm, AddressInfoForm, InterestForm,
+from .forms import (AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm, RepRegistrationForm,
                     LoginForm, BetaSignupForm)
 from .utils import (verify_completed_registration, verify_verified_email,
@@ -33,19 +33,20 @@ from .tasks import update_interests, store_address
 
 def signup_view(request):
     if (request.user.is_authenticated() is True and
-                verify_completed_registration(request.user) is True):
+            verify_completed_registration(request.user) is True):
         return redirect('profile_page', pleb_username=request.user.username)
     user = request.GET.get('user', '')
     if not user:
         return redirect('beta_page')
     try:
         beta_user = BetaUser.nodes.get(email=user)
-    except (BetaUser.DoesNotExist, DoesNotExist, CypherException):
+    except (BetaUser.DoesNotExist, DoesNotExist, CypherException, IOError):
         return redirect('beta_page')
     if not beta_user.invited:
         return redirect('beta_page')
 
     return render(request, 'sign_up_page/index.html')
+
 
 @api_view(['POST'])
 def signup_view_api(request):
@@ -97,7 +98,7 @@ def signup_view_api(request):
                                 status=400)
     else:
         return Response({"detail": signup_form.errors.as_json()},
-                         status=400)
+                        status=400)
 
 
 def login_view(request):
@@ -183,7 +184,7 @@ def email_verification(request, confirmation):
             return HttpResponse('Unauthorized', status=401)
     except (Pleb.DoesNotExist, DoesNotExist):
         return redirect('logout')
-    except(CypherException):
+    except(CypherException, IOError):
         # TODO Actually redirect to 500 page
         return HttpResponse('Server Error', status=500)
 
@@ -193,7 +194,7 @@ def email_verification(request, confirmation):
                   login_url='/registration/signup/confirm/')
 def profile_information(request):
     '''
-    Creates both a ProfileInfoForm and AddressInfoForm which populates the
+    Creates both a AddressInfoForm which populates the
     fields with what the user enters. If this function gets a valid POST
     request it
     will update the pleb. It then validates the address, through
@@ -208,28 +209,18 @@ def profile_information(request):
     we provided the user previously based on the previous
     smarty streets ordering.
     '''
-    profile_information_form = ProfileInfoForm(request.POST or None)
     address_information_form = AddressInfoForm(request.POST or None)
     try:
         citizen = Pleb.nodes.get(username=request.user.username)
-    except (CypherException, IOError) as e:
+    except (CypherException, IOError):
         return HttpResponseServerError('Server Error')
     if citizen.completed_profile_info:
         return redirect("interests")
-    if profile_information_form.is_valid():
-        citizen.home_town = profile_information_form.cleaned_data["home_town"]
-        #citizen.high_school = profile_information_form.cleaned_data.get(
-        #   "high_school", "")
-        #citizen.college = profile_information_form.cleaned_data.get(
-        #    "college", "")
-        #citizen.employer = profile_information_form.cleaned_data.get(
-        #    "employer", "")
-        citizen.save()
     if address_information_form.is_valid():
         address_clean = address_information_form.cleaned_data
         address_clean['country'] = 'USA'
         if(address_clean['valid'] == "valid" or
-                   address_clean.get('original_selected', False) is True):
+                address_clean.get('original_selected', False) is True):
             success = spawn_task(store_address,
                                  {"username": request.user.username,
                                   "address_clean": address_clean})
@@ -248,13 +239,14 @@ def profile_information(request):
         else:
             # TODO this is just a place holder, what should we really be doing
             # here?
-            return render(request, 'profile_info.html',
-                  {'profile_information_form': profile_information_form,
-                   'address_information_form': address_information_form})
+            return render(
+                request, 'profile_info.html',
+                {
+                    'address_information_form': address_information_form
+                })
 
     return render(request, 'profile_info.html',
-                  {'profile_information_form': profile_information_form,
-                   'address_information_form': address_information_form})
+                  {'address_information_form': address_information_form})
 
 
 @login_required()
@@ -272,7 +264,9 @@ def interests(request):
     '''
     interest_form = InterestForm(request.POST or None)
     if interest_form.is_valid():
-        data = {"email": request.user.email,
+        if "select_all" in interest_form.cleaned_data:
+            interest_form.cleaned_data.pop('select_all', None)
+        data = {"username": request.user.username,
                 "interests": interest_form.cleaned_data}
         success = spawn_task(update_interests, data)
         if isinstance(success, Exception):
@@ -307,37 +301,56 @@ def profile_picture(request):
         citizen = Pleb.nodes.get(username=request.user.username)
     except(Pleb.DoesNotExist, DoesNotExist):
         return render(request, 'login.html')
-    except CypherException:
+    except (CypherException, IOError):
         return HttpResponse('Server Error', status=500)
     if request.method == 'GET':
         profile_picture_form = ProfilePictureForm()
-        return render(request, 'profile_picture.html',
-                    {'profile_picture_form': profile_picture_form,
-                     'pleb': citizen})
+        return render(
+            request, 'profile_picture.html',
+            {
+                'profile_picture_form': profile_picture_form,
+                'pleb': citizen
+            })
+
 
 @api_view(['POST'])
 def profile_picture_api(request):
     profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
+    pleb = Pleb.nodes.get(username=request.user.username)
     if profile_picture_form.is_valid():
-        image_uuid = str(uuid1())
         data = request.FILES['picture']
-        image_data = {
-            "image": data,
-            "x": profile_picture_form.cleaned_data['image_x1'],
-            "y": profile_picture_form.cleaned_data['image_y1'],
-            "width": 200,
-            "height": 200,
-            "f_uuid": image_uuid,
-            "pleb": request.user.username
-        }
-        res = spawn_task(crop_image_task, image_data)
-        if isinstance(res, Exception):
-            return Response({'detail': 'Server Error'}, status=500)
-        url = reverse('profile_page', kwargs={"pleb_username":
-                                                  request.user.username})
-        return Response({"url": url}, 200)
+        res = crop_image(
+            data, 200, 200, int(profile_picture_form.cleaned_data['image_x1']),
+            int(profile_picture_form.cleaned_data['image_y1']))
+        pleb.profile_pic = res
+        pleb.save()
+        url = reverse('profile_page', kwargs={
+            "pleb_username": request.user.username})
+        return Response({"url": url, "pic_url": res}, 200)
     else:
         return Response({"detail": "invalid form"}, 400)
+
+
+@api_view(['POST'])
+def wallpaper_picture_api(request):
+    profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
+    pleb = Pleb.nodes.get(username=request.user.username)
+    if profile_picture_form.is_valid():
+        data = request.FILES['picture']
+        res = crop_image(data,
+                         int(profile_picture_form.cleaned_data['image_y2']),
+                         int(profile_picture_form.cleaned_data['image_x2']),
+                         int(profile_picture_form.cleaned_data['image_x1']),
+                         int(profile_picture_form.cleaned_data['image_y1']))
+
+        pleb.wallpaper_pic = res
+        pleb.save()
+        url = reverse('profile_page', kwargs={
+            "pleb_username": request.user.username})
+        return Response({"url": url, "pic_url": res}, 200)
+    else:
+        return Response({"detail": "invalid form"}, 400)
+
 
 @login_required()
 @user_passes_test(verify_completed_registration,
@@ -370,7 +383,8 @@ def rep_reg_page(request):
                 'rep_type': cleaned['office'],
                 'rep_id': uuid,
                 'customer_id': customer_id,
-                'recipient_id': recipient_id
+                'recipient_id': recipient_id,
+                'gov_phone': cleaned['gov_phone']
             }
             res = spawn_task(create_rep_task, task_data)
             if isinstance(res, Exception):

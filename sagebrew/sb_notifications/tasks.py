@@ -10,7 +10,7 @@ logger = logging.getLogger('loggly_logs')
 
 
 @shared_task()
-def spawn_notifications(sb_object, from_pleb, to_plebs, uuid=None):
+def spawn_notifications(sb_object, from_pleb, to_plebs, notification_id, url):
     '''
     This function will take an object(post,comment,solution,etc.), the type of
     the object, from_pleb and a to_pleb. To pleb can be a list of people or
@@ -19,26 +19,27 @@ def spawn_notifications(sb_object, from_pleb, to_plebs, uuid=None):
     :param sb_object:
     :param from_pleb:
     :param to_plebs:
-    :param uuid
+    :param notification_id
     :return:
     '''
     plebeians = []
+    if from_pleb in to_plebs:
+        to_plebs.remove(from_pleb)
     try:
-        from_pleb = Pleb.nodes.get(email=from_pleb)
-    except(CypherException, Pleb.DoesNotExist, DoesNotExist) as e:
-        raise spawn_notifications.retry(exc=e, countdown=3, max_retries=None)
+        from_pleb = Pleb.nodes.get(username=from_pleb)
+    except(CypherException, Pleb.DoesNotExist, DoesNotExist, IOError) as e:
+        raise spawn_notifications.retry(exc=e, countdown=3, max_retries=100)
 
     for plebeian in to_plebs:
         try:
-            to_pleb = Pleb.nodes.get(email=plebeian)
+            to_pleb = Pleb.nodes.get(username=plebeian)
             plebeians.append(to_pleb)
-        except(CypherException, Pleb.DoesNotExist, DoesNotExist) as e:
-            raise spawn_notifications.retry(exc=e, countdown=3,
-                                            max_retries=None)
-    response = create_notification_util(sb_object, from_pleb, plebeians, uuid)
+        except(CypherException, Pleb.DoesNotExist, DoesNotExist, IOError) as e:
+            raise spawn_notifications.retry(exc=e, countdown=3, max_retries=100)
+    response = create_notification_util(sb_object, from_pleb, plebeians,
+                                        notification_id, url)
 
     if isinstance(response, Exception) is True:
         raise spawn_notifications.retry(exc=response, countdown=3,
-                                        max_retries=None)
+                                        max_retries=100)
     return response
-

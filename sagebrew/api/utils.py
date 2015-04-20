@@ -1,25 +1,26 @@
 import time
+from logging import getLogger
 import pytz
 import boto.sqs
-import importlib
 import requests
 import hashlib
 import shortuuid
 from uuid import uuid1
 from json import dumps
-from datetime import  datetime
+from datetime import datetime
+
 from django.core import signing
+
 from boto.sqs.message import Message
-from bomberman.client import Client, RateLimitExceeded
+
 from neomodel import db
-from neomodel.exception import CypherException, DoesNotExist
+from neomodel.exception import CypherException
 
 from django.conf import settings
 
-from sb_base.utils import defensive_exception
-from sb_base.decorators import apply_defense
-from plebs.neo_models import Pleb, OauthUser
-from api.alchemyapi import AlchemyAPI
+from .alchemyapi import AlchemyAPI
+
+logger = getLogger('loggly_logs')
 
 
 def request_to_api(url, username, data=None, headers=None, req_method=None,
@@ -39,19 +40,34 @@ def request_to_api(url, username, data=None, headers=None, req_method=None,
     :param internal:
     :return:
     """
+    # TODO need to remove this as we shouldn't be needing to call a pleb object
+    # into api.utils. It has the potential to cause a circular dependency
+    from plebs.neo_models import Pleb
     if headers is None:
-        headers = {}
-    if internal is False:
+        headers = {"content-type": "application/json"}
+    if internal is True:
+        # TODO we should put the token and expiration into a cache so that we
+        # can just check if it needs to be updated and only then do we
+        # query neo.
+        try:
+            pleb = Pleb.nodes.get(username=username)
+        except(CypherException, IOError) as e:
+            raise e
         headers['Authorization'] = "%s %s" % (
-            'Bearer', get_oauth_access_token(username))
+            'Bearer', get_oauth_access_token(pleb))
     response = None
-    if req_method is None:
-        response = requests.post(url, data=dumps(data),
-                                 verify=settings.VERIFY_SECURE,
-                                 headers=headers)
-    elif req_method == 'get':
-        response = requests.get(url, verify=settings.VERIFY_SECURE,
-                                headers=headers)
+    try:
+        if req_method is None or req_method == "POST" or req_method == "post":
+            response = requests.post(url, data=dumps(data),
+                                     verify=settings.VERIFY_SECURE,
+                                     headers=headers)
+        elif req_method == 'get' or req_method == "GET":
+            response = requests.get(url, verify=settings.VERIFY_SECURE,
+                                    headers=headers)
+    except requests.ConnectionError as e:
+        logger.exception("ConnectionError ")
+        raise e
+
     return response
 
 
@@ -87,29 +103,30 @@ def refresh_oauth_access_token(refresh_token, url, client_id=None,
     return response.json()
 
 
-def check_oauth_expires_in(oauth_client):
+def check_oauth_needs_refresh(oauth_client):
     elapsed = datetime.now(pytz.utc) - oauth_client.last_modified
-    if elapsed.total_seconds() >= 37800:
+    expiration = oauth_client.expires_in - 600
+    if elapsed.total_seconds() >= expiration:
         return True
     return False
 
 
-def get_oauth_access_token(username, web_address=None):
+def get_oauth_access_token(pleb, web_address=None):
     # TODO need to be able to pass creds rather than the username. That way
     # someone can add their creds to the Restriction/Action/etc and use those
     # rather than our internal ones.
     if web_address is None:
         web_address = settings.WEB_ADDRESS + '/o/token/'
-    pleb = Pleb.nodes.get(username=username)
+
     try:
         oauth_creds = [oauth_user for oauth_user in pleb.oauth.all()
-                  if oauth_user.web_address == web_address][0]
+                       if oauth_user.web_address == web_address][0]
     except IndexError as e:
         return e
-    if check_oauth_expires_in(oauth_creds):
+    if check_oauth_needs_refresh(oauth_creds) is True:
         refresh_token = decrypt(oauth_creds.refresh_token)
         updated_creds = refresh_oauth_access_token(refresh_token,
-                                          oauth_creds.web_address)
+                                                   oauth_creds.web_address)
         oauth_creds.last_modified = datetime.now(pytz.utc)
         oauth_creds.access_token = encrypt(updated_creds['access_token'])
         oauth_creds.token_type = updated_creds['token_type']
@@ -119,51 +136,34 @@ def get_oauth_access_token(username, web_address=None):
 
     return decrypt(oauth_creds.access_token)
 
-def generate_oauth_user(username, password, web_address=None):
+
+def generate_oauth_user(pleb, password, web_address=None):
     if web_address is None:
         web_address = settings.WEB_ADDRESS + '/o/token/'
-    try:
-        pleb = Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
-        return e
-    creds = get_oauth_client(username, password, web_address)
-    try:
-        oauth_obj = OauthUser(access_token=encrypt(creds['access_token']),
-                          token_type=creds['token_type'],
-                          expires_in=creds['expires_in'],
-                          refresh_token=encrypt(creds['refresh_token'])).save()
-    except CypherException as e:
-        return e
-    try:
-        pleb.oauth.connect(oauth_obj)
-    except CypherException as e:
-        return e
-    return True
+    creds = get_oauth_client(pleb.username, password, web_address)
+
+    return creds
+
 
 def encrypt(data):
     return signing.dumps(data)
 
+
 def decrypt(data):
     return signing.loads(data)
+
 
 def generate_short_token():
     short_hash = hashlib.sha1(shortuuid.uuid())
     short_hash.update(settings.SECRET_KEY)
     return short_hash.hexdigest()[::2]
 
+
 def generate_long_token():
     long_hash = hashlib.sha1(shortuuid.uuid())
     long_hash.update(settings.SECRET_KEY)
     return long_hash.hexidigest()
 
-'''
-# TODO Add tagging process into git so that we can label point that we deleted this
-iron_mq = IronMQ(project_id=settings.IRON_PROJECT_ID,
-                         token=settings.IRON_TOKEN)
-        queue = iron_mq.queue('sb_failures')
-        info['action'] = attempt_task.__name__
-        queue.post(dumps(info))
-'''
 
 def add_failure_to_queue(message_info):
     conn = boto.sqs.connect_to_region(
@@ -193,33 +193,7 @@ def spawn_task(task_func, task_param, countdown=0, task_id=None):
             'failure_uuid': failure_uuid
         }
         add_failure_to_queue(failure_dict)
-        return defensive_exception(spawn_task.__name__, e, e,
-            {"failure_uuid": failure_uuid, "failure": "Unhandled Exception"})
-
-
-def language_filter(content):
-    """
-    Filters harsh language from posts and comments using the bomberman
-    client which
-    is initialized each time the function is called.
-
-    :param content:
-    :return:
-    """
-    try:
-        bomberman = Client()
-        if bomberman.is_profane(content):
-            corrected_content = bomberman.censor(content)
-            return corrected_content
-        else:
-            return content
-    except RateLimitExceeded as e:
-        return e
-    except Exception as e:
-        # This is necessary because bomberman can return an exception if it
-        # doesn't have a specific status code handled. This happens when there
-        # is a 503 from the server.
-        return e
+        raise e
 
 
 def create_auto_tags(content):
@@ -228,7 +202,8 @@ def create_auto_tags(content):
         keywords = alchemyapi.keywords("text", content)
         return keywords
     except Exception as e:
-        return defensive_exception(create_auto_tags.__name__, e, e)
+        logger.exception("Auto Tag issue with Alchemy: ")
+        return e
 
 
 def wait_util(async_res):
@@ -240,37 +215,18 @@ def wait_util(async_res):
     return async_res['task_id'].result.result
 
 
-@apply_defense
-def get_object(object_type, object_uuid):
-    """
-    DO NOT USE THIS FUNCTION ANYWHERE THAT DOES NOT HAVE A FORM
-    AND A CHOICE FIELD CLEARLY LAID OUT.
-
-    This function will take the id of an object and the objects class
-    name as a string: SBPost: "SBPost", etc. and return the object.
-    If the object is not found it will return False
-
-    :param object_type:
-    :param object_uuid:
-    :return:
-    """
-    try:
-        cls = object_type
-        module_name, class_name = cls.rsplit(".", 1)
-        sb_module = importlib.import_module(module_name)
-        sb_object = getattr(sb_module, class_name)
-        try:
-            return sb_object.nodes.get(sb_id=object_uuid)
-        except (sb_object.DoesNotExist, DoesNotExist):
-            return TypeError("%s.DoesNotExist" % object_type)
-    except (NameError, ValueError, ImportError, AttributeError):
-        return False
-    except CypherException as e:
-        return e
-
-
 def execute_cypher_query(query):
+    # Deprecated in DRF views as we handle raises in CypherException and
+    # IOError in the middleware now
     try:
         return db.cypher_query(query)
     except(CypherException, IOError) as e:
         return e
+
+
+def get_node(object_uuid):
+    query = 'MATCH n WHERE ' \
+            'n.object_uuid="%s" RETURN n' % object_uuid
+    res, col = db.cypher_query(query)
+
+    return res

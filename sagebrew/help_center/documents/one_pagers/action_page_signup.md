@@ -1,13 +1,13 @@
-# Action Page Creation #
-When setting up your Action Page there are a few things to know.
+# Action Area Creation #
+When setting up your Action Area there are a few things to know.
 
-### What is an Action Page? ###
-The Action Page is, quite literally, where all the action is!
-Your Action Page is a public page on which you'll be able
+### What is an Action Area? ###
+The Action Area is, quite literally, where all the action is!
+Your Action Area is a public space on which you'll be able
 to display your Education and Experiences, as well as your Donation
 Goals and Rounds, policies and agenda, and a personal bio.
 
-On your Action Page you'll be able to:
+In your Action Area you'll be able to:
 
 - Raise funding for your campaign
 - Outline your personal and political agendas
@@ -16,11 +16,11 @@ On your Action Page you'll be able to:
 What a heap of benefits!
 
 Now, there are quite a few things to consider during the set up of your Action
-Page, and quite a few amazing features that we think you'll find very handy.
+Area, and quite a few amazing features that we think you'll find very handy.
 
 ### Donation Goals and Rounds ###
 The ability to set Donation Goals is arguably the most prolific
-feature of the Action Page. Donation Goals allow you
+feature of the Action Area. Donation Goals allow you
 to organize your fundraising and campaign expenditures
 while providing your constituents easy access to
 your campaign plans and a simple way to contribute.
@@ -56,20 +56,14 @@ achievable goals you can show your contributors that
 you're good on your word and that you have the dedication
 to achieve your goals and get things done.
 
-
-### Education and Experiences ###
-This is where you get to brag about your achievements. Let your
-constituents know how much work you've done over the course of your
-life and career and show them that you're the right person for office
-based on your accrued knowledge. Did you graduate from Princeton with
-a degree in Foreign Policy? Have you been a member of your local government
-for 28 years with experience working in a government setting? Let the people
-know why you're the right candidate for the job!
-
 ### Epic ###
-In this section you'll be able to outline your political policies, highlighting
-the issues that are most important to you. You'll also be able to
-plan your political agenda (what you plan to do once/if you reach office).
+In this section you'll be able to outline your political policies, education, 
+experiences, and achievements. By highlighting your history and the issues 
+that matter to you, you'll become more personable to the public.
+
+You'll also be able to
+plan your political agenda (what you plan to do once/if you reach office) 
+as well as anything else you want the public to know about you.
 
 ### Bio ###
 This is where you have a chance to express yourself on a personal level.
@@ -78,17 +72,17 @@ to appeal to your constituents. What makes you a good person, and why will
 people like you?
 
 ### Efficient Campaigning ###
-With Sagebrew's Action Page campaigning has never been more
+With Sagebrew's Action Area campaigning has never been more
 efficient. Our system of Donation Goals and Rounds allows you
 to spend more time and resources on your campaign itself, rather
-than worrying about how to collect funding. With the Action Page you'll
+than worrying about how to collect funding. With the Action Area you'll
 be able to display your views and agenda, as well as your credentials
 and political strategy. And with the Dashboard you'll receive
 unique and priceless information about your constituency and the efficacy of
 your campaign.
 
 ## Reminders ##
-### Things you must do outside of Sagebrew before your Action Page can go live ###
+### Things you must do outside of Sagebrew before your Action Area can go live ###
 #### You must create a campaign bank account ####
 Many states have campaign finance laws that require candidates to open a 
 campaign bank account in order to legally deposit donations. 
@@ -98,7 +92,7 @@ Board of Elections, as banks may require committee paperwork at sign
 up. Definitely be sure to check your local, state, and/or federal 
 election laws to make sure your campaign doesn't fall into legal trouble.  
 
-### Other things to consider before your Action Page goes live ###
+### Other things to consider before your Action Area goes live ###
 #### Do you have a good campaign team at your back? ####
 The core components of a campaign team include you, the candidate, a 
 campaign manager who oversees the entire campaign and a treasurer to keep 
@@ -128,5 +122,5 @@ Alright! With Sagebrew's many tools and features at your side you're ready to
 embark on this exciting adventure!
 
 {% if debug == True %}
-    Click here to begin setting up your Action Page!
+    Click here to begin setting up your Action Area!
 {% endif %}

@@ -117,6 +117,22 @@ $(document).ready(function(){
                         message: "Gov Email must not be longer than 200 characters"
                     }
                 }
+            },
+            gov_phone: {
+                group: 'gov_phone_wrapper',
+                validators: {
+                    phone: {
+                        country: "US",
+                        message: "This is not a valid US phone number"
+                    },
+                    notEmpty: {
+                        message: "Gov Phone is required"
+                    },
+                    stringLength: {
+                        max: 15,
+                        message: "Gov Phone must not be longer than 15 characters"
+                    }
+                }
             }
         }
     })

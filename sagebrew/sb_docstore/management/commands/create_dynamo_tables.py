@@ -1,4 +1,3 @@
-import os
 import time
 from json import loads
 from django.core.management.base import BaseCommand
@@ -10,7 +9,6 @@ from boto.dynamodb2.types import STRING
 from boto.dynamodb2.exceptions import JSONResponseError
 
 from sb_docstore.utils import connect_to_dynamo, get_table_name
-
 
 
 class Command(BaseCommand):
@@ -35,10 +33,10 @@ class Command(BaseCommand):
                                   connection=conn)
                     table.delete()
                     while (table.describe()['Table']['TableStatus'] ==
-                               "DELETING"):
+                            "DELETING"):
                         time.sleep(1)
                 except JSONResponseError:
-                    print 'The table %s does not exist'%table_name
+                    print 'The table %s does not exist' % table_name
                 try:
                     if 'range_key' and 'local_index' in item.keys():
                         Table.create(table_name, schema=[
@@ -50,7 +48,7 @@ class Command(BaseCommand):
                                 RangeKey(item['local_index'],
                                          data_type=item['type']),
                             ])
-                        ],throughput={
+                        ], throughput={
                             'read': reads,
                             'write': writes
                         }, connection=conn)

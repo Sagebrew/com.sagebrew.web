@@ -1,0 +1,91 @@
+<div class="row block_{{ object_uuid }}">
+    <div class="col-lg-10 col-md-10 col-sm-10 col-xs-11 col-lg-offset-1 col-md-offset-0 col-sm-offset-0 sb_comment_wrapper">
+        <div class="sb_post_comments">
+            <div class="sb_comments_container">
+                <div class="row">
+                        <div class="col-lg-1 col-md-1 col-sm-1 hidden-xs">
+                            <div class="sb_thumbnail_xs thumbnail">
+                                <img src="{{ profile.profile_pic|default_if_none:'' }}"/>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 col-md-5 col-sm-4 col-xs-7">
+                           <div class="sb_comment_header">
+                               <div class="row-fluid" style="margin-bottom: -10px;">
+                                   <a href="{{ profile.url }}">
+                                       {{ owner_object.first_name }} {{ owner_object.last_name }}
+                                   </a>
+                               </div>
+                               <div class="row-fluid">
+                                    <small>{{ last_edited_on|date:"D d M Y" }}</small>
+                                    {% comment %}
+                                        date/time/location(or disctrict)
+                                    {%  endcomment %}
+                               </div>
+                           </div>
+                        </div>
+                        <div class="col-lg-1 col-md-1 col-sm-1 hidden-xs col-lg-offset-4 col-md-offset-4 col-sm-offset-5">
+                            {% if owner_object.username == request.user.username %}
+                                <button class="btn dropdown-toggle sb_btn_icon" type="button"
+                                        data-toggle="dropdown">
+                                    <span class="fui-gear sb_btn_icon_green_hover"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
+                                    role="menu" aria-labelledby="dropdown-menu">
+                                    <li role="presentation"><a class="sb_post_dropdown_menu show_edit_comment_class"
+                                                               data-comment_uuid="{{ object_uuid }}"
+                                                               type="submit">Edit</a>
+                                    </li>
+                                    <li role="presentation" class="sb_divider"></li>
+
+                                    <li role="presentation">
+                                        <a class='sb_post_dropdown_menu delete_object-action delete_{{ object_uuid }}'>
+                                            Delete
+                                        </a>
+                                    </li>
+                                </ul>
+                            {% else %}
+                                {% with request.META.HTTP_HOST|add:"v1/privileges/flag/" as flag_priv %}
+                                    {% if "questions" not in request.path and "solutions" not in request.path %}
+                                        {% include "flag.html" %}
+                                    {% elif flag_priv in request_profile.privileges %}
+                                        {% include "flag.html" %}
+                                    {% else %}
+                                        {% include "flag_restriction.html" %}
+                                    {% endif %}
+                                {% endwith %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="vote_small vote_count_small">
+                            <div class="col-lg-1 hidden-md hidden-sm hidden-xs sb_vote_wrapper">
+                                {% include "vote.html" %}
+                            </div>
+                        </div>
+                        <div class="col-lg-8 col-md-10 col-sm-10 col-xs-12 col-md-offset-1 col-sm-offset-1">
+                            <div class="sb_comment_body" id="sb_content_{{ object_uuid }}">
+                                {{ content|linebreaksbr }}
+                            </div>
+                            <div id="edit_container_{{ object_uuid }}" style="display: none">
+                                <div class="row-fluid">
+                                    <textarea class="form-control edit_comment_input_class" style="resize: vertical;"
+                                              id="{{ object_uuid }}"
+                                              name="edit_comment_input"
+                                              rows="1">{{ content }}</textarea>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-5 col-md-5 col-sm-4 col-xs-12 col-lg-offset-7 col-md-offset-7 col-sm-offset-8">
+                                        <button class='btn btn-block btn-primary sb_btn_fill edit_object-action edit_{{ object_uuid }}'
+                                           id="edit_comment_button_id_{{ object_uuid }}"
+                                           data-parent_object="{{ object_uuid }}"
+                                           data-object_uuid="{{ object_uuid }}"
+                                           data-created="{{ created }}">Edit</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>

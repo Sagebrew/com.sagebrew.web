@@ -1,6 +1,6 @@
 $( document ).ready(function() {
     $(".sb_btn_skip").on('click', function(){
-        
+
     });
     var existingdiv1 = document.getElementById( "sb_profile_photo" );
     $("input#profile_pic_upload").change(function() {
@@ -23,6 +23,7 @@ $( document ).ready(function() {
     });
     $( "#image_uploaded" ).on("mouseenter", "img", function() {
         var image_test = $("img");
+        console.log(image_test);
         var true_height = image_test.get(0).naturalHeight;
         var true_width = image_test.get(0).naturalWidth;
         var jcrop = $("img").Jcrop({
@@ -54,6 +55,10 @@ $( document ).ready(function() {
             processData: false,
             success: function(data){
                 window.location.replace(data['url']);
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                $('.alert-dismissible').show();
+                    jcrop.setSelect([ 0, 0, 200, 200 ])
             }
         });
     });

@@ -3,7 +3,7 @@ from os import environ
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
-ALLOWED_HOSTS = ['www.sagebrew.com',]
+ALLOWED_HOSTS = ['www.sagebrew.com', ]
 
 VERIFY_SECURE = True
 WEB_ADDRESS = "https://www.sagebrew.com"
@@ -26,12 +26,15 @@ CACHES = {
     }
 }
 
-ELASTIC_SEARCH_HOST = [{'host': environ.get("ELASTIC_SEARCH_HOST", ""),
-                        'port': environ.get("ELASTIC_SEARCH_PORT", ""),
-                        'use_ssl': True,
-                        'http_auth': (environ.get("ELASTIC_SEARCH_USER", ""),
-                                      environ.get("ELASTIC_SEARCH_KEY", ""))
-                       }]
+ELASTIC_SEARCH_HOST = [
+    {
+        'host': environ.get("ELASTIC_SEARCH_HOST", ""),
+        'port': environ.get("ELASTIC_SEARCH_PORT", ""),
+        'use_ssl': True,
+        'http_auth': (environ.get("ELASTIC_SEARCH_USER", ""),
+                      environ.get("ELASTIC_SEARCH_KEY", ""))
+    }
+]
 
 
 BROKER_URL = "sqs://%s:%s@" % (
@@ -44,7 +47,7 @@ STATICFILES_STORAGE = 'sagebrew.s3utils.StaticRootS3BotoStorage'
 
 S3_URL = 'https://%s.s3.amazonaws.com/' % (AWS_STORAGE_BUCKET_NAME)
 CELERY_IGNORE_RESULT = True
-STATIC_URL = "%s" % (S3_URL)
+STATIC_URL = "%s%s" % (S3_URL, "static/")
 MEDIA_URL = "%s%s" % (S3_URL, "media/")
 
 BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 43200,
@@ -57,6 +60,13 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
     ),
+    'DEFAULT_PAGINATION_CLASS':
+        'rest_framework.pagination.PageNumberPagination',
+    'PAGINATE_BY': 10,
+    'PAGE_SIZE': 15,
+    'MAX_PAGINATE_BY': 100,
+    'PAGINATE_BY_PARAM': 'page_size',
+    'EXCEPTION_HANDLER': 'sb_base.utils.custom_exception_handler',
     'DEFAULT_MODEL_SERIALIZER_CLASS':
         'rest_framework.serializers.HyperlinkedModelSerializer',
     'DEFAULT_AUTHENTICATION_CLASSES': (

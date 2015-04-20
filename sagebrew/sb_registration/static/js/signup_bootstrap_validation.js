@@ -15,8 +15,8 @@ $(document).ready(function(){
                         message: "First Name is Required"
                     },
                     stringLength: {
-                        max: 200,
-                        message: "First Name must not exceed 200 characters"
+                        max: 30,
+                        message: "First Name must not exceed 30 characters"
                     }
                 }
             },
@@ -27,8 +27,8 @@ $(document).ready(function(){
                         message: "Last Name is Required"
                     },
                     stringLength: {
-                        max: 200,
-                        message: "Last Name must not exceed 200 characters"
+                        max: 30,
+                        message: "Last Name must not exceed 30 characters"
                     }
                 }
             },

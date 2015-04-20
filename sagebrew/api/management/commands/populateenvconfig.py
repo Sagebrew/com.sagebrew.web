@@ -108,6 +108,17 @@ def populate_staging_values(data):
                         environ.get("OAUTH_CLIENT_ID_CRED_STAGING", ""))
     data = data.replace("<OAUTH_CLIENT_SECRET_CRED>",
                         environ.get("OAUTH_CLIENT_SECRET_CRED_STAGING", ""))
+    data = data.replace("<CRED_USER>", environ.get("CRED_USER_STAGING", ""))
+    data = data.replace("<CRED_PASSWORD>",
+                        environ.get("CRED_PASSWORD_STAGING", ""))
+    data = data.replace("<ELASTIC_SEARCH_HOST>",
+                        environ.get("ELASTIC_SEARCH_HOST_STAGING", ""))
+    data = data.replace("<ELASTIC_SEARCH_PORT>",
+                        environ.get("ELASTIC_SEARCH_PORT_STAGING", ""))
+    data = data.replace("<ELASTIC_SEARCH_USER>",
+                        environ.get("ELASTIC_SEARCH_USER_STAGING", ""))
+    data = data.replace("<ELASTIC_SEARCH_KEY>",
+                        environ.get("ELASTIC_SEARCH_KEY_STAGING", ""))
     return data
 
 
@@ -163,6 +174,17 @@ def populate_production_values(data):
                         environ.get("OAUTH_CLIENT_ID_CRED_PROD", ""))
     data = data.replace("<OAUTH_CLIENT_SECRET_CRED>",
                         environ.get("OAUTH_CLIENT_SECRET_CRED_PROD", ""))
+    data = data.replace("<CRED_USER>", environ.get("CRED_USER_PROD", ""))
+    data = data.replace("<CRED_PASSWORD>",
+                        environ.get("CRED_PASSWORD_PROD", ""))
+    data = data.replace("<ELASTIC_SEARCH_HOST>",
+                        environ.get("ELASTIC_SEARCH_HOST_PROD", ""))
+    data = data.replace("<ELASTIC_SEARCH_PORT>",
+                        environ.get("ELASTIC_SEARCH_PORT_PROD", ""))
+    data = data.replace("<ELASTIC_SEARCH_USER>",
+                        environ.get("ELASTIC_SEARCH_USER_PROD", ""))
+    data = data.replace("<ELASTIC_SEARCH_KEY>",
+                        environ.get("ELASTIC_SEARCH_KEY_PROD", ""))
     return data
 
 
@@ -192,6 +214,17 @@ def populate_test_values(data):
                         environ.get("OAUTH_CLIENT_ID_CRED", ""))
     data = data.replace("<OAUTH_CLIENT_SECRET_CRED>",
                         environ.get("OAUTH_CLIENT_SECRET_CRED", ""))
+    data = data.replace("<CRED_USER>", environ.get("CRED_USER", ""))
+    data = data.replace("<CRED_PASSWORD>",
+                        environ.get("CRED_PASSWORD", ""))
+    data = data.replace("<ELASTIC_SEARCH_HOST>",
+                        environ.get("ELASTIC_SEARCH_HOST", ""))
+    data = data.replace("<ELASTIC_SEARCH_PORT>",
+                        environ.get("ELASTIC_SEARCH_PORT", ""))
+    data = data.replace("<ELASTIC_SEARCH_USER>",
+                        environ.get("ELASTIC_SEARCH_USER", ""))
+    data = data.replace("<ELASTIC_SEARCH_KEY>",
+                        environ.get("ELASTIC_SEARCH_KEY", ""))
     return data
 
 
@@ -220,14 +253,6 @@ def populate_general_values(data):
                         environ.get("ADDRESS_VALIDATION_ID", ""))
     data = data.replace("<ADDRESS_VALIDATION_TOKEN>",
                         environ.get("ADDRESS_VALIDATION_TOKEN", ""))
-    data = data.replace("<ELASTIC_SEARCH_HOST>",
-                        environ.get("ELASTIC_SEARCH_HOST", ""))
-    data = data.replace("<ELASTIC_SEARCH_PORT>",
-                        environ.get("ELASTIC_SEARCH_PORT", ""))
-    data = data.replace("<ELASTIC_SEARCH_USER>",
-                        environ.get("ELASTIC_SEARCH_USER", ""))
-    data = data.replace("<ELASTIC_SEARCH_KEY>",
-                        environ.get("ELASTIC_SEARCH_KEY", ""))
 
     data = data.replace("<REDIS_PORT>", environ.get("REDIS_PORT", ""))
     data = data.replace("<QUEUE_USERNAME>", environ.get("QUEUE_USERNAME", ""))
@@ -236,5 +261,4 @@ def populate_general_values(data):
     data = data.replace("<QUEUE_PORT>", environ.get("QUEUE_PORT", ""))
     data = data.replace("<AWS_DEFAULT_REGION>",
                         environ.get("AWS_DEFAULT_REGION", ""))
-    data = data.replace("<CRED_USER>", environ.get("CRED_USER", ""))
     return data

@@ -7,9 +7,11 @@ RUN chown -R {{APP_USER}}:{{APP_USER}} /home/apps/
 WORKDIR /home/apps/{{PROJECT_REPONAME}}/
 RUN git submodule update --init --recursive
 RUN mkdir /home/apps/{{PROJECT_REPONAME}}/{{PROJECT_NAME}}/static/
-RUN pip install pip --upgrade
-RUN pip install setuptools --upgrade
+RUN pip install pip==6.0.8
+RUN pip install setuptools==12.3
 RUN pip install -r /home/apps/{{PROJECT_REPONAME}}/requirements/{{REQUIREMENTS_FILE}}.txt
+RUN pip install git+http://github.com/bleib1dj/django-rest-framework.git@improvement_id_field_hyperlinkedrelatedfield --upgrade
+RUN pip install git+http://github.com/robinedwards/neomodel.git@282d522c9ed5b6a08e4258008d07d29fca3aed45
 RUN rm -r /root/.ssh
 RUN apt-get remove --auto-remove -y openssh-client
 

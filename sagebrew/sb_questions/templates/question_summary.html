@@ -1,110 +1,49 @@
-{% url 'question_detail_page' question_uuid=question_url as the_url %}
 <div class="row sb_question_summary">
-    <div class="block ">
-        <div id="single_question_wrapper">
-            <div class="div_data_hidden" data-current_pleb="{{ pleb }}" data-sort_by="uuid" data-question_uuid="{{ uuid }}"></div>
+    <div class="row">
+        <div class="vote_count_large">
+            <div class="col-lg-1 hidden-md hidden-sm hidden-xs sb_vote_wrapper_solution"  style="position: absolute;">
+                {% include "vote.html" %}
+            </div>
         </div>
+    </div>
+    <div class="row" style="min-height: 65px;">
         <div class="sb_markdown">
-            <div class="col-lg-12">
-                <div class="hidden-md hidden-sm hidden-xs sb_vote_wrapper" style="position: absolute;">
-                <div class="row vote_wrapper" id="vote_{{ object_uuid }}">
-                    <div class="col-lg-12 sb_up_vote_wrapper_summary">
-                        <div style="display: none" class="sb_upvote_count{{ object_uuid }}">{{ up_vote_number }}</div>
-                        {% if vote_type == "false" or vote_type == None %}
-                            <button class="btn sb_btn sb_btn_vote vote_up vote_object-action"
-                               data-object_uuid="{{ object_uuid }}"
-                               data-vote_type=true
-                               data-current_pleb="{{ current_pleb }}"
-                               data-object_type="02241aee-644f-11e4-9ad9-080027242395">
-                                <span class="fui-triangle-up"></span>
-                            </button>
-                        {% else %}
-                            <button class="btn sb_btn sb_btn_vote vote_up vote_up_active vote_object-action"
-                               data-object_uuid="{{ object_uuid }}"
-                               data-vote_type=true
-                               data-current_pleb="{{ current_pleb }}"
-                               data-object_type="02241aee-644f-11e4-9ad9-080027242395">
-                                <span class="fui-triangle-up"></span>
-                            </button>
-                        {% endif %}
-                    </div >
-                    {% if object_vote_count|length_is:"1" %}
-                        <div class="col-lg-4 col-lg-offset-2 vote_count{{ object_uuid }}" style="margin-left: 16px;">
-                    {% elif object_vote_count|length_is:"2" %}
-                        <div class="col-lg-4 col-lg-offset-2 vote_count{{ object_uuid }}" style="margin-left: 16px;">
-                    {% elif object_vote_count|length_is:"3" %}
-                        <div class="col-lg-4 col-lg-offset-1 vote_count{{ object_uuid }}" style="margin-left: 16px;">
-                    {% elif object_vote_count|length_is:"4" %}
-                        <div class="col-lg-4 col-lg-offset-0 vote_count{{ object_uuid }}" style="margin-left: 16px;">
-                    {% else %}
-                        <div class="col-lg-4 col-lg-offset-0 vote_count{{ object_uuid }}" style="margin-left: 16px;">
-                    {% endif %}
-                        <h6 style="font-style: normal">
-                            {{ object_vote_count|default_if_none:"0" }}0
-                        </h6>
-                    </div>
-                    <div class="col-lg-12 col-md-12 sb_down_vote_wrapper">
-                        {% if vote_type == "true" or vote_type == None %}
-                            <button class="btn sb_btn sb_btn_vote vote_down vote_object-action"
-                               data-object_uuid="{{ object_uuid }}"
-                               data-vote_type=false
-                               data-current_pleb="{{ current_pleb.username }}"
-                               data-object_type="02241aee-644f-11e4-9ad9-080027242395">
-                                <span class="fui-triangle-down"></span>
-                            </button>
-                        {% else %}
-                            <button class="btn sb_btn sb_btn_vote vote_down vote_down_active vote_object-action"
-                               data-object_uuid="{{ object_uuid }}"
-                               data-vote_type=false
-                               data-current_pleb="{{ current_pleb.username }}"
-                               data-object_type="02241aee-644f-11e4-9ad9-080027242395">
-                                <span class="fui-triangle-down"></span>
-                            </button>
-                        {% endif %}
-                        <div style="display: none" class="sb_downvote_count{{ object_uuid }}">{{ down_vote_number }}</div>
-                    </div>
-                </div>
+            <div class="col-lg-10 col-md-10 col-xs-12 col-lg-offset-1" style="margin-top: -20px;">
+                <a href="{{ url }}">
+                  <h4>
+                    {{ title }}
+                  </h4>
+                </a>
             </div>
-                <div class="row" style="min-height: 65px;">
-                    <div class="col-lg-10 col-md-10 col-xs-12 col-lg-offset-1" style="margin-top: -20px;">
-                        <a href="{{ the_url }}">
-                          <h4>
-                            {{ question_title }}
-                          </h4>
-                        </a>
-                    </div>
-                </div>
+        </div>
+    </div>
 
-                <div class="row">
-                    <div class="col-lg-2 col-md-2 hidden-sm hidden-xs col-lg-offset-1">
-                        <small>Solutions: {{ solution_count|default_if_none:"0" }}</small>
-                    </div>
-                    <div class="col-lg-1 col-md-1 hidden-sm hidden-xs col-lg-offset-6 col-md-offset-6"
-                         style="padding-right:0; margin-right: -10px">
-                        <div class="sb_thumbnail_xs thumbnail"
-                             style="padding-right:0; margin-right: 0;">
-                            <img src="{{ profile_pic|default_if_none:'' }}"/>
-                        </div>
-                    </div>
-                    <div class="col-lg-2 col-md-2 hidden-sm hidden-xs" style="padding-left:10px; margin-top:-10px;">
-                        <div>
-                            <small>
-                                <a href="{{ the_url }}">{{ owner }}</a>
-                            </small>
-                        </div>
-                        <div style="margin-top:-10px;">
-                            <small>
-                                {{ last_edited_on|date:"d M Y" }}
-                            </small>
-                        </div>
-                    </div>
-                    <div class="hidden-lg hidden-md col-sm-11 col-xs-11">
-                        <small>
-                            asked by <a href="{{ the_url }}">{{ owner }}</a> on {{ last_edited_on|date:"D d M Y" }}
-                        </small>
-                    </div>
-                </div>
+    <div class="row">
+        <div class="col-lg-2 col-md-2 hidden-sm hidden-xs col-lg-offset-1">
+            <small>Solutions: {{ solution_count|default_if_none:"0" }}</small>
+        </div>
+        <div class="col-lg-1 col-md-1 hidden-sm hidden-xs col-lg-offset-6 col-md-offset-6"
+             style="padding-right:0; margin-right: -10px">
+            <div class="sb_thumbnail_xs thumbnail">
+                <img src="{{ profile.profile_pic|default_if_none:'' }}"/>
             </div>
+        </div>
+        <div class="col-lg-2 col-md-2 hidden-sm hidden-xs" style="padding-left:10px; margin-top:-10px;">
+            <div>
+                <small>
+                    <a href="{{ profile.url }}">{{ owner_object.first_name }} {{ owner_object.last_name }}</a>
+                </small>
+            </div>
+            <div style="margin-top:-10px;">
+                <small>
+                    {{ last_edited_on|date:"d M Y" }}
+                </small>
+            </div>
+        </div>
+        <div class="hidden-lg hidden-md col-sm-11 col-xs-11">
+            <small>
+                asked by <a href="{{ profile.url }}">{{ owner_object.first_name }} {{ owner_object.last_name }}</a> on {{ last_edited_on|date:"D d M Y" }}
+            </small>
         </div>
     </div>
 </div>

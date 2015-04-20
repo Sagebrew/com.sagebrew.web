@@ -8,8 +8,9 @@ from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from plebs.tasks import (create_pleb_task, create_wall_task,
-                         finalize_citizen_creation, send_email_task)
-from sb_wall.neo_models import SBWall
+                         finalize_citizen_creation, send_email_task,
+                         create_friend_request_task)
+from sb_wall.neo_models import Wall
 
 
 class TestCreatePlebTask(TestCase):
@@ -23,30 +24,23 @@ class TestCreatePlebTask(TestCase):
         self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
         try:
-            pleb = Pleb.nodes.get(email='suppressionlist@simulator.amazonses.com')
+            pleb = Pleb.nodes.get(
+                email='suppressionlist@simulator.amazonses.com')
             pleb.delete()
-            user = User.objects.get(email='suppressionlist@simulator.amazonses.com')
+            user = User.objects.get(
+                email='suppressionlist@simulator.amazonses.com')
             user.delete()
         except (Pleb.DoesNotExist, User.DoesNotExist):
             self.fake_user = User.objects.create_user(
                 first_name='test', last_name='test',
-                email='suppressionlist@simulator.amazonses.com', password='fakepass',
+                email='suppressionlist@simulator.amazonses.com',
+                password='fakepass',
                 username='thisisafakeusername')
             self.fake_user.save()
 
     def tearDown(self):
         self.fake_user.delete()
         settings.CELERY_ALWAYS_EAGER = False
-
-    def test_create_pleb_task_success_pleb_does_not_exist(self):
-        task_data = {'user_instance': self.fake_user}
-
-        res = create_pleb_task.apply_async(kwargs=task_data)
-
-        while not res.ready():
-            time.sleep(1)
-
-        self.assertFalse(isinstance(res.result, Exception))
 
     def test_create_pleb_task_success_pleb_exists(self):
         user_instance = User.objects.get(username=self.username)
@@ -103,8 +97,8 @@ class TestCreateWallTask(TestCase):
         self.assertFalse(isinstance(res.result, Exception))
 
     def test_create_wall_task_pleb_has_wall(self):
-        wall = SBWall(wall_id=str(uuid1())).save()
-        wall.owner.connect(self.fake_pleb)
+        wall = Wall(wall_id=str(uuid1())).save()
+        wall.owned_by.connect(self.fake_pleb)
         self.fake_pleb.wall.connect(wall)
         task_data = {
             'user_instance': self.fake_user,
@@ -117,9 +111,9 @@ class TestCreateWallTask(TestCase):
         self.assertFalse(isinstance(res.result, Exception))
 
     def test_create_wall_task_pleb_has_more_than_one_wall(self):
-        wall = SBWall(wall_id=str(uuid1())).save()
-        wall2 = SBWall(wall_id=str(uuid1())).save()
-        wall.owner.connect(self.fake_pleb)
+        wall = Wall(wall_id=str(uuid1())).save()
+        wall2 = Wall(wall_id=str(uuid1())).save()
+        wall.owned_by.connect(self.fake_pleb)
         self.fake_pleb.wall.connect(wall)
         self.fake_pleb.wall.connect(wall2)
         task_data = {
@@ -152,7 +146,8 @@ class TestFinalizeCitizenCreationTask(TestCase):
             pass
         self.fake_user = User.objects.create_user(
             first_name='fake', last_name='user',
-            email='suppressionlist@simulator.amazonses.com', password='fakepass',
+            email='suppressionlist@simulator.amazonses.com',
+            password='fakepass',
             username='thisisafakeusername1')
         self.fake_user.save()
         self.fake_pleb = Pleb(email=self.fake_user.email,
@@ -198,15 +193,18 @@ class TestSendEmailTask(TestCase):
         self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
         try:
-            pleb = Pleb.nodes.get(email='suppressionlist@simulator.amazonses.com')
+            pleb = Pleb.nodes.get(
+                email='suppressionlist@simulator.amazonses.com')
             pleb.delete()
-            user = User.objects.get(email='suppressionlist@simulator.amazonses.com')
+            user = User.objects.get(
+                email='suppressionlist@simulator.amazonses.com')
             user.delete()
         except (Pleb.DoesNotExist, User.DoesNotExist):
             pass
         self.fake_user = User.objects.create_user(
             first_name='test', last_name='test',
-            email='suppressionlist@simulator.amazonses.com', password='fakepass',
+            email='suppressionlist@simulator.amazonses.com',
+            password='fakepass',
             username='thisisafakeusername')
         self.fake_user.save()
         self.fake_pleb = Pleb(email=self.fake_user.email,
@@ -228,3 +226,51 @@ class TestSendEmailTask(TestCase):
             time.sleep(1)
 
         self.assertFalse(isinstance(res.result, Exception))
+
+
+class TestCreateFriendRequestTask(TestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util_test(self.email)
+        self.assertNotEqual(res, False)
+        wait_util(res)
+        self.pleb1 = Pleb.nodes.get(email=self.email)
+        self.user1 = User.objects.get(email=self.email)
+        self.email2 = "bounce@simulator.amazonses.com"
+        res = create_user_util_test(self.email2)
+        self.assertNotEqual(res, False)
+        wait_util(res)
+        self.pleb2 = Pleb.nodes.get(email=self.email2)
+        self.user2 = User.objects.get(email=self.email2)
+        settings.CELERY_ALWAYS_EAGER = True
+
+    def tearDown(self):
+        settings.CELERY_ALWAYS_EAGER = False
+
+    def test_create_friend_request_task_success(self):
+        data = {
+            'from_username': self.pleb1.email,
+            'to_username': self.pleb2.email,
+            'object_uuid': str(uuid1())
+        }
+        res = create_friend_request_task.apply_async(kwargs=data)
+
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertTrue(res)
+
+    def test_create_friend_request_task_failure_pleb_does_not_exist(self):
+        data = {
+            'from_username': 'totallyfakepleb@gmail.com',
+            'to_username': self.pleb2.email,
+            'object_uuid': str(uuid1())
+        }
+        res = create_friend_request_task.apply_async(kwargs=data)
+
+        while not res.ready():
+            time.sleep(1)
+        res = res.result
+
+        self.assertIsInstance(res, Exception)

@@ -132,7 +132,7 @@ not settle any claim, demand, suit or proceeding unless the settlement
 unconditionally releases Sagebrew of all liability); and (c) provides to You 
 all reasonable assistance, at Your expense.
 
-The look and feel of the Service is copyright ©2014 Sagebrew LLC. All rights 
+The look and feel of the Service is copyright ©2015 Sagebrew LLC. All rights 
 reserved. You may not duplicate, copy, or reuse any portion of the HTML/CSS, 
 Javascript, or visual design elements or concepts without express written 
 permission from Sagebrew.
@@ -321,7 +321,7 @@ Cancellation will require a phone call validation and short inquiry to assure
 the proper closing of a rep account
 
 You are responsible for upholding any written Donation Goals that are fulfilled
-on your Action Page.
+in your Action Area.
 
 by signing up for a rep account you are planning on actually running (don't 
 just sign up and not run)
@@ -330,8 +330,8 @@ If you are a sitting member of public office you may not sign up for a
 standard account 
 {% comment %}
 we might want to change our stance on this since we now
-distinguish the Action Page almost completely from the user's private profile. 
-But we'd still greatly encourage this as the Action Page of a sitting 
+distinguish the Action Area almost completely from the user's private profile. 
+But we'd still greatly encourage this as the Action Area of a sitting 
 representative will lack in fullness and not enable users to easy interact with them.
 {% endcomment %}
 
@@ -352,12 +352,29 @@ those you've gained through achieving [Tribune][7] status. This privilege is
 suspended after your sophomore year term 
 
 ## L. Definitions ##
-- Post
-- Content
-- Question 
-- Solution 
-- Conversation Platform ("Conversation") 
-- Tribune
+- Reputation: Reputation is Sagebrew's system of credibility. Reputation is 
+  gained by participating in the Public Conversation.
+- Post: A post made to your own or a friend's wall. 
+- Content: Content is any text, images, videos, etc that can be found on the 
+  Sagebrew website.
+- Context: Information that accompanies a Question. Context should inform 
+  readers about the circumstances and importance of your Question. 
+- Question: A question posed in either the Conversation Area. 
+  A Question includes context to provide background and 
+  inform others why your Question is important. 
+- Solution: A solution posed in response to a Question in the Conversation. 
+- Comment: A comment left on a Question or Solution that attempts to add 
+  relevant information. 
+- Conversation Platform ("Conversation"): A separate area for conversation. 
+  The "Conversation" refers to the format of dialogue in which one user 
+  poses a Question and other users provide potential Solutions. With others 
+  providing comments on both Solutions and Questions.
+- Flag: A flag is used to alert the Admin Council that there is something 
+  wrong with a Post, Question, Solution, or Comment. Flagged material will 
+  be reviewed by the Admin Council.  
+- Tribune: A Tribune is a member who has reached 12500 Reputation.
+- Tag: Tags can be attached to Questions. Tags help categorize Questions for 
+  optimal searchability. Examples of Tags are: Science, Economic, Social etc...
 
 
 

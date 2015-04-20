@@ -6,9 +6,12 @@ from django.conf import settings
 
 from plebs.neo_models import Pleb
 from api.utils import wait_util
-from sb_questions.neo_models import SBQuestion
+
+from sb_base.neo_models import VotableContent
 from sb_registration.utils import create_user_util_test
 from sb_votes.tasks import vote_object_task
+
+from sb_questions.neo_models import Question
 
 
 class TestVoteObjectTask(TestCase):
@@ -25,10 +28,10 @@ class TestVoteObjectTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_vote_object_task_success(self):
-        question = SBQuestion(sb_id=str(uuid1())).save()
+        question = Question(object_uuid=str(uuid1())).save()
+        question.owned_by.connect(self.pleb)
         task_data = {
-            'object_type': 'sb_questions.neo_models.SBQuestion',
-            'object_uuid': question.sb_id,
+            'object_uuid': question.object_uuid,
             'current_pleb': self.pleb,
             'vote_type': True
         }
@@ -36,13 +39,12 @@ class TestVoteObjectTask(TestCase):
         while not res.ready():
             time.sleep(1)
 
-        self.assertIsInstance(res.result, SBQuestion)
+        self.assertIsInstance(res.result, VotableContent)
 
     def test_vote_object_task_get_object_failure(self):
-        question = SBQuestion(sb_id=str(uuid1())).save()
+        question = Question(object_uuid=str(uuid1())).save()
         task_data = {
-            'object_type': 'SBQuestion',
-            'object_uuid': question.sb_id,
+            'object_uuid': question.object_uuid,
             'current_pleb': self.pleb,
             'vote_type': True
         }
@@ -50,4 +52,4 @@ class TestVoteObjectTask(TestCase):
         while not res.ready():
             time.sleep(1)
 
-        self.assertFalse(res.result)
+        self.assertIsInstance(res.result, Exception)

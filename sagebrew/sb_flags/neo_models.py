@@ -1,13 +1,10 @@
-import pytz
-from datetime import datetime
+from neomodel import (StringProperty, RelationshipTo)
 
-from neomodel import (StringProperty, StructuredRel, DateTimeProperty)
+from sb_base.neo_models import VotableContent
 
-from sb_base.neo_models import SBVoteableContent
 
-class FlagRelationship(StructuredRel):
-    flag_time = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
-
-class SBFlag(SBVoteableContent):
-    reputation_loss = 10
+class Flag(VotableContent):
+    reputation_loss = 30
     flag_type = StringProperty()
+
+    flag_on = RelationshipTo('sb_base.neo_models.SBContent', "FLAG_ON")

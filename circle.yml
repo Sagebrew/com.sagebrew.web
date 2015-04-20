@@ -2,26 +2,29 @@ machine:
   services:
     - rabbitmq-server
     - docker
-    - neo4j
 
 dependencies:
   pre:
-    - pip install pip --upgrade
-    - pip install setuptools --upgrade
+    - pip install pip==6.0.8
+    - pip install setuptools==12.3
     - pip install awscli
+    - sudo apt-get -y install libjpeg-dev
   cache_directories:
-    - elasticsearch-1.3.2.tar.gz
-    - dynamodb_local_latest.tar.gz
+    - elasticsearch-1.3.2
+    - DynamoDBLocal_lib
+    - neo4j-community-2.1.7
   post:
+    - pip install git+http://github.com/bleib1dj/django-rest-framework.git@improvement_id_field_hyperlinkedrelatedfield --upgrade
     - pip install -r ~/com.sagebrew.web/requirements/test.txt
     - sudo chown ubuntu /etc/rsyslog.d/
     - python ~/com.sagebrew.web/sagebrew/manage.py logglypopulation
     - sudo chown root /etc/rsyslog.d/
     - sudo service rsyslog restart
-    - if [[ ! -e elasticsearch-1.3.2.tar.gz ]]; then wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.3.2.tar.gz; fi
-    - tar -xvf elasticsearch-1.3.2.tar.gz
-    - if [[ ! -e dynamodb_local_latest.tar.gz ]]; then wget http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest.tar.gz; fi
-    - tar -xvf dynamodb_local_latest.tar.gz
+    - if [[ ! -e elasticsearch-1.3.2.tar.gz ]]; then wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.3.2.tar.gz && tar -xvf elasticsearch-1.3.2.tar.gz; fi
+    - if [[ ! -e dynamodb_local_latest.tar.gz ]]; then wget http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest.tar.gz && tar -xvf dynamodb_local_latest.tar.gz; fi
+    - if [[ ! -e artifact.php\?name\=neo4j-community-2.1.7-unix.tar.gz ]]; then wget http://neo4j.com/artifact.php?name=neo4j-community-2.1.7-unix.tar.gz && tar -xvf artifact.php\?name\=neo4j-community-2.1.7-unix.tar.gz; fi
+    - neo4j-community-2.1.7/bin/neo4j start:
+        background: true
     - java  -Xmx1024m -Djava.library.path=DynamoDBLocal_lib/DynamoDBLocal_lib -jar DynamoDBLocal.jar:
         background: true
     - elasticsearch-1.3.2/bin/elasticsearch:
@@ -35,9 +38,6 @@ dependencies:
         background: true
     - sleep 5
     - python ~/com.sagebrew.web/sagebrew/manage.py create_dynamo_tables
-    - python /home/ubuntu/$CIRCLE_PROJECT_REPONAME/sagebrew/manage.py collectstatic --noinput
-    - python ~/com.sagebrew.web/sagebrew/manage.py runserver 127.0.0.1:8080:
-        background: true
 
 checkout:
   post:
@@ -49,7 +49,7 @@ test:
     - coverage run --source='.' manage.py test --failfast
     - coverage html --fail-under=50
     - coveralls --rcfile=$CIRCLE_ARTIFACTS
-    #- flake8 ~/com.sagebrew.web/sagebrew/
+    - flake8 ~/com.sagebrew.web/sagebrew/ --ignore C901
   post:
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
     - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg
@@ -92,6 +92,10 @@ test:
         -e OAUTH_CLIENT_ID=$OAUTH_CLIENT_ID
         -e OAUTH_CLIENT_SECRET=$OAUTH_CLIENT_SECRET
         -e DYNAMO_IP=$DYNAMO_IP
+        -e CRED_PASSWORD=development
+        -e CRED_USER=test_username
+        -e OAUTH_CLIENT_SECRET_CRED=test_env_this_is_it
+        -e OAUTH_CLIENT_ID_CRED=test_env_client_id
         -d -t sagebrew/sys_util:$CIRCLE_SHA1
     - docker run -h box-worker --name sb_worker -P --link db:db
         -e DB_USER=docker -e DB_DOCKER_NAME=docker
@@ -125,6 +129,10 @@ test:
         -e OAUTH_CLIENT_ID=$OAUTH_CLIENT_ID
         -e OAUTH_CLIENT_SECRET=$OAUTH_CLIENT_SECRET
         -e DYNAMO_IP=$DYNAMO_IP
+        -e CRED_PASSWORD=development
+        -e CRED_USER=test_username
+        -e OAUTH_CLIENT_SECRET_CRED=test_env_this_is_it
+        -e OAUTH_CLIENT_ID_CRED=test_env_client_id
         -d -t sagebrew/sb_worker:$CIRCLE_SHA1
     # It appears if two migrations run at the same time they cause a
     - docker run -h box-webapp --name sb_web -P --link db:db
@@ -159,12 +167,17 @@ test:
         -e OAUTH_CLIENT_ID=$OAUTH_CLIENT_ID
         -e OAUTH_CLIENT_SECRET=$OAUTH_CLIENT_SECRET
         -e DYNAMO_IP=$DYNAMO_IP
+        -e CRED_PASSWORD=development
+        -e CRED_USER=test_username
+        -e OAUTH_CLIENT_SECRET_CRED=test_env_this_is_it
+        -e OAUTH_CLIENT_ID_CRED=test_env_client_id
         -d -t sagebrew/sb_web:$CIRCLE_SHA1
     # Sleep time based on aws timeout counts. This insures it is possible
     # for the deployed code to be ready within the set amount of time
     # aws will give it.
     - sleep 90
     - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/
+    - curl -X POST -d "grant_type=password&username=test_username&password=development&client_id=test_env_client_id&client_secret=test_env_this_is_it" https://localhost/o/token/ --insecure
     - docker logs sb_web >> $CIRCLE_ARTIFACTS/sb_web.log
     - docker logs sb_worker >> $CIRCLE_ARTIFACTS/sb_worker.log
     - docker logs sb_sys_util >> $CIRCLE_ARTIFACTS/sys_util.log

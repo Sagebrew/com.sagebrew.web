@@ -1,17 +1,18 @@
 <div class="block sb_notification_block">
     <div class="row">
         <div class="col-lg-2 col-md-2">
-            <div class="thumbnail sb_thumbnail_sm"></div>
+            <div class="thumbnail sb_thumbnail_sm">
+                <img src="{{ notification.from_info.profile_pic }}">
+            </div>
             {% comment %}
             If this is a comment, solution, or post, this will be the profile picture of whoever made it.
             If this is a priviledge, It will be an Icon or badge that is associate with that priveledge
             {% endcomment %}
         </div>
-        <div class="col-lg-4 col-md-4">
-           <p>Person Name</p>
-        </div>
-        <div class="col-lg-6 col-md-6">
-           <p>Title(ex: comment)</p>
+        <div class="col-lg-10 col-md-10">
+           <p><a style="color: #34495e" href="{{ notification.url }}" class="notification">
+               {{ notification.from_info.full_name }} {{ notification.action_name }}</a>
+            </p>
            {% comment %}
             title will either comment, solution. priveledge attained, or post
            {% endcomment %}

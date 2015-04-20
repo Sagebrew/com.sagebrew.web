@@ -1,18 +1,32 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% block title %}{{ page_user.first_name}} {{ page_user.last_name }}{% endblock title %}
+{% block css %}
+    {{ block.super }}
+    <link href="{% static 'jcrop/css/jquery.Jcrop.css' %}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'css/vendor/cropper.min.css' %}" rel="stylesheet"/>
+{% endblock css %}
 {% block content %}
-    <div id="pleb_info" style="display: none"
-        data-current_user_email="{{ page_user.email }}"
-        data-page_user_email="{{ pleb_info.email }}"></div>
+    <div id="user_info" style="display: none"
+        data-current_user_username="{{ current_user.username }}"
+        data-page_user_username="{{ page_user.username }}"></div>
     <div class="row-fluid sb_page">
        <div class="thumbnail sb_profile_pic">
-               <button class="btn sb_btn_icon sb_btn_icon_green sb_btn_icon_settings_profile"><span class="fui-photo"></span></button>
-            <img src="{{ pleb_info.profile_pic }}">
+           {% if request.user.username == page_user.username %}
+               <button class="btn sb_btn_icon sb_btn_icon_green sb_btn_icon_settings_profile"
+                       id="update_profile_pic"><span class="fui-photo"></span></button>
+           {% endif %}
+            <img id="profile_pic" src="{{ page_profile.profile_pic }}">
        </div>
        <div align="right" class="row-fluid">
-            <img class=" wallpaper_profile" src="{% static 'images/wallpaper_western.jpg' %}">
-                   <button class="btn sb_btn_icon sb_btn_icon_green sb_btn_icon_settings"><span class="fui-photo"></span></button>
+           {% static 'images/wallpaper_western.jpg' as default_wallpaper %}
+           <img id="wallpaper_pic" class="wallpaper_profile" src="{{ page_profile.wallpaper_pic|default_if_none:default_wallpaper }}">
+           {% if request.user.username == page_user.username %}
+               <button class="btn sb_btn_icon sb_btn_icon_green sb_btn_icon_settings" id="update_wallpaper_pic"><span class="fui-photo"></span></button>
+           {% else %}
+               {% comment %} A hack to get non-friend pages to load correctly{% endcomment %}
+               <span class="btn sb_btn_icon sb_btn_icon_green sb_btn_icon_settings" style="margin-bottom: 25px;" hidden="hidden"></span>
+           {% endif %}
        </div>
        <div class="sb_nav sb_secondary_nav sb_secondary_nav_bar">
             {% include "sb_home_section/sb_profile_user_menu.html" %}
@@ -23,21 +37,32 @@
             {%  endblock %}
        {% endif %}
     </div>
+    {% if request.user.username == page_user.username %}
+        {% include "profile_pic_modal.html" %}
+        {% include "wallpaper_modal.html" %}
+    {% endif %}
+    {% include "flag_modal.html" %}
 {% endblock %}
 {% block footer %}
 {% endblock %}
 {% block scripts %}
     {{ block.super }}
+    <script src="{% static 'js/get_reps.js' %}"></script>
     <script src="{% static 'js/get_posts.js' %}"></script>
     <script src="{% static 'js/save_post.js' %}"></script>
     <script src="{% static 'js/send_friend_request.js' %}"></script>
     <script src="{% static 'js/send_notification.js' %}"></script>
     <script src="{% static 'js/respond_friend_request.js' %}"></script>
     <script src="{% static 'js/sb_post_enter.js' %}"></script>
-    <script src="{% static 'js/sb_reputation_show.js' %}"></script>
-    <script src="{% static 'js/sb_friends_show.js' %}"></script>
     <script src="{% static 'js/post_validator.js' %}"></script>
-    <script src="{% static 'js/comment_validator.js' %}"></script>
-    <script src="{% static 'js/vendor/dropzone.min.js' %}"></script>
+    <script src="{% static 'jcrop/js/jquery.Jcrop.js' %}"></script>
+    <script src="{% static 'js/vendor/cropper.min.js' %}"></script>
+    <script src="{% static 'js/update_profile_picture.js' %}"></script>
+    <script src="{% static 'js/update_wallpaper_picture.js' %}"></script>
+    <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
+    <script src="{% static 'js/flag_modal.js' %}"></script>
+    {% comment %}
     <script src="{% static 'js/get_dropzone.js' %}"></script>
+    {% endcomment %}
+
 {% endblock scripts %}

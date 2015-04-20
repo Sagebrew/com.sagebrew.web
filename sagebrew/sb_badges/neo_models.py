@@ -1,20 +1,18 @@
-from uuid import uuid1
+from neomodel import (StringProperty, RelationshipTo)
 
-from neomodel import (StructuredNode, StringProperty, RelationshipTo)
+from api.neo_models import SBObject
 
 
-class BadgeBase(StructuredNode):
-    sb_id = StringProperty(default=lambda: str(uuid1()), unique_index=True)
-    badge_name = StringProperty()
+class Badge(SBObject):
+    name = StringProperty()
     image_color = StringProperty()
     image_grey = StringProperty()
 
-    #relationships
+    # relationships
     requirements = RelationshipTo('sb_requirements.neo_models.Requirement',
                                   "REQUIRES")
 
-
-    #methods
+    # methods
     def check_requirements(self, username):
         req_checks = []
         for req in self.get_requirements():
@@ -30,23 +28,22 @@ class BadgeBase(StructuredNode):
             requirements.append(req.get_dict())
         return {"image_full": self.image_color,
                 "image_grey": self.image_grey,
-                "badge_name": self.badge_name,
-                "badge_id": self.sb_id,
+                "name": self.name,
+                "badge_id": self.object_uuid,
                 "requirements": requirements}
 
     def get_requirements(self):
         return self.requirements.all()
 
 
-class BadgeGroup(StructuredNode):
-    sb_id = StringProperty(default=lambda: str(uuid1()), unique_index=True)
-    group_name = StringProperty()
+class BadgeGroup(SBObject):
+    name = StringProperty()
     description = StringProperty()
 
-    #relationships
-    badges = RelationshipTo('sb_badges.neo_models.BadgeBase', "HAS")
+    # relationships
+    badges = RelationshipTo('sb_badges.neo_models.Badge', "HAS")
 
-    #methods
+    # methods
     def get_badges(self):
         return self.badges.all()
 

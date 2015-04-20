@@ -10,9 +10,8 @@ function ajax_security(xhr, settings) {
     }
 }
 
-function save_comment() {
-    $(".comment-action").click(function (event) {
-        var sb_id = $(this).data('object_uuid');
+function save_comment(comment_area, url, object_uuid) {
+    $(comment_area).click(function (event) {
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -22,19 +21,18 @@ function save_comment() {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
-            url: "/comments/submit_comment/",
+            url: url + "?html=true",
             data: JSON.stringify({
-                'content': $('textarea#post_comment_on_' + sb_id).val(),
-                'object_uuid': $(this).data('object_uuid'),
-                'object_type': $(this).data('object_type'),
-                'current_pleb': $(this).data('current_pleb')
+                'content': $('textarea#post_comment_on_' + object_uuid).val(),
+                'object_uuid': $(this).data('object_uuid')
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-                var comment_container = $("#sb_comments_container_"+sb_id);
-                comment_container.append(data['html']);
-                $('textarea#post_comment_on_' + sb_id).val("");
+                var comment_container = $("#sb_comments_container_" + object_uuid);
+                comment_container.prepend(data['html']);
+                $('textarea#post_comment_on_' + object_uuid).val("");
+                enable_comment_functionality(data["ids"])
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 if(XMLHttpRequest.status === 500){
@@ -45,29 +43,346 @@ function save_comment() {
     });
 }
 
-function show_edit_post() {
-    $("a.show_edit_post_class").click(function (event) {
-        var sb_id = $(this).data('uuid');
-        $("#sb_content_"+sb_id).hide();
-        $('#edit_container_' + sb_id).show();
+
+function save_comments(populated_ids, url){
+    if(typeof populated_ids !== 'undefined' && populated_ids.length > 0){
+        for (i = 0; i < populated_ids.length; i++) {
+            save_comment(".comment_" + populated_ids[i],
+                url + populated_ids[i] + "/comments/", populated_ids[i]);
+        }
+    }
+}
+
+
+function show_edit_post(edit_area) {
+    $(edit_area).click(function (event) {
+        var object_uuid = $(this).data('uuid');
+        $("#sb_content_" + object_uuid).hide();
+        $('#edit_container_' + object_uuid).show();
         var textarea = $('textarea#' + $(this).data('uuid'));
         textarea.height( textarea[0].scrollHeight );
     });
 }
 
+function show_edit_posts(populated_ids) {
+    if(typeof populated_ids !== 'undefined' && populated_ids.length > 0){
+        for (i = 0; i < populated_ids.length; i++) {
+            show_edit_post("a.show_edit_post_" + populated_ids[i]);
+        }
+    } else {
+        show_edit_post("a.show_edit_post_class");
+    }
+}
+
 
 function show_edit_comment() {
     $("a.show_edit_comment_class").click(function () {
-        var sb_id = $(this).data('comment_uuid');
-        $("#sb_content_"+sb_id).hide();
-        $('#edit_container_' + sb_id).show();
+        var object_uuid = $(this).data('comment_uuid');
+        $("#sb_content_"+object_uuid).hide();
+        $('#edit_container_' + object_uuid).show();
         var textarea = $('textarea#' + $(this).data('comment_uuid'));
         textarea.height( textarea[0].scrollHeight );
     });
 }
 
-function flag_object() {
-    $("a.flag_object-action").click(function (event) {
+
+function populate_comment(object_uuid, resource){
+    $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+    });
+    $.ajax({
+        xhrFields: {withCredentials: true},
+        type: "GET",
+        // TODO probably want to make a /v1/content/ endpoint so that it's more
+        // explanitory that comments can be on any piece of content.
+        // Then use /posts/questions/solutions where needed
+        url: "/v1/" + resource + "/" + object_uuid + "/comments/render/?expand=true&html=true&page_size=3",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (data) {
+            var comment_container = $('#sb_comments_container_' + object_uuid);
+            comment_container.append(data['results']['html']);
+            if(data['count'] > 3){
+                // TODO this may break in IE
+                comment_container.append(
+                    '<div class="row">' +
+                        '<div class="col-lg-5 col-lg-offset-1">' +
+                             '<a href="javascript:;" class="additional_comments" id="additional_comments_' + object_uuid + '">More Comments ...</a>' +
+                        '</div>' +
+                    '</div>');
+                $('#additional_comments_' + object_uuid).click(function() {
+                    $.ajaxSetup({
+                        beforeSend: function (xhr, settings) {
+                                ajax_security(xhr, settings)
+                            }
+                        });
+                    $.ajax({
+                        xhrFields: {withCredentials: true},
+                        type: "GET",
+                        url: "/v1/" + resource + "/" + object_uuid + "/comments/render/?expand=true&html=true&page_size=3&page=2",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (data) {
+                            var comment_container = $('#sb_comments_container_' + object_uuid);
+                            $('#additional_comments_' + object_uuid).remove();
+                            comment_container.append(data['results']['html']);
+                            if (data["next"] !== null) {
+                                queryComments(data["next"], object_uuid)
+                            }
+                            enable_comment_functionality(data['results']['ids']);
+                        },
+                        error: function(XMLHttpRequest, textStatus, errorThrown) {
+                            if(XMLHttpRequest.status === 500){
+                                $("#server_error").show();
+                            }
+                        }
+                    });
+                });
+
+            }
+            enable_comment_functionality(data['results']['ids']);
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            if(XMLHttpRequest.status === 500){
+                $("#server_error").show();
+            }
+        }
+    });
+}
+
+function queryComments(url, object_uuid){
+    $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+        });
+    $.ajax({
+        xhrFields: {withCredentials: true},
+        type: "GET",
+        url: url,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (data) {
+            if (data["next"] !== null) {
+                queryComments(data["next"], object_uuid)
+            }
+            var comment_container = $('#sb_comments_container_' + object_uuid);
+            comment_container.append(data['results']['html']);
+            enable_comment_functionality(data['results']['ids']);
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            if(XMLHttpRequest.status === 500){
+                $("#server_error").show();
+            }
+        }
+    });
+}
+
+function populate_comments(object_uuids, resource){
+    if(typeof object_uuids !== 'undefined' && object_uuids.length > 0){
+        for (i = 0; i < object_uuids.length; i++) {
+            populate_comment(object_uuids[i], resource);
+        }
+    }
+}
+
+
+function readyFlag(flag_object){
+    $(flag_object).tooltip()
+}
+
+function readyVote(vote_object){
+    $(vote_object).tooltip()
+}
+
+function readyVotes(object_uuids){
+    if(typeof object_uuids !== 'undefined' && object_uuids.length > 0){
+        for (i = 0; i < object_uuids.length; i++) {
+            readyVote("#upvote_" + object_uuids[i]);
+            readyVote("#downvote_" + object_uuids[i]);
+        }
+    }
+}
+
+function readyFlags(object_uuids){
+    if(typeof object_uuids !== 'undefined' && object_uuids.length > 0){
+        for (i = 0; i < object_uuids.length; i++) {
+            readyFlag("#flag_" + object_uuids[i]);
+        }
+    }
+}
+
+
+function loadPosts(url){
+    $.ajaxSetup({
+    beforeSend: function (xhr, settings) {
+            ajax_security(xhr, settings)
+        }
+    });
+    $.ajax({
+        xhrFields: {withCredentials: true},
+        type: "GET",
+        url: url,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (data) {
+            var wall_container = $('#wall_app');
+            wall_container.append(data['results']['html']);
+            // TODO Went with this approach as the scrolling approach resulted
+            // in the posts getting out of order. It also had some interesting
+            // functionality that wasn't intuitive. Hopefully transitioning to
+            // a JS Framework allows us to better handle this feature.
+            if (data["next"] !== null) {
+                loadPosts(data["next"]);
+            }
+
+            enable_single_post_functionality(data['results']['ids']);
+            // TODO This can probably be changed to grab the href and append
+            // `comments/` to the end of it.
+            populate_comments(data['results']['ids'], "posts");
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            if(XMLHttpRequest.status === 500){
+                $("#server_error").show();
+            }
+        }
+    });
+}
+
+
+function loadQuestion(){
+    $.ajaxSetup({
+    beforeSend: function (xhr, settings) {
+            ajax_security(xhr, settings)
+        }
+    });
+    var timeOutId = 0;
+    var ajaxFn = function () {
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "GET",
+            url: "/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/?html=true&expand=true",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                var question_container = $('#single_question_wrapper');
+                question_container.append(data['html']);
+                loadSolutionCount();
+                enable_question_functionality(data['ids']);
+                populate_comments(data['ids'], "questions");
+                loadSolutions("/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/solutions/render/?page_size=2&expand=true");
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                     timeOutId = setTimeout(ajaxFn, 1000);
+                    $("#server_error").show();
+                }
+            }
+        });
+    };
+    ajaxFn();
+}
+
+function loadSolutionCount(){
+    $.ajaxSetup({
+    beforeSend: function (xhr, settings) {
+            ajax_security(xhr, settings)
+        }
+    });
+    $.ajax({
+        xhrFields: {withCredentials: true},
+        type: "GET",
+        url: "/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/solution_count/",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (data) {
+            $('#solution_count').html("");
+            $('#solution_count').append(data['solution_count']);
+            if(data["solution_count"] != '1'){
+                $('#solution_plural').append('s');
+            }
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            if(XMLHttpRequest.status === 500){
+                $("#server_error").show();
+            }
+        }
+    });
+}
+
+
+
+function loadSolutions(url){
+    $.ajaxSetup({
+    beforeSend: function (xhr, settings) {
+            ajax_security(xhr, settings)
+        }
+    });
+    $.ajax({
+        xhrFields: {withCredentials: true},
+        type: "GET",
+        url: url,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (data) {
+            var solution_container = $('#solution_container');
+            solution_container.append(data['results']['html']);
+            // TODO Went with this approach as the scrolling approach resulted
+            // in the posts getting out of order. It also had some interesting
+            // functionality that wasn't intuitive. Hopefully transitioning to
+            // a JS Framework allows us to better handle this feature.
+            if (data["next"] !== null) {
+                loadSolutions(data["next"]);
+            }
+            enable_solution_functionality(data['results']['ids']);
+            // TODO This can probably be changed to grab the href and append
+            // `comments/` to the end of it.
+            populate_comments(data['results']['ids'], "solutions");
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            if(XMLHttpRequest.status === 500){
+                $("#server_error").show();
+            }
+        }
+    });
+}
+
+
+function vote_object(vote_area, resource){
+    $(vote_area).click(function (event) {
+        var object_uuid = $(this).data('object_uuid');
+        var id = $(this).parents('div.vote_wrapper').attr('id').split('_')[1];
+        var vote_type = $(this).hasClass('vote_up') ? true : false;
+        var vote_down = $(this).parents('div.vote_wrapper').find(".vote_down");
+        var vote_up = $(this).parents('div.vote_wrapper').find(".vote_up");
+        var upvote_count = parseInt($('#vote_count_' + object_uuid).text());
+        if(vote_down.hasClass('vote_down_active') && vote_type == true){
+            vote_down.removeClass('vote_down_active');
+            vote_up.addClass('vote_up_active');
+            upvote_count += 2;
+        } else if(vote_down.hasClass('vote_down_active') && vote_type === false)  {
+            vote_down.removeClass('vote_down_active');
+            upvote_count += 1;
+        } else if(vote_up.hasClass('vote_up_active') && vote_type === true)  {
+            vote_up.removeClass('vote_up_active');
+            upvote_count -= 1;
+        } else if(vote_up.hasClass('vote_up_active') && vote_type === false)  {
+            vote_down.addClass('vote_down_active');
+            vote_up.removeClass('vote_up_active');
+            upvote_count -= 2;
+        } else {
+            if(vote_type === true) {
+                $(this).addClass('vote_up_active');
+                upvote_count += 1;
+            }
+            else {
+                $(this).addClass('vote_down_active');
+                upvote_count -= 1;
+            }
+        }
+
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -77,114 +392,65 @@ function flag_object() {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
-            url: "/flag/flag_object_api/",
+            url: "/v1/" + resource + "/" + object_uuid + "/votes/?expedite=true",
             data: JSON.stringify({
-                'flag_reason': $(this).data('flag_reason'),
-                'current_pleb': $(this).data('current_user'),
-                'object_uuid': $(this).data('object_uuid'),
-                'object_type': $(this).data('object_type')
+                'vote_type': vote_type
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
+            success: function(data){
+                $('#vote_count_' + object_uuid).text(upvote_count)
+            },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 if(XMLHttpRequest.status === 500){
                     $("#server_error").show();
+                    //alert(textStatus);
                 }
             }
         });
     });
 }
 
-function vote_object() {
-    $(".vote_object-action").click(function (event) {
-        var id = $(this).parents('div.vote_wrapper').attr('id').split('_')[1];
-        var vote_type = $(this).hasClass('vote_up') ? true : false;
-        var vote_down = $(this).parents('div.vote_wrapper').find(".vote_down");
-        var vote_up = $(this).parents('div.vote_wrapper').find(".vote_up");
-        if(vote_down.hasClass('vote_down_active') && vote_type == true){
-            vote_down.removeClass('vote_down_active');
-            vote_up.addClass('vote_up_active');
-        } else if(vote_down.hasClass('vote_down_active') && vote_type === false)  {
-            vote_down.removeClass('vote_down_active');
-        } else if(vote_up.hasClass('vote_up_active') && vote_type === true)  {
-            vote_up.removeClass('vote_up_active');
-        } else if(vote_up.hasClass('vote_up_active') && vote_type === false)  {
-            vote_down.addClass('vote_down_active');
-            vote_up.removeClass('vote_up_active');
-        } else {
-            if(vote_type === true) {
-                $(this).addClass('vote_up_active');
-            }
-            else {
-                $(this).addClass('vote_down_active');
-            }
+function vote_objects(populated_ids, resource) {
+    if(typeof populated_ids !== 'undefined' && populated_ids.length > 0){
+        for (i = 0; i < populated_ids.length; i++) {
+            vote_object(".vote_" + populated_ids[i], resource);
         }
-
-        var uuid = $(this).data('object_uuid');
-        var upvote_count = $('div.sb_upvote_count'+uuid).text();
-        var downvote_count = $('div.sb_downvote_count'+uuid).text();
-        event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
-            }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/vote/vote_object_api/",
-            data: JSON.stringify({
-                'vote_type': vote_type,
-                'current_pleb': $(this).data('current_pleb'),
-                'object_uuid': $(this).data('object_uuid'),
-                'object_type': $(this).data('object_type'),
-                'downvote_count': downvote_count,
-                'upvote_count': upvote_count
-            }),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function(data){
-                $('div.sb_upvote_count'+uuid).text(data['upvote_value']);
-                $('div.sb_downvote_count'+uuid).text(data['downvote_value']);
-                $('div.vote_count'+uuid).text(data['total_value'])
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
+    }
 }
 
 function save_solution() {
     $(".submit_solution-action").click(function(event){
 		event.preventDefault();
+        $("#submit_solution").attr("disabled", "disabled");
 		$.ajaxSetup({
 		    beforeSend: function(xhr, settings) {
-				var csrftoken = $.cookie('csrftoken');
-		        if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
-		            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-		        }
-		    }
+                ajax_security(xhr, settings)
+            }
 		});
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
 			type: "POST",
-			url: $(this).data('url'),
+			url: "/v1/questions/" + $(this).data('object_uuid') + "/solutions/?html=true&expand=true",
 			data: JSON.stringify({
-			   'content': $('textarea.sb_solution_input_area').val(),
-               'current_pleb': $(this).data('current_pleb'),
-               'question_uuid': $(this).data('object_uuid')
+			   'content': $('textarea.sb_solution_input_area').val()
 			}),
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
             success: function (data) {
                 $("#solution_container").append(data['html']);
                 $('textarea.sb_solution_input_area').val("");
-                enable_single_solution_functionality();
+                var solution_count_text = $("#solution_count").text();
+                if(solution_count_text != "--") {
+                    var solution_count = parseInt(solution_count_text) + 1;
+                    $("#solution_count").text(solution_count.toString());
+                }
+                $('#wmd-preview-1').html("");
+                $("#submit_solution").removeAttr("disabled");
+                enable_solution_functionality(data["ids"]);
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
+                $("#submit_solution").removeAttr("disabled");
                 if(XMLHttpRequest.status === 500){
                     $("#server_error").show();
                 }
@@ -193,102 +459,82 @@ function save_solution() {
 	});
 }
 
-function edit_object() {
-    $(".edit_object-action").click(function (event) {
-        event.preventDefault();
-        var uuid = $(this).data('object_uuid');
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
-            }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/edit/edit_object_content_api/",
-            data: JSON.stringify({
-                'content': $('textarea#'+uuid).val(),
-                'parent_object': $(this).data('parent_object'),
-                'object_uuid': uuid,
-                'object_type': $(this).data('object_type'),
-                'datetime': $(this).data('datetime')
-            }),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function(data){
-                $(data['html_object']).text(data['content']);
-                $("#edit_container_"+uuid).hide();
-                $("#sb_content_"+uuid).show();
-                $(".sb_object_dropdown").each(function(i, obj){
-                    $(obj).removeAttr("disabled");
-                });
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
-}
-
-function edit_question_title() {
-    $("a.edit_question_title-action").click(function (event) {
-        event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
-            }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/edit/edit_object_content_api/",
-            data: JSON.stringify({
-                'question_title': $(this).val(),
-                'current_pleb': $(this).data('pleb'),
-                'object_uuid': $(this).data('post_uuid'),
-                'object_type': $(this).data('object_type')
-            }),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
-}
 
 function show_edit_question() {
     $("a.show_edit_question-action").click(function(event){
-        $(".sb_object_dropdown").each(function(i, obj){
-            $(obj).attr("disabled", "disabled");
-        });
-        var question_uuid = $(this).data('object_uuid');
-        $('#sb_content_'+question_uuid).hide();
-        $("#edit_container_"+question_uuid).show();
-        var markdown = $("textarea#"+question_uuid).pagedownBootstrap();
-        markdown.attr("id", question_uuid);
+        event.preventDefault();
+        window.location.href = "/conversations/questions/" + $(this).data('object_uuid') + "/edit/";
     });
 }
 
 function show_edit_solution() {
     $("a.show_edit_solution-action").click(function(event){
-        $(".sb_object_dropdown").each(function(i, obj){
-            $(obj).attr("disabled", "disabled");
-        });
-        var solution_uuid = $(this).data('object_uuid');
-        $('#sb_content_'+solution_uuid).hide();
-        $('#edit_container_'+solution_uuid).show();
-        var markdown = $("textarea#"+solution_uuid).pagedownBootstrap();
-        markdown.attr("id", solution_uuid)
+        event.preventDefault();
+        var solution_uuid = $(this).data("object_uuid");
+        window.location.href = "/conversations/solutions/" + solution_uuid + '/edit/'
     });
 }
 
-function delete_object() {
-    $("a.delete_object-action").click(function (event) {
+
+function edit_object(edit_area, url, object_uuid, data_area) {
+    $(edit_area).click(function (event) {
+        event.preventDefault();
+        var edit_button = "#edit_comment_button_id_" + object_uuid;
+        $(edit_button).attr("disabled", "disabled");
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "PUT",
+            url: url,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                'content': $(data_area).val()
+            }),
+            dataType: "json",
+            success: function(data){
+                $(edit_button).removeAttr("disabled");
+                var content_container = $("#sb_content_" + object_uuid);
+                content_container.text(data['content']);
+                $("#edit_container_" + object_uuid).hide();
+                content_container.show();
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $(edit_button).removeAttr("disabled");
+                    $("#server_error").show();
+                }
+            }
+        });
+    });
+}
+
+
+function edit_objects(url, populated_ids, data_area){
+    if(typeof populated_ids !== 'undefined' && populated_ids.length > 0){
+        for (i = 0; i < populated_ids.length; i++) {
+            // Eventually we should just be able to get the href
+            edit_object(".edit_" + populated_ids[i],
+                url + populated_ids[i] + "/", populated_ids[i], data_area);
+        }
+    }
+}
+
+
+function delete_objects(url, populated_ids){
+    if(typeof populated_ids !== 'undefined' && populated_ids.length > 0){
+        for (i = 0; i < populated_ids.length; i++) {
+            delete_object(".delete_" + populated_ids[i],
+                url + populated_ids[i] + "/", populated_ids[i]);
+        }
+    }
+}
+
+function delete_object(delete_area, url, object_uuid) {
+    $(delete_area).click(function (event) {
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -297,78 +543,18 @@ function delete_object() {
         });
         $.ajax({
             xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/delete/delete_object_api/",
-            data: JSON.stringify({
-                'current_pleb': $(this).data('current_pleb'),
-                'object_uuid': $(this).data('object_uuid'),
-                'object_type': $(this).data('object_type')
-            }),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
-}
-
-function page_leave_endpoint() {
-    $(window).on('unload', function() {
-        var object_list = [];
-        $(".sb_id").each(function(){
-            object_list.push($(this).data('object_uuid'))
-        });
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
-            }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            async: false,
-            url: "/docstore/update_neo_api/",
-            data: JSON.stringify({
-                'object_uuids': object_list
-            }),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
-}
-
-function add_new(){
-    $('.add_policy').on('click', function(){
-            cloneForm('div.policy_table:last', 'form');
-    });
-}
-
-function add_experience(){
-    $(".add_experience").click(function (event) {
-        event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
-            }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "GET",
-            url: "/reps/experience/",
+            type: "DELETE",
+            url: url,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function(data){
-                $("#experience_added_form").append(data['rendered']);
-                enable_post_functionality();
-                $(".add_experience").attr('disabled', 'disabled');
+                $(".block_" + object_uuid).remove();
+                $('textarea.sb_solution_input_area').val("");
+                var solution_count_text = $("#solution_count").text();
+                if(solution_count_text != "--") {
+                    var solution_count = parseInt(solution_count_text) - 1;
+                    $("#solution_count").text(solution_count.toString());
+                }
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 if(XMLHttpRequest.status === 500){
@@ -379,49 +565,10 @@ function add_experience(){
     });
 }
 
-function submit_experience(){
-    $(".submit_experience-action").click(function(event){
-        event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
-                ajax_security(xhr, settings)
-            }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/reps/experience/",
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({
-                'rep_id': $("#rep_id").data('rep_id'),
-                'title': $('#id_title').val(),
-                'start_date': $('#id_start_date').val(),
-                'end_date': $('#id_end_date').val(),
-                'current': $('#id_current').val(),
-                'company': $('#id_company').val(),
-                'location': $('#id_location').val(),
-                'description': $('#id_description').val()
-            }),
-            dataType: "json",
-            success: function(data){
-                $('.add_experience').removeAttr('disabled');
-                $('.add_experience_wrapper').remove();
-                $("#experience_list").append(data['rendered']);
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
-}
 
 function cloneForm(selector, type) {
     var newElement = $(selector).clone(true);
     var total = $('#id_'+type+'_TOTAL_FORMS').val();
-    console.log(newElement);
-    console.log(total);
     newElement.find(':input').each(function(){
         var name = $(this).attr('name').replace('-' + (total-1) + '-','-'+total+'-');
         var id = 'id_'+name;
@@ -434,141 +581,6 @@ function cloneForm(selector, type) {
     total++;
     $('#id_' + type + '-TOTAL_FORMS').val(total);
     $(selector).after(newElement);
-}
-
-function submit_policy() {
-    $(".submit_policy-action").click(function(event){
-        event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
-                ajax_security(xhr, settings)
-            }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/reps/policy/",
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({
-                'rep_id': $("#rep_id").data('rep_id'),
-                'policies': $('#id_policies').val(),
-                'description': $('#id_description').val()
-            }),
-            dataType: "json",
-            success: function(data){
-                $('.add_policy').removeAttr('disabled');
-                $('.add_policy_wrapper').remove();
-                $("#policy_list").append(data['rendered']);
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
-}
-
-function submit_education() {
-    $(".submit_education-action").click(function(event){
-        event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
-                ajax_security(xhr, settings)
-            }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/reps/education/",
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({
-                'rep_id': $("#rep_id").data('rep_id'),
-                'start_date': $('#id_start_date').val(),
-                'end_date': $('#id_end_date').val(),
-                'school': $('#id_school').val(),
-                'degree': $('#id_degree').val()
-            }),
-            dataType: "json",
-            success: function(data){
-                $('.add_education').removeAttr('disabled');
-                $('.add_education_wrapper').remove();
-                $("#education_list").append(data['rendered']);
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
-}
-
-function submit_bio() {
-    $(".submit_bio-action").click(function(event){
-        event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
-                ajax_security(xhr, settings)
-            }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/reps/bio/",
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({
-                'rep_id': $("#rep_id").data('rep_id'),
-                'bio': $('#id_bio').val()
-            }),
-            dataType: "json",
-            success: function(data){
-                $('.add_bio_wrapper').remove();
-                $("#bio_wrapper").append(data['rendered']);
-
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
-}
-
-function submit_goal() {
-    $(".submit_goal-action").click(function(event){
-        event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
-                ajax_security(xhr, settings)
-            }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/reps/goals/",
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({
-                'rep_id': $("#rep_id").data('rep_id'),
-                'initial': $('#id_initial').val(),
-                'money_req': $('#id_money_req').val(),
-                'vote_req': $("#id_vote_req").val(),
-                'description': $('#id_description').val()
-            }),
-            dataType: "json",
-            success: function(data){
-                $('.add_goal').removeAttr('disabled');
-                $('.add_goal_wrapper').remove();
-                $("#goal_list").append(data['rendered']);
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
 }
 
 function comment_validator() {
@@ -611,7 +623,6 @@ function submit_action() {
                 data[this.name] = this.value || '';
             }
         });
-        console.log(data);
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 ajax_security(xhr, settings)
@@ -652,7 +663,6 @@ function submit_requirement() {
                 data[this.name] = this.value || '';
             }
         });
-        console.log(data);
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 ajax_security(xhr, settings)
@@ -678,11 +688,8 @@ function submit_requirement() {
     });
 }
 
-
 function activate_montage(){
-    var $container = $('#am-container').masonry();
-    // initialize Masonry after all images have loaded
-    $container.imagesLoaded( function() {
+    var $container = $('#container').imagesLoaded( function() {
       $container.packery({
           gutter: 0,
           itemSelector: '.post_images',
@@ -692,44 +699,85 @@ function activate_montage(){
     });
 }
 
-function enable_single_post_functionality() {
-    flag_object();
-    vote_object();
-    edit_object();
-    save_comment();
-    show_edit_post();
+function respond_friend_request(){
+    $(".respond_friend_request-action").click(function (event) {
+        event.preventDefault();
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                ajax_security(xhr, settings)
+            }
+        });
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "POST",
+            url: "/relationships/respond_friend_request/",
+            data: JSON.stringify({
+                'response': $(this).data('response'),
+                'request_id': $(this).data('request_id')
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data){
+                $("#friend_request_div").fadeToggle();
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $("#server_error").show();
+                }
+            }
+        });
+    });
 }
 
-function enable_single_solution_functionality() {
-    flag_object();
-    vote_object();
-    edit_object();
-    save_comment();
-    show_edit_solution();
+
+function enable_object_functionality(populated_ids) {
+    readyFlags(populated_ids);
+    readyVotes(populated_ids)
 }
 
-function enable_post_functionality() {
-    save_solution();
-    flag_object();
-    vote_object();
-    edit_object();
-    edit_question_title();
-    save_comment();
-    show_edit_question();
-    show_edit_post();
-    show_edit_comment();
-    show_edit_solution();
-    delete_object();
-    page_leave_endpoint();
-    submit_experience();
-    submit_policy();
-    submit_education();
-    submit_bio();
-    submit_goal();
+
+function enable_friend_request_functionality() {
+    respond_friend_request();
+}
+
+function enable_comment_functionality(populated_ids){
+    enable_object_functionality(populated_ids);
+    show_edit_comment(populated_ids);
     comment_validator();
-    submit_action();
-    submit_requirement();
-    activate_montage();
+    vote_objects(populated_ids, "comments");
+    edit_objects("/v1/comments/", populated_ids, "textarea.edit_comment_input_class");
+    delete_objects("/v1/comments/", populated_ids);
+}
+
+function enable_question_summary_functionality(populated_ids) {
+    vote_objects(populated_ids, "questions");
+    readyVotes(populated_ids)
+}
+
+function enable_question_functionality(populated_ids) {
+    enable_object_functionality(populated_ids);
+    save_comments(populated_ids, "/v1/questions/");
+    show_edit_question(populated_ids);
+    save_solution(populated_ids);
+    vote_objects(populated_ids, "questions");
+    delete_objects("/v1/questions/", populated_ids);
+}
+
+function enable_single_post_functionality(populated_ids) {
+    enable_object_functionality(populated_ids);
+    save_comments(populated_ids, '/v1/posts/');
+    show_edit_posts(populated_ids);
+    vote_objects(populated_ids, "posts");
+    edit_objects("/v1/posts/", populated_ids, "textarea.edit_post_input_class");
+    delete_objects("/v1/posts/", populated_ids);
+}
+
+function enable_solution_functionality(populated_ids) {
+    enable_object_functionality(populated_ids);
+    save_comments(populated_ids, '/v1/solutions/');
+    vote_objects(populated_ids, "solutions");
+    show_edit_solution(populated_ids);
+    delete_objects("/v1/solutions/", populated_ids);
 }
 
 function getUrlParameter(sParam)

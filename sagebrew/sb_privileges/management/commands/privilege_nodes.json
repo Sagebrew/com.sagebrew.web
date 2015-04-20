@@ -4,40 +4,148 @@
             "name": "base_privilege",
             "actions": [
                 {
-                    "action": "write_question",
-                    "object_type": "0274a216-644f-11e4-9ad9-080027242395",
-                    "url": "/conversations/submit_question_api/",
-                    "html_object": ".submit_question-action"
+                    "resource": "question",
+                    "permission": "write"
                 },
                 {
-                    "action": "write_solution",
-                    "object_type": "02241aee-644f-11e4-9ad9-080027242395",
-                    "url": "/solutions/submit_solution_api/",
-                    "html_object": ".submit_solution-action"
+                    "resource": "solution",
+                    "permission": "write"
                 },
                 {
-                    "action": "write_comment",
-                    "object_type": "02ba1c88-644f-11e4-9ad9-080027242395",
-                    "url": "/comments/submit_comments/",
-                    "html_object": ".comment-action"
-                },
-                {
-                    "action": "write_post",
-                    "object_type": "01bb301a-644f-11e4-9ad9-080027242395",
-                    "url": "/posts/submit_post/",
-                    "html_object": ".post-action"
+                    "resource": "post",
+                    "permission": "write"
                 }
             ],
             "requirements": [
                 {
-                    "name": "Total Reputation Profile",
-                    "url": "/user/v1/profile/",
-                    "key": "total_rep",
+                    "name": "Total Reputation Profile 0",
+                    "url": "/v1/profiles/<username>/reputation/",
+                    "key": "reputation",
                     "operator": "coperator\nge\np0\n.",
-                    "condition": "0"
+                    "condition": 0
                 }
             ]
-        }
+        },
+        {
+              "name": "flag",
+              "actions": [
+                  {
+                      "resource": "flag",
+                      "permission": "write"
+                  }
+              ],
+              "requirements": [
+                  {
+                      "name": "Total Reputation Profile +50",
+                      "url": "/v1/profiles/<username>/reputation/",
+                      "key": "reputation",
+                      "operator": "coperator\nge\np0\n.",
+                      "condition": 50
+                  }
+              ]
+          },
+          {
+              "name": "upvote",
+              "actions": [
+                  {
+                      "resource": "vote",
+                      "permission": "upvote"
+                  }
+              ],
+              "requirements": [
+                  {
+                      "name": "Total Reputation Profile +10",
+                      "url": "/v1/profiles/<username>/reputation/",
+                      "key": "reputation",
+                      "operator": "coperator\nge\np0\n.",
+                      "condition": 10
+                  }
+              ]
+          },
+          {
+              "name": "comment",
+              "actions": [
+                  {
+                      "resource": "comment",
+                      "permission": "write"
+                  }
+              ],
+              "requirements": [
+                  {
+                      "name": "Total Reputation Profile +20",
+                      "url": "/v1/profiles/<username>/reputation/",
+                      "key": "reputation",
+                      "operator": "coperator\nge\np0\n.",
+                      "condition": 20
+                  }
+              ]
+          },
+          {
+              "name": "downvote",
+              "actions": [
+                  {
+                      "resource": "vote",
+                      "permission": "downvote"
+                  }
+              ],
+              "requirements": [
+                  {
+                      "name": "Total Reputation Profile +100",
+                      "url": "/v1/profiles/<username>/reputation/",
+                      "key": "reputation",
+                      "operator": "coperator\nge\np0\n.",
+                      "condition": 100
+                  }
+              ]
+          },
+          {
+              "name": "barista",
+              "requirements": [
+                  {
+                      "name": "Total Reputation Profile +1000",
+                      "url": "/v1/profiles/<username>/reputation/",
+                      "key": "reputation",
+                      "operator": "coperator\nge\np0\n.",
+                      "condition": 1000
+                  }
+              ]
+          },
+          {
+              "name": "tribune",
+              "actions": [
+                  {
+                      "resource": "intercom",
+                      "permission": "write"
+                  }
+              ],
+              "requirements": [
+                  {
+                      "name": "Total Reputation Profile +12500",
+                      "url": "/v1/profiles/<username>/reputation/",
+                      "key": "reputation",
+                      "operator": "coperator\nge\np0\n.",
+                      "condition": 12500
+                  }
+              ]
+          },
+          {
+              "name": "beta_user",
+              "actions": [
+                  {
+                      "resource": "intercom",
+                      "permission": "write"
+                  }
+              ],
+              "requirements": [
+                  {
+                      "name": "Is Beta User",
+                      "url": "/v1/profiles/<username>/is_beta_user/",
+                      "key": "is_beta_user",
+                      "operator": "coperator\neq\np0\n.",
+                      "condition": true
+                  }
+              ]
+          }
     ],
     "actions": [
 
@@ -45,20 +153,20 @@
     "restrictions": [
         {
             "name": "1 Question Weekly",
-            "url": "/user/v1/profile/question/?expiry=604800",
+            "url": "/v1/profiles/<username>/questions/?filter=created+ge+604800",
             "key": "count",
             "operator": "coperator\nle\np0\n.",
-            "condition": "1",
+            "condition": 1,
             "expiry": 604800,
             "recurring": false,
             "base": true
         },
         {
             "name": "Sum of 3 Questions and Solutions Weekly",
-            "url": "/user/v1/profile/conversation/?expiry=604800",
+            "url": "/v1/profiles/<username>/public_content/?filter=created+ge+604800",
             "key": "count",
             "operator": "coperator\nle\np0\n.",
-            "condition": "3",
+            "condition": 3,
             "expiry": 604800,
             "recurring": false,
             "base": true

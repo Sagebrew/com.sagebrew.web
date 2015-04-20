@@ -3,12 +3,16 @@
 
 ## Overview ##
 ### What does this mean? ###
+
 - Create Posts on own wall and friend’s walls
 - Ability to Create Questions and Solutions
 - Ability to Edit Own Questions
-- Ability to Concede to more viable Solutions
 - Until user attains 10 [Reputation][2] (leave "new user" status) they are 
   limited to a sum of 3 Questions and Solutions per day
+{% if debug == True %}
+- Ability to Concede to more viable Solutions
+{% endif %}
+
 
 ### Description ###
 This is the most basic privilege: the ability to communicate with others.

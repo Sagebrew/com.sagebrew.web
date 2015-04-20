@@ -11,6 +11,7 @@ $( document ).ready(function() {
             }
         ]
     });
+    liveaddress.activate();
     liveaddress.on("AddressWasValid", function(event, data, previousHandler){
         $("#id_valid").val("valid");
         $("#id_congressional_district").val(data.response.raw[0].metadata.congressional_district);

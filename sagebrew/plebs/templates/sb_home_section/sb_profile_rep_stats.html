@@ -5,28 +5,10 @@
         </div>
         <div class="sb_profile_rep_content">
             <h5>Senators</h5>
-                {% for senator in senators %}
-                    <div class="row block_vertical">
-                        <div class="col-lg-2 col-md-2">
-                            <div class="thumbnail sb_thumbnail_rep sb_thumbnail_xs">
-                                <img src="{{ senator.public_picture }}"> {% comment %} Link to their S3 public image{% endcomment %}
-                            </div>
-                        </div>
-                        <div class="col-lg-8 col-md-10 vertical_nav">
-                            <ul>
-                                <li>
-                                    <a href="{% url 'action_page' senator.username %}">{{ senator.first_name }} {{ senator.last_name }}</a>
-                                </li>
-                                {% comment %}
-                                Django may have a better solution but see:
-                                http://stackoverflow.com/questions/9647202/ordinal-numbers-replacement
-                                for convertign a number into the necessary ordinal (1st, 2nd, 3rd)
-                                {% endcomment %}
-                                <li class="sb_rep_info">{{ senator.term }} term</li>
-                            </ul>
-                        </div>
-                    </div>
-                {% endfor %}
+                <div id="senator_wrapper">
+
+                </div>
+                {% comment %}
                 <!-- Begin place holder Senator info -->
                 <div class="row block_vertical">
                     <div class="col-lg-2 col-md-2">
@@ -36,7 +18,7 @@
                     <div class="col-lg-8 col-md-10 vertical_nav">
                         <ul>
                             <li>
-                                <a href="{% url 'action_saga' pleb_info.username %}">Carl Levin</a>
+                                <a href="{% url 'action_saga' page_profile.username %}">Carl Levin</a>
                             </li>
                             <li class="sb_rep_info">6th term</li>
                         </ul>
@@ -49,36 +31,19 @@
                     <div class="col-lg-10 col-md-10 vertical_nav">
                         <ul>
                             <li>
-                                 <a href="{% url 'action_saga' pleb_info.username %}">Debbie Stabenow</a>
+                                 <a href="{% url 'action_saga' page_profile.username %}">Debbie Stabenow</a>
                             </li>
                             <li class="sb_rep_info">3rd term</li>
                         </ul>
                     </div>
                 </div>
                 <!-- End place holder Senator info -->
+                {% endcomment %}
                 <h5>House Representative</h5>
-                {% for house_rep in house_reps %}
-                    <div class="row block_vertical">
-                        <div class="col-lg-2 col-md-2">
-                            <div class="thumbnail sb_thumbnail_rep sb_thumbnail_xs">
-                                <img src="{{ house_rep.public_picture }}"> {% comment %} Link to their S3 public image{% endcomment %}
-                            </div>
-                        </div>
-                    <div class="col-lg-8 col-md-10 vertical_nav">
-                        <ul>
-                            <li>
-                                <a href="{% url 'action_saga' house_rep.username %}">{{ house_rep.first_name }} {{ house_rep.last_name }}</a>
-                            </li>
-                            {% comment %}
-                            Django may have a better solution but see:
-                            http://stackoverflow.com/questions/9647202/ordinal-numbers-replacement
-                            for convertign a number into the necessary ordinal (1st, 2nd, 3rd)
-                            {% endcomment %}
-                            <li class="sb_rep_info">{{ house_rep.term }} term</li>
-                        </ul>
+                    <div id="house_rep_wrapper">
+
                     </div>
-                </div>
-                {% endfor %}
+                {% comment %}
                 <div class="row block_vertical">
                     <div class="col-lg-2 col-md-2">
                         <div class="sb_thumbnail_rep sb_thumbnail_xs thumbnail"></div>
@@ -86,13 +51,14 @@
                     <div class="sb_rep col-lg-10 col-md-10 vertical_nav">
                         <ul>
                             <li>
-                                 <a href="{% url 'action_saga' pleb_info.username %}">Justin Amash</a>
+                                 <a href="{% url 'action_saga' page_profile.username %}">Justin Amash</a>
                             </li>
                             <li class="sb_rep_info">1st term</li>
                         </ul>
                         {{ rep_name }}
                     </div>
                 </div>
+                {% endcomment %}
         </div>
     </div>
 </div>

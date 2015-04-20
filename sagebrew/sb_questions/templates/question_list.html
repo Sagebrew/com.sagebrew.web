@@ -1,10 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load staticfiles %}
-{% block css %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static 'less/plebs/sb_comment.css' %}"/>
-{%  endblock css %}
 
 {% block content %}
 <div class="row-fluid sb_page">
@@ -37,18 +33,15 @@
                 <div class="row sb_tertiary_nav" style="padding-left: 15px; padding-right: 15px;">
                     <div class="col-lg-2 col-md-2 col-sm-2 hidden-xs">
                         <a class="btn sb_tab_question query_questions-action"
-                           data-sort_by="most_recent"
-                           data-current_pleb="{{ email }}">Most Recent</a>
+                           data-sort_by="created">Most Recent</a>
                     </div>
                     <div class="col-lg-2 col-md-2 col-sm-2 hidden-xs">
                         <a class="btn sb_tab_question query_questions-action"
-                           data-sort_by="least_recent"
-                           data-current_pleb="{{ email }}">Least Recent</a>
+                           data-sort_by="-created">Least Recent</a>
                     </div>
                     <div class="col-lg-2 col-md-2 col-sm-2 hidden-xs">
                         <a class="btn sb_tab_question query_questions-action"
-                           data-sort_by="recent_edit"
-                           data-current_pleb="{{ email }}">Recent Edits</a>
+                           data-sort_by="last_edited_on">Recent Edits</a>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 col-sm-offset-2 col-md-offset-2 col-lg-offset-2">
                          <a href="{% url "save_question_page" %}" class='btn btn-block btn-primary sb_btn_fill' style="color: white">

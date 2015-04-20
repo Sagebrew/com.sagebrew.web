@@ -1,4 +1,4 @@
 -r base.txt
 coveralls
-pep8
 flake8
+requests_mock

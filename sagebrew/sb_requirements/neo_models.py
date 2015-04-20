@@ -1,14 +1,13 @@
 import pickle
-from uuid import uuid1
 from django.conf import settings
 
-from neomodel import (StructuredNode, StringProperty)
+from neomodel import (StringProperty)
 
 from api.utils import request_to_api
+from api.neo_models import SBObject
 
 
-class SBRequirement(StructuredNode):
-    sb_id = StringProperty(default=lambda: str(uuid1()), unique_index=True)
+class Requirement(SBObject):
     name = StringProperty(unique_index=True)
     url = StringProperty()
     key = StringProperty()
@@ -18,11 +17,13 @@ class SBRequirement(StructuredNode):
     condition = StringProperty()
     auth_type = StringProperty()
 
-    #methods
+    # methods
     def check_requirement(self, username):
-        res = request_to_api(self.url, username, req_method='get',
+        # TODO need to elaborate on this
+        url = str(self.url).replace("<username>", username)
+        res = request_to_api(url, username, req_method='get',
                              internal=True)
-        # TODO should probably handle any response greater than a 
+        # TODO should probably handle any response greater than a
         # 400 and stop the function as they may have the req just
         # having server issues.
         res = res.json()
@@ -36,26 +37,23 @@ class SBRequirement(StructuredNode):
             res[self.key])
 
     def build_check_dict(self, check, current):
-        if not check:
-            return {"detail": False,
-                    "key": self.key,
-                    "operator": pickle.loads(self.operator),
-                    "response": check,
-                    "reason": "You must have %s %s %s, you have %s" % (
-                        self.get_operator_string(), self.condition, 'flags',
-                        current)}
-        else:
-            return {"detail": "The requirement %s was met" % (self.sb_id),
-                    "key": self.key,
-                    "operator": pickle.loads(self.operator),
-                    "response": check}
-
-    def get_dict(self):
-        return {"req_id": self.sb_id,
-                "url": self.url,
+        if check is False:
+            return {
+                "detail": False,
                 "key": self.key,
-                "operator": self.operator,
-                "condition": self.condition}
+                "operator": pickle.loads(self.operator),
+                "response": check,
+                "reason": "You must have %s %s %s, you have %s" % (
+                    self.get_operator_string(), self.condition, 'flags',
+                    current)
+            }
+        else:
+            return {
+                "detail": "The requirement %s was met" % (self.object_uuid),
+                "key": self.key,
+                "operator": pickle.loads(self.operator),
+                "response": check
+            }
 
     def get_operator_string(self):
         return settings.OPERATOR_DICT[self.operator]

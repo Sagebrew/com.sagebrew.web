@@ -26,8 +26,8 @@ def related_articles(request):
         urlpatterns = populate_urls()
         for item in urlpatterns:
             try:
-                if(related_form.cleaned_data["category"] ==
-                       item.default_args["category"]):
+                if(related_form.cleaned_data[
+                        "category"] == item.default_args["category"]):
                     article_array.append(
                         {"title": item.default_args["title"],
                          "name": item.name})

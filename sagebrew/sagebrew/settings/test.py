@@ -27,7 +27,6 @@ CACHES = {
 }
 
 
-
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 DEFAULT_FILE_STORAGE = 'sagebrew.s3utils.MediaRootS3BotoStorage'
 STATICFILES_STORAGE = 'sagebrew.s3utils.StaticRootS3BotoStorage'
@@ -43,13 +42,20 @@ BROKER_URL = 'amqp://%s@%s:%s//' % (environ.get("QUEUE_USERNAME", ""),
 
 
 REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'sb_base.utils.custom_exception_handler',
+    'DEFAULT_PAGINATION_CLASS':
+        'rest_framework.pagination.PageNumberPagination',
+    'PAGINATE_BY': 10,
+    'PAGE_SIZE': 15,
+    'MAX_PAGINATE_BY': 100,
+    'PAGINATE_BY_PARAM': 'page_size',
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
     ),
     'DEFAULT_MODEL_SERIALIZER_CLASS':
         'rest_framework.serializers.HyperlinkedModelSerializer',
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.OAuth2Authentication',
+        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
 }

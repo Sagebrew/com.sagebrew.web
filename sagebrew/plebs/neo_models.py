@@ -1,5 +1,4 @@
 import pytz
-from uuid import uuid1
 from datetime import datetime
 from django.conf import settings
 from django.template.loader import get_template
@@ -7,14 +6,42 @@ from django.template import Context
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty, ZeroOrOne,
+                      BooleanProperty, FloatProperty,
                       CypherException, DoesNotExist)
+from neomodel import db
 
-from sb_relationships.neo_models import (FriendRelationship,
-                                         UserWeightRelationship)
-from sb_base.neo_models import RelationshipWeight
-from sb_search.neo_models import SearchCount
-from sb_tag.neo_models import SBTag
+from api.neo_models import SBObject
+from sb_search.neo_models import Searchable
+
+
+def get_current_time():
+    return datetime.now(pytz.utc)
+
+
+class RelationshipWeight(StructuredRel):
+    weight = IntegerProperty(default=150)
+    status = StringProperty(default='seen')
+    seen = BooleanProperty(default=True)
+
+
+class SearchCount(StructuredRel):
+    times_searched = IntegerProperty(default=1)
+    last_searched = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+
+
+class FriendRelationship(StructuredRel):
+    since = DateTimeProperty(default=get_current_time)
+    friend_type = StringProperty(default="friends")
+    currently_friends = BooleanProperty(default=True)
+    time_unfriended = DateTimeProperty(default=None)
+    who_unfriended = StringProperty()
+    # who_unfriended = RelationshipTo("Pleb", "")
+
+
+class UserWeightRelationship(StructuredRel):
+    interaction = StringProperty(default='seen')
+    page_view_count = IntegerProperty(default=0)
+    weight = IntegerProperty(default=settings.USER_RELATIONSHIP_BASE['seen'])
 
 
 class TagRelationship(StructuredRel):
@@ -24,19 +51,19 @@ class TagRelationship(StructuredRel):
 
 
 class PostObjectCreated(StructuredRel):
-    shared_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    shared_on = DateTimeProperty(default=get_current_time)
     rep_gained = IntegerProperty(default=0)
     rep_lost = IntegerProperty(default=0)
 
 
 class ActionActiveRel(StructuredRel):
-    gained_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    gained_on = DateTimeProperty(default=get_current_time)
     active = BooleanProperty(default=True)
     lost_on = DateTimeProperty()
 
 
 class RestrictionRel(StructuredRel):
-    gained_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    gained_on = DateTimeProperty(default=get_current_time)
     active = BooleanProperty()
 
 
@@ -46,63 +73,44 @@ class OfficialRelationship(StructuredRel):
     end_date = DateTimeProperty()
 
 
-class School(StructuredNode):
-    name = StringProperty()
-    address = RelationshipTo("Address", "LOCATED_AT")
-    established = DateTimeProperty()
-    population = IntegerProperty()
+class OauthUser(SBObject):
+    web_address = StringProperty(default=settings.WEB_ADDRESS + '/o/token/')
+    access_token = StringProperty()
+    expires_in = IntegerProperty()
+    refresh_token = StringProperty()
+    last_modified = DateTimeProperty(default=get_current_time)
+    token_type = StringProperty(default="Bearer")
 
 
-class Company(StructuredNode):
-    name = StringProperty()
-    address = RelationshipTo("Address", "LOCATED_AT")
-    company_size = IntegerProperty()
-    established = DateTimeProperty()
-    industry = RelationshipTo("Industry", "PART_OF")
+class BetaUser(StructuredNode):
+    email = StringProperty(unique_index=True)
+    invited = BooleanProperty(default=False)
+    signup_date = DateTimeProperty(default=get_current_time)
+
+    def invite(self):
+        from sb_registration.utils import sb_send_email
+        if self.invited is True:
+            return True
+        self.invited = True
+        self.save()
+        template_dict = {
+            "signup_url": "%s%s%s" % (settings.WEB_ADDRESS, "/signup/?user=",
+                                      self.email)
+        }
+        html_content = get_template(
+            'email_templates/email_beta_invite.html').render(
+            Context(template_dict))
+        sb_send_email("support@sagebrew.com", self.email, "Sagebrew Beta",
+                      html_content)
+        return True
 
 
-class HighSchool(School):
-    district_name = StringProperty()
-    school_name = StringProperty()
-    phone_number = IntegerProperty()
-    state = StringProperty()
-    street = StringProperty()
-    city = StringProperty()
-    latitude = FloatProperty()
-    longitude = FloatProperty()
-    county = StringProperty()
-
-
-class University(School):
-    institution_name = StringProperty()
-    univ_address = StringProperty()
-    city = StringProperty()
-    state = StringProperty()
-    zipcode = StringProperty()
-    chief_name = StringProperty()
-    chief_title = StringProperty()
-    website_url = StringProperty()
-    admin_url = StringProperty()
-    financial_url = StringProperty()
-    app_url = StringProperty()
-    county = StringProperty()
-    longitude = FloatProperty()
-    latitude = FloatProperty()
-
-
-class ReceivedEducationRel(StructuredRel):
-    started = DateTimeProperty()
-    ended = DateTimeProperty()
-    currently_attending = BooleanProperty()
-    awarded = StringProperty()
-
-
-class Pleb(StructuredNode):
+class Pleb(SBObject, Searchable):
     search_modifiers = {
         'post': 10, 'comment_on': 5, 'upvote': 3, 'downvote': -3,
         'time': -1, 'proximity_to_you': 10, 'proximity_to_interest': 10,
         'share': 7, 'flag_as_inappropriate': -5, 'flag_as_spam': -100,
-        'flag_as_other': -10, 'solutioned': 50, 'starred': 150, 'seen_search': 5,
+        'flag_as_other': -10, 'solution': 50, 'starred': 150, 'seen_search': 5,
         'seen_page': 20
     }
     gender = StringProperty()
@@ -110,93 +118,121 @@ class Pleb(StructuredNode):
     username = StringProperty(unique_index=True, default=None)
     first_name = StringProperty()
     last_name = StringProperty()
-    age = IntegerProperty()
+    middle_name = StringProperty()
     email = StringProperty(unique_index=True)
     date_of_birth = DateTimeProperty()
     primary_phone = StringProperty()
     secondary_phone = StringProperty()
     profile_pic = StringProperty()
     profile_pic_uuid = StringProperty()
+    wallpaper_pic = StringProperty()
     completed_profile_info = BooleanProperty(default=False)
-    home_town = StringProperty()
     reputation = IntegerProperty(default=0)
     is_rep = BooleanProperty(default=False)
     is_admin = BooleanProperty(default=False)
     is_sage = BooleanProperty(default=False)
     search_index = StringProperty()
+    # base_index_id is the plebs id in the base elasticsearch index
     base_index_id = StringProperty()
     email_verified = BooleanProperty(default=False)
-    populated_es_index = BooleanProperty(default=False)
     populated_personal_index = BooleanProperty(default=False)
     initial_verification_email_sent = BooleanProperty(default=False)
-    search_id = StringProperty()
     stripe_customer_id = StringProperty()
 
     # Relationships
-    privileges = RelationshipTo('sb_privileges.neo_models.SBPrivilege', 'HAS',
+    privileges = RelationshipTo('sb_privileges.neo_models.Privilege', 'HAS',
                                 model=ActionActiveRel)
     actions = RelationshipTo('sb_privileges.neo_models.SBAction', 'CAN',
                              model=ActionActiveRel)
-    restrictions = RelationshipTo('sb_privileges.neo_models.SBRestriction',
+    restrictions = RelationshipTo('sb_privileges.neo_models.Restriction',
                                   'RESTRICTED_BY', model=RestrictionRel)
-    badges = RelationshipTo("sb_badges.neo_models.BadgeBase", "BADGES")
+    badges = RelationshipTo("sb_badges.neo_models.Badge", "BADGES")
     oauth = RelationshipTo("plebs.neo_models.OauthUser", "OAUTH_CLIENT")
-    tags = RelationshipTo('sb_tag.neo_models.SBTag', 'TAGS',
+    tags = RelationshipTo('sb_tags.neo_models.Tag', 'TAGS',
                           model=TagRelationship)
-    voted_on = RelationshipTo('sb_base.neo_models.SBVoteableContent', 'VOTES')
-    home_town_address = RelationshipTo("Address", "GREW_UP_AT")
-    high_school = RelationshipTo("HighSchool", "ATTENDED_HS",
-                                 model=ReceivedEducationRel)
-    university = RelationshipTo("University", "ATTENDED_UNIV",
-                                model=ReceivedEducationRel)
-    employer = RelationshipTo("Company", "WORKS_AT")
-    address = RelationshipTo("Address", "LIVES_AT", cardinality=ZeroOrOne)
-    interests = RelationshipTo("sb_tag.neo_models.SBTag", "INTERESTED_IN")
+    voted_on = RelationshipTo('sb_base.neo_models.VotableContent', 'VOTES')
+    address = RelationshipTo("Address", "LIVES_AT")
+    interests = RelationshipTo("sb_tags.neo_models.Tag", "INTERESTED_IN")
     friends = RelationshipTo("Pleb", "FRIENDS_WITH", model=FriendRelationship)
-    #senator = RelationshipTo("govtrack.neo_models.GTRole",
-    #                         "HAS_SENATOR")
-    #house_rep = RelationshipTo("govtrack.neo_models.GTRole",
-    #                           "HAS_REPRESENTATIVE")
-    posts = RelationshipTo('sb_posts.neo_models.SBPost', 'OWNS_POST',
+    posts = RelationshipTo('sb_posts.neo_models.Post', 'OWNS_POST',
                            model=PostObjectCreated)
-    questions = RelationshipTo('sb_questions.neo_models.SBQuestion',
+    questions = RelationshipTo('sb_questions.neo_models.Question',
                                'OWNS_QUESTION',
                                model=PostObjectCreated)
-    solutions = RelationshipTo('sb_solutions.neo_models.SBSolution', 'OWNS_ANSWER',
-                             model=PostObjectCreated)
-    comments = RelationshipTo('sb_comments.neo_models.SBComment',
+    solutions = RelationshipTo('sb_solutions.neo_models.Solution',
+                               'OWNS_SOLUTION',
+                               model=PostObjectCreated)
+    comments = RelationshipTo('sb_comments.neo_models.Comment',
                               'OWNS_COMMENT',
                               model=PostObjectCreated)
-    wall = RelationshipTo('sb_wall.neo_models.SBWall', 'OWNS_WALL')
+    wall = RelationshipTo('sb_wall.neo_models.Wall', 'OWNS_WALL')
     notifications = RelationshipTo(
-        'sb_notifications.neo_models.NotificationBase', 'RECEIVED_A')
+        'sb_notifications.neo_models.Notification', 'RECEIVED_A')
     friend_requests_sent = RelationshipTo(
-        'sb_relationships.neo_models.FriendRequest', 'SENT_A_REQUEST')
-    friend_requests_recieved = RelationshipTo(
-        'sb_relationships.neo_models.FriendRequest', 'RECEIVED_A_REQUEST')
+        "plebs.neo_models.FriendRequest", 'SENT_A_REQUEST')
+    friend_requests_received = RelationshipTo(
+        "plebs.neo_models.FriendRequest", 'RECEIVED_A_REQUEST')
     user_weight = RelationshipTo('Pleb', 'WEIGHTED_USER',
                                  model=UserWeightRelationship)
-    object_weight = RelationshipTo('sb_base.neo_models.SBContent',
-                                   'OBJECT_WEIGHT',
-                                   model=RelationshipWeight)
+    object_weight = RelationshipTo(
+        'sb_base.neo_models.SBContent', 'OBJECT_WEIGHT',
+        model=RelationshipWeight)
     searches = RelationshipTo('sb_search.neo_models.SearchQuery', 'SEARCHED',
                               model=SearchCount)
     clicked_results = RelationshipTo('sb_search.neo_models.SearchResult',
                                      'CLICKED_RESULT')
-    official = RelationshipTo('sb_reps.neo_models.BaseOfficial', 'IS',
-                              model=OfficialRelationship)
+    official = RelationshipTo('sb_public_official.neo_models.PublicOfficial',
+                              'IS_AUTHORIZED_AS', model=OfficialRelationship)
+    senators = RelationshipTo('sb_public_official.neo_models.PublicOfficial',
+                              'HAS_SENATOR')
+    house_rep = RelationshipTo('sb_public_official.neo_models.PublicOfficial',
+                               'HAS_HOUSE_REPRESENTATIVE')
+    president = RelationshipTo('sb_public_official.neo_models.PublicOfficial',
+                               'HAS_PRESIDENT')
+    flags = RelationshipTo('sb_flags.neo_models.Flag', "FLAGS")
+    beta_user = RelationshipTo('plebs.neo_models.BetaUser', "BETA_USER")
 
     def deactivate(self):
         return
+
+    def is_beta_user(self):
+        query = "MATCH (a:Pleb {username: '%s'})-[:BETA_USER]->(" \
+                "b:BetaUser {email: '%s'}) " \
+                "RETURN b" % (self.username, self.email)
+        res, col = db.cypher_query(query)
+        if len(res) == 0:
+            return False
+        return True
+
+    def has_flagged_object(self, object_uuid):
+        query = "MATCH (a:SBContent {object_uuid: '%s'})-[:FLAGGED_BY]->(" \
+                "b:Pleb {username: '%s'}) Return b" % (
+                    object_uuid, self.username)
+        res, col = db.cypher_query(query)
+        if len(res) == 0:
+            return False
+        return True
 
     def get_restrictions(self):
         return self.restrictions.all()
 
     def get_actions(self):
-        return self.actions.all()
+        query = 'MATCH (a:Pleb {username: "%s"})-' \
+                '[:CAN {active: true}]->(n:`SBAction`) ' \
+                'RETURN n.resource' % self.username
+        res, col = db.cypher_query(query)
+        if len(res) == 0:
+            return []
+        return [row[0] for row in res]
 
     def get_privileges(self):
-        return self.privileges.all()
+        query = 'MATCH (a:Pleb {username: "%s"})-' \
+                '[:HAS {active: true}]->(n:`Privilege`) ' \
+                'RETURN n.name' % self.username
+        res, col = db.cypher_query(query)
+        if len(res) == 0:
+            return []
+        return [row[0] for row in res]
 
     def get_badges(self):
         return self.badges.all()
@@ -206,7 +242,7 @@ class Pleb(StructuredNode):
 
     def relate_comment(self, comment):
         try:
-            rel_to_pleb = comment.is_owned_by.connect(self)
+            rel_to_pleb = comment.owned_by.connect(self)
             rel_to_pleb.save()
             rel_from_pleb = self.comments.connect(comment)
             rel_from_pleb.save()
@@ -222,16 +258,20 @@ class Pleb(StructuredNode):
             rel.save()
             return rel.weight
 
-    def get_owned_objects(self):
-        return self.solutions.all()+self.questions.all()+\
-               self.posts.all()+self.comments.all()
+    def get_votable_content(self):
+        from sb_base.neo_models import VotableContent
+        query = "MATCH (a:Pleb {username: '%s'})<-[:OWNED_BY]-(" \
+                "b:VotableContent) RETURN b" % (self.username)
+        res, col = db.cypher_query(query)
+
+        return [VotableContent.inflate(row[0]) for row in res]
 
     def get_total_rep(self):
         rep_list = []
         base_tags = {}
         tags = {}
         total_rep = 0
-        for item in self.get_owned_objects():
+        for item in self.get_votable_content():
             rep_res = item.get_rep_breakout()
             total_rep += rep_res['total_rep']
             if 'base_tag_list' in rep_res.keys():
@@ -240,6 +280,8 @@ class Pleb(StructuredNode):
                 for tag in rep_res['tag_list']:
                     tags[tag] = rep_res['rep_per_tag']
             rep_list.append(rep_res)
+        self.reputation = total_rep
+        self.save()
         return {"rep_list": rep_list,
                 "base_tags": base_tags,
                 "tags": tags,
@@ -249,10 +291,11 @@ class Pleb(StructuredNode):
         pass
 
     def update_tag_rep(self, base_tags, tags):
+        from sb_tags.neo_models import Tag
         for item in tags:
             try:
-                tag = SBTag.nodes.get(tag_name=item)
-            except (SBTag.DoesNotExist, DoesNotExist, CypherException):
+                tag = Tag.nodes.get(name=item)
+            except (Tag.DoesNotExist, DoesNotExist, CypherException, IOError):
                 continue
             if self.tags.is_connected(tag):
                 rel = self.tags.relationship(tag)
@@ -264,8 +307,8 @@ class Pleb(StructuredNode):
                 rel.save()
         for item in base_tags:
             try:
-                tag = SBTag.nodes.get(tag_name=item)
-            except (SBTag.DoesNotExist, DoesNotExist, CypherException):
+                tag = Tag.nodes.get(name=item)
+            except (Tag.DoesNotExist, DoesNotExist, CypherException, IOError):
                 continue
             if self.tags.is_connected(tag):
                 rel = self.tags.relationship(tag)
@@ -276,54 +319,6 @@ class Pleb(StructuredNode):
                 rel.total = base_tags[item]
                 rel.save()
         return True
-
-    def get_conversation(self, expiry=0, now=0):
-        return {"questions": [self.get_questions(expiry, now)],
-                "solutions": [self.get_solutions(expiry, now)],
-                "count": self.get_questions(expiry, now)['count']+\
-                    self.get_solutions(expiry,now)['count']}
-
-    def get_questions(self, expiry=0, now=0):
-        if expiry == 0:
-            return self.get_question_dicts(self.questions.all())
-        return self.get_question_dicts(self.filter_questions(expiry, now))
-
-    def get_solutions(self, expiry=0, now=0):
-        if expiry == 0:
-            return self.get_solution_dicts(self.solutions.all())
-        return self.get_solution_dicts(self.filter_solutions(expiry, now))
-
-    def get_solution_dicts(self, solutions):
-        a_dict = {
-            "solutions": []
-        }
-        for solution in solutions:
-            a_dict['solutions'].append(solution.get_dict())
-        a_dict['count'] = len(a_dict['solutions'])
-        return a_dict
-
-    def filter_solutions(self, expiry, now):
-        solutions = []
-        for solution in self.solutions.all():
-            if (now-solution.date_created).seconds < expiry:
-                solutions.append(solution)
-        return solutions
-
-    def filter_questions(self, expiry, now):
-        questions = []
-        for question in self.questions.all():
-            if (now-question.date_created).seconds < expiry:
-                questions.append(question)
-        return questions
-
-    def get_question_dicts(self, questions):
-        q_dict = {
-            'questions': []
-        }
-        for question in questions:
-            q_dict['questions'].append(question.get_single_dict())
-        q_dict['count'] = len(q_dict['questions'])
-        return q_dict
 
     def get_available_flags(self):
         pass
@@ -346,20 +341,102 @@ class Pleb(StructuredNode):
     def get_friends(self):
         return self.friends.all()
 
-    def get_friend_requests_sent(self):
+    def get_friend_requests_received(self):
         request_list = []
-        for request in self.friend_requests_sent.all():
+        for request in self.friend_requests_received.all():
             try:
-                request_list.append(request.request_to.all()[0].username)
+                if request.response is None:
+                    # TODO see if we can do this with a serializer instead
+                    request_dict = {
+                        "object_uuid": request.object_uuid,
+                        "from": request.request_from.all()[0].username,
+                        "date_sent": request.time_sent,
+                        "date_seen": request.time_seen,
+                        "seen": request.seen,
+                    }
+                    request_list.append(request_dict)
+                else:
+                    continue
             except IndexError:
                 continue
         return request_list
 
+    def get_friend_requests_sent(self):
+        try:
+            request_list = []
+            for request in self.friend_requests_sent.all():
+                try:
+                    request_list.append(request.request_to.all()[0].username)
+                except IndexError:
+                    continue
+        except(CypherException, IOError) as e:
+            raise e
+        return request_list
+
     def determine_reps(self):
-        pass
+        from sb_public_official.utils import determine_reps
+        return determine_reps(self.username)
+
+    def get_notifications(self):
+        try:
+            notification_list = []
+            for notification in self.notifications.all():
+                try:
+                    # TODO see if we can do this with a serializer instead
+                    from_user = notification.notification_from.all()[0]
+                    notification_dict = {
+                        "object_uuid": notification.object_uuid,
+                        "from_info": {
+                            "profile_pic": from_user.profile_pic,
+                            "full_name": from_user.get_full_name(),
+                            "username": from_user.username
+                        },
+                        "action": notification.action,
+                        "url": notification.url,
+                        "date_sent": notification.time_sent,
+                        "date_seen": notification.time_seen,
+                        "seen": notification.seen,
+                        "about": notification.about,
+                        "about_id": notification.about_id,
+                    }
+                    notification_list.append(notification_dict)
+                except IndexError:
+                    continue
+        except(CypherException, IOError) as e:
+            raise e
+        return notification_list
+
+    def get_public_officials(self):
+        sen_array = []
+        try:
+            rep = self.house_rep.all()[0]
+            for sen in self.senators.all():
+                sen_array.append(sen.get_dict())
+        except (IOError, CypherException) as e:
+            return e
+        return {"senators": sen_array, "house_reps": rep.get_dict()}
+
+    def get_senators(self):
+        sen_array = []
+        try:
+            for sen in self.senators.all():
+                sen_array.append(sen.get_dict())
+        except (IOError, CypherException) as e:
+            return e
+        return sen_array
+
+    def get_house_rep(self):
+        try:
+            try:
+                house_rep = self.house_rep.all()[0]
+            except IndexError:
+                return False
+            return house_rep.get_dict()
+        except (IOError, CypherException) as e:
+            return e
 
 
-class Address(StructuredNode):
+class Address(SBObject):
     street = StringProperty()
     street_additional = StringProperty()
     city = StringProperty()
@@ -369,75 +446,18 @@ class Address(StructuredNode):
     latitude = FloatProperty()
     longitude = FloatProperty()
     congressional_district = StringProperty()
-    address_hash = StringProperty(unique_index=True)
     validated = BooleanProperty(default=True)
 
     # Relationships
-    address = RelationshipTo("Pleb", 'LIVES_IN')
+    owned_by = RelationshipTo("Pleb", 'LIVES_IN')
 
 
-class Country(StructuredNode):
-    name = StringProperty(unique_index=True)
-    abbreviation = StringProperty()
+class FriendRequest(SBObject):
+    seen = BooleanProperty(default=False)
+    time_sent = DateTimeProperty(default=get_current_time)
+    time_seen = DateTimeProperty(default=None)
+    response = StringProperty(default=None)
 
-    #relationships
-    states = RelationshipTo('plebs.neo_models.State', 'HAS')
-
-
-class State(StructuredNode):
-    name = StringProperty(unique_index=True)
-    abbreviation = StringProperty()
-
-    #relationships
-    capitol = RelationshipTo('plebs.neo_models.City', 'CAPITOL')
-
-class County(StructuredNode):
-    name = StringProperty()
-
-    #relationships
-    city = RelationshipTo('plebs.neo_models.City', "HAS")
-
-class City(StructuredNode):
-    name = StringProperty()
-
-    #relationships
-    district = RelationshipTo('plebs.neo_models.District', "RESIDES_IN")
-
-
-class District(StructuredNode):
-    number = IntegerProperty()
-
-
-class OauthUser(StructuredNode):
-    sb_id = StringProperty(default=lambda: str(uuid1()))
-    web_address = StringProperty(
-        default=lambda: settings.WEB_ADDRESS+'/o/token/')
-    access_token = StringProperty()
-    expires_in = IntegerProperty()
-    refresh_token = StringProperty()
-    token_type = StringProperty(default="Bearer")
-    last_modified = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
-
-
-class BetaUser(StructuredNode):
-    email = StringProperty(unique_index=True)
-    invited = BooleanProperty(default=False)
-    signup_date = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
-
-    def invite(self):
-        from sb_registration.utils import sb_send_email
-        if self.invited is True:
-            return True
-        self.invited = True
-        self.save()
-        template_dict = {
-            "signup_url": "%s%s%s"%(settings.WEB_ADDRESS, "/signup/?user=",
-                                    self.email)
-        }
-        html_content = get_template(
-            'email_templates/email_beta_invite.html').render(
-            Context(template_dict))
-        sb_send_email("support@sagebrew.com", self.email, "Sagebrew Beta",
-                      html_content)
-        return True
-
+    # relationships
+    request_from = RelationshipTo('plebs.neo_models.Pleb', 'REQUEST_FROM')
+    request_to = RelationshipTo('plebs.neo_models.Pleb', 'REQUEST_TO')

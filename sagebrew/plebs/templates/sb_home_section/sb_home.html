@@ -1,6 +1,6 @@
 <div class="col-lg-4 col-md-4 hidden-sm hidden-xs">
-   {% include "sb_home_section/sb_profile_rep_stats.html" %}
-   {% include "sb_home_section/sb_profile_potential_reps_stats.html" %}
+    {% include "sb_home_section/sb_profile_rep_stats.html" %}
+    {% include "sb_home_section/sb_profile_potential_reps_stats.html" %}
 </div>
 
 <div class="col-lg-8 col-md-8">
@@ -8,10 +8,6 @@
         <div class="sb_profile_post_enter">
             {% include "input_post.html" %}
         </div>
-        {% if debug %}
-            <div id="myId" class="dropzone"></div>
-            <input class="btn btn-primary" id="add" value="Upload">
-        {% endif %}
         <div class="sb_profile_container_wall" id="wall_app">
             {% comment %}
                 This is automatically replaced by sb_posts/static/js/get_posts.js

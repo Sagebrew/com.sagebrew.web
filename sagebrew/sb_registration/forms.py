@@ -1,6 +1,6 @@
 from django import forms
 from django.conf import settings
-from localflavor.us.forms import  USZipCodeField, USStateField
+from localflavor.us.forms import USZipCodeField, USStateField
 
 
 class InterestForm(forms.Form):
@@ -134,14 +134,6 @@ class InterestForm(forms.Form):
     )
 
 
-class ProfileInfoForm(forms.Form):
-    home_town = forms.CharField(
-        label="Hometown",
-        max_length=40,
-        required=False,
-    )
-
-
 class AddressInfoForm(forms.Form):
     primary_address = forms.CharField(
         label="Address Line 1",
@@ -215,8 +207,10 @@ class ProfilePageForm(forms.Form):
 
 
 class SignupForm(forms.Form):
-    first_name = forms.CharField(required=True, max_length=30, label="First Name")
-    last_name = forms.CharField(required=True, max_length=30, label="Last Name")
+    first_name = forms.CharField(required=True, max_length=30,
+                                 label="First Name")
+    last_name = forms.CharField(required=True, max_length=30,
+                                label="Last Name")
     email = forms.EmailField(required=True, label="Email")
     password = forms.CharField(required=True, min_length=6, max_length=56)
     password2 = forms.CharField(required=True, min_length=6, max_length=56)
@@ -227,6 +221,7 @@ class LoginForm(forms.Form):
     email = forms.EmailField(required=True)
     password = forms.CharField(required=True, min_length=6)
 
+
 class RepRegistrationForm(forms.Form):
     ssn = forms.CharField()
     bank_account = forms.CharField()
@@ -236,6 +231,7 @@ class RepRegistrationForm(forms.Form):
     district = forms.IntegerField()
     seat_number = forms.IntegerField()
     gov_email = forms.EmailField()
+    gov_phone = forms.CharField()
     account_type = forms.ChoiceField(choices=settings.PAYMENT_PLANS)
     stripeBankToken = forms.CharField()
     credit_card = forms.IntegerField(required=False)
@@ -243,6 +239,7 @@ class RepRegistrationForm(forms.Form):
     exp_month = forms.IntegerField(required=False)
     exp_year = forms.IntegerField(required=False)
     cvv = forms.IntegerField(required=False)
+
 
 class BetaSignupForm(forms.Form):
     email = forms.CharField()

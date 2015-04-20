@@ -16,7 +16,7 @@ TEMPLATE_DEBUG = DEBUG
 ADMINS = (
     ('Devon Bleibtrey', 'devon@sagebrew.com'),
 )
-worker_count = (multiprocessing.cpu_count() *2) + 1
+worker_count = (multiprocessing.cpu_count() * 2) + 1
 if worker_count > 12 and environ.get("CIRCLECI", False):
     worker_count = 12
 environ['WEB_WORKER_COUNT'] = str(worker_count)
@@ -36,7 +36,7 @@ TIME_ZONE = 'UTC'
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
 
-SITE_ID = 2
+SITE_ID = 1
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
@@ -66,16 +66,14 @@ STATICFILES_DIRS = (
     '%s/sagebrew/static/' % PROJECT_DIR,
     '%s/plebs/static/' % PROJECT_DIR,
     '%s/sb_solutions/static/' % PROJECT_DIR,
-    '%s/sb_edits/static/' % PROJECT_DIR,
     '%s/sb_notifications/static/' % PROJECT_DIR,
     '%s/sb_privileges/static/' % PROJECT_DIR,
     '%s/sb_posts/static/' % PROJECT_DIR,
     '%s/sb_questions/static/' % PROJECT_DIR,
     '%s/sb_registration/static/' % PROJECT_DIR,
-    '%s/sb_relationships/static/' % PROJECT_DIR,
-    '%s/sb_reps/static/' % PROJECT_DIR,
+    '%s/sb_public_official/static/' % PROJECT_DIR,
     '%s/sb_search/static/' % PROJECT_DIR,
-    '%s/sb_tag/static/' % PROJECT_DIR,
+    '%s/sb_tags/static/' % PROJECT_DIR,
     '%s/sb_uploads/static/' % PROJECT_DIR,
 
 )
@@ -128,11 +126,9 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.static",
     "django.core.context_processors.tz",
     "django.contrib.messages.context_processors.messages",
+    "plebs.context_processors.request_profile",
 )
 
-AUTHENTICATION_BACKENDS = (
-    "django.contrib.auth.backends.ModelBackend",
-)
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates"
@@ -145,16 +141,16 @@ TEMPLATE_DIRS = (
     '%s/sb_solutions/templates/' % PROJECT_DIR,
     '%s/sb_badges/templates/' % PROJECT_DIR,
     '%s/sb_comments/templates/' % PROJECT_DIR,
+    '%s/sb_flag/templates/' % PROJECT_DIR,
     '%s/sb_notifications/templates/' % PROJECT_DIR,
     '%s/sb_posts/templates/' % PROJECT_DIR,
     '%s/sb_privileges/templates/' % PROJECT_DIR,
     '%s/sb_public_official/templates/' % PROJECT_DIR,
     '%s/sb_questions/templates/' % PROJECT_DIR,
     '%s/sb_registration/templates/' % PROJECT_DIR,
-    '%s/sb_reps/templates/' % PROJECT_DIR,
     '%s/sb_requirements/templates/' % PROJECT_DIR,
     '%s/sb_search/templates/' % PROJECT_DIR,
-    '%s/sb_tag/templates/' % PROJECT_DIR,
+    '%s/sb_tags/templates/' % PROJECT_DIR,
 )
 
 
@@ -165,6 +161,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'djangosecure',
     'django_admin_bootstrapped',
     'django.contrib.admin',
@@ -185,9 +182,7 @@ INSTALLED_APPS = (
     'sb_badges',
     'sb_base',
     'sb_comments',
-    'sb_deletes',
     'sb_docstore',
-    'sb_edits',
     'sb_flags',
     'sb_notifications',
     'sb_posts',
@@ -195,13 +190,10 @@ INSTALLED_APPS = (
     'sb_public_official',
     'sb_questions',
     'sb_registration',
-    'sb_relationships',
-    'sb_reps',
     'sb_requirements',
     'sb_search',
     'sb_stats',
-    'sb_tag',
-    'sb_trends',
+    'sb_tags',
     'sb_uploads',
     'sb_votes',
     'sb_wall',
@@ -223,10 +215,13 @@ LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/'
 
 ANONYMOUS_USER_ID = -1
-OAUTH2_PROVIDER_APPLICATION_MODEL='sb_oauth.SBApplication'
+OAUTH2_PROVIDER_APPLICATION_MODEL = 'sb_oauth.SBApplication'
+OAUTH2_PROVIDER = {
+    'APPLICATION_MODEL': 'sb_oauth.SBApplication',
+}
 LOGIN_REDIRECT_URL = '/registration/profile_information/'
 EMAIL_USE_TLS = True
-#CSRF_COOKIE_HTTPONLY = True
+# CSRF_COOKIE_HTTPONLY = True
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
@@ -264,7 +259,7 @@ STRIPE_SECRET_KEY = environ.get("STRIPE_SECRET_KEY", '')
 MASKED_NAME = environ.get("MASKED_NAME", "")
 OAUTH_CLIENT_ID = environ.get("OAUTH_CLIENT_ID", '')
 OAUTH_CLIENT_SECRET = environ.get("OAUTH_CLIENT_SECRET", "")
-OAUTH_CLIENT_ID_CRED  = environ.get("OAUTH_CLIENT_ID_CRED", '')
+OAUTH_CLIENT_ID_CRED = environ.get("OAUTH_CLIENT_ID_CRED", '')
 OAUTH_CLIENT_SECRET_CRED = environ.get("OAUTH_CLIENT_SECRET_CRED", "")
 
 DYNAMO_IP = environ.get("DYNAMO_IP", None)
@@ -307,7 +302,7 @@ OBJECT_SEARCH_MODIFIERS = {
     'post': 10, 'comment_on': 5, 'upvote': 3, 'downvote': -3,
     'time': -1, 'proximity_to_you': 10, 'proximity_to_interest': 10,
     'share': 7, 'flag_as_inappropriate': -5, 'flag_as_spam': -100,
-    'flag_as_other': -10, 'solutioned': 50, 'starred': 150, 'seen_search': 5,
+    'flag_as_other': -10, 'solution': 50, 'starred': 150, 'seen_search': 5,
     'seen_page': 20
 }
 
@@ -315,39 +310,31 @@ BASE_TAGS = ["fiscal", "foreign_policy", "social", "education", "science",
              "environment", "drugs", "agriculture", "defense", "energy",
              "health", "space"]
 
-
-
 PAYMENT_PLANS = [
     ("free", "Free"),
     ("sub", "Subscription")
 ]
 
-
-KNOWN_TYPES = [
-    ("01bb301a-644f-11e4-9ad9-080027242395", "sb_posts.neo_models.SBPost"),
-    ("02241aee-644f-11e4-9ad9-080027242395", "sb_solutions.neo_models.SBSolution"),
-    ("0274a216-644f-11e4-9ad9-080027242395",
-     "sb_questions.neo_models.SBQuestion"),
-    ("02ba1c88-644f-11e4-9ad9-080027242395",
-     "sb_comments.neo_models.SBComment")
+SEARCH_TYPES = [
+    ("general", "general"),
+    ("conversations", "question"),
+    ("people", "pleb"),
+    ("sagas", "sagas")
 ]
+
 
 BASE_REP_TYPES = [
-    ("f2729db2-9da8-11e4-9233-080027242395", "sb_reps.neo_models.USSenator"),
-    ("f3aeebe0-9da8-11e4-9233-080027242395", "sb_reps.neo_models.USPresident"),
+    ("f2729db2-9da8-11e4-9233-080027242395",
+     "sb_public_official.neo_models.USSenator"),
+    ("f3aeebe0-9da8-11e4-9233-080027242395",
+     "sb_public_official.neo_models.USPresident"),
     ("f46fbcda-9da8-11e4-9233-080027242395",
-     "sb_reps.neo_models.BaseOfficial"),
+     "sb_public_official.neo_models.PublicOfficial"),
     ("628c138a-9da9-11e4-9233-080027242395",
-     "sb_reps.neo_models.USHouseRepresentative"),
-    ("786dcf40-9da9-11e4-9233-080027242395", "sb_reps.neo_models.Governor")
+     "sb_public_official.neo_models.USHouseRepresentative"),
+    ("786dcf40-9da9-11e4-9233-080027242395",
+     "sb_public_official.neo_models.Governor")
 ]
-
-KNOWN_TABLES = {
-    "01bb301a-644f-11e4-9ad9-080027242395": "posts",
-    "02241aee-644f-11e4-9ad9-080027242395": "public_solutions",
-    "0274a216-644f-11e4-9ad9-080027242395": "public_questions",
-    "02ba1c88-644f-11e4-9ad9-080027242395": "comments"
-}
 
 OPERATOR_TYPES = [
     ('coperator\neq\np0\n.', '='),
@@ -358,6 +345,21 @@ OPERATOR_TYPES = [
     ('coperator\nge\np0\n.', '>=')
 ]
 
+NON_SAFE = ["REMOVE", "DELETE", "CREATE", "SET",
+            "FOREACH", "MERGE", "MATCH", "START"]
+
+REMOVE_CLASSES = ["SBVersioned", "SBPublicContent", "SBPrivateContent",
+                  "VotableContent", "NotificationCapable", "TaggableContent",
+                  "SBContent", "Searchable"]
+
+QUERY_OPERATIONS = {
+    "eq": "=",
+    "le": "<=",
+    "lt": "<",
+    "ge": ">=",
+    "gt": ">",
+}
+
 OPERATOR_DICT = {
     'coperator\neq\np0\n.': 'equal to',
     'coperator\nle\np0\n.': 'at most',
@@ -366,14 +368,5 @@ OPERATOR_DICT = {
     'coperator\nlt\np0\n.': 'less than',
     'coperator\nge\np0\n.': 'at least'
 }
-
-PRIVILEGE_HTML_TYPES = {
-    "write_question": ".submit_question-action",
-    "write_post": ".submit_post-action",
-    "write_comment": ".comment-action",
-    "write_solution": ".submit_solution-action"
-}
-
-
 
 CORS_ORIGIN_ALLOW_ALL = True

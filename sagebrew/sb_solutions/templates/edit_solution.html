@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+<div class="sb_page">
+    <div class="row-fluid">
+        <div class="col-lg-9">
+            <div class="sb_wall sb_conversation_wall">
+                <div class="row" style="padding-left: 15px; padding-right: 15px;">
+                    <div class="block sb_solution sb_provide_solution">
+                        <div class="row-fluid">
+                            <h5>Edit Solution</h5>
+                        </div>
+                        <div class="row sb_markdown">
+                            <div class="col-lg-12">
+                                <textarea class="form-control"
+                                          id="solution_content_id"
+                                          name="solution_content">
+                                          {% comment %}content dynamically loaded by js{% endcomment %}
+                                </textarea>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4 col-md-4">
+                                <button class="btn btn-primary sb_btn sb_btn_fill edit_solution-action"
+                                        id="submit_solution"
+                                        data-object_uuid="{{ object_uuid }}">
+                                    Submit
+                                </button>
+                            </div>
+                            <div class="col-lg-4 col-md-4">
+                                <button class="btn btn-primary sb_btn sb_btn_fill cancel_edit_solution-action"
+                                        >Cancel</button>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
+    <script src="{% static 'js/create_markdown.js' %}"></script>
+    <script src="{% static 'js/solution_validator.js' %}"></script>
+    <script src="{% static 'js/query_solution.js' %}"></script>
+    <script src="{% static 'js/edit_solution.js' %}"></script>
+{% endblock %}

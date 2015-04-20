@@ -11,15 +11,16 @@ $(document).ready(function(){
         live: 'enabled',
         submitButtons: '.submit_question-action',
         fields: {
-            question_title: {
-                group: 'question_title_input',
+            title: {
+                group: 'title_input',
                 validators: {
                     notEmpty: {
                         message: "Title is required"
                     },
                     stringLength: {
                         min: 15,
-                        message: "Title must be at least 15 characters long"
+                        max: 140,
+                        message: "Title must be between 15 and 140 characters long"
                     }
                 }
             },

@@ -4,6 +4,7 @@ from neomodel import (DoesNotExist, CypherException)
 from plebs.neo_models import Pleb
 from .utils import crop_image
 
+
 @shared_task()
 def crop_image_task(image, height, width, x, y, pleb, f_uuid=None):
     try:
@@ -16,6 +17,6 @@ def crop_image_task(image, height, width, x, y, pleb, f_uuid=None):
     try:
         pleb.profile_pic = res
         pleb.save()
-    except CypherException as e:
-        raise crop_image_task.retry(exc=res, countdown=3, max_retries=None)
+    except (CypherException, IOError) as e:
+        raise crop_image_task.retry(exc=e, countdown=3, max_retries=None)
     return True

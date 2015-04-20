@@ -84,6 +84,8 @@ def populate_general_values(data, user, worker_count):
                         environ.get("ADDRESS_VALIDATION_ID", ""))
     data = data.replace("%(ENV_ADDRESS_VALIDATION_TOKEN)s",
                         environ.get("ADDRESS_VALIDATION_TOKEN", ""))
+    data = data.replace("%(ENV_ADDRESS_AUTH_ID)s",
+                        environ.get("ADDRESS_AUTH_ID", ""))
     data = data.replace("%(ENV_ELASTIC_SEARCH_HOST)s",
                         environ.get("ELASTIC_SEARCH_HOST", ""))
     data = data.replace("%(ENV_ELASTIC_SEARCH_PORT)s",

@@ -209,6 +209,7 @@ def profile_information(request):
     we provided the user previously based on the previous
     smarty streets ordering.
     '''
+    address_key = settings.ADDRESS_AUTH_ID
     address_information_form = AddressInfoForm(request.POST or None)
     try:
         citizen = Pleb.nodes.get(username=request.user.username)
@@ -242,11 +243,13 @@ def profile_information(request):
             return render(
                 request, 'profile_info.html',
                 {
-                    'address_information_form': address_information_form
+                    'address_information_form': address_information_form,
+                    "address_key": address_key
                 })
 
     return render(request, 'profile_info.html',
-                  {'address_information_form': address_information_form})
+                  {'address_information_form': address_information_form,
+                   "address_key": address_key})
 
 
 @login_required()

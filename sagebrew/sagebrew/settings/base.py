@@ -252,8 +252,12 @@ SECRET_KEY = environ.get("APPLICATION_SECRET_KEY", "")
 BOMBERMAN_API_KEY = environ.get("BOMBERMAN_API_KEY", "")
 LOGENT_TOKEN = environ.get("LOGENT_TOKEN", "")
 ALCHEMY_API_KEY = environ.get("ALCHEMY_API_KEY", '')
+# Used for server side
 ADDRESS_VALIDATION_ID = environ.get("ADDRESS_VALIDATION_ID", '')
 ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN", '')
+# Used for JS
+ADDRESS_AUTH_ID = environ.get("ADDRESS_AUTH_ID", '')
+
 STRIPE_PUBLIC_KEY = environ.get("STRIPE_PUBLIC_KEY", '')
 STRIPE_SECRET_KEY = environ.get("STRIPE_SECRET_KEY", '')
 MASKED_NAME = environ.get("MASKED_NAME", "")

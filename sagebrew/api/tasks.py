@@ -36,6 +36,7 @@ def add_object_to_search_index(object_uuid, object_data,
             logger.exception("Failed to find any searchable content")
             return False
     except(CypherException, IOError) as e:
+        logger.exception("Failed to Connect to Neo in Search Index")
         raise add_object_to_search_index.retry(exc=e, countdown=3,
                                                max_retries=None)
     if object_added is not None:
@@ -49,6 +50,7 @@ def add_object_to_search_index(object_uuid, object_data,
                        id=object_data['id'], body=object_data)
     except (ElasticsearchException, TransportError, ConnectionError,
             RequestError) as e:
+        logger.exception("Failed to Connect to Elastic Search")
         raise add_object_to_search_index.retry(exc=e, countdown=3,
                                                max_retries=None)
     except KeyError:
@@ -56,12 +58,13 @@ def add_object_to_search_index(object_uuid, object_data,
         # retrying
         return False
     except Exception as e:
+        logger.exception("Unhandled Exception in Storing to Index")
         raise add_object_to_search_index.retry(exc=e, countdown=3,
-                                               max_retries=None)
+                                               max_retries=10)
 
     search_id_data = {
         "search_data": res,
-        "object_data": object_data,
+        "object_uuid": object_uuid,
     }
     save_id = spawn_task(task_func=save_search_id, task_param=search_id_data)
     if isinstance(save_id, Exception) is True:
@@ -72,7 +75,7 @@ def add_object_to_search_index(object_uuid, object_data,
 
 
 @shared_task
-def save_search_id(search_data, object_data):
+def save_search_id(search_data, object_uuid):
     from sb_search.tasks import update_user_indices
     task_data = {
         "doc_id": search_data['_id'],
@@ -80,7 +83,7 @@ def save_search_id(search_data, object_data):
     }
     try:
         query = 'MATCH (a:Searchable) WHERE a.object_uuid = ' \
-                '"%s" RETURN a' % (object_data['object_uuid'])
+                '"%s" RETURN a' % (object_uuid)
         res, col = db.cypher_query(query)
         try:
             sb_object = Searchable.inflate(res[0][0])

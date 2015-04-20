@@ -1,6 +1,6 @@
 $( document ).ready(function() {
     var liveaddress = $.LiveAddress({
-        key: "2343579486386328520",
+        key: $("#address_data_block").data('address_validation'),
         addresses: [
             {
                 street: "#sb_primary",

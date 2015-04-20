@@ -120,11 +120,11 @@ def populate_staging_values(data):
     data = data.replace("<ELASTIC_SEARCH_KEY>",
                         environ.get("ELASTIC_SEARCH_KEY_STAGING", ""))
     data = data.replace("<ADDRESS_VALIDATION_ID>",
-                        environ.get("ADDRESS_VALIDATION_ID_PROD", ""))
+                        environ.get("ADDRESS_VALIDATION_ID_STAGING", ""))
     data = data.replace("<ADDRESS_VALIDATION_TOKEN>",
-                        environ.get("ADDRESS_VALIDATION_TOKEN_PROD", ""))
+                        environ.get("ADDRESS_VALIDATION_TOKEN_STAGING", ""))
     data = data.replace("<ADDRESS_AUTH_ID>",
-                        environ.get("ADDRESS_AUTH_ID_PROD", ""))
+                        environ.get("ADDRESS_AUTH_ID_STAGING", ""))
     return data
 
 

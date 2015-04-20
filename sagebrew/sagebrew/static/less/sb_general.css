@@ -461,11 +461,16 @@ extend ' .progress_bar' has no matches
   font-weight: bold;
   display: inline-block;
 }
-.vote_count_large .vote_count {
+.vote_count_large {
   margin-left: 15px;
+  font-size: 15pt;
+  font-weight: bold;
+}
+.vote_count_large .vote_count {
+  margin-left: 12px;
 }
 .vote_count_medium .vote_count {
-  margin-left: 4px;
+  margin-left: 5px;
 }
 .vote_count_small span.vote_count {
   font-size: 13px !important;
@@ -482,11 +487,6 @@ extend ' .progress_bar' has no matches
 }
 .vote_down_active {
   color: #a162ff;
-}
-.vote_count_large {
-  margin-left: 15px;
-  font-size: 15pt;
-  font-weight: bold;
 }
 .sb_spy {
   color: #838c92;

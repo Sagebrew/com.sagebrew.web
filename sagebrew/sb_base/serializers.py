@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
+from neomodel import CypherException
+
 from api.serializers import SBSerializer
 
 from plebs.serializers import PlebSerializerNeo, UserSerializer
@@ -39,7 +41,7 @@ class VotableContentSerializer(SBSerializer):
             return obj
         try:
             owner = obj.owned_by.all()[0]
-        except(IOError):
+        except(CypherException, IOError, IndexError):
             return None
         html = request.query_params.get('html', 'false').lower()
         expand = request.query_params.get('expand', "false").lower()
@@ -61,7 +63,7 @@ class VotableContentSerializer(SBSerializer):
             return obj
         try:
             owner = obj.owned_by.all()[0]
-        except(IOError):
+        except(CypherException, IOError, IndexError):
             return None
         html = request.query_params.get('html', 'false').lower()
         expand = request.query_params.get('expand', "false").lower()

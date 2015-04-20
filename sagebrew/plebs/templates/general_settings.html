@@ -82,7 +82,7 @@
                                                id="sb_secondary"
                                                placeholder="Address Line 2"
                                                class="form-control input-lg"
-                                                value="{{ address.street_additional }}">
+                                                value="{{ address.street_additional|default_if_none:"" }}">
                                     </div>
                                 </div>
                                 <div class="row">
@@ -213,6 +213,7 @@
             </div>
         </div>
     </div>
+    <div hidden id="address_data_block" data-address_validation={{ address_key }}></div>
 </div>
 
 {% endblock %}

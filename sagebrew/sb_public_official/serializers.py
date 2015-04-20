@@ -4,6 +4,8 @@ from api.serializers import SBSerializer
 
 
 class PublicOfficialSerializer(SBSerializer):
+    object_uuid = serializers.CharField()
+    role_id = serializers.CharField()
     full_name = serializers.CharField()
     start_date = serializers.DateTimeField(read_only=True)
     end_date = serializers.DateTimeField(read_only=True)

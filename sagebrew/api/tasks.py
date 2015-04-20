@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 
 from celery import shared_task
@@ -9,6 +11,9 @@ from neomodel import CypherException, db
 from sb_search.neo_models import Searchable
 
 from .utils import spawn_task
+
+
+logger = logging.getLogger('loggly_logs')
 
 
 @shared_task()
@@ -66,8 +71,12 @@ def save_search_id(search_data, object_type, object_data, object_added):
         query = 'MATCH (a:Searchable) WHERE a.object_uuid = ' \
                 '"%s" RETURN a' % (object_data['object_uuid'])
         res, col = db.cypher_query(query)
+        try:
+            sb_object = Searchable.inflate(res[0][0])
+        except IndexError:
+            logger.exception("Failed to find any searchable content")
+            return False
 
-        sb_object = Searchable.inflate(res[0][0])
     except(CypherException, IOError) as e:
         raise save_search_id.retry(exc=e, countdown=3, max_retries=None)
 

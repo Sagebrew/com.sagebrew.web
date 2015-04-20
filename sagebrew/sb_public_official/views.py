@@ -17,7 +17,7 @@ from sb_docstore.tasks import build_rep_page_task
 from sb_registration.utils import (verify_completed_registration)
 
 from .forms import (ExperienceForm, BioForm, GoalForm)
-from .neo_models import BaseOfficial
+from .neo_models import PublicOfficial
 from .tasks import (save_bio_task)
 from .utils import get_rep_type, prepare_official_search_html
 
@@ -27,8 +27,9 @@ from .utils import get_rep_type, prepare_official_search_html
                   login_url='/registration/profile_information')
 def saga(request, username):
     try:
-        official = BaseOfficial.nodes.get(object_uuid=username)
-    except (CypherException, IOError, BaseOfficial.DoesNotExist, DoesNotExist):
+        official = PublicOfficial.nodes.get(object_uuid=username)
+    except (CypherException, IOError, PublicOfficial.DoesNotExist,
+            DoesNotExist):
         return redirect("404_Error")
     official_dict = official.get_dict()
     return render(request, 'action_page.html',
@@ -41,8 +42,9 @@ def saga(request, username):
                   login_url='/registration/profile_information')
 def updates(request, username):
     try:
-        official = BaseOfficial.nodes.get(object_uuid=username)
-    except (CypherException, IOError, BaseOfficial.DoesNotExist, DoesNotExist):
+        official = PublicOfficial.nodes.get(object_uuid=username)
+    except (CypherException, IOError, PublicOfficial.DoesNotExist,
+            DoesNotExist):
         return redirect("404_Error")
     official_dict = official.get_dict()
     return render(request, 'action_page.html',
@@ -108,8 +110,8 @@ def get_rep_info(request):
         goal_list = []
         spawn_task(build_rep_page_task, {"rep_id": rep_id})
         try:
-            official = BaseOfficial.nodes.get(object_uuid=rep_id)
-        except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException,
+            official = PublicOfficial.nodes.get(object_uuid=rep_id)
+        except (PublicOfficial.DoesNotExist, DoesNotExist, CypherException,
                 IOError):
             return redirect('profile_page', request.user.username)
         policies = official.policy.all()

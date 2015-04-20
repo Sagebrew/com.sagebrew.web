@@ -10,7 +10,7 @@ from neomodel import CypherException
 from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
-from sb_public_official.neo_models import BaseOfficial
+from sb_public_official.neo_models import PublicOfficial
 from sb_public_official.utils import prepare_official_search_html
 
 
@@ -25,7 +25,7 @@ class TestPrepareSearchHTML(TestCase):
 
     def test_prepare_search_html(self):
         try:
-            test_official = BaseOfficial(
+            test_official = PublicOfficial(
                 object_uuid=str(uuid1()),
                 full_name="Test Rep",
                 first_name="Test",

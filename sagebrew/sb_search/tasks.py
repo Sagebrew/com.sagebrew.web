@@ -16,7 +16,7 @@ from plebs.neo_models import Pleb
 from sb_base.utils import defensive_exception
 from sb_base.neo_models import SBContent
 from sb_questions.neo_models import Question
-from sb_public_official.neo_models import BaseOfficial
+from sb_public_official.neo_models import PublicOfficial
 
 from .neo_models import SearchQuery, KeyWord
 from .utils import (update_search_index_doc)
@@ -111,7 +111,7 @@ def update_weight_relationship(document_id, index, object_type,
             if object_type == "question":
                 sb_object = Question.inflate(res[0][0])
             elif object_type == "saga":
-                sb_object = BaseOfficial.inflate(res[0][0])
+                sb_object = PublicOfficial.inflate(res[0][0])
             else:
                 sb_object = SBContent.inflate(res[0][0])
         except(CypherException, IOError) as e:

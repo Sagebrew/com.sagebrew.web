@@ -489,7 +489,6 @@ function show_edit_solution() {
 function edit_object(edit_area, url, object_uuid, data_area) {
     $(edit_area).click(function (event) {
         event.preventDefault();
-        console.log("here")
         var edit_button = ".edit_" + object_uuid;
         $(edit_button).attr("disabled", "disabled");
         $.ajaxSetup({

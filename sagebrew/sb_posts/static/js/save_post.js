@@ -13,7 +13,7 @@ $( document ).ready(function() {
 			type: "POST",
 			url: "/v1/profiles/" + $('#user_info').data('page_user_username') + "/wall/?html=true",
 			data: JSON.stringify({
-			   'content': $('textarea#post_input_id').val(),
+			   'content': $('textarea#post_input_id').val()
 			}),
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",

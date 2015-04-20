@@ -63,9 +63,8 @@ class Command(BaseCommand):
             rep_data = PublicOfficialSerializer(rep).data
             add_object_to_table("general_reps", rep_data)
             task_data = {
-                "object_type": rep_data['type'],
+                "object_uuid": rep_data['object_uuid'],
                 "object_data": rep_data,
-                "object_added": rep,
             }
             spawn_task(add_object_to_search_index, task_data)
 

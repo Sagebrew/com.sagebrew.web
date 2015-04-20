@@ -28,9 +28,12 @@ class TestAddObjectToSearchIndex(TestCase):
 
     def test_add_object_to_search_index(self):
         task_data = {
-            'object_type': 'question',
-            'object_data': {'content': 'fake',
-                            'object_uuid': self.question.object_uuid}
+            'object_uuid': self.question.object_uuid,
+            'object_data': {
+                'type': 'question',
+                'id': self.question.object_uuid,
+                'content': 'fake',
+                'object_uuid': self.question.object_uuid}
         }
 
         res = add_object_to_search_index.apply_async(kwargs=task_data)
@@ -43,9 +46,12 @@ class TestAddObjectToSearchIndex(TestCase):
         temp_es = settings.ELASTIC_SEARCH_HOST
         settings.ELASTIC_SEARCH_HOST = [{'host': 'sagebrew.com'}]
         task_data = {
-            'object_type': 'question',
-            'object_data': {'content': 'fake',
-                            'object_uuid': self.question.object_uuid}
+            'object_uuid': self.question.object_uuid,
+            'object_data': {
+                'type': 'question',
+                'id': self.question.object_uuid,
+                'content': 'fake',
+                'object_uuid': self.question.object_uuid}
         }
 
         res = add_object_to_search_index.apply_async(kwargs=task_data)
@@ -55,10 +61,15 @@ class TestAddObjectToSearchIndex(TestCase):
         self.assertIsInstance(res.result, Exception)
 
     def test_add_object_to_search_index_pleb_already_populated(self):
+        fake_uuid = str(uuid1())
         task_data = {
-            'object_type': 'pleb',
-            'object_data': {'email': self.email, "object_uuid": str(uuid1())},
-            'object_added': self.pleb,
+            'object_uuid': fake_uuid,
+            'object_data': {
+                'type': 'question',
+                'id': self.question.object_uuid,
+                'email': self.email,
+                "object_uuid": fake_uuid
+            },
         }
         self.pleb.populated_es_index = True
         self.pleb.save()
@@ -73,7 +84,7 @@ class TestAddObjectToSearchIndex(TestCase):
 
     def test_add_object_to_search_index_no_object_data(self):
         task_data = {
-            'object_type': 'pleb',
+            'object_uuid': str(uuid1()),
         }
 
         res = add_object_to_search_index.apply_async(kwargs=task_data)

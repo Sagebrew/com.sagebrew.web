@@ -28,8 +28,8 @@ def add_question_to_indices_task(question):
                                                  max_retries=None)
 
     task_data = {
-        "object_data": question,
-        "object_added": question_obj
+        "object_uuid": question['object_uuid'],
+        'object_data': question
     }
     spawned = spawn_task(task_func=add_object_to_search_index,
                          task_param=task_data)

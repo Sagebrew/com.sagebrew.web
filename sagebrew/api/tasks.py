@@ -41,7 +41,7 @@ def add_object_to_search_index(object_uuid, object_data,
     if object_added is not None:
         if object_added.populated_es_index is True:
             return True
-    if object_data is None:
+    else:
         return False
     try:
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
@@ -58,7 +58,6 @@ def add_object_to_search_index(object_uuid, object_data,
     search_id_data = {
         "search_data": res,
         "object_data": object_data,
-        "object_added": object_added
     }
     save_id = spawn_task(task_func=save_search_id, task_param=search_id_data)
     if isinstance(save_id, Exception) is True:

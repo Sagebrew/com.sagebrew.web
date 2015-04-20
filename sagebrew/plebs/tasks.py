@@ -82,7 +82,7 @@ def finalize_citizen_creation(user_instance=None):
                                               max_retries=None)
     task_list = {}
     task_data = {
-        'object_added': pleb,
+        "object_uuid": pleb.object_uuid,
         'object_data': PlebSerializerNeo(pleb).data
     }
     task_list["add_object_to_search_index"] = spawn_task(

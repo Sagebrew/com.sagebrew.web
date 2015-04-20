@@ -84,7 +84,8 @@ class TestAddObjectToSearchIndex(TestCase):
 
     def test_add_object_to_search_index_no_object_data(self):
         task_data = {
-            'object_uuid': str(uuid1()),
+            'object_uuid': self.question.object_uuid,
+            'object_data': {}
         }
 
         res = add_object_to_search_index.apply_async(kwargs=task_data)

@@ -51,6 +51,10 @@ def add_object_to_search_index(object_uuid, object_data,
             RequestError) as e:
         raise add_object_to_search_index.retry(exc=e, countdown=3,
                                                max_retries=None)
+    except KeyError:
+        # If the correct values are provided then there's no reason to keep
+        # retrying
+        return False
     except Exception as e:
         raise add_object_to_search_index.retry(exc=e, countdown=3,
                                                max_retries=None)

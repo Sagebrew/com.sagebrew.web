@@ -1,11 +1,11 @@
 {% load humanize %}
 <div class="row block_vertical">
-    <div class="col-lg-3 col-md-3">
+    <div class="col-lg-3 hidden-md">
         <div class="thumbnail sb_thumbnail_md">
             <a href="{% url 'action_saga' username=object_uuid %}"><img src="https://theunitedstates.io/images/congress/original/{{ bioguide }}.jpg"></a> {% comment %} Link to their S3 public image{% endcomment %}
         </div>
     </div>
-    <div class="col-lg-8 col-md-10 vertical_nav">
+    <div class="col-lg-8 vertical_nav">
         <ul>
             <li>
                 <a href="{% url 'action_saga' username=object_uuid %}">{{ full_name }}</a>

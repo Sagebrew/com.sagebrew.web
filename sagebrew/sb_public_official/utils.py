@@ -36,7 +36,8 @@ def save_goal(rep_id, vote_req, money_req, initial, description, goal_id):
     except (Goal.DoesNotExist, DoesNotExist):
         try:
             rep = PublicOfficial.nodes.get(object_uuid=rep_id)
-        except (PublicOfficial.DoesNotExist, DoesNotExist, CypherException) as e:
+        except (PublicOfficial.DoesNotExist, DoesNotExist,
+                CypherException) as e:
             return e
         try:
             goal = Goal(object_uuid=goal_id, vote_req=vote_req,

@@ -28,7 +28,8 @@ from .utils import get_rep_type, prepare_official_search_html
 def saga(request, username):
     try:
         official = PublicOfficial.nodes.get(object_uuid=username)
-    except (CypherException, IOError, PublicOfficial.DoesNotExist, DoesNotExist):
+    except (CypherException, IOError, PublicOfficial.DoesNotExist,
+            DoesNotExist):
         return redirect("404_Error")
     official_dict = official.get_dict()
     return render(request, 'action_page.html',
@@ -42,7 +43,8 @@ def saga(request, username):
 def updates(request, username):
     try:
         official = PublicOfficial.nodes.get(object_uuid=username)
-    except (CypherException, IOError, PublicOfficial.DoesNotExist, DoesNotExist):
+    except (CypherException, IOError, PublicOfficial.DoesNotExist,
+            DoesNotExist):
         return redirect("404_Error")
     official_dict = official.get_dict()
     return render(request, 'action_page.html',

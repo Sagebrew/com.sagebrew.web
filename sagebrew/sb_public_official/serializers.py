@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from api.serializers import SBSerializer
 
+
 class PublicOfficialSerializer(SBSerializer):
     full_name = serializers.CharField()
     start_date = serializers.DateTimeField(read_only=True)

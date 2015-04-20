@@ -5,7 +5,7 @@ from datetime import datetime
 from django.conf import settings
 
 from celery import shared_task
-from neomodel import DoesNotExist, CypherException, db
+from neomodel import DoesNotExist, CypherException
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import (ElasticsearchException, TransportError,
                                       ConnectionError, RequestError)

@@ -434,6 +434,10 @@ extend ' .progress_bar' has no matches
 .sb_btn_vote:hover {
   color: #1ba39c;
 }
+.sb_btn_vote:disabled {
+  background-color: transparent;
+  color: #b7bfbb;
+}
 .vote_small button {
   font-size: 20pt;
 }

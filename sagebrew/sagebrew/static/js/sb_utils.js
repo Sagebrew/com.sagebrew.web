@@ -12,6 +12,7 @@ function ajax_security(xhr, settings) {
 
 function save_comment(comment_area, url, object_uuid) {
     $(comment_area).click(function (event) {
+        $(comment_area).attr("disabled", "disabled");
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -33,8 +34,10 @@ function save_comment(comment_area, url, object_uuid) {
                 comment_container.prepend(data['html']);
                 $('textarea#post_comment_on_' + object_uuid).val("");
                 enable_comment_functionality(data["ids"])
+                 $(comment_area).removeAttr("disabled");
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
+                $(comment_area).removeAttr("disabled");
                 if(XMLHttpRequest.status === 500){
                     $("#server_error").show();
                 }
@@ -357,6 +360,11 @@ function vote_object(vote_area, resource){
         var vote_type = $(this).hasClass('vote_up') ? true : false;
         var vote_down = $(this).parents('div.vote_wrapper').find(".vote_down");
         var vote_up = $(this).parents('div.vote_wrapper').find(".vote_up");
+        if (vote_type === true){
+            vote_up.attr("disabled", "disabled");
+        } else if(vote_type === false){
+            vote_down.attr("disabled", "disabled");
+        }
         var upvote_count = parseInt($('#vote_count_' + object_uuid).text());
         if(vote_down.hasClass('vote_down_active') && vote_type == true){
             vote_down.removeClass('vote_down_active');
@@ -399,9 +407,11 @@ function vote_object(vote_area, resource){
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function(data){
-                $('#vote_count_' + object_uuid).text(upvote_count)
+                $('#vote_count_' + object_uuid).text(upvote_count);
+                $(vote_area).removeAttr("disabled");
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
+                $(vote_area).removeAttr("disabled");
                 if(XMLHttpRequest.status === 500){
                     $("#server_error").show();
                     //alert(textStatus);

@@ -25,8 +25,9 @@ from sb_questions.neo_models import Question
 from sb_questions.serializers import QuestionSerializerNeo
 from sb_votes.serializers import VoteSerializer
 
-from .serializers import UserSerializer, PlebSerializerNeo, AddressSerializer
-from .neo_models import Pleb, Address
+from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
+                          FriendRequestSerializer)
+from .neo_models import Pleb, Address, FriendRequest
 
 logger = getLogger('loggly_logs')
 
@@ -374,3 +375,23 @@ class ProfileViewSet(viewsets.ModelViewSet):
         serializer = VoteSerializer(page, many=True,
                                     context={'request': request})
         return self.get_paginated_response(serializer.data)
+
+
+class FriendRequestViewSet(viewsets.ModelViewSet):
+    serializer_class = FriendRequestSerializer
+    lookup_field = "object_uuid"
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        query = "MATCH (n:`FriendRequest`) RETURN n"
+        res, col = db.cypher_query(query)
+        queryset = [FriendRequest.inflate(row[0]) for row in res]
+        return queryset
+
+    def get_object(self):
+        return FriendRequest.nodes.get(
+            object_uuid=self.kwargs[self.lookup_field])
+
+    def create(self, request, *args, **kwargs):
+        return Response({"detail": "TBD"},
+                        status=status.HTTP_501_NOT_IMPLEMENTED)

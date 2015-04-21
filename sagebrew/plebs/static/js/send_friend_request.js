@@ -21,6 +21,8 @@ $(document).ready(function () {
             success: function (data) {
                 if (data['action'] == true) {
                     $(send_request).hide();
+                    $(".delete_friend_request-action").data(
+                        'uuid', data['friend_request_id']);
                     $("button.delete_friend_request-action").show();
                 }
             },

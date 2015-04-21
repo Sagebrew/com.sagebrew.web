@@ -39,12 +39,19 @@
                             data-from_username="{{ current_user.username }}"
                             data-to_username="{{ page_user.username }}">Friend Request
                     </button>
-                {% else %}
-                    <button class="btn btn-primary sb_btn delete_friend_request-action" style="margin-top: 3px">
+               {% else %}
+                   <button class="btn btn-primary sb_btn send_friend_request-action" style="margin-top: 3px; display: none"
+                            data-from_username="{{ current_user.username }}"
+                            data-to_username="{{ page_user.username }}">Friend Request
+                   </button>
+                   <button class="btn btn-primary sb_btn delete_friend_request-action"
+                            style="margin-top: 3px"
+                            data-uuid="{{ friend_request_sent.uuid }}">
                         Delete Request
-                    </button>
-                {% endif %}
-           <button class="btn btn-primary sb_btn delete_friend_request-action" hidden style="margin-top: 3px; display: none;">
+                   </button>
+               {% endif %}
+           <button class="btn btn-primary sb_btn delete_friend_request-action" hidden style="margin-top: 3px; display: none;"
+                   data-uuid="{{ friend_request_sent.uuid }}">
                Delete Request
            </button>
            </div>

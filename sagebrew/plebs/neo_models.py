@@ -361,17 +361,20 @@ class Pleb(SBObject, Searchable):
                 continue
         return request_list
 
-    def get_friend_requests_sent(self):
+    def get_friend_requests_sent(self, username):
         try:
             request_list = []
             for request in self.friend_requests_sent.all():
                 try:
-                    request_list.append(request.request_to.all()[0].username)
+                    if request.request_to.all()[0].username == username:
+                        return {
+                            "username": request.request_to.all()[0].username,
+                            "uuid": request.object_uuid}
                 except IndexError:
                     continue
         except(CypherException, IOError) as e:
             raise e
-        return request_list
+        return False
 
     def determine_reps(self):
         from sb_public_official.utils import determine_reps

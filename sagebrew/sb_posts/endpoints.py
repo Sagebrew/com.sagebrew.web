@@ -93,8 +93,10 @@ class WallPostsListCreate(ListCreateAPIView):
         """
         wall_pleb = Pleb.nodes.get(username=self.kwargs[self.lookup_field])
         friends = [friend.username for friend in wall_pleb.friends.all()]
-        if self.request.user.username not in friends:
+        if self.request.user.username not in friends \
+                and self.request.user.username != wall_pleb.username:
             # TODO instead raise NotFriendException which we need to define
+            # Also may want to move this to the Context processor for friends
             return []
         query = "MATCH (a:Pleb {username:'%s'})-[:OWNS_WALL]->" \
                 "(b:Wall)-[:HAS_POST]->(c) WHERE c.to_be_deleted=false" \
@@ -104,6 +106,13 @@ class WallPostsListCreate(ListCreateAPIView):
         return [Post.inflate(row[0]) for row in res]
 
     def create(self, request, *args, **kwargs):
+        wall_pleb = Pleb.nodes.get(username=self.kwargs[self.lookup_field])
+        friends = [friend.username for friend in wall_pleb.friends.all()]
+        if self.request.user.username not in friends \
+                and self.request.user.username != wall_pleb.username:
+            return Response({"detail": "Sorry you are not friends with this"
+                                       "person."},
+                            status=status.HTTP_400_BAD_REQUEST)
         post_data = request.data
         post_data['parent_object'] = self.kwargs[self.lookup_field]
 

@@ -253,3 +253,11 @@ class FriendRequestSerializer(SBSerializer):
     time_sent = serializers.DateTimeField(read_only=True)
     time_seen = serializers.DateTimeField(allow_null=True, required=False)
     response = serializers.CharField(required=False)
+    from_user = serializers.SerializerMethodField()
+    to_user = serializers.SerializerMethodField()
+
+    def get_from_user(self):
+        pass
+
+    def get_to_user(self):
+        pass

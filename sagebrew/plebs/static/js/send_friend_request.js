@@ -1,6 +1,8 @@
 $(document).ready(function () {
     $("button.send_friend_request-action").click(function (event) {
         event.preventDefault();
+        var send_request = $("button.send_friend_request-action");
+        $(send_request).attr("disabled", "disabled");
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 ajax_security(xhr, settings)
@@ -18,8 +20,14 @@ $(document).ready(function () {
             dataType: "json",
             success: function (data) {
                 if (data['action'] == true) {
-                    $("button.send_friend_request-action").hide();
+                    $(send_request).hide();
                     $("button.delete_friend_request-action").show();
+                }
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status === 500){
+                    $(send_request).removeAttr("disabled");
+                    $("#server_error").show();
                 }
             }
         });

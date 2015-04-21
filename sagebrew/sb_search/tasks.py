@@ -5,7 +5,7 @@ from datetime import datetime
 from django.conf import settings
 
 from celery import shared_task
-from neomodel import DoesNotExist, CypherException, db
+from neomodel import DoesNotExist, CypherException
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import (ElasticsearchException, TransportError,
                                       ConnectionError, RequestError)
@@ -40,14 +40,14 @@ def spawn_weight_relationships(search_items):
                 })
             if isinstance(spawned, Exception) is True:
                 return spawned
-        if item['_type'] == 'pleb':
+        if item['_type'] == 'profile':
             spawned = spawn_task(
                 update_weight_relationship,
                 task_param={
                     'index': item['_index'],
                     'document_id': item['_id'],
-                    'object_uuid': item['_source']['pleb_email'],
-                    'object_type': 'pleb',
+                    'object_uuid': item['_source']['email'],
+                    'object_type': 'profile',
                     'current_pleb': item['_source']['related_user'],
                     'modifier_type': 'seen'
                 })
@@ -83,7 +83,7 @@ def update_weight_relationship(document_id, index, object_type,
         except (Pleb.DoesNotExist, DoesNotExist):
             return False
 
-        if object_type == 'pleb':
+        if object_type == 'profile':
             try:
                 pleb = Pleb.nodes.get(email=object_uuid)
                 c_pleb = Pleb.nodes.get(email=current_pleb)
@@ -105,15 +105,12 @@ def update_weight_relationship(document_id, index, object_type,
                 update_search_index_doc(**update_dict)
             return True
         try:
-            query = 'MATCH (a:Searchable) WHERE a.object_uuid = ' \
-                    '"%s" RETURN a' % (object_uuid)
-            res, col = db.cypher_query(query)
             if object_type == "question":
-                sb_object = Question.inflate(res[0][0])
+                sb_object = Question.nodes.get(object_uuid=object_uuid)
             elif object_type == "saga":
-                sb_object = PublicOfficial.inflate(res[0][0])
+                sb_object = PublicOfficial.nodes.get(object_uuid=object_uuid)
             else:
-                sb_object = SBContent.inflate(res[0][0])
+                sb_object = SBContent.nodes.get(object_uuid=object_uuid)
         except(CypherException, IOError) as e:
             raise update_weight_relationship.retry(exc=e, countdown=3,
                                                    max_retries=None)
@@ -178,7 +175,7 @@ def add_user_to_custom_index(username=None,
     results = es.scroll(scroll_id=scrollid, scroll='10m')
     res = results['hits']['hits']
     saga_res = es.search(
-        index='full-search-base', size=50, doc_type='sagas',
+        index='full-search-base', size=50, doc_type='public_official',
         body={
             "query":
                 {
@@ -194,16 +191,16 @@ def add_user_to_custom_index(username=None,
         for item in res:
             item['_source']['related_user'] = pleb.username
             item['_source']['sb_score'] = 0
-            if item['_type'] == 'Question':
+            if item['_type'] == 'question':
                 es.index(index=index, doc_type='question',
                          body=item['_source'])
-            if item['_type'] == 'pleb':
-                es.index(index=index, doc_type='pleb',
+            if item['_type'] == 'profile':
+                es.index(index=index, doc_type='profile',
                          body=item['_source'])
         for item in sagas:
             item['_source']['related_user'] = pleb.username
             item['_source']['sb_score'] = 0
-            es.index(index=index, doc_type='sagas',
+            es.index(index=index, doc_type='public_official',
                      body=item['_source'])
         pleb.populated_personal_index = True
         pleb.save()

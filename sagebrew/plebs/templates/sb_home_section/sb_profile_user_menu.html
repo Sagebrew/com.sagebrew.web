@@ -21,10 +21,11 @@
                         <a href='#'>
                             Reputation</a>
                     </li>
+                {% endif %}
                     <li>
                            <a href='/user/{{ request.user.username }}/friends/'>Friends</a>
                     </li>
-                {% endif %}
+
 
         </ul>
     {% elif not is_friend and page_user.username != request.user.username %}
@@ -43,6 +44,9 @@
                         Delete Request
                     </button>
                 {% endif %}
+           <button class="btn btn-primary sb_btn delete_friend_request-action" hidden style="margin-top: 3px; display: none;">
+               Delete Request
+           </button>
            </div>
        </div>
     {% endif %}

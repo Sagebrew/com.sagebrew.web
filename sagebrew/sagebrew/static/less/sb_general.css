@@ -240,6 +240,7 @@ extend ' .progress_bar' has no matches
 .sb_wallpaper_action {
   background-color: #f9fff7;
   width: 100%;
+  border-radius: 5px 5px 0 0;
 }
 .wallpaper_profile {
   height: 250px;
@@ -433,6 +434,10 @@ extend ' .progress_bar' has no matches
 .sb_btn_vote:hover {
   color: #1ba39c;
 }
+.sb_btn_vote:disabled {
+  background-color: transparent;
+  color: #b7bfbb;
+}
 .vote_small button {
   font-size: 20pt;
 }
@@ -460,11 +465,16 @@ extend ' .progress_bar' has no matches
   font-weight: bold;
   display: inline-block;
 }
-.vote_count_large .vote_count {
+.vote_count_large {
   margin-left: 15px;
+  font-size: 15pt;
+  font-weight: bold;
+}
+.vote_count_large .vote_count {
+  margin-left: 12px;
 }
 .vote_count_medium .vote_count {
-  margin-left: 4px;
+  margin-left: 5px;
 }
 .vote_count_small span.vote_count {
   font-size: 13px !important;
@@ -481,11 +491,6 @@ extend ' .progress_bar' has no matches
 }
 .vote_down_active {
   color: #a162ff;
-}
-.vote_count_large {
-  margin-left: 15px;
-  font-size: 15pt;
-  font-weight: bold;
 }
 .sb_spy {
   color: #838c92;
@@ -690,7 +695,6 @@ extend ' .progress_bar' has no matches
 }
 .sb_thumbnail_md,
 .sb_thumbnail_search {
-  height: 100px;
   width: 100px;
 }
 .sb_thumbnail_lg {

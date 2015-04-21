@@ -246,6 +246,7 @@
 .sb_wallpaper{
   background-color: @sb_grey_extra_light;
   width: 100%;
+  border-radius: 5px 5px 0 0;
 }
 .wallpaper_profile{
   &:extend(.sb_wallpaper);
@@ -431,6 +432,10 @@
   &:hover{
     color: @sb_green;
   }
+  &:disabled{
+    background-color: transparent;
+    color: @sb_grey;
+  }
 }
 .vote_small{
   button {
@@ -464,14 +469,17 @@
 }
 
 .vote_count_large{
+  margin-left: 15px;
+  font-size: 15pt;
+  font-weight: bold;
   .vote_count{
-      margin-left: 15px;
+      margin-left: 12px;
     }
 }
 
 .vote_count_medium{
   .vote_count{
-      margin-left: 4px;
+      margin-left: 5px;
     }
 }
 
@@ -500,11 +508,6 @@
 
 .vote_down_active{
   color: @sb_violet;
-}
-.vote_count_large{
-  margin-left: 15px;
-  font-size: 15pt;
-  font-weight: bold;
 }
 
 
@@ -750,7 +753,6 @@
   border-radius: 0;
 }
 .sb_thumbnail_md {
-  height: 100px;
   width: 100px;
 }
 .sb_thumbnail_lg {

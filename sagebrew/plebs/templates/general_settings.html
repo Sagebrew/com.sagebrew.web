@@ -82,7 +82,7 @@
                                                id="sb_secondary"
                                                placeholder="Address Line 2"
                                                class="form-control input-lg"
-                                                value="{{ address.street_additional }}">
+                                                value="{{ address.street_additional|default_if_none:"" }}">
                                     </div>
                                 </div>
                                 <div class="row">
@@ -213,6 +213,7 @@
             </div>
         </div>
     </div>
+    <div hidden id="address_data_block" data-address_validation={{ address_key }}></div>
 </div>
 
 {% endblock %}
@@ -220,10 +221,8 @@
 {% endblock %}
 {% block scripts %}
     {{ block.super }}
+    <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/2.4/jquery.liveaddress.min.js"></script>
     <script src="{% static 'js/settings_validator.js' %}"></script>
     <script src="{% static 'js/address_validation.js' %}"></script>
     <script src="{% static 'js/submit_settings.js' %}"></script>
 {% endblock scripts %}
-{% block external_scripts %}
-    <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/2.4/jquery.liveaddress.min.js"></script>
-{% endblock external_scripts %}

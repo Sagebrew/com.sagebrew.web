@@ -369,7 +369,7 @@ class TestUpdateWeightRelationshipTaskPleb(TestCase):
         data = {
             "document_id": str(uuid1()),
             'index': 'full-search-user-specific-1',
-            'object_type': 'pleb',
+            'object_type': 'profile',
             'object_uuid': self.pleb.email,
             'current_pleb': pleb2.email,
             'modifier_type': 'search_seen'
@@ -393,7 +393,7 @@ class TestUpdateWeightRelationshipTaskPleb(TestCase):
         data = {
             "document_id": str(uuid1()),
             'index': 'full-search-user-specific-1',
-            'object_type': 'pleb',
+            'object_type': 'profile',
             'object_uuid': self.pleb.email,
             'current_pleb': pleb2.email,
             'modifier_type': 'search_seen'
@@ -418,7 +418,7 @@ class TestUpdateWeightRelationshipTaskPleb(TestCase):
         data = {
             "document_id": str(uuid1()),
             'index': 'full-search-user-specific-1',
-            'object_type': 'pleb',
+            'object_type': 'profile',
             'object_uuid': self.pleb.email,
             'current_pleb': str(uuid1()),
             'modifier_type': 'search_seen'

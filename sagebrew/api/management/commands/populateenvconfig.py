@@ -119,6 +119,12 @@ def populate_staging_values(data):
                         environ.get("ELASTIC_SEARCH_USER_STAGING", ""))
     data = data.replace("<ELASTIC_SEARCH_KEY>",
                         environ.get("ELASTIC_SEARCH_KEY_STAGING", ""))
+    data = data.replace("<ADDRESS_VALIDATION_ID>",
+                        environ.get("ADDRESS_VALIDATION_ID_STAGING", ""))
+    data = data.replace("<ADDRESS_VALIDATION_TOKEN>",
+                        environ.get("ADDRESS_VALIDATION_TOKEN_STAGING", ""))
+    data = data.replace("<ADDRESS_AUTH_ID>",
+                        environ.get("ADDRESS_AUTH_ID_STAGING", ""))
     return data
 
 
@@ -185,6 +191,12 @@ def populate_production_values(data):
                         environ.get("ELASTIC_SEARCH_USER_PROD", ""))
     data = data.replace("<ELASTIC_SEARCH_KEY>",
                         environ.get("ELASTIC_SEARCH_KEY_PROD", ""))
+    data = data.replace("<ADDRESS_VALIDATION_ID>",
+                        environ.get("ADDRESS_VALIDATION_ID_PROD", ""))
+    data = data.replace("<ADDRESS_VALIDATION_TOKEN>",
+                        environ.get("ADDRESS_VALIDATION_TOKEN_PROD", ""))
+    data = data.replace("<ADDRESS_AUTH_ID>",
+                        environ.get("ADDRESS_AUTH_ID_PROD", ""))
     return data
 
 
@@ -225,6 +237,12 @@ def populate_test_values(data):
                         environ.get("ELASTIC_SEARCH_USER", ""))
     data = data.replace("<ELASTIC_SEARCH_KEY>",
                         environ.get("ELASTIC_SEARCH_KEY", ""))
+    data = data.replace("<ADDRESS_VALIDATION_ID>",
+                        environ.get("ADDRESS_VALIDATION_ID", ""))
+    data = data.replace("<ADDRESS_VALIDATION_TOKEN>",
+                        environ.get("ADDRESS_VALIDATION_TOKEN", ""))
+    data = data.replace("<ADDRESS_AUTH_ID>",
+                        environ.get("ADDRESS_AUTH_ID", ""))
     return data
 
 
@@ -249,10 +267,6 @@ def populate_general_values(data):
 
     data = data.replace("<ALCHEMY_API_KEY>",
                         environ.get("ALCHEMY_API_KEY", ""))
-    data = data.replace("<ADDRESS_VALIDATION_ID>",
-                        environ.get("ADDRESS_VALIDATION_ID", ""))
-    data = data.replace("<ADDRESS_VALIDATION_TOKEN>",
-                        environ.get("ADDRESS_VALIDATION_TOKEN", ""))
 
     data = data.replace("<REDIS_PORT>", environ.get("REDIS_PORT", ""))
     data = data.replace("<QUEUE_USERNAME>", environ.get("QUEUE_USERNAME", ""))

@@ -6,29 +6,37 @@ class SBSerializer(serializers.Serializer):
     type = serializers.SerializerMethodField()
 
     def get_id(self, obj):
-        request = self.context.get('request')
-        # TODO may want to change this to async?
         try:
-            expedite = request.query_params.get('expedite', "false").lower()
-        except AttributeError:
+            request = self.context['request']
             try:
-                expedite = request.GET.get('expedite', "false").lower()
+                # TODO may want to change this to async?
+                expedite = request.query_params.get('expedite', "false").lower()
             except AttributeError:
+                try:
+                    expedite = request.GET.get('expedite', "false").lower()
+                except AttributeError:
+                    return None
+            if expedite == "true":
                 return None
-        if expedite == "true":
-            return None
+        except KeyError:
+            pass
+
         return obj.object_uuid
 
     def get_type(self, obj):
-        request = self.context.get('request')
-        # TODO may want to change this to async?
         try:
-            expedite = request.query_params.get('expedite', "false").lower()
-        except AttributeError:
+            request = self.context['request']
             try:
-                expedite = request.GET.get('expedite', "false").lower()
+                # TODO may want to change this to async?
+                expedite = request.query_params.get('expedite', "false").lower()
             except AttributeError:
+                try:
+                    expedite = request.GET.get('expedite', "false").lower()
+                except AttributeError:
+                    return None
+            if expedite == "true":
                 return None
-        if expedite == "true":
-            return None
+        except KeyError:
+            pass
+
         return obj.__class__.__name__.lower()

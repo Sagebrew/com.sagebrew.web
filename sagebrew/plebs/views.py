@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.http import HttpResponse
+from django.conf import settings
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -148,13 +149,14 @@ def general_settings(request):
         return redirect("404_Error")
     except (CypherException, IOError):
         return redirect("500_Error")
+    address_key = settings.ADDRESS_AUTH_ID
     try:
         address = pleb.address.all()[0]
         address = AddressSerializer(address, context={'request': request}).data
     except IndexError:
         address = False
     return render(request, 'general_settings.html',
-                  {"address": address})
+                  {"address": address, "address_key": address_key})
 
 
 @api_view(['GET'])
@@ -166,7 +168,7 @@ def get_user_search_view(request, pleb_username=""):
     in a search.
 
     :param request:
-    :param pleb_email:
+    :param pleb_username:
     :return:
     """
     form = GetUserSearchForm({"username": pleb_username})

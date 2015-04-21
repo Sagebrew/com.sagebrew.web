@@ -20,7 +20,7 @@
                 {% if request.user.username == owner_object.username %}
                     <button class="btn dropdown-toggle sb_btn_icon" type="button"
                         data-toggle="dropdown">
-                        <span class="fui-gear sb_btn_icon_green_hover"></span>
+                        <span class="fa fa-cog sb_btn_icon_green_hover"></span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
                         role="menu" aria-labelledby="dropdown-menu">
@@ -94,7 +94,7 @@
                       name="comment_content"
                       placeholder="Write your comment..."></textarea>
             <a class="btn input-group-btn sb_btn_comment_icon comment-action comment_{{ object_uuid }}"
-               data-object_uuid="{{ object_uuid }}"><span class="fui-new"></span></a>
+               data-object_uuid="{{ object_uuid }}"><span class="fa fa-plus"></span></a>
         </div>
         </form>
     </div>

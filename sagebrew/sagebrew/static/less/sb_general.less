@@ -1,5 +1,4 @@
 @import "sb_core/sb_core_variables.less";
-
 .sb_general{
   color: @sb_dark_blue;
   word-wrap: break-word;
@@ -348,6 +347,9 @@
 .sb_btn_disabled{
   background-color: @sb_grey;
 }
+.sb_btn_modal{
+  padding-right: 15px;
+}
 .sb_btn_space{
   &:extend(.sb_btn);
   margin-bottom: 10px;
@@ -367,7 +369,8 @@
   &:extend(.sb_btn);
   background-color: transparent;
   font-size: @sb_body_text;
-  padding: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 .sb_btn_icon_green{
     padding: 5px;
@@ -979,7 +982,7 @@
 }
 
 .sb_up_vote_wrapper{
-  margin-bottom: -13px;
+  margin-bottom: -5px;
 }
 .sb_up_vote_wrapper_summary{
   margin-top: 0;

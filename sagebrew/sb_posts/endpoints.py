@@ -18,6 +18,7 @@ from api.permissions import IsOwnerOrAdmin
 from api.utils import spawn_task
 from sb_base.views import ObjectRetrieveUpdateDestroy
 from sb_notifications.tasks import spawn_notifications
+from plebs.neo_models import Pleb
 
 from .serializers import PostSerializerNeo
 from .neo_models import Post
@@ -90,6 +91,11 @@ class WallPostsListCreate(ListCreateAPIView):
         Used query because match isn't working and filter doesn't work on
         all().
         """
+        wall_pleb = Pleb.nodes.get(username=self.kwargs[self.lookup_field])
+        friends = [friend.username for friend in wall_pleb.friends.all()]
+        if self.request.user.username not in friends:
+            # TODO instead raise NotFriendException which we need to define
+            return []
         query = "MATCH (a:Pleb {username:'%s'})-[:OWNS_WALL]->" \
                 "(b:Wall)-[:HAS_POST]->(c) WHERE c.to_be_deleted=false" \
                 " RETURN c ORDER BY c.created " \

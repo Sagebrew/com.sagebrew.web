@@ -343,16 +343,16 @@ class Pleb(SBObject, Searchable):
 
     def get_friend_requests_received(self):
         request_list = []
-        for request in self.friend_requests_received.all():
+        for friend_request in self.friend_requests_received.all():
             try:
-                if request.response is None:
+                if friend_request.response is None:
                     # TODO see if we can do this with a serializer instead
                     request_dict = {
-                        "object_uuid": request.object_uuid,
-                        "from": request.request_from.all()[0].username,
-                        "date_sent": request.time_sent,
-                        "date_seen": request.time_seen,
-                        "seen": request.seen,
+                        "object_uuid": friend_request.object_uuid,
+                        "from": friend_request.request_from.all()[0].username,
+                        "date_sent": friend_request.time_sent,
+                        "date_seen": friend_request.time_seen,
+                        "seen": friend_request.seen,
                     }
                     request_list.append(request_dict)
                 else:

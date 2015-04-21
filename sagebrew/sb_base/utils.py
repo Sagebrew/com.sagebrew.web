@@ -71,6 +71,7 @@ def get_ordering(sort_by):
 
     return sort_by, ordering
 
+
 def get_filter_by(filter_by):
     if filter_by == "":
         return ""

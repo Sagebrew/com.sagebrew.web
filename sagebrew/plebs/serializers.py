@@ -247,6 +247,7 @@ class AddressSerializer(SBSerializer):
             "address-detail", kwargs={'object_uuid': obj.object_uuid},
             request=request)
 
+
 class FriendRequestSerializer(SBSerializer):
     seen = serializers.BooleanField()
     time_sent = serializers.DateTimeField(read_only=True)

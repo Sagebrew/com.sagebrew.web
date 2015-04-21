@@ -98,6 +98,8 @@ def refresh_oauth_access_token(refresh_token, url, client_id=None,
         'grant_type': 'refresh_token',
         'refresh_token': refresh_token
     }
+    logger.critical("Debugging oauth refresh issue")
+    logger.critical(dumps(data))
     response = requests.post(url, data=data,
                              verify=settings.VERIFY_SECURE)
     return response.json()
@@ -128,7 +130,10 @@ def get_oauth_access_token(pleb, web_address=None):
         updated_creds = refresh_oauth_access_token(refresh_token,
                                                    oauth_creds.web_address)
         oauth_creds.last_modified = datetime.now(pytz.utc)
-        oauth_creds.access_token = encrypt(updated_creds['access_token'])
+        try:
+            oauth_creds.access_token = encrypt(updated_creds['access_token'])
+        except KeyError:
+            logger.exception("Access Token issue")
         oauth_creds.token_type = updated_creds['token_type']
         oauth_creds.expires_in = updated_creds['expires_in']
         oauth_creds.refresh_token = encrypt(updated_creds['refresh_token'])

@@ -174,7 +174,7 @@ def populate_production_values(data):
                         environ.get("OPBEAT_SECRET_TOKEN_PROD", ""))
     data = data.replace("<OAUTH_CLIENT_ID>",
                         environ.get("OAUTH_CLIENT_ID_PROD", ""))
-    data = data.replace("<ENV_OAUTH_CLIENT_SECRET>",
+    data = data.replace("<OAUTH_CLIENT_SECRET>",
                         environ.get("OAUTH_CLIENT_SECRET_PROD", ""))
     data = data.replace("<OAUTH_CLIENT_ID_CRED>",
                         environ.get("OAUTH_CLIENT_ID_CRED_PROD", ""))

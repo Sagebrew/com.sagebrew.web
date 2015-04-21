@@ -364,12 +364,10 @@ class Pleb(SBObject, Searchable):
     def get_friend_requests_sent(self, username):
         try:
             request_list = []
-            for request in self.friend_requests_sent.all():
+            for friend_request in self.friend_requests_sent.all():
                 try:
-                    if request.request_to.all()[0].username == username:
-                        return {
-                            "username": request.request_to.all()[0].username,
-                            "uuid": request.object_uuid}
+                    if friend_request.request_to.all()[0].username == username:
+                        return friend_request.object_uuid
                 except IndexError:
                     continue
         except(CypherException, IOError) as e:

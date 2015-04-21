@@ -18,7 +18,7 @@ from sagebrew import errors
 
 from api.utils import request_to_api
 from api.permissions import IsSelfOrReadOnly, IsSelf, IsOwnerOrAdmin
-from sb_base.utils import get_filter_params
+from sb_base.utils import get_filter_params, get_filter_by
 from sb_base.neo_models import SBContent
 from sb_base.serializers import MarkdownContentSerializer
 from sb_questions.neo_models import Question
@@ -383,7 +383,10 @@ class FriendRequestViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        query = "MATCH (n:`FriendRequest`) RETURN n"
+        filter_by = self.request.query_params.get("filter", "")
+        filtered = get_filter_by(filter_by)
+        query = "MATCH (p:Pleb {username:'%s'})-%s-(r:FriendRequest) RETURN r" \
+                % (self.request.user.username, filtered)
         res, col = db.cypher_query(query)
         queryset = [FriendRequest.inflate(row[0]) for row in res]
         return queryset

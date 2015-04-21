@@ -71,3 +71,12 @@ def create_friend_request_util(from_username, to_username, object_uuid):
         return True
     except(CypherException, KeyError) as e:
         return e
+
+
+def get_filter_by(filter_by):
+    if filter_by == "":
+        return ""
+    if filter_by == "sent":
+        return "[:SENT_A_REQUEST]"
+    if filter_by == "received":
+        return "[:RECEIVED_A_REQUEST]"

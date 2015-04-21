@@ -18,7 +18,7 @@ from sagebrew import errors
 
 from api.utils import request_to_api
 from api.permissions import IsSelfOrReadOnly, IsSelf, IsOwnerOrAdmin
-from sb_base.utils import get_filter_params, get_filter_by
+from sb_base.utils import get_filter_params
 from sb_base.neo_models import SBContent
 from sb_base.serializers import MarkdownContentSerializer
 from sb_questions.neo_models import Question
@@ -28,6 +28,7 @@ from sb_votes.serializers import VoteSerializer
 from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
                           FriendRequestSerializer)
 from .neo_models import Pleb, Address, FriendRequest
+from .utils import get_filter_by
 
 logger = getLogger('loggly_logs')
 

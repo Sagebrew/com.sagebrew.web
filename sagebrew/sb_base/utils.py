@@ -72,15 +72,6 @@ def get_ordering(sort_by):
     return sort_by, ordering
 
 
-def get_filter_by(filter_by):
-    if filter_by == "":
-        return ""
-    if filter_by == "sent":
-        return "[:SENT_A_REQUEST]"
-    if filter_by == "received":
-        return "[:RECEIVED_A_REQUEST]"
-
-
 def get_filter_params(filter_by, sb_instance):
     additional_params = ""
     if filter_by != "":

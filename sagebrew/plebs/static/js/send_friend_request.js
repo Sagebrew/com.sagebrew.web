@@ -23,7 +23,8 @@ $(document).ready(function () {
                     $(send_request).hide();
                     $(".delete_friend_request-action").data(
                         'uuid', data['friend_request_id']);
-                    $("button.delete_friend_request-action").show();
+                    $(".delete_friend_request-action").removeAttr("disabled");
+                    $(".delete_friend_request-action").show();
                 }
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {

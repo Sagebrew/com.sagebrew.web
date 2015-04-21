@@ -98,11 +98,15 @@ def refresh_oauth_access_token(refresh_token, url, client_id=None,
         'grant_type': 'refresh_token',
         'refresh_token': refresh_token
     }
-    logger.critical("Debugging oauth refresh issue")
-    logger.critical(dumps(data))
+
     response = requests.post(url, data=data,
                              verify=settings.VERIFY_SECURE)
-    return response.json()
+    json_response = response.json()
+    if "error" in json_response:
+        logger.critical("Debugging oauth refresh issue")
+        logger.critical(dumps(data))
+
+    return
 
 
 def check_oauth_needs_refresh(oauth_client):

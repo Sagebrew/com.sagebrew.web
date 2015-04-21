@@ -363,7 +363,6 @@ class Pleb(SBObject, Searchable):
 
     def get_friend_requests_sent(self, username):
         try:
-            request_list = []
             for friend_request in self.friend_requests_sent.all():
                 try:
                     if friend_request.request_to.all()[0].username == username:

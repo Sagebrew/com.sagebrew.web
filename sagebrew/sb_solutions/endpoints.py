@@ -32,7 +32,6 @@ logger = getLogger('loggly_logs')
 class SolutionViewSet(viewsets.ModelViewSet):
     serializer_class = SolutionSerializerNeo
     lookup_field = "object_uuid"
-    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         sort_by = self.request.query_params.get('ordering', "")

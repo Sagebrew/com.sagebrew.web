@@ -1,7 +1,9 @@
 from rest_framework import serializers
 
+from api.serializers import SBSerializer
 
-class PublicOfficialSerializer(serializers.Serializer):
+
+class PublicOfficialSerializer(SBSerializer):
     object_uuid = serializers.CharField()
     full_name = serializers.CharField()
     start_date = serializers.DateTimeField(read_only=True)
@@ -9,3 +11,6 @@ class PublicOfficialSerializer(serializers.Serializer):
     state = serializers.CharField(read_only=True)
     district = serializers.IntegerField(read_only=True)
     current = serializers.BooleanField(read_only=True)
+
+    def get_type(self, obj):
+        return "public_official"

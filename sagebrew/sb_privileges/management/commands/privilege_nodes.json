@@ -12,10 +12,6 @@
                     "permission": "write"
                 },
                 {
-                    "resource": "comment",
-                    "permission": "write"
-                },
-                {
                     "resource": "post",
                     "permission": "write"
                 }
@@ -45,6 +41,108 @@
                       "key": "reputation",
                       "operator": "coperator\nge\np0\n.",
                       "condition": 50
+                  }
+              ]
+          },
+          {
+              "name": "upvote",
+              "actions": [
+                  {
+                      "resource": "vote",
+                      "permission": "upvote"
+                  }
+              ],
+              "requirements": [
+                  {
+                      "name": "Total Reputation Profile +10",
+                      "url": "/v1/profiles/<username>/reputation/",
+                      "key": "reputation",
+                      "operator": "coperator\nge\np0\n.",
+                      "condition": 10
+                  }
+              ]
+          },
+          {
+              "name": "comment",
+              "actions": [
+                  {
+                      "resource": "comment",
+                      "permission": "write"
+                  }
+              ],
+              "requirements": [
+                  {
+                      "name": "Total Reputation Profile +20",
+                      "url": "/v1/profiles/<username>/reputation/",
+                      "key": "reputation",
+                      "operator": "coperator\nge\np0\n.",
+                      "condition": 20
+                  }
+              ]
+          },
+          {
+              "name": "downvote",
+              "actions": [
+                  {
+                      "resource": "vote",
+                      "permission": "downvote"
+                  }
+              ],
+              "requirements": [
+                  {
+                      "name": "Total Reputation Profile +100",
+                      "url": "/v1/profiles/<username>/reputation/",
+                      "key": "reputation",
+                      "operator": "coperator\nge\np0\n.",
+                      "condition": 100
+                  }
+              ]
+          },
+          {
+              "name": "barista",
+              "requirements": [
+                  {
+                      "name": "Total Reputation Profile +1000",
+                      "url": "/v1/profiles/<username>/reputation/",
+                      "key": "reputation",
+                      "operator": "coperator\nge\np0\n.",
+                      "condition": 1000
+                  }
+              ]
+          },
+          {
+              "name": "tribune",
+              "actions": [
+                  {
+                      "resource": "intercom",
+                      "permission": "write"
+                  }
+              ],
+              "requirements": [
+                  {
+                      "name": "Total Reputation Profile +12500",
+                      "url": "/v1/profiles/<username>/reputation/",
+                      "key": "reputation",
+                      "operator": "coperator\nge\np0\n.",
+                      "condition": 12500
+                  }
+              ]
+          },
+          {
+              "name": "beta_user",
+              "actions": [
+                  {
+                      "resource": "intercom",
+                      "permission": "write"
+                  }
+              ],
+              "requirements": [
+                  {
+                      "name": "Is Beta User",
+                      "url": "/v1/profiles/<username>/is_beta_user/",
+                      "key": "is_beta_user",
+                      "operator": "coperator\neq\np0\n.",
+                      "condition": true
                   }
               ]
           }

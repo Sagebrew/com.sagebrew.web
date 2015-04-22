@@ -10,9 +10,8 @@ from neomodel import CypherException
 from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
-from sb_public_official.neo_models import BaseOfficial
+from sb_public_official.neo_models import PublicOfficial
 from sb_public_official.utils import prepare_official_search_html
-
 
 
 class TestPrepareSearchHTML(TestCase):
@@ -26,21 +25,21 @@ class TestPrepareSearchHTML(TestCase):
 
     def test_prepare_search_html(self):
         try:
-            test_official = BaseOfficial(
-                object_uuid = str(uuid1()),
-                full_name = "Test Rep",
-                first_name = "Test",
-                last_name = "Rep",
-                start_date = datetime.now(pytz.utc),
-                end_date = datetime.now(pytz.utc),
-                state = "MI",
-                title = "House Rep",
-                district = 11,
-                current = True
+            test_official = PublicOfficial(
+                object_uuid=str(uuid1()),
+                full_name="Test Rep",
+                first_name="Test",
+                last_name="Rep",
+                start_date=datetime.now(pytz.utc),
+                end_date=datetime.now(pytz.utc),
+                state="MI",
+                title="House Rep",
+                district=11,
+                current=True
             )
             test_official.save()
         except (CypherException, IOError):
-            pass
+            test_official = None
 
         res = prepare_official_search_html(test_official.object_uuid)
         self.assertIsInstance(res, SafeText)

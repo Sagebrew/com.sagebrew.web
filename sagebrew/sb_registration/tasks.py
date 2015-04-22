@@ -3,7 +3,7 @@ from neomodel import (DoesNotExist, AttemptedCardinalityViolation,
                       CypherException)
 
 from plebs.neo_models import Pleb
-from sb_tag.neo_models import Tag
+from sb_tags.neo_models import Tag
 from plebs.neo_models import Address
 
 
@@ -18,7 +18,7 @@ def update_interests(username, interests):
     for key, value in interests.iteritems():
         if value is True or value != []:
             try:
-                tag = Tag.nodes.get(tag_name=key.lower())
+                tag = Tag.nodes.get(name=key.lower())
                 citizen.interests.connect(tag)
             except (Tag.DoesNotExist, DoesNotExist) as e:
                 raise update_interests.retry(exc=e, countdown=3,
@@ -55,6 +55,7 @@ def store_address(username, address_clean):
     try:
         address.owned_by.connect(citizen)
         citizen.address.connect(address)
+        citizen.determine_reps()
     except AttemptedCardinalityViolation:
         pass
     except (CypherException, IOError) as e:
@@ -66,11 +67,11 @@ def store_address(username, address_clean):
 def save_profile_picture(url, username):
     try:
         pleb = Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException) as e:
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
         raise save_profile_picture.retry(exc=e, countdown=3, max_retries=None)
     try:
         pleb.profile_pic = url
         pleb.save()
-    except CypherException as e:
+    except (CypherException, IOError) as e:
         raise save_profile_picture.retry(exc=e, countdown=3, max_retries=None)
     return True

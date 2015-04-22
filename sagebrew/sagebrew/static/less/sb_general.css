@@ -1,3 +1,5 @@
+extend ' .progress' has no matches
+extend ' .progress_bar' has no matches
 .sb_general {
   color: #34495e;
   word-wrap: break-word;
@@ -238,6 +240,7 @@
 .sb_wallpaper_action {
   background-color: #f9fff7;
   width: 100%;
+  border-radius: 5px 5px 0 0;
 }
 .wallpaper_profile {
   height: 250px;
@@ -248,7 +251,6 @@
 .sb_wallpaper_action {
   background-color: #9dbbb9;
   height: 500px;
-  margin-top: 100px;
   border-radius: 5px 5px 0 0;
 }
 .sb_questions_side_container {
@@ -337,13 +339,14 @@
 .sb_btn_icon_settings,
 .vote_up,
 .vote_down,
-.sb_btn_icon_settings_profile,
-.vote_up_small,
-.vote_down_small {
+.sb_btn_icon_settings_profile {
   background-color: #1ba39c;
 }
 .sb_btn_disabled {
   background-color: #b7bfbb;
+}
+.sb_btn_modal {
+  padding-right: 15px;
 }
 .sb_btn_space,
 .sb_btn_fill {
@@ -368,12 +371,11 @@
 .sb_btn_icon_settings,
 .vote_up,
 .vote_down,
-.sb_btn_icon_settings_profile,
-.vote_up_small,
-.vote_down_small {
+.sb_btn_icon_settings_profile {
   background-color: transparent;
   font-size: 18px;
-  padding: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 .sb_btn_icon_green,
 .sb_btn_icon_settings,
@@ -428,9 +430,7 @@
 }
 .sb_btn_vote,
 .vote_up,
-.vote_down,
-.vote_up_small,
-.vote_down_small {
+.vote_down {
   color: #b7bfbb;
   padding: 0;
   font-size: 30pt;
@@ -438,36 +438,63 @@
 .sb_btn_vote:hover {
   color: #1ba39c;
 }
-.vote_up:hover {
-  color: #1ba39c;
+.sb_btn_vote:disabled {
+  background-color: transparent;
+  color: #b7bfbb;
 }
-.vote_up_active {
-  color: #1ba39c;
-}
-.vote_up_small {
+.vote_small button {
   font-size: 20pt;
 }
-.vote_down:hover {
-  color: #a162ff;
+.vote_count_wrapper {
+  font-weight: bold;
+  padding-left: 18px;
+  padding-right: 15px;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin: 0;
 }
-.vote_down_small {
-  font-size: 20pt;
+.sb_vote_wrapper_solution {
+  margin-left: -20px;
+  margin-top: -15px;
 }
-.vote_down_active {
-  color: #a162ff;
+.sb_vote_wrapper_summary {
+  margin-left: -5px;
+  margin-top: -15px;
+}
+.sb_vote_wrapper {
+  margin-left: -5px;
+  margin-top: -15px;
+}
+.vote_count {
+  font-weight: bold;
+  display: inline-block;
 }
 .vote_count_large {
   margin-left: 15px;
   font-size: 15pt;
   font-weight: bold;
 }
-.vote_count_medium {
-  font-weight: bold;
-  margin-left: 9px;
+.vote_count_large .vote_count {
+  margin-left: 12px;
 }
-.vote_count_small {
-  font-size: 12px;
-  font-weight: bold;
+.vote_count_medium .vote_count {
+  margin-left: 5px;
+}
+.vote_count_small span.vote_count {
+  font-size: 13px !important;
+  margin-left: 8px;
+}
+.vote_up:hover {
+  color: #1ba39c;
+}
+.vote_up_active {
+  color: #1ba39c;
+}
+.vote_down:hover {
+  color: #a162ff;
+}
+.vote_down_active {
+  color: #a162ff;
 }
 .sb_spy {
   color: #838c92;
@@ -672,7 +699,6 @@
 }
 .sb_thumbnail_md,
 .sb_thumbnail_search {
-  height: 100px;
   width: 100px;
 }
 .sb_thumbnail_lg {
@@ -744,9 +770,14 @@
 .sb_content_wrapper {
   margin-top: 60px;
 }
+.sb_signup {
+  margin-left: 0;
+  margin-right: 0;
+}
 .sb_background {
   background-size: cover;
   background-color: #b7bfbb;
+  padding: 0 -15px 0 0;
 }
 #sb_search_input {
   width: 400px;
@@ -860,12 +891,11 @@
   overflow: hidden;
   background-color: rgba(202, 206, 209, 0.5);
 }
-.sb_vote_wrapper {
-  margin-left: -5px;
-  margin-top: -15px;
-}
 .sb_votes {
   margin-left: -7px;
+}
+.sb_votes .tooltip {
+  padding-right: -30px;
 }
 .sb_vote_wrapper_small {
   margin-left: 2px;
@@ -875,10 +905,10 @@
   margin-left: -8px;
 }
 .sb_up_vote_wrapper {
-  margin-bottom: -13px;
+  margin-bottom: -5px;
 }
 .sb_up_vote_wrapper_summary {
-  margin-top: 0px;
+  margin-top: 0;
   margin-bottom: -25px;
 }
 .sb_down_vote_wrapper {

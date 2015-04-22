@@ -12,6 +12,9 @@ from .neo_models import Flag
 
 
 class FlagSerializer(VotableContentSerializer):
+    # This inherits from Votable Content because a flag is going to be voted
+    # on by the Admin council and will have similar information corresponding
+    # to it
     # Need to add validator here or in Votable Content that limits the amount
     # of flags that can be placed on a piece of content from a single user to
     # one
@@ -47,18 +50,21 @@ class FlagSerializer(VotableContentSerializer):
 
     def get_flag_on(self, obj):
         request = self.context.get('request', None)
+        if request is None:
+            return None
         parent_object = get_flag_parent(obj.object_uuid)
         parent_href = reverse(
             '%s-detail' % parent_object.get_child_label().lower(),
             kwargs={'object_uuid': parent_object.object_uuid},
             request=request)
-
         response = request_to_api(parent_href, request.user.username,
                                   req_method="GET")
         return response.json()['href']
 
     def get_url(self, obj):
         request = self.context.get('request', None)
+        if request is None:
+            return None
         parent_object = get_flag_parent(obj.object_uuid)
         parent_href = reverse(
             '%s-detail' % parent_object.get_child_label().lower(),
@@ -78,6 +84,12 @@ def get_flag_parent(object_uuid):
         try:
             content = SBContent.inflate(res[0][0])
         except ValueError:
+            # This exception was added while initially implementing the fxn and
+            # may not be possible in production. What happened was multiple
+            # flags/votes got associated with a piece of content causing an
+            # array to be returned instead of a single object which is handled
+            # above. This should be handled now but we should verify that
+            # the serializers ensure this singleness prior to removing this.
             content = SBContent.inflate(res[0][0][0])
         return content
     except(IndexError):

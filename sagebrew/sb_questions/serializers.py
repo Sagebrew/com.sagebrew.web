@@ -8,11 +8,13 @@ from rest_framework.reverse import reverse
 
 from neomodel import db, DoesNotExist
 
-from api.utils import spawn_task
+from api.utils import spawn_task, get_node, gather_request_data
 from sb_base.serializers import MarkdownContentSerializer
 from plebs.neo_models import Pleb
-from sb_tag.neo_models import Tag
-from sb_tag.tasks import update_tags
+from sb_tags.neo_models import Tag
+from sb_tags.tasks import update_tags
+from sb_solutions.serializers import SolutionSerializerNeo
+from sb_solutions.neo_models import Solution
 
 from .neo_models import Question
 from .tasks import add_auto_tags_to_question_task
@@ -37,7 +39,7 @@ class TitleUpdate:
 
     def __call__(self, value):
         if (self.object_uuid is not None and
-                    solution_count(self.object_uuid) > 0):
+                solution_count(self.object_uuid) > 0):
             message = 'Cannot edit Title when there have ' \
                       'already been solutions provided'
             raise serializers.ValidationError(message)
@@ -84,8 +86,7 @@ def limit_5_tags(value):
 
 class QuestionSerializerNeo(MarkdownContentSerializer):
     content = serializers.CharField(min_length=15)
-    href = serializers.HyperlinkedIdentityField(view_name='question-detail',
-                                                lookup_field="object_uuid")
+    href = serializers.SerializerMethodField()
     title = serializers.CharField(required=False,
                                   validators=[TitleUpdate(), ],
                                   min_length=15, max_length=140)
@@ -95,7 +96,7 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         validators=[limit_5_tags, PopulateTags()],
         child=serializers.CharField(max_length=36),
     )
-
+    solutions = serializers.SerializerMethodField()
     solution_count = serializers.SerializerMethodField()
 
     def create(self, validated_data):
@@ -109,7 +110,7 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         owner.questions.connect(question)
         for tag in tags:
             try:
-                tag_obj = Tag.nodes.get(tag_name=tag)
+                tag_obj = Tag.nodes.get(name=tag)
             except(Tag.DoesNotExist, DoesNotExist):
                 if settings.DEBUG is True:
                     # TODO this is only here because we don't have a stable
@@ -117,8 +118,8 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
                     # ansible and we can get tags to register consistently
                     # we can remove this.
                     if (request.user.username == "devon_bleibtrey" or
-                                request.user.username == "tyler_wiersing"):
-                        tag_obj = Tag(tag_name=tag).save()
+                            request.user.username == "tyler_wiersing"):
+                        tag_obj = Tag(name=tag).save()
                     else:
                         continue
                 else:
@@ -133,6 +134,14 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         # TODO do we want to allow for tags to be changed?
         # I don't think we do because of the tight coupling with Reputation
         # and search. I think it could be exploited too easily.
+        """
+        When we start doing versioning:
+        edit = Question(title=validated_data.get('title', instance.title),
+                        content=validated_data.get('content', instance.content))
+        edit.save()
+        instance.edits.connect(edit)
+        edit.edit_to.connect(instance)
+        """
         instance.title = validated_data.get('title', instance.title)
         instance.content = validated_data.get('content', instance.content)
         instance.last_edited_on = datetime.now(pytz.utc)
@@ -143,9 +152,37 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         return instance
 
     def get_url(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
         return reverse('question_detail_page',
                        kwargs={'question_uuid': obj.object_uuid},
-                       request=self.context['request'])
+                       request=request)
 
     def get_solution_count(self, obj):
         return solution_count(obj.object_uuid)
+
+    def get_solutions(self, obj):
+        request, expand, _, relations, _ = gather_request_data(self.context)
+        solutions = obj.get_solution_ids()
+        solution_urls = []
+        if expand == "true":
+            for solution_uuid in solutions:
+                solution_urls.append(SolutionSerializerNeo(
+                    Solution.inflate(get_node(solution_uuid)[0][0]),
+                    context={"request": request}).data)
+        else:
+            if relations == "hyperlinked":
+                for solution_uuid in solutions:
+                    solution_urls.append(reverse(
+                        'solution-detail', kwargs={
+                            'object_uuid': solution_uuid},
+                        request=request))
+            else:
+                return solutions
+
+        return solution_urls
+
+    def get_href(self, obj):
+        request, expand, _, _, _ = gather_request_data(self.context)
+        return reverse(
+            'question-detail', kwargs={'object_uuid': obj.object_uuid},
+            request=request)

@@ -1,0 +1,15 @@
+<div class="col-lg-12 sb_up_vote_wrapper">
+    {% if not vote_type or vote_type == None %}
+        <button class="btn sb_btn vote_up sb_btn_vote vote_object-action vote_{{ object_uuid }}"
+           data-object_uuid="{{ object_uuid }}"
+           data-vote_type=true>
+            <span class="fa fa-chevron-up"></span>
+        </button>
+    {% else %}
+        <button class="btn sb_btn sb_btn_vote vote_up vote_up_active vote_object-action vote_{{ object_uuid }}"
+           data-object_uuid="{{ object_uuid }}"
+           data-vote_type=true>
+            <span class="fa fa-chevron-up"></span>
+        </button>
+    {% endif %}
+</div >

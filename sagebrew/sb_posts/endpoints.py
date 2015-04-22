@@ -18,6 +18,7 @@ from api.permissions import IsOwnerOrAdmin
 from api.utils import spawn_task
 from sb_base.views import ObjectRetrieveUpdateDestroy
 from sb_notifications.tasks import spawn_notifications
+from plebs.neo_models import Pleb
 
 from .serializers import PostSerializerNeo
 from .neo_models import Post
@@ -90,6 +91,13 @@ class WallPostsListCreate(ListCreateAPIView):
         Used query because match isn't working and filter doesn't work on
         all().
         """
+        wall_pleb = Pleb.nodes.get(username=self.kwargs[self.lookup_field])
+        friends = [friend.username for friend in wall_pleb.friends.all()]
+        if self.request.user.username not in friends \
+                and self.request.user.username != wall_pleb.username:
+            # TODO instead raise NotFriendException which we need to define
+            # Also may want to move this to the Context processor for friends
+            return []
         query = "MATCH (a:Pleb {username:'%s'})-[:OWNS_WALL]->" \
                 "(b:Wall)-[:HAS_POST]->(c) WHERE c.to_be_deleted=false" \
                 " RETURN c ORDER BY c.created " \
@@ -98,6 +106,13 @@ class WallPostsListCreate(ListCreateAPIView):
         return [Post.inflate(row[0]) for row in res]
 
     def create(self, request, *args, **kwargs):
+        wall_pleb = Pleb.nodes.get(username=self.kwargs[self.lookup_field])
+        friends = [friend.username for friend in wall_pleb.friends.all()]
+        if self.request.user.username not in friends \
+                and self.request.user.username != wall_pleb.username:
+            return Response({"detail": "Sorry you are not friends with this"
+                                       "person."},
+                            status=status.HTTP_400_BAD_REQUEST)
         post_data = request.data
         post_data['parent_object'] = self.kwargs[self.lookup_field]
 
@@ -110,7 +125,7 @@ class WallPostsListCreate(ListCreateAPIView):
                 "from_pleb": request.user.username,
                 "sb_object": serializer['object_uuid'],
                 "url": serializer['url'],
-                "to_plebs": [self.kwargs[self.lookup_field],],
+                "to_plebs": [self.kwargs[self.lookup_field], ],
                 "notification_id": str(uuid1())
             }
             spawn_task(task_func=spawn_notifications, task_param=data)
@@ -152,7 +167,7 @@ def post_renderer(request, username=None):
             post['last_edited_on'][:len(post['last_edited_on']) - 6],
             '%Y-%m-%dT%H:%M:%S.%f')
         context = RequestContext(request, post)
-        html_array.append(render_to_string('post.html',  context))
+        html_array.append(render_to_string('post.html', context))
         id_array.append(post["object_uuid"])
     posts.data['results'] = {"html": html_array, "ids": id_array}
     return Response(posts.data, status=status.HTTP_200_OK)

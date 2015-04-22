@@ -1,5 +1,4 @@
 from datetime import datetime
-import hashlib
 import boto.ses
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from datetime import date
@@ -12,7 +11,7 @@ from neomodel import DoesNotExist, CypherException
 
 from api.utils import spawn_task
 from plebs.tasks import create_pleb_task
-from plebs.neo_models import Pleb
+from plebs.neo_models import Pleb, BetaUser
 from sb_base.decorators import apply_defense
 
 
@@ -75,7 +74,7 @@ def verify_completed_registration(user):
     try:
         pleb = Pleb.nodes.get(username=user.username)
         return pleb.completed_profile_info
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException):
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError):
         return False
 
 
@@ -92,7 +91,7 @@ def verify_verified_email(user):
         return pleb.email_verified
     except (Pleb.DoesNotExist, DoesNotExist):
         return False
-    except CypherException as e:
+    except (CypherException, IOError) as e:
         return e
 
 
@@ -122,14 +121,25 @@ def sb_send_email(source, to_email, subject, html_content):
 
 
 def generate_username(first_name, last_name):
+    """
+    DEPRECATED
+    Please use User serializer from now on. This function is no longer necessary
+    Functionality found in plebs/serializers.py
+    :param first_name:
+    :param last_name:
+    :param email:
+    :param password:
+    :param birthday:
+    :return:
+    """
     users_count = User.objects.filter(first_name__iexact=first_name).filter(
         last_name__iexact=last_name).count()
-    username = "%s_%s" %(first_name.lower(), last_name.lower())
+    username = "%s_%s" % (first_name.lower(), last_name.lower())
     if len(username) > 30:
         username = username[:30]
         users_count = User.objects.filter(username__iexact=username).count()
         if users_count > 0:
-            username = username[:(30-len(users_count))] + str(users_count)
+            username = username[:(30 - len(users_count))] + str(users_count)
     elif len(username) < 30 and users_count == 0:
         username = "%s_%s" % (
             (''.join(e for e in first_name if e.isalnum())).lower(),
@@ -144,12 +154,44 @@ def generate_username(first_name, last_name):
 
 @apply_defense
 def create_user_util(first_name, last_name, email, password, birthday):
+    """
+    DEPRECATED
+    Please use User serializer from now on. This function is no longer necessary
+    Functionality found in plebs/serializers.py
+    :param first_name:
+    :param last_name:
+    :param email:
+    :param password:
+    :param birthday:
+    :return:
+    """
     username = generate_username(first_name, last_name)
     user = User.objects.create_user(first_name=first_name, last_name=last_name,
                                     email=email, password=password,
                                     username=username)
     user.save()
+    try:
+        Pleb.nodes.get(username=user.username)
+    except (Pleb.DoesNotExist, DoesNotExist):
+        try:
+            pleb = Pleb(email=user.email,
+                        first_name=user.first_name,
+                        last_name=user.last_name,
+                        username=user.username,
+                        birthday=birthday)
+            pleb.save()
+            try:
+                beta_user = BetaUser.nodes.get(email=email)
+                pleb.beta_user.connect(beta_user)
+            except(BetaUser.DoesNotExist, DoesNotExist):
+                pass
+            except(CypherException, IOError):
+                return False
 
+        except(CypherException, IOError):
+            return False
+    except(CypherException, IOError):
+        raise False
     res = spawn_task(task_func=create_pleb_task,
                      task_param={"user_instance": user, "birthday": birthday,
                                  "password": password})

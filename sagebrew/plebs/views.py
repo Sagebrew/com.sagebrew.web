@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.http import HttpResponse
+from django.conf import settings
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -65,7 +66,6 @@ def profile_page(request, pleb_username=""):
     is_owner = False
     is_friend = False
     friend_request_sent = False
-    friends_list = page_user_pleb.friends.all()
     if current_user.email == page_user.email:
         is_owner = True
     elif page_user_pleb in citizen.friends.all():
@@ -79,12 +79,46 @@ def profile_page(request, pleb_username=""):
         'current_user': current_user,
         'page_user': page_user,
         'house_reps': [],  # reps['house_rep'],
-        'senators': [],  #reps['senators'],
+        'senators': [],  # reps['senators'],
         'is_owner': is_owner,
         'is_friend': is_friend,
-        'friends_list': friends_list,
         'friend_request_sent': friend_request_sent
     })
+
+
+@login_required()
+def friend_page(request, pleb_username):
+    try:
+        citizen = Pleb.nodes.get(username=request.user.username)
+        page_user_pleb = Pleb.nodes.get(username=pleb_username)
+    except (Pleb.DoesNotExist, DoesNotExist):
+        return redirect('404_Error')
+    except(CypherException):
+        return HttpResponse('Server Error', status=500)
+    current_user = request.user
+    page_user = User.objects.get(email=page_user_pleb.email)
+    is_owner = False
+    is_friend = False
+    friend_request_sent = False
+    if current_user.email == page_user.email:
+        is_owner = True
+    elif page_user_pleb in citizen.friends.all():
+        is_friend = True
+    if page_user_pleb.username in citizen.get_friend_requests_sent():
+        friend_request_sent = True
+    return render(
+        request, 'sb_friends_section/sb_friends.html',
+        {
+            'user_profile': citizen,
+            'page_profile': page_user_pleb,
+            'current_user': current_user,
+            'page_user': page_user,
+            'house_reps': [],  # reps['house_rep'],
+            'senators': [],  # reps['senators'],
+            'is_owner': is_owner,
+            'is_friend': is_friend,
+            'friend_request_sent': friend_request_sent
+        })
 
 
 @login_required()
@@ -115,13 +149,14 @@ def general_settings(request):
         return redirect("404_Error")
     except (CypherException, IOError):
         return redirect("500_Error")
+    address_key = settings.ADDRESS_AUTH_ID
     try:
         address = pleb.address.all()[0]
         address = AddressSerializer(address, context={'request': request}).data
     except IndexError:
         address = False
     return render(request, 'general_settings.html',
-                  {"address": address})
+                  {"address": address, "address_key": address_key})
 
 
 @api_view(['GET'])
@@ -133,7 +168,7 @@ def get_user_search_view(request, pleb_username=""):
     in a search.
 
     :param request:
-    :param pleb_email:
+    :param pleb_username:
     :return:
     """
     form = GetUserSearchForm({"username": pleb_username})
@@ -278,7 +313,7 @@ def respond_friend_request(request):
         except (FriendRequest.DoesNotExist, Pleb.DoesNotExist, IndexError):
             # TODO should we be doing something different for an index error?
             return Response(status=404)
-        except CypherException:
+        except (CypherException, IOError):
             return Response(status=500)
 
         if form.cleaned_data['response'] == 'accept':

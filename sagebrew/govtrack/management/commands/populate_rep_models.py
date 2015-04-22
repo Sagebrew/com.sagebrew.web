@@ -1,21 +1,25 @@
-import time
 from django.core.management.base import BaseCommand
-from django.conf import settings
 
-from govtrack.tasks import populate_gt_role
+from govtrack.utils import populate_gt_roles_util
 
 
 class Command(BaseCommand):
     args = 'None.'
     help = 'Create all GT nodes associated with an api url from govtrack'
 
-    def populate_gt_reps(self):
-        res = populate_gt_role.apply_async(
-            kwargs={"requesturl": "https://www.govtrack.us/api/v2/role?"
-                                  "state=MI&current=true"})
-        while not res.ready():
-            time.sleep(1)
+    def populate_gt_reps(self, mi_only=False):
+        if mi_only:
+            url = "https://www.govtrack.us/api/v2/role?" \
+                  "state=MI&current=true"
+        else:
+            url = "https://www.govtrack.us/api/v2/role?" \
+                  "current=true&limit=600"
+        populate_gt_roles_util(url)
         print "Created GT Objects"
 
     def handle(self, *args, **options):
-        self.populate_gt_reps()
+        try:
+            argument = args[0]
+        except IndexError:
+            argument = False
+        self.populate_gt_reps(argument)

@@ -1,3 +1,4 @@
+from uuid import uuid1
 from datetime import datetime
 from logging import getLogger
 
@@ -16,10 +17,10 @@ from api.utils import spawn_task
 from sb_base.neo_models import SBContent
 from sb_base.views import ObjectRetrieveUpdateDestroy
 from plebs.neo_models import Pleb
+from sb_notifications.tasks import spawn_notifications
 
 from .neo_models import Comment
 from .serializers import CommentSerializer
-from .tasks import create_comment_relations
 
 logger = getLogger('loggly_logs')
 
@@ -58,14 +59,15 @@ class ObjectCommentsListCreate(ListCreateAPIView):
             instance = serializer.save(owner=pleb, parent_object=parent_object)
             serializer_data = self.get_serializer(
                 instance, context={"request": request}).data
-            data = {
-                "username": request.user.username,
-                "comment": serializer_data['object_uuid'],
-                "url": serializer_data['url'],
-                "parent_object": self.kwargs[self.lookup_field]
-            }
-            spawn_task(task_func=create_comment_relations, task_param=data)
-
+            notification_id = str(uuid1())
+            spawn_task(task_func=spawn_notifications, task_param={
+                'from_pleb': request.user.username,
+                'to_plebs': [owner.username for owner in
+                             parent_object.owned_by.all()],
+                'sb_object': serializer_data['object_uuid'],
+                'notification_id': notification_id,
+                'url': serializer_data['url']
+            })
             html = request.query_params.get('html', 'false').lower()
             if html == "true":
                 serializer_data["vote_count"] = str(
@@ -106,7 +108,7 @@ def comment_renderer(request, object_uuid=None):
         # implementation of spacing for vote count in the template.
         comment["vote_count"] = str(comment["vote_count"])
         context = RequestContext(request, comment)
-        html_array.append(render_to_string('comment.html',  context))
+        html_array.append(render_to_string('comment.html', context))
         id_array.append(comment["object_uuid"])
     comments.data['results'] = {"html": html_array, "ids": id_array}
     return Response(comments.data, status=status.HTTP_200_OK)

@@ -87,10 +87,10 @@ def add_object_to_table(table_name, object_data):
     except (JSONResponseError, ResourceNotFoundException) as e:
         return e
     try:
-        res = table.put_item(data=object_data)
+        table.put_item(data=object_data)
     except ConditionalCheckFailedException:
         try:
-            user_object = table.get_item(email=object_data['email'])
+            table.get_item(username=object_data['username'])
             return True
         except (ConditionalCheckFailedException, KeyError):
             return True
@@ -101,54 +101,6 @@ def add_object_to_table(table_name, object_data):
         return e
 
     return True
-
-
-@apply_defense
-def query_parent_object_table(object_uuid, get_all=False, table_name='edits'):
-    conn = connect_to_dynamo()
-    if isinstance(conn, Exception):
-        return conn
-    try:
-        edits = Table(table_name=get_table_name(table_name), connection=conn)
-    except JSONResponseError as e:
-        return e
-    res = edits.query_2(
-        parent_object__eq=object_uuid,
-        created__gte='0',
-        reverse=True
-    )
-    if get_all:
-        return list(res)
-    try:
-        return dict(list(res)[0])
-    except IndexError:
-        return False
-
-
-@apply_defense
-def update_doc(table, object_uuid, update_data, parent_object="",
-               obj_created=""):
-    table_name = get_table_name(table)
-    conn = connect_to_dynamo()
-    if isinstance(conn, Exception):
-        return conn
-    try:
-        db_table = Table(table_name=table_name, connection=conn)
-    except JSONResponseError as e:
-        return e
-    if obj_created != "" and parent_object != "":
-        res = db_table.get_item(parent_object=parent_object,
-                                created=obj_created)
-    elif parent_object != "":
-        res = db_table.get_item(parent_object=parent_object,
-                                object_uuid=object_uuid)
-    else:
-        res = db_table.get_item(object_uuid=object_uuid)
-
-    for item in update_data:
-        res[item['update_key']] = item['update_value']
-    res.partial_save()
-    return res
 
 
 def convert_dynamo_content(raw_content):
@@ -320,74 +272,6 @@ def get_rep_docs(rep_id, rep_only=False):
     goals = get_rep_info(rep_id, 'goals')
     return {"rep": rep, "policies": policies, "experiences": experiences,
             'education': education, 'goals': goals}
-
-
-@apply_defense
-def get_action(username, action):
-    conn = connect_to_dynamo()
-    if isinstance(conn, Exception):
-        return conn
-    try:
-        action_table = Table(table_name=get_table_name('actions'),
-                             connection=conn)
-    except JSONResponseError as e:
-        return e
-    try:
-        action_object = action_table.get_item(
-            parent_object=username,
-            action=action
-        )
-    except JSONResponseError as e:
-        return e
-    except ItemNotFound:
-        return False
-    return dict(action_object)
-
-
-@apply_defense
-def build_privileges(pleb):
-    conn = connect_to_dynamo()
-    username = pleb.username
-    if isinstance(conn, Exception):
-        return conn
-    try:
-        action_table = Table(table_name=get_table_name('actions'),
-                             connection=conn)
-        privilege_table = Table(table_name=get_table_name('privileges'),
-                                connection=conn)
-        restriction_table = Table(table_name=get_table_name('restrictions'),
-                                  connection=conn)
-    except JSONResponseError as e:
-        return e
-
-    for privilege in pleb.privileges.all():
-        rel = pleb.privileges.relationship(privilege)
-        if rel.active:
-            privilege_dict = privilege.get_dict()
-            privilege_dict['parent_object'] = username
-            privilege_table.put_item(privilege_dict, True)
-
-    for action in pleb.actions.all():
-        rel = pleb.actions.relationship(action)
-        if rel.active:
-            for restriction in action.get_restrictions():
-                if pleb.restrictions.is_connected(restriction):
-                    rel = pleb.restrictions.relationship(restriction)
-                    if rel.active:
-                        restriction_dict = restriction.get_dict()
-                        restriction_dict['parent_object'] = username
-                        restriction_table.put_item(restriction, True)
-            action_dict = action.get_dict()
-            action_dict['parent_object'] = username
-            action_table.put_item(action_dict, True)
-
-    for restriction in pleb.restrictions.all():
-        rel = pleb.restrictions.relationship(restriction)
-        if rel.active:
-            rest_dict = restriction.get_dict()
-            rest_dict['parent_object'] = username
-            restriction.put_item(rest_dict)
-    return True
 
 
 def get_dynamo_table(table_name):

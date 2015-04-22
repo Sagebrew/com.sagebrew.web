@@ -5,6 +5,7 @@ from django.test.testcases import TestCase
 from govtrack.tasks import (populate_gt_role, populate_gt_person,
                             populate_gt_votes, populate_gt_committee)
 
+
 class TestPopulateGTRoleTask(TestCase):
     def setUp(self):
         self.role_url = 'https://www.govtrack.us/api/v2/role'
@@ -51,6 +52,7 @@ class TestPopulateGTCommitteeTask(TestCase):
             time.sleep(1)
         res = res.result
         self.assertTrue(res)
+
 
 class TestPopulateGTVotesTask(TestCase):
     def setUp(self):

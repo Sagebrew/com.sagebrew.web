@@ -16,7 +16,7 @@ TEMPLATE_DEBUG = DEBUG
 ADMINS = (
     ('Devon Bleibtrey', 'devon@sagebrew.com'),
 )
-worker_count = (multiprocessing.cpu_count() *2) + 1
+worker_count = (multiprocessing.cpu_count() * 2) + 1
 if worker_count > 12 and environ.get("CIRCLECI", False):
     worker_count = 12
 environ['WEB_WORKER_COUNT'] = str(worker_count)
@@ -66,7 +66,6 @@ STATICFILES_DIRS = (
     '%s/sagebrew/static/' % PROJECT_DIR,
     '%s/plebs/static/' % PROJECT_DIR,
     '%s/sb_solutions/static/' % PROJECT_DIR,
-    '%s/sb_edits/static/' % PROJECT_DIR,
     '%s/sb_notifications/static/' % PROJECT_DIR,
     '%s/sb_privileges/static/' % PROJECT_DIR,
     '%s/sb_posts/static/' % PROJECT_DIR,
@@ -74,7 +73,7 @@ STATICFILES_DIRS = (
     '%s/sb_registration/static/' % PROJECT_DIR,
     '%s/sb_public_official/static/' % PROJECT_DIR,
     '%s/sb_search/static/' % PROJECT_DIR,
-    '%s/sb_tag/static/' % PROJECT_DIR,
+    '%s/sb_tags/static/' % PROJECT_DIR,
     '%s/sb_uploads/static/' % PROJECT_DIR,
 
 )
@@ -151,7 +150,7 @@ TEMPLATE_DIRS = (
     '%s/sb_registration/templates/' % PROJECT_DIR,
     '%s/sb_requirements/templates/' % PROJECT_DIR,
     '%s/sb_search/templates/' % PROJECT_DIR,
-    '%s/sb_tag/templates/' % PROJECT_DIR,
+    '%s/sb_tags/templates/' % PROJECT_DIR,
 )
 
 
@@ -162,6 +161,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'djangosecure',
     'django_admin_bootstrapped',
     'django.contrib.admin',
@@ -182,9 +182,7 @@ INSTALLED_APPS = (
     'sb_badges',
     'sb_base',
     'sb_comments',
-    'sb_deletes',
     'sb_docstore',
-    'sb_edits',
     'sb_flags',
     'sb_notifications',
     'sb_posts',
@@ -195,7 +193,7 @@ INSTALLED_APPS = (
     'sb_requirements',
     'sb_search',
     'sb_stats',
-    'sb_tag',
+    'sb_tags',
     'sb_uploads',
     'sb_votes',
     'sb_wall',
@@ -217,13 +215,13 @@ LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/'
 
 ANONYMOUS_USER_ID = -1
-OAUTH2_PROVIDER_APPLICATION_MODEL='sb_oauth.SBApplication'
+OAUTH2_PROVIDER_APPLICATION_MODEL = 'sb_oauth.SBApplication'
 OAUTH2_PROVIDER = {
     'APPLICATION_MODEL': 'sb_oauth.SBApplication',
 }
 LOGIN_REDIRECT_URL = '/registration/profile_information/'
 EMAIL_USE_TLS = True
-#CSRF_COOKIE_HTTPONLY = True
+# CSRF_COOKIE_HTTPONLY = True
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
@@ -233,11 +231,6 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 APPEND_SLASH = True
-OAUTH_SINGLE_ACCESS_TOKEN = False
-OAUTH_ENFORCE_SECURE = True
-OAUTH_EXPIRE_DELTA = timedelta(days=30, minutes=0, seconds=0)
-OAUTH_EXPIRE_DELTA_PUBLIC = timedelta(days=30, minutes=0, seconds=0)
-OAUTH_DELETE_EXPIRED = True
 
 CELERY_DISABLE_RATE_LIMITS = True
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
@@ -254,14 +247,18 @@ SECRET_KEY = environ.get("APPLICATION_SECRET_KEY", "")
 BOMBERMAN_API_KEY = environ.get("BOMBERMAN_API_KEY", "")
 LOGENT_TOKEN = environ.get("LOGENT_TOKEN", "")
 ALCHEMY_API_KEY = environ.get("ALCHEMY_API_KEY", '')
+# Used for server side
 ADDRESS_VALIDATION_ID = environ.get("ADDRESS_VALIDATION_ID", '')
 ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN", '')
+# Used for JS
+ADDRESS_AUTH_ID = environ.get("ADDRESS_AUTH_ID", '')
+
 STRIPE_PUBLIC_KEY = environ.get("STRIPE_PUBLIC_KEY", '')
 STRIPE_SECRET_KEY = environ.get("STRIPE_SECRET_KEY", '')
 MASKED_NAME = environ.get("MASKED_NAME", "")
 OAUTH_CLIENT_ID = environ.get("OAUTH_CLIENT_ID", '')
 OAUTH_CLIENT_SECRET = environ.get("OAUTH_CLIENT_SECRET", "")
-OAUTH_CLIENT_ID_CRED  = environ.get("OAUTH_CLIENT_ID_CRED", '')
+OAUTH_CLIENT_ID_CRED = environ.get("OAUTH_CLIENT_ID_CRED", '')
 OAUTH_CLIENT_SECRET_CRED = environ.get("OAUTH_CLIENT_SECRET_CRED", "")
 
 DYNAMO_IP = environ.get("DYNAMO_IP", None)
@@ -312,27 +309,18 @@ BASE_TAGS = ["fiscal", "foreign_policy", "social", "education", "science",
              "environment", "drugs", "agriculture", "defense", "energy",
              "health", "space"]
 
-
-
 PAYMENT_PLANS = [
     ("free", "Free"),
     ("sub", "Subscription")
 ]
 
-SEARCH_TYPES = [("general", "general"),
-    ("conversations", "sb_questions.neo_models.SBQuestion"),
-    ("people", "pleb"),
-    ("sagas", "sagas")]
-
-KNOWN_TYPES = [
-    ("01bb301a-644f-11e4-9ad9-080027242395", "sb_posts.neo_models.Post"),
-    ("02241aee-644f-11e4-9ad9-080027242395",
-     "sb_solutions.neo_models.Solution"),
-    ("0274a216-644f-11e4-9ad9-080027242395",
-     "sb_questions.neo_models.Question"),
-    ("02ba1c88-644f-11e4-9ad9-080027242395",
-     "sb_comments.neo_models.Comment")
+SEARCH_TYPES = [
+    ("general", "general"),
+    ("conversations", "question"),
+    ("people", "profile"),
+    ("sagas", "public_official")
 ]
+
 
 BASE_REP_TYPES = [
     ("f2729db2-9da8-11e4-9233-080027242395",
@@ -340,19 +328,12 @@ BASE_REP_TYPES = [
     ("f3aeebe0-9da8-11e4-9233-080027242395",
      "sb_public_official.neo_models.USPresident"),
     ("f46fbcda-9da8-11e4-9233-080027242395",
-     "sb_public_official.neo_models.BaseOfficial"),
+     "sb_public_official.neo_models.PublicOfficial"),
     ("628c138a-9da9-11e4-9233-080027242395",
      "sb_public_official.neo_models.USHouseRepresentative"),
     ("786dcf40-9da9-11e4-9233-080027242395",
      "sb_public_official.neo_models.Governor")
 ]
-
-KNOWN_TABLES = {
-    "01bb301a-644f-11e4-9ad9-080027242395": "posts",
-    "02241aee-644f-11e4-9ad9-080027242395": "public_solutions",
-    "0274a216-644f-11e4-9ad9-080027242395": "public_questions",
-    "02ba1c88-644f-11e4-9ad9-080027242395": "comments"
-}
 
 OPERATOR_TYPES = [
     ('coperator\neq\np0\n.', '='),
@@ -368,7 +349,7 @@ NON_SAFE = ["REMOVE", "DELETE", "CREATE", "SET",
 
 REMOVE_CLASSES = ["SBVersioned", "SBPublicContent", "SBPrivateContent",
                   "VotableContent", "NotificationCapable", "TaggableContent",
-                  "SBContent"]
+                  "SBContent", "Searchable"]
 
 QUERY_OPERATIONS = {
     "eq": "=",
@@ -386,14 +367,5 @@ OPERATOR_DICT = {
     'coperator\nlt\np0\n.': 'less than',
     'coperator\nge\np0\n.': 'at least'
 }
-
-PRIVILEGE_HTML_TYPES = {
-    "write_question": ".submit_question-action",
-    "write_post": ".submit_post-action",
-    "write_comment": ".comment-action",
-    "write_solution": ".submit_solution-action"
-}
-
-
 
 CORS_ORIGIN_ALLOW_ALL = True

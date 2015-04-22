@@ -12,24 +12,28 @@ from rest_framework.response import Response
 from neomodel import DoesNotExist, CypherException
 
 from api.utils import spawn_task
-from sb_docstore.utils import add_object_to_table, get_rep_docs, update_doc
+from sb_docstore.utils import add_object_to_table, get_rep_docs
 from sb_docstore.tasks import build_rep_page_task
 from sb_registration.utils import (verify_completed_registration)
 
 from .forms import (ExperienceForm, BioForm, GoalForm)
-from .neo_models import BaseOfficial
-from .tasks import (save_experience_task, save_bio_task, save_goal_task)
+from .neo_models import PublicOfficial
+from .tasks import (save_bio_task)
 from .utils import get_rep_type, prepare_official_search_html
-
 
 
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def saga(request, username):
-    representative = {"object_uuid": username}
+    try:
+        official = PublicOfficial.nodes.get(object_uuid=username)
+    except (CypherException, IOError, PublicOfficial.DoesNotExist,
+            DoesNotExist):
+        return redirect("404_Error")
+    official_dict = official.get_dict()
     return render(request, 'action_page.html',
-                  {"representative": representative,
+                  {"representative": official_dict,
                    "registered": False})
 
 
@@ -37,9 +41,14 @@ def saga(request, username):
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def updates(request, username):
-    representative = {"object_uuid": username}
+    try:
+        official = PublicOfficial.nodes.get(object_uuid=username)
+    except (CypherException, IOError, PublicOfficial.DoesNotExist,
+            DoesNotExist):
+        return redirect("404_Error")
+    official_dict = official.get_dict()
     return render(request, 'action_page.html',
-                  {"representative": representative,
+                  {"representative": official_dict,
                    "registered": False})
 
 
@@ -50,6 +59,7 @@ def about(request, username):
     representative = {"object_uuid": username}
     return render(request, 'action_page.html',
                   {"representative": representative, "registered": False})
+
 
 @login_required()
 @user_passes_test(verify_completed_registration,
@@ -63,14 +73,14 @@ def representative_page(request, rep_type="", rep_id=""):
         try:
             temp_type = get_rep_type(dict(settings.BASE_REP_TYPES)[rep_type])
             official = temp_type.nodes.get(object_uuid=rep_id)
-        except (temp_type.DoesNotExist, DoesNotExist, CypherException):
+        except (temp_type.DoesNotExist, DoesNotExist, CypherException, IOError):
             return redirect('profile_page', request.user.username)
         try:
             pleb = official.pleb.all()[0]
         except IndexError:
             return render("404_Error")
-        name = pleb.first_name+' '+pleb.last_name
-        full = official.title+pleb.first_name+' '+pleb.last_name
+        name = "%s %s" % (pleb.first_name, pleb.last_name)
+        full = "%s %s %s" % (official.title, pleb.first_name, pleb.last_name)
         username = pleb.username
         data = {
             "name": name,
@@ -89,7 +99,7 @@ def representative_page(request, rep_type="", rep_id=""):
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def get_rep_info(request):
-    rep_id =  str(request.DATA['rep_id'])
+    rep_id = str(request.DATA['rep_id'])
     res = get_rep_docs(rep_id)
     if isinstance(res, Exception):
         return redirect('404_Error')
@@ -100,8 +110,9 @@ def get_rep_info(request):
         goal_list = []
         spawn_task(build_rep_page_task, {"rep_id": rep_id})
         try:
-            official = BaseOfficial.nodes.get(object_uuid=rep_id)
-        except (BaseOfficial.DoesNotExist, DoesNotExist, CypherException):
+            official = PublicOfficial.nodes.get(object_uuid=rep_id)
+        except (PublicOfficial.DoesNotExist, DoesNotExist, CypherException,
+                IOError):
             return redirect('profile_page', request.user.username)
         policies = official.policy.all()
         experiences = official.experience.all()
@@ -148,30 +159,34 @@ def get_experience_form(request):
         if experience_form.is_valid():
             rep_id = str(request.DATA['rep_id'])
             uuid = str(uuid1())
-            data = {'rep_id': rep_id,
-                    'title': experience_form.cleaned_data['title'],
-                    'start_date': experience_form.cleaned_data['start_date'],
-                    'end_date': experience_form.cleaned_data['end_date'],
-                    'current': experience_form.cleaned_data['current'],
-                    'company': experience_form.cleaned_data['company'],
-                    'location': experience_form.cleaned_data['location'],
-                    'description': experience_form.cleaned_data['description'],
-                    'exp_id': uuid}
-            table_data = {'parent_object': rep_id,
-                    'title': experience_form.cleaned_data['title'],
-                    'start_date': unicode(
-                        experience_form.cleaned_data['start_date']),
-                    'end_date': unicode(
-                        experience_form.cleaned_data['end_date']),
-                    'current': experience_form.cleaned_data['current'],
-                    'company': experience_form.cleaned_data['company'],
-                    'location': experience_form.cleaned_data['location'],
-                    'description': experience_form.cleaned_data['description'],
-                    'object_uuid': uuid}
+            data = {
+                'rep_id': rep_id,
+                'title': experience_form.cleaned_data['title'],
+                'start_date': experience_form.cleaned_data['start_date'],
+                'end_date': experience_form.cleaned_data['end_date'],
+                'current': experience_form.cleaned_data['current'],
+                'company': experience_form.cleaned_data['company'],
+                'location': experience_form.cleaned_data['location'],
+                'description': experience_form.cleaned_data['description'],
+                'exp_id': uuid
+            }
+            table_data = {
+                'parent_object': rep_id,
+                'title': experience_form.cleaned_data['title'],
+                'start_date': unicode(
+                    experience_form.cleaned_data['start_date']),
+                'end_date': unicode(
+                    experience_form.cleaned_data['end_date']),
+                'current': experience_form.cleaned_data['current'],
+                'company': experience_form.cleaned_data['company'],
+                'location': experience_form.cleaned_data['location'],
+                'description': experience_form.cleaned_data['description'],
+                'object_uuid': uuid
+            }
             res = add_object_to_table('experiences', table_data)
             if isinstance(res, Exception):
                 return Response({"detail": "error1"}, 400)
-            res = spawn_task(save_experience_task, data)
+            # res = spawn_task(save_experience_task, data)
             if isinstance(res, Exception):
                 return Response({"detail": "error2"}, 400)
             rendered = render_to_string('experience_detail.html',
@@ -200,11 +215,6 @@ def get_bio_form(request):
             res = spawn_task(save_bio_task, data)
             if isinstance(res, Exception):
                 return Response({"detail": "error"}, 400)
-            update_data = [{'update_key': 'bio',
-                            'update_value': bio_form.cleaned_data['bio']}]
-            res = update_doc('general_reps', rep_id, update_data)
-            if isinstance(res, Exception):
-                return Response({"detail": "error"}, 400)
             rendered = render_to_string('bio_detail.html',
                                         {'bio': bio_form.cleaned_data['bio']})
             return Response({'rendered': rendered}, 200)
@@ -229,9 +239,9 @@ def get_goal_form(request):
                 "description": goal_form.cleaned_data['description'],
                 "goal_id": uuid
             }
-            res = spawn_task(save_goal_task, data)
-            if isinstance(res, Exception):
-                return Response({"detail": "error"}, 400)
+            # res = spawn_task(save_goal_task, data)
+            # if isinstance(res, Exception):
+            #     return Response({"detail": "error"}, 400)
             data['parent_object'] = data['rep_id']
             data['object_uuid'] = data['goal_id']
             res = add_object_to_table('goals', data)
@@ -245,6 +255,7 @@ def get_goal_form(request):
     else:
         rendered = render_to_string('goal_form.html', {'goal_form': goal_form})
         return Response({"rendered": rendered}, 200)
+
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))

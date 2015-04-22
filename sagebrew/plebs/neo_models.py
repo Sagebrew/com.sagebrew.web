@@ -11,6 +11,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
 from neomodel import db
 
 from api.neo_models import SBObject
+from sb_search.neo_models import Searchable
 
 
 def get_current_time():
@@ -93,8 +94,8 @@ class BetaUser(StructuredNode):
         self.invited = True
         self.save()
         template_dict = {
-            "signup_url": "%s%s%s"%(settings.WEB_ADDRESS, "/signup/?user=",
-                                    self.email)
+            "signup_url": "%s%s%s" % (settings.WEB_ADDRESS, "/signup/?user=",
+                                      self.email)
         }
         html_content = get_template(
             'email_templates/email_beta_invite.html').render(
@@ -104,7 +105,7 @@ class BetaUser(StructuredNode):
         return True
 
 
-class Pleb(SBObject):
+class Pleb(SBObject, Searchable):
     search_modifiers = {
         'post': 10, 'comment_on': 5, 'upvote': 3, 'downvote': -3,
         'time': -1, 'proximity_to_you': 10, 'proximity_to_interest': 10,
@@ -134,10 +135,8 @@ class Pleb(SBObject):
     # base_index_id is the plebs id in the base elasticsearch index
     base_index_id = StringProperty()
     email_verified = BooleanProperty(default=False)
-    populated_es_index = BooleanProperty(default=False)
     populated_personal_index = BooleanProperty(default=False)
     initial_verification_email_sent = BooleanProperty(default=False)
-    search_id = StringProperty()
     stripe_customer_id = StringProperty()
 
     # Relationships
@@ -147,13 +146,13 @@ class Pleb(SBObject):
                              model=ActionActiveRel)
     restrictions = RelationshipTo('sb_privileges.neo_models.Restriction',
                                   'RESTRICTED_BY', model=RestrictionRel)
-    badges = RelationshipTo("sb_badges.neo_models.BadgeBase", "BADGES")
+    badges = RelationshipTo("sb_badges.neo_models.Badge", "BADGES")
     oauth = RelationshipTo("plebs.neo_models.OauthUser", "OAUTH_CLIENT")
-    tags = RelationshipTo('sb_tag.neo_models.Tag', 'TAGS',
+    tags = RelationshipTo('sb_tags.neo_models.Tag', 'TAGS',
                           model=TagRelationship)
     voted_on = RelationshipTo('sb_base.neo_models.VotableContent', 'VOTES')
     address = RelationshipTo("Address", "LIVES_AT")
-    interests = RelationshipTo("sb_tag.neo_models.Tag", "INTERESTED_IN")
+    interests = RelationshipTo("sb_tags.neo_models.Tag", "INTERESTED_IN")
     friends = RelationshipTo("Pleb", "FRIENDS_WITH", model=FriendRelationship)
     posts = RelationshipTo('sb_posts.neo_models.Post', 'OWNS_POST',
                            model=PostObjectCreated)
@@ -168,7 +167,7 @@ class Pleb(SBObject):
                               model=PostObjectCreated)
     wall = RelationshipTo('sb_wall.neo_models.Wall', 'OWNS_WALL')
     notifications = RelationshipTo(
-        'sb_notifications.neo_models.NotificationBase', 'RECEIVED_A')
+        'sb_notifications.neo_models.Notification', 'RECEIVED_A')
     friend_requests_sent = RelationshipTo(
         "plebs.neo_models.FriendRequest", 'SENT_A_REQUEST')
     friend_requests_received = RelationshipTo(
@@ -182,18 +181,28 @@ class Pleb(SBObject):
                               model=SearchCount)
     clicked_results = RelationshipTo('sb_search.neo_models.SearchResult',
                                      'CLICKED_RESULT')
-    official = RelationshipTo('sb_public_official.neo_models.BaseOfficial',
-                              'IS', model=OfficialRelationship)
-    senators = RelationshipTo('sb_public_official.neo_models.BaseOfficial',
-                             'HAS_SENATOR')
-    house_rep = RelationshipTo('sb_public_official.neo_models.BaseOfficial',
+    official = RelationshipTo('sb_public_official.neo_models.PublicOfficial',
+                              'IS_AUTHORIZED_AS', model=OfficialRelationship)
+    senators = RelationshipTo('sb_public_official.neo_models.PublicOfficial',
+                              'HAS_SENATOR')
+    house_rep = RelationshipTo('sb_public_official.neo_models.PublicOfficial',
                                'HAS_HOUSE_REPRESENTATIVE')
-    president = RelationshipTo('sb_public_official.neo_models.BaseOfficial',
+    president = RelationshipTo('sb_public_official.neo_models.PublicOfficial',
                                'HAS_PRESIDENT')
     flags = RelationshipTo('sb_flags.neo_models.Flag', "FLAGS")
+    beta_user = RelationshipTo('plebs.neo_models.BetaUser', "BETA_USER")
 
     def deactivate(self):
         return
+
+    def is_beta_user(self):
+        query = "MATCH (a:Pleb {username: '%s'})-[:BETA_USER]->(" \
+                "b:BetaUser {email: '%s'}) " \
+                "RETURN b" % (self.username, self.email)
+        res, col = db.cypher_query(query)
+        if len(res) == 0:
+            return False
+        return True
 
     def has_flagged_object(self, object_uuid):
         query = "MATCH (a:SBContent {object_uuid: '%s'})-[:FLAGGED_BY]->(" \
@@ -210,20 +219,20 @@ class Pleb(SBObject):
     def get_actions(self):
         query = 'MATCH (a:Pleb {username: "%s"})-' \
                 '[:CAN {active: true}]->(n:`SBAction`) ' \
-                'RETURN n' % self.username
+                'RETURN n.resource' % self.username
         res, col = db.cypher_query(query)
         if len(res) == 0:
             return []
-        return res
+        return [row[0] for row in res]
 
     def get_privileges(self):
         query = 'MATCH (a:Pleb {username: "%s"})-' \
                 '[:HAS {active: true}]->(n:`Privilege`) ' \
-                'RETURN n' % self.username
+                'RETURN n.name' % self.username
         res, col = db.cypher_query(query)
         if len(res) == 0:
             return []
-        return res
+        return [row[0] for row in res]
 
     def get_badges(self):
         return self.badges.all()
@@ -249,16 +258,20 @@ class Pleb(SBObject):
             rel.save()
             return rel.weight
 
-    def get_owned_objects(self):
-        return self.solutions.all() + \
-               self.questions.all() + self.posts.all() + self.comments.all()
+    def get_votable_content(self):
+        from sb_base.neo_models import VotableContent
+        query = "MATCH (a:Pleb {username: '%s'})<-[:OWNED_BY]-(" \
+                "b:VotableContent) RETURN b" % (self.username)
+        res, col = db.cypher_query(query)
+
+        return [VotableContent.inflate(row[0]) for row in res]
 
     def get_total_rep(self):
         rep_list = []
         base_tags = {}
         tags = {}
         total_rep = 0
-        for item in self.get_owned_objects():
+        for item in self.get_votable_content():
             rep_res = item.get_rep_breakout()
             total_rep += rep_res['total_rep']
             if 'base_tag_list' in rep_res.keys():
@@ -267,6 +280,8 @@ class Pleb(SBObject):
                 for tag in rep_res['tag_list']:
                     tags[tag] = rep_res['rep_per_tag']
             rep_list.append(rep_res)
+        self.reputation = total_rep
+        self.save()
         return {"rep_list": rep_list,
                 "base_tags": base_tags,
                 "tags": tags,
@@ -276,11 +291,11 @@ class Pleb(SBObject):
         pass
 
     def update_tag_rep(self, base_tags, tags):
-        from sb_tag.neo_models import Tag
+        from sb_tags.neo_models import Tag
         for item in tags:
             try:
-                tag = Tag.nodes.get(tag_name=item)
-            except (Tag.DoesNotExist, DoesNotExist, CypherException):
+                tag = Tag.nodes.get(name=item)
+            except (Tag.DoesNotExist, DoesNotExist, CypherException, IOError):
                 continue
             if self.tags.is_connected(tag):
                 rel = self.tags.relationship(tag)
@@ -292,8 +307,8 @@ class Pleb(SBObject):
                 rel.save()
         for item in base_tags:
             try:
-                tag = Tag.nodes.get(tag_name=item)
-            except (Tag.DoesNotExist, DoesNotExist, CypherException):
+                tag = Tag.nodes.get(name=item)
+            except (Tag.DoesNotExist, DoesNotExist, CypherException, IOError):
                 continue
             if self.tags.is_connected(tag):
                 rel = self.tags.relationship(tag)
@@ -446,4 +461,3 @@ class FriendRequest(SBObject):
     # relationships
     request_from = RelationshipTo('plebs.neo_models.Pleb', 'REQUEST_FROM')
     request_to = RelationshipTo('plebs.neo_models.Pleb', 'REQUEST_TO')
-

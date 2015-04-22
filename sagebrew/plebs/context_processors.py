@@ -1,4 +1,4 @@
-from neomodel.exception import CypherException
+from neomodel.exception import CypherException, DoesNotExist
 
 from .neo_models import Pleb
 from .serializers import PlebSerializerNeo
@@ -20,13 +20,19 @@ def request_profile(request):
                 "url": None
             }
     }
-    if request.user.is_authenticated():
-        try:
-            pleb = Pleb.nodes.get(username=request.user.username)
-            return {
-                "request_profile":
-                    PlebSerializerNeo(pleb, context={"request": request}).data}
-        except(CypherException, IOError):
+    try:
+        if request.user.is_authenticated():
+            try:
+                pleb = Pleb.nodes.get(username=request.user.username)
+                return {
+                    "request_profile":
+                        PlebSerializerNeo(pleb,
+                                          context={"request": request}).data}
+            except(CypherException, IOError, Pleb.DoesNotExist, DoesNotExist):
+                return default_response
+        else:
             return default_response
-    else:
+    except AttributeError:
+        # Caused when there is no user in the request or the request is a
+        # WSGIRequest object
         return default_response

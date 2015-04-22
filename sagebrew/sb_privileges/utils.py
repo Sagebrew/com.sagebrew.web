@@ -4,10 +4,8 @@ from neomodel import (DoesNotExist, CypherException)
 
 from plebs.neo_models import Pleb
 from sb_requirements.neo_models import Requirement
-from sb_requirements.serializers import RequirementSerializer
 
 from .neo_models import Privilege, SBAction
-from .serializers import ActionSerializer
 
 
 def manage_privilege_relation(username):
@@ -40,14 +38,8 @@ def manage_privilege_relation(username):
         privileges = Privilege.nodes.all()
     except(CypherException, IOError) as e:
         return e
-    for item in privileges:
-        print item.name
     for privilege in privileges:
         meets_reqs = privilege.check_requirements(pleb)
-        print "here"
-        print meets_reqs
-        print privilege
-        print pleb.privileges.all()
         if not meets_reqs and privilege in pleb.privileges.all():
             rel = pleb.privileges.relationship(privilege)
             if rel.active:
@@ -102,54 +94,3 @@ def create_privilege(privilege_data, actions, requirements):
         except (CypherException, IOError) as e:
             return e
     return True
-
-
-def create_action(action, object_type, url, html_object=None):
-    try:
-        SBAction.nodes.get(action=action["action"])
-        return True
-    except(SBAction.DoesNotExist, DoesNotExist):
-        try:
-            action = SBAction(action=action, object_type=object_type, url=url,
-                              html_object=html_object)
-            action.save()
-        except (CypherException, IOError) as e:
-            return e
-    return True
-
-
-def create_requirement(url, key, operator, condition, name, auth_type=None):
-    try:
-        Requirement.nodes.get(name=name)
-        return True
-    except(Requirement.DoesNotExist, DoesNotExist):
-        try:
-            requirement = Requirement(url=url, key=key, operator=operator,
-                                      condition=condition, auth_type=auth_type,
-                                      name=name)
-            requirement.save()
-        except (CypherException, IOError) as e:
-            return e
-    return True
-
-
-def get_actions():
-    action_list = []
-    try:
-        actions = SBAction.nodes.all()
-    except (CypherException, IOError) as e:
-        return e
-    for action in actions:
-        action_list.append(ActionSerializer(action).data)
-    return action_list
-
-
-def get_requirements():
-    req_list = []
-    try:
-        requirements = Requirement.nodes.all()
-    except (CypherException, IOError) as e:
-        return e
-    for req in requirements:
-        req_list.append(RequirementSerializer(req).data)
-    return req_list

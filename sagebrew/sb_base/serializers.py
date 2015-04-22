@@ -5,14 +5,20 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
+from neomodel import CypherException
+
+from api.serializers import SBSerializer
+
 from plebs.serializers import PlebSerializerNeo, UserSerializer
 from plebs.neo_models import Pleb
 
 
-class VotableContentSerializer(serializers.Serializer):
+class VotableContentSerializer(SBSerializer):
+    # TODO Deprecate in favor of id based on
+    # http://jsonapi.org/format/#document-structure-resource-objects
     object_uuid = serializers.CharField(read_only=True)
-    content = serializers.CharField()
 
+    content = serializers.CharField()
     created = serializers.DateTimeField(read_only=True)
 
     upvotes = serializers.SerializerMethodField()
@@ -35,7 +41,7 @@ class VotableContentSerializer(serializers.Serializer):
             return obj
         try:
             owner = obj.owned_by.all()[0]
-        except(IOError):
+        except(CypherException, IOError, IndexError):
             return None
         html = request.query_params.get('html', 'false').lower()
         expand = request.query_params.get('expand', "false").lower()
@@ -57,7 +63,7 @@ class VotableContentSerializer(serializers.Serializer):
             return obj
         try:
             owner = obj.owned_by.all()[0]
-        except(IOError):
+        except(CypherException, IOError, IndexError):
             return None
         html = request.query_params.get('html', 'false').lower()
         expand = request.query_params.get('expand', "false").lower()
@@ -105,7 +111,7 @@ class ContentSerializer(VotableContentSerializer):
 
 
 class MarkdownContentSerializer(ContentSerializer):
-    is_closed = serializers.IntegerField(read_only=True)
+    is_closed = serializers.BooleanField(read_only=True)
     html_content = serializers.SerializerMethodField()
 
     def get_html_content(self, obj):

@@ -1,14 +1,8 @@
-import pytz
-from datetime import datetime
-
 from neomodel import (RelationshipTo, DateTimeProperty,
                       StructuredRel)
 
+from api.neo_models import get_current_time
 from sb_base.neo_models import TaggableContent
-
-
-def get_current_time():
-    return datetime.now(pytz.utc)
 
 
 class CommentedOnRel(StructuredRel):

@@ -7,6 +7,7 @@ from neomodel import (BooleanProperty, DateTimeProperty, StringProperty,
 
 from api.neo_models import SBObject
 
+
 def get_current_time():
     return datetime.now(pytz.utc)
 
@@ -23,7 +24,7 @@ class SearchResult(SBObject):
     result_id = StringProperty(unique_index=True)
     object_type = StringProperty()
 
-    #relationships
+    # relationships
     queries = RelationshipTo('sb_search.neo_models.SearchQuery', 'QUERY')
     clicked_by = RelationshipTo('plebs.neo_models.Pleb', 'CLICKED_BY',
                                 model=ResultClickedRel)
@@ -33,7 +34,7 @@ class KeyWord(StructuredNode):
     keyword = StringProperty()
     weight = IntegerProperty(default=0)
 
-    #relationships
+    # relationships
     search_queries = RelationshipTo('sb_search.neo_models.SearchQuery',
                                     'SEARCH_QUERY')
 
@@ -45,12 +46,12 @@ class SearchQuery(StructuredNode):
     last_searched = DateTimeProperty(default=get_current_time)
     trending = BooleanProperty(default=False)
 
-    #relationships
+    # relationships
     searched_by = Relationship('plebs.neo_models.Pleb', 'SEARCHED_BY')
     keywords = RelationshipTo(KeyWord, 'KEYWORDS', model=KeyWordRel)
     results = RelationshipTo(SearchResult, 'RESULT')
 
 
-
-
-
+class Searchable(StructuredNode):
+    search_id = StringProperty()
+    populated_es_index = BooleanProperty(default=False)

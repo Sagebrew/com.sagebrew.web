@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
 
 from sb_registration.utils import verify_completed_registration
 
@@ -23,7 +24,7 @@ def submit_question_view_page(request):
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def question_page(request, sort_by="most_recent"):
-    '''
+    """
     This is the page that displays what is returned from the get_question_view
     api endpoint
 
@@ -40,30 +41,33 @@ def question_page(request, sort_by="most_recent"):
                 }
 
     :return:
-    '''
+    """
     return render(request, 'question_list.html', {})
 
 
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
-def question_detail_page(request, question_uuid=str(uuid1())):
-    '''
+def question_detail_page(request, question_uuid=None):
+    """
     This is the view that displays a single question with all solutions,
     comments,
     references and tags.
 
     :param request:
     :return:
-    '''
+    """
+    # TODO is this uuid1 creation necessary?
+    if question_uuid is None:
+        question_uuid = str(uuid1())
     post_data = {'sort_by': 'uuid', 'uuid': question_uuid}
     return render(request, 'conversation.html', post_data)
 
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
-def get_question_search_view(request, question_uuid=str(uuid1())):
-    '''
+def get_question_search_view(request, question_uuid=None):
+    """
     This view will get a question based upon the uuid, the request was from a
     search it will return the html of the question for the search result
     page, if it was called to display a single question detail it will return
@@ -71,7 +75,9 @@ def get_question_search_view(request, question_uuid=str(uuid1())):
 
     :param request:
     :return:
-    '''
+    """
+    if question_uuid is None:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
     response = prepare_question_search_html(question_uuid, request)
     if response is False:
         return Response(status=404)
@@ -83,7 +89,7 @@ def get_question_search_view(request, question_uuid=str(uuid1())):
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def solution_edit_page(request, solution_uuid=None):
-    '''
+    """
     This view will get a question based upon the uuid, the request was from a
     search it will return the html of the question for the search result
     page, if it was called to display a single question detail it will return
@@ -91,7 +97,7 @@ def solution_edit_page(request, solution_uuid=None):
 
     :param request:
     :return:
-    '''
+    """
     data = {"object_uuid": solution_uuid}
     return render(request, 'edit_solution.html', data)
 
@@ -100,7 +106,7 @@ def solution_edit_page(request, solution_uuid=None):
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def question_edit_page(request, question_uuid=None):
-    '''
+    """
     This view will get a question based upon the uuid, the request was from a
     search it will return the html of the question for the search result
     page, if it was called to display a single question detail it will return
@@ -108,6 +114,6 @@ def question_edit_page(request, question_uuid=None):
 
     :param request:
     :return:
-    '''
+    """
     data = {"object_uuid": question_uuid, "edit": True}
     return render(request, 'save_question.html', data)

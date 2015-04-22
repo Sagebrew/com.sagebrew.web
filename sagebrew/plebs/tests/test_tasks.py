@@ -42,16 +42,6 @@ class TestCreatePlebTask(TestCase):
         self.fake_user.delete()
         settings.CELERY_ALWAYS_EAGER = False
 
-    def test_create_pleb_task_success_pleb_does_not_exist(self):
-        task_data = {'user_instance': self.fake_user}
-
-        res = create_pleb_task.apply_async(kwargs=task_data)
-
-        while not res.ready():
-            time.sleep(1)
-
-        self.assertFalse(isinstance(res.result, Exception))
-
     def test_create_pleb_task_success_pleb_exists(self):
         user_instance = User.objects.get(username=self.username)
         task_data = {'user_instance': user_instance}
@@ -246,7 +236,7 @@ class TestCreateFriendRequestTask(TestCase):
         wait_util(res)
         self.pleb1 = Pleb.nodes.get(email=self.email)
         self.user1 = User.objects.get(email=self.email)
-        self.email2= "bounce@simulator.amazonses.com"
+        self.email2 = "bounce@simulator.amazonses.com"
         res = create_user_util_test(self.email2)
         self.assertNotEqual(res, False)
         wait_util(res)

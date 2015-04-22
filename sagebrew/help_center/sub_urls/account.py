@@ -15,7 +15,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sreset_password.html" % (settings.HELP_DOCS_PATH),
             "category": "account"
-        },
+            },
         name="reset_password"),
     url(r'^why_join/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -42,7 +42,6 @@ urlpatterns = patterns(
             "category": "account"
         },
         name="restriction_on_asking"),
-
 )
 
 if settings.DEBUG is True:
@@ -73,4 +72,3 @@ if settings.DEBUG is True:
             },
             name="delete_account"),
     )
-

@@ -23,6 +23,7 @@ from sb_base.neo_models import SBContent
 from sb_base.serializers import MarkdownContentSerializer
 from sb_questions.neo_models import Question
 from sb_questions.serializers import QuestionSerializerNeo
+from sb_votes.serializers import VoteSerializer
 
 from .serializers import UserSerializer, PlebSerializerNeo, AddressSerializer
 from .neo_models import Pleb, Address
@@ -184,12 +185,17 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 '(b:Pleb) RETURN b' % (username)
         res, col = db.cypher_query(query)
         queryset = [Pleb.inflate(row[0]) for row in res]
-
+        html = self.request.query_params.get('html', 'false')
         page = self.paginate_queryset(queryset)
         serializer = self.get_serializer(page, many=True,
                                          context={'request': request})
+        if html == 'true':
+            html_array = []
+            for item in serializer.data:
+                html_array.append(
+                    render_to_string('friend_block.html', dict(item)))
+            return self.get_paginated_response(html_array)
         return self.get_paginated_response(serializer.data)
-
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def friend_requests(self, request, username=None):
@@ -342,3 +348,29 @@ class ProfileViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def restrictions(self, request, username=None):
         pass
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
+    def is_beta_user(self, request, username=None):
+        return Response({'is_beta_user': self.get_object().is_beta_user()},
+                        status.HTTP_200_OK)
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
+    def votes(self, request, username=None):
+        filter_by = request.query_params.get('filter', "")
+        try:
+            additional_params = get_filter_params(filter_by, SBContent())
+        except(IndexError, KeyError, ValueError):
+            return Response(errors.QUERY_DETERMINATION_EXCEPTION,
+                            status=status.HTTP_400_BAD_REQUEST)
+        query = 'MATCH (b:`SBPublicContent`)-[:OWNED_BY]->(a:Pleb ' \
+                '{username: "%s"}) ' \
+                'WHERE b.to_be_deleted=false ' \
+                ' %s RETURN b' % (username, additional_params)
+
+        res, col = db.cypher_query(query)
+        queryset = [SBContent.inflate(row[0]) for row in res]
+
+        page = self.paginate_queryset(queryset)
+        serializer = VoteSerializer(page, many=True,
+                                    context={'request': request})
+        return self.get_paginated_response(serializer.data)

@@ -1,61 +1,11 @@
 <div class="block sb_solution block_{{ object_uuid }}">
 
     <div class="row">
-        <div class="col-lg-1 hidden-md hidden-sm hidden-xs sb_vote_wrapper">
-                <div class="row vote_wrapper" id="vote_{{ object_uuid }}">
-                    <div class="col-lg-12 sb_up_vote_wrapper">
-                        <div style="display: none" class="sb_upvote_count{{ object_uuid }}">{{ upvotes }}</div>
-                        {% if not vote_type or vote_type == None %}
-                            <button class="btn sb_btn sb_btn_vote vote_up vote_object-action vote_{{ object_uuid }}"
-                               data-object_uuid="{{ object_uuid }}"
-                               data-vote_type=true
-                               data-object_type="02241aee-644f-11e4-9ad9-080027242395">
-                                <span class="fui-triangle-up"></span>
-                            </button>
-                        {% else %}
-                            <button class="btn sb_btn sb_btn_vote vote_up vote_up_active vote_object-action vote_{{ object_uuid }}"
-                               data-object_uuid="{{ object_uuid }}"
-                               data-vote_type=true
-                               data-object_type="02241aee-644f-11e4-9ad9-080027242395">
-                                <span class="fui-triangle-up"></span>
-                            </button>
-                        {% endif %}
-                    </div >
-                    {% if vote_count|length_is:"1" %}
-                        <div class="col-lg-12 col-lg-offset-2 vote_count_large vote_count{{ object_uuid }}">
-                    {% elif vote_count|length_is:"2" %}
-                        <div class="col-lg-12 col-lg-offset-2 vote_count_large vote_count{{ object_uuid }}">
-                    {% elif vote_count|length_is:"3" %}
-                        <div class="col-lg-12 col-lg-offset-1 vote_count_large vote_count{{ object_uuid }}">
-                    {% elif vote_count|length_is:"4" %}
-                        <div class="col-lg-12 col-lg-offset-0 vote_count_large vote_count{{ object_uuid }}">
-                    {% elif vote_count == None %}
-                        <div class="col-lg-12 col-lg-offset-2 vote_count_large vote_count{{ object_uuid }}">
-                    {% else %}
-                        <div class="col-lg-12 col-lg-offset-0 vote_count_large vote_count{{ object_uuid }}">
-                    {% endif %}
-                        {{ vote_count|default_if_none:"0" }}
-                    </div>
-                    <div class="col-lg-12 col-md-12 sb_down_vote_wrapper">
-                        {% if vote_type or vote_type == None %}
-                            <button class="btn sb_btn sb_btn_vote vote_down vote_object-action vote_{{ object_uuid }}"
-                               data-object_uuid="{{ object_uuid }}"
-                               data-vote_type=false
-                               data-object_type="02241aee-644f-11e4-9ad9-080027242395">
-                                <span class="fui-triangle-down"></span>
-                            </button>
-                        {% else %}
-                            <button class="btn sb_btn sb_btn_vote vote_down vote_down_active vote_object-action vote_{{ object_uuid }}"
-                               data-object_uuid="{{ object_uuid }}"
-                               data-vote_type=false
-                               data-object_type="02241aee-644f-11e4-9ad9-080027242395">
-                                <span class="fui-triangle-down"></span>
-                            </button>
-                        {% endif %}
-                        <div style="display: none" class="sb_downvote_count{{ object_uuid }}">{{ downvotes }}</div>
-                    </div>
-                </div>
+        <div class="vote_count_large">
+            <div class="col-lg-1 hidden-md hidden-sm hidden-xs sb_vote_wrapper_solution">
+                {% include "vote.html" %}
             </div>
+        </div>
         <div class="col-lg-10 col-md-11 col-sm-11 col-xs-11 sb_question_body">
             <div class="sb_solution_content">
                 <div class="sb_markdown" id="sb_content_{{ object_uuid }}">
@@ -70,7 +20,7 @@
                 {% if request.user.username == owner_object.username %}
                     <button class="btn dropdown-toggle sb_btn_icon" type="button"
                         data-toggle="dropdown">
-                        <span class="fui-gear sb_btn_icon_green_hover"></span>
+                        <span class="fa fa-cog sb_btn_icon_green_hover"></span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
                         role="menu" aria-labelledby="dropdown-menu">
@@ -88,11 +38,13 @@
                         </li>
                     </ul>
                 {% else %}
-                    {% if "flag" in request_profile.actions %}
-                        {% include "flag.html" %}
-                    {% else %}
-                        {% include "flag_restriction.html" %}
-                    {% endif %}
+                    {% with request.META.HTTP_HOST|add:"v1/privileges/flag/" as flag_priv %}
+                        {% if flag_priv in request_profile.privileges %}
+                            {% include "flag.html" %}
+                        {% else %}
+                            {% include "flag_restriction.html" %}
+                        {% endif %}
+                    {% endwith %}
                 {% endif %}
         </div>
     </div>
@@ -142,8 +94,7 @@
                       name="comment_content"
                       placeholder="Write your comment..."></textarea>
             <a class="btn input-group-btn sb_btn_comment_icon comment-action comment_{{ object_uuid }}"
-               data-object_uuid="{{ object_uuid }}"
-               data-object_type="02241aee-644f-11e4-9ad9-080027242395"><span class="fui-new"></span></a>
+               data-object_uuid="{{ object_uuid }}"><span class="fa fa-plus"></span></a>
         </div>
         </form>
     </div>

@@ -39,7 +39,7 @@ def update_search_index_doc_script(document_id, index, field, update_value,
 
 def update_search_index_doc(document_id, index, field, update_value,
                             document_type):
-    '''
+    """
     This function can be used to update an existing document in an elasticsearch
     index. This function uses the .update functionality provided by the
     Elasticsearch python package but is also doable by using the script
@@ -51,16 +51,16 @@ def update_search_index_doc(document_id, index, field, update_value,
     :param update_value:
     :param document_type:
     :return:
-    '''
+    """
     try:
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         body = {
-            "doc" : {
-                field : update_value
+            "doc": {
+                field: update_value
             }
         }
-        res = es.update(index=index, fields=["_source"], doc_type=document_type,
-                        id=document_id, body=body)
+        es.update(index=index, fields=["_source"], doc_type=document_type,
+                  id=document_id, body=body)
         return True
     except HTTPError:
         logger.error({"function": update_search_index_doc.__name__,
@@ -71,7 +71,7 @@ def update_search_index_doc(document_id, index, field, update_value,
 
 
 def process_search_result(item):
-    '''
+    """
     This util is called to process the search results returned from
     elasticsearch and render them to a hidden <div> element. The hidden
     div element is then accessed by javascript which uses the data in the
@@ -79,23 +79,28 @@ def process_search_result(item):
 
     :param item:
     :return:
-    '''
-    from sb_search.tasks import update_weight_relationship
+    """
     if 'sb_score' not in item['_source']:
             item['_source']['sb_score'] = 0
-    if item['_type'] == 'sb_questions.neo_models.Question':
-        return {"question_uuid": item['_source']['object_uuid'],
-                       "type": "question",
-                       "temp_score": item['_score']*item['_source']['sb_score'],
-                       "score": item['_score']}
-    elif item['_type'] == 'pleb':
-        return {"username": item['_source']['object_uuid'],
-                "type": "pleb",
-                "temp_score": item['_score']*item['_source']['sb_score'],
-                "score": item['_score']}
-    elif item['_type'] == 'sagas':
-        return {"object_uuid": item['_source']['object_uuid'],
-                'type': 'sagas', 'temp_score': item['_score'],
-                'score': item['_score']}
+    if item['_type'] == 'question':
+        return {
+            "question_uuid": item['_source']['object_uuid'],
+            "type": "question",
+            "temp_score": item['_score'] * item['_source']['sb_score'],
+            "score": item['_score']
+        }
+    elif item['_type'] == 'profile':
+        return {
+            "username": item['_source']['related_user'],
+            "type": "profile",
+            "temp_score": item['_score'] * item['_source']['sb_score'],
+            "score": item['_score']
+        }
+    elif item['_type'] == 'public_official':
+        return {
+            "object_uuid": item['_source']['object_uuid'],
+            'type': 'public_official', 'temp_score': item['_score'],
+            'score': item['_score']
+        }
     else:
         return {'temp_score': 0}

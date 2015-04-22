@@ -6,9 +6,12 @@ from django.conf import settings
 
 from plebs.neo_models import Pleb
 from api.utils import wait_util
-from sb_questions.neo_models import Question
+
+from sb_base.neo_models import VotableContent
 from sb_registration.utils import create_user_util_test
 from sb_votes.tasks import vote_object_task
+
+from sb_questions.neo_models import Question
 
 
 class TestVoteObjectTask(TestCase):
@@ -26,8 +29,8 @@ class TestVoteObjectTask(TestCase):
 
     def test_vote_object_task_success(self):
         question = Question(object_uuid=str(uuid1())).save()
+        question.owned_by.connect(self.pleb)
         task_data = {
-            'object_type': 'sb_questions.neo_models.Question',
             'object_uuid': question.object_uuid,
             'current_pleb': self.pleb,
             'vote_type': True
@@ -36,12 +39,11 @@ class TestVoteObjectTask(TestCase):
         while not res.ready():
             time.sleep(1)
 
-        self.assertIsInstance(res.result, Question)
+        self.assertIsInstance(res.result, VotableContent)
 
     def test_vote_object_task_get_object_failure(self):
         question = Question(object_uuid=str(uuid1())).save()
         task_data = {
-            'object_type': 'Question',
             'object_uuid': question.object_uuid,
             'current_pleb': self.pleb,
             'vote_type': True
@@ -50,4 +52,4 @@ class TestVoteObjectTask(TestCase):
         while not res.ready():
             time.sleep(1)
 
-        self.assertFalse(res.result)
+        self.assertIsInstance(res.result, Exception)

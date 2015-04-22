@@ -21,7 +21,7 @@ def add_solution_to_search_index(solution):
     except (CypherException, IOError) as e:
         raise add_solution_to_search_index.retry(exc=e, countdown=3,
                                                  max_retries=None)
-    task_data = {"object_type": 'sb_solutions.neo_models.Solution',
+    task_data = {"object_uuid": solution['object_uuid'],
                  'object_data': solution}
     spawned = spawn_task(task_func=add_object_to_search_index,
                          task_param=task_data)

@@ -1,7 +1,9 @@
 from rest_framework import serializers
 
+from api.serializers import SBSerializer
 
-class RequirementSerializer(serializers.Serializer):
+
+class RequirementSerializer(SBSerializer):
     name = serializers.CharField()
     url = serializers.URLField()
     key = serializers.CharField()

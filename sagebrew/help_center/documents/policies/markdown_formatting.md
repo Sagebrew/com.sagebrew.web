@@ -137,7 +137,7 @@ is too large, but if you can resize your image, it's recommended to do so.
 Preferred image size is at or below 696x696.
 
 ### Videos ###
-To add a video choose your favorite hosting site, take their embedded link and
+To add a video, copy the "embeded" link from the host site of the video you'd like to post and
 insert it in the document where you'd like the video to be located.
 For example:
 

@@ -1,59 +1,8 @@
 <div class="row sb_question_summary">
     <div class="row">
-        <div class="col-lg-12">
-            <div class="hidden-md hidden-sm hidden-xs sb_vote_wrapper" style="position: absolute;">
-            <div class="row vote_wrapper" id="vote_{{ object_uuid }}">
-                <div class="col-lg-12 sb_up_vote_wrapper">
-                    <div style="display: none" class="sb_upvote_count{{ object_uuid }}">{{ upvotes }}</div>
-                    {% if not vote_type or vote_type == None %}
-                        <button class="btn sb_btn sb_btn_vote vote_up vote_object-action vote_{{ object_uuid }}"
-                           data-object_uuid="{{ object_uuid }}"
-                           data-vote_type=true
-                           data-object_type="0274a216-644f-11e4-9ad9-080027242395">
-                            <span class="fui-triangle-up"></span>
-                        </button>
-                    {% else %}
-                        <button class="btn sb_btn sb_btn_vote vote_up vote_up_active vote_object-action vote_{{ object_uuid }}"
-                           data-object_uuid="{{ object_uuid }}"
-                           data-vote_type=true
-                           data-object_type="0274a216-644f-11e4-9ad9-080027242395">
-                            <span class="fui-triangle-up"></span>
-                        </button>
-                    {% endif %}
-                </div>
-                {% if vote_count|length_is:"1" %}
-                    <div class="col-lg-12 col-lg-offset-0 vote_count{{ object_uuid }}" style="margin-left: 16px;">
-                {% elif vote_count|length_is:"2" %}
-                    <div class="col-lg-12 col-lg-offset-2 vote_count{{ object_uuid }}" style="margin-left: 10px;">
-                {% elif vote_count|length_is:"3" %}
-                    <div class="col-lg-12 col-lg-offset-1 vote_count{{ object_uuid }}"  style="margin-left: 5px;">
-                {% elif vote_count|length_is:"4" %}
-                    <div class="col-lg-12 col-lg-offset-0 vote_count{{ object_uuid }}" style="margin-left: 5px;">
-                {% elif vote_count == None %}
-                    <div class="col-lg-12 col-lg-offset-2 vote_count{{ object_uuid }}" style="margin-left: 16px;">
-                {% else %}
-                    <div class="col-lg-12 col-lg-offset-0 vote_count{{ object_uuid }}" style="margin-left: 5px;">
-                {% endif %}
-                    {{ vote_count|default_if_none:"0" }}
-                </div>
-                <div class="col-lg-12 col-md-12 sb_down_vote_wrapper">
-                    {% if vote_type or vote_type == None %}
-                        <button class="btn sb_btn sb_btn_vote vote_down vote_object-action vote_{{ object_uuid }}"
-                           data-object_uuid="{{ object_uuid }}"
-                           data-vote_type=false
-                           data-object_type="0274a216-644f-11e4-9ad9-080027242395">
-                            <span class="fui-triangle-down"></span>
-                        </button>
-                    {% else %}
-                        <button class="btn sb_btn sb_btn_vote vote_down vote_down_active vote_object-action vote_{{ object_uuid }}"
-                           data-object_uuid="{{ object_uuid }}"
-                           data-vote_type=false
-                           data-object_type="0274a216-644f-11e4-9ad9-080027242395">
-                            <span class="fui-triangle-down"></span>
-                        </button>
-                    {% endif %}
-                    <div style="display: none" class="sb_downvote_count{{ object_uuid }}">{{ downvotes }}</div>
-                </div>
+        <div class="vote_count_large">
+            <div class="col-lg-1 hidden-md hidden-sm hidden-xs sb_vote_wrapper_solution"  style="position: absolute;">
+                {% include "vote.html" %}
             </div>
         </div>
     </div>

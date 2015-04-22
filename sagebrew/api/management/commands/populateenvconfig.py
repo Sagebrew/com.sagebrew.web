@@ -111,6 +111,20 @@ def populate_staging_values(data):
     data = data.replace("<CRED_USER>", environ.get("CRED_USER_STAGING", ""))
     data = data.replace("<CRED_PASSWORD>",
                         environ.get("CRED_PASSWORD_STAGING", ""))
+    data = data.replace("<ELASTIC_SEARCH_HOST>",
+                        environ.get("ELASTIC_SEARCH_HOST_STAGING", ""))
+    data = data.replace("<ELASTIC_SEARCH_PORT>",
+                        environ.get("ELASTIC_SEARCH_PORT_STAGING", ""))
+    data = data.replace("<ELASTIC_SEARCH_USER>",
+                        environ.get("ELASTIC_SEARCH_USER_STAGING", ""))
+    data = data.replace("<ELASTIC_SEARCH_KEY>",
+                        environ.get("ELASTIC_SEARCH_KEY_STAGING", ""))
+    data = data.replace("<ADDRESS_VALIDATION_ID>",
+                        environ.get("ADDRESS_VALIDATION_ID_STAGING", ""))
+    data = data.replace("<ADDRESS_VALIDATION_TOKEN>",
+                        environ.get("ADDRESS_VALIDATION_TOKEN_STAGING", ""))
+    data = data.replace("<ADDRESS_AUTH_ID>",
+                        environ.get("ADDRESS_AUTH_ID_STAGING", ""))
     return data
 
 
@@ -160,7 +174,7 @@ def populate_production_values(data):
                         environ.get("OPBEAT_SECRET_TOKEN_PROD", ""))
     data = data.replace("<OAUTH_CLIENT_ID>",
                         environ.get("OAUTH_CLIENT_ID_PROD", ""))
-    data = data.replace("<ENV_OAUTH_CLIENT_SECRET>",
+    data = data.replace("<OAUTH_CLIENT_SECRET>",
                         environ.get("OAUTH_CLIENT_SECRET_PROD", ""))
     data = data.replace("<OAUTH_CLIENT_ID_CRED>",
                         environ.get("OAUTH_CLIENT_ID_CRED_PROD", ""))
@@ -169,6 +183,20 @@ def populate_production_values(data):
     data = data.replace("<CRED_USER>", environ.get("CRED_USER_PROD", ""))
     data = data.replace("<CRED_PASSWORD>",
                         environ.get("CRED_PASSWORD_PROD", ""))
+    data = data.replace("<ELASTIC_SEARCH_HOST>",
+                        environ.get("ELASTIC_SEARCH_HOST_PROD", ""))
+    data = data.replace("<ELASTIC_SEARCH_PORT>",
+                        environ.get("ELASTIC_SEARCH_PORT_PROD", ""))
+    data = data.replace("<ELASTIC_SEARCH_USER>",
+                        environ.get("ELASTIC_SEARCH_USER_PROD", ""))
+    data = data.replace("<ELASTIC_SEARCH_KEY>",
+                        environ.get("ELASTIC_SEARCH_KEY_PROD", ""))
+    data = data.replace("<ADDRESS_VALIDATION_ID>",
+                        environ.get("ADDRESS_VALIDATION_ID_PROD", ""))
+    data = data.replace("<ADDRESS_VALIDATION_TOKEN>",
+                        environ.get("ADDRESS_VALIDATION_TOKEN_PROD", ""))
+    data = data.replace("<ADDRESS_AUTH_ID>",
+                        environ.get("ADDRESS_AUTH_ID_PROD", ""))
     return data
 
 
@@ -201,6 +229,20 @@ def populate_test_values(data):
     data = data.replace("<CRED_USER>", environ.get("CRED_USER", ""))
     data = data.replace("<CRED_PASSWORD>",
                         environ.get("CRED_PASSWORD", ""))
+    data = data.replace("<ELASTIC_SEARCH_HOST>",
+                        environ.get("ELASTIC_SEARCH_HOST", ""))
+    data = data.replace("<ELASTIC_SEARCH_PORT>",
+                        environ.get("ELASTIC_SEARCH_PORT", ""))
+    data = data.replace("<ELASTIC_SEARCH_USER>",
+                        environ.get("ELASTIC_SEARCH_USER", ""))
+    data = data.replace("<ELASTIC_SEARCH_KEY>",
+                        environ.get("ELASTIC_SEARCH_KEY", ""))
+    data = data.replace("<ADDRESS_VALIDATION_ID>",
+                        environ.get("ADDRESS_VALIDATION_ID", ""))
+    data = data.replace("<ADDRESS_VALIDATION_TOKEN>",
+                        environ.get("ADDRESS_VALIDATION_TOKEN", ""))
+    data = data.replace("<ADDRESS_AUTH_ID>",
+                        environ.get("ADDRESS_AUTH_ID", ""))
     return data
 
 
@@ -225,18 +267,6 @@ def populate_general_values(data):
 
     data = data.replace("<ALCHEMY_API_KEY>",
                         environ.get("ALCHEMY_API_KEY", ""))
-    data = data.replace("<ADDRESS_VALIDATION_ID>",
-                        environ.get("ADDRESS_VALIDATION_ID", ""))
-    data = data.replace("<ADDRESS_VALIDATION_TOKEN>",
-                        environ.get("ADDRESS_VALIDATION_TOKEN", ""))
-    data = data.replace("<ELASTIC_SEARCH_HOST>",
-                        environ.get("ELASTIC_SEARCH_HOST", ""))
-    data = data.replace("<ELASTIC_SEARCH_PORT>",
-                        environ.get("ELASTIC_SEARCH_PORT", ""))
-    data = data.replace("<ELASTIC_SEARCH_USER>",
-                        environ.get("ELASTIC_SEARCH_USER", ""))
-    data = data.replace("<ELASTIC_SEARCH_KEY>",
-                        environ.get("ELASTIC_SEARCH_KEY", ""))
 
     data = data.replace("<REDIS_PORT>", environ.get("REDIS_PORT", ""))
     data = data.replace("<QUEUE_USERNAME>", environ.get("QUEUE_USERNAME", ""))

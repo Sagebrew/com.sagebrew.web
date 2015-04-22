@@ -28,4 +28,5 @@ urlpatterns = patterns(
         name="question-solution"),
     (r'^questions/', include('sb_comments.apis.relations.v1')),
     (r'^questions/', include('sb_flags.apis.relations.v1')),
+    (r'^questions/', include('sb_votes.apis.relations.v1')),
 )

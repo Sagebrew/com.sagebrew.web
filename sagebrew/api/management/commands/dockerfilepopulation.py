@@ -9,7 +9,7 @@ class Command(BaseCommand):
 
     def populate_dockerfiles(self):
         with open("%s/dockerfile_template" % settings.REPO_DIR,
-                   "r") as dockerfile:
+                  "r") as dockerfile:
             circle_branch = os.environ.get("CIRCLE_BRANCH", "")
             if "pull" in circle_branch:
                 circle_branch = "staging"
@@ -39,8 +39,8 @@ class Command(BaseCommand):
             data = data.replace('{{APPLICATION_SECRET_KEY}}',
                                 os.environ.get("APPLICATION_SECRET_KEY", ""))
             data = data.replace('{{REQUIREMENTS_FILE}}',
-                                    os.environ.get(
-                                        "REQUIREMENTS_FILE", "base"))
+                                os.environ.get(
+                                    "REQUIREMENTS_FILE", "base"))
             data = data.replace('{{DOCKER_ENV}}', circle_branch)
             data = data.replace("{{PROJECT_NAME}}", "sagebrew")
             data = data.replace("{{CIRCLECI}}",
@@ -85,8 +85,8 @@ class Command(BaseCommand):
                                     os.environ.get("PROJECT_USERNAME", ""))
                 circle_branch = os.environ.get("DOCKER_ENV", "staging")
             data = data.replace('{{REQUIREMENTS_FILE}}',
-                                    os.environ.get(
-                                        "REQUIREMENTS_FILE", "base"))
+                                os.environ.get(
+                                    "REQUIREMENTS_FILE", "base"))
             data = data.replace('{{APPLICATION_SECRET_KEY}}',
                                 os.environ.get("APPLICATION_SECRET_KEY", ""))
             data = data.replace('{{DOCKER_ENV}}', circle_branch)

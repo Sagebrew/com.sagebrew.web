@@ -14,15 +14,15 @@
        <div class="thumbnail sb_profile_pic">
            {% if request.user.username == page_user.username %}
                <button class="btn sb_btn_icon sb_btn_icon_green sb_btn_icon_settings_profile"
-                       id="update_profile_pic"><span class="fui-photo"></span></button>
+                       id="update_profile_pic"><span class="fa fa-camera"></span></button>
            {% endif %}
             <img id="profile_pic" src="{{ page_profile.profile_pic }}">
        </div>
        <div align="right" class="row-fluid">
            {% static 'images/wallpaper_western.jpg' as default_wallpaper %}
-           <img id="wallpaper_pic" class=" wallpaper_profile" src="{{ page_profile.wallpaper_pic|default_if_none:default_wallpaper }}">
+           <img id="wallpaper_pic" class="wallpaper_profile" src="{{ page_profile.wallpaper_pic|default_if_none:default_wallpaper }}">
            {% if request.user.username == page_user.username %}
-               <button class="btn sb_btn_icon sb_btn_icon_green sb_btn_icon_settings" id="update_wallpaper_pic"><span class="fui-photo"></span></button>
+               <button class="btn sb_btn_icon sb_btn_icon_green sb_btn_icon_settings" id="update_wallpaper_pic"><span class="fa fa-camera"></span></button>
            {% else %}
                {% comment %} A hack to get non-friend pages to load correctly{% endcomment %}
                <span class="btn sb_btn_icon sb_btn_icon_green sb_btn_icon_settings" style="margin-bottom: 25px;" hidden="hidden"></span>

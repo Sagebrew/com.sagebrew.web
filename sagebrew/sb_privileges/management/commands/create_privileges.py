@@ -5,7 +5,7 @@ from json import loads
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from rest_framework.reverse import reverse
+from rest_framework.reverse import reverse, NoReverseMatch
 
 from neomodel import CypherException, DoesNotExist
 
@@ -54,9 +54,13 @@ class Command(BaseCommand):
                     except(CypherException, IOError):
                         logger.critical("potential error there may"
                                         " be missing requirements")
+                action_obj = None
                 for action in actions:
                     action_resource = "%s-list" % action["resource"]
-                    action_url = reverse(action_resource)
+                    try:
+                        action_url = reverse(action_resource)
+                    except NoReverseMatch:
+                        action_url = "/%s" % action["resource"]
                     if "http" not in action_url:
                         branch = os.environ.get("CIRCLE_BRANCH", None)
                         circle_ci = os.environ.get("CIRCLECI", False)
@@ -83,18 +87,20 @@ class Command(BaseCommand):
                     try:
                         # Note that this will not always be a unique index and
                         # may require some tweeking in the future
-                        SBAction.nodes.get(url=action_url)
+                        action_obj = SBAction.nodes.get(url=action_url)
                     except(SBAction.DoesNotExist, DoesNotExist):
                         try:
                             action["url"] = (action_url)
-                            action = SBAction(**action).save()
-                            privilege_obj.actions.connect(action)
+                            action_obj = SBAction(**action).save()
                         except(CypherException, IOError):
                             logger.critical("potential error there may"
                                             " be missing actions")
                     except(CypherException, IOError):
                         logger.critical("potential error there may"
                                         " be missing actions")
+                    if action_obj is not None:
+                        privilege_obj.actions.connect(action_obj)
+                    action_obj = None
             for restriction in data['restrictions']:
                 try:
                     Restriction.nodes.get(name=restriction["name"])

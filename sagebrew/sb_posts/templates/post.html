@@ -32,7 +32,7 @@
                     {% if owner_object.username == request.user.username %}
                         <button class="btn dropdown-toggle sb_btn_icon" type="button"
                             data-toggle="dropdown">
-                        <span class="fui-gear sb_btn_icon_green_hover"></span>
+                        <span class="fa fa-cog sb_btn_icon_green_hover"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
                             role="menu" aria-labelledby="dropdown-menu">
@@ -58,59 +58,11 @@
             </div>
         </div>
         <div class="row">
+            <div class="vote_small vote_count_medium">
                 <div class="col-lg-1 hidden-md hidden-sm hidden-xs sb_vote_wrapper">
-                    <div class="row sb_votes vote_wrapper" id="vote_{{ object_uuid }}">
-                        <div class="col-lg-12 sb_up_vote_wrapper">
-                            <div style="display: none" class="sb_upvote_count{{ object_uuid }}">{{ upvotes }}</div>
-                            {% if not vote_type or vote_type == None %}
-                                <button class="btn sb_btn sb_btn_vote vote_up vote_up_small vote_object-action vote_{{ object_uuid }}"
-                                   data-object_uuid="{{ object_uuid }}"
-                                   data-vote_type=true
-                                   data-object_type="01bb301a-644f-11e4-9ad9-080027242395">
-                                    <span class="fui-triangle-up"></span>
-                                </button>
-                            {% else %}
-                                <button class="btn sb_btn sb_btn_vote vote_up vote_up_small vote_up_active vote_object-action vote_{{ object_uuid }}"
-                                   data-object_uuid="{{ object_uuid }}"
-                                   data-vote_type=true
-                                   data-object_type="01bb301a-644f-11e4-9ad9-080027242395">
-                                    <span class="fui-triangle-up"></span>
-                                </button>
-                            {% endif %}
-                        </div >
-                        {% if vote_count|length_is:"1" %}
-                            <div class="col-lg-12 col-lg-offset-1 vote_count_medium vote_count{{ object_uuid }}">
-                        {% elif vote_count|length_is:"2" %}
-                            <div class="col-lg-12 col-lg-offset-1 vote_count_medium vote_count{{ object_uuid }}">
-                        {% elif vote_count|length_is:"3" %}
-                            <div class="col-lg-12 col-lg-offset-1 vote_count_medium vote_count{{ object_uuid }}">
-                        {% elif vote_count|length_is:"4" %}
-                            <div class="col-lg-12 col-lg-offset-0 vote_count_medium vote_count{{ object_uuid }}">
-                        {% else %}
-                            <div class="col-lg-12 col-lg-offset-0 vote_count_medium vote_count{{ object_uuid }}">
-                        {% endif %}
-                            {{ vote_count }}
-                        </div>
-                        <div class="col-lg-12 col-md-12 sb_down_vote_wrapper">
-                            {% if vote_type or vote_type == None %}
-                                <button class="btn sb_btn sb_btn_vote vote_down vote_down_small vote_object-action vote_{{ object_uuid }}"
-                                   data-object_uuid="{{ object_uuid }}"
-                                   data-vote_type=false
-                                   data-object_type="01bb301a-644f-11e4-9ad9-080027242395">
-                                    <span class="fui-triangle-down"></span>
-                                </button>
-                            {% else %}
-                                <button class="btn sb_btn sb_btn_vote vote_down vote_down_small vote_down_active vote_object-action vote_{{ object_uuid }}"
-                                   data-object_uuid="{{ object_uuid }}"
-                                   data-vote_type=false
-                                   data-object_type="01bb301a-644f-11e4-9ad9-080027242395">
-                                    <span class="fui-triangle-down"></span>
-                                </button>
-                            {% endif %}
-                            <div style="display: none" class="sb_downvote_count{{ object_uuid }}">{{ downvotes }}</div>
-                        </div>
-                    </div>
+                    {% include "vote.html" %}
                 </div>
+            </div>
             <div class="col-lg-10 col-md-11 col-sm-11 col-xs-11 sb_post_wrapper">
                 <div class="sb_post_body" id="sb_content_{{ object_uuid }}">
                     {{ content|linebreaksbr }}
@@ -126,7 +78,6 @@
                         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 col-lg-offset-8 col-md-offset-8 col-sm-offset-8">
                             <button class='btn btn-block btn-primary sb_btn_fill edit_object-action edit_{{ object_uuid }}'
                                id="edit_post_button_id"
-                               data-object_type="01bb301a-644f-11e4-9ad9-080027242395"
                                data-parent_object="{{ owner_object.username }}"
                                data-object_uuid="{{ object_uuid }}"
                                data-created="{{ created }}">Edit</button>
@@ -149,8 +100,7 @@
                           name="comment_content"
                           placeholder="Write your comment..."></textarea>
                 <a class="btn input-group-btn sb_btn_comment_icon comment-action comment_{{ object_uuid }}"
-                   data-object_uuid="{{ object_uuid }}"
-                   data-object_type="01bb301a-644f-11e4-9ad9-080027242395"><span class="fui-new"></span></a>
+                   data-object_uuid="{{ object_uuid }}"><span class="fa fa-plus"></span></a>
             </div>
             </form>
         </div>

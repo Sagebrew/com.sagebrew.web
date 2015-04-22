@@ -5,9 +5,9 @@ from base import *
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['*']
-INTERNAL_IPS = ('192.168.56.1', '127.0.0.1', '192.168.56.101',
+INTERNAL_IPS = ('192.168.56.1', '127.0.0.1', '192.168.56.101', '192.168.33.15', '192.168.33.1',
                 '192.168.56.101:8080')
-WEB_ADDRESS = "https://192.168.56.101"
+WEB_ADDRESS = "https://192.168.33.15"
 VERIFY_SECURE = False
 MEDIA_ROOT = PROJECT_DIR.child("media")
 STATIC_ROOT = PROJECT_DIR.child("static")
@@ -17,10 +17,10 @@ MEDIA_URL = '/media/'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'sagebrew_db',
-        'USER': 'admin',
-        'PASSWORD': 'admin',
-        'HOST': '192.168.56.101',
+        'NAME': environ.get("DATABASE_NAME", ""),
+        'USER': environ.get("DATABASE_USER", ""),
+        'PASSWORD': environ.get("DATABASE_PASSWORD", ""),
+        'HOST': environ.get("DATABASE_HOST", ""),
         'PORT': '',
     }
 }
@@ -39,9 +39,9 @@ EMAIL_VERIFICATION_URL = "%s/registration/email_confirmation/" % WEB_ADDRESS
 
 
 BROKER_URL = 'amqp://%s:%s@%s:%s//' % (environ.get("QUEUE_USERNAME", ""),
-                                       environ.get("QUEUE_PASSWORD", ""),
-                                       environ.get("QUEUE_HOST", ""),
-                                       environ.get("QUEUE_PORT", ""))
+                                        environ.get("QUEUE_PASSWORD", ""),
+                                        environ.get("QUEUE_HOST", ""),
+                                        environ.get("QUEUE_PORT", ""))
 CELERY_IGNORE_RESULT = False
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS':
@@ -99,6 +99,7 @@ DEBUG_TOOLBAR_CONFIG = {
 #INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar', )
 # MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + (
 # 'debug_toolbar.middleware.DebugToolbarMiddleware',)
+
 
 LOGGING = {
     'version': 1,

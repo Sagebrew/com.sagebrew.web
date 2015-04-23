@@ -252,12 +252,37 @@ class FriendRequestSerializer(SBSerializer):
     seen = serializers.BooleanField()
     time_sent = serializers.DateTimeField(read_only=True)
     time_seen = serializers.DateTimeField(allow_null=True, required=False)
-    response = serializers.CharField(required=False)
+    response = serializers.CharField(required=False, allow_null=True,
+                                     allow_blank=True)
     from_user = serializers.SerializerMethodField()
     to_user = serializers.SerializerMethodField()
 
-    def get_from_user(self):
-        pass
+    def update(self, instance, validated_data):
+        instance.seen = validated_data.get('seen', instance.seen)
+        instance.time_seen = validated_data.get(
+            'time_seen', instance.time_seen)
+        instance.response = validated_data.get('response', instance.response)
+        instance.save()
+        return instance
 
-    def get_to_user(self):
-        pass
+    def get_from_user(self, obj):
+        request, expand, _, _, _ = gather_request_data(self.context)
+        user_url = reverse("profile-detail",
+                       kwargs={"username": obj.request_from.all()[0].username},
+                       request=request)
+        if expand == "true":
+            response = request_to_api(user_url, request.user.username,
+                                      req_method="GET")
+            return response.json()
+        return user_url
+
+    def get_to_user(self, obj):
+        request, expand, _, _, _ = gather_request_data(self.context)
+        user_url = reverse("profile-detail",
+                       kwargs={"username": obj.request_to.all()[0].username},
+                       request=request)
+        if expand == "true":
+            response = request_to_api(user_url, request.user.username,
+                                      req_method="GET")
+            return response.json()
+        return user_url

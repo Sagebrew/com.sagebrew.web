@@ -25,12 +25,8 @@ class MeEndpointTests(APITestCase):
         url = reverse('me-detail')
         data = {}
         response = self.client.post(url, data, format='json')
-        unauthorized = {
-            'status_code': status.HTTP_401_UNAUTHORIZED,
-            'detail': 'Authentication credentials were not provided.'
-        }
-        self.assertEqual(response.data, unauthorized)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
+                                             status.HTTP_403_FORBIDDEN])
 
     def test_missing_data(self):
         self.client.force_authenticate(user=self.user)

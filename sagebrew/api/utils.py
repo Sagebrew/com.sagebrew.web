@@ -10,13 +10,14 @@ from json import dumps
 from datetime import datetime
 
 from django.core import signing
+from django.conf import settings
+
+from rest_framework.authtoken.models import Token
 
 from boto.sqs.message import Message
 
 from neomodel import db
 from neomodel.exception import CypherException
-
-from django.conf import settings
 
 from .alchemyapi import AlchemyAPI
 
@@ -46,15 +47,9 @@ def request_to_api(url, username, data=None, headers=None, req_method=None,
     if headers is None:
         headers = {"content-type": "application/json"}
     if internal is True:
-        # TODO we should put the token and expiration into a cache so that we
-        # can just check if it needs to be updated and only then do we
-        # query neo.
-        try:
-            pleb = Pleb.nodes.get(username=username)
-        except(CypherException, IOError) as e:
-            raise e
-        headers['Authorization'] = "%s %s" % (
-            'Bearer', get_oauth_access_token(pleb))
+        token = Token.objects.get(user__username=username)
+
+        headers['Authorization'] = "%s %s" % ('Token', token.key)
     response = None
     try:
         if req_method is None or req_method == "POST" or req_method == "post":

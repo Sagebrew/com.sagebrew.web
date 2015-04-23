@@ -67,16 +67,6 @@ class MeEndpointTests(APITestCase):
         self.assertEqual(response.status_code,
                          status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    def test_save_image_data(self):
-        with open(settings.PROJECT_DIR + "/images/test_image.jpg",
-                  "rb") as image_file:
-            image = b64encode(image_file.read())
-        self.client.force_authenticate(user=self.user)
-        url = reverse('me-detail')
-        response = self.client.post(url, image, format='json')
-        self.assertEqual(response.status_code,
-                         status.HTTP_405_METHOD_NOT_ALLOWED)
-
     def test_create_on_detail(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('me-detail')

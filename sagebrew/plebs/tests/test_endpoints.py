@@ -133,3 +133,12 @@ class FriendRequestEndpointTests(APITestCase):
                       kwargs={"object_uuid": self.friend_request.object_uuid})
         response = self.client.put(url, data={'seen': True}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_incorrect_data(self):
+        self.client.force_authenticate(user=self.user)
+
+        url = reverse('friend_request-detail',
+                      kwargs={"object_uuid": self.friend_request.object_uuid})
+        response = self.client.put(url, data={'fake_key': 'fake value'},
+                                   format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

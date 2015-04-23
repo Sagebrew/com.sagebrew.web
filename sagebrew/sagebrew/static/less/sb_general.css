@@ -482,7 +482,10 @@ extend ' .progress_bar' has no matches
 }
 .vote_count_small span.vote_count {
   font-size: 13px !important;
-  margin-left: 8px;
+  margin-left: 7px;
+}
+.vote_count_small div.sb_up_vote_wrapper {
+  margin-bottom: -7px;
 }
 .vote_up:hover {
   color: #1ba39c;

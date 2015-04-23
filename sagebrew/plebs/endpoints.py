@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework import status
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.generics import (RetrieveUpdateDestroyAPIView)
 
 from neomodel import db
 
@@ -374,3 +375,12 @@ class ProfileViewSet(viewsets.ModelViewSet):
         serializer = VoteSerializer(page, many=True,
                                     context={'request': request})
         return self.get_paginated_response(serializer.data)
+
+
+class MeRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
+    serializer_class = UserSerializer
+    lookup_field = "username"
+    permission_classes = (IsAuthenticated, IsSelf)
+
+    def get_object(self):
+        return self.request.user

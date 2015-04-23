@@ -377,8 +377,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
         serializer = VoteSerializer(page, many=True,
                                     context={'request': request})
         return self.get_paginated_response(serializer.data)
-    
-    
+
+
 class MeRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     serializer_class = UserSerializer
     lookup_field = "username"
@@ -409,4 +409,3 @@ class FriendRequestViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         return Response({"detail": "TBD"},
                         status=status.HTTP_501_NOT_IMPLEMENTED)
-

@@ -271,8 +271,8 @@ class FriendRequestSerializer(SBSerializer):
 
     def update(self, instance, validated_data):
         instance.seen = validated_data.get('seen', instance.seen)
-        instance.time_seen = validated_data.get(
-            'time_seen', instance.time_seen)
+        instance.time_seen = validated_data.get('time_seen',
+                                                instance.time_seen)
         instance.response = validated_data.get('response', instance.response)
         instance.save()
         return instance
@@ -280,8 +280,9 @@ class FriendRequestSerializer(SBSerializer):
     def get_from_user(self, obj):
         request, expand, _, _, _ = gather_request_data(self.context)
         user_url = reverse("profile-detail",
-                       kwargs={"username": obj.request_from.all()[0].username},
-                       request=request)
+                           kwargs={"username": obj.request_from.all()[0].
+                                   username},
+                           request=request)
         if expand == "true":
             response = request_to_api(user_url, request.user.username,
                                       req_method="GET")
@@ -291,8 +292,9 @@ class FriendRequestSerializer(SBSerializer):
     def get_to_user(self, obj):
         request, expand, _, _, _ = gather_request_data(self.context)
         user_url = reverse("profile-detail",
-                       kwargs={"username": obj.request_to.all()[0].username},
-                       request=request)
+                           kwargs={"username": obj.request_to.all()[0].
+                                   username},
+                           request=request)
         if expand == "true":
             response = request_to_api(user_url, request.user.username,
                                       req_method="GET")

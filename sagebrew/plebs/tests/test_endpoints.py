@@ -128,7 +128,6 @@ class FriendRequestEndpointTests(APITestCase):
 
     def test_update_detail(self):
         self.client.force_authenticate(user=self.user)
-
         url = reverse('friend_request-detail',
                       kwargs={"object_uuid": self.friend_request.object_uuid})
         response = self.client.put(url, data={'seen': True}, format='json')
@@ -136,7 +135,6 @@ class FriendRequestEndpointTests(APITestCase):
 
     def test_update_incorrect_data(self):
         self.client.force_authenticate(user=self.user)
-
         url = reverse('friend_request-detail',
                       kwargs={"object_uuid": self.friend_request.object_uuid})
         response = self.client.put(url, data={'fake_key': 'fake value'},

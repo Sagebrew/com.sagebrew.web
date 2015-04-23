@@ -63,6 +63,7 @@ class UserSerializer(SBSerializer):
                                          style={'input_type': 'password'})
     birthday = serializers.DateTimeField(write_only=True)
     href = serializers.SerializerMethodField()
+    profile = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         username = generate_username(validated_data['first_name'],
@@ -114,6 +115,17 @@ class UserSerializer(SBSerializer):
 
     def get_id(self, obj):
         return obj.username
+
+    def get_profile(self, obj):
+        request, expand, _, _, _ = gather_request_data(self.context)
+        user_url = reverse('profile-detail', kwargs={'username': obj.username},
+                           request=request)
+        if expand == "true":
+            response = request_to_api(user_url, request.user.username,
+                                      req_method="GET")
+            return response.json()
+        else:
+            return user_url
 
     def get_href(self, obj):
         request, expand, _, _, _ = gather_request_data(self.context)

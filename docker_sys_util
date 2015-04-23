@@ -26,5 +26,6 @@ CMD chown {{APP_USER}} /etc/rsyslog.d/ && \
     python manage.py create_prepopulated_tags && \
     python manage.py createsite && \
     python manage.py clearsessions && \
+    python manage.py createtokens && \
     python manage.py populate_rep_models && \
     python manage.py create_prepopulated_reps

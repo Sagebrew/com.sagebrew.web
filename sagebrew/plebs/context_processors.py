@@ -1,4 +1,4 @@
-from neomodel.exception import CypherException
+from neomodel.exception import CypherException, DoesNotExist
 
 from .neo_models import Pleb
 from .serializers import PlebSerializerNeo
@@ -28,7 +28,7 @@ def request_profile(request):
                     "request_profile":
                         PlebSerializerNeo(pleb,
                                           context={"request": request}).data}
-            except(CypherException, IOError):
+            except(CypherException, IOError, Pleb.DoesNotExist, DoesNotExist):
                 return default_response
         else:
             return default_response

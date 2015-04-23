@@ -92,7 +92,7 @@ class PublicOfficial(SBObject, Searchable):
 
 '''
 class Bill(StructuredNode):
-    bill_id = StringProperty(unique_index=True)
+    bill_id = StringProperty(index=True)
 
     # relationships
     proposer = RelationshipTo(PublicOfficial, "PROPOSED_BY")
@@ -101,14 +101,14 @@ class Bill(StructuredNode):
 
 
 class Hearing(StructuredNode):
-    hearing_id = StringProperty(unique_index=True)
+    hearing_id = StringProperty(index=True)
 
     # relationships
     attendees = RelationshipTo(PublicOfficial, "HEARING_ATTENDEES")
 
 
 class Committee(StructuredNode):
-    committee_number = IntegerProperty(unique_index=True)
+    committee_number = IntegerProperty(index=True)
 
     # relationships
     members = RelationshipTo(PublicOfficial, "COMMITTEE_MEMBERS")

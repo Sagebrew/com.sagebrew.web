@@ -9,7 +9,7 @@ from api.neo_models import SBObject
 
 
 class Privilege(SBObject):
-    name = StringProperty(unique_index=True)
+    name = StringProperty(index=True)
 
     # relationships
     actions = RelationshipTo('sb_privileges.neo_models.SBAction', 'GRANTS')
@@ -61,7 +61,7 @@ class SBAction(SBObject):
 
 class Restriction(SBObject):
     base = BooleanProperty(default=False)
-    name = StringProperty(unique_index=True)
+    name = StringProperty(index=True)
     url = StringProperty()
     key = StringProperty()
     operator = StringProperty(default="")  # gt, ge, eq, ne, ge, gt

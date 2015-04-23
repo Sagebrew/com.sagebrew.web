@@ -8,7 +8,7 @@ from api.neo_models import SBObject
 
 
 class Requirement(SBObject):
-    name = StringProperty(unique_index=True)
+    name = StringProperty(index=True)
     url = StringProperty()
     key = StringProperty()
     # gt, ge, eq, ne, ge, gt

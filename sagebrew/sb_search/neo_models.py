@@ -21,7 +21,7 @@ class KeyWordRel(StructuredRel):
 
 
 class SearchResult(SBObject):
-    result_id = StringProperty(unique_index=True)
+    result_id = StringProperty(index=True)
     object_type = StringProperty()
 
     # relationships
@@ -41,7 +41,7 @@ class KeyWord(StructuredNode):
 
 class SearchQuery(StructuredNode):
     weight = IntegerProperty(default=0)
-    search_query = StringProperty(unique_index=True)
+    search_query = StringProperty(index=True)
     times_searched = IntegerProperty(default=1)
     last_searched = DateTimeProperty(default=get_current_time)
     trending = BooleanProperty(default=False)

@@ -5,9 +5,21 @@ from base import *
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['*']
-INTERNAL_IPS = ('192.168.56.1', '127.0.0.1', '192.168.56.101', '192.168.33.15', '192.168.33.1',
-                '192.168.56.101:8080')
-WEB_ADDRESS = "https://192.168.33.15"
+
+
+INTERNAL_IPS = ('192.168.56.1',
+                '127.0.0.1',
+                '192.168.56.101',
+                '192.168.56.101:8080'
+)
+
+envips = environ.get("INTERNAL_IP", None)
+if envips is not None:
+    envips = envips.split("|")
+    INTERNAL_IPS = INTERNAL_IPS + tuple(envips)
+
+WEB_ADDRESS = "https://sagebrew.local.dev"
+
 VERIFY_SECURE = False
 MEDIA_ROOT = PROJECT_DIR.child("media")
 STATIC_ROOT = PROJECT_DIR.child("static")
@@ -20,7 +32,7 @@ DATABASES = {
         'NAME': environ.get("DATABASE_NAME", ""),
         'USER': environ.get("DATABASE_USER", ""),
         'PASSWORD': environ.get("DATABASE_PASSWORD", ""),
-        'HOST': environ.get("DATABASE_HOST", ""),
+        'HOST': environ.get("DATABASE_IP", "127.0.0.1"),
         'PORT': '',
     }
 }
@@ -28,7 +40,7 @@ DATABASES = {
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '192.168.56.101:11211',
+        'LOCATION': '%s:11211' % environ.get("MEMCACHED_IP", "127.0.0.1"),
     }
 }
 

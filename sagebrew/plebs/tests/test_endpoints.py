@@ -26,6 +26,7 @@ class MeEndpointTests(APITestCase):
         data = {}
         response = self.client.post(url, data, format='json')
         unauthorized = {
+            'status_code': status.HTTP_401_UNAUTHORIZED,
             'detail': 'Authentication credentials were not provided.'
         }
         self.assertEqual(response.data, unauthorized)

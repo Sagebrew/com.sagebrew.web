@@ -14,7 +14,7 @@ from sb_registration.utils import create_user_util_test
 class MeEndpointTests(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'pleb'
-        self.email = "test@sagebrew.com"
+        self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)

@@ -43,7 +43,6 @@ def request_to_api(url, username, data=None, headers=None, req_method=None,
     """
     # TODO need to remove this as we shouldn't be needing to call a pleb object
     # into api.utils. It has the potential to cause a circular dependency
-    from plebs.neo_models import Pleb
     if headers is None:
         headers = {"content-type": "application/json"}
     if internal is True:

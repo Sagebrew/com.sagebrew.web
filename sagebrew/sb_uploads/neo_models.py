@@ -12,7 +12,7 @@ class Image(SBContent):
 
 
 class SubImage(SBContent):
-    object_uuid = StringProperty(unique_index=True)
+    object_uuid = StringProperty(index=True)
     url = StringProperty()
     height = IntegerProperty()
     width = IntegerProperty()

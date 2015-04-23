@@ -1,11 +1,27 @@
 $(document).ready(function(){
+    $("#submit_login").on('click', function() {
+        login_fxn();
+    });
 
-    $('#submit_login').on('click', function() {
-        try {
-            var next = getUrlParameter('next');
+    $("#password_input").keyup(function(e) {
+        if(e.which == 10 || e.which == 13) {
+            login_fxn();
+        }
+    });
+    $("#email_input").keyup(function(e) {
+        if(e.which == 10 || e.which == 13) {
+            login_fxn();
+        }
+    });
+});
+
+function login_fxn(){
+    var next = "";
+    try {
+            next = getUrlParameter('next');
         }
         catch (err){
-            var next = ""
+            next = ""
         }
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -37,5 +53,4 @@ $(document).ready(function(){
                 alert(XMLHttpRequest.responseJSON["detail"]);
             }
         });
-    });
-});
+}

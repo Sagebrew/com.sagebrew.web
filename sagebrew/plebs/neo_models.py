@@ -83,7 +83,7 @@ class OauthUser(SBObject):
 
 
 class BetaUser(StructuredNode):
-    email = StringProperty(unique_index=True)
+    email = StringProperty(index=True)
     invited = BooleanProperty(default=False)
     signup_date = DateTimeProperty(default=get_current_time)
 
@@ -115,11 +115,11 @@ class Pleb(SBObject, Searchable):
     }
     gender = StringProperty()
     oauth_token = StringProperty()
-    username = StringProperty(unique_index=True, default=None)
+    username = StringProperty(index=True)
     first_name = StringProperty()
     last_name = StringProperty()
     middle_name = StringProperty()
-    email = StringProperty(unique_index=True)
+    email = StringProperty(index=True)
     date_of_birth = DateTimeProperty()
     primary_phone = StringProperty()
     secondary_phone = StringProperty()

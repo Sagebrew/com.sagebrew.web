@@ -115,7 +115,7 @@ class Pleb(SBObject, Searchable):
     }
     gender = StringProperty()
     oauth_token = StringProperty()
-    username = StringProperty(index=True, default=None)
+    username = StringProperty(index=True)
     first_name = StringProperty()
     last_name = StringProperty()
     middle_name = StringProperty()

@@ -34,33 +34,38 @@ class MeEndpointTests(APITestCase):
     def test_missing_data(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('me-detail')
-        data = {'projects': ['This field is required.']}
+        data = {'this': ['This field is required.']}
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_save_int_data(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('me-detail')
         response = self.client.post(url, 98897965, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_save_string_data(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('me-detail')
         response = self.client.post(url, 'asfonosdnf', format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_save_list_data(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('me-detail')
         response = self.client.post(url, [], format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_save_float_data(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('me-detail')
         response = self.client.post(url, 1.010101010, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_save_image_data(self):
         with open(settings.PROJECT_DIR + "/images/test_image.jpg",
@@ -69,7 +74,8 @@ class MeEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('me-detail')
         response = self.client.post(url, image, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_create_on_detail(self):
         self.client.force_authenticate(user=self.user)

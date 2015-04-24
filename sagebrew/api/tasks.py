@@ -71,7 +71,7 @@ def add_object_to_search_index(object_uuid, object_data,
         raise add_object_to_search_index.retry(exc=save_id, countdown=3,
                                                max_retries=None)
 
-    return save_id
+    return True
 
 
 @shared_task

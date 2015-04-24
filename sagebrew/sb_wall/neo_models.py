@@ -2,7 +2,7 @@ from neomodel import (StructuredNode, StringProperty, RelationshipTo)
 
 
 class Wall(StructuredNode):
-    wall_id = StringProperty(index=True)
+    wall_id = StringProperty(unique_index=True)
 
     # relationships
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'IS_OWNED_BY')

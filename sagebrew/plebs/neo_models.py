@@ -342,37 +342,17 @@ class Pleb(SBObject, Searchable):
     def get_friends(self):
         return self.friends.all()
 
-    def get_friend_requests_received(self):
-        request_list = []
-        for request in self.friend_requests_received.all():
-            try:
-                if request.response is None:
-                    # TODO see if we can do this with a serializer instead
-                    request_dict = {
-                        "object_uuid": request.object_uuid,
-                        "from": request.request_from.all()[0].username,
-                        "date_sent": request.time_sent,
-                        "date_seen": request.time_seen,
-                        "seen": request.seen,
-                    }
-                    request_list.append(request_dict)
-                else:
-                    continue
-            except IndexError:
-                continue
-        return request_list
-
-    def get_friend_requests_sent(self):
+    def get_friend_requests_sent(self, username):
         try:
-            request_list = []
-            for request in self.friend_requests_sent.all():
+            for friend_request in self.friend_requests_sent.all():
                 try:
-                    request_list.append(request.request_to.all()[0].username)
+                    if friend_request.request_to.all()[0].username == username:
+                        return friend_request.object_uuid
                 except IndexError:
                     continue
         except(CypherException, IOError) as e:
             raise e
-        return request_list
+        return False
 
     def determine_reps(self):
         from sb_public_official.utils import determine_reps

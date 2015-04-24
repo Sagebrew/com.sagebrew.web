@@ -21,7 +21,10 @@ $(document).ready(function () {
             success: function (data) {
                 if (data['action'] == true) {
                     $(send_request).hide();
-                    $("button.delete_friend_request-action").show();
+                    $(".delete_friend_request-action").data(
+                        'uuid', data['friend_request_id']);
+                    $(".delete_friend_request-action").removeAttr("disabled");
+                    $(".delete_friend_request-action").show();
                 }
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {

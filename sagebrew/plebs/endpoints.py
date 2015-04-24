@@ -26,8 +26,10 @@ from sb_questions.neo_models import Question
 from sb_questions.serializers import QuestionSerializerNeo
 from sb_votes.serializers import VoteSerializer
 
-from .serializers import UserSerializer, PlebSerializerNeo, AddressSerializer
-from .neo_models import Pleb, Address
+from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
+                          FriendRequestSerializer)
+from .neo_models import Pleb, Address, FriendRequest
+from .utils import get_filter_by
 
 logger = getLogger('loggly_logs')
 
@@ -384,3 +386,25 @@ class MeRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class FriendRequestViewSet(viewsets.ModelViewSet):
+    serializer_class = FriendRequestSerializer
+    lookup_field = "object_uuid"
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        filter_by = self.request.query_params.get("filter", "")
+        filtered = get_filter_by(filter_by)
+        query = "MATCH (p:Pleb {username:'%s'})-%s-(r:FriendRequest) RETURN r" \
+                % (self.request.user.username, filtered)
+        res, col = db.cypher_query(query)
+        return [FriendRequest.inflate(row[0]) for row in res]
+
+    def get_object(self):
+        return FriendRequest.nodes.get(
+            object_uuid=self.kwargs[self.lookup_field])
+
+    def create(self, request, *args, **kwargs):
+        return Response({"detail": "TBD"},
+                        status=status.HTTP_501_NOT_IMPLEMENTED)

@@ -58,14 +58,13 @@ def send_email_task(source, to, subject, html_content):
 
 @shared_task()
 def determine_pleb_reps(username):
+    from sb_public_official.utils import determine_reps
     try:
-        pleb = Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist) as e:
+        result = determine_reps(username)
+        if result is False:
+            raise Exception("Failed to determine reps")
+    except Exception as e:
         raise determine_pleb_reps.retry(exc=e, countdown=3, max_retries=None)
-    res = pleb.determine_reps()
-    if isinstance(res, Exception):
-        raise determine_pleb_reps.retry(exc=res, countdown=3, max_retries=None)
-    return True
 
 
 @shared_task()

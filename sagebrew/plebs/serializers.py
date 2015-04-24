@@ -263,9 +263,10 @@ class AddressSerializer(SBSerializer):
 class FriendRequestSerializer(SBSerializer):
     seen = serializers.BooleanField()
     time_sent = serializers.DateTimeField(read_only=True)
-    time_seen = serializers.DateTimeField(allow_null=True, required=False)
-    response = serializers.CharField(required=False, allow_null=True,
-                                     allow_blank=True)
+    time_seen = serializers.DateTimeField(allow_null=True, required=False,
+                                          read_only=True)
+    response = serializers.CharField(required=False, allow_null=False,
+                                     allow_blank=False)
     from_user = serializers.SerializerMethodField()
     to_user = serializers.SerializerMethodField()
 
@@ -279,10 +280,13 @@ class FriendRequestSerializer(SBSerializer):
 
     def get_from_user(self, obj):
         request, expand, _, _, _ = gather_request_data(self.context)
-        user_url = reverse("profile-detail",
-                           kwargs={"username": obj.request_from.all()[0].
-                                   username},
-                           request=request)
+        try:
+            user_url = reverse("profile-detail",
+                               kwargs={"username": obj.request_from.all()[0].
+                                       username},
+                               request=request)
+        except IndexError:
+            return None
         if expand == "true":
             response = request_to_api(user_url, request.user.username,
                                       req_method="GET")

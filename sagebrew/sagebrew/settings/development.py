@@ -5,7 +5,7 @@ from base import *
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['*']
-
+TEST_RUNNER = 'sagebrew.test_runner.SBTestRunner'
 
 INTERNAL_IPS = ('192.168.56.1',
                 '127.0.0.1',

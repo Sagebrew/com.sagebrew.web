@@ -1,3 +1,5 @@
+from boto.dynamodb2.exceptions import (JSONResponseError)
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
@@ -14,9 +16,13 @@ from .utils import get_user_updates
 def get_updates_from_dynamo(request):
     vote_res = []
     for object_uuid in request.DATA['object_uuids']:
-        vote_res.append(get_user_updates(username=request.user.username,
-                                         object_uuid=object_uuid,
-                                         table_name='votes'))
+        try:
+            vote_res.append(get_user_updates(username=request.user.username,
+                                             object_uuid=object_uuid,
+                                             table_name='votes'))
+        except JSONResponseError:
+            return Response({'detail': 'Failed to connect to datastore'},
+                            status=500)
 
     for item in vote_res:
         try:

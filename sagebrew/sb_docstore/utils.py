@@ -174,7 +174,7 @@ def get_vote_count(object_uuid, vote_type):
 @apply_defense
 def get_user_updates(username, object_uuid, table_name):
     conn = connect_to_dynamo()
-    if isinstance(conn, Exception):
+    if isinstance(conn, IOError):
         logger.critical("Could not connect to dynamo")
         raise conn
     try:

@@ -8,6 +8,7 @@ from rest_framework.reverse import reverse
 from neomodel import CypherException
 
 from api.serializers import SBSerializer
+from api.utils import gather_request_data
 
 from plebs.serializers import PlebSerializerNeo, UserSerializer
 from plebs.neo_models import Pleb
@@ -36,26 +37,22 @@ class VotableContentSerializer(SBSerializer):
     url = serializers.SerializerMethodField()
 
     def get_owner_object(self, obj):
-        request = self.context['request']
+        request, expand, _, _, _ = gather_request_data(self.context)
         if isinstance(obj, dict) is True:
             return obj
         try:
             owner = obj.owned_by.all()[0]
         except(CypherException, IOError, IndexError):
             return None
-        html = request.query_params.get('html', 'false').lower()
-        expand = request.query_params.get('expand', "false").lower()
-        if html == "true":
-            expand = "true"
+
         if expand == "true":
             owner_user = User.objects.get(username=owner.username)
             owner_dict = UserSerializer(
-                owner_user, context={'request': self.context['request']}).data
+                owner_user, context={'request': request}).data
+            return owner_dict
         else:
-            owner_dict = reverse('user-detail',
-                                 kwargs={"username": owner.username},
-                                 request=request)
-        return owner_dict
+            return reverse('user-detail', kwargs={'username': owner.username},
+                           request=request)
 
     def get_profile(self, obj):
         request = self.context['request']

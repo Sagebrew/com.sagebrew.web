@@ -10,7 +10,7 @@ from api.serializers import SBSerializer
 from api.utils import spawn_task, request_to_api, gather_request_data
 
 from .neo_models import Address, Pleb, BetaUser
-from .tasks import create_pleb_task, pleb_user_update
+from .tasks import create_pleb_task, pleb_user_update, determine_pleb_reps
 
 
 def generate_username(first_name, last_name):
@@ -247,10 +247,10 @@ class AddressSerializer(SBSerializer):
         instance.latitude = validated_data.get("latitude", instance.latitude)
         instance.longitude = validated_data.get("longitude",
                                                 instance.longitude)
-        # TODO need to re-evaluate where their district is and all that good
-        # stuff when they update. @Tyler we should rediscuss the address
-        # hashing and how this will affect that.
         instance.save()
+        spawn_task(task_func=determine_pleb_reps, task_param={
+            "username": instance.username,
+        })
         return instance
 
     def get_href(self, obj):

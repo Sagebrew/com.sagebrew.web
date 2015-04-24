@@ -32,7 +32,7 @@ class TestVoteObjectTask(TestCase):
         question.owned_by.connect(self.pleb)
         task_data = {
             'object_uuid': question.object_uuid,
-            'current_pleb': self.pleb,
+            'current_pleb': self.pleb.username,
             'vote_type': True
         }
         res = vote_object_task.apply_async(kwargs=task_data)
@@ -45,7 +45,7 @@ class TestVoteObjectTask(TestCase):
         question = Question(object_uuid=str(uuid1())).save()
         task_data = {
             'object_uuid': question.object_uuid,
-            'current_pleb': self.pleb,
+            'current_pleb': self.pleb.username,
             'vote_type': True
         }
         res = vote_object_task.apply_async(kwargs=task_data)

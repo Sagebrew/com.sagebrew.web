@@ -6,27 +6,6 @@ from .utils import create_tag_relations_util, calc_spheres, update_tags_util
 
 
 @shared_task()
-def add_tags(question, tags):
-    '''
-    This calls the util to add user generated tags to the object. It creates
-    the tags in the neo4j DB if they don't exist and if they do, it gets
-    them then creates the relationship between them.
-
-    :param object_uuid:
-    :param tags:
-    :return:
-    '''
-    response = question.add_tags(tags)
-    if isinstance(response, Exception) is True:
-        raise add_tags.retry(exc=response, countdown=3, max_retries=None)
-    spawned = spawn_task(create_tag_relations, {"tag_array": response})
-    if isinstance(spawned, Exception) is True:
-        raise add_tags.retry(exc=response, countdown=3, max_retries=None)
-
-    return response
-
-
-@shared_task()
 def create_tag_relations(tag_array):
     response = create_tag_relations_util(tag_array)
     if isinstance(response, Exception) is True:

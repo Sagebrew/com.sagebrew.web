@@ -3,7 +3,6 @@ import pytz
 from logging import getLogger
 from datetime import datetime
 from django.conf import settings
-from elasticsearch import Elasticsearch
 
 from neomodel import (StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
@@ -285,7 +284,6 @@ class TaggableContent(SBContent):
         tag_array = []
         if isinstance(tags, basestring) is True:
             tags = tags.split(',')
-        Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         if not tags:
             return False
         for tag in tags:

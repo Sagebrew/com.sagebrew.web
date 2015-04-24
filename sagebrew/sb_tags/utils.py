@@ -77,6 +77,7 @@ def update_tags_util(tags):
             if current_tag.name != tag.name:
                 # TODO @Tyler need some assistance finalizing this
                 # current_tag.frequently_used_with increment count
+                # and should when should we be doing sphere calculation?
                 pass
 
     return tags

@@ -8,7 +8,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
 
 
 class GTCongressNumbers(StructuredNode):
-    congress_number = IntegerProperty(index=True)
+    congress_number = IntegerProperty(unique_index=True)
 
 
 class GTPersonHistorical(StructuredNode):
@@ -21,7 +21,7 @@ class GTPersonHistorical(StructuredNode):
     bioguideid = StringProperty()
     cspandid = IntegerProperty()
     gt_id = IntegerProperty(index=True)
-    object_uuid = StringProperty(index=True, default=uuid1)
+    object_uuid = StringProperty(unique_index=True, default=uuid1)
 
 
 class GTPerson(StructuredNode):
@@ -31,7 +31,7 @@ class GTPerson(StructuredNode):
     firstname = StringProperty(default="")
     gender = StringProperty(default="")
     gender_label = StringProperty(default="")
-    gt_id = IntegerProperty(index=True)
+    gt_id = IntegerProperty(unique_index=True)
     lastname = StringProperty(default="")
     link = StringProperty(default="")
     middlename = StringProperty(default="")
@@ -55,7 +55,7 @@ class GTRole(StructuredNode):
     description = StringProperty()
     district = IntegerProperty(index=True)
     enddate = DateTimeProperty(default=datetime.now(pytz.utc))
-    role_id = IntegerProperty(index=True)
+    role_id = IntegerProperty(unique_index=True)
     leadership_title = StringProperty()
     party = StringProperty(index=True)
     phone = StringProperty(index=True)
@@ -76,7 +76,7 @@ class GTRole(StructuredNode):
 
 
 class GTVoteOption(StructuredNode):
-    option_id = IntegerProperty(index=True)
+    option_id = IntegerProperty(unique_index=True)
     key = StringProperty(default="")
     value = StringProperty(index=True, default="")
     vote = IntegerProperty()
@@ -89,7 +89,7 @@ class GT_RCVotes(StructuredNode):
     chamber_label = StringProperty(default="")
     congress = IntegerProperty()
     created = StringProperty(default="")
-    vote_id = IntegerProperty(index=True)
+    vote_id = IntegerProperty(unique_index=True)
     link = StringProperty(default="")
     missing_data = BooleanProperty()
     number = IntegerProperty()
@@ -114,7 +114,7 @@ class GT_RCVotes(StructuredNode):
 class GTCommittee(StructuredNode):
     abbrev = StringProperty()
     code = StringProperty()
-    committee_id = IntegerProperty(index=True)
+    committee_id = IntegerProperty(unique_index=True)
     person = IntegerProperty()
     role = StringProperty()
     role_label = StringProperty()

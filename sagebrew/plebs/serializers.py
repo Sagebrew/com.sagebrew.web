@@ -270,6 +270,9 @@ class FriendRequestSerializer(SBSerializer):
     from_user = serializers.SerializerMethodField()
     to_user = serializers.SerializerMethodField()
 
+    def get_type(self, obj):
+        return "friend_request"
+
     def update(self, instance, validated_data):
         instance.seen = validated_data.get('seen', instance.seen)
         instance.time_seen = validated_data.get('time_seen',

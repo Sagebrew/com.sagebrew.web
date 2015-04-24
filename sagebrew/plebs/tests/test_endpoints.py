@@ -125,6 +125,18 @@ class FriendRequestEndpointTests(APITestCase):
                       kwargs={"object_uuid": self.friend_request.object_uuid})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual({
+            "id": response.data['id'],
+            "type": "friend_request",
+            "seen": False,
+            "time_sent": response.data['time_sent'],
+            "time_seen": None,
+            "response": None,
+            "from_user": response.data['from_user'],
+            "to_user": response.data['to_user']
+        }, response.data)
+        self.assertIn('http', response.data['from_user'])
+        self.assertIn('http', response.data['to_user'])
 
     def test_update_detail(self):
         self.client.force_authenticate(user=self.user)

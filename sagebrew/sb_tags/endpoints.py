@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import LimitOffsetPagination
 
+from neomodel import db
+
 from api.permissions import IsAdminOrReadOnly
 
 from .serializers import TagSerializer
@@ -20,6 +22,16 @@ class TagViewSet(viewsets.ModelViewSet):
 
     def get_object(self):
         return Tag.nodes.get(name=self.kwargs[self.lookup_field])
+
+    def get_queryset(self):
+        exclude_base = self.request.query_params.get('exclude_base', 'false')\
+            .lower()
+        query_mod = ""
+        if exclude_base == 'true':
+            query_mod = "WHERE t.base=false"
+        query = "MATCH (t:Tag) %s RETURN t" % (query_mod)
+        res, col = db.cypher_query(query)
+        return [Tag.inflate(row[0]) for row in res]
 
     def create(self, request, *args, **kwargs):
         """

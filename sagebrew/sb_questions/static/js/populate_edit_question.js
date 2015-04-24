@@ -1,7 +1,7 @@
 $( document ).ready(function() {
     $.ajaxSetup({
         beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
         });
         var timeOutId = 0;
@@ -37,7 +37,7 @@ $( document ).ready(function() {
     var checkSolutionCount = function (){
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                    ajax_security(xhr, settings)
+                    ajaxSecurity(xhr, settings)
                 }
             });
             $.ajax({

@@ -4,7 +4,7 @@ $(document).ready(function(){
         var username = $("#username").data("username");
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
         });
         $.ajax({
@@ -49,7 +49,7 @@ $(document).ready(function(){
         }
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
         });
         $.ajax({
@@ -64,7 +64,7 @@ $(document).ready(function(){
         });
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
         });
         $.ajax({

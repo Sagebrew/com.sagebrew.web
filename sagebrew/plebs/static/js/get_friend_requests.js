@@ -2,7 +2,7 @@ $(document).ready(function () {
     var username = $(".show_friend_request-action").data("username");
     $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
     });
     $.ajax({

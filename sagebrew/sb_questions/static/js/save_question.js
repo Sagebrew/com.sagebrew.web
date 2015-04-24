@@ -7,7 +7,7 @@ $(document).ready(function () {
         submitArea.attr("disabled", "disabled");
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings);
+                ajaxSecurity(xhr, settings);
             }
         });
         var tags = $('#sb_tag_box').val();

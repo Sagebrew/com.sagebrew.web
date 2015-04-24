@@ -3,7 +3,7 @@ $(document).ready(function(){
     var scrolled = false;
     $.ajaxSetup({
         beforeSend: function (xhr, settings) {
-            ajax_security(xhr, settings)
+            ajaxSecurity(xhr, settings)
         }
     });
     $.ajax({
@@ -30,7 +30,7 @@ $(document).ready(function(){
                 if (next !== null)
                 {
                     $.ajaxSetup({beforeSend: function (xhr, settings) {
-                        ajax_security(xhr, settings)
+                        ajaxSecurity(xhr, settings)
                     }
                     });
                     $.ajax({

@@ -399,7 +399,7 @@ class FriendRequestViewSet(viewsets.ModelViewSet):
         query = "MATCH (p:Pleb {username:'%s'})-%s-(r:FriendRequest) RETURN r" \
                 % (self.request.user.username, filtered)
         res, col = db.cypher_query(query)
-        return  [FriendRequest.inflate(row[0]) for row in res]
+        return [FriendRequest.inflate(row[0]) for row in res]
 
     def get_object(self):
         return FriendRequest.nodes.get(

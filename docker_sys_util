@@ -24,9 +24,9 @@ CMD chown {{APP_USER}} /etc/rsyslog.d/ && \
     python manage.py create_dynamo_tables && \
     python manage.py create_privileges && \
     python manage.py create_oauth_client && \
+    python manage.py populate_indices && \
     python manage.py create_prepopulated_tags && \
     python manage.py createsite && \
-    python manage.py populate_indices && \
     python manage.py clearsessions && \
     python manage.py populate_rep_models && \
     python manage.py create_prepopulated_reps

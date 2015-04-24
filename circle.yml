@@ -39,6 +39,7 @@ dependencies:
     - sleep 5
     - python ~/com.sagebrew.web/sagebrew/manage.py create_dynamo_tables
     - python ~/com.sagebrew.web/sagebrew/manage.py populate_indices
+    - python ~/com.sagebrew.web/sagebrew/manage.py create_prepopulated_tags
 
 checkout:
   post:

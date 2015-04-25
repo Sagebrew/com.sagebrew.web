@@ -214,7 +214,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         # JS framework
         if request.user.username != username:
             return Response({"detail":
-                                 "You can only get your own friend requests"},
+                             "You can only get your own friend requests"},
                             status=status.HTTP_401_UNAUTHORIZED)
         query = "MATCH (f:FriendRequest)-[:REQUEST_TO]-(p:Pleb) " \
                 "WHERE p.username='%s' RETURN f" % (username)

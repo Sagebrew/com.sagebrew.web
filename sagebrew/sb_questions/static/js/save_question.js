@@ -3,7 +3,8 @@ $(document).ready(function () {
     "use strict";
     $(".submit_question-action").click(function (event) {
         event.preventDefault();
-        $(".submit_question-action").attr("disabled", "disabled");
+        var submitArea = $(".submit_question-action");
+        submitArea.attr("disabled", "disabled");
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 ajax_security(xhr, settings);
@@ -29,6 +30,7 @@ $(document).ready(function () {
                 window.location.href = data.url;
             },
             error: function (XMLHttpRequest) {
+                submitArea.removeAttr("disabled");
                 if (XMLHttpRequest.status === 500) {
                     $("#server_error").show();
                 }

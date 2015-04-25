@@ -1,4 +1,3 @@
-/*global $, jQuery*/
 function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
@@ -220,6 +219,7 @@ function readyFlags(object_uuids){
 
 
 function loadPosts(url){
+    $("#wall_app").spin('small');
     $.ajaxSetup({
     beforeSend: function (xhr, settings) {
             ajaxSecurity(xhr, settings)
@@ -246,6 +246,7 @@ function loadPosts(url){
             // TODO This can probably be changed to grab the href and append
             // `comments/` to the end of it.
             populate_comments(data['results']['ids'], "posts");
+            $("#wall_app").spin(false);
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
             if(XMLHttpRequest.status === 500){

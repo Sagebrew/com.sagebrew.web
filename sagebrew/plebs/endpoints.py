@@ -212,11 +212,12 @@ class ProfileViewSet(viewsets.ModelViewSet):
         # that way we can get the pagination functionality easily and break out
         # html rendering. We can wait on it though until we transition to
         # JS framework
-        single_object = self.get_object()
-        if isinstance(single_object, Response):
-            return single_object
+        if request.user.username != username:
+            return Response({"detail":
+                                 "You can only get your own friend requests"},
+                            status=status.HTTP_401_UNAUTHORIZED)
         query = "MATCH (f:FriendRequest)-[:REQUEST_TO]-(p:Pleb) " \
-                "WHERE p.username='%s' RETURN f" % (single_object.username)
+                "WHERE p.username='%s' RETURN f" % (username)
         res, col = db.cypher_query(query)
         queryset = [FriendRequest.inflate(row[0]) for row in res]
         friend_requests = FriendRequestSerializer(queryset, many=True,

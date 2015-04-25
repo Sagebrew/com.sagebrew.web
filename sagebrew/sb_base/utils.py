@@ -73,7 +73,7 @@ def get_ordering(sort_by):
 
 
 def get_tagged_as(tagged_as):
-    if tagged_as == '':
+    if tagged_as == '' or tagged_as not in settings.BASE_TAGS:
         return tagged_as
     return "-[:TAGGED_AS]-(t:Tag {name:'%s'}) " % (tagged_as)
 

@@ -16,7 +16,7 @@ class Command(BaseCommand):
 
     def populate_base_tags(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        with open('%s/api/management/commands'
+        with open('%s/sb_tags/management/commands'
                   '/initial_tags.json' % settings.PROJECT_DIR,
                   'r') as data_file:
             data = loads(data_file.read())

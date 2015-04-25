@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand
 
 from elasticsearch import Elasticsearch
 
+
 class Command(BaseCommand):
     args = 'None.'
     help = 'Flushes all info in every elasticsearch index. DO NOT USE ' \

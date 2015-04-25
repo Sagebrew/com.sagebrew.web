@@ -13,7 +13,7 @@ from rest_framework import status
 from neomodel import db
 
 from api.utils import spawn_task
-from sb_base.utils import get_ordering
+from sb_base.utils import get_ordering, get_tagged_as
 
 from .serializers import QuestionSerializerNeo, solution_count
 from .neo_models import Question
@@ -33,10 +33,12 @@ class QuestionViewSet(viewsets.ModelViewSet):
     # simplify the sorting logic in our queryset methods
 
     def get_queryset(self):
-        sort_by = self.request.query_params.get('ordering', "")
+        sort_by = self.request.query_params.get('ordering', '')
+        tagged_as = get_tagged_as(
+            self.request.query_params.get('tagged_as', ''))
         sort_by, ordering = get_ordering(sort_by)
-        query = "MATCH (n:`Question`) WHERE n.to_be_deleted=false RETURN " \
-                "n %s %s" % (sort_by, ordering)
+        query = "MATCH (n:`Question`)%s WHERE n.to_be_deleted=false RETURN " \
+                "n %s %s" % (tagged_as, sort_by, ordering)
         res, col = db.cypher_query(query)
         queryset = [Question.inflate(row[0]) for row in res]
         if sort_by == "":

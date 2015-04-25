@@ -20,16 +20,20 @@
                     </div>
                 {% endif %}
             </div>
-            {% if debug == True %}
-                <div class="hidden-sm hidden-xs sb_border sb_border_categories"
-                     style="display:none;"
-                     id="filter_box">
-                {% for tag in base_tags %}
-                    <a class="btn sb_tab_question query_questions-action"
-                           data-sort_by="{{ tag.default }}">{{ tag.display|title }}</a>
-                {% endfor %}
-                </div>
-            {% endif %}
+            <div class="row-fluid">
+                {% if debug == True %}
+                    <div class="hidden-sm hidden-xs sb_border sb_border_categories"
+                         style="display:none;"
+                         id="filter_box">
+                    {% for tag in base_tags %}
+                        <div class="col-lg-2">
+                            <a class="btn sb_tab_question query_questions-action"
+                               data-tagged_as="{{ tag.default }}">{{ tag.display|title }}</a>
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
             <div class="sb_border sb_border_question">
                 <div class="row sb_tertiary_nav" style="padding-left: 15px; padding-right: 15px;">
                     <div class="col-lg-2 col-md-2 col-sm-2 hidden-xs">
@@ -50,10 +54,12 @@
                     </div>
                 </div>
                 <div id="question_wrapper">
+
                     {% comment %}
                         Loaded from JS
                     {% endcomment %}
                 </div>
+                <div class="col-md-offset-3" id="js-no_result" style="display: none"><h3>Sorry! There seems to be nothing here!</h3></div>
             </div>
         </div>
     </div>

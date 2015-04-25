@@ -77,7 +77,7 @@ LOGGING = {
         'logentries_handler': {
             'token': LOGENT_TOKEN,
             'class': 'logentries.LogentriesHandler'
-        },
+        }
     },
     'loggers': {
         'django.db': {

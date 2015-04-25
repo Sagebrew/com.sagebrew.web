@@ -95,10 +95,9 @@ LOGGING = {
             'token': LOGENT_TOKEN,
             'class': 'logentries.LogentriesHandler'
         },
-        'opbeat': {
-            'level': 'WARNING',
-            'class': 'opbeat.contrib.django.handlers.OpbeatHandler',
-        },
+        'console': {
+            'class': 'logging.StreamHandler',
+        }
     },
     'loggers': {
         'django.db': {

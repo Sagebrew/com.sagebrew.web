@@ -56,7 +56,7 @@ def populate_general_values(data, user, worker_count):
                         environ.get("PROJECT_REPONAME",
                                     environ.get("CIRCLE_PROJECT_REPONAME", "")))
     data = data.replace("%(ENV_CIRCLECI)s",
-                        environ.get("CIRCLECI", "false"))
+                        environ.get("CIRCLECI", "false").lower())
     data = data.replace("%(ENV_CIRCLE_BRANCH)s",
                         environ.get("CIRCLE_BRANCH", "master"))
     data = data.replace("%(ENV_CIRCLE_ARTIFACTS)s",

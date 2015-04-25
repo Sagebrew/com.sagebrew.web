@@ -63,7 +63,7 @@ class Command(BaseCommand):
                         action_url = "/%s" % action["resource"]
                     if "http" not in action_url:
                         branch = os.environ.get("CIRCLE_BRANCH", None)
-                        circle_ci = os.environ.get("CIRCLECI", False)
+                        circle_ci = os.environ.get("CIRCLECI", "false").lower()
                         if circle_ci == "false":
                             circle_ci = False
                         if circle_ci == "true":

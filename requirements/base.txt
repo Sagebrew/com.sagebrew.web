@@ -35,7 +35,7 @@ meld3==1.0.0
 newrelic==2.44.0.36
 nltk==3.0.1
 oauthlib==0.7.2
-opbeat==2.0
+opbeat==2.1
 psycopg2==2.6
 py2neo==1.6.4
 python-dateutil==2.4.0

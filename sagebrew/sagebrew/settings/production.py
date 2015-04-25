@@ -97,11 +97,7 @@ LOGGING = {
         },
         'console': {
             'class': 'logging.StreamHandler',
-        },
-        'opbeat': {
-            'level': 'WARNING',
-            'class': 'opbeat.contrib.django.handlers.OpbeatHandler',
-        },
+        }
     },
     'loggers': {
         'django.db': {
@@ -136,11 +132,6 @@ LOGGING = {
         'django.request': {
             'handlers': ['logentries_handler', 'opbeat'],
             'level': 'ERROR',
-            'propagate': False,
-        },
-        'opbeat.errors': {
-            'level': 'ERROR',
-            'handlers': ['console'],
             'propagate': False,
         },
     }

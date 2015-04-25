@@ -126,9 +126,6 @@ LOGGING = {
             'token': LOGENT_TOKEN,
             'class': 'logentries.LogentriesHandler'
         },
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
     },
     'loggers': {
         'django.db': {

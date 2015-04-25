@@ -77,10 +77,7 @@ LOGGING = {
         'logentries_handler': {
             'token': LOGENT_TOKEN,
             'class': 'logentries.LogentriesHandler'
-        },
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
+        }
     },
     'loggers': {
         'django.db': {
@@ -115,11 +112,6 @@ LOGGING = {
         'django.request': {
             'handlers': ['logentries_handler'],
             'level': 'ERROR',
-            'propagate': False,
-        },
-        'opbeat.errors': {
-            'level': 'ERROR',
-            'handlers': ['console'],
             'propagate': False,
         },
     }

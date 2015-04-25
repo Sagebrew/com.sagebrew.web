@@ -114,5 +114,10 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False,
         },
+        'opbeat.errors': {
+            'level': 'ERROR',
+            'handlers': ['console'],
+            'propagate': False,
+        },
     }
 }

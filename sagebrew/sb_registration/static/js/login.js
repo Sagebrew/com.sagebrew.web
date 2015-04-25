@@ -1,31 +1,18 @@
-$(document).ready(function(){
-    $("#submit_login").on('click', function() {
-        login_fxn();
-    });
-
-    $("#password_input").keyup(function(e) {
-        if(e.which == 10 || e.which == 13) {
-            login_fxn();
-        }
-    });
-    $("#email_input").keyup(function(e) {
-        if(e.which == 10 || e.which == 13) {
-            login_fxn();
-        }
-    });
-});
-
-function login_fxn(){
-    var next = "";
-    try {
+/*global $, jQuery, ajax_security, getUrlParameter*/
+$(document).ready(function () {
+    "use strict";
+    var submitArea = $("#submit_login");
+    function loginFxn() {
+        submitArea.attr("disabled", "disabled");
+        var next = "";
+        try {
             next = getUrlParameter('next');
-        }
-        catch (err){
-            next = ""
+        } catch (err) {
+            next = "";
         }
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajax_security(xhr, settings);
             }
         });
         $.ajax({
@@ -39,18 +26,30 @@ function login_fxn(){
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-                if (data['detail']==='success' && typeof next !=="undefined"){
-                    window.location.href = next
-                }
-                else if (data['detail'] === 'success'){
-                    window.location.href = data['url']
-                }
-                else {
-                    alert(data['detail'])
+                if (data.detail === 'success' && next !== "undefined") {
+                    window.location.href = next;
+                } else if (data.detail === 'success') {
+                    window.location.href = data.url;
                 }
             },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                alert(XMLHttpRequest.responseJSON["detail"]);
+            error: function (XMLHttpRequest) {
+                alert(XMLHttpRequest.responseJSON.detail);
+                submitArea.removeAttr("disabled");
             }
         });
-}
+    }
+    submitArea.on('click', function () {
+        loginFxn();
+    });
+
+    $("#password_input").keyup(function (e) {
+        if (e.which === 10 || e.which === 13) {
+            loginFxn();
+        }
+    });
+    $("#email_input").keyup(function (e) {
+        if (e.which === 10 || e.which === 13) {
+            loginFxn();
+        }
+    });
+});

@@ -24,6 +24,5 @@ def get_tag_view(request):
     scan_resp = helpers.scan(client=es, scroll='10m',
                              index='tags', doc_type='tag')
     for resp in scan_resp:
-        logger.info(resp)
         tag_list.append({"value": resp['_source']['name']})
     return Response({'tags': tag_list}, status=200)

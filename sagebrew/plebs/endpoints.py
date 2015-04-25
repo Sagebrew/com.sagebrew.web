@@ -207,6 +207,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def friend_requests(self, request, username=None):
+        from json import dumps
         # TODO we should probably make some sort of "notification" list view
         # or it can be more specific and be a friend request list view. But
         # that way we can get the pagination functionality easily and break out
@@ -215,30 +216,16 @@ class ProfileViewSet(viewsets.ModelViewSet):
         single_object = self.get_object()
         if isinstance(single_object, Response):
             return single_object
-        friend_requests = single_object.get_friend_requests_received()
-
-        expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
+        query = "MATCH (f:FriendRequest)-[:REQUEST_TO]-(p:Pleb) " \
+                "WHERE p.username='%s' RETURN f" % (single_object.username)
+        res, col = db.cypher_query(query)
+        queryset = [FriendRequest.inflate(row[0]) for row in res]
+        friend_requests = FriendRequestSerializer(queryset, many=True,
+                                                  context={"request": request})
         html = self.request.QUERY_PARAMS.get('html', 'false').lower()
         if html == 'true':
-            expand = 'true'
-
-        for friend_request in friend_requests:
-            if expand == "false":
-                friend_request["from"] = reverse(
-                    'profile-detail',
-                    kwargs={'username': friend_request["from"]},
-                    request=request)
-            else:
-                friend_url = "%s?expand=true" % reverse(
-                    'profile-detail', kwargs={
-                        'username': friend_request["from"]},
-                    request=request)
-                response = request_to_api(friend_url, request.user.username,
-                                          req_method="GET")
-                friend_request["from"] = response.json()
-        if html == 'true':
             html = render_to_string('friend_request_wrapper.html',
-                                    {"requests": friend_requests})
+                                    {"requests": friend_requests.data})
             return Response(html, status=status.HTTP_200_OK)
         return Response(friend_requests, status=status.HTTP_200_OK)
 

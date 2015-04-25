@@ -1,4 +1,4 @@
-/*global $, jQuery, ajax_security*/
+/*global $, jQuery, ajaxSecurity*/
 $(document).ready(function () {
     "use strict";
     $(".submit_question-action").click(function (event) {

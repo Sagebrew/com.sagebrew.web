@@ -25,6 +25,10 @@ class TagEndpointTest(APITestCase):
             self.tag = Tag(name='test_tag').save()
         except UniqueProperty:
             self.tag = Tag.nodes.get(name='test_tag')
+        try:
+            self.base_tag = Tag(name='test_base_tag', base=True).save()
+        except UniqueProperty:
+            self.base_tag = Tag.nodes.get(name='test_base_tag')
 
     def test_list_unauthorized(self):
         url = reverse('tag-list')
@@ -67,3 +71,19 @@ class TagEndpointTest(APITestCase):
         response = self.client.put(url, data={'name': 'name_change'},
                                    format='json')
         self.assertEqual(response.status_code, status.HTTP_501_NOT_IMPLEMENTED)
+
+    def test_suggestion_engine(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('tag-suggestion-engine')
+        response = self.client.get(url)
+        self.assertEqual([{"value": "test_tag"}, {"value": "test_base_tag"}],
+                         response.data['results'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_suggestion_engine_exclude_base(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('tag-suggestion-engine') + "?exclude_base=true"
+        response = self.client.get(url)
+        self.assertEqual([{"value": "test_tag"}],
+                         response.data['results'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

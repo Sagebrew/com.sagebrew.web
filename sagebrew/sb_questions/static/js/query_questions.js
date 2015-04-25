@@ -3,7 +3,7 @@ $(document).ready(function () {
     function loadQuestionSummaries(url) {
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajax_security(xhr, settings);
             }
         });
         $.ajax({
@@ -13,11 +13,11 @@ $(document).ready(function () {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-                $("#question_wrapper").append(data['results']["html"]);
-                if (data["next"] !== null) {
-                    loadQuestionSummaries(data["next"]);
+                $("#question_wrapper").append(data.results.html);
+                if (data.next !== null) {
+                    loadQuestionSummaries(data.next);
                 }
-                enable_question_summary_functionality(data['results']["ids"]);
+                enable_question_summary_functionality(data.results.ids);
             }
         });
     }

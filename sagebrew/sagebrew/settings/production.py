@@ -101,36 +101,36 @@ LOGGING = {
     },
     'loggers': {
         'django.db': {
-            'handlers': ['logentries_handler', 'opbeat'],
+            'handlers': ['logentries_handler'],
             'level': 'ERROR',
             'propagate': False,
         },
         'elasticsearch': {
-            'handlers': ['logentries_handler', 'opbeat'],
+            'handlers': ['logentries_handler'],
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'CRITICAL',
         },
         'loggly_logs': {
-            'handlers': ['logentries_handler', 'opbeat'],
+            'handlers': ['logentries_handler'],
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'ERROR',
         },
         'elasticsearch.trace': {
-            'handlers': ['logentries_handler', 'opbeat'],
+            'handlers': ['logentries_handler'],
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'CRITICAL',
         },
         'neomodel.properties': {
-            'handlers': ['logentries_handler', 'opbeat'],
+            'handlers': ['logentries_handler'],
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'CRITICAL',
         },
         'django.request': {
-            'handlers': ['logentries_handler', 'opbeat'],
+            'handlers': ['logentries_handler'],
             'level': 'ERROR',
             'propagate': False,
         },

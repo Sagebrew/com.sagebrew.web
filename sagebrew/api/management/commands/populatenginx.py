@@ -8,7 +8,7 @@ from django.conf import settings
 class Command(BaseCommand):
     def populate_nginx(self, user, worker="web"):
         circle_branch = os.environ.get("CIRCLE_BRANCH", None)
-        circle_ci = os.environ.get("CIRCLECI", "false")
+        circle_ci = os.environ.get("CIRCLECI", "false").lower()
         if circle_ci == "false":
             circle_ci = False
         else:

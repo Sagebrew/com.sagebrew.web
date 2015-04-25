@@ -44,7 +44,7 @@ class Command(BaseCommand):
             data = data.replace('{{DOCKER_ENV}}', circle_branch)
             data = data.replace("{{PROJECT_NAME}}", "sagebrew")
             data = data.replace("{{CIRCLECI}}",
-                                os.environ.get("CIRCLECI", ""))
+                                os.environ.get("CIRCLECI", "false").lower())
             web_docker = data.replace('{{SUPER_TEMPLATE}}', "web")
             web_docker = web_docker.replace('{{IMAGE_TYPE}}', "frontend")
             web_docker = web_docker.replace('{{VERSION}}', "4")
@@ -92,7 +92,8 @@ class Command(BaseCommand):
             data = data.replace('{{DOCKER_ENV}}', circle_branch)
             data = data.replace("{{PROJECT_NAME}}", "sagebrew")
             sys_docker = data.replace("{{CIRCLECI}}",
-                                      os.environ.get("CIRCLECI", ""))
+                                      os.environ.get("CIRCLECI",
+                                                     "false").lower())
         f = open("%s/dockerfiles/sys_util/Dockerfile" % settings.REPO_DIR, "w")
         f.write(sys_docker)
         f.close()

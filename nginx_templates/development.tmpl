@@ -23,9 +23,12 @@ server {
     server_name {{DOMAINS_SPACE}};
     keepalive_timeout 5;
 
-    location /static {
-	    autoindex on;
-        alias {{PROJECT_PATH}}/static;
+    location ~* ^/static/(.+)$ {
+        root {{PROJECT_PATH}};
+        try_files /sagebrew/static/$1 /sb_registration/static/$1 /plebs/static/$1
+         /sb_comments/static/$1 /sb_posts/static/$1 /sb_relationships/static/$1 /sb_notifications/static/$1 /sb_questions/static/$1
+        /sb_solutions/static/$1 /sb_search/static/$1 /sb_tag/static/$1 /sb_flags/static/$1 /sb_votes/static/$1 /sb_reps/static/$1 /sb_uploads/static/$1 /sb_wall/static/$1
+        /sb_privileges/static/$1 /help_center/static/$1 /static/$1 @missing;
     }
 
     location /media {

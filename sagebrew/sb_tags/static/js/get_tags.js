@@ -19,26 +19,30 @@ $(document).ready(function () {
             return Bloodhound.tokenizers.whitespace(d.value);
         },
         queryTokenizer: Bloodhound.tokenizers.whitespace
-    });
-
+    }), next = "/v1/tags/suggestion_engine?exclude_base=true&page_size=500";
     engine.initialize();
+    function loadTags(url) {
+        $.ajaxSetup({beforeSend: function (xhr, settings) {
+            ajaxSecurity(xhr, settings);
+        }});
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "GET",
+            url: url,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                var tags = data.results;
+                next = data.next;
+                engine.add(tags);
+                loadTags(next);
+            }
+        });
+    }
     $('#sb_tag_box').tokenfield({
         limit: 5,
         typeahead: [null, {source: engine.ttAdapter()}],
         delimiter: [",", " ", "'", ".", "*", "_"]
     });
-    $.ajaxSetup({beforeSend: function (xhr, settings) {
-        ajaxSecurity(xhr, settings);
-    }});
-    $.ajax({
-        xhrFields: {withCredentials: true},
-        type: "GET",
-        url: "/v1/tags/suggestion_engine?exclude_base=true&page_size=500",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (data) {
-            var tags = data.results;
-            engine.add(tags);
-        }
-    });
+    loadTags(next);
 });

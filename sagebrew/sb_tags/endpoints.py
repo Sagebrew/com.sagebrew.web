@@ -47,6 +47,10 @@ class TagViewSet(viewsets.ModelViewSet):
         return Response({"detail": "TBD"},
                         status=status.HTTP_501_NOT_IMPLEMENTED)
 
+    def update(self, request, *args, **kwargs):
+        return Response({"detail": "TBD"},
+                        status=status.HTTP_501_NOT_IMPLEMENTED)
+
     @detail_route(methods=['get'])
     def solutions(self, request, username=None):
         return Response({"detail": "TBD"},

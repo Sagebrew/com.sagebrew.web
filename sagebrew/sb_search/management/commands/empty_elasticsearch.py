@@ -10,6 +10,9 @@ class Command(BaseCommand):
            'OUTSIDE OF DEV ENVIRONMENT.'
 
     def empty_elasticsearch(self):
+        if not settings.DEBUG:
+            print self.help
+            return
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         es.indices.delete(index='_all', ignore=[400, 404])
         es.indices.create(index='tags')

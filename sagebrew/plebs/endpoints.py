@@ -207,7 +207,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def friend_requests(self, request, username=None):
-        from json import dumps
         # TODO we should probably make some sort of "notification" list view
         # or it can be more specific and be a friend request list view. But
         # that way we can get the pagination functionality easily and break out

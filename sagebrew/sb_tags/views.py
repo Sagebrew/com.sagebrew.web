@@ -8,6 +8,7 @@ from elasticsearch import Elasticsearch, helpers
 
 logger = logging.getLogger('loggly_logs')
 
+
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def get_tag_view(request):
@@ -18,7 +19,6 @@ def get_tag_view(request):
     :param request:
     :return:
     """
-    include_base = request.GET.get('base', 'true').lower()
     tag_list = []
     es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
     scan_resp = helpers.scan(client=es, scroll='10m',

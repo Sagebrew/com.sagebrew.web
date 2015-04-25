@@ -12,7 +12,7 @@ INTERNAL_IPS = ('192.168.56.1',
                 '192.168.56.101',
                 '192.168.56.101:8080',
                 'sagebrew.local.dev',
-                '192.168.33.15'
+                '192.168.33.15', ''
 )
 
 envips = environ.get("INTERNAL_IP", None)

@@ -26,7 +26,7 @@ $(document).ready(function () {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-                if (data.detail === 'success' && next !== "undefined") {
+                if (data.detail === 'success' && next !== undefined) {
                     window.location.href = next;
                 } else if (data.detail === 'success') {
                     window.location.href = data.url;

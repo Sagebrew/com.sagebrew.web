@@ -73,7 +73,8 @@
                                                id="sb_primary"
                                                placeholder="Street Address"
                                                class="form-control input-lg"
-                                               value="{{ address.street }}">
+                                               value="{{ address.street }}"
+                                               autocomplete="off">
                                     </div>
                                 </div>
                                 <div class="row">
@@ -82,7 +83,8 @@
                                                id="sb_secondary"
                                                placeholder="Address Line 2"
                                                class="form-control input-lg"
-                                                value="{{ address.street_additional|default_if_none:"" }}">
+                                               value="{{ address.street_additional|default_if_none:'' }}"
+                                               autocomplete="off">
                                     </div>
                                 </div>
                                 <div class="row">
@@ -91,21 +93,24 @@
                                                id="sb_city"
                                                placeholder="City"
                                                class="form-control input-lg"
-                                               value="{{ address.city }}">
+                                               value="{{ address.city }}"
+                                               autocomplete="off">
                                     </div>
                                     <div class="col-lg-4 col-md-4">
                                         <input type="text"
                                                id="sb_state"
                                                placeholder="State"
                                                class="form-control input-lg"
-                                               value="{{ address.state }}">
+                                               value="{{ address.state }}"
+                                               autocomplete="off">
                                     </div>
                                     <div class="col-lg-4 col-md-4">
                                         <input type="text"
                                                id="sb_zip"
                                                placeholder="Zip Code"
                                                class="form-control input-lg"
-                                               value="{{ address.postal_code }}">
+                                               value="{{ address.postal_code }}"
+                                               autocomplete="off">
                                     </div>
                                     <input type="text"
                                             id="id_valid"

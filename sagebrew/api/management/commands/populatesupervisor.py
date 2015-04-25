@@ -11,7 +11,7 @@ logger = logging.getLogger('loggly_logs')
 
 class Command(BaseCommand):
     def populate_supervisor(self, env, user):
-        worker_count = (multiprocessing.cpu_count() * 2) + 1
+        worker_count = (multiprocessing.cpu_count() * 2) + 2
         if(environ.get("CIRCLECI", "false").lower() == "true"):
             worker_count = 2
         worker_count = str(worker_count)

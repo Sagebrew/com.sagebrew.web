@@ -16,7 +16,7 @@ TEMPLATE_DEBUG = DEBUG
 ADMINS = (
     ('Devon Bleibtrey', 'devon@sagebrew.com'),
 )
-worker_count = (multiprocessing.cpu_count() * 2) + 1
+worker_count = (multiprocessing.cpu_count() * 2) + 2
 if worker_count > 12 and environ.get("CIRCLECI", "false") == "true":
     worker_count = 12
 environ['WEB_WORKER_COUNT'] = str(worker_count)
@@ -269,7 +269,10 @@ CELERY_TIMEZONE = 'UTC'
 OPBEAT = {
     "ORGANIZATION_ID": environ.get("OPBEAT_ORG_ID", ""),
     "APP_ID": environ.get("OPBEAT_APP_ID", ""),
-    "SECRET_TOKEN": environ.get("OPBEAT_SECRET_TOKEN", "")
+    "SECRET_TOKEN": environ.get("OPBEAT_SECRET_TOKEN", ""),
+    'PROCESSORS': (
+        'opbeat.processors.SanitizePasswordsProcessor',
+    ),
 }
 
 CSV_FILES = '%s/csv_content/' % PROJECT_DIR

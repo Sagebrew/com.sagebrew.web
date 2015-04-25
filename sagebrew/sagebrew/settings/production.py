@@ -85,46 +85,59 @@ LOGGING = {
         'loggly': {
             'format': 'loggly: %(message)s',
         },
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d '
+                      '%(thread)d %(message)s'
+        },
     },
     'handlers': {
         'logentries_handler': {
             'token': LOGENT_TOKEN,
             'class': 'logentries.LogentriesHandler'
         },
+        'opbeat': {
+            'level': 'WARNING',
+            'class': 'opbeat.contrib.django.handlers.OpbeatHandler',
+        },
     },
     'loggers': {
         'django.db': {
-            'handlers': ['logentries_handler'],
+            'handlers': ['logentries_handler', 'opbeat'],
             'level': 'ERROR',
             'propagate': False,
         },
         'elasticsearch': {
-            'handlers': ['logentries_handler'],
+            'handlers': ['logentries_handler', 'opbeat'],
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'CRITICAL',
         },
         'loggly_logs': {
-            'handlers': ['logentries_handler'],
+            'handlers': ['logentries_handler', 'opbeat'],
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'ERROR',
         },
         'elasticsearch.trace': {
-            'handlers': ['logentries_handler'],
+            'handlers': ['logentries_handler', 'opbeat'],
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'CRITICAL',
         },
         'neomodel.properties': {
-            'handlers': ['logentries_handler'],
+            'handlers': ['logentries_handler', 'opbeat'],
             'propagate': True,
             'format': 'loggly: %(message)s',
             'level': 'CRITICAL',
         },
         'django.request': {
-            'handlers': ['logentries_handler'],
+            'handlers': ['logentries_handler', 'opbeat'],
             'level': 'ERROR',
+            'propagate': False,
+        },
+        'opbeat.errors': {
+            'level': 'ERROR',
+            'handlers': ['console'],
             'propagate': False,
         },
     }

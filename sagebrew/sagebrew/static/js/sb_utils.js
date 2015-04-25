@@ -219,7 +219,7 @@ function readyFlags(object_uuids){
 
 
 function loadPosts(url){
-    $("#wall_app").spin('small');
+    $("#wall_app").spin({lines: 8, length: 4, width: 3, radius: 5});
     $.ajaxSetup({
     beforeSend: function (xhr, settings) {
             ajaxSecurity(xhr, settings)
@@ -241,12 +241,11 @@ function loadPosts(url){
             if (data["next"] !== null) {
                 loadPosts(data["next"]);
             }
-
+            $("#wall_app").spin(false);
             enable_single_post_functionality(data['results']['ids']);
             // TODO This can probably be changed to grab the href and append
             // `comments/` to the end of it.
             populate_comments(data['results']['ids'], "posts");
-            $("#wall_app").spin(false);
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
             if(XMLHttpRequest.status === 500){

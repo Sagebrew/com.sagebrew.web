@@ -4,6 +4,7 @@ from django.core import signing
 from django.conf import settings
 from django.template.loader import get_template
 from django.template import Context
+from django.core.cache import cache
 
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from celery import shared_task
@@ -35,6 +36,7 @@ def pleb_user_update(username, first_name, last_name, email):
         pleb.email = email
 
         pleb.save()
+        cache.set(pleb.username, pleb)
     except(CypherException, IOError) as e:
         raise pleb_user_update.retry(exc=e, countdown=3, max_retries=None)
 

@@ -134,7 +134,9 @@ class UserSerializer(SBSerializer):
 
 
 class PlebSerializerNeo(SBSerializer):
-    base_user = serializers.SerializerMethodField()
+    first_name = serializers.CharField(read_only=True)
+    last_name = serializers.CharField(read_only=True)
+    username = serializers.CharField(read_only=True)
     href = serializers.SerializerMethodField()
 
     # These are read only because we force users to use a different endpoint
@@ -172,19 +174,6 @@ class PlebSerializerNeo(SBSerializer):
         return reverse(
             'profile_page', kwargs={'pleb_username': obj.username},
             request=request)
-
-    def get_base_user(self, obj):
-        request, expand, _, _, _ = gather_request_data(self.context)
-
-        username = obj.username
-        user_url = reverse(
-            'user-detail', kwargs={'username': username}, request=request)
-        if expand == "true":
-            response = request_to_api(user_url, request.user.username,
-                                      req_method="GET")
-            return response.json()
-        else:
-            return user_url
 
     def get_privileges(self, obj):
         res = obj.get_privileges()
@@ -249,7 +238,7 @@ class AddressSerializer(SBSerializer):
                                                 instance.longitude)
         instance.save()
         spawn_task(task_func=determine_pleb_reps, task_param={
-            "username": instance.username,
+            "username": self.context['request'].user.username,
         })
         return instance
 

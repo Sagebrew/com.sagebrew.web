@@ -3,6 +3,7 @@ from logging import getLogger
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
+from django.core.cache import cache
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
@@ -98,7 +99,11 @@ class ProfileViewSet(viewsets.ModelViewSet):
     pagination_class = LimitOffsetPagination
 
     def get_object(self):
-        return Pleb.nodes.get(username=self.kwargs[self.lookup_field])
+        profile = cache.get(self.kwargs[self.lookup_field])
+        if profile is None:
+            profile = Pleb.nodes.get(username=self.kwargs[self.lookup_field])
+            cache.set(self.kwargs[self.lookup_field], profile)
+        return profile
 
     def create(self, request, *args, **kwargs):
         """
@@ -261,11 +266,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 response = request_to_api(friend_url, request.user.username,
                                           req_method="GET")
                 notification["from"] = response.json()
-            if html == 'true':
-                from_user_response = request_to_api(
-                    notification['from']['base_user'], request.user.username,
-                    req_method='GET')
-                notification['from'] = from_user_response.json()
         if html == 'true':
             html = render_to_string('notifications.html',
                                     {"notifications": notifications})

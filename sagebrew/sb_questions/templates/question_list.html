@@ -10,25 +10,26 @@
                 <div class="col-lg-11 col-md-11 col-sm-12 col-xs-12">
                     <h3>Conversations</h3>
                 </div>
-                {% if debug == True %}
-                    {% comment %}
-                        # TODO BETA ADD IN feature
-                    {% endcomment %}
-                    <div class="col-lg-1 col-md-1 hidden-sm hidden-xs"
-                         align="right">
-                        <button class="btn sb_btn sb_btn_icon sb_btn_icon_green">
-                            <span class="fa fa-th-large"></span>
-                        </button>
-                    </div>
-                {% endif %}
-            </div>
-            {% if debug == True %}
-                {% comment %}
-                    # TODO BETA ADD IN feature
-                {% endcomment %}
-                <div class="hidden-sm hidden-xs sb_border sb_border_categories">
+                <div class="col-lg-1 col-md-1 hidden-sm hidden-xs"
+                     align="right">
+                    <button class="btn sb_btn sb_btn_icon sb_btn_icon_green"
+                            id="advanced_filters">
+                        <span class="fui-list-large-thumbnails"></span>
+                    </button>
                 </div>
-            {% endif %}
+            </div>
+            <div class="row-fluid">
+                <div class="hidden-sm hidden-xs sb_border sb_border_categories"
+                     style="display:none;"
+                     id="filter_box">
+                {% for tag in base_tags %}
+                    <div class="col-lg-2">
+                        <a class="btn sb_tab_question query_questions-action"
+                           data-tagged_as="{{ tag.default }}">{{ tag.display|title }}</a>
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
             <div class="sb_border sb_border_question">
                 <div class="row sb_tertiary_nav" style="padding-left: 15px; padding-right: 15px;">
                     <div class="col-lg-2 col-md-2 col-sm-2 hidden-xs">
@@ -49,10 +50,12 @@
                     </div>
                 </div>
                 <div id="question_wrapper">
+
                     {% comment %}
                         Loaded from JS
                     {% endcomment %}
                 </div>
+                <div class="col-md-offset-3" id="js-no_result" style="display: none"><h3>Sorry! There seems to be nothing here!</h3></div>
             </div>
         </div>
     </div>
@@ -64,4 +67,5 @@
     {{ block.super }}
     <script src="{% static 'js/query_questions.js' %}"></script>
     <script src="{% static 'js/question_ui.js' %}"></script>
+    <script src="{% static 'js/toggle_filters.js' %}"></script>
 {% endblock scripts %}

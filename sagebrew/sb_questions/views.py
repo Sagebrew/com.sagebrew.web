@@ -1,5 +1,6 @@
 from uuid import uuid1
 
+from django.conf import settings
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
 
@@ -42,7 +43,11 @@ def question_page(request, sort_by="most_recent"):
 
     :return:
     """
-    return render(request, 'question_list.html', {})
+    tag_array = []
+    for tag in settings.BASE_TAGS:
+        tag_array.append({'default': tag, 'display': tag.replace('_', ' ')})
+    return render(request, 'question_list.html',
+                  {"base_tags": tag_array})
 
 
 @login_required()

@@ -51,6 +51,10 @@ def custom_exception_handler(exc, context):
         logger.exception("%s Index Exception" % context['view'])
         return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    if isinstance(exc, ValueError):
+        data = errors.JSON_ERROR_EXCEPTION
+        logger.exception("%s JSON Exception" % context['view'])
+        return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     response = exception_handler(exc, context)
 
     if response is not None:

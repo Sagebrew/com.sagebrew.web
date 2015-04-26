@@ -40,3 +40,14 @@ QUERY_DETERMINATION_EXCEPTION = {
         "free to reach out to us via the intercom or send us a note at "
         "developers@sagebrew.com."
 }
+
+JSON_ERROR_EXCEPTION = {
+    "detail": "Sorry looks like we're having some difficulty with making "
+              "some requests.",
+    "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+    "developer_message":
+        "We are currently experiencing some difficulties making requests."
+        " This is often times caused by an unexpected large increase in "
+        "load. We're alerted of these increases and are working to "
+        "alleviate the issue."
+}

@@ -238,7 +238,7 @@ class AddressSerializer(SBSerializer):
                                                 instance.longitude)
         instance.save()
         spawn_task(task_func=determine_pleb_reps, task_param={
-            "username": instance.username,
+            "username": self.context['request'].user.username,
         })
         return instance
 

@@ -30,6 +30,7 @@ def request_profile(request):
                 profile = cache.get(request.user.username)
                 if profile is None:
                     profile = Pleb.nodes.get(username=request.user.username)
+                    cache.set(profile.username, profile)
                 return {
                     "request_profile":
                         PlebSerializerNeo(profile,

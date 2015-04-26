@@ -5,7 +5,7 @@ $(document).ready(function () {
         $(send_request).attr("disabled", "disabled");
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
         });
         $.ajax({

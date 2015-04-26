@@ -10,7 +10,7 @@ $( document ).ready(function() {
     var scrolled = false;
     $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
         });
         $.ajax({
@@ -30,7 +30,7 @@ $( document ).ready(function() {
                         var object_uuid = data_list[i].question_uuid;
                         $.ajaxSetup({
                             beforeSend: function (xhr, settings) {
-                                ajax_security(xhr, settings)
+                                ajaxSecurity(xhr, settings)
                             }
                         });
                         $.ajax({
@@ -48,7 +48,7 @@ $( document ).ready(function() {
                         var username = data_list[i].username;
                         $.ajaxSetup({
                             beforeSend: function (xhr, settings) {
-                                ajax_security(xhr, settings)
+                                ajaxSecurity(xhr, settings)
                             }
                         });
                         $.ajax({
@@ -66,7 +66,7 @@ $( document ).ready(function() {
                         var saga_uuid = data_list[i].object_uuid;
                         $.ajaxSetup({
                             beforeSend: function (xhr, settings) {
-                                ajax_security(xhr, settings)
+                                ajaxSecurity(xhr, settings)
                             }
                         });
                         $.ajax({
@@ -89,7 +89,7 @@ $( document ).ready(function() {
                 scrolled = true;
                 var next_page = $('.load_next_page').data('next');
                 $.ajaxSetup({beforeSend: function (xhr, settings) {
-                        ajax_security(xhr, settings)
+                        ajaxSecurity(xhr, settings)
                     }
                 });
                 $.ajax({

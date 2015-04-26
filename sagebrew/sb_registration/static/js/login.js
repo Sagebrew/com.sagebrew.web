@@ -1,4 +1,4 @@
-/*global $, jQuery, ajax_security, getUrlParameter*/
+/*global $, jQuery, ajaxSecurity, getUrlParameter*/
 $(document).ready(function () {
     "use strict";
     var submitArea = $("#submit_login");
@@ -12,7 +12,7 @@ $(document).ready(function () {
         }
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings);
+                ajaxSecurity(xhr, settings)
             }
         });
         $.ajax({

@@ -59,7 +59,7 @@ $( document ).ready(function() {
         var form = new FormData($('#wallpaperUploadForm')[0]);
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
         });
         $.ajax({

@@ -5,7 +5,7 @@ $(document).ready(function(){
         var uuid = $(this).data('object_uuid');
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
         });
         $.ajax({

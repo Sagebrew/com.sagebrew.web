@@ -212,33 +212,20 @@ class ProfileViewSet(viewsets.ModelViewSet):
         # that way we can get the pagination functionality easily and break out
         # html rendering. We can wait on it though until we transition to
         # JS framework
-        single_object = self.get_object()
-        if isinstance(single_object, Response):
-            return single_object
-        friend_requests = single_object.get_friend_requests_received()
-
-        expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
+        if request.user.username != username:
+            return Response({"detail":
+                             "You can only get your own friend requests"},
+                            status=status.HTTP_401_UNAUTHORIZED)
+        query = "MATCH (f:FriendRequest)-[:REQUEST_TO]-(p:Pleb) " \
+                "WHERE p.username='%s' RETURN f" % (username)
+        res, col = db.cypher_query(query)
+        queryset = [FriendRequest.inflate(row[0]) for row in res]
+        friend_requests = FriendRequestSerializer(queryset, many=True,
+                                                  context={"request": request})
         html = self.request.QUERY_PARAMS.get('html', 'false').lower()
         if html == 'true':
-            expand = 'true'
-
-        for friend_request in friend_requests:
-            if expand == "false":
-                friend_request["from"] = reverse(
-                    'profile-detail',
-                    kwargs={'username': friend_request["from"]},
-                    request=request)
-            else:
-                friend_url = "%s?expand=true" % reverse(
-                    'profile-detail', kwargs={
-                        'username': friend_request["from"]},
-                    request=request)
-                response = request_to_api(friend_url, request.user.username,
-                                          req_method="GET")
-                friend_request["from"] = response.json()
-        if html == 'true':
             html = render_to_string('friend_request_wrapper.html',
-                                    {"requests": friend_requests})
+                                    {"requests": friend_requests.data})
             return Response(html, status=status.HTTP_200_OK)
         return Response(friend_requests, status=status.HTTP_200_OK)
 

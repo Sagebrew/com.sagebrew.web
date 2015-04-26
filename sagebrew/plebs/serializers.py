@@ -280,7 +280,8 @@ class FriendRequestSerializer(SBSerializer):
         except IndexError:
             return None
         if expand == "true":
-            response = request_to_api(user_url, request.user.username,
+            response = request_to_api(user_url + "?expand=true",
+                                      request.user.username,
                                       req_method="GET")
             return response.json()
         return user_url
@@ -292,7 +293,8 @@ class FriendRequestSerializer(SBSerializer):
                                    username},
                            request=request)
         if expand == "true":
-            response = request_to_api(user_url, request.user.username,
+            response = request_to_api(user_url + "?expand=true",
+                                      request.user.username,
                                       req_method="GET")
             return response.json()
         return user_url

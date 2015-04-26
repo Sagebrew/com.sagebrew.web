@@ -2,7 +2,7 @@ $( document ).ready(function() {
     var current_article = location.pathname;
     $.ajaxSetup({
         beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
     });
     $.ajax({

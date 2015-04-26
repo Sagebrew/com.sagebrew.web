@@ -2,7 +2,7 @@ $(document).ready(function () {
     $('.action').each(function(i,obj){
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
         });
         $.ajax({

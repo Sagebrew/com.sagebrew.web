@@ -74,7 +74,7 @@ class TagEndpointTest(APITestCase):
 
     def test_suggestion_engine(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('tag-suggestion-engine')
+        url = reverse('tag-suggestion-engine') + "?page_size=500"
         response = self.client.get(url)
         self.assertIn([{"value": "test_tag"}, {"value": "test_base_tag"}],
                          response.data['results'])

@@ -37,7 +37,7 @@ $(document).ready(function () {
         }
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
         });
         $.ajax({

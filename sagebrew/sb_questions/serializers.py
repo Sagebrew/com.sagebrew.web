@@ -2,6 +2,7 @@ import pytz
 from datetime import datetime
 
 from django.conf import settings
+from django.core.cache import cache
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -148,7 +149,7 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         instance.save()
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": instance.object_uuid})
-
+        cache.set(instance.object_uuid, instance)
         return instance
 
     def get_url(self, obj):

@@ -76,7 +76,7 @@ class TagEndpointTest(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('tag-suggestion-engine')
         response = self.client.get(url)
-        self.assertEqual([{"value": "test_tag"}, {"value": "test_base_tag"}],
+        self.assertIn([{"value": "test_tag"}, {"value": "test_base_tag"}],
                          response.data['results'])
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -84,6 +84,6 @@ class TagEndpointTest(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('tag-suggestion-engine') + "?exclude_base=true"
         response = self.client.get(url)
-        self.assertEqual([{"value": "test_tag"}],
+        self.assertNotIn([{"value": "test_base_tag"}],
                          response.data['results'])
         self.assertEqual(response.status_code, status.HTTP_200_OK)

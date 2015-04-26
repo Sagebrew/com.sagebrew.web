@@ -2,6 +2,7 @@ import pytz
 from datetime import datetime
 
 from django.contrib.auth.models import User
+from django.core.cache import cache
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -22,13 +23,15 @@ class PostSerializerNeo(ContentSerializer):
 
     def create(self, validated_data):
         request = self.context["request"]
-        owner = Pleb.nodes.get(username=request.user.username)
-        wall_owner_username = validated_data.pop('wall_owner', None)
-        wall_owner = Pleb.nodes.get(username=wall_owner_username)
+        owner = cache.get(request.user.username)
+        if owner is None:
+            owner = Pleb.nodes.get(username=request.user.username)
+            cache.set(request.user.username, owner)
+        wall_owner = validated_data.pop('wall_owner', None)
         post = Post(**validated_data).save()
         post.owned_by.connect(owner)
         owner.posts.connect(post)
-        wall = wall_owner.wall.all()[0]
+        wall = wall_owner.get_wall()
         post.posted_on_wall.connect(wall)
         wall.posts.connect(post)
 

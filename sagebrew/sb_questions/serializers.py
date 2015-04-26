@@ -105,7 +105,10 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         # Note that DRF requires us to use the source as the key here but
         # tags prior to serializing
         tags = validated_data.pop('get_tags', [])
-        owner = Pleb.nodes.get(username=request.user.username)
+        owner = cache.get(request.user.username)
+        if owner is None:
+            owner = Pleb.nodes.get(username=request.user.username)
+            cache.set(request.user.username, owner)
         question = Question(**validated_data).save()
         question.owned_by.connect(owner)
         owner.questions.connect(question)

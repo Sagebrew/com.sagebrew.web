@@ -154,7 +154,6 @@ def search_result_api(request):
                     }
                 })
         res = res['hits']['hits']
-        logger.info(res)
         task_param = {"pleb": request.user.email, "query_param":
                       search_form.cleaned_data['query_param'],
                       "keywords": response['keywords']}

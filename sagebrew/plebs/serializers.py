@@ -13,7 +13,6 @@ from .neo_models import Address, Pleb, BetaUser
 from .tasks import create_pleb_task, pleb_user_update, determine_pleb_reps
 
 
-
 def generate_username(first_name, last_name):
     users_count = User.objects.filter(first_name__iexact=first_name).filter(
         last_name__iexact=last_name).count()

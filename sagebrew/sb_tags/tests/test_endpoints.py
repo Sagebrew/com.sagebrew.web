@@ -76,8 +76,8 @@ class TagEndpointTest(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('tag-suggestion-engine') + "?page_size=500"
         response = self.client.get(url)
-        self.assertIn([{"value": "test_tag"}, {"value": "test_base_tag"}],
-                         response.data['results'])
+        self.assertIn({"value": "test_tag"}, response.data['results'])
+        self.assertIn({"value": "test_base_tag"}, response.data['results'])
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_suggestion_engine_exclude_base(self):

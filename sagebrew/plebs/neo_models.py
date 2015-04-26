@@ -342,6 +342,34 @@ class Pleb(SBObject, Searchable):
     def get_friends(self):
         return self.friends.all()
 
+    def is_friends_with(self, username):
+        query = "MATCH (a:Pleb {username:'%s'})-" \
+                "[friend:FRIENDS_WITH]->(b:Pleb {username:'%s'}) " \
+                "RETURN friend.currently_friends" % (self.username, username)
+        res, col = db.cypher_query(query)
+        if len(res) == 0:
+            return False
+        try:
+            return res[0][0]
+        except IndexError:
+            return False
+
+    def get_wall(self):
+        '''
+        Cypher Exception and IOError excluded on purpose, please do not add.
+        The functions calling this expect the exceptions to be thrown and
+        handle the exceptions on their own if they end up occuring.
+        :return:
+        '''
+        from sb_wall.neo_models import Wall
+        query = "MATCH (a:Pleb {username:'%s'})-" \
+                "[:OWNS_WALL]->(b:Wall) RETURN b" % (self.username)
+        res, col = db.cypher_query(query)
+        try:
+            return Wall.inflate(res[0][0])
+        except IndexError:
+            return None
+
     def get_friend_requests_sent(self, username):
         try:
             for friend_request in self.friend_requests_sent.all():

@@ -25,9 +25,6 @@ from .tasks import update_search_query
 from .utils import process_search_result
 from .forms import SearchForm, SearchFormApi
 
-from logging import getLogger
-logger = getLogger("loggly_logs")
-
 
 @login_required()
 @user_passes_test(verify_completed_registration,
@@ -93,7 +90,7 @@ def search_result_api(request):
     query_param = request.query_params.get('q', "")
     page = request.query_params.get('page', 1)
     filter_type = request.query_params.get('filter', 'general')
-    display_num = request.GET.get('max_page_size', 10)
+    display_num = request.query_params.get('max_page_size', 10)
     if int(display_num) > 100:
         display_num = 100
     data = {

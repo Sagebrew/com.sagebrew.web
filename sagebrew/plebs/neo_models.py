@@ -355,6 +355,12 @@ class Pleb(SBObject, Searchable):
             return False
 
     def get_wall(self):
+        '''
+        Cypher Exception and IOError excluded on purpose, please do not add.
+        The functions calling this expect the exceptions to be thrown and
+        handle the exceptions on their own if they end up occuring.
+        :return:
+        '''
         from sb_wall.neo_models import Wall
         query = "MATCH (a:Pleb {username:'%s'})-" \
                 "[:OWNS_WALL]->(b:Wall) RETURN b" % (self.username)

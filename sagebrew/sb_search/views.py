@@ -25,6 +25,9 @@ from .tasks import update_search_query
 from .utils import process_search_result
 from .forms import SearchForm, SearchFormApi
 
+from logging import getLogger
+logger = getLogger("loggly_logs")
+
 
 @login_required()
 @user_passes_test(verify_completed_registration,
@@ -154,6 +157,7 @@ def search_result_api(request):
                     }
                 })
         res = res['hits']['hits']
+        logger.info(res)
         task_param = {"pleb": request.user.email, "query_param":
                       search_form.cleaned_data['query_param'],
                       "keywords": response['keywords']}

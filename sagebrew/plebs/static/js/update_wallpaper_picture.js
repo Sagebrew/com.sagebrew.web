@@ -56,6 +56,7 @@ $( document ).ready(function() {
     });
     $("#sb_wallpaper_btn_save").click(function(e){
         e.preventDefault();
+        $(".jcrop-holder").spin('small');
         var form = new FormData($('#wallpaperUploadForm')[0]);
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -71,6 +72,7 @@ $( document ).ready(function() {
             contentType: false,
             processData: false,
             success: function(data){
+                $(".jcrop-holder").spin(false);
                 $("#myWallpaperModal").modal('hide');
                 $("img#wallpaper_pic").attr("src", data['pic_url'])
             }

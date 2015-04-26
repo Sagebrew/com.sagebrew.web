@@ -26,7 +26,7 @@ test -d $RUNDIR || mkdir -p $RUNDIR
 # Programs meant to be run under supervisor should not daemonize themselves (do not use --daemon)
 exec newrelic-admin run-program gunicorn ${DJANGO_WSGI_MODULE}:application \
   --name $NAME \
-  --workers 8 \
+  --workers $NUM_WORKERS \
   --user=$USER --group=$GROUP \
   --log-level error \
   --bind=unix:$SOCKFILE

@@ -65,8 +65,8 @@ class CommentSerializer(ContentSerializer):
                 '%s-detail' % parent_object.get_child_label().lower(),
                 kwargs={'object_uuid': parent_object.object_uuid},
                 request=request)
-            # Future proofing this as this is not a common use case but we can still
-            # give users the ability to do so
+            # Future proofing this as this is not a common use case but we can
+            # still give users the ability to do so
             if expand == "true" and "comment_on" in expand_array and \
                     request is not None:
                 response = request_to_api(parent_info, request.user.username,

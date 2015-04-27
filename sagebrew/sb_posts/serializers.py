@@ -1,7 +1,6 @@
 import pytz
 from datetime import datetime
 
-from django.contrib.auth.models import User
 from django.core.cache import cache
 
 from rest_framework import serializers
@@ -9,7 +8,7 @@ from rest_framework.reverse import reverse
 
 from api.utils import gather_request_data
 from sb_base.serializers import ContentSerializer
-from plebs.serializers import PlebSerializerNeo, UserSerializer
+from plebs.serializers import PlebSerializerNeo
 from plebs.neo_models import Pleb
 
 from .neo_models import Post

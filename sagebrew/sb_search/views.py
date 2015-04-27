@@ -1,6 +1,5 @@
 from operator import itemgetter
 from django.conf import settings
-from multiprocessing import Pool
 from django.shortcuts import render
 from elasticsearch import Elasticsearch
 from django.template.loader import render_to_string

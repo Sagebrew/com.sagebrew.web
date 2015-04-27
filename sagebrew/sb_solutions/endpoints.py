@@ -24,7 +24,6 @@ from plebs.neo_models import Pleb
 
 from .serializers import SolutionSerializerNeo
 from .neo_models import Solution
-from .tasks import add_solution_to_search_index
 
 logger = getLogger('loggly_logs')
 

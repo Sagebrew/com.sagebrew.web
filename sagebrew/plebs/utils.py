@@ -28,8 +28,8 @@ def prepare_user_search_html(pleb):
         cache.set(pleb, profile)
 
     pleb_data = {
-        'full_name': pleb.first_name + ' ' + pleb.last_name,
-        'reputation': 0, 'username': pleb.username,
+        'full_name': profile.first_name + ' ' + profile.last_name,
+        'reputation': 0, 'username': profile.username,
     }
     html = render_to_string('user_search_block.html', pleb_data)
     return html

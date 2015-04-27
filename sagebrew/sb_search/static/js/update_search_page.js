@@ -22,7 +22,7 @@ $( document ).ready(function() {
             dataType: "json",
             success: function (data) {
                 if (data['next'] != ""){
-                    search_results.append("<div class='load_next_page' style='display: none' data-next='"+data['next']+" data-filter='"+data['filter']+"'></div>")
+                    search_results.append("<div class='load_next_page' style='display: none' data-next='" + data['next'] + " data-filter='" + data['filter'] + "'></div>")
                 }
                 var data_list = data['html'];
                 $.each(data_list, function(i, item) {
@@ -88,6 +88,7 @@ $( document ).ready(function() {
             if ($(window).scrollTop() + $(window).height() > ($(document).height() - $(document).height()*.5)) {
                 scrolled = true;
                 var next_page = $('.load_next_page').data('next');
+                $(".load_next_page").spin("small");
                 $.ajaxSetup({beforeSend: function (xhr, settings) {
                         ajaxSecurity(xhr, settings)
                     }
@@ -100,6 +101,7 @@ $( document ).ready(function() {
                     dataType: "json",
                     success: function (data) {
                         scrolled = false;
+                        $(".load_next_page").spin(false);
                         $(".load_next_page").remove();
                         if (data['next'] != ""){
                             search_results.append("<div class='load_next_page' style='display: none' data-next='"+data['next']+" data-filter='"+data['filter']+"'></div>")

@@ -35,6 +35,7 @@ $(document).ready(function () {
         if (taggedAs === undefined) {
             taggedAs = "";
         }
+        $(".sb_border_question").spin('small');
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 ajaxSecurity(xhr, settings)
@@ -47,6 +48,7 @@ $(document).ready(function () {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
+                $(".sb_border_question").spin(false);
                 $("#question_wrapper").empty();
                 $("#question_wrapper").append(data.results.html);
                 if (data.count === 0) {

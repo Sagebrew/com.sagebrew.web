@@ -188,7 +188,7 @@ def search_result_api(request):
                 # TODO Handle spawned response correctly
                 if item['_type'] == 'question':
                     results.append(prepare_question_search_html(
-                        item['_source']['object_uuid'], request))
+                        item['_source']['object_uuid']))
                 elif item['_type'] == 'profile':
                     results.append(prepare_user_search_html(
                         item['_source']['username']))

@@ -271,6 +271,7 @@ class Pleb(SBObject, Searchable):
         rep_list = []
         base_tags = {}
         tags = {}
+        original_rep = self.reputation
         total_rep = 0
         for item in self.get_votable_content():
             rep_res = item.get_rep_breakout()
@@ -286,7 +287,8 @@ class Pleb(SBObject, Searchable):
         return {"rep_list": rep_list,
                 "base_tags": base_tags,
                 "tags": tags,
-                "total_rep": total_rep}
+                "total_rep": total_rep,
+                "previous_rep": original_rep}
 
     def get_object_rep_count(self):
         pass

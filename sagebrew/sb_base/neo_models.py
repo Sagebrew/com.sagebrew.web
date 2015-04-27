@@ -266,6 +266,9 @@ class SBContent(VotableContent):
         """
         return list(set(self.get_labels()) - set(settings.REMOVE_CLASSES))[0]
 
+    def get_url(self, request):
+        return None
+
 
 class TaggableContent(SBContent):
     # relationships

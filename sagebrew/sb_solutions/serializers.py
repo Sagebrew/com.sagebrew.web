@@ -43,10 +43,7 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
         return instance
 
     def get_url(self, obj):
-        question = obj.solution_to.all()[0]
-        return reverse('question_detail_page',
-                       kwargs={'question_uuid': question.object_uuid},
-                       request=self.context.get('request', None))
+        return obj.get_url(self.context.get('request', None))
 
     def get_solution_to(self, obj):
         question = obj.solution_to.all()[0]

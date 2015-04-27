@@ -6,7 +6,7 @@ from rest_framework import serializers
 
 from neomodel import db
 
-from api.utils import request_to_api
+from api.utils import request_to_api, gather_request_data
 from sb_base.serializers import ContentSerializer
 from sb_base.neo_models import SBContent
 
@@ -37,37 +37,45 @@ class CommentSerializer(ContentSerializer):
         return instance
 
     def get_url(self, obj):
-        request = self.context.get('request', None)
-        parent_object = get_parent_object(obj.object_uuid)
-        parent_url = reverse(
-            '%s-detail' % parent_object.get_child_label().lower(),
-            kwargs={'object_uuid': parent_object.object_uuid},
-            request=request)
-        if request is not None:
-            response = request_to_api(parent_url, request.user.username,
-                                      req_method="GET")
-        else:
-            return None
-        return response.json()['url']
+        request, _, _, _, expedite = gather_request_data(self.context)
+        # If expedite is true it is assumed the calling function handles this
+        # functionality
+        if expedite != "true":
+            parent_object = get_parent_object(obj.object_uuid)
+            parent_url = reverse(
+                '%s-detail' % parent_object.get_child_label().lower(),
+                kwargs={'object_uuid': parent_object.object_uuid},
+                request=request)
+            if request is not None:
+                response = request_to_api(parent_url, request.user.username,
+                                          req_method="GET")
+            else:
+                return None
+            return response.json()['url']
+        return None
 
     def get_comment_on(self, obj):
-        request = self.context.get('request', None)
-        expand = request.query_params.get('expand', "false").lower()
-        expand_array = request.query_params.get('expand_attrs', [])
-        parent_object = get_parent_object(obj.object_uuid)
-        parent_info = reverse(
-            '%s-detail' % parent_object.get_child_label().lower(),
-            kwargs={'object_uuid': parent_object.object_uuid},
-            request=request)
-        # Future proofing this as this is not a common use case but we can still
-        # give users the ability to do so
-        if expand == "true" and "comment_on" in expand_array and \
-                request is not None:
-            response = request_to_api(parent_info, request.user.username,
-                                      req_method="GET")
-            parent_info = response.json()
+        request, expand, expand_array, relations, expedite =\
+            gather_request_data(self.context)
+        # If expedite is true it is assumed the calling function handles this
+        # functionality
+        if expedite != "true":
+            parent_object = get_parent_object(obj.object_uuid)
+            parent_info = reverse(
+                '%s-detail' % parent_object.get_child_label().lower(),
+                kwargs={'object_uuid': parent_object.object_uuid},
+                request=request)
+            # Future proofing this as this is not a common use case but we can
+            # still give users the ability to do so
+            if expand == "true" and "comment_on" in expand_array and \
+                    request is not None:
+                response = request_to_api(parent_info, request.user.username,
+                                          req_method="GET")
+                parent_info = response.json()
 
-        return parent_info
+            return parent_info
+        else:
+            return None
 
 
 def get_parent_object(object_uuid):

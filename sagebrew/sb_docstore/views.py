@@ -6,7 +6,6 @@ from rest_framework.response import Response
 
 from api.utils import spawn_task
 from sb_votes.tasks import vote_object_task
-from sb_privileges.tasks import check_privileges
 
 from .utils import get_user_updates
 
@@ -35,6 +34,4 @@ def get_updates_from_dynamo(request):
             spawn_task(task_func=vote_object_task, task_param=task_data)
         except KeyError:
             pass
-        spawn_task(task_func=check_privileges, task_param={
-            "username": request.user.username})
     return Response({'detail': 'success'}, status=200)

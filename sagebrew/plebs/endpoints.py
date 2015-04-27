@@ -231,10 +231,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def notifications(self, request, username=None):
-        single_object = self.get_object()
-        if isinstance(single_object, Response):
-            return single_object
-        notifications = single_object.get_notifications()
+        notifications = self.get_object().get_notifications()
         expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
         html = self.request.QUERY_PARAMS.get('html', 'false').lower()
         if html == 'true':
@@ -261,9 +258,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def reputation(self, request, username=None):
-        single_object = self.get_object()
-        reputation = {"reputation": single_object.reputation}
-        return Response(reputation, status=status.HTTP_200_OK)
+        return Response({"reputation": self.get_object().reputation},
+                        status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def local_representatives(self, request, username=None):
@@ -271,11 +267,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def senators(self, request, username=None):
-        single_object = self.get_object()
-        if isinstance(single_object, Response):
-            return single_object
-        senators = single_object.get_senators()
-        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
+        senators = self.get_object().get_senators()
+        html = self.request.query_params.get('html', 'false').lower()
         if html == 'true':
             sen_html = []
             for sen in senators:
@@ -287,10 +280,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def house_rep(self, request, username=None):
-        single_object = self.get_object()
-        if isinstance(single_object, Response):
-            return single_object
-        house_rep = single_object.get_house_rep()
+        house_rep = self.get_object().get_house_rep()
         html = self.request.QUERY_PARAMS.get('html', 'false').lower()
         if html == 'true':
             house_rep_html = render_to_string(

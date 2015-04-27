@@ -1,7 +1,6 @@
 import pytz
 from datetime import datetime
 
-from django.contrib.auth.models import User
 from django.core.cache import cache
 
 from rest_framework import serializers
@@ -9,7 +8,7 @@ from rest_framework.reverse import reverse
 
 from api.utils import gather_request_data
 from sb_base.serializers import ContentSerializer
-from plebs.serializers import PlebSerializerNeo, UserSerializer
+from plebs.serializers import PlebSerializerNeo
 from plebs.neo_models import Pleb
 
 from .neo_models import Post
@@ -18,7 +17,6 @@ from .neo_models import Post
 class PostSerializerNeo(ContentSerializer):
     href = serializers.HyperlinkedIdentityField(view_name='post-detail',
                                                 lookup_field="object_uuid")
-    wall_owner = serializers.SerializerMethodField()
     wall_owner_profile = serializers.SerializerMethodField()
 
     def create(self, validated_data):
@@ -27,7 +25,7 @@ class PostSerializerNeo(ContentSerializer):
         if owner is None:
             owner = Pleb.nodes.get(username=request.user.username)
             cache.set(request.user.username, owner)
-        wall_owner = validated_data.pop('wall_owner', None)
+        wall_owner = validated_data.pop('wall_owner_profile', None)
         post = Post(**validated_data).save()
         post.owned_by.connect(owner)
         owner.posts.connect(post)
@@ -45,27 +43,7 @@ class PostSerializerNeo(ContentSerializer):
         return instance
 
     def get_url(self, obj):
-        # TODO can we add anchors or should we make the one off post page?
-        owner = obj.owned_by.all()[0]
-        return reverse('profile_page',
-                       kwargs={'pleb_username': owner.username},
-                       request=self.context.get('request', None))
-
-    def get_wall_owner(self, obj):
-        request, expand, _, _, _ = gather_request_data(self.context)
-        if isinstance(obj, dict) is True:
-            return obj
-        owner_wall = obj.posted_on_wall.all()[0]
-        wall_owner = owner_wall.owned_by.all()[0]
-        if expand == "true":
-            owner_user = User.objects.get(username=wall_owner.username)
-            owner_dict = UserSerializer(
-                owner_user, context={'request': request}).data
-        else:
-            owner_dict = reverse('user-detail',
-                                 kwargs={"username": wall_owner.username},
-                                 request=request)
-        return owner_dict
+        return obj.get_url(self.context.get('request', None))
 
     def get_wall_owner_profile(self, obj):
         request, expand, _, _, _ = gather_request_data(self.context)

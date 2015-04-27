@@ -6,6 +6,7 @@ from django.template.loader import render_to_string
 from django.template import RequestContext
 from django.core.cache import cache
 
+from rest_framework.reverse import reverse
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -50,8 +51,7 @@ class ObjectCommentsListCreate(ListCreateAPIView):
         return [Comment.inflate(row[0]) for row in res]
 
     def create(self, request, *args, **kwargs):
-        comment_data = request.data
-        serializer = self.get_serializer(data=comment_data)
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             pleb = cache.get(request.user.username)
             if pleb is None:
@@ -61,14 +61,18 @@ class ObjectCommentsListCreate(ListCreateAPIView):
                 object_uuid=self.kwargs[self.lookup_field])
 
             instance = serializer.save(owner=pleb, parent_object=parent_object)
-            serializer_data = self.get_serializer(
-                instance, context={"request": request}).data
+            serializer_data = serializer.data
+            serializer_data['comment_on'] = reverse(
+                '%s-detail' % parent_object.get_child_label().lower(),
+                kwargs={'object_uuid': parent_object.object_uuid},
+                request=request)
+            serializer_data['url'] = parent_object.get_url(request=request)
             notification_id = str(uuid1())
             spawn_task(task_func=spawn_notifications, task_param={
                 'from_pleb': request.user.username,
                 'to_plebs': [owner.username for owner in
                              parent_object.owned_by.all()],
-                'sb_object': serializer_data['object_uuid'],
+                'sb_object': instance.object_uuid,
                 'notification_id': notification_id,
                 'url': serializer_data['url']
             })

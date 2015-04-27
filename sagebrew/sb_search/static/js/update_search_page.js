@@ -66,7 +66,7 @@ $(document).ready(function () {
                             }
                         });
                     }
-                    if (item.type === 'sagas') {
+                    if (item.type === 'public_official') {
                         var sagaUUID = item.object_uuid;
                         $.ajaxSetup({
                             beforeSend: function (xhr, settings) {

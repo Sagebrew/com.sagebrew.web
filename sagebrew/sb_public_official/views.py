@@ -19,7 +19,8 @@ from sb_registration.utils import (verify_completed_registration)
 from .forms import (ExperienceForm, BioForm, GoalForm)
 from .neo_models import PublicOfficial
 from .tasks import (save_bio_task)
-from .utils import get_rep_type, prepare_official_search_html
+from .serializers import PublicOfficialSerializer
+from .utils import get_rep_type
 
 
 @login_required()
@@ -31,9 +32,8 @@ def saga(request, username):
     except (CypherException, IOError, PublicOfficial.DoesNotExist,
             DoesNotExist):
         return redirect("404_Error")
-    official_dict = official.get_dict()
     return render(request, 'action_page.html',
-                  {"representative": official_dict,
+                  {"representative": PublicOfficialSerializer(official).data,
                    "registered": False})
 
 
@@ -259,10 +259,12 @@ def get_goal_form(request):
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
-def get_search_html(request, username):
-    response = prepare_official_search_html(username)
-    if response is None:
+def get_search_html(request, object_uuid):
+    try:
+        official = PublicOfficial.nodes.get(object_uuid=object_uuid)
+    except (CypherException, IOError):
         return Response('Server Error', status=500)
-    elif response is False:
-        return Response('Bad Email', status=400)
-    return Response({'html': response}, status=200)
+    official_data = PublicOfficialSerializer(official).data
+    rendered_html = render_to_string("saga_search_block.html", official_data)
+
+    return Response({'html': rendered_html}, status=200)

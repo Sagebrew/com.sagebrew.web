@@ -45,6 +45,7 @@ class PublicOfficial(SBObject, Searchable):
     terms = IntegerProperty()
     twitter = StringProperty()
     youtube = StringProperty()
+    bioguideid = StringProperty(unique_index=True)
     # bioguide is used to get the reps public profile picture
 
     # relationships

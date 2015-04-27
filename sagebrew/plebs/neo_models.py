@@ -427,25 +427,6 @@ class Pleb(SBObject, Searchable):
             return e
         return {"senators": sen_array, "house_reps": rep.get_dict()}
 
-    def get_senators(self):
-        sen_array = []
-        try:
-            for sen in self.senators.all():
-                sen_array.append(sen.get_dict())
-        except (IOError, CypherException) as e:
-            return e
-        return sen_array
-
-    def get_house_rep(self):
-        try:
-            try:
-                house_rep = self.house_rep.all()[0]
-            except IndexError:
-                return False
-            return house_rep.get_dict()
-        except (IOError, CypherException) as e:
-            return e
-
 
 class Address(SBObject):
     street = StringProperty()

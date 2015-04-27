@@ -1,4 +1,6 @@
+from logging import getLogger
 from operator import itemgetter
+
 from django.conf import settings
 from django.shortcuts import render
 from elasticsearch import Elasticsearch
@@ -18,11 +20,12 @@ from plebs.utils import prepare_user_search_html
 from sb_search.tasks import (spawn_weight_relationships)
 from sb_questions.utils import prepare_question_search_html
 from sb_registration.utils import verify_completed_registration
-from sb_public_official.utils import prepare_official_search_html
 
 from .tasks import update_search_query
 from .utils import process_search_result
 from .forms import SearchForm, SearchFormApi
+
+logger = getLogger('loggly_logs')
 
 
 @login_required()
@@ -193,8 +196,8 @@ def search_result_api(request):
                     results.append(prepare_user_search_html(
                         item['_source']['username']))
                 elif item['_type'] == 'public_official':
-                    results.append(prepare_official_search_html(
-                        item['_source']['object_uuid']))
+                    results.append(render_to_string("saga_search_block.html",
+                                                    item['_source']))
         try:
             next_page_num = page.next_page_number()
         except EmptyPage:

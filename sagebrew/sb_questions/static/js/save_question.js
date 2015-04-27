@@ -3,14 +3,15 @@ $(document).ready(function () {
     "use strict";
     $(".submit_question-action").click(function (event) {
         event.preventDefault();
-        var submitArea = $(".submit_question-action");
+        var submitArea = $(".submit_question-action"),
+            tags = $('#sb_tag_box').val();
         submitArea.attr("disabled", "disabled");
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
                 ajaxSecurity(xhr, settings);
             }
         });
-        var tags = $('#sb_tag_box').val();
+
         if (tags === "") {
             tags = [];
         }

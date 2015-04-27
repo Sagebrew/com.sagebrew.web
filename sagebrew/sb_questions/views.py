@@ -83,7 +83,7 @@ def get_question_search_view(request, question_uuid=None):
     """
     if question_uuid is None:
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    response = prepare_question_search_html(question_uuid, request)
+    response = prepare_question_search_html(question_uuid)
     if response is False:
         return Response(status=404)
 

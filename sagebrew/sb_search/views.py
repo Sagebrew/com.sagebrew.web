@@ -1,6 +1,5 @@
 from operator import itemgetter
 from django.conf import settings
-from multiprocessing import Pool
 from django.shortcuts import render
 from elasticsearch import Elasticsearch
 from django.template.loader import render_to_string
@@ -165,7 +164,7 @@ def search_result_api(request):
         # getting by this and attempting stuff further on down with no results
         if not res:
             html = render_to_string('search_result_empty.html')
-            return Response({'html': html}, status=200)
+            return Response({'html': html, "next": None}, status=200)
         paginator = Paginator(res, display_num)
         try:
             page = paginator.page(page)
@@ -179,17 +178,8 @@ def search_result_api(request):
             # TODO Probably want to handle this differently
             return Response({'detail': 'server error'}, status=500)
         if current_page == 1:
-            pool = Pool(3)
-            try:
-                results = pool.map(process_search_result, page.object_list)
-            except RuntimeError:
-                # TODO Might want to return something different here
-                # Also if this is likely reocurring issue we might want to
-                # look at an alternative process for it.
-                # This seems to just be spawning off tasks too, could that
-                # be spawned into a task of itself that manages spawning off
-                # multiple tasks rather than Pool?
-                return Response({'detail': "server error"}, status=500)
+            for item in page.object_list:
+                results.append(process_search_result(item))
             results = sorted(results, key=itemgetter('temp_score'),
                              reverse=True)
         elif current_page > 1:
@@ -198,7 +188,7 @@ def search_result_api(request):
                 # TODO Handle spawned response correctly
                 if item['_type'] == 'question':
                     results.append(prepare_question_search_html(
-                        item['_source']['object_uuid'], request))
+                        item['_source']['object_uuid']))
                 elif item['_type'] == 'profile':
                     results.append(prepare_user_search_html(
                         item['_source']['username']))
@@ -208,7 +198,7 @@ def search_result_api(request):
         try:
             next_page_num = page.next_page_number()
         except EmptyPage:
-            next_page_num = ""
+            next_page_num = 0
         return Response({'html': results, 'next': next_page_num},
                         status=200)
     else:

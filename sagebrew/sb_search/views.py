@@ -178,17 +178,8 @@ def search_result_api(request):
             # TODO Probably want to handle this differently
             return Response({'detail': 'server error'}, status=500)
         if current_page == 1:
-            try:
-                for item in page.object_list:
-                    results.append(process_search_result(item))
-            except RuntimeError:
-                # TODO Might want to return something different here
-                # Also if this is likely reocurring issue we might want to
-                # look at an alternative process for it.
-                # This seems to just be spawning off tasks too, could that
-                # be spawned into a task of itself that manages spawning off
-                # multiple tasks rather than Pool?
-                return Response({'detail': "server error"}, status=500)
+            for item in page.object_list:
+                results.append(process_search_result(item))
             results = sorted(results, key=itemgetter('temp_score'),
                              reverse=True)
         elif current_page > 1:

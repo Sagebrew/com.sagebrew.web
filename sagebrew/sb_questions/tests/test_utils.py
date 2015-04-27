@@ -29,22 +29,18 @@ class TestPrepareQuestionSearchHTML(TestCase):
         self.pleb.save()
 
     def test_prepare_question_search_html_success(self):
-        request = self.factory.post('/questions/search/')
-        request.user = self.user
         self.question_info_dict['object_uuid'] = str(uuid1())
         question = Question(**self.question_info_dict)
         question.save()
         question.owned_by.connect(self.pleb)
         question.save()
 
-        res = prepare_question_search_html(question.object_uuid, request)
+        res = prepare_question_search_html(question.object_uuid)
 
         self.assertTrue(res)
 
     def test_prepare_question_search_html_failure_question_does_not_exist(
             self):
-        request = self.factory.post('/questions/search/')
-        request.user = self.user
-        res = prepare_question_search_html(str(uuid1()), request)
+        res = prepare_question_search_html(str(uuid1()))
 
         self.assertFalse(res)

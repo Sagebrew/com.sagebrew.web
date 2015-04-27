@@ -252,8 +252,13 @@ def update_reputation(username):
         raise update_reputation.retry(exc=e, countdown=3, max_retries=None)
 
     res = pleb.get_total_rep()
-
     if isinstance(res, Exception):
         raise update_reputation.retry(exc=res, countdown=3, max_retries=None)
 
+    check_priv = spawn_task(task_func=check_privileges,
+                            task_param={"username": username})
+    cache.set(username, pleb)
+    if isinstance(check_priv, Exception):
+        raise update_reputation.retry(exc=check_priv, countdown=3,
+                                      max_retries=None)
     return True

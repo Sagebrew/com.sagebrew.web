@@ -22,7 +22,7 @@ function save_comment(comment_area, url, object_uuid) {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
-            url: url + "?html=true",
+            url: url + "?html=true&expedite=true",
             data: JSON.stringify({
                 'content': $('textarea#post_comment_on_' + object_uuid).val(),
                 'object_uuid': $(this).data('object_uuid')

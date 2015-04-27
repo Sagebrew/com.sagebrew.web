@@ -1,5 +1,9 @@
+from time import sleep
 import pytz
 from datetime import datetime
+
+from django.core.cache import cache
+
 from neomodel import (DoesNotExist, CypherException)
 
 from plebs.neo_models import Pleb
@@ -61,6 +65,12 @@ def manage_privilege_relation(username):
             for action in privilege.get_actions():
                 rel = pleb.actions.connect(action)
                 rel.save()
+        # Adding short sleep so we don't DDoS ourselves
+        # Because of this, this fxn should only ever be called from an async
+        # task
+        sleep(1)
+    cache.set("%s_privileges" % pleb.username, pleb.get_privileges())
+    cache.set("%s_actions" % pleb.username, pleb.get_actions())
     return True
 
 

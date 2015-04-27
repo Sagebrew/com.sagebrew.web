@@ -1,5 +1,6 @@
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
+from django.core.cache import cache
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -176,26 +177,18 @@ class PlebSerializerNeo(SBSerializer):
             request=request)
 
     def get_privileges(self, obj):
-        res = obj.get_privileges()
-        request, expand, expand_array, _, _ = gather_request_data(self.context)
-
-        # Future proofing this as this is not a common use case but we can still
-        # give users the ability to do so
-        if expand == "true" and "privileges" in expand_array:
-            priv_array = []
-            for row in res:
-                privilege_url = reverse("privilege-detail",
-                                        kwargs={"name": row},
-                                        request=request)
-                response = request_to_api(privilege_url, request.user.username,
-                                          req_method="GET")
-                priv_array.append(response.json())
-            return priv_array
-        else:
-            return res
+        privileges = cache.get("%s_privileges" % obj.username)
+        if privileges is None:
+            privileges = obj.get_privileges()
+            cache.set("%s_privileges" % obj.username, privileges)
+        return privileges
 
     def get_actions(self, obj):
-        return obj.get_actions()
+        actions = cache.get("%s_actions" % obj.username)
+        if actions is None:
+            actions = obj.get_actions()
+            cache.set("%s_actions" % obj.username, actions)
+        return actions
 
     def get_href(self, obj):
         request, expand, _, _, _ = gather_request_data(self.context)

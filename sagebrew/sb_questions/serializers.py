@@ -156,10 +156,7 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         return instance
 
     def get_url(self, obj):
-        request, _, _, _, _ = gather_request_data(self.context)
-        return reverse('question_detail_page',
-                       kwargs={'question_uuid': obj.object_uuid},
-                       request=request)
+        return obj.get_url(request=self.context.get('request', None))
 
     def get_solution_count(self, obj):
         return solution_count(obj.object_uuid)

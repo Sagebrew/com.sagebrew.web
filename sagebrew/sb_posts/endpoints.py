@@ -115,12 +115,9 @@ class WallPostsListCreate(ListCreateAPIView):
             return Response({"detail": "Sorry you are not friends with this"
                                        "person."},
                             status=status.HTTP_400_BAD_REQUEST)
-        post_data = request.data
-        post_data['parent_object'] = self.kwargs[self.lookup_field]
-        serializer = self.get_serializer(data=post_data,
-                                         context={"request": request})
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(wall_owner=wall_pleb)
+            serializer.save(wall_owner_profile=wall_pleb)
             serializer = serializer.data
             data = {
                 "from_pleb": request.user.username,

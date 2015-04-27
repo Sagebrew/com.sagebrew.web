@@ -43,6 +43,10 @@ CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
         'LOCATION': '%s:11211' % environ.get("MEMCACHED_IP", "127.0.0.1"),
+        'TIMEOUT': 1800,
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000
+        }
     }
 }
 

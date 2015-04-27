@@ -74,45 +74,7 @@ REST_FRAMEWORK = {
     )
 }
 
-DEBUG_TOOLBAR_PANELS = (
-    'debug_toolbar.panels.version.VersionDebugPanel',
-    'debug_toolbar.panels.timer.TimerDebugPanel',
-    'debug_toolbar.panels.settings_vars.SettingsVarsDebugPanel',
-    'debug_toolbar.panels.headers.HeaderDebugPanel',
-    # Commented out because it causes multiple saves/adds to occur
-    # 'debug_toolbar.panels.profiling.ProfilingDebugPanel',
-    'debug_toolbar.panels.request_vars.RequestVarsDebugPanel',
-    'debug_toolbar.panels.sql.SQLDebugPanel',
-    'debug_toolbar.panels.template.TemplateDebugPanel',
-    'debug_toolbar.panels.cache.CacheDebugPanel',
-    'debug_toolbar.panels.signals.SignalDebugPanel',
-    'debug_toolbar.panels.logger.LoggingPanel',
-    # 'cache_panel.panel.CacheDebugPanel',
-)
-
 ELASTIC_SEARCH_HOST = [{'host': environ.get("ELASTIC_SEARCH_HOST", "")}]
-
-
-def custom_show_toolbar(request):
-    if (fnmatch(request.path.strip(), '/admin*')):
-        return False
-    elif (fnmatch(request.path.strip(), '/secret/*')):
-        return False
-    return True  # Always show toolbar, for example purposes only.
-
-
-DEBUG_TOOLBAR_CONFIG = {
-    'INTERCEPT_REDIRECTS': False,
-    'SHOW_TOOLBAR_CALLBACK': custom_show_toolbar,
-    'EXTRA_SIGNALS': [],
-    'HIDE_DJANGO_SQL': False,
-    'TAG': 'div',
-    'ENABLE_STACKTRACES': True,
-}
-
-# INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar', )
-# MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + (
-# 'debug_toolbar.middleware.DebugToolbarMiddleware',)
 
 
 LOGGING = {

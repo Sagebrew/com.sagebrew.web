@@ -165,7 +165,7 @@ def search_result_api(request):
         # getting by this and attempting stuff further on down with no results
         if not res:
             html = render_to_string('search_result_empty.html')
-            return Response({'html': html}, status=200)
+            return Response({'html': html, "next": None}, status=200)
         paginator = Paginator(res, display_num)
         try:
             page = paginator.page(page)
@@ -179,9 +179,9 @@ def search_result_api(request):
             # TODO Probably want to handle this differently
             return Response({'detail': 'server error'}, status=500)
         if current_page == 1:
-            pool = Pool(3)
             try:
-                results = pool.map(process_search_result, page.object_list)
+                for item in page.object_list:
+                    results.append(process_search_result(item))
             except RuntimeError:
                 # TODO Might want to return something different here
                 # Also if this is likely reocurring issue we might want to
@@ -208,7 +208,7 @@ def search_result_api(request):
         try:
             next_page_num = page.next_page_number()
         except EmptyPage:
-            next_page_num = ""
+            next_page_num = 0
         return Response({'html': results, 'next': next_page_num},
                         status=200)
     else:

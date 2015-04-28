@@ -1,5 +1,6 @@
 -r base.txt
 django-debug-toolbar
-pep8
 ipython
+coveralls
 flake8
+requests_mock

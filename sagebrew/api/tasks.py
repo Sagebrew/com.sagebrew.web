@@ -71,7 +71,7 @@ def add_object_to_search_index(object_uuid, object_data,
         raise add_object_to_search_index.retry(exc=save_id, countdown=3,
                                                max_retries=None)
 
-    return save_id
+    return True
 
 
 @shared_task
@@ -104,3 +104,5 @@ def save_search_id(search_data, object_uuid):
     spawned = spawn_task(task_func=update_user_indices, task_param=task_data)
     if isinstance(spawned, Exception) is True:
         raise save_search_id.retry(exc=spawned, countdown=30, max_retries=None)
+
+    return True

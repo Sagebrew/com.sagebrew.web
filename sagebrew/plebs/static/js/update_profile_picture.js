@@ -57,10 +57,11 @@ $( document ).ready(function() {
     });
     $("#sb_btn_save").click(function(e){
         e.preventDefault();
+        $(".jcrop-holder").spin("small");
         var form = new FormData($('#uploadForm')[0]);
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
         });
         $.ajax({
@@ -72,6 +73,7 @@ $( document ).ready(function() {
             contentType: false,
             processData: false,
             success: function(data){
+                $(".jcrop-holder").spin(false);
                 $("#myModal").modal('hide');
                 $("img#profile_pic").attr("src", data['pic_url'])
             }

@@ -4,6 +4,7 @@ from logging import getLogger
 
 from django.template.loader import render_to_string
 from django.template import RequestContext
+from django.core.cache import cache
 
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework import viewsets
@@ -30,7 +31,6 @@ logger = getLogger('loggly_logs')
 class PostsViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializerNeo
     permission_classes = (IsAuthenticated, IsOwnerOrAdmin)
-    queryset = Post.nodes.all()
     lookup_field = "object_uuid"
 
     def get_object(self):
@@ -106,20 +106,18 @@ class WallPostsListCreate(ListCreateAPIView):
         return [Post.inflate(row[0]) for row in res]
 
     def create(self, request, *args, **kwargs):
-        wall_pleb = Pleb.nodes.get(username=self.kwargs[self.lookup_field])
-        friends = [friend.username for friend in wall_pleb.friends.all()]
-        if self.request.user.username not in friends \
-                and self.request.user.username != wall_pleb.username:
+        wall_pleb = cache.get(self.kwargs[self.lookup_field])
+        if wall_pleb is None:
+            wall_pleb = Pleb.nodes.get(username=self.kwargs[self.lookup_field])
+            cache.set(self.kwargs[self.lookup_field], wall_pleb)
+        friend_with = wall_pleb.is_friends_with(request.user.username)
+        if friend_with is False and wall_pleb.username != request.user.username:
             return Response({"detail": "Sorry you are not friends with this"
                                        "person."},
                             status=status.HTTP_400_BAD_REQUEST)
-        post_data = request.data
-        post_data['parent_object'] = self.kwargs[self.lookup_field]
-
-        serializer = self.get_serializer(data=post_data,
-                                         context={"request": request})
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(wall_owner=self.kwargs[self.lookup_field])
+            serializer.save(wall_owner_profile=wall_pleb)
             serializer = serializer.data
             data = {
                 "from_pleb": request.user.username,

@@ -5,9 +5,23 @@ from base import *
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['*']
-INTERNAL_IPS = ('192.168.56.1', '127.0.0.1', '192.168.56.101',
-                '192.168.56.101:8080')
-WEB_ADDRESS = "https://192.168.56.101"
+TEST_RUNNER = 'sagebrew.test_runner.SBTestRunner'
+
+INTERNAL_IPS = ('192.168.56.1',
+                '127.0.0.1',
+                '192.168.56.101',
+                '192.168.56.101:8080',
+                'sagebrew.local.dev',
+                '192.168.33.15', ''
+)
+
+envips = environ.get("INTERNAL_IP", None)
+if envips is not None:
+    envips = envips.split("|")
+    INTERNAL_IPS = INTERNAL_IPS + tuple(envips)
+
+WEB_ADDRESS = "https://sagebrew.local.dev"
+
 VERIFY_SECURE = False
 MEDIA_ROOT = PROJECT_DIR.child("media")
 STATIC_ROOT = PROJECT_DIR.child("static")
@@ -17,10 +31,10 @@ MEDIA_URL = '/media/'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'sagebrew_db',
-        'USER': 'admin',
-        'PASSWORD': 'admin',
-        'HOST': '192.168.56.101',
+        'NAME': environ.get("DATABASE_NAME", ""),
+        'USER': environ.get("DATABASE_USER", ""),
+        'PASSWORD': environ.get("DATABASE_PASSWORD", ""),
+        'HOST': environ.get("DATABASE_IP", "127.0.0.1"),
         'PORT': '',
     }
 }
@@ -28,7 +42,11 @@ DATABASES = {
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '192.168.56.101:11211',
+        'LOCATION': '%s:11211' % environ.get("MEMCACHED_IP", "127.0.0.1"),
+        'TIMEOUT': 1800,
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000
+        }
     }
 }
 
@@ -39,9 +57,9 @@ EMAIL_VERIFICATION_URL = "%s/registration/email_confirmation/" % WEB_ADDRESS
 
 
 BROKER_URL = 'amqp://%s:%s@%s:%s//' % (environ.get("QUEUE_USERNAME", ""),
-                                       environ.get("QUEUE_PASSWORD", ""),
-                                       environ.get("QUEUE_HOST", ""),
-                                       environ.get("QUEUE_PORT", ""))
+                                        environ.get("QUEUE_PASSWORD", ""),
+                                        environ.get("QUEUE_HOST", ""),
+                                        environ.get("QUEUE_PORT", ""))
 CELERY_IGNORE_RESULT = False
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS':
@@ -55,49 +73,13 @@ REST_FRAMEWORK = {
         'rest_framework.serializers.HyperlinkedModelSerializer',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
         'oauth2_provider.ext.rest_framework.OAuth2Authentication',
     )
 }
 
-DEBUG_TOOLBAR_PANELS = (
-    'debug_toolbar.panels.version.VersionDebugPanel',
-    'debug_toolbar.panels.timer.TimerDebugPanel',
-    'debug_toolbar.panels.settings_vars.SettingsVarsDebugPanel',
-    'debug_toolbar.panels.headers.HeaderDebugPanel',
-    # Commented out because it causes multiple saves/adds to occur
-    # 'debug_toolbar.panels.profiling.ProfilingDebugPanel',
-    'debug_toolbar.panels.request_vars.RequestVarsDebugPanel',
-    'debug_toolbar.panels.sql.SQLDebugPanel',
-    'debug_toolbar.panels.template.TemplateDebugPanel',
-    'debug_toolbar.panels.cache.CacheDebugPanel',
-    'debug_toolbar.panels.signals.SignalDebugPanel',
-    'debug_toolbar.panels.logger.LoggingPanel',
-    # 'cache_panel.panel.CacheDebugPanel',
-)
-
 ELASTIC_SEARCH_HOST = [{'host': environ.get("ELASTIC_SEARCH_HOST", "")}]
 
-
-def custom_show_toolbar(request):
-    if (fnmatch(request.path.strip(), '/admin*')):
-        return False
-    elif (fnmatch(request.path.strip(), '/secret/*')):
-        return False
-    return True  # Always show toolbar, for example purposes only.
-
-
-DEBUG_TOOLBAR_CONFIG = {
-    'INTERCEPT_REDIRECTS': False,
-    'SHOW_TOOLBAR_CALLBACK': custom_show_toolbar,
-    'EXTRA_SIGNALS': [],
-    'HIDE_DJANGO_SQL': False,
-    'TAG': 'div',
-    'ENABLE_STACKTRACES': True,
-}
-
-# INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar', )
-# MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + (
-# 'debug_toolbar.middleware.DebugToolbarMiddleware',)
 
 LOGGING = {
     'version': 1,

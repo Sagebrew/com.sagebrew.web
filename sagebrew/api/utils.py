@@ -10,13 +10,14 @@ from json import dumps
 from datetime import datetime
 
 from django.core import signing
+from django.conf import settings
+
+from rest_framework.authtoken.models import Token
 
 from boto.sqs.message import Message
 
 from neomodel import db
 from neomodel.exception import CypherException
-
-from django.conf import settings
 
 from .alchemyapi import AlchemyAPI
 
@@ -42,19 +43,12 @@ def request_to_api(url, username, data=None, headers=None, req_method=None,
     """
     # TODO need to remove this as we shouldn't be needing to call a pleb object
     # into api.utils. It has the potential to cause a circular dependency
-    from plebs.neo_models import Pleb
     if headers is None:
         headers = {"content-type": "application/json"}
     if internal is True:
-        # TODO we should put the token and expiration into a cache so that we
-        # can just check if it needs to be updated and only then do we
-        # query neo.
-        try:
-            pleb = Pleb.nodes.get(username=username)
-        except(CypherException, IOError) as e:
-            raise e
-        headers['Authorization'] = "%s %s" % (
-            'Bearer', get_oauth_access_token(pleb))
+        token = Token.objects.get(user__username=username)
+
+        headers['Authorization'] = "%s %s" % ('Token', token.key)
     response = None
     try:
         if req_method is None or req_method == "POST" or req_method == "post":
@@ -98,9 +92,15 @@ def refresh_oauth_access_token(refresh_token, url, client_id=None,
         'grant_type': 'refresh_token',
         'refresh_token': refresh_token
     }
+
     response = requests.post(url, data=data,
                              verify=settings.VERIFY_SECURE)
-    return response.json()
+    json_response = response.json()
+    if "error" in json_response:
+        logger.critical("Debugging oauth refresh issue")
+        logger.critical(dumps(data))
+
+    return
 
 
 def check_oauth_needs_refresh(oauth_client):
@@ -128,7 +128,10 @@ def get_oauth_access_token(pleb, web_address=None):
         updated_creds = refresh_oauth_access_token(refresh_token,
                                                    oauth_creds.web_address)
         oauth_creds.last_modified = datetime.now(pytz.utc)
-        oauth_creds.access_token = encrypt(updated_creds['access_token'])
+        try:
+            oauth_creds.access_token = encrypt(updated_creds['access_token'])
+        except KeyError:
+            logger.exception("Access Token issue")
         oauth_creds.token_type = updated_creds['token_type']
         oauth_creds.expires_in = updated_creds['expires_in']
         oauth_creds.refresh_token = encrypt(updated_creds['refresh_token'])
@@ -245,6 +248,8 @@ def gather_request_data(context):
             if html == 'true':
                 expand = 'true'
         except AttributeError:
+            # TODO probably want to check request.GET.get(param, None) here
+            # since a WSGIRequest can cause this exception
             expedite = "false"
             expand = "false"
             relations = "false"

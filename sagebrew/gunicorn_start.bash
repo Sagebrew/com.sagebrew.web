@@ -28,5 +28,5 @@ exec newrelic-admin run-program gunicorn ${DJANGO_WSGI_MODULE}:application \
   --name $NAME \
   --workers $NUM_WORKERS \
   --user=$USER --group=$GROUP \
-  --log-level=debug \
+  --log-level error \
   --bind=unix:$SOCKFILE

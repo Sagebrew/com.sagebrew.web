@@ -11,8 +11,8 @@ logger = logging.getLogger('loggly_logs')
 
 class Command(BaseCommand):
     def populate_supervisor(self, env, user):
-        worker_count = (multiprocessing.cpu_count() * 2) + 1
-        if(environ.get("CIRCLECI", False)):
+        worker_count = (multiprocessing.cpu_count() * 5) + 2
+        if(environ.get("CIRCLECI", "false").lower() == "true"):
             worker_count = 2
         worker_count = str(worker_count)
         if(env == "web"):
@@ -56,7 +56,7 @@ def populate_general_values(data, user, worker_count):
                         environ.get("PROJECT_REPONAME",
                                     environ.get("CIRCLE_PROJECT_REPONAME", "")))
     data = data.replace("%(ENV_CIRCLECI)s",
-                        environ.get("CIRCLECI", "false"))
+                        environ.get("CIRCLECI", "false").lower())
     data = data.replace("%(ENV_CIRCLE_BRANCH)s",
                         environ.get("CIRCLE_BRANCH", "master"))
     data = data.replace("%(ENV_CIRCLE_ARTIFACTS)s",

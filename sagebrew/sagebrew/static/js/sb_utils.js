@@ -3,7 +3,7 @@ function csrfSafeMethod(method) {
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 }
 
-function ajax_security(xhr, settings) {
+function ajaxSecurity(xhr, settings) {
     var csrftoken = $.cookie('csrftoken');
     if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
         xhr.setRequestHeader("X-CSRFToken", csrftoken);
@@ -16,13 +16,13 @@ function save_comment(comment_area, url, object_uuid) {
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
         });
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
-            url: url + "?html=true",
+            url: url + "?html=true&expedite=true",
             data: JSON.stringify({
                 'content': $('textarea#post_comment_on_' + object_uuid).val(),
                 'object_uuid': $(this).data('object_uuid')
@@ -33,8 +33,8 @@ function save_comment(comment_area, url, object_uuid) {
                 var comment_container = $("#sb_comments_container_" + object_uuid);
                 comment_container.prepend(data['html']);
                 $('textarea#post_comment_on_' + object_uuid).val("");
-                enable_comment_functionality(data["ids"])
-                 $(comment_area).removeAttr("disabled");
+                enable_comment_functionality(data["ids"]);
+                $(comment_area).removeAttr("disabled");
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 $(comment_area).removeAttr("disabled");
@@ -81,7 +81,7 @@ function show_edit_posts(populated_ids) {
 function show_edit_comment() {
     $("a.show_edit_comment_class").click(function () {
         var object_uuid = $(this).data('comment_uuid');
-        $("#sb_content_"+object_uuid).hide();
+        $("#sb_content_" + object_uuid).hide();
         $('#edit_container_' + object_uuid).show();
         var textarea = $('textarea#' + $(this).data('comment_uuid'));
         textarea.height( textarea[0].scrollHeight );
@@ -92,7 +92,7 @@ function show_edit_comment() {
 function populate_comment(object_uuid, resource){
     $.ajaxSetup({
         beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings);
             }
     });
     $.ajax({
@@ -118,7 +118,7 @@ function populate_comment(object_uuid, resource){
                 $('#additional_comments_' + object_uuid).click(function() {
                     $.ajaxSetup({
                         beforeSend: function (xhr, settings) {
-                                ajax_security(xhr, settings)
+                                ajaxSecurity(xhr, settings)
                             }
                         });
                     $.ajax({
@@ -158,7 +158,7 @@ function populate_comment(object_uuid, resource){
 function queryComments(url, object_uuid){
     $.ajaxSetup({
         beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
         });
     $.ajax({
@@ -219,9 +219,10 @@ function readyFlags(object_uuids){
 
 
 function loadPosts(url){
+    $("#wall_app").spin({lines: 8, length: 4, width: 3, radius: 5});
     $.ajaxSetup({
     beforeSend: function (xhr, settings) {
-            ajax_security(xhr, settings)
+            ajaxSecurity(xhr, settings)
         }
     });
     $.ajax({
@@ -240,7 +241,7 @@ function loadPosts(url){
             if (data["next"] !== null) {
                 loadPosts(data["next"]);
             }
-
+            $("#wall_app").spin(false);
             enable_single_post_functionality(data['results']['ids']);
             // TODO This can probably be changed to grab the href and append
             // `comments/` to the end of it.
@@ -258,7 +259,7 @@ function loadPosts(url){
 function loadQuestion(){
     $.ajaxSetup({
     beforeSend: function (xhr, settings) {
-            ajax_security(xhr, settings)
+            ajaxSecurity(xhr, settings)
         }
     });
     var timeOutId = 0;
@@ -291,7 +292,7 @@ function loadQuestion(){
 function loadSolutionCount(){
     $.ajaxSetup({
     beforeSend: function (xhr, settings) {
-            ajax_security(xhr, settings)
+            ajaxSecurity(xhr, settings)
         }
     });
     $.ajax({
@@ -320,7 +321,7 @@ function loadSolutionCount(){
 function loadSolutions(url){
     $.ajaxSetup({
     beforeSend: function (xhr, settings) {
-            ajax_security(xhr, settings)
+            ajaxSecurity(xhr, settings)
         }
     });
     $.ajax({
@@ -394,7 +395,7 @@ function vote_object(vote_area, resource){
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
         });
         $.ajax({
@@ -435,7 +436,7 @@ function save_solution() {
         $("#submit_solution").attr("disabled", "disabled");
 		$.ajaxSetup({
 		    beforeSend: function(xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
 		});
 	   	$.ajax({
@@ -493,7 +494,7 @@ function edit_object(edit_area, url, object_uuid, data_area) {
         $(edit_button).attr("disabled", "disabled");
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
         });
         $.ajax({
@@ -548,7 +549,7 @@ function delete_object(delete_area, url, object_uuid) {
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
         });
         $.ajax({
@@ -635,7 +636,7 @@ function submit_action() {
         });
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
         });
         $.ajax({
@@ -675,7 +676,7 @@ function submit_requirement() {
         });
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
         });
         $.ajax({
@@ -714,7 +715,7 @@ function respond_friend_request(){
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
         });
         $.ajax({

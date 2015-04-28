@@ -102,6 +102,11 @@ def signup_view_api(request):
 
 
 def login_view(request):
+    try:
+        if request.user.is_authenticated() is True:
+            return redirect('root_profile_page')
+    except AttributeError:
+        pass
     return render(request, 'login.html')
 
 

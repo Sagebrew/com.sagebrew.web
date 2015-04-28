@@ -70,8 +70,8 @@ def profile_page(request, pleb_username=""):
         is_owner = True
     elif page_user_pleb in citizen.friends.all():
         is_friend = True
-    if page_user_pleb.username in citizen.get_friend_requests_sent():
-        friend_request_sent = True
+    friend_request_sent = citizen.get_friend_requests_sent(
+        page_user_pleb.username)
 
     return render(request, 'sb_plebs_base/profile_page.html', {
         'user_profile': citizen,
@@ -104,8 +104,8 @@ def friend_page(request, pleb_username):
         is_owner = True
     elif page_user_pleb in citizen.friends.all():
         is_friend = True
-    if page_user_pleb.username in citizen.get_friend_requests_sent():
-        friend_request_sent = True
+    friend_request_sent = citizen.get_friend_requests_sent(
+        page_user_pleb.username)
     return render(
         request, 'sb_friends_section/sb_friends.html',
         {

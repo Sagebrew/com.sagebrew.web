@@ -15,7 +15,7 @@ dependencies:
     - neo4j-community-2.1.7
   post:
     - pip install git+http://github.com/bleib1dj/django-rest-framework.git@improvement_id_field_hyperlinkedrelatedfield --upgrade
-    - pip install -r ~/com.sagebrew.web/requirements/test.txt
+    - pip install -r ~/com.sagebrew.web/requirements/test.txt --exists-action=w
     - sudo chown ubuntu /etc/rsyslog.d/
     - python ~/com.sagebrew.web/sagebrew/manage.py logglypopulation
     - sudo chown root /etc/rsyslog.d/
@@ -38,6 +38,7 @@ dependencies:
         background: true
     - sleep 5
     - python ~/com.sagebrew.web/sagebrew/manage.py create_dynamo_tables
+    - python ~/com.sagebrew.web/sagebrew/manage.py populate_indices
 
 checkout:
   post:

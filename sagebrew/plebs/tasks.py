@@ -4,6 +4,7 @@ from django.core import signing
 from django.conf import settings
 from django.template.loader import get_template
 from django.template import Context
+from django.core.cache import cache
 
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from celery import shared_task
@@ -35,6 +36,7 @@ def pleb_user_update(username, first_name, last_name, email):
         pleb.email = email
 
         pleb.save()
+        cache.set(pleb.username, pleb)
     except(CypherException, IOError) as e:
         raise pleb_user_update.retry(exc=e, countdown=3, max_retries=None)
 
@@ -58,14 +60,13 @@ def send_email_task(source, to, subject, html_content):
 
 @shared_task()
 def determine_pleb_reps(username):
+    from sb_public_official.utils import determine_reps
     try:
-        pleb = Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist) as e:
+        result = determine_reps(username)
+        if result is False:
+            raise Exception("Failed to determine reps")
+    except Exception as e:
         raise determine_pleb_reps.retry(exc=e, countdown=3, max_retries=None)
-    res = pleb.determine_reps()
-    if isinstance(res, Exception):
-        raise determine_pleb_reps.retry(exc=res, countdown=3, max_retries=None)
-    return True
 
 
 @shared_task()
@@ -251,8 +252,13 @@ def update_reputation(username):
         raise update_reputation.retry(exc=e, countdown=3, max_retries=None)
 
     res = pleb.get_total_rep()
-
     if isinstance(res, Exception):
         raise update_reputation.retry(exc=res, countdown=3, max_retries=None)
-
+    if res['previous_rep'] != res['total_rep']:
+        check_priv = spawn_task(task_func=check_privileges,
+                                task_param={"username": username})
+        cache.set(username, pleb)
+        if isinstance(check_priv, Exception):
+            raise update_reputation.retry(exc=check_priv, countdown=3,
+                                          max_retries=None)
     return True

@@ -16,8 +16,8 @@ TEMPLATE_DEBUG = DEBUG
 ADMINS = (
     ('Devon Bleibtrey', 'devon@sagebrew.com'),
 )
-worker_count = (multiprocessing.cpu_count() * 2) + 1
-if worker_count > 12 and environ.get("CIRCLECI", False):
+worker_count = (multiprocessing.cpu_count() * 3) + 2
+if worker_count > 12 and environ.get("CIRCLECI", "false").lower() == "true":
     worker_count = 12
 environ['WEB_WORKER_COUNT'] = str(worker_count)
 environ['PROJECT_PATH'] = PROJECT_DIR
@@ -231,11 +231,6 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 APPEND_SLASH = True
-OAUTH_SINGLE_ACCESS_TOKEN = False
-OAUTH_ENFORCE_SECURE = True
-OAUTH_EXPIRE_DELTA = timedelta(days=30, minutes=0, seconds=0)
-OAUTH_EXPIRE_DELTA_PUBLIC = timedelta(days=30, minutes=0, seconds=0)
-OAUTH_DELETE_EXPIRED = True
 
 CELERY_DISABLE_RATE_LIMITS = True
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
@@ -274,7 +269,10 @@ CELERY_TIMEZONE = 'UTC'
 OPBEAT = {
     "ORGANIZATION_ID": environ.get("OPBEAT_ORG_ID", ""),
     "APP_ID": environ.get("OPBEAT_APP_ID", ""),
-    "SECRET_TOKEN": environ.get("OPBEAT_SECRET_TOKEN", "")
+    "SECRET_TOKEN": environ.get("OPBEAT_SECRET_TOKEN", ""),
+    'PROCESSORS': (
+        'opbeat.processors.SanitizePasswordsProcessor',
+    ),
 }
 
 CSV_FILES = '%s/csv_content/' % PROJECT_DIR

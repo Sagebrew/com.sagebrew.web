@@ -8,22 +8,24 @@ from django.conf import settings
 class Command(BaseCommand):
     def populate_nginx(self, user, worker="web"):
         circle_branch = os.environ.get("CIRCLE_BRANCH", None)
-        circle_ci = os.environ.get("CIRCLECI", False)
+        circle_ci = os.environ.get("CIRCLECI", "false").lower()
         if circle_ci == "false":
             circle_ci = False
+        else:
+            circle_ci = True
         if('dev' in circle_branch):
             env = "development"
         # This elif is there so that on Circle the dev nginx file is used
         # but once deployed to aws the production nginx config is used
         # This is due to the differences in SSL management. AWS handles it
         # for us but on circle we have to include it in our nginx files.
-        elif(circle_ci):
+        elif circle_ci is True:
             env = "development"
         else:
             env = "production"
             if worker == "worker":
                 env = "production_worker"
-        worker_count = (multiprocessing.cpu_count() * 2) + 1
+        worker_count = (multiprocessing.cpu_count() * 3) + 1
         if worker_count > 12 and circle_ci:
             worker_count = 12
         worker_count = str(worker_count)

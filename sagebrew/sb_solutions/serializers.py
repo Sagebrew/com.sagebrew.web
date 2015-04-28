@@ -2,6 +2,8 @@ import pytz
 
 from datetime import datetime
 
+from django.core.cache import cache
+
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -20,7 +22,10 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
     def create(self, validated_data):
         request = self.context["request"]
         question = validated_data.pop('question', None)
-        owner = Pleb.nodes.get(username=request.user.username)
+        owner = cache.get(request.user.username)
+        if owner is None:
+            owner = Pleb.nodes.get(username=request.user.username)
+            cache.set(request.user.username, owner)
 
         solution = Solution(**validated_data).save()
         solution.owned_by.connect(owner)
@@ -38,10 +43,7 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
         return instance
 
     def get_url(self, obj):
-        question = obj.solution_to.all()[0]
-        return reverse('question_detail_page',
-                       kwargs={'question_uuid': question.object_uuid},
-                       request=self.context.get('request', None))
+        return obj.get_url(self.context.get('request', None))
 
     def get_solution_to(self, obj):
         question = obj.solution_to.all()[0]

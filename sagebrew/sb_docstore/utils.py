@@ -1,4 +1,5 @@
 import os
+from logging import getLogger
 from datetime import datetime
 
 from boto.dynamodb2.layer1 import DynamoDBConnection
@@ -11,6 +12,8 @@ from boto.dynamodb2.exceptions import (JSONResponseError, ItemNotFound,
 from django.conf import settings
 
 from sb_base.decorators import apply_defense
+
+logger = getLogger('loggly_logs')
 
 
 def get_table_name(name):
@@ -58,8 +61,8 @@ def get_rep_info(parent_object, table_name):
         return conn
     try:
         table = Table(table_name=get_table_name(table_name), connection=conn)
-    except JSONResponseError:
-        return False
+    except JSONResponseError as e:
+        return e
 
     res = table.query_2(
         parent_object__eq=parent_object,
@@ -171,28 +174,22 @@ def get_vote_count(object_uuid, vote_type):
 @apply_defense
 def get_user_updates(username, object_uuid, table_name):
     conn = connect_to_dynamo()
-    if isinstance(conn, Exception):
-        return conn
+    if isinstance(conn, IOError):
+        logger.critical("Could not connect to dynamo")
+        raise conn
     try:
         table = Table(table_name=get_table_name(table_name), connection=conn)
     except JSONResponseError as e:
-        return e
-    if table_name == 'edits':
-        res = table.query_2(
-            parent_object__eq=object_uuid,
-            user__eq=username,
-            index='UserIndex'
+        logger.exception("Table %s returned JSONResponse Error" % table_name)
+        raise e
+    try:
+        res = table.get_item(
+            parent_object=object_uuid,
+            user=username
         )
-    else:
-        try:
-            res = table.get_item(
-                parent_object=object_uuid,
-                user=username
-            )
-        except ItemNotFound:
-            return {}
-        return dict(res)
-    return list(res)
+    except ItemNotFound:
+        return {}
+    return dict(res)
 
 
 @apply_defense

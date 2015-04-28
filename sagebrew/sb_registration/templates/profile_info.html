@@ -60,14 +60,16 @@
                                                        name="{{ field.html_name }}"
                                                        value=""
                                                        placeholder="Address Line 1"
-                                                       class="form-control input-lg">
+                                                       class="form-control input-lg"
+                                                       autocomplete="off">
                                             {% else %}
                                                 <input type="text"
                                                        id="sb_primary"
                                                        name="{{ field.html_name }}"
                                                        value="{{ field.value }}"
                                                        placeholder="Address Line 1"
-                                                       class="form-control input-lg">
+                                                       class="form-control input-lg"
+                                                       autocomplete="off">
                                             {% endif %}
                                         {% elif field.id_for_label == "id_street_additional" %}
                                             {% if field.value == None %}
@@ -76,14 +78,16 @@
                                                        name="{{ field.html_name }}"
                                                        value=""
                                                        placeholder="Apt, Building, etc"
-                                                       class="form-control input-lg">
+                                                       class="form-control input-lg"
+                                                       autocomplete="off">
                                             {% else %}
                                                 <input type="text"
                                                        id="sb_secondary"
                                                        name="{{ field.html_name }}"
                                                        value="{{ field.value }}"
                                                        placeholder="Apt, Building, etc"
-                                                       class="form-control input-lg">
+                                                       class="form-control input-lg"
+                                                       autocomplete="off">
                                             {% endif %}
                                         {% endif %}
                                         </div>
@@ -118,14 +122,16 @@
                                                                name="{{ field.html_name }}"
                                                                value=""
                                                                placeholder="City*"
-                                                               class="form-control input-lg">
+                                                               class="form-control input-lg"
+                                                               autocomplete="off">
                                                     {% else %}
                                                         <input type="text"
                                                                id="sb_city"
                                                                name="{{ field.html_name }}"
                                                                value="{{ field.value }}"
                                                                placeholder="City*"
-                                                               class="form-control input-lg sb-city">
+                                                               class="form-control input-lg sb-city"
+                                                               autocomplete="off">
                                                     {% endif %}
                                                 {% elif field.id_for_label == "id_state" %}
                                                     {% if field.value == None %}
@@ -134,14 +140,16 @@
                                                                name="{{ field.html_name }}"
                                                                value=""
                                                                placeholder="State*"
-                                                               class="form-control input-lg">
+                                                               class="form-control input-lg"
+                                                               autocomplete="off">
                                                     {% else %}
                                                         <input type="text"
                                                                id="sb_state"
                                                                name="{{ field.html_name }}"
                                                                value="{{ field.value }}"
                                                                placeholder="State*"
-                                                               class="form-control input-lg sb-city">
+                                                               class="form-control input-lg sb-city"
+                                                               autocomplete="off">
                                                     {% endif %}
                                                 {% elif field.id_for_label == "id_postal_code" %}
                                                     {% if field.value == None %}
@@ -150,14 +158,16 @@
                                                                name="{{ field.html_name }}"
                                                                value=""
                                                                placeholder="Zip Code*"
-                                                               class="form-control input-lg sb_zip">
+                                                               class="form-control input-lg sb_zip"
+                                                               autocomplete="off">
                                                     {% else %}
                                                         <input type="text"
                                                                id="sb_zip"
                                                                name="{{ field.html_name }}"
                                                                value="{{ field.value }}"
                                                                placeholder="Zip Code*"
-                                                               class="form-control input-lg">
+                                                               class="form-control input-lg"
+                                                               autocomplete="off">
                                                     {% endif %}
                                                 {% endif %}
                                                     </div>

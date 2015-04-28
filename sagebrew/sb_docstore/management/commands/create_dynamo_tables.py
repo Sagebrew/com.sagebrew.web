@@ -1,4 +1,3 @@
-import time
 from json import loads
 from django.core.management.base import BaseCommand
 from django.conf import settings
@@ -28,6 +27,11 @@ class Command(BaseCommand):
                 print "Unable to connect to dynamo table, potential error"
             for item in data:
                 table_name = get_table_name(item['table_name'])
+                '''
+                # Don't think we want to automatically delete the tables every
+                # deployment anymore. We probably want to be able to hit an
+                # endpoint that triggers a rebuilding of the tables that we can
+                # more closely monitor.
                 try:
                     table = Table(table_name=table_name,
                                   connection=conn)
@@ -37,6 +41,7 @@ class Command(BaseCommand):
                         time.sleep(1)
                 except JSONResponseError:
                     print 'The table %s does not exist' % table_name
+                '''
                 try:
                     if 'range_key' and 'local_index' in item.keys():
                         Table.create(table_name, schema=[

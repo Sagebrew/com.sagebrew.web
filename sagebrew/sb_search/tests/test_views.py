@@ -79,7 +79,7 @@ class TestSearchResultAPI(TestCase):
         self.client.login(username=self.user.username, password='asdfa')
         request = self.client.get(reverse('search_result_api'))
 
-        self.assertEqual(request.status_code, 401)
+        self.assertIn(request.status_code, [401, 403])
 
 
 class TestSearchResultAPIReturns(TestCase):

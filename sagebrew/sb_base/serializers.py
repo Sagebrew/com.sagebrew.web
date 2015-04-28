@@ -1,15 +1,14 @@
 import markdown
 
-from django.contrib.auth.models import User
-
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 from neomodel import CypherException
 
 from api.serializers import SBSerializer
+from api.utils import gather_request_data
 
-from plebs.serializers import PlebSerializerNeo, UserSerializer
+from plebs.serializers import PlebSerializerNeo
 from plebs.neo_models import Pleb
 
 
@@ -30,45 +29,16 @@ class VotableContentSerializer(SBSerializer):
 
     view_count = serializers.SerializerMethodField()
 
-    owner_object = serializers.SerializerMethodField()
     profile = serializers.SerializerMethodField()
 
     url = serializers.SerializerMethodField()
 
-    def get_owner_object(self, obj):
-        request = self.context['request']
-        if isinstance(obj, dict) is True:
-            return obj
-        try:
-            owner = obj.owned_by.all()[0]
-        except(CypherException, IOError, IndexError):
-            return None
-        html = request.query_params.get('html', 'false').lower()
-        expand = request.query_params.get('expand', "false").lower()
-        if html == "true":
-            expand = "true"
-        if expand == "true":
-            owner_user = User.objects.get(username=owner.username)
-            owner_dict = UserSerializer(
-                owner_user, context={'request': self.context['request']}).data
-        else:
-            owner_dict = reverse('user-detail',
-                                 kwargs={"username": owner.username},
-                                 request=request)
-        return owner_dict
-
     def get_profile(self, obj):
-        request = self.context['request']
-        if isinstance(obj, dict) is True:
-            return obj
+        request, expand, _, _, _ = gather_request_data(self.context)
         try:
             owner = obj.owned_by.all()[0]
         except(CypherException, IOError, IndexError):
             return None
-        html = request.query_params.get('html', 'false').lower()
-        expand = request.query_params.get('expand', "false").lower()
-        if html == "true":
-            expand = "true"
         if expand == "true":
             profile_dict = PlebSerializerNeo(
                 owner, context={'request': request}).data
@@ -87,7 +57,10 @@ class VotableContentSerializer(SBSerializer):
         return obj.get_vote_count()
 
     def get_vote_type(self, obj):
-        return obj.get_vote_type(self.context['request'].user.username)
+        request, _, _, _, _ = gather_request_data(self.context)
+        if request is None:
+            return None
+        return obj.get_vote_type(request.user.username)
 
     def get_upvotes(self, obj):
         return obj.get_upvote_count()

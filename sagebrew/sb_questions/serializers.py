@@ -2,6 +2,7 @@ import pytz
 from datetime import datetime
 
 from django.conf import settings
+from django.core.cache import cache
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -104,13 +105,16 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         # Note that DRF requires us to use the source as the key here but
         # tags prior to serializing
         tags = validated_data.pop('get_tags', [])
-        owner = Pleb.nodes.get(username=request.user.username)
+        owner = cache.get(request.user.username)
+        if owner is None:
+            owner = Pleb.nodes.get(username=request.user.username)
+            cache.set(request.user.username, owner)
         question = Question(**validated_data).save()
         question.owned_by.connect(owner)
         owner.questions.connect(question)
         for tag in tags:
             try:
-                tag_obj = Tag.nodes.get(name=tag)
+                tag_obj = Tag.nodes.get(name=tag.lower())
             except(Tag.DoesNotExist, DoesNotExist):
                 if settings.DEBUG is True:
                     # TODO this is only here because we don't have a stable
@@ -119,7 +123,7 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
                     # we can remove this.
                     if (request.user.username == "devon_bleibtrey" or
                             request.user.username == "tyler_wiersing"):
-                        tag_obj = Tag(name=tag).save()
+                        tag_obj = Tag(name=tag.lower()).save()
                     else:
                         continue
                 else:
@@ -148,14 +152,11 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         instance.save()
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": instance.object_uuid})
-
+        cache.set(instance.object_uuid, instance)
         return instance
 
     def get_url(self, obj):
-        request, _, _, _, _ = gather_request_data(self.context)
-        return reverse('question_detail_page',
-                       kwargs={'question_uuid': obj.object_uuid},
-                       request=request)
+        return obj.get_url(request=self.context.get('request', None))
 
     def get_solution_count(self, obj):
         return solution_count(obj.object_uuid)

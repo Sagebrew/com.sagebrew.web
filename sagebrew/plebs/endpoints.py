@@ -3,6 +3,7 @@ from logging import getLogger
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
+from django.core.cache import cache
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
@@ -11,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework import status
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.generics import (RetrieveUpdateDestroyAPIView)
 
 from neomodel import db
 
@@ -24,9 +26,12 @@ from sb_base.serializers import MarkdownContentSerializer
 from sb_questions.neo_models import Question
 from sb_questions.serializers import QuestionSerializerNeo
 from sb_votes.serializers import VoteSerializer
+from sb_public_official.serializers import PublicOfficialSerializer
 
-from .serializers import UserSerializer, PlebSerializerNeo, AddressSerializer
-from .neo_models import Pleb, Address
+from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
+                          FriendRequestSerializer)
+from .neo_models import Pleb, Address, FriendRequest
+from .utils import get_filter_by
 
 logger = getLogger('loggly_logs')
 
@@ -95,7 +100,11 @@ class ProfileViewSet(viewsets.ModelViewSet):
     pagination_class = LimitOffsetPagination
 
     def get_object(self):
-        return Pleb.nodes.get(username=self.kwargs[self.lookup_field])
+        profile = cache.get(self.kwargs[self.lookup_field])
+        if profile is None:
+            profile = Pleb.nodes.get(username=self.kwargs[self.lookup_field])
+            cache.set(self.kwargs[self.lookup_field], profile)
+        return profile
 
     def create(self, request, *args, **kwargs):
         """
@@ -204,42 +213,26 @@ class ProfileViewSet(viewsets.ModelViewSet):
         # that way we can get the pagination functionality easily and break out
         # html rendering. We can wait on it though until we transition to
         # JS framework
-        single_object = self.get_object()
-        if isinstance(single_object, Response):
-            return single_object
-        friend_requests = single_object.get_friend_requests_received()
-
-        expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
+        if request.user.username != username:
+            return Response({"detail":
+                             "You can only get your own friend requests"},
+                            status=status.HTTP_401_UNAUTHORIZED)
+        query = "MATCH (f:FriendRequest)-[:REQUEST_TO]-(p:Pleb) " \
+                "WHERE p.username='%s' RETURN f" % (username)
+        res, col = db.cypher_query(query)
+        queryset = [FriendRequest.inflate(row[0]) for row in res]
+        friend_requests = FriendRequestSerializer(queryset, many=True,
+                                                  context={"request": request})
         html = self.request.QUERY_PARAMS.get('html', 'false').lower()
         if html == 'true':
-            expand = 'true'
-
-        for friend_request in friend_requests:
-            if expand == "false":
-                friend_request["from"] = reverse(
-                    'profile-detail',
-                    kwargs={'username': friend_request["from"]},
-                    request=request)
-            else:
-                friend_url = "%s?expand=true" % reverse(
-                    'profile-detail', kwargs={
-                        'username': friend_request["from"]},
-                    request=request)
-                response = request_to_api(friend_url, request.user.username,
-                                          req_method="GET")
-                friend_request["from"] = response.json()
-        if html == 'true':
             html = render_to_string('friend_request_wrapper.html',
-                                    {"requests": friend_requests})
+                                    {"requests": friend_requests.data})
             return Response(html, status=status.HTTP_200_OK)
         return Response(friend_requests, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def notifications(self, request, username=None):
-        single_object = self.get_object()
-        if isinstance(single_object, Response):
-            return single_object
-        notifications = single_object.get_notifications()
+        notifications = self.get_object().get_notifications()
         expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
         html = self.request.QUERY_PARAMS.get('html', 'false').lower()
         if html == 'true':
@@ -258,11 +251,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 response = request_to_api(friend_url, request.user.username,
                                           req_method="GET")
                 notification["from"] = response.json()
-            if html == 'true':
-                from_user_response = request_to_api(
-                    notification['from']['base_user'], request.user.username,
-                    req_method='GET')
-                notification['from'] = from_user_response.json()
         if html == 'true':
             html = render_to_string('notifications.html',
                                     {"notifications": notifications})
@@ -271,9 +259,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def reputation(self, request, username=None):
-        single_object = self.get_object()
-        reputation = {"reputation": single_object.reputation}
-        return Response(reputation, status=status.HTTP_200_OK)
+        return Response({"reputation": self.get_object().reputation},
+                        status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def local_representatives(self, request, username=None):
@@ -281,30 +268,34 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def senators(self, request, username=None):
-        single_object = self.get_object()
-        if isinstance(single_object, Response):
-            return single_object
-        senators = single_object.get_senators()
-        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
+        senators = self.get_object().senators.all()
+        if len(senators) == 0:
+            return Response("<small>Sorry we could not find your "
+                            "Senators. Please alert us to our error!"
+                            "</small>", status=status.HTTP_200_OK)
+        html = self.request.query_params.get('html', 'false').lower()
         if html == 'true':
             sen_html = []
             for sen in senators:
                 sen_html.append(
                     render_to_string('sb_home_section/sb_senator_block.html',
-                                     sen))
+                                     PublicOfficialSerializer(sen).data))
             return Response(sen_html, status=status.HTTP_200_OK)
         return Response(senators, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def house_rep(self, request, username=None):
-        single_object = self.get_object()
-        if isinstance(single_object, Response):
-            return single_object
-        house_rep = single_object.get_house_rep()
+        try:
+            house_rep = self.get_object().house_rep.all()[0]
+        except IndexError:
+            return Response("<small>Sorry we could not find your "
+                            "representative. Please alert us to our error!"
+                            "</small>", status=status.HTTP_200_OK)
         html = self.request.QUERY_PARAMS.get('html', 'false').lower()
         if html == 'true':
             house_rep_html = render_to_string(
-                'sb_home_section/sb_house_rep_block.html', house_rep)
+                'sb_home_section/sb_house_rep_block.html',
+                PublicOfficialSerializer(house_rep).data)
             return Response(house_rep_html, status=status.HTTP_200_OK)
         return Response(house_rep, status=status.HTTP_200_OK)
 
@@ -374,3 +365,34 @@ class ProfileViewSet(viewsets.ModelViewSet):
         serializer = VoteSerializer(page, many=True,
                                     context={'request': request})
         return self.get_paginated_response(serializer.data)
+
+
+class MeRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
+    serializer_class = UserSerializer
+    lookup_field = "username"
+    permission_classes = (IsAuthenticated, IsSelf)
+
+    def get_object(self):
+        return self.request.user
+
+
+class FriendRequestViewSet(viewsets.ModelViewSet):
+    serializer_class = FriendRequestSerializer
+    lookup_field = "object_uuid"
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        filter_by = self.request.query_params.get("filter", "")
+        filtered = get_filter_by(filter_by)
+        query = "MATCH (p:Pleb {username:'%s'})-%s-(r:FriendRequest) RETURN r" \
+                % (self.request.user.username, filtered)
+        res, col = db.cypher_query(query)
+        return [FriendRequest.inflate(row[0]) for row in res]
+
+    def get_object(self):
+        return FriendRequest.nodes.get(
+            object_uuid=self.kwargs[self.lookup_field])
+
+    def create(self, request, *args, **kwargs):
+        return Response({"detail": "TBD"},
+                        status=status.HTTP_501_NOT_IMPLEMENTED)

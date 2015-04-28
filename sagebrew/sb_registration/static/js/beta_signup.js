@@ -4,7 +4,7 @@ $( document ).ready(function() {
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
         });
         $.ajax({

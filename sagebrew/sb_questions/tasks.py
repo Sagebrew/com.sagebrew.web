@@ -37,8 +37,8 @@ def add_question_to_indices_task(question):
         raise add_question_to_indices_task.retry(exc=spawned, countdown=3,
                                                  max_retries=None)
     try:
-        question.added_to_search_index = True
-        question.save()
+        question_obj.added_to_search_index = True
+        question_obj.save()
     except (CypherException, IndexError) as e:
         raise add_question_to_indices_task.retry(exc=e, countdown=3,
                                                  max_retries=None)

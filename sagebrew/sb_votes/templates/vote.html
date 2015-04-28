@@ -4,7 +4,7 @@
         {% if "questions" not in request.path and "solutions" not in request.path %}
                 {% include "upvote.html" %}
         {% else %}
-            {% if owner_object.username == request.user.username %}
+            {% if profile.username == request.user.username %}
                 {% include "vote_own_up.html" %}
             {% else %}
                 {% include "upvote.html" %}
@@ -15,7 +15,7 @@
             {% if "questions" not in request.path and "solutions" not in request.path %}
                     {% include "upvote.html" %}
             {% elif "upvote" in request_profile.actions %}
-                {% if owner_object.username == request.user.username %}
+                {% if profile.username == request.user.username %}
                     {% include "vote_own_up.html" %}
                 {% else %}
                     {% include "upvote.html" %}
@@ -32,7 +32,7 @@
         {% if "questions" not in request.path and "solutions" not in request.path %}
             {% include "downvote.html" %}
         {% elif "downvote" in request_profile.privileges %}
-            {% if owner_object.username == request.user.username %}
+            {% if profile.username == request.user.username %}
                 {% include "vote_own_down.html" %}
             {% else %}
                 {% include "downvote.html" %}

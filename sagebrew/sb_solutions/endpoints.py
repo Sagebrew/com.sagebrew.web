@@ -24,7 +24,6 @@ from plebs.neo_models import Pleb
 
 from .serializers import SolutionSerializerNeo
 from .neo_models import Solution
-from .tasks import add_solution_to_search_index
 
 logger = getLogger('loggly_logs')
 
@@ -109,8 +108,9 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
                 "notification_id": str(uuid1())
             }
             spawn_task(task_func=spawn_notifications, task_param=data)
-            spawn_task(task_func=add_solution_to_search_index,
-                       task_param={"solution": serializer})
+            # Not going to add until necessary for search
+            # spawn_task(task_func=add_solution_to_search_index,
+            #            task_param={"solution": serializer})
             html = request.query_params.get('html', 'false').lower()
             if html == "true":
                 serializer["vote_count"] = str(serializer["vote_count"])

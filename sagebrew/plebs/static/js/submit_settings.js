@@ -4,7 +4,7 @@ $(document).ready(function(){
         var username = $("#username").data("username");
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
         });
         $.ajax({
@@ -18,7 +18,9 @@ $(document).ready(function(){
             }
         });
     });
-    $("#submit_settings").click(function(event){
+    var settings_area = "#submit_settings";
+    $(settings_area).click(function(event){
+        $(settings_area).attr("disabled", "disabled");
         event.preventDefault();
         var username = $("#username").data("username");
         var first_name = $("#first_name").val();
@@ -47,7 +49,7 @@ $(document).ready(function(){
         }
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
         });
         $.ajax({
@@ -62,7 +64,7 @@ $(document).ready(function(){
         });
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
         });
         $.ajax({
@@ -82,6 +84,11 @@ $(document).ready(function(){
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
+                $(settings_area).removeAttr("disabled");
+                alert('Profile Updated Successfully!');
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                $(settings_area).removeAttr("disabled");
             }
         });
     })

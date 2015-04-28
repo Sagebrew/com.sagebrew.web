@@ -8,8 +8,6 @@ RUN mkdir /home/apps/{{PROJECT_REPONAME}}/{{PROJECT_NAME}}/static/
 RUN pip install pip==6.0.8
 RUN pip install setuptools==12.3
 RUN pip install -r /home/apps/{{PROJECT_REPONAME}}/requirements/{{REQUIREMENTS_FILE}}.txt
-RUN pip install git+http://github.com/bleib1dj/django-rest-framework.git@improvement_id_field_hyperlinkedrelatedfield --upgrade
-RUN pip install git+http://github.com/robinedwards/neomodel.git@282d522c9ed5b6a08e4258008d07d29fca3aed45
 RUN rm -r /root/.ssh
 RUN apt-get remove --auto-remove -y openssh-client
 RUN apt-get remove --auto-remove -y git
@@ -20,9 +18,11 @@ CMD chown {{APP_USER}} /etc/rsyslog.d/ && \
     chown root /etc/rsyslog.d/ && service rsyslog restart && \
     python manage.py collectstatic --noinput && \
     python manage.py migrate --noinput && \
+    python manage.py createtokens && \
     python manage.py create_dynamo_tables && \
     python manage.py create_privileges && \
     python manage.py create_oauth_client && \
+    python manage.py populate_indices && \
     python manage.py create_prepopulated_tags && \
     python manage.py createsite && \
     python manage.py clearsessions && \

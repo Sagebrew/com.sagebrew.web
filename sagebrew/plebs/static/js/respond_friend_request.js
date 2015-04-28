@@ -3,7 +3,7 @@ $("#friend_request_div").on("mouseenter", "a", function () {
         event.preventDefault();
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajax_security(xhr, settings)
+                ajaxSecurity(xhr, settings)
             }
         });
         $.ajax({

@@ -1,7 +1,10 @@
 from celery import shared_task
 
+from neomodel import CypherException
+
 from api.utils import spawn_task
 from plebs.tasks import update_reputation
+from plebs.neo_models import Pleb
 from sb_base.neo_models import get_parent_votable_content
 
 
@@ -18,6 +21,10 @@ def vote_object_task(vote_type, current_pleb, object_uuid):
     :param sb_object:
     :return:
     '''
+    try:
+        current_pleb = Pleb.nodes.get(username=current_pleb)
+    except (CypherException, IOError) as e:
+        raise vote_object_task.retry(exc=e, countdown=3, max_retries=None)
     sb_object = get_parent_votable_content(object_uuid)
     if isinstance(sb_object, Exception) is True:
         raise vote_object_task.retry(exc=sb_object, countdown=3,

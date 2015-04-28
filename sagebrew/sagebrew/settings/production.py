@@ -23,6 +23,10 @@ CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
         'LOCATION': environ.get("CACHE_LOCATION", "127.0.0.1:11211"),
+        'TIMEOUT': 1800,
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000
+        }
     }
 }
 
@@ -70,8 +74,9 @@ REST_FRAMEWORK = {
     'DEFAULT_MODEL_SERIALIZER_CLASS':
         'rest_framework.serializers.HyperlinkedModelSerializer',
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
         'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
     ),
 }
 
@@ -84,12 +89,19 @@ LOGGING = {
         'loggly': {
             'format': 'loggly: %(message)s',
         },
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d '
+                      '%(thread)d %(message)s'
+        },
     },
     'handlers': {
         'logentries_handler': {
             'token': LOGENT_TOKEN,
             'class': 'logentries.LogentriesHandler'
         },
+        'console': {
+            'class': 'logging.StreamHandler',
+        }
     },
     'loggers': {
         'django.db': {

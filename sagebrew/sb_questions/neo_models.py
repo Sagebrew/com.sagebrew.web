@@ -1,3 +1,5 @@
+from rest_framework.reverse import reverse
+
 from neomodel import (StringProperty, IntegerProperty,
                       RelationshipTo, BooleanProperty, FloatProperty)
 from neomodel import db
@@ -56,3 +58,8 @@ class Question(SBPublicContent):
 
         res, col = db.cypher_query(query)
         return [row[0] for row in res]
+
+    def get_url(self, request=None):
+        return reverse('question_detail_page',
+                       kwargs={'question_uuid': self.object_uuid},
+                       request=request)

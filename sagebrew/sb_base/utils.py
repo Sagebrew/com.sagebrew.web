@@ -51,6 +51,10 @@ def custom_exception_handler(exc, context):
         logger.exception("%s Index Exception" % context['view'])
         return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    if isinstance(exc, ValueError):
+        data = errors.JSON_ERROR_EXCEPTION
+        logger.exception("%s JSON Exception" % context['view'])
+        return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     response = exception_handler(exc, context)
 
     if response is not None:
@@ -70,6 +74,12 @@ def get_ordering(sort_by):
         sort_by = ""
 
     return sort_by, ordering
+
+
+def get_tagged_as(tagged_as):
+    if tagged_as == '' or tagged_as not in settings.BASE_TAGS:
+        return tagged_as
+    return "-[:TAGGED_AS]-(t:Tag {name:'%s'}) " % (tagged_as)
 
 
 def get_filter_params(filter_by, sb_instance):

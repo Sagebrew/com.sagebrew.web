@@ -1,5 +1,6 @@
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
+from django.core.cache import cache
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -10,7 +11,7 @@ from api.serializers import SBSerializer
 from api.utils import spawn_task, request_to_api, gather_request_data
 
 from .neo_models import Address, Pleb, BetaUser
-from .tasks import create_pleb_task, pleb_user_update
+from .tasks import create_pleb_task, pleb_user_update, determine_pleb_reps
 
 
 def generate_username(first_name, last_name):
@@ -63,6 +64,7 @@ class UserSerializer(SBSerializer):
                                          style={'input_type': 'password'})
     birthday = serializers.DateTimeField(write_only=True)
     href = serializers.SerializerMethodField()
+    profile = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         username = generate_username(validated_data['first_name'],
@@ -115,6 +117,17 @@ class UserSerializer(SBSerializer):
     def get_id(self, obj):
         return obj.username
 
+    def get_profile(self, obj):
+        request, expand, _, _, _ = gather_request_data(self.context)
+        user_url = reverse('profile-detail', kwargs={'username': obj.username},
+                           request=request)
+        if expand == "true":
+            response = request_to_api(user_url, request.user.username,
+                                      req_method="GET")
+            return response.json()
+        else:
+            return user_url
+
     def get_href(self, obj):
         request, expand, _, _, _ = gather_request_data(self.context)
         return reverse(
@@ -122,7 +135,9 @@ class UserSerializer(SBSerializer):
 
 
 class PlebSerializerNeo(SBSerializer):
-    base_user = serializers.SerializerMethodField()
+    first_name = serializers.CharField(read_only=True)
+    last_name = serializers.CharField(read_only=True)
+    username = serializers.CharField(read_only=True)
     href = serializers.SerializerMethodField()
 
     # These are read only because we force users to use a different endpoint
@@ -161,40 +176,19 @@ class PlebSerializerNeo(SBSerializer):
             'profile_page', kwargs={'pleb_username': obj.username},
             request=request)
 
-    def get_base_user(self, obj):
-        request, expand, _, _, _ = gather_request_data(self.context)
-
-        username = obj.username
-        user_url = reverse(
-            'user-detail', kwargs={'username': username}, request=request)
-        if expand == "true":
-            response = request_to_api(user_url, request.user.username,
-                                      req_method="GET")
-            return response.json()
-        else:
-            return user_url
-
     def get_privileges(self, obj):
-        res = obj.get_privileges()
-        request, expand, expand_array, _, _ = gather_request_data(self.context)
-
-        # Future proofing this as this is not a common use case but we can still
-        # give users the ability to do so
-        if expand == "true" and "privileges" in expand_array:
-            priv_array = []
-            for row in res:
-                privilege_url = reverse("privilege-detail",
-                                        kwargs={"name": row},
-                                        request=request)
-                response = request_to_api(privilege_url, request.user.username,
-                                          req_method="GET")
-                priv_array.append(response.json())
-            return priv_array
-        else:
-            return res
+        privileges = cache.get("%s_privileges" % obj.username)
+        if privileges is None:
+            privileges = obj.get_privileges()
+            cache.set("%s_privileges" % obj.username, privileges)
+        return privileges
 
     def get_actions(self, obj):
-        return obj.get_actions()
+        actions = cache.get("%s_actions" % obj.username)
+        if actions is None:
+            actions = obj.get_actions()
+            cache.set("%s_actions" % obj.username, actions)
+        return actions
 
     def get_href(self, obj):
         request, expand, _, _, _ = gather_request_data(self.context)
@@ -235,10 +229,10 @@ class AddressSerializer(SBSerializer):
         instance.latitude = validated_data.get("latitude", instance.latitude)
         instance.longitude = validated_data.get("longitude",
                                                 instance.longitude)
-        # TODO need to re-evaluate where their district is and all that good
-        # stuff when they update. @Tyler we should rediscuss the address
-        # hashing and how this will affect that.
         instance.save()
+        spawn_task(task_func=determine_pleb_reps, task_param={
+            "username": self.context['request'].user.username,
+        })
         return instance
 
     def get_href(self, obj):
@@ -246,3 +240,54 @@ class AddressSerializer(SBSerializer):
         return reverse(
             "address-detail", kwargs={'object_uuid': obj.object_uuid},
             request=request)
+
+
+class FriendRequestSerializer(SBSerializer):
+    seen = serializers.BooleanField()
+    time_sent = serializers.DateTimeField(read_only=True)
+    time_seen = serializers.DateTimeField(allow_null=True, required=False,
+                                          read_only=True)
+    response = serializers.CharField(required=False, allow_null=False,
+                                     allow_blank=False)
+    from_user = serializers.SerializerMethodField()
+    to_user = serializers.SerializerMethodField()
+
+    def get_type(self, obj):
+        return "friend_request"
+
+    def update(self, instance, validated_data):
+        instance.seen = validated_data.get('seen', instance.seen)
+        instance.time_seen = validated_data.get('time_seen',
+                                                instance.time_seen)
+        instance.response = validated_data.get('response', instance.response)
+        instance.save()
+        return instance
+
+    def get_from_user(self, obj):
+        request, expand, _, _, _ = gather_request_data(self.context)
+        try:
+            user_url = reverse("profile-detail",
+                               kwargs={"username": obj.request_from.all()[0].
+                                       username},
+                               request=request)
+        except IndexError:
+            return None
+        if expand == "true":
+            response = request_to_api(user_url + "?expand=true",
+                                      request.user.username,
+                                      req_method="GET")
+            return response.json()
+        return user_url
+
+    def get_to_user(self, obj):
+        request, expand, _, _, _ = gather_request_data(self.context)
+        user_url = reverse("profile-detail",
+                           kwargs={"username": obj.request_to.all()[0].
+                                   username},
+                           request=request)
+        if expand == "true":
+            response = request_to_api(user_url + "?expand=true",
+                                      request.user.username,
+                                      req_method="GET")
+            return response.json()
+        return user_url

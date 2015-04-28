@@ -1,5 +1,6 @@
 from uuid import uuid1
 
+from django.conf import settings
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
 
@@ -42,7 +43,11 @@ def question_page(request, sort_by="most_recent"):
 
     :return:
     """
-    return render(request, 'question_list.html', {})
+    tag_array = []
+    for tag in settings.BASE_TAGS:
+        tag_array.append({'default': tag, 'display': tag.replace('_', ' ')})
+    return render(request, 'question_list.html',
+                  {"base_tags": tag_array})
 
 
 @login_required()
@@ -78,7 +83,7 @@ def get_question_search_view(request, question_uuid=None):
     """
     if question_uuid is None:
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    response = prepare_question_search_html(question_uuid, request)
+    response = prepare_question_search_html(question_uuid)
     if response is False:
         return Response(status=404)
 

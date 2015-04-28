@@ -1,4 +1,6 @@
-from neomodel.exception import CypherException
+from django.core.cache import cache
+
+from neomodel.exception import CypherException, DoesNotExist
 
 from .neo_models import Pleb
 from .serializers import PlebSerializerNeo
@@ -10,8 +12,10 @@ def request_profile(request):
     default_response = {
         "request_profile":
             {
-                "base_user": None,
                 "href": None,
+                "first_name": None,
+                "last_name": None,
+                "username": None,
                 "profile_pic": None,
                 "wallpaper_pic": None,
                 "reputation": None,
@@ -23,12 +27,15 @@ def request_profile(request):
     try:
         if request.user.is_authenticated():
             try:
-                pleb = Pleb.nodes.get(username=request.user.username)
+                profile = cache.get(request.user.username)
+                if profile is None:
+                    profile = Pleb.nodes.get(username=request.user.username)
+                    cache.set(profile.username, profile)
                 return {
                     "request_profile":
-                        PlebSerializerNeo(pleb,
+                        PlebSerializerNeo(profile,
                                           context={"request": request}).data}
-            except(CypherException, IOError):
+            except(CypherException, IOError, Pleb.DoesNotExist, DoesNotExist):
                 return default_response
         else:
             return default_response

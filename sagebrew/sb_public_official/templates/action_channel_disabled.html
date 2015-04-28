@@ -5,12 +5,12 @@
 </div>
 <div class="row block sb_channel_block">
     <div class="col-lg-1 col-md-2 hidden-sm hidden-xs">
-       <div class="thumbnail sb_thumbnail_md"><img src="https://theunitedstates.io/images/congress/original/{{ representative.bioguide }}.jpg"></div>
+       <div class="thumbnail sb_thumbnail_md"><img src="https://theunitedstates.io/images/congress/original/{{ representative.bioguideid }}.jpg"></div>
     </div>
     <div class="col-lg-6 col-md-6 col-sm-12 cl-xs-12">
         <div class="block sb_bio_block sb_markdown_disabled">
             <h2>{{ representative.full_name }}</h2>
-            <p>This representative has not yet joined Sagebrew.</p>
+            <p>This {{ representative.title }} from {{ representative.state }} has not yet joined Sagebrew.</p>
         </div>
     </div>
     <div class="col-lg-5 col-md-4 col-sm-12">
@@ -19,17 +19,17 @@
             <button class="btn btn-primary disabled sb_btn">Pledge Vote</button>
         </div>
         <div align="right" class="block sb_channel_social row-fluid hidden-md hidden-sm hidden-xs">
-            <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fui-facebook"></span></button>
-            <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fui-linkedin"></span></button>
+            <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-facebook-square"></span></button>
+            <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-linkedin-square"></span></button>
             {% if not representative.youtube %}
-                <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fui-youtube"></span></button>
+                <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-youtube-play"></span></button>
             {% else %}
-                <button onclick="location.href='http://youtube.com/{{ representative.youtube }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fui-youtube"></span></button>
+                <button onclick="location.href='http://youtube.com/{{ representative.youtube }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-youtube-play"></span></button>
             {% endif %}
             {% if not representative.twitter %}
-                <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fui-twitter"></span></button>
+                <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-twitter"></span></button>
             {% else %}
-                <button onclick="location.href='http://twitter.com/{{ representative.twitter }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fui-twitter"></span></button>
+                <button onclick="location.href='http://twitter.com/{{ representative.twitter }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-twitter"></span></button>
             {% endif %}
         </div>
     </div>

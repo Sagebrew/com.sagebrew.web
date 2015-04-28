@@ -115,11 +115,12 @@ class Pleb(SBObject, Searchable):
     }
     gender = StringProperty()
     oauth_token = StringProperty()
-    username = StringProperty(unique_index=True, default=None)
+    username = StringProperty(unique_index=True)
     first_name = StringProperty()
     last_name = StringProperty()
     middle_name = StringProperty()
-    email = StringProperty(unique_index=True)
+    # Just an index as some individuals share email addresses still
+    email = StringProperty(index=True)
     date_of_birth = DateTimeProperty()
     primary_phone = StringProperty()
     secondary_phone = StringProperty()
@@ -270,6 +271,7 @@ class Pleb(SBObject, Searchable):
         rep_list = []
         base_tags = {}
         tags = {}
+        original_rep = self.reputation
         total_rep = 0
         for item in self.get_votable_content():
             rep_res = item.get_rep_breakout()
@@ -285,7 +287,8 @@ class Pleb(SBObject, Searchable):
         return {"rep_list": rep_list,
                 "base_tags": base_tags,
                 "tags": tags,
-                "total_rep": total_rep}
+                "total_rep": total_rep,
+                "previous_rep": original_rep}
 
     def get_object_rep_count(self):
         pass
@@ -341,37 +344,45 @@ class Pleb(SBObject, Searchable):
     def get_friends(self):
         return self.friends.all()
 
-    def get_friend_requests_received(self):
-        request_list = []
-        for request in self.friend_requests_received.all():
-            try:
-                if request.response is None:
-                    # TODO see if we can do this with a serializer instead
-                    request_dict = {
-                        "object_uuid": request.object_uuid,
-                        "from": request.request_from.all()[0].username,
-                        "date_sent": request.time_sent,
-                        "date_seen": request.time_seen,
-                        "seen": request.seen,
-                    }
-                    request_list.append(request_dict)
-                else:
-                    continue
-            except IndexError:
-                continue
-        return request_list
-
-    def get_friend_requests_sent(self):
+    def is_friends_with(self, username):
+        query = "MATCH (a:Pleb {username:'%s'})-" \
+                "[friend:FRIENDS_WITH]->(b:Pleb {username:'%s'}) " \
+                "RETURN friend.currently_friends" % (self.username, username)
+        res, col = db.cypher_query(query)
+        if len(res) == 0:
+            return False
         try:
-            request_list = []
-            for request in self.friend_requests_sent.all():
+            return res[0][0]
+        except IndexError:
+            return False
+
+    def get_wall(self):
+        '''
+        Cypher Exception and IOError excluded on purpose, please do not add.
+        The functions calling this expect the exceptions to be thrown and
+        handle the exceptions on their own if they end up occuring.
+        :return:
+        '''
+        from sb_wall.neo_models import Wall
+        query = "MATCH (a:Pleb {username:'%s'})-" \
+                "[:OWNS_WALL]->(b:Wall) RETURN b" % (self.username)
+        res, col = db.cypher_query(query)
+        try:
+            return Wall.inflate(res[0][0])
+        except IndexError:
+            return None
+
+    def get_friend_requests_sent(self, username):
+        try:
+            for friend_request in self.friend_requests_sent.all():
                 try:
-                    request_list.append(request.request_to.all()[0].username)
+                    if friend_request.request_to.all()[0].username == username:
+                        return friend_request.object_uuid
                 except IndexError:
                     continue
         except(CypherException, IOError) as e:
             raise e
-        return request_list
+        return False
 
     def determine_reps(self):
         from sb_public_official.utils import determine_reps
@@ -415,25 +426,6 @@ class Pleb(SBObject, Searchable):
         except (IOError, CypherException) as e:
             return e
         return {"senators": sen_array, "house_reps": rep.get_dict()}
-
-    def get_senators(self):
-        sen_array = []
-        try:
-            for sen in self.senators.all():
-                sen_array.append(sen.get_dict())
-        except (IOError, CypherException) as e:
-            return e
-        return sen_array
-
-    def get_house_rep(self):
-        try:
-            try:
-                house_rep = self.house_rep.all()[0]
-            except IndexError:
-                return False
-            return house_rep.get_dict()
-        except (IOError, CypherException) as e:
-            return e
 
 
 class Address(SBObject):

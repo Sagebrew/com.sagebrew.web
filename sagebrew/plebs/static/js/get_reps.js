@@ -2,7 +2,7 @@ $(document).ready(function(){
     var username = $("#user_info").data("page_user_username");
     $.ajaxSetup({
         beforeSend: function (xhr, settings) {
-            ajax_security(xhr, settings)
+            ajaxSecurity(xhr, settings)
         }
     });
     $.ajax({
@@ -16,7 +16,7 @@ $(document).ready(function(){
             $("#house_rep_wrapper").append(data['rep_html']);
             $.ajaxSetup({
                 beforeSend: function (xhr, settings) {
-                    ajax_security(xhr, settings)
+                    ajaxSecurity(xhr, settings)
                 }
             });
             $.ajax({

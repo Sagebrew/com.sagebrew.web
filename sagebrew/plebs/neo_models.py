@@ -417,16 +417,6 @@ class Pleb(SBObject, Searchable):
             raise e
         return notification_list
 
-    def get_public_officials(self):
-        sen_array = []
-        try:
-            rep = self.house_rep.all()[0]
-            for sen in self.senators.all():
-                sen_array.append(sen.get_dict())
-        except (IOError, CypherException) as e:
-            return e
-        return {"senators": sen_array, "house_reps": rep.get_dict()}
-
 
 class Address(SBObject):
     street = StringProperty()

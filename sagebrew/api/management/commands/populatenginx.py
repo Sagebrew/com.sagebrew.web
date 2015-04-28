@@ -25,7 +25,7 @@ class Command(BaseCommand):
             env = "production"
             if worker == "worker":
                 env = "production_worker"
-        worker_count = (multiprocessing.cpu_count() * 3) + 1
+        worker_count = (multiprocessing.cpu_count() * 2) + 1
         if worker_count > 12 and circle_ci:
             worker_count = 12
         worker_count = str(worker_count)

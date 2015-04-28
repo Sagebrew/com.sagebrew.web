@@ -43,7 +43,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
                 "n %s %s" % (tagged_as, sort_by, ordering)
         res, col = db.cypher_query(query)
         queryset = [Question.inflate(row[0]) for row in res]
-        if sort_by == "":
+        if sort_by == "" or sort_by == "vote_count":
             queryset = sorted(queryset, key=lambda k: k.get_vote_count(),
                               reverse=True)
 

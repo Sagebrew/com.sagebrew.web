@@ -1,9 +1,9 @@
-/*global $, jQuery*/
+/*global $, jQuery, ajaxSecurity*/
 $(document).ready(function () {
     function loadQuestionSummaries(url) {
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
+                ajaxSecurity(xhr, settings);
             }
         });
         $.ajax({
@@ -38,7 +38,7 @@ $(document).ready(function () {
         $(".sb_border_question").spin('small');
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
+                ajaxSecurity(xhr, settings);
             }
         });
         $.ajax({

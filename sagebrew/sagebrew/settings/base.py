@@ -265,6 +265,17 @@ DYNAMO_IP = environ.get("DYNAMO_IP", None)
 
 EMAIL_BACKEND = 'django_ses.SESBackend'
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': environ.get("CACHE_LOCATION", "127.0.0.1:11211"),
+        'TIMEOUT': 1800,
+        'OPTIONS': {
+            'MAX_ENTRIES': 2500
+        }
+    }
+}
+
 CELERY_TIMEZONE = 'UTC'
 OPBEAT = {
     "ORGANIZATION_ID": environ.get("OPBEAT_ORG_ID", ""),

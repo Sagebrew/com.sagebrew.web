@@ -328,4 +328,5 @@ def create_keyword(text, relevance, query_param):
             keyword.save()
             return True
     except (CypherException, IOError) as e:
+        logger.exception("Cypher Exception: ")
         raise create_keyword.retry(exc=e, countdown=3, max_retries=None)

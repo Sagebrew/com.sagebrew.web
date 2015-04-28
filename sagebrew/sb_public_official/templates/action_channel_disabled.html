@@ -10,7 +10,11 @@
     <div class="col-lg-6 col-md-6 col-sm-12 cl-xs-12">
         <div class="block sb_bio_block sb_markdown_disabled">
             <h2>{{ representative.full_name }}</h2>
-            <p>This {{ representative.title }} from {{ representative.state }} has not yet joined Sagebrew.</p>
+            {% if representative.title != "President" and representative.title != "Vice President" %}
+              <p>This {{ representative.title }} from {{ representative.state }} has not yet joined Sagebrew.</p>
+            {% else %}
+              <p>The {{ representative.title }} has not yet joined Sagebrew.</p>
+            {% endif %}
         </div>
     </div>
     <div class="col-lg-5 col-md-4 col-sm-12">

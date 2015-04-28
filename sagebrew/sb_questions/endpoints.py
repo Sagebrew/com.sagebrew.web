@@ -15,6 +15,7 @@ from neomodel import db
 
 from api.utils import spawn_task
 from sb_base.utils import get_ordering, get_tagged_as
+from sb_stats.tasks import update_view_count_task
 
 from .serializers import QuestionSerializerNeo, solution_count
 from .neo_models import Question
@@ -94,6 +95,8 @@ class QuestionViewSet(viewsets.ModelViewSet):
             queryset, context={'request': request}).data
 
         if html == "true":
+            spawn_task(update_view_count_task,
+                       {'object_uuid': queryset.object_uuid})
             single_object["last_edited_on"] = datetime.strptime(
                 single_object['last_edited_on'][:len(
                     single_object['last_edited_on']) - 6],

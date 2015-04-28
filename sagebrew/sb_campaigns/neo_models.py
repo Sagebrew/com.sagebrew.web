@@ -21,6 +21,18 @@ class Campaign(SBObject, Searchable):
     # Whether the account is in active or test/prep mode, once taken active
     # an account cannot be taken offline until the end of a campaign
     active = BooleanProperty(default=False)
+    epic = StringProperty()
+    biography = StringProperty()
+    facebook = StringProperty()
+    linkedin = StringProperty()
+    youtube = StringProperty()
+    twitter = StringProperty()
+    website = StringProperty()
+    # These are the wallpaper and profile specific to the campaign/action page
+    # That way they have separation between the campaign and their personal
+    # image.
+    wallpaper_pic = StringProperty()
+    profile_pic = StringProperty()
 
     # city should be added when we can ascertain what cities are within the
     # district

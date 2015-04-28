@@ -54,7 +54,8 @@ class Command(BaseCommand):
                                          terms=len(role.congress_numbers.all()),
                                          twitter=person.twitterid,
                                          youtube=person.youtubeid,
-                                         gt_id=person.gt_id)
+                                         gt_id=person.gt_id,
+                                         bioguideid=person.bioguideid)
                     rep.save()
                     reps.append(rep)
                 except (CypherException, IOError) as e:

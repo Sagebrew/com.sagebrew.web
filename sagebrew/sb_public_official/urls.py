@@ -11,7 +11,7 @@ urlpatterns = patterns(
         name='action_about'),
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{1,36})/updates/', updates,
         name='action_updates'),
-    url(r'^(?P<username>[A-Za-z0-9.@_%+-]{1,36})/search/', get_search_html,
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{1,36})/search/', get_search_html,
         name="rep_search_html"),
     url(r'^experience/$', get_experience_form, name="experience"),
     url(r'^get_info/$', get_rep_info, name="rep_info"),

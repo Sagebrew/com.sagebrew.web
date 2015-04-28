@@ -26,6 +26,7 @@ from sb_base.serializers import MarkdownContentSerializer
 from sb_questions.neo_models import Question
 from sb_questions.serializers import QuestionSerializerNeo
 from sb_votes.serializers import VoteSerializer
+from sb_public_official.serializers import PublicOfficialSerializer
 
 from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
                           FriendRequestSerializer)
@@ -267,24 +268,34 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def senators(self, request, username=None):
-        senators = self.get_object().get_senators()
+        senators = self.get_object().senators.all()
+        if len(senators) == 0:
+            return Response("<small>Sorry we could not find your "
+                            "Senators. Please alert us to our error!"
+                            "</small>", status=status.HTTP_200_OK)
         html = self.request.query_params.get('html', 'false').lower()
         if html == 'true':
             sen_html = []
             for sen in senators:
                 sen_html.append(
                     render_to_string('sb_home_section/sb_senator_block.html',
-                                     sen))
+                                     PublicOfficialSerializer(sen).data))
             return Response(sen_html, status=status.HTTP_200_OK)
         return Response(senators, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def house_rep(self, request, username=None):
-        house_rep = self.get_object().get_house_rep()
+        try:
+            house_rep = self.get_object().house_rep.all()[0]
+        except IndexError:
+            return Response("<small>Sorry we could not find your "
+                            "representative. Please alert us to our error!"
+                            "</small>", status=status.HTTP_200_OK)
         html = self.request.QUERY_PARAMS.get('html', 'false').lower()
         if html == 'true':
             house_rep_html = render_to_string(
-                'sb_home_section/sb_house_rep_block.html', house_rep)
+                'sb_home_section/sb_house_rep_block.html',
+                PublicOfficialSerializer(house_rep).data)
             return Response(house_rep_html, status=status.HTTP_200_OK)
         return Response(house_rep, status=status.HTTP_200_OK)
 

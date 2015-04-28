@@ -46,9 +46,8 @@ def updates(request, username):
     except (CypherException, IOError, PublicOfficial.DoesNotExist,
             DoesNotExist):
         return redirect("404_Error")
-    official_dict = official.get_dict()
     return render(request, 'action_page.html',
-                  {"representative": official_dict,
+                  {"representative": PublicOfficialSerializer(official).data,
                    "registered": False})
 
 

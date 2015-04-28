@@ -1,3 +1,4 @@
+import logging
 import importlib
 from django.conf import settings
 
@@ -8,6 +9,8 @@ from api.utils import execute_cypher_query
 from sb_base.decorators import apply_defense
 
 from .neo_models import (PublicOfficial)
+
+logger = logging.getLogger('loggly_logs')
 
 
 @apply_defense
@@ -102,13 +105,16 @@ def determine_reps(username):
     try:
         address = pleb.address.all()[0]
     except (CypherException, IOError, IndexError):
+        logger.exception("Determine Reps Cypher Exception")
         return False
     pleb_state = address.state
     pleb_district = int(address.congressional_district)
-    query = 'match (n:PublicOfficial) where n.state="%s" ' \
+    try:
+        query = 'match (n:PublicOfficial) where n.state="%s" ' \
             ' return n' % pleb_state
-    reps, meta = execute_cypher_query(query)
-    if isinstance(reps, Exception):
+        reps, meta = execute_cypher_query(query)
+    except (CypherException, IOError, IndexError):
+        logger.exception("Determine Reps Cypher Exception")
         return False
     reps = [PublicOfficial.inflate(row[0]) for row in reps]
     for rep in reps:
@@ -116,11 +122,13 @@ def determine_reps(username):
             try:
                 pleb.house_rep.connect(rep)
             except (CypherException, IOError):
+                logger.exception("Determine Reps Cypher Exception")
                 return False
         if rep.district == 0:
             try:
                 pleb.senators.connect(rep)
             except (CypherException, IOError):
+                logger.exception("Determine Reps Cypher Exception")
                 return False
             senators.append(rep.object_uuid)
     return True

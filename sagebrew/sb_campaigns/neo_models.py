@@ -2,8 +2,6 @@ import pytz
 
 from datetime import datetime
 
-from django.conf import settings
-
 from neomodel import (StringProperty, DateTimeProperty, RelationshipTo,
                       BooleanProperty, IntegerProperty, db)
 
@@ -53,6 +51,12 @@ class Campaign(SBObject, Searchable):
     editors = RelationshipTo('plebs.neo_models.Pleb', 'CAN_BE_EDITED_BY')
     accountants = RelationshipTo('plebs.neo_models.Pleb',
                                  'CAN_VIEW_MONETARY_DATA')
+    # This will be set differently for each of the different campaigns
+    # For State we'll get the plebs living within the state and assign them
+    # to this campaign. For District campaigns we'll filter on the district
+    # and associate those users.
+    constituents = RelationshipTo('plebs.neo_models.Pleb',
+                                  'POTENTIAL_REPRESENTATIVE_FOR')
 
 
 class StateCampaign(Campaign):

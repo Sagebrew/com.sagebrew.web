@@ -206,6 +206,19 @@ class Pleb(Searchable):
     beta_user = RelationshipTo('plebs.neo_models.BetaUser', "BETA_USER")
     uploads = RelationshipTo('sb_uploads.neo_models.UploadedObject', 'UPLOADS')
 
+    # TODO Need a better name than affect_campaign
+    affect_campaign = RelationshipTo('sb_campaigns.neo_models.Campaign',
+                                     'HAS_STAKE_IN')
+    campaign = RelationshipTo('sb_campaign.neo_models.Campaign', 'IS_WAGING')
+    campaign_editor = RelationshipTo('sb_campaign.neo_models.Campaign',
+                                     'CAN_EDIT')
+    campaign_accountant = RelationshipTo('sb_campaign.neo_models.Campaign',
+                                         'CAN_MANAGE_FINANCES')
+    # Can this just be a vote?
+    pledged_votes = RelationshipTo('sb_votes.neo_models.PledgedVotes',
+                                   'PLEDGED')
+
+
     @classmethod
     def get(cls, username):
         profile = cache.get(username)

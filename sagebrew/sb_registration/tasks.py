@@ -72,6 +72,7 @@ def save_profile_picture(url, username):
     try:
         pleb.profile_pic = url
         pleb.save()
+        cache.set(pleb.username, pleb)
     except (CypherException, IOError) as e:
         raise save_profile_picture.retry(exc=e, countdown=3, max_retries=None)
     return True

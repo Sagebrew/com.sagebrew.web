@@ -32,7 +32,7 @@ class Notification(SBObject):
                                      'NOTIFICATION_TO')
 
 
-class NotificationCapable(SBObject, Searchable):
+class NotificationCapable(Searchable):
     action_name = ''
     views = RelationshipTo('sb_stats.neo_models.Impression', 'VIEWED')
 

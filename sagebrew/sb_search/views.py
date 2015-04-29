@@ -16,7 +16,6 @@ from neomodel import DoesNotExist, CypherException
 from api.alchemyapi import AlchemyAPI
 from api.utils import (spawn_task)
 from plebs.neo_models import Pleb
-from plebs.utils import prepare_user_search_html
 from sb_search.tasks import (spawn_weight_relationships)
 from sb_questions.utils import prepare_question_search_html
 from sb_registration.utils import verify_completed_registration
@@ -189,12 +188,15 @@ def search_result_api(request):
             for item in page.object_list:
                 # TODO Can we generalize this any further?
                 # TODO Handle spawned response correctly
+                # TODO these may have some issues at the moment due to updating
+                # the search database with new information not being completely
+                # defined yet.
                 if item['_type'] == 'question':
                     results.append(prepare_question_search_html(
                         item['_source']['object_uuid']))
                 elif item['_type'] == 'profile':
-                    results.append(prepare_user_search_html(
-                        item['_source']['username']))
+                    results.append(render_to_string("user_search_block.html",
+                                                    item['_source']))
                 elif item['_type'] == 'public_official':
                     results.append(render_to_string("saga_search_block.html",
                                                     item['_source']))

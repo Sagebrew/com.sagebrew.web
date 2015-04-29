@@ -92,7 +92,7 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
         if serializer.is_valid():
             question = Question.nodes.get(
                 object_uuid=self.kwargs[self.lookup_field])
-            serializer.save(question=question)
+            instance = serializer.save(question=question)
             query = "MATCH (a:Question {object_uuid:'%s'})-[:OWNED_BY]->" \
                     "(b:Pleb) RETURN b" % (self.kwargs[self.lookup_field])
             res, col = db.cypher_query(query)
@@ -105,7 +105,8 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
                 # TODO discuss notifying all the people who have provided
                 # solutions on a given question.
                 "to_plebs": [question_owner.username, ],
-                "notification_id": str(uuid1())
+                "notification_id": str(uuid1()),
+                'action_name': instance.action_name
             }
             spawn_task(task_func=spawn_notifications, task_param=data)
             # Not going to add until necessary for search

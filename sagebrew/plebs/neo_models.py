@@ -1,5 +1,7 @@
 import pytz
 from datetime import datetime
+
+from django.core.cache import cache
 from django.conf import settings
 from django.template.loader import get_template
 from django.template import Context
@@ -105,7 +107,15 @@ class BetaUser(StructuredNode):
         return True
 
 
-class Pleb(SBObject, Searchable):
+class Pleb(Searchable):
+    """
+    Signals and overwritting the save method don't seem to have any affect
+    currently. We'll want to look into this and instead of having cache
+    methods sprinkled around the code, overwrite get/save methods to first
+    check the cache for the id of the object.
+    Should also be updating/destroying the document in the search index upon
+    save/update/destroy
+    """
     search_modifiers = {
         'post': 10, 'comment_on': 5, 'upvote': 3, 'downvote': -3,
         'time': -1, 'proximity_to_you': 10, 'proximity_to_interest': 10,
@@ -397,15 +407,16 @@ class Pleb(SBObject, Searchable):
                     from_user = notification.notification_from.all()[0]
                     notification_dict = {
                         "object_uuid": notification.object_uuid,
-                        "from_info": {
+                        "notification_from": {
                             "profile_pic": from_user.profile_pic,
-                            "full_name": from_user.get_full_name(),
+                            "first_name": from_user.first_name,
+                            "last_name": from_user.last_name,
                             "username": from_user.username
                         },
-                        "action": notification.action,
+                        "action_name": notification.action_name,
                         "url": notification.url,
-                        "date_sent": notification.time_sent,
-                        "date_seen": notification.time_seen,
+                        "time_sent": notification.time_sent,
+                        "time_seen": notification.time_seen,
                         "seen": notification.seen,
                         "about": notification.about,
                         "about_id": notification.about_id,

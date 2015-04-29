@@ -53,6 +53,7 @@ class AddressViewSet(viewsets.ModelViewSet):
         instance.save()
         pleb.address.connect(instance)
         pleb.save()
+        cache.set(pleb.username, pleb)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -241,12 +242,14 @@ class ProfileViewSet(viewsets.ModelViewSet):
             if expand == "false":
                 notification["from"] = reverse(
                     'profile-detail',
-                    kwargs={'username': notification["from_info"]["username"]},
+                    kwargs={'username': notification["notification_from"][
+                        "username"]},
                     request=request)
             else:
                 friend_url = reverse(
                     'profile-detail', kwargs={
-                        'username': notification["from_info"]["username"]},
+                        'username': notification["notification_from"][
+                            "username"]},
                     request=request)
                 response = request_to_api(friend_url, request.user.username,
                                           req_method="GET")

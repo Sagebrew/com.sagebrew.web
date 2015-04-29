@@ -1,5 +1,10 @@
 from celery import shared_task
+
+from django.conf import settings
+
 from neomodel import CypherException
+
+from elasticsearch import Elasticsearch
 
 from api.utils import spawn_task, create_auto_tags
 from api.tasks import add_object_to_search_index
@@ -81,3 +86,20 @@ def add_auto_tags_to_question_task(object_uuid):
                                                    max_retries=None)
 
     return spawned
+
+
+@shared_task()
+def update_search_index(object_uuid):
+    from .serializers import QuestionSerializerNeo
+    try:
+        question = Question.nodes.get(object_uuid=object_uuid)
+    except (CypherException, IOError) as e:
+        raise add_auto_tags_to_question_task.retry(exc=e, countdown=3,
+                                                   max_retries=None)
+    document = QuestionSerializerNeo(question).data
+    es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+    es.update(index="full-search-user-specific-1",
+              doc_type=document['type'],
+              id=document['id'], body=document)
+
+    return True

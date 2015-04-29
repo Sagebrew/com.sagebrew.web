@@ -19,7 +19,6 @@ def update_view_count(object_uuid):
         sb_object = VotableContent.inflate(res[0][0])
         sb_object.increment_view_count()
         child_class = sb_object.get_child_label()
-        logger.critical(child_class)
         if "Question" in child_class:
             question = Question.inflate(res[0][0])
             cache.set(question.object_uuid, question)

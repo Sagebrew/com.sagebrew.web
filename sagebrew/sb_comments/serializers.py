@@ -1,6 +1,8 @@
 import pytz
 from datetime import datetime
 
+from django.conf import settings
+
 from rest_framework.reverse import reverse
 from rest_framework import serializers
 
@@ -14,9 +16,7 @@ from .neo_models import Comment
 
 
 class CommentSerializer(ContentSerializer):
-    href = serializers.HyperlinkedIdentityField(view_name='comment-detail',
-                                                lookup_field="object_uuid",
-                                                lookup_url_kwarg="comment_uuid")
+    href = serializers.SerializerMethodField()
     comment_on = serializers.SerializerMethodField()
 
     def create(self, validated_data):
@@ -36,6 +36,11 @@ class CommentSerializer(ContentSerializer):
         instance.save()
         return instance
 
+    def get_href(self, obj):
+        return reverse('comment-detail',
+                       kwargs={'object_uuid': obj.object_uuid},
+                       request=self.context.get('request', None))
+
     def get_url(self, obj):
         request, _, _, _, expedite = gather_request_data(self.context)
         # If expedite is true it is assumed the calling function handles this
@@ -50,7 +55,10 @@ class CommentSerializer(ContentSerializer):
                 response = request_to_api(parent_url, request.user.username,
                                           req_method="GET")
             else:
-                return None
+                parent_url = "%s%s" % (settings.WEB_ADDRESS, parent_url)
+                response = request_to_api(parent_url,
+                                          obj.owned_by.all()[0].username,
+                                          req_method="GET")
             return response.json()['url']
         return None
 

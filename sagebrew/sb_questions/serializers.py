@@ -18,7 +18,7 @@ from sb_solutions.serializers import SolutionSerializerNeo
 from sb_solutions.neo_models import Solution
 
 from .neo_models import Question
-from .tasks import add_auto_tags_to_question_task
+from .tasks import add_auto_tags_to_question_task, update_search_index
 
 
 def solution_count(question_uuid):
@@ -132,6 +132,7 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         spawn_task(task_func=update_tags, task_param={"tags": tags})
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": question.object_uuid})
+        cache.set(question.object_uuid, question)
         return question
 
     def update(self, instance, validated_data):
@@ -150,9 +151,11 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         instance.content = validated_data.get('content', instance.content)
         instance.last_edited_on = datetime.now(pytz.utc)
         instance.save()
+        cache.set(instance.object_uuid, instance)
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": instance.object_uuid})
-        cache.set(instance.object_uuid, instance)
+        spawn_task(task_func=update_search_index, task_param={
+            "object_uuid": instance.object_uuid})
         return instance
 
     def get_url(self, obj):

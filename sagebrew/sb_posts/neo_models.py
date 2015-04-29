@@ -13,6 +13,7 @@ class Post(SBPrivateContent):
     posted_on_wall = RelationshipTo('sb_wall.neo_models.Wall', 'POSTED_ON')
 
     def get_url(self, request=None):
-        owner = self.owned_by.all()[0]
-        return reverse('profile_page', kwargs={'pleb_username': owner.username},
-                       request=request)
+        wall_owner = self.posted_on_wall.all()[0].get_owned_by()
+        return reverse('profile_page', kwargs={
+            'pleb_username': wall_owner.username
+        }, request=request)

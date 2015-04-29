@@ -1,6 +1,8 @@
 import logging
 import importlib
+
 from django.conf import settings
+from django.core.cache import cache
 
 from neomodel import (DoesNotExist, CypherException)
 
@@ -81,8 +83,6 @@ def save_rep(pleb_username, rep_type, rep_id, recipient_id, gov_phone,
     try:
         rep.pleb.connect(pleb)
         pleb.official.connect(rep)
-        rep.save()
-        pleb.save()
     except (CypherException, IOError) as e:
         return e
     try:
@@ -131,4 +131,7 @@ def determine_reps(username):
                 logger.exception("Determine Reps Cypher Exception")
                 return False
             senators.append(rep.object_uuid)
+    # Need this as neomodel does not currently support spawning post_save
+    # after connections
+    cache.set(pleb.username, pleb)
     return True

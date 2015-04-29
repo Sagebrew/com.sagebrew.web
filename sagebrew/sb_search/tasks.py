@@ -3,6 +3,7 @@ import logging
 
 from datetime import datetime
 from django.conf import settings
+from django.core.cache import cache
 
 from celery import shared_task
 from neomodel import DoesNotExist, CypherException
@@ -204,6 +205,7 @@ def add_user_to_custom_index(username=None,
                      body=item['_source'])
         pleb.populated_personal_index = True
         pleb.save()
+        cache.set(pleb.username, pleb)
         return True
     except Exception as e:
         raise defensive_exception(add_user_to_custom_index.__name__, e,

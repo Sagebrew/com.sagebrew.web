@@ -117,14 +117,15 @@ class WallPostsListCreate(ListCreateAPIView):
                             status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(wall_owner_profile=wall_pleb)
+            instance = serializer.save(wall_owner_profile=wall_pleb)
             serializer = serializer.data
             data = {
                 "from_pleb": request.user.username,
                 "sb_object": serializer['object_uuid'],
                 "url": serializer['url'],
                 "to_plebs": [self.kwargs[self.lookup_field], ],
-                "notification_id": str(uuid1())
+                "notification_id": str(uuid1()),
+                "action_name": instance.action_name
             }
             spawn_task(task_func=spawn_notifications, task_param=data)
             html = request.query_params.get('html', 'false').lower()

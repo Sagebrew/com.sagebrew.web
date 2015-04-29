@@ -258,7 +258,7 @@ extend ' .progress_bar' has no matches
   margin-top: 30px;
   border-radius: 2px;
   height: auto;
-  min-height: 445px;
+  min-height: 400px;
   padding: 15px;
 }
 .sb_questions_side_container h5 {

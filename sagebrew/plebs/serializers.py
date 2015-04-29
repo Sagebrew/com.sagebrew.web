@@ -83,9 +83,9 @@ class UserSerializer(SBSerializer):
                     username=user.username,
                     birthday=birthday)
         pleb.save()
-        check_beta_user(user.email, pleb)
         # TODO Should move this out to the endpoint to remove circular
         # dependencies
+        cache.set(pleb.username, pleb)
         spawn_task(task_func=create_pleb_task,
                    task_param={
                        "user_instance": user, "birthday": birthday,
@@ -273,8 +273,7 @@ class FriendRequestSerializer(SBSerializer):
         except IndexError:
             return None
         if expand == "true":
-            response = request_to_api(user_url + "?expand=true",
-                                      request.user.username,
+            response = request_to_api(user_url, request.user.username,
                                       req_method="GET")
             return response.json()
         return user_url
@@ -286,8 +285,7 @@ class FriendRequestSerializer(SBSerializer):
                                    username},
                            request=request)
         if expand == "true":
-            response = request_to_api(user_url + "?expand=true",
-                                      request.user.username,
+            response = request_to_api(user_url, request.user.username,
                                       req_method="GET")
             return response.json()
         return user_url

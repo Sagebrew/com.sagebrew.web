@@ -1,38 +1,9 @@
-from django.template.loader import render_to_string
-from django.core.cache import cache
-
 from neomodel import DoesNotExist, CypherException
 
 from sb_base.decorators import apply_defense
 from api.utils import execute_cypher_query
 
 from .neo_models import Pleb, FriendRequest
-
-
-def prepare_user_search_html(pleb):
-    '''
-    This utils returns a rendered to string html object used for when a user
-    appears in search results
-
-    :param pleb:
-    :return:
-    '''
-    profile = cache.get(pleb)
-    if profile is None:
-        try:
-            profile = Pleb.nodes.get(username=pleb)
-        except(Pleb.DoesNotExist, DoesNotExist):
-            return False
-        except(CypherException, IOError):
-            return None
-        cache.set(pleb, profile)
-
-    pleb_data = {
-        'full_name': profile.first_name + ' ' + profile.last_name,
-        'reputation': 0, 'username': profile.username,
-    }
-    html = render_to_string('user_search_block.html', pleb_data)
-    return html
 
 
 @apply_defense
@@ -67,11 +38,8 @@ def create_friend_request_util(from_username, to_username, object_uuid):
         friend_request.save()
         friend_request.request_from.connect(from_citizen)
         friend_request.request_to.connect(to_citizen)
-        friend_request.save()
         from_citizen.friend_requests_sent.connect(friend_request)
-        from_citizen.save()
         to_citizen.friend_requests_received.connect(friend_request)
-        to_citizen.save()
         return True
     except(CypherException, KeyError) as e:
         return e

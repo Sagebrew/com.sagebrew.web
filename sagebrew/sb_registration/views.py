@@ -1,22 +1,24 @@
 import stripe
-from django.conf import settings
 from uuid import uuid1
+
+from django.core.cache import cache
+from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.http import (HttpResponse, HttpResponseNotFound,
-                         HttpResponseServerError)
+from django.http import (HttpResponse, HttpResponseServerError)
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.template.loader import get_template
 from django.template import Context
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from neomodel import (DoesNotExist, CypherException)
 
 from api.utils import spawn_task
-from plebs.tasks import send_email_task, create_beta_user
+from plebs.tasks import send_email_task, create_beta_user, pleb_user_update
 from plebs.neo_models import Pleb, BetaUser
 from sb_public_official.tasks import create_rep_task
 from sb_docstore.tasks import build_rep_page_task
@@ -54,7 +56,7 @@ def signup_view_api(request):
         signup_form = SignupForm(request.DATA)
         valid_form = signup_form.is_valid()
     except AttributeError:
-        return Response(status=400)
+        return Response({'detail': 'Form Error'}, status=400)
     if valid_form is True:
         if signup_form.cleaned_data['password'] != \
                 signup_form.cleaned_data['password2']:
@@ -112,17 +114,21 @@ def login_view(request):
 
 @login_required()
 def resend_email_verification(request):
-    try:
-        pleb = Pleb.nodes.get(username=request.user.username)
-    except(Pleb.DoesNotExist, DoesNotExist):
-        return HttpResponseNotFound("Could not find user")
+    profile = cache.get(request.user.username)
+    if profile is None:
+        try:
+            profile = Pleb.nodes.get(username=request.user.username)
+            cache.set(request.user.username, profile)
+        except(Pleb.DoesNotExist, DoesNotExist):
+            return render(request, 'login.html')
+        except (CypherException, IOError):
+            return HttpResponse('Server Error', status=500)
 
     template_dict = {
         'full_name': request.user.get_full_name(),
         'verification_url': "%s%s%s" % (settings.EMAIL_VERIFICATION_URL,
                                         token_gen.make_token(
-                                            request.user, pleb),
-                                        '/')
+                                            request.user, profile), '/')
     }
     subject, to = "Sagebrew Email Verification", request.user.email
     # text_content = get_template(
@@ -179,10 +185,14 @@ def logout_view(request):
 @login_required()
 def email_verification(request, confirmation):
     try:
-        pleb = Pleb.nodes.get(username=request.user.username)
-        if token_gen.check_token(request.user, confirmation, pleb):
-            pleb.email_verified = True
-            pleb.save()
+        profile = cache.get(request.user.username)
+        if profile is None:
+            profile = Pleb.nodes.get(username=request.user.username)
+            cache.set(request.user.username, profile)
+        if token_gen.check_token(request.user, confirmation, profile):
+            profile.email_verified = True
+            profile.save()
+            cache.set(profile.username, profile)
             return redirect('profile_info')
         else:
             # TODO Ensure to link up to a real redirect page
@@ -198,7 +208,7 @@ def email_verification(request, confirmation):
 @user_passes_test(verify_verified_email,
                   login_url='/registration/signup/confirm/')
 def profile_information(request):
-    '''
+    """
     Creates both a AddressInfoForm which populates the
     fields with what the user enters. If this function gets a valid POST
     request it
@@ -213,13 +223,18 @@ def profile_information(request):
     the addresses in a different order we can use the same address
     we provided the user previously based on the previous
     smarty streets ordering.
-    '''
+    """
     address_key = settings.ADDRESS_AUTH_ID
     address_information_form = AddressInfoForm(request.POST or None)
-    try:
-        citizen = Pleb.nodes.get(username=request.user.username)
-    except (CypherException, IOError):
-        return HttpResponseServerError('Server Error')
+    citizen = cache.get(request.user.username)
+    if citizen is None:
+        try:
+            citizen = Pleb.nodes.get(username=request.user.username)
+            cache.set(request.user.username, citizen)
+        except(Pleb.DoesNotExist, DoesNotExist):
+            return render(request, 'login.html')
+        except (CypherException, IOError):
+            return HttpResponse('Server Error', status=500)
     if citizen.completed_profile_info:
         return redirect("interests")
     if address_information_form.is_valid():
@@ -235,6 +250,7 @@ def profile_information(request):
             try:
                 citizen.completed_profile_info = True
                 citizen.save()
+                cache.set(citizen.username, citizen)
             except (CypherException, IOError):
                 # TODO instead of going to 500 we should instead repopulate the
                 # page with the forms and make an alert or notification that
@@ -305,33 +321,43 @@ def profile_picture(request):
     # new document store, save it into the pleb's document quickly and then
     # spawn off a task for storing the url in neo and working with blitline to
     # get different versions of the image.
-    try:
-        citizen = Pleb.nodes.get(username=request.user.username)
-    except(Pleb.DoesNotExist, DoesNotExist):
-        return render(request, 'login.html')
-    except (CypherException, IOError):
-        return HttpResponse('Server Error', status=500)
-    if request.method == 'GET':
-        profile_picture_form = ProfilePictureForm()
-        return render(
-            request, 'profile_picture.html',
-            {
-                'profile_picture_form': profile_picture_form,
-                'pleb': citizen
-            })
+    profile = cache.get(request.user.username)
+    if profile is None:
+        try:
+            profile = Pleb.nodes.get(username=request.user.username)
+            cache.set(request.user.username, profile)
+        except(Pleb.DoesNotExist, DoesNotExist):
+            return render(request, 'login.html')
+        except (CypherException, IOError):
+            return HttpResponse('Server Error', status=500)
+    profile_picture_form = ProfilePictureForm()
+    return render(
+        request, 'profile_picture.html',
+        {
+            'profile_picture_form': profile_picture_form,
+            'pleb': profile
+        })
 
 
 @api_view(['POST'])
 def profile_picture_api(request):
     profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
-    pleb = Pleb.nodes.get(username=request.user.username)
+    profile = cache.get(request.user.username)
+    if profile is None:
+        profile = Pleb.nodes.get(username=request.user.username)
+        cache.set(request.user.username, profile)
     if profile_picture_form.is_valid():
         data = request.FILES['picture']
         res = crop_image(
             data, 200, 200, int(profile_picture_form.cleaned_data['image_x1']),
             int(profile_picture_form.cleaned_data['image_y1']))
-        pleb.profile_pic = res
-        pleb.save()
+        profile.profile_pic = res
+        profile.save()
+        spawn_task(pleb_user_update, {
+            'username': request.user.username,
+            'first_name': request.user.first_name,
+            'last_name': request.user.last_name,
+            'email': request.user.email})
         url = reverse('profile_page', kwargs={
             "pleb_username": request.user.username})
         return Response({"url": url, "pic_url": res}, 200)
@@ -342,7 +368,10 @@ def profile_picture_api(request):
 @api_view(['POST'])
 def wallpaper_picture_api(request):
     profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
-    pleb = Pleb.nodes.get(username=request.user.username)
+    pleb = cache.get(request.user.username)
+    if pleb is None:
+        pleb = Pleb.nodes.get(username=request.user.username)
+        cache.set(request.user.username, pleb)
     if profile_picture_form.is_valid():
         data = request.FILES['picture']
         res = crop_image(data,
@@ -353,6 +382,7 @@ def wallpaper_picture_api(request):
 
         pleb.wallpaper_pic = res
         pleb.save()
+        cache.set(pleb.username, pleb)
         url = reverse('profile_page', kwargs={
             "pleb_username": request.user.username})
         return Response({"url": url, "pic_url": res}, 200)

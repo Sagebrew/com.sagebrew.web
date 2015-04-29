@@ -23,7 +23,7 @@
                     </li>
                 {% endif %}
                     <li>
-                           <a href='/user/{{ request.user.username }}/friends/'>Friends</a>
+                           <a href="{% url 'friend_page' page_user.username %}">Friends</a>
                     </li>
 
 

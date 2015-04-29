@@ -10,7 +10,7 @@ class CongressVoteRelationship(StructuredRel):
     pass
 
 
-class PublicOfficial(SBObject, Searchable):
+class PublicOfficial(Searchable):
     """
     The PublicOfficial does not inherit from Pleb as Plebs must be associated
     with a user. PublicOfficial is a node that is dynamically populated based

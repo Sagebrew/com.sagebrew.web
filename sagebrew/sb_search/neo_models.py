@@ -52,6 +52,6 @@ class SearchQuery(StructuredNode):
     results = RelationshipTo(SearchResult, 'RESULT')
 
 
-class Searchable(StructuredNode):
+class Searchable(SBObject):
     search_id = StringProperty()
     populated_es_index = BooleanProperty(default=False)

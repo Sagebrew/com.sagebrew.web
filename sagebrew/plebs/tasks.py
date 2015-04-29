@@ -6,6 +6,8 @@ from django.template.loader import get_template
 from django.template import Context
 from django.core.cache import cache
 
+from elasticsearch import Elasticsearch
+
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from celery import shared_task
 
@@ -26,10 +28,14 @@ from .utils import create_friend_request_util
 
 @shared_task()
 def pleb_user_update(username, first_name, last_name, email):
-    try:
-        pleb = Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
-        raise pleb_user_update.retry(exc=e, countdown=3, max_retries=None)
+    from .serializers import PlebSerializerNeo
+    pleb = cache.get(username)
+    if pleb is None:
+        try:
+            pleb = Pleb.nodes.get(username=username)
+        except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
+            raise pleb_user_update.retry(exc=e, countdown=3, max_retries=None)
+
     try:
         pleb.first_name = first_name
         pleb.last_name = last_name
@@ -37,6 +43,11 @@ def pleb_user_update(username, first_name, last_name, email):
 
         pleb.save()
         cache.set(pleb.username, pleb)
+        document = PlebSerializerNeo(pleb).data
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        es.update(index="full-search-user-specific-1",
+                  doc_type=document['type'],
+                  id=document['id'], body=document)
     except(CypherException, IOError) as e:
         raise pleb_user_update.retry(exc=e, countdown=3, max_retries=None)
 
@@ -120,6 +131,7 @@ def finalize_citizen_creation(user_instance=None):
             pleb.initial_verification_email_sent = True
             pleb.save()
     task_ids = []
+    cache.set(pleb.username, pleb)
     for item in task_list:
         task_ids.append(task_list[item].task_id)
     return task_list

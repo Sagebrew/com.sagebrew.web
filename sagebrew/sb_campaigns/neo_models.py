@@ -2,10 +2,10 @@ import pytz
 
 from datetime import datetime
 
-from neomodel import (StringProperty, DateTimeProperty, RelationshipTo,
-                      BooleanProperty, IntegerProperty, db)
+from neomodel import (StringProperty, RelationshipTo,
+                      BooleanProperty, IntegerProperty)
 
-from api.neo_models import SBObject
+from sb_base.neo_models import SBPublicContent
 from sb_search.neo_models import Searchable
 
 
@@ -13,13 +13,17 @@ def get_current_time():
     return datetime.now(pytz.utc)
 
 
-class Campaign(SBObject, Searchable):
+class Campaign(SBPublicContent, Searchable):
+    # Inherits from SBPublicContent since eventually we'll probably want to be
+    # able to do everything we do with Questions and Solutions to the campaign
+    # content. Tag, Search, Vote, etc. Based on this we may want to move
+    # content or Epic out to it's own node but this creates less queries
+
     # This should not be opened up to the serializer
     stripe_id = BooleanProperty(default=False)
     # Whether the account is in active or test/prep mode, once taken active
     # an account cannot be taken offline until the end of a campaign
     active = BooleanProperty(default=False)
-    epic = StringProperty()
     biography = StringProperty()
     facebook = StringProperty()
     linkedin = StringProperty()
@@ -40,6 +44,8 @@ class Campaign(SBObject, Searchable):
     donations = RelationshipTo('sb_donations.neo_models.Donation',
                                'RECEIVED_DONATION')
     goals = RelationshipTo('sb_goals.neo_models.Goal', "HAS_GOAL")
+    # Using the `vote_on` property we could just associate the vote with the
+    # campaign as we look at it just like another piece of content.
     pledged_votes = RelationshipTo('sb_votes.neo_models.CampaignVote',
                                    "RECEIVED_PLEDGED_VOTE")
     rounds = RelationshipTo('sb_goals.neo_models.Round', 'HAS_ROUND')

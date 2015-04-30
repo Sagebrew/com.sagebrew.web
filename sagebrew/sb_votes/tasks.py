@@ -1,6 +1,6 @@
 from celery import shared_task
 
-from neomodel import CypherException
+from neomodel import CypherException, DoesNotExist
 
 from api.utils import spawn_task
 from plebs.tasks import update_reputation
@@ -23,24 +23,22 @@ def vote_object_task(vote_type, current_pleb, object_uuid):
     '''
     try:
         current_pleb = Pleb.nodes.get(username=current_pleb)
-    except (CypherException, IOError) as e:
-        raise vote_object_task.retry(exc=e, countdown=3, max_retries=None)
+    except (DoesNotExist, Pleb.DoesNoteExist, CypherException, IOError) as e:
+        raise vote_object_task.retry(exc=e, countdown=10, max_retries=None)
     sb_object = get_parent_votable_content(object_uuid)
     if isinstance(sb_object, Exception) is True:
-        raise vote_object_task.retry(exc=sb_object, countdown=3,
+        raise vote_object_task.retry(exc=sb_object, countdown=10,
                                      max_retries=None)
-    elif sb_object is None:
-        return sb_object
 
     res = sb_object.vote_content(vote_type, current_pleb)
 
     if isinstance(res, Exception) is True:
-        raise vote_object_task.retry(exc=res, countdown=3, max_retries=None)
+        raise vote_object_task.retry(exc=res, countdown=10, max_retries=None)
 
     res = spawn_task(update_reputation,
                      {"username": sb_object.owned_by.all()[0].username})
 
     if isinstance(res, Exception):
-        raise vote_object_task.retry(exc=res, countdown=3, max_retries=None)
+        raise vote_object_task.retry(exc=res, countdown=10, max_retries=None)
 
     return sb_object

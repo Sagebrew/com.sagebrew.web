@@ -73,7 +73,6 @@ class VotableContent(NotificationCapable):
     # views = RelationshipTo('sb_views.neo_models.SBView', 'VIEWS')
 
     # methods
-    @apply_defense
     def vote_content(self, vote_type, pleb):
         try:
             if self.votes.is_connected(pleb):
@@ -175,8 +174,14 @@ class VotableContent(NotificationCapable):
 
     @apply_defense
     def get_rep_breakout(self):
-        pos_rep = self.get_upvote_count() * int(self.up_vote_adjustment)
-        neg_rep = self.get_downvote_count() * int(self.down_vote_adjustment)
+        votes_up = self.get_upvote_count()
+        votes_down = self.get_downvote_count()
+        if isinstance(votes_up, Exception) is True:
+            return votes_up
+        if isinstance(votes_down, Exception) is True:
+            return votes_down
+        pos_rep = votes_up * int(self.up_vote_adjustment)
+        neg_rep = votes_down * int(self.down_vote_adjustment)
         return {
             "total_rep": pos_rep + neg_rep,
             "pos_rep": pos_rep,
@@ -371,7 +376,7 @@ def get_parent_content(object_uuid, relation, child_object):
 
 def get_parent_votable_content(object_uuid):
     try:
-        query = "MATCH (a:VotableContent {object_uuid:'%s'}) RETURN a" % (
+        query = 'MATCH (a:VotableContent {object_uuid:"%s"}) RETURN a' % (
             object_uuid)
         res, col = db.cypher_query(query)
         try:
@@ -385,5 +390,5 @@ def get_parent_votable_content(object_uuid):
             # the serializers ensure this singleness prior to removing this.
             content = VotableContent.inflate(res[0][0][0])
         return content
-    except(CypherException, IOError, IndexError):
-        return None
+    except(CypherException, IOError, IndexError) as e:
+        return e

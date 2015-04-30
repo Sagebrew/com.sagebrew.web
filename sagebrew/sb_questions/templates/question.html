@@ -4,7 +4,7 @@
     comments. This template is not meant for normal inclusion in a initial
     render template.
 {% endcomment %}
-<div class="object_uuid" data-object_uuid="{{ object_uuid }}" style="display: None"></div>
+<div class="js-page-object" data-object_uuid="{{ object_uuid }}" style="display: None"></div>
 <div class="sb_question_header">
     <div class="row">
         <div class="vote_count_large">
@@ -87,8 +87,6 @@
             </small>
         </div>
     </div>
-    <div class="object_uuid" data-object_uuid="{{ object_uuid }}"></div>
-
 
     <div id="sb_comments_container_{{ object_uuid }}">
     </div>

@@ -285,6 +285,8 @@ class Pleb(Searchable):
         total_rep = 0
         for item in self.get_votable_content():
             rep_res = item.get_rep_breakout()
+            if isinstance(rep_res, Exception) is True:
+                return rep_res
             total_rep += rep_res['total_rep']
             if 'base_tag_list' in rep_res.keys():
                 for base_tag in rep_res['base_tag_list']:

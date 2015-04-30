@@ -226,11 +226,10 @@ def invite_beta_user(request, email):
     try:
         beta_user = BetaUser.nodes.get(email=email)
         beta_user.invite()
-    except (BetaUser.DoesNotExist, DoesNotExist) as e:
-        return Response({"detail":  "Sorry we could not find "
-                                    "that user."},
+    except (BetaUser.DoesNotExist, DoesNotExist):
+        return Response({"detail": "Sorry we could not find that user."},
                         status=status.HTTP_404_NOT_FOUND)
-    except (IOError, CypherException) as e:
+    except (IOError, CypherException):
         return Response({"detail": "Sorry looks like we're having"
                                    " some server difficulties"},
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR)

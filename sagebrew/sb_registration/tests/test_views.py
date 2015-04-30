@@ -783,8 +783,8 @@ class TestResendEmailVerificationView(TestCase):
         request.user = user
         request.user.username = 'totallynotafakeuser'
         res = resend_email_verification(request)
-
-        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
+        # This should succeed as it redirects to the login page
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
 
 
 class TestConfirmView(TestCase):

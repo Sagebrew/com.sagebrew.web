@@ -24,6 +24,7 @@ logger = getLogger('loggly_logs')
 def get_current_time():
     return datetime.now(pytz.utc)
 
+
 def get_allowed_flags():
     return dumps(["explicit", "spam", "duplicate", "unsupported", "other"])
 

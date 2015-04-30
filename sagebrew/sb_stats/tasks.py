@@ -36,7 +36,4 @@ def update_view_count_task(object_uuid, username):
     relationship.times_viewed += 1
     relationship.save()
 
-
-
-
     return True

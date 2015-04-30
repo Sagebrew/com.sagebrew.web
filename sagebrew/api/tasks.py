@@ -105,6 +105,7 @@ def save_search_id(search_data, object_uuid):
     # }
     # spawned = spawn_task(task_func=update_user_indices, task_param=task_data)
     # if isinstance(spawned, Exception) is True:
-    #     raise save_search_id.retry(exc=spawned, countdown=30, max_retries=None)
+    #     raise save_search_id.retry(exc=spawned, countdown=30,
+    #                                max_retries=None)
 
     return True

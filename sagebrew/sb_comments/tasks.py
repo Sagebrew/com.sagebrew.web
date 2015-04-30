@@ -22,12 +22,12 @@ def spawn_comment_notifications(object_uuid, parent_object_uuid,
     comment_data = CommentSerializer(comment).data
     parent_object_type = parent_object.get_child_label().lower()
     spawn_task(task_func=spawn_notifications, task_param={
-                'from_pleb': from_pleb,
-                'to_plebs': [owner.username for owner in
-                             parent_object.owned_by.all()],
-                'sb_object': comment.object_uuid,
-                'notification_id': notification_id,
-                'url': comment_data['url'],
-                'action_name': "%s %s" % (comment.action_name,
-                                          parent_object_type)
-            })
+        'from_pleb': from_pleb,
+        'to_plebs': [owner.username for owner in
+                     parent_object.owned_by.all()],
+        'sb_object': comment.object_uuid,
+        'notification_id': notification_id,
+        'url': comment_data['url'],
+        'action_name': "%s %s" % (comment.action_name,
+                                  parent_object_type)
+    })

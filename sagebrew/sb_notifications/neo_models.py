@@ -2,10 +2,8 @@ import pytz
 
 from datetime import datetime
 
-from django.conf import settings
-
 from neomodel import (StringProperty, DateTimeProperty, RelationshipTo,
-                      BooleanProperty, db)
+                      BooleanProperty)
 
 from api.neo_models import SBObject
 from sb_search.neo_models import Searchable

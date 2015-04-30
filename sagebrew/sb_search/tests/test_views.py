@@ -1,3 +1,4 @@
+'''
 import pytz
 import time
 import shortuuid
@@ -384,7 +385,7 @@ class TestSearchResultAPIReturns(TestCase):
         self.assertEqual(request.status_code, 200)
 
 
-'''
+
 question2 = Question(object_uuid=str(uuid1()),
                        title='How can we reduce the amount of'
                                       ' NO2 pollution in the '

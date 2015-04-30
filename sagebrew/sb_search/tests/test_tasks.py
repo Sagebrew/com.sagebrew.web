@@ -505,59 +505,6 @@ class TestUpdateSearchQuery(TestCase):
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
 
-    def test_update_search_query_success_search_query_exists_connected(self):
-        from sb_search.neo_models import SearchQuery
-
-        test_query = SearchQuery(search_query="this is a test search")
-        test_query.save()
-
-        rel = self.pleb.searches.connect(test_query)
-        rel.save()
-
-        task_data = {
-            "pleb": self.pleb.email, "query_param": test_query.search_query,
-            "keywords": ['fake', 'keywords']
-        }
-
-        res = update_search_query.apply_async(kwargs=task_data)
-
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.assertTrue(res)
-
-        test_query.refresh()
-
-        rel = self.pleb.searches.relationship(test_query)
-
-        self.assertEqual(rel.times_searched, 2)
-
-    def test_update_search_query_success_search_query_exists_unconnected(self):
-        from sb_search.neo_models import SearchQuery
-
-        test_query = SearchQuery(search_query=str(uuid1()))
-        test_query.save()
-
-        task_data = {
-            "pleb": self.pleb.email, "query_param": test_query.search_query,
-            "keywords": ['fake', 'keywords']
-        }
-
-        res = update_search_query.apply_async(kwargs=task_data)
-
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.assertTrue(res)
-
-        test_query.refresh()
-
-        rel = self.pleb.searches.relationship(test_query)
-
-        self.assertEqual(rel.times_searched, 1)
-
     def test_update_search_query_success_pleb_does_not_exist(self):
         from sb_search.neo_models import SearchQuery
 

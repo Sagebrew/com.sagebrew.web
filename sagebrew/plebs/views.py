@@ -65,10 +65,10 @@ def profile_page(request, pleb_username=""):
     except(CypherException):
         return HttpResponse('Server Error', status=500)
     current_user = request.user
-    page_user = User.objects.get(email=page_user_pleb.email)
+    page_user = User.objects.get(username=page_user_pleb.username)
     is_owner = False
     is_friend = False
-    if current_user.email == page_user.email:
+    if current_user.username == page_user.username:
         is_owner = True
     elif page_user_pleb in citizen.friends.all():
         is_friend = True
@@ -98,11 +98,10 @@ def friend_page(request, pleb_username):
     except(CypherException):
         return HttpResponse('Server Error', status=500)
     current_user = request.user
-    page_user = User.objects.get(email=page_user_pleb.email)
+    page_user = User.objects.get(username=page_user_pleb.username)
     is_owner = False
     is_friend = False
-    friend_request_sent = False
-    if current_user.email == page_user.email:
+    if current_user.username == page_user.username:
         is_owner = True
     elif page_user_pleb in citizen.friends.all():
         is_friend = True

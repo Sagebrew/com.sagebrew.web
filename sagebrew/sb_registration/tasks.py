@@ -1,10 +1,12 @@
 from celery import shared_task
+
+from django.core.cache import cache
+
 from neomodel import (DoesNotExist, AttemptedCardinalityViolation,
                       CypherException)
 
-from plebs.neo_models import Pleb
+from plebs.neo_models import Pleb, Address
 from sb_tags.neo_models import Tag
-from plebs.neo_models import Address
 
 
 @shared_task()

@@ -84,21 +84,21 @@ def process_search_result(item):
             item['_source']['sb_score'] = 0
     if item['_type'] == 'question':
         return {
-            "question_uuid": item['_source']['object_uuid'],
+            "question_uuid": item['_source']['id'],
             "type": "question",
             "temp_score": item['_score'] * item['_source']['sb_score'],
             "score": item['_score']
         }
     elif item['_type'] == 'profile':
         return {
-            "username": item['_source']['related_user'],
+            "username": item['_source']['id'],
             "type": "profile",
             "temp_score": item['_score'] * item['_source']['sb_score'],
             "score": item['_score']
         }
     elif item['_type'] == 'public_official':
         return {
-            "object_uuid": item['_source']['object_uuid'],
+            "object_uuid": item['_source']['id'],
             'type': 'public_official', 'temp_score': item['_score'],
             'score': item['_score']
         }

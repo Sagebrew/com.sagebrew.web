@@ -98,7 +98,7 @@ def update_search_index(object_uuid):
                                                    max_retries=None)
     document = QuestionSerializerNeo(question).data
     es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-    es.update(index="full-search-user-specific-1",
+    es.update(index="full-search-base",
               doc_type=document['type'],
               id=document['id'], body=document)
 

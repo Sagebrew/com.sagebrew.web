@@ -1,16 +1,10 @@
-import pytz
-from datetime import datetime
 from django.conf import settings
 
 from neomodel import (BooleanProperty, DateTimeProperty, StringProperty,
                       StructuredNode, IntegerProperty, Relationship,
                       StructuredRel, FloatProperty, RelationshipTo, db)
 
-from api.neo_models import SBObject
-
-
-def get_current_time():
-    return datetime.now(pytz.utc)
+from api.neo_models import SBObject, get_current_time
 
 
 class Impression(StructuredRel):

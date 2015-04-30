@@ -16,7 +16,6 @@ from neomodel import DoesNotExist, CypherException
 from api.utils import spawn_task, generate_oauth_user
 from api.tasks import add_object_to_search_index
 from sb_base.utils import defensive_exception
-from sb_search.tasks import add_user_to_custom_index
 from sb_wall.neo_models import Wall
 
 from sb_registration.models import token_gen
@@ -45,7 +44,7 @@ def pleb_user_update(username, first_name, last_name, email):
         cache.set(pleb.username, pleb)
         document = PlebSerializerNeo(pleb).data
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        es.update(index="full-search-user-specific-1",
+        es.update(index="full-search-base",
                   doc_type=document['type'],
                   id=document['id'], body=document)
     except(CypherException, IOError) as e:
@@ -100,16 +99,8 @@ def finalize_citizen_creation(user_instance=None):
     task_list["add_object_to_search_index"] = spawn_task(
         task_func=add_object_to_search_index,
         task_param=task_data)
-    task_data = {'username': username,
-                 'index': "full-search-user-specific-1"}
-    task_list["add_user_to_custom_index"] = spawn_task(
-        task_func=add_user_to_custom_index,
-        task_param=task_data)
     task_list["check_privileges_task"] = spawn_task(
         task_func=check_privileges, task_param={"username": username})
-    task_list["determine_pleb_reps"] = spawn_task(
-        task_func=determine_pleb_reps, task_param={"username": username}
-    )
     if not pleb.initial_verification_email_sent:
         generated_token = token_gen.make_token(user_instance, pleb)
         template_dict = {

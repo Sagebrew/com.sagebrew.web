@@ -27,8 +27,8 @@ def add_object_to_search_index(object_uuid, object_data,
     :return:
     """
     try:
-        query = 'MATCH (a:Searchable) WHERE a.object_uuid = ' \
-                '"%s" RETURN a' % (object_uuid)
+        query = 'MATCH (a:Searchable {object_uuid: "%s"}) RETURN a' % (
+            object_uuid)
         res, col = db.cypher_query(query)
         try:
             object_added = Searchable.inflate(res[0][0])
@@ -37,7 +37,7 @@ def add_object_to_search_index(object_uuid, object_data,
             return False
     except(CypherException, IOError) as e:
         logger.exception("Failed to Connect to Neo in Search Index")
-        raise add_object_to_search_index.retry(exc=e, countdown=3,
+        raise add_object_to_search_index.retry(exc=e, countdown=5,
                                                max_retries=None)
     if object_added is not None:
         if object_added.populated_es_index is True:
@@ -51,7 +51,7 @@ def add_object_to_search_index(object_uuid, object_data,
     except (ElasticsearchException, TransportError, ConnectionError,
             RequestError) as e:
         logger.exception("Failed to Connect to Elastic Search")
-        raise add_object_to_search_index.retry(exc=e, countdown=3,
+        raise add_object_to_search_index.retry(exc=e, countdown=5,
                                                max_retries=None)
     except KeyError:
         # If the correct values are provided then there's no reason to keep
@@ -59,7 +59,7 @@ def add_object_to_search_index(object_uuid, object_data,
         return False
     except Exception as e:
         logger.exception("Unhandled Exception in Storing to Index")
-        raise add_object_to_search_index.retry(exc=e, countdown=3,
+        raise add_object_to_search_index.retry(exc=e, countdown=5,
                                                max_retries=10)
 
     search_id_data = {
@@ -68,7 +68,7 @@ def add_object_to_search_index(object_uuid, object_data,
     }
     save_id = spawn_task(task_func=save_search_id, task_param=search_id_data)
     if isinstance(save_id, Exception) is True:
-        raise add_object_to_search_index.retry(exc=save_id, countdown=3,
+        raise add_object_to_search_index.retry(exc=save_id, countdown=5,
                                                max_retries=None)
 
     return True
@@ -76,11 +76,7 @@ def add_object_to_search_index(object_uuid, object_data,
 
 @shared_task
 def save_search_id(search_data, object_uuid):
-    from sb_search.tasks import update_user_indices
-    task_data = {
-        "doc_id": search_data['_id'],
-        "doc_type": search_data['_type']
-    }
+    # from sb_search.tasks import update_user_indices
     try:
         query = 'MATCH (a:Searchable) WHERE a.object_uuid = ' \
                 '"%s" RETURN a' % (object_uuid)
@@ -101,8 +97,14 @@ def save_search_id(search_data, object_uuid):
     except(CypherException, IOError) as e:
         raise save_search_id.retry(exc=e, countdown=3, max_retries=None)
 
-    spawned = spawn_task(task_func=update_user_indices, task_param=task_data)
-    if isinstance(spawned, Exception) is True:
-        raise save_search_id.retry(exc=spawned, countdown=30, max_retries=None)
+    # Commenting out for the time being as we don't have a great way to update
+    # the user indexes when things get changed such as Questions
+    # task_data = {
+    #    "doc_id": search_data['_id'],
+    #    "doc_type": search_data['_type']
+    # }
+    # spawned = spawn_task(task_func=update_user_indices, task_param=task_data)
+    # if isinstance(spawned, Exception) is True:
+    #     raise save_search_id.retry(exc=spawned, countdown=30, max_retries=None)
 
     return True

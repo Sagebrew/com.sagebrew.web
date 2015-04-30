@@ -16,7 +16,6 @@ from neomodel import DoesNotExist, CypherException
 from api.alchemyapi import AlchemyAPI
 from api.utils import (spawn_task)
 from plebs.neo_models import Pleb
-from sb_search.tasks import (spawn_weight_relationships)
 from sb_questions.utils import prepare_question_search_html
 from sb_registration.utils import verify_completed_registration
 
@@ -44,7 +43,7 @@ def search_result_view(request):
     """
     # TODO Need to make sure responses return an actual page if necessary
     try:
-        pleb = Pleb.nodes.get(email=request.user.email)
+        pleb = Pleb.nodes.get(username=request.user.username)
     except(Pleb.DoesNotExist, DoesNotExist):
         return Response(status=404)
     except (CypherException, IOError):
@@ -124,22 +123,17 @@ def search_result_api(request):
         # TODO implement filtering on auto generated keywords from alchemyapi
         if search_form.cleaned_data['filter_param'] == 'general':
             res = es.search(
-                index='full-search-user-specific-1', size=50,
+                index='full-search-base', size=50,
                 body={
                     "query": {
                         "query_string": {
                             "query": search_form.cleaned_data['query_param']
                         }
-                    },
-                    "filter": {
-                        "term": {
-                            "related_user": request.user.username
-                        }
                     }
                 })
         else:
             res = es.search(
-                index='full-search-user-specific-1', size=50,
+                index='full-search-base', size=50,
                 doc_type=search_type_dict[search_form.cleaned_data[
                     'filter_param']],
                 body={
@@ -147,15 +141,10 @@ def search_result_api(request):
                         "query_string": {
                             "query": search_form.cleaned_data['query_param']
                         }
-                    },
-                    "filter": {
-                        "term": {
-                            "related_user": request.user.username
-                        }
                     }
                 })
         res = res['hits']['hits']
-        task_param = {"pleb": request.user.email, "query_param":
+        task_param = {"pleb": request.user.username, "query_param":
                       search_form.cleaned_data['query_param'],
                       "keywords": response['keywords']}
         spawned = spawn_task(task_func=update_search_query,
@@ -174,11 +163,6 @@ def search_result_api(request):
             page = paginator.page(1)
         except EmptyPage:
             page = paginator.page(paginator.num_pages)
-        res = spawn_task(task_func=spawn_weight_relationships,
-                         task_param={'search_items': page.object_list})
-        if isinstance(res, Exception) is True:
-            # TODO Probably want to handle this differently
-            return Response({'detail': 'server error'}, status=500)
         if current_page == 1:
             for item in page.object_list:
                 results.append(process_search_result(item))

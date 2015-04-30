@@ -1,6 +1,7 @@
 import math
 import pytz
 from logging import getLogger
+from json import dumps
 from datetime import datetime
 
 from neomodel import (StringProperty, IntegerProperty,
@@ -23,6 +24,9 @@ logger = getLogger('loggly_logs')
 def get_current_time():
     return datetime.now(pytz.utc)
 
+def get_allowed_flags():
+    return dumps(["explicit", "spam", "duplicate", "unsupported", "other"])
+
 
 class EditRelationshipModel(StructuredRel):
     time_edited = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
@@ -42,13 +46,22 @@ class VoteRelationship(StructuredRel):
 
 
 class VotableContent(NotificationCapable):
-    up_vote_adjustment = 0
-    down_vote_adjustment = 0
     content = StringProperty()
+    # Since both public and private content can be voted on this allows us to
+    # filter out votable content that should have votes counted towards
+    # reputation. Valid values are "private" and "public". We would be able
+    # to rely on the public content being set to 0 but this doesn't hold true
+    # for comments where they can be in public and private settings. We may
+    # also utilize this strategy with public vs private conversations areas
+    visibility = StringProperty(default="private")
     # Please use get_view_count rather than this. This currently has the view
     # count stored in it but that may change in the future as we transition
     # to a more discernible metrics approach.
+    reputation_loss = IntegerProperty(default=0)
     view_count = IntegerProperty(default=0)
+    up_vote_adjustment = IntegerProperty(default=0)
+    down_vote_adjustment = IntegerProperty(default=0)
+    down_vote_cost = IntegerProperty(default=0)
 
     # relationships
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'OWNED_BY',
@@ -158,8 +171,8 @@ class VotableContent(NotificationCapable):
 
     @apply_defense
     def get_rep_breakout(self):
-        pos_rep = self.get_upvote_count() * self.up_vote_adjustment
-        neg_rep = self.get_downvote_count() * self.down_vote_adjustment
+        pos_rep = self.get_upvote_count() * int(self.up_vote_adjustment)
+        neg_rep = self.get_downvote_count() * int(self.down_vote_adjustment)
         return {
             "total_rep": pos_rep + neg_rep,
             "pos_rep": pos_rep,
@@ -168,11 +181,9 @@ class VotableContent(NotificationCapable):
 
 
 class SBContent(VotableContent):
-    allowed_flags = ["explicit", "spam", "duplicate",
-                     "unsupported", "other"]
+    allowed_flags = StringProperty(default=get_allowed_flags)
     last_edited_on = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
     edited = BooleanProperty(default=False)
-
     to_be_deleted = BooleanProperty(default=False)
     is_explicit = BooleanProperty(default=False)
     is_removed = BooleanProperty(default=False)
@@ -304,8 +315,8 @@ class SBVersioned(TaggableContent):
     def get_rep_breakout(self):
         tag_list = []
         base_tags = []
-        pos_rep = self.get_upvote_count() * self.up_vote_adjustment
-        neg_rep = self.get_downvote_count() * self.down_vote_adjustment
+        pos_rep = self.get_upvote_count() * int(self.up_vote_adjustment)
+        neg_rep = self.get_downvote_count() * int(self.down_vote_adjustment)
         for tag in self.tags.all():
             if tag.base:
                 base_tags.append(tag.name)

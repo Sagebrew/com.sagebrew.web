@@ -299,13 +299,9 @@ def respond_friend_request(request):
             return Response(status=500)
 
         if form.cleaned_data['response'] == 'accept':
-            rel1 = to_pleb.friends.connect(from_pleb)
-            rel2 = from_pleb.friends.connect(to_pleb)
-            rel1.save()
-            rel2.save()
+            to_pleb.friends.connect(from_pleb)
+            from_pleb.friends.connect(to_pleb)
             friend_request.delete()
-            to_pleb.save()
-            from_pleb.save()
             return Response(status=200)
         elif form.cleaned_data['response'] == 'deny':
             friend_request.delete()

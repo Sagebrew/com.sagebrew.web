@@ -33,7 +33,7 @@ class Notification(SBObject):
 
 
 class NotificationCapable(Searchable):
-    action_name = ''
+    action_name = StringProperty(default="")
     views = RelationshipTo('sb_stats.neo_models.Impression', 'VIEWED')
 
     def get_labels(self):

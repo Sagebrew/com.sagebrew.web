@@ -11,10 +11,11 @@ from sb_solutions.neo_models import Solution
 
 
 class Question(SBPublicContent):
-    table = 'public_questions'
-    action_name = "asked a question"
-    up_vote_adjustment = 5
-    down_vote_adjustment = 2
+    table = StringProperty(default='public_questions')
+    action_name = StringProperty(default="asked a question")
+    visibility = StringProperty(default="public")
+    up_vote_adjustment = IntegerProperty(default=5)
+    down_vote_adjustment = IntegerProperty(default=2)
     # This currently isn't maintained please make sure to use the methods
     # provided in the serializer or in the endpoint
     #  /v1/questions/uuid/solution_count/

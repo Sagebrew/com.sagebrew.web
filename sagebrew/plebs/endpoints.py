@@ -4,6 +4,7 @@ from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
 from django.core.cache import cache
+from django.template import RequestContext
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
@@ -202,8 +203,10 @@ class ProfileViewSet(viewsets.ModelViewSet):
         if html == 'true':
             html_array = []
             for item in serializer.data:
-                html_array.append(
-                    render_to_string('friend_block.html', dict(item)))
+                context = RequestContext(request, item)
+                item['page_user_username'] = username
+                html_array.append(render_to_string('friend_block.html',
+                                                   context))
             return self.get_paginated_response(html_array)
         return self.get_paginated_response(serializer.data)
 
@@ -219,7 +222,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
                              "You can only get your own friend requests"},
                             status=status.HTTP_401_UNAUTHORIZED)
         query = "MATCH (f:FriendRequest)-[:REQUEST_TO]-(p:Pleb) " \
-                "WHERE p.username='%s' RETURN f" % (username)
+                "WHERE p.username='%s' RETURN f " \
+                "ORDER BY f.time_sent LIMIT 7" % (username)
         res, col = db.cypher_query(query)
         queryset = [FriendRequest.inflate(row[0]) for row in res]
         friend_requests = FriendRequestSerializer(queryset, many=True,
@@ -255,6 +259,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
                                           req_method="GET")
                 notification["from"] = response.json()
         if html == 'true':
+            sorted(notifications, key=lambda k: k['time_sent'], reverse=True)
+            notifications = notifications[:6]
             html = render_to_string('notifications.html',
                                     {"notifications": notifications})
             return Response(html, status=status.HTTP_200_OK)
@@ -399,3 +405,40 @@ class FriendRequestViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         return Response({"detail": "TBD"},
                         status=status.HTTP_501_NOT_IMPLEMENTED)
+
+
+class FriendManager(RetrieveUpdateDestroyAPIView):
+    """
+    The Friend Manager expects to be placed on the /me endpoint so that it
+    can assume to grab the currently signed in user to manage friends for.
+    """
+    serializer_class = PlebSerializerNeo
+    lookup_field = "friend_username"
+    permission_classes = (IsAuthenticated, IsSelf)
+
+    def get_object(self):
+        profile = cache.get(self.kwargs[self.lookup_field])
+        if profile is None:
+            profile = Pleb.nodes.get(
+                username=self.kwargs[self.lookup_field])
+            cache.set(self.kwargs[self.lookup_field], profile)
+        return profile
+
+    def update(self, request, *args, **kwargs):
+        return Response({"detail": "TBD"},
+                        status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def destroy(self, request, *args, **kwargs):
+        friend = self.get_object()
+        profile = cache.get(request.user.username)
+        if profile is None:
+            profile = Pleb.nodes.get(username=request.user.username)
+            cache.set(request.user.username, profile)
+        # TODO change this to modifying the relationship manager rather than
+        # just disconnecting
+
+        profile.friends.disconnect(friend)
+        friend.friends.disconnect(profile)
+
+        return Response({'detail': 'success'},
+                        status=status.HTTP_204_NO_CONTENT)

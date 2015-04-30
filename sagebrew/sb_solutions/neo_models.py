@@ -1,16 +1,17 @@
 from rest_framework.reverse import reverse
 
-from neomodel import (RelationshipTo)
+from neomodel import (RelationshipTo, StringProperty, IntegerProperty)
 
 from sb_base.neo_models import SBPublicContent
 
 
 class Solution(SBPublicContent):
-    table = 'public_solutions'
-    action_name = "offered a solution to a question"
-    up_vote_adjustment = 10
-    down_vote_adjustment = 10
-    down_vote_cost = 2
+    table = StringProperty(default='public_solutions')
+    action_name = StringProperty(default="offered a solution to a question")
+    visibility = StringProperty(default="public")
+    up_vote_adjustment = IntegerProperty(default=10)
+    down_vote_adjustment = IntegerProperty(default=10)
+    down_vote_cost = IntegerProperty(default=2)
 
     # relationships
     solution_to = RelationshipTo('sb_questions.neo_models.Question',

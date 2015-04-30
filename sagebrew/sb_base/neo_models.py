@@ -121,8 +121,10 @@ class VotableContent(NotificationCapable):
         except(TypeError, IOError):
             logger.exception("DynamoDB Error: ")
 
-        query = 'start s=node({self}) match s-[r:PLEB_VOTES]-(p:Pleb) ' \
-                'where r.vote_type=true and r.active=true return r'
+        query = 'MATCH (b:VotableContent {object_uuid: "%s"})' \
+                '-[r:PLEB_VOTES]-(p:Pleb) ' \
+                'where r.vote_type=true and r.active=true return r' % (
+                    self.object_uuid)
         try:
             res, col = self.cypher(query)
             return len(res)
@@ -137,8 +139,10 @@ class VotableContent(NotificationCapable):
         except(TypeError, IOError):
             logger.exception("DynamoDB Error: ")
 
-        query = 'start s=node({self}) match s-[r:PLEB_VOTES]-(p:Pleb) ' \
-                'where r.vote_type=false and r.active=true return r'
+        query = 'MATCH (b:VotableContent {object_uuid: "%s"})' \
+                '-[r:PLEB_VOTES]-(p:Pleb) ' \
+                'where r.vote_type=false and r.active=true return r' % (
+                    self.object_uuid)
         try:
             res, col = self.cypher(query)
             return len(res)

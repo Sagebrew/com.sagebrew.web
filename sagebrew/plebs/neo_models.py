@@ -271,8 +271,8 @@ class Pleb(Searchable):
     def get_votable_content(self):
         from sb_base.neo_models import VotableContent
         query = 'MATCH (a:Pleb {username: "%s"})<-[:OWNED_BY]-(' \
-                'b:VotableContent) RETURN b ' \
-                'WHERE b.visibility = "public"' % (self.username)
+                'b:VotableContent) WHERE b.visibility = "public" RETURN b' \
+                '' % (self.username)
         res, col = db.cypher_query(query)
 
         return [VotableContent.inflate(row[0]) for row in res]

@@ -353,6 +353,7 @@ def profile_picture_api(request):
             int(profile_picture_form.cleaned_data['image_y1']))
         profile.profile_pic = res
         profile.save()
+        cache.set(request.user.username, profile)
         spawn_task(pleb_user_update, {
             'username': request.user.username,
             'first_name': request.user.first_name,

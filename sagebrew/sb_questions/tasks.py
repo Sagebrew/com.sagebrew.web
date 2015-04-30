@@ -2,7 +2,7 @@ from celery import shared_task
 
 from django.conf import settings
 
-from neomodel import CypherException
+from neomodel import CypherException, DoesNotExist
 
 from elasticsearch import Elasticsearch
 
@@ -63,8 +63,8 @@ def add_auto_tags_to_question_task(object_uuid):
     '''
     try:
         question = Question.nodes.get(object_uuid=object_uuid)
-    except (CypherException, IOError) as e:
-        raise add_auto_tags_to_question_task.retry(exc=e, countdown=3,
+    except (DoesNotExist, Question.DoesNotExist, CypherException, IOError) as e:
+        raise add_auto_tags_to_question_task.retry(exc=e, countdown=5,
                                                    max_retries=None)
     auto_tags = create_auto_tags(question.content)
     if isinstance(auto_tags, Exception) is True:

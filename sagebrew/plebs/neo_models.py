@@ -12,7 +12,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
 from neomodel import db
 
 from api.neo_models import SBObject
-from sb_search.neo_models import Searchable
+from sb_search.neo_models import Searchable, Impression
 
 
 def get_current_time():
@@ -161,6 +161,8 @@ class Pleb(Searchable):
     tags = RelationshipTo('sb_tags.neo_models.Tag', 'TAGS',
                           model=TagRelationship)
     voted_on = RelationshipTo('sb_base.neo_models.VotableContent', 'VOTES')
+    viewed = RelationshipTo('sb_search.neo_models.Searchable', "VIEWED",
+                            model=Impression)
     address = RelationshipTo("Address", "LIVES_AT")
     interests = RelationshipTo("sb_tags.neo_models.Tag", "INTERESTED_IN")
     friends = RelationshipTo("Pleb", "FRIENDS_WITH", model=FriendRelationship)

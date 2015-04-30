@@ -96,7 +96,8 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
         if html == "true":
             spawn_task(update_view_count_task,
-                       {'object_uuid': queryset.object_uuid})
+                       {'object_uuid': queryset.object_uuid,
+                        'username': request.user.username})
             single_object["last_edited_on"] = datetime.strptime(
                 single_object['last_edited_on'][:len(
                     single_object['last_edited_on']) - 6],

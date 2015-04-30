@@ -58,7 +58,7 @@ class VotableContent(NotificationCapable):
     # count stored in it but that may change in the future as we transition
     # to a more discernible metrics approach.
     reputation_loss = IntegerProperty(default=0)
-    view_count = IntegerProperty(default=0)
+
     up_vote_adjustment = IntegerProperty(default=0)
     down_vote_adjustment = IntegerProperty(default=0)
     down_vote_cost = IntegerProperty(default=0)
@@ -101,17 +101,6 @@ class VotableContent(NotificationCapable):
             return self
         except (CypherException, IOError) as e:
             return e
-
-    def get_view_count(self):
-        return self.view_count
-
-    def increment_view_count(self):
-        try:
-            self.view_count += int(self.view_count) + 1
-            self.save()
-            return self.view_count
-        except IndexError:
-            return 0
 
     @apply_defense
     def get_upvote_count(self):

@@ -1,3 +1,4 @@
+from logging import getLogger
 from uuid import uuid1
 
 from django.template.loader import render_to_string
@@ -24,6 +25,8 @@ from .tasks import create_friend_request_task
 from .forms import (GetUserSearchForm, SubmitFriendRequestForm,
                     RespondFriendRequestForm)
 from .serializers import BetaUserSerializer, AddressSerializer
+
+logger = getLogger('loggly_logs')
 
 
 def root_profile_page(request):
@@ -175,6 +178,7 @@ def get_user_search_view(request, pleb_username=""):
     form = GetUserSearchForm({"username": pleb_username})
     if form.is_valid() is True:
         profile = cache.get(pleb_username)
+        current_user = cache.get(request.user.username)
         if profile is None:
             try:
                 profile = Pleb.nodes.get(username=pleb_username)
@@ -182,13 +186,22 @@ def get_user_search_view(request, pleb_username=""):
                 return Response({"detail": "Sorry we could not find "
                                            "that user."},
                                 status=status.HTTP_404_NOT_FOUND)
-            except(CypherException, IOError):
-                return Response({"detail": "Sorry looks like we're having"
-                                           " some server difficulties"},
-                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             cache.set(profile, profile)
+        if current_user is None:
+            profile = Pleb.nodes.get(username=request.user.username)
 
+        if profile in current_user.friends.all():
+            is_friend = True
+            friend_request_sent = True
+        else:
+            is_friend = False
+            friend_request_sent = current_user.get_friend_requests_sent(
+                profile.username)
+        logger.critical(friend_request_sent)
         serializer_data = PlebSerializerNeo(profile).data
+        serializer_data['is_friend'] = is_friend
+
+        serializer_data['friend_request_sent'] = friend_request_sent
         context = RequestContext(request, serializer_data)
         return Response(
             {

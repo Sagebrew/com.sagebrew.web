@@ -10,11 +10,22 @@
             <a href="{{ the_url }}">{{ first_name }} {{ last_name }}</a>
             {% if request.user.username == username %}
                 <p>This is you :)</p>
-            {% else %}
-                <div class="btn btn-primary sb_btn sb_btn_fill">
+            {% elif is_friend == True %}
+                {% if reputation == 0 %}
+                    <div>Reputation: --</div>
+                {% else %}
+                    <div>Reputation: {{ reputation }}</div>
+                {% endif %}
+            {% elif friend_request_sent == False %}
+                <div class="btn btn-primary sb_btn sb_btn_fill send_friend_request-action_{{ username }}"
+                        data-from_username="{{ request.user.username }}"
+                        data-to_username="{{ username }}">
                     Request Friend
                 </div>
+            {% else %}
+                <div><small>Friend Request Pending</small></div>
             {% endif %}
+          <div style="display: None;" id="js-friend-request-sent"><small>Friend Request Sent</small></div>
         </div>
     </div>
 </div>

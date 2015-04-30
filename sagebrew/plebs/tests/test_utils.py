@@ -7,29 +7,9 @@ from neomodel.exception import DoesNotExist
 
 from api.utils import wait_util
 from plebs.neo_models import Pleb, FriendRequest
-from plebs.utils import prepare_user_search_html, create_friend_request_util
+from plebs.utils import create_friend_request_util
 from sb_registration.utils import create_user_util_test
 
-
-class TestPrepareUserSearchHTML(TestCase):
-    def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-
-        self.password = "testpassword"
-        res = create_user_util_test(self.email)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-
-    def test_prepare_user_search_html_success(self):
-        res = prepare_user_search_html(self.user.username)
-        self.assertIn('<div class="col-lg-4 col-md-5 col-sm-4 col-xs-4">', res)
-
-    def test_prepare_user_pleb_does_not_exist(self):
-        res = prepare_user_search_html("fake_email@fakegoogle.com")
-        self.assertFalse(res)
 
 # TODO add this back in
 '''

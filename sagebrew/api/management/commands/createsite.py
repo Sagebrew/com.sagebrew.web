@@ -18,9 +18,9 @@ class Command(BaseCommand):
         if circle_ci is True:
             domain = "localhost"
         elif branch is None:
-            domain = "192.168.56.101"
+            domain = "sagebrew.local.dev"
         elif "dev" in branch:
-            domain = "192.168.56.101"
+            domain = "sagebrew.local.dev"
         elif branch == "staging":
             domain = "staging.sagebrew.com"
         elif branch == "master":

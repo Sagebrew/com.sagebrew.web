@@ -367,6 +367,24 @@ def profile_picture_api(request):
 
 
 @api_view(['POST'])
+def image_upload_api(request):
+    profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
+    pleb = Pleb.nodes.get(username=request.user.username)
+    if profile_picture_form.is_valid():
+        data = request.FILES['picture']
+        res = crop_image(
+            data, 200, 200, int(profile_picture_form.cleaned_data['image_x1']),
+            int(profile_picture_form.cleaned_data['image_y1']))
+        pleb.profile_pic = res
+        pleb.save()
+        url = reverse('profile_page', kwargs={
+            "pleb_username": request.user.username})
+        return Response({"url": url, "pic_url": res}, 200)
+    else:
+        return Response({"detail": "invalid form"}, 400)
+
+
+@api_view(['POST'])
 def wallpaper_picture_api(request):
     profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
     pleb = cache.get(request.user.username)

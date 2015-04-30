@@ -11,14 +11,13 @@ from elasticsearch import Elasticsearch
 
 from api.utils import wait_util
 from plebs.neo_models import Pleb
-from api.alchemyapi import AlchemyAPI
-from sb_questions.neo_models import Question
-from sb_search.tasks import (update_weight_relationship,
-                             add_user_to_custom_index, update_user_indices,
+
+from sb_search.tasks import (add_user_to_custom_index, update_user_indices,
                              update_search_query, create_keyword)
 from sb_registration.utils import create_user_util_test
 
 
+"""
 class TestUpdateWeightRelationshipTaskQuestion(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
@@ -429,6 +428,7 @@ class TestUpdateWeightRelationshipTaskPleb(TestCase):
         res = res.result
 
         self.assertFalse(res)
+"""
 
 
 class TestAddUserToCustomIndexTask(TestCase):

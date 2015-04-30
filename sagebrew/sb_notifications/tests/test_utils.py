@@ -34,7 +34,8 @@ class TestNotificationUtils(TestCase):
 
         response = create_notification_util(post.object_uuid, self.pleb,
                                             [self.pleb2],
-                                            str(uuid1()), self.url)
+                                            str(uuid1()), self.url,
+                                            post.action_name)
 
         self.assertTrue(response)
 
@@ -43,7 +44,8 @@ class TestNotificationUtils(TestCase):
         post.save()
         response = create_notification_util(post.object_uuid, self.pleb,
                                             [self.pleb],
-                                            str(uuid1()), self.url)
+                                            str(uuid1()), self.url,
+                                            post.action_name)
 
         self.assertTrue(response)
 
@@ -54,7 +56,8 @@ class TestNotificationUtils(TestCase):
         post.save()
         response = create_notification_util(post.object_uuid, self.pleb,
                                             [self.pleb2],
-                                            notification.object_uuid, self.url)
+                                            notification.object_uuid, self.url,
+                                            post.action_name)
         self.assertTrue(response)
 
     def test_create_post_notification_already_exists_not_sent(self):
@@ -63,7 +66,8 @@ class TestNotificationUtils(TestCase):
         post.save()
         response = create_notification_util(post.object_uuid, self.pleb,
                                             [self.pleb2],
-                                            notification.object_uuid, self.url)
+                                            notification.object_uuid, self.url,
+                                            post.action_name)
 
         self.assertTrue(response)
 
@@ -75,7 +79,8 @@ class TestNotificationUtils(TestCase):
 
         response = create_notification_util(comment.object_uuid, self.pleb,
                                             [self.pleb2],
-                                            str(uuid1()), self.url)
+                                            str(uuid1()), self.url,
+                                            post.action_name)
 
         self.assertTrue(response)
 
@@ -87,7 +92,8 @@ class TestNotificationUtils(TestCase):
 
         response = create_notification_util(comment.object_uuid, self.pleb,
                                             [self.pleb],
-                                            str(uuid1()), self.url)
+                                            str(uuid1()), self.url,
+                                            post.action_name)
 
         self.assertTrue(response)
 
@@ -99,7 +105,8 @@ class TestNotificationUtils(TestCase):
         post.save()
         response = create_notification_util(comment.object_uuid, self.pleb,
                                             [self.pleb2],
-                                            notification.object_uuid, self.url)
+                                            notification.object_uuid, self.url,
+                                            post.action_name)
         self.assertTrue(response)
 
     def test_create_comment_notification_already_exists_not_sent(self):
@@ -110,5 +117,6 @@ class TestNotificationUtils(TestCase):
         post.save()
         response = create_notification_util(comment.object_uuid, self.pleb,
                                             [self.pleb2],
-                                            notification.object_uuid, self.url)
+                                            notification.object_uuid, self.url,
+                                            post.action_name)
         self.assertTrue(response)

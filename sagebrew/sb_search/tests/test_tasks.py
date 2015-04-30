@@ -505,30 +505,6 @@ class TestUpdateSearchQuery(TestCase):
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
 
-    def test_update_search_query_success_search_query_does_not_exist(self):
-        from sb_search.neo_models import SearchQuery
-
-        query_param = "this is a test search thing"
-        alchemyapi = AlchemyAPI()
-        response = alchemyapi.keywords("text", query_param)
-        task_data = {
-            "pleb": self.pleb.email, "query_param": query_param,
-            "keywords": response['keywords']
-        }
-        res = update_search_query.apply_async(kwargs=task_data)
-
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.assertTrue(res)
-
-        test_query = SearchQuery.nodes.get(search_query=query_param)
-        rel = self.pleb.searches.relationship(test_query)
-
-        self.assertEqual(test_query.__class__, SearchQuery)
-        self.assertEqual(rel.times_searched, 1)
-
     def test_update_search_query_success_search_query_exists_connected(self):
         from sb_search.neo_models import SearchQuery
 

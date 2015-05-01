@@ -377,12 +377,16 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
 
 class MeRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
-    serializer_class = UserSerializer
+    serializer_class = PlebSerializerNeo
     lookup_field = "username"
     permission_classes = (IsAuthenticated, IsSelf)
 
     def get_object(self):
-        return self.request.user
+        profile = cache.get(self.request.user.username)
+        if profile is None:
+            profile = Pleb.nodes.get(username=self.request.user.username)
+            cache.set(self.request.user.username, profile)
+        return profile
 
 
 class FriendRequestViewSet(viewsets.ModelViewSet):

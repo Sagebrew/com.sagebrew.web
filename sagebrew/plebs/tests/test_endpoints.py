@@ -83,6 +83,80 @@ class MeEndpointTests(APITestCase):
         self.assertEqual(response.data, data)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
+    def test_get_username(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-detail')
+        response = self.client.get(url, format='json')
+        self.assertEqual('test_test', response.data['username'])
+
+    def test_get_first_name(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-detail')
+        response = self.client.get(url, format='json')
+        self.assertEqual('test', response.data['first_name'])
+
+    def test_get_last_name(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-detail')
+        response = self.client.get(url, format='json')
+        self.assertEqual('test', response.data['last_name'])
+
+    def test_get_profile_pic(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-detail')
+        response = self.client.get(url, format='json')
+        self.assertIsNone(response.data['profile_pic'])
+
+    def test_get_wallpaper_pic(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-detail')
+        response = self.client.get(url, format='json')
+        self.assertIsNone(response.data['profile_pic'])
+
+    def test_get_url(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-detail')
+        response = self.client.get(url, format='json')
+        self.assertEqual('http://testserver/user/test_test/',
+                         response.data['url'])
+
+    def test_get_privileges(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-detail')
+        response = self.client.get(url, format='json')
+        self.assertEqual([], response.data['privileges'])
+
+    def test_get_actions(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-detail')
+        response = self.client.get(url, format='json')
+        self.assertEqual([], response.data['actions'])
+
+    def test_get_href(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-detail')
+        response = self.client.get(url, format='json')
+        self.assertEqual("http://testserver/v1/profiles/test_test/",
+                         response.data['href'])
+
+    def test_get_type(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-detail')
+        response = self.client.get(url, format='json')
+        self.assertEqual("profile", response.data['type'])
+
+    def test_get_id(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-detail')
+        response = self.client.get(url, format='json')
+        self.assertEqual("test_test", response.data['id'])
+
+    def test_get_reputation(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-detail')
+        response = self.client.get(url, format='json')
+        self.assertEqual(0, response.data['reputation'])
+
 
 class FriendRequestEndpointTests(APITestCase):
     def setUp(self):

@@ -19,4 +19,4 @@ class Update(SBPublicContent):
     # relationships
     campaign = RelationshipTo('sb_campaigns.neo_models.Campaign',
                               "ON_THE")
-    goals = RelationshipTo('sb_goals.neo_models.Goal', "ON_A")
+    goals = RelationshipTo('sb_goals.neo_models.Goal', "FOR_A")

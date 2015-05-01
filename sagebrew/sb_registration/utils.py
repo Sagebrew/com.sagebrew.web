@@ -29,7 +29,7 @@ def calc_age(birthday):
 
 
 @apply_defense
-def upload_image(folder_name, file_uuid, image_file):
+def upload_image(folder_name, file_uuid, image_file, type_known=False):
     '''
     Creates a connection to the s3 service then uploads the file which was
     passed
@@ -43,9 +43,11 @@ def upload_image(folder_name, file_uuid, image_file):
     conn = connect_s3(settings.AWS_ACCESS_KEY_ID,
                       settings.AWS_SECRET_ACCESS_KEY)
     k = Key(conn.get_bucket(bucket))
-    key_string = "%s/%s.%s" % (folder_name, file_uuid, "png")
+    key_string = "%s/%s%s" % (folder_name, file_uuid, ".png")
+    if type_known:
+        key_string = "%s/%s" % (folder_name, file_uuid)
     k.key = key_string
-    k.set_contents_from_file(image_file)
+    k.set_contents_from_filename(image_file)
     k.make_public()
     image_uri = k.generate_url(expires_in=0, query_auth=False)
     return image_uri

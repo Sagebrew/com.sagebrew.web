@@ -12,14 +12,17 @@ class UploadedObject(SBContent):
     imghdr in a child class specific to images.
     """
     media_type = StringProperty()
-    url = StringProperty()
+    url = StringProperty(index=True)
+    height = FloatProperty()
+    width = FloatProperty()
+    file_size = FloatProperty()
 
     # relationships
-    sizes = RelationshipTo('sb_uploads.neo_models.SubImage', "RESIZE")
+    modifications = RelationshipTo('sb_uploads.neo_models.ModifiedObject',
+                           "MODIFICATION")
 
 
-class SubImage(SBContent):
-    url = StringProperty()
-    height = IntegerProperty()
-    width = IntegerProperty()
-    file_size = FloatProperty()
+class ModifiedObject(UploadedObject):
+    #relationships
+    modification_to = RelationshipTo('sb_uploads.neo_models.UploadedObject',
+                                     'MODIFICATION_TO')

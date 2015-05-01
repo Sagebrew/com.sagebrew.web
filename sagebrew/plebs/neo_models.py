@@ -203,6 +203,7 @@ class Pleb(Searchable):
                                'HAS_PRESIDENT')
     flags = RelationshipTo('sb_flags.neo_models.Flag', "FLAGS")
     beta_user = RelationshipTo('plebs.neo_models.BetaUser', "BETA_USER")
+    uploads = RelationshipTo('sb_uploads.neo_models.UploadedObject', 'UPLOADS')
 
     def deactivate(self):
         return

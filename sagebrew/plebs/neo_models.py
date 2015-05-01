@@ -1,5 +1,6 @@
 import pytz
 from datetime import datetime
+
 from django.conf import settings
 from django.template.loader import get_template
 from django.template import Context
@@ -11,7 +12,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
 from neomodel import db
 
 from api.neo_models import SBObject
-from sb_search.neo_models import Searchable
+from sb_search.neo_models import Searchable, Impression
 
 
 def get_current_time():
@@ -105,7 +106,15 @@ class BetaUser(StructuredNode):
         return True
 
 
-class Pleb(SBObject, Searchable):
+class Pleb(Searchable):
+    """
+    Signals and overwritting the save method don't seem to have any affect
+    currently. We'll want to look into this and instead of having cache
+    methods sprinkled around the code, overwrite get/save methods to first
+    check the cache for the id of the object.
+    Should also be updating/destroying the document in the search index upon
+    save/update/destroy
+    """
     search_modifiers = {
         'post': 10, 'comment_on': 5, 'upvote': 3, 'downvote': -3,
         'time': -1, 'proximity_to_you': 10, 'proximity_to_interest': 10,
@@ -152,6 +161,8 @@ class Pleb(SBObject, Searchable):
     tags = RelationshipTo('sb_tags.neo_models.Tag', 'TAGS',
                           model=TagRelationship)
     voted_on = RelationshipTo('sb_base.neo_models.VotableContent', 'VOTES')
+    viewed = RelationshipTo('sb_search.neo_models.Searchable', "VIEWED",
+                            model=Impression)
     address = RelationshipTo("Address", "LIVES_AT")
     interests = RelationshipTo("sb_tags.neo_models.Tag", "INTERESTED_IN")
     friends = RelationshipTo("Pleb", "FRIENDS_WITH", model=FriendRelationship)
@@ -261,8 +272,9 @@ class Pleb(SBObject, Searchable):
 
     def get_votable_content(self):
         from sb_base.neo_models import VotableContent
-        query = "MATCH (a:Pleb {username: '%s'})<-[:OWNED_BY]-(" \
-                "b:VotableContent) RETURN b" % (self.username)
+        query = 'MATCH (a:Pleb {username: "%s"})<-[:OWNED_BY]-(' \
+                'b:VotableContent) WHERE b.visibility = "public" RETURN b' \
+                '' % (self.username)
         res, col = db.cypher_query(query)
 
         return [VotableContent.inflate(row[0]) for row in res]
@@ -275,6 +287,8 @@ class Pleb(SBObject, Searchable):
         total_rep = 0
         for item in self.get_votable_content():
             rep_res = item.get_rep_breakout()
+            if isinstance(rep_res, Exception) is True:
+                return rep_res
             total_rep += rep_res['total_rep']
             if 'base_tag_list' in rep_res.keys():
                 for base_tag in rep_res['base_tag_list']:
@@ -397,15 +411,16 @@ class Pleb(SBObject, Searchable):
                     from_user = notification.notification_from.all()[0]
                     notification_dict = {
                         "object_uuid": notification.object_uuid,
-                        "from_info": {
+                        "notification_from": {
                             "profile_pic": from_user.profile_pic,
-                            "full_name": from_user.get_full_name(),
+                            "first_name": from_user.first_name,
+                            "last_name": from_user.last_name,
                             "username": from_user.username
                         },
-                        "action": notification.action,
+                        "action_name": notification.action_name,
                         "url": notification.url,
-                        "date_sent": notification.time_sent,
-                        "date_seen": notification.time_seen,
+                        "time_sent": notification.time_sent,
+                        "time_seen": notification.time_seen,
                         "seen": notification.seen,
                         "about": notification.about,
                         "about_id": notification.about_id,

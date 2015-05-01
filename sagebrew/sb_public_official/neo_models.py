@@ -2,7 +2,6 @@ from neomodel import (StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty)
 
-from api.neo_models import SBObject
 from sb_search.neo_models import Searchable
 
 
@@ -10,7 +9,7 @@ class CongressVoteRelationship(StructuredRel):
     pass
 
 
-class PublicOfficial(SBObject, Searchable):
+class PublicOfficial(Searchable):
     """
     The PublicOfficial does not inherit from Pleb as Plebs must be associated
     with a user. PublicOfficial is a node that is dynamically populated based
@@ -21,7 +20,6 @@ class PublicOfficial(SBObject, Searchable):
     always make the public information known and populate action areas
     for officials that are not yet signed up.
     """
-    type_str = "f46fbcda-9da8-11e4-9233-080027242395"
     first_name = StringProperty()
     last_name = StringProperty()
     middle_name = StringProperty()

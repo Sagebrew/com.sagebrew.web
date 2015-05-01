@@ -1,11 +1,13 @@
+/*global $, jQuery, ajaxSecurity*/
 $(document).ready(function () {
+    "use strict";
     $("button.send_friend_request-action").click(function (event) {
         event.preventDefault();
-        var send_request = $("button.send_friend_request-action");
-        $(send_request).attr("disabled", "disabled");
+        var sendRequest = $("button.send_friend_request-action");
+        sendRequest.attr("disabled", "disabled");
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
+                ajaxSecurity(xhr, settings);
             }
         });
         $.ajax({
@@ -19,17 +21,17 @@ $(document).ready(function () {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-                if (data['action'] == true) {
-                    $(send_request).hide();
-                    $(".delete_friend_request-action").data(
-                        'uuid', data['friend_request_id']);
-                    $(".delete_friend_request-action").removeAttr("disabled");
-                    $(".delete_friend_request-action").show();
+                if (data.action === true) {
+                    sendRequest.hide();
+                    var deleteFriend = $(".delete_friend_request-action");
+                    deleteFriend.data('uuid', data.friend_request_id);
+                    deleteFriend.removeAttr("disabled");
+                    deleteFriend.show();
                 }
             },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $(send_request).removeAttr("disabled");
+            error: function (XMLHttpRequest) {
+                if (XMLHttpRequest.status === 500) {
+                    sendRequest.removeAttr("disabled");
                     $("#server_error").show();
                 }
             }

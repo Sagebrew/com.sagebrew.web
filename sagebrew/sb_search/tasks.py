@@ -3,6 +3,7 @@ import logging
 
 from datetime import datetime
 from django.conf import settings
+from django.core.cache import cache
 
 from celery import shared_task
 from neomodel import DoesNotExist, CypherException
@@ -46,7 +47,7 @@ def spawn_weight_relationships(search_items):
                 task_param={
                     'index': item['_index'],
                     'document_id': item['_id'],
-                    'object_uuid': item['_source']['email'],
+                    'object_uuid': item['_source']['username'],
                     'object_type': 'profile',
                     'current_pleb': item['_source']['related_user'],
                     'modifier_type': 'seen'
@@ -79,14 +80,14 @@ def update_weight_relationship(document_id, index, object_type,
     }
     try:
         try:
-            pleb = Pleb.nodes.get(email=current_pleb)
+            pleb = Pleb.nodes.get(username=current_pleb)
         except (Pleb.DoesNotExist, DoesNotExist):
             return False
 
         if object_type == 'profile':
             try:
-                pleb = Pleb.nodes.get(email=object_uuid)
-                c_pleb = Pleb.nodes.get(email=current_pleb)
+                pleb = Pleb.nodes.get(username=object_uuid)
+                c_pleb = Pleb.nodes.get(username=current_pleb)
             except (Pleb.DoesNotExist, DoesNotExist):
                 return False
 
@@ -160,8 +161,8 @@ def add_user_to_custom_index(username=None,
     if pleb.populated_personal_index:
         return True
     es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-    if not es.indices.exists('full-search-base'):
-        es.indices.create('full-search-base')
+    if not es.indices.exists('full-search-user-specific-1'):
+        es.indices.create('full-search-user-specific-1')
 
     scanres = es.search(
         index='full-search-base', search_type="scan", scroll="10m",
@@ -204,6 +205,7 @@ def add_user_to_custom_index(username=None,
                      body=item['_source'])
         pleb.populated_personal_index = True
         pleb.save()
+        cache.set(pleb.username, pleb)
         return True
     except Exception as e:
         raise defensive_exception(add_user_to_custom_index.__name__, e,
@@ -257,7 +259,7 @@ def update_search_query(pleb, query_param, keywords):
     '''
     try:
         try:
-            pleb = Pleb.nodes.get(email=pleb)
+            pleb = Pleb.nodes.get(username=pleb)
         except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
             raise update_search_query.retry(exc=e, countdown=3,
                                             max_retries=None)

@@ -6,6 +6,8 @@ from django.template.loader import get_template
 from django.template import Context
 from django.core.cache import cache
 
+from elasticsearch import Elasticsearch
+
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from celery import shared_task
 
@@ -14,7 +16,6 @@ from neomodel import DoesNotExist, CypherException
 from api.utils import spawn_task, generate_oauth_user
 from api.tasks import add_object_to_search_index
 from sb_base.utils import defensive_exception
-from sb_search.tasks import add_user_to_custom_index
 from sb_wall.neo_models import Wall
 
 from sb_registration.models import token_gen
@@ -26,10 +27,14 @@ from .utils import create_friend_request_util
 
 @shared_task()
 def pleb_user_update(username, first_name, last_name, email):
-    try:
-        pleb = Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
-        raise pleb_user_update.retry(exc=e, countdown=3, max_retries=None)
+    from .serializers import PlebSerializerNeo
+    pleb = cache.get(username)
+    if pleb is None:
+        try:
+            pleb = Pleb.nodes.get(username=username)
+        except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
+            raise pleb_user_update.retry(exc=e, countdown=3, max_retries=None)
+
     try:
         pleb.first_name = first_name
         pleb.last_name = last_name
@@ -37,6 +42,11 @@ def pleb_user_update(username, first_name, last_name, email):
 
         pleb.save()
         cache.set(pleb.username, pleb)
+        document = PlebSerializerNeo(pleb).data
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        es.update(index="full-search-base",
+                  doc_type=document['type'],
+                  id=document['id'], body=document)
     except(CypherException, IOError) as e:
         raise pleb_user_update.retry(exc=e, countdown=3, max_retries=None)
 
@@ -89,16 +99,8 @@ def finalize_citizen_creation(user_instance=None):
     task_list["add_object_to_search_index"] = spawn_task(
         task_func=add_object_to_search_index,
         task_param=task_data)
-    task_data = {'username': username,
-                 'index': "full-search-user-specific-1"}
-    task_list["add_user_to_custom_index"] = spawn_task(
-        task_func=add_user_to_custom_index,
-        task_param=task_data)
     task_list["check_privileges_task"] = spawn_task(
         task_func=check_privileges, task_param={"username": username})
-    task_list["determine_pleb_reps"] = spawn_task(
-        task_func=determine_pleb_reps, task_param={"username": username}
-    )
     if not pleb.initial_verification_email_sent:
         generated_token = token_gen.make_token(user_instance, pleb)
         template_dict = {
@@ -120,6 +122,7 @@ def finalize_citizen_creation(user_instance=None):
             pleb.initial_verification_email_sent = True
             pleb.save()
     task_ids = []
+    cache.set(pleb.username, pleb)
     for item in task_list:
         task_ids.append(task_list[item].task_id)
     return task_list

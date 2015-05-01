@@ -10,7 +10,7 @@ logger = getLogger('loggly_logs')
 
 @apply_defense
 def create_notification_util(sb_object, from_pleb, to_plebs, notification_id,
-                             url):
+                             url, action_name):
     """
     This function will check to see if there is already a notification
     created about the combination of object, plebs, and action and will add
@@ -34,14 +34,13 @@ def create_notification_util(sb_object, from_pleb, to_plebs, notification_id,
                 object_uuid=notification_id)
             if notification.sent is True:
                 return True
-
         except (Notification.DoesNotExist, DoesNotExist):
             notification = Notification(
                 object_uuid=notification_id,
                 about=sb_object.__class__.__name__.lower(),
                 about_id=sb_object.object_uuid,
                 url=url,
-                action_name=sb_object.action_name).save()
+                action_name=action_name).save()
 
         notification.notification_from.connect(from_pleb)
         for pleb in to_plebs:

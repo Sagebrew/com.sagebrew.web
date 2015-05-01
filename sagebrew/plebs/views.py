@@ -1,10 +1,14 @@
+from logging import getLogger
 from uuid import uuid1
 
+from django.template.loader import render_to_string
+from django.core.cache import cache
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.conf import settings
+from django.template import RequestContext
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -13,14 +17,16 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework import status
 from neomodel import DoesNotExist, CypherException
 
-from api.utils import spawn_task, execute_cypher_query
+from api.utils import spawn_task
 from plebs.neo_models import Pleb, BetaUser, FriendRequest
 from sb_registration.utils import (verify_completed_registration)
-from .utils import prepare_user_search_html
+from .serializers import PlebSerializerNeo
 from .tasks import create_friend_request_task
 from .forms import (GetUserSearchForm, SubmitFriendRequestForm,
-                    RespondFriendRequestForm, GetFriendRequestForm)
+                    RespondFriendRequestForm)
 from .serializers import BetaUserSerializer, AddressSerializer
+
+logger = getLogger('loggly_logs')
 
 
 def root_profile_page(request):
@@ -62,11 +68,10 @@ def profile_page(request, pleb_username=""):
     except(CypherException):
         return HttpResponse('Server Error', status=500)
     current_user = request.user
-    page_user = User.objects.get(email=page_user_pleb.email)
+    page_user = User.objects.get(username=page_user_pleb.username)
     is_owner = False
     is_friend = False
-    friend_request_sent = False
-    if current_user.email == page_user.email:
+    if current_user.username == page_user.username:
         is_owner = True
     elif page_user_pleb in citizen.friends.all():
         is_friend = True
@@ -96,11 +101,10 @@ def friend_page(request, pleb_username):
     except(CypherException):
         return HttpResponse('Server Error', status=500)
     current_user = request.user
-    page_user = User.objects.get(email=page_user_pleb.email)
+    page_user = User.objects.get(username=page_user_pleb.username)
     is_owner = False
     is_friend = False
-    friend_request_sent = False
-    if current_user.email == page_user.email:
+    if current_user.username == page_user.username:
         is_owner = True
     elif page_user_pleb in citizen.friends.all():
         is_friend = True
@@ -173,12 +177,37 @@ def get_user_search_view(request, pleb_username=""):
     """
     form = GetUserSearchForm({"username": pleb_username})
     if form.is_valid() is True:
-        response = prepare_user_search_html(pleb=form.cleaned_data['username'])
-        if response is None:
-            return HttpResponse('Server Error', status=500)
-        elif response is False:
-            return HttpResponse('Bad Email', status=400)
-        return Response({'html': response}, status=200)
+        profile = cache.get(pleb_username)
+        current_user = cache.get(request.user.username)
+        if profile is None:
+            try:
+                profile = Pleb.nodes.get(username=pleb_username)
+            except(Pleb.DoesNotExist, DoesNotExist):
+                return Response({"detail": "Sorry we could not find "
+                                           "that user."},
+                                status=status.HTTP_404_NOT_FOUND)
+            cache.set(profile, profile)
+        if current_user is None:
+            profile = Pleb.nodes.get(username=request.user.username)
+
+        if profile in current_user.friends.all():
+            is_friend = True
+            friend_request_sent = True
+        else:
+            is_friend = False
+            friend_request_sent = current_user.get_friend_requests_sent(
+                profile.username)
+        logger.critical(friend_request_sent)
+        serializer_data = PlebSerializerNeo(profile).data
+        serializer_data['is_friend'] = is_friend
+
+        serializer_data['friend_request_sent'] = friend_request_sent
+        context = RequestContext(request, serializer_data)
+        return Response(
+            {
+                'html': render_to_string('user_search_block.html',
+                                         context)},
+            status=200)
     else:
         return Response({'detail': 'error'}, 400)
 
@@ -197,10 +226,12 @@ def invite_beta_user(request, email):
     try:
         beta_user = BetaUser.nodes.get(email=email)
         beta_user.invite()
-    except (BetaUser.DoesNotExist, DoesNotExist) as e:
-        return Response({"detail": e.message}, status=status.HTTP_404_NOT_FOUND)
-    except (IOError, CypherException) as e:
-        return Response({"detail": e.message},
+    except (BetaUser.DoesNotExist, DoesNotExist):
+        return Response({"detail": "Sorry we could not find that user."},
+                        status=status.HTTP_404_NOT_FOUND)
+    except (IOError, CypherException):
+        return Response({"detail": "Sorry looks like we're having"
+                                   " some server difficulties"},
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response({"detail": None}, status=status.HTTP_200_OK)
 
@@ -247,44 +278,6 @@ def create_friend_request(request):
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
-def get_friend_requests(request):
-    """
-    gets all friend requests attached to the user and returns
-    a list of dictionaries of requests
-
-    :param request:
-    :return:
-    """
-    requests = []
-    try:
-        form = GetFriendRequestForm(request.DATA)
-        valid_form = form.is_valid()
-    except AttributeError:
-        return Response({'detail': 'attribute error'}, status=400)
-
-    if valid_form is True:
-        query = 'match (p:Pleb) where p.email ="%s" ' \
-                'with p ' \
-                'match (p)-[:RECEIVED_A_REQUEST]-(r:FriendRequest) ' \
-                'where r.seen=False ' \
-                'return r' % request.DATA['email']
-        friend_requests, meta = execute_cypher_query(query)
-        friend_requests = [FriendRequest.inflate(row[0])
-                           for row in friend_requests]
-        for friend_request in friend_requests:
-            request_id = friend_request.object_uuid
-            request_dict = {
-                'from_name': request.user.get_full_name(),
-                'from_email': request.user.email,
-                'request_id': request_id}
-            requests.append(request_dict)
-        return Response(requests, status=200)
-    else:
-        return Response({"detail": "invalid form"}, status=400)
-
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
 def respond_friend_request(request):
     """
     finds the friend request which is attached to both the from and to user
@@ -317,13 +310,9 @@ def respond_friend_request(request):
             return Response(status=500)
 
         if form.cleaned_data['response'] == 'accept':
-            rel1 = to_pleb.friends.connect(from_pleb)
-            rel2 = from_pleb.friends.connect(to_pleb)
-            rel1.save()
-            rel2.save()
+            to_pleb.friends.connect(from_pleb)
+            from_pleb.friends.connect(to_pleb)
             friend_request.delete()
-            to_pleb.save()
-            from_pleb.save()
             return Response(status=200)
         elif form.cleaned_data['response'] == 'deny':
             friend_request.delete()

@@ -11,14 +11,13 @@ from elasticsearch import Elasticsearch
 
 from api.utils import wait_util
 from plebs.neo_models import Pleb
-from api.alchemyapi import AlchemyAPI
-from sb_questions.neo_models import Question
-from sb_search.tasks import (update_weight_relationship,
-                             add_user_to_custom_index, update_user_indices,
+
+from sb_search.tasks import (add_user_to_custom_index, update_user_indices,
                              update_search_query, create_keyword)
 from sb_registration.utils import create_user_util_test
 
 
+"""
 class TestUpdateWeightRelationshipTaskQuestion(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
@@ -429,6 +428,7 @@ class TestUpdateWeightRelationshipTaskPleb(TestCase):
         res = res.result
 
         self.assertFalse(res)
+"""
 
 
 class TestAddUserToCustomIndexTask(TestCase):
@@ -504,83 +504,6 @@ class TestUpdateSearchQuery(TestCase):
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
-
-    def test_update_search_query_success_search_query_does_not_exist(self):
-        from sb_search.neo_models import SearchQuery
-
-        query_param = "this is a test search thing"
-        alchemyapi = AlchemyAPI()
-        response = alchemyapi.keywords("text", query_param)
-        task_data = {
-            "pleb": self.pleb.email, "query_param": query_param,
-            "keywords": response['keywords']
-        }
-        res = update_search_query.apply_async(kwargs=task_data)
-
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.assertTrue(res)
-
-        test_query = SearchQuery.nodes.get(search_query=query_param)
-        rel = self.pleb.searches.relationship(test_query)
-
-        self.assertEqual(test_query.__class__, SearchQuery)
-        self.assertEqual(rel.times_searched, 1)
-
-    def test_update_search_query_success_search_query_exists_connected(self):
-        from sb_search.neo_models import SearchQuery
-
-        test_query = SearchQuery(search_query="this is a test search")
-        test_query.save()
-
-        rel = self.pleb.searches.connect(test_query)
-        rel.save()
-
-        task_data = {
-            "pleb": self.pleb.email, "query_param": test_query.search_query,
-            "keywords": ['fake', 'keywords']
-        }
-
-        res = update_search_query.apply_async(kwargs=task_data)
-
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.assertTrue(res)
-
-        test_query.refresh()
-
-        rel = self.pleb.searches.relationship(test_query)
-
-        self.assertEqual(rel.times_searched, 2)
-
-    def test_update_search_query_success_search_query_exists_unconnected(self):
-        from sb_search.neo_models import SearchQuery
-
-        test_query = SearchQuery(search_query=str(uuid1()))
-        test_query.save()
-
-        task_data = {
-            "pleb": self.pleb.email, "query_param": test_query.search_query,
-            "keywords": ['fake', 'keywords']
-        }
-
-        res = update_search_query.apply_async(kwargs=task_data)
-
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.assertTrue(res)
-
-        test_query.refresh()
-
-        rel = self.pleb.searches.relationship(test_query)
-
-        self.assertEqual(rel.times_searched, 1)
 
     def test_update_search_query_success_pleb_does_not_exist(self):
         from sb_search.neo_models import SearchQuery

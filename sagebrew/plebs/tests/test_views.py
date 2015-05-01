@@ -11,7 +11,7 @@ from sb_comments.neo_models import Comment
 from sb_posts.neo_models import Post
 from plebs.neo_models import Pleb, FriendRequest
 from plebs.views import (profile_page, create_friend_request,
-                         get_friend_requests, respond_friend_request)
+                         respond_friend_request)
 from sb_registration.utils import create_user_util_test
 from api.utils import wait_util
 
@@ -345,103 +345,6 @@ class TestCreateFriendRequestView(TestCase):
         request.user = self.user
 
         res = create_friend_request(request)
-
-        self.assertEqual(res.status_code, 400)
-
-
-class TestGetFriendRequestsView(TestCase):
-    def setUp(self):
-        self.factory = APIRequestFactory()
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb2 = Pleb.nodes.get(email=self.email2)
-        self.user2 = User.objects.get(email=self.email2)
-
-    def test_get_friend_request_view_success(self):
-        data = {'email': self.user.email}
-        request = self.factory.post('/relationships/query_friend_requests/',
-                                    data=data, format='json')
-        request.user = self.user
-
-        res = get_friend_requests(request)
-
-        self.assertEqual(res.status_code, 200)
-
-    def test_get_friend_request_view_failure_invalid_form(self):
-        data = {'fake': self.user.email}
-        request = self.factory.post('/relationships/query_friend_requests/',
-                                    data=data, format='json')
-        request.user = self.user
-
-        res = get_friend_requests(request)
-
-        res.render()
-
-        self.assertEqual(loads(res.content)['detail'], 'invalid form')
-        self.assertEqual(res.status_code, 400)
-
-    def test_get_friend_request_view_incorrect_data_int(self):
-        request = self.factory.post('/relationships/query_friend_requests/',
-                                    data=1312412, format='json')
-        request.user = self.user
-
-        res = get_friend_requests(request)
-
-        self.assertEqual(res.status_code, 400)
-
-    def test_get_friend_request_view_incorrect_data_string(self):
-        request = self.factory.post('/relationships/query_friend_requests/',
-                                    data='1312412', format='json')
-        request.user = self.user
-
-        res = get_friend_requests(request)
-
-        self.assertEqual(res.status_code, 400)
-
-    def test_get_friend_request_view_incorrect_data_float(self):
-        request = self.factory.post('/relationships/query_friend_requests/',
-                                    data=131.2412, format='json')
-        request.user = self.user
-
-        res = get_friend_requests(request)
-
-        self.assertEqual(res.status_code, 400)
-
-    def test_get_friend_request_view_incorrect_data_list(self):
-        request = self.factory.post('/relationships/query_friend_requests/',
-                                    data=[], format='json')
-        request.user = self.user
-
-        res = get_friend_requests(request)
-
-        self.assertEqual(res.status_code, 400)
-
-    def test_get_friend_request_view_incorrect_data_dict(self):
-        request = self.factory.post('/relationships/query_friend_requests/',
-                                    data={}, format='json')
-        request.user = self.user
-
-        res = get_friend_requests(request)
-
-        self.assertEqual(res.status_code, 400)
-
-    def test_get_friend_request_view_incorrect_data_image(self):
-        with open(settings.PROJECT_DIR + "/sb_posts/" +
-                  "tests/images/test_image.jpg", "rb") as image_file:
-            image = b64encode(image_file.read())
-        request = self.factory.post('/relationships/query_friend_requests/',
-                                    data=image, format='json')
-        request.user = self.user
-
-        res = get_friend_requests(request)
 
         self.assertEqual(res.status_code, 400)
 

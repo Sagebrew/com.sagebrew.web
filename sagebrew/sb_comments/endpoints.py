@@ -19,8 +19,8 @@ from api.utils import spawn_task
 from sb_base.neo_models import SBContent
 from sb_base.views import ObjectRetrieveUpdateDestroy
 from plebs.neo_models import Pleb
-from sb_notifications.tasks import spawn_notifications
 
+from .tasks import spawn_comment_notifications
 from .neo_models import Comment
 from .serializers import CommentSerializer
 
@@ -59,7 +59,6 @@ class ObjectCommentsListCreate(ListCreateAPIView):
                 cache.set(request.user.username, pleb)
             parent_object = SBContent.nodes.get(
                 object_uuid=self.kwargs[self.lookup_field])
-
             instance = serializer.save(owner=pleb, parent_object=parent_object)
             serializer_data = serializer.data
             serializer_data['comment_on'] = reverse(
@@ -68,13 +67,11 @@ class ObjectCommentsListCreate(ListCreateAPIView):
                 request=request)
             serializer_data['url'] = parent_object.get_url(request=request)
             notification_id = str(uuid1())
-            spawn_task(task_func=spawn_notifications, task_param={
+            spawn_task(task_func=spawn_comment_notifications, task_param={
                 'from_pleb': request.user.username,
-                'to_plebs': [owner.username for owner in
-                             parent_object.owned_by.all()],
-                'sb_object': instance.object_uuid,
+                'parent_object_uuid': self.kwargs[self.lookup_field],
+                'object_uuid': instance.object_uuid,
                 'notification_id': notification_id,
-                'url': serializer_data['url']
             })
             html = request.query_params.get('html', 'false').lower()
             if html == "true":

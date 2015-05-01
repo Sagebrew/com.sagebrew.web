@@ -1,10 +1,12 @@
 from celery import shared_task
+
+from django.core.cache import cache
+
 from neomodel import (DoesNotExist, AttemptedCardinalityViolation,
                       CypherException)
 
-from plebs.neo_models import Pleb
+from plebs.neo_models import Pleb, Address
 from sb_tags.neo_models import Tag
-from plebs.neo_models import Address
 
 
 @shared_task()
@@ -72,6 +74,7 @@ def save_profile_picture(url, username):
     try:
         pleb.profile_pic = url
         pleb.save()
+        cache.set(pleb.username, pleb)
     except (CypherException, IOError) as e:
         raise save_profile_picture.retry(exc=e, countdown=3, max_retries=None)
     return True

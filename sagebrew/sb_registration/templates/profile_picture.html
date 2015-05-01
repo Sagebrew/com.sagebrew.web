@@ -14,7 +14,7 @@
                 </div>
                 <div>
                     <h1 class="hidden-lg hidden-md hidden-sm"
-                        align="center"> Profile Picture</h1>
+                        align="center">Profile Picture</h1>
                 </div>
             </div>
             <div class="col-lg-3 col-md-3 col-sm-5 col-xs-4 col-lg-offset-3 col-md-offset-3">
@@ -23,10 +23,20 @@
         </div>
         <div class="sb_deco_line"></div>
         <div class="row" align="center">
-          <div class="col-lg-4" align="center">
-            <div id="cropContainerEyecandy"></div>
+          <div class="col-lg-4 col-lg-offset-4" align="center">
+            <div id="cropProfilePictureEyecandy"></div>
           </div>
         </div>
+        <div class="row" align="center">
+          <div class="col-lg-4 col-lg-offset-4" align="center">
+            <div><small>Please ensure the file is less than 2.5 mb</small></div>
+          </div>
+        </div>
+      <div class="row" align="center" style="margin-bottom: 30px;">
+                <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12 col-lg-offset-8 col-md-offset-8 col-sm-offset-7">
+                <a href="{% url 'profile_page' pleb.username %}">Skip Step</a>
+                </div>
+            </div>
     </div>
 {% endblock %}
 {% block scripts %}
@@ -49,6 +59,6 @@
         rotateControls: false,
 				loaderHtml:'<div class="loader bubblingG"><span id="bubblingG_1"></span><span id="bubblingG_2"></span><span id="bubblingG_3"></span></div> '
 		};
-		var cropContainerEyecandy = new Croppic('cropContainerEyecandy', croppicContainerEyecandyOptions);
+		var cropContainerEyecandy = new Croppic('cropProfilePictureEyecandy', croppicContainerEyecandyOptions);
 	</script>
 {% endblock scripts %}

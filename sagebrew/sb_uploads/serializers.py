@@ -7,8 +7,6 @@ from sb_registration.utils import upload_image
 
 from .neo_models import UploadedObject
 
-from logging import getLogger
-logger = getLogger('loggly_logs')
 
 """
 class MediaType:
@@ -31,6 +29,7 @@ class MediaType:
 
 
 class UploadSerializer(SBSerializer):
+    object_uuid = serializers.UUIDField()
     media_type = serializers.CharField(required=False)
     url = serializers.SerializerMethodField()
     vote_on = serializers.SerializerMethodField()
@@ -40,20 +39,15 @@ class UploadSerializer(SBSerializer):
         width = validated_data.pop('width', None)
         height = validated_data.pop('height', None)
         file_name = validated_data.pop('file_name', None)
+        object_uuid = validated_data.pop('object_uuid', None)
         file_size = validated_data.pop('file_size', None)
         media_type = validated_data.pop('media_type', None)
         file_object = validated_data.pop('file_object', None)
-        local_file = "%s/%s" % (settings.PROJECT_DIR, "test_file.jpg")
-        output_stream = open(local_file, "wb")
-        output_stream.write(file_object.read())
         url = upload_image(settings.AWS_PROFILE_PICTURE_FOLDER_NAME,
-                           file_name, local_file, True)
-        logger.info(url)
-        uploaded_object = UploadedObject(media_type=media_type,
-                                         url=url,
-                                         height=height,
-                                         width=width,
-                                         file_size=file_size).save()
+                           file_name, file_object, True)
+        uploaded_object = UploadedObject(
+            media_type=media_type, url=url, height=height,
+            width=width, file_size=file_size, object_uuid=object_uuid).save()
         uploaded_object.owned_by.connect(owner)
         owner.uploads.connect(uploaded_object)
         return uploaded_object

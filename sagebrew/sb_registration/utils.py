@@ -47,7 +47,7 @@ def upload_image(folder_name, file_uuid, image_file, type_known=False):
     if type_known:
         key_string = "%s/%s" % (folder_name, file_uuid)
     k.key = key_string
-    k.set_contents_from_filename(image_file)
+    k.set_contents_from_string(image_file.read())
     k.make_public()
     image_uri = k.generate_url(expires_in=0, query_auth=False)
     return image_uri

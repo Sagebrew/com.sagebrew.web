@@ -4,7 +4,14 @@ from neomodel import (StringProperty, IntegerProperty, RelationshipTo,
                       FloatProperty)
 
 
-class Image(SBContent):
+class UploadedObject(SBContent):
+    """
+    We could use imghdr https://docs.python.org/2/library/imghdr.html or
+    python magic to determine what the file type is but we've choosen to go
+    with python magic as it's more expandable. We could potentially utilize
+    imghdr in a child class specific to images.
+    """
+    media_type = StringProperty()
     url = StringProperty()
 
     # relationships

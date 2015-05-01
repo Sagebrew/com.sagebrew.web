@@ -63,11 +63,6 @@ class UploadViewSet(viewsets.ModelViewSet):
                 owner.set(self.kwargs[self.lookup_field], profile)
             serializer.save(owner=owner)
 
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user,
-                        file_type=,
-                        file=self.request.data['file'])
-
     @detail_route(methods=['get'], permission_classes=[IsAuthenticated])
     def crop(self, request, object_uuid=None):
         return Response({}, status=status.HTTP_200_OK)

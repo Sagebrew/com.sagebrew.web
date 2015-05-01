@@ -1,10 +1,6 @@
-from rest_framework.reverse import reverse
 from rest_framework import serializers
-from neomodel import db
 
-from api.utils import request_to_api, gather_request_data
 from api.serializers import SBSerializer
-from sb_base.neo_models import SBContent
 
 
 class MediaType:
@@ -12,8 +8,7 @@ class MediaType:
         pass
 
     def __call__(self, value):
-        if (self.object_uuid is not None and
-                solution_count(self.object_uuid) > 0):
+        if (self.media_type not in ['']):
             message = 'Cannot edit Title when there have ' \
                       'already been solutions provided'
             raise serializers.ValidationError(message)
@@ -21,9 +16,9 @@ class MediaType:
 
     def set_context(self, serializer_field):
         try:
-            self.object_uuid = serializer_field.parent.instance.object_uuid
+            self.media_type = serializer_field.parent.instance.media_type
         except AttributeError:
-            self.object_uuid = None
+            self.media_type = None
 
 
 class UploadSerializer(SBSerializer):

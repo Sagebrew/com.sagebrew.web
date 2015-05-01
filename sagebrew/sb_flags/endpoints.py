@@ -1,6 +1,7 @@
 from datetime import datetime
 from logging import getLogger
 
+from django.core.cache import cache
 from django.template.loader import render_to_string
 from django.template import RequestContext
 
@@ -49,9 +50,16 @@ class ObjectFlagsListCreate(ListCreateAPIView):
         serializer = self.get_serializer(data=request.data,
                                          context={'request': request})
         if serializer.is_valid():
-            pleb = Pleb.nodes.get(username=request.user.username)
-            parent_object = SBContent.nodes.get(
-                object_uuid=self.kwargs[self.lookup_field])
+            pleb = cache.get(request.user.username)
+            if pleb is None:
+                pleb = Pleb.nodes.get(username=request.user.username)
+                cache.set(request.user.username, pleb)
+            parent_object = cache.get(self.kwargs[self.lookup_field])
+            if parent_object is None:
+                parent_object = SBContent.nodes.get(
+                    object_uuid=self.kwargs[self.lookup_field])
+                # Don't set it here as only questions will be
+                # retrievable/settable
 
             serializer.save(owner=pleb, parent_object=parent_object)
             serializer_data = serializer.data

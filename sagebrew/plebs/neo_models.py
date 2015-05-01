@@ -14,17 +14,11 @@ from neomodel import db
 
 from api.neo_models import SBObject
 from sb_search.neo_models import Searchable, Impression
-from sb_base.neo_models import VoteRelationship
+from sb_base.neo_models import VoteRelationship, RelationshipWeight
 
 
 def get_current_time():
     return datetime.now(pytz.utc)
-
-
-class RelationshipWeight(StructuredRel):
-    weight = IntegerProperty(default=150)
-    status = StringProperty(default='seen')
-    seen = BooleanProperty(default=True)
 
 
 class SearchCount(StructuredRel):

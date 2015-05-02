@@ -1,3 +1,6 @@
+import urllib2, StringIO
+
+from io import BytesIO
 from copy import deepcopy
 from logging import getLogger
 
@@ -6,6 +9,7 @@ from django.core.cache import cache
 from PIL import Image
 from rest_framework.response import Response
 from rest_framework import viewsets
+from rest_framework.reverse import reverse
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import detail_route
 from rest_framework import status
@@ -13,8 +17,9 @@ from rest_framework.parsers import FileUploadParser
 
 from plebs.neo_models import Pleb
 
-from .serializers import UploadSerializer
+from .serializers import UploadSerializer, ModifiedSerializer
 from .neo_models import UploadedObject
+from .utils import resize_image, crop_image2
 
 logger = getLogger('loggly_logs')
 
@@ -79,7 +84,8 @@ class UploadViewSet(viewsets.ModelViewSet):
                                      file_size=file_size,
                                      file_format=image_format,
                                      file_object=file_object,
-                                     file_name=file_name)
+                                     file_name=file_name,
+                                     object_uuid=object_uuid)
             if croppic == 'true':
                 return Response({"status": "success",
                                  "url": upload.url,
@@ -91,4 +97,48 @@ class UploadViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     def crop(self, request, object_uuid=None):
-        return Response({}, status=status.HTTP_200_OK)
+        resize = self.request.query_params.get("resize", "false").lower()
+        croppic = self.request.query_params.get('croppic', 'false').lower()
+        img_file = StringIO.StringIO(
+            urllib2.urlopen(request.data['imgUrl']).read())
+        image = Image.open(img_file)
+        image_format = image.format
+        width = int(request.data['cropW'])
+        height = int(request.data['cropH'])
+        if resize == 'true':
+            image = resize_image(image, request.data['imgW'],
+                                 request.data['imgH'])
+        cropped = crop_image2(image, width, height,
+                              int(request.data['imgX1']),
+                              int(request.data['imgY1']))
+        file_stream = BytesIO()
+        cropped.save(file_stream, image_format)
+        file_size = file_stream.tell()
+        file_stream.seek(0)
+        serializer = ModifiedSerializer(data=request.data,
+                                        context={"request": request,
+                                                 "file_format": image_format,
+                                                 "file_size": file_size})
+        file_name = "%s-%sx%s.%s" % (object_uuid, width, height,
+                                     image_format.lower())
+        if serializer.is_valid():
+            owner = cache.get(request.user.username)
+            if owner is None:
+                owner = Pleb.noes.get(username=request.user.username)
+                owner.set(request.user.username, owner)
+            upload = serializer.save(owner=owner, width=width, height=height,
+                                     file_size=file_size,
+                                     file_format=image_format,
+                                     file_object=file_stream,
+                                     file_name=file_name,
+                                     object_uuid=object_uuid)
+            if croppic == 'true':
+                profile_page_url = reverse("profile_page",
+                                           kwargs={"pleb_username":
+                                                       request.user.username},
+                                           request=request)
+                return Response({"status": "success", "url": upload.url,
+                                 "profile": profile_page_url},
+                                status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

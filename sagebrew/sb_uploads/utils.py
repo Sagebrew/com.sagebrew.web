@@ -5,6 +5,8 @@ from django.conf import settings
 from PIL import Image
 from sb_registration.utils import upload_image
 
+from logging import getLogger
+logger = getLogger('loggly_logs')
 
 def crop_image(image, height, width, x, y, f_uuid=None):
     if f_uuid is None:
@@ -40,3 +42,23 @@ def thumbnail_image(image, width, height, f_uuid=None):
                      ((size[0] - image.size[0]) / 2, (size[1] -
                                                       image.size[1]) / 2))
     background.save(f_uuid + ".png")
+
+def resize_image(image, resize_width, resize_height):
+    """
+    This function will resize an image based upon the given width and height.
+    If you use this to resize make sure you do any aspect ratio calculations
+    before passing the values to this function as this does not attempt to
+    maintain any aspect ratio.
+
+    :param image:
+    :param resize_width:
+    :param resize_height:
+    :return:
+    """
+    size = (int(float(resize_width)), int(float(resize_height)))
+    resized = image.resize(size, Image.ANTIALIAS)
+    return resized
+
+def crop_image2(image, width, height, x, y):
+    region = image.crop((x, y, x+width, y+height))
+    return region

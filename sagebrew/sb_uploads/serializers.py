@@ -1,3 +1,5 @@
+from uuid import uuid1
+
 from django.conf import settings
 
 from rest_framework import serializers
@@ -5,8 +7,10 @@ from rest_framework import serializers
 from api.serializers import SBSerializer
 from sb_registration.utils import upload_image
 
-from .neo_models import UploadedObject
+from .neo_models import UploadedObject, ModifiedObject
 
+from logging import getLogger
+logger = getLogger('loggly_logs')
 
 """
 class MediaType:
@@ -29,19 +33,18 @@ class MediaType:
 
 
 class UploadSerializer(SBSerializer):
-    object_uuid = serializers.UUIDField()
     file_format = serializers.CharField(required=False)
     url = serializers.SerializerMethodField()
 
     def create(self, validated_data):
-        owner = validated_data.pop('owner', None)
-        width = validated_data.pop('width', None)
-        height = validated_data.pop('height', None)
-        file_name = validated_data.pop('file_name', None)
-        object_uuid = validated_data.pop('object_uuid', None)
-        file_size = validated_data.pop('file_size', None)
-        file_format = validated_data.pop('file_format', None)
-        file_object = validated_data.pop('file_object', None)
+        owner = validated_data.pop('owner')
+        width = validated_data.pop('width')
+        height = validated_data.pop('height')
+        file_name = validated_data.pop('file_name')
+        object_uuid = validated_data.pop('object_uuid')
+        file_size = validated_data.pop('file_size')
+        file_format = validated_data.pop('file_format')
+        file_object = validated_data.pop('file_object')
         url = upload_image(settings.AWS_PROFILE_PICTURE_FOLDER_NAME,
                            file_name, file_object, True)
         uploaded_object = UploadedObject(
@@ -53,3 +56,28 @@ class UploadSerializer(SBSerializer):
 
     def update(self, instance, validated_data):
         return None
+
+
+class ModifiedSerializer(UploadSerializer):
+
+    def create(self, validated_data):
+        owner = validated_data.pop('owner')
+        width = validated_data.pop('width')
+        height = validated_data.pop('height')
+        file_name = validated_data.pop('file_name')
+        file_size = validated_data.pop('file_size')
+        file_format = validated_data.pop('file_format').lower()
+        file_object = validated_data.pop('file_object')
+        object_uuid = validated_data.pop('object_uuid')
+        url = upload_image(settings.AWS_PROFILE_PICTURE_FOLDER_NAME,
+                           file_name, file_object, True)
+        modified_object = ModifiedObject(file_format=file_format, url=url,
+                                         height=height, width=width,
+                                         file_size=file_size).save()
+        modified_object.owned_by.connect(owner)
+        owner.uploads.connect(modified_object)
+        parent_object = UploadedObject.nodes.get(object_uuid=object_uuid)
+        parent_object.modifications.connect(modified_object)
+        modified_object.modification_to.connect(parent_object)
+        return modified_object
+

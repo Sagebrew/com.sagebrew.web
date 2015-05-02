@@ -1,5 +1,4 @@
 <div class="row sb_votes vote_wrapper" id="vote_{{ object_uuid }}">
-
         {% comment %} For beta we'll allow users with 0 rep to upvote to get some initial rep build up{% endcomment %}
         {% if "questions" not in request.path and "solutions" not in request.path %}
                 {% include "upvote.html" %}

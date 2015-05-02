@@ -172,8 +172,12 @@ class VotableContent(NotificationCapable):
             return votes_down
         pos_rep = votes_up * int(self.up_vote_adjustment)
         neg_rep = votes_down * int(self.down_vote_adjustment)
+        # Adding as it is expected that all down vote adjustments are negatives
+        total_rep = pos_rep + neg_rep
+        if total_rep < 0:
+            total_rep = 0
         return {
-            "total_rep": pos_rep + neg_rep,
+            "total_rep": total_rep,
             "pos_rep": pos_rep,
             "neg_rep": neg_rep,
         }
@@ -312,6 +316,13 @@ class SBVersioned(TaggableContent):
         return self.__class__.__name__
 
     def get_rep_breakout(self):
+        """
+        This reputation breakout is for determining how much rep falls under
+        a given tag rather than an accumulation for analyzing an individuals
+        reputation count. Not to be confused with the other get_rep_breakout.
+        # TODO we may want to change the naming of this method
+        :return:
+        """
         tag_list = []
         base_tags = []
         pos_rep = self.get_upvote_count() * int(self.up_vote_adjustment)

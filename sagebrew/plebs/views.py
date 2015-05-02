@@ -186,7 +186,7 @@ def get_user_search_view(request, pleb_username=""):
                 return Response({"detail": "Sorry we could not find "
                                            "that user."},
                                 status=status.HTTP_404_NOT_FOUND)
-            cache.set(profile, profile)
+            cache.set(pleb_username, profile)
         if current_user is None:
             profile = Pleb.nodes.get(username=request.user.username)
 

@@ -15,7 +15,7 @@ class Question(SBPublicContent):
     action_name = StringProperty(default="asked a question")
     visibility = StringProperty(default="public")
     up_vote_adjustment = IntegerProperty(default=5)
-    down_vote_adjustment = IntegerProperty(default=2)
+    down_vote_adjustment = IntegerProperty(default=-2)
     # This currently isn't maintained please make sure to use the methods
     # provided in the serializer or in the endpoint
     #  /v1/questions/uuid/solution_count/

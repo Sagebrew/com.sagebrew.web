@@ -1,18 +1,21 @@
 from sb_base.neo_models import SBContent
 
-from neomodel import (StringProperty, IntegerProperty, RelationshipTo,
-                      FloatProperty)
+from neomodel import (StringProperty, RelationshipTo, FloatProperty)
 
 
-class Image(SBContent):
-    url = StringProperty()
+class UploadedObject(SBContent):
+    file_format = StringProperty()
+    url = StringProperty(index=True)
+    height = FloatProperty()
+    width = FloatProperty()
+    file_size = FloatProperty()
 
     # relationships
-    sizes = RelationshipTo('sb_uploads.neo_models.SubImage', "RESIZE")
+    modifications = RelationshipTo('sb_uploads.neo_models.ModifiedObject',
+                                   "MODIFICATION")
 
 
-class SubImage(SBContent):
-    url = StringProperty()
-    height = IntegerProperty()
-    width = IntegerProperty()
-    file_size = FloatProperty()
+class ModifiedObject(UploadedObject):
+    # relationships
+    modification_to = RelationshipTo('sb_uploads.neo_models.UploadedObject',
+                                     'MODIFICATION_TO')

@@ -10,8 +10,8 @@ class Solution(SBPublicContent):
     action_name = StringProperty(default="offered a solution to a question")
     visibility = StringProperty(default="public")
     up_vote_adjustment = IntegerProperty(default=10)
-    down_vote_adjustment = IntegerProperty(default=10)
-    down_vote_cost = IntegerProperty(default=2)
+    down_vote_adjustment = IntegerProperty(default=-10)
+    down_vote_cost = IntegerProperty(default=-2)
 
     # relationships
     solution_to = RelationshipTo('sb_questions.neo_models.Question',

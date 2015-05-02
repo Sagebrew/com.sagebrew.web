@@ -3,7 +3,7 @@
 {% block title %}Profile Picture Selection{% endblock title %}
 {% block css %}
     {{ block.super }}
-    <link href="{% static 'jcrop/css/jquery.Jcrop.css' %}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'css/vendor/croppic.css' %}" rel="stylesheet" type="text/css"/>
 {% endblock css %}
 {% block content %}
     <div class="row sb_registration_block">
@@ -14,7 +14,7 @@
                 </div>
                 <div>
                     <h1 class="hidden-lg hidden-md hidden-sm"
-                        align="center"> Profile Picture</h1>
+                        align="center">Profile Picture</h1>
                 </div>
             </div>
             <div class="col-lg-3 col-md-3 col-sm-5 col-xs-4 col-lg-offset-3 col-md-offset-3">
@@ -22,82 +22,43 @@
             </div>
         </div>
         <div class="sb_deco_line"></div>
-        <form enctype="multipart/form-data"
-              action="/registration/profile_picture/" method="post" id="uploadForm">
-                                    {% csrf_token %}
-            <div class="row" align="center">
-                <div id="sb_profile_photo">
-                    <div class="fileinput fileinput-new"
-                         data-provides="fileinput">
-                        <div class="row"
-                             align="center">
-                            <div class="fileinput-preview fileinput-exists thumbnail jcrop-light"
-                                 id="image_uploaded"
-                                 style="max-width: 500px;
-                                        max-height: 350px;">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 col-lg-offset-4 col-md-offset-4 col-xs-offset-3 sb_btn_modal">
-
-                                <span class="btn btn-block btn-lg btn-primary btn-file sb_btn">
-                                    <span id="sb_btn_change" class="fileinput-exists"><span class="fa fa-cog sb_btn_modal"></span>Change</span>
-                                    <span id="sb_btn_upload" class="fileinput-new"><span class=""></span>Upload Image</span>
-                                    <input id="profile_pic_upload" type="file" name="picture">
-                                    <input id="image_x1" name="image_x1" style="display: none">
-                                    <input id="image_x2" name="image_x2" style="display: none">
-                                    <input id="image_y1" name="image_y1" style="display: none">
-                                    <input id="image_y2" name="image_y2" style="display: none">
-                                </span>
-                                <a id="sb_btn_remove"
-                                   href=""
-                                   class="btn btn-block btn-lg btn-primary fileinput-exists sb_btn"
-                                   style=""
-                                   data-dismiss="modal"><span class="fa fa-trash sb_btn_modal"></span>Remove</a>
-                                <a id="sb_btn_save"
-                                   class="btn btn-block btn-lg btn-primary sb_btn"
-                                   style="display:none;">Save Image</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal fade" id="myModal"
-                     tabindex="-1"
-                     role="dialog"
-                     aria-labelledby="myLargeModalLabel"
-                     aria-hidden="true">
-                    <div class="modal-header">
-                        <a id="sb_modal_close"
-                           class="fa fa-times close"
-                           data-dismiss="modal"></a>
-                        <h3>Upload Profile Picture</h3>
-                    </div>
-                    <div class="modal-body">
-                        <div id="sb_modal_errors">
-                            <div class="row">
-                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 col-lg-offset-4 col-md-offset-4 col-xs-offset-3 sb_btn_modal">
-                                <div class="alert alert-danger alert-dismissible" role="alert" hidden="hidden">
-                                  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                  Oh No! Sorry That image is too large, please scroll over it and select the region you'd like to use.
-                                </div>
-                            </div>
-                                </div>
-                        </div>
-                        <div id="sb_modal_content">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row" align="center" style="margin-bottom: 30px;">
-                <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12 col-lg-offset-8 col-md-offset-8 col-sm-offset-7">
-                <a href="{% url 'profile_page' pleb.username %}">Skip Step</a>
-                </div>
-            </div>
-        </form>
+        <div class="row" align="center">
+          <div class="col-lg-4 col-lg-offset-4" align="center">
+            <div id="cropProfilePictureEyecandy"></div>
+          </div>
+        </div>
+        <div class="row" align="center">
+          <div class="col-lg-4 col-lg-offset-4" align="center">
+            <div><small>Please ensure the file is less than 2.5 mb</small></div>
+          </div>
+        </div>
+      <div class="row" align="center" style="margin-bottom: 30px;">
+          <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12 col-lg-offset-8 col-md-offset-8 col-sm-offset-7">
+            <a href="{% url 'profile_page' pleb.username %}">Skip Step</a>
+          </div>
+      </div>
     </div>
 {% endblock %}
 {% block scripts %}
     {{ block.super }}
-    <script src="{% static 'jcrop/js/jquery.Jcrop.js' %}"></script>
+    <script src="{% static 'js/uuid.js' %}"></script>
     <script src="{% static 'js/profile_picture_form.js' %}"></script>
+	  <script src="{% static 'js/vendor/jquery.mousewheel.min.js' %}"></script>
+   	<script src="{% static 'js/vendor/croppic.min.js' %}"></script>
+    <script>
+    var file_name = guid();
+    $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                ajaxSecurity(xhr, settings)
+            }
+        });
+    var croppicContainerEyecandyOptions = {
+				uploadUrl: '/v1/upload/?croppic=true&object_uuid=' + file_name,
+				cropUrl:'/v1/upload/' + file_name + '/crop/',
+				imgEyecandy:false,
+        rotateControls: false,
+				loaderHtml:'<div class="loader bubblingG"><span id="bubblingG_1"></span><span id="bubblingG_2"></span><span id="bubblingG_3"></span></div> '
+		};
+		var cropContainerEyecandy = new Croppic('cropProfilePictureEyecandy', croppicContainerEyecandyOptions);
+	</script>
 {% endblock scripts %}

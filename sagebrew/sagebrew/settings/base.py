@@ -179,6 +179,7 @@ INSTALLED_APPS = (
     'corsheaders',
     'storages',
     'localflavor',
+    'clear_cache',
     'plebs',
     'api',
     'govtrack',

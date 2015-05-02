@@ -356,6 +356,9 @@ extend ' .progress_bar' has no matches
 .sb_btn_fill {
   width: 100%;
 }
+.sb_btn_fill_only {
+  width: 100%;
+}
 .sb_btn_submit,
 .sb_login button {
   color: #ffffff;
@@ -1060,4 +1063,10 @@ textarea.sb_comment_input {
 }
 .sb_restricted :hover {
   color: #eaf0e8;
+}
+#cropProfilePictureEyecandy {
+  width: 200px;
+  height: 200px;
+  position: relative;
+  border: 1px solid #ccc;
 }

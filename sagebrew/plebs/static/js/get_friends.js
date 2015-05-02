@@ -42,6 +42,9 @@ $(document).ready(function () {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
+            if (data.count === 0){
+                $("#friend_wrapper").append("<div><h3>Please use search to find your friends :)</h3></div>");
+            }
             $.each(data.results, function (i, l) {
                 $("#friend_wrapper").append(l);
             });

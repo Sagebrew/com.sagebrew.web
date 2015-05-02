@@ -5,8 +5,9 @@ from django.core.cache import cache
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from api.utils import wait_util
+from sagebrew import errors
 from plebs.neo_models import Pleb, FriendRequest
+from sb_questions.neo_models import Question
 from sb_registration.utils import create_user_util_test
 
 
@@ -14,8 +15,7 @@ class MeEndpointTests(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
-        wait_util(res)
+        create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
@@ -165,8 +165,7 @@ class FriendRequestEndpointTests(APITestCase):
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
         self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2)
-        wait_util(res)
+        create_user_util_test(self.email2)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb2 = Pleb.nodes.get(email=self.email2)
@@ -285,11 +284,9 @@ class ProfileEndpointTests(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
-        wait_util(res)
+        create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.url = "http://testserver"
 
     def test_unauthorized(self):
         url = reverse('profile-detail', kwargs={
@@ -462,13 +459,135 @@ class ProfileEndpointTests(APITestCase):
         url = reverse('profile-list')
         data = {}
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.data,  {'detail': 'TBD'})
+        self.assertEqual(response.data, {'detail': 'TBD'})
         self.assertEqual(response.status_code, status.HTTP_501_NOT_IMPLEMENTED)
 
     def test_get_pleb_questions(self):
+        question = Question(
+            title="Hello there world",
+            content="This is the content for my question.").save()
+        self.pleb.questions.connect(question)
+        question.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-questions', kwargs={
             'username': self.pleb.username})
         response = self.client.get(url, format='json')
-        # print response.data
+        self.assertGreater(response.data['count'], 0)
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_pleb_question_id(self):
+        question = Question(
+            title="Hello there world",
+            content="This is the content for my question.").save()
+        self.pleb.questions.connect(question)
+        question.owned_by.connect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-questions', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'][0]['id'],
+                         question.object_uuid)
+
+    def test_get_pleb_question_type(self):
+        question = Question(
+            title="Hello there world",
+            content="This is the content for my question.").save()
+        self.pleb.questions.connect(question)
+        question.owned_by.connect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-questions', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'][0]['type'],
+                         'question')
+
+    def test_get_pleb_question_object_uuid(self):
+        question = Question(
+            title="Hello there world",
+            content="This is the content for my question.").save()
+        self.pleb.questions.connect(question)
+        question.owned_by.connect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-questions', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'][0]['object_uuid'],
+                         question.object_uuid)
+
+    def test_get_pleb_question_content(self):
+        question = Question(
+            title="Hello there world",
+            content="This is the content for my question.").save()
+        self.pleb.questions.connect(question)
+        question.owned_by.connect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-questions', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'][0]['content'],
+                         question.content)
+
+    def test_get_pleb_question_profile(self):
+        question = Question(
+            title="Hello there world",
+            content="This is the content for my question.").save()
+        self.pleb.questions.connect(question)
+        question.owned_by.connect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-questions', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'][0]['profile'],
+                         "http://testserver/v1/profiles/test_test/")
+
+    def test_get_pleb_question_url(self):
+        question = Question(
+            title="Hello there world",
+            content="This is the content for my question.").save()
+        self.pleb.questions.connect(question)
+        question.owned_by.connect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-questions', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'][0]['url'],
+                         "http://testserver/conversations/"
+                         "%s/" % question.object_uuid)
+
+    def test_get_pleb_question_title(self):
+        question = Question(
+            title="Hello there world",
+            content="This is the content for my question.").save()
+        self.pleb.questions.connect(question)
+        question.owned_by.connect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-questions', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'][0]['title'],
+                         "Hello there world")
+
+    def test_get_pleb_question_invalid_query(self):
+        self.client.force_authenticate(user=self.user)
+        url = "%s?filter=error" % reverse('profile-questions', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data, errors.QUERY_DETERMINATION_EXCEPTION)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_get_pleb_question_public_content(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-public-content', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        print response.data
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_pleb_public_content_invalid_query(self):
+        self.client.force_authenticate(user=self.user)
+        url = "%s?filter=error" % reverse('profile-public-content', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data, errors.QUERY_DETERMINATION_EXCEPTION)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

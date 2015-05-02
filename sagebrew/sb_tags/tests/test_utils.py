@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
-from api.utils import wait_util
 
 from sb_tags.utils import (create_tag_relations_util)
 from sb_tags.neo_models import AutoTag
@@ -14,7 +13,6 @@ class TestCreateTagRelations(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
-        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         tag_list = ['these fake', 'are fake', 'fake fake', 'tags fake']

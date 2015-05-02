@@ -1,3 +1,4 @@
+'''
 import logging
 
 from django.test import TestCase
@@ -20,10 +21,9 @@ class TestManagePrivilegeRelation(TestCase):
         res = create_user_util_test(self.email)
         self.username = res["username"]
         self.assertNotEqual(res, False)
-        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-'''
+
     def test_manage_privilege_relation(self):
         result = manage_privilege_relation(self.username)
         self.assertTrue(result)

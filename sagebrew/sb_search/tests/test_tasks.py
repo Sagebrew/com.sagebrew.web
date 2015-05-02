@@ -9,7 +9,6 @@ from django.contrib.auth.models import User
 
 from elasticsearch import Elasticsearch
 
-from api.utils import wait_util
 from plebs.neo_models import Pleb
 
 from sb_search.tasks import (add_user_to_custom_index, update_user_indices,
@@ -437,7 +436,6 @@ class TestAddUserToCustomIndexTask(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
-        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
@@ -461,7 +459,6 @@ class TestUpdateUserIndices(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
-        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
@@ -497,7 +494,6 @@ class TestUpdateSearchQuery(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
-        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
@@ -550,7 +546,6 @@ class TestCreateKeywordTask(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
-        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True

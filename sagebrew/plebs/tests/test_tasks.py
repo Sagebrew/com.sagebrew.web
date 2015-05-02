@@ -19,7 +19,6 @@ class TestCreatePlebTask(TestCase):
         res = create_user_util_test(self.email)
         self.username = res["username"]
         self.assertNotEqual(res, False)
-        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True

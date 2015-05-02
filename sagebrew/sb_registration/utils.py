@@ -43,9 +43,10 @@ def upload_image(folder_name, file_uuid, image_file, type_known=False):
     conn = connect_s3(settings.AWS_ACCESS_KEY_ID,
                       settings.AWS_SECRET_ACCESS_KEY)
     k = Key(conn.get_bucket(bucket))
-    key_string = "%s/%s%s" % (folder_name, file_uuid, ".png")
     if type_known:
         key_string = "%s/%s" % (folder_name, file_uuid)
+    else:
+        key_string = "%s/%s%s" % (folder_name, file_uuid, ".png")
     k.key = key_string
     k.set_contents_from_string(image_file.read())
     k.make_public()

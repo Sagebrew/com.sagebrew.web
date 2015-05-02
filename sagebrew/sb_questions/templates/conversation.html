@@ -40,12 +40,14 @@
                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                             <h3><span id="solution_count">--</span> Solution<span id="solution_plural"></span></h3>
                         </div>
+                      {% if debug %}
                         <div class="col-lg-9 col-md-9 col-sm-9 hidden-xs" align="right">
                             <a class="btn sb_tab_question"
                                data-sort_by="most_recent">Most Recent</a>
                             <a class="btn sb_tab_question"
                                data-sort_by="least_recent">Least Recent</a>
                         </div>
+                      {% endif %}
                     </div>
                     <div class="row">
                         <div class="col-lg-12" id="solution_container">

@@ -610,7 +610,11 @@
   h3 {
     margin-top: 10px;
   }
+  .active{
+    color: @sb_green;
+  }
 }
+
 .sb_action_nav{
   &:extend(.sb_secondary_nav);
   background-color: @sb_green_extra_light;
@@ -706,11 +710,9 @@
 
 //progress bar
 .sb_progress{
-  &:extend(.progress);
   background: @sb_green_wall;
 }
 .sb_progress_bar{
-  &:extend(.progress_bar);
   background: @sb_green;
 }
 
@@ -808,7 +810,7 @@
 }
 .sb_deco_line{
   border-bottom: solid 2px;
-  border-color: @sb_grey;
+  color: @sb_grey;
   margin-bottom: 35px;
   padding-top: 5px;
 }
@@ -1065,7 +1067,6 @@
   width: auto;
   margin-top: -8px;
 }
-
 .sb_comment_body{
   font-size: 10pt;
 }

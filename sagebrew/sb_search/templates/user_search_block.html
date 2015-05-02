@@ -7,7 +7,7 @@
             </div>
         </div>
         <div class="col-lg-8 col-md-7 col-sm-12 col-xs-12">
-            <a href="{{ the_url }}">{{ first_name }} {{ last_name }}</a>
+            <h6><a href="{{ the_url }}">{{ first_name }} {{ last_name }}</a></h6>
             {% if request.user.username == username %}
                 <p>This is you :)</p>
             {% elif is_friend == True %}

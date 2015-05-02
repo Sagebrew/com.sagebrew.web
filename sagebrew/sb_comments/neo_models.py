@@ -12,7 +12,7 @@ class CommentedOnRel(StructuredRel):
 class Comment(TaggableContent):
     table = StringProperty(default='comments')
     up_vote_adjustment = IntegerProperty(default=2)
-    down_vote_adjustment = IntegerProperty(default=1)
+    down_vote_adjustment = IntegerProperty(default=-1)
     # Valid values for visibility are private and public. If this is set to
     # public any votes on the content will be counted towards reputation.
     action_name = StringProperty(default="commented on your ")

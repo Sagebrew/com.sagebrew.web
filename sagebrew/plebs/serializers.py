@@ -161,18 +161,11 @@ class PlebSerializerNeo(SBSerializer):
         pass
 
     def update(self, instance, validated_data):
-        logger.info(validated_data)
-        logger.info(instance.profile_pic)
         instance.profile_pic = validated_data.get('profile_pic',
                                                   instance.profile_pic)
-        logger.info(instance.profile_pic)
-        logger.info(instance.wallpaper_pic)
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',
                                                     instance.wallpaper_pic)
-        logger.info(instance.wallpaper_pic)
         instance.save()
-        logger.info(instance.profile_pic)
-        logger.info(instance.wallpaper_pic)
         cache.set(self.context['request'].user.username, instance)
         return instance
 

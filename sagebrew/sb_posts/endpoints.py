@@ -132,8 +132,7 @@ class WallPostsListCreate(ListCreateAPIView):
             if html == "true":
                 serializer["vote_count"] = str(serializer["vote_count"])
                 serializer['last_edited_on'] = datetime.strptime(
-                    serializer['last_edited_on'][:len(
-                        serializer['last_edited_on']) - 6],
+                    serializer['last_edited_on'][:-6],
                     '%Y-%m-%dT%H:%M:%S.%f')
                 context = RequestContext(request, serializer)
                 return Response(
@@ -163,8 +162,7 @@ def post_renderer(request, username=None):
         # implementation of spacing for vote count in the template.
         post["vote_count"] = str(post["vote_count"])
         post['last_edited_on'] = datetime.strptime(
-            post['last_edited_on'][:len(post['last_edited_on']) - 6],
-            '%Y-%m-%dT%H:%M:%S.%f')
+            post['last_edited_on'][:-6], '%Y-%m-%dT%H:%M:%S.%f')
         context = RequestContext(request, post)
         html_array.append(render_to_string('post.html', context))
         id_array.append(post["object_uuid"])

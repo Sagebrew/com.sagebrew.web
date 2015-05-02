@@ -78,8 +78,7 @@ class ObjectCommentsListCreate(ListCreateAPIView):
                 serializer_data["vote_count"] = str(
                     serializer_data["vote_count"])
                 serializer_data['last_edited_on'] = datetime.strptime(
-                    serializer_data['last_edited_on'][:len(
-                        serializer_data['last_edited_on']) - 6],
+                    serializer_data['last_edited_on'][:-6],
                     '%Y-%m-%dT%H:%M:%S.%f')
                 context = RequestContext(request, serializer_data)
                 return Response(
@@ -106,9 +105,7 @@ def comment_renderer(request, object_uuid=None):
     comments = ObjectCommentsListCreate.as_view()(request, *args, **kwargs)
     for comment in comments.data['results']:
         comment['last_edited_on'] = datetime.strptime(
-            comment[
-                'last_edited_on'][:len(comment['last_edited_on']) - 6],
-            '%Y-%m-%dT%H:%M:%S.%f')
+            comment['last_edited_on'][:-6], '%Y-%m-%dT%H:%M:%S.%f')
         # This is a work around for django templates and our current
         # implementation of spacing for vote count in the template.
         comment["vote_count"] = str(comment["vote_count"])

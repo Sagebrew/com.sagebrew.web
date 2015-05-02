@@ -6,7 +6,7 @@ from django.template.loader import get_template
 from django.template import Context
 from django.core.cache import cache
 
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, NotFoundError
 
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from celery import shared_task
@@ -44,9 +44,13 @@ def pleb_user_update(username, first_name, last_name, email):
         cache.set(pleb.username, pleb)
         document = PlebSerializerNeo(pleb).data
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        es.update(index="full-search-base",
-                  doc_type=document['type'],
-                  id=document['id'], body=document)
+        try:
+            es.delete(index="full-search-base",
+                      doc_type=document['type'], id=document['id'])
+        except NotFoundError:
+            pass
+        es.index(index="full-search-base", doc_type=document['type'],
+                 id=document['id'], body=document)
     except(CypherException, IOError) as e:
         raise pleb_user_update.retry(exc=e, countdown=3, max_retries=None)
 
@@ -98,9 +102,11 @@ def finalize_citizen_creation(user_instance=None):
     }
     task_list["add_object_to_search_index"] = spawn_task(
         task_func=add_object_to_search_index,
-        task_param=task_data)
+        task_param=task_data,
+        countdown=30)
     task_list["check_privileges_task"] = spawn_task(
-        task_func=check_privileges, task_param={"username": username})
+        task_func=check_privileges, task_param={"username": username},
+        countdown=20)
     if not pleb.initial_verification_email_sent:
         generated_token = token_gen.make_token(user_instance, pleb)
         template_dict = {
@@ -210,7 +216,8 @@ def create_pleb_task(user_instance=None, birthday=None, password=None):
                                      max_retries=None)
     oauth_res = spawn_task(task_func=generate_oauth_info,
                            task_param={'username': user_instance.username,
-                                       'password': password})
+                                       'password': password},
+                           countdown=20)
     if isinstance(oauth_res, Exception):
         raise create_pleb_task.retry(exc=oauth_res, countdown=3,
                                      max_retries=None)

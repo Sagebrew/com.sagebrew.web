@@ -73,9 +73,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
             if html == "true":
                 serializer["vote_count"] = str(serializer["vote_count"])
                 serializer['last_edited_on'] = datetime.strptime(
-                    serializer['last_edited_on'][:len(
-                        serializer['last_edited_on']) - 6],
-                    '%Y-%m-%dT%H:%M:%S.%f')
+                    serializer['last_edited_on'][:-6], '%Y-%m-%dT%H:%M:%S.%f')
                 context = RequestContext(request, serializer)
                 return Response(
                     {
@@ -99,9 +97,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
                        {'object_uuid': queryset.object_uuid,
                         'username': request.user.username})
             single_object["last_edited_on"] = datetime.strptime(
-                single_object['last_edited_on'][:len(
-                    single_object['last_edited_on']) - 6],
-                '%Y-%m-%dT%H:%M:%S.%f')
+                single_object['last_edited_on'][:-6], '%Y-%m-%dT%H:%M:%S.%f')
             # This will be moved to JS Framework but don't need intermediate
             # step at the time being as this doesn't require pagination
             context = RequestContext(request, single_object)
@@ -152,9 +148,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
             # implementation of spacing for vote count in the template.
             question["vote_count"] = str(question["vote_count"])
             question['last_edited_on'] = datetime.strptime(
-                question[
-                    'last_edited_on'][:len(question['last_edited_on']) - 6],
-                '%Y-%m-%dT%H:%M:%S.%f')
+                question['last_edited_on'][:-6], '%Y-%m-%dT%H:%M:%S.%f')
             context = RequestContext(request, question)
             html_array.append(render_to_string('question_summary.html',
                                                context))

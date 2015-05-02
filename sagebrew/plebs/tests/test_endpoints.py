@@ -581,8 +581,8 @@ class ProfileEndpointTests(APITestCase):
         url = reverse('profile-public-content', kwargs={
             'username': self.pleb.username})
         response = self.client.get(url, format='json')
-        print response.data
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertGreater(response.data['count'], 0)
 
     def test_get_pleb_public_content_invalid_query(self):
         self.client.force_authenticate(user=self.user)
@@ -591,3 +591,16 @@ class ProfileEndpointTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.data, errors.QUERY_DETERMINATION_EXCEPTION)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_get_pleb_public_content_id(self):
+        question = Question(
+            title="Hello there world",
+            content="This is the content for my question.").save()
+        self.pleb.questions.connect(question)
+        question.owned_by.connect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-public-content', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'][0]['id'],
+                         question.object_uuid)

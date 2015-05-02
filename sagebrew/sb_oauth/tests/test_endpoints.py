@@ -1,7 +1,6 @@
 from base64 import b64encode
 from uuid import uuid1
 
-from collections import OrderedDict
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User

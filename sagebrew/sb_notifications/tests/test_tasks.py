@@ -4,7 +4,6 @@ from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from api.utils import wait_util
 from sb_notifications.tasks import (spawn_notifications)
 from sb_posts.neo_models import Post
 from sb_comments.neo_models import Comment

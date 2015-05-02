@@ -42,7 +42,7 @@ python-dateutil==2.4.0
 python-memcached==1.53
 pytz==2014.10
 redis==2.10.3
-requests==2.5.3
+requests==2.6.2
 setproctitle==1.1.8
 shortuuid==0.4.2
 six==1.9.0

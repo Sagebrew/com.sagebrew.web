@@ -3,7 +3,6 @@ from uuid import uuid1
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from api.utils import wait_util
 from sb_comments.neo_models import Comment
 from sb_posts.neo_models import Post
 from plebs.neo_models import Pleb

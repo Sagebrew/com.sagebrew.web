@@ -17,7 +17,7 @@ $(document).ready(function(){
                 type: "PATCH",
                 url: "/v1/me/",
                 data: JSON.stringify({
-                    "profile_pic": arg1.url
+                    "wallpaper_pic": arg1.url
                 }),
                 cache: false,
                 contentType: 'application/json',
@@ -32,5 +32,5 @@ $(document).ready(function(){
         },
         loaderHtml:'<div class="loader bubblingG"><span id="bubblingG_1"></span><span id="bubblingG_2"></span><span id="bubblingG_3"></span></div> '
     };
-    var cropContainerEyecandy = new Croppic('cropProfilePictureEyecandy', croppicContainerEyecandyOptions);
+    var cropContainerEyecandy = new Croppic('cropWallpaperPictureEyecandy', croppicContainerEyecandyOptions);
 });

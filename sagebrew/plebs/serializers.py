@@ -13,6 +13,8 @@ from api.utils import spawn_task, request_to_api, gather_request_data
 from .neo_models import Address, Pleb, BetaUser
 from .tasks import create_pleb_task, pleb_user_update, determine_pleb_reps
 
+from logging import getLogger
+logger = getLogger("loggly_logs")
 
 def generate_username(first_name, last_name):
     users_count = User.objects.filter(first_name__iexact=first_name).filter(
@@ -142,7 +144,7 @@ class PlebSerializerNeo(SBSerializer):
 
     # These are read only because we force users to use a different endpoint
     # to set them, as it requires us to manipulate the uploaded image
-    profile_pic = serializers.CharField()
+    profile_pic = serializers.CharField(required=False)
     wallpaper_pic = serializers.CharField(required=False)
 
     reputation = serializers.IntegerField(read_only=True)
@@ -159,11 +161,19 @@ class PlebSerializerNeo(SBSerializer):
         pass
 
     def update(self, instance, validated_data):
+        logger.info(validated_data)
+        logger.info(instance.profile_pic)
         instance.profile_pic = validated_data.get('profile_pic',
                                                   instance.profile_pic)
+        logger.info(instance.profile_pic)
+        logger.info(instance.wallpaper_pic)
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',
                                                     instance.wallpaper_pic)
+        logger.info(instance.wallpaper_pic)
         instance.save()
+        logger.info(instance.profile_pic)
+        logger.info(instance.wallpaper_pic)
+        cache.set(self.context['request'].user.username, instance)
         return instance
 
     def get_id(self, obj):

@@ -1,4 +1,4 @@
-from os import environ
+from time import sleep
 from subprocess import call
 
 from django.test.runner import DiscoverRunner
@@ -6,10 +6,14 @@ from django.test.runner import DiscoverRunner
 
 class SBTestRunner(DiscoverRunner):
     def setup_databases(self, *args, **kwargs):
+        call("sudo service neo4j-service stop", shell=True)
+        sleep(1)
+        success = call("/webapps/neo-test/neo4j-community-2.1.7/bin/neo4j"
+                       " start-no-wait", shell=True)
+        if success != 0:
+            return False
+        sleep(15)
         from neomodel import db
-        call("/webapps/neo-test/neo4j-community-2.1.7/bin/neo4j start",
-             shell=True)
-        environ['NEO4J_REST_URL'] = "http://127.0.0.1:8484/db/data/"
         query = "start n=node(*) optional match (n)-[r]-() delete n,r"
         db.cypher_query(query)
         super(SBTestRunner, self).__init__(*args, **kwargs)
@@ -18,6 +22,10 @@ class SBTestRunner(DiscoverRunner):
         from neomodel import db
         query = "start n=node(*) optional match (n)-[r]-() delete n,r"
         db.cypher_query(query)
-        call("/webapps/neo-test/neo4j-community-2.1.7/bin/neo4j stop",
-             shell=True)
-        environ['NEO4J_REST_URL'] = "http://127.0.0.1:7474/db/data/"
+        sleep(1)
+        success = call("/webapps/neo-test/neo4j-community-2.1.7/bin/neo4j"
+                       " stop", shell=True)
+        if success != 0:
+            return False
+        sleep(1)
+        call("sudo service neo4j-service start", shell=True)

@@ -116,9 +116,7 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
             if html == "true":
                 serializer["vote_count"] = str(serializer["vote_count"])
                 serializer['last_edited_on'] = datetime.strptime(
-                    serializer['last_edited_on'][:len(
-                        serializer['last_edited_on']) - 6],
-                    '%Y-%m-%dT%H:%M:%S.%f')
+                    serializer['last_edited_on'][:-6], '%Y-%m-%dT%H:%M:%S.%f')
                 context = RequestContext(request, serializer)
                 return Response(
                     {
@@ -147,8 +145,7 @@ def solution_renderer(request, object_uuid=None):
         # implementation of spacing for vote count in the template.
         solution["vote_count"] = str(solution["vote_count"])
         solution['last_edited_on'] = datetime.strptime(
-            solution['last_edited_on'][:len(solution['last_edited_on']) - 6],
-            '%Y-%m-%dT%H:%M:%S.%f')
+            solution['last_edited_on'][:-6], '%Y-%m-%dT%H:%M:%S.%f')
         context = RequestContext(request, solution)
         html_array.append(render_to_string('solution.html', context))
         id_array.append(solution["object_uuid"])

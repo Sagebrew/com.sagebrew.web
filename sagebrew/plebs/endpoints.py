@@ -1,10 +1,13 @@
 from logging import getLogger
 
+from elasticsearch import Elasticsearch, NotFoundError
+
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
 from django.core.cache import cache
 from django.template import RequestContext
+from django.conf import settings
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
@@ -20,7 +23,7 @@ from neomodel import db
 from sagebrew import errors
 
 from api.utils import request_to_api
-from api.permissions import IsSelfOrReadOnly, IsSelf, IsOwnerOrAdmin
+from api.permissions import IsSelfOrReadOnly, IsSelf
 from sb_base.utils import get_filter_params
 from sb_base.neo_models import SBContent
 from sb_base.serializers import MarkdownContentSerializer
@@ -38,17 +41,43 @@ logger = getLogger('loggly_logs')
 
 
 class AddressViewSet(viewsets.ModelViewSet):
-    queryset = Address.nodes.all()
+    """
+    This ViewSet provides all of the addresses associated with the currently
+    authenticated user. We don't want to enable users to view all addresses
+    utilized on the site from an endpoint but this endpoint allows for users
+    to see and modify their own as well as create new ones.
+
+    Limitations:
+    Currently we don't have a way to determine which address is the current
+    address. We also don't have an interface to generate additional addresses
+    so the address input during registration is the only address ever listed
+    even though this should not be expected as in the future the list will
+    grow as we all things like hometown, previous residences, and additional
+    homes to be listed.
+    """
     serializer_class = AddressSerializer
     lookup_field = 'object_uuid'
 
-    permission_classes = (IsAuthenticated, IsOwnerOrAdmin)
+    permission_classes = (IsAuthenticated, )
+
+    def get_queryset(self):
+        query = 'MATCH (a:Pleb {username: "%s"})-[:LIVES_AT]->' \
+                '(b:Address) RETURN b' % (self.request.user.username)
+        res, col = db.cypher_query(query)
+        return [Address.inflate(row[0]) for row in res]
 
     def get_object(self):
-        return Address.nodes.get(object_uuid=self.kwargs[self.lookup_field])
+        query = 'MATCH (a:Pleb {username: "%s"})-[:LIVES_AT]->' \
+                '(b:Address {object_uuid: "%s"}) RETURN b' % (
+                    self.request.user.username, self.kwargs[self.lookup_field])
+        res, col = db.cypher_query(query)
+        return Address.inflate(res[0][0])
 
     def perform_create(self, serializer):
-        pleb = Pleb.nodes.get(username=self.request.user.username)
+        pleb = cache.get(self.kwargs[self.lookup_field])
+        if pleb is None:
+            pleb = Pleb.nodes.get(username=self.kwargs[self.lookup_field])
+            cache.set(self.kwargs[self.lookup_field], pleb)
         instance = serializer.save()
         instance.owned_by.connect(pleb)
         instance.save()
@@ -58,6 +87,17 @@ class AddressViewSet(viewsets.ModelViewSet):
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    """
+    This ViewSet provides interactions with the base framework user. If you
+    need to create/destroy/modify this is where it should be done.
+
+    Limitations:
+    Currently we still manage user creation through a different interface
+    in the registration application. Eventually we'll look to utilize this
+    endpoint from the registration application to create the user and create
+    a more uniform user creation process that can be used throughout our
+    different systems.
+    """
     queryset = User.objects.all()
     serializer_class = UserSerializer
     lookup_field = 'username'
@@ -87,6 +127,12 @@ class UserViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         instance.is_active = False
         instance.save()
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        try:
+            es.delete(index="full-search-base", doc_type='profile',
+                      id=instance.username)
+        except NotFoundError:
+            pass
         logout(self.request)
         # TODO we can also go and delete the pleb and content from here
         # or require additional requests but think we could spawn a task
@@ -95,6 +141,23 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class ProfileViewSet(viewsets.ModelViewSet):
+    """
+    This endpoint provides information for each of the registered users. It
+    should not be used for creating users though as we lean on the Framework
+    to accomplish user creation and authentication. This however is where all
+    non-base attributes can be accessed. Users can access any other user's
+    information as long as their authenticated but are limited to Read access
+    if they are not the owner of the profile.
+
+    Limitations:
+    Currently we don't have fine grained permissions that enable us to restrict
+    access to certain fields based on friendship status or user set permissions.
+    We instead manage this in the frontend and only allow users browsing the
+    web interface to see certain information. This is all done in the template
+    though and any tech savvy person will still be able to check out the
+    endpoint for the information. We'll want to eventually limit that here
+    or in the serializer rather than higher up on the stack.
+    """
     serializer_class = PlebSerializerNeo
     lookup_field = "username"
     queryset = Pleb.nodes.all()
@@ -377,6 +440,12 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
 
 class MeRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
+    """
+    This endpoint provides the ability to get information regarding the
+    currently authenticated user. This way AJAX, Ember, and other front end
+    systems don't need to know what username they should bake into a
+    /profile/ url to get information on the signed in user.
+    """
     serializer_class = PlebSerializerNeo
     lookup_field = "username"
     permission_classes = (IsAuthenticated, IsSelf)
@@ -390,6 +459,12 @@ class MeRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
 
 
 class FriendRequestViewSet(viewsets.ModelViewSet):
+    """
+    This ViewSet enables the user that is currently authenticated to view and
+    manage their friend requests. Instead of making a method view on a specific
+    profile we took this approach to gain easy pagination and so that the entire
+    suite of managing an object could be utilized.
+    """
     serializer_class = FriendRequestSerializer
     lookup_field = "object_uuid"
     permission_classes = (IsAuthenticated,)
@@ -438,7 +513,7 @@ class FriendManager(RetrieveUpdateDestroyAPIView):
         if profile is None:
             profile = Pleb.nodes.get(username=request.user.username)
             cache.set(request.user.username, profile)
-        # TODO change this to modifying the relationship manager rather than
+        # TODO: Change this to modifying the relationship manager rather than
         # just disconnecting
 
         profile.friends.disconnect(friend)

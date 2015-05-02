@@ -6,8 +6,7 @@
 
         <ul>
             <li>
-                <a href="{% url 'profile_page' page_user.username %}">
-                    Home</a>
+                <a {% if 'friends' not in request.path and 'about' not in request.path and 'reputation' not in request.path %}class="active"{% endif %} href="{% url 'profile_page' page_user.username %}">Home</a>
             </li>
                 {% if debug == True %}
                     {% comment %}
@@ -23,7 +22,7 @@
                     </li>
                 {% endif %}
                     <li>
-                           <a href="{% url 'friend_page' page_user.username %}">Friends</a>
+                           <a {% if 'friends' in request.path %}class="active"{% endif %} href="{% url 'friend_page' page_user.username %}">Friends</a>
                     </li>
 
 

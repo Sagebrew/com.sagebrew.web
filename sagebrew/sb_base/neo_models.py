@@ -172,8 +172,11 @@ class VotableContent(NotificationCapable):
             return votes_down
         pos_rep = votes_up * int(self.up_vote_adjustment)
         neg_rep = votes_down * int(self.down_vote_adjustment)
+        total_rep = pos_rep - neg_rep
+        if total_rep < 0:
+            total_rep = 0
         return {
-            "total_rep": pos_rep + neg_rep,
+            "total_rep": total_rep,
             "pos_rep": pos_rep,
             "neg_rep": neg_rep,
         }

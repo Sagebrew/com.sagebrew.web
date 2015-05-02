@@ -39,7 +39,7 @@
                     </ul>
                 {% else %}
                     {% with request.META.HTTP_HOST|add:"v1/privileges/flag/" as flag_priv %}
-                        {% if flag_priv in request_profile.privileges %}
+                        {% if "flag" in request_profile.privileges %}
                             {% include "flag.html" %}
                         {% else %}
                             {% include "flag_restriction.html" %}

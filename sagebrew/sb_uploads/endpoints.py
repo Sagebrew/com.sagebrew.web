@@ -1,4 +1,3 @@
-import imghdr
 from copy import deepcopy
 from logging import getLogger
 
@@ -67,7 +66,7 @@ class UploadViewSet(viewsets.ModelViewSet):
         request.data['object_uuid'] = object_uuid
         serializer = UploadSerializer(data=request.data,
                                       context={'request': request,
-                                               "media_type": image_format,
+                                               "file_format": image_format,
                                                "file_size": file_size})
 
         file_name = "%s.%s" % (object_uuid, image_format.lower())
@@ -78,7 +77,7 @@ class UploadViewSet(viewsets.ModelViewSet):
                 owner.set(request.user.username, owner)
             upload = serializer.save(owner=owner, width=width, height=height,
                                      file_size=file_size,
-                                     media_type=image_format,
+                                     file_format=image_format,
                                      file_object=file_object,
                                      file_name=file_name)
             if croppic == 'true':

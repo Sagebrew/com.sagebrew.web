@@ -1,17 +1,10 @@
 from sb_base.neo_models import SBContent
 
-from neomodel import (StringProperty, IntegerProperty, RelationshipTo,
-                      FloatProperty)
+from neomodel import (StringProperty, RelationshipTo, FloatProperty)
 
 
 class UploadedObject(SBContent):
-    """
-    We could use imghdr https://docs.python.org/2/library/imghdr.html or
-    python magic to determine what the file type is but we've choosen to go
-    with python magic as it's more expandable. We could potentially utilize
-    imghdr in a child class specific to images.
-    """
-    media_type = StringProperty()
+    file_format = StringProperty()
     url = StringProperty(index=True)
     height = FloatProperty()
     width = FloatProperty()
@@ -19,10 +12,10 @@ class UploadedObject(SBContent):
 
     # relationships
     modifications = RelationshipTo('sb_uploads.neo_models.ModifiedObject',
-                           "MODIFICATION")
+                                   "MODIFICATION")
 
 
 class ModifiedObject(UploadedObject):
-    #relationships
+    # relationships
     modification_to = RelationshipTo('sb_uploads.neo_models.UploadedObject',
                                      'MODIFICATION_TO')

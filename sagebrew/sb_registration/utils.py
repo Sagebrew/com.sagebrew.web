@@ -54,6 +54,18 @@ def upload_image(folder_name, file_uuid, image_file, type_known=False):
     return image_uri
 
 
+@apply_defense
+def delete_image(file_url):
+    bucket = settings.AWS_STORAGE_BUCKET_NAME
+    conn = connect_s3(settings.AWS_ACCESS_KEY_ID,
+                      settings.AWS_SECRET_ACCESS_KEY)
+    b = conn.get_bucket(bucket)
+    k = Key(b)
+    k.key = file_url
+    b.delete_key(k)
+    return True
+
+
 def generate_profile_pic_url(image_uuid):
     bucket = settings.AWS_STORAGE_BUCKET_NAME
     conn = connect_s3(settings.AWS_ACCESS_KEY_ID,

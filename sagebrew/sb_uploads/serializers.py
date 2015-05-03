@@ -12,28 +12,39 @@ from .neo_models import UploadedObject, ModifiedObject
 from logging import getLogger
 logger = getLogger('loggly_logs')
 
-"""
+
 class MediaType:
     def __init__(self):
         pass
 
     def __call__(self, value):
-        if (self.media_type not in ['']):
-            message = 'Cannot edit Title when there have ' \
-                      'already been solutions provided'
+        allowed_ext = ['gif', 'jpeg', 'jpg', 'png', 'GIF', 'JPEG', 'JPG',
+                       'PNG']
+        if (value not in allowed_ext):
+            message = 'You have provided an invalid file type. ' \
+                      'The valid file types are: %s' % (', '.join(allowed_ext))
+
             raise serializers.ValidationError(message)
         return value
 
-    def set_context(self, serializer_field):
-        try:
-            self.media_type = serializer_field.parent.instance.media_type
-        except AttributeError:
-            self.media_type = None
-"""
+
+class FileSize:
+    def __init__(self):
+        pass
+
+    def __call__(self, value):
+        logger.info('here')
+        logger.info(value)
+        if (value > 2500000):
+            message = "Your file cannot be larger than 2.5mb. Please select " \
+                      "a smaller file."
+            raise serializers.ValidationError(message)
+        return value
 
 
 class UploadSerializer(SBSerializer):
-    file_format = serializers.CharField(required=False)
+    file_format = serializers.CharField(validators=[MediaType(), ])
+    file_size = serializers.IntegerField(validators=[FileSize(), ])
     url = serializers.SerializerMethodField()
 
     def create(self, validated_data):

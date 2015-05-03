@@ -13,8 +13,6 @@ from api.utils import spawn_task, request_to_api, gather_request_data
 from .neo_models import Address, Pleb, BetaUser
 from .tasks import create_pleb_task, pleb_user_update, determine_pleb_reps
 
-from logging import getLogger
-logger = getLogger("loggly_logs")
 
 def generate_username(first_name, last_name):
     users_count = User.objects.filter(first_name__iexact=first_name).filter(
@@ -166,7 +164,7 @@ class PlebSerializerNeo(SBSerializer):
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',
                                                     instance.wallpaper_pic)
         instance.save()
-        cache.set(self.context['request'].user.username, instance)
+        cache.set(instance.username, instance)
         return instance
 
     def get_id(self, obj):

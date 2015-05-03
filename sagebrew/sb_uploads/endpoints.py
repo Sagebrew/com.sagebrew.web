@@ -4,6 +4,7 @@ from io import BytesIO
 from copy import deepcopy
 from logging import getLogger
 
+from django.conf import settings
 from django.core.cache import cache
 
 from PIL import Image
@@ -16,6 +17,7 @@ from rest_framework import status
 from rest_framework.parsers import FileUploadParser
 
 from plebs.neo_models import Pleb
+from sb_registration.utils import delete_image
 
 from .serializers import UploadSerializer, ModifiedSerializer
 from .neo_models import UploadedObject
@@ -35,7 +37,7 @@ class UploadViewSet(viewsets.ModelViewSet):
 
     def get_object(self):
         return UploadedObject.nodes.get(
-            object_uuid=self.kwargs[self.lookup_url_kwarg])
+            object_uuid=self.kwargs[self.lookup_field])
 
     def list(self, request, *args, **kwargs):
         response = {"status": status.HTTP_501_NOT_IMPLEMENTED,
@@ -49,33 +51,39 @@ class UploadViewSet(viewsets.ModelViewSet):
                     }
         return Response(response, status=status.HTTP_501_NOT_IMPLEMENTED)
 
+    def destroy(self, request, *args, **kwargs):
+        single_object = self.get_object()
+        file_name = single_object.url
+        file_name = file_name.split(settings.AWS_STORAGE_BUCKET_NAME+"/")
+        delete_image(file_name)
+        single_object.delete()
+        return Response({"detail": None}, status=status.HTTP_204_NO_CONTENT)
+
     def create(self, request, *args, **kwargs):
         object_uuid = self.request.query_params.get('object_uuid', None)
         croppic = self.request.query_params.get('croppic', 'false').lower()
         file_object = request.data.get('file', None)
         if file_object is None:
             file_object = request.data.get('img', None)
-
         if object_uuid is None:
             return Response({'detail': "Please ensure to include a unique "
                                        "filename in as a query parameter in "
                                        "your url. The query parameter that "
                                        "should be used is `filename`."},
                             status=status.HTTP_400_BAD_REQUEST)
-        another_file_object = deepcopy(file_object)
-        # Limit to 2.5 mb or 2500000 bytes
         file_size = file_object.size
-        image = Image.open(another_file_object)
-        image_format = image.format
-        width, height = image.size
-        request.data['object_uuid'] = object_uuid
+        request.data['file_format'] = file_object.content_type.split('/')[1]
+        request.data['file_size'] = file_size
+        logger.info(request.data['file_format'])
         serializer = UploadSerializer(data=request.data,
-                                      context={'request': request,
-                                               "file_format": image_format,
-                                               "file_size": file_size})
-
-        file_name = "%s.%s" % (object_uuid, image_format.lower())
+                                      context={'request': request})
         if serializer.is_valid():
+            another_file_object = deepcopy(file_object)
+            image = Image.open(another_file_object)
+            image_format = image.format
+            width, height = image.size
+            request.data['object_uuid'] = object_uuid
+            file_name = "%s.%s" % (object_uuid, image_format.lower())
             owner = cache.get(request.user.username)
             if owner is None:
                 owner = Pleb.nodes.get(username=request.user.username)
@@ -115,10 +123,10 @@ class UploadViewSet(viewsets.ModelViewSet):
         cropped.save(file_stream, image_format)
         file_size = file_stream.tell()
         file_stream.seek(0)
+        request.data['file_size'] = file_size
+        request.data['file_format'] = image_format
         serializer = ModifiedSerializer(data=request.data,
-                                        context={"request": request,
-                                                 "file_format": image_format,
-                                                 "file_size": file_size})
+                                        context={"request": request})
         file_name = "%s-%sx%s.%s" % (object_uuid, width, height,
                                      image_format.lower())
         if serializer.is_valid():
@@ -142,3 +150,4 @@ class UploadViewSet(viewsets.ModelViewSet):
                                 status=status.HTTP_200_OK)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

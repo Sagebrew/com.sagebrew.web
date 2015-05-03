@@ -2,6 +2,7 @@ import urllib2
 import StringIO
 
 from io import BytesIO
+from uuid import uuid1
 from copy import deepcopy
 from logging import getLogger
 
@@ -61,21 +62,15 @@ class UploadViewSet(viewsets.ModelViewSet):
         return Response({"detail": None}, status=status.HTTP_204_NO_CONTENT)
 
     def create(self, request, *args, **kwargs):
-        object_uuid = self.request.query_params.get('object_uuid', None)
+        object_uuid = self.request.query_params.get('object_uuid',
+                                                    str(uuid1()))
         croppic = self.request.query_params.get('croppic', 'false').lower()
         file_object = request.data.get('file', None)
         if file_object is None:
             file_object = request.data.get('img', None)
-        if object_uuid is None:
-            return Response({'detail': "Please ensure to include a unique "
-                                       "filename in as a query parameter in "
-                                       "your url. The query parameter that "
-                                       "should be used is `filename`."},
-                            status=status.HTTP_400_BAD_REQUEST)
         file_size = file_object.size
         request.data['file_format'] = file_object.content_type.split('/')[1]
         request.data['file_size'] = file_size
-        logger.info(request.data['file_format'])
         serializer = UploadSerializer(data=request.data,
                                       context={'request': request})
         if serializer.is_valid():
@@ -90,8 +85,6 @@ class UploadViewSet(viewsets.ModelViewSet):
                 owner = Pleb.nodes.get(username=request.user.username)
                 owner.set(request.user.username, owner)
             upload = serializer.save(owner=owner, width=width, height=height,
-                                     file_size=file_size,
-                                     file_format=image_format,
                                      file_object=file_object,
                                      file_name=file_name,
                                      object_uuid=object_uuid)
@@ -136,8 +129,6 @@ class UploadViewSet(viewsets.ModelViewSet):
                 owner = Pleb.noes.get(username=request.user.username)
                 owner.set(request.user.username, owner)
             upload = serializer.save(owner=owner, width=width, height=height,
-                                     file_size=file_size,
-                                     file_format=image_format,
                                      file_object=file_stream,
                                      file_name=file_name,
                                      object_uuid=object_uuid)

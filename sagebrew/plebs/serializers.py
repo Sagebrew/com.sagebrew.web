@@ -159,6 +159,16 @@ class PlebSerializerNeo(SBSerializer):
         pass
 
     def update(self, instance, validated_data):
+        """
+        Only profile_pic and wallpaper_pic are allowed to be updated using
+        this endpoint. This is because any other editing of the pleb
+        that occurs should also update the user so use v1/users/
+        to update anything else in the pleb.
+
+        :param instance:
+        :param validated_data:
+        :return:
+        """
         instance.profile_pic = validated_data.get('profile_pic',
                                                   instance.profile_pic)
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',

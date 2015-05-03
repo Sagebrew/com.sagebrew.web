@@ -31,8 +31,6 @@ class FileSize:
         pass
 
     def __call__(self, value):
-        logger.info('here')
-        logger.info(value)
         if (value > 2500000):
             message = "Your file cannot be larger than 2.5mb. Please select " \
                       "a smaller file."

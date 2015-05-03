@@ -32,7 +32,15 @@ $(document).ready(function(){
             });
         },
         onError: function(errormsg) {
-            alert(errormsg.responseJSON.file_size+ "\n" + errormsg.responseJSON.file_format);
+            var file_size_error = errormsg.responseJSON.file_size;
+            var file_format_error = errormsg.responseJSON.file_format;
+            if (typeof file_format_error === "undefined" || file_format_error === null) {
+                file_format_error = "";
+            }
+            if (typeof file_size_error === "undefined" || file_size_error === null) {
+                file_size_error = "";
+            }
+            alert(file_size_error + "\n" + file_format_error);
             cropContainerEyecandy.reset();
         },
         onReset: function() {

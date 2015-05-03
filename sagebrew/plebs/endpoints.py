@@ -284,11 +284,12 @@ class ProfileViewSet(viewsets.ModelViewSet):
             return Response({"detail":
                              "You can only get your own friend requests"},
                             status=status.HTTP_401_UNAUTHORIZED)
-        query = "MATCH (f:FriendRequest)-[:REQUEST_TO]-(p:Pleb) " \
-                "WHERE p.username='%s' RETURN f " \
+        query = "MATCH (f:FriendRequest)-[:REQUEST_TO]-" \
+                "(p:Pleb {username: '%s'}) RETURN f " \
                 "ORDER BY f.time_sent LIMIT 7" % (username)
         res, col = db.cypher_query(query)
         queryset = [FriendRequest.inflate(row[0]) for row in res]
+
         friend_requests = FriendRequestSerializer(queryset, many=True,
                                                   context={"request": request})
         html = self.request.QUERY_PARAMS.get('html', 'false').lower()
@@ -296,7 +297,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
             html = render_to_string('friend_request_wrapper.html',
                                     {"requests": friend_requests.data})
             return Response(html, status=status.HTTP_200_OK)
-        return Response(friend_requests, status=status.HTTP_200_OK)
+        return Response(friend_requests.data, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def notifications(self, request, username=None):

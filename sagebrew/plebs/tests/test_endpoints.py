@@ -1,3 +1,5 @@
+import shortuuid
+
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -462,6 +464,15 @@ class ProfileEndpointTests(APITestCase):
         self.assertEqual(response.data, {'detail': 'TBD'})
         self.assertEqual(response.status_code, status.HTTP_501_NOT_IMPLEMENTED)
 
+
+class ProfileContentMethodTests(APITestCase):
+    def setUp(self):
+        self.unit_under_test_name = 'pleb'
+        self.email = "success@simulator.amazonses.com"
+        create_user_util_test(self.email)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+
     def test_get_pleb_questions(self):
         question = Question(
             title="Hello there world",
@@ -604,3 +615,110 @@ class ProfileEndpointTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['results'][0]['id'],
                          question.object_uuid)
+
+
+class ProfileFriendsMethodTests(APITestCase):
+    def setUp(self):
+        self.unit_under_test_name = 'pleb'
+        self.email = "success@simulator.amazonses.com"
+        create_user_util_test(self.email)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+
+    def test_get_pleb_friends_id(self):
+        friend = Pleb(username=shortuuid.uuid()).save()
+        self.pleb.friends.connect(friend)
+
+        friend.friends.connect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-friends', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'][0]['id'], friend.username)
+
+    def test_get_pleb_friends_type(self):
+        friend = Pleb(username=shortuuid.uuid()).save()
+        self.pleb.friends.connect(friend)
+        friend.friends.connect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-friends', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'][0]['type'], 'profile')
+
+    def test_get_pleb_friends_html(self):
+        friend = Pleb(username=shortuuid.uuid()).save()
+        self.pleb.friends.connect(friend)
+        friend.friends.connect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        url = "%s?html=true" % reverse('profile-friends', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertGreater(response.data['count'], 0)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_pleb_friend_requests(self):
+        friend = Pleb(username=shortuuid.uuid()).save()
+        friend_request = FriendRequest().save()
+        friend_request.request_from.connect(friend)
+        friend_request.request_to.connect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+
+        url = "%s" % reverse('profile-friend-requests', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_other_users_friend_requests(self):
+        email = "bounce@simulator.amazonses.com"
+        create_user_util_test(email)
+        friend = Pleb(username=shortuuid.uuid()).save()
+        friend_request = FriendRequest().save()
+        self.pleb.friend_requests_sent.connect(friend_request)
+        friend.friend_requests_received.connect(friend_request)
+        friend_request.request_from.connect(self.pleb)
+        friend_request.request_to.connect(friend)
+        self.client.force_authenticate(user=User.objects.get(email=email))
+
+        url = "%s" % reverse('profile-friend-requests', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.data,
+                         {"detail": "You can only get"
+                                    " your own friend requests"})
+
+    def test_get_no_friend_requests(self):
+        self.client.force_authenticate(user=self.user)
+
+        url = "%s" % reverse('profile-friend-requests', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])
+
+    def test_get_no_friend_requests_html(self):
+        self.client.force_authenticate(user=self.user)
+
+        url = "%s?html=true" % reverse('profile-friend-requests', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, '<div id="friend_request_wrapper">\n'
+                                        '    \n</div>')
+
+    def test_get_friend_requests_html(self):
+        email = "bounce@simulator.amazonses.com"
+        create_user_util_test(email)
+        friend = Pleb(username=shortuuid.uuid()).save()
+        friend_request = FriendRequest().save()
+        self.pleb.friend_requests_sent.connect(friend_request)
+        friend.friend_requests_received.connect(friend_request)
+        friend_request.request_from.connect(self.pleb)
+        friend_request.request_to.connect(friend)
+        self.client.force_authenticate(user=self.user)
+
+        url = "%s?html=true" % reverse('profile-friend-requests', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

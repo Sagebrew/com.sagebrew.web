@@ -87,3 +87,12 @@ class ModifiedSerializer(UploadSerializer):
         parent_object.modifications.connect(modified_object)
         modified_object.modification_to.connect(parent_object)
         return modified_object
+
+
+class CropSerializer(serializers.Serializer):
+    crop_width = serializers.IntegerField()
+    crop_height = serializers.IntegerField()
+    image_x1 = serializers.IntegerField()
+    image_y1 = serializers.IntegerField()
+    resize_width = serializers.FloatField()
+    resize_height = serializers.FloatField()

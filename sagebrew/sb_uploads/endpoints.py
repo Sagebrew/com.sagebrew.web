@@ -21,7 +21,7 @@ from rest_framework.parsers import FileUploadParser
 from plebs.neo_models import Pleb
 from sb_registration.utils import delete_image
 
-from .serializers import UploadSerializer, ModifiedSerializer
+from .serializers import UploadSerializer, ModifiedSerializer, CropSerializer
 from .neo_models import UploadedObject
 from .utils import resize_image, crop_image2
 
@@ -105,14 +105,19 @@ class UploadViewSet(viewsets.ModelViewSet):
             urllib2.urlopen(request.data['imgUrl']).read())
         image = Image.open(img_file)
         image_format = image.format
-        width = int(request.data['cropW'])
-        height = int(request.data['cropH'])
+        crop_serializer = CropSerializer(data=request.data)
+        if crop_serializer.is_valid():
+            crop_data = crop_serializer.data
+        else:
+            return Response(crop_serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
         if resize == 'true':
-            image = resize_image(image, request.data['imgW'],
-                                 request.data['imgH'])
-        cropped = crop_image2(image, width, height,
-                              int(request.data['imgX1']),
-                              int(request.data['imgY1']))
+            image = resize_image(image, int(crop_data['resize_width']),
+                                 int(crop_data['resize_height']))
+        cropped = crop_image2(image, crop_data['crop_width'],
+                              crop_data['crop_height'],
+                              crop_data['image_x1'],
+                              crop_data['image_y1'])
         file_stream = BytesIO()
         cropped.save(file_stream, image_format)
         file_size = file_stream.tell()
@@ -121,14 +126,17 @@ class UploadViewSet(viewsets.ModelViewSet):
         request.data['file_format'] = image_format
         serializer = ModifiedSerializer(data=request.data,
                                         context={"request": request})
-        file_name = "%s-%sx%s.%s" % (object_uuid, width, height,
+        file_name = "%s-%sx%s.%s" % (object_uuid, crop_data['crop_width'],
+                                     crop_data['crop_height'],
                                      image_format.lower())
         if serializer.is_valid():
             owner = cache.get(request.user.username)
             if owner is None:
                 owner = Pleb.noes.get(username=request.user.username)
                 owner.set(request.user.username, owner)
-            upload = serializer.save(owner=owner, width=width, height=height,
+            upload = serializer.save(owner=owner,
+                                     width=crop_data['crop_width'],
+                                     height=crop_data['crop_height'],
                                      file_object=file_stream,
                                      file_name=file_name,
                                      object_uuid=object_uuid)

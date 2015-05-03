@@ -488,6 +488,8 @@ class ProfileContentMethodTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_pleb_question_id(self):
+        for item in Question.nodes.all():
+            item.delete()
         question = Question(
             title="Hello there world",
             content="This is the content for my question.").save()
@@ -501,6 +503,8 @@ class ProfileContentMethodTests(APITestCase):
                          question.object_uuid)
 
     def test_get_pleb_question_type(self):
+        for item in Question.nodes.all():
+            item.delete()
         question = Question(
             title="Hello there world",
             content="This is the content for my question.").save()
@@ -514,6 +518,8 @@ class ProfileContentMethodTests(APITestCase):
                          'question')
 
     def test_get_pleb_question_object_uuid(self):
+        for item in Question.nodes.all():
+            item.delete()
         question = Question(
             title="Hello there world",
             content="This is the content for my question.").save()
@@ -527,6 +533,8 @@ class ProfileContentMethodTests(APITestCase):
                          question.object_uuid)
 
     def test_get_pleb_question_content(self):
+        for item in Question.nodes.all():
+            item.delete()
         question = Question(
             title="Hello there world",
             content="This is the content for my question.").save()
@@ -540,6 +548,8 @@ class ProfileContentMethodTests(APITestCase):
                          question.content)
 
     def test_get_pleb_question_profile(self):
+        for item in Question.nodes.all():
+            item.delete()
         question = Question(
             title="Hello there world",
             content="This is the content for my question.").save()
@@ -553,6 +563,8 @@ class ProfileContentMethodTests(APITestCase):
                          "http://testserver/v1/profiles/test_test/")
 
     def test_get_pleb_question_url(self):
+        for item in Question.nodes.all():
+            item.delete()
         question = Question(
             title="Hello there world",
             content="This is the content for my question.").save()
@@ -567,6 +579,8 @@ class ProfileContentMethodTests(APITestCase):
                          "%s/" % question.object_uuid)
 
     def test_get_pleb_question_title(self):
+        for item in Question.nodes.all():
+            item.delete()
         question = Question(
             title="Hello there world",
             content="This is the content for my question.").save()

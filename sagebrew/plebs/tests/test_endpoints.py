@@ -641,19 +641,6 @@ class ProfileFriendsMethodTests(APITestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
-    def test_get_pleb_friends_id(self):
-        for item in Pleb.nodes.all():
-            item.delete()
-        friend = Pleb(username=shortuuid.uuid()).save()
-        self.pleb.friends.connect(friend)
-
-        friend.friends.connect(self.pleb)
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-friends', kwargs={
-            'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.data['results'][0]['id'], friend.username)
-
     def test_get_pleb_friends_type(self):
         friend = Pleb(username=shortuuid.uuid()).save()
         self.pleb.friends.connect(friend)

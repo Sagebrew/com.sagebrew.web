@@ -12,7 +12,7 @@ class SBTestRunner(DiscoverRunner):
                        " start-no-wait", shell=True)
         if success != 0:
             return False
-        sleep(15)
+        sleep(10)
         from neomodel import db
         query = "start n=node(*) optional match (n)-[r]-() delete n,r"
         db.cypher_query(query)

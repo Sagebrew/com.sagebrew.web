@@ -267,8 +267,9 @@ class FriendRequestSerializer(SBSerializer):
         request, expand, _, _, _ = gather_request_data(self.context)
         try:
             user_url = reverse("profile-detail",
-                               kwargs={"username": obj.request_from.all()[0].
-                                       username},
+                               kwargs={
+                                   "username":
+                                       obj.request_from.all()[0].username},
                                request=request)
         except IndexError:
             return None
@@ -281,8 +282,9 @@ class FriendRequestSerializer(SBSerializer):
     def get_to_user(self, obj):
         request, expand, _, _, _ = gather_request_data(self.context)
         user_url = reverse("profile-detail",
-                           kwargs={"username": obj.request_to.all()[0].
-                                   username},
+                           kwargs={
+                               "username":
+                                   obj.request_to.all()[0].username},
                            request=request)
         if expand == "true":
             response = request_to_api(user_url, request.user.username,

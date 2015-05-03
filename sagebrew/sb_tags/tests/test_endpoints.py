@@ -6,7 +6,6 @@ from rest_framework.test import APITestCase
 
 from neomodel import UniqueProperty
 
-from api.utils import wait_util
 from plebs.neo_models import Pleb
 from sb_tags.neo_models import Tag
 from sb_registration.utils import create_user_util_test
@@ -16,8 +15,7 @@ class TagEndpointTest(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
-        wait_util(res)
+        create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"

@@ -12,7 +12,6 @@ from django.core.urlresolvers import reverse
 from rest_framework.test import APIRequestFactory
 from rest_framework import status
 
-from api.utils import wait_util
 from sb_registration.views import (profile_information,
                                    signup_view_api, logout_view,
                                    login_view, login_view_api,
@@ -31,7 +30,6 @@ class InterestsTest(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
-        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
@@ -114,7 +112,6 @@ class TestProfileInfoView(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
-        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
@@ -412,7 +409,6 @@ class TestSignupView(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
-        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
@@ -440,7 +436,6 @@ class TestSignupAPIView(TestCase):
         res = create_user_util_test(self.email)
         self.username = res["username"]
         self.assertNotEqual(res, False)
-        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
@@ -510,7 +505,6 @@ class TestLoginView(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
-        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
@@ -530,7 +524,6 @@ class TestLoginAPIView(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
-        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
@@ -663,7 +656,6 @@ class TestLogoutView(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
-        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
@@ -690,7 +682,6 @@ class TestEmailVerificationView(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
-        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = False
@@ -752,7 +743,6 @@ class TestResendEmailVerificationView(TestCase):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
-        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = False
@@ -793,7 +783,6 @@ class TestConfirmView(TestCase):
         self.client = Client()
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
-        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
@@ -817,7 +806,6 @@ class TestAgeRestrictionView(TestCase):
         self.client = Client()
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
-        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
@@ -833,28 +821,3 @@ class TestAgeRestrictionView(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.client.logout()
-
-
-class TestProfilePictureView(TestCase):
-    def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        self.client = Client()
-        res = create_user_util_test(self.email)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        self.pleb.completed_profile_info = True
-        self.pleb.save()
-
-
-'''
-    def test_profile_picture_view(self):
-        self.client.login(username=self.user.username, password='testpassword')
-        with open(settings.PROJECT_DIR + "/sb_posts/" +
-                  "tests/images/test_image.jpg", "rb") as image_file:
-            response = self.client.post(reverse('profile_picture'),
-                                    data={'picture': image_file})
-
-        self.assertEqual(response.status_code, 302)
-'''

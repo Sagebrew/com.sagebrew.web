@@ -10,10 +10,11 @@ $(document).ready(function () {
                             $('#fileModal').modal();
                             $("#insert_image_post").click(function(e) {
                                 e.preventDefault();
+                                $(".modal-footer").spin('small');
                                 if ($("#upload_image").val().length > 1) {
                                     var formdata = new FormData();
                                     var file = $("#upload_image")[0].files[0];
-                                    formdata.append("myFile", file);
+                                    formdata.append("file", file);
                                     $.ajaxSetup({
                                         beforeSend: function (xhr, settings) {
                                             ajaxSecurity(xhr, settings)
@@ -22,16 +23,18 @@ $(document).ready(function () {
                                     $.ajax({
                                         xhrFields: {withCredentials: true},
                                         type: "POST",
-                                        url: "/upload/images/",
+                                        url: "/v1/upload/?markdown=true",
                                         contentType: false,
                                         processData: false,
                                         dataType: "json",
                                         data: formdata,
                                         success: function (data) {
-                                            console.log(data['urls']);
-                                            callback(data['urls'][0]);
+                                            console.log(data['url']);
+                                            callback(data['url']);
+                                            $(".modal-footer").spin(false);
                                             $("#fileModal").modal('hide');
                                             enable_post_functionality();
+
                                         },
                                         error: function(XMLHttpRequest, textStatus, errorThrown) {
                                             if(XMLHttpRequest.status === 500){

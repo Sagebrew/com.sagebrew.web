@@ -65,6 +65,8 @@ class UploadViewSet(viewsets.ModelViewSet):
         object_uuid = self.request.query_params.get('object_uuid',
                                                     str(uuid1()))
         croppic = self.request.query_params.get('croppic', 'false').lower()
+        markdown = self.request.query_params.get('markdown', 'false').lower()
+        logger.info(request.data)
         file_object = request.data.get('file', None)
         if file_object is None:
             file_object = request.data.get('img', None)
@@ -94,6 +96,8 @@ class UploadViewSet(viewsets.ModelViewSet):
                                  "width": upload.width,
                                  "height": upload.height},
                                 status=status.HTTP_200_OK)
+            if markdown == 'true':
+                return Response({"url": upload.url}, status=status.HTTP_200_OK)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

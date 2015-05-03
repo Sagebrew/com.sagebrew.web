@@ -1,5 +1,3 @@
-from uuid import uuid1
-
 from django.conf import settings
 
 from rest_framework import serializers
@@ -91,4 +89,3 @@ class ModifiedSerializer(UploadSerializer):
         parent_object.modifications.connect(modified_object)
         modified_object.modification_to.connect(parent_object)
         return modified_object
-

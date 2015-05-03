@@ -60,5 +60,5 @@ def resize_image(image, resize_width, resize_height):
 
 
 def crop_image2(image, width, height, x, y):
-    region = image.crop((x, y, x+width, y+height))
+    region = image.crop((x, y, x + width, y + height))
     return region

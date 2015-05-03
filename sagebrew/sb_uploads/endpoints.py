@@ -1,4 +1,5 @@
-import urllib2, StringIO
+import urllib2
+import StringIO
 
 from io import BytesIO
 from copy import deepcopy
@@ -54,7 +55,7 @@ class UploadViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         single_object = self.get_object()
         file_name = single_object.url
-        file_name = file_name.split(settings.AWS_STORAGE_BUCKET_NAME+"/")
+        file_name = file_name.split(settings.AWS_STORAGE_BUCKET_NAME + "/")
         delete_image(file_name)
         single_object.delete()
         return Response({"detail": None}, status=status.HTTP_204_NO_CONTENT)
@@ -141,13 +142,12 @@ class UploadViewSet(viewsets.ModelViewSet):
                                      file_name=file_name,
                                      object_uuid=object_uuid)
             if croppic == 'true':
-                profile_page_url = reverse("profile_page",
-                                           kwargs={"pleb_username":
-                                                       request.user.username},
-                                           request=request)
+                profile_page_url = reverse(
+                    "profile_page", kwargs={
+                        "pleb_username": request.user.username},
+                    request=request)
                 return Response({"status": "success", "url": upload.url,
                                  "profile": profile_page_url},
                                 status=status.HTTP_200_OK)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-

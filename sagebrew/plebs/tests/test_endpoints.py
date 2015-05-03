@@ -618,6 +618,8 @@ class ProfileContentMethodTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_get_pleb_public_content_id(self):
+        for item in Question.nodes.all():
+            item.delete()
         question = Question(
             title="Hello there world",
             content="This is the content for my question.").save()
@@ -640,6 +642,8 @@ class ProfileFriendsMethodTests(APITestCase):
         self.user = User.objects.get(email=self.email)
 
     def test_get_pleb_friends_id(self):
+        for item in Pleb.nodes.all():
+            item.delete()
         friend = Pleb(username=shortuuid.uuid()).save()
         self.pleb.friends.connect(friend)
 

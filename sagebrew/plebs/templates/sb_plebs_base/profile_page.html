@@ -14,14 +14,13 @@
        <div class="thumbnail sb_profile_pic">
 
            {% if request.user.username == page_user.username %}
-               <div id="cropProfilePictureEyecandy">
+               <div id="cropProfilePageEyecandy">
                 <img id="profile_pic" src="{{ page_profile.profile_pic }}">
                </div>
            {% else %}
             <img id="profile_pic" src="{{ page_profile.profile_pic }}">
            {% endif %}
            </div>
-       </div>
        <div align="right" class="row-fluid">
            {% static 'images/wallpaper_western.jpg' as default_wallpaper %}
 
@@ -30,8 +29,8 @@
                <img id="wallpaper_pic" class="wallpaper_profile" src="{{ page_profile.wallpaper_pic|default_if_none:default_wallpaper }}">
                </div>
            {% else %}
+               <img id="wallpaper_pic" class="wallpaper_profile" src="{{ page_profile.wallpaper_pic|default_if_none:default_wallpaper }}">
                {% comment %} A hack to get non-friend pages to load correctly{% endcomment %}
-               <span class="btn sb_btn_icon sb_btn_icon_green sb_btn_icon_settings" style="margin-bottom: 25px;" hidden="hidden"></span>
            {% endif %}
        </div>
        <div class="sb_nav sb_secondary_nav sb_secondary_nav_bar">
@@ -42,6 +41,7 @@
                 {% include "sb_home_section/sb_home.html" %}
             {%  endblock %}
        {% endif %}
+    </div>
     {% if request.user.username == page_user.username %}
         {% include "profile_pic_modal.html" %}
         {% include "wallpaper_modal.html" %}

@@ -11,6 +11,7 @@ $(document).ready(function(){
         imgEyecandy:false,
         rotateControls: false,
         doubleZoomControls: false,
+        zoomFactor: 100,
         onAfterImgCrop: function(arg1){
             $.ajax({
                 xhrFields: {withCredentials: true},
@@ -31,7 +32,7 @@ $(document).ready(function(){
             });
         },
         onError: function(errormsg) {
-            alert(errormsg);
+            alert(errormsg.responseJSON.file_size+ "\n" + errormsg.responseJSON.file_format);
             cropContainerEyecandy.reset();
         },
         onReset: function() {

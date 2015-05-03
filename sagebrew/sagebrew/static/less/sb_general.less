@@ -876,8 +876,7 @@
   border-color: @sb_grey_light;
   margin-left: @sb_common_margin_positive;
   margin-top: 35px;
-  width: 200px;
-  height:200px;
+  width: 203px;
   border-radius: 2px;
   position: absolute;
   padding:0;
@@ -1153,15 +1152,27 @@ textarea.sb_comment_input{
 
 #cropProfilePictureEyecandy{
   width:200px;
-  height:200px;
+  height: 200px;
   position: relative;
   border:1px solid #ccc;
+}
+
+#cropProfilePageEyecandy{
+  width:200px;
+  height: 200px;
+  position: relative;
 }
 
 #cropWallpaperPictureEyecandy{
   &:extend(.wallpaper_profile);
   position: relative;
+
   //fixes gap at the bottom
   margin-top: 0px;
   margin-bottom: 0px;
+}
+
+.cropControls{
+  margin-right: 5px;
+  margin-top: 5px;
 }

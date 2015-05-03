@@ -12,19 +12,22 @@ $(document).ready(function(){
         imgEyecandy:false,
         rotateControls: false,
         doubleZoomControls: false,
+        zoomFactor: 100,
         onAfterImgCrop: function(arg1){
+            var image_url = arg1.url;
             $.ajax({
                 xhrFields: {withCredentials: true},
                 type: "PATCH",
                 url: "/v1/me/",
                 data: JSON.stringify({
-                    "profile_pic": arg1.url
+                    "profile_pic": image_url
                 }),
                 cache: false,
                 contentType: 'application/json',
                 processData: false,
                 success: function(data){
-                    window.location.href = data.url;
+                    $("#profile_pic").attr("src", image_url);
+                    initial_image = image_url;
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
                     $('.alert-dismissible').show();
@@ -32,7 +35,7 @@ $(document).ready(function(){
             });
         },
         onError: function(errormsg) {
-            alert(errormsg);
+            alert(errormsg.responseJSON.file_size+ "\n" + errormsg.responseJSON.file_format);
             cropContainerEyecandy.reset();
         },
         onReset: function() {
@@ -46,9 +49,22 @@ $(document).ready(function(){
                     $('.alert-dismissible').show();
                 }
             });
-            $("#cropProfilePictureEyecandy").append('<img id="profile_pic" src="' + initial_image + '">');
+            $.ajax({
+                xhrFields: {withCredentials: true},
+                type: "GET",
+                url: "/v1/me/",
+                cache: false,
+                processData: false,
+                success: function(data) {
+                    $("#cropProfilePageEyecandy").append('<img id="profile_pic" src="' + data.profile_pic + '">');
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    $('.alert-dismissible').show();
+                }
+            });
+
         },
         loaderHtml:'<div class="loader bubblingG"><span id="bubblingG_1"></span><span id="bubblingG_2"></span><span id="bubblingG_3"></span></div> '
     };
-    var cropContainerEyecandy = new Croppic('cropProfilePictureEyecandy', croppicContainerEyecandyOptions);
+    var cropContainerEyecandy = new Croppic('cropProfilePageEyecandy', croppicContainerEyecandyOptions);
 });

@@ -142,8 +142,8 @@ class PlebSerializerNeo(SBSerializer):
 
     # These are read only because we force users to use a different endpoint
     # to set them, as it requires us to manipulate the uploaded image
-    profile_pic = serializers.CharField(read_only=True)
-    wallpaper_pic = serializers.CharField(read_only=True)
+    profile_pic = serializers.CharField(required=False)
+    wallpaper_pic = serializers.CharField(required=False)
 
     reputation = serializers.IntegerField(read_only=True)
 
@@ -159,7 +159,13 @@ class PlebSerializerNeo(SBSerializer):
         pass
 
     def update(self, instance, validated_data):
-        pass
+        instance.profile_pic = validated_data.get('profile_pic',
+                                                  instance.profile_pic)
+        instance.wallpaper_pic = validated_data.get('wallpaper_pic',
+                                                    instance.wallpaper_pic)
+        instance.save()
+        cache.set(instance.username, instance)
+        return instance
 
     def get_id(self, obj):
         return obj.username

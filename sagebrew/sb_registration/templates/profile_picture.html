@@ -42,23 +42,7 @@
 {% block scripts %}
     {{ block.super }}
     <script src="{% static 'js/uuid.js' %}"></script>
-    <script src="{% static 'js/profile_picture_form.js' %}"></script>
-	  <script src="{% static 'js/vendor/jquery.mousewheel.min.js' %}"></script>
+	<script src="{% static 'js/vendor/jquery.mousewheel.min.js' %}"></script>
    	<script src="{% static 'js/vendor/croppic.min.js' %}"></script>
-    <script>
-    var file_name = guid();
-    $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
-    var croppicContainerEyecandyOptions = {
-				uploadUrl: '/v1/upload/?croppic=true&object_uuid=' + file_name,
-				cropUrl:'/v1/upload/' + file_name + '/crop/',
-				imgEyecandy:false,
-        rotateControls: false,
-				loaderHtml:'<div class="loader bubblingG"><span id="bubblingG_1"></span><span id="bubblingG_2"></span><span id="bubblingG_3"></span></div> '
-		};
-		var cropContainerEyecandy = new Croppic('cropProfilePictureEyecandy', croppicContainerEyecandyOptions);
-	</script>
+    <script src="{% static 'js/registration_profile_pic_croppic.js' %}"></script>
 {% endblock scripts %}

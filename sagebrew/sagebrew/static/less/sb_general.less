@@ -250,10 +250,10 @@
 .wallpaper_profile{
   &:extend(.sb_wallpaper);
   height: 250px;
-  margin-top: 30px;
+  margin-top: 0px;
   border-radius:5px 5px 0 0;
   //fixes gap at the bottom
-  margin-bottom: -35px;
+  margin-bottom: 0px;
 }
 .sb_wallpaper_action{
   &:extend(.sb_wallpaper);
@@ -875,12 +875,12 @@
 .sb_profile_pic{
   border-color: @sb_grey_light;
   margin-left: @sb_common_margin_positive;
-  margin-top: 65px;
-  width: 200px;
-  height:200px;
+  margin-top: 35px;
+  width: 203px;
   border-radius: 2px;
   position: absolute;
   padding:0;
+  z-index: 1;
 
 }
 // This is used as the css for collage plus after uploading images
@@ -1152,7 +1152,27 @@ textarea.sb_comment_input{
 
 #cropProfilePictureEyecandy{
   width:200px;
-  height:200px;
+  height: 200px;
   position: relative;
   border:1px solid #ccc;
+}
+
+#cropProfilePageEyecandy{
+  width:200px;
+  height: 200px;
+  position: relative;
+}
+
+#cropWallpaperPictureEyecandy{
+  &:extend(.wallpaper_profile);
+  position: relative;
+
+  //fixes gap at the bottom
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.cropControls{
+  margin-right: 5px;
+  margin-top: 5px;
 }

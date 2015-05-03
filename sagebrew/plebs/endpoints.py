@@ -1,5 +1,3 @@
-from logging import getLogger
-
 from elasticsearch import Elasticsearch, NotFoundError
 
 from django.template.loader import render_to_string
@@ -36,8 +34,6 @@ from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
                           FriendRequestSerializer)
 from .neo_models import Pleb, Address, FriendRequest
 from .utils import get_filter_by
-
-logger = getLogger('loggly_logs')
 
 
 class AddressViewSet(viewsets.ModelViewSet):

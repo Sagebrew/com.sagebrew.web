@@ -4,6 +4,7 @@
 {% block css %}
     {{ block.super }}
     <link href="{% static 'jcrop/css/jquery.Jcrop.css' %}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'css/vendor/croppic.css' %}" rel="stylesheet" type="text/css"/>
 {% endblock css %}
 {% block content %}
     <div id="user_info" style="display: none"
@@ -11,20 +12,25 @@
         data-page_user_username="{{ page_user.username }}"></div>
     <div class="row-fluid sb_page">
        <div class="thumbnail sb_profile_pic">
+
            {% if request.user.username == page_user.username %}
-               <button class="btn sb_btn_icon sb_btn_icon_green sb_btn_icon_settings_profile"
-                       id="update_profile_pic"><span class="fa fa-camera"></span></button>
-           {% endif %}
+               <div id="cropProfilePageEyecandy">
+                <img id="profile_pic" src="{{ page_profile.profile_pic }}">
+               </div>
+           {% else %}
             <img id="profile_pic" src="{{ page_profile.profile_pic }}">
-       </div>
+           {% endif %}
+           </div>
        <div align="right" class="row-fluid">
            {% static 'images/wallpaper_western.jpg' as default_wallpaper %}
-           <img id="wallpaper_pic" class="wallpaper_profile" src="{{ page_profile.wallpaper_pic|default_if_none:default_wallpaper }}">
+
            {% if request.user.username == page_user.username %}
-               <button class="btn sb_btn_icon sb_btn_icon_green sb_btn_icon_settings" id="update_wallpaper_pic"><span class="fa fa-camera"></span></button>
+               <div id="cropWallpaperPictureEyecandy">
+               <img id="wallpaper_pic" class="wallpaper_profile" src="{{ page_profile.wallpaper_pic|default_if_none:default_wallpaper }}">
+               </div>
            {% else %}
+               <img id="wallpaper_pic" class="wallpaper_profile" src="{{ page_profile.wallpaper_pic|default_if_none:default_wallpaper }}">
                {% comment %} A hack to get non-friend pages to load correctly{% endcomment %}
-               <span class="btn sb_btn_icon sb_btn_icon_green sb_btn_icon_settings" style="margin-bottom: 25px;" hidden="hidden"></span>
            {% endif %}
        </div>
        <div class="sb_nav sb_secondary_nav sb_secondary_nav_bar">
@@ -55,11 +61,13 @@
     <script src="{% static 'js/delete_friend_request.js' %}"></script>
     <script src="{% static 'js/sb_post_enter.js' %}"></script>
     <script src="{% static 'js/post_validator.js' %}"></script>
-    <script src="{% static 'jcrop/js/jquery.Jcrop.js' %}"></script>
-    <script src="{% static 'js/update_profile_picture.js' %}"></script>
-    <script src="{% static 'js/update_wallpaper_picture.js' %}"></script>
+    <script src="{% static 'js/vendor/jquery.mousewheel.min.js' %}"></script>
+   	<script src="{% static 'js/vendor/croppic.min.js' %}"></script>
     <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
+    <script src="{% static 'js/uuid.js' %}"></script>
     <script src="{% static 'js/flag_modal.js' %}"></script>
+    <script src="{% static 'js/profile_pic_croppic.js' %}"></script>
+    <script src="{% static 'js/wallpaper_pic_croppic.js' %}"></script>
     {% comment %}
     <script src="{% static 'js/get_dropzone.js' %}"></script>
     {% endcomment %}

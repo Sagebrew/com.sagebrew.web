@@ -1,3 +1,4 @@
+import bleach
 import pytz
 from datetime import datetime
 
@@ -22,6 +23,8 @@ class CommentSerializer(ContentSerializer):
     def create(self, validated_data):
         owner = validated_data.pop('owner', None)
         parent_object = validated_data.pop('parent_object', None)
+        validated_data['content'] = bleach.clean(
+            validated_data.get('content', ''))
         comment = Comment(**validated_data).save()
         comment.owned_by.connect(owner)
         owner.comments.connect(comment)
@@ -34,7 +37,8 @@ class CommentSerializer(ContentSerializer):
         return comment
 
     def update(self, instance, validated_data):
-        instance.content = validated_data.get('content', instance.content)
+        instance.content = bleach.clean(
+            validated_data.get('content', instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)
         instance.save()
         return instance

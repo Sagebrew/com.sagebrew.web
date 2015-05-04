@@ -1,3 +1,4 @@
+import bleach
 import pytz
 from datetime import datetime
 
@@ -26,6 +27,8 @@ class PostSerializerNeo(ContentSerializer):
             owner = Pleb.nodes.get(username=request.user.username)
             cache.set(request.user.username, owner)
         wall_owner = validated_data.pop('wall_owner_profile', None)
+        validated_data['content'] = bleach.clean(
+            validated_data.get('content', ''))
         post = Post(**validated_data).save()
         post.owned_by.connect(owner)
         owner.posts.connect(post)
@@ -36,7 +39,8 @@ class PostSerializerNeo(ContentSerializer):
         return post
 
     def update(self, instance, validated_data):
-        instance.content = validated_data.get('content', instance.content)
+        instance.content = bleach.clean(validated_data.get(
+            'content', instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)
         instance.save()
 

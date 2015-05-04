@@ -29,7 +29,7 @@ class FlagSerializer(VotableContentSerializer):
 
     def get_html_content(self, obj):
         if obj.content is not None:
-            return bleach.clean(markdown.markdown(obj.content))
+            return markdown.markdown(obj.content)
         else:
             return ""
 

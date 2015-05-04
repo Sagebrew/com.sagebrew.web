@@ -29,13 +29,15 @@ class FlagSerializer(VotableContentSerializer):
 
     def get_html_content(self, obj):
         if obj.content is not None:
-            return bleach.clean(markdown.markdown(obj.content))
+            return markdown.markdown(obj.content)
         else:
             return ""
 
     def create(self, validated_data):
         owner = validated_data.pop('owner', None)
         parent_object = validated_data.pop('parent_object', None)
+        validated_data['content'] = bleach.clean(
+            validated_data.get('content', ''))
         flag = Flag(**validated_data).save()
         flag.owned_by.connect(owner)
         owner.flags.connect(flag)

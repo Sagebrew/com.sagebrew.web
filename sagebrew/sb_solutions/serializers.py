@@ -1,3 +1,4 @@
+import bleach
 import pytz
 
 from datetime import datetime
@@ -26,7 +27,8 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
         if owner is None:
             owner = Pleb.nodes.get(username=request.user.username)
             cache.set(request.user.username, owner)
-
+        validated_data['content'] = bleach.clean(validated_data.get(
+            'content', ""))
         solution = Solution(**validated_data).save()
         solution.owned_by.connect(owner)
         owner.solutions.connect(solution)
@@ -36,7 +38,8 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
         return solution
 
     def update(self, instance, validated_data):
-        instance.content = validated_data.get('content', instance.content)
+        instance.content = bleach.clean(validated_data.get('content',
+                                                           instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)
         instance.save()
 

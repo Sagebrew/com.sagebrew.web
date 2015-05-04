@@ -1,9 +1,10 @@
+{% load static %}
 <div class="block sb_search_block">
     <div class="row">
        {% url "action_saga" username=object_uuid as the_url %}
         <div class="col-md-4 col-sm-4 col-xs-4">
             <div class="thumbnail sb_thumbnail_md sb_thumbnail_search" style="position: absolute; margin-top: -10px;">
-                <a href="{{ the_url }}"><img src="https://theunitedstates.io/images/congress/original/{{ bioguideid }}.jpg"></a>
+                <a href="{{ the_url }}"><img src="{% get_static_prefix %}images/congress/{{ bioguideid }}.jpg"></a>
             </div>
         </div>
         <div class="col-md-8 col-sm-12 col-xs-12">

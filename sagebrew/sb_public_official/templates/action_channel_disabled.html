@@ -1,12 +1,12 @@
 {% load staticfiles %}
 {% load static %}
 <div class="row sb_wallpaper hidden-xs">
-    {% static 'images/wallpaper_capitol.png' as default_wallpaper %}
+    {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
     <img class="sb_wallpaper_action" src="{{ representative.channel_wallpaper|default_if_none:default_wallpaper }}">
 </div>
 <div class="row block sb_channel_block">
     <div class="col-lg-1 col-md-2 hidden-sm hidden-xs">
-       <div class="thumbnail sb_thumbnail_md"><img src="{% get_static_prefix %}images/congress/{{ representative.bioguideid }}.jpg"></div>
+       <div class="thumbnail sb_thumbnail_md"><img src="{% get_static_prefix %}images/congress/225x275/{{ representative.bioguideid }}.jpg"></div>
     </div>
     <div class="col-lg-6 col-md-6 col-sm-12 cl-xs-12">
         <div class="block sb_bio_block sb_markdown_disabled">

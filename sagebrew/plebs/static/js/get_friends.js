@@ -2,7 +2,7 @@
 $(document).ready(function () {
     "use strict";
     function removeFriend() {
-        $(".remove_friend").click(function (event) {
+        $(".js-remove_friend").click(function (event) {
             event.preventDefault();
             var friendToRemove = $(this).data('remove_friend');
             $.ajaxSetup({

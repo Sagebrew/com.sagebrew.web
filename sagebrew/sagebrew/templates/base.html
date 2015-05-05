@@ -5,17 +5,13 @@
     <title>{% block title %}Sagebrew{% endblock title %}</title>
     {% block description %}{% endblock description %}
     {% block css %}
-       <link rel="stylesheet" href="{% static 'css/vendor/font-awesome-4.3.0/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/vendor/font-awesome-4.3.0/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/vendor/jquery.pagedown-bootstrap.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/vendor/bootstrapValidator.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/vendor/transitions.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/vendor/dropzone.css' %}"/>
+    <link rel="stylesheet" href="{% static 'dist/build/styles.css' %}"/>
 
-        <link rel="stylesheet" href="{% static 'flat-ui/dist/css/vendor/bootstrap.min.css' %}" >
-        <link rel="stylesheet" href="{% static 'flat-ui/dist/css/flat-ui-pro.min.css' %}" />
-        <link rel="stylesheet" href="{% static 'css/vendor/jquery.pagedown-bootstrap.css' %}"/>
-        <link rel="stylesheet" href="{% static 'css/vendor/bootstrapValidator.min.css' %}">
-
-        <link rel="stylesheet" href="{% static 'less/sb_general.css' %}"/>
-        <link rel="stylesheet" href="{% static 'less/sb_markdown.css' %}"/>
-        <link rel="stylesheet" href="{% static 'css/vendor/transitions.css' %}"/>
-        <link rel="stylesheet" href="{% static 'css/vendor/dropzone.css' %}"/>
     {% endblock css %}
 
 <script type="text/javascript">
@@ -48,8 +44,8 @@ window.NREUM||(NREUM={}),__nr_require=function(t,e,n){function r(n){if(!e[n]){va
         </div>
 
 {% block scripts %}
-    <script src="{% static 'flat-ui/dist/js/vendor/jquery.min.js' %}"></script>
-    <script src="{% static 'flat-ui/dist/js/flat-ui-pro.min.js' %}"></script>
+    <script src="{% static 'js/vendor/jquery.min.js' %}"></script>
+    <script src="{% static 'js/vendor/flat-ui-pro.js' %}"></script>
     <script src="{% static 'js/vendor/jquery.cookie.js' %}"></script>
     <script src="{% static 'js/vendor/bootstrapValidator.min.js' %}"></script>
     <script src="{% static 'js/vendor/imagesloaded.pkgd.min.js' %}"></script>
@@ -68,11 +64,8 @@ window.NREUM||(NREUM={}),__nr_require=function(t,e,n){function r(n){if(!e[n]){va
         {% if "intercom" in request_profile.actions and "/registration/" not in request.path %}
             <script>
               window.intercomSettings = {
-                // TODO: The current logged in user's full name
                 name: "{{ request.user.name }}",
-                // TODO: The current logged in user's email address.
                 email: "{{ request.user.email }}",
-                // TODO: The current logged in user's sign-up date as a Unix timestamp.
                 created_at: {{ request.user.date_joined|date:"U" }},
                 {% if debug %}
                     app_id: "jmz4pnau"
@@ -93,5 +86,6 @@ window.NREUM||(NREUM={}),__nr_require=function(t,e,n){function r(n){if(!e[n]){va
 {% block analytics %}
     {% include "google_analytics.html" %}
 {% endblock analytics %}
+<script type="text/javascript" src="https://sagebrew.atlassian.net/s/6d491891786c7149f0ca788a4aaa5c8f-T/en_USa3mwsx/65000/48/1.4.25/_/download/batch/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector.js?locale=en-US&collectorId=dc3944b6"></script>
 </body>
 </html>

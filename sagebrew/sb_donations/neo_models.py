@@ -1,4 +1,4 @@
-from neomodel import (RelationshipTo, BooleanProperty, FloatProperty)
+from neomodel import (RelationshipTo, BooleanProperty, IntegerProperty)
 
 from api.neo_models import SBObject
 
@@ -26,7 +26,7 @@ class Donation(SBObject):
     # Set as a float to enable change to be specified. Even though from an
     # interface perspective we probably want to maintain that donations of
     # 5, 10, 100, etc are made.
-    amount = FloatProperty()
+    amount = IntegerProperty()
 
     # relationships
     # donated_for is what goal the user actually pledged the donation to.

@@ -1,4 +1,4 @@
-from neomodel import (StringProperty, IntegerProperty, FloatProperty,
+from neomodel import (StringProperty, IntegerProperty,
                       BooleanProperty, RelationshipTo, DateTimeProperty)
 
 from api.neo_models import SBObject
@@ -40,7 +40,7 @@ class Goal(SBObject):
     # Optional
     description = StringProperty()
     pledged_vote_requirement = IntegerProperty(default=0)
-    monetary_requirement = FloatProperty(default=0)
+    monetary_requirement = IntegerProperty(default=0)
 
     # relationships
     updates = RelationshipTo('sb_updates.neo_models.Update', "UPDATE_FOR")

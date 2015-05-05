@@ -1,0 +1,156 @@
+@import url(https://fonts.googleapis.com/css?family=Inconsolata);
+.sb_markdown {
+  word-wrap: break-word;
+  color: @sb_dark_blue;
+  h1 {
+    border-bottom: 2px solid @sb_grey;
+    padding-bottom: 5px;
+    margin-top: 15px;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  h2 {
+    border-bottom: 1px solid @sb_grey;
+    font-size: 26px;
+    font-weight: bold;
+  }
+  h3 {
+    padding-top: 20px;
+    font-size: 22px;
+    font-weight: bold;
+  }
+  h4 {
+    padding-top: 15px;
+    font-size: 19px;
+    font-weight: bold;
+  }
+  h5 {
+    padding-top: 15px;
+    font-size: 19px;
+    font-weight: bold;
+    font-style: italic;
+  }
+  h6 {
+    padding-top: 15px;
+    font-size: 17px;
+    font-weight: bold;
+    font-style: italic;
+  }
+  p {
+    font-size: 16px;
+  }
+  img {
+    max-height: 300px;
+    max-width: 400px;
+  }
+  textarea {
+    border-radius: @sb_common_radius;
+    width: 100%;
+    resize: vertical;
+    margin-bottom: 25px;
+    font-size: 16px;
+  }
+  ul {
+    font-size: 16px;
+  }
+  hr {
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+  pre {
+    display: block;
+    padding-left: 20px;
+    overflow: scroll;
+    word-wrap: normal;
+    background-color: rgba(0,0,0,0.04);
+    color: #323232;
+    font-family: "Inconsolata", Monaco, monospace;
+    font-size: 11pt;
+    border-radius: @sb_common_radius;
+    padding-top: 10px;
+    padding-bottom: 5px;
+    word-break: normal;
+    white-space: pre;
+  }
+  code {
+    display: inline-block;
+    font-family: "Inconsolata", Monaco, monospace;
+    white-space: pre;
+  }
+  img {
+    border-radius: @sb_common_radius;
+    max-width: 696px;
+    max-height: 696px;
+  }
+  blockquote{
+// This is how you would add the quotes next to the quote however does not work
+// as is
+//    &:before{
+//      content: "\201C";
+//      font-size: 80px;
+//      color: #7a7a7a;
+//    }
+    font-size: 11pt;
+    color: @sb_grey_dark;
+  }
+}
+.sb_markdown_disabled{
+  &:extend(.sb_markdown);
+  h4{
+    color: @sb_grey_dark;
+    text-shadow: 0px 2px 3px @sb_off_white;
+  }
+  p{
+    color: @sb_grey_dark;
+    text-shadow: 0px 2px 3px @sb_off_white;
+  }
+}
+.sb_help_article{
+  &:extend(.sb_markdown);
+  padding: @sb_common_padding_positive @sb_common_padding_positive 50px;
+  border-radius: @sb_common_radius;
+  background-color: @sb_green_wall;
+  margin-right: 0;
+
+}
+
+// Modals
+.sb_modal {
+  &:extend(.sb_markdown);
+  height: 250px;
+}
+
+.sb_help_article_content{
+  height: auto;
+  background-color: @sb_off_white;
+  padding-top: @sb_common_padding_positive;
+  padding-right: @sb_common_padding_positive;
+  padding-bottom: @sb_common_padding_positive;
+  border-radius: @sb_common_radius;
+  margin-left: 25px;
+  margin-right: 20px;
+}
+.related_article_wrapper{
+  background-color: @sb_off_white;
+  padding-top: @sb_common_padding_positive;
+  padding-left: @sb_common_padding_positive;
+  padding-right: @sb_common_padding_positive;
+  padding-bottom: @sb_common_padding_positive;
+  border-radius: @sb_common_radius;
+  margin-right: -20px;
+  ul{
+    font-size: 12pt;
+  }
+}
+.sb_help_center{
+  height: 100%;
+  background-color: @sb_off_white;
+  padding-top: @sb_common_padding_positive;
+  padding-left: @sb_common_padding_positive;
+  padding-right: @sb_common_padding_positive;
+  border-radius: @sb_common_radius;
+  margin-top: 30px;
+  margin-left: 50px;
+  padding-bottom: 40px;
+
+}

@@ -1,51 +1,63 @@
-.sb_general{
+body {
   color: @sb_dark_blue;
   word-wrap: break-word;
-  h1{
-    font-weight: bold;
-    font-size: 30px;
-  }
-  h2{
-    font-weight: bold;
-    font-size: 28px;
-  }
-  h3{
-    font-weight: bold;
-    font-size: 26px;
-    color: @sb_grey_dark;
-    margin-top: @sb_common_margin_positive;
-    margin-bottom: @sb_common_margin_positive;
-    }
-  h4{
-    font-weight: bold;
-    font-size: 24px;
-  }
-  h5{
-    font-weight: normal;
-    font-size: 22px;
-    color: @sb_grey_dark;
-  }
-  h6{
-    font-weight: bold;
-    font-size: 20px;
-    color: @sb_dark_blue;
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-  p{
-    font-size: 18px;
-    line-height: 25px;
-    }
-  small{
-    font-size: @sb_data_text;
-  }
-  a {
-    color: @sb_green;
-  }
+  background-color: @sb_grey;
 }
 
+h1 {
+  font-weight: bold;
+  font-size: 30px;
+}
+h2 {
+  font-weight: bold;
+  font-size: 28px;
+}
+h3 {
+  font-weight: bold;
+  font-size: 26px;
+  color: @sb_grey_dark;
+  margin-top: @sb_common_margin_positive;
+  margin-bottom: @sb_common_margin_positive;
+}
 
-//html tag padding fixes
+h4 {
+  font-weight: bold;
+  font-size: 24px;
+}
+
+h5 {
+  font-weight: normal;
+  font-size: 22px;
+  color: @sb_grey_dark;
+}
+
+h6 {
+  font-weight: bold;
+  font-size: 20px;
+  color: @sb_dark_blue;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+p {
+  font-size: 18px;
+  line-height: 25px;
+}
+
+small {
+  font-size: @sb_data_text;
+}
+
+a {
+  color: @sb_green;
+}
+
+.container-fluid.container-main {
+  margin-top:60px;
+  padding-left:0;
+  padding-right:0;
+}
+
 
 // Blocks
 .block{
@@ -240,6 +252,7 @@
     margin-top: 45px;
   }
 }
+
 //wallpaper
 .sb_wallpaper{
   background-color: @sb_grey_extra_light;
@@ -843,11 +856,7 @@
   margin-right: 0;
 }
 
-.sb_background {
-  background-size: cover;
-  background-color: @sb_grey;
-  padding: 0 -15px 0 0;
-}
+
 #sb_search_input{
   width: 400px;
   border-radius: 5px 0 0 5px;

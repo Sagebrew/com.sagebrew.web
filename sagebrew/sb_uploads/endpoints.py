@@ -8,6 +8,7 @@ from logging import getLogger
 
 from django.conf import settings
 from django.core.cache import cache
+from django.core.files.uploadhandler import TemporaryUploadedFile
 
 from PIL import Image
 from rest_framework.response import Response
@@ -66,7 +67,6 @@ class UploadViewSet(viewsets.ModelViewSet):
                                                     str(uuid1()))
         croppic = self.request.query_params.get('croppic', 'false').lower()
         markdown = self.request.query_params.get('markdown', 'false').lower()
-        logger.info(request.data)
         file_object = request.data.get('file', None)
         if file_object is None:
             file_object = request.data.get('img', None)
@@ -77,7 +77,10 @@ class UploadViewSet(viewsets.ModelViewSet):
                                       context={'request': request})
         if serializer.is_valid():
             another_file_object = deepcopy(file_object)
-            image = Image.open(another_file_object)
+            if isinstance(another_file_object, TemporaryUploadedFile):
+                image = Image.open(another_file_object.temporary_file_path())
+            else:
+                image = Image.open(another_file_object)
             image_format = image.format
             width, height = image.size
             request.data['object_uuid'] = object_uuid

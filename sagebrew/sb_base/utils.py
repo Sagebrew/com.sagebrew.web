@@ -9,7 +9,7 @@ from rest_framework.views import exception_handler
 from rest_framework import status
 from rest_framework.response import Response
 
-from neomodel.exception import CypherException
+from neomodel.exception import CypherException, DoesNotExist
 
 from sagebrew import errors
 
@@ -55,6 +55,10 @@ def custom_exception_handler(exc, context):
         data = errors.JSON_ERROR_EXCEPTION
         logger.exception("%s JSON Exception" % context['view'])
         return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    if isinstance(exc, DoesNotExist):
+        data = errors.DOES_NOT_EXIST_EXCEPTION
+        return Response(data, status=status.HTTP_404_NOT_FOUND)
     response = exception_handler(exc, context)
 
     if response is not None:

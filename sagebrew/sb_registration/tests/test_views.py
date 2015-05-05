@@ -9,6 +9,8 @@ from django.test import TestCase, RequestFactory, Client
 from django.contrib.sessions.backends.db import SessionStore
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
+from django.core.cache import cache
+
 from rest_framework.test import APIRequestFactory
 from rest_framework import status
 
@@ -688,6 +690,7 @@ class TestEmailVerificationView(TestCase):
         self.pleb.save()
 
     def test_email_verification_view_success(self):
+        cache.clear()
         user = authenticate(username=self.user.username,
                             password='testpassword')
         request = self.factory.request()

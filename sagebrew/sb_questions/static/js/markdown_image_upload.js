@@ -5,7 +5,7 @@ $(document).ready(function () {
             $('#fileModal').modal();
             $("#insert_image_post").click(function(e) {
                 e.preventDefault();
-                var image=$("#img-url").val();
+                var image = $("#img-url").val();
                 callback(image);
                 $("#fileModal").modal('hide');
             });

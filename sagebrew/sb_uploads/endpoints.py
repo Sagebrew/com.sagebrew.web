@@ -66,7 +66,6 @@ class UploadViewSet(viewsets.ModelViewSet):
         object_uuid = self.request.query_params.get('object_uuid',
                                                     str(uuid1()))
         croppic = self.request.query_params.get('croppic', 'false').lower()
-        markdown = self.request.query_params.get('markdown', 'false').lower()
         file_object = request.data.get('file', None)
         if file_object is None:
             file_object = request.data.get('img', None)

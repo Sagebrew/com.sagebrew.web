@@ -99,8 +99,6 @@ class UploadViewSet(viewsets.ModelViewSet):
                                  "width": upload.width,
                                  "height": upload.height},
                                 status=status.HTTP_200_OK)
-            if markdown == 'true':
-                return Response({"url": upload.url}, status=status.HTTP_200_OK)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -139,7 +137,7 @@ class UploadViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             owner = cache.get(request.user.username)
             if owner is None:
-                owner = Pleb.noes.get(username=request.user.username)
+                owner = Pleb.nodes.get(username=request.user.username)
                 owner.set(request.user.username, owner)
             upload = serializer.save(owner=owner,
                                      width=crop_data['crop_width'],

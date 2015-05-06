@@ -41,6 +41,9 @@ class FileSize:
 class UploadSerializer(SBSerializer):
     file_format = serializers.CharField(validators=[MediaType(), ])
     file_size = serializers.IntegerField(validators=[FileSize(), ])
+    width = serializers.IntegerField(read_only=True)
+    height = serializers.IntegerField(read_only=True)
+    url = serializers.CharField(read_only=True)
 
     def create(self, validated_data):
         owner = validated_data.pop('owner')

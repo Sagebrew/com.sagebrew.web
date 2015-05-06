@@ -9,9 +9,6 @@ from rest_framework.test import APITestCase
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
-from logging import getLogger
-logger = getLogger('loggly_logs')
-
 
 class UploadEndpointTests(APITestCase):
     def setUp(self):
@@ -21,6 +18,15 @@ class UploadEndpointTests(APITestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
+        self.client.force_authenticate(user=self.user)
+        self.uuid = str(uuid1())
+        with open("sb_posts/tests/images/test_image.jpg", 'rb') as image:
+            data = {"file": image}
+            url = reverse('upload-list') + "?object_uuid=" + self.uuid
+            response = self.client.post(url, data, format='multipart')
+            self.url = response.data['url']
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.client.logout()
 
     def test_unauthorized(self):
         url = reverse('upload-list')
@@ -71,10 +77,6 @@ class UploadEndpointTests(APITestCase):
             data = {"file": image}
             url = reverse('upload-list') + "?object_uuid=" + uuid
             response = self.client.post(url, data, format='multipart')
-            self.assertEqual({'file_size': 2560, 'type': 'uploadedobject',
-                              'id': uuid,
-                              'file_format': u'jpeg'},
-                             response.data)
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_delete(self):
@@ -84,15 +86,10 @@ class UploadEndpointTests(APITestCase):
             data = {"file": image}
             url = reverse('upload-list') + "?object_uuid=" + uuid
             response = self.client.post(url, data, format='multipart')
-            self.assertEqual({'file_size': 2560, 'type': 'uploadedobject',
-                              'id': uuid,
-                              'file_format': u'jpeg'},
-                             response.data)
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         url = reverse("upload-detail", kwargs={"object_uuid": uuid})
         response = self.client.delete(url)
-        self.assertEqual({"detail": None}, response.data)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_no_object_delete(self):
@@ -116,7 +113,6 @@ class UploadEndpointTests(APITestCase):
                              response.data)
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             uploaded_url = response.data['url']
-            logger.info(uploaded_url)
         crop_url = reverse('upload-crop', kwargs={'object_uuid': uuid}) + \
             "?resize=true&croppic=true"
         crop_data = {
@@ -134,3 +130,45 @@ class UploadEndpointTests(APITestCase):
                           "profile": response.data['profile']},
                          response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_height(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('upload-detail', kwargs={"object_uuid": self.uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(80, response.data['height'])
+
+    def test_get_width(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('upload-detail', kwargs={"object_uuid": self.uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(80, response.data['width'])
+
+    def test_get_url(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('upload-detail', kwargs={"object_uuid": self.uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(self.url, response.data['url'])
+
+    def test_get_file_size(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('upload-detail', kwargs={"object_uuid": self.uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(2560, response.data['file_size'])
+
+    def test_get_file_format(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('upload-detail', kwargs={"object_uuid": self.uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual('jpeg', response.data['file_format'])
+
+    def test_get_id(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('upload-detail', kwargs={"object_uuid": self.uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(self.uuid, response.data['id'])
+
+    def test_get_type(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('upload-detail', kwargs={"object_uuid": self.uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual('uploadedobject', response.data['type'])

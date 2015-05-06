@@ -21,6 +21,9 @@ if envips is not None:
 
 WEB_ADDRESS = "https://sagebrew.local.dev"
 
+# This is here because locally we do not have ssl certification.
+# Please ensure you are never hardcoding False into the requests
+# calls
 VERIFY_SECURE = False
 if not VERIFY_SECURE:
     from requests.packages.urllib3.exceptions import InsecureRequestWarning

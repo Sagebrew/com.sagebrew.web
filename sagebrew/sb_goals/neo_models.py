@@ -45,10 +45,10 @@ class Goal(SBObject):
     # relationships
     updates = RelationshipTo('sb_updates.neo_models.Update', "UPDATE_FOR")
     donations = RelationshipTo('sb_donations.neo_models.Donation', "RECEIVED")
-    round = RelationshipTo('sb_goals.neo_models.Rounds', "PART_OF")
+    round = RelationshipTo('sb_goals.neo_models.Round', "PART_OF")
     previous_goal = RelationshipTo('sb_goals.neo_models.Goal', "PREVIOUS")
     next_goal = RelationshipTo('sb_goals.neo_models.Goal', "NEXT")
-    cause = RelationshipTo('sb_causes.neo_models.Cause', 'SET_FOR')
+    campaign = RelationshipTo('sb_campaigns.neo_models.Campaign', 'SET_FOR')
 
 
 class Round(SBObject):
@@ -68,4 +68,5 @@ class Round(SBObject):
     goals = RelationshipTo('sb_goals.neo_models.Goal', "STRIVING_FOR")
     previous_round = RelationshipTo('sb_goals.neo_models.Round', "PREVIOUS")
     next_round = RelationshipTo('sb_goals.neo_models.Round', "NEXT")
-    cause = RelationshipTo('sb_causes.neo_models.Cause', 'ASSOCIATED_WITH')
+    campaign = RelationshipTo('sb_campaigns.neo_models.Campaign',
+                              'ASSOCIATED_WITH')

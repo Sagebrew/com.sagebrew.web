@@ -24,9 +24,10 @@ class TagViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         exclude_base = self.request.query_params.get('exclude_base', 'false')\
             .lower()
-        query_mod = ""
         if exclude_base == 'true':
-            query_mod = "WHERE t.base=false"
+            query_mod = "WHERE t.base=false AND NOT t:AutoTag"
+        else:
+            query_mod = "WHERE NOT t:AutoTag"
         query = "MATCH (t:Tag) %s RETURN t" % (query_mod)
         res, col = db.cypher_query(query)
         return [Tag.inflate(row[0]) for row in res]

@@ -87,7 +87,7 @@ class UploadViewSet(viewsets.ModelViewSet):
             owner = cache.get(request.user.username)
             if owner is None:
                 owner = Pleb.nodes.get(username=request.user.username)
-                owner.set(request.user.username, owner)
+                cache.set(request.user.username, owner)
             upload = serializer.save(owner=owner, width=width, height=height,
                                      file_object=file_object,
                                      file_name=file_name,

@@ -65,7 +65,12 @@ $(document).ready(function () {
                 cache: false,
                 processData: false,
                 success: function (data) {
-                    $("#cropProfilePageEyecandy").append('<img id="profile_pic" src="' + data.profile_pic + '">');
+                    var profilePicture = $("#profile_pic");
+                    if (profilePicture.length === 0) {
+                        $("#cropProfilePageEyecandy").append('<img id="profile_pic" src="' + data.profile_pic + '">');
+                    } else {
+                        profilePicture.attr('src', data.profile_pic);
+                    }
                 },
                 error: function () {
                     $('.alert-dismissible').show();

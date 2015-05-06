@@ -72,7 +72,12 @@ $(document).ready(function () {
                 cache: false,
                 processData: false,
                 success: function (data) {
-                    $("#cropWallpaperPictureEyecandy").append('<img id="wallpaper_pic" src="' + data.wallpaper_pic + '">');
+                    var wallpaperImg = $("#wallpaper_pic");
+                    if (wallpaperImg.length === 0) {
+                        $("#cropWallpaperPictureEyecandy").append('<img id="wallpaper_pic" src="' + data.wallpaper_pic + '">');
+                    } else {
+                        wallpaperImg.attr('src', data.wallpaper_pic);
+                    }
                 },
                 error: function () {
                     $('.alert-dismissible').show();

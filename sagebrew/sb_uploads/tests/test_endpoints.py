@@ -97,7 +97,7 @@ class UploadEndpointTests(APITestCase):
         uuid = str(uuid1())
         url = reverse("upload-detail", kwargs={"object_uuid": uuid})
         response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_crop(self):
         self.client.force_authenticate(user=self.user)

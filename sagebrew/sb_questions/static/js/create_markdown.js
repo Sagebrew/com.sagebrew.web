@@ -1,6 +1,6 @@
 /*global $, jQuery, ajaxSecurity, guid, Croppic*/
-"use strict";
 $(document).ready(function () {
+    "use strict";
     var questionPagedown = $("textarea#question_content_id").pagedownBootstrap({
         "sanatize": false,
         'editor_hooks': [

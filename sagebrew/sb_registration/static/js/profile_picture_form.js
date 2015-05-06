@@ -41,11 +41,7 @@ $( document ).ready(function() {
         e.preventDefault();
         $(".jcrop-holder").spin("small");
         var form = new FormData($('#uploadForm')[0]);
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
+
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",

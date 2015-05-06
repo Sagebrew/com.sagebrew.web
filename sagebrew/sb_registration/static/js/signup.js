@@ -2,11 +2,7 @@ $( document ).ready(function() {
 	$("#submit_signup").click(function(event){
         $(this).attr("disabled", "disabled");
         event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
+
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",

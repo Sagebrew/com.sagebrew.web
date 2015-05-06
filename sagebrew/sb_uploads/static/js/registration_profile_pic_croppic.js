@@ -2,11 +2,6 @@
 $(document).ready(function () {
     "use strict";
     var fileName = guid();
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-            ajaxSecurity(xhr, settings);
-        }
-    });
     var croppicContainerEyecandyOptions = {
         uploadUrl: '/v1/upload/?croppic=true&object_uuid=' + fileName,
         cropUrl: '/v1/upload/' + fileName + '/crop/?resize=true&croppic=true',

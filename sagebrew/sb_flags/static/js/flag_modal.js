@@ -13,13 +13,7 @@ $(document).ready(function () {
     $('#flag_modal_submit').on('click', function (event) {
         var flagModal = $('#flagModal');
         $("#flag_modal_submit").attr("disabled", "disabled");
-        $.ajaxSetup(
-            {
-                beforeSend: function (xhr, settings) {
-                    ajaxSecurity(xhr, settings);
-                }
-            }
-        );
+
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",

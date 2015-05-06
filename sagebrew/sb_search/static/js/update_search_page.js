@@ -6,11 +6,7 @@ $(document).ready(function () {
             event.preventDefault();
             var sendRequest = $(this);
             sendRequest.attr("disabled", "disabled");
-            $.ajaxSetup({
-                beforeSend: function (xhr, settings) {
-                    ajaxSecurity(xhr, settings);
-                }
-            });
+
             $.ajax({
                 xhrFields: {withCredentials: true},
                 type: "POST",
@@ -45,11 +41,7 @@ $(document).ready(function () {
     if (filter === 'undefined') {
         filter = "";
     }
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-            ajaxSecurity(xhr, settings);
-        }
-    });
+
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
@@ -67,11 +59,7 @@ $(document).ready(function () {
                 $.each(dataList, function (i, item) {
                     if (item.type === 'question') {
                         var objectUUID = item.question_uuid;
-                        $.ajaxSetup({
-                            beforeSend: function (xhr, settings) {
-                                ajaxSecurity(xhr, settings);
-                            }
-                        });
+
                         $.ajax({
                             xhrFields: {withCredentials: true},
                             type: "GET",
@@ -85,11 +73,7 @@ $(document).ready(function () {
                     }
                     if (item.type === 'profile') {
                         var username = item.username;
-                        $.ajaxSetup({
-                            beforeSend: function (xhr, settings) {
-                                ajaxSecurity(xhr, settings);
-                            }
-                        });
+
                         $.ajax({
                             xhrFields: {withCredentials: true},
                             type: "GET",
@@ -104,11 +88,7 @@ $(document).ready(function () {
                     }
                     if (item.type === 'public_official') {
                         var sagaUUID = item.object_uuid;
-                        $.ajaxSetup({
-                            beforeSend: function (xhr, settings) {
-                                ajaxSecurity(xhr, settings);
-                            }
-                        });
+
                         $.ajax({
                             xhrFields: {withCredentials: true},
                             type: "GET",

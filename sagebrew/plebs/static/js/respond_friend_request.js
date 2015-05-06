@@ -1,11 +1,7 @@
 $("#friend_request_div").on("mouseenter", "a", function () {
     $(".respond_friend_request-action").click(function (event) {
         event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
+
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",

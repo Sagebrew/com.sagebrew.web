@@ -22,9 +22,6 @@ $(document).ready(function () {
     }), next = "/v1/tags/suggestion_engine?exclude_base=true&page_size=500";
     engine.initialize();
     function loadTags(url) {
-        $.ajaxSetup({beforeSend: function (xhr, settings) {
-            ajaxSecurity(xhr, settings);
-        }});
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "GET",

@@ -2,11 +2,6 @@
 $(document).ready(function () {
     "use strict";
     var fileName = guid();
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-            ajaxSecurity(xhr, settings);
-        }
-    });
     function createUrl(uuid) {
         return '/v1/upload/?croppic=true&object_uuid=' + uuid;
     }

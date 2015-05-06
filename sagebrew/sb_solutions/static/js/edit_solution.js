@@ -3,11 +3,7 @@ $(document).ready(function(){
         event.preventDefault();
         $("#submit_solution").attr("disabled", "disabled");
         var uuid = $(this).data('object_uuid');
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
+
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "PUT",

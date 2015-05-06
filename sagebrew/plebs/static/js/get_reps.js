@@ -1,10 +1,6 @@
 $(document).ready(function(){
     var username = $("#user_info").data("page_user_username");
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-            ajaxSecurity(xhr, settings)
-        }
-    });
+
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
@@ -14,11 +10,6 @@ $(document).ready(function(){
         success: function(data) {
             $("#senator_wrapper").append(data);
             $("#house_rep_wrapper").append(data['rep_html']);
-            $.ajaxSetup({
-                beforeSend: function (xhr, settings) {
-                    ajaxSecurity(xhr, settings)
-                }
-            });
             $.ajax({
                 xhrFields: {withCredentials: true},
                 type: "GET",

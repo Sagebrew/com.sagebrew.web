@@ -1,9 +1,4 @@
 $( document ).ready(function() {
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
         var timeOutId = 0;
         var solutionLoadFxn = function () {
             $.ajax({

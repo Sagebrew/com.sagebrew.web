@@ -1,5 +1,6 @@
 /*global $, jQuery, ajaxSecurity, guid, Croppic*/
 $(document).ready(function () {
+    "use strict";
     var fileName = guid();
     $.ajaxSetup({
         beforeSend: function (xhr, settings) {
@@ -31,18 +32,19 @@ $(document).ready(function () {
                     $('.alert-dismissible').show();
                 }
             });
+            cropContainerEyecandy.reset();
         },
         onError: function (errormsg) {
-            var file_size_error = errormsg.responseJSON.file_size;
-            var file_format_error = errormsg.responseJSON.file_format;
-            if (typeof file_format_error === "undefined" || file_format_error === null) {
-                file_format_error = "";
+            var fileSizeError = errormsg.responseJSON.file_size;
+            var fileFormatError = errormsg.responseJSON.file_format;
+            // Reasoning behind using typeof comparison http://stackoverflow.com/questions/2778901/javascript-undefined-compare
+            if (typeof fileFormatError === "undefined" || fileFormatError === null) {
+                fileFormatError = "";
             }
-            if (typeof file_size_error === "undefined" || file_size_error === null) {
-                file_size_error = "";
+            if (typeof fileSizeError === "undefined" || fileSizeError === null) {
+                fileSizeError = "";
             }
-            alert(file_size_error + "\n" + file_format_error);
-            cropContainerEyecandy.reset();
+            alert(fileSizeError + "\n" + fileFormatError);
         },
         onReset: function () {
             $.ajax({

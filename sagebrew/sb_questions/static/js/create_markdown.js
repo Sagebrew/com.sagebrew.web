@@ -1,3 +1,5 @@
+/*global $, jQuery, ajaxSecurity, guid, Croppic*/
+"use strict";
 $(document).ready(function () {
     var question_pagedown = $("textarea#question_content_id").pagedownBootstrap({
         "sanatize": false,
@@ -22,7 +24,7 @@ $(document).ready(function () {
                                 $.ajax({
                                     xhrFields: {withCredentials: true},
                                     type: "POST",
-                                    url: "/v1/upload/?markdown=true",
+                                    url: "/v1/upload/",
                                     contentType: false,
                                     processData: false,
                                     dataType: "json",

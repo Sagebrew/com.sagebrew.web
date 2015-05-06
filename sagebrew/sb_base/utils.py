@@ -57,6 +57,12 @@ def custom_exception_handler(exc, context):
         return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     if isinstance(exc, DoesNotExist):
+        request = context.get('request', None)
+        if request is not None:
+            if request.method == 'DELETE':
+                return Response({"detail": None,
+                                 "status": status.HTTP_204_NO_CONTENT},
+                                status=status.HTTP_204_NO_CONTENT)
         data = errors.DOES_NOT_EXIST_EXCEPTION
         return Response(data, status=status.HTTP_404_NOT_FOUND)
     response = exception_handler(exc, context)

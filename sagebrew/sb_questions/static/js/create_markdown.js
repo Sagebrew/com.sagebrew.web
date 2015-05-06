@@ -14,11 +14,7 @@ $(document).ready(function () {
                                     var formdata = new FormData();
                                     var file = $("#upload_image")[0].files[0];
                                     formdata.append("myFile", file);
-                                    $.ajaxSetup({
-                                        beforeSend: function (xhr, settings) {
-                                            ajaxSecurity(xhr, settings)
-                                        }
-                                    });
+
                                     $.ajax({
                                         xhrFields: {withCredentials: true},
                                         type: "POST",

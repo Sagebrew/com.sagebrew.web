@@ -6,11 +6,6 @@ $(document).ready(function () {
         $(".js-page-object").each(function () {
             objectList.push($(this).data('object_uuid'));
         });
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings);
-            }
-        });
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",

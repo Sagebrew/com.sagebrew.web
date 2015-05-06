@@ -1,11 +1,7 @@
 $( document ).ready(function() {
 	$(".submit_edit-action").click(function(event){
 		event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                    ajaxSecurity(xhr, settings)
-                }
-            });
+
             $.ajax({
                 xhrFields: {withCredentials: true},
                 type: "GET",
@@ -24,11 +20,7 @@ $( document ).ready(function() {
                             'content': $('textarea#wmd-input-0').val()
                         };
                     }
-                    $.ajaxSetup({
-                        beforeSend: function (xhr, settings) {
-                            ajaxSecurity(xhr, settings)
-                        }
-                    });
+
                     $.ajax({
                         xhrFields: {withCredentials: true},
                         type: "PATCH",

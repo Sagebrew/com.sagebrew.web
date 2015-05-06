@@ -2,11 +2,7 @@ $(document).ready(function(){
     $("#delete_button").click(function(event){
         event.preventDefault();
         var username = $("#username").data("username");
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
+
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "DELETE",
@@ -47,11 +43,7 @@ $(document).ready(function(){
             json_data['password'] = old_password;
             json_data['new_password'] = new_password;
         }
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
+
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "PATCH",
@@ -62,11 +54,7 @@ $(document).ready(function(){
             success: function (data) {
             }
         });
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
+
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "PUT",

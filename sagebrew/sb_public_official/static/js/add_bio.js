@@ -1,11 +1,7 @@
 $( document ).ready(function() {
     $(".add_bio").click(function (event) {
         event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
+
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "GET",
@@ -24,11 +20,7 @@ $( document ).ready(function() {
 $(document).ready(function(){
     $(".submit_bio-action").click(function(event){
         event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
+
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",

@@ -1,11 +1,7 @@
 $(document).ready(function(){
     var initial_image = $("#profile_pic").attr('src');
     var file_name = guid();
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-            ajaxSecurity(xhr, settings)
-        }
-    });
+
     var croppicContainerEyecandyOptions = {
         uploadUrl: '/v1/upload/?croppic=true&object_uuid=' + file_name,
         cropUrl:'/v1/upload/' + file_name + '/crop/?resize=true&croppic=true',

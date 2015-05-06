@@ -1,9 +1,4 @@
 $( document ).ready(function() {
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
         var timeOutId = 0;
         var questionEditLoad = function () {
             $.ajax({
@@ -35,11 +30,7 @@ $( document ).ready(function() {
             });
         };
     var checkSolutionCount = function (){
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                    ajaxSecurity(xhr, settings)
-                }
-            });
+
             $.ajax({
                 xhrFields: {withCredentials: true},
                 type: "GET",

@@ -10,11 +10,7 @@ $(document).ready(function () {
         } catch (err) {
             next = "";
         }
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
+
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",

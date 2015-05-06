@@ -1,4 +1,3 @@
-/*global $, jQuery, ajaxSecurity*/
 $(document).ready(function () {
     "use strict";
     $(".submit_question-action").click(function (event) {
@@ -6,11 +5,7 @@ $(document).ready(function () {
         var submitArea = $(".submit_question-action"),
             tags = $('#sb_tag_box').val();
         submitArea.attr("disabled", "disabled");
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings);
-            }
-        });
+
 
         if (tags === "") {
             tags = [];

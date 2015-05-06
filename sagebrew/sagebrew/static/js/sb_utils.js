@@ -1,24 +1,40 @@
+/**
+ * csrftoken support for django
+ */
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
 function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 }
 
-function ajaxSecurity(xhr, settings) {
-    var csrftoken = $.cookie('csrftoken');
-    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-    }
-}
+$.ajaxSetup({
+     beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+        }
+     }
+});
 
 function save_comment(comment_area, url, object_uuid) {
     $(comment_area).click(function (event) {
         $(comment_area).attr("disabled", "disabled");
         event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
@@ -90,11 +106,6 @@ function show_edit_comment() {
 
 
 function populate_comment(object_uuid, resource){
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings);
-            }
-    });
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
@@ -116,11 +127,6 @@ function populate_comment(object_uuid, resource){
                         '</div>' +
                     '</div>');
                 $('#additional_comments_' + object_uuid).click(function() {
-                    $.ajaxSetup({
-                        beforeSend: function (xhr, settings) {
-                                ajaxSecurity(xhr, settings)
-                            }
-                        });
                     $.ajax({
                         xhrFields: {withCredentials: true},
                         type: "GET",
@@ -156,11 +162,6 @@ function populate_comment(object_uuid, resource){
 }
 
 function queryComments(url, object_uuid){
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
@@ -220,11 +221,6 @@ function readyFlags(object_uuids){
 
 function loadPosts(url){
     $("#wall_app").spin({lines: 8, length: 4, width: 3, radius: 5});
-    $.ajaxSetup({
-    beforeSend: function (xhr, settings) {
-            ajaxSecurity(xhr, settings)
-        }
-    });
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
@@ -257,11 +253,6 @@ function loadPosts(url){
 
 
 function loadQuestion(){
-    $.ajaxSetup({
-    beforeSend: function (xhr, settings) {
-            ajaxSecurity(xhr, settings)
-        }
-    });
     var timeOutId = 0;
     var ajaxFn = function () {
         $.ajax({
@@ -290,11 +281,6 @@ function loadQuestion(){
 }
 
 function loadSolutionCount(){
-    $.ajaxSetup({
-    beforeSend: function (xhr, settings) {
-            ajaxSecurity(xhr, settings)
-        }
-    });
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
@@ -319,11 +305,6 @@ function loadSolutionCount(){
 
 
 function loadSolutions(url){
-    $.ajaxSetup({
-    beforeSend: function (xhr, settings) {
-            ajaxSecurity(xhr, settings)
-        }
-    });
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
@@ -393,11 +374,6 @@ function vote_object(vote_area, resource){
         }
 
         event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
@@ -434,11 +410,6 @@ function save_solution() {
     $(".submit_solution-action").click(function(event){
 		event.preventDefault();
         $("#submit_solution").attr("disabled", "disabled");
-		$.ajaxSetup({
-		    beforeSend: function(xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-		});
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
 			type: "POST",
@@ -492,11 +463,6 @@ function edit_object(edit_area, url, object_uuid, data_area) {
         event.preventDefault();
         var edit_button = ".edit_" + object_uuid;
         $(edit_button).attr("disabled", "disabled");
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "PUT",
@@ -547,11 +513,6 @@ function delete_objects(url, populated_ids){
 function delete_object(delete_area, url, object_uuid) {
     $(delete_area).click(function (event) {
         event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "DELETE",
@@ -634,11 +595,6 @@ function submit_action() {
                 data[this.name] = this.value || '';
             }
         });
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
@@ -672,11 +628,6 @@ function submit_requirement() {
                 data[this.name].push(this.value || '');
             } else {
                 data[this.name] = this.value || '';
-            }
-        });
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
             }
         });
         $.ajax({
@@ -713,11 +664,6 @@ function activate_montage(){
 function respond_friend_request(){
     $(".respond_friend_request-action").click(function (event) {
         event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",

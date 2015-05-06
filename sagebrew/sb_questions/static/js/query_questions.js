@@ -1,11 +1,6 @@
-/*global $, jQuery, ajaxSecurity*/
 $(document).ready(function () {
     function loadQuestionSummaries(url) {
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings);
-            }
-        });
+
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "GET",
@@ -21,9 +16,6 @@ $(document).ready(function () {
             }
         });
     }
-
-
-
     loadQuestionSummaries("/v1/questions/render/?page_size=2&expand=true");
     $("a.query_questions-action").click(function (event) {
         event.preventDefault();
@@ -36,11 +28,7 @@ $(document).ready(function () {
             taggedAs = "";
         }
         $(".sb_border_question").spin('small');
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings);
-            }
-        });
+
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "GET",

@@ -1,11 +1,7 @@
 $(document).ready(function(){
     var file_name = guid();
     var initial_image = $("#wallpaper_pic").attr('src');
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-            ajaxSecurity(xhr, settings)
-        }
-    });
+
     var croppicContainerEyecandyOptions = {
         uploadUrl: '/v1/upload/?croppic=true&object_uuid=' + file_name,
         cropUrl:'/v1/upload/' + file_name + '/crop/?resize=true&croppic=true',

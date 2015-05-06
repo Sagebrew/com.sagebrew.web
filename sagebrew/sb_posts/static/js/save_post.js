@@ -3,11 +3,7 @@ $( document ).ready(function() {
 	$(".post-action").click(function(event){
         $("#sb_btn_post").attr("disabled", "disabled");
 		event.preventDefault();
-		$.ajaxSetup({
-		    beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-		});
+
 	   	$.ajax({
 			xhrFields: {withCredentials: true},
 			type: "POST",

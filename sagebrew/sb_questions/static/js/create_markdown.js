@@ -1,7 +1,7 @@
 /*global $, jQuery, ajaxSecurity, guid, Croppic*/
 "use strict";
 $(document).ready(function () {
-    var question_pagedown = $("textarea#question_content_id").pagedownBootstrap({
+    var questionPagedown = $("textarea#question_content_id").pagedownBootstrap({
         "sanatize": false,
         'editor_hooks': [
             {
@@ -13,8 +13,8 @@ $(document).ready(function () {
                             e.preventDefault();
                             $(".modal-footer").spin('small');
                             if ($("#upload_image").val().length > 1) {
-                                var formdata = new FormData();
-                                var file = $("#upload_image")[0].files[0];
+                                var formdata = new FormData(),
+                                    file = $("#upload_image")[0].files[0];
                                 formdata.append("file", file);
                                 $.ajaxSetup({
                                     beforeSend: function (xhr, settings) {
@@ -35,7 +35,7 @@ $(document).ready(function () {
                                         $("#fileModal").modal('hide');
                                         enable_post_functionality();
                                     },
-                                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    error: function (XMLHttpRequest) {
                                         if (XMLHttpRequest.status === 500) {
                                             $("#server_error").show();
                                         }
@@ -53,5 +53,5 @@ $(document).ready(function () {
             }
         ]
     });
-    var solution_pagedown = $("textarea#solution_content_id").pagedownBootstrap();
+    var solutionPagedown = $("textarea#solution_content_id").pagedownBootstrap();
 });

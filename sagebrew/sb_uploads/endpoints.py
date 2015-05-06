@@ -2,11 +2,13 @@ import urllib2
 import StringIO
 
 from io import BytesIO
+from uuid import uuid1
 from copy import deepcopy
 from logging import getLogger
 
 from django.conf import settings
 from django.core.cache import cache
+from django.core.files.uploadhandler import TemporaryUploadedFile
 
 from PIL import Image
 from rest_framework.response import Response
@@ -20,7 +22,7 @@ from rest_framework.parsers import FileUploadParser
 from plebs.neo_models import Pleb
 from sb_registration.utils import delete_image
 
-from .serializers import UploadSerializer, ModifiedSerializer
+from .serializers import UploadSerializer, ModifiedSerializer, CropSerializer
 from .neo_models import UploadedObject
 from .utils import resize_image, crop_image2
 
@@ -61,26 +63,23 @@ class UploadViewSet(viewsets.ModelViewSet):
         return Response({"detail": None}, status=status.HTTP_204_NO_CONTENT)
 
     def create(self, request, *args, **kwargs):
-        object_uuid = self.request.query_params.get('object_uuid', None)
+        object_uuid = self.request.query_params.get('object_uuid',
+                                                    str(uuid1()))
         croppic = self.request.query_params.get('croppic', 'false').lower()
         file_object = request.data.get('file', None)
         if file_object is None:
             file_object = request.data.get('img', None)
-        if object_uuid is None:
-            return Response({'detail': "Please ensure to include a unique "
-                                       "filename in as a query parameter in "
-                                       "your url. The query parameter that "
-                                       "should be used is `filename`."},
-                            status=status.HTTP_400_BAD_REQUEST)
         file_size = file_object.size
         request.data['file_format'] = file_object.content_type.split('/')[1]
         request.data['file_size'] = file_size
-        logger.info(request.data['file_format'])
         serializer = UploadSerializer(data=request.data,
                                       context={'request': request})
         if serializer.is_valid():
             another_file_object = deepcopy(file_object)
-            image = Image.open(another_file_object)
+            if isinstance(another_file_object, TemporaryUploadedFile):
+                image = Image.open(another_file_object.temporary_file_path())
+            else:
+                image = Image.open(another_file_object)
             image_format = image.format
             width, height = image.size
             request.data['object_uuid'] = object_uuid
@@ -90,8 +89,6 @@ class UploadViewSet(viewsets.ModelViewSet):
                 owner = Pleb.nodes.get(username=request.user.username)
                 owner.set(request.user.username, owner)
             upload = serializer.save(owner=owner, width=width, height=height,
-                                     file_size=file_size,
-                                     file_format=image_format,
                                      file_object=file_object,
                                      file_name=file_name,
                                      object_uuid=object_uuid)
@@ -112,14 +109,19 @@ class UploadViewSet(viewsets.ModelViewSet):
             urllib2.urlopen(request.data['imgUrl']).read())
         image = Image.open(img_file)
         image_format = image.format
-        width = int(request.data['cropW'])
-        height = int(request.data['cropH'])
+        crop_serializer = CropSerializer(data=request.data)
+        if crop_serializer.is_valid():
+            crop_data = crop_serializer.data
+        else:
+            return Response(crop_serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
         if resize == 'true':
-            image = resize_image(image, request.data['imgW'],
-                                 request.data['imgH'])
-        cropped = crop_image2(image, width, height,
-                              int(request.data['imgX1']),
-                              int(request.data['imgY1']))
+            image = resize_image(image, int(crop_data['resize_width']),
+                                 int(crop_data['resize_height']))
+        cropped = crop_image2(image, crop_data['crop_width'],
+                              crop_data['crop_height'],
+                              crop_data['image_x1'],
+                              crop_data['image_y1'])
         file_stream = BytesIO()
         cropped.save(file_stream, image_format)
         file_size = file_stream.tell()
@@ -128,16 +130,17 @@ class UploadViewSet(viewsets.ModelViewSet):
         request.data['file_format'] = image_format
         serializer = ModifiedSerializer(data=request.data,
                                         context={"request": request})
-        file_name = "%s-%sx%s.%s" % (object_uuid, width, height,
+        file_name = "%s-%sx%s.%s" % (object_uuid, crop_data['crop_width'],
+                                     crop_data['crop_height'],
                                      image_format.lower())
         if serializer.is_valid():
             owner = cache.get(request.user.username)
             if owner is None:
-                owner = Pleb.noes.get(username=request.user.username)
+                owner = Pleb.nodes.get(username=request.user.username)
                 owner.set(request.user.username, owner)
-            upload = serializer.save(owner=owner, width=width, height=height,
-                                     file_size=file_size,
-                                     file_format=image_format,
+            upload = serializer.save(owner=owner,
+                                     width=crop_data['crop_width'],
+                                     height=crop_data['crop_height'],
                                      file_object=file_stream,
                                      file_name=file_name,
                                      object_uuid=object_uuid)

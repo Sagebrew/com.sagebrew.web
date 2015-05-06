@@ -1,3 +1,4 @@
+import bleach
 import markdown
 
 from rest_framework.reverse import reverse
@@ -35,6 +36,8 @@ class FlagSerializer(VotableContentSerializer):
     def create(self, validated_data):
         owner = validated_data.pop('owner', None)
         parent_object = validated_data.pop('parent_object', None)
+        validated_data['content'] = bleach.clean(
+            validated_data.get('content', ''))
         flag = Flag(**validated_data).save()
         flag.owned_by.connect(owner)
         owner.flags.connect(flag)

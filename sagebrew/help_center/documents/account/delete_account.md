@@ -5,16 +5,7 @@ there is something you're having difficulty with or a reason you're looking
 to delete your account please let us know and we'll do our best to help 
 resolve the issue.
 
-To delete your account all you have to do to delete your account is to go to 
-your profile, click on your account settings tab, navigate to the "delete my 
-account" option at the bottom and follow the instructions provided. You will 
-receive an email confirmation that your account has been deleted. After you've 
-deleted your account, we will keep the records of your friends, conversations, 
-site preferences, [privileges][1], [reputation][2], and badges for 30 days. If you 
-decide to reinstate your account within this 30 day grace period you will 
-regain full access to your account as it was prior to deletion. After the 
-30 day grace period your information will be deleted and you will not be able 
-to reinstate your account as it was. 
-
-[1]: /help/privileges/participate_in_the_conversation/
-[2]: /help/reputation/
+To delete your account all you have to do is click the settings button in the 
+navigation bar, click "Settings", and then click the "Delete Account" button.
+Please be aware that after you delete your account it will no longer be 
+accessible and cannot be reinstated.

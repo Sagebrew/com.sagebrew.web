@@ -1,4 +1,4 @@
-/*global $, jQuery, ajaxSecurity, guid, Croppic*/
+/*global $, jQuery, ajaxSecurity, guid, Croppic, alert*/
 $(document).ready(function () {
     "use strict";
     var fileName = guid();
@@ -35,8 +35,8 @@ $(document).ready(function () {
             cropContainerEyecandy.reset();
         },
         onError: function (errormsg) {
-            var fileSizeError = errormsg.responseJSON.file_size;
-            var fileFormatError = errormsg.responseJSON.file_format;
+            var fileSizeError = errormsg.responseJSON.file_size,
+                fileFormatError = errormsg.responseJSON.file_format;
             // Reasoning behind using typeof comparison http://stackoverflow.com/questions/2778901/javascript-undefined-compare
             if (typeof fileFormatError === "undefined" || fileFormatError === null) {
                 fileFormatError = "";

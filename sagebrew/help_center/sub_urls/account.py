@@ -6,18 +6,18 @@ from django.conf import settings
 urlpatterns = patterns(
     'help_center.views',
     url(r'^delete_account/$', TemplateView.as_view(
-            template_name="help_page.html"),
-            kwargs={
-                "title": "How do I delete my account?",
-                "description": "We're really sad to see you go but try to"
-                               " make it as easy as possible for you to delete "
-                               "your account if you want to. This article will"
-                               " walk you through the steps.",
-                "content_path":
-                    "%sdelete_account.html" % (settings.HELP_DOCS_PATH),
-                "category": "account"
-            },
-            name="delete_account"),
+        template_name="help_page.html"),
+        kwargs={
+            "title": "How do I delete my account?",
+            "description": "We're really sad to see you go but try to"
+                           " make it as easy as possible for you to delete "
+                           "your account if you want to. This article will"
+                           " walk you through the steps.",
+            "content_path":
+                "%sdelete_account.html" % (settings.HELP_DOCS_PATH),
+            "category": "account"
+        },
+        name="delete_account"),
     url(r'^reset_password/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={

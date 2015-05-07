@@ -4,8 +4,6 @@
 {% block css %}
     {{ block.super }}
     <link href="{% static 'css/vendor/croppic.css' %}" rel="stylesheet" type="text/css"/>
-    <link href="{% static 'jcrop/css/jquery.Jcrop.css' %}" rel="stylesheet" type="text/css" />
-    <link href="{% static 'css/vendor/croppic.css' %}" rel="stylesheet" type="text/css" />
 {% endblock css %}
 {% block content %}
 
@@ -17,10 +15,10 @@
            <div class="thumbnail sb_profile_pic">
                {% if request.user.username == page_user.username %}
                    <div id="cropProfilePageEyecandy">
-                    <img id="profile_pic" src="{{ page_profile.profile_pic }}">
+                       <img id="profile_pic" src="{{ page_profile.profile_pic }}">
                    </div>
                {% else %}
-                <img id="profile_pic" src="{{ page_profile.profile_pic }}">
+                  <img id="profile_pic" src="{{ page_profile.profile_pic }}">
                {% endif %}
            </div>
            <div>
@@ -50,10 +48,6 @@
                 {% include "sb_home_section/sb_home.html" %}
             {%  endblock %}
         {% endif %}
-        {% if request.user.username == page_user.username %}
-            {% include "profile_pic_modal.html" %}
-            {% include "wallpaper_modal.html" %}
-        {% endif %}
     </div>
     {% include "flag_modal.html" %}
 {% endblock %}
@@ -72,7 +66,7 @@
     <script src="{% static 'js/sb_post_enter.js' %}"></script>
     <script src="{% static 'js/post_validator.js' %}"></script>
     <script src="{% static 'js/vendor/jquery.mousewheel.min.js' %}"></script>
-   	<script src="{% static 'js/vendor/croppic.min.js' %}"></script>
+   	<script src="{% static 'js/croppic.min.js' %}"></script>
     <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
     <script src="{% static 'js/uuid.js' %}"></script>
     <script src="{% static 'js/flag_modal.js' %}"></script>

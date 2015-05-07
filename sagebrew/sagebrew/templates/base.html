@@ -79,7 +79,8 @@
               };
             </script>
             <script>(function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',intercomSettings);}else{var d=document;var i=function(){i.c(arguments)};i.q=[];i.c=function(args){i.q.push(args)};w.Intercom=i;function l(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/jig8myiv';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);}if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})()</script>
-        {% endif %}
+            <script type="text/javascript" src="https://sagebrew.atlassian.net/s/05ad3dc4f9731865e97d9a2a0bd5c900-T/en_USa3mwsz/65000/48/1.4.25/_/download/batch/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector.js?locale=en-US&collectorId=dc3944b6"></script>
+    {% endif %}
     {% endif %}
     {% if not user.is_authenticated %}
         <script src="{% static 'js/login.js' %}"></script>

@@ -1,18 +1,20 @@
-$(document).ready(function(){
-    var file_name = guid();
+/*global $, jQuery, ajaxSecurity, guid, Croppic, alert*/
+$(document).ready(function () {
+    "use strict";
+    var fileName = guid();
     $.ajaxSetup({
         beforeSend: function (xhr, settings) {
-            ajaxSecurity(xhr, settings)
+            ajaxSecurity(xhr, settings);
         }
     });
     var croppicContainerEyecandyOptions = {
-        uploadUrl: '/v1/upload/?croppic=true&object_uuid=' + file_name,
-        cropUrl: '/v1/upload/' + file_name + '/crop/?resize=true&croppic=true',
-        imgEyecandy:false,
+        uploadUrl: '/v1/upload/?croppic=true&object_uuid=' + fileName,
+        cropUrl: '/v1/upload/' + fileName + '/crop/?resize=true&croppic=true',
+        imgEyecandy: false,
         rotateControls: false,
         doubleZoomControls: false,
         zoomFactor: 100,
-        onAfterImgCrop: function(arg1){
+        onAfterImgCrop: function (arg1) {
             $.ajax({
                 xhrFields: {withCredentials: true},
                 type: "PATCH",
@@ -23,31 +25,40 @@ $(document).ready(function(){
                 cache: false,
                 contentType: 'application/json',
                 processData: false,
-                success: function(data){
+                success: function (data) {
                     window.location.href = data.url;
                 },
-                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                error: function () {
                     $('.alert-dismissible').show();
                 }
             });
-        },
-        onError: function(errormsg) {
-            alert(errormsg.responseJSON.file_size+ "\n" + errormsg.responseJSON.file_format);
             cropContainerEyecandy.reset();
         },
-        onReset: function() {
+        onError: function (errormsg) {
+            var fileSizeError = errormsg.responseJSON.file_size,
+                fileFormatError = errormsg.responseJSON.file_format;
+            // Reasoning behind using typeof comparison http://stackoverflow.com/questions/2778901/javascript-undefined-compare
+            if (typeof fileFormatError === "undefined" || fileFormatError === null) {
+                fileFormatError = "";
+            }
+            if (typeof fileSizeError === "undefined" || fileSizeError === null) {
+                fileSizeError = "";
+            }
+            alert(fileSizeError + "\n" + fileFormatError);
+        },
+        onReset: function () {
             $.ajax({
                 xhrFields: {withCredentials: true},
                 type: "DELETE",
-                url: "/v1/upload/" + file_name + "/",
+                url: "/v1/upload/" + fileName + "/",
                 cache: false,
                 processData: false,
-                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                error: function () {
                     $('.alert-dismissible').show();
                 }
             });
         },
-        loaderHtml:'<div class="loader bubblingG"><span id="bubblingG_1"></span><span id="bubblingG_2"></span><span id="bubblingG_3"></span></div> '
+        loaderHtml: '<div class="loader bubblingG"><span id="bubblingG_1"></span><span id="bubblingG_2"></span><span id="bubblingG_3"></span></div> '
     };
     var cropContainerEyecandy = new Croppic('cropProfilePictureEyecandy', croppicContainerEyecandyOptions);
 });

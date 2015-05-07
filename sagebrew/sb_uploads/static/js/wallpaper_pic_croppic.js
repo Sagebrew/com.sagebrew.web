@@ -1,8 +1,7 @@
-/*global $, jQuery, ajaxSecurity, guid, Croppic, alert*/
+/*global $, jQuery, guid, Croppic, alert*/
 $(document).ready(function () {
     "use strict";
     var fileName = guid();
-
     function createUrl(uuid) {
         return '/v1/upload/?croppic=true&object_uuid=' + uuid;
     }

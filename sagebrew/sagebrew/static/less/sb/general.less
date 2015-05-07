@@ -1,3 +1,7 @@
+//
+// HTML OVERRIDES
+// TODO: A lot of this can be covered in flatui-variables.
+// -------------------------------------------------
 body {
   color: @sb_dark_blue;
   word-wrap: break-word;
@@ -54,10 +58,16 @@ a {
 
 .container-fluid.container-main {
   margin-top:60px;
-  padding-left:0;
-  padding-right:0;
+  padding-left:5%;
+  padding-right:5%;
 }
-
+.footer-wrapper {
+  margin-top:20px;
+  padding-top:20px;
+}
+.sb_page{
+  margin:0;
+}
 
 // Blocks
 .block{
@@ -259,14 +269,7 @@ a {
   width: 100%;
   border-radius: 5px 5px 0 0;
 }
-.wallpaper_profile{
-  &:extend(.sb_wallpaper);
-  height: 250px;
-  margin-top: 0;
-  border-radius:5px 5px 0 0;
-  //fixes gap at the bottom
-  margin-bottom: 0;
-}
+
 .sb_wallpaper_action{
   &:extend(.sb_wallpaper);
   background-color: @sb_green_medium;
@@ -289,10 +292,7 @@ a {
     }
 }
 
-// Walls
-.sb_page{
-  margin: 0 5% 0 5%;
-}
+
 .sb_wall{
   height: auto;
   background-color: @sb_green_wall;
@@ -438,10 +438,7 @@ a {
   padding-top: 5px;
   padding-bottom: 5px;
 }
-.sb_btn_icon_settings_profile{
-  &:extend(.sb_btn_icon_settings);
-  position: absolute;
-}
+
 .sb_btn_vote{
   &:extend(.sb_btn_icon);
   color: @sb_grey;
@@ -794,14 +791,7 @@ a {
   text-align: left;
   padding-left: 20px;
 }
-.sb_profile_container_wall{
-  background-color: @sb_green_wall;
-  height: auto;
-  min-height: 575px;
-  margin: 15px -30px 30px;
-  padding: 15px 15px 30px;
-  border-radius: 2px;
-}
+
 .sb_registration_header{
   margin-left: 60px;
 }
@@ -880,22 +870,7 @@ a {
       color: @sb_green;
     }
 }
-.sb_profile_pic{
-  border-color: @sb_grey_light;
-  margin-left: @sb_common_margin_positive;
-  margin-top: 35px;
-  width: 203px;
-  min-height: 204px;
-  height: auto;
-  border-radius: 2px;
-  position: absolute;
-  padding:0;
-  z-index: 1;
-  img{
-    height: 200px;
-    width: 199px;
-  }
-}
+
 // This is used as the css for collage plus after uploading images
 .sb_collage{
   img{
@@ -903,26 +878,13 @@ a {
     height: 100px;
   }
 }
-// TODO Probably want to transition this into left side_container
-.sb_rep_container{
-  margin-left: @sb_common_margin_negative;
-  margin-bottom: @sb_common_margin_positive;
-}
-.sb_profile_rep_container{
-  background-color: @sb_green_wall;
-  border-radius: 2px;
-  height: 100%;
-  padding-bottom: @sb_common_padding_positive;
-}
+
 .sb_container_header{
   padding-left: @sb_common_padding_positive;
   padding-top: 5px;
   border-bottom: solid @sb_green_medium;
 }
-.sb_profile_rep_content{
-  padding-top: @sb_common_padding_positive;
-  padding-left: @sb_common_padding_positive;
-}
+
 .sb_thumbnail_rep{
   margin-left: @sb_common_margin_positive;
   margin-top: 10px;
@@ -935,10 +897,8 @@ a {
   margin-left: @sb_common_margin_negative;
   padding-bottom: 0;
 }
-.sb_profile_post_enter{
-  margin-left: @sb_common_margin_negative;
-  margin-right: @sb_common_margin_negative;
-}
+
+
 .sb_post {
   max-height: 50px;
   max-width: 100%;
@@ -946,9 +906,11 @@ a {
   border-width: 1px;
   resize: none;
 }
+
 .sb_post_header_info{
   margin-top: -12px;
 }
+
 .sb_post_header{
   width: auto;
   background-color: @sb_off_white;
@@ -1045,8 +1007,10 @@ a {
   height:70px;
   padding: 10px @sb_common_padding_positive 0;
   border-radius: 2px;
+  /*
   margin-right: @sb_common_margin_negative;
   margin-left: @sb_common_margin_negative;
+  */
   margin-bottom: @sb_common_margin_positive;
 }
 .sb_btn_post{

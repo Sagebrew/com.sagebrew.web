@@ -31,10 +31,8 @@ class FileSize:
         pass
 
     def __call__(self, value):
-        logger.info('here')
-        logger.info(value)
-        if (value > 2500000):
-            message = "Your file cannot be larger than 2.5mb. Please select " \
+        if (value > 20000000):
+            message = "Your file cannot be larger than 20mb. Please select " \
                       "a smaller file."
             raise serializers.ValidationError(message)
         return value
@@ -43,7 +41,9 @@ class FileSize:
 class UploadSerializer(SBSerializer):
     file_format = serializers.CharField(validators=[MediaType(), ])
     file_size = serializers.IntegerField(validators=[FileSize(), ])
-    url = serializers.SerializerMethodField()
+    width = serializers.IntegerField(read_only=True)
+    height = serializers.IntegerField(read_only=True)
+    url = serializers.CharField(read_only=True)
 
     def create(self, validated_data):
         owner = validated_data.pop('owner')
@@ -89,3 +89,12 @@ class ModifiedSerializer(UploadSerializer):
         parent_object.modifications.connect(modified_object)
         modified_object.modification_to.connect(parent_object)
         return modified_object
+
+
+class CropSerializer(serializers.Serializer):
+    crop_width = serializers.IntegerField()
+    crop_height = serializers.IntegerField()
+    image_x1 = serializers.IntegerField()
+    image_y1 = serializers.IntegerField()
+    resize_width = serializers.FloatField()
+    resize_height = serializers.FloatField()

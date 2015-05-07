@@ -27,7 +27,7 @@ newrelic.ini
 .DS_Store
 sagebrew/celerybeat.pid
 sagebrew/media/
-build/
+#build/
 =======
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -40,7 +40,7 @@ __pycache__/
 .Python
 env/
 bin/
-build/
+#build/
 develop-eggs/
 eggs/
 lib/

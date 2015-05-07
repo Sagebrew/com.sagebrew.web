@@ -51,3 +51,12 @@ JSON_ERROR_EXCEPTION = {
         "load. We're alerted of these increases and are working to "
         "alleviate the issue."
 }
+
+DOES_NOT_EXIST_EXCEPTION = {
+    "detail": "Sorry this object does not exist.",
+    "status": status.HTTP_404_NOT_FOUND,
+    "developer_message":
+        "This object currently does not exist in our database. If you believe "
+        "this is incorrect please feel free to contact us at "
+        "developers@sagebrew.com."
+}

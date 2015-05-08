@@ -321,7 +321,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
             return Response(sen_html, status=status.HTTP_200_OK)
         return Response(senators, status=status.HTTP_200_OK)
 
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, ))
     def house_rep(self, request, username=None):
         try:
             house_rep = self.get_object().house_rep.all()[0]

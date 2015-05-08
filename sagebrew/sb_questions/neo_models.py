@@ -1,3 +1,5 @@
+from django.core.cache import cache
+
 from rest_framework.reverse import reverse
 
 from neomodel import (StringProperty, IntegerProperty,
@@ -35,6 +37,14 @@ class Question(SBPublicContent):
     closed_by = RelationshipTo('plebs.neo_models.Pleb', 'CLOSED_BY')
     solutions = RelationshipTo('sb_solutions.neo_models.Solution',
                                'POSSIBLE_ANSWER')
+
+    @classmethod
+    def get(cls, object_uuid):
+        question = cache.get(object_uuid)
+        if question is None:
+            question = cls.nodes.get(object_uuid=object_uuid)
+            cache.set(object_uuid, question)
+        return question
 
     def get_tags(self):
         query = "MATCH (a:Question {object_uuid:'%s'})-[:TAGGED_AS]->" \

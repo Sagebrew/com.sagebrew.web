@@ -14,8 +14,7 @@ from api.tasks import add_object_to_search_index
 class TestAddObjectToSearchIndex(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
-        self.assertFalse(isinstance(res, Exception))
+        create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.question = Question(object_uuid=str(uuid1()))

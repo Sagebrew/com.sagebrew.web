@@ -50,10 +50,7 @@ class ObjectFlagsListCreate(ListCreateAPIView):
         serializer = self.get_serializer(data=request.data,
                                          context={'request': request})
         if serializer.is_valid():
-            pleb = cache.get(request.user.username)
-            if pleb is None:
-                pleb = Pleb.nodes.get(username=request.user.username)
-                cache.set(request.user.username, pleb)
+            pleb = Pleb.get(request.user.username)
             parent_object = cache.get(self.kwargs[self.lookup_field])
             if parent_object is None:
                 parent_object = SBContent.nodes.get(

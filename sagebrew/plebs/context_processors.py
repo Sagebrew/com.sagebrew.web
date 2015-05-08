@@ -1,5 +1,3 @@
-from django.core.cache import cache
-
 from neomodel.exception import CypherException, DoesNotExist
 
 from .neo_models import Pleb
@@ -27,13 +25,9 @@ def request_profile(request):
     try:
         if request.user.is_authenticated():
             try:
-                profile = cache.get(request.user.username)
-                if profile is None:
-                    profile = Pleb.nodes.get(username=request.user.username)
-                    cache.set(profile.username, profile)
                 return {
                     "request_profile":
-                        PlebSerializerNeo(profile,
+                        PlebSerializerNeo(Pleb.get(request.user.username),
                                           context={"request": request}).data}
             except(CypherException, IOError, Pleb.DoesNotExist, DoesNotExist):
                 return default_response

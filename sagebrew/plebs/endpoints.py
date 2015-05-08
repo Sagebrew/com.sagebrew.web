@@ -70,10 +70,7 @@ class AddressViewSet(viewsets.ModelViewSet):
         return Address.inflate(res[0][0])
 
     def perform_create(self, serializer):
-        pleb = cache.get(self.kwargs[self.lookup_field])
-        if pleb is None:
-            pleb = Pleb.nodes.get(username=self.kwargs[self.lookup_field])
-            cache.set(self.kwargs[self.lookup_field], pleb)
+        pleb = Pleb.get(self.kwargs[self.lookup_field])
         instance = serializer.save()
         instance.owned_by.connect(pleb)
         instance.save()
@@ -99,26 +96,6 @@ class UserViewSet(viewsets.ModelViewSet):
     lookup_field = 'username'
 
     permission_classes = (IsAuthenticated, IsSelfOrReadOnly)
-
-    def retrieve(self, request, *args, **kwargs):
-        single_object = self.get_object()
-        serializer = self.get_serializer(single_object, context={
-            'request': request})
-        expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
-        rest_response = dict(serializer.data)
-
-        profile_endpoint = reverse(
-            'profile-detail', kwargs={
-                'username': kwargs[self.lookup_field]},
-            request=request)
-        if expand == "false":
-            rest_response["profile"] = profile_endpoint
-        else:
-            response = request_to_api(profile_endpoint, request.user.username,
-                                      req_method="GET")
-            rest_response["profile"] = response.json()
-
-        return Response(rest_response, status=status.HTTP_200_OK)
 
     def perform_destroy(self, instance):
         instance.is_active = False
@@ -161,11 +138,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
     pagination_class = LimitOffsetPagination
 
     def get_object(self):
-        profile = cache.get(self.kwargs[self.lookup_field])
-        if profile is None:
-            profile = Pleb.nodes.get(username=self.kwargs[self.lookup_field])
-            cache.set(self.kwargs[self.lookup_field], profile)
-        return profile
+        return Pleb.get(self.kwargs[self.lookup_field])
 
     def create(self, request, *args, **kwargs):
         """
@@ -331,11 +304,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return Response({"reputation": self.get_object().reputation},
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
-    def local_representatives(self, request, username=None):
-        pass
-
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated))
     def senators(self, request, username=None):
         senators = self.get_object().senators.all()
         if len(senators) == 0:
@@ -352,7 +321,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
             return Response(sen_html, status=status.HTTP_200_OK)
         return Response(senators, status=status.HTTP_200_OK)
 
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated))
     def house_rep(self, request, username=None):
         try:
             house_rep = self.get_object().house_rep.all()[0]
@@ -369,22 +338,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return Response(house_rep, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
-    def campaigning_senators(self, request, username=None):
-        pass
-
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
-    def campaigning_representatives(self, request, username=None):
-        pass
-
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
-    def campaigning_presidents(self, request, username=None):
-        pass
-
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
-    def campaigning_local_representatives(self, request, username=None):
-        pass
-
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def address(self, request, username=None):
         single_object = self.get_object()
         try:
@@ -395,19 +348,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
         address_serializer = AddressSerializer(address,
                                                context={'request': request})
         return Response(address_serializer.data, status=status.HTTP_200_OK)
-
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
-    def privileges(self, request, username=None):
-        pass
-
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
-    def actions(self, request, username=None):
-
-        pass
-
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
-    def restrictions(self, request, username=None):
-        pass
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def is_beta_user(self, request, username=None):
@@ -448,11 +388,7 @@ class MeRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAuthenticated, IsSelf)
 
     def get_object(self):
-        profile = cache.get(self.request.user.username)
-        if profile is None:
-            profile = Pleb.nodes.get(username=self.request.user.username)
-            cache.set(self.request.user.username, profile)
-        return profile
+        return Pleb.get(self.request.user.username)
 
 
 class FriendRequestViewSet(viewsets.ModelViewSet):
@@ -493,12 +429,7 @@ class FriendManager(RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAuthenticated, IsSelf)
 
     def get_object(self):
-        profile = cache.get(self.kwargs[self.lookup_field])
-        if profile is None:
-            profile = Pleb.nodes.get(
-                username=self.kwargs[self.lookup_field])
-            cache.set(self.kwargs[self.lookup_field], profile)
-        return profile
+        return Pleb.get(self.kwargs[self.lookup_field])
 
     def update(self, request, *args, **kwargs):
         return Response({"detail": "TBD"},
@@ -506,10 +437,7 @@ class FriendManager(RetrieveUpdateDestroyAPIView):
 
     def destroy(self, request, *args, **kwargs):
         friend = self.get_object()
-        profile = cache.get(request.user.username)
-        if profile is None:
-            profile = Pleb.nodes.get(username=request.user.username)
-            cache.set(request.user.username, profile)
+        profile = Pleb.get(request.user.username)
         # TODO: Change this to modifying the relationship manager rather than
         # just disconnecting
 

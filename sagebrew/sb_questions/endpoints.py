@@ -3,7 +3,6 @@ from logging import getLogger
 
 from django.template.loader import render_to_string
 from django.template import RequestContext
-from django.core.cache import cache
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
@@ -50,12 +49,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         return queryset
 
     def get_object(self):
-        question = cache.get(self.kwargs[self.lookup_field])
-        if question is None:
-            question = Question.nodes.get(
-                object_uuid=self.kwargs[self.lookup_field])
-            cache.set(self.kwargs[self.lookup_field], question)
-        return question
+        return Question.get(self.kwargs[self.lookup_field])
 
     def create(self, request, *args, **kwargs):
         request_data = request.data

@@ -1,14 +1,6 @@
 from rest_framework import permissions
 
 
-class IsOwnerOrReadOnly(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-
-        return obj.owned_by.all()[0].username == request.user.username
-
-
 class IsOwnerOrAdmin(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if (obj.owned_by.all()[0].username == request.user.username or
@@ -27,21 +19,15 @@ class IsSelfOrReadOnly(permissions.BasePermission):
 
 
 class IsSelf(permissions.BasePermission):
+    """
+    @DEPRECATED
+    This is deprecated due to the implementation of the /me endpoint.
+    Any endpoints that should only be accessible by the currently logged
+    in user should be placed on this endpoint.
+    See WA-1250 https://sagebrew.atlassian.net/browse/WA-1250
+    """
     def has_object_permission(self, request, view, obj):
         return obj.username == request.user.username
-
-
-class IsUserOrReadOnly(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-
-        return obj.user == request.user
-
-
-class IsUser(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        return obj.user == request.user
 
 
 class IsUserOrAdmin(permissions.BasePermission):
@@ -53,7 +39,7 @@ class IsUserOrAdmin(permissions.BasePermission):
 
 
 class IsAdminOrReadOnly(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
+    def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
 

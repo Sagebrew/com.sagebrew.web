@@ -1,4 +1,5 @@
 import shortuuid
+from collections import OrderedDict
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -727,3 +728,240 @@ class ProfileFriendsMethodTests(APITestCase):
             'username': self.pleb.username})
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class BaseUserTests(APITestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        self.email2 = "bounce@simulator.amazonses.com"
+        create_user_util_test(self.email)
+        create_user_util_test(self.email2)
+        self.user = User.objects.get(email=self.email)
+        self.unit_under_test = User.objects.get(email=self.email2)
+        self.unit_under_test_name = "user"
+
+    def test_unauthorized_message(self):
+        url = reverse('%s-list' % self.unit_under_test_name)
+        data = {}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.data['detail'],
+                         'Authentication credentials were not provided.')
+
+    def test_unauthorized_status(self):
+        url = reverse('%s-list' % self.unit_under_test_name)
+        data = {}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.data['status_code'],
+                         status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_missing_data(self):
+        self.client.force_authenticate(user=self.unit_under_test)
+        url = reverse('%s-list' % self.unit_under_test_name)
+        data = {'asset_uri': ['This field is required.']}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_save_int_data(self):
+        self.client.force_authenticate(user=self.unit_under_test)
+        url = reverse('%s-list' % self.unit_under_test_name)
+        response = self.client.post(url, 98897965, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_save_string_data(self):
+        self.client.force_authenticate(user=self.unit_under_test)
+        url = reverse('%s-list' % self.unit_under_test_name)
+        response = self.client.post(url, 'asfonosdnf', format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_save_list_data(self):
+        self.client.force_authenticate(user=self.unit_under_test)
+        url = reverse('%s-list' % self.unit_under_test_name)
+        response = self.client.post(url, [], format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_save_float_data(self):
+        self.client.force_authenticate(user=self.unit_under_test)
+        url = reverse('%s-list' % self.unit_under_test_name)
+        response = self.client.post(url, 1.010101010, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_no_birthday(self):
+        self.client.force_authenticate(user=self.unit_under_test)
+        url = reverse('%s-detail' % self.unit_under_test_name,
+                      kwargs={'username': self.unit_under_test.username})
+
+        data = {"password": "hellothere2"}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.data['birthday'], ['This field is required.'])
+
+    def test_update_no_email(self):
+        self.client.force_authenticate(user=self.unit_under_test)
+        url = reverse('%s-detail' % self.unit_under_test_name,
+                      kwargs={'username': self.unit_under_test.username})
+
+        data = {"password": "hellothere2"}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.data['email'], ['This field is required.'])
+
+    def test_update_no_last_name(self):
+        self.client.force_authenticate(user=self.unit_under_test)
+        url = reverse('%s-detail' % self.unit_under_test_name,
+                      kwargs={'username': self.unit_under_test.username})
+
+        data = {"password": "hellothere2"}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.data['last_name'],
+                         ['This field is required.'])
+
+    def test_update_does_not_exist_status(self):
+        self.client.force_authenticate(user=self.unit_under_test)
+        url = reverse('%s-detail' % self.unit_under_test_name,
+                      kwargs={"username": str(shortuuid.uuid())})
+        data = {'status_code': status.HTTP_404_NOT_FOUND,
+                'detail': 'Not found.'}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.data['status_code'],
+                         status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_does_not_exist_message(self):
+        self.client.force_authenticate(user=self.unit_under_test)
+        url = reverse('%s-detail' % self.unit_under_test_name,
+                      kwargs={"username": str(shortuuid.uuid())})
+        data = {'status_code': status.HTTP_404_NOT_FOUND,
+                'detail': 'Not found.'}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.data['detail'], 'Not found.')
+
+    def test_update_bad_request(self):
+        self.client.force_authenticate(user=self.unit_under_test)
+        url = reverse('%s-detail' % self.unit_under_test_name,
+                      kwargs={'username': self.unit_under_test.username})
+
+        data = {"password": "hellothere2"}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_list(self):
+        self.client.force_authenticate(user=self.unit_under_test)
+        url = reverse('%s-list' % self.unit_under_test_name)
+        data = {'status_code': status.HTTP_405_METHOD_NOT_ALLOWED,
+                'detail': 'Method "PUT" not allowed.'}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.data, data)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_delete(self):
+        self.client.force_authenticate(user=self.unit_under_test)
+        url = reverse('%s-detail' % self.unit_under_test_name,
+                      kwargs={'username': self.unit_under_test.username})
+        data = None
+        response = self.client.delete(url, format='json')
+        self.assertEqual(response.data, data)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_delete_list_detail(self):
+        self.client.force_authenticate(user=self.unit_under_test)
+        url = reverse('%s-list' % self.unit_under_test_name)
+        response = self.client.delete(url, format='json')
+        self.assertEqual(response.data['detail'],
+                         'Method "DELETE" not allowed.')
+
+    def test_delete_list_status(self):
+        self.client.force_authenticate(user=self.unit_under_test)
+        url = reverse('%s-list' % self.unit_under_test_name)
+        response = self.client.delete(url, format='json')
+        self.assertEqual(response.data['status_code'],
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_read_username(self):
+        self.client.force_authenticate(user=self.unit_under_test)
+        url = reverse('%s-detail' % self.unit_under_test_name,
+                      kwargs={'username': self.unit_under_test.username})
+
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['username'], 'test_test1')
+
+    def test_read_profile(self):
+        self.client.force_authenticate(user=self.unit_under_test)
+        url = reverse('%s-detail' % self.unit_under_test_name,
+                      kwargs={'username': self.unit_under_test.username})
+
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['profile'],
+                         'http://testserver/v1/profiles/test_test1/')
+
+    def test_read_first_name(self):
+        self.client.force_authenticate(user=self.unit_under_test)
+        url = reverse('%s-detail' % self.unit_under_test_name,
+                      kwargs={'username': self.unit_under_test.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['first_name'], 'test')
+
+    def test_read_last_name(self):
+        self.client.force_authenticate(user=self.unit_under_test)
+        url = reverse('%s-detail' % self.unit_under_test_name,
+                      kwargs={'username': self.unit_under_test.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['last_name'], 'test')
+
+    def test_read_href(self):
+        self.client.force_authenticate(user=self.unit_under_test)
+        url = reverse('%s-detail' % self.unit_under_test_name,
+                      kwargs={'username': self.unit_under_test.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['href'],
+                         'http://testserver/v1/users/test_test1/')
+
+    def test_read_type(self):
+        self.client.force_authenticate(user=self.unit_under_test)
+        url = reverse('%s-detail' % self.unit_under_test_name,
+                      kwargs={'username': self.unit_under_test.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['type'], 'user')
+
+    def test_read_id(self):
+        self.client.force_authenticate(user=self.unit_under_test)
+        url = reverse('%s-detail' % self.unit_under_test_name,
+                      kwargs={'username': self.unit_under_test.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['id'], 'test_test1')
+
+    def test_read_list(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('%s-list' % self.unit_under_test_name)
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response.data, OrderedDict)
+
+    def test_read_is_not_self(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('%s-detail' % self.unit_under_test_name,
+                      kwargs={'username': self.unit_under_test.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_is_not_self_detail(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('%s-detail' % self.unit_under_test_name,
+                      kwargs={'username': self.unit_under_test.username})
+
+        data = {"password": "hellothere2"}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.data['detail'],
+                         'You do not have permission to perform this action.')
+
+    def test_update_is_not_self_status(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('%s-detail' % self.unit_under_test_name,
+                      kwargs={'username': self.unit_under_test.username})
+
+        data = {"password": "hellothere2"}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.data['status_code'],
+                         status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

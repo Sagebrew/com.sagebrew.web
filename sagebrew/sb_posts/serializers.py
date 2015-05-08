@@ -2,8 +2,6 @@ import bleach
 import pytz
 from datetime import datetime
 
-from django.core.cache import cache
-
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -22,10 +20,7 @@ class PostSerializerNeo(ContentSerializer):
 
     def create(self, validated_data):
         request = self.context["request"]
-        owner = cache.get(request.user.username)
-        if owner is None:
-            owner = Pleb.nodes.get(username=request.user.username)
-            cache.set(request.user.username, owner)
+        owner = Pleb.get(request.user.username)
         wall_owner = validated_data.pop('wall_owner_profile', None)
         validated_data['content'] = bleach.clean(
             validated_data.get('content', ''))

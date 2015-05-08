@@ -16,8 +16,7 @@ class TestGetUpdatesFromDynamo(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
-        self.assertNotEqual(res, False)
+        create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 

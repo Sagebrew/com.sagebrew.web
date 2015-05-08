@@ -17,6 +17,8 @@ class ApplicationTests(APITestCase):
         self.user.is_staff = True
         self.user.is_superuser = True
         self.user.save()
+        self.user2 = User.objects.create(username='lauren2', password='secret')
+        self.user2.save()
         self.unit_under_test = SBApplication.objects.create(
             user=self.user, web_hook="http://www.google.com")
         self.unit_under_test_name = "application"
@@ -235,3 +237,10 @@ class ApplicationTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertGreater(response.data['count'], 0)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_non_admin_user_and_not_owner(self):
+        self.client.force_authenticate(user=self.user2)
+        url = reverse('%s-detail' % self.unit_under_test_name,
+                      kwargs={'client_id': self.unit_under_test.client_id})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

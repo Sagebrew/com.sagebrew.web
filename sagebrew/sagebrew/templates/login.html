@@ -8,9 +8,11 @@
     {{ block.super }}
 {% endblock css %}
 
+{% block background_image %}
+  <img class="sb_sign_up_background" src="{% static 'images/sign_up.jpg' %}">
+{% endblock background_image %}
+
 {% block content %}
-    <img class="sb_sign_up_background"
-             src="{% static 'images/sign_up.jpg' %}">
     <div class="row sb_signup">
         <div class="row sb_signup_headline_containter" align="center">
             <h1>Log In</h1>

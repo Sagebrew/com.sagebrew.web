@@ -4,7 +4,6 @@ from logging import getLogger
 
 from django.template.loader import render_to_string
 from django.template import RequestContext
-from django.core.cache import cache
 
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework import viewsets
@@ -106,10 +105,7 @@ class WallPostsListCreate(ListCreateAPIView):
         return [Post.inflate(row[0]) for row in res]
 
     def create(self, request, *args, **kwargs):
-        wall_pleb = cache.get(self.kwargs[self.lookup_field])
-        if wall_pleb is None:
-            wall_pleb = Pleb.nodes.get(username=self.kwargs[self.lookup_field])
-            cache.set(self.kwargs[self.lookup_field], wall_pleb)
+        wall_pleb = Pleb.get(self.kwargs[self.lookup_field])
         friend_with = wall_pleb.is_friends_with(request.user.username)
         if friend_with is False and wall_pleb.username != request.user.username:
             return Response({"detail": "Sorry you are not friends with this"

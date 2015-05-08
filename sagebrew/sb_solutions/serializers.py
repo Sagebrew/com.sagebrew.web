@@ -3,8 +3,6 @@ import pytz
 
 from datetime import datetime
 
-from django.core.cache import cache
-
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -23,10 +21,7 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
     def create(self, validated_data):
         request = self.context["request"]
         question = validated_data.pop('question', None)
-        owner = cache.get(request.user.username)
-        if owner is None:
-            owner = Pleb.nodes.get(username=request.user.username)
-            cache.set(request.user.username, owner)
+        owner = Pleb.get(request.user.username)
         validated_data['content'] = bleach.clean(validated_data.get(
             'content', ""))
         solution = Solution(**validated_data).save()

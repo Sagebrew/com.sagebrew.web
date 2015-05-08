@@ -1,5 +1,4 @@
-from fnmatch import fnmatch
-
+import requests
 from base import *
 
 DEBUG = True
@@ -23,6 +22,10 @@ if envips is not None:
 WEB_ADDRESS = "https://sagebrew.local.dev"
 
 VERIFY_SECURE = False
+if not VERIFY_SECURE:
+    from requests.packages.urllib3.exceptions import InsecureRequestWarning
+    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
 MEDIA_ROOT = PROJECT_DIR.child("media")
 STATIC_ROOT = PROJECT_DIR.child("static")
 STATIC_URL = '/static/'

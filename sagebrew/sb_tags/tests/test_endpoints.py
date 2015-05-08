@@ -68,7 +68,11 @@ class TagEndpointTest(APITestCase):
                       kwargs={"name": self.tag.name})
         response = self.client.put(url, data={'name': 'name_change'},
                                    format='json')
-        self.assertEqual(response.status_code, status.HTTP_501_NOT_IMPLEMENTED)
+        # This throws a 403 because currently you must be an admin or the
+        # endpoint is read only. So by trying to update it as a normal user
+        # it throws a 403 prior to getting into the view and throwing a
+        # 501
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_suggestion_engine(self):
         self.client.force_authenticate(user=self.user)

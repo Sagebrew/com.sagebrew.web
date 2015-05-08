@@ -29,7 +29,7 @@ logger = getLogger('loggly_logs')
 
 class PostsViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializerNeo
-    permission_classes = (IsAuthenticated, IsOwnerOrAdmin)
+    permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
     lookup_field = "object_uuid"
 
     def get_object(self):

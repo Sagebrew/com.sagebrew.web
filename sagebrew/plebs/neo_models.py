@@ -201,9 +201,10 @@ class Pleb(Searchable):
     beta_user = RelationshipTo('plebs.neo_models.BetaUser', "BETA_USER")
     uploads = RelationshipTo('sb_uploads.neo_models.UploadedObject', 'UPLOADS')
 
-    # TODO Need a better name than affect_campaign
-    affect_campaign = RelationshipTo('sb_campaigns.neo_models.Campaign',
-                                     'HAS_STAKE_IN')
+    # This is relating to which campaigns will affect you specifically.
+    # So anyone who is running in your district will show up here.
+    related_campaigns = RelationshipTo('sb_campaigns.neo_models.Campaign',
+                                       'HAS_STAKE_IN')
     # Users can only have one campaign as the campaign is essentially their
     # action page and account information. They won't be able to create
     # multiple accounts or multiple action pages. We can then utilize the

@@ -26,6 +26,9 @@ class Donation(SBObject):
     # Set as a float to enable change to be specified. Even though from an
     # interface perspective we probably want to maintain that donations of
     # 5, 10, 100, etc are made.
+    # Amount is an Integer to adhere to Stripe's API and to ensure precision
+    # http://stackoverflow.com/questions/3730019/why-not-use-double-or-
+    # float-to-represent-currency
     amount = IntegerProperty()
 
     # relationships
@@ -44,8 +47,8 @@ class Donation(SBObject):
 
 class PoliticalDonation(Donation):
     """
-    In the serializer need to set a max of 2,600 and check how much the owner
-    has given to the specified candidate as you can only donate 2,600 per
+    In the serializer need to set a max of 2,700 and check how much the owner
+    has given to the specified candidate as you can only donate 2,700 per
     election. Should be able to utilize the created dates to determine when
     we can reset the counter
     """

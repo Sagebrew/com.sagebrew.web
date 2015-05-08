@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.template.loader import render_to_string
 from django.core.cache import cache
 
@@ -25,6 +26,10 @@ def prepare_question_search_html(question_uuid):
     question_dict = QuestionSerializerNeo(question).data
     question_dict['first_name'] = owner.first_name
     question_dict['last_name'] = owner.last_name
+    question_dict['created'] = datetime.strptime(question_dict['created'],
+                                                 "%Y-%m-%dT%H:%M:%S.%fZ")
+    question_dict['last_edited_on'] = datetime.strptime(
+        question_dict['last_edited_on'], "%Y-%m-%dT%H:%M:%S.%fZ")
     rendered = render_to_string('conversation_block.html', question_dict)
 
     return rendered

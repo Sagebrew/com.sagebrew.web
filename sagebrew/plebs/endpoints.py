@@ -299,12 +299,12 @@ class ProfileViewSet(viewsets.ModelViewSet):
             return Response(html, status=status.HTTP_200_OK)
         return Response(notifications, status=status.HTTP_200_OK)
 
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, ))
     def reputation(self, request, username=None):
         return Response({"reputation": self.get_object().reputation},
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated))
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, ))
     def senators(self, request, username=None):
         senators = self.get_object().senators.all()
         if len(senators) == 0:
@@ -321,7 +321,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
             return Response(sen_html, status=status.HTTP_200_OK)
         return Response(senators, status=status.HTTP_200_OK)
 
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated))
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def house_rep(self, request, username=None):
         try:
             house_rep = self.get_object().house_rep.all()[0]

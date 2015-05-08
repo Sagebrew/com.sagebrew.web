@@ -29,12 +29,14 @@
     {% block navigation %}
         {% include "navigation/navbar.html" %}
     {% endblock navigation %}
+    {% block background_image %}
+    {% endblock background_image %}
 
     <div class="container-fluid container-main">
         <div class="row">
             <div class="col-md-12">
                 {% block content %}
-                {% endblock %}
+                {% endblock content %}
             </div>
         </div>
     </div>
@@ -49,8 +51,9 @@
     </div>
 
     {% block scripts %}
-    <script src="{% static 'js/vendor/jquery.min.js' %}"></script>
-    <script src="{% static 'js/vendor/flat-ui-pro.min.js' %}"></script>
+    <script src="{% static 'js/vendor/jquery-2.1.4.min.js' %}"></script>
+    <script src="{% static 'js/vendor/bootstrap.min.js' %}"></script>
+
     <script src="{% static 'js/vendor/bootstrapValidator.min.js' %}"></script>
     <script src="{% static 'js/vendor/imagesloaded.pkgd.min.js' %}"></script>
     <script src="{% static 'js/vendor/packery.pkgd.min.js' %}"></script>

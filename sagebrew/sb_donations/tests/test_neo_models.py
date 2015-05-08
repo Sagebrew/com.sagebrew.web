@@ -13,11 +13,9 @@ from sb_donations.neo_models import Donation
 class TestDonationNeoModel(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        self.email = "bounce@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
-        self.campaigner = Pleb.nodes.get(email=self.email)
         self.goal = Goal(title="This is my goal",
                          summary="Hey this is required",
                          pledged_vote_requirement=10, monetary_requirement=10)

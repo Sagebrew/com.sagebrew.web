@@ -50,6 +50,12 @@ class Goal(SBObject):
     next_goal = RelationshipTo('sb_goals.neo_models.Goal', "NEXT")
     campaign = RelationshipTo('sb_campaigns.neo_models.Campaign', 'SET_FOR')
 
+    # TODO should we ever bind a goal to a single user? Or should it always
+    # be bound to a campaign and project which are then bound to x amount of
+    # users? May make queries easier but I think by not binding them tightly
+    # we improve the distinction between a private profile and their active
+    # public identity.
+
 
 class Round(SBObject):
     """
@@ -60,9 +66,20 @@ class Round(SBObject):
     need to raise to accomplish each. Then they can try and close out that
     round by achieving each of the goals, providing updates, and then start
     a new round.
+
+    NOTE: Please be aware that you should not use `round` when instantiating
+    this object. `round` is a keyword in Python relating to rounding. Please
+    use something else to store the instance in.
     """
+    # Start date should not be confused with `created` created is when the user
+    # first defines the round, while start date is the day it goes public.
+    # This gives us some flexibility with enabling users to set a time in the
+    # future they would like the round to go active.
     start_date = DateTimeProperty()
-    end_data = DateTimeProperty()
+    # Completed is a programmaticly set value that should be set when
+    # the campaigner closes out a round by completing all the associated
+    # goals.
+    completed = DateTimeProperty()
 
     # relationships
     goals = RelationshipTo('sb_goals.neo_models.Goal', "STRIVING_FOR")

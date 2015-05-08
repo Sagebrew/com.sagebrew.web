@@ -13,10 +13,7 @@ from sb_campaigns.neo_models import Campaign
 class TestCampaignNeoModel(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        self.email = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        create_user_util_test(self.email)
         self.campaigner = Pleb.nodes.get(email=self.email)
         self.goal = Goal(title="This is my goal",
                          summary="Hey this is required",
@@ -30,7 +27,7 @@ class TestCampaignNeoModel(TestCase):
         campaign.donations.connect(self.donation)
         self.donation.campaign.connect(campaign)
         campaign.goals.connect(self.goal)
-        campaign.owned_by.connect(self.pleb)
+        campaign.owned_by.connect(self.campaigner)
         self.goal.campaign.connect(campaign)
 
         campaign_query = Campaign.nodes.get(stripe_id=stripe_id)

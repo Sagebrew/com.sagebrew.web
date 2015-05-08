@@ -1,3 +1,4 @@
+from dateutil import parser
 from django.template.loader import render_to_string
 from django.core.cache import cache
 
@@ -25,6 +26,9 @@ def prepare_question_search_html(question_uuid):
     question_dict = QuestionSerializerNeo(question).data
     question_dict['first_name'] = owner.first_name
     question_dict['last_name'] = owner.last_name
+    question_dict['created'] = parser.parse(question_dict['created'])
+    question_dict['last_edited_on'] = parser.parser(
+        question_dict['last_edited_on'])
     rendered = render_to_string('conversation_block.html', question_dict)
 
     return rendered

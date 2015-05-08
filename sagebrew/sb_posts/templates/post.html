@@ -1,3 +1,4 @@
+{% load humanize %}
 {% comment %}
     This template is rendered into html through a view and then returned as a
     result to an endpoint that is called requesting existing posts and their
@@ -20,7 +21,7 @@
                            {{ profile.first_name }} {{ profile.last_name }}
                        </a>
                    </div>
-                    <small>{{ last_edited_on|date:"D d M Y" }}</small>
+                    <small>{{ last_edited_on|naturaltime }}</small>
                     {% comment %}
                         date/time/location(or disctrict)
                     {%  endcomment %}

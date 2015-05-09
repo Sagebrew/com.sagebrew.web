@@ -180,6 +180,7 @@ INSTALLED_APPS = (
     'storages',
     'localflavor',
     'clear_cache',
+    'sunlight',
     'plebs',
     'api',
     'govtrack',

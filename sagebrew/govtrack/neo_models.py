@@ -121,3 +121,11 @@ class GTCommittee(StructuredNode):
 
     # relationships
     committee = RelationshipTo('GTCommittee', 'HAS_A_SUB')
+
+
+class LegislatorTerm(StructuredNode):
+    chamber = StringProperty()
+    state = StringProperty()
+    district = IntegerProperty()
+    start = DateTimeProperty()
+    end = DateTimeProperty()

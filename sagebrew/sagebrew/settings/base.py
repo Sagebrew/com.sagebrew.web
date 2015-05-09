@@ -295,6 +295,7 @@ OPBEAT = {
 }
 
 CSV_FILES = '%s/csv_content/' % PROJECT_DIR
+YAML_FILES = '%s/yaml_content/' % PROJECT_DIR
 
 TEMP_FILES = '%s/temp_files/' % PROJECT_DIR
 if not path.exists(TEMP_FILES):

@@ -1,7 +1,12 @@
+import yaml
 from datetime import datetime
 from requests import get
+
+from django.conf import settings
+
 from neomodel import DoesNotExist, CypherException
-from govtrack.neo_models import (GTPerson, GTRole, GTCongressNumbers)
+from govtrack.neo_models import (GTPerson, GTRole, GTCongressNumbers,
+                                 LegislatorTerm)
 
 
 def create_gt_role(rep):
@@ -74,3 +79,8 @@ def populate_gt_roles_util(requesturl):
             my_role.congress_numbers.connect(item)
         congress_number_object = []
     return True
+
+
+def populate_term_data():
+    yaml_data = yaml.load(
+        open(settings.YAML_FILES + "legislators-current.yaml"))

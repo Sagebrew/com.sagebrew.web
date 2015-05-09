@@ -1,4 +1,5 @@
 from base import *
+import requests
 from os import environ
 
 DEBUG = False
@@ -7,6 +8,10 @@ TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['*']
 WEB_ADDRESS = "https://127.0.0.1:8080"
 VERIFY_SECURE = False
+if not VERIFY_SECURE:
+    from requests.packages.urllib3.exceptions import InsecureRequestWarning
+    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
 CELERY_IGNORE_RESULT = False
 DATABASES = {
     'default': {

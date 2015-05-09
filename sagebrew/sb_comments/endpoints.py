@@ -4,7 +4,6 @@ from logging import getLogger
 
 from django.template.loader import render_to_string
 from django.template import RequestContext
-from django.core.cache import cache
 
 from rest_framework.reverse import reverse
 from rest_framework.decorators import (api_view, permission_classes)
@@ -53,10 +52,7 @@ class ObjectCommentsListCreate(ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            pleb = cache.get(request.user.username)
-            if pleb is None:
-                pleb = Pleb.nodes.get(username=request.user.username)
-                cache.set(request.user.username, pleb)
+            pleb = Pleb.get(request.user.username)
             parent_object = SBContent.nodes.get(
                 object_uuid=self.kwargs[self.lookup_field])
             instance = serializer.save(owner=pleb, parent_object=parent_object)

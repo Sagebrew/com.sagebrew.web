@@ -3,11 +3,6 @@ $(document).ready(function () {
         $("#friend_request_div").fadeToggle();
         $(".respond_friend_request-action").click(function (event) {
             event.preventDefault();
-            $.ajaxSetup({
-                beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-            });
             $.ajax({
                 xhrFields: {withCredentials: true},
                 type: "POST",

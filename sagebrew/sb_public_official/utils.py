@@ -116,6 +116,10 @@ def determine_reps(username):
     except (CypherException, IOError, IndexError):
         logger.exception("Determine Reps Cypher Exception")
         return False
+    for rep in pleb.house_rep.all():
+        pleb.house_rep.disconnect(rep)
+    for senator in pleb.senators.all():
+        pleb.senators.disconnect(senator)
     reps = [PublicOfficial.inflate(row[0]) for row in reps]
     for rep in reps:
         if rep.district == pleb_district:

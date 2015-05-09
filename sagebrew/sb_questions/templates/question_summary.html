@@ -1,3 +1,4 @@
+{% load humanize %}
 <div class="row sb_question_summary">
     <div class="js-page-object" data-object_uuid="{{ object_uuid }}" style="display: None"></div>
     <div class="row">
@@ -37,7 +38,7 @@
             </div>
             <div style="margin-top:-10px;">
                 <small>
-                    {{ last_edited_on|date:"d M Y" }}
+                    {{ last_edited_on|naturaltime }}
                 </small>
             </div>
         </div>

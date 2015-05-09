@@ -14,11 +14,7 @@ $(document).ready(function () {
             }
         });
         console.log(data);
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
+
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",

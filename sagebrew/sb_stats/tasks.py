@@ -11,10 +11,7 @@ from .utils import update_view_count
 
 @shared_task()
 def update_view_count_task(object_uuid, username):
-    profile = cache.get(username)
-    if profile is None:
-        profile = Pleb.nodes.get(username=username)
-        cache.set(username, profile)
+    profile = Pleb.get(username)
 
     sb_object = cache.get(object_uuid)
     if sb_object is None:

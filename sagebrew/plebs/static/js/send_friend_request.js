@@ -5,11 +5,7 @@ $(document).ready(function () {
         event.preventDefault();
         var sendRequest = $("button.send_friend_request-action");
         sendRequest.attr("disabled", "disabled");
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings);
-            }
-        });
+
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",

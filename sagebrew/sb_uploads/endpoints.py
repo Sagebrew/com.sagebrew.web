@@ -7,7 +7,6 @@ from copy import deepcopy
 from logging import getLogger
 
 from django.conf import settings
-from django.core.cache import cache
 from django.core.files.uploadhandler import TemporaryUploadedFile
 
 from PIL import Image
@@ -31,7 +30,15 @@ logger = getLogger('loggly_logs')
 
 class UploadViewSet(viewsets.ModelViewSet):
     """
+    This endpoint enables users to upload files to the server for usage on
+    the site.
 
+    Limitations:
+    The endpoint currently only supports images up to 20mb. The 20mb limitation
+    is a self imposed limitation so that we aren't clogging up our S3 instance
+    or our memory when multiple users are uploading images at the same time.
+    We see this as a reasonable limitation as the majority of users that have
+    uploaded images so far have selected images under 5mb in size.
     """
     serializer_class = UploadSerializer
     lookup_field = 'object_uuid'
@@ -84,10 +91,7 @@ class UploadViewSet(viewsets.ModelViewSet):
             width, height = image.size
             request.data['object_uuid'] = object_uuid
             file_name = "%s.%s" % (object_uuid, image_format.lower())
-            owner = cache.get(request.user.username)
-            if owner is None:
-                owner = Pleb.nodes.get(username=request.user.username)
-                cache.set(request.user.username, owner)
+            owner = Pleb.get(request.user.username)
             upload = serializer.save(owner=owner, width=width, height=height,
                                      file_object=file_object,
                                      file_name=file_name,
@@ -134,10 +138,7 @@ class UploadViewSet(viewsets.ModelViewSet):
                                      crop_data['crop_height'],
                                      image_format.lower())
         if serializer.is_valid():
-            owner = cache.get(request.user.username)
-            if owner is None:
-                owner = Pleb.nodes.get(username=request.user.username)
-                owner.set(request.user.username, owner)
+            owner = Pleb.get(request.user.username)
             upload = serializer.save(owner=owner,
                                      width=crop_data['crop_width'],
                                      height=crop_data['crop_height'],

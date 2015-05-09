@@ -1,7 +1,7 @@
 /*global $, jQuery, ajaxSecurity, guid, Croppic*/
 $(document).ready(function () {
     "use strict";
-    var questionPagedown = $("textarea#question_content_id").pagedownBootstrap({
+    $("textarea#question_content_id").pagedownBootstrap({
         "sanatize": false,
         'editor_hooks': [
             {
@@ -16,11 +16,6 @@ $(document).ready(function () {
                                 var formdata = new FormData(),
                                     file = $("#upload_image")[0].files[0];
                                 formdata.append("file", file);
-                                $.ajaxSetup({
-                                    beforeSend: function (xhr, settings) {
-                                        ajaxSecurity(xhr, settings);
-                                    }
-                                });
                                 $.ajax({
                                     xhrFields: {withCredentials: true},
                                     type: "POST",
@@ -53,5 +48,5 @@ $(document).ready(function () {
             }
         ]
     });
-    var solutionPagedown = $("textarea#solution_content_id").pagedownBootstrap();
+    $("textarea#solution_content_id").pagedownBootstrap();
 });

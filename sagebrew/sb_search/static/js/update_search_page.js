@@ -1,16 +1,12 @@
 /*global $, jQuery, ajaxSecurity*/
 $(document).ready(function () {
     "use strict";
-    function sendFriendRequest(requestArea) {
+    function sendFriendRequest(requestArea, username) {
         $(requestArea).click(function (event) {
             event.preventDefault();
             var sendRequest = $(this);
             sendRequest.attr("disabled", "disabled");
-            $.ajaxSetup({
-                beforeSend: function (xhr, settings) {
-                    ajaxSecurity(xhr, settings);
-                }
-            });
+
             $.ajax({
                 xhrFields: {withCredentials: true},
                 type: "POST",
@@ -24,7 +20,7 @@ $(document).ready(function () {
                 success: function (data) {
                     if (data.action === true) {
                         sendRequest.hide();
-                        $("#js-friend-request-sent").show();
+                        $("#js-friend-request-sent_" + username).show();
                     }
                 },
                 error: function (XMLHttpRequest) {
@@ -45,11 +41,7 @@ $(document).ready(function () {
     if (filter === 'undefined') {
         filter = "";
     }
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-            ajaxSecurity(xhr, settings);
-        }
-    });
+
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
@@ -67,11 +59,7 @@ $(document).ready(function () {
                 $.each(dataList, function (i, item) {
                     if (item.type === 'question') {
                         var objectUUID = item.question_uuid;
-                        $.ajaxSetup({
-                            beforeSend: function (xhr, settings) {
-                                ajaxSecurity(xhr, settings);
-                            }
-                        });
+
                         $.ajax({
                             xhrFields: {withCredentials: true},
                             type: "GET",
@@ -85,11 +73,7 @@ $(document).ready(function () {
                     }
                     if (item.type === 'profile') {
                         var username = item.username;
-                        $.ajaxSetup({
-                            beforeSend: function (xhr, settings) {
-                                ajaxSecurity(xhr, settings);
-                            }
-                        });
+
                         $.ajax({
                             xhrFields: {withCredentials: true},
                             type: "GET",
@@ -98,17 +82,13 @@ $(document).ready(function () {
                             dataType: "json",
                             success: function (data) {
                                 searchResults.append(data.html);
-                                sendFriendRequest(".send_friend_request-action_" + username);
+                                sendFriendRequest(".send_friend_request-action_" + username, username);
                             }
                         });
                     }
                     if (item.type === 'public_official') {
                         var sagaUUID = item.object_uuid;
-                        $.ajaxSetup({
-                            beforeSend: function (xhr, settings) {
-                                ajaxSecurity(xhr, settings);
-                            }
-                        });
+
                         $.ajax({
                             xhrFields: {withCredentials: true},
                             type: "GET",

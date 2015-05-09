@@ -118,15 +118,9 @@ class UserSerializer(SBSerializer):
         return obj.username
 
     def get_profile(self, obj):
-        request, expand, _, _, _ = gather_request_data(self.context)
-        user_url = reverse('profile-detail', kwargs={'username': obj.username},
-                           request=request)
-        if expand == "true":
-            response = request_to_api(user_url, request.user.username,
-                                      req_method="GET")
-            return response.json()
-        else:
-            return user_url
+        request, _, _, _, _ = gather_request_data(self.context)
+        return reverse('profile-detail', kwargs={'username': obj.username},
+                       request=request)
 
     def get_href(self, obj):
         request, expand, _, _, _ = gather_request_data(self.context)

@@ -1,12 +1,7 @@
-/*global $, jQuery, ajaxSecurity, guid, Croppic, alert*/
+/*global $, jQuery, guid, Croppic, alert*/
 $(document).ready(function () {
     "use strict";
     var fileName = guid();
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-            ajaxSecurity(xhr, settings);
-        }
-    });
     function createUrl(uuid) {
         return '/v1/upload/?croppic=true&object_uuid=' + uuid;
     }
@@ -74,6 +69,7 @@ $(document).ready(function () {
                 success: function (data) {
                     var wallpaperImg = $("#wallpaper_pic");
                     if (wallpaperImg.length === 0) {
+                        $(".croppedImg").remove();
                         $("#cropWallpaperPictureEyecandy").append('<img id="wallpaper_pic" src="' + data.wallpaper_pic + '">');
                     } else {
                         wallpaperImg.attr('src', data.wallpaper_pic);

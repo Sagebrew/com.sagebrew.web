@@ -1,10 +1,6 @@
 $(document).ready(function () {
     $('.action').each(function(i,obj){
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
+
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "GET",

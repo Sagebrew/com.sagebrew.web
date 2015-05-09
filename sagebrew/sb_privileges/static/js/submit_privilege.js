@@ -25,11 +25,6 @@ $(document).ready(function(){
                 req_data[this.name] = this.value || '';
             }
         });
-        $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",

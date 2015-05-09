@@ -3,11 +3,6 @@ $(document).ready(function(){
         event.preventDefault();
         $(".delete_friend_request-action").attr("disabled", "disabled");
         var object_uuid = $(this).data('uuid');
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "DELETE",

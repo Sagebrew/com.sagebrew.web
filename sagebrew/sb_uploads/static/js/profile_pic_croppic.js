@@ -1,12 +1,7 @@
-/*global $, jQuery, ajaxSecurity, guid, Croppic, alert*/
+/*global $, jQuery, guid, Croppic, alert*/
 $(document).ready(function () {
     "use strict";
     var fileName = guid();
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-            ajaxSecurity(xhr, settings);
-        }
-    });
     var croppicContainerEyecandyOptions = {
         uploadUrl: '/v1/upload/?croppic=true&object_uuid=' + fileName,
         cropUrl: '/v1/upload/' + fileName + '/crop/?resize=true&croppic=true',
@@ -65,11 +60,12 @@ $(document).ready(function () {
                 cache: false,
                 processData: false,
                 success: function (data) {
-                    var profilePicture = $("#profile_pic");
-                    if (profilePicture.length === 0) {
+                    var profileImg = $("#profile_pic");
+                    if (profileImg.length === 0) {
+                        $(".croppedImg").remove();
                         $("#cropProfilePageEyecandy").append('<img id="profile_pic" src="' + data.profile_pic + '">');
                     } else {
-                        profilePicture.attr('src', data.profile_pic);
+                        profileImg.attr('src', data.profile_pic);
                     }
                 },
                 error: function () {

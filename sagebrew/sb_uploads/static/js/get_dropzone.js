@@ -9,11 +9,7 @@ $( document ).ready(function() {
         $.each(files, function(i, j) {
             myFormData.append('myFile'+i, j);
         });
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
+
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",

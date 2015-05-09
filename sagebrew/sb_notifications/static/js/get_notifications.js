@@ -1,10 +1,6 @@
 $( document ).ready(function() {
     var username = $(".show_notifications-action").data("username");
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-    });
+
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",

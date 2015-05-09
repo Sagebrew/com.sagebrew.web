@@ -1,11 +1,7 @@
 $( document ).ready(function() {
     $(".get_action_form").click(function (event) {
         event.preventDefault();
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                ajaxSecurity(xhr, settings)
-            }
-        });
+
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "GET",

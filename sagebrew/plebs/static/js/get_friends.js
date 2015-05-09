@@ -5,11 +5,7 @@ $(document).ready(function () {
         $(".js-remove_friend").click(function (event) {
             event.preventDefault();
             var friendToRemove = $(this).data('remove_friend');
-            $.ajaxSetup({
-                beforeSend: function (xhr, settings) {
-                    ajaxSecurity(xhr, settings);
-                }
-            });
+
             $.ajax({
                 xhrFields: {withCredentials: true},
                 type: "DELETE",
@@ -30,11 +26,7 @@ $(document).ready(function () {
     }
     var username = $("#user_info").data("page_user_username"),
         scrolled = false;
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-            ajaxSecurity(xhr, settings);
-        }
-    });
+
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
@@ -63,11 +55,6 @@ $(document).ready(function () {
                 scrolled = true;
                 var next = $("#next_url").data('url');
                 if (next !== null) {
-                    $.ajaxSetup({
-                        beforeSend: function (xhr, settings) {
-                            ajaxSecurity(xhr, settings);
-                        }
-                    });
                     $.ajax({
                         xhrFields: {withCredentials: true},
                         type: "GET",

@@ -185,10 +185,7 @@ def logout_view(request):
 @login_required()
 def email_verification(request, confirmation):
     try:
-        profile = cache.get(request.user.username)
-        if profile is None:
-            profile = Pleb.nodes.get(username=request.user.username)
-            cache.set(request.user.username, profile)
+        profile = Pleb.get(request.user.username)
         if token_gen.check_token(request.user, confirmation, profile):
             profile.email_verified = True
             profile.save()
@@ -342,10 +339,7 @@ def profile_picture(request):
 @api_view(['POST'])
 def profile_picture_api(request):
     profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
-    profile = cache.get(request.user.username)
-    if profile is None:
-        profile = Pleb.nodes.get(username=request.user.username)
-        cache.set(request.user.username, profile)
+    profile = Pleb.get(request.user.username)
     if profile_picture_form.is_valid():
         data = request.FILES['picture']
         res = crop_image(
@@ -387,10 +381,7 @@ def image_upload_api(request):
 @api_view(['POST'])
 def wallpaper_picture_api(request):
     profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
-    pleb = cache.get(request.user.username)
-    if pleb is None:
-        pleb = Pleb.nodes.get(username=request.user.username)
-        cache.set(request.user.username, pleb)
+    pleb = Pleb.get(request.user.username)
     if profile_picture_form.is_valid():
         data = request.FILES['picture']
         res = crop_image(data,

@@ -1,3 +1,4 @@
+{% load humanize %}
 {% comment %}
     This template is rendered into html through a view and then returned as a
     result to an endpoint that is called requesting existing posts and their
@@ -75,7 +76,7 @@
             </div>
             <div style="margin-top:-10px;">
                 <small>
-                    {{ last_edited_on|date:"D d M Y" }}
+                    {{ last_edited_on|naturaltime }}
                 </small>
             </div>
         </div>

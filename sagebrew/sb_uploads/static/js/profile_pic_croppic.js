@@ -60,7 +60,13 @@ $(document).ready(function () {
                 cache: false,
                 processData: false,
                 success: function (data) {
-                    $("#profile_pic").attr('src', data.profile_pic);
+                    var profileImg = $("#profile_pic");
+                    if (profileImg.length === 0) {
+                        $(".croppedImg").remove();
+                        $("#cropProfilePageEyecandy").append('<img id="profile_pic" src="' + data.profile_pic + '">');
+                    } else {
+                        profileImg.attr('src', data.profile_pic);
+                    }
                 },
                 error: function () {
                     $('.alert-dismissible').show();

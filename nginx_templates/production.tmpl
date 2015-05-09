@@ -7,8 +7,7 @@ server {
 	listen 80;
 
 	error_log /home/apps/logs/{{APP_NAME}}_nginx.error.log;
-	access_log off;
-    client_max_body_size 4G;
+	access_log /dev/null;
     server_name {{DOMAINS_SPACE}};
     keepalive_timeout 5;
 

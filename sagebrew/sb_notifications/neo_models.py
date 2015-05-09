@@ -36,7 +36,7 @@ class Notification(SBObject):
         :return:
         """
         query = 'MATCH (a:Pleb {username: "%s"})-[:RECEIVED_A]->' \
-            '(n:Notification) WHERE n.seen=false ' \
+            '(n:Notification) WHERE n.seen=False ' \
             'RETURN count(n)' % (username)
         res, col = db.cypher_query(query)
         return res[0][0]
@@ -52,9 +52,13 @@ class Notification(SBObject):
         :param username:
         :return:
         """
+        value = get_current_time().astimezone(pytz.utc)
+        epoch_date = datetime(1970, 1, 1, tzinfo=pytz.utc)
+        time_seen = float((value - epoch_date).total_seconds())
         query = 'MATCH (a:Pleb {username: "%s"})-[:RECEIVED_A]->' \
-                '(n:Notification)' \
-                ' SET n.seen = True' % (username)
+                '(n:Notification) WHERE n.seen=False' \
+                ' SET n.seen = True, ' \
+                'n.time_seen = %s' % (username, time_seen)
         db.cypher_query(query)
 
 

@@ -58,15 +58,16 @@ class UserNotificationList(ListAPIView):
         seen = request.query_params.get('seen', 'false').lower()
         if seen == "true":
             Notification.clear_unseen(request.user.username)
-        queryset = self.filter_queryset(self.get_queryset())
+            # Set queryset to [] as this query param means they've already
+            # loaded the initial queryset and just want to mark them as
+            # seen
+            queryset = []
+        else:
+            queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
 
 @api_view(["GET"])

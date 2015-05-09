@@ -4,7 +4,7 @@ from rest_framework import routers
 
 from plebs.endpoints import (UserViewSet, ProfileViewSet, AddressViewSet,
                              FriendRequestViewSet, MeRetrieveUpdateDestroy,
-                             FriendManager)
+                             FriendManager, FriendRequestList)
 from sb_posts.endpoints import (WallPostsListCreate,
                                 WallPostsRetrieveUpdateDestroy, post_renderer)
 
@@ -34,6 +34,8 @@ urlpatterns = patterns(
         r'(?P<post_uuid>[A-Za-z0-9.@_%+-]{36,36})/$',
         WallPostsRetrieveUpdateDestroy.as_view(),
         name="profile-post"),
+    url(r'^me/friend_requests/$',
+        FriendRequestList.as_view(), name="friend_request-list"),
     url(r'^me/friends/(?P<friend_username>[A-Za-z0-9.@_%+-]{1,30})/$',
         FriendManager.as_view(), name="friend-detail")
 )

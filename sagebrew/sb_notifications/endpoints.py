@@ -45,9 +45,28 @@ class UserNotificationList(ListAPIView):
     def get_queryset(self):
         query = 'MATCH (a:Pleb {username: "%s"})-[:RECEIVED_A]->' \
                 '(n:Notification) RETURN n ORDER ' \
-                'BY n.created DESC LIMIT 7' % (self.request.user.username)
+                'BY n.created DESC LIMIT 5' % (self.request.user.username)
         res, col = db.cypher_query(query)
         return [Notification.inflate(row[0]) for row in res]
+
+    def list(self, request, *args, **kwargs):
+        """
+        Had to overwrite this function to add a check for a query param being
+        passed that when set to true will set all the user's current
+        notifications to seen
+        """
+        seen = request.query_params.get('seen', 'false').lower()
+        if seen == "true":
+            Notification.clear_unseen(request.user.username)
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 @api_view(["GET"])

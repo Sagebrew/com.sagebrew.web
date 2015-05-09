@@ -37,4 +37,3 @@ class NotificationSerializer(SBSerializer):
         res, col = db.cypher_query(query)
 
         return PlebSerializerNeo(Pleb.inflate(res[0][0])).data
-

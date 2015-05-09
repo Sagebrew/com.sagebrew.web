@@ -412,35 +412,6 @@ class Pleb(Searchable):
         from sb_public_official.utils import determine_reps
         return determine_reps(self.username)
 
-    def get_notifications(self):
-        try:
-            notification_list = []
-            for notification in self.notifications.all():
-                try:
-                    # TODO see if we can do this with a serializer instead
-                    from_user = notification.notification_from.all()[0]
-                    notification_dict = {
-                        "object_uuid": notification.object_uuid,
-                        "notification_from": {
-                            "profile_pic": from_user.profile_pic,
-                            "first_name": from_user.first_name,
-                            "last_name": from_user.last_name,
-                            "username": from_user.username
-                        },
-                        "action_name": notification.action_name,
-                        "url": notification.url,
-                        "time_sent": notification.time_sent,
-                        "time_seen": notification.time_seen,
-                        "seen": notification.seen,
-                        "about": notification.about,
-                    }
-                    notification_list.append(notification_dict)
-                except IndexError:
-                    continue
-        except(CypherException, IOError) as e:
-            raise e
-        return notification_list
-
 
 class Address(SBObject):
     street = StringProperty()

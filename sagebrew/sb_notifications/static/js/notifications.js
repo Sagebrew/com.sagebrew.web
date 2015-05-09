@@ -25,8 +25,19 @@ $(document).ready(function () {
     $(".show_notifications-action").click(function () {
         $("#notification_div").fadeToggle();
         if ($('#js-notification_notifier_wrapper').children().length > 0) {
-
+            $.ajax({
+                xhrFields: {withCredentials: true},
+                type: "GET",
+                url: "/v1/me/notifications/?seen=true",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function () {
+                    $('#js-sb_notifications_notifier').remove();
+                },
+                error: function () {
+                    $("#server_error").show();
+                }
+            });
         }
-        console.log($('#js-notification_notifier_wrapper').children().length);
     });
 });

@@ -41,6 +41,22 @@ class Notification(SBObject):
         res, col = db.cypher_query(query)
         return res[0][0]
 
+    @classmethod
+    def clear_unseen(cls, username):
+        """
+        Sets all the notifications for the given user to True so that there
+        are no more unread notifications.
+
+        Doesn't return anything because if the query fails a Cypher Exception
+        is thrown and a 500 error will propagate out.
+        :param username:
+        :return:
+        """
+        query = 'MATCH (a:Pleb {username: "%s"})-[:RECEIVED_A]->' \
+                '(n:Notification)' \
+                ' SET n.seen = True' % (username)
+        db.cypher_query(query)
+
 
 class NotificationCapable(Searchable):
     action_name = StringProperty(default="")

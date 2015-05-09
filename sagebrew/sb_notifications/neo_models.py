@@ -18,7 +18,6 @@ class Notification(SBObject):
     time_sent = DateTimeProperty(default=get_current_time)
     time_seen = DateTimeProperty(default=None)
     about = StringProperty()
-    about_id = StringProperty()
     sent = BooleanProperty(default=False)
     url = StringProperty()
     action_name = StringProperty()

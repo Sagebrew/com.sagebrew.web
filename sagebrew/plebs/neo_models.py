@@ -433,7 +433,6 @@ class Pleb(Searchable):
                         "time_seen": notification.time_seen,
                         "seen": notification.seen,
                         "about": notification.about,
-                        "about_id": notification.about_id,
                     }
                     notification_list.append(notification_dict)
                 except IndexError:

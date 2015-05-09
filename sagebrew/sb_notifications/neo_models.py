@@ -3,7 +3,7 @@ import pytz
 from datetime import datetime
 
 from neomodel import (StringProperty, DateTimeProperty, RelationshipTo,
-                      BooleanProperty)
+                      BooleanProperty, db)
 
 from api.neo_models import SBObject
 from sb_search.neo_models import Searchable
@@ -27,6 +27,19 @@ class Notification(SBObject):
                                        'NOTIFICATION_FROM')
     notification_to = RelationshipTo('plebs.neo_models.Pleb',
                                      'NOTIFICATION_TO')
+
+    @classmethod
+    def unseen(cls, username):
+        """
+        Returns the amount of unseen notifications for a given user
+        :param username:
+        :return:
+        """
+        query = 'MATCH (a:Pleb {username: "%s"})-[:RECEIVED_A]->' \
+            '(n:Notification) WHERE n.seen=false ' \
+            'RETURN count(n)' % (username)
+        res, col = db.cypher_query(query)
+        return res[0][0]
 
 
 class NotificationCapable(Searchable):

@@ -1,5 +1,3 @@
-import time
-from datetime import datetime
 from dateutil import parser
 
 from django.core.urlresolvers import reverse
@@ -9,7 +7,6 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from plebs.neo_models import Pleb
-from sb_posts.neo_models import Post
 from sb_registration.utils import create_user_util_test
 from sb_notifications.neo_models import Notification
 

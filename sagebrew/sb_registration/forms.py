@@ -268,9 +268,10 @@ for field in self.fields:
     )
 '''
 
+
 def validate_user(email):
     try:
-        user = User.objects.get(email=email)
+        User.objects.get(email=email)
         return email
     except User.DoesNotExist:
         raise ValidationError("There is no user associated with %s" % email)

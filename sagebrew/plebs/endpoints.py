@@ -1,3 +1,4 @@
+from dateutil import parser
 from elasticsearch import Elasticsearch, NotFoundError
 
 from django.template.loader import render_to_string
@@ -7,6 +8,7 @@ from django.core.cache import cache
 from django.template import RequestContext
 from django.conf import settings
 
+from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
@@ -439,18 +441,40 @@ class FriendRequestList(ListAPIView):
         passed that when set to true will set all the user's current
         notifications to seen
         """
-        '''
         seen = request.query_params.get('seen', 'false').lower()
         if seen == "true":
-            Pleb.clear_unseen(request.user.username)
+            Pleb.clear_unseen_friend_requests(request.user.username)
             # Set queryset to [] as this query param means they've already
             # loaded the initial queryset and just want to mark them as
             # seen
             queryset = []
         else:
-        '''
-        queryset = self.filter_queryset(self.get_queryset())
+            queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
+
+
+@api_view(["GET"])
+@permission_classes((IsAuthenticated, ))
+def friend_request_renderer(request, object_uuid=None):
+    """
+    This is a intermediate step on the way to utilizing a JS Framework to
+    handle template rendering.
+    """
+    html_array = []
+    id_array = []
+    notifications = FriendRequestList.as_view()(request)
+    for notification in notifications.data['results']:
+        notification['time_sent'] = parser.parse(notification['time_sent'])
+        context = RequestContext(request, notification)
+        html_array.append(render_to_string('friend_request_block.html',
+                                           context))
+        id_array.append(notification["id"])
+
+    notifications.data['results'] = {
+        "html": html_array, "ids": id_array,
+        "unseen": FriendRequest.unseen(request.user.username)
+    }
+    return Response(notifications.data, status=status.HTTP_200_OK)

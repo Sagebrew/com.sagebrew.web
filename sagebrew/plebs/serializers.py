@@ -6,6 +6,7 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 from neomodel.exception import DoesNotExist
+from neomodel import db
 
 from api.serializers import SBSerializer
 from api.utils import spawn_task, request_to_api, gather_request_data
@@ -274,30 +275,15 @@ class FriendRequestSerializer(SBSerializer):
         return instance
 
     def get_from_user(self, obj):
-        request, expand, _, _, _ = gather_request_data(self.context)
-        try:
-            user_url = reverse("profile-detail",
-                               kwargs={
-                                   "username":
-                                       obj.request_from.all()[0].username},
-                               request=request)
-        except IndexError:
-            return None
-        if expand == "true":
-            response = request_to_api(user_url, request.user.username,
-                                      req_method="GET")
-            return response.json()
-        return user_url
+        query = 'MATCH (a:FriendRequest {object_uuid: "%s"})-' \
+                '[:REQUEST_FROM]->(b:Pleb) RETURN b' % (obj.object_uuid)
+        res, col = db.cypher_query(query)
+
+        return PlebSerializerNeo(Pleb.inflate(res[0][0])).data
 
     def get_to_user(self, obj):
-        request, expand, _, _, _ = gather_request_data(self.context)
-        user_url = reverse("profile-detail",
-                           kwargs={
-                               "username":
-                                   obj.request_to.all()[0].username},
-                           request=request)
-        if expand == "true":
-            response = request_to_api(user_url, request.user.username,
-                                      req_method="GET")
-            return response.json()
-        return user_url
+        query = 'MATCH (a:FriendRequest {object_uuid: "%s"})-' \
+                '[:REQUEST_TO]->(b:Pleb) RETURN b' % (obj.object_uuid)
+        res, col = db.cypher_query(query)
+
+        return PlebSerializerNeo(Pleb.inflate(res[0][0])).data

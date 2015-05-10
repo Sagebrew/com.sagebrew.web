@@ -292,36 +292,26 @@ def respond_friend_request(request):
     :param request:
     :return:
     """
-    try:
-        form = RespondFriendRequestForm(request.DATA)
-        valid_form = form.is_valid()
-    except AttributeError:
-        return Response(status=400)
-    if valid_form is True:
-        try:
-            friend_request = FriendRequest.nodes.get(
-                object_uuid=form.cleaned_data['request_id'])
-            to_pleb = friend_request.request_to.all()[0]
-            from_pleb = friend_request.request_from.all()[0]
-        except (FriendRequest.DoesNotExist, Pleb.DoesNotExist, IndexError):
-            # TODO should we be doing something different for an index error?
-            return Response(status=404)
-        except (CypherException, IOError):
-            return Response(status=500)
+    form = RespondFriendRequestForm(request.DATA)
+    if form.is_valid():
+        friend_request = FriendRequest.nodes.get(
+            object_uuid=form.cleaned_data['request_id'])
+        to_pleb = friend_request.request_to.all()[0]
+        from_pleb = friend_request.request_from.all()[0]
 
         if form.cleaned_data['response'] == 'accept':
             to_pleb.friends.connect(from_pleb)
             from_pleb.friends.connect(to_pleb)
             friend_request.delete()
-            return Response(status=200)
+            return Response({'detail': 'success'}, status=200)
         elif form.cleaned_data['response'] == 'deny':
             friend_request.delete()
-            return Response(status=200)
+            return Response({'detail': 'success'}, status=200)
         elif form.cleaned_data['response'] == 'block':
             friend_request.seen = True
             friend_request.response = 'block'
             friend_request.save()
-            return Response(status=200)
+            return Response({'detail': 'success'}, status=200)
     else:
         return Response({"detail": "invalid form"}, status=400)
 

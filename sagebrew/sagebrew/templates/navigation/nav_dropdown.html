@@ -25,18 +25,9 @@
         <a href="{% url "question_page" %}" class="btn dropdown-toggle sb_btn_nav show_friend_request-action">
             <span class="sb_btn_icon conversation_logo" style="background-image: url({% static 'media/conversation.svg' %});"></span>
         </a>
-        <ul class="dropdown-menu dropdown-menu-right"
-            role="menu"
-            aria-labelledby="dropdownMenu1">
-            <li role="presentation">
-                <div>
-                    <div class="sb_dropdown_label">Friend Requests</div>
-                    <div class="sb_dropdown_content friend_request_div"></div>
-                </div>
-            </li>
-        </ul>
     </div>
     <div class="btn-group">
+        <div id="js-friend_request_notifier_wrapper"></div>
         <button class="btn dropdown-toggle sb_btn_nav show_friend_request-action"
                 type="button"
                 id="sb_friend"
@@ -50,14 +41,14 @@
             <li role="presentation">
                 <div class="sb_dropdown_container">
                     <div class="sb_dropdown_label">Friend Requests</div>
-                    <div class="sb_dropdown_content" id="friend_requests">
+                    <div id="friend_request_wrapper">
                     </div>
                 </div>
             </li>
         </ul>
     </div>
     <div class="btn-group">
-      <div id="js-notification_notifier_wrapper"></div>
+        <div id="js-notification_notifier_wrapper"></div>
         <button class="btn dropdown-toggle sb_btn_nav show_notifications-action"
                 type="button"
                 id="dropdownMenu1"

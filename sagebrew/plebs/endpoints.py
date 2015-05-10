@@ -11,7 +11,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
 from rest_framework import status
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.generics import (RetrieveUpdateDestroyAPIView)
@@ -20,7 +19,6 @@ from neomodel import db
 
 from sagebrew import errors
 
-from api.utils import request_to_api
 from api.permissions import IsSelfOrReadOnly, IsSelf
 from sb_base.utils import get_filter_params
 from sb_base.neo_models import SBContent
@@ -267,37 +265,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
                                     {"requests": friend_requests.data})
             return Response(html, status=status.HTTP_200_OK)
         return Response(friend_requests.data, status=status.HTTP_200_OK)
-
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
-    def notifications(self, request, username=None):
-        notifications = self.get_object().get_notifications()
-        expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
-        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
-        if html == 'true':
-            expand = 'true'
-        for notification in notifications:
-            if expand == "false":
-                notification["from"] = reverse(
-                    'profile-detail',
-                    kwargs={'username': notification["notification_from"][
-                        "username"]},
-                    request=request)
-            else:
-                friend_url = reverse(
-                    'profile-detail', kwargs={
-                        'username': notification["notification_from"][
-                            "username"]},
-                    request=request)
-                response = request_to_api(friend_url, request.user.username,
-                                          req_method="GET")
-                notification["from"] = response.json()
-        if html == 'true':
-            sorted(notifications, key=lambda k: k['time_sent'], reverse=True)
-            notifications = notifications[:6]
-            html = render_to_string('notifications.html',
-                                    {"notifications": notifications})
-            return Response(html, status=status.HTTP_200_OK)
-        return Response(notifications, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, ))
     def reputation(self, request, username=None):

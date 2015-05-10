@@ -24,6 +24,7 @@ urlpatterns = patterns(
     'plebs.endpoints',
     url(r'^', include(router.urls)),
     url(r'^me/$', MeRetrieveUpdateDestroy.as_view(), name="me-detail"),
+    url(r'^me/', include('sb_notifications.apis.relations.v1')),
     url(r'^profiles/(?P<username>[A-Za-z0-9.@_%+-]{1,30})/wall/$',
         WallPostsListCreate.as_view(), name="profile-wall"),
     url(r'^profiles/(?P<username>[A-Za-z0-9.@_%+-]{1,30})/'

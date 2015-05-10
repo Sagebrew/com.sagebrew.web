@@ -249,7 +249,6 @@ class Pleb(Searchable):
                 'n.time_seen = %s' % (username, time_seen)
         db.cypher_query(query)
 
-
     def deactivate(self):
         return
 
@@ -478,7 +477,7 @@ class FriendRequest(SBObject):
     @classmethod
     def unseen(cls, username):
         """
-        Returns the amount of unseen notifications for a given user
+        Returns the amount of unseen friend requests for a given user
         :param username:
         :return:
         """
@@ -487,4 +486,3 @@ class FriendRequest(SBObject):
             'RETURN count(n)' % (username)
         res, col = db.cypher_query(query)
         return res[0][0]
-

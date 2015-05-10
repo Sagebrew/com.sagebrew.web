@@ -9,7 +9,7 @@ from neomodel.exception import DoesNotExist
 from neomodel import db
 
 from api.serializers import SBSerializer
-from api.utils import spawn_task, request_to_api, gather_request_data
+from api.utils import spawn_task, gather_request_data
 
 from .neo_models import Address, Pleb, BetaUser
 from .tasks import create_pleb_task, pleb_user_update, determine_pleb_reps
@@ -265,14 +265,6 @@ class FriendRequestSerializer(SBSerializer):
 
     def get_type(self, obj):
         return "friend_request"
-
-    def update(self, instance, validated_data):
-        instance.seen = validated_data.get('seen', instance.seen)
-        instance.time_seen = validated_data.get('time_seen',
-                                                instance.time_seen)
-        instance.response = validated_data.get('response', instance.response)
-        instance.save()
-        return instance
 
     def get_from_user(self, obj):
         query = 'MATCH (a:FriendRequest {object_uuid: "%s"})-' \

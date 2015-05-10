@@ -16,15 +16,16 @@ sed "s/<TAG>/$SHA1/;s/<PROJECT_NAME>/$PROJECT_NAME/;s/<BUCKET>/$CIRCLE_BRANCH/;s
 aws s3 cp $DOCKERRUN_FILE_SYS s3://$EB_BUCKET/$DOCKER_CONFIG_BUCKET/$DOCKERRUN_FILE_SYS
 
 cd /home/ubuntu/com.sagebrew.web/aws_bundle/
-sed "s/<TAG>/$SHA1/;s/<PROJECT_NAME>/$PROJECT_NAME/;s/<BUCKET>/$CIRCLE_BRANCH/;s/<IMAGE>/sb_worker/;" < ~/com.sagebrew.web/aws_templates/Dockerrun.aws.json.worker_template > $DOCKERRUN_FILE_WORKER
+sed "s/<TAG>/$SHA1/;s/<PROJECT_NAME>/$PROJECT_NAME/;s/<BUCKET>/$CIRCLE_BRANCH/;s/<IMAGE>/sb_web/;" < ~/com.sagebrew.web/aws_templates/Dockerrun.aws.json.web_template > $DOCKERRUN_FILE_WEB
 zip -r $WEB_ZIP .
-rm $DOCKERRUN_FILE_WORKER
+rm $DOCKERRUN_FILE_WEB
 aws s3 cp $WEB_ZIP s3://$EB_BUCKET/$DOCKER_CONFIG_BUCKET/$WEB_ZIP
 rm $WEB_ZIP
 
-sed "s/<TAG>/$SHA1/;s/<PROJECT_NAME>/$PROJECT_NAME/;s/<BUCKET>/$CIRCLE_BRANCH/;s/<IMAGE>/sb_web/;" < ~/com.sagebrew.web/aws_templates/Dockerrun.aws.json.web_template > $DOCKERRUN_FILE_WEB
+sed "s/<TAG>/$SHA1/;s/<PROJECT_NAME>/$PROJECT_NAME/;s/<BUCKET>/$CIRCLE_BRANCH/;s/<IMAGE>/sb_worker/;" < ~/com.sagebrew.web/aws_templates/Dockerrun.aws.json.worker_template > $DOCKERRUN_FILE_WORKER
 zip -r $WORKER_ZIP .
 aws s3 cp $WORKER_ZIP s3://$EB_BUCKET/$DOCKER_CONFIG_BUCKET/$WORKER_ZIP
-
+rm $DOCKERRUN_FILE_WORKER
+rm $WORKER_ZIP
 
 ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/deployment/deployment.py master

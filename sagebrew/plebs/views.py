@@ -292,6 +292,9 @@ def respond_friend_request(request):
     :param request:
     :return:
     """
+    # TODO This needs to be transitioned to a serializer. Currently there is
+    # a limitation where if a float or non string is passed the form doesn't
+    # catch the error and instead raises an attribute error
     form = RespondFriendRequestForm(request.DATA)
     if form.is_valid():
         friend_request = FriendRequest.nodes.get(

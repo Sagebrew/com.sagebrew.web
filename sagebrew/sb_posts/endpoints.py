@@ -125,19 +125,6 @@ class WallPostsListCreate(ListCreateAPIView):
                 "action_name": instance.action_name
             }
             spawn_task(task_func=spawn_notifications, task_param=data)
-            html = request.query_params.get('html', 'false').lower()
-            if html == "true":
-                serializer["vote_count"] = str(serializer["vote_count"])
-                serializer['last_edited_on'] = datetime.strptime(
-                    serializer['last_edited_on'][:-6],
-                    '%Y-%m-%dT%H:%M:%S.%f')
-                context = RequestContext(request, serializer)
-                return Response(
-                    {
-                        "html": [render_to_string('post.html', context)],
-                        "ids": [serializer["object_uuid"]]
-                    },
-                    status=status.HTTP_200_OK)
             return Response(serializer, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

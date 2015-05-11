@@ -138,7 +138,7 @@ class WallPostsListCreate(ListCreateAPIView):
                     {
                         "html": [render_to_string('post.html', context)],
                         "ids": [serializer["object_uuid"]]
-                        },
+                    },
                     status=status.HTTP_200_OK)
             return Response(serializer, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -8,6 +8,32 @@ Solutions, providing [Context][4], citing sources and organizing the information
 you wish to present.
 
 ## The Specifics ##
+
+### Spaces and Lines ###
+If you wish to begin a new paragraph, you'll need to hit enter twice to tell Markdown you wish to begin a new paragraph. Markdown does not reconginze a single line as a new line. For example:
+
+    this
+    is 
+    a 
+    single
+    line
+
+will translate to:
+
+    This is a single line
+    
+Whereas: 
+
+    This is 
+    
+    a new line
+
+will translate to:
+
+    This is 
+    
+    a new line
+
 ### Headers ###
 Headers are indicated by hash tags. For example:
 

@@ -370,7 +370,7 @@ class WallPostListCreateTest(APITestCase):
 
     def test_empty_list(self):
         self.client.force_authenticate(user=self.user)
-        for post in self.pleb.posts.all():
+        for post in self.pleb.get_wall().posts.all():
             post.delete()
         url = reverse('profile-wall', kwargs={'username': self.pleb.username})
         response = self.client.get(url, format='json')

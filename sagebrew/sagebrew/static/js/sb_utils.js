@@ -112,7 +112,7 @@ function populate_comment(object_uuid, resource){
         // TODO probably want to make a /v1/content/ endpoint so that it's more
         // explanitory that comments can be on any piece of content.
         // Then use /posts/questions/solutions where needed
-        url: "/v1/" + resource + "/" + object_uuid + "/comments/render/?expand=true&html=true&page_size=3",
+        url: "/v1/" + resource + "/" + object_uuid + "/comments/render/?expedite=true&expand=true&html=true&page_size=3",
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {

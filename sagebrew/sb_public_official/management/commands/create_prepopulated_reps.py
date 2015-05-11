@@ -8,6 +8,7 @@ from api.utils import spawn_task
 from api.tasks import add_object_to_search_index
 from govtrack.neo_models import GTRole
 from sb_docstore.utils import add_object_to_table
+from govtrack.utils import populate_term_data
 
 from sb_public_official.neo_models import PublicOfficial
 from sb_public_official.serializers import PublicOfficialSerializer
@@ -51,7 +52,6 @@ class Command(BaseCommand):
                                          start_date=role.startdate,
                                          end_date=role.enddate,
                                          full_name=person.name,
-                                         terms=len(role.congress_numbers.all()),
                                          twitter=person.twitterid,
                                          youtube=person.youtubeid,
                                          gt_id=person.gt_id,
@@ -63,7 +63,12 @@ class Command(BaseCommand):
                     continue
                 rep.gt_person.connect(person)
                 rep.gt_role.connect(role)
+        populate_term_data()
         for rep in reps:
+            if rep.district == 0:
+                rep.terms = len(rep.sen_terms.all())
+            else:
+                rep.terms = len(rep.house_terms.all())
             rep_data = PublicOfficialSerializer(rep).data
             add_object_to_table("general_reps", rep_data)
             task_data = {

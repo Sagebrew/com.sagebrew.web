@@ -3,7 +3,7 @@ from datetime import datetime
 import pytz
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
-                      BooleanProperty, DateTimeProperty,
+                      BooleanProperty, DateTimeProperty, DateProperty,
                       JSONProperty, RelationshipTo)
 
 
@@ -124,8 +124,22 @@ class GTCommittee(StructuredNode):
 
 
 class LegislatorTerm(StructuredNode):
-    chamber = StringProperty()
+    current = BooleanProperty(default=False)
     state = StringProperty()
-    district = IntegerProperty()
     start = DateTimeProperty()
     end = DateTimeProperty()
+    url = StringProperty(default=None)
+    party = StringProperty()
+
+
+class SenatorTerm(LegislatorTerm):
+    fax = StringProperty(default=None)
+    office = StringProperty(default=None)
+    sen_class = IntegerProperty()
+    phone = StringProperty(default=None)
+    address = StringProperty(default=None)
+    contact_form = StringProperty(default=None)
+
+
+class HouseRepTerm(LegislatorTerm):
+    district = IntegerProperty()

@@ -60,6 +60,10 @@ class PublicOfficial(Searchable):
     #                             "EXPERIENCED")
     gt_person = RelationshipTo('govtrack.neo_models.GTPerson', 'GTPERSON')
     gt_role = RelationshipTo('govtrack.neo_models.GTRole', 'GTROLE')
+    sen_terms = RelationshipTo('govtrack.neo_models.SenatorTerm',
+                               'SERVED_AS_SEN')
+    house_terms = RelationshipTo('govtrack.neo_models.HouseRepTerm',
+                                 'SERVED_AS_REP')
 
     def get_dict(self):
         crop_name = str(self.full_name).rfind('[')

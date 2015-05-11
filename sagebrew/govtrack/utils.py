@@ -1,4 +1,6 @@
 import yaml
+import pytz
+from dateutil import parser
 from datetime import datetime
 from requests import get
 
@@ -6,7 +8,8 @@ from django.conf import settings
 
 from neomodel import DoesNotExist, CypherException
 from govtrack.neo_models import (GTPerson, GTRole, GTCongressNumbers,
-                                 LegislatorTerm)
+                                 SenatorTerm, HouseRepTerm)
+from sb_public_official.neo_models import PublicOfficial
 
 
 def create_gt_role(rep):
@@ -84,3 +87,19 @@ def populate_gt_roles_util(requesturl):
 def populate_term_data():
     yaml_data = yaml.load(
         open(settings.YAML_FILES + "legislators-current.yaml"))
+    now = datetime.now()
+    for person in yaml_data:
+        sb_person = PublicOfficial.nodes.get(gt_id=person['id']['govtrack'])
+        for term in person['terms']:
+            term['start'] = parser.parse(term['start'])
+            term['end'] = parser.parse(term['end'])
+            if now < term['end']:
+                term['current'] = True
+            if term['type'] == 'sen':
+                term['sen_class'] = term.pop('class', None)
+                sen_term = SenatorTerm(**term).save()
+                sb_person.sen_terms.connect(sen_term)
+            if term['type'] == 'rep':
+                rep_term = HouseRepTerm(**term).save()
+                sb_person.house_terms.connect(rep_term)
+    return True

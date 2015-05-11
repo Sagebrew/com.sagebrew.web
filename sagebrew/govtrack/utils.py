@@ -7,7 +7,7 @@ from django.conf import settings
 
 from neomodel import DoesNotExist, CypherException, db
 from govtrack.neo_models import (GTPerson, GTRole, GTCongressNumbers,
-                                 SenatorTerm, HouseRepTerm)
+                                 Senator, HouseRepresentative)
 from sb_public_official.neo_models import PublicOfficial
 
 
@@ -89,6 +89,12 @@ def populate_term_data():
     now = datetime.now()
     for person in yaml_data:
         sb_person = PublicOfficial.nodes.get(gt_id=person['id']['govtrack'])
+        if len(person['terms']) == len(sb_person.term.all()):
+            print "here"
+            continue
+        else:
+            for term in sb_person.term.all():
+                term.delete()
         for term in person['terms']:
             term['start'] = parser.parse(term['start'])
             term['end'] = parser.parse(term['end'])
@@ -96,20 +102,29 @@ def populate_term_data():
             if now < term['end']:
                 term['current'] = True
             if term['type'] == 'sen':
-                term['sen_class'] = term.pop('class', None)
-                sen_term = SenatorTerm(**term).save()
+                term['senator_class'] = term.pop('class', None)
+                sen_term = Senator(**term).save()
                 if term['current']:
-                    current_type = sen_term
-                sb_person.sen_terms.connect(sen_term)
+                    sb_person.current_term.connect(sen_term)
+                sb_person.term.connect(sen_term)
             if term['type'] == 'rep':
-                rep_term = HouseRepTerm(**term).save()
+                rep_term = HouseRepresentative(**term).save()
                 if term['current']:
-                    current_type = rep_term
-                sb_person.house_terms.connect(rep_term)
-        query = 'MATCH (p:PublicOfficial {gt_id: "%s"})--(t:%s) WHERE ' \
-                't.state="%s" and t.district=%s RETURN t' % \
-                (sb_person.gt_id, current_type.labels()[-1],
-                 current_type.state, current_type.district)
+                    sb_person.current_term.connect(rep_term)
+                sb_person.term.connect(rep_term)
+        try:
+            current = sb_person.current_term.all()[0]
+        except IndexError:
+            continue
+        try:
+            district = "and t.district=%s" % current.district
+        except AttributeError:
+            district = ""
+        query = 'MATCH (p:PublicOfficial {gt_id: "%s"})-' \
+                '[:SERVED_TERM]-(t:%s) WHERE ' \
+                't.state="%s" %s RETURN t' % \
+                (sb_person.gt_id, current.get_child_label(),
+                 current.state, district)
         res, col = db.cypher_query(query)
         sb_person.terms = len(res)
         sb_person.save()

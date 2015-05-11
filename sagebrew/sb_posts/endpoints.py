@@ -96,12 +96,14 @@ class WallPostsListCreate(ListCreateAPIView):
             # Returns the posts only if the current user is friends with the
             # owner of the current wall
             query = "MATCH (current:Pleb {username: '%s'})-" \
-                "[friend:FRIENDS_WITH]->(wall_pleb:Pleb {username: '%s'})-" \
-                "[:OWNS_WALL]->(wall:Wall)-[:HAS_POST]->(c) " \
-                "WHERE c.to_be_deleted=false RETURN " \
-                "CASE friend.currently_friends WHEN True THEN c " \
-                "END AS result ORDER BY result.created DESC" % (
-                    self.request.user.username, self.kwargs[self.lookup_field])
+                    "[friend:FRIENDS_WITH]->(wall_pleb:Pleb {username: " \
+                    "'%s'})-" \
+                    "[:OWNS_WALL]->(wall:Wall)-[:HAS_POST]->(c) " \
+                    "WHERE c.to_be_deleted=false RETURN " \
+                    "CASE friend.currently_friends WHEN True THEN c " \
+                    "END AS result ORDER BY result.created DESC" % (
+                        self.request.user.username,
+                        self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
         return [Post.inflate(row[0]) for row in res]
 
@@ -125,6 +127,19 @@ class WallPostsListCreate(ListCreateAPIView):
                 "action_name": instance.action_name
             }
             spawn_task(task_func=spawn_notifications, task_param=data)
+            html = request.query_params.get('html', 'false').lower()
+            if html == "true":
+                serializer["vote_count"] = str(serializer["vote_count"])
+                serializer['last_edited_on'] = datetime.strptime(
+                    serializer['last_edited_on'][:-6],
+                    '%Y-%m-%dT%H:%M:%S.%f')
+                context = RequestContext(request, serializer)
+                return Response(
+                    {
+                        "html": [render_to_string('post.html', context)],
+                        "ids": [serializer["object_uuid"]]
+                        },
+                    status=status.HTTP_200_OK)
             return Response(serializer, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

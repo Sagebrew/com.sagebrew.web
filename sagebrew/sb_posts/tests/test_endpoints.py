@@ -390,7 +390,7 @@ class WallPostListCreateTest(APITestCase):
 
     def test_list_with_items_not_friends(self):
         self.client.force_authenticate(user=self.user)
-        email2 = "bounces@simulator.amazonses.com"
+        email2 = "bounce@simulator.amazonses.com"
         res = create_user_util_test(email2)
         while not res['task_id'].ready():
             time.sleep(.1)
@@ -409,7 +409,7 @@ class WallPostListCreateTest(APITestCase):
 
     def test_list_with_items_friends(self):
         self.client.force_authenticate(user=self.user)
-        email2 = "bounces@simulator.amazonses.com"
+        email2 = "bounce@simulator.amazonses.com"
         res = create_user_util_test(email2)
         while not res['task_id'].ready():
             time.sleep(.1)

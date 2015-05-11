@@ -130,6 +130,7 @@ class LegislatorTerm(StructuredNode):
     end = DateTimeProperty()
     url = StringProperty(default=None)
     party = StringProperty()
+    district = IntegerProperty(default=0)
 
 
 class SenatorTerm(LegislatorTerm):

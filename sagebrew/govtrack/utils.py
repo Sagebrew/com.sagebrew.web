@@ -1,12 +1,11 @@
 import yaml
-import pytz
 from dateutil import parser
 from datetime import datetime
 from requests import get
 
 from django.conf import settings
 
-from neomodel import DoesNotExist, CypherException
+from neomodel import DoesNotExist, CypherException, db
 from govtrack.neo_models import (GTPerson, GTRole, GTCongressNumbers,
                                  SenatorTerm, HouseRepTerm)
 from sb_public_official.neo_models import PublicOfficial
@@ -93,13 +92,30 @@ def populate_term_data():
         for term in person['terms']:
             term['start'] = parser.parse(term['start'])
             term['end'] = parser.parse(term['end'])
+            term['current'] = False
             if now < term['end']:
                 term['current'] = True
             if term['type'] == 'sen':
                 term['sen_class'] = term.pop('class', None)
                 sen_term = SenatorTerm(**term).save()
+                if term['current']:
+                    current_type = sen_term
                 sb_person.sen_terms.connect(sen_term)
             if term['type'] == 'rep':
                 rep_term = HouseRepTerm(**term).save()
+                if term['current']:
+                    current_type = rep_term
                 sb_person.house_terms.connect(rep_term)
+        print current_type.state, current_type.district
+        query = 'MATCH (p:PublicOfficial {gt_id: %s})--(t:%s) WHERE ' \
+                't.state="%s" RETURN t' % (sb_person.gt_id,
+                                                           current_type.
+                                                           labels()[-1],
+                                                           current_type.state)
+        print query
+        res, col = db.cypher_query(query)
+        print res, col
+        print len(res), len(col)
+        print
+
     return True

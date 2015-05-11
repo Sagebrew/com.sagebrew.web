@@ -3,7 +3,7 @@ from datetime import datetime
 import pytz
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
-                      BooleanProperty, DateTimeProperty, DateProperty,
+                      BooleanProperty, DateTimeProperty,
                       JSONProperty, RelationshipTo)
 
 

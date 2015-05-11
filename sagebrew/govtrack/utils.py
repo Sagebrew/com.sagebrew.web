@@ -107,12 +107,9 @@ def populate_term_data():
                     current_type = rep_term
                 sb_person.house_terms.connect(rep_term)
         query = 'MATCH (p:PublicOfficial {gt_id: "%s"})--(t:%s) WHERE ' \
-                't.state="%s" and t.district=%s RETURN t' % (sb_person.gt_id,
-                                                           current_type.
-                                                           labels()[-1],
-                                                           current_type.state,
-                                                           current_type.
-                                                           district)
+                't.state="%s" and t.district=%s RETURN t' % \
+                (sb_person.gt_id, current_type.labels()[-1],
+                 current_type.state, current_type.district)
         res, col = db.cypher_query(query)
         sb_person.terms = len(res)
         sb_person.save()

@@ -25,5 +25,6 @@ sed "s/<TAG>/$SHA1/;s/<PROJECT_NAME>/$PROJECT_NAME/;s/<BUCKET>/$CIRCLE_BRANCH/;s
 zip -r $WORKER_ZIP .
 aws s3 cp $WORKER_ZIP s3://$EB_BUCKET/$DOCKER_CONFIG_BUCKET/$WORKER_ZIP
 rm $DOCKERRUN_FILE
+rm $WORKER_ZIP
 
 ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/deployment/deployment.py staging

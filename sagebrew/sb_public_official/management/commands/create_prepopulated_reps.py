@@ -65,10 +65,6 @@ class Command(BaseCommand):
                 rep.gt_role.connect(role)
         populate_term_data()
         for rep in reps:
-            if rep.district == 0:
-                rep.terms = len(rep.sen_terms.all())
-            else:
-                rep.terms = len(rep.house_terms.all())
             rep_data = PublicOfficialSerializer(rep).data
             add_object_to_table("general_reps", rep_data)
             task_data = {

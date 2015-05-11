@@ -1,5 +1,10 @@
 from django import forms
 from django.conf import settings
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.contrib.auth.forms import PasswordResetForm
+from django.utils.translation import ugettext_lazy as _
+
 from localflavor.us.forms import USZipCodeField, USStateField
 
 
@@ -262,3 +267,16 @@ for field in self.fields:
         required=True,
     )
 '''
+
+
+def validate_user(email):
+    try:
+        User.objects.get(email=email)
+        return email
+    except User.DoesNotExist:
+        raise ValidationError("There is no user associated with %s" % email)
+
+
+class CustomPasswordResetForm(PasswordResetForm):
+    email = forms.EmailField(label=_("Email"), max_length=254,
+                             validators=[validate_user])

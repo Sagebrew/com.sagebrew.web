@@ -1,3 +1,4 @@
+from dateutil import parser
 from elasticsearch import Elasticsearch, NotFoundError
 
 from django.template.loader import render_to_string
@@ -7,20 +8,19 @@ from django.core.cache import cache
 from django.template import RequestContext
 from django.conf import settings
 
+from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
 from rest_framework import status
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.generics import (RetrieveUpdateDestroyAPIView)
+from rest_framework.generics import (RetrieveUpdateDestroyAPIView, ListAPIView)
 
 from neomodel import db
 
 from sagebrew import errors
 
-from api.utils import request_to_api
 from api.permissions import IsSelfOrReadOnly, IsSelf
 from sb_base.utils import get_filter_params
 from sb_base.neo_models import SBContent
@@ -242,63 +242,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
             return self.get_paginated_response(html_array)
         return self.get_paginated_response(serializer.data)
 
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
-    def friend_requests(self, request, username=None):
-        # TODO we should probably make some sort of "notification" list view
-        # or it can be more specific and be a friend request list view. But
-        # that way we can get the pagination functionality easily and break out
-        # html rendering. We can wait on it though until we transition to
-        # JS framework
-        if request.user.username != username:
-            return Response({"detail":
-                             "You can only get your own friend requests"},
-                            status=status.HTTP_401_UNAUTHORIZED)
-        query = "MATCH (f:FriendRequest)-[:REQUEST_TO]-" \
-                "(p:Pleb {username: '%s'}) RETURN f " \
-                "ORDER BY f.time_sent LIMIT 7" % (username)
-        res, col = db.cypher_query(query)
-        queryset = [FriendRequest.inflate(row[0]) for row in res]
-
-        friend_requests = FriendRequestSerializer(queryset, many=True,
-                                                  context={"request": request})
-        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
-        if html == 'true':
-            html = render_to_string('friend_request_wrapper.html',
-                                    {"requests": friend_requests.data})
-            return Response(html, status=status.HTTP_200_OK)
-        return Response(friend_requests.data, status=status.HTTP_200_OK)
-
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
-    def notifications(self, request, username=None):
-        notifications = self.get_object().get_notifications()
-        expand = self.request.QUERY_PARAMS.get('expand', "false").lower()
-        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
-        if html == 'true':
-            expand = 'true'
-        for notification in notifications:
-            if expand == "false":
-                notification["from"] = reverse(
-                    'profile-detail',
-                    kwargs={'username': notification["notification_from"][
-                        "username"]},
-                    request=request)
-            else:
-                friend_url = reverse(
-                    'profile-detail', kwargs={
-                        'username': notification["notification_from"][
-                            "username"]},
-                    request=request)
-                response = request_to_api(friend_url, request.user.username,
-                                          req_method="GET")
-                notification["from"] = response.json()
-        if html == 'true':
-            sorted(notifications, key=lambda k: k['time_sent'], reverse=True)
-            notifications = notifications[:6]
-            html = render_to_string('notifications.html',
-                                    {"notifications": notifications})
-            return Response(html, status=status.HTTP_200_OK)
-        return Response(notifications, status=status.HTTP_200_OK)
-
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, ))
     def reputation(self, request, username=None):
         return Response({"reputation": self.get_object().reputation},
@@ -446,3 +389,66 @@ class FriendManager(RetrieveUpdateDestroyAPIView):
 
         return Response({'detail': 'success'},
                         status=status.HTTP_204_NO_CONTENT)
+
+
+class FriendRequestList(ListAPIView):
+    """
+    This endpoint assumes it is placed on a specific user endpoint where
+    it can really on the currently logged in user to gather notifications
+    for. It is not capable of being set on an arbitrary user's profile
+    endpoint like other method endpoints we have.
+    """
+    serializer_class = FriendRequestSerializer
+    permission_classes = (IsAuthenticated,)
+    lookup_field = "object_uuid"
+
+    def get_queryset(self):
+        query = 'MATCH (a:Pleb {username: "%s"})-[:RECEIVED_A_REQUEST]->' \
+                '(n:FriendRequest) RETURN n ORDER ' \
+                'BY n.created DESC LIMIT 5' % (self.request.user.username)
+        res, col = db.cypher_query(query)
+        return [FriendRequest.inflate(row[0]) for row in res]
+
+    def list(self, request, *args, **kwargs):
+        """
+        Had to overwrite this function to add a check for a query param being
+        passed that when set to true will set all the user's current
+        notifications to seen
+        """
+        seen = request.query_params.get('seen', 'false').lower()
+        if seen == "true":
+            Pleb.clear_unseen_friend_requests(request.user.username)
+            # Set queryset to [] as this query param means they've already
+            # loaded the initial queryset and just want to mark them as
+            # seen
+            queryset = []
+        else:
+            queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
+
+
+@api_view(["GET"])
+@permission_classes((IsAuthenticated, ))
+def friend_request_renderer(request, object_uuid=None):
+    """
+    This is a intermediate step on the way to utilizing a JS Framework to
+    handle template rendering.
+    """
+    html_array = []
+    id_array = []
+    notifications = FriendRequestList.as_view()(request)
+    for notification in notifications.data['results']:
+        notification['time_sent'] = parser.parse(notification['time_sent'])
+        context = RequestContext(request, notification)
+        html_array.append(render_to_string('friend_request_block.html',
+                                           context))
+        id_array.append(notification["id"])
+
+    notifications.data['results'] = {
+        "html": html_array, "ids": id_array,
+        "unseen": FriendRequest.unseen(request.user.username)
+    }
+    return Response(notifications.data, status=status.HTTP_200_OK)

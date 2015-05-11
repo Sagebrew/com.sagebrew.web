@@ -19,7 +19,6 @@ server {
 	access_log /home/apps/logs/{{PROJECT_NAME}}_nginx.access.log;
 	error_log /home/apps/logs/{{PROJECT_NAME}}_nginx.error.log;
 	
-    client_max_body_size 4G;
     server_name {{DOMAINS_SPACE}};
     keepalive_timeout 5;
 

@@ -86,21 +86,22 @@ class WallPostsListCreate(ListCreateAPIView):
     lookup_field = "username"
 
     def get_queryset(self):
-        """
-        Used query because match isn't working and filter doesn't work on
-        all().
-        """
-        wall_pleb = Pleb.nodes.get(username=self.kwargs[self.lookup_field])
-        friends = [friend.username for friend in wall_pleb.friends.all()]
-        if self.request.user.username not in friends \
-                and self.request.user.username != wall_pleb.username:
-            # TODO instead raise NotFriendException which we need to define
-            # Also may want to move this to the Context processor for friends
-            return []
-        query = "MATCH (a:Pleb {username:'%s'})-[:OWNS_WALL]->" \
-                "(b:Wall)-[:HAS_POST]->(c) WHERE c.to_be_deleted=false" \
-                " RETURN c ORDER BY c.created " \
-                "DESC" % (self.kwargs[self.lookup_field])
+        if self.request.user.username == self.kwargs[self.lookup_field]:
+            # Returns the posts for the current user's wall
+            query = "MATCH (current:Pleb {username: '%s'})-[:OWNS_WALL]" \
+                    "->(wall:Wall)-[:HAS_POST]->(c) WHERE " \
+                    "c.to_be_deleted=false RETURN c " \
+                    "ORDER BY c.created DESC" % (self.request.user.username)
+        else:
+            # Returns the posts only if the current user is friends with the
+            # owner of the current wall
+            query = "MATCH (current:Pleb {username: '%s'})-" \
+                "[friend:FRIENDS_WITH]->(wall_pleb:Pleb {username: '%s'})-" \
+                "[:OWNS_WALL]->(wall:Wall)-[:HAS_POST]->(c) " \
+                "WHERE c.to_be_deleted=false RETURN " \
+                "CASE friend.currently_friends WHEN True THEN c " \
+                "END AS result ORDER BY result.created DESC" % (
+                    self.request.user.username, self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
         return [Post.inflate(row[0]) for row in res]
 

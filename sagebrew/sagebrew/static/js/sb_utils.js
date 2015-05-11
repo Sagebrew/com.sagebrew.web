@@ -229,19 +229,23 @@ function loadPosts(url){
         dataType: "json",
         success: function (data) {
             var wall_container = $('#wall_app');
-            wall_container.append(data['results']['html']);
-            // TODO Went with this approach as the scrolling approach resulted
-            // in the posts getting out of order. It also had some interesting
-            // functionality that wasn't intuitive. Hopefully transitioning to
-            // a JS Framework allows us to better handle this feature.
-            if (data["next"] !== null) {
-                loadPosts(data["next"]);
+            if (data['count'] == 0) {
+                wall_container.append("<div><h3>Add a Spark :)</h3></div>");
+            } else{
+                wall_container.append(data['results']['html']);
+                // TODO Went with this approach as the scrolling approach resulted
+                // in the posts getting out of order. It also had some interesting
+                // functionality that wasn't intuitive. Hopefully transitioning to
+                // a JS Framework allows us to better handle this feature.
+                if (data["next"] !== null) {
+                    loadPosts(data["next"]);
+                }
+                enable_single_post_functionality(data['results']['ids']);
+                // TODO This can probably be changed to grab the href and append
+                // `comments/` to the end of it.
+                populate_comments(data['results']['ids'], "posts");
             }
-            $("#wall_app").spin(false);
-            enable_single_post_functionality(data['results']['ids']);
-            // TODO This can probably be changed to grab the href and append
-            // `comments/` to the end of it.
-            populate_comments(data['results']['ids'], "posts");
+            wall_container.spin(false);
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
             if(XMLHttpRequest.status === 500){

@@ -71,7 +71,7 @@ class UserNotificationList(ListAPIView):
 
 
 @api_view(["GET"])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsAuthenticated, ))
 def notification_renderer(request, object_uuid=None):
     """
     This is a intermediate step on the way to utilizing a JS Framework to

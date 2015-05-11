@@ -60,10 +60,9 @@
     <script src="{% static 'js/sb_utils.js' %}"></script>
     {% if user.is_authenticated and "/registration/" not in request.path %}
         <script src="{% static 'js/page_exit.js' %}"></script>
-        <script src="{% static 'js/get_friend_requests.js' %}"></script>
+        <script src="{% static 'js/friend_requests.js' %}"></script>
         <script src="{% static 'js/query_reputation.js' %}"></script>
         <script src="{% static 'js/notifications.js' %}"></script>
-        <script src="{% static 'js/show_friend_request.js' %}"></script>
         <script src="{% static 'js/submit_search.js' %}"></script>
         {% if "intercom" in request_profile.actions and "/registration/" not in request.path %}
             <script>

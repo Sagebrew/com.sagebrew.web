@@ -255,8 +255,7 @@ class FriendRequestEndpointTests(APITestCase):
                       kwargs={"object_uuid": self.friend_request.object_uuid})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['from_user'],
-                         "http://testserver/v1/profiles/test_test1/")
+        self.assertIsInstance(response.data['from_user'], dict)
 
     def test_get_friend_request_to_user(self):
         self.client.force_authenticate(user=self.user)
@@ -264,15 +263,7 @@ class FriendRequestEndpointTests(APITestCase):
                       kwargs={"object_uuid": self.friend_request.object_uuid})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['to_user'],
-                         "http://testserver/v1/profiles/test_test/")
-
-    def test_update_detail(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('friend_request-detail',
-                      kwargs={"object_uuid": self.friend_request.object_uuid})
-        response = self.client.put(url, data={'seen': True}, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response.data['to_user'], dict)
 
     def test_update_incorrect_data(self):
         self.client.force_authenticate(user=self.user)
@@ -663,72 +654,6 @@ class ProfileFriendsMethodTests(APITestCase):
         self.assertGreater(response.data['count'], 0)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_get_pleb_friend_requests(self):
-        friend = Pleb(username=shortuuid.uuid()).save()
-        friend_request = FriendRequest().save()
-        friend_request.request_from.connect(friend)
-        friend_request.request_to.connect(self.pleb)
-        self.client.force_authenticate(user=self.user)
-
-        url = "%s" % reverse('profile-friend-requests', kwargs={
-            'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_get_other_users_friend_requests(self):
-        email = "bounce@simulator.amazonses.com"
-        create_user_util_test(email)
-        friend = Pleb(username=shortuuid.uuid()).save()
-        friend_request = FriendRequest().save()
-        self.pleb.friend_requests_sent.connect(friend_request)
-        friend.friend_requests_received.connect(friend_request)
-        friend_request.request_from.connect(self.pleb)
-        friend_request.request_to.connect(friend)
-        self.client.force_authenticate(user=User.objects.get(email=email))
-
-        url = "%s" % reverse('profile-friend-requests', kwargs={
-            'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(response.data,
-                         {"detail": "You can only get"
-                                    " your own friend requests"})
-
-    def test_get_no_friend_requests(self):
-        self.client.force_authenticate(user=self.user)
-
-        url = "%s" % reverse('profile-friend-requests', kwargs={
-            'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, [])
-
-    def test_get_no_friend_requests_html(self):
-        self.client.force_authenticate(user=self.user)
-
-        url = "%s?html=true" % reverse('profile-friend-requests', kwargs={
-            'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, '<div id="friend_request_wrapper">\n'
-                                        '    \n</div>')
-
-    def test_get_friend_requests_html(self):
-        email = "bounce@simulator.amazonses.com"
-        create_user_util_test(email)
-        friend = Pleb(username=shortuuid.uuid()).save()
-        friend_request = FriendRequest().save()
-        self.pleb.friend_requests_sent.connect(friend_request)
-        friend.friend_requests_received.connect(friend_request)
-        friend_request.request_from.connect(self.pleb)
-        friend_request.request_to.connect(friend)
-        self.client.force_authenticate(user=self.user)
-
-        url = "%s?html=true" % reverse('profile-friend-requests', kwargs={
-            'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
 
 class BaseUserTests(APITestCase):
     def setUp(self):
@@ -965,3 +890,157 @@ class BaseUserTests(APITestCase):
         self.assertEqual(response.data['status_code'],
                          status.HTTP_403_FORBIDDEN)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class FriendRequestListTest(APITestCase):
+    def setUp(self):
+        self.unit_under_test_name = 'friend_request'
+        self.email = "success@simulator.amazonses.com"
+        create_user_util_test(self.email)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+
+    def test_unauthorized(self):
+        url = reverse('friend_request-list')
+        data = {}
+        response = self.client.post(url, data, format='json')
+        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
+                                             status.HTTP_403_FORBIDDEN])
+
+    def test_missing_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('friend_request-list')
+        data = {}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_int_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('friend_request-list')
+        response = self.client.post(url, 98897965, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_string_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('friend_request-list')
+        response = self.client.post(url, 'asfonosdnf', format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_list_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('friend_request-list')
+        response = self.client.post(url, [], format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_float_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('friend_request-list')
+        response = self.client.post(url, 1.010101010, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_create_on_detail_status(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('friend_request-list')
+        data = {}
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.data['status_code'],
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_create_on_detail_message(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('friend_request-list')
+        data = {}
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.data['detail'], 'Method "POST" not allowed.')
+
+    def test_delete_status(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('friend_request-list')
+        response = self.client.delete(url, format='json')
+        self.assertEqual(response.data['status_code'],
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_delete_message(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('notification-list')
+        data = {}
+        response = self.client.delete(url, data=data, format='json')
+        self.assertEqual(response.data['detail'],
+                         'Method "DELETE" not allowed.')
+
+    def test_empty_list(self):
+        self.client.force_authenticate(user=self.user)
+        for friend_request in self.pleb.friend_requests_received.all():
+            friend_request.delete()
+        url = reverse('friend_request-list')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 0)
+
+    def test_list_with_items(self):
+        self.client.force_authenticate(user=self.user)
+        friend_request = FriendRequest().save()
+        friend_request.request_from.connect(self.pleb)
+        friend_request.request_to.connect(self.pleb)
+        self.pleb.friend_requests_received.connect(friend_request)
+        url = reverse('friend_request-list')
+        response = self.client.get(url, format='json')
+        self.assertGreater(response.data['count'], 0)
+
+    def test_list_seen_api(self):
+        self.client.force_authenticate(user=self.user)
+        friend_request = FriendRequest().save()
+        friend_request.request_from.connect(self.pleb)
+        friend_request.request_to.connect(self.pleb)
+        self.pleb.friend_requests_received.connect(friend_request)
+        url = "%s?seen=true" % reverse('friend_request-list')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'], [])
+
+    def test_list_seen_render(self):
+        self.client.force_authenticate(user=self.user)
+        friend_request = FriendRequest().save()
+        friend_request.request_from.connect(self.pleb)
+        friend_request.request_to.connect(self.pleb)
+        self.pleb.friend_requests_received.connect(friend_request)
+        url = "%s?seen=true" % reverse('friend_request-render')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results']['unseen'], 0)
+
+    def test_list_render_unseen(self):
+        self.client.force_authenticate(user=self.user)
+        friend_request = FriendRequest().save()
+        friend_request.request_from.connect(self.pleb)
+        friend_request.request_to.connect(self.pleb)
+        self.pleb.friend_requests_received.connect(friend_request)
+        url = reverse('friend_request-render')
+        response = self.client.get(url, format='json')
+        self.assertGreater(response.data['results']['unseen'], 0)
+
+    def test_list_render_ids(self):
+        self.client.force_authenticate(user=self.user)
+        friend_request = FriendRequest().save()
+        friend_request.request_from.connect(self.pleb)
+        friend_request.request_to.connect(self.pleb)
+        self.pleb.friend_requests_received.connect(friend_request)
+        url = reverse('friend_request-render')
+        response = self.client.get(url, format='json')
+        self.assertGreater(len(response.data['results']['ids']), 0)
+
+    def test_list_render_html(self):
+        self.client.force_authenticate(user=self.user)
+        friend_request = FriendRequest().save()
+        friend_request.request_from.connect(self.pleb)
+        friend_request.request_to.connect(self.pleb)
+        self.pleb.friend_requests_received.connect(friend_request)
+        url = reverse('friend_request-render')
+        response = self.client.get(url, format='json')
+        self.assertGreater(len(response.data['results']['html']), 0)

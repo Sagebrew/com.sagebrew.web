@@ -2,7 +2,7 @@
     <div class="row">
         <div class="col-lg-2 col-md-2">
             <div class="thumbnail sb_thumbnail_sm">
-                <a style="color: #34495e" href="{{ notification.url }}" class="notification"><img src="{{ notification.notification_from.profile_pic }}"></a>
+                <a style="color: #34495e" href="{{ url }}" class="notification"><img src="{{ notification_from.profile_pic }}"></a>
             </div>
             {% comment %}
             If this is a comment, solution, or post, this will be the profile picture of whoever made it.
@@ -10,8 +10,8 @@
             {% endcomment %}
         </div>
         <div class="col-lg-10 col-md-10">
-           <p><a style="color: #34495e" href="{{ notification.url }}" class="notification">
-               {{ notification.notification_from.first_name }} {{ notification.notification_from.last_name }} {{ notification.action_name }}</a>
+           <p><a style="color: #34495e" href="{{ url }}" class="notification">
+               {{ notification_from.first_name }} {{ notification_from.last_name }} {{ action_name }}</a>
             </p>
            {% comment %}
             title will either comment, solution. priveledge attained, or post
@@ -19,3 +19,4 @@
         </div>
     </div>
 </div>
+<li role="presentation" class="sb_divider"></li>

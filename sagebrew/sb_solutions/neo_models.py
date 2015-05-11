@@ -7,7 +7,7 @@ from sb_base.neo_models import SBPublicContent
 
 class Solution(SBPublicContent):
     table = StringProperty(default='public_solutions')
-    action_name = StringProperty(default="offered a solution to a question")
+    action_name = StringProperty(default="offered a solution to your question")
     visibility = StringProperty(default="public")
     up_vote_adjustment = IntegerProperty(default=10)
     down_vote_adjustment = IntegerProperty(default=-10)

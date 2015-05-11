@@ -273,7 +273,7 @@ a {
 .sb_wallpaper_action{
   &:extend(.sb_wallpaper);
   background-color: @sb_green_medium;
-  height: 500px;
+  height: auto;
   border-radius: 5px 5px 0 0;
 }
 // TODO Review and potentially change to just standard side_container
@@ -825,6 +825,16 @@ a {
     }
   }
 }
+.sb_btn_remove{
+  background-color: @sb_grey;
+  &:hover{
+    color: white;
+    background-color: @sb_red;
+  }
+  &:active{
+    background-color: #c44133;
+  }
+}
 .sb_sign_up_background{
   position: fixed;
   float: left;
@@ -1156,4 +1166,7 @@ textarea.sb_comment_input{
 
 #intercom-container .intercom-launcher {
  bottom:50px !important;
+}
+.sb_notifier{
+  background-color: @sb_dark_blue;
 }

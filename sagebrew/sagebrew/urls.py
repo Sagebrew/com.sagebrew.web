@@ -8,6 +8,7 @@ from django.conf.urls import patterns, url
 
 from sb_registration.views import (login_view, logout_view, signup_view,
                                    beta_page)
+from sb_registration.forms import CustomPasswordResetForm
 
 
 urlpatterns = patterns(
@@ -20,7 +21,8 @@ urlpatterns = patterns(
         {
             "html_email_template_name":
                 "email_templates/email_password_reset.html",
-            "template_name": "password_reset/password_reset.html"
+            "template_name": "password_reset/password_reset.html",
+            "password_reset_form": CustomPasswordResetForm
         }, name="reset_password_page"),
     url(r'^password_reset/done/$',
         'django.contrib.auth.views.password_reset_done',

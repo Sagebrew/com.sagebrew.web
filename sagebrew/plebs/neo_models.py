@@ -214,6 +214,41 @@ class Pleb(Searchable):
             cache.set(username, profile)
         return profile
 
+    @classmethod
+    def clear_unseen_friend_requests(cls, username):
+        """
+        This method sets all the existing friend requests a given Pleb has
+        to seen. The method doesn't return anything because if the query fails
+        it will throw a Cypher Exception which will be caught and handled by
+        a view. Please wrap this function with the proper handler if you are
+        calling it in a task.
+
+        Limitations:
+        This method requires that a username be passed rather than being
+        executed on an initialized Pleb.
+
+        Made this into a class method rather than a method that could be used
+        on an initialized Pleb for optimization. Instead of querying a Pleb
+        then having to execute this same query utilizing self.username it is
+        more efficient to utilize a defined username that we can retrieve
+        from something like request.user.username without having to get the
+        Pleb. If there is want to transition this to a non-classmethod we
+        could utilize the cache to get the initial Pleb and then call
+        it based on that but that still runs the chance of executing two
+        queries.
+
+        :param username:
+        :return:
+        """
+        value = get_current_time().astimezone(pytz.utc)
+        epoch_date = datetime(1970, 1, 1, tzinfo=pytz.utc)
+        time_seen = float((value - epoch_date).total_seconds())
+        query = 'MATCH (a:Pleb {username: "%s"})-[:RECEIVED_A_REQUEST]->' \
+                '(n:FriendRequest) WHERE n.seen=False' \
+                ' SET n.seen = True, ' \
+                'n.time_seen = %s' % (username, time_seen)
+        db.cypher_query(query)
+
     def deactivate(self):
         return
 
@@ -412,36 +447,6 @@ class Pleb(Searchable):
         from sb_public_official.utils import determine_reps
         return determine_reps(self.username)
 
-    def get_notifications(self):
-        try:
-            notification_list = []
-            for notification in self.notifications.all():
-                try:
-                    # TODO see if we can do this with a serializer instead
-                    from_user = notification.notification_from.all()[0]
-                    notification_dict = {
-                        "object_uuid": notification.object_uuid,
-                        "notification_from": {
-                            "profile_pic": from_user.profile_pic,
-                            "first_name": from_user.first_name,
-                            "last_name": from_user.last_name,
-                            "username": from_user.username
-                        },
-                        "action_name": notification.action_name,
-                        "url": notification.url,
-                        "time_sent": notification.time_sent,
-                        "time_seen": notification.time_seen,
-                        "seen": notification.seen,
-                        "about": notification.about,
-                        "about_id": notification.about_id,
-                    }
-                    notification_list.append(notification_dict)
-                except IndexError:
-                    continue
-        except(CypherException, IOError) as e:
-            raise e
-        return notification_list
-
 
 class Address(SBObject):
     street = StringProperty()
@@ -468,3 +473,16 @@ class FriendRequest(SBObject):
     # relationships
     request_from = RelationshipTo('plebs.neo_models.Pleb', 'REQUEST_FROM')
     request_to = RelationshipTo('plebs.neo_models.Pleb', 'REQUEST_TO')
+
+    @classmethod
+    def unseen(cls, username):
+        """
+        Returns the amount of unseen friend requests for a given user
+        :param username:
+        :return:
+        """
+        query = 'MATCH (a:Pleb {username: "%s"})-[:RECEIVED_A_REQUEST]->' \
+            '(n:FriendRequest) WHERE n.seen=False ' \
+            'RETURN count(n)' % (username)
+        res, col = db.cypher_query(query)
+        return res[0][0]

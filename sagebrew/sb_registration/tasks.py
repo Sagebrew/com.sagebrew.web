@@ -12,7 +12,7 @@ from sb_tags.neo_models import Tag
 @shared_task()
 def update_interests(username, interests):
     try:
-        citizen = Pleb.nodes.get(username=username)
+        citizen = Pleb.get(username=username)
     except (Pleb.DoesNotExist, DoesNotExist) as e:
         raise update_interests.retry(exc=e, countdown=3, max_retries=None)
     except (CypherException, IOError) as e:
@@ -34,7 +34,7 @@ def update_interests(username, interests):
 @shared_task()
 def store_address(username, address_clean):
     try:
-        citizen = Pleb.nodes.get(username=username)
+        citizen = Pleb.get(username=username)
     except (Pleb.DoesNotExist, DoesNotExist) as e:
         raise store_address.retry(exc=e, countdown=3, max_retries=None)
     except (CypherException, IOError) as e:
@@ -68,7 +68,7 @@ def store_address(username, address_clean):
 @shared_task()
 def save_profile_picture(url, username):
     try:
-        pleb = Pleb.nodes.get(username=username)
+        pleb = Pleb.get(username=username)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
         raise save_profile_picture.retry(exc=e, countdown=3, max_retries=None)
     try:

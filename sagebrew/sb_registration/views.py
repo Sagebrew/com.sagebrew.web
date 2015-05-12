@@ -18,11 +18,10 @@ from rest_framework.response import Response
 from neomodel import (DoesNotExist, CypherException)
 
 from api.utils import spawn_task
-from plebs.tasks import send_email_task, create_beta_user, pleb_user_update
+from plebs.tasks import send_email_task, create_beta_user
 from plebs.neo_models import Pleb, BetaUser
 from sb_public_official.tasks import create_rep_task
 from sb_docstore.tasks import build_rep_page_task
-from sb_uploads.utils import crop_image
 
 from .forms import (AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm, RepRegistrationForm,
@@ -338,70 +337,6 @@ def profile_picture(request):
             'profile_picture_form': profile_picture_form,
             'pleb': profile
         })
-
-
-@api_view(['POST'])
-def profile_picture_api(request):
-    profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
-    profile = Pleb.get(request.user.username)
-    if profile_picture_form.is_valid():
-        data = request.FILES['picture']
-        res = crop_image(
-            data, 200, 200, int(profile_picture_form.cleaned_data['image_x1']),
-            int(profile_picture_form.cleaned_data['image_y1']))
-        profile.profile_pic = res
-        profile.save()
-        cache.set(request.user.username, profile)
-        spawn_task(pleb_user_update, {
-            'username': request.user.username,
-            'first_name': request.user.first_name,
-            'last_name': request.user.last_name,
-            'email': request.user.email})
-        url = reverse('profile_page', kwargs={
-            "pleb_username": request.user.username})
-        return Response({"url": url, "pic_url": res}, 200)
-    else:
-        return Response({"detail": "invalid form"}, 400)
-
-
-@api_view(['POST'])
-def image_upload_api(request):
-    profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
-    pleb = Pleb.nodes.get(username=request.user.username)
-    if profile_picture_form.is_valid():
-        data = request.FILES['picture']
-        res = crop_image(
-            data, 200, 200, int(profile_picture_form.cleaned_data['image_x1']),
-            int(profile_picture_form.cleaned_data['image_y1']))
-        pleb.profile_pic = res
-        pleb.save()
-        url = reverse('profile_page', kwargs={
-            "pleb_username": request.user.username})
-        return Response({"url": url, "pic_url": res}, 200)
-    else:
-        return Response({"detail": "invalid form"}, 400)
-
-
-@api_view(['POST'])
-def wallpaper_picture_api(request):
-    profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
-    pleb = Pleb.get(request.user.username)
-    if profile_picture_form.is_valid():
-        data = request.FILES['picture']
-        res = crop_image(data,
-                         int(profile_picture_form.cleaned_data['image_y2']),
-                         int(profile_picture_form.cleaned_data['image_x2']),
-                         int(profile_picture_form.cleaned_data['image_x1']),
-                         int(profile_picture_form.cleaned_data['image_y1']))
-
-        pleb.wallpaper_pic = res
-        pleb.save()
-        cache.set(pleb.username, pleb)
-        url = reverse('profile_page', kwargs={
-            "pleb_username": request.user.username})
-        return Response({"url": url, "pic_url": res}, 200)
-    else:
-        return Response({"detail": "invalid form"}, 400)
 
 
 @login_required()

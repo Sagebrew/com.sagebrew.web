@@ -336,30 +336,6 @@ def profile_picture(request):
         })
 
 
-@api_view(['POST'])
-def profile_picture_api(request):
-    profile_picture_form = ProfilePictureForm(request.POST, request.FILES)
-    profile = Pleb.get(request.user.username)
-    if profile_picture_form.is_valid():
-        data = request.FILES['picture']
-        res = crop_image(
-            data, 200, 200, int(profile_picture_form.cleaned_data['image_x1']),
-            int(profile_picture_form.cleaned_data['image_y1']))
-        profile.profile_pic = res
-        profile.save()
-        cache.set(request.user.username, profile)
-        spawn_task(pleb_user_update, {
-            'username': request.user.username,
-            'first_name': request.user.first_name,
-            'last_name': request.user.last_name,
-            'email': request.user.email})
-        url = reverse('profile_page', kwargs={
-            "pleb_username": request.user.username})
-        return Response({"url": url, "pic_url": res}, 200)
-    else:
-        return Response({"detail": "invalid form"}, 400)
-
-
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')

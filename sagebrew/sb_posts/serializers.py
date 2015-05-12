@@ -42,10 +42,15 @@ class PostSerializerNeo(ContentSerializer):
         return instance
 
     def get_url(self, obj):
-        return obj.get_url(self.context.get('request', None))
+        request, _, _, _, expedite = gather_request_data(self.context)
+        if expedite == "true":
+            return None
+        return obj.get_url(request)
 
     def get_wall_owner_profile(self, obj):
-        request, expand, _, _, _ = gather_request_data(self.context)
+        request, expand, _, _, expedite = gather_request_data(self.context)
+        if expedite == "true":
+            return None
         if isinstance(obj, dict) is True:
             return obj
         wall_owner = obj.get_wall_owner_profile()

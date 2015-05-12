@@ -6,6 +6,8 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       BooleanProperty, DateTimeProperty,
                       JSONProperty, RelationshipTo)
 
+from sb_search.neo_models import Searchable
+
 
 class GTCongressNumbers(StructuredNode):
     congress_number = IntegerProperty(unique_index=True)
@@ -121,3 +123,19 @@ class GTCommittee(StructuredNode):
 
     # relationships
     committee = RelationshipTo('GTCommittee', 'HAS_A_SUB')
+
+
+class Term(Searchable):
+    state = StringProperty()
+    start = DateTimeProperty()
+    end = DateTimeProperty()
+    party = StringProperty()
+
+
+class Senator(Term):
+    senator_class = IntegerProperty()
+    state_rank = StringProperty()
+
+
+class HouseRepresentative(Term):
+    district = IntegerProperty()

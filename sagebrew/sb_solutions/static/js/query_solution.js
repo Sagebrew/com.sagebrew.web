@@ -16,10 +16,8 @@ $( document ).ready(function() {
                     solution_preview.append(data['html_content']);
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    if(XMLHttpRequest.status === 500){
-                         timeOutId = setTimeout(ajaxFn, 1000);
-                        $("#server_error").show();
-                    }
+                    errorDisplay(XMLHttpRequest);
+                    timeOutId = setTimeout(ajaxFn, 1000);
                 }
             });
         };

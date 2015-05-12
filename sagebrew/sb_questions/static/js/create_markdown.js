@@ -31,9 +31,7 @@ $(document).ready(function () {
                                         enable_post_functionality();
                                     },
                                     error: function (XMLHttpRequest) {
-                                        if (XMLHttpRequest.status === 500) {
-                                            $("#server_error").show();
-                                        }
+                                        errorDisplay(XMLHttpRequest);
                                     }
                                 });
                             } else {

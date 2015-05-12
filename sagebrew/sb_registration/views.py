@@ -156,7 +156,9 @@ def login_view_api(request):
         try:
             user = User.objects.get(email=login_form.cleaned_data['email'])
         except User.DoesNotExist:
-            return Response({'detail': 'cannot find user'}, status=400)
+            return Response({'detail': 'Incorrect password and '
+                                       'username combination.'},
+                            status=400)
         user = authenticate(username=user.username,
                             password=login_form.cleaned_data['password'])
         if user is not None:
@@ -168,12 +170,14 @@ def login_view_api(request):
                                  'user': user.email,
                                  'url': rev}, status=200)
             else:
-                return Response({'detail': 'account disabled'},
+                return Response({'detail': 'This account has been disabled.'},
                                 status=400)
         else:
-            return Response({'detail': 'invalid password'}, status=400)
+            return Response({'detail': 'Incorrect password and '
+                                       'username combination.'}, status=400)
     else:
-        return Response({'detail': 'invalid form'}, status=400)
+        return Response({'detail': 'Incorrect password and '
+                                   'username combination.'}, status=400)
 
 
 @login_required()

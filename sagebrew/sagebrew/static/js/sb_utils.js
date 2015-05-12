@@ -54,9 +54,7 @@ function save_comment(comment_area, url, object_uuid) {
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 $(comment_area).removeAttr("disabled");
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
+                errorDisplay(XMLHttpRequest)
             }
         });
     });
@@ -143,9 +141,7 @@ function populate_comment(object_uuid, resource){
                             enable_comment_functionality(data['results']['ids']);
                         },
                         error: function(XMLHttpRequest, textStatus, errorThrown) {
-                            if(XMLHttpRequest.status === 500){
-                                $("#server_error").show();
-                            }
+                            errorDisplay(XMLHttpRequest)
                         }
                     });
                 });
@@ -154,9 +150,7 @@ function populate_comment(object_uuid, resource){
             enable_comment_functionality(data['results']['ids']);
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
-            if(XMLHttpRequest.status === 500){
-                $("#server_error").show();
-            }
+            errorDisplay(XMLHttpRequest)
         }
     });
 }
@@ -177,9 +171,7 @@ function queryComments(url, object_uuid){
             enable_comment_functionality(data['results']['ids']);
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
-            if(XMLHttpRequest.status === 500){
-                $("#server_error").show();
-            }
+            errorDisplay(XMLHttpRequest)
         }
     });
 }
@@ -248,9 +240,7 @@ function loadPosts(url){
             wall_container.spin(false);
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
-            if(XMLHttpRequest.status === 500){
-                $("#server_error").show();
-            }
+            errorDisplay(XMLHttpRequest)
         }
     });
 }
@@ -274,10 +264,8 @@ function loadQuestion(){
                 loadSolutions("/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/solutions/render/?page_size=2&expand=true");
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                     timeOutId = setTimeout(ajaxFn, 1000);
-                    $("#server_error").show();
-                }
+                timeOutId = setTimeout(ajaxFn, 1000);
+                errorDisplay(XMLHttpRequest)
             }
         });
     };
@@ -299,9 +287,7 @@ function loadSolutionCount(){
             }
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
-            if(XMLHttpRequest.status === 500){
-                $("#server_error").show();
-            }
+            errorDisplay(XMLHttpRequest)
         }
     });
 }
@@ -331,9 +317,7 @@ function loadSolutions(url){
             populate_comments(data['results']['ids'], "solutions");
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
-            if(XMLHttpRequest.status === 500){
-                $("#server_error").show();
-            }
+            errorDisplay(XMLHttpRequest)
         }
     });
 }
@@ -393,10 +377,7 @@ function vote_object(vote_area, resource){
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 $(vote_area).removeAttr("disabled");
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                    //alert(textStatus);
-                }
+                errorDisplay(XMLHttpRequest)
             }
         });
     });
@@ -437,9 +418,7 @@ function save_solution() {
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 $("#submit_solution").removeAttr("disabled");
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
+                errorDisplay(XMLHttpRequest)
             }
 		});
 	});
@@ -484,10 +463,8 @@ function edit_object(edit_area, url, object_uuid, data_area) {
                 content_container.show();
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $(edit_button).removeAttr("disabled");
-                    $("#server_error").show();
-                }
+                $(edit_button).removeAttr("disabled");
+                errorDisplay(XMLHttpRequest)
             }
         });
     });
@@ -535,9 +512,7 @@ function delete_object(delete_area, url, object_uuid, objectType) {
                 }
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
+                errorDisplay(XMLHttpRequest)
             }
         });
     });
@@ -615,9 +590,7 @@ function submit_action() {
                 $(".get_action_form").removeAttr('disabled');
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
+                errorDisplay(XMLHttpRequest)
             }
         });
     });
@@ -650,9 +623,7 @@ function submit_requirement() {
                 $(".get_requirement_form").removeAttr('disabled');
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
+                errorDisplay(XMLHttpRequest)
             }
         });
     });
@@ -686,9 +657,7 @@ function respond_friend_request(){
                 $("#friend_request_div").fadeToggle();
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
+                errorDisplay(XMLHttpRequest)
             }
         });
     });
@@ -759,3 +728,19 @@ function getUrlParameter(sParam)
     }
 }
 
+function errorDisplay(XMLHttpRequest) {
+    if (XMLHttpRequest.status === 500) {
+        $.notify({message: "Sorry looks like we're having some server issues right now. " +
+                    "We really would love to have you as part of the beta so " +
+                    "please try back later!"}, {type: "danger"})
+    }
+    if (XMLHttpRequest.status === 400) {
+        var notificationDetail = XMLHttpRequest.responseJSON.detail;
+        if (!(typeof notificationDetail === "undefined" || notificationDetail === null)){
+            $.notify({message: XMLHttpRequest.responseJSON.detail}, {type: 'danger'});
+        }
+    }
+    if (XMLHttpRequest.status === 404) {
+        $.notify({message: "Sorry, we can't seem to find what you're looking for"}, {type: 'danger'})
+    }
+}

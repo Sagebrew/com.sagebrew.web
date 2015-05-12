@@ -22,10 +22,8 @@ $( document ).ready(function() {
                     checkSolutionCount();
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    if(XMLHttpRequest.status === 500){
-                         timeOutId = setTimeout(ajaxFn, 1000);
-                        $("#server_error").show();
-                    }
+                    timeOutId = setTimeout(ajaxFn, 1000);
+                    errorDisplay(XMLHttpRequest);
                 }
             });
         };
@@ -46,9 +44,7 @@ $( document ).ready(function() {
                     }
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    if(XMLHttpRequest.status === 500){
-                        $("#server_error").show();
-                    }
+                    errorDisplay(XMLHttpRequest);
                 }
             });
     };

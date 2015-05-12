@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{% static 'css/vendor/jquery.pagedown-bootstrap.css' %}"/>
     <link rel="stylesheet" href="{% static 'css/vendor/bootstrap-tokenfield.min.css' %}"/>
     <link rel="stylesheet" href="{% static 'css/vendor/tokenfield-typeahead.min.css' %}"/>
-
+    <link rel="stylesheet" href="{% static 'css/vendor/animate.min.css' %}"/>
 {% endblock css %}
 
 {% block content %}
@@ -90,6 +90,7 @@
                             </div>
                         </div>
                         {% endif %}
+                    <div id="validation_errors"></div>
                         {% comment %}
                         TODO determine if this and other "buttons" need to be a tags
                         instead of buttons
@@ -127,9 +128,9 @@
     <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
     <script src="{% static 'js/vendor/bootstrap-tokenfield.min.js' %}"></script>
     <script src="{% static 'js/vendor/typeahead.js' %}"></script>
+    <script src="{% static 'js/vendor/bootstrap-notify.min.js' %}"></script>
     <script src="{% static 'js/create_markdown.js' %}"></script>
     <script src="{% static 'js/save_question.js' %}"></script>
-
     <script src="{% static 'js/get_tags.js' %}"></script>
     <script src="{% static 'js/question_validator.js' %}"></script>
     {% if edit %}

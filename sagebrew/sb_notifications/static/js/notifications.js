@@ -16,9 +16,7 @@ $(document).ready(function () {
             }
         },
         error: function (XMLHttpRequest) {
-            if (XMLHttpRequest.status === 500) {
-                $("#server_error").show();
-            }
+            errorDisplay(XMLHttpRequest);
         }
     });
     // Shows the notifications when the notification icon is clicked
@@ -34,8 +32,8 @@ $(document).ready(function () {
                 success: function () {
                     $('#js-sb_notifications_notifier').remove();
                 },
-                error: function () {
-                    $("#server_error").show();
+                error: function (XMLHttpRequest) {
+                    errorDisplay(XMLHttpRequest);
                 }
             });
         }

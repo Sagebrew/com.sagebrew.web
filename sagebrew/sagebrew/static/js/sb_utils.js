@@ -562,20 +562,22 @@ function cloneForm(selector, type) {
 }
 
 function comment_validator() {
-    $("#commentSubmitForm").bootstrapValidator({
+    $("#commentSubmitForm").formValidation({
         framework: 'bootstrap',
         err: {
             container: '#fname_errors'
         },
-        feedbackIcons: {
+        icon: {
             valid: 'glyphicon glyphicon-ok',
             validating: 'glyphicon glyphicon-refresh'
         },
         live: 'enabled',
-        submitButtons: '.comment-action',
+        button: {
+            selector: '.comment-action'
+        },
         fields: {
             comment_content: {
-                group: 'sb_comment',
+                row: 'sb_comment',
                 validators: {
                     notEmpty: {
                         message: "Content is required"

@@ -44,6 +44,10 @@ class PublicOfficial(Searchable):
     twitter = StringProperty()
     youtube = StringProperty()
     bioguideid = StringProperty(unique_index=True)
+    # address and contact form are gained from the term data and they will be
+    # updated to their current office address and their current contact form
+    address = StringProperty()
+    contact_form = StringProperty()
     # bioguide is used to get the reps public profile picture
 
     # relationships
@@ -60,6 +64,11 @@ class PublicOfficial(Searchable):
     #                             "EXPERIENCED")
     gt_person = RelationshipTo('govtrack.neo_models.GTPerson', 'GTPERSON')
     gt_role = RelationshipTo('govtrack.neo_models.GTRole', 'GTROLE')
+    # the current term is also included in the number of terms under the term
+    # relationship, the current_term relationship is a shortcut for us to
+    # access the term that the official is currently in
+    term = RelationshipTo('govtrack.neo_models.Term', 'SERVED_TERM')
+    current_term = RelationshipTo('govtrack.neo_models.Term', 'CURRENT_TERM')
 
     def get_dict(self):
         crop_name = str(self.full_name).rfind('[')

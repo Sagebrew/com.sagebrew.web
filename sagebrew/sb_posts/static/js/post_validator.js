@@ -1,18 +1,20 @@
 $(document).ready(function(){
-    $("#postInputForm").bootstrapValidator({
+    $("#postInputForm").formValidation({
         framework: 'bootstrap',
         err: {
             container: '#fname_errors'
         },
-        feedbackIcons: {
+        icon: {
             valid: 'glyphicon glyphicon-ok',
             validating: 'glyphicon glyphicon-refresh'
         },
         live: 'enabled',
-        submitButtons: '#sb_btn_post',
+        button: {
+            selector: '#sb_btn_post'
+        },
         fields: {
             post_input: {
-                group: 'post_input_class',
+                row: 'post_input_class',
                 validators: {
                     notEmpty: {
                         message: "Content is required"

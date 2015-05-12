@@ -1,7 +1,17 @@
+import yaml
+import logging
+from dateutil import parser
 from datetime import datetime
 from requests import get
-from neomodel import DoesNotExist, CypherException
-from govtrack.neo_models import (GTPerson, GTRole, GTCongressNumbers)
+
+from django.conf import settings
+
+from neomodel import DoesNotExist, CypherException, db
+from govtrack.neo_models import (GTPerson, GTRole, GTCongressNumbers,
+                                 Senator, HouseRepresentative)
+from sb_public_official.neo_models import PublicOfficial
+
+logger = logging.getLogger("loggly_logs")
 
 
 def create_gt_role(rep):
@@ -73,4 +83,58 @@ def populate_gt_roles_util(requesturl):
         for item in congress_number_object:
             my_role.congress_numbers.connect(item)
         congress_number_object = []
+    return True
+
+
+def populate_term_data():
+    yaml_data = yaml.load(
+        open(settings.YAML_FILES + "legislators-current.yaml"))
+    now = datetime.now()
+    for person in yaml_data:
+        try:
+            sb_person = PublicOfficial.nodes.get(
+                gt_id=person['id']['govtrack'])
+        except (PublicOfficial.DoesNotExist, DoesNotExist):
+            continue
+        if len(person['terms']) == len(sb_person.term.all()):
+            continue
+        else:
+            for term in sb_person.term.all():
+                term.delete()
+        for term in person['terms']:
+            term['start'] = parser.parse(term['start'])
+            term['end'] = parser.parse(term['end'])
+            term['current'] = False
+            sb_person.address = term.get('address', None)
+            sb_person.contact_form = term.get('contact_form', None)
+            sb_person.save()
+            if now < term['end']:
+                term['current'] = True
+            if term['type'] == 'sen':
+                term['senator_class'] = term.pop('class', None)
+                sen_term = Senator(**term).save()
+                if term['current']:
+                    sb_person.current_term.connect(sen_term)
+                sb_person.term.connect(sen_term)
+            if term['type'] == 'rep':
+                rep_term = HouseRepresentative(**term).save()
+                if term['current']:
+                    sb_person.current_term.connect(rep_term)
+                sb_person.term.connect(rep_term)
+        try:
+            current = sb_person.current_term.all()[0]
+        except IndexError:
+            continue
+        try:
+            district = "and t.district=%s" % current.district
+        except AttributeError:
+            district = ""
+        query = 'MATCH (p:PublicOfficial {gt_id: "%s"})-' \
+                '[:SERVED_TERM]-(t:%s) WHERE ' \
+                't.state="%s" %s RETURN t' % \
+                (sb_person.gt_id, current.get_child_label(),
+                 current.state, district)
+        res, col = db.cypher_query(query)
+        sb_person.terms = len(res)
+        sb_person.save()
     return True

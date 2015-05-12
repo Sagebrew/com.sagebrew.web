@@ -17,12 +17,12 @@ $( document ).ready(function() {
                 $("#successMessage").show();
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
+                errorDisplay(XMLHttpRequest);
                 if(XMLHttpRequest.status === 409) {
                     $("#signup_wrapper").empty();
                     $("#user_exists").show();
                 } else if(XMLHttpRequest.status === 500){
                     $("#signup_wrapper").empty();
-                    $("#server_error").show();
                 }
             }
         });

@@ -24,10 +24,8 @@ $(document).ready(function () {
                     }
                 },
                 error: function (XMLHttpRequest) {
-                    if (XMLHttpRequest.status === 500) {
-                        sendRequest.removeAttr("disabled");
-                        $("#server_error").show();
-                    }
+                    sendRequest.removeAttr("disabled");
+                    errorDisplay(XMLHttpRequest);
                 }
             });
         });

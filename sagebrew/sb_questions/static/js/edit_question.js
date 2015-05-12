@@ -32,16 +32,12 @@ $( document ).ready(function() {
                             window.location.href = data['url'];
                         },
                         error: function(XMLHttpRequest, textStatus, errorThrown) {
-                            if(XMLHttpRequest.status === 500){
-                                $("#server_error").show();
-                            }
+                            errorDisplay(XMLHttpRequest);
                         }
                     });
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    if(XMLHttpRequest.status === 500){
-                        $("#server_error").show();
-                    }
+                    errorDisplay(XMLHttpRequest);
                 }
             });
         });

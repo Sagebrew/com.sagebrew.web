@@ -1,5 +1,6 @@
 $(document).ready(function () {
     "use strict";
+
     $(".submit_question-action").click(function (event) {
         event.preventDefault();
         var submitArea = $(".submit_question-action"),
@@ -27,9 +28,7 @@ $(document).ready(function () {
             },
             error: function (XMLHttpRequest) {
                 submitArea.removeAttr("disabled");
-                if (XMLHttpRequest.status === 500) {
-                    $("#server_error").show();
-                }
+                errorDisplay(XMLHttpRequest);
             }
         });
     });

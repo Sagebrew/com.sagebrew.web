@@ -41,5 +41,6 @@ $(document).ready(function () {
         typeahead: [null, {source: engine.ttAdapter()}],
         delimiter: [",", " ", "'", ".", "*", "_"]
     });
+    $("#sb_tag_box-tokenfield").attr("name", "tag_box");
     loadTags(next);
 });

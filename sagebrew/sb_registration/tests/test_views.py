@@ -565,7 +565,8 @@ class TestLoginAPIView(TestCase):
 
         res.render()
 
-        self.assertEqual(loads(res.content)['detail'], 'account disabled')
+        self.assertEqual(loads(res.content)['detail'],
+                         'This account has been disabled.')
         self.assertEqual(res.status_code, 400)
 
     def test_login_api_view_invalid_password(self):
@@ -583,7 +584,8 @@ class TestLoginAPIView(TestCase):
 
         res.render()
 
-        self.assertEqual(loads(res.content)['detail'], 'invalid password')
+        self.assertEqual(loads(res.content)['detail'],
+                         'Incorrect password and username combination.')
         self.assertEqual(res.status_code, 400)
 
     def test_login_api_view_user_does_not_exist(self):
@@ -601,7 +603,8 @@ class TestLoginAPIView(TestCase):
 
         res.render()
 
-        self.assertEqual(loads(res.content)['detail'], 'cannot find user')
+        self.assertEqual(loads(res.content)['detail'],
+                         'Incorrect password and username combination.')
         self.assertEqual(res.status_code, 400)
 
     def test_login_api_view_incorrect_data_int(self):

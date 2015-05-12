@@ -27,7 +27,7 @@ $( document ).ready(function() {
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 $("#submit_signup").removeAttr("disabled");
-                alert(XMLHttpRequest.responseJSON["detail"]);
+                errorDisplay(XMLHttpRequest);
             }
         });
 	});

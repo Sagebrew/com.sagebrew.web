@@ -24,8 +24,8 @@ $(document).ready(function () {
                 success: function () {
                     $("#profile_pic").attr("src", imageUrl);
                 },
-                error: function () {
-                    $('.alert-dismissible').show();
+                error: function (XMLHttpRequest) {
+                    errorDisplay(XMLHttpRequest);
                 }
             });
             cropContainerEyecandy.reset();
@@ -40,7 +40,8 @@ $(document).ready(function () {
             if (typeof fileSizeError === "undefined" || fileSizeError === null) {
                 fileSizeError = "";
             }
-            alert(fileSizeError + "\n" + fileFormatError);
+            $.notify({message: fileSizeError + "\n" + fileFormatError},
+                {type: 'danger'});
         },
         onReset: function () {
             $.ajax({
@@ -49,8 +50,8 @@ $(document).ready(function () {
                 url: "/v1/upload/" + fileName + "/",
                 cache: false,
                 processData: false,
-                error: function () {
-                    $('.alert-dismissible').show();
+                error: function (XMLHttpRequest) {
+                    errorDisplay(XMLHttpRequest);
                 }
             });
             $.ajax({
@@ -68,8 +69,8 @@ $(document).ready(function () {
                         profileImg.attr('src', data.profile_pic);
                     }
                 },
-                error: function () {
-                    $('.alert-dismissible').show();
+                error: function (XMLHttpRequest) {
+                    errorDisplay(XMLHttpRequest);
                 }
             });
 

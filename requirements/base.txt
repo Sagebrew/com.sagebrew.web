@@ -58,3 +58,4 @@ django-ses==0.7.0
 bcrypt==1.1.1
 django-clear-cache==0.3
 bleach==1.4.1
+pyyaml==3.11

@@ -5,6 +5,8 @@ from datetime import datetime
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
+from neomodel import db
+
 from api.utils import gather_request_data
 from sb_base.serializers import ContentSerializer
 from plebs.serializers import PlebSerializerNeo
@@ -48,8 +50,10 @@ class PostSerializerNeo(ContentSerializer):
         request, expand, _, _, _ = gather_request_data(self.context)
         if isinstance(obj, dict) is True:
             return obj
-        owner_wall = obj.posted_on_wall.all()[0]
-        wall_owner = owner_wall.owned_by.all()[0]
+        query = "MATCH (a:Post {object_uuid: '%s'})-[:POSTED_ON]->(b:Wall)-" \
+                "[:IS_OWNED_BY]->(c:Pleb) RETURN c" % obj.object_uuid
+        res, col = db.cypher_query(query)
+        wall_owner = Pleb.inflate(res[0][0])
         if expand == "true":
             profile_dict = PlebSerializerNeo(
                 wall_owner, context={'request': request}).data

@@ -16,4 +16,3 @@ class TestCreatePublicOfficialNodes(TestCase):
         call_command("create_prepopulated_reps")
         test_official = PublicOfficial.nodes.get(gt_id="300093")
         self.assertEqual(official_terms, test_official.terms)
-

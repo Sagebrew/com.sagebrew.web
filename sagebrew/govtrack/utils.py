@@ -105,6 +105,9 @@ def populate_term_data():
             term['start'] = parser.parse(term['start'])
             term['end'] = parser.parse(term['end'])
             term['current'] = False
+            sb_person.address = term.get('address', None)
+            sb_person.contact_form = term.get('contact_form', None)
+            sb_person.save()
             if now < term['end']:
                 term['current'] = True
             if term['type'] == 'sen':

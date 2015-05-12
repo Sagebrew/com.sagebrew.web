@@ -64,6 +64,9 @@ class PublicOfficial(Searchable):
     #                             "EXPERIENCED")
     gt_person = RelationshipTo('govtrack.neo_models.GTPerson', 'GTPERSON')
     gt_role = RelationshipTo('govtrack.neo_models.GTRole', 'GTROLE')
+    # the current term is also included in the number of terms under the term
+    # relationship, the current_term relationship is a shortcut for us to
+    # access the term that the official is currently in
     term = RelationshipTo('govtrack.neo_models.Term', 'SERVED_TERM')
     current_term = RelationshipTo('govtrack.neo_models.Term', 'CURRENT_TERM')
 

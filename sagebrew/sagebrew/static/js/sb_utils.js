@@ -730,9 +730,7 @@ function getUrlParameter(sParam)
 
 function errorDisplay(XMLHttpRequest) {
     if (XMLHttpRequest.status === 500) {
-        $.notify({message: "Sorry looks like we're having some server issues right now. " +
-                    "We really would love to have you as part of the beta so " +
-                    "please try back later!"}, {type: "danger"})
+        $.notify({message: "Sorry looks like we're having some server issues right now. "}, {type: "danger"})
     }
     if (XMLHttpRequest.status === 400) {
         var notificationDetail = XMLHttpRequest.responseJSON.detail;

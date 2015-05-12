@@ -494,12 +494,12 @@ function edit_object(edit_area, url, object_uuid, data_area) {
 }
 
 
-function edit_objects(url, populated_ids, data_area){
+function edit_objects(url, populated_ids){
     if(typeof populated_ids !== 'undefined' && populated_ids.length > 0){
         for (i = 0; i < populated_ids.length; i++) {
             // Eventually we should just be able to get the href
             edit_object(".edit_" + populated_ids[i],
-                url + populated_ids[i] + "/", populated_ids[i], data_area);
+                url + populated_ids[i] + "/", populated_ids[i], "textarea#" + populated_ids[i]);
         }
     }
 }
@@ -706,7 +706,7 @@ function enable_comment_functionality(populated_ids){
     show_edit_comment(populated_ids);
     comment_validator();
     vote_objects(populated_ids, "comments");
-    edit_objects("/v1/comments/", populated_ids, "textarea.edit_comment_input_class");
+    edit_objects("/v1/comments/", populated_ids);
     delete_objects("/v1/comments/", populated_ids);
 }
 
@@ -729,7 +729,7 @@ function enable_single_post_functionality(populated_ids) {
     save_comments(populated_ids, '/v1/posts/');
     show_edit_posts(populated_ids);
     vote_objects(populated_ids, "posts");
-    edit_objects("/v1/posts/", populated_ids, "textarea.edit_post_input_class");
+    edit_objects("/v1/posts/", populated_ids);
     delete_objects("/v1/posts/", populated_ids);
 }
 

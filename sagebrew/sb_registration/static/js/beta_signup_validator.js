@@ -1,9 +1,6 @@
 $(document).ready(function(){
     $("#signupForm").formValidation({
         framework: 'bootstrap',
-        err: {
-            container: '#fname_errors'
-        },
         icon: {
             valid: 'glyphicon glyphicon-ok',
             validating: 'glyphicon glyphicon-refresh'

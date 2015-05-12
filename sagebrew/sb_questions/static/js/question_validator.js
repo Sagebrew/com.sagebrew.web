@@ -2,7 +2,7 @@ $(document).ready(function(){
     $("#questionInputForm").formValidation({
         framework: 'bootstrap',
         err: {
-            container: '#fname_errors'
+            container: '#validation_errors'
         },
         icon: {
             valid: 'glyphicon glyphicon-ok',
@@ -37,7 +37,15 @@ $(document).ready(function(){
                         message: "Content must be at least 15 characters long"
                     }
                 }
+            },
+            tag_box: {
+                row: 'twitter-typeahead',
+                validators: {
+                    notEmpty: {
+                        message: "Tags are required"
+                    }
+                }
             }
         }
-    })
+    });
 });

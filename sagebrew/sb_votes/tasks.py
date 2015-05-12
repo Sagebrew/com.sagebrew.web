@@ -22,7 +22,7 @@ def vote_object_task(vote_type, current_pleb, object_uuid):
     :return:
     '''
     try:
-        current_pleb = Pleb.nodes.get(username=current_pleb)
+        current_pleb = Pleb.get(username=current_pleb)
     except (DoesNotExist, Pleb.DoesNoteExist, CypherException, IOError) as e:
         raise vote_object_task.retry(exc=e, countdown=10, max_retries=None)
     sb_object = get_parent_votable_content(object_uuid)

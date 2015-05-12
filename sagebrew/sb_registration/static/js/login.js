@@ -29,7 +29,7 @@ $(document).ready(function () {
                 }
             },
             error: function (XMLHttpRequest) {
-                alert(XMLHttpRequest.responseJSON.detail);
+                errorDisplay(XMLHttpRequest);
                 submitArea.removeAttr("disabled");
             }
         });

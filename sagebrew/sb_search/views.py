@@ -43,7 +43,7 @@ def search_result_view(request):
     """
     # TODO Need to make sure responses return an actual page if necessary
     try:
-        pleb = Pleb.nodes.get(username=request.user.username)
+        pleb = Pleb.get(username=request.user.username)
     except(Pleb.DoesNotExist, DoesNotExist):
         return Response(status=404)
     except (CypherException, IOError):

@@ -25,8 +25,9 @@ $(document).ready(function () {
                     placeHolder.remove();
                 }
             },
-            error: function () {
+            error: function (XMLHttpRequest) {
                 $("#sb_btn_post").removeAttr("disabled");
+                errorDisplay(XMLHttpRequest);
             }
         });
     });

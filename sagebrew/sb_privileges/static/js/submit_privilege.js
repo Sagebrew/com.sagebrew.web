@@ -40,9 +40,7 @@ $(document).ready(function(){
                 alert(data);
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if(XMLHttpRequest.status === 500){
-                    $("#server_error").show();
-                }
+                errorDisplay(XMLHttpRequest);
             }
         });
     });

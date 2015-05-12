@@ -1,15 +1,17 @@
 $(document).ready(function(){
-    $("#settings_form").bootstrapValidator({
+    $("#settings_form").formValidation({
         framework: 'bootstrap',
-        feedbackIcons: {
+        icon: {
             valid: 'glyphicon glyphicon-ok',
             validating: 'glyphicon glyphicon-refresh'
         },
         live: 'enabled',
-        submitButtons: '#submit_settings',
+        button: {
+            selector: '#submit_settings'
+        },
         fields: {
             first_name: {
-                group: 'fname',
+                row: 'fname',
                 validators: {
                     notEmpty: {
                         message: "First Name is Required"
@@ -21,7 +23,7 @@ $(document).ready(function(){
                 }
             },
             last_name: {
-                group: 'lname',
+                row: 'lname',
                 validators: {
                     notEmpty: {
                         message: "Last Name is Required"
@@ -33,7 +35,7 @@ $(document).ready(function(){
                 }
             },
             email: {
-                group: 'email_class',
+                row: 'email_class',
                 validators: {
                     notEmpty: {
                         message: "Email is required"
@@ -45,7 +47,7 @@ $(document).ready(function(){
                 }
             },
             old_password: {
-                group: 'password1',
+                row: 'password1',
                 validators: {
                     stringLength: {
                         min: 8,
@@ -59,7 +61,7 @@ $(document).ready(function(){
                 }
             },
             new_password: {
-                group: 'password2',
+                row: 'password2',
                 validators: {
                     stringLength: {
                         min: 8,
@@ -73,7 +75,7 @@ $(document).ready(function(){
                 }
             },
             new_password_confirm: {
-                group: 'password3',
+                row: 'password3',
                 validators: {
                     stringLength: {
                         min: 8,
@@ -87,5 +89,5 @@ $(document).ready(function(){
                 }
             }
         }
-    })
+    });
 });

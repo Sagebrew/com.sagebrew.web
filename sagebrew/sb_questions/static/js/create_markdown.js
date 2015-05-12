@@ -27,6 +27,7 @@ $(document).ready(function () {
                                     success: function (data) {
                                         callback(data.url);
                                         $(".modal-footer").spin(false);
+                                        $("#upload_image").val("");
                                         $("#fileModal").modal('hide');
                                         enable_post_functionality();
                                     },
@@ -36,7 +37,9 @@ $(document).ready(function () {
                                 });
                             } else {
                                 var image = $("#img-url").val();
+                                $(".modal-footer").spin(false);
                                 callback(image);
+                                $("#img-url").val("");
                                 $("#fileModal").modal('hide');
                             }
                         });

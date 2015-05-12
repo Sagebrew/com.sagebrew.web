@@ -494,27 +494,27 @@ function edit_object(edit_area, url, object_uuid, data_area) {
 }
 
 
-function edit_objects(url, populated_ids, data_area){
+function edit_objects(url, populated_ids){
     if(typeof populated_ids !== 'undefined' && populated_ids.length > 0){
         for (i = 0; i < populated_ids.length; i++) {
             // Eventually we should just be able to get the href
             edit_object(".edit_" + populated_ids[i],
-                url + populated_ids[i] + "/", populated_ids[i], data_area);
+                url + populated_ids[i] + "/", populated_ids[i], "textarea#" + populated_ids[i]);
         }
     }
 }
 
 
-function delete_objects(url, populated_ids){
+function delete_objects(url, populated_ids, objectType){
     if(typeof populated_ids !== 'undefined' && populated_ids.length > 0){
         for (i = 0; i < populated_ids.length; i++) {
             delete_object(".delete_" + populated_ids[i],
-                url + populated_ids[i] + "/", populated_ids[i]);
+                url + populated_ids[i] + "/", populated_ids[i], objectType);
         }
     }
 }
 
-function delete_object(delete_area, url, object_uuid) {
+function delete_object(delete_area, url, object_uuid, objectType) {
     $(delete_area).click(function (event) {
         event.preventDefault();
         $.ajax({
@@ -525,11 +525,13 @@ function delete_object(delete_area, url, object_uuid) {
             dataType: "json",
             success: function(data){
                 $(".block_" + object_uuid).remove();
-                $('textarea.sb_solution_input_area').val("");
-                var solution_count_text = $("#solution_count").text();
-                if(solution_count_text != "--") {
-                    var solution_count = parseInt(solution_count_text) - 1;
-                    $("#solution_count").text(solution_count.toString());
+                if (objectType === 'solution') {
+                    $('textarea.sb_solution_input_area').val("");
+                    var solution_count_text = $("#solution_count").text();
+                    if (solution_count_text !== "--") {
+                        var solution_count = parseInt(solution_count_text) - 1;
+                        $("#solution_count").text(solution_count.toString());
+                    }
                 }
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -706,8 +708,8 @@ function enable_comment_functionality(populated_ids){
     show_edit_comment(populated_ids);
     comment_validator();
     vote_objects(populated_ids, "comments");
-    edit_objects("/v1/comments/", populated_ids, "textarea.edit_comment_input_class");
-    delete_objects("/v1/comments/", populated_ids);
+    edit_objects("/v1/comments/", populated_ids);
+    delete_objects("/v1/comments/", populated_ids, 'comment');
 }
 
 function enable_question_summary_functionality(populated_ids) {
@@ -721,7 +723,7 @@ function enable_question_functionality(populated_ids) {
     show_edit_question(populated_ids);
     save_solution(populated_ids);
     vote_objects(populated_ids, "questions");
-    delete_objects("/v1/questions/", populated_ids);
+    delete_objects("/v1/questions/", populated_ids, 'question');
 }
 
 function enable_single_post_functionality(populated_ids) {
@@ -729,8 +731,8 @@ function enable_single_post_functionality(populated_ids) {
     save_comments(populated_ids, '/v1/posts/');
     show_edit_posts(populated_ids);
     vote_objects(populated_ids, "posts");
-    edit_objects("/v1/posts/", populated_ids, "textarea.edit_post_input_class");
-    delete_objects("/v1/posts/", populated_ids);
+    edit_objects("/v1/posts/", populated_ids);
+    delete_objects("/v1/posts/", populated_ids, 'post');
 }
 
 function enable_solution_functionality(populated_ids) {
@@ -738,7 +740,7 @@ function enable_solution_functionality(populated_ids) {
     save_comments(populated_ids, '/v1/solutions/');
     vote_objects(populated_ids, "solutions");
     show_edit_solution(populated_ids);
-    delete_objects("/v1/solutions/", populated_ids);
+    delete_objects("/v1/solutions/", populated_ids, 'solution');
 }
 
 function getUrlParameter(sParam)

@@ -69,7 +69,7 @@ def get_rep_type(rep_type):
 def save_rep(pleb_username, rep_type, rep_id, recipient_id, gov_phone,
              customer_id=None):
     try:
-        pleb = Pleb.nodes.get(username=pleb_username)
+        pleb = Pleb.get(username=pleb_username)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
         return e
     temp_type = dict(settings.BASE_REP_TYPES)[rep_type]

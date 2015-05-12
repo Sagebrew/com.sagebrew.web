@@ -35,7 +35,7 @@ def manage_privilege_relation(username):
     :return:
     """
     try:
-        pleb = Pleb.nodes.get(username=username)
+        pleb = Pleb.get(username=username)
     except (CypherException, IOError) as e:
         return e
     try:

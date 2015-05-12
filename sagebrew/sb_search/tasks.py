@@ -80,14 +80,14 @@ def update_weight_relationship(document_id, index, object_type,
     }
     try:
         try:
-            pleb = Pleb.nodes.get(username=current_pleb)
+            pleb = Pleb.get(username=current_pleb)
         except (Pleb.DoesNotExist, DoesNotExist):
             return False
 
         if object_type == 'profile':
             try:
-                pleb = Pleb.nodes.get(username=object_uuid)
-                c_pleb = Pleb.nodes.get(username=current_pleb)
+                pleb = Pleb.get(username=object_uuid)
+                c_pleb = Pleb.get(username=current_pleb)
             except (Pleb.DoesNotExist, DoesNotExist):
                 return False
 
@@ -154,7 +154,7 @@ def add_user_to_custom_index(username=None,
     if username is None:
         return None
     try:
-        pleb = Pleb.nodes.get(username=username)
+        pleb = Pleb.get(username=username)
     except (Pleb.DoesNotExist, DoesNotExist) as e:
         raise add_user_to_custom_index.retry(exc=e, countdown=3,
                                              max_retries=None)
@@ -259,7 +259,7 @@ def update_search_query(pleb, query_param, keywords):
     '''
     try:
         try:
-            pleb = Pleb.nodes.get(username=pleb)
+            pleb = Pleb.get(username=pleb)
         except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
             raise update_search_query.retry(exc=e, countdown=3,
                                             max_retries=None)

@@ -1,15 +1,17 @@
 $(document).ready(function(){
-    $("#regForm").bootstrapValidator({
-        feedbackIcons: {
+    $("#regForm").formValidation({
+        icon: {
             valid: 'glyphicon glyphicon-ok',
             invalid: 'glyphicon glyphicon-remove',
             validating: 'glyphicon glyphicon-refresh'
         },
         live: 'enabled',
-        submitButtons: 'button.submit_rep',
+        button: {
+            selector: 'button.submit_rep'
+        },
         fields: {
             ssn: {
-                group: 'ssn_wrapper',
+                row: 'ssn_wrapper',
                 validators: {
                     notEmpty: {
                         message: "SSN is required"
@@ -21,7 +23,7 @@ $(document).ready(function(){
                 }
             },
             bank_account: {
-                group: 'bank_account_wrapper',
+                row: 'bank_account_wrapper',
                 validators: {
                     notEmpty: {
                         message: "Bank Account must not be empty"
@@ -32,8 +34,8 @@ $(document).ready(function(){
                     }
                 }
             },
-            account_name :{
-                group: 'account_name_wrapper',
+            account_name : {
+                row: 'account_name_wrapper',
                 validators: {
                     notEmpty: {
                         message: "Account Name must not be empty"
@@ -45,7 +47,7 @@ $(document).ready(function(){
                 }
             },
             routing_number: {
-                group: 'routing_number_wrapper',
+                row: 'routing_number_wrapper',
                 validators: {
                     notEmpty: {
                         message: "Routing Number must not be empty"
@@ -57,7 +59,7 @@ $(document).ready(function(){
                 }
             },
             credit_card: {
-                group: 'credit_card_wrapper',
+                row: 'credit_card_wrapper',
                 validators: {
                     creditCard: {
                         message: "Must be a valid credit card layout"
@@ -65,7 +67,7 @@ $(document).ready(function(){
                 }
             },
             cvv: {
-                groupd: 'cvv_wrapper',
+                row: 'cvv_wrapper',
                 validators: {
                     cvv: {
                         creditCardField: "credit_card",
@@ -74,7 +76,7 @@ $(document).ready(function(){
                 }
             },
             office: {
-                group: 'office_wrapper',
+                row: 'office_wrapper',
                 validators: {
                     notEmpty: {
                         message: "Office is required"
@@ -86,7 +88,7 @@ $(document).ready(function(){
                 }
             },
             district: {
-                group: 'district_wrapper',
+                row: 'district_wrapper',
                 validators: {
                     stringLength: {
                         max: 3,
@@ -107,7 +109,7 @@ $(document).ready(function(){
                 }
             },
             gov_email: {
-                group: 'gov_email_wrapper',
+                row: 'gov_email_wrapper',
                 validators: {
                     notEmpty: {
                         message: "Gov Email is required"
@@ -119,7 +121,7 @@ $(document).ready(function(){
                 }
             },
             gov_phone: {
-                group: 'gov_phone_wrapper',
+                row: 'gov_phone_wrapper',
                 validators: {
                     phone: {
                         country: "US",

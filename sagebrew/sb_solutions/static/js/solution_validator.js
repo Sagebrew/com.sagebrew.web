@@ -1,18 +1,20 @@
 $(document).ready(function(){
-    $("#solutionSubmitForm").bootstrapValidator({
+    $("#solutionSubmitForm").formValidation({
         framework: 'bootstrap',
         err: {
             container: '#fname_errors'
         },
-        feedbackIcons: {
+        icon: {
             valid: 'glyphicon glyphicon-ok',
             validating: 'glyphicon glyphicon-refresh'
         },
         live: 'enabled',
-        submitButtons: '#submit_solution',
+        button: {
+            selector: '#submit_solution'
+        },
         fields: {
             solution_content: {
-                group: 'sb_solution_input',
+                row: 'sb_solution_input',
                 validators: {
                     notEmpty: {
                         message: "Content is required"
@@ -24,5 +26,5 @@ $(document).ready(function(){
                 }
             }
         }
-    })
+    });
 });

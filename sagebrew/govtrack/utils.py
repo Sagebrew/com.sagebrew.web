@@ -1,4 +1,5 @@
 import yaml
+import logging
 from dateutil import parser
 from datetime import datetime
 from requests import get
@@ -9,6 +10,8 @@ from neomodel import DoesNotExist, CypherException, db
 from govtrack.neo_models import (GTPerson, GTRole, GTCongressNumbers,
                                  Senator, HouseRepresentative)
 from sb_public_official.neo_models import PublicOfficial
+
+logger = logging.getLogger("loggly_logs")
 
 
 def create_gt_role(rep):
@@ -88,9 +91,12 @@ def populate_term_data():
         open(settings.YAML_FILES + "legislators-current.yaml"))
     now = datetime.now()
     for person in yaml_data:
-        sb_person = PublicOfficial.nodes.get(gt_id=person['id']['govtrack'])
+        try:
+            sb_person = PublicOfficial.nodes.get(
+                gt_id=person['id']['govtrack'])
+        except (PublicOfficial.DoesNotExist, DoesNotExist):
+            continue
         if len(person['terms']) == len(sb_person.term.all()):
-            print "here"
             continue
         else:
             for term in sb_person.term.all():

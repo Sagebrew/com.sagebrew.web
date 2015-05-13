@@ -30,6 +30,7 @@ from sb_questions.neo_models import Question
 from sb_questions.serializers import QuestionSerializerNeo
 from sb_votes.serializers import VoteSerializer
 from sb_public_official.serializers import PublicOfficialSerializer
+from sb_public_official.neo_models import PublicOfficial
 
 from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
                           FriendRequestSerializer)
@@ -250,7 +251,11 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, ))
     def senators(self, request, username=None):
-        senators = self.get_object().senators.all()
+        # TODO this may be able to be refined to [:REPRESENTED_BY]->(s:Senator)
+        query = "MATCH (a:Pleb {username: '%s'})-[:HAS_SENATOR]->" \
+                "(s:PublicOfficial) RETURN s" % username
+        res, col = db.cypher_query(query)
+        senators = [PublicOfficial.inflate(row[0]) for row in res]
         if len(senators) == 0:
             return Response("<small>Sorry we could not find your "
                             "Senators. Please alert us to our error!"
@@ -267,8 +272,14 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, ))
     def house_rep(self, request, username=None):
+        # TODO this may be able to be refined to
+        # [:REPRESENTED_BY]->(s:HouseRepresentative)
+        query = "MATCH (a:Pleb {username: '%s'})-" \
+                "[:HAS_HOUSE_REPRESENTATIVE]->" \
+                "(s:PublicOfficial) RETURN s" % username
+        res, col = db.cypher_query(query)
         try:
-            house_rep = self.get_object().house_rep.all()[0]
+            house_rep = PublicOfficial.inflate(res[0][0])
         except IndexError:
             return Response("<small>Sorry we could not find your "
                             "representative. Please alert us to our error!"
@@ -280,18 +291,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 PublicOfficialSerializer(house_rep).data)
             return Response(house_rep_html, status=status.HTTP_200_OK)
         return Response(house_rep, status=status.HTTP_200_OK)
-
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
-    def address(self, request, username=None):
-        single_object = self.get_object()
-        try:
-            address = single_object.address.all()[0]
-        except(IndexError):
-            return Response(errors.CYPHER_INDEX_EXCEPTION,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        address_serializer = AddressSerializer(address,
-                                               context={'request': request})
-        return Response(address_serializer.data, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def is_beta_user(self, request, username=None):

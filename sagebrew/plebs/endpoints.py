@@ -2,6 +2,7 @@ from dateutil import parser
 from elasticsearch import Elasticsearch, NotFoundError
 
 from django.template.loader import render_to_string
+from django.templatetags.static import static
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
 from django.core.cache import cache
@@ -332,6 +333,15 @@ class MeRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
 
     def get_object(self):
         return Pleb.get(self.request.user.username)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        serializer_data = dict(serializer.data)
+        if serializer_data['wallpaper_pic'] is None:
+            serializer_data['wallpaper_pic'] = static(
+                'images/wallpaper_western.jpg')
+        return Response(serializer_data)
 
 
 class FriendRequestViewSet(viewsets.ModelViewSet):

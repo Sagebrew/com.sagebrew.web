@@ -196,6 +196,17 @@ class Pleb(Searchable):
                                      'CLICKED_RESULT')
     official = RelationshipTo('sb_public_official.neo_models.PublicOfficial',
                               'IS_AUTHORIZED_AS', model=OfficialRelationship)
+    # TODO our queries might not need HAS_SENATOR or HAS_HOUSE_REPRESENTATIVE
+    # this distinction is covered by our endpoints of senators/house
+    # representatives. We can change the relationship to REPRESENTED_BY
+    # and utilize the Senate/House Representative/etc label to get the proper
+    # official. This would require a Senator label though and not sure how we
+    # want to handle this in a scalable way where we don't have to make new
+    # relationships and classes for every new type of rep. Could potentially
+    # define a few and then use a general class with an attribute that inherits
+    # from them. Or we could start adding Labels that aren't associated with
+    # classes based on the type of rep. This would allow us to use the same
+    # types of queries and easily get all the types of representatives.
     senators = RelationshipTo('sb_public_official.neo_models.PublicOfficial',
                               'HAS_SENATOR')
     house_rep = RelationshipTo('sb_public_official.neo_models.PublicOfficial',

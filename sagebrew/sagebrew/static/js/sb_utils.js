@@ -47,7 +47,7 @@ function save_comment(comment_area, url, object_uuid) {
             dataType: "json",
             success: function (data) {
                 var comment_container = $("#sb_comments_container_" + object_uuid);
-                comment_container.prepend(data['html']);
+                comment_container.append(data['html']);
                 $('textarea#post_comment_on_' + object_uuid).val("");
                 enable_comment_functionality(data["ids"]);
                 $(comment_area).removeAttr("disabled");
@@ -118,7 +118,7 @@ function populate_comment(object_uuid, resource){
             comment_container.append(data['results']['html']);
             if(data['count'] > 3){
                 // TODO this may break in IE
-                comment_container.append(
+                comment_container.prepend(
                     '<div class="row">' +
                         '<div class="col-lg-5 col-lg-offset-1">' +
                              '<a href="javascript:;" class="additional_comments" id="additional_comments_' + object_uuid + '">More Comments ...</a>' +
@@ -134,7 +134,7 @@ function populate_comment(object_uuid, resource){
                         success: function (data) {
                             var comment_container = $('#sb_comments_container_' + object_uuid);
                             $('#additional_comments_' + object_uuid).remove();
-                            comment_container.append(data['results']['html']);
+                            comment_container.prepend(data['results']['html']);
                             if (data["next"] !== null) {
                                 queryComments(data["next"], object_uuid)
                             }
@@ -167,7 +167,7 @@ function queryComments(url, object_uuid){
                 queryComments(data["next"], object_uuid)
             }
             var comment_container = $('#sb_comments_container_' + object_uuid);
-            comment_container.append(data['results']['html']);
+            comment_container.prepend(data['results']['html']);
             enable_comment_functionality(data['results']['ids']);
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {

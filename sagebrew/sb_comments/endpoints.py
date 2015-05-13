@@ -99,7 +99,7 @@ def comment_renderer(request, object_uuid=None):
     args = []
     kwargs = {"object_uuid": object_uuid}
     comments = ObjectCommentsListCreate.as_view()(request, *args, **kwargs)
-    for comment in comments.data['results']:
+    for comment in comments.data['results'][::-1]:
         comment['last_edited_on'] = datetime.strptime(
             comment['last_edited_on'][:-6], '%Y-%m-%dT%H:%M:%S.%f')
         # This is a work around for django templates and our current

@@ -13,7 +13,7 @@ $(document).ready(function () {
                 if (data.next !== null) {
                     loadQuestionSummaries(data.next);
                 }
-                enable_question_summary_functionality(data.results.ids);
+                enableQuestionSummaryFunctionality(data.results.ids);
             }
         });
     }

@@ -99,6 +99,11 @@ def comment_renderer(request, object_uuid=None):
     args = []
     kwargs = {"object_uuid": object_uuid}
     comments = ObjectCommentsListCreate.as_view()(request, *args, **kwargs)
+    # reasoning behind [::-1] is here
+    # http://stackoverflow.com/questions/10201977/how-to-reverse-tuples-in-python?lq=1
+    # basically using [::-1] allows us to loop through the list backwards
+    # without creating a new variable, also this method works for tuples,
+    # lists, dicts, almost any python object
     for comment in comments.data['results'][::-1]:
         comment['last_edited_on'] = datetime.strptime(
             comment['last_edited_on'][:-6], '%Y-%m-%dT%H:%M:%S.%f')

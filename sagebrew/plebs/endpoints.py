@@ -36,9 +36,6 @@ from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
 from .neo_models import Pleb, Address, FriendRequest
 from .utils import get_filter_by
 
-from logging import getLogger
-logger = getLogger('loggly_logs')
-
 
 class AddressViewSet(viewsets.ModelViewSet):
     """

@@ -70,7 +70,7 @@ $(document).ready(function () {
                     var wallpaperImg = $("#wallpaper_pic");
                     if (wallpaperImg.length === 0) {
                         $(".croppedImg").remove();
-                        $("#cropWallpaperPictureEyecandy").append('<img id="wallpaper_pic" src="' + data.wallpaper_pic + '">');
+                        $("#cropWallpaperPictureEyecandy").append('<img id="wallpaper_pic" class="wallpaper_profile" src="' + data.wallpaper_pic + '">');
                     } else {
                         wallpaperImg.attr('src', data.wallpaper_pic);
                     }

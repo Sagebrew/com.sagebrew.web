@@ -1,4 +1,3 @@
-import bleach
 import markdown
 
 from rest_framework import serializers

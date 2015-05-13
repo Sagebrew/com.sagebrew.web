@@ -253,7 +253,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
     def senators(self, request, username=None):
         # TODO this may be able to be refined to [:REPRESENTED_BY]->(s:Senator)
         query = "MATCH (a:Pleb {username: '%s'})-[:HAS_SENATOR]->" \
-                "(s:PublicOfficial) RETURN s"  % username
+                "(s:PublicOfficial) RETURN s" % username
         res, col = db.cypher_query(query)
         senators = [PublicOfficial.inflate(row[0]) for row in res]
         if len(senators) == 0:

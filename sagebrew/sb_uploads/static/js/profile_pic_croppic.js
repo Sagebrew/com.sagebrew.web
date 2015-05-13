@@ -22,13 +22,12 @@ $(document).ready(function () {
                 contentType: 'application/json',
                 processData: false,
                 success: function () {
-                    $("#profile_pic").attr("src", imageUrl);
+                    cropContainerEyecandy.reset();
                 },
                 error: function (XMLHttpRequest) {
                     errorDisplay(XMLHttpRequest);
                 }
             });
-            cropContainerEyecandy.reset();
         },
         onError: function (errormsg) {
             var fileSizeError = errormsg.responseJSON.file_size,
@@ -61,10 +60,11 @@ $(document).ready(function () {
                 cache: false,
                 processData: false,
                 success: function (data) {
+                    console.log(data);
                     var profileImg = $("#profile_pic");
                     if (profileImg.length === 0) {
                         $(".croppedImg").remove();
-                        $("#cropProfilePageEyecandy").append('<img id="profile_pic" src="' + data.profile_pic + '">');
+                        $("#cropProfilePageEyecandy").append('<img id="profile_pic" src="' + data.profile_pic + "?" + new Date().getTime() + '">');
                     } else {
                         profileImg.attr('src', data.profile_pic);
                     }

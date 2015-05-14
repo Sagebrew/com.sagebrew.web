@@ -169,7 +169,7 @@ class PostsEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('post-detail',
                       kwargs={"object_uuid": self.post.object_uuid})
-        response = self.client.get(url, format='json')
+        response = self.client.get(url, follow=True, format='json')
         self.assertEqual(response.data['upvotes'], 0)
 
     def test_url(self):

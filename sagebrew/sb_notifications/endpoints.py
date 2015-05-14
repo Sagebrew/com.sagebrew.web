@@ -2,6 +2,7 @@ from dateutil import parser
 
 from django.template.loader import render_to_string
 from django.template import RequestContext
+from django.core.cache import cache
 
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.permissions import IsAuthenticated
@@ -43,11 +44,17 @@ class UserNotificationList(ListAPIView):
     lookup_field = "object_uuid"
 
     def get_queryset(self):
-        query = 'MATCH (a:Pleb {username: "%s"})-[:RECEIVED_A]->' \
+        notifications = cache.get("%s_notifications" % (
+            self.request.user.username))
+        if notifications is None:
+            query = 'MATCH (a:Pleb {username: "%s"})-[:RECEIVED_A]->' \
                 '(n:Notification) RETURN n ORDER ' \
                 'BY n.created DESC LIMIT 5' % (self.request.user.username)
-        res, col = db.cypher_query(query)
-        return [Notification.inflate(row[0]) for row in res]
+            res, col = db.cypher_query(query)
+            notifications = [Notification.inflate(row[0]) for row in res]
+            cache.set("%s_notifications" % self.request.user.username,
+                      notifications)
+        return notifications
 
     def list(self, request, *args, **kwargs):
         """

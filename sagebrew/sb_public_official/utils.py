@@ -125,6 +125,7 @@ def determine_reps(username):
         if rep.district == pleb_district:
             try:
                 pleb.house_rep.connect(rep)
+                cache.set("%s_house_representative" % username, rep)
             except (CypherException, IOError):
                 logger.exception("Determine Reps Cypher Exception")
                 return False
@@ -134,7 +135,8 @@ def determine_reps(username):
             except (CypherException, IOError):
                 logger.exception("Determine Reps Cypher Exception")
                 return False
-            senators.append(rep.object_uuid)
+            senators.append(rep)
+    cache.set("%s_senators" % username, senators)
     # Need this as neomodel does not currently support spawning post_save
     # after connections
     cache.set(pleb.username, pleb)

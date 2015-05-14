@@ -13,7 +13,7 @@ $(document).ready(function(){
             $.ajax({
                 xhrFields: {withCredentials: true},
                 type: "GET",
-                url: "/v1/profiles/" + username + "/house_rep/?html=true",
+                url: "/v1/profiles/" + username + "/house_representative/?html=true",
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(data) {

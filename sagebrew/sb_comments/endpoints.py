@@ -99,7 +99,12 @@ def comment_renderer(request, object_uuid=None):
     args = []
     kwargs = {"object_uuid": object_uuid}
     comments = ObjectCommentsListCreate.as_view()(request, *args, **kwargs)
-    for comment in comments.data['results']:
+    # reasoning behind [::-1] is here
+    # http://stackoverflow.com/questions/10201977/how-to-reverse-tuples-in-python?lq=1
+    # basically using [::-1] allows us to loop through the list backwards
+    # without creating a new variable, also this method works for tuples,
+    # lists, dict
+    for comment in comments.data['results'][::-1]:
         comment['last_edited_on'] = datetime.strptime(
             comment['last_edited_on'][:-6], '%Y-%m-%dT%H:%M:%S.%f')
         # This is a work around for django templates and our current
@@ -117,7 +122,7 @@ def comment_renderer(request, object_uuid=None):
 def comment_list(request):
     response = {"status": status.HTTP_501_NOT_IMPLEMENTED,
                 "detail": "We do not allow users to query all the comments on"
-                          "the site.",
+                          " the site.",
                 "developer_message":
                     "We're working on enabling easier access to comments based"
                     "on user's friends and walls they have access to. "

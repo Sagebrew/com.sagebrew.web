@@ -5,11 +5,14 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.core.cache import cache
 
+from neomodel import db
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from sagebrew import errors
-from plebs.neo_models import Pleb, FriendRequest
+from sb_public_official.neo_models import PublicOfficial
+from plebs.neo_models import Pleb, FriendRequest, Address
 from sb_questions.neo_models import Question
 from sb_registration.utils import create_user_util_test
 
@@ -1044,3 +1047,347 @@ class FriendRequestListTest(APITestCase):
         url = reverse('friend_request-render')
         response = self.client.get(url, format='json')
         self.assertGreater(len(response.data['results']['html']), 0)
+
+
+class PlebSenatorsTest(APITestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        create_user_util_test(self.email)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.address = Address(street="3295 Rio Vista St",
+                               city="Commerce Township", state="MI",
+                               postal_code="48382", country="US",
+                               congressional_district="11")
+        self.address.save()
+        self.address.owned_by.connect(self.pleb)
+        self.pleb.address.connect(self.address)
+
+    def test_unauthorized(self):
+        url = reverse('profile-senators',
+                      kwargs={'username': self.pleb.username})
+        data = {}
+        response = self.client.post(url, data, format='json')
+        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
+                                             status.HTTP_403_FORBIDDEN])
+
+    def test_missing_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-senators',
+                      kwargs={'username': self.pleb.username})
+        data = {}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_int_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-senators',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.post(url, 98897965, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_string_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-senators',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.post(url, 'asfonosdnf', format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_list_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-senators',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.post(url, [], format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_float_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-senators',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.post(url, 1.010101010, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_create_on_detail_status(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-senators',
+                      kwargs={'username': self.pleb.username})
+        data = {}
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.data['status_code'],
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_create_on_detail_message(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-senators',
+                      kwargs={'username': self.pleb.username})
+        data = {}
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.data['detail'], 'Method "POST" not allowed.')
+
+    def test_delete_status(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-senators',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.delete(url, format='json')
+        self.assertEqual(response.data['status_code'],
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_delete_message(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-senators',
+                      kwargs={'username': self.pleb.username})
+        data = {}
+        response = self.client.delete(url, data=data, format='json')
+        self.assertEqual(response.data['detail'],
+                         'Method "DELETE" not allowed.')
+
+    def test_empty_list(self):
+        cache.clear()
+        self.client.force_authenticate(user=self.user)
+        for senator in self.pleb.senators.all():
+            self.pleb.senators.disconnect(senator)
+        url = reverse('profile-senators',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual("<small>Sorry we could not find"
+                         " your Senators. Please alert us to our "
+                         "error!</small>", response.data)
+
+    def test_list_senators(self):
+        cache.clear()
+        self.client.force_authenticate(user=self.user)
+        senator1 = PublicOfficial(first_name="Debbie", last_name="Stab",
+                                  state="MI", bioguideid=shortuuid.uuid(),
+                                  full_name="Debbie Stab [Dem]")
+        senator1.save()
+        senator2 = PublicOfficial(first_name="Tester", last_name="Test",
+                                  state="MI", bioguideid=shortuuid.uuid())
+        senator2.save()
+        for senator in self.pleb.senators.all():
+            self.pleb.senators.disconnect(senator)
+        self.pleb.senators.connect(senator1)
+        self.pleb.senators.connect(senator2)
+        url = reverse('profile-senators',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertGreater(len(response.data), 0)
+
+    def test_list_senators_cache(self):
+        senator1 = PublicOfficial(first_name="Debbie", last_name="Stab",
+                                  state="MI", bioguideid=shortuuid.uuid(),
+                                  full_name="Debbie Stab [Dem]")
+        senator1.save()
+        senator2 = PublicOfficial(first_name="Tester", last_name="Test",
+                                  state="MI", bioguideid=shortuuid.uuid())
+        senator2.save()
+        for senator in self.pleb.senators.all():
+            self.pleb.senators.disconnect(senator)
+        self.pleb.senators.connect(senator1)
+        self.pleb.senators.connect(senator2)
+        self.client.force_authenticate(user=self.user)
+        query = "MATCH (a:Pleb {username: '%s'})-[:HAS_SENATOR]->" \
+                "(s:PublicOfficial) RETURN s" % self.user.username
+        res, col = db.cypher_query(query)
+        senators = [PublicOfficial.inflate(row[0]) for row in res]
+        cache.set("%s_senators" % self.user.username, senators)
+        url = reverse('profile-senators',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertGreater(len(response.data), 0)
+
+    def test_list_senators_html(self):
+        cache.clear()
+        self.client.force_authenticate(user=self.user)
+        senator1 = PublicOfficial(first_name="Debbie", last_name="Stab",
+                                  state="MI", bioguideid=shortuuid.uuid(),
+                                  full_name="Debbie Stab [Dem]")
+        senator1.save()
+        senator2 = PublicOfficial(first_name="Tester", last_name="Test",
+                                  state="MI", bioguideid=shortuuid.uuid())
+        senator2.save()
+        for senator in self.pleb.senators.all():
+            self.pleb.senators.disconnect(senator)
+        self.pleb.senators.connect(senator1)
+        self.pleb.senators.connect(senator2)
+        url = "%s?html=true" % reverse('profile-senators',
+                                       kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertGreater(len(response.data), 0)
+
+
+class PlebHouseRepresentativeTest(APITestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        create_user_util_test(self.email)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.address = Address(street="3295 Rio Vista St",
+                               city="Commerce Township", state="MI",
+                               postal_code="48382", country="US",
+                               congressional_district="11")
+        self.address.save()
+        self.address.owned_by.connect(self.pleb)
+        self.pleb.address.connect(self.address)
+
+    def test_unauthorized(self):
+        url = reverse('profile-house-representative',
+                      kwargs={'username': self.pleb.username})
+        data = {}
+        response = self.client.post(url, data, format='json')
+        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
+                                             status.HTTP_403_FORBIDDEN])
+
+    def test_missing_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-house-representative',
+                      kwargs={'username': self.pleb.username})
+        data = {}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_int_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-house-representative',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.post(url, 98897965, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_string_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-house-representative',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.post(url, 'asfonosdnf', format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_list_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-house-representative',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.post(url, [], format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_float_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-house-representative',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.post(url, 1.010101010, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_create_on_detail_status(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-house-representative',
+                      kwargs={'username': self.pleb.username})
+        data = {}
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.data['status_code'],
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_create_on_detail_message(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-house-representative',
+                      kwargs={'username': self.pleb.username})
+        data = {}
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.data['detail'], 'Method "POST" not allowed.')
+
+    def test_delete_status(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-house-representative',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.delete(url, format='json')
+        self.assertEqual(response.data['status_code'],
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_delete_message(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-house-representative',
+                      kwargs={'username': self.pleb.username})
+        data = {}
+        response = self.client.delete(url, data=data, format='json')
+        self.assertEqual(response.data['detail'],
+                         'Method "DELETE" not allowed.')
+
+    def test_empty_list(self):
+        cache.clear()
+        self.client.force_authenticate(user=self.user)
+        for senator in self.pleb.house_rep.all():
+            self.pleb.house_rep.disconnect(senator)
+        url = reverse('profile-house-representative',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual("<small>Sorry we could not find"
+                         " your House Representative. Please alert us to our "
+                         "error!</small>", response.data)
+
+    def test_list_house_representative(self):
+        cache.clear()
+        self.client.force_authenticate(user=self.user)
+        house_representative = PublicOfficial(
+            first_name="Debbie", last_name="Stab",
+            state="MI", bioguideid=shortuuid.uuid(),
+            full_name="Debbie Stab [Dem]",
+            district=11)
+        house_representative.save()
+        for senator in self.pleb.house_rep.all():
+            self.pleb.house_rep.disconnect(senator)
+        self.pleb.house_rep.connect(house_representative)
+        url = reverse('profile-house-representative',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertGreater(len(response.data), 0)
+
+    def test_list_house_representative_cache(self):
+        house_representative = PublicOfficial(
+            first_name="Debbie", last_name="Stab",
+            state="MI", bioguideid=shortuuid.uuid(),
+            full_name="Debbie Stab [Dem]",
+            district=11)
+        house_representative.save()
+        for house_representative in self.pleb.house_rep.all():
+            self.pleb.senators.disconnect(house_representative)
+        self.pleb.house_rep.connect(house_representative)
+        self.client.force_authenticate(user=self.user)
+        query = "MATCH (a:Pleb {username: '%s'})-" \
+                "[:HAS_HOUSE_REPRESENTATIVE]->" \
+                "(s:PublicOfficial) RETURN s" % self.user.username
+        res, col = db.cypher_query(query)
+        senators = [PublicOfficial.inflate(row[0]) for row in res]
+        cache.set("%s_senators" % self.user.username, senators)
+        url = reverse('profile-house-representative',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertGreater(len(response.data), 0)
+
+    def test_list_house_representative_html(self):
+        cache.clear()
+        self.client.force_authenticate(user=self.user)
+        house_representative = PublicOfficial(
+            first_name="Debbie", last_name="Stab",
+            state="MI", bioguideid=shortuuid.uuid(),
+            full_name="Debbie Stab [Dem]", district=11)
+        house_representative.save()
+        for house_rep in self.pleb.house_rep.all():
+            self.pleb.house_rep.disconnect(house_rep)
+        self.pleb.house_rep.connect(house_representative)
+        url = "%s?html=true" % reverse('profile-house-representative',
+                                       kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertGreater(len(response.data), 0)

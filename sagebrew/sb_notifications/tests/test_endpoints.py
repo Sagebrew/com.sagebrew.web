@@ -2,6 +2,7 @@ from dateutil import parser
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.core.cache import cache
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -106,6 +107,7 @@ class UserNotificationRetrieveTest(APITestCase):
 
     def test_list_with_items(self):
         self.client.force_authenticate(user=self.user)
+        cache.clear()
         notification = Notification(
             action_name="This is it! a notification").save()
         notification.notification_from.connect(self.pleb)
@@ -150,6 +152,7 @@ class UserNotificationRetrieveTest(APITestCase):
 
     def test_list_render_ids(self):
         self.client.force_authenticate(user=self.user)
+        cache.clear()
         notification = Notification(
             action_name="This is it! a notification").save()
         notification.notification_from.connect(self.pleb)
@@ -161,6 +164,7 @@ class UserNotificationRetrieveTest(APITestCase):
 
     def test_list_render_html(self):
         self.client.force_authenticate(user=self.user)
+        cache.clear()
         notification = Notification(
             action_name="This is it! a notification").save()
         notification.notification_from.connect(self.pleb)
@@ -170,8 +174,22 @@ class UserNotificationRetrieveTest(APITestCase):
         response = self.client.get(url, format='json')
         self.assertGreater(len(response.data['results']['html']), 0)
 
+    def test_list_render_html_cached(self):
+        self.client.force_authenticate(user=self.user)
+        cache.clear()
+        notification = Notification(
+            action_name="This is it! a notification").save()
+        cache.set('%s_notifications' % self.user.username, [notification, ])
+        notification.notification_from.connect(self.pleb)
+        notification.notification_to.connect(self.pleb)
+        self.pleb.notifications.connect(notification)
+        url = reverse('notification-render')
+        response = self.client.get(url, format='json')
+        self.assertGreater(len(response.data['results']['html']), 0)
+
     def test_get_id(self):
         self.client.force_authenticate(user=self.user)
+        cache.clear()
         notification = Notification(
             action_name="This is it! a notification").save()
         notification.notification_from.connect(self.pleb)

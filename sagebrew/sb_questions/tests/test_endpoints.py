@@ -184,7 +184,7 @@ class QuestionEndpointTests(APITestCase):
         url = reverse('question-detail',
                       kwargs={'object_uuid': self.question.object_uuid})
         response = self.client.get(url, format='json')
-        self.assertEqual("http://testserver/conversations/%s/"%
+        self.assertEqual("http://testserver/conversations/%s/" %
                          (self.question.object_uuid), response.data['url'])
 
     def test_get_vote_count(self):
@@ -206,7 +206,7 @@ class QuestionEndpointTests(APITestCase):
         url = reverse('question-detail',
                       kwargs={'object_uuid': self.question.object_uuid})
         response = self.client.get(url, format='json')
-        self.assertEqual("http://testserver/v1/questions/%s/"%
+        self.assertEqual("http://testserver/v1/questions/%s/" %
                          (self.question.object_uuid), response.data['href'])
 
     def test_get_type(self):
@@ -238,8 +238,8 @@ class QuestionEndpointTests(APITestCase):
         self.pleb.questions.connect(question)
         question.tags.connect(tag)
         self.client.force_authenticate(user=self.user)
-        url = reverse('question-list')+"?limit=5&offset=0&" \
-                                       "expand=true&tagged_as=fiscal"
+        url = reverse('question-list') + "?limit=5&offset=0&" \
+                                         "expand=true&tagged_as=fiscal"
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['results'][0]['tags'][0], 'fiscal')
@@ -251,8 +251,8 @@ class QuestionEndpointTests(APITestCase):
         question = Question(title='test_title', content='test_content').save()
         question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(question)
-        url = reverse('question-list')+"?limit=5&offset=0&" \
-                                       "expand=true&sort_by=-created"
+        url = reverse('question-list') + "?limit=5&offset=0&" \
+                                         "expand=true&sort_by=-created"
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
@@ -264,8 +264,8 @@ class QuestionEndpointTests(APITestCase):
         question = Question(title='test_title', content='test_content').save()
         question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(question)
-        url = reverse('question-list')+"?limit=5&offset=0&" \
-                                       "expand=true&sort_by=created"
+        url = reverse('question-list') + "?limit=5&offset=0&" \
+                                         "expand=true&sort_by=created"
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)

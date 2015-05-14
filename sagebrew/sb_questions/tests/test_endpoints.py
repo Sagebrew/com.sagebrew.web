@@ -217,6 +217,11 @@ class QuestionEndpointTests(APITestCase):
         self.assertEqual('question', response.data['type'])
 
     def test_get_list(self):
+        for question in Question.nodes.all():
+            question.delete()
+        question = Question(title='test_title', content='test_content').save()
+        question.owned_by.connect(self.pleb)
+        self.pleb.questions.connect(question)
         self.client.force_authenticate(user=self.user)
         url = reverse('question-list')
         response = self.client.get(url, format='json')
@@ -225,8 +230,13 @@ class QuestionEndpointTests(APITestCase):
         self.assertEqual(1, len(response.data['results']))
 
     def test_list_tagged_as(self):
+        for question in Question.nodes.all():
+            question.delete()
         tag = Tag(name='fiscal').save()
-        self.question.tags.connect(tag)
+        question = Question(title='test_title', content='test_content').save()
+        question.owned_by.connect(self.pleb)
+        self.pleb.questions.connect(question)
+        question.tags.connect(tag)
         self.client.force_authenticate(user=self.user)
         url = reverse('question-list')+"?limit=5&offset=0&" \
                                        "expand=true&tagged_as=fiscal"
@@ -235,6 +245,8 @@ class QuestionEndpointTests(APITestCase):
         self.assertEqual(response.data['results'][0]['tags'][0], 'fiscal')
 
     def test_list_most_recent(self):
+        for question in Question.nodes.all():
+            question.delete()
         self.client.force_authenticate(user=self.user)
         question = Question(title='test_title', content='test_content').save()
         question.owned_by.connect(self.pleb)
@@ -243,9 +255,11 @@ class QuestionEndpointTests(APITestCase):
                                        "expand=true&sort_by=-created"
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 2)
+        self.assertEqual(len(response.data['results']), 1)
 
     def test_list_least_recent(self):
+        for question in Question.nodes.all():
+            question.delete()
         self.client.force_authenticate(user=self.user)
         question = Question(title='test_title', content='test_content').save()
         question.owned_by.connect(self.pleb)
@@ -254,4 +268,4 @@ class QuestionEndpointTests(APITestCase):
                                        "expand=true&sort_by=created"
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 2)
+        self.assertEqual(len(response.data['results']), 1)

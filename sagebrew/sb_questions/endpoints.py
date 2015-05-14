@@ -40,12 +40,19 @@ class QuestionViewSet(viewsets.ModelViewSet):
         sort_by, ordering = get_ordering(sort_by)
         query = "MATCH (n:`Question`)%s WHERE n.to_be_deleted=false RETURN " \
                 "n %s %s" % (tagged_as, sort_by, ordering)
+        if sort_by == "" or sort_by == "vote_count":
+            query = "MATCH (n:`Question`)%s " \
+                    "OPTIONAL MATCH (n:`Question`)-[vs:PLEB_VOTES]-() " \
+                    "WHERE n.to_be_deleted=false RETURN " \
+                    "n, reduce(vote_count = 0, v in collect(vs)| " \
+                    "CASE WHEN v.active=false THEN vote_count " \
+                    "WHEN v.vote_type=True THEN vote_count+1 " \
+                    "WHEN v.vote_type=False THEN vote_count-1  " \
+                    "ELSE vote_count END) as reduction " \
+                    "ORDER BY reduction DESC" % \
+                    (tagged_as)
         res, col = db.cypher_query(query)
         queryset = [Question.inflate(row[0]) for row in res]
-        if sort_by == "" or sort_by == "vote_count":
-            queryset = sorted(queryset, key=lambda k: k.get_vote_count(),
-                              reverse=True)
-
         return queryset
 
     def get_object(self):

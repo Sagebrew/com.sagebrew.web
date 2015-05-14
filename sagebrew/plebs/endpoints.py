@@ -364,12 +364,16 @@ class FriendRequestViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        filter_by = self.request.query_params.get("filter", "")
-        filtered = get_filter_by(filter_by)
-        query = "MATCH (p:Pleb {username:'%s'})-%s-(r:FriendRequest) RETURN r" \
-                % (self.request.user.username, filtered)
-        res, col = db.cypher_query(query)
-        return [FriendRequest.inflate(row[0]) for row in res]
+        friend_requests = cache.get("%s_friend_requests" %
+                                    (self.request.user.username))
+        if friend_requests is None:
+            filter_by = self.request.query_params.get("filter", "")
+            filtered = get_filter_by(filter_by)
+            query = "MATCH (p:Pleb {username:'%s'})-%s-(r:FriendRequest) RETURN r" \
+                    % (self.request.user.username, filtered)
+            res, col = db.cypher_query(query)
+            friend_requests = [FriendRequest.inflate(row[0]) for row in res]
+        return friend_requests
 
     def get_object(self):
         return FriendRequest.nodes.get(

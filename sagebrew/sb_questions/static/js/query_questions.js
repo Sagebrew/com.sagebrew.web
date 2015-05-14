@@ -1,6 +1,6 @@
 $(document).ready(function () {
+    $(".sb_border_question").spin("small");
     function loadQuestionSummaries(url) {
-        $(".sb_border_question").spin("small");
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "GET",
@@ -29,7 +29,6 @@ $(document).ready(function () {
             taggedAs = "";
         }
         $(".sb_border_question").spin('small');
-
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "GET",
@@ -49,7 +48,6 @@ $(document).ready(function () {
             },
             error: function (XMLHttpRequest) {
                 errorDisplay(XMLHttpRequest);
-                $(".sb_border_question").spin(false);
             }
         });
     });

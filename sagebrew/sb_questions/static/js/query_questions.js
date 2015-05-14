@@ -45,7 +45,7 @@ $(document).ready(function () {
                 } else {
                     $("#js-no_result").hide();
                 }
-                enable_question_functionality([data.results.ids]);
+                enableQuestionFunctionality([data.results.ids]);
             },
             error: function (XMLHttpRequest) {
                 errorDisplay(XMLHttpRequest);

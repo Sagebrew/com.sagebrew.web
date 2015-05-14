@@ -1,6 +1,7 @@
 /*global $, jQuery, ajaxSecurity, getUrlParameter, errorDisplay*/
-$( document ).ready(function() {
-    function singupFxn() {
+$(document).ready(function () {
+    var submitButton = $("#submit_signup");
+    function signupFxn() {
         $("#submit_signup").click(function (event) {
             $(this).attr("disabled", "disabled");
             event.preventDefault();
@@ -32,5 +33,38 @@ $( document ).ready(function() {
             });
         });
     }
+    submitButton.on('click', function () {
+        signupFxn();
+    });
+    $('#f_name').keyup(function (e) {
+        if (e.which === 10 || e.which === 13) {
+            signupFxn();
+        }
+    });
+    $('#l_name').keyup(function (e) {
+        if (e.which === 10 || e.which === 13) {
+            signupFxn();
+        }
+    });
+    $('#email').keyup(function (e) {
+        if (e.which === 10 || e.which === 13) {
+            signupFxn();
+        }
+    });
+    $('#password').keyup(function (e) {
+        if (e.which === 10 || e.which === 13) {
+            signupFxn();
+        }
+    });
+    $('#password2').keyup(function (e) {
+        if (e.which === 10 || e.which === 13) {
+            signupFxn();
+        }
+    });
+    $('#birthday').keyup(function (e) {
+        if (e.which === 10 || e.which === 13) {
+            signupFxn();
+        }
+    });
 });
 

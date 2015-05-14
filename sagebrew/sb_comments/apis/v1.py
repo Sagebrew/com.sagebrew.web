@@ -5,6 +5,7 @@ from sb_comments.endpoints import (ObjectCommentsRetrieveUpdateDestroy,
 
 urlpatterns = patterns(
     'sb_comments.endpoints',
+    # This one handles deleting and editing comments
     url(r'^comments/(?P<comment_uuid>[A-Za-z0-9.@_%+-]{36,36})/$',
         ObjectCommentsRetrieveUpdateDestroy.as_view(), name="comment-detail"),
     # Adding in for flags/votes/etc but must be a cleaner process

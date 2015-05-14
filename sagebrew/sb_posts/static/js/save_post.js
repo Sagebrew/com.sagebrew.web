@@ -1,4 +1,4 @@
-/*global $, jQuery, enable_single_post_functionality*/
+/*global $, jQuery, enableSinglePostFunctionality, errorDisplay*/
 $(document).ready(function () {
     "use strict";
     // This function hits the Post API and saves off a given post from a user
@@ -19,7 +19,7 @@ $(document).ready(function () {
                 $('textarea#post_input_id').val("");
                 $("#wall_app").prepend(data.html);
                 $("#sb_btn_post").removeAttr("disabled");
-                enable_single_post_functionality(data.ids);
+                enableSinglePostFunctionality(data.ids);
                 var placeHolder = $("#js-wall_temp_message");
                 if (placeHolder !== undefined) {
                     placeHolder.remove();

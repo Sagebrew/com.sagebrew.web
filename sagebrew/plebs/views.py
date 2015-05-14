@@ -188,7 +188,7 @@ def get_user_search_view(request, pleb_username=""):
                                 status=status.HTTP_404_NOT_FOUND)
             cache.set(pleb_username, profile)
         if current_user is None:
-            profile = Pleb.nodes.get(username=request.user.username)
+            current_user = Pleb.nodes.get(username=request.user.username)
 
         if profile in current_user.friends.all():
             is_friend = True

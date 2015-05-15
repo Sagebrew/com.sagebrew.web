@@ -982,6 +982,7 @@ class FriendRequestListTest(APITestCase):
 
     def test_empty_list(self):
         self.client.force_authenticate(user=self.user)
+        cache.clear()
         for friend_request in self.pleb.friend_requests_received.all():
             friend_request.delete()
         url = reverse('friend_request-list')
@@ -990,6 +991,7 @@ class FriendRequestListTest(APITestCase):
 
     def test_list_with_items(self):
         self.client.force_authenticate(user=self.user)
+        cache.clear()
         friend_request = FriendRequest().save()
         friend_request.request_from.connect(self.pleb)
         friend_request.request_to.connect(self.pleb)
@@ -1000,6 +1002,7 @@ class FriendRequestListTest(APITestCase):
 
     def test_list_seen_api(self):
         self.client.force_authenticate(user=self.user)
+        cache.clear()
         friend_request = FriendRequest().save()
         friend_request.request_from.connect(self.pleb)
         friend_request.request_to.connect(self.pleb)
@@ -1010,6 +1013,7 @@ class FriendRequestListTest(APITestCase):
 
     def test_list_seen_render(self):
         self.client.force_authenticate(user=self.user)
+        cache.clear()
         friend_request = FriendRequest().save()
         friend_request.request_from.connect(self.pleb)
         friend_request.request_to.connect(self.pleb)
@@ -1020,6 +1024,7 @@ class FriendRequestListTest(APITestCase):
 
     def test_list_render_unseen(self):
         self.client.force_authenticate(user=self.user)
+        cache.clear()
         friend_request = FriendRequest().save()
         friend_request.request_from.connect(self.pleb)
         friend_request.request_to.connect(self.pleb)
@@ -1030,6 +1035,7 @@ class FriendRequestListTest(APITestCase):
 
     def test_list_render_ids(self):
         self.client.force_authenticate(user=self.user)
+        cache.clear()
         friend_request = FriendRequest().save()
         friend_request.request_from.connect(self.pleb)
         friend_request.request_to.connect(self.pleb)
@@ -1040,6 +1046,7 @@ class FriendRequestListTest(APITestCase):
 
     def test_list_render_html(self):
         self.client.force_authenticate(user=self.user)
+        cache.clear()
         friend_request = FriendRequest().save()
         friend_request.request_from.connect(self.pleb)
         friend_request.request_to.connect(self.pleb)

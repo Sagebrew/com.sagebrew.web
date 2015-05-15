@@ -373,6 +373,8 @@ class FriendRequestViewSet(viewsets.ModelViewSet):
                     % (self.request.user.username, filtered)
             res, col = db.cypher_query(query)
             friend_requests = [FriendRequest.inflate(row[0]) for row in res]
+            cache.set("%s_friend_requests" % (self.request.user.username),
+                      friend_requests)
         return friend_requests
 
     def get_object(self):

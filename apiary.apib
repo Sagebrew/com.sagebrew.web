@@ -6,6 +6,41 @@ Notes API is a *short texts saving* service similar to its physical paper presen
 # Group Notes
 Notes related resources of the **Notes API**
 
+## Campaign Collection [/v1/campaigns]
+### List all Campaigns [GET]
++ Response 200 (application/json)
+
+        {
+            "count": 1,
+            "next": null,
+            "previous": null,
+            "results": [
+                {
+                    "id": "9228182c-fb47-11e4-bf52-080027242395",
+                    "type": "campaign",
+                    "stripe_id": "1994",
+                    "active": true,
+                    "biography": "This is me, Tyler, and I am running for office.",
+                    "facebook": "",
+                    "linkedin": "",
+                    "youtube": "",
+                    "twitter": "",
+                    "website": "",
+                    "wallpaper_pic": "https://sagebrew-master.s3.amazonaws.com/profile_pictures/cb2021c9-b240-20cb-ca44-8a3d4bdba022-1398x250.jpeg",
+                    "profile_pic": "https://sagebrew-master.s3.amazonaws.com/profile_pictures/21a74edb-cd5c-7b39-c0fd-3c9ce8208e6c-198x198.jpeg",
+                    "url": "https://sagebrew.local.dev/action/tyler_wiersing1/",
+                    "href": "https://sagebrew.local.dev/v1/campaigns/9228182c-fb47-11e4-bf52-080027242395/",
+                    "goals": null,
+                    "rounds": null,
+                    "updates": null,
+                    "editors": "https://sagebrew.local.dev/v1/campaigns/9228182c-fb47-11e4-bf52-080027242395/editors/",
+                    "accountants": "https://sagebrew.local.dev/v1/campaigns/9228182c-fb47-11e4-bf52-080027242395/accountants/",
+                    "votes": null,
+                    "vote_count": null
+                }
+            ]
+        }
+
 ## Notes Collection [/notes]
 ### List all Notes [GET]
 + Response 200 (application/json)

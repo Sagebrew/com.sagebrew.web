@@ -79,7 +79,6 @@ class Command(BaseCommand):
         f = open("/etc/nginx/sites-available/%s.conf" % env, "w")
         f.write(data)
         f.close()
-        self.stdout.write(data)
         if os.path.isfile("/etc/nginx/sites-enabled/%s.conf" % env):
             os.remove("/etc/nginx/sites-enabled/%s.conf" % env)
         call("sudo ln -s /etc/nginx/sites-available/%s.conf" % (env) +

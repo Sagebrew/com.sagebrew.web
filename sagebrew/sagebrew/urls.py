@@ -67,6 +67,7 @@ urlpatterns = patterns(
     (r'^v1/', include('sb_privileges.apis.v1')),
     (r'^v1/', include('sb_tags.apis.v1')),
     (r'^v1/', include('sb_uploads.apis.v1')),
+    (r'^v1/', include('sb_campaigns.apis.v1')),
     url(r'^$', beta_page, name='beta_page'),
 )
 

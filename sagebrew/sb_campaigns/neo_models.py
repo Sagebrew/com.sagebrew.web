@@ -1,3 +1,5 @@
+from rest_framework.reverse import reverse
+
 from neomodel import (StringProperty, RelationshipTo, BooleanProperty,
                       IntegerProperty)
 
@@ -76,6 +78,11 @@ class Campaign(Searchable):
     editors = RelationshipTo('plebs.neo_models.Pleb', 'CAN_BE_EDITED_BY')
     accountants = RelationshipTo('plebs.neo_models.Pleb',
                                  'CAN_VIEW_MONETARY_DATA')
+
+    def get_url(self, request=None):
+        return reverse('action_saga',
+                       kwargs={"username": self.owned_by.all()[0].username},
+                       request=request)
 
 
 class PoliticalCampaign(Campaign):

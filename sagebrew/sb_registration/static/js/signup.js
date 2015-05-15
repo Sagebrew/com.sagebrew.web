@@ -1,8 +1,9 @@
-$( document ).ready(function() {
-	$("#submit_signup").click(function(event){
-        $(this).attr("disabled", "disabled");
+/*global $, jQuery, ajaxSecurity, getUrlParameter, errorDisplay*/
+$(document).ready(function () {
+    var submitButton = $("#submit_signup");
+    function signupFxn() {
+        submitButton.attr("disabled", "disabled");
         event.preventDefault();
-
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
@@ -17,19 +18,51 @@ $( document ).ready(function() {
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
-            success: function (data, xhr) {
-                if (data['detail'] === 'success'){
+            success: function (data) {
+                if (data.detail === 'success') {
                     window.location.href = "/registration/signup/confirm/";
-                }
-                else {
+                } else {
                     $("#submit_signup").removeAttr("disabled");
                 }
             },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
+            error: function (XMLHttpRequest) {
                 $("#submit_signup").removeAttr("disabled");
                 errorDisplay(XMLHttpRequest);
             }
         });
-	});
+    }
+    submitButton.on('click', function () {
+        signupFxn();
+    });
+    $('#f_name').keyup(function (e) {
+        if (e.which === 10 || e.which === 13) {
+            signupFxn();
+        }
+    });
+    $('#l_name').keyup(function (e) {
+        if (e.which === 10 || e.which === 13) {
+            signupFxn();
+        }
+    });
+    $('#email').keyup(function (e) {
+        if (e.which === 10 || e.which === 13) {
+            signupFxn();
+        }
+    });
+    $('#password').keyup(function (e) {
+        if (e.which === 10 || e.which === 13) {
+            signupFxn();
+        }
+    });
+    $('#password2').keyup(function (e) {
+        if (e.which === 10 || e.which === 13) {
+            signupFxn();
+        }
+    });
+    $('#birthday').keyup(function (e) {
+        if (e.which === 10 || e.which === 13) {
+            signupFxn();
+        }
+    });
 });
 

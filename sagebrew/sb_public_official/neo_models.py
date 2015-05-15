@@ -70,33 +70,6 @@ class PublicOfficial(Searchable):
     term = RelationshipTo('govtrack.neo_models.Term', 'SERVED_TERM')
     current_term = RelationshipTo('govtrack.neo_models.Term', 'CURRENT_TERM')
 
-    def get_dict(self):
-        crop_name = str(self.full_name).rfind('[')
-        try:
-            full_name = self.full_name[:crop_name]
-        except IndexError:
-            full_name = self.full_name
-        try:
-            bioguideid = self.gt_person.all()[0].bioguideid
-        except IndexError:
-            bioguideid = None
-        return {
-            "object_uuid": self.object_uuid,
-            "full_name": full_name,
-            "first_name": self.first_name,
-            "last_name": self.last_name,
-            "start_date": unicode(self.start_date),
-            "end_date": unicode(self.end_date),
-            "state": self.state,
-            "title": self.title,
-            "district": self.district,
-            "current": self.current,
-            "bioguide": bioguideid,
-            "terms": self.terms,
-            "youtube": self.youtube,
-            "twitter": self.twitter,
-            "channel_wallpaper": None
-        }
 
 '''
 class Bill(StructuredNode):

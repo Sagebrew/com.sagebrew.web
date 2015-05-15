@@ -1,5 +1,7 @@
 from logging import getLogger
 
+from django.core.cache import cache
+
 from neomodel import DoesNotExist, CypherException
 
 from .neo_models import Notification, NotificationCapable
@@ -44,7 +46,12 @@ def create_notification_util(sb_object, from_pleb, to_plebs, notification_id,
         notification.notification_from.connect(from_pleb)
         for pleb in to_plebs:
             notification.notification_to.connect(pleb)
+            # Set notifications to none here so that the next time the user
+            # queries their page it refreshes. If we set this to the
+            # notification list there is a chance for a race condition and the
+            # user does not see all of their notifications.
             pleb.notifications.connect(notification)
+            cache.delete("%s_notifications" % pleb.username)
         notification.sent = True
         notification.save()
 

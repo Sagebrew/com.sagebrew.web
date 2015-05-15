@@ -10,7 +10,7 @@ from .utils import crop_image
 @shared_task()
 def crop_image_task(image, height, width, x, y, pleb, f_uuid=None):
     try:
-        pleb = Pleb.nodes.get(username=pleb)
+        pleb = Pleb.get(username=pleb)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
         raise crop_image_task.retry(exc=e, countdown=3, max_retries=None)
     res = crop_image(image, int(height), int(width), int(x), int(y), f_uuid)

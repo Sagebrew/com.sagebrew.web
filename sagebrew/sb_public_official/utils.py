@@ -69,7 +69,7 @@ def get_rep_type(rep_type):
 def save_rep(pleb_username, rep_type, rep_id, recipient_id, gov_phone,
              customer_id=None):
     try:
-        pleb = Pleb.nodes.get(username=pleb_username)
+        pleb = Pleb.get(username=pleb_username)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
         return e
     temp_type = dict(settings.BASE_REP_TYPES)[rep_type]
@@ -125,6 +125,7 @@ def determine_reps(username):
         if rep.district == pleb_district:
             try:
                 pleb.house_rep.connect(rep)
+                cache.set("%s_house_representative" % username, rep)
             except (CypherException, IOError):
                 logger.exception("Determine Reps Cypher Exception")
                 return False
@@ -134,7 +135,8 @@ def determine_reps(username):
             except (CypherException, IOError):
                 logger.exception("Determine Reps Cypher Exception")
                 return False
-            senators.append(rep.object_uuid)
+            senators.append(rep)
+    cache.set("%s_senators" % username, senators)
     # Need this as neomodel does not currently support spawning post_save
     # after connections
     cache.set(pleb.username, pleb)

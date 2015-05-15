@@ -166,7 +166,7 @@ class ProfilePageTest(TestCase):
         request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
         response = profile_page(request, self.pleb.username)
-        self.assertEqual(response.status_code, 200)
+        self.assertIn(response.status_code, [302, 200])
         for item in pleb_array:
             item.delete()
         for post in post_array:

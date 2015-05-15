@@ -1,3 +1,5 @@
+from django.core.cache import cache
+
 from neomodel import DoesNotExist, CypherException
 
 from sb_base.decorators import apply_defense
@@ -15,8 +17,8 @@ def create_friend_request_util(from_username, to_username, object_uuid):
     """
     try:
         try:
-            from_citizen = Pleb.nodes.get(username=from_username)
-            to_citizen = Pleb.nodes.get(username=to_username)
+            from_citizen = Pleb.get(username=from_username)
+            to_citizen = Pleb.get(username=to_username)
         except(Pleb.DoesNotExist, DoesNotExist) as e:
             return e
         except(CypherException, IOError) as e:
@@ -40,6 +42,7 @@ def create_friend_request_util(from_username, to_username, object_uuid):
         friend_request.request_to.connect(to_citizen)
         from_citizen.friend_requests_sent.connect(friend_request)
         to_citizen.friend_requests_received.connect(friend_request)
+        cache.delete("%s_friend_requests" % (to_citizen.username))
         return True
     except(CypherException, KeyError) as e:
         return e

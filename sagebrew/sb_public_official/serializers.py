@@ -32,6 +32,8 @@ class PublicOfficialSerializer(SBSerializer):
             return obj.state
 
     def get_full_name(self, obj):
+        if obj.full_name is None:
+            return None
         try:
             crop_name = str(obj.full_name).rfind('[')
         except UnicodeEncodeError:

@@ -6,7 +6,10 @@
     {% block description %}{% endblock description %}
     {% block css %}
     <link rel="stylesheet" href="{% static 'css/vendor/font-awesome-4.3.0/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/vendor/formValidation.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/vendor/animate.min.css' %}">
     <link rel="stylesheet" href="{% static 'dist/build/styles.css' %}"/>
+
     {% endblock css %}
 
     <script type="text/javascript">
@@ -51,13 +54,14 @@
     {% block scripts %}
     <script src="{% static 'js/vendor/jquery-2.1.4.min.js' %}"></script>
     <script src="{% static 'js/vendor/bootstrap.min.js' %}"></script>
-
-    <script src="{% static 'js/vendor/bootstrapValidator.min.js' %}"></script>
+    <script src="{% static 'js/vendor/formValidation.min.js' %}"></script>
+    <script src="{% static 'js/vendor/framework/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/vendor/imagesloaded.pkgd.min.js' %}"></script>
     <script src="{% static 'js/vendor/packery.pkgd.min.js' %}"></script>
     <script src="{% static 'js/vendor/spin.min.js' %}"></script>
     <script src="{% static 'js/vendor/jquery.spin.js' %}"></script>
     <script src="{% static 'js/sb_utils.js' %}"></script>
+    <script src="{% static 'js/vendor/bootstrap-notify.min.js' %}"></script>
     {% if user.is_authenticated and "/registration/" not in request.path %}
         <script src="{% static 'js/page_exit.js' %}"></script>
         <script src="{% static 'js/friend_requests.js' %}"></script>

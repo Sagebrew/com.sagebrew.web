@@ -73,7 +73,7 @@ $(document).ready(function(){
             dataType: "json",
             success: function (data) {
                 $(settings_area).removeAttr("disabled");
-                alert('Profile Updated Successfully!');
+                $.notify({message: 'Profile Updated Successfully!'}, {type: 'success'});
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 $(settings_area).removeAttr("disabled");

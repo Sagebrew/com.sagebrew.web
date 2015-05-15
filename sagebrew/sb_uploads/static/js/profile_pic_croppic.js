@@ -22,13 +22,12 @@ $(document).ready(function () {
                 contentType: 'application/json',
                 processData: false,
                 success: function () {
-                    $("#profile_pic").attr("src", imageUrl);
+                    cropContainerEyecandy.reset();
                 },
-                error: function () {
-                    $('.alert-dismissible').show();
+                error: function (XMLHttpRequest) {
+                    errorDisplay(XMLHttpRequest);
                 }
             });
-            cropContainerEyecandy.reset();
         },
         onError: function (errormsg) {
             var fileSizeError = errormsg.responseJSON.file_size,
@@ -40,7 +39,8 @@ $(document).ready(function () {
             if (typeof fileSizeError === "undefined" || fileSizeError === null) {
                 fileSizeError = "";
             }
-            alert(fileSizeError + "\n" + fileFormatError);
+            $.notify({message: fileSizeError + "\n" + fileFormatError},
+                {type: 'danger'});
         },
         onReset: function () {
             $.ajax({
@@ -49,8 +49,8 @@ $(document).ready(function () {
                 url: "/v1/upload/" + fileName + "/",
                 cache: false,
                 processData: false,
-                error: function () {
-                    $('.alert-dismissible').show();
+                error: function (XMLHttpRequest) {
+                    errorDisplay(XMLHttpRequest);
                 }
             });
             $.ajax({
@@ -60,16 +60,17 @@ $(document).ready(function () {
                 cache: false,
                 processData: false,
                 success: function (data) {
+                    console.log(data);
                     var profileImg = $("#profile_pic");
                     if (profileImg.length === 0) {
                         $(".croppedImg").remove();
-                        $("#cropProfilePageEyecandy").append('<img id="profile_pic" src="' + data.profile_pic + '">');
+                        $("#cropProfilePageEyecandy").append('<img id="profile_pic" src="' + data.profile_pic + "?" + new Date().getTime() + '">');
                     } else {
                         profileImg.attr('src', data.profile_pic);
                     }
                 },
-                error: function () {
-                    $('.alert-dismissible').show();
+                error: function (XMLHttpRequest) {
+                    errorDisplay(XMLHttpRequest);
                 }
             });
 

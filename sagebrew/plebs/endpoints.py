@@ -2,6 +2,7 @@ from dateutil import parser
 from elasticsearch import Elasticsearch, NotFoundError
 
 from django.template.loader import render_to_string
+from django.templatetags.static import static
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
 from django.core.cache import cache
@@ -29,6 +30,7 @@ from sb_questions.neo_models import Question
 from sb_questions.serializers import QuestionSerializerNeo
 from sb_votes.serializers import VoteSerializer
 from sb_public_official.serializers import PublicOfficialSerializer
+from sb_public_official.neo_models import PublicOfficial
 
 from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
                           FriendRequestSerializer)
@@ -249,7 +251,14 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, ))
     def senators(self, request, username=None):
-        senators = self.get_object().senators.all()
+        # TODO this may be able to be refined to [:REPRESENTED_BY]->(s:Senator)
+        senators = cache.get("%s_senators" % username)
+        if senators is None:
+            query = "MATCH (a:Pleb {username: '%s'})-[:HAS_SENATOR]->" \
+                    "(s:PublicOfficial) RETURN s" % username
+            res, col = db.cypher_query(query)
+            senators = [PublicOfficial.inflate(row[0]) for row in res]
+            cache.set("%s_senators" % username, senators)
         if len(senators) == 0:
             return Response("<small>Sorry we could not find your "
                             "Senators. Please alert us to our error!"
@@ -262,35 +271,35 @@ class ProfileViewSet(viewsets.ModelViewSet):
                     render_to_string('sb_home_section/sb_senator_block.html',
                                      PublicOfficialSerializer(sen).data))
             return Response(sen_html, status=status.HTTP_200_OK)
-        return Response(senators, status=status.HTTP_200_OK)
+        return Response(PublicOfficialSerializer(senators, many=True).data,
+                        status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, ))
-    def house_rep(self, request, username=None):
-        try:
-            house_rep = self.get_object().house_rep.all()[0]
-        except IndexError:
-            return Response("<small>Sorry we could not find your "
-                            "representative. Please alert us to our error!"
-                            "</small>", status=status.HTTP_200_OK)
+    def house_representative(self, request, username=None):
+        # TODO this may be able to be refined to
+        # [:REPRESENTED_BY]->(s:HouseRepresentative)
+        house_rep = cache.get("%s_house_representative" % username)
+        if house_rep is None:
+            query = "MATCH (a:Pleb {username: '%s'})-" \
+                    "[:HAS_HOUSE_REPRESENTATIVE]->" \
+                    "(s:PublicOfficial) RETURN s" % username
+            res, col = db.cypher_query(query)
+            try:
+                house_rep = PublicOfficial.inflate(res[0][0])
+                cache.set("%s_house_representative" % username, house_rep)
+            except IndexError:
+                return Response("<small>Sorry we could not find your "
+                                "House Representative. Please alert us to "
+                                "our error!</small>",
+                                status=status.HTTP_200_OK)
         html = self.request.QUERY_PARAMS.get('html', 'false').lower()
         if html == 'true':
             house_rep_html = render_to_string(
                 'sb_home_section/sb_house_rep_block.html',
                 PublicOfficialSerializer(house_rep).data)
             return Response(house_rep_html, status=status.HTTP_200_OK)
-        return Response(house_rep, status=status.HTTP_200_OK)
-
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
-    def address(self, request, username=None):
-        single_object = self.get_object()
-        try:
-            address = single_object.address.all()[0]
-        except(IndexError):
-            return Response(errors.CYPHER_INDEX_EXCEPTION,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        address_serializer = AddressSerializer(address,
-                                               context={'request': request})
-        return Response(address_serializer.data, status=status.HTTP_200_OK)
+        return Response(PublicOfficialSerializer(house_rep).data,
+                        status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def is_beta_user(self, request, username=None):
@@ -333,6 +342,15 @@ class MeRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     def get_object(self):
         return Pleb.get(self.request.user.username)
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        serializer_data = dict(serializer.data)
+        if serializer_data['wallpaper_pic'] is None:
+            serializer_data['wallpaper_pic'] = static(
+                'images/wallpaper_western.jpg')
+        return Response(serializer_data)
+
 
 class FriendRequestViewSet(viewsets.ModelViewSet):
     """
@@ -346,12 +364,18 @@ class FriendRequestViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        filter_by = self.request.query_params.get("filter", "")
-        filtered = get_filter_by(filter_by)
-        query = "MATCH (p:Pleb {username:'%s'})-%s-(r:FriendRequest) RETURN r" \
-                % (self.request.user.username, filtered)
-        res, col = db.cypher_query(query)
-        return [FriendRequest.inflate(row[0]) for row in res]
+        friend_requests = cache.get("%s_friend_requests" %
+                                    (self.request.user.username))
+        if friend_requests is None:
+            filter_by = self.request.query_params.get("filter", "")
+            filtered = get_filter_by(filter_by)
+            query = "MATCH (p:Pleb {username:'%s'})-%s-(r:FriendRequest) RETURN r" \
+                    % (self.request.user.username, filtered)
+            res, col = db.cypher_query(query)
+            friend_requests = [FriendRequest.inflate(row[0]) for row in res]
+            cache.set("%s_friend_requests" % (self.request.user.username),
+                      friend_requests)
+        return friend_requests
 
     def get_object(self):
         return FriendRequest.nodes.get(

@@ -10,12 +10,10 @@ $(document).ready(function () {
             var container = $("#friend_requests");
             container.empty();
             container.append(data);
-            respond_friend_request();
+            respondFriendRequest();
         },
-        error: function(XMLHttpRequest, textStatus, errorThrown) {
-            if(XMLHttpRequest.status === 500){
-                $("#server_error").show();
-            }
+        error: function(XMLHttpRequest) {
+            errorDisplay(XMLHttpRequest);
         }
     });
 });

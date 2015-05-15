@@ -34,9 +34,7 @@ $(document).ready(function () {
             },
             error: function (XMLHttpRequest) {
                 $("#flag_modal_submit").removeAttr("disabled");
-                if (XMLHttpRequest.status === 500) {
-                    $("#server_error").show();
-                }
+                errorDisplay(XMLHttpRequest);
             }
         });
     });

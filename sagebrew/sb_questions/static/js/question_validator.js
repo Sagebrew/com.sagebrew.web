@@ -1,18 +1,20 @@
 $(document).ready(function(){
-    $("#questionInputForm").bootstrapValidator({
+    $("#questionInputForm").formValidation({
         framework: 'bootstrap',
         err: {
-            container: '#fname_errors'
+            container: '#validation_errors'
         },
-        feedbackIcons: {
+        icon: {
             valid: 'glyphicon glyphicon-ok',
             validating: 'glyphicon glyphicon-refresh'
         },
         live: 'enabled',
-        submitButtons: '.submit_question-action',
+        button: {
+            selector: '.submit_question-action'
+        },
         fields: {
             title: {
-                group: 'title_input',
+                row: 'title_input',
                 validators: {
                     notEmpty: {
                         message: "Title is required"
@@ -25,7 +27,7 @@ $(document).ready(function(){
                 }
             },
             question_content: {
-                group: 'question_content_input',
+                row: 'question_content_input',
                 validators: {
                     notEmpty: {
                         message: "Content is required"
@@ -35,7 +37,15 @@ $(document).ready(function(){
                         message: "Content must be at least 15 characters long"
                     }
                 }
+            },
+            tag_box: {
+                row: 'twitter-typeahead',
+                validators: {
+                    notEmpty: {
+                        message: "Tags are required"
+                    }
+                }
             }
         }
-    })
+    });
 });

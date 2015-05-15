@@ -61,8 +61,8 @@ def profile_page(request, pleb_username=""):
     :return:
     """
     try:
-        citizen = Pleb.nodes.get(username=request.user.username)
-        page_user_pleb = Pleb.nodes.get(username=pleb_username)
+        citizen = Pleb.get(username=request.user.username)
+        page_user_pleb = Pleb.get(username=pleb_username)
     except (Pleb.DoesNotExist, DoesNotExist):
         return redirect('404_Error')
     except(CypherException):
@@ -94,8 +94,8 @@ def profile_page(request, pleb_username=""):
 @login_required()
 def friend_page(request, pleb_username):
     try:
-        citizen = Pleb.nodes.get(username=request.user.username)
-        page_user_pleb = Pleb.nodes.get(username=pleb_username)
+        citizen = Pleb.get(username=request.user.username)
+        page_user_pleb = Pleb.get(username=pleb_username)
     except (Pleb.DoesNotExist, DoesNotExist):
         return redirect('404_Error')
     except(CypherException):
@@ -148,7 +148,7 @@ def general_settings(request):
     :return:
     """
     try:
-        pleb = Pleb.nodes.get(username=request.user.username)
+        pleb = Pleb.get(username=request.user.username)
     except (DoesNotExist, Pleb.DoesNotExist):
         return redirect("404_Error")
     except (CypherException, IOError):
@@ -188,7 +188,7 @@ def get_user_search_view(request, pleb_username=""):
                                 status=status.HTTP_404_NOT_FOUND)
             cache.set(pleb_username, profile)
         if current_user is None:
-            profile = Pleb.nodes.get(username=request.user.username)
+            current_user = Pleb.nodes.get(username=request.user.username)
 
         if profile in current_user.friends.all():
             is_friend = True

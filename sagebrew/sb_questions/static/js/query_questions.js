@@ -1,6 +1,6 @@
 $(document).ready(function () {
+    $(".sb_border_question").spin("small");
     function loadQuestionSummaries(url) {
-
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "GET",
@@ -8,11 +8,12 @@ $(document).ready(function () {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
+                $(".sb_border_question").spin(false);
                 $("#question_wrapper").append(data.results.html);
                 if (data.next !== null) {
                     loadQuestionSummaries(data.next);
                 }
-                enable_question_summary_functionality(data.results.ids);
+                enableQuestionSummaryFunctionality(data.results.ids);
             }
         });
     }
@@ -28,7 +29,6 @@ $(document).ready(function () {
             taggedAs = "";
         }
         $(".sb_border_question").spin('small');
-
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "GET",
@@ -44,10 +44,10 @@ $(document).ready(function () {
                 } else {
                     $("#js-no_result").hide();
                 }
-                enable_question_functionality([data.results.ids]);
+                enableQuestionFunctionality([data.results.ids]);
             },
             error: function (XMLHttpRequest) {
-                console.log(XMLHttpRequest.responseJSON.detail);
+                errorDisplay(XMLHttpRequest);
             }
         });
     });

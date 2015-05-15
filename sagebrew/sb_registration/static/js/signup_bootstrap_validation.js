@@ -1,15 +1,17 @@
 $(document).ready(function(){
-    $("#signupForm").bootstrapValidator({
+    $("#signupForm").formValidation({
         framework: 'bootstrap',
-        feedbackIcons: {
+        icon: {
             valid: 'glyphicon glyphicon-ok',
             validating: 'glyphicon glyphicon-refresh'
         },
         live: 'enabled',
-        submitButtons: '#submit_signup',
+        button: {
+            selector: '#submit_signup'
+        },
         fields: {
             first_name: {
-                group: 'fname',
+                row: 'fname',
                 validators: {
                     notEmpty: {
                         message: "First Name is Required"
@@ -21,7 +23,7 @@ $(document).ready(function(){
                 }
             },
             last_name: {
-                group: 'lname',
+                row: 'lname',
                 validators: {
                     notEmpty: {
                         message: "Last Name is Required"
@@ -33,7 +35,7 @@ $(document).ready(function(){
                 }
             },
             email: {
-                group: 'email_class',
+                row: 'email_class',
                 validators: {
                     notEmpty: {
                         message: "Email is required"
@@ -45,7 +47,7 @@ $(document).ready(function(){
                 }
             },
             password1: {
-                group: 'p1',
+                row: 'p1',
                 validators: {
                     notEmpty: {
                         message: "Password is required"
@@ -62,7 +64,7 @@ $(document).ready(function(){
                 }
             },
             password2: {
-                group: 'p2',
+                row: 'p2',
                 validators: {
                     notEmpty: {
                         message: "Password 2 is required"
@@ -79,7 +81,7 @@ $(document).ready(function(){
                 }
             },
             birthday: {
-                group: 'bday',
+                row: 'bday',
                 validators: {
                     date: {
                         format: 'MM/DD/YYYY',
@@ -91,5 +93,5 @@ $(document).ready(function(){
                 }
             }
         }
-    })
+    });
 });

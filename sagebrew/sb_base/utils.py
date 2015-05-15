@@ -69,6 +69,8 @@ def custom_exception_handler(exc, context):
 
     if response is not None:
         response.data['status_code'] = response.status_code
+        response.data['detail'] = response.data.get(
+            'detail', "Sorry, no details available.")
 
     return response
 
@@ -89,7 +91,7 @@ def get_ordering(sort_by):
 def get_tagged_as(tagged_as):
     if tagged_as == '' or tagged_as not in settings.BASE_TAGS:
         return tagged_as
-    return "-[:TAGGED_AS]-(t:Tag {name:'%s'}) " % (tagged_as)
+    return "-[:TAGGED_AS]-(t:Tag {name:'%s'})" % (tagged_as)
 
 
 def get_filter_params(filter_by, sb_instance):

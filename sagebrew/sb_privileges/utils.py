@@ -35,7 +35,7 @@ def manage_privilege_relation(username):
     :return:
     """
     try:
-        pleb = Pleb.nodes.get(username=username)
+        pleb = Pleb.get(username=username)
     except (CypherException, IOError) as e:
         return e
     try:
@@ -69,6 +69,7 @@ def manage_privilege_relation(username):
         # Because of this, this fxn should only ever be called from an async
         # task
         sleep(1)
+    cache.set(pleb.username, pleb)
     cache.set("%s_privileges" % pleb.username, pleb.get_privileges())
     cache.set("%s_actions" % pleb.username, pleb.get_actions())
     return True

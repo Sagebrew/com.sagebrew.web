@@ -23,8 +23,8 @@ $(document).ready(function () {
                 success: function (data) {
                     window.location.href = data.url;
                 },
-                error: function () {
-                    $('.alert-dismissible').show();
+                error: function (XMLHttpRequest) {
+                    errorDisplay(XMLHttpRequest);
                 }
             });
             cropContainerEyecandy.reset();
@@ -39,7 +39,8 @@ $(document).ready(function () {
             if (typeof fileSizeError === "undefined" || fileSizeError === null) {
                 fileSizeError = "";
             }
-            alert(fileSizeError + "\n" + fileFormatError);
+            $.notify({message: fileSizeError + "\n" + fileFormatError},
+                {type: 'danger'});
         },
         onReset: function () {
             $.ajax({
@@ -48,8 +49,8 @@ $(document).ready(function () {
                 url: "/v1/upload/" + fileName + "/",
                 cache: false,
                 processData: false,
-                error: function () {
-                    $('.alert-dismissible').show();
+                error: function (XMLHttpRequest) {
+                    errorDisplay(XMLHttpRequest);
                 }
             });
         },

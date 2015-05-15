@@ -43,7 +43,7 @@ def search_result_view(request):
     """
     # TODO Need to make sure responses return an actual page if necessary
     try:
-        pleb = Pleb.nodes.get(username=request.user.username)
+        pleb = Pleb.get(username=request.user.username)
     except(Pleb.DoesNotExist, DoesNotExist):
         return Response(status=404)
     except (CypherException, IOError):
@@ -111,6 +111,11 @@ def search_result_api(request):
         alchemyapi = AlchemyAPI()
         response = alchemyapi.keywords("text", search_form.cleaned_data[
             'query_param'])
+        # this .get on a dict is a temporary work around for the alchemyapi
+        # package not having any exception handling, this will keep us safe
+        # from key errors caused by us hitting the alchemy endpoint too much
+        # and using up our allowed requests
+        keywords = response.get('keywords', [])
         current_page = int(search_form.cleaned_data['page'])
         results = []
 
@@ -146,7 +151,7 @@ def search_result_api(request):
         res = res['hits']['hits']
         task_param = {"pleb": request.user.username, "query_param":
                       search_form.cleaned_data['query_param'],
-                      "keywords": response['keywords']}
+                      "keywords": keywords}
         spawned = spawn_task(task_func=update_search_query,
                              task_param=task_param)
         if isinstance(spawned, Exception) is True:

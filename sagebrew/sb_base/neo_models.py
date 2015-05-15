@@ -156,7 +156,7 @@ class VotableContent(NotificationCapable):
         except(TypeError, IOError):
             logger.exception("DynamoDB Error: ")
         try:
-            pleb = Pleb.nodes.get(username=username)
+            pleb = Pleb.get(username=username)
             if self.votes.is_connected(pleb):
                 rel = self.votes.relationship(pleb)
             else:

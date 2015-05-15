@@ -1,18 +1,17 @@
 $(document).ready(function(){
-    $("#betaSignupForm").bootstrapValidator({
+    $("#signupForm").formValidation({
         framework: 'bootstrap',
-        err: {
-            container: '#fname_errors'
-        },
-        feedbackIcons: {
+        icon: {
             valid: 'glyphicon glyphicon-ok',
             validating: 'glyphicon glyphicon-refresh'
         },
         live: 'enabled',
-        submitButtons: '#beta_email_submit',
+        button: {
+            selector: '#beta_email_submit'
+        },
         fields: {
             email: {
-                group: 'email_class',
+                row: 'sb_input_wrapper',
                 validators: {
                     notEmpty: {
                         message: "Email is required"

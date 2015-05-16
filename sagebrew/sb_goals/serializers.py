@@ -13,8 +13,9 @@ from api.utils import spawn_task, gather_request_data
 from plebs.neo_models import Address, Pleb, BetaUser
 from plebs.tasks import create_pleb_task, pleb_user_update, determine_pleb_reps
 from plebs.serializers import PlebSerializerNeo
+from sb_campaigns.neo_models import PoliticalCampaign
 
-from .neo_models import Goal
+from .neo_models import Goal, Round
 
 class GoalSerializer(CampaignAttributeSerializer):
     initial = serializers.BooleanField(required=False)
@@ -65,6 +66,31 @@ class RoundSerializer(CampaignAttributeSerializer):
     goals = serializers.SerializerMethodField()
     previous_round = serializers.SerializerMethodField()
     next_round = serializers.SerializerMethodField()
+
+    def create(self, validated_data):
+        campaign = validated_data.pop('campaign', None)
+        goals = validated_data.pop('goals', [])
+        previous_round = validated_data.pop('previous_round', None)
+        next_round = validated_data.pop('next_round', None)
+        campaign_round = Round(**validated_data).save()
+        campaign = PoliticalCampaign.nodes.get(object_uuid=campaign)
+        campaign.rounds.connect(campaign_round)
+        campaign_round.campaign.connect(campaign)
+        if previous_round is not None:
+            prev_round = Round.nodes.get(object_uuid=previous_round)
+            campaign_round.previous_round.connect(prev_round)
+            prev_round.next_round.connect(campaign_round)
+        if next_round is not None:
+            next_round = Round.nodes.get(object_uuid=next_round)
+            next_round.previous_round.connect(campaign_round)
+            campaign_round.next_round.conect(next_round)
+        for goal in goals:
+            neo_goal = GoalSerializer(goal).save()
+            campaign_round.goals.connect(neo_goal)
+            neo_goal.round.connect(campaign_round)
+            campaign.goals.connect(neo_goal)
+            neo_goal.campaign.connect(campaign)
+        return campaign_round
 
     def get_goals(self, obj):
         pass

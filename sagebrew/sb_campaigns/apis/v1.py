@@ -12,4 +12,6 @@ router.register(r'donations', DonationViewSet, base_name='donation')
 urlpatterns = patterns(
     'sb_campaigns.endpoints',
     url(r'^', include(router.urls)),
+    (r'^campaigns/', include('sb_goals.apis.v1')),
+    (r'^campaigns/', include('sb_goals.apis.relations.v1')),
 )

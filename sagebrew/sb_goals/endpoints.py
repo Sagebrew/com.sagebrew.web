@@ -26,40 +26,43 @@ from .neo_models import Goal, Round
 logger = getLogger('loggly_logs')
 
 
-class GoalListMixin(generics.ListCreateAPIView):
+class GoalListMixin(generics.ListAPIView):
     serializer_class = GoalSerializer
     permission_classes = (IsAuthenticated,)
     lookup_field = "object_uuid"
 
     def get_queryset(self):
-        query = "MATCH (r:`Round` {object_uuid:'%s'})-[:STRIVING_FOR]->" \
-                "(g:`Goal`) WHERE g.to_be_delete=false RETURN g " \
+        query = "MATCH (r:`Campaign` {object_uuid:'%s'})-[:HAS_ROUND]->" \
+                "(r:`Round`) WHERE r.current=false MATCH (r:`Round`)-" \
+                "[:STRIVING_FOR]->(g:`Goal`) RETURN g " \
                 "ORDER BY g.created" % (self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
         return [Goal.inflate(row[0]) for row in res]
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            query = "MATCH (c:`Campaign`)-[:HAS_ROUND]->" \
-                    "(r:`Round`{object_uuid:'%s'}) RETURN c, r"
-            res, col = db.cypher_query(query)
-            campaign = [Campaign.inflate(row[0]) for row in res][0]
-            campaign_round = [Round.inflate(row[1]) for row in res][0]
-            serializer.save(campaign=campaign, round=campaign_round)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def list(self, request, *args, **kwargs):
-        pass
-
-
-class RoundViewSet(generics.ListCreateAPIView):
+class RoundListCreate(generics.ListCreateAPIView):
     serializer_class = RoundSerializer
     permission_classes = (IsAuthenticated,)
     lookup_field = "object_uuid"
 
     def get_queryset(self):
-        query = "MATCH (r:`Round`{object_uuid:'%s'}) RETURN r"
+        query = "MATCH (c:`Campaign` {object_uuid:'%s'})-" \
+                "[:HAS_ROUND]->(r:`Round`) RETURN r" % \
+                (self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
         return [Round.inflate(row[0]) for row in res]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(request.data)
+        instance = serializer.save()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)

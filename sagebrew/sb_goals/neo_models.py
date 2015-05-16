@@ -80,6 +80,7 @@ class Round(SBObject):
     # the campaigner closes out a round by completing all the associated
     # goals.
     completed = DateTimeProperty()
+    current = BooleanProperty(default=False)
 
     # relationships
     goals = RelationshipTo('sb_goals.neo_models.Goal', "STRIVING_FOR")

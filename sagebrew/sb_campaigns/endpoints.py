@@ -20,24 +20,25 @@ from plebs.neo_models import Pleb
 from plebs.serializers import PlebSerializerNeo
 
 from .serializers import (CampaignSerializer, PoliticalCampaignSerializer,
-                          PledgeVoteSerializer, EditorAccountantSerializer)
-from .neo_models import Campaign, PoliticalCampaign
+                          PledgeVoteSerializer, EditorAccountantSerializer,
+                          ScopeSerializer)
+from .neo_models import Campaign, PoliticalCampaign, Scope
 
 logger = getLogger('loggly_logs')
 
 
-class PoliticalCampaignViewSet(viewsets.ModelViewSet):
-    serializer_class = PoliticalCampaignSerializer
+class CampaignViewSet(viewsets.ModelViewSet):
+    serializer_class = CampaignSerializer
     lookup_field = "object_uuid"
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        query = "MATCH (c:`PoliticalCampaign`) RETURN c"
+        query = "MATCH (c:`Campaign`) RETURN c"
         res, col = db.cypher_query(query)
-        return [PoliticalCampaign.inflate(row[0]) for row in res]
+        return [Campaign.inflate(row[0]) for row in res]
 
     def get_object(self):
-        return PoliticalCampaign.nodes.get(
+        return Campaign.nodes.get(
             object_uuid=self.kwargs[self.lookup_field])
 
     def create(self, request, *args, **kwargs):
@@ -51,7 +52,7 @@ class PoliticalCampaignViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         queryset = self.get_object()
-        single_object = CampaignSerializer(
+        single_object = self.get_serializer(
             queryset, context={'request': request}).data
 
         return Response(single_object, status=status.HTTP_200_OK)
@@ -214,15 +215,40 @@ class PoliticalCampaignViewSet(viewsets.ModelViewSet):
         return Response(accountant_list, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'])
-    def goals(self, request, *args, **kwargs):
-        pass
-
-    @detail_route(methods=['get'])
     def updates(self, request, *args, **kwargs):
         pass
 
+    @detail_route(methods=['get'], serializer_class=ScopeSerializer)
+    def scope(self, request, *args, **kwargs):
+        query = "MATCH (c:`Campaign` {object_uuid: '%s'})-" \
+                "[:HAS_SCOPE]-(s:`Scope`) RETURN s" % \
+                (self.kwargs[self.lookup_field])
+        res, col = db.cypher_query(query)
+        scope = [Scope.inflate(row[0]) for row in res]
+        return Response(self.get_serializer(scope[0]).data,
+                        status=status.HTTP_200_OK)
+
+
+class PoliticalCampaignViewSet(CampaignViewSet):
+    serializer_class = PoliticalCampaignSerializer
+    lookup_field = "object_uuid"
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        query = "MATCH (c:`PoliticalCampaign`) RETURN c"
+        res, col = db.cypher_query(query)
+        return [PoliticalCampaign.inflate(row[0]) for row in res]
+
+    def get_object(self):
+        return PoliticalCampaign.nodes.get(
+            object_uuid=self.kwargs[self.lookup_field])
+
     @detail_route(methods=['get'])
-    def rounds(self, request, *args, **kwargs):
+    def votes(self, request, *args, **kwargs):
+        pass
+
+    @detail_route(methods=['get'])
+    def vote_count(self, request, *args, **kwargs):
         pass
 
 

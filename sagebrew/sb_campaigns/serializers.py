@@ -14,8 +14,7 @@ from plebs.neo_models import Address, Pleb, BetaUser
 from plebs.tasks import create_pleb_task, pleb_user_update, determine_pleb_reps
 from plebs.serializers import PlebSerializerNeo
 
-from .neo_models import (Campaign, PoliticalCampaign, StateCampaign,
-                         DistrictCampaign)
+from .neo_models import (Campaign, PoliticalCampaign, Scope)
 
 
 class CampaignSerializer(SBSerializer):
@@ -42,10 +41,10 @@ class CampaignSerializer(SBSerializer):
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
     goals = serializers.SerializerMethodField()
+    scope = serializers.SerializerMethodField()
     rounds = serializers.SerializerMethodField()
     updates = serializers.SerializerMethodField()
-    editors = serializers.SerializerMethodField()
-    accountants = serializers.SerializerMethodField()
+
 
     def create(self, validated_data):
         pass
@@ -80,25 +79,28 @@ class CampaignSerializer(SBSerializer):
 
     def get_goals(self, obj):
         request, expand, _, _, _ = gather_request_data(self.context)
-        pass
+        return reverse('goals-list',
+                       kwargs={'object_uuid': obj.object_uuid},
+                       request=request)
 
     def get_rounds(self, obj):
         request, expand, _, _, _ = gather_request_data(self.context)
-        pass
+        return reverse('rounds-list',
+                       kwargs={'object_uuid': obj.object_uuid},
+                       request=request)
 
     def get_updates(self, obj):
         request, expand, _, _, _ = gather_request_data(self.context)
         pass
 
-    def get_editors(self, obj):
-        return reverse('campaign-editors',
+    def get_scope(self, obj):
+        request, expand, _, _, _ = gather_request_data(self.context)
+        if expand == 'true':
+            return ScopeSerializer(obj.scope.all()[0],
+                                   context={'request': request}).data
+        return reverse('campaign-scope',
                        kwargs={'object_uuid': obj.object_uuid},
-                       request=self.context['request'])
-
-    def get_accountants(self, obj):
-        return reverse('campaign-accountants',
-                       kwargs={'object_uuid': obj.object_uuid},
-                       request=self.context['request'])
+                       request=request)
 
 
 class PoliticalCampaignSerializer(CampaignSerializer):
@@ -110,7 +112,13 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         owner = Pleb.get(request.user.username)
         editors = validated_data.pop('editors', [])
         accountants = validated_data.pop('accountants', [])
+        state = validated_data.pop('state', None)
+        district = validated_data.pop('district', None)
+        country = validated_data.pop('country', None)
+        scope = Scope(state=state, district=district, country=country).save()
         campaign = PoliticalCampaign(**validated_data).save()
+        campaign.scope.connect(scope)
+        scope.campaign.connect(campaign)
         campaign.owned_by.connect(owner)
         owner.campaign.connect(campaign)
         for editor in editors:
@@ -138,3 +146,18 @@ class EditorAccountantSerializer(serializers.Serializer):
 
 class PledgeVoteSerializer(SBSerializer):
     pass
+
+
+class ScopeSerializer(SBSerializer):
+    country = serializers.CharField()
+    district = serializers.IntegerField()
+    state = serializers.CharField()
+
+    campaign = serializers.SerializerMethodField()
+
+    def get_campaign(self, obj):
+        request, expand, _, _, _ = gather_request_data(self.context)
+        return reverse('campaign-detail',
+                       kwargs={'object_uuid':
+                                   obj.campaign.all()[0].object_uuid},
+                       request=request)

@@ -1,13 +1,10 @@
 from django.conf.urls import patterns, url, include
 
-from rest_framework import routers
+from sb_goals.endpoints import (RoundListCreate)
 
-from sb_goals.endpoints import (RoundViewSet)
-
-router = routers.SimpleRouter()
-router.register(r'rounds', RoundViewSet, base_name='round')
 
 urlpatterns = patterns(
     'sb_goals.endpoints',
-    url(r'^', include(router.urls)),
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36,36})/rounds/$',
+        RoundListCreate.as_view(), name="rounds-list")
 )

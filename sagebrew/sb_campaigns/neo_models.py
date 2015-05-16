@@ -5,7 +5,7 @@ from neomodel import (StringProperty, RelationshipTo, BooleanProperty,
 
 from sb_base.neo_models import (VoteRelationship)
 
-from sb_search.neo_models import Searchable
+from sb_search.neo_models import Searchable, SBObject
 
 
 class Campaign(Searchable):
@@ -78,6 +78,7 @@ class Campaign(Searchable):
     editors = RelationshipTo('plebs.neo_models.Pleb', 'CAN_BE_EDITED_BY')
     accountants = RelationshipTo('plebs.neo_models.Pleb',
                                  'CAN_VIEW_MONETARY_DATA')
+    scope = RelationshipTo('sb_campaigns.neo_models.Scope', 'HAS_SCOPE')
 
     def get_url(self, request=None):
         return reverse('action_saga',
@@ -116,17 +117,14 @@ class PoliticalCampaign(Campaign):
                                   'POTENTIAL_REPRESENTATIVE_FOR')
 
 
-class StateCampaign(PoliticalCampaign):
-    """
-    A state campaign is a political campaign being waged at the state level. An
-    example of this would be a Senator race.
-    """
+class Scope(SBObject):
+    country = StringProperty()
     state = StringProperty()
-
-
-class DistrictCampaign(StateCampaign):
-    """
-    A district campaign is a political campaign being waged at the district
-    level. An example of this would be a House Representative race.
-    """
+    # we can use https://github.com/unitedstates/districts to verify correct
+    # state/district inputs when creating the campaign/advocacy
     district = IntegerProperty()
+
+    # geolocation can be added in later for when we are able to support
+    # geolocational data to determine the scope of the campaign/advocacy
+    campaign = RelationshipTo('sb_campaigns.neo_models.Campaign',
+                              'SCOPE_FOR')

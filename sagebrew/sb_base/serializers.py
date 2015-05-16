@@ -10,6 +10,7 @@ from api.utils import gather_request_data
 
 from plebs.serializers import PlebSerializerNeo
 from plebs.neo_models import Pleb
+from sb_campaigns.serializers import CampaignSerializer
 
 
 class VotableContentSerializer(SBSerializer):
@@ -92,3 +93,17 @@ class MarkdownContentSerializer(ContentSerializer):
             return markdown.markdown(obj.content.replace('&gt;', '>'))
         else:
             return ""
+
+
+class CampaignAttributeSerializer(SBSerializer):
+    campaign = serializers.SerializerMethodField()
+
+    def get_campaign(self, obj):
+        request, expand, _, _, _ = gather_request_data(self.context)
+        campaign = obj.campaign.all()[0]
+        if expand == "true":
+            return CampaignSerializer(campaign,
+                                      context={"request": request}).data
+        return reverse('campaign-detail',
+                       kwargs={'object_uuid': campaign.object_uuid},
+                       request=request)

@@ -136,17 +136,5 @@ class EditorAccountantSerializer(serializers.Serializer):
     )
 
 
-class UpdateSerializer(SBSerializer):
-    pass
-
-
-class DonationSerializer(SBSerializer):
-    pass
-
-
 class PledgeVoteSerializer(SBSerializer):
-    pass
-
-
-class GoalSerializer(SBSerializer):
     pass

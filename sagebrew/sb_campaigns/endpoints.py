@@ -20,9 +20,7 @@ from plebs.neo_models import Pleb
 from plebs.serializers import PlebSerializerNeo
 
 from .serializers import (CampaignSerializer, PoliticalCampaignSerializer,
-                          DonationSerializer, UpdateSerializer,
-                          PledgeVoteSerializer, GoalSerializer,
-                          EditorAccountantSerializer)
+                          PledgeVoteSerializer, EditorAccountantSerializer)
 from .neo_models import Campaign, PoliticalCampaign
 
 logger = getLogger('loggly_logs')
@@ -34,7 +32,9 @@ class PoliticalCampaignViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        return PoliticalCampaign.nodes.all()
+        query = "MATCH (c:`PoliticalCampaign`) RETURN c"
+        res, col = db.cypher_query(query)
+        return [PoliticalCampaign.inflate(row[0]) for row in res]
 
     def get_object(self):
         return PoliticalCampaign.nodes.get(

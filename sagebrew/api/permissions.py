@@ -1,5 +1,7 @@
 from rest_framework import permissions
 
+from plebs.neo_models import Pleb
+
 
 class IsOwnerOrAdmin(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -44,3 +46,14 @@ class IsAdminOrReadOnly(permissions.BasePermission):
             return True
 
         return request.user.is_staff
+
+
+class IsOwnerOrEditorOrAccountant(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        pleb = Pleb.get(username=request.user.username)
+        if (obj.owned_by.all()[0].username == request.user.username or
+                    pleb in obj.editors.all() or
+                    pleb in obj.accountants.all()):
+            return True
+        else:
+            return False

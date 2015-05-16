@@ -130,6 +130,12 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         pass
 
 
+class EditorAccountantSerializer(serializers.Serializer):
+    users = serializers.ListField(
+        child=serializers.CharField(max_length=30)
+    )
+
+
 class UpdateSerializer(SBSerializer):
     pass
 

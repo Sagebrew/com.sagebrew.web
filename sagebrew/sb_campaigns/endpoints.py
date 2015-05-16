@@ -10,9 +10,10 @@ from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework import status, generics
 
-from neomodel import db
+from neomodel import db, DoesNotExist
 
 from api.utils import spawn_task
+from api.permissions import IsOwnerOrEditorOrAccountant, IsOwnerOrAdmin
 from sb_base.utils import get_ordering, get_tagged_as
 from sb_stats.tasks import update_view_count_task
 from plebs.neo_models import Pleb
@@ -20,8 +21,11 @@ from plebs.serializers import PlebSerializerNeo
 
 from .serializers import (CampaignSerializer, PoliticalCampaignSerializer,
                           DonationSerializer, UpdateSerializer,
-                          PledgeVoteSerializer, GoalSerializer)
+                          PledgeVoteSerializer, GoalSerializer,
+                          EditorAccountantSerializer)
 from .neo_models import Campaign, PoliticalCampaign
+
+logger = getLogger('loggly_logs')
 
 
 class PoliticalCampaignViewSet(viewsets.ModelViewSet):
@@ -52,10 +56,13 @@ class PoliticalCampaignViewSet(viewsets.ModelViewSet):
 
         return Response(single_object, status=status.HTTP_200_OK)
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'],
+                  permission_classes=(IsAuthenticated,
+                                      IsOwnerOrEditorOrAccountant))
     def editors(self, request, *args, **kwargs):
         editor_list = []
         queryset = self.get_object()
+        self.check_object_permissions(request, queryset)
         expand = request.query_params.get('expand', 'false').lower()
         editors = queryset.editors.all()
         for editor in editors:
@@ -66,7 +73,9 @@ class PoliticalCampaignViewSet(viewsets.ModelViewSet):
             editor_list.append(editor_info)
         return Response(editor_list, status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'])
+    @detail_route(methods=['post'],
+                  serializer_class=EditorAccountantSerializer,
+                  permission_classes=(IsAuthenticated, IsOwnerOrAdmin,))
     def add_editors(self, request, *args, **kwargs):
         """
         This method will take a list of usernames which will be added to the
@@ -78,20 +87,27 @@ class PoliticalCampaignViewSet(viewsets.ModelViewSet):
         :return:
         """
         queryset = self.get_object()
-        new_editors = request.data['new_editors']
-        for editor in new_editors:
-            editor_pleb = Pleb.get(username=editor)
-            if queryset.editors.is_connected(editor_pleb):
-                continue
-            queryset.editors.connect(editor_pleb)
-            editor_pleb.campaign_editor.connect(queryset)
-        return Response({"detail": "success",
-                         "message": "Successfully added all editors "
-                                    "to your campaign"},
-                        status=status.HTTP_200_OK)
+        self.check_object_permissions(request, queryset)
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            logger.info(serializer.data)
+            for editor in serializer.data['users']:
+                try:
+                    editor_pleb = Pleb.get(username=editor)
+                except (Pleb.DoesNotExist, DoesNotExist):
+                    continue
+                queryset.editors.connect(editor_pleb)
+                editor_pleb.campaign_editor.connect(queryset)
+            return Response({"detail": "success",
+                             "message": "Successfully added specified users "
+                                        "to your campaign editors."},
+                            status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @detail_route(methods=['post'])
-    def delete_editors(self, request, *args, **kwargs):
+    @detail_route(methods=['post'],
+                  serializer_class=EditorAccountantSerializer,
+                  permission_classes=(IsAuthenticated, IsOwnerOrAdmin,))
+    def remove_editors(self, request, *args, **kwargs):
         """
         This is a method which will only be used to remove the users
         in the list posted to this endpoint from the list of allowed editors
@@ -102,12 +118,91 @@ class PoliticalCampaignViewSet(viewsets.ModelViewSet):
         :param kwargs:
         :return:
         """
-        pass
+        queryset = self.get_object()
+        self.check_object_permissions(request, queryset)
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            for editor in serializer.data['users']:
+                try:
+                    editor_pleb = Pleb.get(username=editor)
+                except (Pleb.DoesNotExist, DoesNotExist):
+                    continue
+                queryset.editors.disconnect(editor_pleb)
+                editor_pleb.campaign_editor.disconnect(queryset)
+            return Response({"detail": "success",
+                             "message": "Successfully removed specified "
+                                        "editors from your campaign."},
+                            status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['post'],
+                  serializer_class=EditorAccountantSerializer,
+                  permission_classes=(IsAuthenticated, IsOwnerOrAdmin,))
+    def add_accountants(self, request, *args, **kwargs):
+        """
+        This helper method will take a list of usernames which are to be added
+        to the list of accountants for the campaign and create the necessary
+        connections.
+
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        queryset = self.get_object()
+        self.check_object_permissions(request, queryset)
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            for accountant in serializer.data['users']:
+                try:
+                    accountant_pleb = Pleb.get(username=accountant)
+                except (Pleb.DoesNotExist, DoesNotExist):
+                    continue
+                queryset.accountants.connect(accountant_pleb)
+                accountant_pleb.campaign_accountant.connect(queryset)
+            return Response({"detail": "success",
+                             "message": "Successfully added specified users to"
+                                        " your campaign accountants."},
+                            status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @detail_route(methods=['post'],
+                  serializer_class=EditorAccountantSerializer,
+                  permission_classes=(IsAuthenticated, IsOwnerOrAdmin,))
+    def remove_accountants(self, request, *args, **kwargs):
+        """
+        This helper method will take a list of usernames which are to be
+        removed from the list of accountants for the campaign and remove
+        the connections.
+
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        queryset = self.get_object()
+        self.check_object_permissions(request, queryset)
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            for accountant in serializer.data['users']:
+                try:
+                    accountant_pleb = Pleb.get(username=accountant)
+                except (Pleb.DoesNotExist, DoesNotExist):
+                    continue
+                queryset.accountants.disconnect(accountant_pleb)
+                accountant_pleb.campaign_accountant.disconnect(queryset)
+            return Response({"detail": "success",
+                             "message": "Successfully removed specified "
+                                        "accountants from your campaign."},
+                            status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
+                                      IsOwnerOrEditorOrAccountant,))
     def accountants(self, request, *args, **kwargs):
         accountant_list = []
         queryset = self.get_object()
+        self.check_object_permissions(request, queryset)
         expand = request.query_params.get('expand', 'false').lower()
         accountants = queryset.accountants.all()
         for accountant in accountants:
@@ -116,7 +211,7 @@ class PoliticalCampaignViewSet(viewsets.ModelViewSet):
                 accountant_info = PlebSerializerNeo(
                     accountant, context={'request': request}).data
             accountant_list.append(accountant_info)
-        return accountant_list
+        return Response(accountant_list, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'])
     def goals(self, request, *args, **kwargs):

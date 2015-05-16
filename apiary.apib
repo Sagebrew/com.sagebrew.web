@@ -1,13 +1,119 @@
 FORMAT: 1A
 
-# Sagebrew
-Notes API is a *short texts saving* service similar to its physical paper presence on your table.
+# Sagebrew #
+The Sagebrew API is based on a REST infrastructure. We've crafted our API with 
+predictablility in mind and have stived to maintain a consistent architecture through
+each of our interfaces. We utilize resource based URLs and HTTP response codes to 
+alert developers of errors. We utilize OAuth 2.0 for authentication to ensure 
+you can securely access our API and are able to easily meet the needs of your 
+users utilizing existing libraries. Our API uses JSON to structure our responses
+and you can expect to get it back across each ouf our endpoints.
 
-# Group Notes
-Notes related resources of the **Notes API**
+# Group Profile #
+Sagebrew provides each of its users with a Profile which 
+has a set amount of publicly accessible data. These endpoints should be utilized
+for retrieving user specific data unless you're utilizing our Three Legged OAuth
+implementation and are trying to gather information about the currently logged in
+user.
 
-## Campaign Collection [/v1/campaigns]
-### List all Campaigns [GET]
+## Profile Collection [/v1/profiles/] ##
+### List all Profiles [GET] ###
++ Response 200 (application/json)
+
+        {
+            "count": 2,
+            "next": null,
+            "previous": null,
+            "results": [
+                {
+                    "id": "devon_bleibtrey",
+                    "type": "profile",
+                    "first_name": "Devon",
+                    "last_name": "Bleibtrey",
+                    "username": "devon_bleibtrey",
+                    "href": "https://www.sagebrew.com/v1/profiles/devon_bleibtrey/",
+                    "profile_pic": "https://sagebrew.s3.amazonaws.com/profile_pictures/bc2ed03b9e17-198x198.jpeg",
+                    "wallpaper_pic": "https://sagebrew.s3.amazonaws.com/profile_pictures/723335ffa833-1464x250.jpeg",
+                    "reputation": 0,
+                    "privileges": [
+                        "base_privilege"
+                    ],
+                    "actions": [
+                        "post",
+                        "solution",
+                        "question"
+                    ],
+                    "url": "https://www.sagebrew.com/user/devon_bleibtrey/"
+                },
+                {
+                    "id": "tyler_wiersing",
+                    "type": "profile",
+                    "first_name": "Tyler",
+                    "last_name": "Wiersing",
+                    "username": "tyler_wiersing",
+                    "href": "https://www.sagebrew.com/v1/profiles/tyler_wiersing/",
+                    "profile_pic": "https://sagebrew.s3.amazonaws.com/profile_pictures/886832972c69-198x198.jpeg",
+                    "wallpaper_pic": null,
+                    "reputation": 0,
+                    "privileges": [
+                        "base_privilege",
+                        "beta_user"
+                    ],
+                    "actions": [
+                        "post",
+                        "solution",
+                        "question",
+                        "intercom"
+                    ],
+                    "url": "https://www.sagebrew.com/user/tyler_wiersing/"
+                }
+            ]
+        }
+
+## Profile [/profiles/{id}/] ##
+The profile detail endpoint can be used to retrieve a singular profile.
+
++ Parameters
+    + id (required, username, `devon_bleibtrey`) ... String `id` representating the username of the profile you would
+    like to access. This can be up to 30 characters long.
+    Has example value.
+
+### Retrieve a Profile [GET] ###
++ Response 200 (application/json)
+
+    + Header
+
+            Authorization: Bearer {access_token}
+
+    + Body
+
+            {
+                "id": "devon_bleibtrey",
+                "type": "profile",
+                "first_name": "Devon",
+                "last_name": "Bleibtrey",
+                "username": "devon_bleibtrey",
+                "href": "https://www.sagebrew.com/v1/profiles/devon_bleibtrey/",
+                "profile_pic": "https://sagebrew.s3.amazonaws.com/profile_pictures/bc27-198x198.jpeg",
+                "wallpaper_pic": "https://sagebrew.s3.amazonaws.com/profile_pictures/723f3-1464x250.jpeg",
+                "reputation": 0,
+                "privileges": [
+                    "base_privilege"
+                ],
+                "actions": [
+                    "post",
+                    "solution",
+                    "question"
+                ],
+                "url": "https://www.sagebrew.com/user/devon_bleibtrey/"
+            }
+
+
+# Group Campaign #
+Campaign related resources of the **Campaign API**
+
+## Campaign Collection [/v1/campaigns/] ##
+### List all Campaigns [GET] ###
 + Response 200 (application/json)
 
         {
@@ -18,7 +124,7 @@ Notes related resources of the **Notes API**
                 {
                     "id": "9228182c-fb47-11e4-bf52-080027242395",
                     "type": "campaign",
-                    "stripe_id": "1994",
+                    "stripe_id": "5619159109149549840894",
                     "active": true,
                     "biography": "This is me, Tyler, and I am running for office.",
                     "facebook": "",
@@ -26,23 +132,23 @@ Notes related resources of the **Notes API**
                     "youtube": "",
                     "twitter": "",
                     "website": "",
-                    "wallpaper_pic": "https://sagebrew-master.s3.amazonaws.com/profile_pictures/cb2021c9-b240-20cb-ca44-8a3d4bdba022-1398x250.jpeg",
-                    "profile_pic": "https://sagebrew-master.s3.amazonaws.com/profile_pictures/21a74edb-cd5c-7b39-c0fd-3c9ce8208e6c-198x198.jpeg",
-                    "url": "https://sagebrew.local.dev/action/tyler_wiersing1/",
-                    "href": "https://sagebrew.local.dev/v1/campaigns/9228182c-fb47-11e4-bf52-080027242395/",
+                    "wallpaper_pic": "https://sagebrew.s3.amazonaws.com/profile_pictures/34211fs22-1398x250.jpeg",
+                    "profile_pic": "https://sagebrew.s3.amazonaws.com/profile_pictures/3c9ce8208e6c-198x198.jpeg",
+                    "url": "https://www.sagebrew.com/action/tyler_wiersing/",
+                    "href": "https://www.sagebrew.com/v1/campaigns/9228182c-fb47-11e4-bf52-080027242395/",
                     "goals": null,
                     "rounds": null,
                     "updates": null,
-                    "editors": "https://sagebrew.local.dev/v1/campaigns/9228182c-fb47-11e4-bf52-080027242395/editors/",
-                    "accountants": "https://sagebrew.local.dev/v1/campaigns/9228182c-fb47-11e4-bf52-080027242395/accountants/",
+                    "editors": "https://www.sagebrew.com/v1/campaigns/9228182c-fb47-11e4-bf52-080027242395/editors/",
+                    "accountants": "https://www.sagebrew.com/v1/campaigns/9228182c-fb47-11e4-bf52-080027242395/accountants/",
                     "votes": null,
                     "vote_count": null
                 }
             ]
         }
 
-## Notes Collection [/notes]
-### List all Notes [GET]
+## Notes Collection [/notes] ##
+### List all Notes [GET] ###
 + Response 200 (application/json)
 
         [{
@@ -51,7 +157,7 @@ Notes related resources of the **Notes API**
           "id": 2, "title": "Pick-up posters from post-office"
         }]
 
-### Create a Note [POST]
+### Create a Note [POST] ###
 + Request (application/json)
 
         { "title": "Buy cheese and bread for breakfast." }
@@ -60,13 +166,14 @@ Notes related resources of the **Notes API**
 
         { "id": 3, "title": "Buy cheese and bread for breakfast." }
 
-## Note [/notes/{id}]
+## Note [/notes/{id}] ##
 A single Note object with all its details
 
 + Parameters
-    + id (required, number, `1`) ... Numeric `id` of the Note to perform action with. Has example value.
+    + id (required, number, `1`) ... Numeric `id` of the Note to perform action with.
+    Has example value.
 
-### Retrieve a Note [GET]
+### Retrieve a Note [GET] ###
 + Response 200 (application/json)
 
     + Header
@@ -77,5 +184,5 @@ A single Note object with all its details
 
             { "id": 2, "title": "Pick-up posters from post-office" }
 
-### Remove a Note [DELETE]
+### Remove a Note [DELETE] ###
 + Response 204

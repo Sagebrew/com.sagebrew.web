@@ -588,7 +588,6 @@ class ProfileEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-detail', kwargs={
             'username': self.pleb.username})
-        cache.clear()
         response = self.client.get(url, format='json')
         self.assertEqual([], response.data['privileges'])
 

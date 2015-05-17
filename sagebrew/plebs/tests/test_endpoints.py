@@ -13,6 +13,7 @@ from rest_framework.test import APITestCase
 from sagebrew import errors
 from sb_public_official.neo_models import PublicOfficial
 from plebs.neo_models import Pleb, FriendRequest, Address, BetaUser
+from sb_privileges.neo_models import Privilege, SBAction
 from sb_questions.neo_models import Question
 from sb_registration.utils import create_user_util_test
 
@@ -136,8 +137,29 @@ class MeEndpointTests(APITestCase):
     def test_get_actions(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('me-detail')
+        cache.clear()
         response = self.client.get(url, format='json')
         self.assertEqual([], response.data['actions'])
+
+    def test_get_actions_populated(self):
+        self.client.force_authenticate(user=self.user)
+        action = SBAction(resource="test_action").save()
+        self.pleb.actions.connect(action)
+        cache.clear()
+        url = reverse('me-detail')
+        response = self.client.get(url, format='json')
+        self.pleb.actions.disconnect(action)
+        self.assertEqual(['test_action'], response.data['actions'])
+
+    def test_get_privileges_populated(self):
+        self.client.force_authenticate(user=self.user)
+        privilege = Privilege(name="test_privilege").save()
+        self.pleb.privileges.connect(privilege)
+        cache.clear()
+        url = reverse('me-detail')
+        response = self.client.get(url, format='json')
+        self.pleb.privileges.disconnect(privilege)
+        self.assertEqual(['test_privilege'], response.data['privileges'])
 
     def test_get_href(self):
         self.client.force_authenticate(user=self.user)
@@ -1731,7 +1753,8 @@ class AddressEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['congressional_district'], 11)
         query = 'MATCH (a:Pleb {username: "%s"})-[:LIVES_AT]->' \
-                '(b:Address) RETURN b' % (self.user.username)
+                '(b:Address {object_uuid: "%s"}) ' \
+                'RETURN b' % (self.user.username, response.data['id'])
         res, col = db.cypher_query(query)
         self.assertEqual(Address.inflate(res[0][0]).object_uuid,
                          response.data['id'])

@@ -114,6 +114,20 @@ class ProfilePageTest(TestCase):
         test_post.delete()
         my_comment.delete()
 
+    def test_with_friend_request(self):
+        email2 = "bounce@simulator.amazonses.com"
+        create_user_util_test(email2)
+        pleb2 = Pleb.nodes.get(email=email2)
+        self.friend_request = FriendRequest().save()
+        self.pleb.friend_requests_received.connect(self.friend_request)
+        self.pleb.friend_requests_sent.connect(self.friend_request)
+        self.friend_request.request_to.connect(self.pleb)
+        self.friend_request.request_from.connect(pleb2)
+        request = self.factory.get('/%s' % self.pleb.username)
+        request.user = self.user
+        response = profile_page(request, self.pleb.username)
+        self.assertEqual(response.status_code, 200)
+
     def test_multiple_posts(self):
         post_array = []
         wall = self.pleb.get_wall()

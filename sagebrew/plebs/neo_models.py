@@ -458,6 +458,13 @@ class Pleb(Searchable):
                 wall = Wall.inflate(res[0][0])
                 cache.set("%s_wall" % self.username, wall)
             except IndexError:
+                # This may not be needed as the only way to get here is if
+                # the wall was removed from the user or never created in the
+                # first place. Since our tasks should never complete until a
+                # wall has been created we shouldn't run into this. But to be
+                # safe we've added it in. If we do manage to get here though
+                # we may want to think about recovery methods or alerts we
+                # should be sending out.
                 return None
         return wall
 

@@ -52,6 +52,10 @@ class AddressViewSet(viewsets.ModelViewSet):
     even though this should not be expected as in the future the list will
     grow as we all things like hometown, previous residences, and additional
     homes to be listed.
+
+    Improvements:
+    We may want to transition this to /v1/me/addresses/ and
+    /v1/me/addresses/{id}/.
     """
     serializer_class = AddressSerializer
     lookup_field = 'object_uuid'
@@ -72,13 +76,13 @@ class AddressViewSet(viewsets.ModelViewSet):
         return Address.inflate(res[0][0])
 
     def perform_create(self, serializer):
-        pleb = Pleb.get(self.kwargs[self.lookup_field])
+        pleb = Pleb.get(self.request.user.username)
         instance = serializer.save()
         instance.owned_by.connect(pleb)
-        instance.save()
         pleb.address.connect(instance)
-        pleb.save()
         cache.set(pleb.username, pleb)
+
+        return instance
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -155,11 +159,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_501_NOT_IMPLEMENTED)
 
     def destroy(self, request, *args, **kwargs):
-        return Response({"detail": "TBD"},
-                        status=status.HTTP_501_NOT_IMPLEMENTED)
-
-    @detail_route(methods=['get'])
-    def solutions(self, request, username=None):
         return Response({"detail": "TBD"},
                         status=status.HTTP_501_NOT_IMPLEMENTED)
 
@@ -369,7 +368,8 @@ class FriendRequestViewSet(viewsets.ModelViewSet):
         if friend_requests is None:
             filter_by = self.request.query_params.get("filter", "")
             filtered = get_filter_by(filter_by)
-            query = "MATCH (p:Pleb {username:'%s'})-%s-(r:FriendRequest) RETURN r" \
+            query = "MATCH (p:Pleb {username:'%s'})-%s-(" \
+                    "r:FriendRequest) RETURN distinct r" \
                     % (self.request.user.username, filtered)
             res, col = db.cypher_query(query)
             friend_requests = [FriendRequest.inflate(row[0]) for row in res]
@@ -384,6 +384,13 @@ class FriendRequestViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         return Response({"detail": "TBD"},
                         status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def perform_destroy(self, instance):
+        instance.request_from.disconnect(Pleb.get(self.request.user.username))
+        instance.request_to.disconnect(instance.request_to.all()[0])
+        instance.delete()
+        cache.delete("%s_friend_requests" % self.request.user.username)
+
 
 
 class FriendManager(RetrieveUpdateDestroyAPIView):

@@ -48,7 +48,7 @@ class ProfilePageTest(TestCase):
     def test_with_post(self):
         test_post = Post(content='test', object_uuid=str(uuid1()))
         test_post.save()
-        wall = self.pleb.wall.all()[0]
+        wall = self.pleb.get_wall()
         test_post.posted_on_wall.connect(wall)
         wall.posts.connect(test_post)
         rel = test_post.owned_by.connect(self.pleb)
@@ -64,7 +64,7 @@ class ProfilePageTest(TestCase):
     def test_post_with_comments(self):
         test_post = Post(content='test', object_uuid=str(uuid1()))
         test_post.save()
-        wall = self.pleb.wall.all()[0]
+        wall = self.pleb.get_wall()
         test_post.posted_on_wall.connect(wall)
         wall.posts.connect(test_post)
         rel = test_post.owned_by.connect(self.pleb)
@@ -116,7 +116,7 @@ class ProfilePageTest(TestCase):
 
     def test_multiple_posts(self):
         post_array = []
-        wall = self.pleb.wall.all()[0]
+        wall = self.pleb.get_wall()
         for item in range(0, 50):
             test_post = Post(content='test', object_uuid=str(uuid1()))
             test_post.save()
@@ -138,7 +138,7 @@ class ProfilePageTest(TestCase):
             post.delete()
 
     def test_multiple_posts_friends(self):
-        wall = self.pleb.wall.all()[0]
+        wall = self.pleb.get_wall()
         pleb_array = []
         post_array = []
         for item in range(0, 2):
@@ -174,7 +174,7 @@ class ProfilePageTest(TestCase):
         test_post.delete()
 
     def test_multiple_posts_multiple_comments_friends(self):
-        wall = self.pleb.wall.all()[0]
+        wall = self.pleb.get_wall()
         pleb_array = []
         post_array = []
         comment_array = []

@@ -264,13 +264,18 @@ class Pleb(Searchable):
         return
 
     def is_beta_user(self):
-        query = "MATCH (a:Pleb {username: '%s'})-[:BETA_USER]->(" \
+        is_beta_user = cache.get("%s_is_beta" % self.username)
+        if is_beta_user is None:
+            query = "MATCH (a:Pleb {username: '%s'})-[:BETA_USER]->(" \
                 "b:BetaUser {email: '%s'}) " \
                 "RETURN b" % (self.username, self.email)
-        res, col = db.cypher_query(query)
-        if len(res) == 0:
-            return False
-        return True
+            res, col = db.cypher_query(query)
+            if len(res) == 0:
+                is_beta_user = False
+            else:
+                is_beta_user = True
+            cache.set("%s_is_beta" % self.username, is_beta_user)
+        return is_beta_user
 
     def has_flagged_object(self, object_uuid):
         query = "MATCH (a:SBContent {object_uuid: '%s'})-[:FLAGGED_BY]->(" \
@@ -285,22 +290,32 @@ class Pleb(Searchable):
         return self.restrictions.all()
 
     def get_actions(self):
-        query = 'MATCH (a:Pleb {username: "%s"})-' \
-                '[:CAN {active: true}]->(n:`SBAction`) ' \
-                'RETURN n.resource' % self.username
-        res, col = db.cypher_query(query)
-        if len(res) == 0:
-            return []
-        return [row[0] for row in res]
+        actions = cache.get("%s_actions" % self.username)
+        if actions is None:
+            query = 'MATCH (a:Pleb {username: "%s"})-' \
+                    '[:CAN {active: true}]->(n:`SBAction`) ' \
+                    'RETURN n.resource' % self.username
+            res, col = db.cypher_query(query)
+            if len(res) == 0:
+                actions = []
+            else:
+                actions = [row[0] for row in res]
+            cache.set("%s_actions" % self.username, actions)
+        return actions
 
     def get_privileges(self):
-        query = 'MATCH (a:Pleb {username: "%s"})-' \
-                '[:HAS {active: true}]->(n:`Privilege`) ' \
-                'RETURN n.name' % self.username
-        res, col = db.cypher_query(query)
-        if len(res) == 0:
-            return []
-        return [row[0] for row in res]
+        privileges = cache.get("%s_privileges" % self.username)
+        if privileges is None:
+            query = 'MATCH (a:Pleb {username: "%s"})-' \
+                    '[:HAS {active: true}]->(n:`Privilege`) ' \
+                    'RETURN n.name' % self.username
+            res, col = db.cypher_query(query)
+            if len(res) == 0:
+                privileges = []
+            else:
+                privileges = [row[0] for row in res]
+            cache.set("%s_privileges" % self.username, privileges)
+        return privileges
 
     def get_badges(self):
         return self.badges.all()
@@ -434,25 +449,27 @@ class Pleb(Searchable):
         :return:
         '''
         from sb_wall.neo_models import Wall
-        query = "MATCH (a:Pleb {username:'%s'})-" \
-                "[:OWNS_WALL]->(b:Wall) RETURN b" % (self.username)
-        res, col = db.cypher_query(query)
-        try:
-            return Wall.inflate(res[0][0])
-        except IndexError:
-            return None
+        wall = cache.get("%s_wall" % self.username)
+        if wall is None:
+            query = "MATCH (a:Pleb {username:'%s'})-" \
+                    "[:OWNS_WALL]->(b:Wall) RETURN b" % (self.username)
+            res, col = db.cypher_query(query)
+            try:
+                wall = Wall.inflate(res[0][0])
+                cache.set("%s_wall" % self.username, wall)
+                return wall
+            except IndexError:
+                return None
+        return wall
 
     def get_friend_requests_sent(self, username):
-        try:
-            for friend_request in self.friend_requests_sent.all():
-                try:
-                    if friend_request.request_to.all()[0].username == username:
-                        return friend_request.object_uuid
-                except IndexError:
-                    continue
-        except(CypherException, IOError) as e:
-            raise e
-        return False
+        query = "MATCH (a:Pleb {username: '%s'})-[:SENT_A_REQUEST]->" \
+                "(f:FriendRequest)-[:REQUEST_TO]->(b:Pleb {username: '%s'}) " \
+                "RETURN f.object_uuid" % (self.username, username)
+        res, col = db.cypher_query(query)
+        if len(res) == 0:
+            return False
+        return res[0][0]
 
     def determine_reps(self):
         from sb_public_official.utils import determine_reps
@@ -468,8 +485,8 @@ class Address(SBObject):
     country = StringProperty()
     latitude = FloatProperty()
     longitude = FloatProperty()
-    congressional_district = StringProperty()
-    validated = BooleanProperty(default=True)
+    congressional_district = IntegerProperty()
+    validated = BooleanProperty(default=False)
 
     # Relationships
     owned_by = RelationshipTo("Pleb", 'LIVES_IN')

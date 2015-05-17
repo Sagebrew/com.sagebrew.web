@@ -159,6 +159,7 @@ class MeEndpointTests(APITestCase):
         url = reverse('me-detail')
         response = self.client.get(url, format='json')
         self.pleb.privileges.disconnect(privilege)
+        cache.clear()
         self.assertEqual(['test_privilege'], response.data['privileges'])
 
     def test_get_href(self):

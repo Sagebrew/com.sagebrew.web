@@ -28,7 +28,6 @@ from sb_base.neo_models import SBContent
 from sb_base.serializers import MarkdownContentSerializer
 from sb_questions.neo_models import Question
 from sb_questions.serializers import QuestionSerializerNeo
-from sb_votes.serializers import VoteSerializer
 from sb_public_official.serializers import PublicOfficialSerializer
 from sb_public_official.neo_models import PublicOfficial
 
@@ -305,27 +304,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return Response({'is_beta_user': self.get_object().is_beta_user()},
                         status.HTTP_200_OK)
 
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
-    def votes(self, request, username=None):
-        filter_by = request.query_params.get('filter', "")
-        try:
-            additional_params = get_filter_params(filter_by, SBContent())
-        except(IndexError, KeyError, ValueError):
-            return Response(errors.QUERY_DETERMINATION_EXCEPTION,
-                            status=status.HTTP_400_BAD_REQUEST)
-        query = 'MATCH (b:`SBPublicContent`)-[:OWNED_BY]->(a:Pleb ' \
-                '{username: "%s"}) ' \
-                'WHERE b.to_be_deleted=false ' \
-                ' %s RETURN b' % (username, additional_params)
-
-        res, col = db.cypher_query(query)
-        queryset = [SBContent.inflate(row[0]) for row in res]
-
-        page = self.paginate_queryset(queryset)
-        serializer = VoteSerializer(page, many=True,
-                                    context={'request': request})
-        return self.get_paginated_response(serializer.data)
-
 
 class MeRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     """
@@ -357,6 +335,9 @@ class FriendRequestViewSet(viewsets.ModelViewSet):
     manage their friend requests. Instead of making a method view on a specific
     profile we took this approach to gain easy pagination and so that the entire
     suite of managing an object could be utilized.
+
+    This endpoint is used to see who a user has sent a friend request to rather
+    than who they have received one from.
     """
     serializer_class = FriendRequestSerializer
     lookup_field = "object_uuid"
@@ -390,7 +371,6 @@ class FriendRequestViewSet(viewsets.ModelViewSet):
         instance.request_to.disconnect(instance.request_to.all()[0])
         instance.delete()
         cache.delete("%s_friend_requests" % self.request.user.username)
-
 
 
 class FriendManager(RetrieveUpdateDestroyAPIView):

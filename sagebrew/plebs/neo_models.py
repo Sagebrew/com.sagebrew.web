@@ -261,7 +261,7 @@ class Pleb(Searchable):
         db.cypher_query(query)
 
     def deactivate(self):
-        return
+        pass
 
     def is_beta_user(self):
         is_beta_user = cache.get("%s_is_beta" % self.username)
@@ -442,12 +442,12 @@ class Pleb(Searchable):
             return False
 
     def get_wall(self):
-        '''
+        """
         Cypher Exception and IOError excluded on purpose, please do not add.
         The functions calling this expect the exceptions to be thrown and
-        handle the exceptions on their own if they end up occuring.
+        handle the exceptions on their own if they end up occurring.
         :return:
-        '''
+        """
         from sb_wall.neo_models import Wall
         wall = cache.get("%s_wall" % self.username)
         if wall is None:
@@ -457,7 +457,6 @@ class Pleb(Searchable):
             try:
                 wall = Wall.inflate(res[0][0])
                 cache.set("%s_wall" % self.username, wall)
-                return wall
             except IndexError:
                 return None
         return wall

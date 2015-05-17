@@ -160,6 +160,7 @@ class MeEndpointTests(APITestCase):
         response = self.client.get(url, format='json')
         self.pleb.privileges.disconnect(privilege)
         cache.clear()
+        privilege.delete()
         self.assertEqual(['test_privilege'], response.data['privileges'])
 
     def test_get_href(self):
@@ -587,6 +588,7 @@ class ProfileEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-detail', kwargs={
             'username': self.pleb.username})
+        cache.clear()
         response = self.client.get(url, format='json')
         self.assertEqual([], response.data['privileges'])
 

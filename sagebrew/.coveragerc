@@ -20,6 +20,10 @@ omit =
     */management/commands/populateenvconfig.py
     */management/commands/populatehistoricaldata.py
     */management/commands/create_prepopulated_tags.py
+    */management/commands/create_oauth_client.py
+    */management/commands/createsite.py
+    */management/commands/populate_rep_models.py
+    */management/commands/createtokens.py
 
 [report]
 # Regexes for lines to exclude from consideration

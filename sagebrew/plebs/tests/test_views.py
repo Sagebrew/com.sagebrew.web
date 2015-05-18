@@ -48,7 +48,7 @@ class ProfilePageTest(TestCase):
     def test_with_post(self):
         test_post = Post(content='test', object_uuid=str(uuid1()))
         test_post.save()
-        wall = self.pleb.wall.all()[0]
+        wall = self.pleb.get_wall()
         test_post.posted_on_wall.connect(wall)
         wall.posts.connect(test_post)
         rel = test_post.owned_by.connect(self.pleb)
@@ -64,7 +64,7 @@ class ProfilePageTest(TestCase):
     def test_post_with_comments(self):
         test_post = Post(content='test', object_uuid=str(uuid1()))
         test_post.save()
-        wall = self.pleb.wall.all()[0]
+        wall = self.pleb.get_wall()
         test_post.posted_on_wall.connect(wall)
         wall.posts.connect(test_post)
         rel = test_post.owned_by.connect(self.pleb)
@@ -114,9 +114,23 @@ class ProfilePageTest(TestCase):
         test_post.delete()
         my_comment.delete()
 
+    def test_with_friend_request(self):
+        email2 = "bounce@simulator.amazonses.com"
+        create_user_util_test(email2)
+        pleb2 = Pleb.nodes.get(email=email2)
+        self.friend_request = FriendRequest().save()
+        self.pleb.friend_requests_received.connect(self.friend_request)
+        self.pleb.friend_requests_sent.connect(self.friend_request)
+        self.friend_request.request_to.connect(self.pleb)
+        self.friend_request.request_from.connect(pleb2)
+        request = self.factory.get('/%s' % self.pleb.username)
+        request.user = self.user
+        response = profile_page(request, self.pleb.username)
+        self.assertEqual(response.status_code, 200)
+
     def test_multiple_posts(self):
         post_array = []
-        wall = self.pleb.wall.all()[0]
+        wall = self.pleb.get_wall()
         for item in range(0, 50):
             test_post = Post(content='test', object_uuid=str(uuid1()))
             test_post.save()
@@ -138,7 +152,7 @@ class ProfilePageTest(TestCase):
             post.delete()
 
     def test_multiple_posts_friends(self):
-        wall = self.pleb.wall.all()[0]
+        wall = self.pleb.get_wall()
         pleb_array = []
         post_array = []
         for item in range(0, 2):
@@ -174,7 +188,7 @@ class ProfilePageTest(TestCase):
         test_post.delete()
 
     def test_multiple_posts_multiple_comments_friends(self):
-        wall = self.pleb.wall.all()[0]
+        wall = self.pleb.get_wall()
         pleb_array = []
         post_array = []
         comment_array = []
@@ -224,7 +238,7 @@ class ProfilePageTest(TestCase):
         request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
         response = profile_page(request, self.pleb.username)
-        self.assertEqual(response.status_code, 200)
+        self.assertIn(response.status_code, [200, 302])
         for item in pleb_array:
             item.delete()
         for post in post_array:

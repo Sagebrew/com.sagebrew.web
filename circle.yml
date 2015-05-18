@@ -48,7 +48,7 @@ checkout:
 test:
   override:
     - coverage run --source='.' manage.py test --failfast
-    - coverage html --fail-under=50
+    - coverage html --fail-under=53
     - coveralls --rcfile=$CIRCLE_ARTIFACTS
     - flake8 ~/com.sagebrew.web/sagebrew/ --ignore C901
   post:

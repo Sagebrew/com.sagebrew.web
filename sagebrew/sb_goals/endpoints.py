@@ -33,8 +33,7 @@ class GoalListMixin(generics.ListAPIView):
 
     def get_queryset(self):
         query = "MATCH (r:`Campaign` {object_uuid:'%s'})-[:HAS_ROUND]->" \
-                "(r:`Round`) WHERE r.current=false MATCH (r:`Round`)-" \
-                "[:STRIVING_FOR]->(g:`Goal`) RETURN g " \
+                "(r:`Round`)-[:STRIVING_FOR]->(g:`Goal`) RETURN g " \
                 "ORDER BY g.created" % (self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
         return [Goal.inflate(row[0]) for row in res]
@@ -51,18 +50,3 @@ class RoundListCreate(generics.ListCreateAPIView):
                 (self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
         return [Round.inflate(row[0]) for row in res]
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(request.data)
-        instance = serializer.save()
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)

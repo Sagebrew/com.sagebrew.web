@@ -1,7 +1,6 @@
 from rest_framework.reverse import reverse
 
-from neomodel import (StringProperty, RelationshipTo, BooleanProperty,
-                      IntegerProperty)
+from neomodel import (StringProperty, RelationshipTo, BooleanProperty)
 
 from sb_base.neo_models import (VoteRelationship)
 
@@ -78,7 +77,7 @@ class Campaign(Searchable):
     editors = RelationshipTo('plebs.neo_models.Pleb', 'CAN_BE_EDITED_BY')
     accountants = RelationshipTo('plebs.neo_models.Pleb',
                                  'CAN_VIEW_MONETARY_DATA')
-    scope = RelationshipTo('sb_campaigns.neo_models.Scope', 'HAS_SCOPE')
+    position = RelationshipTo('sb_campaigns.neo_models.Position', 'RUNNING_FOR')
 
     def get_url(self, request=None):
         return reverse('action_saga',
@@ -117,14 +116,16 @@ class PoliticalCampaign(Campaign):
                                   'POTENTIAL_REPRESENTATIVE_FOR')
 
 
-class Scope(SBObject):
-    country = StringProperty()
-    state = StringProperty()
-    # we can use https://github.com/unitedstates/districts to verify correct
-    # state/district inputs when creating the campaign/advocacy
-    district = IntegerProperty()
+class Position(SBObject):
+    name = StringProperty()
 
-    # geolocation can be added in later for when we are able to support
-    # geolocational data to determine the scope of the campaign/advocacy
-    campaign = RelationshipTo('sb_campaigns.neo_models.Campaign',
-                              'SCOPE_FOR')
+    country = RelationshipTo('sb_locations.neo_models.Country',
+                             'FOR_COUNTRY')
+    location = RelationshipTo('sb_locations.neo_models.Location',
+                              'FOR_LOCATION')
+    state = RelationshipTo('sb_locations.neo_models.State',
+                           'FOR_STATE')
+    district = RelationshipTo('sb_locations.neo_models.District',
+                              'FOR_DISTRICT')
+    campaigns = RelationshipTo('sb_campaigns.neo_models.Campaign',
+                               'RUNNING_CAMPAIGNS')

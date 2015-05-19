@@ -51,7 +51,6 @@ def request_to_api(url, username, data=None, headers=None, req_method=None,
         headers['Authorization'] = "%s %s" % ('Token', token.key)
     response = None
     try:
-        logger.info()
         if req_method is None or req_method == "POST" or req_method == "post":
             response = requests.post(url, data=dumps(data),
                                      verify=settings.VERIFY_SECURE,

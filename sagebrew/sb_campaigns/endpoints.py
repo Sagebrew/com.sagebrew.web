@@ -1,28 +1,20 @@
-from datetime import datetime
 from logging import getLogger
-
-from django.template.loader import render_to_string
-from django.template import RequestContext
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
-from rest_framework.decorators import detail_route, list_route
+from rest_framework.decorators import detail_route
 from rest_framework.response import Response
-from rest_framework import status, generics
+from rest_framework import status
 
 from neomodel import db, DoesNotExist
 
-from api.utils import spawn_task
 from api.permissions import IsOwnerOrEditorOrAccountant, IsOwnerOrAdmin
-from sb_base.utils import get_ordering, get_tagged_as
-from sb_stats.tasks import update_view_count_task
 from plebs.neo_models import Pleb
 from plebs.serializers import PlebSerializerNeo
 
 from .serializers import (CampaignSerializer, PoliticalCampaignSerializer,
-                          PledgeVoteSerializer, EditorAccountantSerializer,
-                          ScopeSerializer)
-from .neo_models import Campaign, PoliticalCampaign, Scope
+                          EditorAccountantSerializer, PositionSerializer)
+from .neo_models import Campaign, PoliticalCampaign, Position
 
 logger = getLogger('loggly_logs')
 
@@ -46,31 +38,29 @@ class CampaignViewSet(viewsets.ModelViewSet):
                                          context={"request": request})
         if serializer.is_valid():
             serializer.save()
-            serializer = serializer.data
-            return Response(serializer, status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, *args, **kwargs):
         queryset = self.get_object()
-        single_object = self.get_serializer(
-            queryset, context={'request': request}).data
-
-        return Response(single_object, status=status.HTTP_200_OK)
+        return Response(self.get_serializer(queryset,
+                                            context={'request': request}).data,
+                        status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticated,
                                       IsOwnerOrEditorOrAccountant))
-    def editors(self, request, *args, **kwargs):
+    def editors(self, request, object_uuid=""):
         editor_list = []
-        queryset = self.get_object()
-        self.check_object_permissions(request, queryset)
-        expand = request.query_params.get('expand', 'false').lower()
-        editors = queryset.editors.all()
+        query = 'MATCH (c:`Campaign` {object_uuid: "%s"})-' \
+                '[:CAN_BE_EDITED_BY]-(p:`Pleb`) RETURN p' % (object_uuid)
+        res, col = db.cypher_query(query)
+        editors = [Pleb.inflate(row[0]) for row in res]
+        #self.check_object_permissions(request, queryset)
         for editor in editors:
             editor_info = editor.username
-            if expand == 'true':
-                editor_info = PlebSerializerNeo(
-                    editor, context={'request': request}).data
+            editor_info = PlebSerializerNeo(
+                editor, context={'request': request}).data
             editor_list.append(editor_info)
         return Response(editor_list, status=status.HTTP_200_OK)
 
@@ -91,14 +81,9 @@ class CampaignViewSet(viewsets.ModelViewSet):
         self.check_object_permissions(request, queryset)
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            logger.info(serializer.data)
-            for editor in serializer.data['users']:
-                try:
-                    editor_pleb = Pleb.get(username=editor)
-                except (Pleb.DoesNotExist, DoesNotExist):
-                    continue
-                queryset.editors.connect(editor_pleb)
-                editor_pleb.campaign_editor.connect(queryset)
+            serializer.save(profile_type="editor",
+                            modification_type="add",
+                            single_object=queryset)
             return Response({"detail": "success",
                              "message": "Successfully added specified users "
                                         "to your campaign editors."},
@@ -123,13 +108,9 @@ class CampaignViewSet(viewsets.ModelViewSet):
         self.check_object_permissions(request, queryset)
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            for editor in serializer.data['users']:
-                try:
-                    editor_pleb = Pleb.get(username=editor)
-                except (Pleb.DoesNotExist, DoesNotExist):
-                    continue
-                queryset.editors.disconnect(editor_pleb)
-                editor_pleb.campaign_editor.disconnect(queryset)
+            serializer.save(profile_type="editor",
+                            modification_type="delete",
+                            single_object=queryset)
             return Response({"detail": "success",
                              "message": "Successfully removed specified "
                                         "editors from your campaign."},
@@ -154,13 +135,9 @@ class CampaignViewSet(viewsets.ModelViewSet):
         self.check_object_permissions(request, queryset)
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            for accountant in serializer.data['users']:
-                try:
-                    accountant_pleb = Pleb.get(username=accountant)
-                except (Pleb.DoesNotExist, DoesNotExist):
-                    continue
-                queryset.accountants.connect(accountant_pleb)
-                accountant_pleb.campaign_accountant.connect(queryset)
+            serializer.save(profile_type="accountant",
+                            modification_type="add",
+                            single_object=queryset)
             return Response({"detail": "success",
                              "message": "Successfully added specified users to"
                                         " your campaign accountants."},
@@ -185,13 +162,9 @@ class CampaignViewSet(viewsets.ModelViewSet):
         self.check_object_permissions(request, queryset)
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            for accountant in serializer.data['users']:
-                try:
-                    accountant_pleb = Pleb.get(username=accountant)
-                except (Pleb.DoesNotExist, DoesNotExist):
-                    continue
-                queryset.accountants.disconnect(accountant_pleb)
-                accountant_pleb.campaign_accountant.disconnect(queryset)
+            serializer.save(profile_type="accountant",
+                            modification_type="delete",
+                            single_object=queryset)
             return Response({"detail": "success",
                              "message": "Successfully removed specified "
                                         "accountants from your campaign."},
@@ -214,19 +187,15 @@ class CampaignViewSet(viewsets.ModelViewSet):
             accountant_list.append(accountant_info)
         return Response(accountant_list, status=status.HTTP_200_OK)
 
-    @detail_route(methods=['get'])
-    def updates(self, request, *args, **kwargs):
-        pass
-
-    @detail_route(methods=['get'], serializer_class=ScopeSerializer)
-    def scope(self, request, *args, **kwargs):
-        query = "MATCH (c:`Campaign` {object_uuid: '%s'})-" \
-                "[:HAS_SCOPE]-(s:`Scope`) RETURN s" % \
-                (self.kwargs[self.lookup_field])
+    @detail_route(methods=['get'], serializer_class=PositionSerializer)
+    def position(self, request, *args, **kwargs):
+        query = "MATCH (c:`Campaign`)--(p:`Position`) RETURN p"
         res, col = db.cypher_query(query)
-        scope = [Scope.inflate(row[0]) for row in res]
-        return Response(self.get_serializer(scope[0]).data,
+        position = [Position.inflate(row[0]) for row in res][0]
+        return Response(self.get_serializer(position,
+                                            context={'request': request}).data,
                         status=status.HTTP_200_OK)
+
 
 
 class PoliticalCampaignViewSet(CampaignViewSet):
@@ -250,9 +219,3 @@ class PoliticalCampaignViewSet(CampaignViewSet):
     @detail_route(methods=['get'])
     def vote_count(self, request, *args, **kwargs):
         pass
-
-
-class DonationViewSet(viewsets.ModelViewSet):
-    serializer_class = PoliticalCampaignSerializer
-    lookup_field = "object_uuid"
-    permission_classes = (IsAuthenticated,)

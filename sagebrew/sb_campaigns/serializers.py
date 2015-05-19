@@ -1,24 +1,25 @@
-from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.models import User
-from django.core.cache import cache
+from json import loads
+from logging import getLogger
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from neomodel.exception import DoesNotExist
-from neomodel import db
+from neomodel import db, DoesNotExist
 
 from api.serializers import SBSerializer
-from api.utils import spawn_task, gather_request_data
-from plebs.neo_models import Address, Pleb, BetaUser
-from plebs.tasks import create_pleb_task, pleb_user_update, determine_pleb_reps
-from plebs.serializers import PlebSerializerNeo
+from api.utils import gather_request_data
+from plebs.neo_models import Pleb
+from sb_locations.neo_models import (State, District, Country, Location)
+from sb_locations.serializers import (StateSerializer, LocationSerializer,
+                                      DistrictSerializer, CountrySerializer)
 
-from .neo_models import (Campaign, PoliticalCampaign, Scope)
+from .neo_models import (PoliticalCampaign, Position)
+
+logger = getLogger('loggly_logs')
 
 
 class CampaignSerializer(SBSerializer):
-    stripe_id = serializers.CharField(required=False, allow_blank=True,
+    stripe_id = serializers.CharField(write_only=True, allow_blank=True,
                                       allow_null=True)
     active = serializers.BooleanField(required=False)
     biography = serializers.CharField(required=True)
@@ -40,11 +41,10 @@ class CampaignSerializer(SBSerializer):
 
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
-    goals = serializers.SerializerMethodField()
-    scope = serializers.SerializerMethodField()
     rounds = serializers.SerializerMethodField()
     updates = serializers.SerializerMethodField()
-
+    position = serializers.SerializerMethodField()
+    active_goals = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         pass
@@ -65,26 +65,23 @@ class CampaignSerializer(SBSerializer):
         instance.save()
         return instance
 
-    def get_type(self, obj):
-        return "campaign"
-
     def get_url(self, obj):
         return obj.get_url(request=self.context.get('request', None))
 
     def get_href(self, obj):
-        request, expand, _, _, _ = gather_request_data(self.context)
+        request, _, _, _, _ = gather_request_data(self.context)
         return reverse('campaign-detail',
                        kwargs={'object_uuid': obj.object_uuid},
                        request=request)
 
-    def get_goals(self, obj):
+    def get_active_goals(self, obj):
         request, expand, _, _, _ = gather_request_data(self.context)
         return reverse('goals-list',
                        kwargs={'object_uuid': obj.object_uuid},
                        request=request)
 
     def get_rounds(self, obj):
-        request, expand, _, _, _ = gather_request_data(self.context)
+        request, _, _, _, _ = gather_request_data(self.context)
         return reverse('rounds-list',
                        kwargs={'object_uuid': obj.object_uuid},
                        request=request)
@@ -93,12 +90,9 @@ class CampaignSerializer(SBSerializer):
         request, expand, _, _, _ = gather_request_data(self.context)
         pass
 
-    def get_scope(self, obj):
+    def get_position(self, obj):
         request, expand, _, _, _ = gather_request_data(self.context)
-        if expand == 'true':
-            return ScopeSerializer(obj.scope.all()[0],
-                                   context={'request': request}).data
-        return reverse('campaign-scope',
+        return reverse('campaign-position',
                        kwargs={'object_uuid': obj.object_uuid},
                        request=request)
 
@@ -108,30 +102,23 @@ class PoliticalCampaignSerializer(CampaignSerializer):
     vote_count = serializers.SerializerMethodField()
 
     def create(self, validated_data):
-        request = self.context['request']
+        request, expand, _, _, _ = gather_request_data(self.context)
         owner = Pleb.get(request.user.username)
-        editors = validated_data.pop('editors', [])
-        accountants = validated_data.pop('accountants', [])
-        state = validated_data.pop('state', None)
-        district = validated_data.pop('district', None)
-        country = validated_data.pop('country', None)
-        scope = Scope(state=state, district=district, country=country).save()
+        position = validated_data.pop('position', None)
+        position = Position.nodes.get(object_uuid=position)
         campaign = PoliticalCampaign(**validated_data).save()
-        campaign.scope.connect(scope)
-        scope.campaign.connect(campaign)
+        campaign.position.connect(position)
+        position.campaigns.connect(campaign)
         campaign.owned_by.connect(owner)
         owner.campaign.connect(campaign)
-        for editor in editors:
-            editor_pleb = Pleb.get(editor)
-            campaign.editors.connect(editor_pleb)
-            editor_pleb.campaign_editor.connect(campaign)
-        for accountant in accountants:
-            accountant_pleb = Pleb.get(accountant)
-            campaign.accountants.connect(accountant)
-            accountant_pleb.campaign_accountant.connect(campaign)
+        owner.campaign_editor.connect(campaign)
+        owner.campaign_accountant.connect(campaign)
+        campaign.editors.connect(owner)
+        campaign.accountants.connect(owner)
         return campaign
 
     def get_votes(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
         pass
 
     def get_vote_count(self, obj):
@@ -139,25 +126,71 @@ class PoliticalCampaignSerializer(CampaignSerializer):
 
 
 class EditorAccountantSerializer(serializers.Serializer):
-    users = serializers.ListField(
+    profiles = serializers.ListField(
         child=serializers.CharField(max_length=30)
     )
 
+    def create(self, validated_data):
+        profile_type = validated_data.pop('profile_type', None)
+        modification_type = validated_data.pop('modification_type', None)
+        single_object = validated_data.pop('single_object', None)
+        logger.info(validated_data)
+        for profile in validated_data['profiles']:
+            profile_pleb = Pleb.get(username=profile)
+            if profile_type == "editor":
+                if modification_type == "delete":
+                    single_object.editors.disconnect(profile_pleb)
+                    profile_pleb.campaign_editor.disconnect(single_object)
+                else:
+                    single_object.editors.connect(profile_pleb)
+                    profile_pleb.campaign_editor.connect(single_object)
+            elif profile_type == "accountant":
+                if modification_type == "delete":
+                    single_object.accountants.disconnect(profile_pleb)
+                    profile_pleb.campaign_accountant.disconnect(single_object)
+                else:
+                    single_object.accountants.connect(profile_pleb)
+                    profile_pleb.campaign_accountant.connect(single_object)
+        return single_object
 
-class PledgeVoteSerializer(SBSerializer):
-    pass
 
 
-class ScopeSerializer(SBSerializer):
-    country = serializers.CharField()
-    district = serializers.IntegerField()
-    state = serializers.CharField()
+class PositionSerializer(serializers.Serializer):
+    name = serializers.CharField()
 
-    campaign = serializers.SerializerMethodField()
+    country = serializers.SerializerMethodField()
+    state = serializers.SerializerMethodField()
+    district = serializers.SerializerMethodField()
+    campaigns = serializers.SerializerMethodField()
+    location = serializers.SerializerMethodField()
 
-    def get_campaign(self, obj):
-        request, expand, _, _, _ = gather_request_data(self.context)
-        return reverse('campaign-detail',
-                       kwargs={'object_uuid':
-                                   obj.campaign.all()[0].object_uuid},
-                       request=request)
+    def get_country(self, obj):
+        query = 'MATCH (p:`Position` {object_uuid: "%s"})--(c:`Country`) ' \
+                'RETURN c' % (obj.object_uuid)
+        res, col = db.cypher_query(query)
+        node = [Country.inflate(row[0]) for row in res][0]
+        return node.name
+
+    def get_state(self, obj):
+        query = 'MATCH (p:`Position` {object_uuid: "%s"})--(c:`State`) ' \
+                'RETURN c' % (obj.object_uuid)
+        res, col = db.cypher_query(query)
+        node = [State.inflate(row[0]) for row in res][0]
+        return node.name
+
+    def get_district(self, obj):
+        query = 'MATCH (p:`Position` {object_uuid: "%s"})--(c:`District`) ' \
+                'RETURN c' % (obj.object_uuid)
+        res, col = db.cypher_query(query)
+        node = [District.inflate(row[0]) for row in res][0]
+        return node.number
+
+    def get_campaigns(self, obj):
+        pass
+
+    def get_location(self, obj):
+        query = 'MATCH (p:`Position` {object_uuid: "%s"})--(c:`Location`) ' \
+                'RETURN c' % (obj.object_uuid)
+        res, col = db.cypher_query(query)
+        node = [Location.inflate(row[0]) for row in res][0]
+        return loads(node.geo_data)

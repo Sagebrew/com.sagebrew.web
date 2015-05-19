@@ -1,7 +1,12 @@
 from rest_framework import permissions
 
+from neomodel import db
+
 from plebs.neo_models import Pleb
 
+
+from logging import getLogger
+logger = getLogger("loggly_logs")
 
 class IsOwnerOrAdmin(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):

@@ -45,7 +45,7 @@ class Goal(SBObject):
     # relationships
     updates = RelationshipTo('sb_updates.neo_models.Update', "UPDATE_FOR")
     donations = RelationshipTo('sb_donations.neo_models.Donation', "RECEIVED")
-    round = RelationshipTo('sb_goals.neo_models.Round', "PART_OF")
+    associated_round = RelationshipTo('sb_goals.neo_models.Round', "PART_OF")
     previous_goal = RelationshipTo('sb_goals.neo_models.Goal', "PREVIOUS")
     next_goal = RelationshipTo('sb_goals.neo_models.Goal', "NEXT")
     campaign = RelationshipTo('sb_campaigns.neo_models.Campaign', 'SET_FOR')
@@ -80,7 +80,7 @@ class Round(SBObject):
     # the campaigner closes out a round by completing all the associated
     # goals.
     completed = DateTimeProperty()
-    current = BooleanProperty(default=False)
+    active = BooleanProperty(default=False)
 
     # relationships
     goals = RelationshipTo('sb_goals.neo_models.Goal', "STRIVING_FOR")

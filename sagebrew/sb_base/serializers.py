@@ -3,7 +3,7 @@ import markdown
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from neomodel import CypherException
+from neomodel import CypherException, db
 
 from api.serializers import SBSerializer
 from api.utils import gather_request_data
@@ -11,6 +11,7 @@ from api.utils import gather_request_data
 from plebs.serializers import PlebSerializerNeo
 from plebs.neo_models import Pleb
 from sb_campaigns.serializers import CampaignSerializer
+from sb_campaigns.neo_models import Campaign
 
 
 class VotableContentSerializer(SBSerializer):
@@ -96,11 +97,21 @@ class MarkdownContentSerializer(ContentSerializer):
 
 
 class CampaignAttributeSerializer(SBSerializer):
+    """
+    This serializer is inherited from by both the GoalSerializer and
+    RoundSerializer. We can have our logic for getting campaigns in
+    this serializer so we don't have to repeat code. We can also use this
+    for any object we need in the future that needs to get the campaign it is
+    related to.
+    """
     campaign = serializers.SerializerMethodField()
 
     def get_campaign(self, obj):
         request, expand, _, _, _ = gather_request_data(self.context)
-        campaign = obj.campaign.all()[0]
+        query = 'MATCH (o:`%s` {object_uuid:"%s"})--(c:Campaign) RETURN c' % \
+                (obj.get_child_label(), obj.object_uuid)
+        res, col = db.cypher_query(query)
+        campaign = [Campaign.inflate(row[0]) for row in res][0]
         if expand == "true":
             return CampaignSerializer(campaign,
                                       context={"request": request}).data

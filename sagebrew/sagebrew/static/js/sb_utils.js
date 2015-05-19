@@ -748,7 +748,6 @@ function errorDisplay(XMLHttpRequest) {
         notification = JSON.parse(notification);
         for (var badItem in notification) {
             for (var message in notification[badItem]) {
-                console.log(notification[badItem])
                 if (typeof(notification[badItem]) === 'object'){
                     reportMsg = notification[badItem][message].message
                 } else {

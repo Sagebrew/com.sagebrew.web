@@ -122,7 +122,7 @@ class MeEndpointTests(APITestCase):
         url = reverse('me-detail')
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['wallpaper_pic'],
-                          static.static("images/wallpaper_western.jpg"))
+                         static.static("images/wallpaper_western.jpg"))
 
     def test_get_url(self):
         self.client.force_authenticate(user=self.user)

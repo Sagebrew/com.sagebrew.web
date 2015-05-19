@@ -4,6 +4,7 @@ from collections import OrderedDict
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.templatetags import static
 
 from neomodel import db
 
@@ -113,13 +114,15 @@ class MeEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('me-detail')
         response = self.client.get(url, format='json')
-        self.assertIsNone(response.data['profile_pic'])
+        self.assertEqual(response.data['profile_pic'],
+                         static.static("images/sage_coffee_grey-01.png"))
 
     def test_get_wallpaper_pic(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('me-detail')
         response = self.client.get(url, format='json')
-        self.assertIsNone(response.data['profile_pic'])
+        self.assertEqual(response.data['wallpaper_pic'],
+                          static.static("images/wallpaper_western.jpg"))
 
     def test_get_url(self):
         self.client.force_authenticate(user=self.user)

@@ -197,7 +197,6 @@ def get_user_search_view(request, pleb_username=""):
             is_friend = False
             friend_request_sent = current_user.get_friend_requests_sent(
                 profile.username)
-        logger.critical(friend_request_sent)
         serializer_data = PlebSerializerNeo(profile).data
         serializer_data['is_friend'] = is_friend
 

@@ -135,7 +135,6 @@ class Pleb(Searchable):
     primary_phone = StringProperty()
     secondary_phone = StringProperty()
     profile_pic = StringProperty()
-    profile_pic_uuid = StringProperty()
     wallpaper_pic = StringProperty()
     completed_profile_info = BooleanProperty(default=False)
     reputation = IntegerProperty(default=0)

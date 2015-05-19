@@ -326,6 +326,9 @@ class MeRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
         if serializer_data['wallpaper_pic'] is None:
             serializer_data['wallpaper_pic'] = static(
                 'images/wallpaper_western.jpg')
+        if serializer_data['profile_pic'] is None:
+            serializer_data['profile_pic'] = static(
+                'images/sage_coffee_grey-01.png')
         return Response(serializer_data)
 
 

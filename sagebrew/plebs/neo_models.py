@@ -135,7 +135,6 @@ class Pleb(Searchable):
     primary_phone = StringProperty()
     secondary_phone = StringProperty()
     profile_pic = StringProperty()
-    profile_pic_uuid = StringProperty()
     wallpaper_pic = StringProperty()
     completed_profile_info = BooleanProperty(default=False)
     reputation = IntegerProperty(default=0)
@@ -289,9 +288,9 @@ class Pleb(Searchable):
     def get_restrictions(self):
         return self.restrictions.all()
 
-    def get_actions(self):
+    def get_actions(self, cache_buster=False):
         actions = cache.get("%s_actions" % self.username)
-        if actions is None:
+        if actions is None or cache_buster is True:
             query = 'MATCH (a:Pleb {username: "%s"})-' \
                     '[:CAN {active: true}]->(n:`SBAction`) ' \
                     'RETURN n.resource' % self.username
@@ -303,9 +302,9 @@ class Pleb(Searchable):
             cache.set("%s_actions" % self.username, actions)
         return actions
 
-    def get_privileges(self):
+    def get_privileges(self, cache_buster=False):
         privileges = cache.get("%s_privileges" % self.username)
-        if privileges is None:
+        if privileges is None or cache_buster is True:
             query = 'MATCH (a:Pleb {username: "%s"})-' \
                     '[:HAS {active: true}]->(n:`Privilege`) ' \
                     'RETURN n.name' % self.username

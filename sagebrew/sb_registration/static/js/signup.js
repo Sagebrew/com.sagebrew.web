@@ -3,7 +3,6 @@ $(document).ready(function () {
     var submitButton = $("#submit_signup");
     function signupFxn() {
         submitButton.attr("disabled", "disabled");
-        event.preventDefault();
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
@@ -31,36 +30,43 @@ $(document).ready(function () {
             }
         });
     }
-    submitButton.on('click', function () {
+    submitButton.on('click', function (event) {
+        event.preventDefault();
         signupFxn();
     });
-    $('#f_name').keyup(function (e) {
+    $('#f_name').keypress(function (e) {
         if (e.which === 10 || e.which === 13) {
+            e.preventDefault();
             signupFxn();
         }
     });
-    $('#l_name').keyup(function (e) {
+    $('#l_name').keypress(function (e) {
         if (e.which === 10 || e.which === 13) {
+            e.preventDefault();
             signupFxn();
         }
     });
-    $('#email').keyup(function (e) {
+    $('#email').keypress(function (e) {
         if (e.which === 10 || e.which === 13) {
+            e.preventDefault();
             signupFxn();
         }
     });
-    $('#password').keyup(function (e) {
+    $('#password').keypress(function (e) {
         if (e.which === 10 || e.which === 13) {
+            e.preventDefault();
             signupFxn();
         }
     });
-    $('#password2').keyup(function (e) {
+    $('#password2').keypress(function (e) {
         if (e.which === 10 || e.which === 13) {
+            e.preventDefault();
             signupFxn();
         }
     });
-    $('#birthday').keyup(function (e) {
+    $('#birthday').keypress(function (e) {
         if (e.which === 10 || e.which === 13) {
+            e.preventDefault();
             signupFxn();
         }
     });

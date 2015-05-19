@@ -735,9 +735,29 @@ function errorDisplay(XMLHttpRequest) {
         $.notify({message: "Sorry looks like we're having some server issues right now. "}, {type: "danger"});
     }
     if (XMLHttpRequest.status === 400) {
+        var notification = "{}"
         var notificationDetail = XMLHttpRequest.responseJSON.detail;
+        var notificationText = XMLHttpRequest.responseText;
         if (!(typeof notificationDetail === "undefined" || notificationDetail === null)) {
-            $.notify({message: XMLHttpRequest.responseJSON.detail}, {type: 'danger'});
+            notification = notificationDetail;
+        } else if( notificationText !== undefined) {
+            notification = notificationText;
+        } else {
+            $.notify({message: "Sorry looks like you didn't include all the necessary information."}, {type: 'danger'});
+        }
+        notification = JSON.parse(notification);
+        for (var badItem in notification) {
+            for (var message in notification[badItem]) {
+                console.log(notification[badItem])
+                if (typeof(notification[badItem]) === 'object'){
+                    reportMsg = notification[badItem][message].message
+                } else {
+                    reportMsg = notification[badItem][message]
+                }
+                badItemCap = badItem.charAt(0).toUpperCase() + badItem.slice(1);
+                errorMessage = badItemCap + ": " + reportMsg;
+                $.notify({message: errorMessage}, {type: 'danger'});
+            }
         }
     }
     if (XMLHttpRequest.status === 404) {

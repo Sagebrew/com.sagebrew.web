@@ -1,13 +1,9 @@
 $(document).ready(function () {
     "use strict";
-
-    $(".submit_question-action").click(function (event) {
-        event.preventDefault();
+    function createQuestion() {
         var submitArea = $(".submit_question-action"),
             tags = $('#sb_tag_box').val();
         submitArea.attr("disabled", "disabled");
-
-
         if (tags === "") {
             tags = [];
         }
@@ -15,7 +11,7 @@ $(document).ready(function () {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
-            url: $(this).data('url'),
+            url: submitArea.data('url'),
             data: JSON.stringify({
                 'title': $('input#title_id').val(),
                 'content': $('textarea#wmd-input-0').val(),
@@ -24,6 +20,7 @@ $(document).ready(function () {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
+                console.log('success')
                 window.location.href = data.url;
             },
             error: function (XMLHttpRequest) {
@@ -31,8 +28,18 @@ $(document).ready(function () {
                 errorDisplay(XMLHttpRequest);
             }
         });
+    }
+    $(".submit_question-action").click(function (event) {
+        event.preventDefault();
+        createQuestion();
     });
     $(".cancel_question-action").click(function () {
         window.location.href = "/conversations/";
+    });
+    $('#sb_tag_box-tokenfield').keypress(function (e) {
+        if (e.which === 10 || e.which === 13) {
+            e.preventDefault();
+            $(".submit_question-action").removeAttr("disabled");
+        }
     });
 });

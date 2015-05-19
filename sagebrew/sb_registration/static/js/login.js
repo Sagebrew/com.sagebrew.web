@@ -10,14 +10,13 @@ $(document).ready(function () {
         } catch (err) {
             next = "";
         }
-
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
             url: "/registration/login/api/",
             data: JSON.stringify({
-                'email': $('.email').val(),
-                'password': $('.password').val()
+                'email': $('#email_input').val(),
+                'password': $('#password_input').val()
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",

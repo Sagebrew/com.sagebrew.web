@@ -219,3 +219,20 @@ class PoliticalCampaignViewSet(CampaignViewSet):
     @detail_route(methods=['get'])
     def vote_count(self, request, *args, **kwargs):
         pass
+
+
+class PositionViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = PositionSerializer
+    lookup_field = "object_uuid"
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        query = 'MATCH (p:`Position`) RETURN p'
+        res, col = db.cypher_query(query)
+        return [Position.inflate(row[0]) for row in res]
+
+    def get_object(self):
+        query = 'MATCH (p:`Position` {object_uuid:"%s"}) RETURN p' % \
+                (self.kwargs[self.lookup_field])
+        res, col = db.cypher_query(query)
+        return [Position.inflate(row[0]) for row in res][0]

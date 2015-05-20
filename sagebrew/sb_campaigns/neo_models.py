@@ -119,13 +119,5 @@ class PoliticalCampaign(Campaign):
 class Position(SBObject):
     name = StringProperty()
 
-    country = RelationshipTo('sb_locations.neo_models.Country',
-                             'FOR_COUNTRY')
     location = RelationshipTo('sb_locations.neo_models.Location',
-                              'FOR_LOCATION')
-    state = RelationshipTo('sb_locations.neo_models.State',
-                           'FOR_STATE')
-    district = RelationshipTo('sb_locations.neo_models.District',
-                              'FOR_DISTRICT')
-    campaigns = RelationshipTo('sb_campaigns.neo_models.Campaign',
-                               'RUNNING_CAMPAIGNS')
+                              'AVAILABLE_WITHIN')

@@ -1,53 +1,78 @@
+from json import loads
+
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 
+from neomodel import db
 
-class CountrySerializer(serializers.Serializer):
-    name = serializers.CharField()
+from api.utils import gather_request_data
 
-    locations = serializers.SerializerMethodField()
-    states = serializers.SerializerMethodField()
-    districts = serializers.SerializerMethodField()
+from sb_campaigns.neo_models import Position
 
-    def get_locations(self, obj):
-        pass
-
-    def get_states(self, obj):
-        pass
-
-    def get_districts(self, obj):
-        pass
+from .neo_models import Location
 
 
 class LocationSerializer(serializers.Serializer):
-    geo_data = serializers.CharField()
-
-    states = serializers.SerializerMethodField()
-
-    def get_states(self, obj):
-        pass
-
-
-class StateSerializer(serializers.Serializer):
     name = serializers.CharField()
 
-    districts = serializers.SerializerMethodField()
+    encompasses = serializers.SerializerMethodField()
+    encompassed_by = serializers.SerializerMethodField()
+    positions = serializers.SerializerMethodField()
+    geo_data = serializers.SerializerMethodField()
 
-    def get_districts(self, obj):
-        pass
+    def get_encompasses(self, obj):
+        request, expand, _, _, _ = gather_request_data(self.context)
+        encompass_list = []
+        query = 'MATCH (n:`Location` {object_uuid: "%s"})-' \
+                '[:ENCOMPASSES]-(e:`Location`) RETURN e' % (obj.object_uuid)
+        res, col = db.cypher_query(query)
+        for location in [Location.inflate(row[0]) for row in res]:
+            if expand == 'true':
+                encompass_list.append(reverse('location-detail',
+                                      kwargs={"object_uuid":
+                                                  location.object_uuid},
+                                      request=request))
+                continue
+            encompass_list.append(location.object_uuid)
+        return encompass_list
 
+    def get_encompassed_by(self, obj):
+        request, expand, _, _, _ = gather_request_data(self.context)
+        encompass_list = []
+        query = 'MATCH (n:`Location` {object_uuid: "%s"})-' \
+                '[:ENCOMPASSED_BY]-(e:`Location`) RETURN e' % (obj.object_uuid)
+        res, col = db.cypher_query(query)
+        for location in [Location.inflate(row[0]) for row in res]:
+            if expand == 'true':
+                encompass_list.append(reverse('location-detail',
+                                      kwargs={"object_uuid":
+                                                  location.object_uuid},
+                                      request=request))
+                continue
+            encompass_list.append(location.object_uuid)
+        return encompass_list
 
-class DistrictSerializer(serializers.Serializer):
-    number = serializers.IntegerField()
+    def get_positions(self, obj):
+        position_list = []
+        request, expand, _, _, _ = gather_request_data(self.context)
+        query = 'MATCH (l:`Location` {object_uuid: "%s"})-' \
+                '[:POSITIONS_AVAILABLE]-(p:`Position`) RETURN p' % \
+                (obj.object_uuid)
+        res, col = db.cypher_query(query)
+        for position in [Position.inflate(row[0]) for row in res]:
+            if expand == 'true':
+                position_list.append(reverse('position-detail',
+                                             kwargs={"object_uuid":
+                                                         position.object_uuid},
+                                             request=request))
+                continue
+            position_list.append(position.object_uuid)
+        return position_list
 
-    state = serializers.SerializerMethodField()
-    addresses = serializers.SerializerMethodField()
-    positions_available = serializers.SerializerMethodField()
-
-    def get_state(self, obj):
-        pass
-
-    def get_addresses(self, obj):
-        pass
-
-    def get_positions_available(self, obj):
-        pass
+    def get_geo_data(self, obj):
+        request, expand, _, _, _ = gather_request_data(self.context)
+        if obj.geo_data is None:
+            return False
+        if expand == 'true':
+            return loads(obj.geo_data)
+        return True

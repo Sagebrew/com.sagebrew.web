@@ -191,6 +191,7 @@ INSTALLED_APPS = (
     'sb_comments',
     'sb_docstore',
     'sb_flags',
+    'sb_locations',
     'sb_notifications',
     'sb_posts',
     'sb_privileges',

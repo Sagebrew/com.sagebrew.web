@@ -9,9 +9,7 @@ from neomodel import db, DoesNotExist
 from api.serializers import SBSerializer
 from api.utils import gather_request_data
 from plebs.neo_models import Pleb
-from sb_locations.neo_models import (State, District, Country, Location)
-from sb_locations.serializers import (StateSerializer, LocationSerializer,
-                                      DistrictSerializer, CountrySerializer)
+from sb_locations.neo_models import (Location)
 
 from .neo_models import (PoliticalCampaign, Position)
 
@@ -158,39 +156,33 @@ class EditorAccountantSerializer(serializers.Serializer):
 class PositionSerializer(serializers.Serializer):
     name = serializers.CharField()
 
-    country = serializers.SerializerMethodField()
-    state = serializers.SerializerMethodField()
-    district = serializers.SerializerMethodField()
     campaigns = serializers.SerializerMethodField()
     location = serializers.SerializerMethodField()
 
-    def get_country(self, obj):
-        query = 'MATCH (p:`Position` {object_uuid: "%s"})--(c:`Country`) ' \
-                'RETURN c' % (obj.object_uuid)
-        res, col = db.cypher_query(query)
-        node = [Country.inflate(row[0]) for row in res][0]
-        return node.name
-
-    def get_state(self, obj):
-        query = 'MATCH (p:`Position` {object_uuid: "%s"})--(c:`State`) ' \
-                'RETURN c' % (obj.object_uuid)
-        res, col = db.cypher_query(query)
-        node = [State.inflate(row[0]) for row in res][0]
-        return node.name
-
-    def get_district(self, obj):
-        query = 'MATCH (p:`Position` {object_uuid: "%s"})--(c:`District`) ' \
-                'RETURN c' % (obj.object_uuid)
-        res, col = db.cypher_query(query)
-        node = [District.inflate(row[0]) for row in res][0]
-        return node.number
-
     def get_campaigns(self, obj):
-        pass
+        campaign_list = []
+        request, expand, _, _, _ = gather_request_data(self.context)
+        query = 'MATCH (p:`Position` {object_uuid: "%s"})--' \
+                '(c:`PoliticalCampaign`) RETURN c' % (obj.object_uuid)
+        res, col = db.cypher_query(query)
+        for campaign in [PoliticalCampaign.inflate(row[0]) for row in res]:
+            if expand == 'true':
+                campaign_list.append(
+                    PoliticalCampaignSerializer(campaign,
+                                                context=
+                                                {'request': request}).data)
+            campaign_list.append(
+                reverse('campaign-detail',
+                        kwargs={'object_uuid': campaign.object_uuid},
+                        request=request))
+        return campaign_list
 
     def get_location(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
         query = 'MATCH (p:`Position` {object_uuid: "%s"})--(c:`Location`) ' \
                 'RETURN c' % (obj.object_uuid)
         res, col = db.cypher_query(query)
         node = [Location.inflate(row[0]) for row in res][0]
-        return loads(node.geo_data)
+        return reverse('location-detail',
+                       kwargs={'object_uuid': node.object_uuid},
+                       request=request)

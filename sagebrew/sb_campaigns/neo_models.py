@@ -1,9 +1,10 @@
+from django.core.cache import cache
+
 from rest_framework.reverse import reverse
 
 from neomodel import (StringProperty, RelationshipTo, BooleanProperty)
 
 from sb_base.neo_models import (VoteRelationship)
-
 from sb_search.neo_models import Searchable, SBObject
 
 
@@ -77,12 +78,44 @@ class Campaign(Searchable):
     editors = RelationshipTo('plebs.neo_models.Pleb', 'CAN_BE_EDITED_BY')
     accountants = RelationshipTo('plebs.neo_models.Pleb',
                                  'CAN_VIEW_MONETARY_DATA')
-    position = RelationshipTo('sb_campaigns.neo_models.Position', 'RUNNING_FOR')
+    position = RelationshipTo('sb_campaigns.neo_models.Position',
+                              'RUNNING_FOR')
+
+    @classmethod
+    def get(cls, object_uuid):
+        campaign = cache.get(object_uuid)
+        if campaign is None:
+            campaign = cls.nodes.get(object_uuid=object_uuid)
+            cache.set(object_uuid, campaign)
+        return campaign
 
     def get_url(self, request=None):
         return reverse('action_saga',
                        kwargs={"username": self.owned_by.all()[0].username},
                        request=request)
+
+    def get_accountants(self):
+        temp_list = []
+        accountant_list = cache.get("%s_accountants" % (self.object_uuid))
+        if accountant_list is None:
+            for pleb in self.accountants.all():
+                temp_list.append(pleb.username)
+            cache.set("%s_accountants" % (self.object_uuid), temp_list)
+            return temp_list
+        return accountant_list
+
+    def get_editors(self):
+        temp_list = []
+        editor_list = cache.get("%s_editors" % (self.object_uuid))
+        if editor_list is None:
+            for pleb in self.editors.all():
+                temp_list.append(pleb.username)
+            cache.set("%s_editors" % (self.object_uuid), temp_list)
+            return temp_list
+        return editor_list
+
+    def get_campaign_helpers(self):
+        return self.get_editors() + self.get_accountants()
 
 
 class PoliticalCampaign(Campaign):
@@ -121,3 +154,9 @@ class Position(SBObject):
 
     location = RelationshipTo('sb_locations.neo_models.Location',
                               'AVAILABLE_WITHIN')
+    currently_held_by = RelationshipTo('sb_public_official.neo_models.'
+                                       'PublicOfficial', "CURRENTLY_HELD_BY")
+    # the campaigns relationship will be linked to all the campaigns currently
+    # running for this position
+    campaigns = RelationshipTo('sb_campaigns.neo_models.PoliticalCampaign',
+                               "CAMPAIGNS")

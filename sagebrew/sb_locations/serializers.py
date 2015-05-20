@@ -24,7 +24,7 @@ class LocationSerializer(serializers.Serializer):
         request, expand, _, _, _ = gather_request_data(self.context)
         encompass_list = []
         query = 'MATCH (n:`Location` {object_uuid: "%s"})-' \
-                '[:ENCOMPASSES]-(e:`Location`) RETURN e' % (obj.object_uuid)
+                '[:ENCOMPASSES]->(e:`Location`) RETURN e' % (obj.object_uuid)
         res, col = db.cypher_query(query)
         for location in [Location.inflate(row[0]) for row in res]:
             if expand == 'true':
@@ -40,7 +40,7 @@ class LocationSerializer(serializers.Serializer):
         request, expand, _, _, _ = gather_request_data(self.context)
         encompass_list = []
         query = 'MATCH (n:`Location` {object_uuid: "%s"})-' \
-                '[:ENCOMPASSED_BY]-(e:`Location`) RETURN e' % (obj.object_uuid)
+                '[:ENCOMPASSED_BY]->(e:`Location`) RETURN e' % (obj.object_uuid)
         res, col = db.cypher_query(query)
         for location in [Location.inflate(row[0]) for row in res]:
             if expand == 'true':
@@ -56,7 +56,7 @@ class LocationSerializer(serializers.Serializer):
         position_list = []
         request, expand, _, _, _ = gather_request_data(self.context)
         query = 'MATCH (l:`Location` {object_uuid: "%s"})-' \
-                '[:POSITIONS_AVAILABLE]-(p:`Position`) RETURN p' % \
+                '[:POSITIONS_AVAILABLE]->(p:`Position`) RETURN p' % \
                 (obj.object_uuid)
         res, col = db.cypher_query(query)
         for position in [Position.inflate(row[0]) for row in res]:

@@ -107,7 +107,9 @@ class CampaignAttributeSerializer(SBSerializer):
     campaign = serializers.SerializerMethodField()
 
     def get_campaign(self, obj):
-        request, expand, _, _, _ = gather_request_data(self.context)
+        request, expand, _, _, expedite = gather_request_data(self.context)
+        if expedite == 'true':
+            return None
         query = 'MATCH (o:`%s` {object_uuid:"%s"})--(c:Campaign) RETURN c' % \
                 (obj.get_child_label(), obj.object_uuid)
         res, col = db.cypher_query(query)

@@ -1,6 +1,8 @@
 from json import loads
 from logging import getLogger
 
+from django.core.cache import cache
+
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -17,25 +19,15 @@ logger = getLogger('loggly_logs')
 
 
 class CampaignSerializer(SBSerializer):
-    stripe_id = serializers.CharField(write_only=True, allow_blank=True,
-                                      allow_null=True)
     active = serializers.BooleanField(required=False)
     biography = serializers.CharField(required=True)
-    facebook = serializers.CharField(required=False, allow_blank=True,
-                                     allow_null=True)
-    linkedin = serializers.CharField(required=False, allow_blank=True,
-                                     allow_null=True)
-    youtube = serializers.CharField(required=False, allow_blank=True,
-                                    allow_null=True)
-    twitter = serializers.CharField(required=False, allow_blank=True,
-                                    allow_null=True)
-    website = serializers.CharField(required=False, allow_blank=True,
-                                    allow_null=True)
-
-    wallpaper_pic = serializers.CharField(required=False, allow_blank=True,
-                                    allow_null=True)
-    profile_pic = serializers.CharField(required=False, allow_blank=True,
-                                    allow_null=True)
+    facebook = serializers.CharField(required=False, allow_null=True)
+    linkedin = serializers.CharField(required=False, allow_null=True)
+    youtube = serializers.CharField(required=False, allow_null=True)
+    twitter = serializers.CharField(required=False, allow_null=True)
+    website = serializers.CharField(required=False, allow_null=True)
+    wallpaper_pic = serializers.CharField(required=False, allow_null=True)
+    profile_pic = serializers.CharField(required=False, allow_null=True)
 
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
@@ -48,8 +40,6 @@ class CampaignSerializer(SBSerializer):
         pass
 
     def update(self, instance, validated_data):
-        instance.stripe_id = validated_data.get('stripe_id',
-                                                instance.stripe_id)
         instance.active = validated_data.get('active', instance.active)
         instance.facebook = validated_data.get('facebook', instance.facebook)
         instance.linkedin = validated_data.get('linkedin', instance.linkedin)
@@ -74,13 +64,13 @@ class CampaignSerializer(SBSerializer):
 
     def get_active_goals(self, obj):
         request, expand, _, _, _ = gather_request_data(self.context)
-        return reverse('goals-list',
+        return reverse('goal-list',
                        kwargs={'object_uuid': obj.object_uuid},
                        request=request)
 
     def get_rounds(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
-        return reverse('rounds-list',
+        return reverse('round-list',
                        kwargs={'object_uuid': obj.object_uuid},
                        request=request)
 
@@ -102,17 +92,14 @@ class PoliticalCampaignSerializer(CampaignSerializer):
     def create(self, validated_data):
         request, expand, _, _, _ = gather_request_data(self.context)
         owner = Pleb.get(request.user.username)
-        position = validated_data.pop('position', None)
-        position = Position.nodes.get(object_uuid=position)
         campaign = PoliticalCampaign(**validated_data).save()
-        campaign.position.connect(position)
-        position.campaigns.connect(campaign)
         campaign.owned_by.connect(owner)
         owner.campaign.connect(campaign)
         owner.campaign_editor.connect(campaign)
         owner.campaign_accountant.connect(campaign)
         campaign.editors.connect(owner)
         campaign.accountants.connect(owner)
+        cache.set(campaign.object_uuid, campaign)
         return campaign
 
     def get_votes(self, obj):
@@ -123,34 +110,39 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         pass
 
 
-class EditorAccountantSerializer(serializers.Serializer):
+class EditorSerializer(serializers.Serializer):
     profiles = serializers.ListField(
         child=serializers.CharField(max_length=30)
     )
 
-    def create(self, validated_data):
-        profile_type = validated_data.pop('profile_type', None)
-        modification_type = validated_data.pop('modification_type', None)
-        single_object = validated_data.pop('single_object', None)
-        logger.info(validated_data)
+    def update(self, instance, validated_data):
+        """
+        The instance passed here much be a Campaign or any subclass of a
+        Campaign
+        :param instance:
+        :param validated_data:
+        :return:
+        """
         for profile in validated_data['profiles']:
             profile_pleb = Pleb.get(username=profile)
-            if profile_type == "editor":
-                if modification_type == "delete":
-                    single_object.editors.disconnect(profile_pleb)
-                    profile_pleb.campaign_editor.disconnect(single_object)
-                else:
-                    single_object.editors.connect(profile_pleb)
-                    profile_pleb.campaign_editor.connect(single_object)
-            elif profile_type == "accountant":
-                if modification_type == "delete":
-                    single_object.accountants.disconnect(profile_pleb)
-                    profile_pleb.campaign_accountant.disconnect(single_object)
-                else:
-                    single_object.accountants.connect(profile_pleb)
-                    profile_pleb.campaign_accountant.connect(single_object)
-        return single_object
+            instance.editors.connect(profile_pleb)
+            profile_pleb.campaign_editor.connect(instance)
+        cache.delete("%s_editors" % (instance.object_uuid))
+        return instance
 
+
+class AccountantSerializer(serializers.Serializer):
+    profiles = serializers.ListField(
+        child=serializers.CharField(max_length=30)
+    )
+
+    def update(self, instance, validated_data):
+        for profile in validated_data['profiles']:
+            profile_pleb = Pleb.get(username=profile)
+            instance.accountants.connect(profile_pleb)
+            profile_pleb.campaign_accountant.connect(instance)
+        cache.delete("%s_accountants" % (instance.object_uuid))
+        return instance
 
 
 class PositionSerializer(serializers.Serializer):

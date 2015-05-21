@@ -69,6 +69,7 @@ def manage_privilege_relation(username):
         # Because of this, this fxn should only ever be called from an async
         # task
         sleep(1)
+    pleb.refresh()
     cache.set(pleb.username, pleb)
     cache.set("%s_privileges" % pleb.username,
               pleb.get_privileges(cache_buster=True))

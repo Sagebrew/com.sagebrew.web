@@ -274,7 +274,9 @@ class Pleb(Searchable):
             else:
                 is_beta_user = True
             cache.set("%s_is_beta" % self.username, is_beta_user)
-        return is_beta_user
+        # Have to cast to bool because memcache stores true and false as
+        # integers
+        return bool(is_beta_user)
 
     def has_flagged_object(self, object_uuid):
         query = "MATCH (a:SBContent {object_uuid: '%s'})-[:FLAGGED_BY]->(" \

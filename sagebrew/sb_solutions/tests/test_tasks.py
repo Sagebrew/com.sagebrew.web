@@ -21,7 +21,8 @@ class TestAddSolutionToSearchIndexTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_add_solution_to_search_index_success(self):
-        solution = Solution(content='this is fake content').save()
+        solution = Solution(content='this is fake content',
+                            owner_username=self.pleb.username).save()
         solution.owned_by.connect(self.pleb)
         data = {"solution": solution}
         res = add_solution_to_search_index.apply_async(kwargs=data)
@@ -32,7 +33,8 @@ class TestAddSolutionToSearchIndexTask(TestCase):
 
     def test_add_solution_to_search_index_solution_already_added(self):
         solution = Solution(content='this is fake content',
-                            added_to_search_index=True).save()
+                            added_to_search_index=True,
+                            owner_username=self.pleb.username).save()
         solution.owned_by.connect(self.pleb)
         data = {"solution": solution}
         res = add_solution_to_search_index.apply_async(kwargs=data)

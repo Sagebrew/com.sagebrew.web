@@ -109,6 +109,7 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         owner = Pleb.get(request.user.username)
         validated_data['content'] = bleach.clean(validated_data.get(
             'content', ""))
+        validated_data['owner_username'] = owner.username
         question = Question(**validated_data).save()
         question.owned_by.connect(owner)
         owner.questions.connect(question)
@@ -132,6 +133,7 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         spawn_task(task_func=update_tags, task_param={"tags": tags})
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": question.object_uuid})
+        question.refresh()
         cache.set(question.object_uuid, question)
         return question
 
@@ -152,6 +154,7 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
                                                            instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)
         instance.save()
+        instance.refresh()
         cache.set(instance.object_uuid, instance)
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": instance.object_uuid})

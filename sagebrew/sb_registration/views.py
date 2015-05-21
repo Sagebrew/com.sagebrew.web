@@ -192,6 +192,7 @@ def email_verification(request, confirmation):
         if token_gen.check_token(request.user, confirmation, profile):
             profile.email_verified = True
             profile.save()
+            profile.refresh()
             cache.set(profile.username, profile)
             return redirect('profile_info')
         else:
@@ -250,6 +251,7 @@ def profile_information(request):
             try:
                 citizen.completed_profile_info = True
                 citizen.save()
+                citizen.refresh()
                 cache.set(citizen.username, citizen)
             except (CypherException, IOError):
                 # TODO instead of going to 500 we should instead repopulate the

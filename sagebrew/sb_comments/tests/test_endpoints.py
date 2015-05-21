@@ -18,9 +18,11 @@ class TestCommentsRetrieveUpdateDestroy(APITestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
-        self.post = Post(content='test content').save()
+        self.post = Post(content='test content',
+                         owner_username=self.pleb.username).save()
         self.post.owned_by.connect(self.pleb)
-        self.comment = Comment(content="test comment").save()
+        self.comment = Comment(content="test comment",
+                               owner_username=self.pleb.username).save()
         self.comment.owned_by.connect(self.pleb)
         self.comment.comment_on.connect(self.post)
         self.post.comments.connect(self.comment)

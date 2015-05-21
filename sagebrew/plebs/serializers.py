@@ -169,6 +169,7 @@ class PlebSerializerNeo(SBSerializer):
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',
                                                     instance.wallpaper_pic)
         instance.save()
+        instance.refresh()
         cache.set(instance.username, instance)
         return instance
 

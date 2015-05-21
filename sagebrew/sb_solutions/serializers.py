@@ -25,6 +25,7 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
         validated_data['content'] = bleach.clean(validated_data.get(
             'content', ""))
         solution = Solution(**validated_data).save()
+        solution.owner_username = owner.username
         solution.owned_by.connect(owner)
         owner.solutions.connect(solution)
         question.solutions.connect(solution)

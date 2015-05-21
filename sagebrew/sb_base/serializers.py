@@ -36,15 +36,16 @@ class VotableContentSerializer(SBSerializer):
     def get_profile(self, obj):
         request, expand, _, _, _ = gather_request_data(self.context)
         try:
-            owner = obj.owned_by.all()[0]
+            owner_username = obj.owner_username
         except(CypherException, IOError, IndexError):
             return None
         if expand == "true":
+            owner = Pleb.get(username=owner_username)
             profile_dict = PlebSerializerNeo(
                 owner, context={'request': request}).data
         else:
             profile_dict = reverse('profile-detail',
-                                   kwargs={"username": owner.username},
+                                   kwargs={"username": owner_username},
                                    request=request)
         return profile_dict
 

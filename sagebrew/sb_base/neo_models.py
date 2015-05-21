@@ -64,6 +64,9 @@ class VotableContent(NotificationCapable):
     down_vote_adjustment = IntegerProperty(default=0)
     down_vote_cost = IntegerProperty(default=0)
 
+    # optimizations
+    owner_username = StringProperty()
+
     # relationships
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'OWNED_BY',
                               model=PostedOnRel)

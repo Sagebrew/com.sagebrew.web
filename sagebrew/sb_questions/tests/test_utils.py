@@ -29,6 +29,7 @@ class TestPrepareQuestionSearchHTML(TestCase):
         self.question_info_dict['object_uuid'] = str(uuid1())
         question = Question(**self.question_info_dict)
         question.save()
+        question.owner_username = self.pleb.username
         question.owned_by.connect(self.pleb)
         question.save()
 

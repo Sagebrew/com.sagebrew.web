@@ -51,6 +51,7 @@ class ProfilePageTest(TestCase):
         wall = self.pleb.get_wall()
         test_post.posted_on_wall.connect(wall)
         wall.posts.connect(test_post)
+        test_post.owner_username = self.pleb.username
         rel = test_post.owned_by.connect(self.pleb)
         rel.save()
         rel_from_pleb = self.pleb.posts.connect(test_post)
@@ -67,12 +68,14 @@ class ProfilePageTest(TestCase):
         wall = self.pleb.get_wall()
         test_post.posted_on_wall.connect(wall)
         wall.posts.connect(test_post)
+        test_post.owner_username = self.pleb.username
         rel = test_post.owned_by.connect(self.pleb)
         rel.save()
         rel_from_pleb = self.pleb.posts.connect(test_post)
         rel_from_pleb.save()
         my_comment = Comment(content='test comment', object_uuid=str(uuid1()))
         my_comment.save()
+        my_comment.owner_username = self.pleb.username
         rel_to_pleb = my_comment.owned_by.connect(self.pleb)
         rel_to_pleb.save()
         rel_from_pleb = self.pleb.comments.connect(my_comment)
@@ -94,12 +97,14 @@ class ProfilePageTest(TestCase):
         wall = self.pleb.wall.all()[0]
         test_post.posted_on_wall.connect(wall)
         wall.posts.connect(test_post)
+        test_post.owner_username = self.pleb.username
         rel = test_post.owned_by.connect(self.pleb)
         rel.save()
         rel_from_pleb = self.pleb.posts.connect(test_post)
         rel_from_pleb.save()
         my_comment = Comment(content='test comment', object_uuid=str(uuid1()))
         my_comment.save()
+        my_comment.owner_username = self.pleb.username
         rel_to_pleb = my_comment.owned_by.connect(test_user)
         rel_to_pleb.save()
         rel_from_pleb = test_user.comments.connect(my_comment)
@@ -136,6 +141,7 @@ class ProfilePageTest(TestCase):
             test_post.save()
             test_post.posted_on_wall.connect(wall)
             wall.posts.connect(test_post)
+            test_post.owner_username = self.pleb.username
             rel = test_post.owned_by.connect(self.pleb)
             rel.save()
             rel_from_pleb = self.pleb.posts.connect(test_post)
@@ -164,6 +170,7 @@ class ProfilePageTest(TestCase):
                 test_post.save()
                 test_post.posted_on_wall.connect(wall)
                 wall.posts.connect(test_post)
+                test_post.owner_username = self.pleb.username
                 rel = test_post.owned_by.connect(test_pleb)
                 rel.save()
                 rel_from_pleb = test_pleb.posts.connect(test_post)
@@ -173,6 +180,7 @@ class ProfilePageTest(TestCase):
         test_post.save()
         test_post.posted_on_wall.connect(wall)
         wall.posts.connect(test_post)
+        test_post.owner_username = self.pleb.username
         rel = test_post.owned_by.connect(self.pleb)
         rel.save()
         rel_from_pleb = self.pleb.posts.connect(test_post)
@@ -201,6 +209,7 @@ class ProfilePageTest(TestCase):
                 test_post.save()
                 test_post.posted_on_wall.connect(wall)
                 wall.posts.connect(test_post)
+                test_post.owner_username = self.pleb.username
                 rel = test_post.owned_by.connect(test_pleb)
                 rel.save()
                 rel_from_pleb = test_pleb.posts.connect(test_post)
@@ -210,6 +219,7 @@ class ProfilePageTest(TestCase):
                     my_comment = Comment(content='test comment',
                                          object_uuid=str(uuid1()))
                     my_comment.save()
+                    test_post.owner_username = self.pleb.username
                     rel_to_pleb = my_comment.owned_by.connect(test_pleb)
                     rel_to_pleb.save()
                     rel_from_pleb = test_pleb.comments.connect(my_comment)
@@ -220,6 +230,7 @@ class ProfilePageTest(TestCase):
                     my_comment = Comment(content='test comment',
                                          object_uuid=str(uuid1()))
                     my_comment.save()
+                    test_post.owner_username = self.pleb.username
                     rel_to_pleb = my_comment.owned_by.connect(self.pleb)
                     rel_to_pleb.save()
                     rel_from_pleb = self.pleb.comments.connect(my_comment)
@@ -231,6 +242,7 @@ class ProfilePageTest(TestCase):
         test_post.save()
         test_post.posted_on_wall.connect(wall)
         wall.posts.connect(test_post)
+        test_post.owner_username = self.pleb.username
         rel = test_post.owned_by.connect(self.pleb)
         rel.save()
         rel_from_pleb = self.pleb.posts.connect(test_post)

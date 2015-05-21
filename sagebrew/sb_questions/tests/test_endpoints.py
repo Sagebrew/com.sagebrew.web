@@ -24,6 +24,7 @@ class QuestionEndpointTests(APITestCase):
         self.question = Question(content="Hey I'm a question",
                                  title="test question title").save()
         self.pleb = Pleb.nodes.get(email=self.email)
+        self.question.owner_username = self.pleb.username
         self.question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(self.question)
         self.user = User.objects.get(email=self.email)
@@ -220,6 +221,7 @@ class QuestionEndpointTests(APITestCase):
         for question in Question.nodes.all():
             question.delete()
         question = Question(title='test_title', content='test_content').save()
+        question.owner_username = self.pleb.username
         question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(question)
         self.client.force_authenticate(user=self.user)
@@ -234,6 +236,7 @@ class QuestionEndpointTests(APITestCase):
             question.delete()
         tag = Tag(name='fiscal').save()
         question = Question(title='test_title', content='test_content').save()
+        question.owner_username = self.pleb.username
         question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(question)
         question.tags.connect(tag)
@@ -249,6 +252,7 @@ class QuestionEndpointTests(APITestCase):
             question.delete()
         self.client.force_authenticate(user=self.user)
         question = Question(title='test_title', content='test_content').save()
+        question.owner_username = self.pleb.username
         question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(question)
         url = reverse('question-list') + "?limit=5&offset=0&" \
@@ -262,6 +266,7 @@ class QuestionEndpointTests(APITestCase):
             question.delete()
         self.client.force_authenticate(user=self.user)
         question = Question(title='test_title', content='test_content').save()
+        question.owner_username = self.pleb.username
         question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(question)
         url = reverse('question-list') + "?limit=5&offset=0&" \

@@ -25,6 +25,7 @@ class TestGetQuestionSearchView(APITestCase):
         self.client.force_authenticate(user=self.user)
         question = Question(object_uuid=str(uuid1()), content='test',
                             title='test title').save()
+        question.owner_username = self.pleb.username
         question.owned_by.connect(self.pleb)
 
         res = self.client.get('/conversations/search/%s/' %

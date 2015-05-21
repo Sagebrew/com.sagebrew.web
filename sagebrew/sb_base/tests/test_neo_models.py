@@ -15,6 +15,7 @@ class TestVotableContentNeoModel(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.post = Post(content='test', object_uuid=str(uuid1())).save()
+        self.post.owner_username = self.pleb.username
         self.post.owned_by.connect(self.pleb)
 
     def test_vote_content(self):

@@ -1,4 +1,3 @@
-from logging import getLogger
 import markdown
 
 from rest_framework import serializers
@@ -9,8 +8,6 @@ from api.utils import gather_request_data
 
 from plebs.serializers import PlebSerializerNeo
 from plebs.neo_models import Pleb
-
-logger = getLogger('loggly_logs')
 
 
 class VotableContentSerializer(SBSerializer):
@@ -37,10 +34,8 @@ class VotableContentSerializer(SBSerializer):
     def get_profile(self, obj):
         request, expand, _, _, _ = gather_request_data(self.context)
         owner_username = obj.owner_username
-        logger.info(owner_username)
         if expand == "true":
             owner = Pleb.get(username=owner_username)
-            logger.info(owner.first_name)
             profile_dict = PlebSerializerNeo(
                 owner, context={'request': request}).data
         else:

@@ -1,4 +1,3 @@
-from logging import getLogger
 from uuid import uuid1
 
 from django.template.loader import render_to_string
@@ -25,8 +24,6 @@ from .tasks import create_friend_request_task
 from .forms import (GetUserSearchForm, SubmitFriendRequestForm,
                     RespondFriendRequestForm)
 from .serializers import BetaUserSerializer, AddressSerializer
-
-logger = getLogger('loggly_logs')
 
 
 def root_profile_page(request):
@@ -62,9 +59,6 @@ def profile_page(request, pleb_username=""):
     """
     try:
         citizen = Pleb.get(username=request.user.username)
-        logger.info("here")
-        logger.info(citizen.username)
-        logger.info(citizen.first_name)
         page_user_pleb = Pleb.get(username=pleb_username)
     except (Pleb.DoesNotExist, DoesNotExist):
         return redirect('404_Error')

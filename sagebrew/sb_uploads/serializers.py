@@ -56,10 +56,10 @@ class UploadSerializer(SBSerializer):
         file_object = validated_data.pop('file_object')
         url = upload_image(settings.AWS_PROFILE_PICTURE_FOLDER_NAME,
                            file_name, file_object, True)
+        validated_data['owner_username'] = owner.username
         uploaded_object = UploadedObject(
             file_format=file_format, url=url, height=height,
             width=width, file_size=file_size, object_uuid=object_uuid).save()
-        uploaded_object.owner_username = owner.username
         uploaded_object.owned_by.connect(owner)
         owner.uploads.connect(uploaded_object)
         return uploaded_object
@@ -83,8 +83,8 @@ class ModifiedSerializer(UploadSerializer):
                            file_name, file_object, True)
         modified_object = ModifiedObject(file_format=file_format, url=url,
                                          height=height, width=width,
-                                         file_size=file_size).save()
-        modified_object.owner_username = owner.username
+                                         file_size=file_size,
+                                         owner_username=owner.username).save()
         modified_object.owned_by.connect(owner)
         owner.uploads.connect(modified_object)
         parent_object = UploadedObject.nodes.get(object_uuid=object_uuid)

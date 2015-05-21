@@ -24,8 +24,8 @@ class PostSerializerNeo(ContentSerializer):
         wall_owner = validated_data.pop('wall_owner_profile', None)
         validated_data['content'] = bleach.clean(
             validated_data.get('content', ''))
+        validated_data['owner_username'] = owner.username
         post = Post(**validated_data).save()
-        post.owner_username = owner.username
         post.owned_by.connect(owner)
         owner.posts.connect(post)
         wall = wall_owner.get_wall()

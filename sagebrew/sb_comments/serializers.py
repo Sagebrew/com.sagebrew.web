@@ -25,8 +25,8 @@ class CommentSerializer(ContentSerializer):
         parent_object = validated_data.pop('parent_object', None)
         validated_data['content'] = bleach.clean(
             validated_data.get('content', ''))
+        validated_data['owner_username'] = owner.username
         comment = Comment(**validated_data).save()
-        comment.owner_username = owner.username
         comment.owned_by.connect(owner)
         owner.comments.connect(comment)
         parent_object.comments.connect(comment)

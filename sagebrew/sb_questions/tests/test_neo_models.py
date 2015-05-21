@@ -14,8 +14,8 @@ class TestQuestionNeoModel(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.question = Question(content='test content',
-                                 object_uuid=str(uuid1())).save()
-        self.question.owner_username = self.pleb.username
+                                 object_uuid=str(uuid1()),
+                                 owner_username=self.pleb.username).save()
         self.question.owned_by.connect(self.pleb)
 
     def test_add_auto_tags(self):

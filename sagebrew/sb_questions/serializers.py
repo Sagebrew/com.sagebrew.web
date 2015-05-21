@@ -109,8 +109,8 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         owner = Pleb.get(request.user.username)
         validated_data['content'] = bleach.clean(validated_data.get(
             'content', ""))
+        validated_data['owner_username'] = owner.username
         question = Question(**validated_data).save()
-        question.owner_username = self.pleb.username
         question.owned_by.connect(owner)
         owner.questions.connect(question)
         for tag in tags:

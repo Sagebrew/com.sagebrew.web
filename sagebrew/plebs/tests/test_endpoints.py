@@ -658,9 +658,9 @@ class ProfileContentMethodTests(APITestCase):
     def test_get_pleb_questions(self):
         question = Question(
             title="Hello there world",
-            content="This is the content for my question.").save()
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
-        question.owner_username = self.pleb.username
         question.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-questions', kwargs={
@@ -675,9 +675,9 @@ class ProfileContentMethodTests(APITestCase):
             item.delete()
         question = Question(
             title="Hello there world",
-            content="This is the content for my question.").save()
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
-        question.owner_username = self.pleb.username
         question.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-questions', kwargs={
@@ -691,9 +691,9 @@ class ProfileContentMethodTests(APITestCase):
             item.delete()
         question = Question(
             title="Hello there world",
-            content="This is the content for my question.").save()
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
-        question.owner_username = self.pleb.username
         question.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-questions', kwargs={
@@ -707,9 +707,9 @@ class ProfileContentMethodTests(APITestCase):
             item.delete()
         question = Question(
             title="Hello there world",
-            content="This is the content for my question.").save()
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
-        question.owner_username = self.pleb.username
         question.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-questions', kwargs={
@@ -723,9 +723,9 @@ class ProfileContentMethodTests(APITestCase):
             item.delete()
         question = Question(
             title="Hello there world",
-            content="This is the content for my question.").save()
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
-        question.owner_username = self.pleb.username
         question.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-questions', kwargs={
@@ -739,9 +739,9 @@ class ProfileContentMethodTests(APITestCase):
             item.delete()
         question = Question(
             title="Hello there world",
-            content="This is the content for my question.").save()
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
-        question.owner_username = self.pleb.username
         question.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-questions', kwargs={
@@ -755,9 +755,9 @@ class ProfileContentMethodTests(APITestCase):
             item.delete()
         question = Question(
             title="Hello there world",
-            content="This is the content for my question.").save()
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
-        question.owner_username = self.pleb.username
         question.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-questions', kwargs={
@@ -772,9 +772,9 @@ class ProfileContentMethodTests(APITestCase):
             item.delete()
         question = Question(
             title="Hello there world",
-            content="This is the content for my question.").save()
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
-        question.owner_username = self.pleb.username
         question.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-questions', kwargs={
@@ -812,9 +812,9 @@ class ProfileContentMethodTests(APITestCase):
             item.delete()
         question = Question(
             title="Hello there world",
-            content="This is the content for my question.").save()
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
-        question.owner_username = self.pleb.username
         question.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-public-content', kwargs={

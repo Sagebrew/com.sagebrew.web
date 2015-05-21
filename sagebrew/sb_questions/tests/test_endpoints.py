@@ -21,10 +21,10 @@ class QuestionEndpointTests(APITestCase):
         res = create_user_util_test(self.email)
         while not res['task_id'].ready():
             time.sleep(.1)
+        self.pleb = Pleb.nodes.get(email=self.email)
         self.question = Question(content="Hey I'm a question",
-                                 title="test question title").save()
-        self.pleb = Pleb.nodes.get(email=self.email,
-                                   owner_username=self.pleb.username)
+                                 title="test question title",
+                                 owner_username=self.pleb.username).save()
         self.question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(self.question)
         self.user = User.objects.get(email=self.email)

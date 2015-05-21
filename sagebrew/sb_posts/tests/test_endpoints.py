@@ -20,9 +20,9 @@ class PostsEndpointTests(APITestCase):
         res = create_user_util_test(self.email)
         while not res['task_id'].ready():
             time.sleep(.1)
-        self.post = Post(content="Hey I'm a post").save()
-        self.pleb = Pleb.nodes.get(email=self.email,
-                                   owner_username=self.pleb.username)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.post = Post(content="Hey I'm a post",
+                         owner_username=self.pleb.username).save()
         self.post.owned_by.connect(self.pleb)
         self.post.posted_on_wall.connect(self.pleb.get_wall())
         self.pleb.get_wall().posts.connect(self.post)

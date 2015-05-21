@@ -235,7 +235,6 @@ class SBContent(VotableContent):
         query = "MATCH (a:SBContent {object_uuid: '%s'})-[:FLAGGED_BY]->(" \
                 "b:Pleb) Return b.username" % (self.object_uuid)
         res, col = db.cypher_query(query)
-        logger.info(res)
         if len(res) == 0:
             return []
         return [row[0] for row in res]

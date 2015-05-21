@@ -19,6 +19,7 @@ CMD chown {{APP_USER}} /etc/rsyslog.d/ && \
     python manage.py collectstatic --noinput && \
     python manage.py migrate --noinput && \
     python manage.py clear_cache && \
+    python manage.py create_prepopulated_reps && \
     python manage.py createtokens && \
     python manage.py create_dynamo_tables && \
     python manage.py create_privileges && \

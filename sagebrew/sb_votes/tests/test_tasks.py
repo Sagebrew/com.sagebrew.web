@@ -37,16 +37,3 @@ class TestVoteObjectTask(TestCase):
             time.sleep(1)
 
         self.assertIsInstance(res.result, VotableContent)
-
-    def test_vote_object_task_get_object_failure(self):
-        question = Question(object_uuid=str(uuid1())).save()
-        task_data = {
-            'object_uuid': question.object_uuid,
-            'current_pleb': self.pleb.username,
-            'vote_type': True
-        }
-        res = vote_object_task.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
-
-        self.assertIsInstance(res.result, Exception)

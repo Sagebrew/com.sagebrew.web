@@ -20,11 +20,13 @@ class TagEndpointTest(APITestCase):
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
         try:
-            self.tag = Tag(name='test_tag').save()
+            self.tag = Tag(name='test_tag',
+                           owner_username=self.pleb.username).save()
         except UniqueProperty:
             self.tag = Tag.nodes.get(name='test_tag')
         try:
-            self.base_tag = Tag(name='test_base_tag', base=True).save()
+            self.base_tag = Tag(name='test_base_tag', base=True,
+                                owner_username=self.pleb.username).save()
         except UniqueProperty:
             self.base_tag = Tag.nodes.get(name='test_base_tag')
 

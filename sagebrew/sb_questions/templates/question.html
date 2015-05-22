@@ -1,3 +1,4 @@
+{% load staticfiles %}
 {% load humanize %}
 {% comment %}
     This template is rendered into html through a view and then returned as a
@@ -65,7 +66,8 @@
         <div class="col-lg-1 col-md-1 hidden-sm hidden-xs col-lg-offset-9 col-md-offset-9"
              style="padding-right:0; margin-right: -10px">
             <div class="sb_thumbnail_xs thumbnail">
-                <img src="{{ profile.profile_pic|default_if_none:'' }}"/>
+                {% static 'images/sage_coffee_grey-01.png' as default_profile %}
+                <img src="{{ profile.profile_pic|default_if_none:default_profile }}"/>
             </div>
         </div>
         <div class="col-lg-2 col-md-2 hidden-sm hidden-xs" style="padding-left:0; margin-top:-10px; margin-left: 2px">

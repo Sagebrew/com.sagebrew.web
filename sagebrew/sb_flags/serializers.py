@@ -38,6 +38,7 @@ class FlagSerializer(VotableContentSerializer):
         parent_object = validated_data.pop('parent_object', None)
         validated_data['content'] = bleach.clean(
             validated_data.get('content', ''))
+        validated_data['owner_username'] = owner.username
         flag = Flag(**validated_data).save()
         flag.owned_by.connect(owner)
         owner.flags.connect(flag)

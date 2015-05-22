@@ -205,6 +205,7 @@ def add_user_to_custom_index(username=None,
                      body=item['_source'])
         pleb.populated_personal_index = True
         pleb.save()
+        pleb.refresh()
         cache.set(pleb.username, pleb)
         return True
     except Exception as e:

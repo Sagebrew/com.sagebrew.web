@@ -79,6 +79,7 @@ class AddressViewSet(viewsets.ModelViewSet):
         instance = serializer.save()
         instance.owned_by.connect(pleb)
         pleb.address.connect(instance)
+        pleb.refresh()
         cache.set(pleb.username, pleb)
 
         return instance

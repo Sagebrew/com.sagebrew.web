@@ -7,9 +7,6 @@ from sb_registration.utils import upload_image
 
 from .neo_models import UploadedObject, ModifiedObject
 
-from logging import getLogger
-logger = getLogger('loggly_logs')
-
 
 class MediaType:
     def __init__(self):

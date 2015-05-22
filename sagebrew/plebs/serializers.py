@@ -146,8 +146,8 @@ class PlebSerializerNeo(SBSerializer):
     # front end and privileges/actions that are not allowed to be used shouldn't
     # show up in the list. @Tyler what do you think?
     privileges = serializers.SerializerMethodField()
+    donations = serializers.SerializerMethodField()
     actions = serializers.SerializerMethodField()
-
     url = serializers.SerializerMethodField()
 
     def create(self, validated_data):
@@ -206,6 +206,13 @@ class PlebSerializerNeo(SBSerializer):
         return reverse(
             'profile-detail', kwargs={'username': obj.username},
             request=request)
+
+    def get_donations(self, obj):
+        request, expand, _, _, _ = gather_request_data(self.context)
+        query = 'MATCH (p:`Pleb` {username: "%s"})-[:DONATIONS_GIVEN]->' \
+                '(d:`Donation`) RETURN d' % (obj.username)
+        res, col = db.cypher_query(query)
+        return [row[0] for row in res]
 
 
 class AddressSerializer(SBSerializer):

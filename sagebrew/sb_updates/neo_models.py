@@ -1,4 +1,4 @@
-from neomodel import (RelationshipTo)
+from neomodel import (RelationshipTo, StringProperty)
 
 from sb_base.neo_models import SBPublicContent
 
@@ -16,6 +16,8 @@ class Update(SBPublicContent):
     an update. So it is up to the frontend to determine how this should be
     implemented.
     """
+    title = StringProperty()
+
     # relationships
     campaign = RelationshipTo('sb_campaigns.neo_models.Campaign',
                               "ON_THE")

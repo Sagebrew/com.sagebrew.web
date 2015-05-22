@@ -235,6 +235,8 @@ class Pleb(Searchable):
     # relationship to track any special items.
     pledged_votes = RelationshipTo('sb_campaigns.neo_models.PoliticalCampaign',
                                    'PLEDGED', model=VoteRelationship)
+    donations = RelationshipTo('sb_donations.neo_models.Donation',
+                               'DONATIONS_GIVEN')
 
     @classmethod
     def get(cls, username):

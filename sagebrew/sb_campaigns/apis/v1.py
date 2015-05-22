@@ -14,4 +14,6 @@ urlpatterns = patterns(
     url(r'^', include(router.urls)),
     (r'^campaigns/', include('sb_goals.apis.relations.v1')),
     (r'^campaigns/', include('sb_votes.apis.relations.v1')),
+    (r'^campaigns/', include('sb_updates.apis.relations.v1')),
+    (r'^campaigns/', include('sb_donations.apis.relations.v1'))
 )

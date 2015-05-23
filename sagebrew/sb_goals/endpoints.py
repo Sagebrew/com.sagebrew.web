@@ -27,6 +27,20 @@ logger = getLogger('loggly_logs')
 
 
 class GoalListMixin(generics.ListAPIView):
+    """
+    This mixin is utilized at the campaign endpoint. This allows us to get a
+    list of all goals attached to a campaign. This will return a serialized
+    list of goals for the given campaign.
+
+    You must give this view the uuid of the campaign you wish to see the goals
+    of.
+    """
+    # TODO add custom functionality to only allow the owner or editor of a
+    # campaign to add a goal to the campaign. We can use the logic that we
+    # used in sb_donations.endpoints just reversed to allow anyone to see
+    # goals and only editors to create goals
+    # TODO look in to only allowing users other than owner/editors/accountants
+    # to view the current and past goals
     serializer_class = GoalSerializer
     permission_classes = (IsAuthenticated,)
     lookup_field = "object_uuid"
@@ -40,6 +54,19 @@ class GoalListMixin(generics.ListAPIView):
 
 
 class RoundListCreate(generics.ListCreateAPIView):
+    """
+    This mixin allows for us to get a list of all the rounds that have ever
+    been associated with a campaign.
+
+    You must give this view the uuid of the campaign you wish to see the
+    rounds of.
+    """
+    # TODO add custom functionality to only allow the owner or editor of a
+    # campaign to add a round to the campaign. We can use the logic that we
+    # used in sb_donations.endpoints just reversed to allow anyone to see
+    # rounds and only editors to create rounds
+    # TODO look in to only allowing users other than owner/editors/accountants
+    # to view the current and past rounds
     serializer_class = RoundSerializer
     permission_classes = (IsAuthenticated,)
     lookup_field = "object_uuid"

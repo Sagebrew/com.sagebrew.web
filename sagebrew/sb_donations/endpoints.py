@@ -33,6 +33,13 @@ class DonationViewSet(viewsets.ReadOnlyModelViewSet):
         return Donation.inflate(res[0][0])
 
 class DonationListCreate(generics.ListCreateAPIView):
+    """
+    This endpoint will be utilized to allow accountants of a campaign to view
+    the donations attached to the campaign. Also allows users to create
+    donations on this endpoint. We set up some custom validation for the
+    list method to only allow the owner or an accountant to view a list of
+    donations attached to the campaign.
+    """
     serializer_class = DonationSerializer
     lookup_field = "object_uuid"
     permission_classes = (IsAuthenticated,)

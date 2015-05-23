@@ -32,8 +32,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
         return [Campaign.inflate(row[0]) for row in res]
 
     def get_object(self):
-        return Campaign.nodes.get(
-            object_uuid=self.kwargs[self.lookup_field])
+        return Campaign.get(object_uuid=self.kwargs[self.lookup_field])
 
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticated,
@@ -221,4 +220,4 @@ class PositionViewSet(viewsets.ReadOnlyModelViewSet):
         query = 'MATCH (p:`Position` {object_uuid:"%s"}) RETURN p' % \
                 (self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
-        return [Position.inflate(row[0]) for row in res][0]
+        return Position.inflate(res[0][0])

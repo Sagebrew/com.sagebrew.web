@@ -209,10 +209,7 @@ class PlebSerializerNeo(SBSerializer):
 
     def get_donations(self, obj):
         request, expand, _, _, _ = gather_request_data(self.context)
-        query = 'MATCH (p:`Pleb` {username: "%s"})-[:DONATIONS_GIVEN]->' \
-                '(d:`Donation`) RETURN d' % (obj.username)
-        res, col = db.cypher_query(query)
-        return [row[0] for row in res]
+        return obj.get_donations()
 
 
 class AddressSerializer(SBSerializer):

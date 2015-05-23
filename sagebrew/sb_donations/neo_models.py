@@ -1,4 +1,4 @@
-from neomodel import (RelationshipTo, BooleanProperty, IntegerProperty)
+from neomodel import (db, RelationshipTo, BooleanProperty, IntegerProperty)
 
 from api.neo_models import SBObject
 
@@ -43,6 +43,35 @@ class Donation(SBObject):
     # child donations to accomplish this but through using `cause` as the
     # naming convention we should be able to define all methods at this level
     campaign = RelationshipTo('sb_campaigns.neo_models.Campaign', 'DONATED_TO')
+
+    @classmethod
+    def get_donated_for(cls, object_uuid):
+        query = 'MATCH (d:`Donation` {object_uuid: "%s"})-' \
+                '[:DONATED_FOR]->(g:`Goal`) RETURN g.object_uuid' % \
+                (object_uuid)
+        res, col = db.cypher_query(query)
+        if not res:
+            return []
+        return res[0]
+
+    @classmethod
+    def get_applied_to(cls, object_uuid):
+        query = 'MATCH (d:`Donation` {object_uuid: "%s"})-' \
+                '[:APPLIED_TO]->(g:`Goal`) RETURN g.object_uuid' % \
+                (object_uuid)
+        res, col = db.cypher_query(query)
+        if not res:
+            return []
+        return res[0]
+
+    @classmethod
+    def get_campaign(cls, object_uuid):
+        query = 'MATCH (d:`Donation` {object_uuid: "%s"})-' \
+                '[:DONATED_FROM]->(p:`Pleb`) RETURN p' % (object_uuid)
+        res, col = db.cypher_query(query)
+        if not res:
+            return None
+        return res[0][0]
 
 
 class PoliticalDonation(Donation):

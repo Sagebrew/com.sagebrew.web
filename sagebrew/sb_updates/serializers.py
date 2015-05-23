@@ -9,15 +9,13 @@ from plebs.neo_models import Pleb
 from sb_goals.neo_models import Goal
 from api.utils import gather_request_data
 from sb_campaigns.neo_models import Campaign
-from sb_base.serializers import MarkdownContentSerializer
+from sb_base.serializers import TitledContentSerializer
 
 from .neo_models import Update
 
 
 
-class UpdateSerializer(MarkdownContentSerializer):
-    title = serializers.CharField()
-
+class UpdateSerializer(TitledContentSerializer):
     goals = serializers.SerializerMethodField()
     campaign = serializers.SerializerMethodField()
 
@@ -29,6 +27,7 @@ class UpdateSerializer(MarkdownContentSerializer):
             'content', ""))
         owner = Pleb.get(request.user.username)
         campaign = Campaign.get(campaign)
+        validated_data['owner_username'] = owner.username
         update = Update(**validated_data).save()
         update.campaign.connect(campaign)
         campaign.updates.connect(update)
@@ -41,18 +40,21 @@ class UpdateSerializer(MarkdownContentSerializer):
 
     def get_goals(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
-        query = 'MATCH (u:`Update` {object_uuid:"%s"})-[:FOR_A]-(g:`Goal`) ' \
-                'RETURN g.object_uuid' % (obj.object_uuid)
-        res, col = db.cypher_query(query)
-        return [row[0] for row in res]
+        return Update.get_goals(obj.object_uuid)
 
 
     def get_campaign(self, obj):
         request, _, _, relation, _ = gather_request_data(self.context)
-        query = 'MATCH (u:`Update` {object_uuid:"%s"})-[:ON_THE]-' \
-                '(c:`Campaign`) RETURN c.object_uuid' % (obj.object_uuid)
-        res, col = db.cypher_query(query)
-        if relation == 'hyperlink':
-            return reverse('campaign-detail',
-                           kwargs={'object_uuid': res[0][0]}, request=request)
-        return [row[0] for row in res]
+        campaign = Update.get_campaign(obj.object_uuid)
+        if campaign is not None:
+            if relation == 'hyperlink':
+                return reverse('campaign-detail',
+                               kwargs={'object_uuid': campaign},
+                               request=request)
+        return campaign
+
+    def get_url(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        return reverse('update-detail',
+                       kwargs={'update_uuid': obj.object_uuid},
+                       request=request)

@@ -1,4 +1,5 @@
-from logging import getLogger
+import pytz
+from datetime import datetime
 
 from django.core.cache import cache
 
@@ -10,15 +11,14 @@ from rest_framework import status
 
 from neomodel import db
 
-from api.permissions import IsOwnerOrEditorOrAccountant, IsOwnerOrAdmin
+from api.permissions import (IsOwnerOrEditorOrAccountant, IsOwnerOrAdmin)
 from plebs.neo_models import Pleb
+from sb_votes.utils import handle_vote
 
 from .serializers import (CampaignSerializer, PoliticalCampaignSerializer,
                           EditorSerializer, AccountantSerializer,
-                          PositionSerializer)
+                          PositionSerializer,PoliticalVoteSerializer)
 from .neo_models import Campaign, PoliticalCampaign, Position
-
-logger = getLogger('loggly_logs')
 
 
 class CampaignViewSet(viewsets.ModelViewSet):
@@ -38,15 +38,15 @@ class CampaignViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticated,
                                       IsOwnerOrEditorOrAccountant))
-    def editors(self, request, *args, **kwargs):
-        queryset = self.get_object()
-        self.check_object_permissions(request, queryset)
-        return Response(queryset.get_editors(), status=status.HTTP_200_OK)
+    def editors(self, request, object_uuid=None):
+        self.check_object_permissions(request, object_uuid)
+        return Response(Campaign.fetch_editors(object_uuid),
+                        status=status.HTTP_200_OK)
 
     @detail_route(methods=['post'],
                   serializer_class=EditorSerializer,
                   permission_classes=(IsAuthenticated, IsOwnerOrAdmin,))
-    def add_editors(self, request, *args, **kwargs):
+    def add_editors(self, request, object_uuid=None):
         """
         This method will take a list of usernames which will be added to the
         editors of the campaign. Only to be used to add a list of editors to
@@ -56,9 +56,9 @@ class CampaignViewSet(viewsets.ModelViewSet):
         :param request:
         :return:
         """
+        serializer = self.get_serializer(data=request.data)
         queryset = self.get_object()
         self.check_object_permissions(request, queryset)
-        serializer = self.get_serializer(queryset, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({"detail": "Successfully added specified users "
@@ -71,7 +71,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'],
                   serializer_class=EditorSerializer,
                   permission_classes=(IsAuthenticated, IsOwnerOrAdmin,))
-    def remove_editors(self, request, *args, **kwargs):
+    def remove_editors(self, request, object_uuid=None):
         """
         This is a method which will only be used to remove the users
         in the list posted to this endpoint from the list of allowed editors
@@ -82,15 +82,15 @@ class CampaignViewSet(viewsets.ModelViewSet):
         :param kwargs:
         :return:
         """
+        serializer = self.get_serializer(data=request.data)
         queryset = self.get_object()
         self.check_object_permissions(request, queryset)
-        serializer = self.get_serializer(queryset, data=request.data)
         if serializer.is_valid():
             for profile in serializer.data['profiles']:
                 profile_pleb = Pleb.get(username=profile)
                 queryset.accountants.disconnect(profile_pleb)
                 profile_pleb.campaign_accountant.disconnect(queryset)
-            cache.delete("%s-accountants" % (queryset.object_uuid))
+            cache.delete("%s_accountants" % (queryset.object_uuid))
             return Response({"detail": "Successfully removed specified "
                                        "editors from your campaign.",
                              "status": status.HTTP_200_OK,
@@ -101,7 +101,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'],
                   serializer_class=AccountantSerializer,
                   permission_classes=(IsAuthenticated, IsOwnerOrAdmin,))
-    def add_accountants(self, request, *args, **kwargs):
+    def add_accountants(self, request, object_uuid=None):
         """
         This helper method will take a list of usernames which are to be added
         to the list of accountants for the campaign and create the necessary
@@ -112,9 +112,9 @@ class CampaignViewSet(viewsets.ModelViewSet):
         :param kwargs:
         :return:
         """
+        serializer = self.get_serializer(data=request.data)
         queryset = self.get_object()
         self.check_object_permissions(request, queryset)
-        serializer = self.get_serializer(queryset, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({"detail": "Successfully added specified users to"
@@ -127,7 +127,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'],
                   serializer_class=AccountantSerializer,
                   permission_classes=(IsAuthenticated, IsOwnerOrAdmin,))
-    def remove_accountants(self, request, *args, **kwargs):
+    def remove_accountants(self, request, object_uuid=None):
         """
         This helper method will take a list of usernames which are to be
         removed from the list of accountants for the campaign and remove
@@ -138,15 +138,16 @@ class CampaignViewSet(viewsets.ModelViewSet):
         :param kwargs:
         :return:
         """
+
+        serializer = self.get_serializer(data=request.data)
         queryset = self.get_object()
         self.check_object_permissions(request, queryset)
-        serializer = self.get_serializer(queryset, data=request.data)
         if serializer.is_valid():
             for profile in serializer.data['profiles']:
                 profile_pleb = Pleb.get(username=profile)
                 queryset.accountants.disconnect(profile_pleb)
                 profile_pleb.campaign_accountant.disconnect(queryset)
-            cache.delete("%s-accountants" % (queryset.object_uuid))
+            cache.delete("%s_accountants" % (queryset.object_uuid))
             return Response({"detail": "Successfully removed specified "
                                        "accountants from your campaign.",
                              "status": status.HTTP_200_OK,
@@ -156,20 +157,22 @@ class CampaignViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
                                       IsOwnerOrEditorOrAccountant,))
-    def accountants(self, request, *args, **kwargs):
-        queryset = self.get_object()
-        self.check_object_permissions(request, queryset)
-        return Response(queryset.get_accountants(), status=status.HTTP_200_OK)
+    def accountants(self, request, object_uuid=None):
+        self.check_object_permissions(request, object_uuid)
+        return Response(Campaign.fetch_accountants(object_uuid),
+                        status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], serializer_class=PositionSerializer)
-    def position(self, request, *args, **kwargs):
-        query = "MATCH (c:`Campaign`)-[:RUNNING_FOR]-(p:`Position`) RETURN p"
+    def position(self, request, object_uuid=None):
+        query = "MATCH (c:`Campaign` {object_uuid:'%s'})-" \
+                "[:RUNNING_FOR]-(p:`Position`) RETURN p" % (object_uuid)
         res, col = db.cypher_query(query)
+        if not res:
+            return None
         position = Position.inflate(res[0][0])
         return Response(self.get_serializer(position,
                                             context={'request': request}).data,
                         status=status.HTTP_200_OK)
-
 
 
 class PoliticalCampaignViewSet(CampaignViewSet):
@@ -185,13 +188,23 @@ class PoliticalCampaignViewSet(CampaignViewSet):
     def get_object(self):
         return PoliticalCampaign.get(self.kwargs[self.lookup_field])
 
-    @detail_route(methods=['get'])
-    def votes(self, request, *args, **kwargs):
-        pass
+    @detail_route(methods=['post'], serializer_class=PoliticalVoteSerializer)
+    def vote(self, request, object_uuid=None):
+        vote_data = request.data
+        serializer = self.get_serializer(data=vote_data,
+                                         context={"request": request})
+        if serializer.is_valid():
+            parent_object_uuid = self.kwargs[self.lookup_field]
 
-    @detail_route(methods=['get'])
-    def vote_count(self, request, *args, **kwargs):
-        pass
+            vote_status = int(serializer.data['vote_type'])
+            now = unicode(datetime.now(pytz.utc))
+            res = handle_vote(parent_object_uuid, vote_status, request, now)
+            if res:
+                return Response({"detail": "Successfully pledged vote.",
+                                 "status": status.HTTP_200_OK,
+                                 "developer_message": None},
+                                status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PositionViewSet(viewsets.ReadOnlyModelViewSet):

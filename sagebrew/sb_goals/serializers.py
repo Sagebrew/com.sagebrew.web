@@ -24,6 +24,8 @@ class GoalSerializer(CampaignAttributeSerializer):
     description = serializers.CharField(required=False)
     pledged_vote_requirement = serializers.IntegerField(required=False)
     monetary_requirement = serializers.IntegerField(required=False)
+    completed = serializers.BooleanField()
+    completed_dat = serializers.DateTimeField()
 
     updates = serializers.SerializerMethodField()
     associated_round = serializers.SerializerMethodField()
@@ -34,8 +36,15 @@ class GoalSerializer(CampaignAttributeSerializer):
     def create(self, validated_data):
         campaign = validated_data.pop('campaign', None)
         campaign_round = validated_data.pop('round', None)
+        next_goal = validated_data.pop('next_goal', None)
+        previous_goal = validated_data.pop('previous_goal', None)
         goal = Goal(**validated_data).save()
-        # TODO implement connecting to the next and prev goal logic
+        if next_goal is not None:
+            next_goal.previous_goal.connect(goal)
+            goal.next_goal.connect(next_goal)
+        if previous_goal is not None:
+            previous_goal.next_goal.connect(goal)
+            goal.previous_goal.connect(previous_goal)
         if campaign is not None:
             campaign.goals.connect(goal)
             goal.campaign.connect(campaign)
@@ -46,19 +55,19 @@ class GoalSerializer(CampaignAttributeSerializer):
 
 
     def get_updates(self, obj):
-        pass
+        return Goal.get_updates(obj.object_uuid)
 
     def get_round(self, obj):
-        pass
+        return Goal.get_associated_round(obj.object_uuid)
 
     def get_donations(self, obj):
-        pass
+        return Goal.get_donations(obj.object_uuid)
 
     def get_previous_goal(self, obj):
-        pass
+        return Goal.get_previous_goal(obj.object_uuid)
 
     def get_next_goal(self, obj):
-        pass
+        return Goal.get_next_goal(obj.object_uuid)
 
 
 class RoundSerializer(CampaignAttributeSerializer):
@@ -75,7 +84,6 @@ class RoundSerializer(CampaignAttributeSerializer):
         previous_round = validated_data.pop('previous_round', None)
         next_round = validated_data.pop('next_round', None)
         campaign_round = Round(**validated_data).save()
-        campaign = PoliticalCampaign.nodes.get(object_uuid=campaign)
         campaign.rounds.connect(campaign_round)
         campaign_round.campaign.connect(campaign)
         if previous_round is not None:
@@ -89,10 +97,10 @@ class RoundSerializer(CampaignAttributeSerializer):
         return campaign_round
 
     def get_goals(self, obj):
-        pass
+        return Round.get_goals(obj.object_uuid)
 
     def get_previous_round(self, obj):
-        pass
+        return Round.get_previous_round(obj.object_uuid)
 
     def get_next_round(self, obj):
-        pass
+        return Round.get_next_round(obj.object_uuid)

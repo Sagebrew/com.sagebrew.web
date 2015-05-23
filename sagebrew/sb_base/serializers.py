@@ -14,6 +14,24 @@ from sb_campaigns.serializers import CampaignSerializer
 from sb_campaigns.neo_models import Campaign
 
 
+class TitleUpdate:
+    def __init__(self):
+        pass
+
+    def __call__(self, value):
+        if (self.object_uuid is not None):
+            message = 'Cannot edit Title when there have ' \
+                      'already been solutions provided'
+            raise serializers.ValidationError(message)
+        return value
+
+    def set_context(self, serializer_field):
+        try:
+            self.object_uuid = serializer_field.parent.instance.object_uuid
+        except AttributeError:
+            self.object_uuid = None
+
+
 class VotableContentSerializer(SBSerializer):
     # TODO Deprecate in favor of id based on
     # http://jsonapi.org/format/#document-structure-resource-objects
@@ -96,6 +114,12 @@ class MarkdownContentSerializer(ContentSerializer):
             return ""
 
 
+class TitledContentSerializer(MarkdownContentSerializer):
+    title = serializers.CharField(required=False,
+                                  validators=[TitleUpdate(), ],
+                                  min_length=15, max_length=140)
+
+
 class CampaignAttributeSerializer(SBSerializer):
     """
     This serializer is inherited from by both the GoalSerializer and
@@ -107,16 +131,17 @@ class CampaignAttributeSerializer(SBSerializer):
     campaign = serializers.SerializerMethodField()
 
     def get_campaign(self, obj):
-        request, expand, _, _, expedite = gather_request_data(self.context)
+        request, _, _, relation, expedite = gather_request_data(self.context)
         if expedite == 'true':
             return None
-        query = 'MATCH (o:`%s` {object_uuid:"%s"})--(c:Campaign) RETURN c' % \
-                (obj.get_child_label(), obj.object_uuid)
+        query = 'MATCH (o:`%s` {object_uuid:"%s"})-[:ASSOCIATED_WITH]-' \
+                '(c:Campaign) RETURN c.object_uuid' % (obj.get_child_label(),
+                                                       obj.object_uuid)
         res, col = db.cypher_query(query)
-        campaign = [Campaign.inflate(row[0]) for row in res][0]
-        if expand == "true":
-            return CampaignSerializer(campaign,
-                                      context={"request": request}).data
-        return reverse('campaign-detail',
-                       kwargs={'object_uuid': campaign.object_uuid},
-                       request=request)
+        if not res:
+            return None
+        if relation == 'hyperlink':
+            return reverse('campaign-detail',
+                           kwargs={'object_uuid': res[0][0]},
+                           request=request)
+        return res[0]

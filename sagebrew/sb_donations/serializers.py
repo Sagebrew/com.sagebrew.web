@@ -25,9 +25,9 @@ class DonationSerializer(serializers.Serializer):
     def create(self, validated_data):
         request, _, _, _, _ = gather_request_data(self.context)
         donator = Pleb.get(request.user.username)
+        validated_data['owner_username'] = donator.username
         donated_towards = request.data.pop('donated_towards', [])
-        campaign_uuid = validated_data.pop('campaign', None)
-        campaign = Campaign.nodes.get(object_uuid=campaign_uuid)
+        campaign = validated_data.pop('campaign', None)
         donation = Donation(**validated_data).save()
         for goal in donated_towards:
             goal = Goal.nodes.get(object_uuid=goal)
@@ -37,49 +37,29 @@ class DonationSerializer(serializers.Serializer):
         donation.campaign.connect(campaign)
         donator.donations.connect(donation)
         donation.owned_by.connect(donator)
+        donator.refresh()
         cache.set(donator.username, donator)
         return donation
 
     def get_donated_for(self, obj):
-        request, _, _, _, _ = gather_request_data(self.context)
-        query = 'MATCH (d:`Donation` {object_uuid: "%s"})-' \
-                '[:DONATED_FOR]->(g:`Goal`) RETURN g.object_uuid' % (obj.object_uuid)
-        res, col = db.cypher_query(query)
-        if not res:
-            return []
-        return res[0]
+        return Donation.get_donated_for(obj.object_uuid)
 
     def get_applied_to(self, obj):
-        request, _, _, _, _ = gather_request_data(self.context)
-        query = 'MATCH (d:`Donation` {object_uuid: "%s"})-' \
-                '[:APPLIED_TO]->(g:`Goal`) RETURN g.object_uuid' % (obj.object_uuid)
-        res, col = db.cypher_query(query)
-        if not res:
-            return []
-        return res[0]
+        return Donation.get_applied_to(obj.object_uuid)
 
     def get_owned_by(self, obj):
         request, _, _, relation, _ = gather_request_data(self.context)
-        query = 'MATCH (d:`Donation` {object_uuid: "%s"})-' \
-                '[:DONATED_FROM]->(p:`Pleb`) RETURN p' % (obj.object_uuid)
-        res, col = db.cypher_query(query)
-        if not res:
-            return []
         if relation == "hyperlink":
             return [reverse('profile_page',
-                            kwargs={"pleb_username": res[0][0]},
+                            kwargs={"pleb_username": obj.owner_username},
                             request=request)]
-        return res[0]
+        return obj.owner_username
 
     def get_campaign(self, obj):
         request, _, _, relation, _ = gather_request_data(self.context)
-        query = 'MATCH (d:`Donation` {object_uuid: "%s"})-' \
-                '[:DONATED_FROM]->(p:`Pleb`) RETURN p' % (obj.object_uuid)
-        res, col = db.cypher_query(query)
-        if not res:
-            return []
+        campaign = Donation.get_campaign(obj.object_uuid)
         if relation == "hyperlink":
-            return [reverse('campaign-detail',
-                            kwargs={"object_uuid": res[0][0]},
-                            request=request)]
-        return res[0]
+            return reverse('campaign-detail',
+                            kwargs={"object_uuid": campaign},
+                            request=request)
+        return campaign

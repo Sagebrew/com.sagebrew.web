@@ -12,6 +12,7 @@ from sb_docstore.utils import add_object_to_table, update_vote, get_vote
 
 from .serializers import VoteSerializer
 from .neo_models import Vote
+from .utils import handle_vote
 
 
 class ObjectVotesRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):
@@ -44,29 +45,15 @@ class ObjectVotesListCreate(ListCreateAPIView):
         if serializer.is_valid():
             parent_object_uuid = self.kwargs[self.lookup_field]
 
-            status = int(serializer.data['vote_type'])
-            vote_data = {
-                "parent_object": parent_object_uuid,
-                "user": request.user.username,
-                "status": status,
-                "time": now
-            }
-            res = get_vote(parent_object_uuid, user=request.user.username)
-            if isinstance(res, Exception) is True:
-                return Response({"detail": "server error"}, status=500)
-            if not res:
-                add_res = add_object_to_table('votes', vote_data)
-                if isinstance(add_res, Exception) is True:
-                    return Response({"detail": "server error"}, status=500)
-            else:
-                update = update_vote(parent_object_uuid, request.user.username,
-                                     status, now)
-                if isinstance(update, Exception) is True:
-                    return Response({"detail": "server error"}, status=500)
-
-            return Response({"detail": "success"}, status=200)
+            vote_status = int(serializer.data['vote_type'])
+            res = handle_vote(parent_object_uuid, vote_status, request, now)
+            if res:
+                return Response({"detail":
+                                     "Successfully created or modified vote.",
+                                 "status": status.HTTP_200_OK,
+                                 "developer_message": None})
         else:
-            return Response({"detail": "invalid form"}, status=400)
+            return Response(serializer.errors, status=400)
 
 
 @api_view(["GET"])

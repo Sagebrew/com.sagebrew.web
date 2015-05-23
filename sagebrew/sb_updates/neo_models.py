@@ -1,9 +1,9 @@
-from neomodel import (RelationshipTo, StringProperty)
+from neomodel import (db, RelationshipTo)
 
-from sb_base.neo_models import SBPublicContent
+from sb_base.neo_models import TitledContent
 
 
-class Update(SBPublicContent):
+class Update(TitledContent):
     """
     Updates can be made on campaigns to provide a general update on the campaign
     or on a particular goal. We'd like campaigners to provide a specific update
@@ -16,9 +16,23 @@ class Update(SBPublicContent):
     an update. So it is up to the frontend to determine how this should be
     implemented.
     """
-    title = StringProperty()
-
     # relationships
     campaign = RelationshipTo('sb_campaigns.neo_models.Campaign',
                               "ON_THE")
     goals = RelationshipTo('sb_goals.neo_models.Goal', "FOR_A")
+
+    @classmethod
+    def get_goals(cls, object_uuid):
+        query = 'MATCH (u:`Update` {object_uuid:"%s"})-[:FOR_A]-(g:`Goal`) ' \
+                'RETURN g.object_uuid' % (object_uuid)
+        res, col = db.cypher_query(query)
+        return [row[0] for row in res]
+
+    @classmethod
+    def get_campaign(cls, object_uuid):
+        query = 'MATCH (u:`Update` {object_uuid:"%s"})-[:ON_THE]-' \
+                '(c:`Campaign`) RETURN c.object_uuid' % (object_uuid)
+        res, col = db.cypher_query(query)
+        if not res:
+            return None
+        return res[0][0]

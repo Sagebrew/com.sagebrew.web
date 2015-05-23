@@ -2,15 +2,16 @@ from logging import getLogger
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets, generics
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework import status
 
 from neomodel import db, DoesNotExist
 
-from api.permissions import IsOwnerOrEditorOrAccountant, IsOwnerOrAdmin
+from api.permissions import IsOwnerOrEditorOrAccountant, IsOwnerOrAccountant
 from plebs.neo_models import Pleb
 from plebs.serializers import PlebSerializerNeo
+from sb_campaigns.neo_models import Campaign
 
 from .neo_models import Donation
 from .serializers import DonationSerializer
@@ -43,15 +44,12 @@ class DonationListCreate(generics.ListCreateAPIView):
         res, col = db.cypher_query(query)
         return [Donation.inflate(row[0]) for row in res]
 
-    @detail_route(methods=['get'], permission_classes=(
-            IsAuthenticated, IsOwnerOrEditorOrAccountant))
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
+        if not (request.user.username in Campaign.get_accountants
+                (self.kwargs[self.lookup_field])):
+            return Response({"status_code": status.HTTP_403_FORBIDDEN,
+                             "detail": "Authentication credentials were "
+                                       "not provided."})
+        return super(DonationListCreate, self).list(request, *args, **kwargs)
 
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
 
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)

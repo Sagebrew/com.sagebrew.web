@@ -14,7 +14,7 @@ from plebs.neo_models import Pleb
 from sb_locations.neo_models import (Location)
 from sb_goals.neo_models import Goal, Round
 
-from .neo_models import (PoliticalCampaign, Position)
+from .neo_models import (Campaign, PoliticalCampaign, Position)
 
 logger = getLogger('loggly_logs')
 
@@ -32,7 +32,6 @@ class CampaignSerializer(SBSerializer):
 
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
-    goals = serializers.SerializerMethodField()
     rounds = serializers.SerializerMethodField()
     updates = serializers.SerializerMethodField()
     position = serializers.SerializerMethodField()
@@ -57,7 +56,9 @@ class CampaignSerializer(SBSerializer):
         return instance
 
     def get_url(self, obj):
-        return obj.get_url(request=self.context.get('request', None))
+        return PoliticalCampaign.get_url(obj.object_uuid,
+                                         request=self.context.get('request',
+                                                                  None))
 
     def get_href(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
@@ -65,54 +66,35 @@ class CampaignSerializer(SBSerializer):
                        kwargs={'object_uuid': obj.object_uuid},
                        request=request)
 
-    def get_goals(self, obj):
-        request, _, _, _, _ = gather_request_data(self.context)
-        return reverse('goal-list', kwargs={'object_uuid': obj.object_uuid},
-                       request=request)
-
     def get_active_goals(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
-        query = "MATCH (r:`Campaign` {object_uuid:'%s'})-[:HAS_ROUND]->" \
-                "(r:`Round`)-[:STRIVING_FOR]->(g:`Goal`) WHERE " \
-                "r.active=true RETURN g.object_uuid ORDER BY g.created" % (obj.object_uuid)
-        res, col = db.cypher_query(query)
-        if not res:
-            return []
-        return res[0]
+        return Campaign.get_active_goals(obj.object_uuid)
 
     def get_rounds(self, obj):
-        request, _, _, _, _ = gather_request_data(self.context)
-        return reverse('round-list',
-                       kwargs={'object_uuid': obj.object_uuid},
-                       request=request)
+        request, _, _, relation, _ = gather_request_data(self.context)
+        if relation == 'hyperlink':
+            return reverse('round-list',
+                           kwargs={'object_uuid': obj.object_uuid},
+                           request=request)
+        return Campaign.get_rounds(obj.object_uuid)
 
     def get_active_round(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
-        query = "MATCH (r:`Campaign` {object_uuid:'%s'})-[:HAS_ROUND]->" \
-                "(r:`Round`) WHERE r.active=true RETURN r.object_uuid" % \
-                (obj.object_uuid)
-        res, col = db.cypher_query(query)
-        if not res:
-            return []
-        return res[0]
+        return Campaign.get_active_round(obj.object_uuid)
 
     def get_updates(self, obj):
         request, _, _, relation, _ = gather_request_data(self.context)
         relation_list = []
-        query = 'MATCH (c:`Campaign` {object_uuid:"%s"})-[:HAS_UPDATE]-' \
-                '(u:`Update`) WHERE u.to_be_deleted=false ' \
-                'RETURN u.object_uuid' % (obj.object_uuid)
-        res, col = db.cypher_query(query)
+        updates = Campaign.get_updates(obj.object_uuid)
         if relation == 'hyperlink':
-            for update in [row[0] for row in res]:
+            for update in updates:
                 relation_list.append(reverse('update-detail',
                                              kwargs={'object_uuid':
                                                          obj.object_uuid,
-                                                     'updated_uuid': update},
+                                                     'update_uuid': update},
                                              request=request))
-        if not res:
-            return []
-        return res[0]
+            return relation_list
+        return updates
 
     def get_position(self, obj):
         request, _, _, relations, _ = gather_request_data(self.context)
@@ -120,21 +102,16 @@ class CampaignSerializer(SBSerializer):
             return reverse('campaign-position',
                            kwargs={'object_uuid': obj.object_uuid},
                            request=request)
-        query = "MATCH (r:`Campaign` {object_uuid:'%s'})-[:RUNNING_FOR]->" \
-                "(p:`Position`) RETURN p.object_uuid" % (obj.object_uuid)
-        res, col = db.cypher_query(query)
-        if not res:
-            return []
-        return res[0]
+        return Campaign.get_position(obj.object_uuid)
 
 
 class PoliticalCampaignSerializer(CampaignSerializer):
-    votes = serializers.SerializerMethodField()
     vote_count = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         request, expand, _, _, _ = gather_request_data(self.context)
         owner = Pleb.get(request.user.username)
+        validated_data['owner_username'] = owner.username
         campaign = PoliticalCampaign(**validated_data).save()
         campaign.owned_by.connect(owner)
         owner.campaign.connect(campaign)
@@ -145,12 +122,26 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         cache.set(campaign.object_uuid, campaign)
         return campaign
 
-    def get_votes(self, obj):
-        request, _, _, _, _ = gather_request_data(self.context)
-        pass
-
     def get_vote_count(self, obj):
-        pass
+        request, _, _, _, _ = gather_request_data(self.context)
+        return PoliticalCampaign.get_vote_count(obj.object_uuid)
+
+    def get_constituents(self, obj):
+        request, _, _, relation, _ = gather_request_data(self.context)
+        constituents = PoliticalCampaign.get_constituents(obj.object_uuid)
+        if relation == 'hyperlink':
+            return [reverse('profile_page', kwargs={'pleb_username': row[0]},
+                            request=request) for row in constituents]
+        return constituents
+
+
+class PoliticalVoteSerializer(serializers.Serializer):
+    """
+    The reason behind this serializer is to ensure that we can use the same
+    functionality that voting on content uses, this just allows us to ensure
+    that there are not multiple types of votes and that votes get toggled.
+    """
+    vote_type = serializers.IntegerField(min_value=1, max_value=1)
 
 
 class EditorSerializer(serializers.Serializer):
@@ -199,26 +190,21 @@ class PositionSerializer(serializers.Serializer):
     def get_campaigns(self, obj):
         campaign_list = []
         request, expand, _, relation, _ = gather_request_data(self.context)
-        query = 'MATCH (p:`Position` {object_uuid: "%s"})-[:CAMPAIGNS]-' \
-                '(c:`PoliticalCampaign`) RETURN c.object_uuid' % (obj.object_uuid)
-        res, col = db.cypher_query(query)
+        campaigns = Position.get_campaigns(obj.object_uuid)
         if relation == 'hyperlink':
-            for campaign in [row[0] for row in res]:
+            for campaign in campaigns:
                 campaign_list.append(reverse('campaign-detail',
                                              kwargs={'object_uuid':
                                                          campaign},
                                              request=request))
             return campaign_list
-        return [row[0] for row in res]
+        return campaigns
 
     def get_location(self, obj):
         request, _, _, relation, _ = gather_request_data(self.context)
-        query = 'MATCH (p:`Position` {object_uuid: "%s"})-' \
-                '[:AVAILABLE_WITHIN]-(c:`Location`) ' \
-                'RETURN c.object_uuid' % (obj.object_uuid)
-        res, col = db.cypher_query(query)
+        location = Position.get_location(obj.object_uuid)
         if relation == 'hyperlink':
             return reverse('location-detail',
-                           kwargs={'object_uuid': res[0][0]},
+                           kwargs={'object_uuid': location},
                            request=request)
-        return [row[0] for row in res]
+        return location

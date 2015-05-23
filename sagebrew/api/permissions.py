@@ -1,12 +1,7 @@
 from rest_framework import permissions
 
-from neomodel import db
+from sb_campaigns.neo_models import Campaign
 
-from plebs.neo_models import Pleb
-
-
-from logging import getLogger
-logger = getLogger("loggly_logs")
 
 class IsOwnerOrAdmin(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -55,7 +50,14 @@ class IsAdminOrReadOnly(permissions.BasePermission):
 
 class IsOwnerOrEditorOrAccountant(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if (request.user.username in obj.get_campaign_helpers()):
+        if (request.user.username in Campaign.get_campaign_helpers(obj)):
+            return True
+        else:
+            return False
+
+class IsOwnerOrAccountant(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if (request.user.username in Campaign.get_accountants(obj)):
             return True
         else:
             return False

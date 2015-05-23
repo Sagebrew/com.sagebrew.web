@@ -1,4 +1,4 @@
-from neomodel import (StringProperty, IntegerProperty,
+from neomodel import (db, StringProperty, IntegerProperty,
                       BooleanProperty, RelationshipTo, DateTimeProperty)
 
 from api.neo_models import SBObject
@@ -41,6 +41,8 @@ class Goal(SBObject):
     description = StringProperty()
     pledged_vote_requirement = IntegerProperty(default=0)
     monetary_requirement = IntegerProperty(default=0)
+    completed = BooleanProperty(default=False)
+    completed_date = DateTimeProperty()
 
     # relationships
     updates = RelationshipTo('sb_updates.neo_models.Update', "UPDATE_FOR")
@@ -48,13 +50,59 @@ class Goal(SBObject):
     associated_round = RelationshipTo('sb_goals.neo_models.Round', "PART_OF")
     previous_goal = RelationshipTo('sb_goals.neo_models.Goal', "PREVIOUS")
     next_goal = RelationshipTo('sb_goals.neo_models.Goal', "NEXT")
-    campaign = RelationshipTo('sb_campaigns.neo_models.Campaign', 'SET_FOR')
+    campaign = RelationshipTo('sb_campaigns.neo_models.Campaign',
+                              'ASSOCIATED_WITH')
 
     # TODO should we ever bind a goal to a single user? Or should it always
     # be bound to a campaign and project which are then bound to x amount of
     # users? May make queries easier but I think by not binding them tightly
     # we improve the distinction between a private profile and their active
     # public identity.
+
+    @classmethod
+    def get_updates(cls, object_uuid):
+        query = 'MATCH (g:`Goal` {object_uuid: "%s"})-[:UPDATE_FOR]->' \
+                '(u:`Update`) return u.object_uuid' % (object_uuid)
+        res, col = db.cypher_query(query)
+        if not res:
+            return []
+        return res[0]
+
+    @classmethod
+    def get_donations(cls, object_uuid):
+        query = 'MATCH (g:`Goal` {object_uuid: "%s"})-[:RECEIVED]->' \
+                '(u:`Donation`) return u.object_uuid' % (object_uuid)
+        res, col = db.cypher_query(query)
+        if not res:
+            return []
+        return res[0]
+
+    @classmethod
+    def get_associated_round(cls, object_uuid):
+        query = 'MATCH (g:`Goal` {object_uuid: "%s"})-[:PART_OF]->' \
+                '(u:`Round`) return u.object_uuid' % (object_uuid)
+        res, col = db.cypher_query(query)
+        if not res:
+            return []
+        return res[0]
+
+    @classmethod
+    def get_previous_goal(cls, object_uuid):
+        query = 'MATCH (g:`Goal` {object_uuid: "%s"})-[:PREVIOUS]->' \
+                '(u:`Goal`) return u.object_uuid' % (object_uuid)
+        res, col = db.cypher_query(query)
+        if not res:
+            return []
+        return res[0]
+
+    @classmethod
+    def get_next_goal(cls, object_uuid):
+        query = 'MATCH (g:`Goal` {object_uuid: "%s"})-[:NEXT]->' \
+                '(u:`Goal`) return u.object_uuid' % (object_uuid)
+        res, col = db.cypher_query(query)
+        if not res:
+            return []
+        return res[0]
 
 
 class Round(SBObject):
@@ -88,3 +136,30 @@ class Round(SBObject):
     next_round = RelationshipTo('sb_goals.neo_models.Round', "NEXT")
     campaign = RelationshipTo('sb_campaigns.neo_models.Campaign',
                               'ASSOCIATED_WITH')
+
+    @classmethod
+    def get_goals(cls, object_uuid):
+        query = 'MATCH (r:`Round` {object_uuid:"%s"})-[:STRIVING_FOR]->' \
+                '(g:`Goal`) RETURN g.object_uuid' % (object_uuid)
+        res, col = db.cypher_query(query)
+        if not res:
+            return res
+        return res[0]
+
+    @classmethod
+    def get_previous_round(cls, object_uuid):
+        query = 'MATCH (r:`Round` {object_uuid:"%s"})-[:PREVIOUS]->' \
+                '(g:`Round`) RETURN g.object_uuid' % (object_uuid)
+        res, col = db.cypher_query(query)
+        if not res:
+            return res
+        return res[0]
+
+    @classmethod
+    def get_next_round(cls, object_uuid):
+        query = 'MATCH (r:`Round` {object_uuid:"%s"})-[:NEXT]->' \
+                '(g:`Round`) RETURN g.object_uuid' % (object_uuid)
+        res, col = db.cypher_query(query)
+        if not res:
+            return res
+        return res[0]

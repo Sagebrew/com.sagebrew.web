@@ -355,6 +355,9 @@ class SBPublicContent(SBVersioned):
     # Used to distinguish between private conversations and public
     pass
 
+class TitledContent(SBPublicContent):
+    title = StringProperty()
+
 
 class SBPrivateContent(TaggableContent):
     # Used to distinguish between private conversations and public

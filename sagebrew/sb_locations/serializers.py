@@ -22,51 +22,28 @@ class LocationSerializer(serializers.Serializer):
 
     def get_encompasses(self, obj):
         request, _, _, relations, _ = gather_request_data(self.context)
-        encompass_list = []
-        query = 'MATCH (n:`Location` {object_uuid: "%s"})-' \
-                '[:ENCOMPASSES]->(e:`Location`) RETURN e.object_uuid' % \
-                (obj.object_uuid)
-        res, col = db.cypher_query(query)
+        encompasses = Location.get_encompasses(obj.object_uuid)
         if relations == 'hyperlink':
-            for location in [row[0] for row in res]:
-                encompass_list.append(reverse('location-detail',
-                                      kwargs={"object_uuid":
-                                                  location},
-                                      request=request))
-            return encompass_list
-        return [row[0] for row in res]
+            return [reverse('location-detail', kwargs={'object_uuid': row[0]},
+                            request=request) for row in encompasses]
+        return encompasses
 
     def get_encompassed_by(self, obj):
         request, _, _, relations, _ = gather_request_data(self.context)
-        encompass_list = []
-        query = 'MATCH (n:`Location` {object_uuid: "%s"})-' \
-                '[:ENCOMPASSED_BY]->(e:`Location`) RETURN e.object_uuid' \
-                % (obj.object_uuid)
-        res, col = db.cypher_query(query)
+        encompassed_by = Location.get_encompassed_by(obj.object_uuid)
         if relations == 'hyperlink':
-            for location in [row[0] for row in res]:
-                encompass_list.append(reverse('location-detail',
-                                      kwargs={"object_uuid":
-                                                  location},
-                                      request=request))
-            return encompass_list
-        return [row[0] for row in res]
+            return [reverse('location-detail', kwargs={'object_uuid': row[0]},
+                            request=request) for row in encompassed_by]
+        return encompassed_by
 
     def get_positions(self, obj):
-        position_list = []
         request, _, _, relations, _ = gather_request_data(self.context)
-        query = 'MATCH (l:`Location` {object_uuid: "%s"})-' \
-                '[:POSITIONS_AVAILABLE]->(p:`Position`) RETURN p.object_uuid' \
-                % (obj.object_uuid)
-        res, col = db.cypher_query(query)
+        positions = Location.get_positions(obj.object_uuid)
         if relations == 'hyperlink':
-            for position in [row[0] for row in res]:
-                position_list.append(reverse('position-detail',
-                                             kwargs={"object_uuid":
-                                                         position},
-                                             request=request))
-            return position_list
-        return [row[0] for row in res]
+            return [reverse('position-detail',
+                            kwargs={'object_uuid': row[0]}, request=request)
+                    for row in positions]
+        return positions
 
     def get_geo_data(self, obj):
         request, expand, _, _, _ = gather_request_data(self.context)

@@ -7,6 +7,27 @@ links etc. With Markdown it becomes very simple to write up Questions and
 Solutions, providing <a href="/help/questions/context/">Context</a>, citing sources and organizing the information 
 you wish to present.</p>
 <h2>The Specifics</h2>
+<h3>Spaces and Lines</h3>
+<p>If you wish to begin a new paragraph, you'll need to hit enter twice to tell Markdown you wish to begin a new paragraph. Markdown does not reconginze a single line as a new line. For example:</p>
+<pre><code>this
+is 
+a 
+single
+line
+</code></pre>
+<p>will translate to:</p>
+<pre><code>This is a single line
+</code></pre>
+<p>Whereas: </p>
+<pre><code>This is
+
+a new line
+</code></pre>
+<p>will translate to:</p>
+<pre><code>This is
+
+a new line
+</code></pre>
 <h3>Headers</h3>
 <p>Headers are indicated by hash tags. For example:</p>
 <pre><code># Header #
@@ -116,10 +137,10 @@ Our editor will automatically resize your image to fit neatly on the page if it
 is too large, but if you can resize your image, it's recommended to do so.
 Preferred image size is at or below 696x696.</p>
 <h3>Videos</h3>
-<p><em>Please note that we currently don't allow videos in the Public Conversation Area and
+<p><em>Please note that we currently don't allow videos in the public conversation area and
 any raw HTML shall be stripped out of the input for security reasons. Videos can only
-be inserted into Action Areas that you have edit rights to.</em></p>
-<p>To add a video, copy the "embedded" link from the host site of the video you'd like to post and
+be inserted into Action Areas that you have edit rights to.</em>
+To add a video, copy the "embedded" link from the host site of the video you'd like to post and
 insert it in the document where you'd like the video to be located.
 For example:</p>
 <pre><code>&lt;iframe src="https://player.vimeo.com/video/120960412" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen&gt;&lt;/iframe&gt; &lt;small&gt;&lt;a href="https://vimeo.com/120960412"&gt;Baxter&lt;/a&gt; from &lt;a href="https://vimeo.com/tcoyle"&gt;Ty Coyle&lt;/a&gt; on &lt;a href="https://vimeo.com"&gt;Vimeo&lt;/a&gt;.&lt;/small&gt;

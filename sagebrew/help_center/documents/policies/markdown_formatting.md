@@ -163,7 +163,7 @@ is too large, but if you can resize your image, it's recommended to do so.
 Preferred image size is at or below 696x696.
 
 ### Videos ###
-*Please note that we currently don't allow videos in the public conversation area and
+*Please note that we currently don't allow videos in the Conversation Area and
 any raw HTML shall be stripped out of the input for security reasons. Videos can only
 be inserted into Action Areas that you have edit rights to.*
 To add a video, copy the "embedded" link from the host site of the video you'd like to post and

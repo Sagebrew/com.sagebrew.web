@@ -169,7 +169,10 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         return solution_count(obj.object_uuid)
 
     def get_solutions(self, obj):
-        request, expand, _, relations, _ = gather_request_data(self.context)
+        request, expand, _, relations, expedite = gather_request_data(
+            self.context)
+        if expedite == "true":
+            return []
         solutions = obj.get_solution_ids()
         solution_urls = []
         if expand == "true":
@@ -190,7 +193,7 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         return solution_urls
 
     def get_href(self, obj):
-        request, expand, _, _, _ = gather_request_data(self.context)
+        request, _, _, _, _ = gather_request_data(self.context)
         return reverse(
             'question-detail', kwargs={'object_uuid': obj.object_uuid},
             request=request)

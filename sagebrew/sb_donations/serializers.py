@@ -36,7 +36,7 @@ class DonationSerializer(serializers.Serializer):
     def create(self, validated_data):
         request, _, _, _, _ = gather_request_data(self.context)
         donator = Pleb.get(request.user.username)
-        #validated_data['owner_username'] = donator.username
+        validated_data['owner_username'] = donator.username
         donated_towards = request.data.pop('donated_towards', [])
         campaign = validated_data.pop('campaign', None)
         donation = Donation(**validated_data).save()
@@ -53,10 +53,20 @@ class DonationSerializer(serializers.Serializer):
         return donation
 
     def get_donated_for(self, obj):
-        return Donation.get_donated_for(obj.object_uuid)
+        request, _, _, relation, _ = gather_request_data(self.context)
+        donated_for = Donation.get_donated_for(obj.object_uuid)
+        if relation == 'hyperlink' and donated_for is not None:
+            return reverse('goal-detail', kwargs={'object_uuid': donated_for},
+                           request=request)
+        return donated_for
 
     def get_applied_to(self, obj):
-        return Donation.get_applied_to(obj.object_uuid)
+        request, _, _, relation, _ = gather_request_data(self.context)
+        applied_to = Donation.get_applied_to(obj.object_uuid)
+        if relation == 'hyperlink' and applied_to is not None:
+            return [reverse('goal-detail', kwargs={'object_uuid': goal},
+                            request=request) for goal in applied_to]
+        return applied_to
 
     def get_owned_by(self, obj):
         request, _, _, relation, _ = gather_request_data(self.context)

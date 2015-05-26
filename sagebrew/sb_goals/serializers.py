@@ -23,14 +23,10 @@ class GoalSerializer(CampaignAttributeSerializer):
     title = serializers.CharField(required=True)
     summary = serializers.CharField(required=True)
     description = serializers.CharField(required=False, allow_null=True)
-    # TODO Look in to how to validate the pledged_vote_requirement field
-    # with the monetary_requirement field. We want the first goal of a
-    # campaign to be able to only require a certain amount of pledged votes
-    # and no monetary requirement but later on allow either one or both for
-    # each goal. I don't think we want the initial goal for each round to
-    # have a requirement of at least pledge vote so we will need custom
-    # logic for this. We could also look in to doing the limitations and
-    # verification of goal creation on the frontend more than the backend.
+    # We are requiring both a vote requirement and monetary requirement for
+    # the first goal, the monetary requirement can be very small but it is
+    # just easier for us with validation to allow them to make a monetary
+    # requirement and vote requirement.
     pledged_vote_requirement = serializers.IntegerField(required=False,
                                                         allow_null=True)
     monetary_requirement = serializers.IntegerField(required=False,

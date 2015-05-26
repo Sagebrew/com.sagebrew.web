@@ -53,8 +53,8 @@ class Donation(SBObject):
                 (object_uuid)
         res, col = db.cypher_query(query)
         if not res:
-            return []
-        return res[0]
+            return None
+        return res[0][0]
 
     @classmethod
     def get_applied_to(cls, object_uuid):

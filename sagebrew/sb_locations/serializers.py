@@ -24,7 +24,7 @@ class LocationSerializer(serializers.Serializer):
         request, _, _, relations, _ = gather_request_data(self.context)
         encompasses = Location.get_encompasses(obj.object_uuid)
         if relations == 'hyperlink':
-            return [reverse('location-detail', kwargs={'object_uuid': row[0]},
+            return [reverse('location-detail', kwargs={'object_uuid': row},
                             request=request) for row in encompasses]
         return encompasses
 
@@ -32,7 +32,7 @@ class LocationSerializer(serializers.Serializer):
         request, _, _, relations, _ = gather_request_data(self.context)
         encompassed_by = Location.get_encompassed_by(obj.object_uuid)
         if relations == 'hyperlink':
-            return [reverse('location-detail', kwargs={'object_uuid': row[0]},
+            return [reverse('location-detail', kwargs={'object_uuid': row},
                             request=request) for row in encompassed_by]
         return encompassed_by
 
@@ -41,7 +41,7 @@ class LocationSerializer(serializers.Serializer):
         positions = Location.get_positions(obj.object_uuid)
         if relations == 'hyperlink':
             return [reverse('position-detail',
-                            kwargs={'object_uuid': row[0]}, request=request)
+                            kwargs={'object_uuid': row}, request=request)
                     for row in positions]
         return positions
 

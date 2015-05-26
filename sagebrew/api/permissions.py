@@ -61,3 +61,10 @@ class IsOwnerOrAccountant(permissions.BasePermission):
             return True
         else:
             return False
+
+class IsOwnerOrEditor(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if (request.user.username in Campaign.get_editors(obj)):
+            return True
+        else:
+            return False

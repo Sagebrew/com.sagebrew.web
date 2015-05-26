@@ -17,15 +17,26 @@ from sb_campaigns.neo_models import PoliticalCampaign
 
 from .neo_models import Goal, Round
 
+
 class GoalSerializer(CampaignAttributeSerializer):
     initial = serializers.BooleanField(required=False)
     title = serializers.CharField(required=True)
     summary = serializers.CharField(required=True)
-    description = serializers.CharField(required=False)
-    pledged_vote_requirement = serializers.IntegerField(required=False)
-    monetary_requirement = serializers.IntegerField(required=False)
+    description = serializers.CharField(required=False, allow_null=True)
+    # TODO Look in to how to validate the pledged_vote_requirement field
+    # with the monetary_requirement field. We want the first goal of a
+    # campaign to be able to only require a certain amount of pledged votes
+    # and no monetary requirement but later on allow either one or both for
+    # each goal. I don't think we want the initial goal for each round to
+    # have a requirement of at least pledge vote so we will need custom
+    # logic for this. We could also look in to doing the limitations and
+    # verification of goal creation on the frontend more than the backend.
+    pledged_vote_requirement = serializers.IntegerField(required=False,
+                                                        allow_null=True)
+    monetary_requirement = serializers.IntegerField(required=False,
+                                                    allow_null=True)
     completed = serializers.BooleanField()
-    completed_dat = serializers.DateTimeField()
+    completed_date = serializers.DateTimeField(allow_null=True)
 
     updates = serializers.SerializerMethodField()
     associated_round = serializers.SerializerMethodField()
@@ -35,7 +46,9 @@ class GoalSerializer(CampaignAttributeSerializer):
 
     def create(self, validated_data):
         campaign = validated_data.pop('campaign', None)
-        campaign_round = validated_data.pop('round', None)
+        campaign_round = Round.nodes.get(
+            object_uuid=PoliticalCampaign.get_upcoming_round(
+                campaign.object_uuid))
         next_goal = validated_data.pop('next_goal', None)
         previous_goal = validated_data.pop('previous_goal', None)
         goal = Goal(**validated_data).save()
@@ -55,24 +68,47 @@ class GoalSerializer(CampaignAttributeSerializer):
 
 
     def get_updates(self, obj):
-        return Goal.get_updates(obj.object_uuid)
+        request, _, _, relation, _ = gather_request_data(self.context)
+        updates = Goal.get_updates(obj.object_uuid)
+        if relation == 'hyperlink':
+            return [reverse('update-detail',
+                            kwargs={'object_uuid': update}, request=request)
+                    for update in updates]
+        return updates
 
-    def get_round(self, obj):
-        return Goal.get_associated_round(obj.object_uuid)
+    def get_associated_round(self, obj):
+        request, _, _, relation, _ = gather_request_data(self.context)
+        associated_round = Goal.get_associated_round(obj.object_uuid)
+        if relation == 'hyperlink' and associated_round is not None:
+            return reverse('round-detail',
+                           kwargs={'object_uuid': associated_round},
+                           request=request)
+        return associated_round
 
     def get_donations(self, obj):
+        request, _, _, relation, _ = gather_request_data(self.context)
         return Goal.get_donations(obj.object_uuid)
 
     def get_previous_goal(self, obj):
-        return Goal.get_previous_goal(obj.object_uuid)
+        request, _, _, relation, _ = gather_request_data(self.context)
+        prev_goal = Goal.get_previous_goal(obj.object_uuid)
+        if relation == 'hyperlink' and prev_goal is not None:
+            return reverse('goal-detail', kwargs={'object_uuid': prev_goal},
+                           request=request)
+        return prev_goal
 
     def get_next_goal(self, obj):
-        return Goal.get_next_goal(obj.object_uuid)
+        request, _, _, relation, _ = gather_request_data(self.context)
+        next_goal = Goal.get_next_goal(obj.object_uuid)
+        if relation == 'hyperlink' and next_goal is not None:
+            return reverse('goal-detail', kwargs={'object_uuid': next_goal},
+                           request=request)
+        return next_goal
 
 
 class RoundSerializer(CampaignAttributeSerializer):
     active = serializers.BooleanField()
-    start_date = serializers.DateTimeField(required=False)
+    start_date = serializers.DateTimeField(required=False, allow_null=True)
     completed = serializers.DateTimeField(read_only=True)
 
     goals = serializers.SerializerMethodField()
@@ -97,10 +133,25 @@ class RoundSerializer(CampaignAttributeSerializer):
         return campaign_round
 
     def get_goals(self, obj):
-        return Round.get_goals(obj.object_uuid)
+        request, _, _, relation, _ = gather_request_data(self.context)
+        goals = Round.get_goals(obj.object_uuid)
+        if relation == 'hyperlink':
+            return [reverse('goal-detail', kwargs={'object_uuid': row},
+                            request=request) for row in goals]
+        return goals
 
     def get_previous_round(self, obj):
-        return Round.get_previous_round(obj.object_uuid)
+        request, _, _, relation, _ = gather_request_data(self.context)
+        prev_round = Round.get_previous_round(obj.object_uuid)
+        if relation == 'hyperlink' and prev_round is not None:
+            return reverse('round-detail', kwargs={'object_uuid': prev_round},
+                           request=request)
+        return prev_round
 
     def get_next_round(self, obj):
-        return Round.get_next_round(obj.object_uuid)
+        request, _, _, relation, _ = gather_request_data(self.context)
+        next_round = Round.get_next_round(obj.object_uuid)
+        if relation == 'hyperlink' and next_round is not None:
+            return reverse('round-detail', kwargs={'object_uuid': next_round},
+                           request=request)
+        return next_round

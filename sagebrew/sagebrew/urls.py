@@ -63,6 +63,7 @@ urlpatterns = patterns(
     (r'^v1/', include('sb_posts.apis.v1')),
     (r'^v1/', include('sb_comments.apis.v1')),
     (r'^v1/', include('sb_flags.apis.v1')),
+    (r'^v1/', include('sb_goals.apis.v1')),
     (r'^v1/', include('sb_votes.apis.v1')),
     (r'^v1/', include('sb_privileges.apis.v1')),
     (r'^v1/', include('sb_tags.apis.v1')),

@@ -1,4 +1,5 @@
-from json import loads
+import pytz
+from datetime import datetime
 from logging import getLogger
 
 from django.core.cache import cache
@@ -37,6 +38,7 @@ class CampaignSerializer(SBSerializer):
     position = serializers.SerializerMethodField()
     active_goals = serializers.SerializerMethodField()
     active_round = serializers.SerializerMethodField()
+    upcoming_round = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         pass
@@ -67,8 +69,13 @@ class CampaignSerializer(SBSerializer):
                        request=request)
 
     def get_active_goals(self, obj):
-        request, _, _, _, _ = gather_request_data(self.context)
-        return Campaign.get_active_goals(obj.object_uuid)
+        request, _, _, relation, _ = gather_request_data(self.context)
+        active_goals = Campaign.get_active_goals(obj.object_uuid)
+        if relation == 'hyperlink':
+            return [reverse('goal-detail',
+                            kwargs={'object_uuid':row}, request=request)
+                    for row in active_goals]
+        return active_goals
 
     def get_rounds(self, obj):
         request, _, _, relation, _ = gather_request_data(self.context)
@@ -79,8 +86,26 @@ class CampaignSerializer(SBSerializer):
         return Campaign.get_rounds(obj.object_uuid)
 
     def get_active_round(self, obj):
-        request, _, _, _, _ = gather_request_data(self.context)
-        return Campaign.get_active_round(obj.object_uuid)
+        request, _, _, relation, _ = gather_request_data(self.context)
+        active_round = Campaign.get_active_round(obj.object_uuid)
+        if relation == 'hyperlink':
+            if active_round is None:
+                return None
+            return reverse('round-detail',
+                           kwargs={'object_uuid': active_round},
+                           request=request)
+        return active_round
+
+    def get_upcoming_round(self, obj):
+        request, _, _, relation, _ = gather_request_data(self.context)
+        upcoming_round = Campaign.get_upcoming_round(obj.object_uuid)
+        if relation == 'hyperlink':
+            if upcoming_round is None:
+                return None
+            return reverse('round-detail',
+                           kwargs={'object_uuid': upcoming_round},
+                           request=request)
+        return upcoming_round
 
     def get_updates(self, obj):
         request, _, _, relation, _ = gather_request_data(self.context)
@@ -89,9 +114,7 @@ class CampaignSerializer(SBSerializer):
         if relation == 'hyperlink':
             for update in updates:
                 relation_list.append(reverse('update-detail',
-                                             kwargs={'object_uuid':
-                                                         obj.object_uuid,
-                                                     'update_uuid': update},
+                                             kwargs={'object_uuid': update},
                                              request=request))
             return relation_list
         return updates
@@ -117,6 +140,9 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         owner.campaign.connect(campaign)
         owner.campaign_editor.connect(campaign)
         owner.campaign_accountant.connect(campaign)
+        initial_round = Round(start_date=datetime.now(pytz.utc)).save()
+        initial_round.campaign.connect(campaign)
+        campaign.upcoming_round.connect(initial_round)
         campaign.editors.connect(owner)
         campaign.accountants.connect(owner)
         cache.set(campaign.object_uuid, campaign)

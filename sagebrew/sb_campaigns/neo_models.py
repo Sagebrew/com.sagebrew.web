@@ -83,6 +83,10 @@ class Campaign(Searchable):
                                  'CAN_VIEW_MONETARY_DATA')
     position = RelationshipTo('sb_campaigns.neo_models.Position',
                               'RUNNING_FOR')
+    active_round = RelationshipTo('sb_goals.neo_models.Round',
+                                   "CURRENT_ROUND")
+    upcoming_round = RelationshipTo('sb_goals.neo_models.Round',
+                                    "UPCOMING_ROUND")
 
     @classmethod
     def get(cls, object_uuid):
@@ -157,9 +161,9 @@ class Campaign(Searchable):
     def get_active_goals(cls, object_uuid):
         active_goals = cache.get("%s_active_goals" % (object_uuid))
         if active_goals is None:
-            query = "MATCH (r:`Campaign` {object_uuid:'%s'})-[:HAS_ROUND]->" \
-                    "(r:`Round`)-[:STRIVING_FOR]->(g:`Goal`) WHERE " \
-                    "r.active=true RETURN g.object_uuid ORDER BY g.created" % \
+            query = "MATCH (c:`Campaign` {object_uuid:'%s'})-" \
+                    "[:CURRENT_ROUND]->(r:`Round`)-[:STRIVING_FOR]->" \
+                    "(g:`Goal`) RETURN g.object_uuid ORDER BY g.created" % \
                     (object_uuid)
             res, col = db.cypher_query(query)
             if not res:
@@ -173,8 +177,8 @@ class Campaign(Searchable):
     def get_active_round(cls, object_uuid):
         active_round = cache.get("%s_active_round" % (object_uuid))
         if active_round is None:
-            query = "MATCH (r:`Campaign` {object_uuid:'%s'})-[:HAS_ROUND]->" \
-                    "(r:`Round`) WHERE r.active=true RETURN r.object_uuid" % \
+            query = "MATCH (c:`Campaign` {object_uuid:'%s'})-" \
+                    "[:CURRENT_ROUND]->(r:`Round`) RETURN r.object_uuid" % \
                     (object_uuid)
             res, col = db.cypher_query(query)
             if not res:
@@ -183,6 +187,21 @@ class Campaign(Searchable):
             active_round = res[0][0]
             cache.set("%s_active_round" % (object_uuid), active_round)
         return active_round
+
+    @classmethod
+    def get_upcoming_round(cls, object_uuid):
+        upcoming_round = cache.get("%s_upcoming_round" % (object_uuid))
+        if upcoming_round is None:
+            query = "MATCH (c:`Campaign` {object_uuid:'%s'})-" \
+                    "[:UPCOMING_ROUND]->(r:`Round`) RETURN r.object_uuid" % \
+                    (object_uuid)
+            res, col = db.cypher_query(query)
+            if not res:
+                cache.set("%s_upcoming_round" % (object_uuid), None)
+                return None
+            upcoming_round = res[0][0]
+            cache.set("%s_upcoming_round" % (object_uuid), upcoming_round)
+        return upcoming_round
 
     @classmethod
     def get_updates(cls, object_uuid):

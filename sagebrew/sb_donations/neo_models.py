@@ -1,4 +1,5 @@
-from neomodel import (db, RelationshipTo, BooleanProperty, IntegerProperty)
+from neomodel import (db, RelationshipTo, BooleanProperty, IntegerProperty,
+                      StringProperty)
 
 from api.neo_models import SBObject
 
@@ -30,6 +31,7 @@ class Donation(SBObject):
     # http://stackoverflow.com/questions/3730019/why-not-use-double-or-
     # float-to-represent-currency
     amount = IntegerProperty()
+    owner_username = StringProperty()
 
     # relationships
     # donated_for is what goal the user actually pledged the donation to.

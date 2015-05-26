@@ -144,4 +144,4 @@ class CampaignAttributeSerializer(SBSerializer):
             return reverse('campaign-detail',
                            kwargs={'object_uuid': res[0][0]},
                            request=request)
-        return res[0]
+        return res[0][0]

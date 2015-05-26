@@ -56,7 +56,8 @@ class DonationListCreate(generics.ListCreateAPIView):
                 (self.kwargs[self.lookup_field])):
             return Response({"status_code": status.HTTP_403_FORBIDDEN,
                              "detail": "Authentication credentials were "
-                                       "not provided."})
+                                       "not provided."},
+                            status=status.HTTP_403_FORBIDDEN)
         return super(DonationListCreate, self).list(request, *args, **kwargs)
 
 

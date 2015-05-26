@@ -56,5 +56,5 @@ class UpdateSerializer(TitledContentSerializer):
     def get_url(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
         return reverse('update-detail',
-                       kwargs={'update_uuid': obj.object_uuid},
+                       kwargs={'object_uuid': obj.object_uuid},
                        request=request)

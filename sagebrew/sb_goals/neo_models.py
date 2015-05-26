@@ -39,6 +39,7 @@ class Goal(SBObject):
     # great detail regarding a given goal.
     # Optional
     description = StringProperty()
+    currently_active = BooleanProperty(default=False)
     pledged_vote_requirement = IntegerProperty(default=0)
     monetary_requirement = IntegerProperty(default=0)
     completed = BooleanProperty(default=False)
@@ -83,8 +84,8 @@ class Goal(SBObject):
                 '(u:`Round`) return u.object_uuid' % (object_uuid)
         res, col = db.cypher_query(query)
         if not res:
-            return []
-        return res[0]
+            return None
+        return res[0][0]
 
     @classmethod
     def get_previous_goal(cls, object_uuid):
@@ -92,8 +93,8 @@ class Goal(SBObject):
                 '(u:`Goal`) return u.object_uuid' % (object_uuid)
         res, col = db.cypher_query(query)
         if not res:
-            return []
-        return res[0]
+            return None
+        return res[0][0]
 
     @classmethod
     def get_next_goal(cls, object_uuid):
@@ -101,8 +102,8 @@ class Goal(SBObject):
                 '(u:`Goal`) return u.object_uuid' % (object_uuid)
         res, col = db.cypher_query(query)
         if not res:
-            return []
-        return res[0]
+            return None
+        return res[0][0]
 
 
 class Round(SBObject):
@@ -152,8 +153,8 @@ class Round(SBObject):
                 '(g:`Round`) RETURN g.object_uuid' % (object_uuid)
         res, col = db.cypher_query(query)
         if not res:
-            return res
-        return res[0]
+            return None
+        return res[0][0]
 
     @classmethod
     def get_next_round(cls, object_uuid):
@@ -161,5 +162,5 @@ class Round(SBObject):
                 '(g:`Round`) RETURN g.object_uuid' % (object_uuid)
         res, col = db.cypher_query(query)
         if not res:
-            return res
-        return res[0]
+            return None
+        return res[0][0]

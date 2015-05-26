@@ -35,10 +35,10 @@ class UpdateListCreate(generics.ListCreateAPIView):
 class UpdateRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):
     serializer_class = UpdateSerializer
     lookup_field = "object_uuid"
-    lookup_url_kwarg = "update_uuid"
+    permission_classes = (IsAuthenticated,)
 
     def get_object(self):
-        return Update.nodes.get(object_uuid=self.kwargs[self.lookup_url_kwarg])
+        return Update.nodes.get(object_uuid=self.kwargs[self.lookup_field])
 
 
 @api_view(['GET'])

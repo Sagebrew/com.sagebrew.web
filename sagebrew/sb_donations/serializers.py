@@ -13,9 +13,20 @@ from sb_goals.neo_models import Goal
 from .neo_models import Donation
 
 
+class DonationValue:
+    def __init__(self):
+        self.limit = 270000
+
+    def __call__(self, value):
+        if value > self.limit:
+            message = "You cannot donate over $%s to this campaign." % \
+                      (str(self.limit)[:-2])
+            raise serializers.ValidationError(message)
+
+
 class DonationSerializer(serializers.Serializer):
     completed = serializers.BooleanField()
-    amount = serializers.IntegerField()
+    amount = serializers.IntegerField(validators=[DonationValue(), ])
 
     donated_for = serializers.SerializerMethodField()
     applied_to = serializers.SerializerMethodField()
@@ -25,7 +36,7 @@ class DonationSerializer(serializers.Serializer):
     def create(self, validated_data):
         request, _, _, _, _ = gather_request_data(self.context)
         donator = Pleb.get(request.user.username)
-        validated_data['owner_username'] = donator.username
+        #validated_data['owner_username'] = donator.username
         donated_towards = request.data.pop('donated_towards', [])
         campaign = validated_data.pop('campaign', None)
         donation = Donation(**validated_data).save()

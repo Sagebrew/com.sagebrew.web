@@ -13,7 +13,8 @@ from rest_framework import status, generics
 from neomodel import db, DoesNotExist
 
 from api.utils import spawn_task
-from api.permissions import IsOwnerOrEditorOrAccountant, IsOwnerOrAdmin
+from api.permissions import (IsOwnerOrEditorOrAccountant, IsOwnerOrAdmin,
+                             IsOwnerOrEditor)
 from sb_base.utils import get_ordering, get_tagged_as
 from sb_stats.tasks import update_view_count_task
 from plebs.neo_models import Pleb
@@ -26,7 +27,7 @@ from .neo_models import Goal, Round
 logger = getLogger('loggly_logs')
 
 
-class GoalListMixin(generics.ListAPIView):
+class GoalListCreateMixin(generics.ListCreateAPIView):
     """
     This mixin is utilized at the campaign endpoint. This allows us to get a
     list of all goals attached to a campaign. This will return a serialized
@@ -51,6 +52,50 @@ class GoalListMixin(generics.ListAPIView):
                 "ORDER BY g.created" % (self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
         return [Goal.inflate(row[0]) for row in res]
+
+    def create(self, request, *args, **kwargs):
+        if not (request.user.username in
+                    Campaign.get_editors(self.kwargs[self.lookup_field])):
+            return Response({"status_code": status.HTTP_403_FORBIDDEN,
+                             "detail": "Authentication credentials were "
+                                       "not provided."},
+                            status=status.HTTP_403_FORBIDDEN)
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            campaign = Campaign.get(self.kwargs[self.lookup_field])
+            serializer.save(campaign=campaign)
+            return Response({"detail": "Successfully created goal.",
+                             "status_code": status.HTTP_200_OK})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class GoalRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = GoalSerializer
+    permission_classes = (IsAuthenticated,)
+    lookup_field = "object_uuid"
+
+    def get_object(self):
+        return Goal.nodes.get(object_uuid=self.kwargs[self.lookup_field])
+
+    def update(self, request, *args, **kwargs):
+        queryset = self.get_object()
+        if (queryset.completed or queryset.currently_active):
+            return Response({"status_code": status.HTTP_403_FORBIDDEN,
+                             "detail": "Authentication credentials "
+                                       "were not provided."},
+                            status=status.HTTP_403_FORBIDDEN)
+        return super(GoalRetrieveUpdateDestroy, self).update(request,
+                                                             *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        queryset = self.get_object()
+        if (queryset.completed or queryset.currently_active):
+            return Response({"status_code": status.HTTP_403_FORBIDDEN,
+                             "detail": "Authentication credentials "
+                                       "were not provided."},
+                            status=status.HTTP_403_FORBIDDEN)
+        return super(GoalRetrieveUpdateDestroy, self).destroy(request, *args,
+                                                              **kwargs)
 
 
 class RoundListCreate(generics.ListCreateAPIView):
@@ -77,3 +122,12 @@ class RoundListCreate(generics.ListCreateAPIView):
                 (self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
         return [Round.inflate(row[0]) for row in res]
+
+
+class RoundRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = RoundSerializer
+    permission_classes = (IsAuthenticated,)
+    lookup_field = "object_uuid"
+
+    def get_object(self):
+        return Round.nodes.get(object_uuid=self.kwargs[self.lookup_field])

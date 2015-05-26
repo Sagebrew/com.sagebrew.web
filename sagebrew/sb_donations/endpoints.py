@@ -12,9 +12,12 @@ from api.permissions import IsOwnerOrEditorOrAccountant, IsOwnerOrAccountant
 from plebs.neo_models import Pleb
 from plebs.serializers import PlebSerializerNeo
 from sb_campaigns.neo_models import Campaign
+from sb_goals.neo_models import Goal
 
 from .neo_models import Donation
 from .serializers import DonationSerializer
+
+logger = getLogger('loggly_logs')
 
 
 class DonationViewSet(viewsets.ReadOnlyModelViewSet):
@@ -46,10 +49,23 @@ class DonationListCreate(generics.ListCreateAPIView):
 
     def get_queryset(self):
         query = 'MATCH (c:`Campaign` {object_uuid: "%s"})-' \
-                '[:RECEIVED_DONATION]-(d:`Donation`) RETURN d' % \
+                '[:RECEIVED_DONATION]->(d:`Donation`) RETURN d' % \
                 (self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
         return [Donation.inflate(row[0]) for row in res]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            campaign = Campaign.nodes.get(object_uuid=
+                                          self.kwargs[self.lookup_field])
+            donated_towards = [Goal.nodes.get(object_uuid=goal) for goal in
+                               request.data.get('donated_towards', [])]
+            serializer.save(campaign=campaign, donated_towards=donated_towards)
+            return Response({"detail": "Successfully created donation.",
+                             "status_code": status.HTTP_200_OK},
+                            status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def list(self, request, *args, **kwargs):
         if not (request.user.username in Campaign.get_accountants

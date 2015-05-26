@@ -236,7 +236,7 @@ class Pleb(Searchable):
     pledged_votes = RelationshipTo('sb_campaigns.neo_models.PoliticalCampaign',
                                    'PLEDGED', model=VoteRelationship)
     donations = RelationshipTo('sb_donations.neo_models.Donation',
-                               'DONATIONS_GIVEN')
+                                     'DONATIONS_GIVEN')
 
     @classmethod
     def get(cls, username):
@@ -280,6 +280,27 @@ class Pleb(Searchable):
                 ' SET n.seen = True, ' \
                 'n.time_seen = %s' % (username, time_seen)
         db.cypher_query(query)
+
+    @classmethod
+    def get_campaign_donations(cls, username, campaign_uuid):
+        from logging import getLogger
+        logger = getLogger('loggly_logs')
+        logger.info('%s_%s_donation_amount' % (username, campaign_uuid))
+        donation_amount = cache.get('%s_%s_donation_amount' % (username,
+                                                               campaign_uuid))
+        if donation_amount == 0 or donation_amount is None:
+            query = 'MATCH (p:`Pleb` {username: "%s"})-[:DONATIONS_GIVEN]->' \
+                    '(d:`Donation`)-[:DONATED_TO]->' \
+                    '(c:`Campaign` {object_uuid:"%s"}) RETURN sum(d.amount)' \
+                    % (username, campaign_uuid)
+            res, col = db.cypher_query(query)
+            logger.info(res)
+            if not res:
+                return 0
+            donation_amount = res[0][0]
+            cache.set('%s_%s_donation_amount' %
+                      (username, campaign_uuid), donation_amount)
+        return donation_amount
 
     def deactivate(self):
         return

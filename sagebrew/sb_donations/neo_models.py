@@ -69,7 +69,7 @@ class Donation(SBObject):
     @classmethod
     def get_campaign(cls, object_uuid):
         query = 'MATCH (d:`Donation` {object_uuid: "%s"})-' \
-                '[:DONATED_FROM]->(p:`Pleb`) RETURN p' % (object_uuid)
+                '[:DONATED_TO]->(c:`Campaign`) RETURN c.object_uuid' % (object_uuid)
         res, col = db.cypher_query(query)
         if not res:
             return None

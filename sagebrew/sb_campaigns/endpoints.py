@@ -11,7 +11,8 @@ from rest_framework import status
 
 from neomodel import db
 
-from api.permissions import (IsOwnerOrEditorOrAccountant, IsOwnerOrAdmin)
+from api.permissions import (IsOwnerOrEditorOrAccountant, IsOwnerOrAdmin,
+                             IsOwnerOrAccountant, IsOwnerOrEditor)
 from plebs.neo_models import Pleb
 from sb_votes.utils import handle_vote
 
@@ -36,7 +37,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticated,
-                                      IsOwnerOrEditorOrAccountant))
+                                      IsOwnerOrEditor))
     def editors(self, request, object_uuid=None):
         """
         This is a method on the endpoint because there should be no reason
@@ -96,6 +97,8 @@ class CampaignViewSet(viewsets.ModelViewSet):
         queryset = self.get_object()
         self.check_object_permissions(request, queryset)
         if serializer.is_valid():
+            # The profiles key here refers to a list of usernames
+            # not the actual user objects
             for profile in serializer.data['profiles']:
                 profile_pleb = Pleb.get(username=profile)
                 queryset.editors.disconnect(profile_pleb)
@@ -166,7 +169,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
-                                      IsOwnerOrEditorOrAccountant,))
+                                      IsOwnerOrAccountant,))
     def accountants(self, request, object_uuid=None):
         """
         This is a method on the endpoint because there should be no reason
@@ -202,6 +205,7 @@ class PoliticalCampaignViewSet(CampaignViewSet):
         serializer = self.get_serializer(data=request.data,
                                          context={"request": request})
         if serializer.is_valid():
+            cache.delete("%s_vote_count" % (object_uuid))
             parent_object_uuid = self.kwargs[self.lookup_field]
             now = unicode(datetime.now(pytz.utc))
             res = handle_vote(parent_object_uuid, serializer.data['vote_type'],

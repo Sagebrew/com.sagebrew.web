@@ -28,8 +28,9 @@ class CampaignSerializer(SBSerializer):
     youtube = serializers.CharField(required=False, allow_null=True)
     twitter = serializers.CharField(required=False, allow_null=True)
     website = serializers.CharField(required=False, allow_null=True)
-    wallpaper_pic = serializers.CharField(required=False, allow_null=True)
-    profile_pic = serializers.CharField(required=False, allow_null=True)
+    wallpaper_pic = serializers.CharField(required=False)
+    profile_pic = serializers.CharField(required=False)
+    owner_username = serializers.CharField(read_only=True)
 
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
@@ -58,9 +59,9 @@ class CampaignSerializer(SBSerializer):
         return instance
 
     def get_url(self, obj):
-        return PoliticalCampaign.get_url(obj.object_uuid,
-                                         request=self.context.get('request',
-                                                                  None))
+        return reverse('action_saga',
+                       kwargs={"username": obj.owner_username},
+                       request=self.context.get('request', None))
 
     def get_href(self, obj):
         return reverse('campaign-detail',

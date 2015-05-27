@@ -287,6 +287,7 @@ class PoliticalCampaign(Campaign):
                 '[r:RECEIVED_PLEDGED_VOTE]->(p:`Pleb`) WHERE ' \
                 'r.active=true RETURN count(r)' % (object_uuid)
         res, col = db.cypher_query(query)
+        cache.set("%s_vote_count" % (object_uuid), res[0][0])
         return res[0][0]
 
     @classmethod

@@ -39,11 +39,14 @@ class Goal(SBObject):
     # great detail regarding a given goal.
     # Optional
     description = StringProperty()
-    currently_active = BooleanProperty(default=False)
+    active = BooleanProperty(default=False)
     pledged_vote_requirement = IntegerProperty(default=0)
     monetary_requirement = IntegerProperty(default=0)
     completed = BooleanProperty(default=False)
     completed_date = DateTimeProperty()
+    # current_target is used to determine which goal is the current goal being
+    # donated for this will always be an active goal
+    target = BooleanProperty(default=False)
 
     # relationships
     updates = RelationshipTo('sb_updates.neo_models.Update', "UPDATE_FOR")
@@ -54,12 +57,6 @@ class Goal(SBObject):
     campaign = RelationshipTo('sb_campaigns.neo_models.Campaign',
                               'ASSOCIATED_WITH')
 
-    # TODO should we ever bind a goal to a single user? Or should it always
-    # be bound to a campaign and project which are then bound to x amount of
-    # users? May make queries easier but I think by not binding them tightly
-    # we improve the distinction between a private profile and their active
-    # public identity.
-
     @classmethod
     def get_updates(cls, object_uuid):
         query = 'MATCH (g:`Goal` {object_uuid: "%s"})-[:UPDATE_FOR]->' \
@@ -67,7 +64,7 @@ class Goal(SBObject):
         res, col = db.cypher_query(query)
         if not res:
             return []
-        return res[0]
+        return [row[0] for row in res]
 
     @classmethod
     def get_donations(cls, object_uuid):
@@ -76,7 +73,7 @@ class Goal(SBObject):
         res, col = db.cypher_query(query)
         if not res:
             return []
-        return res[0]
+        return [row[0] for row in res]
 
     @classmethod
     def get_associated_round(cls, object_uuid):
@@ -130,6 +127,7 @@ class Round(SBObject):
     # goals.
     completed = DateTimeProperty()
     active = BooleanProperty(default=False)
+    upcoming = BooleanProperty(default=True)
 
     # relationships
     goals = RelationshipTo('sb_goals.neo_models.Goal', "STRIVING_FOR")
@@ -145,7 +143,7 @@ class Round(SBObject):
         res, col = db.cypher_query(query)
         if not res:
             return res
-        return res[0]
+        return [row[0] for row in res]
 
     @classmethod
     def get_previous_round(cls, object_uuid):

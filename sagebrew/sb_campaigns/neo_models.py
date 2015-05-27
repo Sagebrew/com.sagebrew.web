@@ -67,6 +67,7 @@ class Campaign(Searchable):
     # image.
     wallpaper_pic = StringProperty()
     profile_pic = StringProperty()
+    owner_username = StringProperty()
 
     # Relationships
     donations = RelationshipTo('sb_donations.neo_models.Donation',
@@ -107,8 +108,8 @@ class Campaign(Searchable):
             if not res:
                 cache.set("%s_editors" % (object_uuid), [])
                 return []
-            cache.set("%s_editors" % (object_uuid), res[0])
-            editors = res[0]
+            editors = [row[0] for row in res]
+            cache.set("%s_editors" % (object_uuid), editors)
         return editors
 
     @classmethod
@@ -123,7 +124,7 @@ class Campaign(Searchable):
                 cache.set("%s_accountants" % (object_uuid), [])
                 return []
             cache.set("%s_accountants" % (object_uuid), res[0])
-            accountants = res[0]
+            accountants = [row[0] for row in res]
         return accountants
 
     @classmethod
@@ -147,14 +148,14 @@ class Campaign(Searchable):
         rounds = cache.get("%s_rounds" % (object_uuid))
         if rounds is None:
             query = 'MATCH (c:`Campaign` {object_uuid: "%s"})-' \
-                    '[:HAS_ROUND]->(r:`Round`) RETURN r.object_uuid' % \
-                    (object_uuid)
+                    '[:HAS_ROUND]->(r:`Round`) WHERE r.upcoming=false ' \
+                    'RETURN r.object_uuid' % (object_uuid)
             res, col = db.cypher_query(query)
             if not res:
                 cache.set("%s_rounds" % (object_uuid), None)
                 return res
-            rounds = res[0]
-            cache.set("%s_rounds" % (object_uuid), res[0])
+            rounds = [row[0] for row in res]
+            cache.set("%s_rounds" % (object_uuid), rounds)
         return rounds
 
     @classmethod
@@ -167,11 +168,25 @@ class Campaign(Searchable):
                     (object_uuid)
             res, col = db.cypher_query(query)
             if not res:
-                cache.set("%s_active_goals" % (object_uuid), None)
+                cache.set("%s_active_goals" % (object_uuid), [])
                 return []
-            active_goals = res[0]
+            active_goals = [row[0] for row in res]
             cache.set("%s_active_goals" % (object_uuid), active_goals)
         return active_goals
+
+    @classmethod
+    def get_current_target_goal(cls, object_uuid):
+        target_goal = cache.get("%s_target_goal" % (object_uuid))
+        if target_goal is None:
+            query = "MATCH (c:`Campaign` {object_uuid:'%s'})-[:HAS_GOAL]->" \
+                    "(g:`Goal`) WHERE g.target=true RETURN g" % (object_uuid)
+            res, col = db.cypher_query(query)
+            if not res:
+                return None
+            target_goal = res[0][0]
+            cache.set("%s_target_goal" % (object_uuid), target_goal)
+        return target_goal
+
 
     @classmethod
     def get_active_round(cls, object_uuid):
@@ -182,7 +197,6 @@ class Campaign(Searchable):
                     (object_uuid)
             res, col = db.cypher_query(query)
             if not res:
-                cache.set("%s_active_round" % (object_uuid), None)
                 return None
             active_round = res[0][0]
             cache.set("%s_active_round" % (object_uuid), active_round)
@@ -197,7 +211,6 @@ class Campaign(Searchable):
                     (object_uuid)
             res, col = db.cypher_query(query)
             if not res:
-                cache.set("%s_upcoming_round" % (object_uuid), None)
                 return None
             upcoming_round = res[0][0]
             cache.set("%s_upcoming_round" % (object_uuid), upcoming_round)
@@ -212,9 +225,9 @@ class Campaign(Searchable):
                     'RETURN u.object_uuid' % (object_uuid)
             res, col = db.cypher_query(query)
             if not res:
-                cache.set("%s_updates" % (object_uuid), None)
+                cache.set("%s_updates" % (object_uuid), [])
                 return []
-            updates = res[0]
+            updates = [row[0] for row in res]
             cache.set("%s_updates" % (object_uuid), updates)
         return updates
 
@@ -226,11 +239,16 @@ class Campaign(Searchable):
                     "(p:`Position`) RETURN p.object_uuid" % (object_uuid)
             res, col = db.cypher_query(query)
             if not res:
-                cache.set("%s_position" % (object_uuid), None)
+                cache.set("%s_position" % (object_uuid), [])
                 return None
             position = res[0][0]
             cache.set("%s_position" % (object_uuid), position)
         return position
+
+    def fetch_url(self, request):
+        return reverse('action_saga',
+                       kwargs={"username": self.owner_username},
+                       request=request)
 
 
 class PoliticalCampaign(Campaign):
@@ -279,7 +297,7 @@ class PoliticalCampaign(Campaign):
         res, col = db.cypher_query(query)
         if not res:
             return []
-        return res[0]
+        return [row[0] for row in res]
 
 
 class Position(SBObject):
@@ -295,6 +313,20 @@ class Position(SBObject):
                                "CAMPAIGNS")
 
     @classmethod
+    def get(cls, object_uuid):
+        position = cache.get(object_uuid)
+        if position is None:
+            query = 'MATCH (p:`Position` {object_uuid:"%s"}) RETURN p' % \
+                    (object_uuid)
+            res, col = db.cypher_query(query)
+            if not res:
+                cache.delete(object_uuid)
+                return None
+            position = Position.inflate(res[0][0])
+            cache.set(object_uuid, position)
+        return position
+
+    @classmethod
     def get_campaigns(cls, object_uuid):
         campaigns = cache.get("%s_campaigns" % (object_uuid))
         if campaigns is None:
@@ -302,9 +334,9 @@ class Position(SBObject):
                     '(c:`PoliticalCampaign`) RETURN c.object_uuid' % (object_uuid)
             res, col = db.cypher_query(query)
             if not res:
-                cache.set("%s_campaigns" % (object_uuid), None)
+                cache.set("%s_campaigns" % (object_uuid), [])
                 return []
-            campaigns = res[0]
+            campaigns = [row[0] for row in res]
             cache.set("%s_campaigns" % (object_uuid), campaigns)
         return campaigns
 
@@ -317,7 +349,7 @@ class Position(SBObject):
                     'RETURN c.object_uuid' % (object_uuid)
             res, col = db.cypher_query(query)
             if not res:
-                cache.set("%s_location" % (object_uuid), None)
+                cache.set("%s_location" % (object_uuid), [])
                 return None
             location = res[0][0]
             cache.set("%s_location" % (object_uuid), location)

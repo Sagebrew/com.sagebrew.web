@@ -57,8 +57,7 @@ class DonationListCreate(generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            campaign = Campaign.nodes.get(object_uuid=
-                                          self.kwargs[self.lookup_field])
+            campaign = Campaign.get(object_uuid=self.kwargs[self.lookup_field])
             donated_towards = [Goal.nodes.get(object_uuid=goal) for goal in
                                request.data.get('donated_towards', [])]
             serializer.save(campaign=campaign, donated_towards=donated_towards)
@@ -71,9 +70,7 @@ class DonationListCreate(generics.ListCreateAPIView):
         if not (request.user.username in Campaign.get_accountants
                 (self.kwargs[self.lookup_field])):
             return Response({"status_code": status.HTTP_403_FORBIDDEN,
-                             "detail": "Authentication credentials were "
-                                       "not provided."},
+                             "detail": "You are not authorized to access "
+                                       "this page."},
                             status=status.HTTP_403_FORBIDDEN)
         return super(DonationListCreate, self).list(request, *args, **kwargs)
-
-

@@ -202,13 +202,12 @@ class PlebSerializerNeo(SBSerializer):
         return actions
 
     def get_href(self, obj):
-        request, expand, _, _, _ = gather_request_data(self.context)
+        request, _, _, _, _ = gather_request_data(self.context)
         return reverse(
             'profile-detail', kwargs={'username': obj.username},
             request=request)
 
     def get_donations(self, obj):
-        request, expand, _, _, _ = gather_request_data(self.context)
         return obj.get_donations()
 
 

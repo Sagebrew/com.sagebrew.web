@@ -22,7 +22,7 @@ class Location(SBObject):
         res, col = db.cypher_query(query)
         if not res:
             return res
-        return res[0]
+        return [row[0] for row in res]
 
     @classmethod
     def get_encompassed_by(cls, object_uuid):
@@ -32,7 +32,7 @@ class Location(SBObject):
         res, col = db.cypher_query(query)
         if not res:
             return res
-        return res[0]
+        return [row[0] for row in res]
 
     @classmethod
     def get_positions(cls, object_uuid):
@@ -42,4 +42,4 @@ class Location(SBObject):
         res, col = db.cypher_query(query)
         if not res:
             return res
-        return res[0]
+        return [row[0] for row in res]

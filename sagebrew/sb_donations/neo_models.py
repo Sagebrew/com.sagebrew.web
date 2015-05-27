@@ -31,6 +31,7 @@ class Donation(SBObject):
     # http://stackoverflow.com/questions/3730019/why-not-use-double-or-
     # float-to-represent-currency
     amount = IntegerProperty()
+    #optimization
     owner_username = StringProperty()
 
     # relationships
@@ -64,7 +65,7 @@ class Donation(SBObject):
         res, col = db.cypher_query(query)
         if not res:
             return []
-        return res[0]
+        return [row[0] for row in res]
 
     @classmethod
     def get_campaign(cls, object_uuid):

@@ -29,8 +29,8 @@ class GoalSerializer(CampaignAttributeSerializer):
     # requirement and vote requirement.
     pledged_vote_requirement = serializers.IntegerField(required=False,
                                                         allow_null=True)
-    monetary_requirement = serializers.IntegerField(required=False,
-                                                    allow_null=True)
+    monetary_requirement = serializers.IntegerField(required=True,
+                                                    allow_null=False)
     completed = serializers.BooleanField()
     completed_date = serializers.DateTimeField(allow_null=True)
 
@@ -104,7 +104,7 @@ class GoalSerializer(CampaignAttributeSerializer):
 
 class RoundSerializer(CampaignAttributeSerializer):
     active = serializers.BooleanField()
-    start_date = serializers.DateTimeField(required=False, allow_null=True)
+    start_date = serializers.DateTimeField(read_only=True)
     completed = serializers.DateTimeField(read_only=True)
 
     goals = serializers.SerializerMethodField()

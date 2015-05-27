@@ -32,10 +32,10 @@ class UpdateSerializer(TitledContentSerializer):
         update.campaign.connect(campaign)
         campaign.updates.connect(update)
         update.owned_by.connect(owner)
-        for goal_id in goals:
-            goal = Goal.nodes.get(object_uuid=goal_id)
-            update.goals.connect(goal)
-            goal.updates.connect(goal)
+        update_for = Goal.inflate(Campaign.get_current_target_goal(
+            campaign.object_uuid))
+        update_for.updates.connect(update)
+        update.goals.connect(update_for)
         return update
 
     def get_goals(self, obj):

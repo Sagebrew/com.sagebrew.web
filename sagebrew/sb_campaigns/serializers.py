@@ -63,10 +63,9 @@ class CampaignSerializer(SBSerializer):
                                                                   None))
 
     def get_href(self, obj):
-        request, _, _, _, _ = gather_request_data(self.context)
         return reverse('campaign-detail',
                        kwargs={'object_uuid': obj.object_uuid},
-                       request=request)
+                       request=self.context.get('request', None))
 
     def get_active_goals(self, obj):
         request, _, _, relation, _ = gather_request_data(self.context)
@@ -109,14 +108,11 @@ class CampaignSerializer(SBSerializer):
 
     def get_updates(self, obj):
         request, _, _, relation, _ = gather_request_data(self.context)
-        relation_list = []
         updates = Campaign.get_updates(obj.object_uuid)
         if relation == 'hyperlink':
-            for update in updates:
-                relation_list.append(reverse('update-detail',
-                                             kwargs={'object_uuid': update},
-                                             request=request))
-            return relation_list
+            return [reverse('update-detail',
+                            kwargs={'object_uuid': update},
+                            request=request) for update in updates]
         return updates
 
     def get_position(self, obj):
@@ -132,7 +128,7 @@ class PoliticalCampaignSerializer(CampaignSerializer):
     vote_count = serializers.SerializerMethodField()
 
     def create(self, validated_data):
-        request, expand, _, _, _ = gather_request_data(self.context)
+        request = self.context.get('request', None)
         owner = Pleb.get(request.user.username)
         validated_data['owner_username'] = owner.username
         campaign = PoliticalCampaign(**validated_data).save()
@@ -149,7 +145,6 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         return campaign
 
     def get_vote_count(self, obj):
-        request, _, _, _, _ = gather_request_data(self.context)
         return PoliticalCampaign.get_vote_count(obj.object_uuid)
 
     def get_constituents(self, obj):
@@ -166,6 +161,12 @@ class PoliticalVoteSerializer(serializers.Serializer):
     The reason behind this serializer is to ensure that we can use the same
     functionality that voting on content uses, this just allows us to ensure
     that there are not multiple types of votes and that votes get toggled.
+
+    The vote_type is set to a min and max 1 of to ensure that when
+    someone votes it only modifies the active property of the vote
+    relation. This is because we don't want people to be able to
+    downvote a campaign, only allow them to pledge o vote or cancel
+    their pledged vote.
     """
     vote_type = serializers.IntegerField(min_value=1, max_value=1)
 
@@ -187,7 +188,6 @@ class EditorSerializer(serializers.Serializer):
             profile_pleb = Pleb.get(username=profile)
             instance.editors.connect(profile_pleb)
             profile_pleb.campaign_editor.connect(instance)
-            cache.set(profile_pleb.username, profile_pleb)
         cache.delete("%s_editors" % (instance.object_uuid))
         return instance
 
@@ -202,7 +202,6 @@ class AccountantSerializer(serializers.Serializer):
             profile_pleb = Pleb.get(username=profile)
             instance.accountants.connect(profile_pleb)
             profile_pleb.campaign_accountant.connect(instance)
-            cache.set(profile_pleb.username, profile_pleb)
         cache.delete("%s_accountants" % (instance.object_uuid))
         return instance
 
@@ -214,16 +213,12 @@ class PositionSerializer(serializers.Serializer):
     location = serializers.SerializerMethodField()
 
     def get_campaigns(self, obj):
-        campaign_list = []
         request, expand, _, relation, _ = gather_request_data(self.context)
         campaigns = Position.get_campaigns(obj.object_uuid)
         if relation == 'hyperlink':
-            for campaign in campaigns:
-                campaign_list.append(reverse('campaign-detail',
-                                             kwargs={'object_uuid':
-                                                         campaign},
-                                             request=request))
-            return campaign_list
+            return [reverse('campaign-detail',
+                            kwargs={'object_uuid': campaign},
+                            request=request) for campaign in campaigns]
         return campaigns
 
     def get_location(self, obj):

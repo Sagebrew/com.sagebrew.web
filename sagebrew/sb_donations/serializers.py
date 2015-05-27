@@ -15,6 +15,12 @@ from .neo_models import Donation
 
 class DonationValue:
     def __init__(self):
+        """
+        This limit is placed upon political campaign donations due to the FEC
+        limiting individual donations to $2700. The extra 0's are due to
+        stripe requiring integers not floats for accuracy.
+        :return:
+        """
         self.limit = 270000
 
     def __call__(self, value):
@@ -25,7 +31,7 @@ class DonationValue:
 
 
 class DonationSerializer(serializers.Serializer):
-    completed = serializers.BooleanField()
+    completed = serializers.BooleanField(read_only=True)
     amount = serializers.IntegerField(validators=[DonationValue(),])
     owner_username = serializers.CharField(read_only=True)
 
@@ -35,7 +41,7 @@ class DonationSerializer(serializers.Serializer):
     campaign = serializers.SerializerMethodField()
 
     def validate_amount(self, value):
-        request, _, _, _, _ = gather_request_data(self.context)
+        request = self.context.get('request', None)
         donation_amount = Pleb.get_campaign_donations(
             request.user.username, self.context['view'].kwargs['object_uuid'])
         if donation_amount >= 270000:
@@ -55,19 +61,16 @@ class DonationSerializer(serializers.Serializer):
         request, _, _, _, _ = gather_request_data(self.context)
         donor = Pleb.get(request.user.username)
         validated_data['owner_username'] = donor.username
-        donated_towards = request.data.pop('donated_towards', [])
         campaign = validated_data.pop('campaign', None)
         donation = Donation(**validated_data).save()
-        for goal in donated_towards:
-            goal = Goal.nodes.get(object_uuid=goal)
-            goal.donations.connect(donation)
-            donation.donated_for.connect(goal)
+        donated_toward = Goal.inflate(
+            Campaign.get_current_target_goal(campaign.object_uuid))
+        donated_toward.donations.connect(donation)
+        donation.donated_for.connect(donated_toward)
         campaign.donations.connect(donation)
         donation.campaign.connect(campaign)
         donation.owned_by.connect(donor)
         donor.donations.connect(donation)
-        donor.refresh()
-        cache.set(donor.username, donor)
         return donation
 
     def get_donated_for(self, obj):

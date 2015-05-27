@@ -71,7 +71,7 @@ class GoalListCreateMixin(generics.ListCreateAPIView):
 
 class GoalRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = GoalSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsOwnerOrEditor)
     lookup_field = "object_uuid"
 
     def get_object(self):
@@ -79,20 +79,20 @@ class GoalRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
 
     def update(self, request, *args, **kwargs):
         queryset = self.get_object()
-        if (queryset.completed or queryset.currently_active):
-            return Response({"status_code": status.HTTP_403_FORBIDDEN,
-                             "detail": "Authentication credentials "
-                                       "were not provided."},
-                            status=status.HTTP_403_FORBIDDEN)
+        if (queryset.completed or queryset.active):
+            return Response({"status_code": status.HTTP_405_METHOD_NOT_ALLOWED,
+                             "detail": "You are not authorized to access "
+                                       "this page."},
+                            status=status.HTTP_405_METHOD_NOT_ALLOWED)
         return super(GoalRetrieveUpdateDestroy, self).update(request,
                                                              *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
         queryset = self.get_object()
-        if (queryset.completed or queryset.currently_active):
+        if (queryset.completed or queryset.active):
             return Response({"status_code": status.HTTP_403_FORBIDDEN,
-                             "detail": "Authentication credentials "
-                                       "were not provided."},
+                             "detail": "You are not authorized to access "
+                                       "this page."},
                             status=status.HTTP_403_FORBIDDEN)
         return super(GoalRetrieveUpdateDestroy, self).destroy(request, *args,
                                                               **kwargs)

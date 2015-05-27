@@ -283,9 +283,6 @@ class Pleb(Searchable):
 
     @classmethod
     def get_campaign_donations(cls, username, campaign_uuid):
-        from logging import getLogger
-        logger = getLogger('loggly_logs')
-        logger.info('%s_%s_donation_amount' % (username, campaign_uuid))
         donation_amount = cache.get('%s_%s_donation_amount' % (username,
                                                                campaign_uuid))
         if donation_amount == 0 or donation_amount is None:
@@ -294,7 +291,6 @@ class Pleb(Searchable):
                     '(c:`Campaign` {object_uuid:"%s"}) RETURN sum(d.amount)' \
                     % (username, campaign_uuid)
             res, col = db.cypher_query(query)
-            logger.info(res)
             if not res:
                 return 0
             donation_amount = res[0][0]
@@ -506,7 +502,7 @@ class Pleb(Searchable):
         res, col = db.cypher_query(query)
         if not res:
             return res
-        return res[0]
+        return [row[0] for row in res]
 
 
 class Address(SBObject):

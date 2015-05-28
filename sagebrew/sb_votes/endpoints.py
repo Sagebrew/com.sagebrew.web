@@ -52,6 +52,7 @@ class ObjectVotesListCreate(ListCreateAPIView):
                                      "Successfully created or modified vote.",
                                  "status": status.HTTP_200_OK,
                                  "developer_message": None})
+            return Response({"detail": ""})
         else:
             return Response(serializer.errors, status=400)
 

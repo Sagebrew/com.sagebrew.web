@@ -27,5 +27,5 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
         return [Location.inflate(row[0]) for row in res]
 
     def get_object(self):
-        return Location.nodes.get(object_uuid=self.kwargs[self.lookup_field])
+        return Location.get(object_uuid=self.kwargs[self.lookup_field])
 

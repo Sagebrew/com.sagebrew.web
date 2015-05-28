@@ -1,3 +1,5 @@
+from django.core.cache import cache
+
 from neomodel import (db, StringProperty, RelationshipTo)
 
 from api.neo_models import SBObject
@@ -13,6 +15,19 @@ class Location(SBObject):
                                     'ENCOMPASSED_BY')
     positions = RelationshipTo('sb_campaigns.neo_models.Position',
                                'POSITIONS_AVAILABLE')
+
+    @classmethod
+    def get(cls, object_uuid):
+        location = cache.get(object_uuid)
+        if location is None:
+            query = 'MATCH (n:`Location` {object_uuid: "%s"}) RETURN n' % \
+                    (object_uuid)
+            res, col = db.cypher_query(query)
+            if not res:
+                return None
+            location = Location.inflate(res[0][0])
+            cache.set(object_uuid, location)
+        return location
 
     @classmethod
     def get_encompasses(cls, object_uuid):

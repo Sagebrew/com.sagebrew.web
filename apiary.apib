@@ -154,7 +154,8 @@ The me endpoint can be used to access the profile that is currently authenticate
             }
 
 
-### Retrieve Friend Requests [/me/friend_requests/] ###
+## Profile's Friend Requests [/me/friend_requests/] ##
+### Retrieve Friend Requests [GET] ###
 + Response 200 (application/json)
 
     + Header
@@ -165,6 +166,18 @@ The me endpoint can be used to access the profile that is currently authenticate
 
             {}
 
+
+## Profile's Wall [/me/wall/] ##
+### Retrieve Wall [GET] ###
++ Response 200 (application/json)
+
+    + Header
+
+            Authorization: Bearer {access_token}
+
+    + Body
+
+            {}
 
 
 # Group Campaign #

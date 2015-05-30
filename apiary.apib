@@ -17,6 +17,22 @@ For endpoints that indicate they can be rendered on the server side you can acce
 the method via something like `/:resource/:id/render/` or `/:resource/render/`.
 
 
+## Generic Query Parameters ##
+For all endpoints there are some query paramaters available for your use to make 
+your use easier:
+
+`?relations=hyperlink` - This will give you all of the relational fields in the 
+form of a link to that resources detail page instead of the id of the object.
+
+`?expand=true` - TODO
+
+`?expedite=true` - TODO
+
+`?html=true` - TODO
+
+`?expand_attrs=[]` - TODO
+
+
 ## Error Handling ##
 TODO
 
@@ -184,6 +200,7 @@ The me endpoint can be used to access the profile that is currently authenticate
 Campaign related resources of the **Campaign API**
 
 ## Campaign Collection [/v1/campaigns/] ##
+This endpoint will provide you with a paginated list of campaigns. 
 ### List all Campaigns [GET] ###
 + Response 200 (application/json)
 
@@ -192,20 +209,67 @@ Campaign related resources of the **Campaign API**
             "next": null,
             "previous": null,
             "results": [
-            {
-                "id": "c2bf72f0-ff25-11e4-8cea-080027242395",
-                "type": "politicalcampaign",
-                "active": true,
-                "biography": "I am running for office, deal with it.",
-                "facebook": "",
-                "linkedin": "",
-                "youtube": "",
-                "twitter": "",
-                "website": "",
-                "wallpaper_pic": "https://sagebrew-dev.s3.amazonaws.com/profile_pictures/5a42614a-6280-74b5-4303-4a35d8e27397-198x198.jpeg",
-            "profile_pic": "https://sagebrew-dev.s3.amazonaws.com/profile_pictures/5a42614a-6280-74b5-4303-4a35d8e27397-198x198.jpeg",
-            "owner_username": null,
-            "url": "https://sagebrew.local.dev/action/None/",
+                {
+                    "id": "c2bf72f0-ff25-11e4-8cea-080027242395",
+                    "type": "politicalcampaign",
+                    "active": true,
+                    "biography": "I am running for office, deal with it.",
+                    "facebook": "",
+                    "linkedin": "",
+                    "youtube": "",
+                    "twitter": "",
+                    "website": "",
+                    "wallpaper_pic": "https://sagebrew-dev.s3.amazonaws.com/profile_pictures/5.jpeg"
+                    "profile_pic": "https://sagebrew-dev.s3.amazonaws.com/profile_pictures/5a.jpeg",
+                    "owner_username": null,
+                    "url": "https://sagebrew.local.dev/action/None/",
+                    "href": "https://sagebrew.local.dev/v1/campaigns/c2bf72f0-ff25-11e4-8cea-080027242395/",
+                    "rounds": [
+                        "a0106420-032c-11e5-8cea-080027242395"
+                    ],
+                    "updates": [
+                        "c52684fa-0008-11e5-8cea-080027242395",
+                        "d4750af8-0008-11e5-8cea-080027242395",
+                        "3a22f86a-0009-11e5-8cea-080027242395",
+                        "447709b4-0009-11e5-8cea-080027242395"
+                    ],
+                    "position": "d8b0526c-ff27-11e4-8cea-080027242395",
+                    "active_goals": [
+                        "d1f1ee54-032d-11e5-8cea-080027242395"
+                    ],
+                    "active_round": "a0106420-032c-11e5-8cea-080027242395",
+                    "upcoming_round": "eb31b9ea-0331-11e5-8cea-080027242395",
+                    "vote_count": 0
+                }
+            ]
+        }
+        
+## Campaign [/v1/campaigns/{id}/] ##
+Campaign detail endpoint, used to get data for a single specific campaign
+
++ Parameters
+    + id (required, object_uuid, `c2bf72f0-ff25-11e4-8cea-080027242395`) ... 
+    String `id` representing the object_uuid of the campaign you would like 
+to access, must be 36 characters long.
+    Has example value.
+
+### Retreive a Campaign [GET] ###
++ Response 200 (application/json)
+
+        {
+            "id": "c2bf72f0-ff25-11e4-8cea-080027242395",
+            "type": "politicalcampaign",
+            "active": true,
+            "biography": "I am running for office, deal with it.",
+            "facebook": "",
+            "linkedin": "",
+            "youtube": "",
+            "twitter": "",
+            "website": "",
+            "wallpaper_pic": "https://sagebrew-dev.s3.amazonaws.com/profile_pictures/5.jpeg",
+            "profile_pic": "https://sagebrew-dev.s3.amazonaws.com/profile_pictures/5a.jpeg",   
+            "owner_username": "tyler_wiersing",
+            "url": "https://sagebrew.local.dev/action/tyler_wiersing/",
             "href": "https://sagebrew.local.dev/v1/campaigns/c2bf72f0-ff25-11e4-8cea-080027242395/",
             "rounds": [
                 "a0106420-032c-11e5-8cea-080027242395"
@@ -223,9 +287,391 @@ Campaign related resources of the **Campaign API**
             "active_round": "a0106420-032c-11e5-8cea-080027242395",
             "upcoming_round": "eb31b9ea-0331-11e5-8cea-080027242395",
             "vote_count": 0
-            }
+        }
+        
+## Campaign Editors [/v1/campaigns/{id}/editors/] ##
+This endpoint method will return a list of all verified editors for a campaign.
+For security reasons only the campaign owner or editors may utilize this endpoint.
+
++ Parameters
+    + id (required, object_uuid, `c2bf72f0-ff25-11e4-8cea-080027242395`) ... 
+    String `id` representing the object_uuid of the campaign you would like 
+to access, must be 36 characters long.
+    Has example value.
+
+### List all Campaign Editors [GET] ###
++ Response 200 (application/json)
+
+        [
+            "tyler_wiersing",
+            "devon_bleibtrey"
+        ]
+
+## Campaign Accountants [/v1/campaigns/{id}/accountants/] ##
+This endpoind method will return a list of all verified accountants for a campaign.
+For security reasons only the campaign owner or accountants may utilize this endpoint.
+
++ Parameters
+    + id (required, object_uuid, `c2bf72f0-ff25-11e4-8cea-080027242395`) ... 
+    String `id` representing the object_uuid of the campaign you would like 
+to access, must be 36 characters long.
+    Has example value.
+
+### List all Campaign Accountants [GET] ###
++ Response 200 (application/json)
+
+        [
+            "tyler_wiersing",
+            "devon_bleibtrey"
+        ]
+        
+## Campaign Add Accountants [/v1/campaigns/{id}/add_accountants/] ##
+This endpoint allows the owner of the campaign to add accountants.
+
++ Parameters
+    + id (required, object_uuid, `c2bf72f0-ff25-11e4-8cea-080027242395`) ... 
+    String `id` representing the object_uuid of the campaign you would like 
+to access, must be 36 characters long.
+    Has example value.
+
+### Add Accountants [POST] ###
++ Request (application/json)
+
+        {"profiles": ["tyler_wiersing", "devon_bleibtrey"]}
+        
++ Response 200 (application/json)
+
+        {
+            "detail": "Successfully added specified users to your campaign accountants.", 
+            "status": 200, "developer_message": None
+        }
+        
+## Campaign Remove Accountants [/v1/campaigns/{id}/remove_accountants/] ##
+This endpoint allows the owner of the campaign to remove accountants.
+
++ Parameters
+    + id (required, object_uuid, `c2bf72f0-ff25-11e4-8cea-080027242395`) ... 
+    String `id` representing the object_uuid of the campaign you would like 
+to access, must be 36 characters long.
+    Has example value.
+
+### Remove Accountants [POST] ###
++ Request (application/json)
+
+        {"profiles": ["devon_bleibtrey"]}
+        
++ Response 200 (application/json)
+
+        {
+            "detail": "Successfully removed specified users from your campaign accountants.", 
+            "status": 200, "developer_message": None
+        }
+        
+## Campaign Add Editors [/v1/campaigns/{id}/add_editors/] ##
+This endpoint allows the owner of the campaign to add editors.
+
++ Parameters
+    + id (required, object_uuid, `c2bf72f0-ff25-11e4-8cea-080027242395`) ... 
+    String `id` representing the object_uuid of the campaign you would like 
+to access, must be 36 characters long.
+    Has example value.
+
+### Add Editors [POST] ###
++ Request (application/json)
+
+        {"profiles": ["devon_bleibtrey", "tyler_wiersing"]}
+        
++ Response 200 (application/json)
+
+        {
+            "detail": "Successfully added specified users to your campaign editors.", 
+            "status": 200, "developer_message": None
+        }
+        
+## Campaign Remove Editors [/v1/campaigns/{id}/remove_editors/] ##
+This endpoint allows the owner of the campaign to remove editors.
+
++ Parameters
+    + id (required, object_uuid, `c2bf72f0-ff25-11e4-8cea-080027242395`) ... 
+    String `id` representing the object_uuid of the campaign you would like 
+to access, must be 36 characters long.
+    Has example value.
+
+### Remove Editors [POST] ###
++ Request (application/json)
+
+        {"profiles": ["devon_bleibtrey", "tyler_wiersing"]}
+        
++ Response 200 (application/json)
+
+        {
+            "detail": "Successfully removed specified users from your campaign editors.", 
+            "status": 200, "developer_message": None
+        }
+        
+## Pledge Vote to Campaign [/v1/campaigns/{id}/vote/] ##
+This endpoint allows useres to pledge their votes to a Political Campaign
+
++ Parameters
+    + id (required, object_uuid, `c2bf72f0-ff25-11e4-8cea-080027242395`) ... 
+    String `id` representing the object_uuid of the campaign you would like 
+to access, must be 36 characters long.
+    Has example value.
+
+### Pledge Vote [POST] ###
++ vote_type (integer) - Must be 1
++ Request (application/json)
+
+        {
+            "vote_type": 1
+        }
+
++ Response 200 (application/json)
+
+        {
+            "detail": "Successfully pledged vote.",
+            "status": 200,
+            "developer_message": None
+        }
+    
+## Campaign Rounds [/v1/campaigns/{id}/rounds/] ##
+This endpoints returns a paginated list of rounds for a campaign.
+
++ Parameters
+    + id (required, object_uuid, `c2bf72f0-ff25-11e4-8cea-080027242395`) ... 
+    String `id` representing the object_uuid of the campaign you would like 
+to access, must be 36 characters long.
+    Has example value.
+
+### List Campaign Rounds [GET] ###
+
++ Response 200 (application/json)
+        
+        {
+            "count": 1,
+            "next": null,
+            "previous": null,
+            "results": [
+                {
+                    "id": "a0106420-032c-11e5-8cea-080027242395",
+                    "type": "round",
+                    "campaign": "c2bf72f0-ff25-11e4-8cea-080027242395",
+                    "active": false,
+                    "start_date": null,
+                    "completed": null,
+                    "goals": [
+                        "f2e92106-064b-11e5-8cea-080027242395",
+                        "d1f1ee54-032d-11e5-8cea-080027242395"
+                    ],
+                    "previous_round": null,
+                    "next_round": null
+                }
             ]
         }
+
+## Campaign Updates [/v1/campaigns/{id}/updates/] ##
+This endpoints returns a paginated list of updates for a campaign.
+
++ Parameters
+    + id (required, object_uuid, `c2bf72f0-ff25-11e4-8cea-080027242395`) ... 
+    String `id` representing the object_uuid of the campaign you would like 
+to access, must be 36 characters long.
+    Has example value.
+
+### List Campaign Updates [GET] ###
+
++ Response 200 (application/json)
+
+        {
+            "count": 1,
+            "next": null,
+            "previous": null,
+            "results": [
+                {
+                    "id": "c52684fa-0008-11e5-8cea-080027242395",
+                    "type": "update",
+                    "object_uuid": "c52684fa-0008-11e5-8cea-080027242395",
+                    "content": "&lt;p&gt;This is an update&lt;p&gt;",
+                    "created": "2015-05-21T22:28:57.204457Z",
+                    "upvotes": 0,
+                    "downvotes": 0,
+                    "vote_count": 0,
+                    "vote_type": null,
+                    "view_count": 0,
+                    "profile": "https://sagebrew.local.dev/v1/profiles/tyler_wiersing/",
+                    "url": "https://sagebrew.local.dev/v1/updates/c52684fa-0008-11e5-8cea-080027242395/",
+                    "last_edited_on": "2015-05-21T22:28:57.202276Z",
+                    "flagged_by": [],
+                    "html_content": "<p>&lt;p&gt;This is an updated&lt;p&gt;</p>",
+                    "title": null,
+                    "goals": [],
+                    "campaign": "c2bf72f0-ff25-11e4-8cea-080027242395"
+                }
+            ]
+        }
+
+## Campaign Goals [/v1/campaigns/{id}/goals/] ##
+This endpoint returns all of the goals for a given campaign.
+
++ Parameters
+    + id (required, object_uuid, `c2bf72f0-ff25-11e4-8cea-080027242395`) ... 
+    String `id` representing the object_uuid of the campaign you would like 
+to access, must be 36 characters long.
+    Has example value.
+
+### List all Campaign Goals [GET] ###
+
++ Response 200 (application/json)
+
+        {
+            "count": 2,
+            "next": null,
+            "previous": null,
+            "results": [
+                {
+                    "id": "f2e92106-064b-11e5-8cea-080027242395",
+                    "type": "goal",
+                    "campaign": "c2bf72f0-ff25-11e4-8cea-080027242395",
+                    "initial": false,
+                    "title": "This is an example goal",
+                    "summary": "The purpose of this goal is to give an api example",
+                    "description": null,
+                    "pledged_vote_requirement": 0,
+                    "monetary_requirement": 5000,
+                    "completed": false,
+                    "completed_date": null,
+                    "updates": [],
+                    "associated_round": null,
+                    "donations": [],
+                    "previous_goal": "d1f1ee54-032d-11e5-8cea-080027242395",
+                    "next_goal": null
+                },
+                {
+                    "id": "d1f1ee54-032d-11e5-8cea-080027242395",
+                    "type": "goal",
+                    "campaign": "c2bf72f0-ff25-11e4-8cea-080027242395",
+                    "initial": true,
+                    "title": "Gimme money",
+                    "summary": "money pls",
+                    "description": "moneyyyyyyy",
+                    "pledged_vote_requirement": 0,
+                    "monetary_requirement": 2000,
+                    "completed": false,
+                    "completed_date": null,
+                    "updates": [],
+                    "associated_round": "a0106420-032c-11e5-8cea-080027242395",
+                    "donations": [],
+                    "previous_goal": null,
+                    "next_goal": "f2e92106-064b-11e5-8cea-080027242395"
+                }
+            ]
+        }
+        
+## Campaign Donations [/v1/campaigns/{id}/donations/] ##
+This endpoint allows users to create donations on a campaign.
+
+### List all Donations [GET] ##
+This endpoint will return a list of the donations given to a campaign.
+Only the owner or accountants for the campaign are allowed to access the 
+list endpoint.
+
++ Response 200 (application/json)
+
+        {
+            "count": 1,
+            "next": null,
+            "previous": null,
+            "results": [
+                {
+                    "completed": false,
+                    "amount": 6000,
+                    "owner_username": null,
+                    "donated_for": null,
+                    "applied_to": [
+                        "f2e92106-064b-11e5-8cea-080027242395",
+                        "d1f1ee54-032d-11e5-8cea-080027242395"
+                    ],
+                    "owned_by": null,
+                    "campaign": "c2bf72f0-ff25-11e4-8cea-080027242395"
+                }
+            ]
+        }
+
++ Response 403 (application/json)
+
+        {
+            "detail": "You are not authorized to accesss this page", 
+            "status_code":403
+        }
+        
+### Create Donation [POST] ##
+This endpoint allows users to create donations to a campaign.
+
++ Request (application/json)
+
+        {
+            "amount": 5000
+        }
+        
++ Response 200 (application/json)
+
+        {
+            "detail": "Successfully created donation.",
+            "status_code": 200
+        }
+        
+# Group Position #
+Position related resources of the **Position API**
+This is a read-only endpoint and only supports GET requests.
+
+## Position Collection [/v1/positions/] ##
+This endpoint will provide you with a paginated list of positions.
+### List all Positions [GET] ###
+
++ Response 200 (application/json)
+
+        {
+            "count": 1,
+            "next": null,
+            "previous": null,
+            "results": [
+                {
+                    "id": "d8b0526c-ff27-11e4-8cea-080027242395",
+                    "type": "position",
+                    "name": "House Representative",
+                    "href": "https://sagebrew.local.dev/v1/positions/d8b0526c-ff27-11e4-8cea-080027242395/",
+                    "campaigns": [
+                        "c2bf72f0-ff25-11e4-8cea-080027242395"
+                    ],
+                    "location": "50bf013c-ff27-11e4-8cea-080027242395"
+                }
+            ]
+        }
+
+## Position [/v1/positions/{id}/] ##
+This endpoint will provide you with a paginated list of positions. 
+
++ Parameters
+    + id (required, object_uuid, `c2bf72f0-ff25-11e4-8cea-080027242395`) ... 
+    String `id` representing the object_uuid of the position you would like 
+to access, must be 36 characters long.
+    Has example value.
+
+### Retreive a Position [GET] ###
++ Response 200 (application/json)
+
+        {
+            "id": "d8b0526c-ff27-11e4-8cea-080027242395",
+            "type": "position",
+            "name": "House Representative",
+            "href": "https://sagebrew.local.dev/v1/positions/d8b0526c-ff27-11e4-8cea-080027242395/",
+            "campaigns": [
+                "c2bf72f0-ff25-11e4-8cea-080027242395"
+            ],
+            "location": "50bf013c-ff27-11e4-8cea-080027242395"
+        }
+
+
 
 ## Notes Collection [/notes] ##
 ### List all Notes [GET] ###

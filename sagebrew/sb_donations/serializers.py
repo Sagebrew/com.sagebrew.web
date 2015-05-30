@@ -8,7 +8,7 @@ from neomodel import db
 from api.utils import gather_request_data
 from plebs.neo_models import Pleb
 from sb_campaigns.neo_models import Campaign
-from sb_goals.neo_models import Goal
+from sb_goals.neo_models import Goal, Round
 
 from .neo_models import Donation
 
@@ -65,8 +65,42 @@ class DonationSerializer(serializers.Serializer):
         donation = Donation(**validated_data).save()
         donated_toward = Goal.inflate(
             Campaign.get_current_target_goal(campaign.object_uuid))
+        current_round = Round.nodes.get(object_uuid=
+                                        Campaign.get_accountants(
+                                            campaign.object_uuid))
+        current_round.donations.connect(donation)
+        donation.associated_round.connect(current_round)
         donated_toward.donations.connect(donation)
         donation.donated_for.connect(donated_toward)
+        # This query manages the relationships between the new donation and
+        # the goals in which it will be applied to
+        # It gets the current active round of a campaign and gets the sum of
+        # the donations on that round, this includes the new donation so the
+        # donation has to be connected to the current round before this query
+        # is ran. It totals the amount of donations given to this round then
+        # gets all the goals whose total_required is less than or equal to the
+        # total amount of donations and those who have not been completed. It
+        # then gets the goal with the highest total_required and gets the next
+        # goal from that to see if the new donation needs to be applied to the
+        # next goal as well, this occurs when a donation amount will be
+        # applied to partially complete a goal. It then creates the
+        # connections between the goals which the donation will be applied to.
+        query = 'MATCH (r:Round { object_uuid: "%s" })-[:HAS_DONATIONS]->' \
+                '(d:Donation),(cd:Donation { object_uuid:"%s" }) ' \
+                'WITH r, SUM(d.amount) AS total_amount, cd MATCH (r)-' \
+                '[:STRIVING_FOR]->(goals:Goal) WHERE goals.completed=false ' \
+                'AND goals.total_required<=total_amount WITH goals, r, cd, ' \
+                'total_amount, max(goals.total_required) AS max_total MATCH ' \
+                '(r)-[:STRIVING_FOR]->(g:Goal) WHERE ' \
+                'g.total_required=max_total WITH g, goals, r, cd, ' \
+                'total_amount, max_total MATCH (g)-[:NEXT]->(ng:Goal) ' \
+                'WITH goals, r, cd, total_amount, max_total, g, CASE ' \
+                'WHEN g.total_required=total_amount THEN g ELSE ng END ' \
+                'AS ng FOREACH (goal IN [goals, ng]|MERGE(cd)-[:APPLIED_TO]' \
+                '->(goal) MERGE (goal)-[:RECEIVED]->(cd))' \
+                % (Campaign.get_active_round(campaign.object_uuid),
+                   donation.object_uuid)
+        db.cypher_query(query)
         campaign.donations.connect(donation)
         donation.campaign.connect(campaign)
         donation.owned_by.connect(donor)

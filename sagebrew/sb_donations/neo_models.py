@@ -46,6 +46,9 @@ class Donation(SBObject):
     # child donations to accomplish this but through using `cause` as the
     # naming convention we should be able to define all methods at this level
     campaign = RelationshipTo('sb_campaigns.neo_models.Campaign', 'DONATED_TO')
+    associated_round = RelationshipTo('sb_goals.neo_models.Round',
+                                      'ASSOCIATED_ROUND')
+
 
     @classmethod
     def get_donated_for(cls, object_uuid):

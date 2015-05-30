@@ -47,6 +47,7 @@ class Goal(SBObject):
     # current_target is used to determine which goal is the current goal being
     # donated for this will always be an active goal
     target = BooleanProperty(default=False)
+    total_required = IntegerProperty()
 
     # relationships
     updates = RelationshipTo('sb_updates.neo_models.Update', "UPDATE_FOR")
@@ -131,6 +132,8 @@ class Round(SBObject):
 
     # relationships
     goals = RelationshipTo('sb_goals.neo_models.Goal', "STRIVING_FOR")
+    donations = RelationshipTo('sb_donations.neo_models.Donation',
+                              "HAS_DONATIONS")
     previous_round = RelationshipTo('sb_goals.neo_models.Round', "PREVIOUS")
     next_round = RelationshipTo('sb_goals.neo_models.Round', "NEXT")
     campaign = RelationshipTo('sb_campaigns.neo_models.Campaign',

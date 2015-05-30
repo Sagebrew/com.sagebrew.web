@@ -105,7 +105,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
                 profile_pleb.campaign_editor.disconnect(queryset)
             cache.delete("%s_editors" % (queryset.object_uuid))
             return Response({"detail": "Successfully removed specified "
-                                       "editors from your campaign.",
+                                       "editors from your campaign editors.",
                              "status": status.HTTP_200_OK,
                              "developer_message": None},
                             status=status.HTTP_200_OK)

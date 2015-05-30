@@ -119,7 +119,7 @@ class CampaignSerializer(SBSerializer):
     def get_position(self, obj):
         request, _, _, relations, _ = gather_request_data(self.context)
         if relations == 'hyperlink':
-            return reverse('campaign-position',
+            return reverse('position-detail',
                            kwargs={'object_uuid': obj.object_uuid},
                            request=request)
         return Campaign.get_position(obj.object_uuid)
@@ -207,11 +207,18 @@ class AccountantSerializer(serializers.Serializer):
         return instance
 
 
-class PositionSerializer(serializers.Serializer):
+class PositionSerializer(SBSerializer):
     name = serializers.CharField()
 
+    href = serializers.SerializerMethodField()
     campaigns = serializers.SerializerMethodField()
     location = serializers.SerializerMethodField()
+
+    def get_href(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        return reverse('position-detail',
+                       kwargs={'object_uuid': obj.object_uuid},
+                       request=request)
 
     def get_campaigns(self, obj):
         request, expand, _, relation, _ = gather_request_data(self.context)

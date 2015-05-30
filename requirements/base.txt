@@ -37,7 +37,7 @@ nltk==3.0.1
 oauthlib==0.7.2
 opbeat==2.1
 psycopg2==2.6
-py2neo==1.6.4
+py2neo==2.0.7
 python-dateutil==2.4.0
 python-memcached==1.53
 pytz==2014.10

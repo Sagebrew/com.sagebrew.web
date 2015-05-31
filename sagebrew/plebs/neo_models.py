@@ -223,7 +223,8 @@ class Pleb(Searchable):
             res, _ = db.cypher_query(
                 "MATCH (a:%s {username:'%s'}) RETURN a" % (
                     cls.__name__, username))
-            cache.set(username, cls.inflate(res[0][0]))
+            profile = cls.inflate(res[0][0])
+            cache.set(username, profile)
         return profile
 
     @classmethod

@@ -45,7 +45,8 @@ class Question(SBPublicContent):
             res, _ = db.cypher_query(
                 "MATCH (a:%s {object_uuid:'%s'}) RETURN a" % (
                     cls.__name__, object_uuid))
-            cache.set(object_uuid, cls.inflate(res[0][0]))
+            question = cls.inflate(res[0][0])
+            cache.set(object_uuid, question)
         return question
 
     def get_tags(self):

@@ -42,11 +42,10 @@ class Question(SBPublicContent):
     def get(cls, object_uuid):
         question = cache.get(object_uuid)
         if question is None:
-            query = "MATCH (a:%s {object_uuid:'%s'}) RETURN a" % (
-                cls.__name__, object_uuid)
-            res, _ = db.cypher_query(query)
-            question = cls.inflate(res[0][0])
-            cache.set(object_uuid, question)
+            res, _ = db.cypher_query(
+                "MATCH (a:%s {object_uuid:'%s'}) RETURN a" % (
+                    cls.__name__, object_uuid))
+            cache.set(object_uuid, cls.inflate(res[0][0]))
         return question
 
     def get_tags(self):

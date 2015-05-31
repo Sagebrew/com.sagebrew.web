@@ -220,11 +220,10 @@ class Pleb(Searchable):
     def get(cls, username):
         profile = cache.get(username)
         if profile is None:
-            query = "MATCH (a:%s {username:'%s'}) RETURN a" % (
-                cls.__name__, username)
-            res, _ = db.cypher_query(query)
-            profile = cls.inflate(res[0][0])
-            cache.set(username, profile)
+            res, _ = db.cypher_query(
+                "MATCH (a:%s {username:'%s'}) RETURN a" % (
+                    cls.__name__, username))
+            cache.set(username, cls.inflate(res[0][0]))
         return profile
 
     @classmethod

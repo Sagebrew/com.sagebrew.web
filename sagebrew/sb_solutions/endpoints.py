@@ -76,10 +76,6 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
         sort_by = self.request.query_params.get('ordering', "")
         sort_by, ordering = get_ordering(sort_by)
         if sort_by == "" or sort_by == "vote_count":
-            # Cache check aligning with implementation below
-            # questions = cache.get("question_list_vote_sort")
-            # if questions is not None:
-            #    return questions
             query = "MATCH (a:Question {object_uuid: '%s'})-" \
                     "[:POSSIBLE_ANSWER]->" \
                     "(b:Solution) OPTIONAL MATCH (b:Solution)<-" \

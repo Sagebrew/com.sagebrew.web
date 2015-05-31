@@ -223,7 +223,11 @@ class Pleb(Searchable):
             res, _ = db.cypher_query(
                 "MATCH (a:%s {username:'%s'}) RETURN a" % (
                     cls.__name__, username))
-            profile = cls.inflate(res[0][0])
+            try:
+                profile = cls.inflate(res[0][0])
+            except IndexError:
+                raise DoesNotExist('Profile with username: %s '
+                                   'does not exist' % username)
             cache.set(username, profile)
         return profile
 

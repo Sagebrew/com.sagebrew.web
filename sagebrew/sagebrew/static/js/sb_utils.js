@@ -252,7 +252,7 @@ function loadQuestion() {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "GET",
-            url: "/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/?html=true&expand=true",
+            url: "/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/?html=true&expand=true&expedite=true",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {

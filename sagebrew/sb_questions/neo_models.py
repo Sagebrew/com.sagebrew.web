@@ -3,8 +3,8 @@ from django.core.cache import cache
 from rest_framework.reverse import reverse
 
 from neomodel import (StringProperty, IntegerProperty,
-                      RelationshipTo, BooleanProperty, FloatProperty)
-from neomodel import db
+                      RelationshipTo, BooleanProperty, FloatProperty,
+                      db, DoesNotExist)
 
 from sb_base.neo_models import SBPublicContent
 from sb_tags.neo_models import Tag
@@ -45,7 +45,11 @@ class Question(SBPublicContent):
             res, _ = db.cypher_query(
                 "MATCH (a:%s {object_uuid:'%s'}) RETURN a" % (
                     cls.__name__, object_uuid))
-            question = cls.inflate(res[0][0])
+            try:
+                question = cls.inflate(res[0][0])
+            except IndexError:
+                raise DoesNotExist('Question with id: %s '
+                                   'does not exist' % object_uuid)
             cache.set(object_uuid, question)
         return question
 

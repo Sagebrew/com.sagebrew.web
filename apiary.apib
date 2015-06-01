@@ -327,6 +327,8 @@ to access, must be 36 characters long.
         
 ## Campaign Add Accountants [/v1/campaigns/{id}/add_accountants/] ##
 This endpoint allows the owner of the campaign to add accountants.
+This will not fail even if any of the specified names are already
+accountants.
 
 + Parameters
     + id (required, object_uuid, `c2bf72f0-ff25-11e4-8cea-080027242395`) ... 
@@ -335,6 +337,7 @@ to access, must be 36 characters long.
     Has example value.
 
 ### Add Accountants [POST] ###
++ profiles (array[string]) - List of usernames to remove from editors
 + Request (application/json)
 
         {"profiles": ["tyler_wiersing", "devon_bleibtrey"]}
@@ -348,6 +351,7 @@ to access, must be 36 characters long.
         
 ## Campaign Remove Accountants [/v1/campaigns/{id}/remove_accountants/] ##
 This endpoint allows the owner of the campaign to remove accountants.
+This will not fail even if the user is not in the accountants.
 
 + Parameters
     + id (required, object_uuid, `c2bf72f0-ff25-11e4-8cea-080027242395`) ... 
@@ -356,6 +360,7 @@ to access, must be 36 characters long.
     Has example value.
 
 ### Remove Accountants [POST] ###
++ profiles (array[string]) - List of usernames to remove from editors
 + Request (application/json)
 
         {"profiles": ["devon_bleibtrey"]}
@@ -369,6 +374,8 @@ to access, must be 36 characters long.
         
 ## Campaign Add Editors [/v1/campaigns/{id}/add_editors/] ##
 This endpoint allows the owner of the campaign to add editors.
+This will not fail even if any of the specified names are already
+editors.
 
 + Parameters
     + id (required, object_uuid, `c2bf72f0-ff25-11e4-8cea-080027242395`) ... 
@@ -377,6 +384,7 @@ to access, must be 36 characters long.
     Has example value.
 
 ### Add Editors [POST] ###
++ profiles (array[string]) - List of usernames to remove from editors
 + Request (application/json)
 
         {"profiles": ["devon_bleibtrey", "tyler_wiersing"]}
@@ -398,6 +406,12 @@ to access, must be 36 characters long.
     Has example value.
 
 ### Remove Editors [POST] ###
+
+This endpoint allows the owner to remove editors from their campaign. 
+This does not fail even if the user is not already an editor.
+
++ profiles (array[string]) - List of usernames to remove from editors
+
 + Request (application/json)
 
         {"profiles": ["devon_bleibtrey", "tyler_wiersing"]}
@@ -410,7 +424,7 @@ to access, must be 36 characters long.
         }
         
 ## Pledge Vote to Campaign [/v1/campaigns/{id}/vote/] ##
-This endpoint allows useres to pledge their votes to a Political Campaign
+This endpoint allows useres to add or remove their pledged vote to a Political Campaign
 
 + Parameters
     + id (required, object_uuid, `c2bf72f0-ff25-11e4-8cea-080027242395`) ... 
@@ -567,6 +581,38 @@ to access, must be 36 characters long.
             ]
         }
         
+### Create a goal [POST] ###
+This endpoint will allow the owner of a campaing or the editors to create a goal
+
++ title (string) - Title of the goal, should be around 40 characters.
++ summary (string) - The summary should be a shortened version of the description, should be around 300 characters.
++ description (string) - A long version of the summary including more details.
++ pledged_vote_requirement (integer) - Amount of pledged votes needed to accomplish this goal.
++ monetary_requirement (integer) - Total amount of money needed to complete the goal.
++ Request (application/json)
+
+        {
+            "title": "This is a goal title",
+            "summary": "This is a goal summary",
+            "description": "",
+            "pledged_vote_requirement": 100,
+            "monetary_requirement": 2000,
+        }
+        
++ Response 200 (application/json)
+
+        {
+            "detail": "Successfully created goal."
+            "status_code": 200
+        }
+        
++ Response 403 (application/json)
+
+        {
+            "detail": "Authentication credentials were not provided.",
+            "status_code": 403
+        }
+        
 ## Campaign Donations [/v1/campaigns/{id}/donations/] ##
 This endpoint allows users to create donations on a campaign.
 
@@ -585,13 +631,13 @@ list endpoint.
                 {
                     "completed": false,
                     "amount": 6000,
-                    "owner_username": null,
-                    "donated_for": null,
+                    "owner_username": "tyler_wiersing",
+                    "donated_for": "f2e92106-064b-11e5-8cea-080027242395",
                     "applied_to": [
                         "f2e92106-064b-11e5-8cea-080027242395",
                         "d1f1ee54-032d-11e5-8cea-080027242395"
                     ],
-                    "owned_by": null,
+                    "owned_by": "tyler_wiersing",
                     "campaign": "c2bf72f0-ff25-11e4-8cea-080027242395"
                 }
             ]
@@ -606,6 +652,8 @@ list endpoint.
         
 ### Create Donation [POST] ##
 This endpoint allows users to create donations to a campaign.
++ amount (integer) - Amount of the donation as an integer representing the total number of cents of the donation. 
+A $50 donation would be 5000 instead of 50.00.
 
 + Request (application/json)
 
@@ -670,6 +718,58 @@ to access, must be 36 characters long.
             ],
             "location": "50bf013c-ff27-11e4-8cea-080027242395"
         }
+        
+# Group Locations #
+Location related resources of the **Location API**
+This is a read-only endpoint and only supports GET requests.
+
+## Location Collection [/v1/locations/] ##
+This endpoint provides a paginated list of locations.
+
+### List all Locations [GET] ###
+
++ Response 200 (application/json)
+
+        {
+            "count": 3,
+            "next": null,
+            "previous": null,
+            "results": [
+                {
+                    "name": "United States of America",
+                    "encompasses": [
+                        "3d374f84-ff27-11e4-8cea-080027242395"
+                    ],
+                    "encompassed_by": [],
+                    "positions": [],
+                    "geo_data": false
+                },
+                {
+                    "name": "Michigan",
+                    "encompasses": [
+                        "50bf013c-ff27-11e4-8cea-080027242395"
+                    ],
+                    "encompassed_by": [
+                        "5fc698ee-ff26-11e4-8cea-080027242395"
+                    ],
+                    "positions": [],
+                    "geo_data": true
+                },
+                {
+                    "name": "11",
+                    "encompasses": [],
+                    "encompassed_by": [
+                        "3d374f84-ff27-11e4-8cea-080027242395"
+                    ],
+                    "positions": [
+                        "d8b0526c-ff27-11e4-8cea-080027242395"
+                    ],
+                    "geo_data": true
+                }
+            ]
+        }
+
+
 
 
 

@@ -6,13 +6,5 @@
         "local_index_name": "VoteStatusIndex",
         "local_index": "status",
         "type": "N"
-    },
-    {
-        "table_name": "friends",
-        "hash_key": "username"
-    },
-    {
-        "table_name": "reputation",
-        "hash_key": "parent_object"
     }
 ]

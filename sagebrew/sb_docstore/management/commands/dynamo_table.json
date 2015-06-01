@@ -12,33 +12,6 @@
         "hash_key": "username"
     },
     {
-        "table_name": "location",
-        "hash_key": "state",
-        "range_key": "district"
-    },
-    {
-        "table_name": "house_reps",
-        "hash_key": "email",
-        "range_key": "state",
-        "local_index_name": "DistrictIndex",
-        "local_index": "district",
-        "type": "N"
-    },
-    {
-        "table_name": "senators",
-        "hash_key": "email",
-        "range_key": "state"
-    },
-    {
-        "table_name": "general_reps",
-        "hash_key": "object_uuid"
-    },
-    {
-        "table_name": "goals",
-        "hash_key": "parent_object",
-        "range_key": "object_uuid"
-    },
-    {
         "table_name": "reputation",
         "hash_key": "parent_object"
     }

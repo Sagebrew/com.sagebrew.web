@@ -42,7 +42,6 @@ def updates(request, username):
                    "registered": False})
 
 
-
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def get_search_html(request, object_uuid):

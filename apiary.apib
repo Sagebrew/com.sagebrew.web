@@ -244,7 +244,7 @@ This endpoint will provide you with a paginated list of campaigns.
             ]
         }
         
-## Campaign [/v1/campaigns/{id}/] ##
+## Campaigns [/v1/campaigns/{id}/] ##
 Campaign detail endpoint, used to get data for a single specific campaign
 
 + Parameters
@@ -668,7 +668,7 @@ A $50 donation would be 5000 instead of 50.00.
             "status_code": 200
         }
         
-# Group Position #
+# Group Positions #
 Position related resources of the **Position API**.
 This is a read-only endpoint and only supports GET requests.
 
@@ -973,8 +973,42 @@ and is not curretly active.
             "status_code": 405
         }
         
+# Group Donations #
+## Donation [/v1/donations/{id}/] ##
 
++ Parameters
+    + id (required, object_uuid, `c2bf72f0-ff25-11e4-8cea-080027242395`) ... 
+    String `id` representing the object_uuid of the campaign you would like 
+to access, must be 36 characters long.
+    Has example value.
 
+### Retrieve a Donation [GET] ###
+This endpoint allows users to access the details of any donation they have made. 
+Only the owner of a donation is allowed to access any donations detail page.
+
++ Response 200 (application/json)
+
+        {
+            "id": "64d0b612-064c-11e5-8cea-080027242395",
+            "type": "donation",
+            "completed": false,
+            "amount": 6000,
+            "owner_username": "tyler_wiersing",
+            "donated_for": null,
+            "applied_to": [
+                "f2e92106-064b-11e5-8cea-080027242395",
+                "d1f1ee54-032d-11e5-8cea-080027242395"
+            ],
+            "owned_by": "tyler_wiersing",
+            "campaign": "c2bf72f0-ff25-11e4-8cea-080027242395"
+        }
+        
++ Response 403 (application/json)
+
+        {
+            "detail": "Sorry only the owner of a donation is allowed to see its detail page.",
+            "status_code": 403
+        }
 
 ## Notes Collection [/notes] ##
 ### List all Notes [GET] ###
@@ -994,6 +1028,9 @@ and is not curretly active.
 + Response 201 (application/json)
 
         { "id": 3, "title": "Buy cheese and bread for breakfast." }
+        
+        
+
 
 ## Note [/notes/{id}] ##
 A single Note object with all its details

@@ -7,7 +7,6 @@ from neomodel import CypherException, DoesNotExist
 from api.utils import spawn_task
 from api.tasks import add_object_to_search_index
 from govtrack.neo_models import GTRole
-from sb_docstore.utils import add_object_to_table
 from govtrack.utils import populate_term_data
 
 from sb_public_official.neo_models import PublicOfficial
@@ -66,7 +65,6 @@ class Command(BaseCommand):
         populate_term_data()
         for rep in reps:
             rep_data = PublicOfficialSerializer(rep).data
-            add_object_to_table("general_reps", rep_data)
             task_data = {
                 "object_uuid": rep_data['id'],
                 "object_data": rep_data,

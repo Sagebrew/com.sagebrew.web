@@ -253,7 +253,7 @@ Campaign detail endpoint, used to get data for a single specific campaign
 to access, must be 36 characters long.
     Has example value.
 
-### Retreive a Campaign [GET] ###
+### Retrieve a Campaign [GET] ###
 + Response 200 (application/json)
 
         {
@@ -669,7 +669,7 @@ A $50 donation would be 5000 instead of 50.00.
         }
         
 # Group Position #
-Position related resources of the **Position API**
+Position related resources of the **Position API**.
 This is a read-only endpoint and only supports GET requests.
 
 ## Position Collection [/v1/positions/] ##
@@ -705,7 +705,7 @@ This endpoint will provide you with a paginated list of positions.
 to access, must be 36 characters long.
     Has example value.
 
-### Retreive a Position [GET] ###
+### Retrieve a Position [GET] ###
 + Response 200 (application/json)
 
         {
@@ -727,6 +727,9 @@ This is a read-only endpoint and only supports GET requests.
 This endpoint provides a paginated list of locations.
 
 ### List all Locations [GET] ###
+If a location has geographical data associated with it, the geo_data field will be marked as true, 
+and it will be false if there is none. Adding `?expand=true` to your query will get you our 
+geographical data for each of the locations returned to you. 
 
 + Response 200 (application/json)
 
@@ -736,6 +739,8 @@ This endpoint provides a paginated list of locations.
             "previous": null,
             "results": [
                 {
+                    "id": "5fc698ee-ff26-11e4-8cea-080027242395",
+                    "type": "location",
                     "name": "United States of America",
                     "encompasses": [
                         "3d374f84-ff27-11e4-8cea-080027242395"
@@ -745,6 +750,8 @@ This endpoint provides a paginated list of locations.
                     "geo_data": false
                 },
                 {
+                    "id": "3d374f84-ff27-11e4-8cea-080027242395",
+                    "type": "location",
                     "name": "Michigan",
                     "encompasses": [
                         "50bf013c-ff27-11e4-8cea-080027242395"
@@ -756,6 +763,8 @@ This endpoint provides a paginated list of locations.
                     "geo_data": true
                 },
                 {
+                    "id": "50bf013c-ff27-11e4-8cea-080027242395",
+                    "type": "location",
                     "name": "11",
                     "encompasses": [],
                     "encompassed_by": [
@@ -768,8 +777,202 @@ This endpoint provides a paginated list of locations.
                 }
             ]
         }
+    
++ Response 200 (application/json)
 
+        {
+            "id": "3d374f84-ff27-11e4-8cea-080027242395",
+            "type": "location",
+            "name": "Michigan",
+            "encompasses": [
+                "50bf013c-ff27-11e4-8cea-080027242395"
+            ],
+            "encompassed_by": [
+                "5fc698ee-ff26-11e4-8cea-080027242395"
+            ],
+            "positions": [],
+            "geo_data": {
+                "type": "MultiPolygon",
+                "coordinates": [
+                    [
+                        [
+                            [
+                                -87.088338,
+                                42.235334
+                            ],
+                            [
+                                -87.068039,
+                                42.314346
+                            ],
+                            [
+                                -87.051814,
+                                42.375026
+                            ],
+                            [
+                                -87.040046,
+                                42.416993
+                            ],
+                            [
+                                -87.019863,
+                                42.493763
+                            ],
+                            ...
+                        ]
+                    ]
+                ]
+            }
+        }
+        
+## Location [/v1/locations/{id}/] ##
+This endpoint will get you the location with the id specified in the url.
 
++ Parameters
+    + id (required, object_uuid, `c2bf72f0-ff25-11e4-8cea-080027242395`) ... 
+    String `id` representing the object_uuid of the campaign you would like 
+to access, must be 36 characters long.
+    Has example value.
+
+### Retrieve a Location [GET] ###
+This will get you a single location, you may use `?expand=true` to get the
+geographical data for the location.
+
++ Response 200 (application/json)
+
+        {
+            "id": "3d374f84-ff27-11e4-8cea-080027242395",
+            "type": "location",
+            "name": "Michigan",
+            "encompasses": [
+                "50bf013c-ff27-11e4-8cea-080027242395"
+            ],
+            "encompassed_by": [
+                "5fc698ee-ff26-11e4-8cea-080027242395"
+            ],
+            "positions": [],
+            "geo_data": true
+        }
+
+# Group Rounds #
+
+## Round [/v1/rounds/{id}/] ##
+
++ Parameters
+    + id (required, object_uuid, `c2bf72f0-ff25-11e4-8cea-080027242395`) ... 
+    String `id` representing the object_uuid of the campaign you would like 
+to access, must be 36 characters long.
+    Has example value.
+
+### Retrieve a Round [GET] ###
+This endpoint allows you to get information about the round with the id
+specified in the url.
+
++ Response 200 (application/json)
+
+        {
+            "id": "a0106420-032c-11e5-8cea-080027242395",
+            "type": "round",
+            "campaign": "c2bf72f0-ff25-11e4-8cea-080027242395",
+            "active": false,
+            "start_date": null,
+            "completed": null,
+            "goals": [
+                "f2e92106-064b-11e5-8cea-080027242395",
+                "d1f1ee54-032d-11e5-8cea-080027242395"
+            ],
+            "previous_round": null,
+            "next_round": null
+        }
+        
+# Group Goals #
+
+## Goal [/v1/goals/{id}/] ##
+
++ Parameters
+    + id (required, object_uuid, `c2bf72f0-ff25-11e4-8cea-080027242395`) ... 
+    String `id` representing the object_uuid of the campaign you would like 
+to access, must be 36 characters long.
+    Has example value.
+
+### Retrieve a Goal [GET] ###
+This endpoint allows the owner or editors of a campaign get information about the 
+goal with the id specified in the url.
+
++ Response 200 (application/json)
+
+        {
+            "id": "d1f1ee54-032d-11e5-8cea-080027242395",
+            "type": "goal",
+            "campaign": "c2bf72f0-ff25-11e4-8cea-080027242395",
+            "initial": true,
+            "title": "Campaign Banners",
+            "summary": "This goal will allow me to create some banners.",
+            "description": "Creating these banners will allow me to get my name out there and gather some following.",
+            "pledged_vote_requirement": 0,
+            "monetary_requirement": 2000,
+            "completed": false,
+            "completed_date": null,
+            "updates": [],
+            "associated_round": "a0106420-032c-11e5-8cea-080027242395",
+            "donations": [],
+            "previous_goal": null,
+            "next_goal": "f2e92106-064b-11e5-8cea-080027242395"
+        }
+        
+### Update a Goal [PUT] ###
+This endpoint allows for owners and editors to update a goal, so long as the goal has not been completed 
+or is currently active.
+
++ Request (application/json)
+
+        {
+            "title": "This is a update to the goal title",
+            "summary": "Updating the summary",
+            "description": "Updating the description.",
+            "monetary_requirement": 100000,
+            "pledge_vote_requirement": 1
+        }
+        
++ Response 200 (application/json)
+
+        {
+            "id": "d1f1ee54-032d-11e5-8cea-080027242395",
+            "type": "goal",
+            "campaign": "c2bf72f0-ff25-11e4-8cea-080027242395",
+            "initial": true,
+            "title": "This is a update to the goal title",
+            "summary": "Updating the summary",
+            "description": "Updating the description.",
+            "pledged_vote_requirement": 1,
+            "monetary_requirement": 100000,
+            "completed": false,
+            "completed_date": null,
+            "updates": [],
+            "associated_round": "a0106420-032c-11e5-8cea-080027242395",
+            "donations": [],
+            "previous_goal": null,
+            "next_goal": "f2e92106-064b-11e5-8cea-080027242395"
+        }
+        
++ Response 405 (application/json)
+
+        {
+            "detail": "You cannot update a completed or active goal.",
+            "status_code": 405
+        }
+
+### Delete a Goal [DELETE] ###
+This endpoint allows for owners and editors to delete a goal, so long as the goal has not been completed 
+and is not curretly active.
+
++ Response 204 (application/json)
+        
++ Response 405 (application/json)
+
+        {
+            "detail": "You cannot delete a completed or active goal",
+            "status_code": 405
+        }
+        
 
 
 

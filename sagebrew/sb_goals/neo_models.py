@@ -103,6 +103,15 @@ class Goal(SBObject):
             return None
         return res[0][0]
 
+    @classmethod
+    def get_campaign(cls, object_uuid):
+        query = 'MATCH (g:`Goal` {object_uuid: "%s"})-[:ASSOCIATED_WITH]-' \
+                '(c:`Campaign`) RETURN c.object_uuid' % (object_uuid)
+        res, col = db.cypher_query(query)
+        if not res:
+            return None
+        return res[0][0]
+
 
 class Round(SBObject):
     """

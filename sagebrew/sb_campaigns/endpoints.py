@@ -11,8 +11,8 @@ from rest_framework import status
 
 from neomodel import db
 
-from api.permissions import (IsOwnerOrEditorOrAccountant, IsOwnerOrAdmin,
-                             IsOwnerOrAccountant, IsOwnerOrEditor)
+from api.permissions import (IsOwnerOrAdmin, IsOwnerOrAccountant,
+                             IsOwnerOrEditor)
 from plebs.neo_models import Pleb
 from sb_votes.utils import handle_vote
 
@@ -73,7 +73,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             serializer.save()
             return Response({"detail": "Successfully added specified users "
-                                       "to your campaign editors.",
+                                       "to your campaign.",
                              "status": status.HTTP_200_OK,
                              "developer_message": None},
                             status=status.HTTP_200_OK)
@@ -105,7 +105,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
                 profile_pleb.campaign_editor.disconnect(queryset)
             cache.delete("%s_editors" % (queryset.object_uuid))
             return Response({"detail": "Successfully removed specified "
-                                       "editors from your campaign editors.",
+                                       "editors from your campaign.",
                              "status": status.HTTP_200_OK,
                              "developer_message": None},
                             status=status.HTTP_200_OK)

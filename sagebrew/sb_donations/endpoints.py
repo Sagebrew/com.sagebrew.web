@@ -8,7 +8,7 @@ from rest_framework import status
 
 from neomodel import db, DoesNotExist
 
-from api.permissions import IsOwnerOrEditorOrAccountant, IsOwnerOrAccountant
+from api.permissions import IsOwnerOrEditorOrAccountant, IsOwnerOrAccountant, IsOwnerOrAdmin
 from plebs.neo_models import Pleb
 from plebs.serializers import PlebSerializerNeo
 from sb_campaigns.neo_models import Campaign
@@ -25,15 +25,28 @@ class DonationViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = "object_uuid"
     permission_classes = (IsAuthenticated,)
 
-    def get_queryset(self):
-        query = "MATCH (d:`Donation`) RETURN d"
-        res, col = db.cypher_query(query)
-        return [Donation.inflate(row[0]) for row in res]
-
     def get_object(self):
-        query = 'MATCH (d:`Donation` {object_uuid: "%s"}) RETURN d'
+        query = 'MATCH (d:`Donation` {object_uuid: "%s"}) RETURN d' % \
+                (self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
         return Donation.inflate(res[0][0])
+
+    def list(self, request, *args, **kwargs):
+        return Response({'detail': "Sorry, we currently do not allow for "
+                                   "users to query all donations for every "
+                                   "campaign.",
+                         'status_code': status.HTTP_405_METHOD_NOT_ALLOWED},
+                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def retrieve(self, request, *args, **kwargs):
+        if (request.user.username ==
+                Donation.get_owner(self.kwargs[self.lookup_field])):
+            return super(DonationViewSet, self).retrieve(request, *args,
+                                                         **kwargs)
+        return Response({"detail": "Sorry only the owner of a donation is "
+                                   "allowed to see its detail page.",
+                         "status_code": status.HTTP_403_FORBIDDEN},
+                        status=status.HTTP_403_FORBIDDEN)
 
 class DonationListCreate(generics.ListCreateAPIView):
     """

@@ -1,11 +1,10 @@
-from django.core.cache import cache
-
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 from neomodel import db
 
 from api.utils import gather_request_data
+from api.serializers import SBSerializer
 from plebs.neo_models import Pleb
 from sb_campaigns.neo_models import Campaign
 from sb_goals.neo_models import Goal, Round
@@ -30,7 +29,7 @@ class DonationValue:
             raise serializers.ValidationError(message)
 
 
-class DonationSerializer(serializers.Serializer):
+class DonationSerializer(SBSerializer):
     completed = serializers.BooleanField(read_only=True)
     amount = serializers.IntegerField(validators=[DonationValue(),])
     owner_username = serializers.CharField(read_only=True)

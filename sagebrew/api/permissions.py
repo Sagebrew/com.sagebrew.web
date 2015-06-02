@@ -1,6 +1,7 @@
 from rest_framework import permissions
 
 from sb_campaigns.neo_models import Campaign
+from sb_goals.neo_models import Goal
 
 
 class IsOwnerOrAdmin(permissions.BasePermission):
@@ -65,6 +66,14 @@ class IsOwnerOrAccountant(permissions.BasePermission):
 class IsOwnerOrEditor(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if (request.user.username in Campaign.get_editors(obj)):
+            return True
+        else:
+            return False
+
+class IsGoalOwnerOrEditor(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if (request.user.username in
+                Campaign.get_editors(Goal.get_campaign(obj))):
             return True
         else:
             return False

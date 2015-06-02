@@ -3,16 +3,13 @@ from json import loads
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from neomodel import db
-
 from api.utils import gather_request_data
-
-from sb_campaigns.neo_models import Position
+from api.serializers import SBSerializer
 
 from .neo_models import Location
 
 
-class LocationSerializer(serializers.Serializer):
+class LocationSerializer(SBSerializer):
     name = serializers.CharField()
 
     encompasses = serializers.SerializerMethodField()

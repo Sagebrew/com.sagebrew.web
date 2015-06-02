@@ -1,24 +1,12 @@
-from datetime import datetime
 from logging import getLogger
 
-from django.template.loader import render_to_string
-from django.template import RequestContext
-
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import viewsets
-from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework import status, generics
 
-from neomodel import db, DoesNotExist
+from neomodel import db
 
-from api.utils import spawn_task
-from api.permissions import (IsOwnerOrEditorOrAccountant, IsOwnerOrAdmin,
-                             IsOwnerOrEditor)
-from sb_base.utils import get_ordering, get_tagged_as
-from sb_stats.tasks import update_view_count_task
-from plebs.neo_models import Pleb
-from plebs.serializers import PlebSerializerNeo
+from api.permissions import IsGoalOwnerOrEditor
 from sb_campaigns.neo_models import Campaign
 
 from .serializers import (GoalSerializer, RoundSerializer)
@@ -47,9 +35,9 @@ class GoalListCreateMixin(generics.ListCreateAPIView):
     lookup_field = "object_uuid"
 
     def get_queryset(self):
-        query = "MATCH (r:`Campaign` {object_uuid:'%s'})-[:HAS_ROUND]->" \
+        query = "MATCH (c:`Campaign` {object_uuid:'%s'})-[:HAS_ROUND]->" \
                 "(r:`Round`)-[:STRIVING_FOR]->(g:`Goal`) RETURN g " \
-                "ORDER BY g.created" % (self.kwargs[self.lookup_field])
+                % (self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
         return [Goal.inflate(row[0]) for row in res]
 
@@ -71,7 +59,7 @@ class GoalListCreateMixin(generics.ListCreateAPIView):
 
 class GoalRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = GoalSerializer
-    permission_classes = (IsAuthenticated, IsOwnerOrEditor)
+    permission_classes = (IsAuthenticated, IsGoalOwnerOrEditor)
     lookup_field = "object_uuid"
 
     def get_object(self):
@@ -81,8 +69,8 @@ class GoalRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
         queryset = self.get_object()
         if (queryset.completed or queryset.active):
             return Response({"status_code": status.HTTP_405_METHOD_NOT_ALLOWED,
-                             "detail": "You are not authorized to access "
-                                       "this page."},
+                             "detail": "You cannot update a completed "
+                                       "or active goal."},
                             status=status.HTTP_405_METHOD_NOT_ALLOWED)
         return super(GoalRetrieveUpdateDestroy, self).update(request,
                                                              *args, **kwargs)
@@ -90,10 +78,10 @@ class GoalRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     def destroy(self, request, *args, **kwargs):
         queryset = self.get_object()
         if (queryset.completed or queryset.active):
-            return Response({"status_code": status.HTTP_403_FORBIDDEN,
-                             "detail": "You are not authorized to access "
-                                       "this page."},
-                            status=status.HTTP_403_FORBIDDEN)
+            return Response({"status_code": status.HTTP_405_METHOD_NOT_ALLOWED,
+                             "detail": "You cannot delete a completed "
+                                       "or active goal"},
+                            status=status.HTTP_405_METHOD_NOT_ALLOWED)
         return super(GoalRetrieveUpdateDestroy, self).destroy(request, *args,
                                                               **kwargs)
 
@@ -124,7 +112,7 @@ class RoundListCreate(generics.ListCreateAPIView):
         return [Round.inflate(row[0]) for row in res]
 
 
-class RoundRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
+class RoundRetrieveUpdateDestroy(generics.RetrieveAPIView):
     serializer_class = RoundSerializer
     permission_classes = (IsAuthenticated,)
     lookup_field = "object_uuid"

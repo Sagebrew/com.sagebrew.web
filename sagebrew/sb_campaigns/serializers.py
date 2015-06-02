@@ -7,13 +7,10 @@ from django.core.cache import cache
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from neomodel import db, DoesNotExist
-
 from api.serializers import SBSerializer
 from api.utils import gather_request_data
 from plebs.neo_models import Pleb
-from sb_locations.neo_models import (Location)
-from sb_goals.neo_models import Goal, Round
+from sb_goals.neo_models import Round
 
 from .neo_models import (Campaign, PoliticalCampaign, Position)
 
@@ -22,7 +19,7 @@ logger = getLogger('loggly_logs')
 
 class CampaignSerializer(SBSerializer):
     active = serializers.BooleanField(required=False)
-    biography = serializers.CharField(required=True)
+    biography = serializers.CharField(required=False)
     facebook = serializers.CharField(required=False, allow_null=True)
     linkedin = serializers.CharField(required=False, allow_null=True)
     youtube = serializers.CharField(required=False, allow_null=True)
@@ -42,7 +39,21 @@ class CampaignSerializer(SBSerializer):
     upcoming_round = serializers.SerializerMethodField()
 
     def create(self, validated_data):
-        pass
+        request = self.context.get('request', None)
+        owner = Pleb.get(request.user.username)
+        validated_data['owner_username'] = owner.username
+        campaign = Campaign(**validated_data).save()
+        campaign.owned_by.connect(owner)
+        owner.campaign.connect(campaign)
+        owner.campaign_editor.connect(campaign)
+        owner.campaign_accountant.connect(campaign)
+        initial_round = Round(start_date=datetime.now(pytz.utc)).save()
+        initial_round.campaign.connect(campaign)
+        campaign.upcoming_round.connect(initial_round)
+        campaign.editors.connect(owner)
+        campaign.accountants.connect(owner)
+        cache.set(campaign.object_uuid, campaign)
+        return campaign
 
     def update(self, instance, validated_data):
         instance.active = validated_data.get('active', instance.active)
@@ -55,6 +66,8 @@ class CampaignSerializer(SBSerializer):
                                                     instance.wallpaper_pic)
         instance.profile_pic = validated_data.get('profile_pic',
                                                   instance.profile_pic)
+        instance.biography = validated_data.get('biography',
+                                                instance.biography)
         instance.save()
         return instance
 

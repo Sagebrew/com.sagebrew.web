@@ -79,6 +79,15 @@ class Donation(SBObject):
             return None
         return res[0][0]
 
+    @classmethod
+    def get_owner(cls, object_uuid):
+        query = 'MATCH (d:`Donation` {object_uuid: "%s"}) ' \
+                'RETURN d.owner_username' % (object_uuid)
+        res, col = db.cypher_query(query)
+        if not res:
+            return None
+        return res[0][0]
+
 
 class PoliticalDonation(Donation):
     """

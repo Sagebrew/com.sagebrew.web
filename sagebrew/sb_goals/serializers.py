@@ -19,7 +19,7 @@ from .neo_models import Goal, Round
 
 
 class GoalSerializer(CampaignAttributeSerializer):
-    initial = serializers.BooleanField(required=False)
+    initial = serializers.BooleanField(required=False, read_only=True)
     title = serializers.CharField(required=True)
     summary = serializers.CharField(required=True)
     description = serializers.CharField(required=False, allow_null=True)
@@ -31,8 +31,8 @@ class GoalSerializer(CampaignAttributeSerializer):
                                                         allow_null=True)
     monetary_requirement = serializers.IntegerField(required=True,
                                                     allow_null=False)
-    completed = serializers.BooleanField()
-    completed_date = serializers.DateTimeField(allow_null=True)
+    completed = serializers.BooleanField(read_only=True)
+    completed_date = serializers.DateTimeField(allow_null=True, read_only=True)
 
     updates = serializers.SerializerMethodField()
     associated_round = serializers.SerializerMethodField()

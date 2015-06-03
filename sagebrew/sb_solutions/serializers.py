@@ -24,6 +24,7 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
         owner = Pleb.get(request.user.username)
         validated_data['content'] = bleach.clean(validated_data.get(
             'content', ""))
+        validated_data['owner_username'] = owner.username
         solution = Solution(**validated_data).save()
         solution.owned_by.connect(owner)
         owner.solutions.connect(solution)

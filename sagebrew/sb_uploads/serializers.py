@@ -7,9 +7,6 @@ from sb_registration.utils import upload_image
 
 from .neo_models import UploadedObject, ModifiedObject
 
-from logging import getLogger
-logger = getLogger('loggly_logs')
-
 
 class MediaType:
     def __init__(self):
@@ -56,6 +53,7 @@ class UploadSerializer(SBSerializer):
         file_object = validated_data.pop('file_object')
         url = upload_image(settings.AWS_PROFILE_PICTURE_FOLDER_NAME,
                            file_name, file_object, True)
+        validated_data['owner_username'] = owner.username
         uploaded_object = UploadedObject(
             file_format=file_format, url=url, height=height,
             width=width, file_size=file_size, object_uuid=object_uuid).save()
@@ -82,7 +80,8 @@ class ModifiedSerializer(UploadSerializer):
                            file_name, file_object, True)
         modified_object = ModifiedObject(file_format=file_format, url=url,
                                          height=height, width=width,
-                                         file_size=file_size).save()
+                                         file_size=file_size,
+                                         owner_username=owner.username).save()
         modified_object.owned_by.connect(owner)
         owner.uploads.connect(modified_object)
         parent_object = UploadedObject.nodes.get(object_uuid=object_uuid)

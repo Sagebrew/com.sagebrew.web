@@ -105,9 +105,6 @@ class Campaign(Searchable):
                     '[:CAN_BE_EDITED_BY]-(p:`Pleb`) RETURN p.username' \
                     % (object_uuid)
             res, col = db.cypher_query(query)
-            if not res:
-                cache.set("%s_editors" % (object_uuid), [])
-                return []
             editors = [row[0] for row in res]
             cache.set("%s_editors" % (object_uuid), editors)
         return editors
@@ -120,11 +117,8 @@ class Campaign(Searchable):
                     '[:CAN_VIEW_MONETARY_DATA]-(p:`Pleb`) RETURN p.username' \
                     % (object_uuid)
             res, col = db.cypher_query(query)
-            if not res:
-                cache.set("%s_accountants" % (object_uuid), [])
-                return []
-            cache.set("%s_accountants" % (object_uuid), res[0])
             accountants = [row[0] for row in res]
+            cache.set("%s_accountants" % (object_uuid), accountants)
         return accountants
 
     @classmethod
@@ -137,11 +131,12 @@ class Campaign(Searchable):
         query = 'MATCH (c:`Campaign` {object_uuid:"%s"})-' \
                 '[:WAGED_BY]-(p:`Pleb`) return p.username' % (object_uuid)
         res, col = db.cypher_query(query)
-        if not res:
+        try:
+            return reverse('action_saga',
+                           kwargs={"username": res[0][0]},
+                           request=request)
+        except IndexError:
             return None
-        return reverse('action_saga',
-                       kwargs={"username": res[0][0]},
-                       request=request)
 
     @classmethod
     def get_rounds(cls, object_uuid):
@@ -151,9 +146,6 @@ class Campaign(Searchable):
                     '[:HAS_ROUND]->(r:`Round`) WHERE r.upcoming=false ' \
                     'RETURN r.object_uuid' % (object_uuid)
             res, col = db.cypher_query(query)
-            if not res:
-                cache.set("%s_rounds" % (object_uuid), None)
-                return res
             rounds = [row[0] for row in res]
             cache.set("%s_rounds" % (object_uuid), rounds)
         return rounds
@@ -167,9 +159,6 @@ class Campaign(Searchable):
                     "(g:`Goal`) RETURN g.object_uuid ORDER BY g.created" % \
                     (object_uuid)
             res, col = db.cypher_query(query)
-            if not res:
-                cache.set("%s_active_goals" % (object_uuid), [])
-                return []
             active_goals = [row[0] for row in res]
             cache.set("%s_active_goals" % (object_uuid), active_goals)
         return active_goals
@@ -181,10 +170,11 @@ class Campaign(Searchable):
             query = "MATCH (c:`Campaign` {object_uuid:'%s'})-[:HAS_GOAL]->" \
                     "(g:`Goal`) WHERE g.target=true RETURN g" % (object_uuid)
             res, col = db.cypher_query(query)
-            if not res:
-                return None
-            target_goal = res[0][0]
-            cache.set("%s_target_goal" % (object_uuid), target_goal)
+            try:
+                target_goal = res[0][0]
+                cache.set("%s_target_goal" % (object_uuid), target_goal)
+            except IndexError:
+                target_goal = None
         return target_goal
 
 
@@ -196,10 +186,11 @@ class Campaign(Searchable):
                     "[:CURRENT_ROUND]->(r:`Round`) RETURN r.object_uuid" % \
                     (object_uuid)
             res, col = db.cypher_query(query)
-            if not res:
-                return None
-            active_round = res[0][0]
-            cache.set("%s_active_round" % (object_uuid), active_round)
+            try:
+                active_round = res[0][0]
+                cache.set("%s_active_round" % (object_uuid), active_round)
+            except IndexError:
+                active_round = None
         return active_round
 
     @classmethod
@@ -210,10 +201,11 @@ class Campaign(Searchable):
                     "[:UPCOMING_ROUND]->(r:`Round`) RETURN r.object_uuid" % \
                     (object_uuid)
             res, col = db.cypher_query(query)
-            if not res:
-                return None
-            upcoming_round = res[0][0]
-            cache.set("%s_upcoming_round" % (object_uuid), upcoming_round)
+            try:
+                upcoming_round = res[0][0]
+                cache.set("%s_upcoming_round" % (object_uuid), upcoming_round)
+            except IndexError:
+                upcoming_round = None
         return upcoming_round
 
     @classmethod
@@ -224,9 +216,6 @@ class Campaign(Searchable):
                     '(u:`Update`) WHERE u.to_be_deleted=false ' \
                     'RETURN u.object_uuid' % (object_uuid)
             res, col = db.cypher_query(query)
-            if not res:
-                cache.set("%s_updates" % (object_uuid), [])
-                return []
             updates = [row[0] for row in res]
             cache.set("%s_updates" % (object_uuid), updates)
         return updates
@@ -238,11 +227,11 @@ class Campaign(Searchable):
             query = "MATCH (r:`Campaign` {object_uuid:'%s'})-[:RUNNING_FOR]->" \
                     "(p:`Position`) RETURN p.object_uuid" % (object_uuid)
             res, col = db.cypher_query(query)
-            if not res:
-                cache.set("%s_position" % (object_uuid), [])
-                return None
-            position = res[0][0]
-            cache.set("%s_position" % (object_uuid), position)
+            try:
+                position = res[0][0]
+                cache.set("%s_position" % (object_uuid), position)
+            except IndexError:
+                position = None
         return position
 
     def fetch_url(self, request):
@@ -287,8 +276,11 @@ class PoliticalCampaign(Campaign):
                 '[r:RECEIVED_PLEDGED_VOTE]->(p:`Pleb`) WHERE ' \
                 'r.active=true RETURN count(r)' % (object_uuid)
         res, col = db.cypher_query(query)
-        cache.set("%s_vote_count" % (object_uuid), res[0][0])
-        return res[0][0]
+        try:
+            cache.set("%s_vote_count" % (object_uuid), res[0][0])
+            return res[0][0]
+        except IndexError:
+            return None
 
     @classmethod
     def get_constituents(cls, object_uuid):
@@ -296,8 +288,6 @@ class PoliticalCampaign(Campaign):
                 '[r:POTENTIAL_REPRESENTATIVE_FOR]->(p:`Pleb`) ' \
                 'RETURN p.username' % (object_uuid)
         res, col = db.cypher_query(query)
-        if not res:
-            return []
         return [row[0] for row in res]
 
 
@@ -323,8 +313,11 @@ class Position(SBObject):
             if not res:
                 cache.delete(object_uuid)
                 return None
-            position = Position.inflate(res[0][0])
-            cache.set(object_uuid, position)
+            try:
+                position = Position.inflate(res[0][0])
+                cache.set(object_uuid, position)
+            except IndexError:
+                position = None
         return position
 
     @classmethod
@@ -334,9 +327,6 @@ class Position(SBObject):
             query = 'MATCH (p:`Position` {object_uuid: "%s"})-[:CAMPAIGNS]-' \
                     '(c:`PoliticalCampaign`) RETURN c.object_uuid' % (object_uuid)
             res, col = db.cypher_query(query)
-            if not res:
-                cache.set("%s_campaigns" % (object_uuid), [])
-                return []
             campaigns = [row[0] for row in res]
             cache.set("%s_campaigns" % (object_uuid), campaigns)
         return campaigns
@@ -349,9 +339,9 @@ class Position(SBObject):
                     '[:AVAILABLE_WITHIN]-(c:`Location`) ' \
                     'RETURN c.object_uuid' % (object_uuid)
             res, col = db.cypher_query(query)
-            if not res:
-                cache.set("%s_location" % (object_uuid), [])
-                return None
-            location = res[0][0]
-            cache.set("%s_location" % (object_uuid), location)
+            try:
+                location = res[0][0]
+                cache.set("%s_location" % (object_uuid), location)
+            except IndexError:
+                location = None
         return location

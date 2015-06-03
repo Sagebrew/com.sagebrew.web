@@ -169,6 +169,7 @@ class PlebSerializerNeo(SBSerializer):
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',
                                                     instance.wallpaper_pic)
         instance.save()
+        instance.refresh()
         cache.set(instance.username, instance)
         return instance
 
@@ -179,27 +180,16 @@ class PlebSerializerNeo(SBSerializer):
         return "profile"
 
     def get_url(self, obj):
-        try:
-            request = self.context['request']
-        except KeyError:
-            request = None
+        request, _, _, _, _ = gather_request_data(self.context)
         return reverse(
             'profile_page', kwargs={'pleb_username': obj.username},
             request=request)
 
     def get_privileges(self, obj):
-        privileges = cache.get("%s_privileges" % obj.username)
-        if privileges is None:
-            privileges = obj.get_privileges()
-            cache.set("%s_privileges" % obj.username, privileges)
-        return privileges
+        return obj.get_privileges()
 
     def get_actions(self, obj):
-        actions = cache.get("%s_actions" % obj.username)
-        if actions is None:
-            actions = obj.get_actions()
-            cache.set("%s_actions" % obj.username, actions)
-        return actions
+        return obj.get_actions()
 
     def get_href(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
@@ -223,7 +213,7 @@ class AddressSerializer(SBSerializer):
     country = serializers.CharField(allow_null=True, required=False)
     latitude = serializers.FloatField()
     longitude = serializers.FloatField()
-    congressional_district = serializers.CharField()
+    congressional_district = serializers.IntegerField()
     validated = serializers.BooleanField(required=False, read_only=True)
 
     def create(self, validated_data):

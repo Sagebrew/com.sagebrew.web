@@ -14,7 +14,6 @@ dependencies:
     - DynamoDBLocal_lib
     - neo4j-community-2.1.7
   post:
-    - pip install git+http://github.com/bleib1dj/django-rest-framework.git@improvement_id_field_hyperlinkedrelatedfield --upgrade
     - pip install -r ~/com.sagebrew.web/requirements/test.txt --exists-action=w
     - sudo chown ubuntu /etc/rsyslog.d/
     - python ~/com.sagebrew.web/sagebrew/manage.py logglypopulation
@@ -48,7 +47,7 @@ checkout:
 test:
   override:
     - coverage run --source='.' manage.py test --failfast
-    - coverage html --fail-under=50
+    - coverage html --fail-under=53
     - coveralls --rcfile=$CIRCLE_ARTIFACTS
     - flake8 ~/com.sagebrew.web/sagebrew/ --ignore C901
   post:

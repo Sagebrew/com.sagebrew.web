@@ -41,8 +41,12 @@ class QuestionViewSet(viewsets.ModelViewSet):
         query = "MATCH (n:`Question`)%s WHERE n.to_be_deleted=false RETURN " \
                 "n %s %s" % (tagged_as, sort_by, ordering)
         if sort_by == "" or sort_by == "vote_count":
+            # Cache check aligning with implementation below
+            # questions = cache.get("question_list_vote_sort")
+            # if questions is not None:
+            #    return questions
             query = "MATCH (n:`Question`)%s " \
-                    "OPTIONAL MATCH (n:`Question`)-[vs:PLEB_VOTES]-() " \
+                    "OPTIONAL MATCH (n:`Question`)<-[vs:PLEB_VOTES]-(p:Pleb) " \
                     "WHERE n.to_be_deleted=false RETURN " \
                     "n, reduce(vote_count = 0, v in collect(vs)| " \
                     "CASE WHEN v.active=false THEN vote_count " \
@@ -52,8 +56,13 @@ class QuestionViewSet(viewsets.ModelViewSet):
                     "ORDER BY reduction DESC" % \
                     (tagged_as)
         res, col = db.cypher_query(query)
-        queryset = [Question.inflate(row[0]) for row in res]
-        return queryset
+        # Quick cache implementation to reduce load of refresh clickers
+        # Under load neo takes about 15-30 seconds to store off the
+        # updates of a vote anyways so this can be added when necessary
+        # if sort_by == "" or sort_by == "vote_count":
+        #    if questions is None:
+        #        cache.set('question_list_vote_sort', queryset, 30)
+        return [Question.inflate(row[0]) for row in res]
 
     def get_object(self):
         return Question.get(self.kwargs[self.lookup_field])

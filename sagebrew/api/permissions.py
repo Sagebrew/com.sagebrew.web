@@ -6,7 +6,7 @@ from sb_goals.neo_models import Goal
 
 class IsOwnerOrAdmin(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if (obj.owned_by.all()[0].username == request.user.username or
+        if (obj.owner_username == request.user.username or
                 request.user.is_staff):
             return True
         else:

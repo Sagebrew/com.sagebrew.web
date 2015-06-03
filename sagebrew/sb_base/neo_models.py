@@ -69,6 +69,9 @@ class VotableContent(NotificationCapable):
     down_vote_adjustment = IntegerProperty(default=0)
     down_vote_cost = IntegerProperty(default=0)
 
+    # optimizations
+    owner_username = StringProperty()
+
     # relationships
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'OWNED_BY',
                               model=PostedOnRel)
@@ -236,11 +239,11 @@ class SBContent(VotableContent):
 
     def get_flagged_by(self):
         query = "MATCH (a:SBContent {object_uuid: '%s'})-[:FLAGGED_BY]->(" \
-                "b:Pleb) Return b" % (self.object_uuid)
+                "b:Pleb) Return b.username" % (self.object_uuid)
         res, col = db.cypher_query(query)
         if len(res) == 0:
             return []
-        return res
+        return [row[0] for row in res]
 
     def get_url(self, request):
         return None

@@ -120,6 +120,12 @@ LOGGING = {
             'format': 'loggly: %(message)s',
             'level': 'CRITICAL',
         },
+        'neomodel.util': {
+            'handlers': ['logentries_handler'],
+            'propagate': True,
+            'format': 'loggly: %(message)s',
+            'level': 'CRITICAL',
+        },
         'django.request': {
             'handlers': ['logentries_handler'],
             'level': 'ERROR',

@@ -81,36 +81,40 @@ class Goal(SBObject):
         query = 'MATCH (g:`Goal` {object_uuid: "%s"})-[:PART_OF]->' \
                 '(u:`Round`) return u.object_uuid' % (object_uuid)
         res, col = db.cypher_query(query)
-        if not res:
+        try:
+            return res[0][0]
+        except IndexError:
             return None
-        return res[0][0]
 
     @classmethod
     def get_previous_goal(cls, object_uuid):
         query = 'MATCH (g:`Goal` {object_uuid: "%s"})-[:PREVIOUS]->' \
                 '(u:`Goal`) return u.object_uuid' % (object_uuid)
         res, col = db.cypher_query(query)
-        if not res:
+        try:
+            return res[0][0]
+        except IndexError:
             return None
-        return res[0][0]
 
     @classmethod
     def get_next_goal(cls, object_uuid):
         query = 'MATCH (g:`Goal` {object_uuid: "%s"})-[:NEXT]->' \
                 '(u:`Goal`) return u.object_uuid' % (object_uuid)
         res, col = db.cypher_query(query)
-        if not res:
+        try:
+            return res[0][0]
+        except IndexError:
             return None
-        return res[0][0]
 
     @classmethod
     def get_campaign(cls, object_uuid):
         query = 'MATCH (g:`Goal` {object_uuid: "%s"})-[:ASSOCIATED_WITH]-' \
                 '(c:`Campaign`) RETURN c.object_uuid' % (object_uuid)
         res, col = db.cypher_query(query)
-        if not res:
+        try:
+            return res[0][0]
+        except IndexError:
             return None
-        return res[0][0]
 
 
 class Round(SBObject):
@@ -153,8 +157,6 @@ class Round(SBObject):
         query = 'MATCH (r:`Round` {object_uuid:"%s"})-[:STRIVING_FOR]->' \
                 '(g:`Goal`) RETURN g.object_uuid' % (object_uuid)
         res, col = db.cypher_query(query)
-        if not res:
-            return res
         return [row[0] for row in res]
 
     @classmethod
@@ -162,15 +164,17 @@ class Round(SBObject):
         query = 'MATCH (r:`Round` {object_uuid:"%s"})-[:PREVIOUS]->' \
                 '(g:`Round`) RETURN g.object_uuid' % (object_uuid)
         res, col = db.cypher_query(query)
-        if not res:
+        try:
+            return res[0][0]
+        except IndexError:
             return None
-        return res[0][0]
 
     @classmethod
     def get_next_round(cls, object_uuid):
         query = 'MATCH (r:`Round` {object_uuid:"%s"})-[:NEXT]->' \
                 '(g:`Round`) RETURN g.object_uuid' % (object_uuid)
         res, col = db.cypher_query(query)
-        if not res:
+        try:
+            return res[0][0]
+        except IndexError:
             return None
-        return res[0][0]

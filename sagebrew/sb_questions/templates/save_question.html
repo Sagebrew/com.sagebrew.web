@@ -128,13 +128,11 @@
     <script src="{% static 'js/vendor/bootstrap-tokenfield.min.js' %}"></script>
     <script src="{% static 'js/vendor/typeahead.js' %}"></script>
     <script src="{% static 'js/create_markdown.js' %}"></script>
-    <script src="{% static 'js/save_question.js' %}"></script>
     <script src="{% static 'js/get_tags.js' %}"></script>
     <script src="{% static 'js/question_validator.js' %}"></script>
+    <script src="{% static 'js/save_question.js' %}"></script>
     {% if edit %}
         <script src="{% static 'js/populate_edit_question.js' %}"></script>
         <script src="{% static 'js/edit_question.js' %}"></script>
-    {% else %}
-        <script src="{% static 'js/comment_validator.js' %}"></script>
     {% endif %}
 {% endblock scripts %}

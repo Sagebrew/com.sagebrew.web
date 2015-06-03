@@ -109,6 +109,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
         owner = Pleb.get(request.user.username)
         validated_data['content'] = bleach.clean(validated_data.get(
             'content', ""))
+        validated_data['owner_username'] = owner.username
         question = Question(**validated_data).save()
         question.owned_by.connect(owner)
         owner.questions.connect(question)
@@ -132,6 +133,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
         spawn_task(task_func=update_tags, task_param={"tags": tags})
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": question.object_uuid})
+        question.refresh()
         cache.set(question.object_uuid, question)
         return question
 
@@ -152,6 +154,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
                                                            instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)
         instance.save()
+        instance.refresh()
         cache.set(instance.object_uuid, instance)
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": instance.object_uuid})
@@ -166,7 +169,10 @@ class QuestionSerializerNeo(TitledContentSerializer):
         return solution_count(obj.object_uuid)
 
     def get_solutions(self, obj):
-        request, expand, _, relations, _ = gather_request_data(self.context)
+        request, expand, _, relations, expedite = gather_request_data(
+            self.context)
+        if expedite == "true":
+            return []
         solutions = obj.get_solution_ids()
         solution_urls = []
         if expand == "true":
@@ -187,7 +193,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
         return solution_urls
 
     def get_href(self, obj):
-        request, expand, _, _, _ = gather_request_data(self.context)
+        request, _, _, _, _ = gather_request_data(self.context)
         return reverse(
             'question-detail', kwargs={'object_uuid': obj.object_uuid},
             request=request)

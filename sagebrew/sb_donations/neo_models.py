@@ -56,9 +56,10 @@ class Donation(SBObject):
                 '[:DONATED_FOR]->(g:`Goal`) RETURN g.object_uuid' % \
                 (object_uuid)
         res, col = db.cypher_query(query)
-        if not res:
+        try:
+            return res[0][0]
+        except IndexError:
             return None
-        return res[0][0]
 
     @classmethod
     def get_applied_to(cls, object_uuid):
@@ -75,18 +76,20 @@ class Donation(SBObject):
         query = 'MATCH (d:`Donation` {object_uuid: "%s"})-' \
                 '[:DONATED_TO]->(c:`Campaign`) RETURN c.object_uuid' % (object_uuid)
         res, col = db.cypher_query(query)
-        if not res:
+        try:
+            return res[0][0]
+        except IndexError:
             return None
-        return res[0][0]
 
     @classmethod
     def get_owner(cls, object_uuid):
         query = 'MATCH (d:`Donation` {object_uuid: "%s"}) ' \
                 'RETURN d.owner_username' % (object_uuid)
         res, col = db.cypher_query(query)
-        if not res:
+        try:
+            return res[0][0]
+        except IndexError:
             return None
-        return res[0][0]
 
 
 class PoliticalDonation(Donation):

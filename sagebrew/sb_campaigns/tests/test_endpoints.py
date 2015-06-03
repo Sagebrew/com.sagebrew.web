@@ -1,5 +1,6 @@
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.core.cache import cache
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -12,6 +13,7 @@ from sb_campaigns.neo_models import PoliticalCampaign, Position
 
 class CampaignEndpointTests(APITestCase):
     def setUp(self):
+        cache.clear()
         self.unit_under_test_name = 'campaign'
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
@@ -621,6 +623,30 @@ class CampaignEndpointTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['detail'], 'Successfully pledged vote.')
+
+    def test_rounds(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('round-list',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_updates(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('goal-list',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_goals(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('update-list',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class PositionEndpointTests(APITestCase):

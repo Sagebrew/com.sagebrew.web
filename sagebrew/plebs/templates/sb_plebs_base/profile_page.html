@@ -13,12 +13,13 @@
     <div class="row">
         <div class="col-md-12 wallpaper-wrapper">
            <div class="thumbnail sb_profile_pic">
+               {% static 'images/sage_coffee_grey-01.png' as default_profile %}
                {% if request.user.username == page_user.username %}
                    <div id="cropProfilePageEyecandy">
-                       <img id="profile_pic" src="{{ page_profile.profile_pic }}">
+                       <img id="profile_pic" src="{{ page_profile.profile_pic|default_if_none:default_profile }}">
                    </div>
                {% else %}
-                  <img id="profile_pic" src="{{ page_profile.profile_pic }}">
+                  <img id="profile_pic" src="{{ page_profile.profile_pic|default_if_none:default_profile }}">
                {% endif %}
            </div>
            <div>

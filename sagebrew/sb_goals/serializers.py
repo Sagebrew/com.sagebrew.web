@@ -62,6 +62,17 @@ class GoalSerializer(CampaignAttributeSerializer):
             goal.associated_round.connect(campaign_round)
         return goal
 
+    def update(self, instance, validated_data):
+        instance.title = validated_data.pop('title', instance.title)
+        instance.summary = validated_data.pop('summary', instance.summary)
+        instance.description = validated_data.pop('description',
+                                                  instance.description)
+        instance.pledged_vote_requirement = validated_data.pop(
+            'pledged_vote_requirement', instance.pledged_vote_requirement)
+        instance.monetary_requirement = validated_data.pop(
+            'monetary_requirement', instance.monetary_requirement)
+        instance.save()
+        return instance
 
     def get_updates(self, obj):
         request, _, _, relation, _ = gather_request_data(self.context)

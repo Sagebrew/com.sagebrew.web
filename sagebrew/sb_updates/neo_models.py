@@ -33,6 +33,7 @@ class Update(TitledContent):
         query = 'MATCH (u:`Update` {object_uuid:"%s"})-[:ON_THE]-' \
                 '(c:`Campaign`) RETURN c.object_uuid' % (object_uuid)
         res, col = db.cypher_query(query)
-        if not res:
+        try:
+            return res[0][0]
+        except IndexError:
             return None
-        return res[0][0]

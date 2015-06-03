@@ -80,7 +80,7 @@ class GoalRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
         if (queryset.completed or queryset.active):
             return Response({"status_code": status.HTTP_405_METHOD_NOT_ALLOWED,
                              "detail": "You cannot delete a completed "
-                                       "or active goal"},
+                                       "or active goal."},
                             status=status.HTTP_405_METHOD_NOT_ALLOWED)
         return super(GoalRetrieveUpdateDestroy, self).destroy(request, *args,
                                                               **kwargs)

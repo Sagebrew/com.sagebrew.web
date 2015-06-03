@@ -55,16 +55,14 @@ class VotableContentSerializer(SBSerializer):
 
     def get_profile(self, obj):
         request, expand, _, _, _ = gather_request_data(self.context)
-        try:
-            owner = obj.owned_by.all()[0]
-        except(CypherException, IOError, IndexError):
-            return None
+        owner_username = obj.owner_username
         if expand == "true":
+            owner = Pleb.get(username=owner_username)
             profile_dict = PlebSerializerNeo(
                 owner, context={'request': request}).data
         else:
             profile_dict = reverse('profile-detail',
-                                   kwargs={"username": owner.username},
+                                   kwargs={"username": owner_username},
                                    request=request)
         return profile_dict
 
@@ -99,8 +97,7 @@ class ContentSerializer(VotableContentSerializer):
     flagged_by = serializers.SerializerMethodField()
 
     def get_flagged_by(self, obj):
-        res = obj.get_flagged_by()
-        return [Pleb.inflate(row[0]).username for row in res]
+        return obj.get_flagged_by()
 
 
 class MarkdownContentSerializer(ContentSerializer):

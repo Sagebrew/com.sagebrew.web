@@ -92,11 +92,12 @@ class CampaignSerializer(SBSerializer):
 
     def get_rounds(self, obj):
         request, _, _, relation, _ = gather_request_data(self.context)
+        rounds = Campaign.get_rounds(obj.object_uuid)
         if relation == 'hyperlink':
-            return reverse('round-list',
-                           kwargs={'object_uuid': obj.object_uuid},
-                           request=request)
-        return Campaign.get_rounds(obj.object_uuid)
+            return [reverse('round-detail',
+                            kwargs={'object_uuid': c_round},
+                            request=request) for c_round in rounds]
+        return rounds
 
     def get_active_round(self, obj):
         request, _, _, relation, _ = gather_request_data(self.context)

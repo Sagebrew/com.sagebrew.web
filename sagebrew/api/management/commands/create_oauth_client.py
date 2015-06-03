@@ -55,4 +55,3 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.create_oauth_client()
-        print "OAuth2.0 Client Created"

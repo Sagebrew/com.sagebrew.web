@@ -1,5 +1,17 @@
 /*global $, jQuery, ajaxSecurity, guid, Croppic*/
 $(document).ready(function () {
+    /*
+    Can manipulate converter hooks by doing the following:
+    'converter_hooks': [
+            {
+                'event': 'plainLinkText',
+                'callback': function (url) {
+                    return "heello";
+            }
+        }
+
+        ],
+     */
     "use strict";
     $("textarea#question_content_id").pagedownBootstrap({
         "sanatize": false,

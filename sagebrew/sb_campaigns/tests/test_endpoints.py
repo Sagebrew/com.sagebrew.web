@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from plebs.neo_models import Pleb
+from sb_updates.neo_models import Update
 from sb_goals.neo_models import Goal, Round
 from sb_registration.utils import create_user_util_test
 
@@ -785,6 +786,17 @@ class CampaignEndpointTests(APITestCase):
         response = self.client.post(url, data=data, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_create_render(self):
+        self.client.force_authenticate(user=self.user)
+        update = Update(content='test content', title='test title').save()
+        self.campaign.updates.connect(update)
+        url = reverse('update-render',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNotNone(response.data['results']['html'])
 
 
 class PositionEndpointTests(APITestCase):

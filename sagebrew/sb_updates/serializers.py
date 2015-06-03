@@ -25,11 +25,9 @@ class UpdateSerializer(TitledContentSerializer):
     def create(self, validated_data):
         request, _, _, _, _ = gather_request_data(self.context)
         campaign = validated_data.pop('campaign', None)
-        print campaign
         validated_data['content'] = bleach.clean(validated_data.get(
             'content', ""))
         owner = Pleb.get(request.user.username)
-        print owner
         validated_data['owner_username'] = owner.username
         update = Update(**validated_data).save()
         update.campaign.connect(campaign)
@@ -37,7 +35,6 @@ class UpdateSerializer(TitledContentSerializer):
         update.owned_by.connect(owner)
         update_for = Goal.inflate(Campaign.get_current_target_goal(
             campaign.object_uuid))
-        print update_for
         cache.set("%s_target_goal" % (campaign.object_uuid), update_for)
         update_for.updates.connect(update)
         update.goals.connect(update_for)
